@@ -283,11 +283,8 @@ export const useGetEvidenceList = ({ orderBy, pagination, where, enabled = true 
   }
 }
 
-type EvidenceLightAssocNode = { id: string; refCode: string }
-export type EvidenceLight = Pick<Evidence, 'id' | 'name' | 'status' | 'source' | 'updatedAt' | 'updatedBy' | 'displayID'> & {
-  controls?: { edges?: Array<{ node?: EvidenceLightAssocNode | null } | null> | null }
-  subcontrols?: { edges?: Array<{ node?: EvidenceLightAssocNode | null } | null> | null }
-}
+type EvidenceLightEdge = NonNullable<NonNullable<GetEvidenceListLightQuery['evidences']['edges']>[number]>
+export type EvidenceLight = NonNullable<EvidenceLightEdge['node']>
 
 export const useGetEvidenceListLight = ({ orderBy, pagination, where, enabled = true }: TGetEvidenceListProps) => {
   const { client } = useGraphQLClient()
@@ -303,7 +300,7 @@ export const useGetEvidenceListLight = ({ orderBy, pagination, where, enabled = 
     enabled,
   })
 
-  const evidences = (queryResult.data?.evidences?.edges?.map((edge) => edge?.node) ?? []) as EvidenceLight[]
+  const evidences = (queryResult.data?.evidences?.edges?.map((edge) => edge?.node) ?? []).filter((node): node is EvidenceLight => !!node)
 
   const paginationMeta = {
     totalCount: queryResult.data?.evidences?.totalCount ?? 0,

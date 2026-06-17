@@ -2,21 +2,16 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { type ControlControlStatus, type EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
+import { type ControlControlStatus } from '@repo/codegen/src/schema'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { CONTROL_STATUS_STYLES } from '@/components/shared/enum-mapper/control-enum'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export type OrgCoverageData = {
   approvedCount: number
   activeCount: number
   worstStatus: ControlControlStatus | null
   orgControlRefs: Array<{ id: string; refCode: string; status?: string | null }>
-  evidenceTotalCount: number
-  evidenceApprovedCount: number
-  evidenceWorstStatus: EvidenceEvidenceStatus | null
-  evidenceCountByStatus: Partial<Record<EvidenceEvidenceStatus, number>>
-  evidenceRefs: Array<{ id: string; name: string; status?: string | null; controlId: string }>
-  linkedPolicies: Array<{ id: string; name: string }>
 }
 
 type Props = {
@@ -44,7 +39,7 @@ const OrgCoverageCell: React.FC<Props> = ({ data }) => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="text-xs font-medium px-2 py-0.5 rounded-full shrink-0 cursor-default" style={{ backgroundColor: statusStyle.bg, color: statusStyle.color }}>
-                  {statusStyle.label}
+                  {getEnumLabel(worstStatus ?? undefined)}
                 </span>
               </TooltipTrigger>
               <TooltipContent side="top" collisionPadding={64}>
@@ -56,7 +51,7 @@ const OrgCoverageCell: React.FC<Props> = ({ data }) => {
                       <div key={ref.id} className="flex items-center gap-2">
                         {refStyle ? (
                           <span className="text-[10px] px-1.5 py-0.5 rounded-full shrink-0" style={{ backgroundColor: refStyle.bg, color: refStyle.color }}>
-                            {refStyle.label}
+                            {getEnumLabel(ref.status ?? undefined)}
                           </span>
                         ) : (
                           <span className="text-[10px] px-1.5 py-0.5 rounded-full shrink-0 bg-muted text-muted-foreground">—</span>

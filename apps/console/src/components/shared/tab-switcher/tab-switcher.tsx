@@ -44,6 +44,7 @@ const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: external
   return (
     <div className="flex items-center p-[3px] gap-1 border rounded-md cursor-pointer overflow-hidden bg-background">
       <button
+        type="button"
         className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${active === 'dashboard' ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
         onClick={() => setActive('dashboard')}
       >
@@ -52,6 +53,7 @@ const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: external
       </button>
 
       <button
+        type="button"
         className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${active === 'table' ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
         onClick={() => setActive('table')}
       >

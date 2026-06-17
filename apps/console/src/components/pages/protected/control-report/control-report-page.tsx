@@ -3,10 +3,9 @@
 import React, { use, useCallback, useEffect, useMemo, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
-import { type ControlGroupItem, useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/control'
-import { useOrgCoverageMap, useFrameworkCoverageMap } from '@/lib/graphql-hooks/mapped-control'
+import { type ControlReportItem, useControlReportsByCategory } from '@/lib/graphql-hooks/control'
 import { Accordion } from '@radix-ui/react-accordion'
-import { ControlControlStatus, EvidenceEvidenceStatus, type ControlWhereInput } from '@repo/codegen/src/schema'
+import { ControlControlStatus, type ControlWhereInput } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -18,6 +17,7 @@ import ReportBulkActionBar from './report-bulk-action-bar'
 import ReportCategory from './report-category'
 import ReportEmptyState from './report-empty-state'
 import { useReportSelection } from './use-report-selection'
+import { getOrgRelatedControls, getFrameworkRelatedControls } from './report-coverage'
 
 type TControlReportPageProps = {
   active: 'dashboard' | 'table'
@@ -79,7 +79,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     return base
   }, [effectiveStandard])
 
-  const { data, isLoading, isFetching } = useGetControlsGroupedByCategoryResolver({
+  const { data, isLoading, isFetching } = useControlReportsByCategory({
     where,
     enabled: Boolean(currentOrgId),
   })
@@ -99,10 +99,19 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
 
   const hasNoControls = !sortedData || sortedData.length === 0 || sortedData.every((entry) => entry.controls.length === 0)
 
-  const allControlRows = useMemo(() => (sortedData ?? []).flatMap((entry) => entry.controls.map((c) => ({ id: c.id, refCode: c.refCode, referenceFramework: c.referenceFramework }))), [sortedData])
-  const allControlIds = useMemo(() => allControlRows.map((r) => r.id), [allControlRows])
-  const orgCoverageMap = useOrgCoverageMap(isCustomView ? [] : allControlRows)
-  const frameworkCoverageMap = useFrameworkCoverageMap(isCustomView ? allControlIds : [])
+  const mappedControlIdsByControl = useMemo(() => {
+    const map = new Map<string, string[]>()
+    for (const entry of sortedData ?? []) {
+      for (const control of entry.controls) {
+        const related = isCustomView ? getFrameworkRelatedControls(control.relatedControls) : getOrgRelatedControls(control.relatedControls)
+        map.set(
+          control.id,
+          related.map((r) => r.id),
+        )
+      }
+    }
+    return map
+  }, [sortedData, isCustomView])
 
   const filteredSortedData = useMemo(() => {
     if (!sortedData || reportFilters.size === 0) return sortedData
@@ -111,39 +120,26 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
       .map((entry) => ({
         ...entry,
         controls: entry.controls.filter((control) => {
-          const coverageData = orgCoverageMap.get(control.id)
-          const frameworkData = frameworkCoverageMap.get(control.id)
-
-          const mappedEvidenceRefs = isCustomView ? [...(frameworkData?.evidenceRefs ?? []), ...(coverageData?.evidenceRefs ?? [])] : (coverageData?.evidenceRefs ?? [])
-          const seen = new Set<string>()
-          const allEvidenceRefs = [...(control.evidenceRefs ?? []), ...mappedEvidenceRefs].filter((r) => {
-            if (seen.has(r.id)) return false
-            seen.add(r.id)
-            return true
-          })
-          const evidenceTotal = allEvidenceRefs.length
-
-          const seenPolicies = new Set<string>()
-          const policies = [...(control.linkedPolicies ?? []), ...(isCustomView ? (frameworkData?.linkedPolicies ?? []) : (coverageData?.linkedPolicies ?? []))].filter((p) => {
-            if (seenPolicies.has(p.id)) return false
-            seenPolicies.add(p.id)
-            return true
-          })
+          const evidenceTotal = control.evidenceStatus?.totalCount ?? 0
+          const evidenceApproved = control.evidenceStatus?.approvedCount ?? 0
+          const policyCount = control.linkedPolicies?.totalCount ?? 0
+          const orgRelatedCount = getOrgRelatedControls(control.relatedControls).length
+          const frameworkRelatedCount = getFrameworkRelatedControls(control.relatedControls).length
 
           for (const filterId of reportFilters) {
             if (filterId === 'NOT_APPROVED' && control.status !== ControlControlStatus.APPROVED) return true
             if (filterId === 'NO_OWNER' && !control.controlOwner) return true
             if (filterId === 'NO_EVIDENCE' && evidenceTotal === 0) return true
-            if (filterId === 'EVIDENCE_NON_APPROVED' && evidenceTotal > 0 && allEvidenceRefs.some((r) => r.status !== EvidenceEvidenceStatus.AUDITOR_APPROVED)) return true
-            if (filterId === 'NO_POLICIES' && policies.length === 0) return true
-            if (filterId === 'NO_ORG_CONTROLS' && !isCustomView && (!coverageData || coverageData.orgControlRefs.length === 0)) return true
-            if (filterId === 'NO_FRAMEWORK_CONTROLS' && isCustomView && (!frameworkData || frameworkData.frameworkControlRefs.length === 0)) return true
+            if (filterId === 'EVIDENCE_NON_APPROVED' && evidenceTotal > 0 && evidenceApproved < evidenceTotal) return true
+            if (filterId === 'NO_POLICIES' && policyCount === 0) return true
+            if (filterId === 'NO_ORG_CONTROLS' && !isCustomView && orgRelatedCount === 0) return true
+            if (filterId === 'NO_FRAMEWORK_CONTROLS' && isCustomView && frameworkRelatedCount === 0) return true
           }
           return false
         }),
       }))
       .filter((entry) => entry.controls.length > 0)
-  }, [sortedData, reportFilters, orgCoverageMap, frameworkCoverageMap, isCustomView])
+  }, [sortedData, reportFilters, isCustomView])
 
   useEffect(() => {
     if (isSuccessStandards && standardOptions.length > 0 && localStorage.getItem(REPORT_STANDARD_KEY) === null) {
@@ -168,7 +164,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   const groups = useMemo(() => (groupsData?.groups?.edges ?? []).map((e) => e?.node).filter((g): g is NonNullable<typeof g> => !!g), [groupsData])
 
   const { selectedControlIds, selectedSubcontrolIds, toggleControlSelection, toggleSubcontrolSelection, batchSelectSubcontrols, setSelectionForCategory, clearSelection, handleBulkAction } =
-    useReportSelection({ orgCoverageMap, frameworkCoverageMap, isCustomView })
+    useReportSelection({ mappedControlIdsByControl })
 
   const toggleReportFilter = useCallback((filterId: string) => {
     setReportFilters((prev) => {
@@ -192,8 +188,8 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   }
 
   const toggleCategorySubcontrols = useCallback(
-    (category: string, categoryControls: ControlGroupItem[]) => {
-      const withSubs = categoryControls.filter((c) => c.subcontrolCount > 0)
+    (category: string, categoryControls: ControlReportItem[]) => {
+      const withSubs = categoryControls.filter((c) => (c.subcontrols?.length ?? 0) > 0)
       const allExpanded = withSubs.every((c) => expandedControls[c.id])
       setExpandedControls((prev) => {
         const next = { ...prev }
@@ -295,8 +291,6 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
                     onSelectAllControls={(ids) => setSelectionForCategory(ids, ids.length > 0)}
                     onSelectSubcontrol={toggleSubcontrolSelection}
                     onSelectAllSubcontrols={batchSelectSubcontrols}
-                    orgCoverageMap={orgCoverageMap}
-                    frameworkCoverageMap={frameworkCoverageMap}
                   />
                 )
               })}

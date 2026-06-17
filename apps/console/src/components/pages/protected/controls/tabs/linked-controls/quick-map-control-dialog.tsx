@@ -87,27 +87,38 @@ export const QuickMapControlDialog: React.FC<Props> = ({ controlId, subcontrolId
     if (selected.size === 0) return
     const fromInput = subcontrolId ? { fromSubcontrolIDs: [subcontrolId] } : controlId ? { fromControlIDs: [controlId] } : null
     if (!fromInput) return
-    try {
-      await Promise.all(
-        Array.from(selected).map((toControlId) =>
-          createMappedControl({
-            input: {
-              ...fromInput,
-              toControlIDs: [toControlId],
-              confidence: 100,
-              source: MappedControlMappingSource.MANUAL,
-              mappingType: MappedControlMappingType.PARTIAL,
-            },
-          }),
-        ),
-      )
-      toast.success(`Mapped ${selected.size} control${selected.size !== 1 ? 's' : ''}`)
-      setOpen(false)
-      setSelected(new Set())
-      setSearch('')
-    } catch {
-      toast.error('Failed to create mapping')
+
+    const ids = Array.from(selected)
+    const results = await Promise.allSettled(
+      ids.map((toControlId) =>
+        createMappedControl({
+          input: {
+            ...fromInput,
+            toControlIDs: [toControlId],
+            confidence: 100,
+            source: MappedControlMappingSource.MANUAL,
+            mappingType: MappedControlMappingType.PARTIAL,
+          },
+        }),
+      ),
+    )
+
+    const failedIds = ids.filter((_, index) => results[index].status === 'rejected')
+    const succeededCount = ids.length - failedIds.length
+
+    if (succeededCount > 0) {
+      toast.success(`Mapped ${succeededCount} control${succeededCount !== 1 ? 's' : ''}`)
     }
+
+    if (failedIds.length > 0) {
+      toast.error(`Failed to map ${failedIds.length} control${failedIds.length !== 1 ? 's' : ''}`)
+      setSelected(new Set(failedIds))
+      return
+    }
+
+    setOpen(false)
+    setSelected(new Set())
+    setSearch('')
   }
 
   const handleOpenChange = (next: boolean) => {

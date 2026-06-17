@@ -45,7 +45,7 @@ const EditMapControlPage = () => {
   const [droppedControlsFrom, setDroppedControlsFrom] = useState<MapControl[]>([])
   const [droppedControlsTo, setDroppedControlsTo] = useState<MapControl[]>([])
   const { mutateAsync: update, data: updateData, isPending } = useUpdateMappedControl()
-  const { mutateAsync: deleteMappedControl } = useDeleteMappedControl()
+  const { mutateAsync: deleteMappedControl, isPending: isDeleting } = useDeleteMappedControl()
 
   const isControl = !subcontrolId && !!id
   const isSubControl = !!subcontrolId
@@ -254,7 +254,7 @@ const EditMapControlPage = () => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Controls - ${isSubControl ? subcontrolData?.subcontrol?.refCode : controlData?.control?.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-6">
-          <SlideBarLayout sidebarContent={<MapControlsRelations onDelete={mappedControlId ? handleDelete : undefined} />}>
+          <SlideBarLayout sidebarContent={<MapControlsRelations onDelete={mappedControlId ? handleDelete : undefined} deleteLoading={isDeleting} />}>
             <div className="p-8 space-y-6">
               <div>
                 <h1 className="text-2xl font-bold">Map Controls</h1>

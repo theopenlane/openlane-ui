@@ -26,7 +26,7 @@ const ReportBulkActionBar: React.FC<ReportBulkActionBarProps> = ({ selectedContr
   const [ownerPopoverOpen, setOwnerPopoverOpen] = useState(false)
   const [statusPopoverOpen, setStatusPopoverOpen] = useState(false)
   const [pendingOwnerId, setPendingOwnerId] = useState('')
-  const [pendingStatus, setPendingStatus] = useState('')
+  const [pendingStatus, setPendingStatus] = useState<ControlControlStatus | ''>('')
   const [ownerCascade, setOwnerCascade] = useState({ sub: false, mapped: false })
   const [statusCascade, setStatusCascade] = useState({ sub: false, mapped: false })
 
@@ -56,7 +56,7 @@ const ReportBulkActionBar: React.FC<ReportBulkActionBarProps> = ({ selectedContr
             <SelectContent>
               {groups.map((g) => (
                 <SelectItem key={g.id} value={g.id}>
-                  {g.displayName}
+                  {g.displayName ?? g.id}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -95,7 +95,7 @@ const ReportBulkActionBar: React.FC<ReportBulkActionBarProps> = ({ selectedContr
         </PopoverTrigger>
         <PopoverContent align="start" className="w-72 space-y-3 p-4">
           <p className="text-sm font-medium">Set Status</p>
-          <Select value={pendingStatus} onValueChange={setPendingStatus}>
+          <Select value={pendingStatus} onValueChange={(v) => setPendingStatus(v as ControlControlStatus)}>
             <SelectTrigger className="h-8">
               <SelectValue placeholder="Select status…" />
             </SelectTrigger>
@@ -122,7 +122,7 @@ const ReportBulkActionBar: React.FC<ReportBulkActionBarProps> = ({ selectedContr
             className="w-full h-8"
             disabled={!pendingStatus}
             onClick={() => {
-              onApply({ status: pendingStatus as ControlControlStatus }, { subcontrols: statusCascade.sub, mappedControls: statusCascade.mapped })
+              onApply({ status: pendingStatus || undefined }, { subcontrols: statusCascade.sub, mappedControls: statusCascade.mapped })
               setStatusPopoverOpen(false)
               setPendingStatus('')
               setStatusCascade({ sub: false, mapped: false })

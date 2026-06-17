@@ -679,76 +679,87 @@ export const GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS = gql`
   }
 `
 
-export const GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER = gql`
-  query GetControlsGroupedByCategoryResolver($where: ControlWhereInput, $category: String, $after: Cursor) {
-    controlsGroupByCategory(where: $where, category: $category, after: $after) {
-      edges {
-        node {
-          category
-          controls {
+export const CONTROL_REPORTS_BY_CATEGORY = gql`
+  query ControlReportsByCategory($where: ControlWhereInput) {
+    controlReportsByCategory(where: $where) {
+      category
+      totalCount
+      controls {
+        id
+        refCode
+        title
+        description
+        status
+        category
+        subcategory
+        referenceFramework
+        controlOwner {
+          displayName
+          gravatarLogoURL
+          avatarFile {
+            base64
+          }
+        }
+        relatedControls {
+          id
+          refCode
+          status
+          referenceFramework
+          isSubcontrol
+        }
+        linkedPolicies {
+          totalCount
+          internalPolicies {
+            id
+            name
+            status
+          }
+        }
+        evidenceStatus {
+          totalCount
+          worstStatus
+          approvedCount
+          countByStatus {
+            status
             totalCount
-            pageInfo {
-              endCursor
-              hasNextPage
+          }
+        }
+        subcontrols {
+          id
+          refCode
+          title
+          description
+          status
+          referenceFramework
+          controlOwner {
+            displayName
+            gravatarLogoURL
+            avatarFile {
+              base64
             }
-            edges {
-              node {
-                __typename
-                id
-                refCode
-                description
-                status
-                referenceFramework
-                subcontrols {
-                  totalCount
-                  edges {
-                    node {
-                      id
-                      evidence {
-                        edges {
-                          node {
-                            id
-                            name
-                            status
-                          }
-                        }
-                      }
-                      internalPolicies {
-                        edges {
-                          node {
-                            id
-                            name
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-                evidence {
-                  edges {
-                    node {
-                      id
-                      name
-                      status
-                    }
-                  }
-                }
-                controlOwner {
-                  displayName
-                  gravatarLogoURL
-                  avatarFile {
-                    base64
-                  }
-                }
-                internalPolicies {
-                  edges {
-                    node {
-                      id
-                      name
-                    }
-                  }
-                }
-              }
+          }
+          relatedControls {
+            id
+            refCode
+            status
+            referenceFramework
+            isSubcontrol
+          }
+          linkedPolicies {
+            totalCount
+            internalPolicies {
+              id
+              name
+              status
+            }
+          }
+          evidenceStatus {
+            totalCount
+            worstStatus
+            approvedCount
+            countByStatus {
+              status
+              totalCount
             }
           }
         }

@@ -60,12 +60,12 @@ export const ORG_COVERAGE_SEVERITY_ORDER: ControlControlStatus[] = [
   ControlControlStatus.APPROVED,
 ]
 
-export const CONTROL_STATUS_STYLES: Partial<Record<ControlControlStatus, { bg: string; color: string; label: string }>> = {
-  [ControlControlStatus.CHANGES_REQUESTED]: { bg: 'color-mix(in srgb, var(--color-changes-requested) 15%, transparent)', color: 'var(--color-changes-requested)', label: 'Changes Requested' },
-  [ControlControlStatus.NEEDS_APPROVAL]: { bg: 'color-mix(in srgb, var(--color-needs-approval) 15%, transparent)', color: 'var(--color-needs-approval)', label: 'Needs Approval' },
-  [ControlControlStatus.PREPARING]: { bg: 'color-mix(in srgb, var(--color-preparing) 15%, transparent)', color: 'var(--color-preparing)', label: 'Preparing' },
-  [ControlControlStatus.NOT_IMPLEMENTED]: { bg: 'color-mix(in srgb, var(--color-not-implemented) 15%, transparent)', color: 'var(--color-not-implemented)', label: 'Not Implemented' },
-  [ControlControlStatus.APPROVED]: { bg: 'color-mix(in srgb, var(--color-approved) 15%, transparent)', color: 'var(--color-approved)', label: 'Approved' },
+export const CONTROL_STATUS_STYLES: Partial<Record<ControlControlStatus, { bg: string; color: string }>> = {
+  [ControlControlStatus.CHANGES_REQUESTED]: { bg: 'color-mix(in srgb, var(--color-changes-requested) 15%, transparent)', color: 'var(--color-changes-requested)' },
+  [ControlControlStatus.NEEDS_APPROVAL]: { bg: 'color-mix(in srgb, var(--color-needs-approval) 15%, transparent)', color: 'var(--color-needs-approval)' },
+  [ControlControlStatus.PREPARING]: { bg: 'color-mix(in srgb, var(--color-preparing) 15%, transparent)', color: 'var(--color-preparing)' },
+  [ControlControlStatus.NOT_IMPLEMENTED]: { bg: 'color-mix(in srgb, var(--color-not-implemented) 15%, transparent)', color: 'var(--color-not-implemented)' },
+  [ControlControlStatus.APPROVED]: { bg: 'color-mix(in srgb, var(--color-approved) 15%, transparent)', color: 'var(--color-approved)' },
 }
 
 export const ControlStatusOrder: ControlControlStatus[] = [

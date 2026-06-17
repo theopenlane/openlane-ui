@@ -9,6 +9,7 @@ const TableCardView = ({ onTabChange, activeTab }: TTableCardViewProps) => {
   return (
     <div className="flex items-center p-[3px] gap-1 border rounded-md bg-background">
       <button
+        type="button"
         aria-label="Table view"
         className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${activeTab === 'table' ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
         onClick={() => onTabChange('table')}
@@ -17,6 +18,7 @@ const TableCardView = ({ onTabChange, activeTab }: TTableCardViewProps) => {
         <span>Table</span>
       </button>
       <button
+        type="button"
         aria-label="Card view"
         className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${activeTab === 'card' ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
         onClick={() => onTabChange('card')}

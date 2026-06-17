@@ -5,30 +5,26 @@ import { AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/rea
 import { ChevronDown, ChevronsUpDown } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
-import { type ControlGroupItem } from '@/lib/graphql-hooks/control'
-import { type FrameworkCoverageData } from '@/lib/graphql-hooks/mapped-control'
-import { type OrgCoverageData } from './org-coverage-cell'
+import { type ControlReportItem } from '@/lib/graphql-hooks/control'
 import ControlTableHeader from './control-table-header'
 import ControlRow from './control-row'
 import SubcontrolRows from './subcontrol-rows'
 
 type ReportCategoryProps = {
   category: string
-  controls: ControlGroupItem[]
+  controls: ControlReportItem[]
   isOpen: boolean
   isCustomView: boolean
   isSelectionMode: boolean
   expandedControls: Record<string, boolean>
   onToggleControl: (id: string) => void
-  onToggleCategorySubcontrols: (category: string, controls: ControlGroupItem[]) => void
+  onToggleCategorySubcontrols: (category: string, controls: ControlReportItem[]) => void
   selectedControlIds: Set<string>
   selectedSubcontrolIds: Set<string>
   onSelectControl: (id: string, checked: boolean) => void
   onSelectAllControls: (ids: string[]) => void
   onSelectSubcontrol: (id: string, checked: boolean) => void
   onSelectAllSubcontrols: (ids: string[], checked: boolean) => void
-  orgCoverageMap: Map<string, OrgCoverageData>
-  frameworkCoverageMap: Map<string, FrameworkCoverageData>
 }
 
 const ReportCategory: React.FC<ReportCategoryProps> = ({
@@ -46,11 +42,9 @@ const ReportCategory: React.FC<ReportCategoryProps> = ({
   onSelectAllControls,
   onSelectSubcontrol,
   onSelectAllSubcontrols,
-  orgCoverageMap,
-  frameworkCoverageMap,
 }) => {
-  const hasSubs = controls.some((c) => c.subcontrolCount > 0)
-  const allSubsExpanded = controls.filter((c) => c.subcontrolCount > 0).every((c) => expandedControls[c.id])
+  const hasSubs = controls.some((c) => (c.subcontrols?.length ?? 0) > 0)
+  const allSubsExpanded = controls.filter((c) => (c.subcontrols?.length ?? 0) > 0).every((c) => expandedControls[c.id])
   const approvedCount = controls.filter((c) => c.status === ControlControlStatus.APPROVED).length
   const approvalPct = controls.length > 0 ? (approvedCount / controls.length) * 100 : 0
   const accentColor = approvalPct === 100 ? '#22c55e' : approvalPct > 0 ? '#fbbf24' : 'var(--color-border)'
@@ -101,14 +95,14 @@ const ReportCategory: React.FC<ReportCategoryProps> = ({
                 onToggle={() => onToggleControl(control.id)}
                 isCustomView={isCustomView}
                 isSelectionMode={isSelectionMode}
-                coverageData={orgCoverageMap.get(control.id)}
-                frameworkData={frameworkCoverageMap.get(control.id)}
                 selected={selectedControlIds.has(control.id)}
                 onSelect={onSelectControl}
               />
               {expandedControls[control.id] && (
                 <SubcontrolRows
+                  subcontrols={control.subcontrols ?? []}
                   controlId={control.id}
+                  controlOwner={control.controlOwner}
                   isCustomView={isCustomView}
                   isSelectionMode={isSelectionMode}
                   selectedSubcontrolIds={selectedSubcontrolIds}

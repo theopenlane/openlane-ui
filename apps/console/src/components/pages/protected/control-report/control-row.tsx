@@ -4,63 +4,41 @@ import React from 'react'
 import Link from 'next/link'
 import { ChevronRight, TriangleAlert } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type ControlGroupItem } from '@/lib/graphql-hooks/control'
-import { type FrameworkCoverageData, EVIDENCE_SEVERITY_ORDER } from '@/lib/graphql-hooks/mapped-control'
-import { type ControlControlStatus, EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
+import { type ControlReportItem } from '@/lib/graphql-hooks/control'
+import { type ControlControlStatus } from '@repo/codegen/src/schema'
 import { CONTROL_STATUS_STYLES } from '@/components/shared/enum-mapper/control-enum'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Checkbox } from '@repo/ui/checkbox'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { type MapControl } from '@/types'
 import ControlChip from '../controls/map-controls/shared/control-chip'
-import OrgCoverageCell, { type OrgCoverageData } from './org-coverage-cell'
+import OrgCoverageCell from './org-coverage-cell'
 import EvidenceCoverageCell from './evidence-coverage-cell'
 import { getGridCols } from './control-report-grid'
+import { deriveOrgCoverage, getOrgRelatedControls, getFrameworkRelatedControls } from './report-coverage'
 
 type ControlRowProps = {
-  control: ControlGroupItem
+  control: ControlReportItem
   expanded: boolean
   onToggle: () => void
   isCustomView: boolean
   isSelectionMode: boolean
-  coverageData?: OrgCoverageData | null
-  frameworkData?: FrameworkCoverageData | null
   selected: boolean
   onSelect: (id: string, checked: boolean) => void
 }
 
-const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, isCustomView, isSelectionMode, coverageData, frameworkData, selected, onSelect }) => {
-  const hasSubcontrols = control.subcontrolCount > 0
+const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, isCustomView, isSelectionMode, selected, onSelect }) => {
+  const hasSubcontrols = (control.subcontrols?.length ?? 0) > 0
   const gridCols = getGridCols(isCustomView, isSelectionMode)
   const { convertToReadOnly } = usePlateEditor()
 
-  const ownEvidenceRefs = (control.evidenceRefs ?? []).map((r) => ({ ...r, controlId: control.id }))
-  const mappedEvidenceRefs = isCustomView ? [...(frameworkData?.evidenceRefs ?? []), ...(coverageData?.evidenceRefs ?? [])] : (coverageData?.evidenceRefs ?? [])
-  const seenEvidenceIds = new Set<string>()
-  const allEvidenceRefs = [...ownEvidenceRefs, ...mappedEvidenceRefs].filter((r) => {
-    if (seenEvidenceIds.has(r.id)) return false
-    seenEvidenceIds.add(r.id)
-    return true
-  })
-  const evidenceTotal = allEvidenceRefs.length
-  const evidenceApproved = allEvidenceRefs.filter((r) => r.status === EvidenceEvidenceStatus.AUDITOR_APPROVED).length
-  const evidenceWorstStatus = allEvidenceRefs.reduce<EvidenceEvidenceStatus | null>((worst, r) => {
-    const s = r.status as EvidenceEvidenceStatus
-    if (!s) return worst
-    const idx = EVIDENCE_SEVERITY_ORDER.indexOf(s)
-    if (idx === -1) return worst
-    const worstIdx = worst ? EVIDENCE_SEVERITY_ORDER.indexOf(worst) : EVIDENCE_SEVERITY_ORDER.length
-    return idx < worstIdx ? s : worst
-  }, null)
-
+  const orgCoverage = deriveOrgCoverage(control.relatedControls)
   const controlStatusStyle = control.status ? CONTROL_STATUS_STYLES[control.status as ControlControlStatus] : null
-  const seenPolicyIds = new Set<string>()
-  const linkedPolicies = [...(control.linkedPolicies ?? []), ...(isCustomView ? (frameworkData?.linkedPolicies ?? []) : (coverageData?.linkedPolicies ?? []))].filter((p) => {
-    if (seenPolicyIds.has(p.id)) return false
-    seenPolicyIds.add(p.id)
-    return true
-  })
+  const linkedPolicies = control.linkedPolicies?.internalPolicies ?? []
+  const orgRefs = getOrgRelatedControls(control.relatedControls)
+  const frameworkRefs = getFrameworkRelatedControls(control.relatedControls)
 
   return (
     <div
@@ -84,7 +62,7 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
         </Link>
         {controlStatusStyle && (
           <span className="mt-1 block text-[10px] px-1.5 py-0.5 rounded-full w-fit" style={{ backgroundColor: controlStatusStyle.bg, color: controlStatusStyle.color }}>
-            {controlStatusStyle.label}
+            {getEnumLabel(control.status ?? undefined)}
           </span>
         )}
       </div>
@@ -116,12 +94,12 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
 
       {!isCustomView && (
         <div>
-          <OrgCoverageCell data={coverageData ?? null} />
+          <OrgCoverageCell data={orgCoverage} />
         </div>
       )}
 
       <div onClick={(e) => e.stopPropagation()}>
-        <EvidenceCoverageCell totalCount={evidenceTotal} approvedCount={evidenceApproved} worstStatus={evidenceWorstStatus} evidenceRefs={allEvidenceRefs} primaryControlId={control.id} />
+        <EvidenceCoverageCell data={control.evidenceStatus} primaryControlId={control.id} />
       </div>
 
       <div className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
@@ -138,13 +116,13 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
 
       {isCustomView ? (
         <div className="flex flex-wrap gap-1.5" onClick={(e) => e.stopPropagation()}>
-          {frameworkData?.frameworkControlRefs?.map((ref) => (
-            <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode, referenceFramework: ref.framework } as MapControl} hideStandard />
+          {frameworkRefs.map((ref) => (
+            <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode, referenceFramework: ref.referenceFramework } as MapControl} hideStandard />
           ))}
         </div>
       ) : (
         <div className="flex flex-wrap gap-1.5" onClick={(e) => e.stopPropagation()}>
-          {coverageData?.orgControlRefs?.map((ref) => (
+          {orgRefs.map((ref) => (
             <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode } as MapControl} hideStandard hideHexagon />
           ))}
         </div>

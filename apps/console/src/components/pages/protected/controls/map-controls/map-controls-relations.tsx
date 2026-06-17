@@ -23,9 +23,10 @@ const relationTypes = [
 
 type Props = {
   onDelete?: () => Promise<void>
+  deleteLoading?: boolean
 }
 
-const MapControlsRelations = ({ onDelete }: Props) => {
+const MapControlsRelations = ({ onDelete, deleteLoading }: Props) => {
   const { control, setValue } = useFormContext()
   const router = useRouter()
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -149,6 +150,7 @@ const MapControlsRelations = ({ onDelete }: Props) => {
             open={confirmOpen}
             onOpenChange={setConfirmOpen}
             onConfirm={onDelete}
+            loading={deleteLoading}
             description="This action cannot be undone. This will permanently remove this control mapping."
           />
         </>

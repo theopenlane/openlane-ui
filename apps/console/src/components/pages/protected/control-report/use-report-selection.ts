@@ -1,20 +1,16 @@
 import { useCallback, useState } from 'react'
 import { useBulkEditControl, useBulkEditSubcontrol, useSubcontrolIdFetcher } from '@/lib/graphql-hooks/control'
-import { type FrameworkCoverageData } from '@/lib/graphql-hooks/mapped-control'
 import { useNotification } from '@/hooks/useNotification'
 import { type ControlControlStatus, SubcontrolControlStatus } from '@repo/codegen/src/schema'
-import { type OrgCoverageData } from './org-coverage-cell'
 
 type UseReportSelectionArgs = {
-  orgCoverageMap: Map<string, OrgCoverageData>
-  frameworkCoverageMap: Map<string, FrameworkCoverageData>
-  isCustomView: boolean
+  mappedControlIdsByControl: Map<string, string[]>
 }
 
 type BulkActionInput = { controlOwnerID?: string; status?: ControlControlStatus }
 type BulkActionOptions = { subcontrols: boolean; mappedControls: boolean }
 
-export const useReportSelection = ({ orgCoverageMap, frameworkCoverageMap, isCustomView }: UseReportSelectionArgs) => {
+export const useReportSelection = ({ mappedControlIdsByControl }: UseReportSelectionArgs) => {
   const [selectedControlIds, setSelectedControlIds] = useState<Set<string>>(() => new Set())
   const [selectedSubcontrolIds, setSelectedSubcontrolIds] = useState<Set<string>>(() => new Set())
   const { mutateAsync: bulkEditControl } = useBulkEditControl()
@@ -78,9 +74,7 @@ export const useReportSelection = ({ orgCoverageMap, frameworkCoverageMap, isCus
 
         let mappedControlIds: string[] = []
         if (options.mappedControls && ids.length > 0) {
-          mappedControlIds = isCustomView
-            ? [...new Set(ids.flatMap((id) => (frameworkCoverageMap.get(id)?.frameworkControlRefs ?? []).map((r) => r.id)))]
-            : [...new Set(ids.flatMap((id) => (orgCoverageMap.get(id)?.orgControlRefs ?? []).map((r) => r.id)))]
+          mappedControlIds = [...new Set(ids.flatMap((id) => mappedControlIdsByControl.get(id) ?? []))]
           if (mappedControlIds.length > 0) {
             await bulkEditControl({ ids: mappedControlIds, input })
           }
@@ -106,19 +100,7 @@ export const useReportSelection = ({ orgCoverageMap, frameworkCoverageMap, isCus
         errorNotification({ title: 'Error', description: 'Failed to apply bulk update' })
       }
     },
-    [
-      selectedControlIds,
-      selectedSubcontrolIds,
-      bulkEditControl,
-      bulkEditSubcontrol,
-      fetchSubcontrolIds,
-      orgCoverageMap,
-      frameworkCoverageMap,
-      isCustomView,
-      successNotification,
-      errorNotification,
-      clearSelection,
-    ],
+    [selectedControlIds, selectedSubcontrolIds, bulkEditControl, bulkEditSubcontrol, fetchSubcontrolIds, mappedControlIdsByControl, successNotification, errorNotification, clearSelection],
   )
 
   return {

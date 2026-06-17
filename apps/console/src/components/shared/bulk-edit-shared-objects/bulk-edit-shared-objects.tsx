@@ -72,24 +72,6 @@ export enum SelectOptionBulkEditControls {
   Tags = 'Tags',
 }
 
-export enum SelectOptionBulkEditSubcontrols {
-  Status = 'Status',
-  SubcontrolType = 'Subcontrol type',
-  ControlOwner = 'Control owner',
-  Category = 'Category',
-  SubCategory = 'Subcategory',
-  Tags = 'Tags',
-}
-
-export enum SelectOptionBulkEditLinkedControls {
-  Status = 'Status',
-  Type = 'Type',
-  ControlOwner = 'Control owner',
-  Category = 'Category',
-  SubCategory = 'Subcategory',
-  Tags = 'Tags',
-}
-
 export enum SelectOptionBulkEditPolicies {
   Status = 'Status',
   PolicyType = 'Policy type',
@@ -138,8 +120,6 @@ export enum SelectOptionBulkEditAssets {
 
 export type SelectOptionBulkEdit =
   | SelectOptionBulkEditControls
-  | SelectOptionBulkEditSubcontrols
-  | SelectOptionBulkEditLinkedControls
   | SelectOptionBulkEditPolicies
   | SelectOptionBulkEditProcedures
   | SelectOptionBulkEditRisks
