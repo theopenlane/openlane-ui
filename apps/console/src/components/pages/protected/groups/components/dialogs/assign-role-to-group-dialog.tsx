@@ -7,24 +7,14 @@ import { ManageAdditionalRolesDialog } from '@/components/shared/organization-ro
 import { useGroupRoleDialog } from './use-group-role-dialog'
 
 const AssignRoleToGroupDialog = () => {
-  const { open, setOpen, selectedGroup, groupName, currentRoleNames, disabled, onSaved } = useGroupRoleDialog()
+  const { open, setOpen, selectedGroup, groupName, currentRoleNames, disabled } = useGroupRoleDialog()
 
   return (
     <>
       <Button type="button" variant="secondary" icon={<Plus />} iconPosition="left" disabled={disabled} onClick={() => setOpen(true)}>
         Assign role to group
       </Button>
-      {selectedGroup && (
-        <ManageAdditionalRolesDialog
-          open={open}
-          onOpenChange={setOpen}
-          subjectType="group"
-          subjectIds={[selectedGroup]}
-          subjectName={groupName}
-          currentRoleNames={currentRoleNames}
-          onSaved={onSaved}
-        />
-      )}
+      {selectedGroup && <ManageAdditionalRolesDialog open={open} onOpenChange={setOpen} subjectType="group" subjectIds={[selectedGroup]} subjectName={groupName} currentRoleNames={currentRoleNames} />}
     </>
   )
 }

@@ -40,26 +40,28 @@ export const MembersBulkActions = ({ selectedMembers, onClear }: MembersBulkActi
   const userIds = selectedMembers.map((m) => m.user.id)
 
   const handleChangeRole = async () => {
-    try {
-      await Promise.all(selectedMembers.map((m) => updateMember({ updateOrgMemberId: m.id, input: { role: newRole } })))
+    const results = await Promise.allSettled(selectedMembers.map((m) => updateMember({ updateOrgMemberId: m.id, input: { role: newRole } })))
+    invalidateMembershipQueries(queryClient)
+    const failed = results.filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+    if (failed.length === 0) {
       successNotification({ title: `Updated base role for ${count} member(s)` })
-      invalidateMembershipQueries(queryClient)
       setShowChangeRole(false)
       onClear()
-    } catch (error) {
-      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+      return
     }
+    errorNotification({ title: 'Error', description: `Updated ${count - failed.length} of ${count} member(s); ${failed.length} failed: ${parseErrorMessage(failed[0].reason)}` })
   }
 
   const handleRemove = async () => {
-    try {
-      await Promise.all(selectedMembers.map((m) => deleteMember({ deleteOrgMembershipId: m.id })))
+    const results = await Promise.allSettled(selectedMembers.map((m) => deleteMember({ deleteOrgMembershipId: m.id })))
+    invalidateMembershipQueries(queryClient)
+    const failed = results.filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+    if (failed.length === 0) {
       successNotification({ title: `Removed ${count} member(s)` })
-      invalidateMembershipQueries(queryClient)
       onClear()
-    } catch (error) {
-      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+      return
     }
+    errorNotification({ title: 'Error', description: `Removed ${count - failed.length} of ${count} member(s); ${failed.length} failed: ${parseErrorMessage(failed[0].reason)}` })
   }
 
   return (

@@ -104,7 +104,7 @@ export const MembersTable = () => {
 
   useEffect(() => {
     setSelectedIds([])
-  }, [pagination.page, pagination.pageSize, debouncedSearch, filters])
+  }, [pagination.page, pagination.pageSize, debouncedSearch, filters, orderBy])
 
   const sortedMembers = useMemo(() => {
     if (!currentUserId) return members
@@ -256,7 +256,7 @@ export const MembersTable = () => {
               setSearchTerm(inputVal)
               setPagination(DEFAULT_PAGINATION)
             }}
-            hideFilter={canEditMembers && selectedIds.length > 0}
+            hideFilter={canEditMembers && selectedMembers.length > 0}
           />
         </div>
         {canEditMembers && selectedMembers.length > 0 && <MembersBulkActions selectedMembers={selectedMembers} onClear={() => setSelectedIds([])} />}

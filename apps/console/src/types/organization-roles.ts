@@ -9,13 +9,6 @@ export type OrganizationRolesListReply = {
   roles: OrganizationRole[]
 }
 
-export type AssignOrganizationRolesInput = {
-  role: string
-  user_ids?: string[]
-  group_ids?: string[]
-  organization_id?: string
-}
-
 export type OrganizationRolesMutationReply = {
   success?: boolean
   organization_id?: string

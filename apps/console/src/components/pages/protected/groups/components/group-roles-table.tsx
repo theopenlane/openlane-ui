@@ -8,7 +8,7 @@ import { AdditionalRolesCell } from '@/components/shared/organization-roles/addi
 import { useGroupRoleDialog } from './dialogs/use-group-role-dialog'
 
 const GroupRolesTable = () => {
-  const { open, setOpen, selectedGroup, groupName, currentRoleNames, disabled, onSaved } = useGroupRoleDialog()
+  const { open, setOpen, selectedGroup, groupName, currentRoleNames, disabled } = useGroupRoleDialog()
 
   return (
     <div className="flex flex-col gap-3">
@@ -29,17 +29,7 @@ const GroupRolesTable = () => {
         <AdditionalRolesCell roles={currentRoleNames} />
       </div>
 
-      {selectedGroup && (
-        <ManageAdditionalRolesDialog
-          open={open}
-          onOpenChange={setOpen}
-          subjectType="group"
-          subjectIds={[selectedGroup]}
-          subjectName={groupName}
-          currentRoleNames={currentRoleNames}
-          onSaved={onSaved}
-        />
-      )}
+      {selectedGroup && <ManageAdditionalRolesDialog open={open} onOpenChange={setOpen} subjectType="group" subjectIds={[selectedGroup]} subjectName={groupName} currentRoleNames={currentRoleNames} />}
     </div>
   )
 }

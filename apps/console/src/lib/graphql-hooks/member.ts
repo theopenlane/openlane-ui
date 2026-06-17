@@ -96,7 +96,7 @@ export const useGetOrgUserList = ({ where }: TUseGetOrgUserListProps) => {
     enabled: idInNotEmpty,
   })
 
-  const users = (queryResult.data?.orgMemberships?.edges ?? []).map((edge) => edge?.node?.user) as User[]
+  const users = useMemo(() => (queryResult.data?.orgMemberships?.edges ?? []).map((edge) => edge?.node?.user) as User[], [queryResult.data])
 
   return {
     ...queryResult,
@@ -113,11 +113,14 @@ type UserSelectArgs = {
 export const useUserSelect = (args: UserSelectArgs) => {
   const { data, ...rest } = useGetOrgMemberships(args)
 
-  const userOptions =
-    data?.orgMemberships?.edges?.map((edge) => ({
-      label: edge?.node?.user.displayName || '',
-      value: edge?.node?.user.id || '',
-    })) ?? []
+  const userOptions = useMemo(
+    () =>
+      data?.orgMemberships?.edges?.map((edge) => ({
+        label: edge?.node?.user.displayName || '',
+        value: edge?.node?.user.id || '',
+      })) ?? [],
+    [data],
+  )
 
   return { userOptions, ...rest }
 }
@@ -125,11 +128,14 @@ export const useUserSelect = (args: UserSelectArgs) => {
 export const useUserSelectEmail = (args: UserSelectArgs) => {
   const { data, ...rest } = useGetOrgMemberships(args)
 
-  const userOptions =
-    data?.orgMemberships?.edges?.map((edge) => ({
-      label: edge?.node?.user.email || '',
-      value: edge?.node?.user.id || '',
-    })) ?? []
+  const userOptions = useMemo(
+    () =>
+      data?.orgMemberships?.edges?.map((edge) => ({
+        label: edge?.node?.user.email || '',
+        value: edge?.node?.user.id || '',
+      })) ?? [],
+    [data],
+  )
 
   return { userOptions, ...rest }
 }

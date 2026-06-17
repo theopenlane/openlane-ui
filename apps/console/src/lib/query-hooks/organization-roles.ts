@@ -43,7 +43,7 @@ const useMutateOrganizationRoles = (method: 'POST' | 'DELETE') => {
 
   return useMutation<OrganizationRolesMutationReply[], Error, MutateRolesVariables>({
     mutationFn: async ({ roles, userIds, groupIds }) => {
-      return Promise.all(
+      const results = await Promise.allSettled(
         roles.map(async (role) => {
           const res = await fetchWithRetry('/api/organization-roles', {
             method,
@@ -56,8 +56,17 @@ const useMutateOrganizationRoles = (method: 'POST' | 'DELETE') => {
           return readPermissionResponse<OrganizationRolesMutationReply>(res, method === 'POST' ? 'Failed to assign organization role' : 'Failed to remove organization role')
         }),
       )
+
+      const rejected = results.filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+      if (rejected.length > 0) {
+        const action = method === 'POST' ? 'assign' : 'remove'
+        const reasons = rejected.map((result) => (result.reason instanceof Error ? result.reason.message : 'Unknown error')).join('; ')
+        throw new Error(`Failed to ${action} ${rejected.length} of ${roles.length} role(s): ${reasons}`)
+      }
+
+      return results.filter((result): result is PromiseFulfilledResult<OrganizationRolesMutationReply> => result.status === 'fulfilled').map((result) => result.value)
     },
-    onSuccess: () => invalidateMembershipQueries(queryClient),
+    onSettled: () => invalidateMembershipQueries(queryClient),
   })
 }
 

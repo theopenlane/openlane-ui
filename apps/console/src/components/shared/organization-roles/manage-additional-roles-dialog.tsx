@@ -21,10 +21,9 @@ type ManageAdditionalRolesDialogProps = {
   subjectName?: string
   mode?: 'add' | 'remove'
   currentRoleNames?: string[]
-  onSaved?: () => void
 }
 
-export const ManageAdditionalRolesDialog = ({ open, onOpenChange, subjectType, subjectIds, subjectName, mode = 'add', currentRoleNames, onSaved }: ManageAdditionalRolesDialogProps) => {
+export const ManageAdditionalRolesDialog = ({ open, onOpenChange, subjectType, subjectIds, subjectName, mode = 'add', currentRoleNames }: ManageAdditionalRolesDialogProps) => {
   const { successNotification, errorNotification } = useNotification()
   const { data, isLoading } = useOrganizationResponsibilityRoles()
   const { mutateAsync: assignRoles, isPending: isAssigning } = useAssignOrganizationRoles()
@@ -104,7 +103,6 @@ export const ManageAdditionalRolesDialog = ({ open, onOpenChange, subjectType, s
         await assignRoles({ roles: Array.from(selected), ...subjectVars })
         successNotification({ title: 'Roles assigned successfully' })
       }
-      onSaved?.()
       handleOpenChange(false)
     } catch (error) {
       errorNotification({

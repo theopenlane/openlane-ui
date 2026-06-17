@@ -174,23 +174,15 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuGroup>
-                {hasFullAccess ? (
-                  <DropdownMenuItem
-                    onSelect={(e) => e.preventDefault()}
-                    className="cursor-not-allowed opacity-50"
-                    title="Owners and super admins already have full access, so additional roles aren't needed."
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <ShieldPlus width={ICON_SIZE} /> &nbsp; Manage Additional Roles
-                    </div>
-                  </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem onSelect={() => setShowManageRoles(true)}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <ShieldPlus width={ICON_SIZE} /> &nbsp; Manage Additional Roles
-                    </div>
-                  </DropdownMenuItem>
-                )}
+                <DropdownMenuItem
+                  onSelect={hasFullAccess ? (e) => e.preventDefault() : () => setShowManageRoles(true)}
+                  className={hasFullAccess ? 'cursor-not-allowed opacity-50' : undefined}
+                  title={hasFullAccess ? "Owners and super admins already have full access, so additional roles aren't needed." : undefined}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <ShieldPlus width={ICON_SIZE} /> &nbsp; Manage Additional Roles
+                  </div>
+                </DropdownMenuItem>
               </DropdownMenuGroup>
             </>
           )}
@@ -218,7 +210,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>

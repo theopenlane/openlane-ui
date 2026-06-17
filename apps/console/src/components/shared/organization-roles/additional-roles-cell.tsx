@@ -20,8 +20,8 @@ export const AdditionalRolesCell = ({ roles }: AdditionalRolesCellProps) => {
 
   return (
     <div className="flex flex-wrap items-center gap-1">
-      {visible.map((name, i) => (
-        <Badge key={i} variant="select">
+      {visible.map((name) => (
+        <Badge key={name} variant="select">
           {name}
         </Badge>
       ))}
