@@ -1534,6 +1534,7 @@ export interface AssessmentResponse extends Node {
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  questionnaireTransformError?: Maybe<Scalars['String']['output']>
   /** the number of attempts made to perform email send to the recipient about this assessment, maximum of 5 */
   sendAttempts: Scalars['Int']['output']
   /** when the user started the assessment */
@@ -15865,6 +15866,12 @@ export interface EmailTemplateCatalogEntry {
   configSchema: Scalars['Map']['output']
   /** Human-readable description of the template type. */
   description: Scalars['String']['output']
+  /**
+   * Example/default field values used to render the preview, keyed by the same
+   * field names as configSchema. The UI pre-fills the editor form with these so
+   * the author starts from — and can see — what the default preview renders.
+   */
+  exampleValues?: Maybe<Scalars['Map']['output']>
   /** Rendered HTML preview of the template with default/example values. */
   htmlPreview: Scalars['String']['output']
   /**
@@ -15872,6 +15879,18 @@ export interface EmailTemplateCatalogEntry {
    * rendering pipeline at send time.
    */
   key: Scalars['String']['output']
+  /**
+   * RJSF-style UI schema describing how the configurable fields should be
+   * rendered as a form: authoring order, color widgets for hex fields,
+   * repeatable lists for body paragraphs, and hidden per-send fields.
+   */
+  uiSchema: Scalars['Map']['output']
+  /**
+   * System-provided template variables available for interpolation in this
+   * template's string fields (e.g. {{ .firstName }}), with descriptions for
+   * the UI variable picker.
+   */
+  variables: Array<TemplateVariable>
 }
 
 /** A connection to a list of items. */
@@ -21423,6 +21442,8 @@ export interface Group extends Node {
   actionPlanBlockedGroups: ActionPlanConnection
   actionPlanEditors: ActionPlanConnection
   actionPlanViewers: ActionPlanConnection
+  /** additionalRoles are the functional/organization roles assigned to the group on top of object permissions */
+  additionalRoles?: Maybe<Array<Scalars['String']['output']>>
   avatarFile?: Maybe<File>
   /** The group's local avatar file id, takes precedence over the gravatar logo URL */
   avatarLocalFileID?: Maybe<Scalars['ID']['output']>
@@ -34136,6 +34157,7 @@ export interface OrgMembersInput {
 
 export interface OrgMembership extends Node {
   __typename?: 'OrgMembership'
+  additionalRoles?: Maybe<Array<Scalars['String']['output']>>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   events: EventConnection
@@ -41113,6 +41135,13 @@ export interface Query {
   /** Search across Platform objects */
   platformSearch?: Maybe<PlatformConnection>
   platforms: PlatformConnection
+  /**
+   * Renders a customer-selectable email template to HTML for live preview. The
+   * catalog example is the base layer and the supplied draft values override it,
+   * so fields the author has not yet filled in still render with representative
+   * demo content.
+   */
+  previewEmailTemplate: Scalars['String']['output']
   /** Look up procedure by ID */
   procedure: Procedure
   /** Search across Procedure objects */
@@ -42238,6 +42267,11 @@ export interface QueryPlatformsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<PlatformOrder>>
   where?: InputMaybe<PlatformWhereInput>
+}
+
+export interface QueryPreviewEmailTemplateArgs {
+  defaults: Scalars['Map']['input']
+  key: Scalars['String']['input']
 }
 
 export interface QueryProcedureArgs {
@@ -78216,8 +78250,10 @@ export type GetTrustCenterQuery = {
           logoRemoteURL?: string | null
           securityContact?: string | null
           ndaApprovalRequired?: boolean | null
+          ndaApproverGroupID?: string | null
           logoFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
+          ndaApproverGroup?: { __typename?: 'Group'; id: string; displayName: string; name: string } | null
         } | null
         previewSetting?: {
           __typename?: 'TrustCenterSetting'
