@@ -63,7 +63,9 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
         )}
       </div>
 
-      <TruncatedCell className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{descriptionNode}</TruncatedCell>
+      <TruncatedCell lineClamp={2} className="text-xs text-muted-foreground leading-relaxed">
+        {descriptionNode}
+      </TruncatedCell>
 
       <div className="flex items-center gap-1.5 min-w-0">
         {controlOwner ? (
@@ -96,7 +98,7 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
         <EvidenceCoverageCell data={sub.evidenceStatus} primaryControlId={`${controlId}/${sub.id}`} />
       </div>
 
-      <div className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
+      <div className="flex flex-wrap gap-1 min-w-0" onClick={(e) => e.stopPropagation()}>
         {policies.length === 0 ? (
           <span className="text-xs italic text-muted-foreground">None linked</span>
         ) : (
@@ -108,7 +110,7 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
         )}
       </div>
 
-      <div className="flex flex-wrap gap-1.5" onClick={(e) => e.stopPropagation()}>
+      <div className="flex flex-wrap gap-1.5 min-w-0" onClick={(e) => e.stopPropagation()}>
         {isCustomView
           ? frameworkRefs.map((ref) => (
               <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode, referenceFramework: ref.referenceFramework } as MapControl} hideStandard />

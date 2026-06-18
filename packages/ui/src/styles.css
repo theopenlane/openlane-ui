@@ -801,17 +801,16 @@
     list-style-type: circle;
     @apply pl-6 mt-1;
   }
+}
 
-  /* Coverage progress bar fill colors */
-  .coverage-bar-complete {
-    background-color: #639922;
-  }
-  .coverage-bar-partial {
-    background-color: #ef9f27;
-  }
-  .coverage-bar-empty {
-    background-color: #888780;
-  }
+@utility coverage-bar-complete {
+  background-color: #639922;
+}
+@utility coverage-bar-partial {
+  background-color: #ef9f27;
+}
+@utility coverage-bar-empty {
+  background-color: #888780;
 }
 
 /* ─────────────────────────────────────────────────────────

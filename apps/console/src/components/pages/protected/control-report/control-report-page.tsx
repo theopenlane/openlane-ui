@@ -1,6 +1,6 @@
 'use client'
 
-import React, { use, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { type ControlReportItem, useControlReportsByCategory } from '@/lib/graphql-hooks/control'
@@ -37,6 +37,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   const [expandedControls, setExpandedControls] = useState<Record<string, boolean>>({})
   const [isSelectionMode, setIsSelectionMode] = useState(false)
   const [reportFilters, setReportFilters] = useState<Set<string>>(() => new Set())
+  const userSelectedStandardRef = useRef(false)
 
   const { data: permission } = useOrganizationRoles()
   const createAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateControl)
@@ -126,15 +127,15 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
           const frameworkRelatedCount = getFrameworkRelatedControls(control.relatedControls).length
 
           for (const filterId of reportFilters) {
-            if (filterId === 'NOT_APPROVED' && control.status !== ControlControlStatus.APPROVED) return true
-            if (filterId === 'NO_OWNER' && !control.controlOwner) return true
-            if (filterId === 'NO_EVIDENCE' && evidenceTotal === 0) return true
-            if (filterId === 'EVIDENCE_NON_APPROVED' && evidenceTotal > 0 && evidenceApproved < evidenceTotal) return true
-            if (filterId === 'NO_POLICIES' && policyCount === 0) return true
-            if (filterId === 'NO_ORG_CONTROLS' && !isCustomView && orgRelatedCount === 0) return true
-            if (filterId === 'NO_FRAMEWORK_CONTROLS' && isCustomView && frameworkRelatedCount === 0) return true
+            if (filterId === 'NOT_APPROVED' && control.status === ControlControlStatus.APPROVED) return false
+            if (filterId === 'NO_OWNER' && control.controlOwner) return false
+            if (filterId === 'NO_EVIDENCE' && evidenceTotal !== 0) return false
+            if (filterId === 'EVIDENCE_NON_APPROVED' && !(evidenceTotal > 0 && evidenceApproved < evidenceTotal)) return false
+            if (filterId === 'NO_POLICIES' && policyCount !== 0) return false
+            if (filterId === 'NO_ORG_CONTROLS' && !isCustomView && orgRelatedCount !== 0) return false
+            if (filterId === 'NO_FRAMEWORK_CONTROLS' && isCustomView && frameworkRelatedCount !== 0) return false
           }
-          return false
+          return true
         }),
       }))
       .filter((entry) => entry.controls.length > 0)
@@ -147,6 +148,16 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
       localStorage.setItem(REPORT_STANDARD_KEY, first)
     }
   }, [isSuccessStandards, standardOptions])
+
+  useEffect(() => {
+    if (userSelectedStandardRef.current) return
+    if (effectiveStandard !== 'CUSTOM') return
+    if (isFetching || !data || !hasNoControls) return
+    if (!isSuccessStandards || standardOptions.length === 0) return
+
+    const preferred = standardOptions.find((opt) => opt.label.replace(/\s+/g, '').toLowerCase() === 'soc2') ?? standardOptions[0]
+    setSelectedStandard(preferred.value)
+  }, [effectiveStandard, isFetching, data, hasNoControls, isSuccessStandards, standardOptions])
 
   useEffect(() => {
     if (sortedData && !hasAutoExpanded && sortedData.length > 0) {
@@ -210,6 +221,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   )
 
   const selectFilter = (value: string) => {
+    userSelectedStandardRef.current = true
     const next = value === effectiveStandard ? '' : value
     setSelectedStandard(next)
     localStorage.setItem(REPORT_STANDARD_KEY, next)

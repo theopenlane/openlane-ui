@@ -12,7 +12,6 @@ import type { LinkedControlDetails } from './types'
 import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
-import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { QuickMapControlDialog } from './quick-map-control-dialog'
 import ParentControlCard from './parent-control-card'
@@ -322,15 +321,10 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
   )
   const frameworkMappedColumns = useMemo(() => [...getMappedControlsFrameworkColumns(baseMappedColumns.slice(0, -1)), actionsColumn], [baseMappedColumns, actionsColumn])
   const hasSubcontrols = (subcontrolsPaginationMeta?.totalCount ?? 0) > 0
-  const hasMappedControls = customMappedControls.length > 0 || frameworkMappedControls.length > 0
   const isLoading = isMappedControlsLoading || (!isSubcontrolMode && isSubcontrolsLoading)
 
   if (isLoading) {
     return <TableSkeleton />
-  }
-
-  if (!hasMappedControls && !parentControlId && (isSubcontrolMode || !hasSubcontrols)) {
-    return <EmptyTabState description="Link this control to related controls to show relationships or shared coverage. Linked controls will appear here." />
   }
 
   return (
@@ -352,9 +346,20 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
           ) : undefined
         }
       />
-      {frameworkMappedControls.length > 0 && (
-        <MappedControlsTable title="Framework Mappings" rows={frameworkMappedControls} columns={frameworkMappedColumns} searchPlaceholder="Search framework mappings" showFrameworkFilter />
-      )}
+      <MappedControlsTable
+        title="Framework Mappings"
+        rows={frameworkMappedControls}
+        columns={frameworkMappedColumns}
+        searchPlaceholder="Search framework mappings"
+        showFrameworkFilter
+        action={
+          controlId && !isSubcontrolMode ? (
+            <QuickMapControlDialog variant="framework" controlId={controlId} refCode={refCode} />
+          ) : isSubcontrolMode && subcontrolId ? (
+            <QuickMapControlDialog variant="framework" subcontrolId={subcontrolId} refCode={refCode} />
+          ) : undefined
+        }
+      />
     </div>
   )
 }

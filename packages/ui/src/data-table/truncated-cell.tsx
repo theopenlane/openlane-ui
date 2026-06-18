@@ -9,9 +9,10 @@ interface TruncatedCellProps {
   className?: string
   tooltipClassName?: string
   tooltipContent?: ReactNode
+  lineClamp?: number
 }
 
-export const TruncatedCell = ({ children, className, tooltipClassName, tooltipContent }: TruncatedCellProps) => {
+export const TruncatedCell = ({ children, className, tooltipClassName, tooltipContent, lineClamp }: TruncatedCellProps) => {
   const ref = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
 
@@ -27,10 +28,12 @@ export const TruncatedCell = ({ children, className, tooltipClassName, tooltipCo
     setOpen(false)
   }, [])
 
+  const clampStyle = lineClamp ? { display: '-webkit-box', WebkitBoxOrient: 'vertical' as const, WebkitLineClamp: lineClamp } : undefined
+
   return (
     <Tooltip open={open} onOpenChange={setOpen}>
       <TooltipTrigger asChild>
-        <div ref={ref} className={cn('truncate', className)} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div ref={ref} className={cn(lineClamp ? 'overflow-hidden' : 'truncate', className)} style={clampStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           {children}
         </div>
       </TooltipTrigger>

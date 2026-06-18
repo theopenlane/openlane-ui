@@ -24,7 +24,6 @@ const EvidenceCoverageCell: React.FC<EvidenceCoverageProps> = ({ data, primaryCo
   const approvedCount = data.approvedCount
   const worstStatus = data.worstStatus
   const pct = (approvedCount / totalCount) * 100
-  const barClass = pct === 100 ? 'coverage-bar-complete' : pct > 0 ? 'coverage-bar-partial' : 'coverage-bar-empty'
   const statusStyle = worstStatus ? EVIDENCE_STATUS_STYLES[worstStatus] : null
 
   const sortedCounts = [...(data.countByStatus ?? [])].sort((a, b) => {
@@ -36,7 +35,7 @@ const EvidenceCoverageCell: React.FC<EvidenceCoverageProps> = ({ data, primaryCo
   return (
     <div className="flex flex-col gap-1 min-w-0">
       <div className="h-1.5 rounded-full bg-border overflow-hidden">
-        <div className={`h-full rounded-full transition-all ${barClass}`} style={{ width: `${pct}%` }} />
+        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: statusStyle?.color }} />
       </div>
       <div className="flex items-center gap-2">
         {statusStyle && (
@@ -48,7 +47,7 @@ const EvidenceCoverageCell: React.FC<EvidenceCoverageProps> = ({ data, primaryCo
                 </span>
               </TooltipTrigger>
               {sortedCounts.length > 0 && (
-                <TooltipContent side="top" collisionPadding={64}>
+                <TooltipContent side="top" collisionPadding={64} portal>
                   <div className="text-xs min-w-[180px] max-w-[280px] space-y-1.5">
                     <p className="font-semibold mb-1">Evidence by status</p>
                     {sortedCounts.map((entry) => {

@@ -42,7 +42,7 @@ const OrgCoverageCell: React.FC<Props> = ({ data }) => {
                   {getEnumLabel(worstStatus ?? undefined)}
                 </span>
               </TooltipTrigger>
-              <TooltipContent side="top" collisionPadding={64}>
+              <TooltipContent side="top" collisionPadding={64} portal>
                 <div className="text-xs min-w-[160px] max-w-[240px] space-y-1.5">
                   <p className="font-semibold mb-1">Controls by status</p>
                   {orgControlRefs.map((ref) => {

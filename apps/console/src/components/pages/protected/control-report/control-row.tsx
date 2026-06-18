@@ -71,7 +71,9 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
         )}
       </div>
 
-      <TruncatedCell className="text-sm leading-relaxed line-clamp-2 text-foreground">{descriptionNode}</TruncatedCell>
+      <TruncatedCell lineClamp={2} className="text-sm leading-relaxed text-foreground">
+        {descriptionNode}
+      </TruncatedCell>
 
       <div className="flex items-center gap-1.5 min-w-0">
         {control.controlOwner ? (
@@ -104,7 +106,7 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
         <EvidenceCoverageCell data={control.evidenceStatus} primaryControlId={control.id} />
       </div>
 
-      <div className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
+      <div className="flex flex-wrap gap-1 min-w-0" onClick={(e) => e.stopPropagation()}>
         {linkedPolicies.length === 0 ? (
           <span className="text-xs italic text-muted-foreground">None linked</span>
         ) : (
@@ -117,13 +119,13 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
       </div>
 
       {isCustomView ? (
-        <div className="flex flex-wrap gap-1.5" onClick={(e) => e.stopPropagation()}>
+        <div className="flex flex-wrap gap-1.5 min-w-0" onClick={(e) => e.stopPropagation()}>
           {frameworkRefs.map((ref) => (
             <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode, referenceFramework: ref.referenceFramework } as MapControl} hideStandard />
           ))}
         </div>
       ) : (
-        <div className="flex flex-wrap gap-1.5" onClick={(e) => e.stopPropagation()}>
+        <div className="flex flex-wrap gap-1.5 min-w-0" onClick={(e) => e.stopPropagation()}>
           {orgRefs.map((ref) => (
             <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode } as MapControl} hideStandard hideHexagon />
           ))}

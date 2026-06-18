@@ -50,8 +50,8 @@ export const getMappedControlsBaseColumns = (
         </Link>
       )
     },
-    size: 90,
-    minSize: 90,
+    size: 140,
+    minSize: 120,
   },
   {
     accessorKey: 'description',
@@ -99,7 +99,7 @@ export const getMappedControlsBaseColumns = (
 export const getOrgControlsColumns = (controlLinkMap: LinkMap, subcontrolLinkMap: LinkMap, convertToReadOnly: (value: string, index: number) => React.ReactNode): ColumnDef<MappedControlRow>[] => [
   {
     accessorKey: 'refCode',
-    header: () => <span className="whitespace-nowrap">Ref</span>,
+    header: () => <span className="whitespace-nowrap">Ref Code</span>,
     cell: ({ row }) => {
       const href = controlLinkMap.get(row.original.refCode)
       const inherited = row.original.inheritedFromSubcontrols
