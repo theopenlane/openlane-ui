@@ -92,12 +92,11 @@ export const EmailTemplatesTab: React.FC = () => {
 
   const handleDuplicate = async (template: (typeof emailTemplatesNodes)[number]) => {
     try {
-      const baseKey = template.key ?? template.name.toLowerCase().replace(/\s+/g, '-')
       await createTemplate({
         input: {
           name: `${template.name} (Copy)`,
-          key: `${baseKey}-copy-${Date.now()}`,
-          description: template.description ?? undefined,
+          key: template.key,
+          defaults: template.defaults ?? undefined,
           locale: template.locale ?? 'en',
           format: template.format,
           active: false,
