@@ -10,9 +10,10 @@ interface TruncatedCellProps {
   tooltipClassName?: string
   tooltipContent?: ReactNode
   lineClamp?: number
+  portal?: boolean
 }
 
-export const TruncatedCell = ({ children, className, tooltipClassName, tooltipContent, lineClamp }: TruncatedCellProps) => {
+export const TruncatedCell = ({ children, className, tooltipClassName, tooltipContent, lineClamp, portal }: TruncatedCellProps) => {
   const ref = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
 
@@ -38,7 +39,7 @@ export const TruncatedCell = ({ children, className, tooltipClassName, tooltipCo
         </div>
       </TooltipTrigger>
       {open && (
-        <TooltipContent side="top" className={cn('max-w-sm whitespace-normal wrap-break-word', tooltipClassName)}>
+        <TooltipContent side="top" portal={portal} className={cn('max-w-sm whitespace-normal wrap-break-word', tooltipClassName)}>
           {tooltipContent ?? ref.current?.textContent}
         </TooltipContent>
       )}

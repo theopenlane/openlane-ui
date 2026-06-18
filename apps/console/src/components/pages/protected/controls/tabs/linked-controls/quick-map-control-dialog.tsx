@@ -209,7 +209,9 @@ export const QuickMapControlDialog: React.FC<Props> = ({ controlId, subcontrolId
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium leading-tight">{ctrl.refCode}</p>
                     {ctrl.description && (
-                      <TruncatedCell className="text-xs text-muted-foreground mt-0.5 line-clamp-2 text-justify whitespace-normal">{convertToReadOnly(ctrl.description, 0)}</TruncatedCell>
+                      <TruncatedCell portal className="text-xs text-muted-foreground mt-0.5 line-clamp-2 text-justify whitespace-normal">
+                        {convertToReadOnly(ctrl.description, 0)}
+                      </TruncatedCell>
                     )}
                   </div>
                   {ctrl.status && <span className="shrink-0 text-xs text-muted-foreground">{getEnumLabel(ctrl.status)}</span>}
