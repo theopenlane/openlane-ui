@@ -6,12 +6,10 @@ import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Badge } from '@repo/ui/badge'
 import { MoreHorizontal, Trash2, PencilIcon, TriangleAlert } from 'lucide-react'
-import { canDelete } from '@/lib/authz/utils'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import Menu from '@/components/shared/menu/menu'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import type { TAccessRole } from '@/types/authz'
 import { type GetRiskByIdQuery, type UpdateRiskInput } from '@repo/codegen/src/schema'
 import { cn } from '@repo/ui/lib/utils'
 
@@ -22,12 +20,11 @@ interface RiskDetailHeaderProps {
   onEdit: (e: React.MouseEvent<HTMLButtonElement>) => void
   onCancel: (e: React.MouseEvent<HTMLButtonElement>) => void
   onDeleteClick: () => void
-  permissionRoles?: TAccessRole[]
+  canDeleteRisk: boolean
   handleUpdateField: (input: UpdateRiskInput) => Promise<void>
 }
 
-const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, canEditRisk, onEdit, onCancel, onDeleteClick, permissionRoles, handleUpdateField }) => {
-  const canDeleteRisk = canDelete(permissionRoles)
+const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, canEditRisk, onEdit, onCancel, onDeleteClick, canDeleteRisk, handleUpdateField }) => {
   const { setValue, register } = useFormContext()
   const [inlineEditing, setInlineEditing] = useState<'name' | null>(null)
   const [localValue, setLocalValue] = useState('')
