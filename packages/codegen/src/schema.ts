@@ -9803,6 +9803,8 @@ export interface CreateOrgMembershipInput {
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   organizationID: Scalars['ID']['input']
   role?: InputMaybe<OrgMembershipRole>
+  /** allow this org member to bypass SSO enforcement */
+  ssoExempt?: InputMaybe<Scalars['Boolean']['input']>
   userID: Scalars['ID']['input']
 }
 
@@ -10021,6 +10023,8 @@ export interface CreateOrganizationSettingInput {
   identityProviderClientSecret?: InputMaybe<Scalars['String']['input']>
   /** SAML entity ID for the SSO provider */
   identityProviderEntityID?: InputMaybe<Scalars['String']['input']>
+  /** email domains that bypass SSO enforcement for this organization */
+  identityProviderExemptDomains?: InputMaybe<Array<Scalars['String']['input']>>
   /** enforce SSO authentication for organization members */
   identityProviderLoginEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** metadata URL for the SSO provider */
@@ -34165,6 +34169,8 @@ export interface OrgMembership extends Node {
   organization: Organization
   organizationID: Scalars['ID']['output']
   role: OrgMembershipRole
+  /** allow this org member to bypass SSO enforcement */
+  ssoExempt?: Maybe<Scalars['Boolean']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   user: User
@@ -34325,6 +34331,11 @@ export interface OrgMembershipWhereInput {
   roleIn?: InputMaybe<Array<OrgMembershipRole>>
   roleNEQ?: InputMaybe<OrgMembershipRole>
   roleNotIn?: InputMaybe<Array<OrgMembershipRole>>
+  /** sso_exempt field predicates */
+  ssoExempt?: InputMaybe<Scalars['Boolean']['input']>
+  ssoExemptIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ssoExemptNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  ssoExemptNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -36307,6 +36318,8 @@ export interface OrganizationSetting extends Node {
   identityProviderClientSecret?: Maybe<Scalars['String']['output']>
   /** SAML entity ID for the SSO provider */
   identityProviderEntityID?: Maybe<Scalars['String']['output']>
+  /** email domains that bypass SSO enforcement for this organization */
+  identityProviderExemptDomains?: Maybe<Array<Scalars['String']['output']>>
   /** enforce SSO authentication for organization members */
   identityProviderLoginEnforced: Scalars['Boolean']['output']
   /** metadata URL for the SSO provider */
@@ -36632,6 +36645,8 @@ export interface OrganizationSettingWhereInput {
   identityProviderEntityIDNEQ?: InputMaybe<Scalars['String']['input']>
   identityProviderEntityIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   identityProviderEntityIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for identityProviderExemptDomainsHas to contain a specific value */
+  identityProviderExemptDomainsHas?: InputMaybe<Scalars['String']['input']>
   identityProviderIn?: InputMaybe<Array<OrganizationSettingSsoProvider>>
   identityProviderIsNil?: InputMaybe<Scalars['Boolean']['input']>
   /** identity_provider_login_enforced field predicates */
@@ -58289,8 +58304,11 @@ export interface UpdateNotificationTemplateInput {
 export interface UpdateOrgMembershipInput {
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
+  clearSSOExempt?: InputMaybe<Scalars['Boolean']['input']>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   role?: InputMaybe<OrgMembershipRole>
+  /** allow this org member to bypass SSO enforcement */
+  ssoExempt?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /**
@@ -58802,6 +58820,7 @@ export interface UpdateOrganizationSettingInput {
   allowedEmailDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendAllowedEmailDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendDomains?: InputMaybe<Array<Scalars['String']['input']>>
+  appendIdentityProviderExemptDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the billing address to send billing information to */
   billingAddress?: InputMaybe<Scalars['Address']['input']>
@@ -58827,6 +58846,7 @@ export interface UpdateOrganizationSettingInput {
   clearIdentityProviderClientID?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityProviderClientSecret?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityProviderEntityID?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityProviderExemptDomains?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityProviderMetadataEndpoint?: InputMaybe<Scalars['Boolean']['input']>
   clearMultifactorAuthEnforced?: InputMaybe<Scalars['Boolean']['input']>
   clearOidcDiscoveryEndpoint?: InputMaybe<Scalars['Boolean']['input']>
@@ -58851,6 +58871,8 @@ export interface UpdateOrganizationSettingInput {
   identityProviderClientSecret?: InputMaybe<Scalars['String']['input']>
   /** SAML entity ID for the SSO provider */
   identityProviderEntityID?: InputMaybe<Scalars['String']['input']>
+  /** email domains that bypass SSO enforcement for this organization */
+  identityProviderExemptDomains?: InputMaybe<Array<Scalars['String']['input']>>
   /** enforce SSO authentication for organization members */
   identityProviderLoginEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** metadata URL for the SSO provider */
@@ -73864,6 +73886,7 @@ export type GetOrganizationSettingQuery = {
       identityProviderLoginEnforced: boolean
       identityProviderAuthTested: boolean
       allowMatchingDomainsAutojoin?: boolean | null
+      identityProviderExemptDomains?: Array<string> | null
     } | null
   }
 }

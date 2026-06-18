@@ -923,7 +923,10 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'version', kind: 'number', list: false, nonNull: true, listItemNonNull: false },
     { name: 'workflowDefinitionID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
   ],
-  OrgMembership: [{ name: 'role', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'OrgMembershipRole' }],
+  OrgMembership: [
+    { name: 'role', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'OrgMembershipRole' },
+    { name: 'ssoExempt', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
+  ],
   Organization: [
     { name: 'avatarRemoteURL', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'avatarUpdatedAt', kind: 'date', list: false, nonNull: false, listItemNonNull: false },
@@ -946,6 +949,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'identityProviderClientID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'identityProviderClientSecret', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'identityProviderEntityID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'identityProviderExemptDomains', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'identityProviderLoginEnforced', kind: 'boolean', list: false, nonNull: true, listItemNonNull: false },
     { name: 'identityProviderMetadataEndpoint', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'multifactorAuthEnforced', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },

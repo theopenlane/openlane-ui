@@ -176,6 +176,7 @@ export const GET_ORGANIZATION_SETTING = gql`
         identityProviderLoginEnforced
         identityProviderAuthTested
         allowMatchingDomainsAutojoin
+        identityProviderExemptDomains
       }
     }
   }

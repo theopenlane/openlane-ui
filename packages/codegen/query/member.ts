@@ -37,6 +37,7 @@ export const GET_ORG_MEMBERSHIPS = gql`
           createdAt
           role
           additionalRoles
+          ssoExempt
           user {
             id
             displayName

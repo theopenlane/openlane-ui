@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreHorizontal, ShieldPlus, Trash2, UserRoundPen, UsersRound } from 'lucide-react'
+import { MoreHorizontal, ShieldPlus, ShieldCheck, ShieldOff, Trash2, UserRoundPen, UsersRound } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
@@ -38,11 +38,12 @@ type MemberActionsProps = {
   memberRole: OrgMembershipRole
   memberName: string
   additionalRoles?: string[] | null
+  ssoExempt: boolean
 }
 
 const ICON_SIZE = 12
 
-export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, additionalRoles }: MemberActionsProps) => {
+export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, additionalRoles, ssoExempt }: MemberActionsProps) => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [showChangeRole, setShowChangeRole] = useState(false)
   const [showManageRoles, setShowManageRoles] = useState(false)
@@ -92,6 +93,26 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
     }
   }
 
+  const handleToggleSsoExempt = async () => {
+    try {
+      await updateMember({ updateOrgMemberId: memberId, input: { role: memberRole, ssoExempt: !ssoExempt } })
+      successNotification({
+        title: ssoExempt ? 'SSO exemption removed' : 'Member marked as SSO exempt',
+        variant: 'success',
+      })
+
+      queryClient.invalidateQueries({
+        predicate: (query) => ['memberships', 'organizationsWithMembers'].includes(query.queryKey[0] as string),
+      })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    }
+  }
+
   const formSchema = z.object({
     role: z
       .nativeEnum(OrgMembershipRole, {
@@ -130,7 +151,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
             <MoreHorizontal className="h-4 w-4 text-brand" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent align="end">
           {memberRole === OrgMembershipRole.OWNER && memberUserId === userData?.user.id ? (
             <DropdownMenuGroup>
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
@@ -182,6 +203,14 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
                 >
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <ShieldPlus width={ICON_SIZE} /> &nbsp; Manage Additional Roles
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuGroup>
+                <DropdownMenuItem onSelect={handleToggleSsoExempt}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    {ssoExempt ? <ShieldOff width={ICON_SIZE} /> : <ShieldCheck width={ICON_SIZE} />}
+                    &nbsp; {ssoExempt ? 'Remove SSO Exemption' : 'Mark as SSO Exempt'}
                   </div>
                 </DropdownMenuItem>
               </DropdownMenuGroup>

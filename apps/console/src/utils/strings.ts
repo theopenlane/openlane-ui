@@ -55,6 +55,8 @@ export function formatPhoneNumber(value?: string | null): string {
   return value
 }
 
+export const isValidDomain = (domain: string): boolean => /^(?!:\/\/)([a-zA-Z0-9-_]+\.)+[a-zA-Z]{2,}$/.test(domain)
+
 // if you change this, update packages/codegen/plugins/lib.js:pluralizeTypeName also
 export function pluralizeTypeName(name: string): string {
   const lc = name.charAt(0).toLowerCase() + name.slice(1)

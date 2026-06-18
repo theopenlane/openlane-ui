@@ -4,8 +4,8 @@ export const pageStyles = tv({
   slots: {
     inviteRow: 'flex items-center justify-center gap-[10px]',
     inviteCount: 'flex items-center bg-accent text-text-dark justify-center text-[11px] font-semibold rounded-[5px] w-[19px] h-[19px]',
-    nameRow: 'flex gap-2',
-    copyIcon: 'text-accent-secondary-muted cursor-pointer',
+    nameRow: 'flex items-center gap-2 w-full',
+    copyIcon: 'text-muted-foreground cursor-pointer ml-auto shrink-0',
     changeRoleGrid: 'grid grid-cols-[auto_1fr] items-center gap-x-6 gap-y-2 text-sm border-b border-border pb-4',
   },
   variants: {
