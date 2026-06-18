@@ -21,7 +21,7 @@ const GroupRolesTable = () => {
           </div>
         </div>
         <Button type="button" variant="secondary" icon={<Plus />} iconPosition="left" disabled={disabled} onClick={() => setOpen(true)}>
-          Add role
+          Manage roles
         </Button>
       </div>
 
