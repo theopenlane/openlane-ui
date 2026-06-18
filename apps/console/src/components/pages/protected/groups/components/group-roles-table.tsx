@@ -17,7 +17,7 @@ const GroupRolesTable = () => {
           <ShieldCheck width={16} height={16} className="text-brand" />
           <div>
             <p className="font-semibold">Roles</p>
-            <p className="text-xs text-text-light">Functional roles this group has.</p>
+            <p className="text-xs text-text-light">Functional roles the members of this group are assigned</p>
           </div>
         </div>
         <Button type="button" variant="secondary" icon={<Plus />} iconPosition="left" disabled={disabled} onClick={() => setOpen(true)}>
