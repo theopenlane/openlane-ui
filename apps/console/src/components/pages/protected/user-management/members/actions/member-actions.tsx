@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreHorizontal, ShieldPlus, Trash2, TriangleAlert, UserRoundPen, UsersRound } from 'lucide-react'
+import { MoreHorizontal, ShieldPlus, Trash2, UserRoundPen, UsersRound } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
@@ -28,6 +28,7 @@ import { toHumanLabel } from '@/utils/strings'
 import { RoleInfoSlideOut } from '@/components/shared/role-info-slide-out/role-info-slide-out'
 import { UserRoleIconMapper } from '@/components/shared/enum-mapper/user-role-enum'
 import { ManageAdditionalRolesDialog } from '@/components/shared/organization-roles/manage-additional-roles-dialog'
+import { SuperAdminRoleWarning } from '@/components/shared/organization-roles/super-admin-role-warning'
 import { ASSIGNABLE_BASE_ROLES } from './assignable-base-roles'
 import { invalidateMembershipQueries } from '@/lib/graphql-hooks/membership-cache'
 
@@ -228,14 +229,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
               />
             </Form>
           </div>
-          {selectedRole === OrgMembershipRole.SUPER_ADMIN && (
-            <div className="flex gap-2 rounded-md border border-warning/40 bg-warning/10 p-3 text-sm">
-              <TriangleAlert className="mt-0.5 shrink-0 text-warning" width={16} height={16} />
-              <span>
-                Super Admin grants full access to the organization. Consider assigning <b>Admin</b> or <b>Member</b> with specific functional roles instead, to follow least privilege.
-              </span>
-            </div>
-          )}
+          {selectedRole === OrgMembershipRole.SUPER_ADMIN && <SuperAdminRoleWarning />}
           <RoleInfoSlideOut />
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
