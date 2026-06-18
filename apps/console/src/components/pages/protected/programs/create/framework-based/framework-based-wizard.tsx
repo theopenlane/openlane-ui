@@ -1,10 +1,10 @@
 'use client'
 import { defineStepper } from '@stepperize/react'
-import { useForm, FormProvider } from 'react-hook-form'
+import { useForm, FormProvider, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@repo/ui/button'
 import React, { use, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
 import TeamSetupStep from '../shared/steps/team-setup-step'
@@ -25,6 +25,8 @@ const oneYearFromToday = addYears(today, 1)
 
 export default function FrameworkBasedWizard() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const defaultFramework = searchParams.get('framework') ?? undefined
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const { setCrumbs } = use(BreadcrumbContext)
@@ -47,7 +49,7 @@ export default function FrameworkBasedWizard() {
     },
   })
 
-  const framework = methods.watch('framework')
+  const framework = useWatch({ control: methods.control, name: 'framework' })
   const disabledIDs = framework === 'SOC 2' ? [] : ['1']
 
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
@@ -147,7 +149,7 @@ export default function FrameworkBasedWizard() {
           <form onSubmit={handleNext}>
             <div className="py-6">
               {stepper.switch({
-                0: () => <SelectFrameworkStep required />,
+                0: () => <SelectFrameworkStep required defaultFramework={defaultFramework} />,
                 1: () => <SelectCategoryStep />,
                 2: () => <TeamSetupStep />,
                 3: () => <StartTypeStep />,

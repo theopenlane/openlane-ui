@@ -16,8 +16,8 @@ export const step1Schema = z.object({
   companyName: z.string().min(3, 'Company name requires at least 3 characters'),
   domains: z.array(z.string().regex(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Invalid domain format')).min(1, 'Please enter at least one domain'),
   companyDetails: z.object({
-    size: z.string().optional(),
-    sector: z.string().optional(),
+    size: z.string().min(1, 'Company size is required'),
+    sector: z.string().min(1, 'Company sector is required'),
     otherSector: z.string().optional(),
   }),
 })
@@ -154,7 +154,7 @@ export default function Step1() {
 
       <div className="space-y-2">
         <Label>Company Size</Label>
-        <Select onValueChange={(value) => setValue('companyDetails.size', value)} defaultValue={watch('companyDetails.size')}>
+        <Select onValueChange={(value) => setValue('companyDetails.size', value, { shouldDirty: true, shouldValidate: true })} defaultValue={watch('companyDetails.size')}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select company size" />
           </SelectTrigger>
@@ -166,12 +166,13 @@ export default function Step1() {
             ))}
           </SelectContent>
         </Select>
+        {errors.companyDetails?.size && <p className="text-red-500 text-sm">{errors.companyDetails.size.message}</p>}
       </div>
 
       {/* Company Sector */}
       <div className="space-y-2">
         <Label>Company Sector</Label>
-        <Select onValueChange={(value) => setValue('companyDetails.sector', value)} defaultValue={watch('companyDetails.sector')}>
+        <Select onValueChange={(value) => setValue('companyDetails.sector', value, { shouldDirty: true, shouldValidate: true })} defaultValue={watch('companyDetails.sector')}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Choose" />
           </SelectTrigger>
@@ -183,6 +184,7 @@ export default function Step1() {
             ))}
           </SelectContent>
         </Select>
+        {errors.companyDetails?.sector && <p className="text-red-500 text-sm">{errors.companyDetails.sector.message}</p>}
       </div>
 
       {/* Custom input for "Other" sector */}
