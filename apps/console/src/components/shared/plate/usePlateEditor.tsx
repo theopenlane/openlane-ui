@@ -1,4 +1,5 @@
 'use client'
+import { useCallback, useMemo } from 'react'
 import { useTheme } from 'next-themes'
 import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
 import { EditorStatic } from '@repo/ui/components/ui/editor-static.tsx'
@@ -71,34 +72,35 @@ const usePlateEditor = () => {
   const { resolvedTheme } = useTheme()
   const themeForRender = resolvedTheme === 'light' || resolvedTheme === 'dark' ? resolvedTheme : undefined
 
-  return {
-    convertToHtml: async (data: Value) => {
-      // Converts PlateJs data format into serializable html which we can save in database.
-      // Theme is intentionally NOT applied so that serialized HTML preserves the author's literal color.
-      if (!data || isPlateValueEmpty(data)) {
-        return ''
-      }
+  const convertToHtml = useCallback(async (data: Value) => {
+    // Converts PlateJs data format into serializable html which we can save in database.
+    // Theme is intentionally NOT applied so that serialized HTML preserves the author's literal color.
+    if (!data || isPlateValueEmpty(data)) {
+      return ''
+    }
 
-      const editor = createSlateEditor({
-        plugins: BaseEditorKit,
-        value: data,
-      })
+    const editor = createSlateEditor({
+      plugins: BaseEditorKit,
+      value: data,
+    })
 
-      const fmt = detectFormat(data)
+    const fmt = detectFormat(data)
 
-      switch (fmt) {
-        case 'markdown':
-          return await editor.api.markdown?.serialize?.()
-        default:
-          return await serializeHtml(editor, {
-            editorComponent: EditorStatic,
-            stripClassNames: false,
-            stripDataAttributes: false,
-          })
-      }
-    },
-    // Converts html data into deserializable PlateJs value, and rendering read only static view
-    convertToReadOnly: (data: string | Value, padding: number = 0, style?: React.CSSProperties) => {
+    switch (fmt) {
+      case 'markdown':
+        return editor.api.markdown?.serialize?.()
+      default:
+        return await serializeHtml(editor, {
+          editorComponent: EditorStatic,
+          stripClassNames: false,
+          stripDataAttributes: false,
+        })
+    }
+  }, [])
+
+  // Converts html data into deserializable PlateJs value, and rendering read only static view
+  const convertToReadOnly = useCallback(
+    (data: string | Value, padding: number = 0, style?: React.CSSProperties) => {
       const editor = createSlateEditor({
         plugins: [...BaseEditorKit],
       })
@@ -140,7 +142,10 @@ const usePlateEditor = () => {
 
       return <PlateStatic editor={editor} style={finalStyle} className="plate-static" />
     },
-  }
+    [themeForRender],
+  )
+
+  return useMemo(() => ({ convertToHtml, convertToReadOnly }), [convertToHtml, convertToReadOnly])
 }
 
 export default usePlateEditor

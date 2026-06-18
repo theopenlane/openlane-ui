@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import Link from 'next/link'
 import { TriangleAlert } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -31,9 +31,10 @@ type SubcontrolRowProps = {
   onSelect: (id: string, checked: boolean) => void
 }
 
-const SubcontrolRow: React.FC<SubcontrolRowProps> = ({ sub, controlId, isCustomView, isSelectionMode, controlOwner, selected, onSelect }) => {
+export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelectionMode, controlOwner, selected, onSelect }: SubcontrolRowProps) => {
   const gridCols = getGridCols(isCustomView, isSelectionMode)
   const { convertToReadOnly } = usePlateEditor()
+  const descriptionNode = useMemo(() => (sub.description ? convertToReadOnly(sub.description, 0) : <span className="italic">No description</span>), [sub.description, convertToReadOnly])
 
   const subStatusStyle = sub.status ? CONTROL_STATUS_STYLES[sub.status as ControlControlStatus] : null
   const orgCoverage = deriveOrgCoverage(sub.relatedControls)
@@ -62,9 +63,7 @@ const SubcontrolRow: React.FC<SubcontrolRowProps> = ({ sub, controlId, isCustomV
         )}
       </div>
 
-      <TruncatedCell className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-        {sub.description ? convertToReadOnly(sub.description, 0) : <span className="italic">No description</span>}
-      </TruncatedCell>
+      <TruncatedCell className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{descriptionNode}</TruncatedCell>
 
       <div className="flex items-center gap-1.5 min-w-0">
         {controlOwner ? (
@@ -118,49 +117,27 @@ const SubcontrolRow: React.FC<SubcontrolRowProps> = ({ sub, controlId, isCustomV
       </div>
     </div>
   )
-}
+})
 
-type SubcontrolRowsProps = {
-  subcontrols: ControlReportSubcontrolItem[]
-  controlId: string
-  controlOwner?: ControlOwner
-  isCustomView: boolean
+SubcontrolRow.displayName = 'SubcontrolRow'
+
+type SubcontrolGroupHeaderProps = {
+  subIds: string[]
   isSelectionMode: boolean
   selectedSubcontrolIds: Set<string>
-  onSelectSubcontrol: (id: string, checked: boolean) => void
   onSelectAllSubcontrols: (ids: string[], checked: boolean) => void
 }
 
-const SubcontrolRows: React.FC<SubcontrolRowsProps> = ({ subcontrols, controlId, controlOwner, isCustomView, isSelectionMode, selectedSubcontrolIds, onSelectSubcontrol, onSelectAllSubcontrols }) => {
-  if (subcontrols.length === 0) return null
-
-  const subIds = subcontrols.map((s) => s.id)
+export const SubcontrolGroupHeader: React.FC<SubcontrolGroupHeaderProps> = ({ subIds, isSelectionMode, selectedSubcontrolIds, onSelectAllSubcontrols }) => {
   const allSelected = subIds.length > 0 && subIds.every((id) => selectedSubcontrolIds.has(id))
   const someSelected = subIds.some((id) => selectedSubcontrolIds.has(id)) && !allSelected
 
   return (
-    <div className="bg-background-secondary border-b">
-      <div className="px-3 py-1 flex items-center gap-2">
-        {isSelectionMode && (
-          <Checkbox checked={allSelected ? true : someSelected ? 'indeterminate' : false} onCheckedChange={(v) => onSelectAllSubcontrols(subIds, !!v)} aria-label="Select all subcontrols" />
-        )}
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Subcontrols</span>
-      </div>
-
-      {subcontrols.map((sub) => (
-        <SubcontrolRow
-          key={sub.id}
-          sub={sub}
-          controlId={controlId}
-          isCustomView={isCustomView}
-          isSelectionMode={isSelectionMode}
-          controlOwner={controlOwner}
-          selected={selectedSubcontrolIds.has(sub.id)}
-          onSelect={onSelectSubcontrol}
-        />
-      ))}
+    <div className="bg-background-secondary px-3 py-1 flex items-center gap-2">
+      {isSelectionMode && (
+        <Checkbox checked={allSelected ? true : someSelected ? 'indeterminate' : false} onCheckedChange={(v) => onSelectAllSubcontrols(subIds, !!v)} aria-label="Select all subcontrols" />
+      )}
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Subcontrols</span>
     </div>
   )
 }
-
-export default SubcontrolRows

@@ -4,7 +4,6 @@ import React, { use, useCallback, useEffect, useMemo, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { type ControlReportItem, useControlReportsByCategory } from '@/lib/graphql-hooks/control'
-import { Accordion } from '@radix-ui/react-accordion'
 import { ControlControlStatus, type ControlWhereInput } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { hasPermission } from '@/lib/authz/utils'
@@ -14,7 +13,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import ReportToolbar from './report-toolbar'
 import ReportBulkActionBar from './report-bulk-action-bar'
-import ReportCategory from './report-category'
+import ReportVirtualList from './report-virtual-list'
 import ReportEmptyState from './report-empty-state'
 import { useReportSelection } from './use-report-selection'
 import { getOrgRelatedControls, getFrameworkRelatedControls } from './report-coverage'
@@ -158,6 +157,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
 
   useEffect(() => {
     setHasAutoExpanded(false)
+    setExpandedControls({})
   }, [effectiveStandard])
 
   const { data: groupsData } = useGetAllGroups({ where: {}, enabled: true })
@@ -175,9 +175,13 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     })
   }, [])
 
-  const toggleControl = (id: string) => {
+  const toggleControl = useCallback((id: string) => {
     setExpandedControls((prev) => ({ ...prev, [id]: !prev[id] }))
-  }
+  }, [])
+
+  const toggleCategoryOpen = useCallback((category: string) => {
+    setExpandedItems((prev) => (prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]))
+  }, [])
 
   const toggleAll = () => {
     const activeData = filteredSortedData ?? sortedData
@@ -271,30 +275,22 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
             {reportFilters.size > 0 && filteredSortedData?.length === 0 && (
               <p className="mt-4 rounded-md border border-border/30 bg-muted/20 px-5 py-2.5 text-base text-muted-foreground shadow-sm">No controls match the selected report filters.</p>
             )}
-            <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems}>
-              {filteredSortedData?.map(({ category, controls }) => {
-                if (controls.length === 0) return null
-                return (
-                  <ReportCategory
-                    key={category}
-                    category={category}
-                    controls={controls}
-                    isOpen={expandedItems.includes(category)}
-                    isCustomView={isCustomView}
-                    isSelectionMode={isSelectionMode}
-                    expandedControls={expandedControls}
-                    onToggleControl={toggleControl}
-                    onToggleCategorySubcontrols={toggleCategorySubcontrols}
-                    selectedControlIds={selectedControlIds}
-                    selectedSubcontrolIds={selectedSubcontrolIds}
-                    onSelectControl={toggleControlSelection}
-                    onSelectAllControls={(ids) => setSelectionForCategory(ids, ids.length > 0)}
-                    onSelectSubcontrol={toggleSubcontrolSelection}
-                    onSelectAllSubcontrols={batchSelectSubcontrols}
-                  />
-                )
-              })}
-            </Accordion>
+            <ReportVirtualList
+              categories={filteredSortedData ?? []}
+              expandedItems={expandedItems}
+              expandedControls={expandedControls}
+              isCustomView={isCustomView}
+              isSelectionMode={isSelectionMode}
+              selectedControlIds={selectedControlIds}
+              selectedSubcontrolIds={selectedSubcontrolIds}
+              onToggleCategoryOpen={toggleCategoryOpen}
+              onToggleControl={toggleControl}
+              onToggleCategorySubcontrols={toggleCategorySubcontrols}
+              onSelectControl={toggleControlSelection}
+              onSelectAllControls={(ids) => setSelectionForCategory(ids, ids.length > 0)}
+              onSelectSubcontrol={toggleSubcontrolSelection}
+              onSelectAllSubcontrols={batchSelectSubcontrols}
+            />
           </>
         )}
       </div>

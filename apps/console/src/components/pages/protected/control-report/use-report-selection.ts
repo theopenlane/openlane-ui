@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
-import { useBulkEditControl, useBulkEditSubcontrol, useSubcontrolIdFetcher } from '@/lib/graphql-hooks/control'
+import { useBulkEditControl, useSubcontrolIdFetcher } from '@/lib/graphql-hooks/control'
+import { useBulkEditSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 import { useNotification } from '@/hooks/useNotification'
 import { type ControlControlStatus, SubcontrolControlStatus } from '@repo/codegen/src/schema'
 

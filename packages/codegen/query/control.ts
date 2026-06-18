@@ -776,14 +776,6 @@ export const BULK_EDIT_CONTROL = gql`
   }
 `
 
-export const BULK_EDIT_SUBCONTROL = gql`
-  mutation UpdateBulkSubcontrol($ids: [ID!]!, $input: UpdateSubcontrolInput!) {
-    updateBulkSubcontrol(ids: $ids, input: $input) {
-      updatedIDs
-    }
-  }
-`
-
 export const GET_SUBCONTROL_IDS_BY_CONTROL = gql`
   query GetSubcontrolIdsByControl($where: SubcontrolWhereInput) {
     subcontrols(where: $where) {

@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import Link from 'next/link'
 import { ChevronRight, TriangleAlert } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -22,7 +22,7 @@ import { deriveOrgCoverage, getOrgRelatedControls, getFrameworkRelatedControls }
 type ControlRowProps = {
   control: ControlReportItem
   expanded: boolean
-  onToggle: () => void
+  onToggle: (id: string) => void
   isCustomView: boolean
   isSelectionMode: boolean
   selected: boolean
@@ -33,6 +33,10 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
   const hasSubcontrols = (control.subcontrols?.length ?? 0) > 0
   const gridCols = getGridCols(isCustomView, isSelectionMode)
   const { convertToReadOnly } = usePlateEditor()
+  const descriptionNode = useMemo(
+    () => (control.description ? convertToReadOnly(control.description, 0) : <span className="italic text-muted-foreground">No description</span>),
+    [control.description, convertToReadOnly],
+  )
 
   const orgCoverage = deriveOrgCoverage(control.relatedControls)
   const controlStatusStyle = control.status ? CONTROL_STATUS_STYLES[control.status as ControlControlStatus] : null
@@ -44,7 +48,7 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
     <div
       className={`grid gap-x-3 px-3 py-2.5 items-start border-b last:border-b-0 transition-colors ${expanded ? 'bg-background-secondary' : 'hover:bg-muted/30'} ${hasSubcontrols ? 'cursor-pointer' : ''}`}
       style={{ gridTemplateColumns: gridCols }}
-      onClick={hasSubcontrols ? onToggle : undefined}
+      onClick={hasSubcontrols ? () => onToggle(control.id) : undefined}
     >
       {isSelectionMode && (
         <div className="flex items-center pt-0.5" onClick={(e) => e.stopPropagation()}>
@@ -67,9 +71,7 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
         )}
       </div>
 
-      <TruncatedCell className="text-sm leading-relaxed line-clamp-2 text-foreground">
-        {control.description ? convertToReadOnly(control.description, 0) : <span className="italic text-muted-foreground">No description</span>}
-      </TruncatedCell>
+      <TruncatedCell className="text-sm leading-relaxed line-clamp-2 text-foreground">{descriptionNode}</TruncatedCell>
 
       <div className="flex items-center gap-1.5 min-w-0">
         {control.controlOwner ? (
@@ -131,4 +133,4 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
   )
 }
 
-export default ControlRow
+export default React.memo(ControlRow)

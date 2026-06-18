@@ -16,7 +16,6 @@ import {
   GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS,
   CONTROL_REPORTS_BY_CATEGORY,
   BULK_EDIT_CONTROL,
-  BULK_EDIT_SUBCONTROL,
   GET_SUBCONTROL_IDS_BY_CONTROL,
   CLONE_CSV_BULK_CONTROL,
   GET_CONTROLS_BY_REFCODE,
@@ -64,9 +63,8 @@ import {
   type ControlListStandardFieldsFragment,
   type UpdateBulkControlMutation,
   type UpdateBulkControlMutationVariables,
-  type UpdateBulkSubcontrolMutation,
-  type UpdateBulkSubcontrolMutationVariables,
   type GetSubcontrolIdsByControlQuery,
+  type GetSubcontrolIdsByControlQueryVariables,
   type CloneBulkCsvControlMutation,
   type CloneBulkCsvControlMutationVariables,
   type GetControlsByRefCodeQuery,
@@ -184,23 +182,11 @@ export const useBulkEditControl = () => {
   })
 }
 
-export const useBulkEditSubcontrol = () => {
-  const { client, queryClient } = useGraphQLClient()
-
-  return useMutation<UpdateBulkSubcontrolMutation, unknown, UpdateBulkSubcontrolMutationVariables>({
-    mutationFn: async (variables) => client.request(BULK_EDIT_SUBCONTROL, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['controls'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
-    },
-  })
-}
-
 export const useSubcontrolIdFetcher = () => {
   const { client } = useGraphQLClient()
   return async (controlIds: string[]): Promise<string[]> => {
     if (controlIds.length === 0) return []
-    const data = await client.request<GetSubcontrolIdsByControlQuery>(GET_SUBCONTROL_IDS_BY_CONTROL, {
+    const data = await client.request<GetSubcontrolIdsByControlQuery, GetSubcontrolIdsByControlQueryVariables>(GET_SUBCONTROL_IDS_BY_CONTROL, {
       where: { controlIDIn: controlIds },
     })
     return (data.subcontrols.edges ?? []).map((e) => e?.node?.id).filter((id): id is string => !!id)
