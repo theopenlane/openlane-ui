@@ -2,7 +2,7 @@ import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import StandardSelect from '../form-fields/standard-select'
 
-const SelectFrameworkStep = ({ required = false }: { required?: boolean }) => {
+const SelectFrameworkStep = ({ required = false, defaultFramework }: { required?: boolean; defaultFramework?: string }) => {
   const {
     formState: { errors },
   } = useFormContext()
@@ -33,7 +33,7 @@ const SelectFrameworkStep = ({ required = false }: { required?: boolean }) => {
           {required && <span className="text-destructive">*</span>}
         </div>
         <div className="flex flex-col gap-1.5">
-          <StandardSelect />
+          <StandardSelect defaultFramework={defaultFramework} />
         </div>
         {errors.framework && <span className="text-xs text-destructive">{String(errors.framework.message)}</span>}
       </div>
