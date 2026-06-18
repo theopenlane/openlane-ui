@@ -11,15 +11,19 @@ import {
   UserAuthProvider,
 } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
-import React, { useEffect, useMemo, useState } from 'react'
-import { Copy, KeyRoundIcon } from 'lucide-react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Copy, Info, KeyRoundIcon } from 'lucide-react'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { type ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
 import { useCopyToClipboard, useDebounce } from '@uidotdev/usehooks'
 import { useSession } from 'next-auth/react'
 import { Badge } from '@repo/ui/badge'
+import { useSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { MemberActions } from './actions/member-actions'
+import { MembersBulkActions } from './actions/members-bulk-actions'
+import { AdditionalRolesCell } from '@/components/shared/organization-roles/additional-roles-cell'
 import { useNotification } from '@/hooks/useNotification'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -27,6 +31,8 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDateSince } from '@/utils/date'
 import { UserRoleIconMapper } from '@/components/shared/enum-mapper/user-role-enum'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 import MembersTableToolbar from '@/components/pages/protected/user-management/members/members-table-toolbar.tsx'
 import { MEMBERS_SORT_FIELDS } from './table/table-config'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
@@ -41,6 +47,7 @@ export const MembersTable = () => {
   const { nameRow, copyIcon } = pageStyles()
   const { data: sessionData } = useSession()
   const [filters, setFilters] = useState<ExtendedOrgMembershipWhereInput | null>(null)
+  const [selectedIds, setSelectedIds] = useState<{ id: string }[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [, copyToClipboard] = useCopyToClipboard()
   const { successNotification, errorNotification } = useNotification()
@@ -86,7 +93,19 @@ export const MembersTable = () => {
 
   const { members, isError, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
 
+  const { data: orgRoles } = useOrganizationRoles()
+  const canEditMembers = canEdit(orgRoles?.roles)
   const currentUserId = sessionData?.user?.userId
+
+  const isMemberSelectable = useCallback((member: OrgMembership) => !!currentUserId && member.user?.id !== currentUserId, [currentUserId])
+  const selectColumn = useSelectColumn<OrgMembership>(selectedIds, setSelectedIds, isMemberSelectable)
+
+  const selectedMembers = useMemo(() => members.filter((m) => selectedIds.some((s) => s.id === m.id)), [members, selectedIds])
+
+  useEffect(() => {
+    setSelectedIds([])
+  }, [pagination.page, pagination.pageSize, debouncedSearch, filters, orderBy])
+
   const sortedMembers = useMemo(() => {
     if (!currentUserId) return members
     return [...members].sort((a, b) => {
@@ -125,6 +144,7 @@ export const MembersTable = () => {
   }
 
   const columns: ColumnDef<OrgMembership>[] = [
+    ...(canEditMembers ? [selectColumn] : []),
     {
       accessorKey: 'user.displayName',
       header: 'Name',
@@ -155,6 +175,18 @@ export const MembersTable = () => {
       },
       size: 250,
       minSize: 250,
+    },
+    {
+      id: 'additionalRoles',
+      header: () => (
+        <span className="flex items-center gap-1.5">
+          Additional Roles
+          <SystemTooltip icon={<Info size={14} />} content={<p>Functional roles layered on top of the base role to grant specific access (e.g. Policy Manager, Risk Manager).</p>} />
+        </span>
+      ),
+      cell: ({ row }) => <AdditionalRolesCell roles={row.original.additionalRoles} />,
+      size: 180,
+      minSize: 160,
     },
     {
       accessorKey: 'createdAt',
@@ -198,7 +230,15 @@ export const MembersTable = () => {
       id: 'actions',
       header: '',
       cell: ({ cell }) => {
-        return <MemberActions memberName={cell.row.original.user?.displayName} memberId={cell.row.original.id} memberUserId={cell.row.original.user?.id} memberRole={cell.row.original.role} />
+        return (
+          <MemberActions
+            memberName={cell.row.original.user?.displayName}
+            memberId={cell.row.original.id}
+            memberUserId={cell.row.original.user?.id}
+            memberRole={cell.row.original.role}
+            additionalRoles={cell.row.original.additionalRoles}
+          />
+        )
       },
       size: 80,
     },
@@ -206,15 +246,21 @@ export const MembersTable = () => {
 
   return (
     <div>
-      <MembersTableToolbar
-        searching={isLoading}
-        setFilters={setFilters}
-        searchTerm={searchTerm}
-        setSearchTerm={(inputVal) => {
-          setSearchTerm(inputVal)
-          setPagination(DEFAULT_PAGINATION)
-        }}
-      />
+      <div className="flex items-center gap-2">
+        <div className="grow">
+          <MembersTableToolbar
+            searching={isLoading}
+            setFilters={setFilters}
+            searchTerm={searchTerm}
+            setSearchTerm={(inputVal) => {
+              setSearchTerm(inputVal)
+              setPagination(DEFAULT_PAGINATION)
+            }}
+            hideFilter={canEditMembers && selectedMembers.length > 0}
+          />
+        </div>
+        {canEditMembers && selectedMembers.length > 0 && <MembersBulkActions selectedMembers={selectedMembers} onClear={() => setSelectedIds([])} />}
+      </div>
 
       <DataTable
         loading={isLoading}

@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreHorizontal, Trash2, UserRoundPen, UsersRound } from 'lucide-react'
+import { MoreHorizontal, ShieldPlus, Trash2, UserRoundPen, UsersRound } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
@@ -9,7 +9,7 @@ import { Button } from '@repo/ui/button'
 import React, { useState } from 'react'
 import { Form, FormControl, FormField, FormItem } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import type { Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z, type infer as zInfer } from 'zod'
@@ -27,19 +27,26 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { toHumanLabel } from '@/utils/strings'
 import { RoleInfoSlideOut } from '@/components/shared/role-info-slide-out/role-info-slide-out'
 import { UserRoleIconMapper } from '@/components/shared/enum-mapper/user-role-enum'
+import { ManageAdditionalRolesDialog } from '@/components/shared/organization-roles/manage-additional-roles-dialog'
+import { SuperAdminRoleWarning } from '@/components/shared/organization-roles/super-admin-role-warning'
+import { ASSIGNABLE_BASE_ROLES } from './assignable-base-roles'
+import { invalidateMembershipQueries } from '@/lib/graphql-hooks/membership-cache'
 
 type MemberActionsProps = {
   memberId: string
   memberUserId: string
   memberRole: OrgMembershipRole
   memberName: string
+  additionalRoles?: string[] | null
 }
 
 const ICON_SIZE = 12
 
-export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }: MemberActionsProps) => {
+export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, additionalRoles }: MemberActionsProps) => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [showChangeRole, setShowChangeRole] = useState(false)
+  const [showManageRoles, setShowManageRoles] = useState(false)
+  const hasFullAccess = memberRole === OrgMembershipRole.OWNER || memberRole === OrgMembershipRole.SUPER_ADMIN
   const { changeRoleGrid } = pageStyles()
   const { mutateAsync: deleteMember } = useRemoveUserFromOrg()
   const { data: sessionData } = useSession()
@@ -56,9 +63,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
         title: 'Member deleted successfully',
       })
 
-      queryClient.invalidateQueries({
-        predicate: (query) => ['memberships', 'organizationsWithMembers', 'groups'].includes(query.queryKey[0] as string),
-      })
+      invalidateMembershipQueries(queryClient)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -77,9 +82,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
         variant: 'success',
       })
 
-      queryClient.invalidateQueries({
-        predicate: (query) => ['memberships', 'organizationsWithMembers', 'groups'].includes(query.queryKey[0] as string),
-      })
+      invalidateMembershipQueries(queryClient)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -107,6 +110,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
   })
 
   const { control, handleSubmit } = form
+  const selectedRole = useWatch({ control, name: 'role' })
 
   if (memberUserId === userData?.user.id && memberRole !== OrgMembershipRole.OWNER) {
     //CANT EDIT YOURSELF IF NOT OWNER
@@ -166,7 +170,18 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
               <DropdownMenuGroup>
                 <DropdownMenuItem onSelect={() => setShowChangeRole(true)}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <UserRoundPen width={ICON_SIZE} /> &nbsp; Change Role
+                    <UserRoundPen width={ICON_SIZE} /> &nbsp; Change Base Role
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onSelect={hasFullAccess ? (e) => e.preventDefault() : () => setShowManageRoles(true)}
+                  className={hasFullAccess ? 'cursor-not-allowed opacity-50' : undefined}
+                  title={hasFullAccess ? "Owners and super admins already have full access, so additional roles aren't needed." : undefined}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <ShieldPlus width={ICON_SIZE} /> &nbsp; Manage Additional Roles
                   </div>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
@@ -196,19 +211,16 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.values(OrgMembershipRole)
-                            // TODO: remove auditor exclusion once role is verified to work with navigation
-                            .filter((role) => role !== OrgMembershipRole.OWNER && !role.includes('USER') && role !== OrgMembershipRole.AUDITOR)
-                            .map((role) => (
-                              <SelectItem key={role} value={role}>
-                                {toHumanLabel(role)}
-                              </SelectItem>
-                            ))}
+                          {ASSIGNABLE_BASE_ROLES.map((role) => (
+                            <SelectItem key={role} value={role}>
+                              {toHumanLabel(role)}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -217,6 +229,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
               />
             </Form>
           </div>
+          {selectedRole === OrgMembershipRole.SUPER_ADMIN && <SuperAdminRoleWarning />}
           <RoleInfoSlideOut />
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
@@ -230,6 +243,14 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <ManageAdditionalRolesDialog
+        open={showManageRoles}
+        onOpenChange={setShowManageRoles}
+        subjectType="user"
+        subjectIds={[memberUserId]}
+        subjectName={memberName}
+        currentRoleNames={additionalRoles ?? []}
+      />
     </>
   )
 }

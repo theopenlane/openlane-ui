@@ -99,6 +99,7 @@ export const GET_GROUP_DETAILS = gql`
       }
       isManaged
       tags
+      additionalRoles
       members {
         edges {
           node {

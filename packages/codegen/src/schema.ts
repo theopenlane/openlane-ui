@@ -71652,6 +71652,7 @@ export type GetGroupDetailsQuery = {
     gravatarLogoURL?: string | null
     isManaged?: boolean | null
     tags?: Array<string> | null
+    additionalRoles?: Array<string> | null
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
     members: {
       __typename?: 'GroupMembershipConnection'
@@ -73318,6 +73319,7 @@ export type OrgMembershipsQuery = {
         id: string
         createdAt?: any | null
         role: OrgMembershipRole
+        additionalRoles?: Array<string> | null
         user: {
           __typename?: 'User'
           id: string
