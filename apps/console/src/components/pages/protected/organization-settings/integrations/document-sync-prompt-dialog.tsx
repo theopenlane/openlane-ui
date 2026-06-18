@@ -10,7 +10,7 @@ import { Label } from '@repo/ui/label'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { DOCUMENT_FOLDER_FIELD, PRIMARY_DOCUMENT_FIELD, saveIntegrationConfiguration } from '@/lib/integrations/flow'
-import { readIntegrationUserInput } from '@/lib/integrations/utils'
+import { getDocumentFolderFieldConfig, readIntegrationUserInput, resolveSchemaRoot } from '@/lib/integrations/utils'
 import { type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
 
 type DocumentSyncPromptDialogProps = {
@@ -26,6 +26,12 @@ const DocumentSyncPromptDialog = ({ open, onOpenChange, provider, integration }:
 
   const existingUserInput = readIntegrationUserInput(integration)
   const existingFolder = typeof existingUserInput[DOCUMENT_FOLDER_FIELD] === 'string' ? (existingUserInput[DOCUMENT_FOLDER_FIELD] as string) : ''
+
+  const folderConfig = getDocumentFolderFieldConfig(provider)
+  const folderField = resolveSchemaRoot(provider.userInputSchema)?.properties?.[DOCUMENT_FOLDER_FIELD]
+  const folderLabel = folderField?.title?.trim() || folderConfig.label
+  const folderPlaceholder = folderField?.example || folderField?.examples?.[0] || folderConfig.placeholder
+  const folderDescription = folderField?.description?.trim() || folderConfig.description
 
   const [makePrimary, setMakePrimary] = useState<boolean>(existingUserInput[PRIMARY_DOCUMENT_FIELD] === true)
   const [folder, setFolder] = useState<string>(existingFolder)
@@ -93,18 +99,18 @@ const DocumentSyncPromptDialog = ({ open, onOpenChange, provider, integration }:
               </span>
               <div>
                 <p className="text-sm font-medium">Limit sync to a specific folder</p>
-                <p className="text-xs text-muted-foreground">Only documents inside this folder are synced into Openlane. Leave blank to sync everything you’ve granted access to.</p>
+                <p className="text-xs text-muted-foreground">{folderDescription}</p>
               </div>
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="document-sync-folder" className="text-xs text-muted-foreground">
-                Folder ID or URL
+                {folderLabel}
               </Label>
               <Input
                 id="document-sync-folder"
                 value={folder}
                 onChange={(event) => setFolder(event.target.value)}
-                placeholder="e.g. 1A2b3C... or https://drive.google.com/drive/folders/1A2b3C..."
+                placeholder={folderPlaceholder}
                 disabled={isSubmitting}
                 icon={<FileText className="size-4" />}
                 iconPosition="left"
