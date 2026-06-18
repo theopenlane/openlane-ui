@@ -4,7 +4,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import CreatePolicyForm from '@/components/pages/protected/policies/create/form/create-policy-form.tsx'
 import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
 import { hasPermission } from '@/lib/authz/utils.ts'
-import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const CreatePolicyPage: React.FC = () => {

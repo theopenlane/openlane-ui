@@ -22,7 +22,7 @@ import CreateRemediationSheet from '@/components/pages/protected/remediations/cr
 import { useQueryClient } from '@tanstack/react-query'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 
 const TableComponent = ({
   onSortChange,

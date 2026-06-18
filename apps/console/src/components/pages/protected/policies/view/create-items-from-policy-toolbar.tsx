@@ -1,7 +1,7 @@
 import React from 'react'
 import { CirclePlus } from 'lucide-react'
 import { hasPermission } from '@/lib/authz/utils.ts'
-import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'

@@ -17,7 +17,7 @@ import { Button } from '@repo/ui/button'
 import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
 
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
 import { isStringArray, loadFilters, saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'

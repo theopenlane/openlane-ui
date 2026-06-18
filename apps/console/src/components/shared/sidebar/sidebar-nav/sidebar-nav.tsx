@@ -23,7 +23,7 @@ import { Button } from '@repo/ui/button'
 import { DOCS_URL } from '@/constants/docs'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { hasNoModules } from '@/lib/auth/utils/modules'
 
 const SidebarChildLink: React.FC<{ child: NavItem; pathname: string; secondaryExpanded: boolean; router: ReturnType<typeof useRouter> }> = ({ child, pathname, secondaryExpanded, router }) => {

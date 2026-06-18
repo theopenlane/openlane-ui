@@ -11,7 +11,7 @@ import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hov
 import Menu from '@/components/shared/menu/menu'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import type { TAccessRole } from '@/types/authz'
+import type { TAccessRole } from '@/lib/authz/types'
 import { type GetRiskByIdQuery, type UpdateRiskInput } from '@repo/codegen/src/schema'
 import { cn } from '@repo/ui/lib/utils'
 

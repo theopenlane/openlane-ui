@@ -39,7 +39,7 @@ import { useCreateControlImplementation } from '@/lib/graphql-hooks/control-impl
 import { useCreateControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import ProtectedArea from '@/components/shared/protected-area/protected-area'
 import { Loading } from '@/components/shared/loading/loading'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'

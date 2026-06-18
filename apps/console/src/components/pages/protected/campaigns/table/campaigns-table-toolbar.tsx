@@ -9,7 +9,7 @@ import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/col
 import { Input } from '@repo/ui/input'
 import { type CampaignWhereInput } from '@repo/codegen/src/schema'
 import { Button } from '@repo/ui/button'
-import { type TAccessRole, type TPermissionData } from '@/types/authz'
+import { type TAccessRole, type TPermissionData } from '@/lib/authz/types'
 import { useNotification } from '@/hooks/useNotification'
 import { useDeleteCampaign } from '@/lib/graphql-hooks/campaign'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'

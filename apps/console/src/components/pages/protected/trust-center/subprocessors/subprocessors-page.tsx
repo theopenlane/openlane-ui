@@ -36,7 +36,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import SubprocessorsModeToggle, { type SubprocessorMode } from './SubprocessorsModeToggle'
 
 const SubprocessorsPage = () => {

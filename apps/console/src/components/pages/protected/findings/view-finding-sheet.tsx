@@ -12,7 +12,7 @@ import { ObjectAssociationNodeEnum } from '@/components/shared/object-associatio
 import { useRouter } from 'next/navigation'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 
 type Props = {
   entityId: string | null

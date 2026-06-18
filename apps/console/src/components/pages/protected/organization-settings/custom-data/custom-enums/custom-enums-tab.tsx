@@ -26,7 +26,7 @@ import { CustomTypeEnumOrderField, type GetCustomTypeEnumsPaginatedQueryVariable
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 
 const DEFAULT_ENUM_COLUMN_VISIBILITY: VisibilityState = {
   objectType: false,
