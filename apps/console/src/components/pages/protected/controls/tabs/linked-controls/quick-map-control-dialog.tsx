@@ -14,6 +14,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { toast } from 'sonner'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { TruncatedCell } from '@repo/ui/data-table'
+import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
 
 type QuickMapVariant = 'org' | 'framework'
 
@@ -29,6 +30,7 @@ type ControlOption = {
   refCode: string
   description?: string | null
   status?: string | null
+  referenceFramework?: string | null
 }
 
 const SUGGESTION_PAGINATION = { page: 1, pageSize: 50, query: { first: 50 } }
@@ -51,7 +53,12 @@ const VARIANT_COPY: Record<QuickMapVariant, { buttonLabel: string; dialogTitle: 
 }
 
 const getScopeWhere = (variant: QuickMapVariant): ControlWhereInput =>
-  variant === 'framework' ? { referenceFrameworkNotNil: true, referenceFrameworkNEQ: 'CUSTOM' } : { referenceFrameworkIsNil: true }
+  variant === 'framework' ? { referenceFrameworkNotNil: true, referenceFrameworkNEQ: 'CUSTOM', systemOwned: false } : { referenceFrameworkIsNil: true, systemOwned: false }
+
+const getSuggestionRefCode = (refCode: string): string => {
+  const lastSeparator = Math.max(refCode.lastIndexOf('.'), refCode.lastIndexOf('-'))
+  return lastSeparator > 0 ? refCode.slice(0, lastSeparator) : refCode
+}
 
 export const QuickMapControlDialog: React.FC<Props> = ({ controlId, subcontrolId, refCode, variant = 'org' }) => {
   const [open, setOpen] = useState(false)
@@ -66,7 +73,7 @@ export const QuickMapControlDialog: React.FC<Props> = ({ controlId, subcontrolId
   const suggestedWhere = useMemo<ControlWhereInput>(
     () => ({
       ...getScopeWhere(variant),
-      refCodeContainsFold: refCode.split('-')[0],
+      refCodeContainsFold: getSuggestionRefCode(refCode),
       ...(controlId ? { idNotIn: [controlId] } : {}),
     }),
     [variant, refCode, controlId],
@@ -96,7 +103,9 @@ export const QuickMapControlDialog: React.FC<Props> = ({ controlId, subcontrolId
   const isSearching = debouncedSearch.trim().length > 0
   const displayControls: ControlOption[] = useMemo(() => {
     const source = isSearching ? searchResults : suggested
-    return source.filter((c): c is typeof c & { id: string; refCode: string } => !!c?.id && !!c?.refCode).map((c) => ({ id: c.id, refCode: c.refCode, description: c.description, status: c.status }))
+    return source
+      .filter((c): c is typeof c & { id: string; refCode: string } => !!c?.id && !!c?.refCode)
+      .map((c) => ({ id: c.id, refCode: c.refCode, description: c.description, status: c.status, referenceFramework: c.referenceFramework }))
   }, [isSearching, searchResults, suggested])
 
   const toggle = (id: string) => {
@@ -207,7 +216,10 @@ export const QuickMapControlDialog: React.FC<Props> = ({ controlId, subcontrolId
                 <label key={ctrl.id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-muted/40 cursor-pointer">
                   <Checkbox checked={selected.has(ctrl.id)} onCheckedChange={() => toggle(ctrl.id)} className="mt-0.5 shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium leading-tight">{ctrl.refCode}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium leading-tight">{ctrl.refCode}</p>
+                      <StandardChip referenceFramework={ctrl.referenceFramework ?? ''} />
+                    </div>
                     {ctrl.description && (
                       <TruncatedCell portal className="text-xs text-muted-foreground mt-0.5 line-clamp-2 text-justify whitespace-normal">
                         {convertToReadOnly(ctrl.description, 0)}
