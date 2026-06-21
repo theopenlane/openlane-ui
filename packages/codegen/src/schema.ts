@@ -3355,6 +3355,9 @@ export interface Campaign extends Node {
   template?: Maybe<Template>
   /** the template associated with the campaign */
   templateID?: Maybe<Scalars['ID']['output']>
+  trustCenter?: Maybe<TrustCenter>
+  /** the trust center this campaign sends updates for, if any */
+  trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   users: UserConnection
@@ -3497,6 +3500,7 @@ export enum CampaignCampaignType {
   POLICY_ATTESTATION = 'POLICY_ATTESTATION',
   QUESTIONNAIRE = 'QUESTIONNAIRE',
   TRAINING = 'TRAINING',
+  TRUST_CENTER_UPDATE = 'TRUST_CENTER_UPDATE',
   VENDOR_ASSESSMENT = 'VENDOR_ASSESSMENT',
 }
 
@@ -3633,6 +3637,9 @@ export interface CampaignTarget extends Node {
   sentAt?: Maybe<Scalars['DateTime']['output']>
   /** the delivery or response status for the campaign target */
   status: CampaignTargetAssessmentResponseStatus
+  subscriber?: Maybe<Subscriber>
+  /** the trust center subscriber this target was generated from, if any */
+  subscriberID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
@@ -3872,6 +3879,9 @@ export interface CampaignTargetWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** subscriber edge predicates */
+  hasSubscriber?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubscriberWith?: InputMaybe<Array<SubscriberWhereInput>>
   /** user edge predicates */
   hasUser?: InputMaybe<Scalars['Boolean']['input']>
   hasUserWith?: InputMaybe<Array<UserWhereInput>>
@@ -3923,6 +3933,22 @@ export interface CampaignTargetWhereInput {
   statusIn?: InputMaybe<Array<CampaignTargetAssessmentResponseStatus>>
   statusNEQ?: InputMaybe<CampaignTargetAssessmentResponseStatus>
   statusNotIn?: InputMaybe<Array<CampaignTargetAssessmentResponseStatus>>
+  /** subscriber_id field predicates */
+  subscriberID?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDContains?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDGT?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDGTE?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  subscriberIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  subscriberIDLT?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDLTE?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  subscriberIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -4193,6 +4219,9 @@ export interface CampaignWhereInput {
   /** template edge predicates */
   hasTemplate?: InputMaybe<Scalars['Boolean']['input']>
   hasTemplateWith?: InputMaybe<Array<TemplateWhereInput>>
+  /** trust_center edge predicates */
+  hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
   /** users edge predicates */
   hasUsers?: InputMaybe<Scalars['Boolean']['input']>
   hasUsersWith?: InputMaybe<Array<UserWhereInput>>
@@ -4460,6 +4489,22 @@ export interface CampaignWhereInput {
   templateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   templateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   templateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** trust_center_id field predicates */
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContains?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterIDLT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDLTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -4939,6 +4984,7 @@ export interface Contact extends Node {
   phoneNumber?: Maybe<Scalars['String']['output']>
   /** status of the contact */
   status: ContactUserStatus
+  subscribers: SubscriberConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the title of the contact */
@@ -4981,6 +5027,15 @@ export interface ContactFilesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FileOrder>>
   where?: InputMaybe<FileWhereInput>
+}
+
+export interface ContactSubscribersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubscriberOrder>>
+  where?: InputMaybe<SubscriberWhereInput>
 }
 
 /** Return response for createBulkContact mutation */
@@ -5210,6 +5265,9 @@ export interface ContactWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** subscribers edge predicates */
+  hasSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubscribersWith?: InputMaybe<Array<SubscriberWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -5436,6 +5494,8 @@ export interface Control extends Node {
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
   references?: Maybe<Array<Scalars['Reference']['output']>>
+  /** relatedControls show the controls and frameworks mapped to this control */
+  relatedControls?: Maybe<Array<ControlInfo>>
   remediations: RemediationConnection
   /** the entity who is responsible for the control implementation when it is a third party */
   responsibleParty?: Maybe<Entity>
@@ -5907,6 +5967,19 @@ export interface ControlEdge {
   node?: Maybe<Control>
 }
 
+/** ControlEvidence summarizes the evidence status across all evidence linked to a control */
+export interface ControlEvidence {
+  __typename?: 'ControlEvidence'
+  /** number of evidence items with auditor-approved status */
+  approvedCount: Scalars['Int']['output']
+  /** breakdown of evidence item counts by status */
+  countByStatus?: Maybe<Array<EvidenceCountByStatus>>
+  /** total number of evidence items linked to the control */
+  totalCount: Scalars['Int']['output']
+  /** the most severe evidence status among all linked evidence items */
+  worstStatus?: Maybe<EvidenceEvidenceStatus>
+}
+
 /** ControlFieldDiff describes a single field that differs between two control revisions */
 export interface ControlFieldDiff {
   __typename?: 'ControlFieldDiff'
@@ -6324,6 +6397,31 @@ export interface ControlImplementationWhereInput {
   verifiedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   verifiedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   verifiedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** ControlInfo provides a lightweight summary of a control or subcontrol, used when referencing related controls */
+export interface ControlInfo {
+  __typename?: 'ControlInfo'
+  /** category of the control */
+  category?: Maybe<Scalars['String']['output']>
+  /** the group of users who are responsible for the control, will be assigned tasks, approval, etc. */
+  controlOwner?: Maybe<Group>
+  /** description of what the control is supposed to accomplish */
+  description?: Maybe<Scalars['String']['output']>
+  /** unique identifier of the control */
+  id: Scalars['ID']['output']
+  /** whether this entry is a subcontrol rather than a top-level control */
+  isSubcontrol: Scalars['Boolean']['output']
+  /** the unique reference code for the control */
+  refCode: Scalars['String']['output']
+  /** the reference framework this control belongs to, e.g. SOC2, ISO27001 */
+  referenceFramework?: Maybe<Scalars['String']['output']>
+  /** status of the control */
+  status?: Maybe<ControlControlStatus>
+  /** subcategory of the control */
+  subcategory?: Maybe<Scalars['String']['output']>
+  /** human readable title of the control for quick identification */
+  title?: Maybe<Scalars['String']['output']>
 }
 
 export interface ControlObjective extends Node {
@@ -6902,6 +7000,102 @@ export enum ControlOrderField {
   ref_code = 'ref_code',
   subcategory = 'subcategory',
   title = 'title',
+  updated_at = 'updated_at',
+}
+
+/** ControlPolicies summarizes the internal policies linked to a control */
+export interface ControlPolicies {
+  __typename?: 'ControlPolicies'
+  /** the policies linked to the control */
+  internalPolicies?: Maybe<Array<PolicySummary>>
+  /** total number of policies linked to the control */
+  totalCount: Scalars['Int']['output']
+}
+
+/**
+ * ControlReport is a custom resolver that is used to show detailed, but selective information about
+ * an organizations controls vs. the standards
+ */
+export interface ControlReport extends Node {
+  __typename?: 'ControlReport'
+  /** category of the control */
+  category?: Maybe<Scalars['String']['output']>
+  /** the group of users who are responsible for the control, will be assigned tasks, approval, etc. */
+  controlOwner?: Maybe<Group>
+  /** description of what the control is supposed to accomplish */
+  description?: Maybe<Scalars['String']['output']>
+  /** aggregated evidence status across all evidence linked to this control */
+  evidenceStatus?: Maybe<ControlEvidence>
+  /** unique identifier of the control */
+  id: Scalars['ID']['output']
+  /** internal policies linked to this control */
+  linkedPolicies?: Maybe<ControlPolicies>
+  /** the unique reference code for the control */
+  refCode: Scalars['String']['output']
+  /** the reference framework this control belongs to, e.g. SOC2, ISO27001 */
+  referenceFramework?: Maybe<Scalars['String']['output']>
+  /** controls from other frameworks that map to this control */
+  relatedControls?: Maybe<Array<ControlInfo>>
+  /** status of the control */
+  status?: Maybe<ControlControlStatus>
+  /** subcategory of the control */
+  subcategory?: Maybe<Scalars['String']['output']>
+  /** child subcontrols nested under this control */
+  subcontrols?: Maybe<Array<ControlReport>>
+  /** human readable title of the control for quick identification */
+  title?: Maybe<Scalars['String']['output']>
+}
+
+/** ControlReportCategory groups control reports by their category */
+export interface ControlReportCategory {
+  __typename?: 'ControlReportCategory'
+  /** the category name; empty string when controls have no category assigned */
+  category: Scalars['String']['output']
+  /** controls belonging to this category */
+  controls: Array<ControlReport>
+  /** total number of controls in this category */
+  totalCount: Scalars['Int']['output']
+}
+
+/** A connection to a list of items. */
+export interface ControlReportConnection {
+  __typename?: 'ControlReportConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<ControlReportEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface ControlReportEdge {
+  __typename?: 'ControlReportEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<ControlReport>
+}
+
+/** Ordering options for ControlReport connections */
+export interface ControlReportOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order ControlReport. */
+  field: ControlReportOrderField
+}
+
+/** Properties by which ControlReport connections can be ordered. */
+export enum ControlReportOrderField {
+  /** Order by creation time */
+  created_at = 'created_at',
+  /** Order by reference code */
+  refCode = 'refCode',
+  /** Order by reference framework */
+  referenceFramework = 'referenceFramework',
+  /** Order by title */
+  title = 'title',
+  /** Order by last update time */
   updated_at = 'updated_at',
 }
 
@@ -7940,6 +8134,7 @@ export interface CreateCampaignInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
   userIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal marker field for workflow eligibility, not exposed in API */
@@ -7968,6 +8163,7 @@ export interface CreateCampaignTargetInput {
   sentAt?: InputMaybe<Scalars['DateTime']['input']>
   /** the delivery or response status for the campaign target */
   status?: InputMaybe<CampaignTargetAssessmentResponseStatus>
+  subscriberID?: InputMaybe<Scalars['ID']['input']>
   userID?: InputMaybe<Scalars['ID']['input']>
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
@@ -8037,6 +8233,7 @@ export interface CreateContactInput {
   phoneNumber?: InputMaybe<Scalars['String']['input']>
   /** status of the contact */
   status?: InputMaybe<ContactUserStatus>
+  subscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the title of the contact */
@@ -8630,6 +8827,7 @@ export interface CreateEmailTemplateInput {
   templateContext?: InputMaybe<EmailTemplateTemplateContext>
   /** plain text fallback template for the email */
   textTemplate?: InputMaybe<Scalars['String']['input']>
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** uischema for a template builder */
   uischema?: InputMaybe<Scalars['Map']['input']>
   /** template version */
@@ -9420,7 +9618,7 @@ export interface CreateInviteInput {
   expires?: InputMaybe<Scalars['Time']['input']>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes admin and invitee becomes owner */
+  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes super admin and invitee becomes owner */
   ownershipTransfer?: InputMaybe<Scalars['Boolean']['input']>
   /** the email used as input to generate the invitation token and is the destination person the invitation is sent to who is required to accept to join the organization */
   recipient: Scalars['String']['input']
@@ -9632,6 +9830,8 @@ export interface CreateNoteInput {
   isEdited?: InputMaybe<Scalars['Boolean']['input']>
   /** ref location of the note */
   noteRef?: InputMaybe<Scalars['String']['input']>
+  /** when set on a trust center post, sends the published update to the trust center's subscribers */
+  notifySubscribers?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureID?: InputMaybe<Scalars['ID']['input']>
   riskID?: InputMaybe<Scalars['ID']['input']>
@@ -10864,6 +11064,8 @@ export interface CreateSubprocessorInput {
  * Input was generated by ent.
  */
 export interface CreateSubscriberInput {
+  campaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  contactID?: InputMaybe<Scalars['ID']['input']>
   /** email address of the subscriber */
   email: Scalars['String']['input']
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -10872,6 +11074,8 @@ export interface CreateSubscriberInput {
   phoneNumber?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  userID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -11120,9 +11324,11 @@ export interface CreateTrustCenterFaqInput {
  */
 export interface CreateTrustCenterInput {
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   createTrustCenterSetting?: InputMaybe<CreateTrustCenterSettingInput>
   customDomainID?: InputMaybe<Scalars['ID']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  emailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** Pirsch access link */
   pirschAccessLink?: InputMaybe<Scalars['String']['input']>
@@ -11138,6 +11344,7 @@ export interface CreateTrustCenterInput {
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** External URL for the trust center subprocessors */
   subprocessorURL?: InputMaybe<Scalars['String']['input']>
+  subscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -11253,6 +11460,8 @@ export interface CreateTrustCenterSettingInput {
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
+  /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
+  notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   /** overview of the trust center */
   overview?: InputMaybe<Scalars['String']['input']>
   /** primary color for the trust center */
@@ -11370,6 +11579,7 @@ export interface CreateUserInput {
   /** the Subject of the user JWT */
   sub?: InputMaybe<Scalars['String']['input']>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  subscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   targetedImpersonationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -15747,6 +15957,9 @@ export interface EmailTemplate extends Node {
   systemOwned?: Maybe<Scalars['Boolean']['output']>
   /** runtime data context defining available variable keys for this template */
   templateContext?: Maybe<EmailTemplateTemplateContext>
+  trustCenter?: Maybe<TrustCenter>
+  /** the trust center this template is associated with, if any */
+  trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   /** template version */
@@ -16067,6 +16280,9 @@ export interface EmailTemplateWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** trust_center edge predicates */
+  hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
@@ -16271,6 +16487,22 @@ export interface EmailTemplateWhereInput {
   textTemplateNEQ?: InputMaybe<Scalars['String']['input']>
   textTemplateNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   textTemplateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** trust_center_id field predicates */
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContains?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterIDLT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDLTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -18569,6 +18801,15 @@ export interface EvidenceConnection {
   /** Information to aid in pagination. */
   pageInfo: PageInfo
   /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** EvidenceCountByStatus pairs an evidence status with the number of evidence items in that state */
+export interface EvidenceCountByStatus {
+  __typename?: 'EvidenceCountByStatus'
+  /** the evidence status value */
+  status: EvidenceEvidenceStatus
+  /** number of evidence items with this status */
   totalCount: Scalars['Int']['output']
 }
 
@@ -25967,7 +26208,7 @@ export interface Invite extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes admin and invitee becomes owner */
+  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes super admin and invitee becomes owner */
   ownershipTransfer?: Maybe<Scalars['Boolean']['output']>
   /** the email used as input to generate the invitation token and is the destination person the invitation is sent to who is required to accept to join the organization */
   recipient: Scalars['String']['output']
@@ -32641,6 +32882,10 @@ export interface Note extends Node {
   isEdited: Scalars['Boolean']['output']
   /** ref location of the note */
   noteRef?: Maybe<Scalars['String']['output']>
+  /** when subscribers were notified about this post */
+  notifiedAt?: Maybe<Scalars['Time']['output']>
+  /** when set on a trust center post, sends the published update to the trust center's subscribers */
+  notifySubscribers?: Maybe<Scalars['Boolean']['output']>
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -32851,6 +33096,22 @@ export interface NoteWhereInput {
   noteRefNEQ?: InputMaybe<Scalars['String']['input']>
   noteRefNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   noteRefNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** notified_at field predicates */
+  notifiedAt?: InputMaybe<Scalars['Time']['input']>
+  notifiedAtGT?: InputMaybe<Scalars['Time']['input']>
+  notifiedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  notifiedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  notifiedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  notifiedAtLT?: InputMaybe<Scalars['Time']['input']>
+  notifiedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  notifiedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  notifiedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  notifiedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** notify_subscribers field predicates */
+  notifySubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  notifySubscribersIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  notifySubscribersNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  notifySubscribersNotNil?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<NoteWhereInput>>
   /** owner_id field predicates */
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -39191,6 +39452,17 @@ export interface PlatformWhereInput {
   workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** PolicySummary provides a lightweight summary of an internal policy */
+export interface PolicySummary extends Node {
+  __typename?: 'PolicySummary'
+  /** unique identifier of the policy */
+  id: Scalars['ID']['output']
+  /** the name of the policy */
+  name: Scalars['String']['output']
+  /** status of the policy, e.g. draft, published, archived, etc. */
+  status: InternalPolicyDocumentStatus
+}
+
 export interface Procedure extends Node {
   __typename?: 'Procedure'
   /** Returns active workflow instances for this procedure (RUNNING or PAUSED) */
@@ -40952,6 +41224,10 @@ export interface Query {
   /** Search across ControlObjective objects */
   controlObjectiveSearch?: Maybe<ControlObjectiveConnection>
   controlObjectives: ControlObjectiveConnection
+  /** Returns a paginated list of control reports for the organization, showing control compliance status against standards */
+  controlReports: ControlReportConnection
+  /** Returns control reports grouped by category for the organization */
+  controlReportsByCategory: Array<ControlReportCategory>
   /** Search across Control objects */
   controlSearch?: Maybe<ControlConnection>
   /** All existing subcategories or domains used in the organization @deprecated */
@@ -41531,6 +41807,19 @@ export interface QueryControlObjectivesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlObjectiveOrder>>
   where?: InputMaybe<ControlObjectiveWhereInput>
+}
+
+export interface QueryControlReportsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlReportOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
+export interface QueryControlReportsByCategoryArgs {
+  where?: InputMaybe<ControlWhereInput>
 }
 
 export interface QueryControlSearchArgs {
@@ -42957,6 +43246,38 @@ export interface ReassignWorkflowAssignmentInput {
   id: Scalars['ID']['input']
   /** New targets for the assignment */
   targets: Array<WorkflowAssignmentTargetInput>
+}
+
+/** A connection to a list of items. */
+export interface RelatedControlConnection {
+  __typename?: 'RelatedControlConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<RelatedControlEdge>>>
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface RelatedControlEdge {
+  __typename?: 'RelatedControlEdge'
+  /** The item at the end of the edge. */
+  node: Control
+}
+
+/** A connection to a list of items. */
+export interface RelatedSubcontrolConnection {
+  __typename?: 'RelatedSubcontrolConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<RelatedSubcontrolEdge>>>
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface RelatedSubcontrolEdge {
+  __typename?: 'RelatedSubcontrolEdge'
+  /** The item at the end of the edge. */
+  node: Subcontrol
 }
 
 export interface Remediation extends Node {
@@ -47931,6 +48252,8 @@ export interface Subcontrol extends Node {
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
   references?: Maybe<Array<Scalars['Reference']['output']>>
+  /** relatedControls show the controls and frameworks mapped to this control */
+  relatedControls?: Maybe<Array<ControlInfo>>
   remediations: RemediationConnection
   /** the entity who is responsible for the control implementation when it is a third party */
   responsibleParty?: Maybe<Entity>
@@ -49193,6 +49516,10 @@ export interface Subscriber extends Node {
   __typename?: 'Subscriber'
   /** indicates if the subscriber is active or not, active users will have at least one verified contact method */
   active: Scalars['Boolean']['output']
+  campaignTargets: CampaignTargetConnection
+  contact?: Maybe<Contact>
+  /** the contact record matched to this subscriber by email, set automatically when a matching contact exists */
+  contactID?: Maybe<Scalars['ID']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** email address of the subscriber */
@@ -49208,14 +49535,29 @@ export interface Subscriber extends Node {
   sendAttempts: Scalars['Int']['output']
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
+  trustCenter?: Maybe<TrustCenter>
+  /** the trust center the subscriber is subscribed to, null for legacy organization-level subscribers */
+  trustCenterID?: Maybe<Scalars['ID']['output']>
   /** indicates if the subscriber has unsubscribed from communications */
   unsubscribed: Scalars['Boolean']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  user?: Maybe<User>
+  /** the user matched to this subscriber by email, set automatically when a matching user exists */
+  userID?: Maybe<Scalars['ID']['output']>
   /** indicates if the email address has been verified */
   verifiedEmail: Scalars['Boolean']['output']
   /** indicates if the phone number has been verified */
   verifiedPhone: Scalars['Boolean']['output']
+}
+
+export interface SubscriberCampaignTargetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignTargetOrder>>
+  where?: InputMaybe<CampaignTargetWhereInput>
 }
 
 export interface SubscriberEventsArgs {
@@ -49302,6 +49644,22 @@ export interface SubscriberWhereInput {
   active?: InputMaybe<Scalars['Boolean']['input']>
   activeNEQ?: InputMaybe<Scalars['Boolean']['input']>
   and?: InputMaybe<Array<SubscriberWhereInput>>
+  /** contact_id field predicates */
+  contactID?: InputMaybe<Scalars['ID']['input']>
+  contactIDContains?: InputMaybe<Scalars['ID']['input']>
+  contactIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  contactIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  contactIDGT?: InputMaybe<Scalars['ID']['input']>
+  contactIDGTE?: InputMaybe<Scalars['ID']['input']>
+  contactIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  contactIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  contactIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  contactIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  contactIDLT?: InputMaybe<Scalars['ID']['input']>
+  contactIDLTE?: InputMaybe<Scalars['ID']['input']>
+  contactIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  contactIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  contactIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -49343,12 +49701,24 @@ export interface SubscriberWhereInput {
   emailLTE?: InputMaybe<Scalars['String']['input']>
   emailNEQ?: InputMaybe<Scalars['String']['input']>
   emailNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** campaign_targets edge predicates */
+  hasCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignTargetsWith?: InputMaybe<Array<CampaignTargetWhereInput>>
+  /** contact edge predicates */
+  hasContact?: InputMaybe<Scalars['Boolean']['input']>
+  hasContactWith?: InputMaybe<Array<ContactWhereInput>>
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** trust_center edge predicates */
+  hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
+  /** user edge predicates */
+  hasUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasUserWith?: InputMaybe<Array<UserWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -49405,6 +49775,22 @@ export interface SubscriberWhereInput {
   sendAttemptsNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   /** Filter for tagsHas to contain a specific value */
   tagsHas?: InputMaybe<Scalars['String']['input']>
+  /** trust_center_id field predicates */
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContains?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterIDLT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDLTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** unsubscribed field predicates */
   unsubscribed?: InputMaybe<Scalars['Boolean']['input']>
   unsubscribedNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -49435,6 +49821,22 @@ export interface SubscriberWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** user_id field predicates */
+  userID?: InputMaybe<Scalars['ID']['input']>
+  userIDContains?: InputMaybe<Scalars['ID']['input']>
+  userIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  userIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  userIDGT?: InputMaybe<Scalars['ID']['input']>
+  userIDGTE?: InputMaybe<Scalars['ID']['input']>
+  userIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  userIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  userIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  userIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  userIDLT?: InputMaybe<Scalars['ID']['input']>
+  userIDLTE?: InputMaybe<Scalars['ID']['input']>
+  userIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  userIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  userIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** verified_email field predicates */
   verifiedEmail?: InputMaybe<Scalars['Boolean']['input']>
   verifiedEmailNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -51534,12 +51936,14 @@ export interface TemplateWhereInput {
 export interface TrustCenter extends Node {
   __typename?: 'TrustCenter'
   blockedGroups: GroupConnection
+  campaigns: CampaignConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   customDomain?: Maybe<CustomDomain>
   /** custom domain id for the trust center */
   customDomainID?: Maybe<Scalars['ID']['output']>
   editors: GroupConnection
+  emailTemplates: EmailTemplateConnection
   id: Scalars['ID']['output']
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
@@ -51562,6 +51966,7 @@ export interface TrustCenter extends Node {
   slug?: Maybe<Scalars['String']['output']>
   /** External URL for the trust center subprocessors */
   subprocessorURL?: Maybe<Scalars['String']['output']>
+  subscribers: SubscriberConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   templates: TemplateConnection
@@ -51585,6 +51990,15 @@ export interface TrustCenterBlockedGroupsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface TrustCenterCampaignsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
+}
+
 export interface TrustCenterEditorsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -51594,6 +52008,15 @@ export interface TrustCenterEditorsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface TrustCenterEmailTemplatesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EmailTemplateOrder>>
+  where?: InputMaybe<EmailTemplateWhereInput>
+}
+
 export interface TrustCenterPostsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -51601,6 +52024,15 @@ export interface TrustCenterPostsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<NoteOrder>>
   where?: InputMaybe<NoteWhereInput>
+}
+
+export interface TrustCenterSubscribersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubscriberOrder>>
+  where?: InputMaybe<SubscriberWhereInput>
 }
 
 export interface TrustCenterTemplatesArgs {
@@ -53397,6 +53829,8 @@ export interface TrustCenterSetting extends Node {
   ndaApproverGroup?: Maybe<Group>
   /** group whose members approve trust center NDA requests */
   ndaApproverGroupID?: Maybe<Scalars['ID']['output']>
+  /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
+  notifySubscribersOnSubprocessorChange?: Maybe<Scalars['Boolean']['output']>
   /** overview of the trust center */
   overview?: Maybe<Scalars['String']['output']>
   /** primary color for the trust center */
@@ -53411,6 +53845,8 @@ export interface TrustCenterSetting extends Node {
   securityContact?: Maybe<Scalars['String']['output']>
   /** URL to the company's status page */
   statusPageURL?: Maybe<Scalars['String']['output']>
+  /** watermark of the most recent subprocessor change subscribers have been notified about */
+  subprocessorsNotifiedAt?: Maybe<Scalars['Time']['output']>
   /** Theme mode for the trust center */
   themeMode?: Maybe<TrustCenterSettingTrustCenterThemeMode>
   /** title of the trust center */
@@ -53796,6 +54232,11 @@ export interface TrustCenterSettingWhereInput {
   ndaApproverGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ndaApproverGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TrustCenterSettingWhereInput>
+  /** notify_subscribers_on_subprocessor_change field predicates */
+  notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
+  notifySubscribersOnSubprocessorChangeIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  notifySubscribersOnSubprocessorChangeNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  notifySubscribersOnSubprocessorChangeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<TrustCenterSettingWhereInput>>
   /** overview field predicates */
   overview?: InputMaybe<Scalars['String']['input']>
@@ -53898,6 +54339,17 @@ export interface TrustCenterSettingWhereInput {
   statusPageURLNEQ?: InputMaybe<Scalars['String']['input']>
   statusPageURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   statusPageURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** subprocessors_notified_at field predicates */
+  subprocessorsNotifiedAt?: InputMaybe<Scalars['Time']['input']>
+  subprocessorsNotifiedAtGT?: InputMaybe<Scalars['Time']['input']>
+  subprocessorsNotifiedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  subprocessorsNotifiedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  subprocessorsNotifiedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  subprocessorsNotifiedAtLT?: InputMaybe<Scalars['Time']['input']>
+  subprocessorsNotifiedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  subprocessorsNotifiedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  subprocessorsNotifiedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  subprocessorsNotifiedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** theme_mode field predicates */
   themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
   themeModeIn?: InputMaybe<Array<TrustCenterSettingTrustCenterThemeMode>>
@@ -54659,12 +55111,18 @@ export interface TrustCenterWhereInput {
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** campaigns edge predicates */
+  hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
   /** custom_domain edge predicates */
   hasCustomDomain?: InputMaybe<Scalars['Boolean']['input']>
   hasCustomDomainWith?: InputMaybe<Array<CustomDomainWhereInput>>
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** email_templates edge predicates */
+  hasEmailTemplates?: InputMaybe<Scalars['Boolean']['input']>
+  hasEmailTemplatesWith?: InputMaybe<Array<EmailTemplateWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -54680,6 +55138,9 @@ export interface TrustCenterWhereInput {
   /** setting edge predicates */
   hasSetting?: InputMaybe<Scalars['Boolean']['input']>
   hasSettingWith?: InputMaybe<Array<TrustCenterSettingWhereInput>>
+  /** subscribers edge predicates */
+  hasSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubscribersWith?: InputMaybe<Array<SubscriberWhereInput>>
   /** templates edge predicates */
   hasTemplates?: InputMaybe<Scalars['Boolean']['input']>
   hasTemplatesWith?: InputMaybe<Array<TemplateWhereInput>>
@@ -55327,6 +55788,7 @@ export interface UpdateCampaignInput {
   clearScheduledAt?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   clearUsers?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
@@ -55394,6 +55856,7 @@ export interface UpdateCampaignInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
 }
@@ -55411,6 +55874,7 @@ export interface UpdateCampaignTargetInput {
   clearGroup?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearSentAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubscriber?: InputMaybe<Scalars['Boolean']['input']>
   clearUser?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
@@ -55429,6 +55893,7 @@ export interface UpdateCampaignTargetInput {
   sentAt?: InputMaybe<Scalars['DateTime']['input']>
   /** the delivery or response status for the campaign target */
   status?: InputMaybe<CampaignTargetAssessmentResponseStatus>
+  subscriberID?: InputMaybe<Scalars['ID']['input']>
   userID?: InputMaybe<Scalars['ID']['input']>
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
@@ -55485,6 +55950,7 @@ export interface UpdateContactInput {
   addCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the address of the contact */
   address?: InputMaybe<Scalars['String']['input']>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -55501,6 +55967,7 @@ export interface UpdateContactInput {
   clearObservedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPhoneNumber?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubscribers?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTitle?: InputMaybe<Scalars['Boolean']['input']>
   /** the company of the contact */
@@ -55522,6 +55989,7 @@ export interface UpdateContactInput {
   removeCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** status of the contact */
   status?: InputMaybe<ContactUserStatus>
   /** tags associated with the object */
@@ -56396,6 +56864,7 @@ export interface UpdateEmailTemplateInput {
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplateContext?: InputMaybe<Scalars['Boolean']['input']>
   clearTextTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowDefinition?: InputMaybe<Scalars['Boolean']['input']>
@@ -56437,6 +56906,7 @@ export interface UpdateEmailTemplateInput {
   templateContext?: InputMaybe<EmailTemplateTemplateContext>
   /** plain text fallback template for the email */
   textTemplate?: InputMaybe<Scalars['String']['input']>
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** uischema for a template builder */
   uischema?: InputMaybe<Scalars['Map']['input']>
   /** template version */
@@ -57827,7 +58297,7 @@ export interface UpdateInviteInput {
   /** the expiration date of the invitation token which defaults to 14 days in the future from creation */
   expires?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes admin and invitee becomes owner */
+  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes super admin and invitee becomes owner */
   ownershipTransfer?: InputMaybe<Scalars['Boolean']['input']>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -60295,22 +60765,29 @@ export interface UpdateSubprocessorInput {
  * Input was generated by ent.
  */
 export interface UpdateSubscriberInput {
+  addCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
+  clearContact?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPhoneNumber?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearUser?: InputMaybe<Scalars['Boolean']['input']>
+  contactID?: InputMaybe<Scalars['ID']['input']>
   /** email address of the subscriber */
   email?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** phone number of the subscriber */
   phoneNumber?: InputMaybe<Scalars['String']['input']>
+  removeCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** indicates if the subscriber has unsubscribed from communications */
   unsubscribed?: InputMaybe<Scalars['Boolean']['input']>
+  userID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -60679,10 +61156,13 @@ export interface UpdateTrustCenterFaqInput {
  */
 export interface UpdateTrustCenterInput {
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEmailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** adds a post for the trust center feed */
   addPost?: InputMaybe<CreateNoteInput>
   addPostIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -60692,8 +61172,10 @@ export interface UpdateTrustCenterInput {
   addTrustCenterSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   clearCustomDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEmailTemplates?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschAccessLink?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschDomainID?: InputMaybe<Scalars['Boolean']['input']>
@@ -60704,6 +61186,7 @@ export interface UpdateTrustCenterInput {
   clearPreviewStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSetting?: InputMaybe<Scalars['Boolean']['input']>
   clearSubprocessorURL?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubscribers?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplates?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterCompliances?: InputMaybe<Scalars['Boolean']['input']>
@@ -60728,8 +61211,11 @@ export interface UpdateTrustCenterInput {
   /** preview status of the trust center */
   previewStatus?: InputMaybe<TrustCenterTrustCenterPreviewStatus>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEmailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePostIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -60824,6 +61310,7 @@ export interface UpdateTrustCenterSettingInput {
   clearLogoRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearNdaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   clearNdaApproverGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearNotifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   clearOverview?: InputMaybe<Scalars['Boolean']['input']>
   clearPrimaryColor?: InputMaybe<Scalars['Boolean']['input']>
   clearSecondaryBackgroundColor?: InputMaybe<Scalars['Boolean']['input']>
@@ -60853,6 +61340,8 @@ export interface UpdateTrustCenterSettingInput {
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
+  /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
+  notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   /** overview of the trust center */
   overview?: InputMaybe<Scalars['String']['input']>
   /** primary color for the trust center */
@@ -60956,6 +61445,7 @@ export interface UpdateUserInput {
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramsOwnedIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTargetedImpersonationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTfaSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWebauthnIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -60997,6 +61487,7 @@ export interface UpdateUserInput {
   clearScimUsername?: InputMaybe<Scalars['Boolean']['input']>
   clearSub?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubscribers?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTargetedImpersonations?: InputMaybe<Scalars['Boolean']['input']>
   clearTfaSettings?: InputMaybe<Scalars['Boolean']['input']>
@@ -61027,6 +61518,7 @@ export interface UpdateUserInput {
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramsOwnedIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTargetedImpersonationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTfaSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWebauthnIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -61488,6 +61980,7 @@ export interface User extends Node {
   /** the Subject of the user JWT */
   sub?: Maybe<Scalars['String']['output']>
   subcontrols: SubcontrolConnection
+  subscribers: SubscriberConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tfaSettings: TfaSettingConnection
@@ -61647,6 +62140,15 @@ export interface UserSubcontrolsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<SubcontrolOrder>>
   where?: InputMaybe<SubcontrolWhereInput>
+}
+
+export interface UserSubscribersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubscriberOrder>>
+  where?: InputMaybe<SubscriberWhereInput>
 }
 
 export interface UserTfaSettingsArgs {
@@ -62239,6 +62741,9 @@ export interface UserWhereInput {
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** subscribers edge predicates */
+  hasSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubscribersWith?: InputMaybe<Array<SubscriberWhereInput>>
   /** tfa_settings edge predicates */
   hasTfaSettings?: InputMaybe<Scalars['Boolean']['input']>
   hasTfaSettingsWith?: InputMaybe<Array<TfaSettingWhereInput>>
@@ -76979,7 +77484,7 @@ export type GetAllSubscribersQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'SubscriberEdge'
-      node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean; createdAt?: any | null } | null
+      node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean; unsubscribed: boolean; createdAt?: any | null } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   }
@@ -78250,6 +78755,7 @@ export type GetTrustCenterQuery = {
           logoRemoteURL?: string | null
           securityContact?: string | null
           ndaApprovalRequired?: boolean | null
+          notifySubscribersOnSubprocessorChange?: boolean | null
           ndaApproverGroupID?: string | null
           logoFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; base64?: string | null } | null

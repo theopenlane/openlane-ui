@@ -22,7 +22,8 @@ import { useStorageSearch } from '@/hooks/useStorageSearch'
 import useFileExport from '@/components/shared/export/use-file-export'
 import { EditTrustCenterSubprocessorSheet } from './sheet/edit-trust-center-subprocessor-sheet'
 import { EmbedSubprocessorSheet } from './sheet/embed-subprocessor-sheet'
-import { useGetTrustCenter, useUpdateTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { useGetTrustCenter, useUpdateTrustCenter, useUpdateTrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
+import { Switch } from '@repo/ui/switch'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { useNotification } from '@/hooks/useNotification'
 import { Input } from '@repo/ui/input'
@@ -79,8 +80,26 @@ const SubprocessorsPage = () => {
   const [subprocessorURL, setSubprocessorURL] = useState(savedSubprocessorURL)
   const [mode, setMode] = useState<SubprocessorMode>(savedSubprocessorURL ? 'link' : 'manage')
 
+  const setting = trustCenterNode?.setting
   const { mutateAsync: updateTrustCenter, isPending: isSavingURL } = useUpdateTrustCenter()
+  const { mutateAsync: updateTrustCenterSetting } = useUpdateTrustCenterSetting()
   const { mutateAsync: deleteSubprocessor } = useDeleteTrustCenterSubprocessor()
+
+  const handleToggleSubprocessorNotify = async (checked: boolean) => {
+    if (!setting?.id) {
+      return
+    }
+
+    try {
+      await updateTrustCenterSetting({
+        updateTrustCenterSettingId: setting.id,
+        input: { notifySubscribersOnSubprocessorChange: checked },
+      })
+      successNotification({ title: checked ? 'Subscribers will be emailed when subprocessors change' : 'Subprocessor change notifications disabled' })
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    }
+  }
   const { mutateAsync: bulkDeleteSubprocessors } = useBulkDeleteTrustCenterSubprocessors()
   const fetchAllSubprocessorIds = useFetchAllTrustCenterSubprocessorIds()
 
@@ -297,6 +316,11 @@ const SubprocessorsPage = () => {
 
         {mode === 'manage' ? (
           <>
+            <div className="flex items-center gap-2 mb-4">
+              <Switch checked={!!setting?.notifySubscribersOnSubprocessorChange} onCheckedChange={handleToggleSubprocessorNotify} disabled={!setting?.id || !canEditSubprocessor} />
+              <span className="text-sm">Email subscribers when subprocessors change</span>
+            </div>
+
             <SubprocessorsTableToolbar
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
