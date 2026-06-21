@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_ALL_SUBSCRIBERS, DELETE_SUBSCRIBER, CREATE_CSV_BULK_SUBSCRIBER } from '@repo/codegen/query/subscriber'
+import { GET_ALL_SUBSCRIBERS, DELETE_SUBSCRIBER, UNSUBSCRIBE_MUTATION, CREATE_CSV_BULK_SUBSCRIBER } from '@repo/codegen/query/subscriber'
 
 import {
   type GetAllSubscribersQuery,
@@ -8,6 +8,8 @@ import {
   type DeleteSubscriberMutationVariables,
   type GetAllSubscribersQueryVariables,
   type Subscriber,
+  type UpdateSubscriberMutation,
+  type UpdateSubscriberMutationVariables,
   type CreateBulkCsvSubscriberMutation,
   type CreateBulkCsvSubscriberMutationVariables,
 } from '@repo/codegen/src/schema'
@@ -56,6 +58,17 @@ export const useDeleteSubscriber = () => {
 
   return useMutation<DeleteSubscriberMutation, unknown, DeleteSubscriberMutationVariables>({
     mutationFn: (variables) => client.request(DELETE_SUBSCRIBER, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscribers'] })
+    },
+  })
+}
+
+export const useUnsubscribeSubscriber = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateSubscriberMutation, unknown, UpdateSubscriberMutationVariables>({
+    mutationFn: (variables) => client.request(UNSUBSCRIBE_MUTATION, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscribers'] })
     },
