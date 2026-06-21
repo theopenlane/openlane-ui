@@ -7,7 +7,7 @@ import { Textarea } from '@repo/ui/textarea'
 import { DateSelect } from '../../shared/form-fields/date-select'
 import StandardSelect from '../../shared/form-fields/standard-select'
 
-const AdvancedSetupStep2 = () => {
+const AdvancedSetupStep2 = ({ defaultFrameworks = [] }: { defaultFrameworks?: string[] }) => {
   const {
     register,
     formState: { errors },
@@ -40,8 +40,9 @@ const AdvancedSetupStep2 = () => {
       <div className="space-y-4">
         <div className="flex flex-col gap-1.5">
           <label className="text-sm">Framework{programKindName === 'Framework' && <span className="text-destructive">*</span>}</label>
-          <StandardSelect />
+          <StandardSelect multiple defaultFrameworks={defaultFrameworks} />
           {errors.framework && <span className="text-xs text-destructive">{String(errors.framework.message)}</span>}
+          {errors.frameworks && <span className="text-xs text-destructive">{String(errors.frameworks.message)}</span>}
         </div>
         {/* Program Name */}
         <div className="flex flex-col gap-1.5">

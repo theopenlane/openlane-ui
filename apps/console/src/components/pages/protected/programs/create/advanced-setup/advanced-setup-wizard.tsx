@@ -2,9 +2,9 @@
 
 import React, { use, useEffect, useState } from 'react'
 import { defineStepper, type Step } from '@stepperize/react'
-import { useForm, FormProvider } from 'react-hook-form'
+import { useForm, FormProvider, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
@@ -38,10 +38,14 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
 
+const SOC2_FRAMEWORK_NAME = 'SOC 2'
+
 export default function AdvancedSetupWizard() {
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const defaultFrameworks = searchParams.getAll('frameworks')
   const [summaryData, setSummaryData] = useState<WizardValues>({} as WizardValues)
   const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
@@ -77,12 +81,17 @@ export default function AdvancedSetupWizard() {
       internalPolicyIDs: [],
       procedureIDs: [],
       categories: ['Security'],
+      frameworks: [],
+      ...(defaultFrameworks.length > 1 ? { programKindName: 'Framework' } : {}),
     },
   })
 
-  const framework = form.watch('framework')
+  const framework = useWatch({ control: form.control, name: 'framework' })
+  const selectedFrameworks = useWatch({ control: form.control, name: 'frameworks' })
 
-  const disabledIDs = framework === 'SOC 2' ? [] : ['2']
+  const hasSoc2Framework = framework === SOC2_FRAMEWORK_NAME || selectedFrameworks?.some((selectedFramework) => selectedFramework.value === SOC2_FRAMEWORK_NAME)
+
+  const disabledIDs = hasSoc2Framework ? [] : ['2']
 
   const handleNext = async () => {
     if (!stepper.isLast) {
@@ -168,7 +177,7 @@ export default function AdvancedSetupWizard() {
         viewerIDs: data?.readOnlyGroups?.map((g) => g.id),
         editorIDs: data?.editAccessGroups?.map((g) => g.id),
       },
-      categories: framework === 'SOC 2' ? data.categories : undefined,
+      categories: hasSoc2Framework ? data.categories : undefined,
       members: [...programMembers, ...programAdmins],
       standardID: data.standardID,
     }
@@ -215,7 +224,7 @@ export default function AdvancedSetupWizard() {
             <div className="flex flex-col flex-1">
               {stepper.switch({
                 0: () => <AdvancedSetupStep1 />,
-                1: () => <AdvancedSetupStep2 />,
+                1: () => <AdvancedSetupStep2 defaultFrameworks={defaultFrameworks} />,
                 2: () => <SelectCategoryStep />,
                 3: () => <AdvancedSetupStep3 />,
                 4: () => <AdvancedSetupStep4 isMemberSheetOpen={isMemberSheetOpen} setIsMemberSheetOpen={setIsMemberSheetOpen} />,
