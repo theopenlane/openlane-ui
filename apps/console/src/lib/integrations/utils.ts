@@ -37,6 +37,31 @@ const PROVIDER_ICON_MAP: Record<string, string> = {
 
 const fallbackIcon = '/icons/brand/integrations/default.png'
 
+export type DocumentFolderFieldConfig = {
+  label: string
+  placeholder: string
+  description: string
+}
+
+const DEFAULT_DOCUMENT_FOLDER_FIELD: DocumentFolderFieldConfig = {
+  label: 'Folder',
+  placeholder: '',
+  description: "Only documents inside this folder are synced into Openlane. Leave blank to sync everything you've granted access to.",
+}
+
+const DOCUMENT_FOLDER_FIELD_CONFIG: Record<string, DocumentFolderFieldConfig> = {
+  googledrive: {
+    label: 'Folder ID or URL',
+    placeholder: 'e.g. 1A2b3C... or https://drive.google.com/drive/folders/1A2b3C...',
+    description: "Only documents inside this Google Drive folder are synced into Openlane. Leave blank to sync everything you've granted access to.",
+  },
+  onedrive: {
+    label: 'Folder name',
+    placeholder: 'e.g. Policies',
+    description: "Only documents inside this OneDrive folder are synced into Openlane. Leave blank to sync everything you've granted access to.",
+  },
+}
+
 type FinalizedIntegrationFields = Pick<IntegrationNode, 'definitionID' | 'definitionSlug' | 'family' | 'kind' | 'name' | 'status'>
 
 export const HEALTH_CHECK_OPERATION_NAME = 'HealthCheck'
@@ -79,6 +104,17 @@ export function normalizeIntegrationToken(value?: string | null): string {
 
 export function getProviderIcon(name: string): string {
   return PROVIDER_ICON_MAP[name] ?? fallbackIcon
+}
+
+export function getDocumentFolderFieldConfig(provider?: IntegrationProvider): DocumentFolderFieldConfig {
+  for (const token of [provider?.slug, provider?.family, provider?.displayName, provider?.id]) {
+    const config = DOCUMENT_FOLDER_FIELD_CONFIG[normalizeIntegrationToken(token)]
+    if (config) {
+      return config
+    }
+  }
+
+  return DEFAULT_DOCUMENT_FOLDER_FIELD
 }
 
 export function toAvailableIntegration(provider: IntegrationProvider): AvailableIntegrationNode {
@@ -145,6 +181,15 @@ export function collectRequiredSchemaFields(schema?: IntegrationSchemaNode): Set
 
 export function schemaHasProperties(schema?: IntegrationSchemaNode): boolean {
   return Object.keys(resolveSchemaRoot(schema)?.properties ?? {}).length > 0
+}
+
+type IntegrationClientConfig = {
+  clientConfig?: Record<string, unknown>
+}
+
+export function readIntegrationUserInput(integration: Pick<IntegrationNode, 'config'>): Record<string, unknown> {
+  const config = integration.config as IntegrationClientConfig | null
+  return config?.clientConfig ?? {}
 }
 
 export function integrationDefinitionID(integration: IntegrationProviderMatchFields, providers: IntegrationProvider[]): string | undefined {

@@ -13,6 +13,8 @@ export enum AccessEnum {
   CanCreateScheduledJob = 'can_create_scheduled_job',
   AuditLogViewer = 'audit_log_viewer',
   CanCreateRisk = 'can_create_risk',
+  CanEditRisk = 'can_edit_risk',
+  CanDeleteRisk = 'can_delete_risk',
   CanEdit = 'can_edit',
   CanView = 'can_view',
   CanCreateControlObjective = 'can_create_control_objective',

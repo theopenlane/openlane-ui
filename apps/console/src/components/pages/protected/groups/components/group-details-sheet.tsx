@@ -3,14 +3,16 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { GlobeIcon, Info, Link, Tag, User, Pencil, PanelRightClose } from 'lucide-react'
+import { GlobeIcon, Info, Link, Tag, User, Pencil, PanelRightClose, ShieldHalf } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import GroupsMembersTable from './groups-members-table'
 import { Card } from '@repo/ui/cardpanel'
 import DeleteGroupDialog from './dialogs/delete-group-dialog'
 import AddMembersDialog from './dialogs/add-members-dialog'
 import AssignPermissionsDialog from './dialogs/assign-permissions-dialog'
+import AssignRoleToGroupDialog from './dialogs/assign-role-to-group-dialog'
 import GroupsPermissionsTable from './groups-permissions-table'
+import GroupRolesTable from './group-roles-table'
 import InheritPermissionDialog from './dialogs/inherit-permission-dialog'
 import { GroupSettingVisibility, GroupMembershipRole } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
@@ -48,7 +50,7 @@ type EditGroupFormData = z.infer<typeof EditGroupSchema>
 
 const GroupDetailsSheet = () => {
   const { data: sessionData } = useSession()
-  const [activeTab, setActiveTab] = useState<'Members' | 'Permissions'>('Members')
+  const [activeTab, setActiveTab] = useState<'Members' | 'RolesAndPermissions'>('Members')
   const [isEditing, setIsEditing] = useState(false)
   const searchParams = useSearchParams()
   const { selectedGroup, setSelectedGroup, setIsAdmin } = useGroupsStore()
@@ -242,8 +244,9 @@ const GroupDetailsSheet = () => {
                   </div>
                 </div>
 
-                <div className="mt-9 flex gap-4">
+                <div className="mt-9 flex flex-wrap gap-4">
                   <AddMembersDialog />
+                  <AssignRoleToGroupDialog />
                   <AssignPermissionsDialog />
                   <InheritPermissionDialog />
                 </div>
@@ -271,13 +274,31 @@ const GroupDetailsSheet = () => {
                   </p>
 
                   <p
-                    className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer ${activeTab === 'Permissions' ? 'border-brand text-brand' : ''}`}
-                    onClick={() => setActiveTab('Permissions')}
+                    className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer ${activeTab === 'RolesAndPermissions' ? 'border-brand text-brand' : ''}`}
+                    onClick={() => setActiveTab('RolesAndPermissions')}
                   >
-                    Permissions
+                    Roles and Permissions
                   </p>
                 </div>
-                <div className="mt-7">{activeTab === 'Members' ? <GroupsMembersTable /> : <GroupsPermissionsTable />}</div>
+                <div className="mt-7">
+                  {activeTab === 'Members' ? (
+                    <GroupsMembersTable />
+                  ) : (
+                    <div className="flex flex-col gap-8">
+                      <GroupRolesTable />
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-center gap-2">
+                          <ShieldHalf width={16} height={16} className="text-brand" />
+                          <div>
+                            <p className="font-semibold">Permissions</p>
+                            <p className="text-xs text-text-light">Specific access permissions this group has.</p>
+                          </div>
+                        </div>
+                        <GroupsPermissionsTable />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </form>
           </>

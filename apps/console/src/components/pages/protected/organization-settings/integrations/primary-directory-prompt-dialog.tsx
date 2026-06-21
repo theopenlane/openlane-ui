@@ -8,11 +8,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { PRIMARY_DIRECTORY_FIELD, saveIntegrationConfiguration } from '@/lib/integrations/flow'
+import { readIntegrationUserInput } from '@/lib/integrations/utils'
 import { type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
-
-type IntegrationClientConfig = {
-  clientConfig?: Record<string, unknown>
-}
 
 type PrimaryDirectoryPromptDialogProps = {
   open: boolean
@@ -48,8 +45,7 @@ const PrimaryDirectoryPromptDialog = ({ open, onOpenChange, provider, integratio
     setIsSubmitting(true)
     try {
       const meta = integration.metadata as IntegrationMetadata | undefined
-      const existingConfig = integration.config as IntegrationClientConfig | null
-      const existingUserInput = existingConfig?.clientConfig ?? {}
+      const existingUserInput = readIntegrationUserInput(integration)
 
       await saveIntegrationConfiguration({
         definitionId: provider.id,
