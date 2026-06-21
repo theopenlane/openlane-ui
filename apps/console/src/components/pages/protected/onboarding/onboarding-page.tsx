@@ -137,15 +137,29 @@ export default function MultiStepForm() {
               isOnboarding: false,
             },
           })
+
           requestAnimationFrame(() => {
             queryClient?.clear()
           })
-          const selectedFrameworks = formValues.compliance?.frameworks ?? []
-          const selectedFramework =
-            selectedFrameworks.find((framework) => framework === COMPLIANCE_FRAMEWORKS.soc2) ?? selectedFrameworks.find((framework) => framework !== COMPLIANCE_FRAMEWORKS.other)
+
+          const userSelectedFrameworks = (formValues.compliance?.frameworks ?? []).filter((framework) => framework !== COMPLIANCE_FRAMEWORKS.other)
+
+          if (userSelectedFrameworks.length > 1) {
+            const params = new URLSearchParams()
+            userSelectedFrameworks.forEach((framework) => params.append('frameworks', framework))
+            router.push(`${ONBOARDING_PROGRAM_ROUTES.advancedSetup}?${params.toString()}`)
+            return
+          }
+
+          const selectedFramework = userSelectedFrameworks[0]
 
           if (selectedFramework === COMPLIANCE_FRAMEWORKS.soc2) {
-            router.push(ONBOARDING_PROGRAM_ROUTES.soc2)
+            const params = new URLSearchParams()
+            if (!formValues.compliance?.controls_documented) {
+              params.set('suggestedControls', 'true')
+            }
+
+            router.push(`${ONBOARDING_PROGRAM_ROUTES.soc2}${params.size ? `?${params.toString()}` : ''}`)
             return
           }
 

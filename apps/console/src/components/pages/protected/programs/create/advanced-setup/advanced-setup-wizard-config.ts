@@ -135,7 +135,24 @@ export const step5Schema = z.object({
   procedureIDs: z.array(optionSchema).optional(),
 })
 
-export const fullSchema = categoriesStepSchema.merge(step1Schema).merge(step3Schema).merge(step4Schema).merge(step5Schema).and(step2Schema)
+export const fullSchema = categoriesStepSchema
+  .merge(step1Schema)
+  .merge(step3Schema)
+  .merge(step4Schema)
+  .merge(step5Schema)
+  .and(step2Schema)
+  .and(
+    z.object({
+      frameworks: z
+        .array(
+          z.object({
+            label: z.string(),
+            value: z.string(),
+          }),
+        )
+        .optional(),
+    }),
+  )
 
 export type WizardValues = z.infer<typeof fullSchema>
 

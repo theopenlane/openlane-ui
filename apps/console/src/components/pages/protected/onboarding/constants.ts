@@ -3,6 +3,7 @@ import { CreditCard, Ellipsis, Globe2, Heart, ShieldCheck } from 'lucide-react'
 export const ONBOARDING_PROGRAM_ROUTES = {
   soc2: '/programs/create/soc2',
   frameworkBased: '/programs/create/framework-based',
+  advancedSetup: '/programs/create/advanced-setup',
 } as const
 
 export const COMPLIANCE_FRAMEWORKS = {
