@@ -306,6 +306,47 @@ test.describe('user management — members page', () => {
   })
 })
 
+test.describe('user management — members table filter (shared org)', () => {
+  test('Filter dropdown opens exposing the Providers and Role filter sections', async ({ page }) => {
+    await page.goto('/user-management/members')
+    await expect(page.getByRole('heading', { level: 2, name: /^Members$/ })).toBeVisible({ timeout: 15_000 })
+
+    // members-table-toolbar.tsx renders TableFilter with MEMBERS_FILTER_FIELDS.
+    // The trigger is a secondary Button reading "Filter" (table-filter.tsx).
+    await page
+      .getByRole('main')
+      .getByRole('button', { name: /^Filter$/ })
+      .first()
+      .click()
+
+    const menu = page.getByRole('menu')
+    await expect(menu).toBeVisible({ timeout: 10_000 })
+
+    // FILTER BY accordion lists each field's label — Providers + Role.
+    await expect(menu.getByText('FILTER BY', { exact: true })).toBeVisible()
+    await expect(menu.getByText('Providers', { exact: true })).toBeVisible()
+    await expect(menu.getByText('Role', { exact: true })).toBeVisible()
+  })
+
+  test('Filter dropdown surfaces the Reset filters and View Results actions', async ({ page }) => {
+    await page.goto('/user-management/members')
+    await expect(page.getByRole('heading', { level: 2, name: /^Members$/ })).toBeVisible({ timeout: 15_000 })
+
+    await page
+      .getByRole('main')
+      .getByRole('button', { name: /^Filter$/ })
+      .first()
+      .click()
+
+    const menu = page.getByRole('menu')
+    await expect(menu).toBeVisible({ timeout: 10_000 })
+
+    // Footer of the dropdown: resetFilters ("Reset filters") + applyFilters ("View Results").
+    await expect(menu.getByRole('button', { name: /^Reset filters$/ })).toBeVisible()
+    await expect(menu.getByRole('button', { name: /^View Results$/ })).toBeVisible()
+  })
+})
+
 freshTest.describe('user management — fresh org members', () => {
   freshTest('Awaiting Response tab shows zero pending invites for a fresh org', async ({ page }) => {
     await seedLoggedInUser(page, 'um-empty-invites')

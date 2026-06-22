@@ -177,6 +177,94 @@ test.describe('procedures — list + create', () => {
   })
 })
 
+const createProcedureViaUi = async (page: Page, name: string): Promise<string> => {
+  await page.goto('/procedures/create')
+  await page.getByLabel(/^Title$/).fill(name)
+  await page.getByRole('button', { name: /^save procedure$/i }).click({ timeout: 30_000 })
+  await page.waitForURL(/\/procedures\/[^/]+\/view/, { timeout: 30_000 })
+  const id = page.url().match(/\/procedures\/([^/]+)\/view/)?.[1]
+  if (!id) throw new Error(`could not parse procedure id from ${page.url()}`)
+  return id
+}
+
+// The edit form's StatusCard renders the Status select inside a grid row labelled
+// by a <span>; scope to that row so we never grab another card's combobox.
+const statusCardSelect = (page: Page, label: string) =>
+  page
+    .locator('div.grid')
+    .filter({ has: page.getByText(label, { exact: true }) })
+    .getByRole('combobox')
+    .first()
+
+test.describe('procedures — edit form (/procedures/[id]/edit)', () => {
+  test('the edit page loads behind the permission check with the title pre-filled', async ({ page }) => {
+    const name = procedureName('edit-page-load')
+    const id = await createProcedureViaUi(page, name)
+
+    await page.goto(`/procedures/${id}/edit`, { waitUntil: 'domcontentloaded' })
+
+    // The route renders <PageHeading heading="Edit procedure" /> (an h2) once the
+    // owner clears canEdit, then mounts the form with the Title input populated.
+    await expect(page.getByRole('heading', { name: /^Edit procedure$/ })).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByLabel(/^Title$/)).toHaveValue(name, { timeout: 15_000 })
+  })
+
+  test('edit the title from the /edit form and save redirects to /procedures with the new name listed', async ({ page }) => {
+    test.slow()
+    const original = procedureName('edit-title-orig')
+    const id = await createProcedureViaUi(page, original)
+
+    await page.goto(`/procedures/${id}/edit`, { waitUntil: 'domcontentloaded' })
+    const titleInput = page.getByLabel(/^Title$/)
+    await expect(titleInput).toHaveValue(original, { timeout: 15_000 })
+
+    const updated = procedureName('edit-title-new')
+    await titleInput.fill(updated)
+
+    // Edit mode's SaveButton carries the title "Save" (vs "Save Procedure" on
+    // create); saving pushes back to /procedures.
+    await page.getByRole('button', { name: /^Save$/ }).click()
+    await page.waitForURL(/\/procedures(\?|$)/, { timeout: 30_000 })
+
+    await page.getByPlaceholder(/^Search$/).fill(updated)
+    await expect(page.getByRole('cell').filter({ hasText: updated }).first()).toBeVisible({ timeout: 15_000 })
+  })
+
+  test('change the procedure status from the /edit Status Card', async ({ page }) => {
+    const name = procedureName('edit-status')
+    const id = await createProcedureViaUi(page, name)
+
+    await page.goto(`/procedures/${id}/edit`, { waitUntil: 'domcontentloaded' })
+    await expect(page.getByLabel(/^Title$/)).toHaveValue(name, { timeout: 15_000 })
+
+    const statusTrigger = statusCardSelect(page, 'Status')
+    await expect(statusTrigger).toBeVisible({ timeout: 15_000 })
+    await statusTrigger.click()
+    await page.getByRole('option', { name: /^Pending$/ }).click()
+    await expect(statusTrigger).toContainText(/Pending/, { timeout: 10_000 })
+  })
+
+  test('edit procedure details (rich text PlateEditor) from the /edit form and save', async ({ page }) => {
+    test.slow()
+    const name = procedureName('edit-details')
+    const id = await createProcedureViaUi(page, name)
+
+    await page.goto(`/procedures/${id}/edit`, { waitUntil: 'domcontentloaded' })
+    await expect(page.getByLabel(/^Title$/)).toHaveValue(name, { timeout: 15_000 })
+
+    const marker = `E2E proc body ${RUN_ID} ${Date.now().toString(36)}`
+    const editor = page.locator('[contenteditable="true"]').first()
+    await expect(editor).toBeVisible({ timeout: 20_000 })
+    await editor.click()
+    // Append to the procedure body, then assert the editor holds the typed text.
+    await page.keyboard.type(marker)
+    await expect(editor).toContainText(marker, { timeout: 10_000 })
+
+    await page.getByRole('button', { name: /^Save$/ }).click()
+    await page.waitForURL(/\/procedures(\?|$)/, { timeout: 30_000 })
+  })
+})
+
 freshTest.describe('procedures — fresh org', () => {
   freshTest('empty state — fresh org has zero procedure rows', async ({ page }) => {
     await seedLoggedInUser(page, 'proc-empty')

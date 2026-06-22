@@ -191,6 +191,21 @@ test.describe('auth — password input toggle', () => {
   })
 })
 
+test.describe('auth — /login error param', () => {
+  test('?error=<message> surfaces the message inline on the login screen', async ({ page }) => {
+    const message = 'Your session has expired'
+    await page.goto(`/login?error=${encodeURIComponent(message)}`)
+
+    // login.tsx useEffect: copies the ?error value into signInErrorMessage and
+    // flips signInError on, so the message renders under the email input.
+    // (The same effect calls router.replace('/login') to strip the param, but
+    // that strip is unreliable against `next dev` here — the visible message is
+    // the load-bearing behavior, so we assert that and stay on /login.)
+    await expect(page.getByText(message).first()).toBeVisible({ timeout: 10_000 })
+    await expect(page).toHaveURL(/\/login/, { timeout: 10_000 })
+  })
+})
+
 test.describe('auth — /login render', () => {
   test('/login renders the email field, Google + GitHub buttons, and the login heading', async ({ page }) => {
     await page.goto('/login')

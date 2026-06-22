@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test'
 
 import { test, expect, readManifest } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createInternalPolicy, type ApiSession } from '../utils/api'
+import { loginViaApi, createInternalPolicy, createControl, createProcedure, gql, type ApiSession } from '../utils/api'
 
 /**
  * Deep policies flows beyond policies.spec.ts (which covers create/search/inline
@@ -118,5 +118,129 @@ test.describe('policies — detail (seeded)', () => {
       .click()
 
     await page.waitForURL(/\/policies(\?|$)/, { timeout: 20_000 })
+  })
+})
+
+const linkPolicyProcedure = async (sess: ApiSession, policyId: string, procedureId: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!, $input: UpdateInternalPolicyInput!){ updateInternalPolicy(id: $id, input: $input){ internalPolicy { id } } }`, {
+    id: policyId,
+    input: { addProcedureIDs: [procedureId] },
+  })
+}
+
+test.describe('policies — associations & flows', () => {
+  test('linking a control through the association dialog surfaces it in the list view', async ({ page }) => {
+    test.slow()
+    const name = uniquePolicyName()
+    const refCode = `E2E-POL-LNK-${RUN_ID}-${Date.now().toString(36)}`
+    const policyId = await createInternalPolicy(ownerApi, name)
+    await createControl(ownerApi, refCode)
+
+    await page.goto(`/policies/${policyId}/view`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 30_000 })
+
+    // Shared ObjectAssociationSwitch (graph view by default) → AddAssociationPlusBtn
+    // opens the SetAssociationDialog "Associate Related Objects".
+    await page.getByLabel('Add Association objects').click()
+    const dialog = page.getByRole('dialog').filter({ hasText: 'Associate Related Objects' })
+    await expect(dialog).toBeVisible({ timeout: 15_000 })
+
+    await dialog.getByText('Select object').click()
+    await page.getByRole('option', { name: /^Control$/ }).click()
+
+    await dialog.getByPlaceholder(/.+/).fill(refCode)
+    const controlRow = dialog.getByRole('row').filter({ hasText: refCode })
+    await expect(controlRow).toBeVisible({ timeout: 15_000 })
+    await controlRow.getByRole('checkbox').first().check()
+
+    // Confirm is the shared SaveButton ("Save Changes"); saving closes the
+    // dialog once the link mutation succeeds.
+    await dialog.getByRole('button', { name: /^Save Changes$/ }).click()
+    await expect(dialog).toBeHidden({ timeout: 20_000 })
+  })
+
+  test('Procedures tab lists a procedure linked to the policy', async ({ page }) => {
+    test.slow()
+    const name = uniquePolicyName()
+    const procedureName = `E2E PolProc ${RUN_ID} ${Date.now().toString(36)}`
+    const policyId = await createInternalPolicy(ownerApi, name)
+    const procedureId = await createProcedure(ownerApi, procedureName)
+    await linkPolicyProcedure(ownerApi, policyId, procedureId)
+
+    await page.goto(`/policies/${policyId}/view`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 30_000 })
+
+    // view-policy-page.tsx "procedures" tab renders LinkedProcedures, which lists
+    // each linked procedure's name under a "Linked Procedures" heading.
+    // The detail tabs hydrate after the page heading, so wait for the tab to be
+    // actionable (it may carry a count badge) before clicking.
+    const proceduresTab = page.getByRole('tab', { name: /^Procedures/ })
+    await expect(proceduresTab).toBeVisible({ timeout: 30_000 })
+    await proceduresTab.click()
+    await expect(page.getByRole('heading', { name: /^Linked Procedures$/ })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(procedureName, { exact: true })).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('Create toolbar — "Procedure" navigates to the procedure create form', async ({ page }) => {
+    const name = uniquePolicyName()
+    const id = await createInternalPolicy(ownerApi, name)
+
+    await page.goto(`/policies/${id}/view`, { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
+
+    // CreateItemsFromPolicyToolbar exposes Policy / Procedure / Task. "Procedure"
+    // pushes to /procedures/create.
+    await page.getByRole('button', { name: /^Create$/ }).click()
+    await page.getByRole('button', { name: /^Procedure$/ }).click()
+
+    await page.waitForURL(/\/procedures\/create(\?|$)/, { timeout: 20_000 })
+  })
+})
+
+test.describe('policies — detail page UI (seeded)', () => {
+  test('detail page renders the Policy/Procedures/History tabs and Properties card', async ({ page }) => {
+    const name = uniquePolicyName()
+    const id = await createInternalPolicy(ownerApi, name)
+
+    await page.goto(`/policies/${id}/view`, { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
+
+    // view-policy-page.tsx renders an underline Tabs with Policy/Procedures/History.
+    await expect(page.getByRole('tab', { name: /^Policy$/ })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('tab', { name: /^Procedures$/ })).toBeVisible()
+    await expect(page.getByRole('tab', { name: /^History$/ })).toBeVisible()
+    // Sidebar <h3>Properties</h3> over the Authority/Properties cards.
+    await expect(page.getByRole('heading', { level: 3, name: /^Properties$/ })).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('Manage Permissions opens the permission sheet', async ({ page }) => {
+    const name = uniquePolicyName()
+    const id = await createInternalPolicy(ownerApi, name)
+
+    await page.goto(`/policies/${id}/view`, { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
+
+    await page.getByTestId('policy-actions-menu').click()
+    await page.getByRole('button', { name: /^Manage Permissions$/ }).click()
+
+    // Shared ManagePermissionSheet: SheetTitle "Manage permission" + "Group list" h3.
+    const sheet = page.getByRole('dialog')
+    await expect(sheet.getByText(/^Manage permission$/)).toBeVisible({ timeout: 10_000 })
+    await expect(sheet.getByText(/^Group list$/)).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('Create toolbar — "Policy" navigates to the create form', async ({ page }) => {
+    const name = uniquePolicyName()
+    const id = await createInternalPolicy(ownerApi, name)
+
+    await page.goto(`/policies/${id}/view`, { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
+
+    // CreateItemsFromPolicyToolbar: a "Create" Menu trigger exposing
+    // Policy / Procedure / Task items. "Policy" pushes to /policies/create.
+    await page.getByRole('button', { name: /^Create$/ }).click()
+    await page.getByRole('button', { name: /^Policy$/ }).click()
+
+    await page.waitForURL(/\/policies\/create(\?|$)/, { timeout: 20_000 })
   })
 })

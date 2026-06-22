@@ -119,3 +119,59 @@ test.describe('registry — legacy redirects', () => {
     await expect(page.getByRole('heading', { level: 2, name: /^Vulnerabilities$/ })).toBeVisible({ timeout: 15_000 })
   })
 })
+
+test.describe('registry — vendor list controls', () => {
+  // Pure-UI checks against the shared crud-base toolbar (table-toolbar.tsx):
+  // the Filter panel (table-filter.tsx) and Columns menu
+  // (column-visibility-menu.tsx) are rendered regardless of whether any rows
+  // are present, so these need no seeded data.
+
+  test('vendor filter panel exposes the documented Status/Scope/Source filters', async ({ page }) => {
+    test.slow() // heavy registry route → cold dev compile
+    await page.goto('/registry/vendors', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('heading', { level: 2, name: /^Vendors$/ })).toBeVisible({ timeout: 20_000 })
+
+    await page.getByRole('button', { name: /^Filter$/ }).click()
+    // vendors/table/table-config.tsx getFilterFields → accordion triggers
+    // labelled by the FilterField.label string.
+    for (const label of ['Status', 'Scope', 'Source Type', 'Relationship State', 'Security Questionnaire Status']) {
+      await expect(page.getByText(label, { exact: true }).first()).toBeVisible({ timeout: 10_000 })
+    }
+  })
+
+  test('vendor column visibility menu toggles a column off', async ({ page }) => {
+    test.slow()
+    await page.goto('/registry/vendors', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('heading', { level: 2, name: /^Vendors$/ })).toBeVisible({ timeout: 20_000 })
+
+    // column-visibility-menu.tsx renders a "Columns" trigger → a Radix menu with
+    // a per-column row: <Checkbox/> + <div>{header}</div>. "Description" is
+    // visible by default (visibilityFields), so its checkbox starts checked;
+    // clicking it flips to unchecked.
+    await page.getByRole('button', { name: /^Columns$/ }).click()
+    const menu = page.getByRole('menu')
+    await expect(menu).toBeVisible({ timeout: 10_000 })
+    const descCheckbox = menu
+      .locator('div')
+      .filter({ has: page.getByText('Description', { exact: true }) })
+      .getByRole('checkbox')
+      .first()
+    await expect(descCheckbox).toBeChecked({ timeout: 10_000 })
+    await descCheckbox.click()
+    await expect(descCheckbox).not.toBeChecked({ timeout: 10_000 })
+  })
+
+  test('vendor column header sort toggles aria-sort on the Display Name column', async ({ page }) => {
+    test.slow()
+    await page.goto('/registry/vendors', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('heading', { level: 2, name: /^Vendors$/ })).toBeVisible({ timeout: 20_000 })
+
+    // data-table.tsx SortableHeaderCell sets aria-sort on the <th> and cycles
+    // ascending/descending when the sortable header label is clicked.
+    const header = page.getByRole('columnheader', { name: /Display Name/ }).first()
+    await expect(header).toBeVisible({ timeout: 15_000 })
+    await expect(header).toHaveAttribute('aria-sort', 'none')
+    await header.getByText('Display Name').click()
+    await expect(header).toHaveAttribute('aria-sort', /ascending|descending/, { timeout: 10_000 })
+  })
+})

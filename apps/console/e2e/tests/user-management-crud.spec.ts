@@ -149,6 +149,51 @@ test.describe('user-management — group details sheet (seeded)', () => {
  *
  * ⏳ Written without running; verify on first run.
  */
+/**
+ * Groups page toolbar: the Filter dropdown surfaces the All Groups / My Groups /
+ * System Managed Groups quick filters (groups-page.tsx quickFilters), and the
+ * Columns dropdown lets you toggle visibility. Render/open-only — no data mutated.
+ */
+test.describe('user-management — groups toolbar', () => {
+  test('Filter dropdown exposes the All Groups / My Groups / System Managed quick filters', async ({ page }) => {
+    await page.goto('/user-management/groups', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Groups$/ })).toBeVisible({ timeout: 20_000 })
+
+    // groups-page.tsx renders TableFilter (trigger "Filter") with quickFilters.
+    await page
+      .getByRole('main')
+      .getByRole('button', { name: /^Filter$/ })
+      .first()
+      .click()
+
+    const menu = page.getByRole('menu')
+    await expect(menu).toBeVisible({ timeout: 10_000 })
+
+    await expect(menu.getByText('Quick Filters', { exact: true })).toBeVisible()
+    await expect(menu.getByRole('button', { name: /^All Groups$/ })).toBeVisible()
+    await expect(menu.getByRole('button', { name: /^My Groups$/ })).toBeVisible()
+    await expect(menu.getByRole('button', { name: /^System Managed Groups$/ })).toBeVisible()
+  })
+
+  test('Columns dropdown opens listing toggleable column headers', async ({ page }) => {
+    await page.goto('/user-management/groups', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Groups$/ })).toBeVisible({ timeout: 20_000 })
+
+    // column-visibility-menu.tsx trigger reads "Columns".
+    await page
+      .getByRole('main')
+      .getByRole('button', { name: /^Columns$/ })
+      .first()
+      .click()
+
+    const menu = page.getByRole('menu')
+    await expect(menu).toBeVisible({ timeout: 10_000 })
+
+    // The Name column header is always present in the visibility list.
+    await expect(menu.getByText('Name', { exact: true }).first()).toBeVisible()
+  })
+})
+
 test.describe('user-management — member row actions (throwaway member)', () => {
   const memberRow = (page: Page, email: string) => page.getByRole('row', { name: new RegExp(email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) })
 
