@@ -1,5 +1,5 @@
 import { test, expect } from '../fixtures/auth'
-import { test as freshTest } from '@playwright/test'
+import { test as freshTest, type Page } from '@playwright/test'
 import { seedLoggedInUser } from '../utils/seedUser'
 
 import { RUN_ID } from '../utils/constants'
@@ -150,6 +150,79 @@ test.describe('policies — edit', () => {
 
     await page.reload()
     await expect(page.getByTestId('policy-status-trigger')).toContainText(/^Pending$/, { timeout: 15_000 })
+  })
+})
+
+test.describe('policies — create form details', () => {
+  // The create form's StatusCard renders three Radix Selects, each in a grid row
+  // labelled by a <span> ("Status" / "Approval Required" / "Reviewing Frequency").
+  // Scope the combobox to its row so we never grab the AuthorityCard's selects.
+  const statusCardSelect = (page: Page, label: string) =>
+    page
+      .locator('div.grid')
+      .filter({ has: page.getByText(label, { exact: true }) })
+      .getByRole('combobox')
+      .first()
+
+  test('set status dropdown — choosing Published updates the trigger', async ({ page }) => {
+    await page.goto('/policies/create', { waitUntil: 'domcontentloaded' })
+    await page.getByLabel(/^Title$/).fill(policyName('status-dd'))
+
+    const statusTrigger = statusCardSelect(page, 'Status')
+    await expect(statusTrigger).toBeVisible({ timeout: 15_000 })
+    await statusTrigger.click()
+    await page.getByRole('option', { name: /^Published$/ }).click()
+    await expect(statusTrigger).toContainText(/Published/, { timeout: 10_000 })
+  })
+
+  test('set approval required flag — toggling the dropdown to False persists in the trigger', async ({ page }) => {
+    await page.goto('/policies/create', { waitUntil: 'domcontentloaded' })
+    await page.getByLabel(/^Title$/).fill(policyName('approval'))
+
+    const approvalTrigger = statusCardSelect(page, 'Approval Required')
+    await expect(approvalTrigger).toBeVisible({ timeout: 15_000 })
+    // The schema defaults approvalRequired to true → trigger shows "true".
+    await expect(approvalTrigger).toContainText(/true/i)
+    await approvalTrigger.click()
+    await page.getByRole('option', { name: /^False$/ }).click()
+    await expect(approvalTrigger).toContainText(/false/i, { timeout: 10_000 })
+  })
+
+  test('set review frequency — choosing a frequency updates the trigger', async ({ page }) => {
+    await page.goto('/policies/create', { waitUntil: 'domcontentloaded' })
+    await page.getByLabel(/^Title$/).fill(policyName('review-freq'))
+
+    const freqTrigger = statusCardSelect(page, 'Reviewing Frequency')
+    await expect(freqTrigger).toBeVisible({ timeout: 15_000 })
+    await freqTrigger.click()
+    // InternalPolicyFrequency labels are TitleCase (e.g. "Monthly"); pick one and
+    // assert the trigger now reflects it.
+    const option = page.getByRole('option', { name: /^Monthly$/ })
+    await expect(option).toBeVisible({ timeout: 10_000 })
+    await option.click()
+    await expect(freqTrigger).toContainText(/Monthly/, { timeout: 10_000 })
+  })
+
+  test('edit policy details (rich text editor) — typed body is created and renders on the view page', async ({ page }) => {
+    test.slow()
+    await page.goto('/policies/create', { waitUntil: 'domcontentloaded' })
+    const name = policyName('rich-text')
+    await page.getByLabel(/^Title$/).fill(name)
+
+    // PlateEditor mounts a Slate contenteditable; target it by role and type a
+    // unique sentence into the policy body.
+    const marker = `E2E body ${RUN_ID} ${Date.now().toString(36)}`
+    const editor = page.locator('[contenteditable="true"]').first()
+    await expect(editor).toBeVisible({ timeout: 20_000 })
+    await editor.click()
+    await page.keyboard.type(marker)
+    await expect(editor).toContainText(marker, { timeout: 10_000 })
+
+    await page.getByRole('button', { name: /^save changes$/i }).click()
+    await page.waitForURL(/\/policies\/[^/]+\/view/, { timeout: 30_000 })
+    await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 15_000 })
+    // The view page renders the saved policy body; the typed marker survives.
+    await expect(page.getByText(marker).first()).toBeVisible({ timeout: 15_000 })
   })
 })
 

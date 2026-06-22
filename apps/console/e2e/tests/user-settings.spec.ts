@@ -67,3 +67,101 @@ test.describe('user-settings — profile forms (owner)', () => {
     await expect(dialog).toBeHidden({ timeout: 10_000 })
   })
 })
+
+/**
+ * Security / default-org panels on the profile page — render-only. The 2FA and
+ * passkeys panels are asserted to be present but NEVER actuated (no Configure /
+ * Enable / Remove click), since enrolling or disabling would change the seeded
+ * Owner's auth and break future logins for every spec.
+ */
+test.describe('user-settings — security & default-org panels (owner)', () => {
+  test('Default Organization panel renders a selector and Save button', async ({ page }) => {
+    await page.goto('/user-settings/profile', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^My profile$/ })).toBeVisible({ timeout: 20_000 })
+
+    // default-org-form.tsx PanelHeader heading + FormLabel.
+    await expect(page.getByText('Default Organization', { exact: true }).first()).toBeVisible({ timeout: 15_000 })
+    await expect(
+      page
+        .getByRole('main')
+        .getByRole('button', { name: /^Save$/ })
+        .first(),
+    ).toBeVisible()
+  })
+
+  test('Two Factor Authentication panel renders with a status badge and action', async ({ page }) => {
+    await page.goto('/user-settings/profile', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^My profile$/ })).toBeVisible({ timeout: 20_000 })
+
+    // profile-page.tsx Panel "Two Factor Authentication" → "Mobile App Authentication".
+    await expect(page.getByText('Two Factor Authentication', { exact: true })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: 'Mobile App Authentication' })).toBeVisible()
+
+    // twoFAConfig always renders at least one action button; for an unverified
+    // setup it's Configure, otherwise Enable/Disable/Remove. Assert at least one
+    // is present without clicking any (clicking would change the Owner's 2FA).
+    const twoFaActions = page.getByRole('button', { name: /^(Configure|Enable|Disable|Remove)$/ })
+    await expect(twoFaActions.first()).toBeVisible()
+  })
+
+  test('Passkeys panel renders its heading and Add passkey action', async ({ page }) => {
+    await page.goto('/user-settings/profile', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^My profile$/ })).toBeVisible({ timeout: 20_000 })
+
+    // passkeys-section.tsx PanelHeader "Passkeys and security keys" + the
+    // primary button (label varies: "Add passkey" vs "Add another Passkey").
+    await expect(page.getByText('Passkeys and security keys', { exact: true })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('button', { name: /^Add (passkey|another Passkey)$/ })).toBeVisible()
+  })
+})
+
+/**
+ * Profile name-form client-side validation. Editing two characters out of a
+ * field to drive the Zod min(2) error, then asserting the inline message WITHOUT
+ * saving — never submits a real mutation that would rename the shared Owner.
+ */
+test.describe('user-settings — profile validation (owner)', () => {
+  test('clearing First name to a single character surfaces the min-length error on Save', async ({ page }) => {
+    await page.goto('/user-settings/profile', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^My profile$/ })).toBeVisible({ timeout: 20_000 })
+
+    // profile-name-form.tsx: firstName is z.string().min(2). The first text
+    // input in the "Your Profile" panel is First name. Type a single char and
+    // submit — the resolver rejects it and renders the FormMessage; the
+    // updateUser mutation never fires (so the Owner is never renamed).
+    const firstName = page.getByRole('main').getByRole('textbox').first()
+    await firstName.fill('a')
+
+    await page
+      .getByRole('main')
+      .getByRole('button', { name: /^Save$/ })
+      .first()
+      .click()
+
+    await expect(page.getByText('First name must be at least 2 characters').first()).toBeVisible({ timeout: 10_000 })
+  })
+})
+
+/**
+ * Default-Organization dropdown. The Select trigger is opened and asserted to
+ * list at least one organization option — but NEVER picked-and-saved. The form's
+ * onSubmit only fires updateUserSetting when the chosen org differs from the
+ * current default, so leaving the dropdown open (or escaping it) never mutates
+ * the shared Owner's default org.
+ */
+test.describe('user-settings — default org dropdown (owner)', () => {
+  test('the Default Organization selector opens and lists at least one organization', async ({ page }) => {
+    await page.goto('/user-settings/profile', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^My profile$/ })).toBeVisible({ timeout: 20_000 })
+
+    // default-org-form.tsx renders a Radix Select (role=combobox) populated from
+    // useGetAllOrganizations (non-personal orgs). Open it and confirm options
+    // render, then Escape without choosing — no save, no mutation.
+    await expect(page.getByText('Default Organization', { exact: true }).first()).toBeVisible({ timeout: 15_000 })
+    const trigger = page.getByRole('main').getByRole('combobox').first()
+    await trigger.click()
+
+    await expect(page.getByRole('option').first()).toBeVisible({ timeout: 10_000 })
+    await page.keyboard.press('Escape')
+  })
+})

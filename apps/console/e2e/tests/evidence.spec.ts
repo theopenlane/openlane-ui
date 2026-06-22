@@ -107,6 +107,9 @@ test.describe('evidence — list page', () => {
     // then confirm the just-created name shows up. The Name column
     // renders the evidence name inside an EvidenceFileChip <p>.
     await page.goto('/evidence')
+    // Search by the unique name first — the shared org's evidence list is
+    // paginated, so a freshly-created record may not land on the first page.
+    await page.getByPlaceholder('Search').fill(name)
     await expect(page.getByRole('cell').filter({ hasText: name }).first()).toBeVisible({ timeout: 15_000 })
   })
 })

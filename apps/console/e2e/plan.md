@@ -85,7 +85,7 @@
 - [x] `/automation/campaigns` · filter by status/type/due-date ✅
 - [x] `/automation/campaigns` · select single/multiple campaigns ✅
 - [x] `/automation/campaigns` · bulk delete campaigns with confirmation ✅
-- [ ] `/automation/campaigns` · create campaign step 1: enter name and select questionnaire template
+- [x] `/automation/campaigns` · create campaign step 1: enter name and select questionnaire template
 - [ ] `/automation/campaigns` · create campaign step 2: add targets via CSV upload
 - [ ] `/automation/campaigns` · save campaign as draft from stepper
 - [ ] `/automation/campaigns` · launch campaign from stepper
@@ -93,12 +93,12 @@
 - [x] `/automation/campaigns` · detail page: start draft campaign button ✅
 - [x] `/automation/campaigns` · detail page: delete campaign from menu ✅
 - [x] `/automation/campaigns/[id]` · load and display campaign detail page ✅
-- [ ] `/automation/campaigns/[id]` · edit campaign name with inline persist
-- [ ] `/automation/campaigns/[id]` · edit campaign status dropdown
-- [ ] `/automation/campaigns/[id]` · edit campaign type dropdown
+- [x] `/automation/campaigns/[id]` · edit campaign name with inline persist
+- [x] `/automation/campaigns/[id]` · edit campaign status dropdown
+- [x] `/automation/campaigns/[id]` · edit campaign type dropdown
 - [ ] `/automation/campaigns/[id]` · edit campaign due date
 - [x] `/automation/campaigns/[id]` · start campaign from draft state ✅
-- [ ] `/automation/campaigns/[id]` · complete campaign from active state
+- [x] `/automation/campaigns/[id]` · complete campaign from active state
 - [x] `/automation/campaigns/[id]` · delete campaign and redirect to list ✅
 - [x] `/automation/communications` · search email templates ✅
 - [x] `/automation/communications` · filter email templates by status (All/Active/Inactive) ✅
@@ -112,14 +112,14 @@
 - [ ] `/automation/communications` · delete notification template with confirmation
 - [x] `/automation/questionnaires` · summary cards functionality and counts ✅
 - [x] `/automation/questionnaires` · tab switching questionnaires to templates ✅
-- [ ] `/automation/questionnaires` · search and filter questionnaires
+- [x] `/automation/questionnaires` · search and filter questionnaires
 - [x] `/automation/questionnaires` · row actions view details send edit preview delete ✅
 - [ ] `/automation/questionnaires` · send questionnaire dialog email input contact suggestions validation sending
-- [ ] `/automation/questionnaires` · bulk delete with checkbox selection
+- [x] `/automation/questionnaires` · bulk delete with checkbox selection
 - [ ] `/automation/questionnaires` · pagination navigation
-- [ ] `/automation/questionnaires` · column sorting
-- [ ] `/automation/questionnaires/[id]` · view questionnaire name and metadata
-- [ ] `/automation/questionnaires/[id]` · view recipient/response stats (recipients count, completed responses count, due date)
+- [x] `/automation/questionnaires` · column sorting
+- [x] `/automation/questionnaires/[id]` · view questionnaire name and metadata
+- [x] `/automation/questionnaires/[id]` · view recipient/response stats (recipients count, completed responses count, due date)
 - [ ] `/automation/questionnaires/[id]` · send questionnaire to recipients (email addresses with contact search)
 - [ ] `/automation/questionnaires/[id]` · delivery tab with table view, filter by status/sent-date/due-date, pagination, export to CSV, resend to individual recipient, view individual response details
 - [ ] `/automation/questionnaires/[id]` · responses tab with table of question answers, search/filter respondents and answers by column, pagination
@@ -128,7 +128,7 @@
 - [ ] `/automation/questionnaires/questionnaire-editor` · custom date picker for response due — _No test for selecting 'Custom' duration option and using calendar popover to set date_
 - [ ] `/automation/questionnaires/questionnaire-editor` · create new assessment — _No test for filling survey questions, selecting assessment type, and saving as new assessment_
 - [ ] `/automation/questionnaires/questionnaire-editor` · edit existing assessment — _No test for loading existing assessment, modifying survey/duration, and saving updates_
-- [ ] `/automation/questionnaires/questionnaire-viewer` · View questionnaire preview with real assessment data — _Test navigates to route without ?id param; needs seeded questionnaire ID to load actual content_
+- [x] `/automation/questionnaires/questionnaire-viewer` · View questionnaire preview with real assessment data — _Test navigates to route without ?id param; needs seeded questionnaire ID to load actual content_
 - [ ] `/automation/questionnaires/templates` · search functionality
 - [ ] `/automation/questionnaires/templates` · column visibility menu
 - [ ] `/automation/questionnaires/templates` · sorting
@@ -140,10 +140,10 @@
 - [ ] `/automation/questionnaires/templates/template-editor` · permission gate (non-owner redirect) — _ProtectedArea renders for non-owners; requires non-owner user context to test_
 - [ ] `/automation/questionnaires/templates/template-viewer` · edit template button navigation — _button exists and clicks router.push to template-editor; not tested_
 - [ ] `/automation/questionnaires/templates/template-viewer` · delete template with confirmation dialog — _delete flow including confirmation dialog and error handling; not tested_
-- [ ] `/automation/tasks` · Quick filters: Completed, Open, My Tasks, Overdue, Due This Week, Unassigned — _UI rendered but not exercised in any e2e test_
+- [x] `/automation/tasks` · Quick filters: Completed, Open, My Tasks, Overdue, Due This Week, Unassigned — _UI rendered but not exercised in any e2e test_
 - [ ] `/automation/tasks` · Sort by title, due date, status, created at, updated at — _Column header sorting not tested_
 - [ ] `/automation/tasks` · Edit task (Title, Details, Status, Assignee, Due Date, Tags, Type) in detail sheet — _Detail sheet opens but edit functionality not tested_
-- [ ] `/automation/tasks` · Mark task as complete — _Button present in detail sheet but not tested_
+- [x] `/automation/tasks` · Mark task as complete — _Button present in detail sheet but not tested_
 - [ ] `/automation/workflows` · view workflows list table with data — _no test exercises table rows, columns, or data rendering_
 - [ ] `/automation/workflows` · search workflows by name/description — _search field exists but no test validates filtering_
 - [ ] `/automation/workflows` · filter workflows by status/kind/default — _filter panel implemented but untested_
@@ -215,64 +215,64 @@
 
 ### dashboard
 
-- [ ] `/dashboard` · view all controls action card
-- [ ] `/dashboard` · create new risk action card
-- [ ] `/dashboard` · view my tasks action card
-- [ ] `/dashboard` · review edit policies action card
-- [ ] `/dashboard` · invite team members navigation
-- [ ] `/dashboard` · secure organization navigation
+- [x] `/dashboard` · view all controls action card
+- [x] `/dashboard` · create new risk action card
+- [x] `/dashboard` · view my tasks action card
+- [x] `/dashboard` · review edit policies action card
+- [x] `/dashboard` · invite team members navigation
+- [x] `/dashboard` · secure organization navigation
 
 ### developers
 
-- [ ] `/developers/api-tokens` · list/table of tokens with columns: name, description, scopes, expiry, last-used
-- [ ] `/developers/api-tokens` · view all scopes in modal from table cell
+- [x] `/developers/api-tokens` · list/table of tokens with columns: name, description, scopes, expiry, last-used
+- [x] `/developers/api-tokens` · view all scopes in modal from table cell
 - [ ] `/developers/api-tokens` · edit token name (disabled), description, expiry, scopes
-- [ ] `/developers/api-tokens` · delete token with confirmation dialog
-- [ ] `/developers/api-tokens` · filter tokens by name
+- [x] `/developers/api-tokens` · delete token with confirmation dialog
+- [x] `/developers/api-tokens` · filter tokens by name
 - [ ] `/developers/api-tokens` · filter tokens by expiry date range
 - [ ] `/developers/api-tokens` · sort tokens by name/created-at/updated-at/expires-at/is-active/last-used-at
-- [ ] `/developers/api-tokens` · view table action dropdown menu per token
-- [ ] `/developers/personal-access-tokens` · list/table renders tokens with correct columns
+- [x] `/developers/api-tokens` · view table action dropdown menu per token
+- [x] `/developers/personal-access-tokens` · list/table renders tokens with correct columns
 - [ ] `/developers/personal-access-tokens` · search by name (filter)
 - [ ] `/developers/personal-access-tokens` · filter by expiration date range
 - [ ] `/developers/personal-access-tokens` · pagination controls and navigation
 - [ ] `/developers/personal-access-tokens` · edit token — update name, description, expiry, organizations
-- [ ] `/developers/personal-access-tokens` · delete token — confirmation and success
+- [x] `/developers/personal-access-tokens` · delete token — confirmation and success
 
 ### evidence
 
-- [ ] `/evidence` · Filter evidence by program dropdown
-- [ ] `/evidence` · View evidence status overview (summary card)
-- [ ] `/evidence` · Bulk edit selected evidence
-- [ ] `/evidence` · Bulk delete evidence
+- [x] `/evidence` · Filter evidence by program dropdown
+- [x] `/evidence` · View evidence status overview (summary card)
+- [x] `/evidence` · Bulk edit selected evidence
+- [x] `/evidence` · Bulk delete evidence
 - [ ] `/evidence` · Bulk import evidence via CSV
-- [ ] `/evidence` · Export evidence
+- [x] `/evidence` · Export evidence
 
 ### exposure
 
-- [ ] `/exposure` · navigate to findings via quick action — _quick action card interaction not tested_
+- [x] `/exposure` · navigate to findings via quick action — _quick action card interaction not tested_
 - [ ] `/exposure` · navigate to remediations via quick action — _quick action card interaction not tested_
-- [ ] `/exposure` · navigate to reviews via quick action — _quick action card interaction not tested_
+- [x] `/exposure` · navigate to reviews via quick action — _quick action card interaction not tested_
 - [ ] `/exposure` · create remediation (permission-gated) — _sheet open not tested; requires seeder to verify permission gates_
 - [ ] `/exposure` · click severity segments to filter and navigate — _main chart interaction not tested_
 - [ ] `/exposure/overview` · quick actions navigation (vulnerabilities, findings, remediations, reviews)
 - [ ] `/exposure/overview` · create remediation from quick actions (permission-gated)
 - [ ] `/exposure/overview` · severity filter and navigation from chart segments
 - [ ] `/exposure/overview` · critical exposure counts display with navigation
-- [ ] `/exposure/overview` · items requiring attention table
+- [x] `/exposure/overview` · items requiring attention table
 - [ ] `/exposure/overview` · attention item row click to view associations dialog
-- [ ] `/exposure/overview` · SLA menu trigger (settings button)
+- [x] `/exposure/overview` · SLA menu trigger (settings button)
 - [ ] `/exposure/overview` · configure SLA sheet (read/edit modes)
 - [ ] `/exposure/overview` · SLA definition inline edit with enter/escape keyboard support
-- [ ] `/exposure/reviews` · create review
-- [ ] `/exposure/reviews` · view review detail sheet
+- [x] `/exposure/reviews` · create review
+- [x] `/exposure/reviews` · view review detail sheet
 - [ ] `/exposure/reviews` · edit review fields and save
 - [ ] `/exposure/reviews` · delete review via detail sheet
-- [ ] `/exposure/risks` · row selection checkbox behavior
-- [ ] `/exposure/risks` · bulk delete selected risks with confirmation
-- [ ] `/exposure/risks` · bulk edit dialog with multiple field types
+- [x] `/exposure/risks` · row selection checkbox behavior
+- [x] `/exposure/risks` · bulk delete selected risks with confirmation
+- [x] `/exposure/risks` · bulk edit dialog with multiple field types
 - [ ] `/exposure/risks/[id]` · inline edit status/kind/category — _RiskLabel component renders editable badges with click handlers, similar to controls-crud inline status tests_
-- [ ] `/exposure/risks/[id]` · inline rename title — _HoverPencilWrapper + Input field in RiskDetailHeader, similar to controls/policies inline edit tests_
+- [x] `/exposure/risks/[id]` · inline rename title — _HoverPencilWrapper + Input field in RiskDetailHeader, similar to controls/policies inline edit tests_
 - [ ] `/exposure/risks/[id]` · properties sidebar (stakeholder/delegate/impact/likelihood/decision/status/due-date/review/environment/scope/tags) — _Multiple form fields via RiskPropertiesSidebar, ResponsibilityField, SelectField, TextField components_
 - [ ] `/exposure/risks/[id]` · quick actions (create-action-plan/start-review/set-risk-decision/mark-remediated/create-task) — _QuickActionsBar with 5 action items, some gated by canEdit; Create Task opens CreateTaskDialog_
 - [ ] `/exposure/risks/create` · select risk properties (status/type/category/score/likelihood) — _PropertiesCard fields not tested in e2e_
@@ -293,9 +293,9 @@
 - [ ] `/organization-settings/authentication` · display-domain-chips
 - [ ] `/organization-settings/authentication` · remove-domain
 - [ ] `/organization-settings/authentication` · configure-sso-switch-to-edit-mode
-- [ ] `/organization-settings/authentication` · select-identity-provider
-- [ ] `/organization-settings/authentication` · enter-sso-credentials
-- [ ] `/organization-settings/authentication` · save-sso-configuration
+- [x] `/organization-settings/authentication` · select-identity-provider
+- [x] `/organization-settings/authentication` · enter-sso-credentials
+- [x] `/organization-settings/authentication` · save-sso-configuration
 - [ ] `/organization-settings/authentication` · remove-sso-with-confirmation
 - [ ] `/organization-settings/custom-data` · edit-tag
 - [ ] `/organization-settings/custom-data` · delete-tag
@@ -314,11 +314,11 @@
 - [ ] `/organization-settings/general-settings` · Transfer ownership - open dialog, select/enter email, submit and receive success notification
 - [ ] `/organization-settings/general-settings` · Delete organization - open confirmation dialog, confirm with text input, and redirect to /organization page
 - [ ] `/organization-settings/integrations` · view-installed-integrations-tab — _Tab switching not tested beyond tab visibility_
-- [ ] `/organization-settings/integrations` · search-integrations — _No test for search functionality_
+- [x] `/organization-settings/integrations` · search-integrations — _No test for search functionality_
 - [ ] `/organization-settings/integrations` · filter-integrations-by-tags — _No test for tag filtering or multi-select_
-- [ ] `/organization-settings/integrations` · navigate-to-integration-detail — _No test for navigation to /organization-settings/integrations/[definitionId]_
+- [x] `/organization-settings/integrations` · navigate-to-integration-detail — _No test for navigation to /organization-settings/integrations/[definitionId]_
 - [ ] `/organization-settings/integrations` · disconnect-integration-confirmation — _No test for disconnect flow or confirmation dialog_
-- [ ] `/organization-settings/integrations/[definitionId]` · navigate to specific integration definition detail page — _no e2e test navigates to /organization-settings/integrations/[definitionId]_
+- [x] `/organization-settings/integrations/[definitionId]` · navigate to specific integration definition detail page — _no e2e test navigates to /organization-settings/integrations/[definitionId]_
 - [ ] `/organization-settings/integrations/[definitionId]` · view provider header with icon, name, category, description, docs link, tags
 - [ ] `/organization-settings/integrations/[definitionId]` · render installed instances section with health badges and metadata
 - [ ] `/organization-settings/logs` · Audit logs list/table display — _Feature not implemented (Coming Soon placeholder)_
@@ -330,49 +330,49 @@
 ### policies
 
 - [ ] `/policies/[id]/view` · external reference view (file preview, replace document, switch to openlane managed) — _File upload/replace and management mode switching flows are not tested; requires seeding policy with external-reference mode and attached file_
-- [ ] `/policies/create` · edit policy details (rich text editor)
-- [ ] `/policies/create` · set status dropdown
-- [ ] `/policies/create` · set approval required flag
-- [ ] `/policies/create` · set review frequency
+- [x] `/policies/create` · edit policy details (rich text editor)
+- [x] `/policies/create` · set status dropdown
+- [x] `/policies/create` · set approval required flag
+- [x] `/policies/create` · set review frequency
 
 ### procedures
 
-- [ ] `/procedures` · row selection with checkbox — _bulk actions tested in policies-crud but not in procedures-crud_
-- [ ] `/procedures` · bulk edit — _BulkEditProceduresDialog component exists but no e2e coverage_
-- [ ] `/procedures` · bulk delete with confirmation — _mutation exists but no e2e test on list page (only tested on detail page)_
-- [ ] `/procedures/[id]/edit` · Navigate to /procedures/[id]/edit page and verify page loads with permission check — _No direct test of the edit page route itself; only inline edits on view page tested_
-- [ ] `/procedures/[id]/edit` · Edit procedure title from /edit form and persist — _Title edit tested only via inline edit on view page, not via the form on /edit page_
-- [ ] `/procedures/[id]/edit` · Edit procedure details (rich text PlateEditor) from /edit form — _Procedure details editing not tested in any spec_
-- [ ] `/procedures/[id]/edit` · Change procedure status from /edit form Status Card — _Status change tested only via view page inline dropdown, not via /edit form_
-- [ ] `/procedures/[id]/edit` · Save edited procedure and redirect to /procedures list — _Save from /edit form not tested; only view page inline saves tested_
+- [x] `/procedures` · row selection with checkbox — _bulk actions tested in policies-crud but not in procedures-crud_
+- [x] `/procedures` · bulk edit — _BulkEditProceduresDialog component exists but no e2e coverage_
+- [x] `/procedures` · bulk delete with confirmation — _mutation exists but no e2e test on list page (only tested on detail page)_
+- [x] `/procedures/[id]/edit` · Navigate to /procedures/[id]/edit page and verify page loads with permission check — _No direct test of the edit page route itself; only inline edits on view page tested_
+- [x] `/procedures/[id]/edit` · Edit procedure title from /edit form and persist — _Title edit tested only via inline edit on view page, not via the form on /edit page_
+- [x] `/procedures/[id]/edit` · Edit procedure details (rich text PlateEditor) from /edit form — _Procedure details editing not tested in any spec_
+- [x] `/procedures/[id]/edit` · Change procedure status from /edit form Status Card — _Status change tested only via view page inline dropdown, not via /edit form_
+- [x] `/procedures/[id]/edit` · Save edited procedure and redirect to /procedures list — _Save from /edit form not tested; only view page inline saves tested_
 
 ### programs
 
 - [x] `/programs` · search programs by name/framework/description ✅
 - [x] `/programs` · filter active vs archived programs (Tabs) ✅
 - [x] `/programs/[id]` · edit program basic info (name, description, tags, framework, program owner) — _inline edit form with save/cancel, permission-gated by canEdit role_ ✅
-- [ ] `/programs/[id]` · view and edit auditor details (firm, name, email) — _auditor section with edit mode, set-auditor-dialog for initial assignment_
-- [ ] `/programs/[id]` · set program as ready for auditor — _set-ready-for-auditor-dialog triggered from auditor card_
-- [ ] `/programs/[id]` · view timeline and readiness (status, start date, end date) — _includes status dropdown, calendar date pickers with validation_
-- [ ] `/programs/[id]` · edit timeline status and dates — _edit mode with form validation (end date must be future, after start date)_
-- [ ] `/programs/[id]/settings` · assign user - select, set roles, and submit — _Dialog opens but assignment flow not tested_
-- [ ] `/programs/[id]/settings` · edit user role (Editor/Viewer) — _Dropdown + dialog present but not tested_
-- [ ] `/programs/[id]/settings` · remove user from program with confirmation — _Action menu present but not tested_
+- [x] `/programs/[id]` · view and edit auditor details (firm, name, email) — _auditor section with edit mode, set-auditor-dialog for initial assignment_
+- [x] `/programs/[id]` · set program as ready for auditor — _set-ready-for-auditor-dialog triggered from auditor card_
+- [x] `/programs/[id]` · view timeline and readiness (status, start date, end date) — _includes status dropdown, calendar date pickers with validation_
+- [x] `/programs/[id]` · edit timeline status and dates — _edit mode with form validation (end date must be future, after start date)_
+- [x] `/programs/[id]/settings` · assign user - select, set roles, and submit — _Dialog opens but assignment flow not tested_
+- [x] `/programs/[id]/settings` · edit user role (Editor/Viewer) — _Dropdown + dialog present but not tested_
+- [x] `/programs/[id]/settings` · remove user from program with confirmation — _Action menu present but not tested_
 - [x] `/programs/[id]/settings` · assign group to program — _Dialog present but not tested_ ✅
-- [ ] `/programs/[id]/settings` · edit group role — _Dropdown + dialog present but not tested_
-- [ ] `/programs/[id]/settings` · remove group from program — _Action menu present but not tested_
+- [x] `/programs/[id]/settings` · edit group role — _Dropdown + dialog present but not tested_
+- [x] `/programs/[id]/settings` · remove group from program — _Action menu present but not tested_
 - [x] `/programs/[id]/settings` · import controls from framework (select framework, select controls, import) — _Multi-step dialog present but not tested_ ✅
-- [ ] `/programs/[id]/settings` · import controls from another program — _Multi-step dialog present but not tested_
+- [x] `/programs/[id]/settings` · import controls from another program — _Multi-step dialog present but not tested_
 - [ ] `/programs/[id]/settings` · verify non-editor cannot see action menus — _Permission gating logic (editAllowed) present but not tested_
-- [ ] `/programs/create/advanced-setup` · Step 1: Select Program Type card selection logic
-- [ ] `/programs/create/advanced-setup` · Step 2: Program Name required field validation
-- [ ] `/programs/create/advanced-setup` · Step 2: Framework conditional requirement for Framework type
-- [ ] `/programs/create/advanced-setup` · Step 2: Date validation (end > start, future dates)
-- [ ] `/programs/create/advanced-setup` · Step 2.5: SOC 2 Categories multi-select and toggle
-- [ ] `/programs/create/advanced-setup` · Step 2.5: Categories empty warning message
-- [ ] `/programs/create/advanced-setup` · Wizard step navigation: forward/back transitions
-- [ ] `/programs/create/advanced-setup` · Wizard step skipping: conditional steps disabled
-- [ ] `/programs/create/advanced-setup` · Happy path: complete all steps and create program
+- [x] `/programs/create/advanced-setup` · Step 1: Select Program Type card selection logic
+- [x] `/programs/create/advanced-setup` · Step 2: Program Name required field validation
+- [x] `/programs/create/advanced-setup` · Step 2: Framework conditional requirement for Framework type
+- [x] `/programs/create/advanced-setup` · Step 2: Date validation (end > start, future dates)
+- [x] `/programs/create/advanced-setup` · Step 2.5: SOC 2 Categories multi-select and toggle
+- [x] `/programs/create/advanced-setup` · Step 2.5: Categories empty warning message
+- [x] `/programs/create/advanced-setup` · Wizard step navigation: forward/back transitions
+- [x] `/programs/create/advanced-setup` · Wizard step skipping: conditional steps disabled
+- [x] `/programs/create/advanced-setup` · Happy path: complete all steps and create program
 - [ ] `/programs/create/framework-based` · toggle category selection (SOC 2 only, skip step 1 for non-SOC 2 frameworks)
 - [ ] `/programs/create/framework-based` · choose team setup path: add teammates now or skip to next step
 - [ ] `/programs/create/framework-based` · add program admins (search and select users)
@@ -382,19 +382,19 @@
 - [ ] `/programs/create/framework-based` · select program type: Ready to Start or Gap Analysis First
 - [ ] `/programs/create/framework-based` · advance through wizard steps with validation
 - [ ] `/programs/create/framework-based` · create program with selected framework, categories, team members, and type
-- [ ] `/programs/create/framework-based` · success notification and redirect to program detail page
+- [x] `/programs/create/framework-based` · success notification and redirect to program detail page
 - [ ] `/programs/create/risk-assessment` · Select optional framework — search frameworks and populate program name
 - [ ] `/programs/create/risk-assessment` · Team setup step — add program admins/members via user multiselect
 - [ ] `/programs/create/risk-assessment` · Team setup step — add groups with edit/read-only access via multiselect
 - [ ] `/programs/create/risk-assessment` · Team setup step — toggle between 'Add teammates now' vs 'I'll do this later'
-- [ ] `/programs/create/risk-assessment` · Associate risks step — search and multi-select risks from inventory
+- [x] `/programs/create/risk-assessment` · Associate risks step — search and multi-select risks from inventory
 - [ ] `/programs/create/risk-assessment` · Complete wizard: submit to create program and redirect to detail page
 - [ ] `/programs/create/risk-assessment` · Step progression through all 3 steps
-- [ ] `/programs/create/soc2` · step-0-select-categories — _No test for category selection, toggling, or validation (empty selection warning)_
-- [ ] `/programs/create/soc2` · step-1-team-setup — _No test for user/group selection, invite member sheet interaction, or role assignment_
-- [ ] `/programs/create/soc2` · step-2-access-control — _No test for programKindName selection (Framework vs Gap Analysis) or validation_
-- [ ] `/programs/create/soc2` · back-from-step-0-exit-confirm — _No test for exit confirmation dialog from first step_
-- [ ] `/programs/create/soc2` · successful-program-creation — _No test for happy path: fill all steps, submit, and verify redirect to /programs/{id}_
+- [x] `/programs/create/soc2` · step-0-select-categories — _No test for category selection, toggling, or validation (empty selection warning)_
+- [x] `/programs/create/soc2` · step-1-team-setup — _No test for user/group selection, invite member sheet interaction, or role assignment_
+- [x] `/programs/create/soc2` · step-2-access-control — _No test for programKindName selection (Framework vs Gap Analysis) or validation_
+- [x] `/programs/create/soc2` · back-from-step-0-exit-confirm — _No test for exit confirmation dialog from first step_
+- [x] `/programs/create/soc2` · successful-program-creation — _No test for happy path: fill all steps, submit, and verify redirect to /programs/{id}_
 
 ### questionnaire
 
@@ -402,19 +402,19 @@
 
 ### registry
 
-- [ ] `/registry/assets` · create asset via slideout form
-- [ ] `/registry/assets` · edit asset in detail sheet and persist changes
-- [ ] `/registry/assets` · delete asset via actions menu or bulk delete
-- [ ] `/registry/contacts` · create-contact-dialog — _No test for contact creation flow_
-- [ ] `/registry/contacts` · edit-contact-full-form — _No test for editing contact fields in detail sheet_
-- [ ] `/registry/contacts` · delete-contact — _No test for deleting a contact_
-- [ ] `/registry/personnel` · search filters personnel by full name
-- [ ] `/registry/personnel` · create personnel happy path (fullName + email)
-- [ ] `/registry/personnel` · create personnel with required validation
-- [ ] `/registry/personnel` · view personnel detail via row click
-- [ ] `/registry/personnel` · edit personnel fields on detail page
-- [ ] `/registry/personnel` · delete personnel with confirmation
-- [ ] `/registry/personnel` · bulk select and delete personnel
+- [x] `/registry/assets` · create asset via slideout form
+- [x] `/registry/assets` · edit asset in detail sheet and persist changes
+- [x] `/registry/assets` · delete asset via actions menu or bulk delete
+- [x] `/registry/contacts` · create-contact-dialog — _No test for contact creation flow_
+- [x] `/registry/contacts` · edit-contact-full-form — _No test for editing contact fields in detail sheet_
+- [x] `/registry/contacts` · delete-contact — _No test for deleting a contact_
+- [x] `/registry/personnel` · search filters personnel by full name
+- [x] `/registry/personnel` · create personnel happy path (fullName + email)
+- [x] `/registry/personnel` · create personnel with required validation
+- [x] `/registry/personnel` · view personnel detail via row click
+- [x] `/registry/personnel` · edit personnel fields on detail page
+- [x] `/registry/personnel` · delete personnel with confirmation
+- [x] `/registry/personnel` · bulk select and delete personnel
 - [ ] `/registry/platforms` · create platform via multi-step wizard — _wizard supports 7 steps (Basic Info, Business Purpose, Data Flow, Trust Boundary, Audit Scope, Ownership, Assets & Vendors); no e2e test covers the happy path or validation_
 - [ ] `/registry/platforms` · navigate platform card to detail page — _clicking 'View Platform' button should navigate to /registry/platforms/[id]; no test covers this click_
 - [ ] `/registry/platforms` · edit platform fields — _detail page supports editing all 7 form steps; no test covers edit UI, validation, or persist_
@@ -422,19 +422,19 @@
 - [ ] `/registry/platforms/[id]` · view-platform-overview — _No test exists for rendering platform details page; smoke test only covers list page at /registry/platforms_
 - [ ] `/registry/platforms/[id]` · edit-platform — _No test for multi-step edit form (Basic Info, Business Purpose, Data Flow, Trust Boundary, Audit Scope, Ownership, Assets & Vendors)_
 - [ ] `/registry/platforms/[id]` · save-platform-edits — _No API seeder for createPlatform; e2e tests cannot easily seed platform data for detail page tests_
-- [ ] `/registry/system-details` · search filters results by system name
+- [x] `/registry/system-details` · search filters results by system name
 - [ ] `/registry/system-details` · filter by sensitivity level filters results
 - [ ] `/registry/system-details` · filter by tags filters results
-- [ ] `/registry/system-details` · create system detail via slideout
-- [ ] `/registry/system-details` · view system detail in slideout
-- [ ] `/registry/system-details` · edit system detail in slideout with save
-- [ ] `/registry/system-details` · delete system detail via detail sheet
-- [ ] `/registry/system-details` · bulk delete selected system details
-- [ ] `/registry/vendors` · search filters vendors by display name
+- [x] `/registry/system-details` · create system detail via slideout
+- [x] `/registry/system-details` · view system detail in slideout
+- [x] `/registry/system-details` · edit system detail in slideout with save
+- [x] `/registry/system-details` · delete system detail via detail sheet
+- [x] `/registry/system-details` · bulk delete selected system details
+- [x] `/registry/vendors` · search filters vendors by display name
 - [ ] `/registry/vendors` · filter panel exposes Status/Tags/Scope/Environment/Source Type/Relationship State/Security Questionnaire Status/MFA/SSO/SOC2 filters
 - [ ] `/registry/vendors` · sorting by various columns
-- [ ] `/registry/vendors` · column visibility menu toggle
-- [ ] `/registry/vendors` · bulk delete vendors
+- [x] `/registry/vendors` · column visibility menu toggle
+- [x] `/registry/vendors` · bulk delete vendors
 - [ ] `/registry/vendors` · bulk edit vendors with predefined fields
 - [ ] `/registry/vendors` · bulk create vendors from CSV
 - [ ] `/registry/vendors` · export vendors data
@@ -444,15 +444,15 @@
 
 ### standards
 
-- [ ] `/standards/[id]` · view standard details card (metadata: shortName, description, governing body, framework, version, revision, last updated, link, tags)
-- [ ] `/standards/[id]` · view controls grouped by category in expandable accordion sections
-- [ ] `/standards/[id]` · search controls by refCode, category, subcategory, or description
-- [ ] `/standards/[id]` · toggle all accordion sections open/closed
+- [x] `/standards/[id]` · view standard details card (metadata: shortName, description, governing body, framework, version, revision, last updated, link, tags)
+- [x] `/standards/[id]` · view controls grouped by category in expandable accordion sections
+- [x] `/standards/[id]` · search controls by refCode, category, subcategory, or description
+- [x] `/standards/[id]` · toggle all accordion sections open/closed
 - [ ] `/standards/[id]` · paginate controls within each category section
-- [ ] `/standards/[id]` · click control table row to open control detail sheet via controlId query param
-- [ ] `/standards/[id]` · view control detail sheet rendering (title, refCode, description, properties, subcontrols, related controls)
-- [ ] `/standards/[id]` · expand and view control detail accordion sections (implementation guidance, testing procedures, evidence requests, control questions, assessment methods, assessment objectives)
-- [ ] `/standards/[id]` · copy control detail sheet shareable link with controlId param
+- [x] `/standards/[id]` · click control table row to open control detail sheet via controlId query param
+- [x] `/standards/[id]` · view control detail sheet rendering (title, refCode, description, properties, subcontrols, related controls)
+- [x] `/standards/[id]` · expand and view control detail accordion sections (implementation guidance, testing procedures, evidence requests, control questions, assessment methods, assessment objectives)
+- [x] `/standards/[id]` · copy control detail sheet shareable link with controlId param
 
 ### trust-center
 
@@ -486,19 +486,19 @@
 
 ### automation
 
-- [ ] `/automation/campaigns` · column visibility menu
+- [x] `/automation/campaigns` · column visibility menu
 - [ ] `/automation/campaigns` · sort by name/status/type/due-date
 - [ ] `/automation/campaigns` · create campaign step 2: add targets via manual email entry
 - [ ] `/automation/campaigns` · create campaign step 2: add targets via contacts selector
 - [ ] `/automation/campaigns` · create campaign step 2: add targets via personnel selector
 - [ ] `/automation/campaigns` · create campaign step 3: configure scheduling and reminders
-- [ ] `/automation/campaigns` · detail page: inline edit campaign name
-- [ ] `/automation/campaigns` · detail page: change campaign status dropdown
-- [ ] `/automation/campaigns` · detail page: change campaign type dropdown
+- [x] `/automation/campaigns` · detail page: inline edit campaign name
+- [x] `/automation/campaigns` · detail page: change campaign status dropdown
+- [x] `/automation/campaigns` · detail page: change campaign type dropdown
 - [ ] `/automation/campaigns` · detail page: set due date
 - [ ] `/automation/campaigns` · detail page: view campaign progress bar
 - [ ] `/automation/campaigns` · detail page: view linked questionnaire
-- [ ] `/automation/campaigns` · detail page: complete active campaign button
+- [x] `/automation/campaigns` · detail page: complete active campaign button
 - [ ] `/automation/campaigns/[id]` · search recipients by name and email
 - [ ] `/automation/campaigns/[id]` · click recipient to open side panel details
 - [ ] `/automation/campaigns/[id]` · view campaign progress bar and stats
@@ -555,7 +555,7 @@
 - [ ] `/automation/workflows/definitions/[id]` · Toggle view modes (Visual/JSON tabs)
 - [ ] `/automation/workflows/definitions/[id]` · Navigate to editor from detail page
 - [ ] `/automation/workflows/definitions/[id]` · Workflow visual editor rendering in read-only mode — _Complex interactive ReactFlow component; smoke test insufficient_
-- [ ] `/automation/workflows/editor` · editor-mode-toggle — _switching between visual and form editor modes not tested_
+- [x] `/automation/workflows/editor` · editor-mode-toggle — _switching between visual and form editor modes not tested_
 - [ ] `/automation/workflows/editor` · visual-editor-trigger-management — _drag-drop node creation, editing, deletion in visual mode not tested_
 - [ ] `/automation/workflows/editor` · visual-editor-condition-management — _condition node operations in visual editor not tested_
 - [ ] `/automation/workflows/editor` · visual-editor-action-management — _action node operations in visual editor not tested_
@@ -588,7 +588,7 @@
 - [ ] `/automation/workflows/wizard` · Review step: enter workflow name and description
 - [ ] `/automation/workflows/wizard` · Review step: toggle active/draft/default flags and set cooldown
 - [ ] `/automation/workflows/wizard` · template loading via ?template query param pre-fills form
-- [ ] `/automation/workflows/wizard` · step enablement depends on required fields
+- [x] `/automation/workflows/wizard` · step enablement depends on required fields
 
 ### controls
 
@@ -596,7 +596,7 @@
 - [ ] `/controls` · expand-collapse-categories — _Expand/collapse all button exists, but no e2e test confirms interaction_
 - [ ] `/controls` · column-visibility-menu — _Menu component exists but no e2e test confirms interaction_
 - [ ] `/controls` · export-controls-csv — _Export function exists but no e2e test confirms export button interaction and download_
-- [ ] `/controls` · bulk-select-controls — _Row selection exists conditionally but no e2e test confirms multi-select interaction_
+- [x] `/controls` · bulk-select-controls — _Row selection exists conditionally but no e2e test confirms multi-select interaction_
 - [ ] `/controls` · bulk-edit-controls — _BulkEditControlsDialog component exists but no e2e test for bulk edit flow_
 - [ ] `/controls` · bulk-delete-controls — _Bulk delete confirmation and API call exist but no e2e test for the table-view bulk delete interaction_
 - [ ] `/controls/[id]` · update description with rich editor (Plate) — _description field updates tested only via direct form-level updates in edit mode; inline rich editor interaction not covered_
@@ -675,33 +675,33 @@
 
 ### dashboard
 
-- [ ] `/dashboard` · display compliance overview metrics
-- [ ] `/dashboard` · navigate to controls with filter from compliance overview
-- [ ] `/dashboard` · navigate to evidence with filter from compliance overview
-- [ ] `/dashboard` · navigate to tasks with filter from compliance overview
-- [ ] `/dashboard` · navigate to risks with filter from compliance overview
-- [ ] `/dashboard` · display suggested actions section
-- [ ] `/dashboard` · import policies dialog trigger
+- [x] `/dashboard` · display compliance overview metrics
+- [x] `/dashboard` · navigate to controls with filter from compliance overview
+- [x] `/dashboard` · navigate to evidence with filter from compliance overview
+- [x] `/dashboard` · navigate to tasks with filter from compliance overview
+- [x] `/dashboard` · navigate to risks with filter from compliance overview
+- [x] `/dashboard` · display suggested actions section
+- [x] `/dashboard` · import policies dialog trigger
 
 ### developers
 
-- [ ] `/developers/api-tokens` · view token in success screen and copy to clipboard — _test reaches success screen but does not verify token display or copy action_
+- [x] `/developers/api-tokens` · view token in success screen and copy to clipboard — _test reaches success screen but does not verify token display or copy action_
 - [ ] `/developers/api-tokens` · pagination of token list
 - [ ] `/developers/api-tokens` · view scope violation warning when excessive scopes (>20 write/delete) — _depends on seeded data with high-scope token_
 - [ ] `/developers/api-tokens` · inline edit scopes from scope violation callout in modal — _depends on seeded data with high-scope token_
-- [ ] `/developers/api-tokens` · view table column: no-expiration warning tooltip
+- [x] `/developers/api-tokens` · view table column: no-expiration warning tooltip
 - [ ] `/developers/personal-access-tokens` · sort by each field (expires_at, is_active, last_used_at, name, created_at, updated_at)
-- [ ] `/developers/personal-access-tokens` · copy newly created token to clipboard
+- [x] `/developers/personal-access-tokens` · copy newly created token to clipboard
 - [ ] `/developers/personal-access-tokens` · create token — validation errors (empty name, no org selected, invalid expiry)
 - [ ] `/developers/personal-access-tokens` · create token — set custom expiration date
 - [ ] `/developers/personal-access-tokens` · action menu visibility based on canEdit permission
 
 ### evidence
 
-- [ ] `/evidence` · Inline edit evidence fields (double-click)
+- [x] `/evidence` · Inline edit evidence fields (double-click)
 - [ ] `/evidence` · Renew evidence
-- [ ] `/evidence` · View suggested actions (unlinked, needs review, needs renewal)
-- [ ] `/evidence` · Copy evidence link to clipboard
+- [x] `/evidence` · View suggested actions (unlinked, needs review, needs renewal)
+- [x] `/evidence` · Copy evidence link to clipboard
 - [ ] `/evidence` · Add/manage evidence comments
 - [ ] `/evidence` · Manage evidence file attachments
 
@@ -761,20 +761,20 @@
 
 ### login
 
-- [ ] `/login` · URL error parameter ?error=<message> displays and clears — _Error parameter handling exists but not tested_
+- [x] `/login` · URL error parameter ?error=<message> displays and clears — _Error parameter handling exists but not tested_
 
 ### onboarding
 
-- [ ] `/onboarding` · Company Info step: Company size selection — _Size dropdown present in code but never asserted in tests; no verification of selection or persistence_
-- [ ] `/onboarding` · User Info step: Role input - data capture and persistence — _Role field exists but never tested for value entry, validation, or retention across navigation_
-- [ ] `/onboarding` · User Info step: Department selection — _Department dropdown present in code but never asserted; no selection or persistence test_
-- [ ] `/onboarding` · Compliance Info step: Risk assessment toggle — _Step 3 exists and toggle controls exist in code, but toggle interaction/persistence never tested_
+- [x] `/onboarding` · Company Info step: Company size selection — _Size dropdown present in code but never asserted in tests; no verification of selection or persistence_
+- [x] `/onboarding` · User Info step: Role input - data capture and persistence — _Role field exists but never tested for value entry, validation, or retention across navigation_
+- [x] `/onboarding` · User Info step: Department selection — _Department dropdown present in code but never asserted; no selection or persistence test_
+- [x] `/onboarding` · Compliance Info step: Risk assessment toggle — _Step 3 exists and toggle controls exist in code, but toggle interaction/persistence never tested_
 - [ ] `/onboarding` · Compliance Info step: Gap analysis toggle — _Step 3 exists and toggle controls exist in code, but toggle interaction/persistence never tested_
 - [ ] `/onboarding` · Compliance Info step: Existing controls toggle — _Step 3 exists and toggle controls exist in code, but toggle interaction/persistence never tested_
 - [ ] `/onboarding` · Compliance Info step: Existing policies/procedures toggle — _Step 3 exists and toggle controls exist in code, but toggle interaction/persistence never tested_
 - [ ] `/onboarding` · Compliance Info step: Demo request toggle — _Demo request toggle on Step 3 present in code but never tested for interaction or submission inclusion_
 - [ ] `/onboarding` · Step 2 field validation before advancing to Step 3 — _Step 2 validation logic exists (triggers role/department fields) but no test for advancing with invalid data_
-- [ ] `/onboarding` · Early exit link completion — _Exit link visibility tested but not clicking it to submit with early-exit behavior_
+- [x] `/onboarding` · Early exit link completion — _Exit link visibility tested but not clicking it to submit with early-exit behavior_
 
 ### organization
 
@@ -833,7 +833,7 @@
 - [ ] `/policies/[id]/view` · properties card (tags, approval required, frequency, review due) — _No test verifies inline or form editing of tags, approval-required toggle, review frequency, or review-due date_
 - [ ] `/policies/[id]/view` · authority card (approver/delegate selection) — _No test covers selection or clearing of approver/delegate fields in the authority card_
 - [ ] `/policies/[id]/view` · history tab restore functionality — _History tab is tested for Current badge existence, but no test exercises the restore-to-past-version dialog and confirmation_
-- [ ] `/policies/[id]/view` · manage permissions sheet (open/close) — _No test opens the Manage Permissions sheet or verifies permission model visibility_
+- [x] `/policies/[id]/view` · manage permissions sheet (open/close) — _No test opens the Manage Permissions sheet or verifies permission model visibility_
 - [ ] `/policies/create` · set policy type with creatable custom enum
 - [ ] `/policies/create` · set review date with calendar
 - [ ] `/policies/create` · add/edit tags with creation
@@ -859,11 +859,11 @@
 - [ ] `/procedures/[id]/edit` · Set delegate group from /edit Authority Card — _Approver/delegate selection not tested in /edit form_
 - [ ] `/procedures/[id]/edit` · Error handling on save (validation, GraphQL errors) — _No error scenarios tested on procedure forms_
 - [ ] `/procedures/[id]/edit` · Permission denial: readonly user cannot access /edit page — _Permission gating logic exists (canEdit check) but no e2e test covers denial_
-- [ ] `/procedures/[id]/view` · bulk-edit-mode — _Full form edit mode (Save/Cancel buttons) tested for create but not detail view_
+- [x] `/procedures/[id]/view` · bulk-edit-mode — _Full form edit mode (Save/Cancel buttons) tested for create but not detail view_
 - [ ] `/procedures/[id]/view` · inline-approver-edit — _Approver searchable single select inline edit not covered_
 - [ ] `/procedures/[id]/view` · inline-delegate-edit — _Delegate searchable single select inline edit not covered_
 - [ ] `/procedures/[id]/view` · inline-tags-edit — _Tags multi-select inline edit not covered_
-- [ ] `/procedures/[id]/view` · manage-permissions — _ManagePermissionSheet flow not covered in e2e_
+- [x] `/procedures/[id]/view` · manage-permissions — _ManagePermissionSheet flow not covered in e2e_
 - [ ] `/procedures/[id]/view` · edit-details-rich-text — _Rich text editor (Plate) in details field not covered; includes discussion/collaboration features_
 - [ ] `/procedures/create` · create-procedure-with-full-form — _title and save tested; details (Plate editor), approval-required, status, review-frequency, review-date, tags, procedure-type not tested in create flow_
 - [ ] `/procedures/create` · set-approval-required — _form field exists; no e2e coverage_
@@ -879,7 +879,7 @@
 - [ ] `/programs` · expand/collapse all accordion groups (Switch toggle)
 - [ ] `/programs` · view program metrics (evidence %, tasks, controls)
 - [ ] `/programs` · display program owner and status
-- [ ] `/programs` · unarchive archived program from dashboard card
+- [x] `/programs` · unarchive archived program from dashboard card
 - [ ] `/programs` · navigate to program detail via View button
 - [ ] `/programs` · navigate to program settings via menu
 - [ ] `/programs` · assign users to program (permission-gated: editAllowed)
@@ -899,7 +899,7 @@
 - [ ] `/programs/create/advanced-setup` · Step 5: Associate Existing Risks multi-select
 - [ ] `/programs/create/advanced-setup` · Step 5: Associate Existing Policies multi-select
 - [ ] `/programs/create/advanced-setup` · Step 5: Associate Existing Procedures multi-select
-- [ ] `/programs/create/advanced-setup` · Form data persistence: forward/back navigation retains values
+- [x] `/programs/create/advanced-setup` · Form data persistence: forward/back navigation retains values
 - [ ] `/programs/create/advanced-setup` · Exit wizard confirmation: Back on Step 1 shows dialog
 - [ ] `/programs/create/advanced-setup` · Error handling: GraphQL mutation failures
 - [ ] `/programs/create/framework-based` · auto-populate program name based on selected framework and year
@@ -911,7 +911,7 @@
 - [ ] `/programs/create/generic-program` · error-notification-on-create-failure — _GraphQL error handling/error notification not tested_
 - [ ] `/programs/create/risk-assessment` · Form validation: required fields/conditional validation per step
 - [ ] `/programs/create/risk-assessment` · Exit confirmation on back from step 0 to return to /programs/create
-- [ ] `/programs/create/soc2` · step-navigation-next — _No test for stepping through all 3 steps sequentially_
+- [x] `/programs/create/soc2` · step-navigation-next — _No test for stepping through all 3 steps sequentially_
 - [ ] `/programs/create/soc2` · error-handling-creation-failure — _No test for error notifications on creation failure_
 - [ ] `/programs/create/soc2` · form-validation-programKindName — _No test for required field validation error messages_
 
@@ -1002,7 +1002,7 @@
 - [ ] `/user-management/groups` · list groups in card view — _infinite scroll card view exists in code_
 - [ ] `/user-management/groups` · search groups — _debounced search input with text matching on name/displayName_
 - [ ] `/user-management/groups` · filter groups by member — _TableFilter component with member dropdown and isManaged boolean_
-- [ ] `/user-management/groups` · quick filters — _All Groups, My Groups, System Managed Groups quick filter buttons_
+- [x] `/user-management/groups` · quick filters — _All Groups, My Groups, System Managed Groups quick filter buttons_
 - [ ] `/user-management/groups` · change member role — _inline role select dropdown in members table_
 - [ ] `/user-management/groups` · remove member from group — _trash icon button in members table_
 - [ ] `/user-management/members` · Members List: sort members — _MEMBERS_SORT_FIELDS defined but no e2e test exercises sort interaction_
@@ -1091,8 +1091,8 @@
 
 ### dashboard
 
-- [ ] `/dashboard` · view documentation external link
-- [ ] `/dashboard` · contact support external link
+- [x] `/dashboard` · view documentation external link
+- [x] `/dashboard` · contact support external link
 
 ### developers
 
@@ -1102,9 +1102,9 @@
 
 ### evidence
 
-- [ ] `/evidence` · View associated objects
+- [x] `/evidence` · View associated objects
 - [ ] `/evidence` · View workflow state
-- [ ] `/evidence` · Select multiple rows via checkbox
+- [x] `/evidence` · Select multiple rows via checkbox
 - [ ] `/evidence` · Sort by column headers
 - [ ] `/evidence` · Paginate through evidence list
 - [ ] `/evidence` · Manage evidence tags
@@ -1144,7 +1144,7 @@
 ### onboarding
 
 - [ ] `/onboarding` · Error handling on submission failure — _GraphQL error scenarios, network failures, or validation errors during submission not tested_
-- [ ] `/onboarding` · Step 3 data persistence across navigation — _Step 2 persistence tested, but Step 3 toggle states not verified after back/forward navigation_
+- [x] `/onboarding` · Step 3 data persistence across navigation — _Step 2 persistence tested, but Step 3 toggle states not verified after back/forward navigation_
 - [ ] `/onboarding` · Conditional validation when sector is 'Other' — _Conditional field appears but its validation (required when sector is Other) not tested_
 
 ### organization
@@ -1183,7 +1183,7 @@
 - [ ] `/procedures/[id]/view` · inline-version-edit — _Revision field inline edit not covered_
 - [ ] `/procedures/[id]/view` · inline-procedure-type-edit — _Procedure Type creatable enum inline edit not covered_
 - [ ] `/procedures/[id]/view` · inline-review-date-edit — _Review date calendar picker inline edit not covered_
-- [ ] `/procedures/[id]/view` · view-historical-metadata — _Historical card (Created By/At, Updated By/At) not explicitly tested_
+- [x] `/procedures/[id]/view` · view-historical-metadata — _Historical card (Created By/At, Updated By/At) not explicitly tested_
 - [ ] `/procedures/create` · draft-restore — _DraftRestoreModal component exists; no e2e coverage_
 - [ ] `/procedures/create` · edit-title — _edit mode only (tested in view page); create-redirect-to-view makes create title changes untestable_
 - [ ] `/procedures/create` · edit-status — _edit mode only (tested in view page)_
@@ -1251,7 +1251,7 @@
 ### user-management
 
 - [ ] `/user-management/groups` · sort table columns — _table has onSortChange handler with GROUP_SORT_FIELDS_
-- [ ] `/user-management/groups` · column visibility toggle — _ColumnVisibilityMenu component with default visibility state_
+- [x] `/user-management/groups` · column visibility toggle — _ColumnVisibilityMenu component with default visibility state_
 - [ ] `/user-management/groups` · copy group link — _copy link button in details sheet header_
 - [ ] `/user-management/groups` · inherit permissions — _InheritPermissionDialog component exists_
 - [ ] `/user-management/members` · Invites Tab: copy invite email to clipboard — _copy icon present in InvitesColumns but not tested_
@@ -1260,7 +1260,7 @@
 ### user-settings
 
 - [ ] `/user-settings/profile` · view registered passkeys list and device details — _read-only assertion of existing passkeys_
-- [ ] `/user-settings/profile` · profile form validation errors (field length, email format) — _client-side validation UX_
+- [x] `/user-settings/profile` · profile form validation errors (field length, email format) — _client-side validation UX_
 
 ## ⛔ Blocked / out of scope
 

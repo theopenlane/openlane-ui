@@ -227,3 +227,94 @@ test.describe('onboarding', () => {
     await expect(page.getByText(/use general template for my account/)).toBeVisible()
   })
 })
+
+test.describe('onboarding — optional fields', () => {
+  test('step 1 company-size selection persists across forward/back navigation', async ({ page }) => {
+    const email = await freshUser('size')
+    await loginViaForm(page, email, PASSWORD)
+    await ensureOnboardingRoute(page)
+
+    await page.locator('#companyName').fill('Company Size Co')
+
+    // step-1.tsx: the Company Size field is a label + Radix Select trigger.
+    // Scope to the field container so the trigger handle stays valid after
+    // its text changes from the placeholder to the chosen label.
+    const sizeTrigger = () => page.getByText('Company Size', { exact: true }).locator('..').getByRole('combobox').first()
+    await sizeTrigger().click()
+    await page.getByRole('option', { name: /11-50 employees/ }).click()
+    await expect(sizeTrigger()).toContainText(/11-50 employees/)
+
+    // Advance to Step 2, then back. The trigger should still show the choice.
+    await page.getByRole('button', { name: /^User Info$/ }).click()
+    await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
+    await page.getByRole('button', { name: /^Company Info$/ }).click()
+
+    await expect(sizeTrigger()).toContainText(/11-50 employees/)
+  })
+
+  test('step 2 department selection persists when navigating to Step 3 and back', async ({ page }) => {
+    const email = await freshUser('dept')
+    await loginViaForm(page, email, PASSWORD)
+    await ensureOnboardingRoute(page)
+
+    await page.locator('#companyName').fill('Department Co')
+    await page.getByRole('button', { name: /^User Info$/ }).click()
+    await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
+
+    // step-2.tsx: Department field is a label + Radix Select trigger. Scope to
+    // the field container so the handle survives the trigger's text change.
+    const deptTrigger = () => page.getByText('Department', { exact: true }).locator('..').getByRole('combobox').first()
+    await deptTrigger().click()
+    await page.getByRole('option', { name: /^Infosec$/ }).click()
+    await expect(deptTrigger()).toContainText(/Infosec/)
+
+    await page.getByRole('button', { name: /^Compliance Info$/ }).click()
+    await expect(page.getByRole('heading', { name: /^Compliance Info$/ })).toBeVisible()
+    await page.getByRole('button', { name: /^User Info$/ }).click()
+
+    await expect(deptTrigger()).toContainText(/Infosec/)
+  })
+
+  test('step 3 compliance toggle flips on and stays on across back/forward', async ({ page }) => {
+    const email = await freshUser('toggle')
+    await loginViaForm(page, email, PASSWORD)
+    await ensureOnboardingRoute(page)
+
+    await page.locator('#companyName').fill('Toggle Co')
+    await page.getByRole('button', { name: /^User Info$/ }).click()
+    await page.getByRole('button', { name: /^Compliance Info$/ }).click()
+    await expect(page.getByRole('heading', { name: /^Compliance Info$/ })).toBeVisible()
+
+    // step-3.tsx renders one Switch per question. The first is the
+    // risk-assessment toggle, default unchecked.
+    const riskToggle = page.getByRole('switch').first()
+    await expect(riskToggle).toHaveAttribute('aria-checked', 'false')
+    await riskToggle.click()
+    await expect(riskToggle).toHaveAttribute('aria-checked', 'true')
+
+    // Back to Step 2 and forward again — the toggle holds its on state.
+    await page.getByRole('button', { name: /^User Info$/ }).click()
+    await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
+    await page.getByRole('button', { name: /^Compliance Info$/ }).click()
+
+    await expect(page.getByRole('switch').first()).toHaveAttribute('aria-checked', 'true')
+  })
+
+  test('early-exit link on Step 2 submits onboarding and lands on /dashboard', async ({ page }) => {
+    test.slow()
+    const email = await freshUser('early-exit')
+    await loginViaForm(page, email, PASSWORD)
+    await ensureOnboardingRoute(page)
+
+    await page.locator('#companyName').fill(`Early Exit Co ${Date.now().toString(36)}`)
+    await page.getByRole('button', { name: /^User Info$/ }).click()
+    await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
+
+    // onboarding-page.tsx wires the exit shortcut's onClick to
+    // methods.handleSubmit(onSubmit) — clicking it skips Step 3 and submits
+    // with whatever's filled so far, then routes to /dashboard.
+    await page.getByText(/Exit the onboarding process/).click()
+
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 })
+  })
+})
