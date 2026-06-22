@@ -19,7 +19,7 @@ import React, { useEffect, useState } from 'react'
 import SelectCategoryStep from '../shared/steps/select-category-step'
 import StartTypeStep from '../shared/steps/start-type-step'
 import TeamSetupStep from '../shared/steps/team-setup-step'
-import { fullSchema, suggestedControlsStepSchema, validateFullAndNotify, type WizardValues } from './sco2-wizard-config'
+import { fullSchema, suggestedControlsStepSchema, validateFullAndNotify, type WizardValues } from './soc2-wizard-config'
 import SuggestedControlsStep from './suggested-controls-step'
 
 const today = new Date()
