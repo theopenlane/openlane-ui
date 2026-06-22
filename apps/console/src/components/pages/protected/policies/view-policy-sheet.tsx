@@ -21,9 +21,11 @@ import { useQueryClient } from '@tanstack/react-query'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { type Value } from 'platejs'
-import { type Group, type InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
+import { type Group, type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { GenericDetailsSheet, type RenderFieldsProps, type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
+import IntegrationDocumentView from '@/components/pages/protected/policies/view/fields/integration-document-view'
+import ExternalReferenceView from '@/components/pages/protected/policies/view/fields/external-reference-view'
 import { useForm } from 'react-hook-form'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -179,16 +181,21 @@ export const ViewPolicySheet: React.FC<Props> = ({ policyId, onClose }) => {
               {detailsOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
               Details
             </button>
-            {detailsOpen && (
-              <PlateEditor
-                key={JSON.stringify(p.detailsJSON ?? p.details)}
-                initialValue={p.detailsJSON ? (p.detailsJSON as Value) : (p.details ?? undefined)}
-                entity={discussionData?.internalPolicy}
-                readonly={true}
-                variant="readonly"
-                toolbarClassName="hidden"
-              />
-            )}
+            {detailsOpen &&
+              (p.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION ? (
+                <IntegrationDocumentView policy={p} />
+              ) : p.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE && p.file ? (
+                <ExternalReferenceView policy={p} editAllowed={false} />
+              ) : (
+                <PlateEditor
+                  key={JSON.stringify(p.detailsJSON ?? p.details)}
+                  initialValue={p.detailsJSON ? (p.detailsJSON as Value) : (p.details ?? undefined)}
+                  entity={discussionData?.internalPolicy}
+                  readonly={true}
+                  variant="readonly"
+                  toolbarClassName="hidden"
+                />
+              ))}
           </div>
         </div>
       )
