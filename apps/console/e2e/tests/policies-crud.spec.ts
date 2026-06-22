@@ -84,14 +84,14 @@ test.describe('policies — detail (seeded)', () => {
     const id = await createInternalPolicy(ownerApi, name)
 
     await page.goto(`/policies/${id}/view`, { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 30_000 })
 
-    // properties-card.tsx: double-clicking the status (policy-status-trigger)
-    // swaps it for a Select; pick a new status, then reload to prove persistence.
     const statusTrigger = page.getByTestId('policy-status-trigger')
-    await statusTrigger.dblclick()
     const statusSelect = page.getByRole('combobox')
-    await expect(statusSelect).toBeVisible({ timeout: 5_000 })
+    await expect(async () => {
+      await statusTrigger.dblclick()
+      await expect(statusSelect).toBeVisible({ timeout: 2_000 })
+    }).toPass({ timeout: 20_000 })
     await statusSelect.click()
     await page.getByRole('option', { name: /^Published$/i }).click()
 

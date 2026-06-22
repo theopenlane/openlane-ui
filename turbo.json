@@ -11,6 +11,8 @@
     "E2E_RUN_ID",
     "E2E_EMAIL_DOMAIN",
     "E2E_RESEED",
+    "E2E_WORKERS",
+    "COOKIE_PLAYWRIGHT_INSECURE",
     "PLAYWRIGHT_USE_WEBSERVER"
   ],
   "tasks": {

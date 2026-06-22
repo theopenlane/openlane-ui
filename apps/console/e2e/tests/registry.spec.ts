@@ -1,7 +1,6 @@
-import { expect, test } from '@playwright/test'
+import { test, expect } from '../fixtures/auth'
 
 import { RUN_ID } from '../utils/constants'
-import { seedLoggedInUser } from '../utils/seedUser'
 
 const vendorName = (slug: string) => `E2E Vendor ${slug} ${RUN_ID} ${Date.now().toString(36)}`
 
@@ -20,8 +19,6 @@ const SUBROUTES: Array<{ path: string; heading: RegExp }> = [
 test.describe('registry — list pages render', () => {
   for (const { path, heading } of SUBROUTES) {
     test(`${path} renders the heading for an owner`, async ({ page }) => {
-      await seedLoggedInUser(page, `reg-${path.split('/').pop()}`)
-
       await page.goto(path)
 
       await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible()
@@ -31,8 +28,6 @@ test.describe('registry — list pages render', () => {
 
 test.describe('registry — vendor create wizard', () => {
   test('happy path — name-only step wizard creates a vendor visible on /registry/vendors', async ({ page }) => {
-    await seedLoggedInUser(page, 'reg-vendor-create')
-
     await page.goto('/registry/vendors')
 
     // GenericTablePage renders a "Create" button in the toolbar; click
@@ -68,8 +63,6 @@ test.describe('registry — vendor create wizard', () => {
   })
 
   test('clicking a vendor row opens the detail page (full-page route)', async ({ page }) => {
-    await seedLoggedInUser(page, 'reg-vendor-detail')
-
     // Create vendor inline.
     await page.goto('/registry/vendors')
     await page
@@ -97,8 +90,6 @@ test.describe('registry — vendor create wizard', () => {
   })
 
   test('required validation — Step 1 Next is blocked when Vendor Name is empty', async ({ page }) => {
-    await seedLoggedInUser(page, 'reg-vendor-required')
-
     await page.goto('/registry/vendors')
     await page
       .getByRole('main')
@@ -121,8 +112,6 @@ test.describe('registry — vendor create wizard', () => {
 
 test.describe('registry — legacy redirects', () => {
   test('/registry/vulnerabilities redirects to /exposure/vulnerabilities', async ({ page }) => {
-    await seedLoggedInUser(page, 'reg-vuln-redir')
-
     // page.tsx is a server-side redirect() to /exposure/vulnerabilities.
     await page.goto('/registry/vulnerabilities')
 

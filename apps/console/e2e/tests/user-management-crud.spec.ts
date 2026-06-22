@@ -1,3 +1,5 @@
+import type { Locator, Page } from '@playwright/test'
+
 import { test, expect, readManifest } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
 import { loginViaApi, createGroup, getSelf, addOrgMember, memberSeesOrg, type ApiSession } from '../utils/api'
@@ -29,17 +31,25 @@ test.beforeAll(async () => {
 /**
  * Seed a THROWAWAY active member into the shared org so change-role / remove
  * specs never mutate the seeded Owner/Admin/Member/ReadOnly memberships the
- * permission specs depend on. Returns the new member's email.
+ * permission specs depend on.
+ *
+ * The throwaway uses the shared org's allowed email domain (the owner's, from
+ * the manifest) — the org rejects createOrgMembership for any other domain, and
+ * that domain has autojoin, so verifying the user lands them as MEMBER. Its
+ * displayName is the email local-part (firstName/lastName are blank at register
+ * time), which is what the members table search matches and is returned so the
+ * spec can isolate the row.
  */
-const seedThrowawayMember = async (sharedOrgId: string): Promise<string> => {
-  const email = `e2e-throwaway-${RUN_ID}-${Date.now().toString(36)}@e2e-throwaway.invalid`
+const seedThrowawayMember = async (sharedOrgId: string, allowedDomain: string): Promise<{ email: string; displayName: string }> => {
+  const localPart = `e2e-throwaway-${RUN_ID}-${Date.now().toString(36)}-${counter++}`
+  const email = `${localPart}@${allowedDomain}`
+  const displayName = localPart
   await registerAndVerify({ email })
   const memberApi = await loginViaApi(email)
   const { id: userId } = await getSelf(memberApi)
   await addOrgMember(ownerApi, sharedOrgId, userId, 'MEMBER')
-  // FGA propagation lag — confirm the membership landed before driving the UI.
   await memberSeesOrg(memberApi, sharedOrgId)
-  return email
+  return { email, displayName }
 }
 
 test.describe('user-management — members table', () => {
@@ -105,9 +115,8 @@ test.describe('user-management — group details sheet (seeded)', () => {
     await expect(page.getByRole('button', { name: /^Add members$/ })).toBeVisible({ timeout: 20_000 })
     await expect(page.getByRole('button', { name: /^Assign permissions to group$/ })).toBeVisible()
 
-    // Custom Members/Permissions tab toggle (clickable text, not Radix tabs).
     await expect(page.getByText('Members', { exact: true }).first()).toBeVisible()
-    await expect(page.getByText('Permissions', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText('Roles and Permissions', { exact: true }).first()).toBeVisible()
   })
 
   test('Add members dialog opens with the member selector', async ({ page }) => {
@@ -141,37 +150,49 @@ test.describe('user-management — group details sheet (seeded)', () => {
  * ⏳ Written without running; verify on first run.
  */
 test.describe('user-management — member row actions (throwaway member)', () => {
+  const memberRow = (page: Page, email: string) => page.getByRole('row', { name: new RegExp(email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) })
+
+  const openRowMenu = async (row: Locator, item: Locator) => {
+    await expect(async () => {
+      await row.getByTestId('member-actions-trigger').click()
+      await expect(item).toBeVisible({ timeout: 2_000 })
+    }).toPass({ timeout: 20_000 })
+  }
+
   test('owner changes a throwaway member’s role via the Change Role dialog', async ({ page }) => {
-    const { sharedOrgId } = readManifest()
-    const email = await seedThrowawayMember(sharedOrgId)
+    const { sharedOrgId, ownerEmail } = readManifest()
+    const { email, displayName } = await seedThrowawayMember(sharedOrgId, ownerEmail.split('@')[1])
 
     await page.goto('/user-management/members', { waitUntil: 'domcontentloaded' })
-    await page.getByPlaceholder('Search').fill(email)
-    await expect(page.getByText(email).first()).toBeVisible({ timeout: 20_000 })
+    await page.getByPlaceholder('Search').fill(displayName)
+    const row = memberRow(page, email)
+    await expect(row).toBeVisible({ timeout: 20_000 })
 
-    await page.getByTestId('member-actions-trigger').click()
-    await page.getByText('Change Role').click()
+    const changeRoleItem = page.getByRole('menuitem', { name: /Change Base Role/ })
+    await openRowMenu(row, changeRoleItem)
+    await changeRoleItem.press('Enter')
 
-    // member-actions.tsx Change Role AlertDialog shows "Current role" / "New role".
     await expect(page.getByText('New role')).toBeVisible({ timeout: 10_000 })
   })
 
   test('owner removes a throwaway member from the org', async ({ page }) => {
-    const { sharedOrgId } = readManifest()
-    const email = await seedThrowawayMember(sharedOrgId)
+    const { sharedOrgId, ownerEmail } = readManifest()
+    const { email, displayName } = await seedThrowawayMember(sharedOrgId, ownerEmail.split('@')[1])
 
     await page.goto('/user-management/members', { waitUntil: 'domcontentloaded' })
-    await page.getByPlaceholder('Search').fill(email)
-    await expect(page.getByText(email).first()).toBeVisible({ timeout: 20_000 })
+    await page.getByPlaceholder('Search').fill(displayName)
+    const row = memberRow(page, email)
+    await expect(row).toBeVisible({ timeout: 20_000 })
 
-    await page.getByTestId('member-actions-trigger').click()
-    await page.getByText('Remove Member').click()
-    // ConfirmationDialog "Delete Member" → confirm.
-    await page
-      .getByRole('alertdialog')
-      .getByRole('button', { name: /^Delete$/ })
-      .click()
+    const removeItem = page.getByText('Remove Member', { exact: true })
+    await openRowMenu(row, removeItem)
+    await removeItem.dispatchEvent('click')
 
+    const confirmDelete = page.getByRole('alertdialog').getByRole('button', { name: /^Delete$/ })
+    await expect(confirmDelete).toBeVisible({ timeout: 10_000 })
+    await confirmDelete.dispatchEvent('click')
+
+    await expect(page.getByText('Member deleted successfully').first()).toBeVisible({ timeout: 15_000 })
     await expect(page.getByText(email)).toHaveCount(0, { timeout: 15_000 })
   })
 })
