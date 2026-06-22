@@ -1,6 +1,4 @@
-import { expect, test } from '@playwright/test'
-
-import { seedLoggedInUser } from '../utils/seedUser'
+import { test, expect } from '../fixtures/auth'
 
 // Both developers sub-routes are rendered by the same DevelopersPage
 // component, which picks the heading from the URL via PAGE_CONFIG.
@@ -12,8 +10,6 @@ const SUBROUTES: Array<{ path: string; heading: RegExp }> = [
 test.describe('developers — token pages render', () => {
   for (const { path, heading } of SUBROUTES) {
     test(`${path} renders the heading for an owner`, async ({ page }) => {
-      await seedLoggedInUser(page, `dev-${path.split('/').pop()}`)
-
       await page.goto(path)
 
       await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible()
@@ -23,8 +19,6 @@ test.describe('developers — token pages render', () => {
 
 test.describe('developers — create API token', () => {
   test('happy path — name + Never expires → Create Token → "Token created" success screen', async ({ page }) => {
-    await seedLoggedInUser(page, 'dev-create-token')
-
     await page.goto('/developers/api-tokens')
 
     // Toolbar Create trigger renders a Button "Create" (not "Create
@@ -52,8 +46,6 @@ test.describe('developers — create API token', () => {
   })
 
   test('empty name → "Token name is required" inline error, dialog stays on Create step', async ({ page }) => {
-    await seedLoggedInUser(page, 'dev-token-validation')
-
     await page.goto('/developers/api-tokens')
 
     await page
@@ -78,8 +70,6 @@ test.describe('developers — create API token', () => {
 
 test.describe('developers — create personal access token', () => {
   test('happy path — name + org select + Never expires → Create Token → "Token created" success screen', async ({ page }) => {
-    await seedLoggedInUser(page, 'dev-create-pat')
-
     await page.goto('/developers/personal-access-tokens')
 
     // Same PersonalApiKeyDialog component as /api-tokens; toolbar

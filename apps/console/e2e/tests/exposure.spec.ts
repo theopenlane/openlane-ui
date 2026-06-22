@@ -1,7 +1,6 @@
-import { expect, test } from '@playwright/test'
+import { test, expect } from '../fixtures/auth'
 
 import { RUN_ID } from '../utils/constants'
-import { seedLoggedInUser } from '../utils/seedUser'
 
 const riskName = (slug: string) => `E2E Risk ${slug} ${RUN_ID} ${Date.now().toString(36)}`
 
@@ -22,8 +21,6 @@ const SUBROUTES: Array<{ path: string; heading: RegExp }> = [
 test.describe('exposure — list pages render', () => {
   for (const { path, heading } of SUBROUTES) {
     test(`${path} renders the heading for an owner`, async ({ page }) => {
-      await seedLoggedInUser(page, `expo-${path.split('/').pop()}`)
-
       await page.goto(path)
 
       await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible()
@@ -31,8 +28,6 @@ test.describe('exposure — list pages render', () => {
   }
 
   test('/exposure/scans/domain-scan renders the Domain Discovery Results heading', async ({ page }) => {
-    await seedLoggedInUser(page, 'expo-scans-domain')
-
     await page.goto('/exposure/scans/domain-scan')
 
     // domain-discovery-import-page.tsx renders <PageHeading eyebrow="Discovery" heading="Domain Discovery Results" />
@@ -42,8 +37,6 @@ test.describe('exposure — list pages render', () => {
 
 test.describe('exposure — risk create', () => {
   test('happy path — fill name, submit, lands on /exposure/risks/[id] with the name visible', async ({ page }) => {
-    await seedLoggedInUser(page, 'risk-create')
-
     await page.goto('/exposure/risks/create')
 
     // PageHeading "Create a new risk" is the page header. The TitleField
@@ -68,8 +61,6 @@ test.describe('exposure — risk create', () => {
   })
 
   test('search by name filters risks server-side', async ({ page }) => {
-    await seedLoggedInUser(page, 'risk-search')
-
     const a = riskName('search-a')
     const b = riskName('search-b')
     for (const name of [a, b]) {
@@ -83,18 +74,13 @@ test.describe('exposure — risk create', () => {
 
     await page.goto('/exposure/risks')
 
-    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('cell').filter({ hasText: b }).first()).toBeVisible({ timeout: 15_000 })
-
     await page.getByPlaceholder(/^Search$/).fill(a)
 
+    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('cell').filter({ hasText: b })).toHaveCount(0, { timeout: 15_000 })
-    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible()
   })
 
   test('newly created risk appears on /exposure/risks', async ({ page }) => {
-    await seedLoggedInUser(page, 'risk-listed')
-
     await page.goto('/exposure/risks/create')
     const name = riskName('listed')
     await page.getByLabel(/^Title$/).fill(name)
@@ -104,12 +90,11 @@ test.describe('exposure — risk create', () => {
     await page.waitForURL(/\/exposure\/risks\/(?!create)[^/]+(\?|$)/, { timeout: 30_000 })
 
     await page.goto('/exposure/risks')
+    await page.getByPlaceholder(/^Search$/).fill(name)
     await expect(page.getByRole('cell').filter({ hasText: name }).first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('required validation — submitting without a name shows the inline error', async ({ page }) => {
-    await seedLoggedInUser(page, 'risk-required')
-
     await page.goto('/exposure/risks/create')
     await page.getByRole('button', { name: /^create risk$/i }).click()
 

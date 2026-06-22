@@ -1,4 +1,4 @@
-import { chromium, type FullConfig } from '@playwright/test'
+import { chromium, type BrowserContext, type FullConfig } from '@playwright/test'
 import { existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -20,6 +20,17 @@ import { loginViaApi, getSharedOrgs, getSelf, addOrgMember, memberSeesOrg, setDe
  */
 
 export const AUTH_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '.auth')
+
+const SAVED_SESSION_TTL_MS = 2 * 60 * 60 * 1000
+
+const saveAuthState = async (context: BrowserContext, role: string): Promise<void> => {
+  const state = await context.storageState()
+  const minExpiry = Math.floor((Date.now() + SAVED_SESSION_TTL_MS) / 1000)
+  for (const cookie of state.cookies) {
+    if (cookie.expires > 0 && cookie.expires < minExpiry) cookie.expires = minExpiry
+  }
+  writeFileSync(path.join(AUTH_DIR, `${role}.json`), JSON.stringify(state, null, 2))
+}
 
 export interface AuthManifest {
   runId: string
@@ -75,7 +86,7 @@ const seedRoleUser = async ({ role, ownerApi, sharedOrgId }: SeedRoleArgs): Prom
   // Having two orgs (personal + shared), the user skips onboarding and lands
   // on /dashboard scoped to the shared org.
   await page.waitForURL(/\/dashboard/, { timeout: 30_000 })
-  await context.storageState({ path: path.join(AUTH_DIR, `${role}.json`) })
+  await saveAuthState(context, role)
   await browser.close()
 
   return email
@@ -117,7 +128,7 @@ const globalSetup = async (_config: FullConfig): Promise<void> => {
   const page = await context.newPage()
   await loginViaForm(page, ownerEmail, PASSWORD)
   await completeOnboarding(page, { companyName })
-  await context.storageState({ path: path.join(AUTH_DIR, 'owner.json') })
+  await saveAuthState(context, 'owner')
   await browser.close()
 
   // 3. Resolve the shared org id via the API so later steps / specs can use it.

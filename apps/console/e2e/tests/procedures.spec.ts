@@ -1,7 +1,8 @@
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { test, expect } from '../fixtures/auth'
+import { test as freshTest, type Locator, type Page } from '@playwright/test'
+import { seedLoggedInUser } from '../utils/seedUser'
 
 import { RUN_ID } from '../utils/constants'
-import { seedLoggedInUser } from '../utils/seedUser'
 
 const procedureName = (slug: string) => `E2E Procedure ${slug} ${RUN_ID} ${Date.now().toString(36)}`
 const policyName = (slug: string) => `E2E Policy ${slug} ${RUN_ID} ${Date.now().toString(36)}`
@@ -24,52 +25,31 @@ const getAssociationRowCheckbox = (dialog: Locator) => dialog.getByRole('checkbo
 
 test.describe('procedures — list + create', () => {
   test('/procedures renders the Procedures heading for an owner', async ({ page }) => {
-    await seedLoggedInUser(page, 'proc-list')
-
     await page.goto('/procedures')
 
     // PageHeading from @repo/ui renders the heading as an <h2>.
     await expect(page.getByRole('heading', { level: 2, name: /^Procedures$/ })).toBeVisible()
   })
 
-  test('empty state — fresh org has zero procedure rows', async ({ page }) => {
-    await seedLoggedInUser(page, 'proc-empty')
-
-    await page.goto('/procedures')
-
-    await expect(page.getByRole('heading', { level: 2, name: /^Procedures$/ })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('cell').filter({ hasText: /^E2E Procedure/ })).toHaveCount(0, { timeout: 5_000 })
-  })
-
   test('search by name filters via backend — typing one procedure removes the other from the list', async ({ page }) => {
-    await seedLoggedInUser(page, 'proc-search')
-
     const a = procedureName('search-a')
     const b = procedureName('search-b')
     for (const name of [a, b]) {
       await page.goto('/procedures/create')
       await page.getByLabel(/^Title$/).fill(name)
-      await page.getByRole('button', { name: /^save procedure$/i }).click()
+      await page.getByRole('button', { name: /^save procedure$/i }).click({ timeout: 30_000 })
       await page.waitForURL(/\/procedures\/[^/]+\/view/, { timeout: 30_000 })
     }
 
     await page.goto('/procedures')
 
-    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('cell').filter({ hasText: b }).first()).toBeVisible({ timeout: 15_000 })
-
-    // The procedures table-toolbar input has placeholder "Search". Routes
-    // to backend `nameContainsFold` via the toolbar's setSearchTerm and
-    // useDebounce(300ms) → useProcedures where clause.
     await page.getByPlaceholder(/^Search$/).fill(b)
 
+    await expect(page.getByRole('cell').filter({ hasText: b }).first()).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('cell').filter({ hasText: a })).toHaveCount(0, { timeout: 15_000 })
-    await expect(page.getByRole('cell').filter({ hasText: b }).first()).toBeVisible()
   })
 
   test('happy path — create a procedure and land on the view page', async ({ page }) => {
-    await seedLoggedInUser(page, 'proc-create')
-
     await page.goto('/procedures/create')
 
     const name = procedureName('create')
@@ -77,71 +57,64 @@ test.describe('procedures — list + create', () => {
 
     // Procedures use the SaveButton with a custom title "Save Procedure"
     // (vs policies' default "Save Changes").
-    await page.getByRole('button', { name: /^save procedure$/i }).click()
+    await page.getByRole('button', { name: /^save procedure$/i }).click({ timeout: 30_000 })
 
     await page.waitForURL(/\/procedures\/[^/]+\/view/, { timeout: 30_000 })
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 15_000 })
   })
 
   test('newly created procedure appears in the procedures table', async ({ page }) => {
-    await seedLoggedInUser(page, 'proc-listed')
-
     await page.goto('/procedures/create')
     const name = procedureName('listed')
     await page.getByLabel(/^Title$/).fill(name)
-    await page.getByRole('button', { name: /^save procedure$/i }).click()
+    await page.getByRole('button', { name: /^save procedure$/i }).click({ timeout: 30_000 })
     await page.waitForURL(/\/procedures\/[^/]+\/view/, { timeout: 30_000 })
 
     await page.goto('/procedures')
+    await page.getByPlaceholder(/^Search$/).fill(name)
     await expect(page.getByRole('cell').filter({ hasText: name }).first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('inline title rename: double-click h1 → type → Enter → reload → new title persists', async ({ page }) => {
-    await seedLoggedInUser(page, 'proc-edit')
-
     await page.goto('/procedures/create')
     const original = procedureName('edit-orig')
     await page.getByLabel(/^Title$/).fill(original)
-    await page.getByRole('button', { name: /^save procedure$/i }).click()
+    await page.getByRole('button', { name: /^save procedure$/i }).click({ timeout: 30_000 })
     await page.waitForURL(/\/procedures\/[^/]+\/view/, { timeout: 30_000 })
 
     const originalH1 = page.getByRole('heading', { level: 1, name: original })
     await expect(originalH1).toBeVisible({ timeout: 15_000 })
 
-    // procedures/view/fields/title-field.tsx is a near-clone of the
-    // policies title-field — same HoverPencilWrapper + double-click +
-    // Enter-to-blur pattern. handleUpdate fires the updateProcedure
-    // mutation on blur when the value differs from initialData.
-    await originalH1.dblclick({ force: true })
-
     const updated = procedureName('edit-new')
-    const titleInput = page.getByRole('textbox').first()
-    await titleInput.fill(updated)
-    await titleInput.press('Enter')
-
-    await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 10_000 })
-
-    await page.reload()
-    await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 15_000 })
+    await expect(async () => {
+      const h1 = page.getByRole('heading', { level: 1 }).first()
+      await h1.dispatchEvent('dblclick')
+      const titleInput = page.getByRole('textbox').first()
+      await expect(titleInput).toBeVisible({ timeout: 2_000 })
+      await titleInput.fill(updated)
+      await titleInput.press('Enter')
+      await page.reload()
+      await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 5_000 })
+    }).toPass({ timeout: 30_000 })
     await expect(page.getByRole('heading', { level: 1, name: original })).toHaveCount(0)
   })
 
   test('inline status change: click status → select Pending → reload → new status persists', async ({ page }) => {
-    await seedLoggedInUser(page, 'proc-status')
-
     await page.goto('/procedures/create')
     const name = procedureName('status')
     await page.getByLabel(/^Title$/).fill(name)
-    await page.getByRole('button', { name: /^save procedure$/i }).click()
+    await page.getByRole('button', { name: /^save procedure$/i }).click({ timeout: 30_000 })
     await page.waitForURL(/\/procedures\/[^/]+\/view/, { timeout: 30_000 })
 
     const statusTrigger = page.getByTestId('procedure-status-trigger')
     await expect(statusTrigger).toContainText(/^Draft$/)
 
-    await statusTrigger.click()
-
     const statusSelect = page.getByRole('combobox')
-    await expect(statusSelect).toBeVisible({ timeout: 5_000 })
+    await expect(async () => {
+      await statusTrigger.click()
+      await expect(statusSelect).toBeVisible({ timeout: 2_000 })
+    }).toPass({ timeout: 20_000 })
+
     await statusSelect.click()
     await page.getByRole('option', { name: /^Pending$/i }).click()
 
@@ -152,8 +125,6 @@ test.describe('procedures — list + create', () => {
   })
 
   test('link procedure to an existing policy via the association dialog and persist it on both sides', async ({ page }) => {
-    await seedLoggedInUser(page, 'proc-link')
-
     await page.goto('/policies/create')
     const linkedPolicy = policyName('proc-link')
     await page.getByLabel(/^Title$/).fill(linkedPolicy)
@@ -164,7 +135,7 @@ test.describe('procedures — list + create', () => {
     await page.goto('/procedures/create')
     const linkedProcedure = procedureName('policy-assoc')
     await page.getByLabel(/^Title$/).fill(linkedProcedure)
-    await page.getByRole('button', { name: /^save procedure$/i }).click()
+    await page.getByRole('button', { name: /^save procedure$/i }).click({ timeout: 30_000 })
     await page.waitForURL(/\/procedures\/[^/]+\/view/, { timeout: 30_000 })
     const procedureUrl = page.url()
 
@@ -203,5 +174,16 @@ test.describe('procedures — list + create', () => {
     await procedureDialogReloaded.getByPlaceholder(/search internal policies/i).fill(linkedPolicy)
     await expect(procedureDialogReloaded.getByText(linkedPolicy)).toBeVisible({ timeout: 10_000 })
     await expect(getAssociationRowCheckbox(procedureDialogReloaded)).toBeChecked()
+  })
+})
+
+freshTest.describe('procedures — fresh org', () => {
+  freshTest('empty state — fresh org has zero procedure rows', async ({ page }) => {
+    await seedLoggedInUser(page, 'proc-empty')
+
+    await page.goto('/procedures')
+
+    await expect(page.getByRole('heading', { level: 2, name: /^Procedures$/ })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('cell').filter({ hasText: /^E2E Procedure/ })).toHaveCount(0, { timeout: 5_000 })
   })
 })

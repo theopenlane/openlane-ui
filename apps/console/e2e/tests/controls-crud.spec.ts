@@ -77,11 +77,12 @@ test.describe('controls — owner edit + delete (seeded)', () => {
     await page.goto(`/controls/${id}`, { waitUntil: 'domcontentloaded' })
     await expect(editControlButton(page)).toBeVisible({ timeout: 45_000 })
 
-    // status.tsx: double-clicking control-status-trigger swaps it for a Select.
     const statusTrigger = page.getByTestId('control-status-trigger')
-    await statusTrigger.dblclick()
     const statusSelect = page.getByRole('combobox')
-    await expect(statusSelect).toBeVisible({ timeout: 5_000 })
+    await expect(async () => {
+      await statusTrigger.dblclick()
+      await expect(statusSelect).toBeVisible({ timeout: 2_000 })
+    }).toPass({ timeout: 20_000 })
     await statusSelect.click()
     await page.getByRole('option', { name: /^Approved$/i }).click()
 

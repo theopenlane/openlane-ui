@@ -1,22 +1,19 @@
-import { expect, test } from '@playwright/test'
+import { test, expect } from '../fixtures/auth'
+import { test as freshTest } from '@playwright/test'
+import { seedLoggedInUser } from '../utils/seedUser'
 
 import { RUN_ID } from '../utils/constants'
-import { seedLoggedInUser } from '../utils/seedUser'
 
 const taskTitle = (slug: string) => `E2E Task ${slug} ${RUN_ID} ${Date.now().toString(36)}`
 
 test.describe('tasks — list + create', () => {
   test('/automation/tasks renders the Tasks heading', async ({ page }) => {
-    await seedLoggedInUser(page, 'tasks-list')
-
     await page.goto('/automation/tasks')
 
     await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible()
   })
 
   test('required validation — submitting Create task with blank title shows the inline error', async ({ page }) => {
-    await seedLoggedInUser(page, 'tasks-required')
-
     await page.goto('/automation/tasks')
     await page
       .getByRole('main')
@@ -34,22 +31,7 @@ test.describe('tasks — list + create', () => {
     await expect(dialog.getByText(/^Title must be at least 2 characters$/)).toBeVisible({ timeout: 10_000 })
   })
 
-  test('empty state — fresh org has no task rows', async ({ page }) => {
-    await seedLoggedInUser(page, 'tasks-empty')
-
-    await page.goto('/automation/tasks')
-
-    // The Tasks heading renders for the page; the table is mounted but
-    // no data rows exist yet for a fresh org. We assert that no E2E
-    // task title-prefix cells appear — the heading + Create button alone
-    // is the empty state.
-    await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('cell').filter({ hasText: /^E2E Task/ })).toHaveCount(0, { timeout: 5_000 })
-  })
-
   test('happy path — open create dialog, fill title, submit, dialog closes', async ({ page }) => {
-    await seedLoggedInUser(page, 'tasks-create')
-
     await page.goto('/automation/tasks')
 
     // Toolbar has a default-trigger "Create" button (CreateTaskDialog
@@ -77,8 +59,6 @@ test.describe('tasks — list + create', () => {
   })
 
   test('search by title filters server-side — second task disappears when first title is typed', async ({ page }) => {
-    await seedLoggedInUser(page, 'tasks-search')
-
     await page.goto('/automation/tasks')
 
     const a = taskTitle('search-a')
@@ -95,9 +75,6 @@ test.describe('tasks — list + create', () => {
       await expect(dialog).toBeHidden({ timeout: 15_000 })
     }
 
-    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('cell').filter({ hasText: b }).first()).toBeVisible({ timeout: 15_000 })
-
     // The toolbar input has placeholder "Search". TasksPage's
     // debouncedSearch (300ms) feeds into the where clause as
     // titleContainsFold/detailsContainsFold OR.
@@ -108,8 +85,6 @@ test.describe('tasks — list + create', () => {
   })
 
   test('toggle to Card view via TableCardView — table no longer rendered', async ({ page }) => {
-    await seedLoggedInUser(page, 'tasks-cardview')
-
     await page.goto('/automation/tasks')
 
     // TableCardView renders two clickable divs with aria-label "Table
@@ -124,8 +99,6 @@ test.describe('tasks — list + create', () => {
   })
 
   test('column visibility menu opens with the column list', async ({ page }) => {
-    await seedLoggedInUser(page, 'tasks-cols')
-
     await page.goto('/automation/tasks')
 
     // Toolbar renders ColumnVisibilityMenu's trigger as a Button reading
@@ -140,8 +113,6 @@ test.describe('tasks — list + create', () => {
   })
 
   test('filter panel exposes a Status filter', async ({ page }) => {
-    await seedLoggedInUser(page, 'tasks-filter')
-
     await page.goto('/automation/tasks')
 
     // task-table-toolbar.tsx renders the shared TableFilter once its async
@@ -154,8 +125,6 @@ test.describe('tasks — list + create', () => {
   })
 
   test('the full create-task dialog exposes the rich fields', async ({ page }) => {
-    await seedLoggedInUser(page, 'tasks-create-fields')
-
     await page.goto('/automation/tasks')
     await page
       .getByRole('main')
@@ -173,8 +142,6 @@ test.describe('tasks — list + create', () => {
   })
 
   test('bulk delete — selecting a task row, clicking Bulk Delete, confirming removes the row', async ({ page }) => {
-    await seedLoggedInUser(page, 'tasks-bulk-delete')
-
     await page.goto('/automation/tasks')
 
     await page
@@ -187,6 +154,8 @@ test.describe('tasks — list + create', () => {
     await dialog.getByLabel(/^Title$/).fill(title)
     await dialog.getByRole('button', { name: /^create task$/i }).click()
     await expect(dialog).toBeHidden({ timeout: 15_000 })
+
+    await page.getByPlaceholder(/^Search$/).fill(title)
 
     const row = page.getByRole('row').filter({ hasText: title })
     await expect(row).toBeVisible({ timeout: 15_000 })
@@ -206,8 +175,6 @@ test.describe('tasks — list + create', () => {
   })
 
   test('selecting a task row reveals the Bulk Edit dialog trigger', async ({ page }) => {
-    await seedLoggedInUser(page, 'tasks-bulk')
-
     await page.goto('/automation/tasks')
 
     await page
@@ -220,6 +187,8 @@ test.describe('tasks — list + create', () => {
     await dialog.getByLabel(/^Title$/).fill(title)
     await dialog.getByRole('button', { name: /^create task$/i }).click()
     await expect(dialog).toBeHidden({ timeout: 15_000 })
+
+    await page.getByPlaceholder(/^Search$/).fill(title)
 
     const row = page.getByRole('row').filter({ hasText: title })
     await expect(row).toBeVisible({ timeout: 15_000 })
@@ -239,12 +208,11 @@ test.describe('tasks — list + create', () => {
   })
 
   test('clearing the search input restores both task rows', async ({ page }) => {
-    await seedLoggedInUser(page, 'tasks-clear-search')
-
     await page.goto('/automation/tasks')
 
-    const a = taskTitle('clear-a')
-    const b = taskTitle('clear-b')
+    const token = `clear-${RUN_ID}-${Date.now().toString(36)}`
+    const a = `E2E Task ${token}-a`
+    const b = `E2E Task ${token}-b`
     for (const t of [a, b]) {
       await page
         .getByRole('main')
@@ -257,18 +225,20 @@ test.describe('tasks — list + create', () => {
       await expect(dialog).toBeHidden({ timeout: 15_000 })
     }
 
+    await page.getByPlaceholder(/^Search$/).fill(token)
+    await expect(page.getByRole('cell').filter({ hasText: a })).toHaveCount(1, { timeout: 15_000 })
+    await expect(page.getByRole('cell').filter({ hasText: b })).toHaveCount(1, { timeout: 15_000 })
+
     await page.getByPlaceholder(/^Search$/).fill(a)
+    await expect(page.getByRole('cell').filter({ hasText: a })).toHaveCount(1, { timeout: 15_000 })
     await expect(page.getByRole('cell').filter({ hasText: b })).toHaveCount(0, { timeout: 15_000 })
 
-    // Clear the search; debounce → both rows back.
-    await page.getByPlaceholder(/^Search$/).fill('')
-    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('cell').filter({ hasText: b }).first()).toBeVisible({ timeout: 15_000 })
+    await page.getByPlaceholder(/^Search$/).fill(token)
+    await expect(page.getByRole('cell').filter({ hasText: a })).toHaveCount(1, { timeout: 15_000 })
+    await expect(page.getByRole('cell').filter({ hasText: b })).toHaveCount(1, { timeout: 15_000 })
   })
 
   test('clicking a task row opens the details sheet with the task title visible', async ({ page }) => {
-    await seedLoggedInUser(page, 'tasks-detail')
-
     await page.goto('/automation/tasks')
 
     await page
@@ -282,6 +252,8 @@ test.describe('tasks — list + create', () => {
     await dialog.getByLabel(/^Title$/).fill(title)
     await dialog.getByRole('button', { name: /^create task$/i }).click()
     await expect(dialog).toBeHidden({ timeout: 15_000 })
+
+    await page.getByPlaceholder(/^Search$/).fill(title)
 
     const titleCell = page.getByRole('cell').filter({ hasText: title }).first()
     await expect(titleCell).toBeVisible({ timeout: 15_000 })
@@ -300,8 +272,6 @@ test.describe('tasks — list + create', () => {
   })
 
   test('after create, the new task is visible in the table on /automation/tasks', async ({ page }) => {
-    await seedLoggedInUser(page, 'tasks-list-after-create')
-
     await page.goto('/automation/tasks')
 
     await page
@@ -316,8 +286,21 @@ test.describe('tasks — list + create', () => {
     await dialog.getByRole('button', { name: /^create task$/i }).click()
     await expect(dialog).toBeHidden({ timeout: 15_000 })
 
+    await page.getByPlaceholder(/^Search$/).fill(title)
+
     // Default landing tab is the table (TasksPage activeTab='table'). The
     // title column renders the value as plain text inside a cell.
     await expect(page.getByRole('cell').filter({ hasText: title }).first()).toBeVisible({ timeout: 15_000 })
+  })
+})
+
+freshTest.describe('tasks — fresh org', () => {
+  freshTest('empty state — fresh org has no task rows', async ({ page }) => {
+    await seedLoggedInUser(page, 'tasks-empty')
+
+    await page.goto('/automation/tasks')
+
+    await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('cell').filter({ hasText: /^E2E Task/ })).toHaveCount(0, { timeout: 5_000 })
   })
 })

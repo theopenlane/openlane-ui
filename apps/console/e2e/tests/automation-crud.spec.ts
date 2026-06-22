@@ -200,9 +200,10 @@ test.describe('automation — questionnaires', () => {
     const row = page.getByRole('row').filter({ hasText: name })
     await expect(row).toBeVisible({ timeout: 15_000 })
 
-    // columns.tsx renders a per-row MoreHorizontal DropdownMenu (View Details /
-    // Send / Edit / Preview / Delete) as the trailing actions cell.
-    await row.getByRole('button').last().click()
+    await row
+      .getByRole('button')
+      .filter({ has: page.locator('.lucide-ellipsis') })
+      .click()
     await expect(page.getByRole('menu')).toBeVisible({ timeout: 10_000 })
   })
 })

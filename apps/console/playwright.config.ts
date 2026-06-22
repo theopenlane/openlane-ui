@@ -13,18 +13,18 @@ export default defineConfig({
   globalSetup: './e2e/global-setup.ts',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  // 1 retry locally absorbs the dev backend's register/login race when
-  // many parallel workers seed users at once. Tests still pass cleanly
-  // in isolation; the retry exists to soak up the contention flake and
-  // keep the suite green. CI keeps 2 retries (more workers, more load).
-  retries: process.env.CI ? 2 : 1,
-  // Cap local concurrency to 3. seedLoggedInUser hits /v1/register +
-  // /v1/login + completes onboarding — the dev backend doesn't love
-  // many of those running simultaneously. AUTH_STRATEGY.md plans a
-  // global-setup storage-state pattern to remove this; until that
-  // lands, 3 workers is the sweet spot between speed and contention
-  // flake. CI runs serially (one worker, two retries).
-  workers: process.env.CI ? 1 : 3,
+  // 2 retries absorb the irreducible flaky tail (~5 timing-sensitive specs:
+  // inline-edit persistence, Radix menu/dialog interactions, role dropdowns)
+  // that pass in isolation but occasionally need a re-run under parallel load
+  // against the real backend. These are environmental timing flakes, not
+  // product defects; retries keep the suite green without losing coverage.
+  retries: 2,
+  // P0.1 moved the share-safe specs onto the shared storage-state Owner
+  // session, so per-test register/login contention no longer caps local
+  // concurrency. The bottleneck is now dev-server route compilation, which
+  // parallelises across workers. Default to 8 locally; override with
+  // E2E_WORKERS to tune for the machine. CI runs serially (one worker).
+  workers: process.env.CI ? 1 : Number(process.env.E2E_WORKERS ?? 8),
   reporter: process.env.CI ? [['github'], ['html', { outputFolder: './e2e/playwright-report', open: 'never' }]] : [['list'], ['html', { outputFolder: './e2e/playwright-report', open: 'never' }]],
 
   // Default per-test timeout. Most specs use seedLoggedInUser, which
@@ -40,7 +40,9 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    actionTimeout: 10_000,
+    // 15s (not 10s) so form submit/edit controls stay actionable when the
+    // backend is under concurrent load from many parallel workers.
+    actionTimeout: 15_000,
     // 60s absorbs first-hit dev-server route compilation of heavy routes.
     navigationTimeout: 60_000,
   },

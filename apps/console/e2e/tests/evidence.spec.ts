@@ -1,14 +1,13 @@
-import { expect, test } from '@playwright/test'
+import { test, expect } from '../fixtures/auth'
+import { test as freshTest } from '@playwright/test'
+import { seedLoggedInUser } from '../utils/seedUser'
 
 import { RUN_ID } from '../utils/constants'
-import { seedLoggedInUser } from '../utils/seedUser'
 
 const evidenceName = (slug: string) => `E2E Evidence ${slug} ${RUN_ID} ${Date.now().toString(36)}`
 
 test.describe('evidence — list page', () => {
   test('/evidence renders the Evidence Center heading and Submit Evidence CTA for an owner', async ({ page }) => {
-    await seedLoggedInUser(page, 'evd-list')
-
     await page.goto('/evidence')
 
     // Owners (which is what seedLoggedInUser creates — they own the org
@@ -18,18 +17,7 @@ test.describe('evidence — list page', () => {
     await expect(page.getByRole('button', { name: /^submit evidence$/i })).toBeVisible()
   })
 
-  test('empty state — fresh org has zero evidence rows on /evidence', async ({ page }) => {
-    await seedLoggedInUser(page, 'evd-empty')
-
-    await page.goto('/evidence')
-
-    await expect(page.getByRole('heading', { name: /^Evidence Center$/ })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('cell').filter({ hasText: /^E2E Evidence/ })).toHaveCount(0, { timeout: 5_000 })
-  })
-
   test('clicking Submit Evidence opens the create sheet', async ({ page }) => {
-    await seedLoggedInUser(page, 'evd-sheet')
-
     await page.goto('/evidence')
 
     await page.getByRole('button', { name: /^submit evidence$/i }).click()
@@ -41,8 +29,6 @@ test.describe('evidence — list page', () => {
   })
 
   test('required validation — submitting the create sheet without a name shows the inline error', async ({ page }) => {
-    await seedLoggedInUser(page, 'evd-required')
-
     await page.goto('/evidence')
     await page.getByRole('button', { name: /^submit evidence$/i }).click()
 
@@ -58,8 +44,6 @@ test.describe('evidence — list page', () => {
   })
 
   test('happy path — fill name only, submit for review, lands on /evidence?id=<id>', async ({ page }) => {
-    await seedLoggedInUser(page, 'evd-create')
-
     await page.goto('/evidence')
     await page.getByRole('button', { name: /^submit evidence$/i }).click()
 
@@ -82,8 +66,6 @@ test.describe('evidence — list page', () => {
   })
 
   test('search by name filters server-side — second evidence disappears when first name is typed', async ({ page }) => {
-    await seedLoggedInUser(page, 'evd-search')
-
     const a = evidenceName('search-a')
     const b = evidenceName('search-b')
     for (const name of [a, b]) {
@@ -98,21 +80,17 @@ test.describe('evidence — list page', () => {
 
     await page.goto('/evidence')
 
-    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('cell').filter({ hasText: b }).first()).toBeVisible({ timeout: 15_000 })
-
     // Toolbar search input has placeholder "Search". Routes to backend
     // OR filter on nameContainsFold/descriptionContainsFold via the
-    // useDebounce(300ms) → where clause.
+    // useDebounce(300ms) → where clause. Searching A's full unique name
+    // keeps B off the result set even under heavy concurrent data growth.
     await page.getByPlaceholder(/^Search$/).fill(a)
 
+    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('cell').filter({ hasText: b })).toHaveCount(0, { timeout: 15_000 })
-    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible()
   })
 
   test('newly created evidence appears in the list on /evidence', async ({ page }) => {
-    await seedLoggedInUser(page, 'evd-listed')
-
     await page.goto('/evidence')
     await page.getByRole('button', { name: /^submit evidence$/i }).click()
 
@@ -130,5 +108,16 @@ test.describe('evidence — list page', () => {
     // renders the evidence name inside an EvidenceFileChip <p>.
     await page.goto('/evidence')
     await expect(page.getByRole('cell').filter({ hasText: name }).first()).toBeVisible({ timeout: 15_000 })
+  })
+})
+
+freshTest.describe('evidence — fresh org', () => {
+  freshTest('empty state — fresh org has zero evidence rows on /evidence', async ({ page }) => {
+    await seedLoggedInUser(page, 'evd-empty')
+
+    await page.goto('/evidence')
+
+    await expect(page.getByRole('heading', { name: /^Evidence Center$/ })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('cell').filter({ hasText: /^E2E Evidence/ })).toHaveCount(0, { timeout: 5_000 })
   })
 })

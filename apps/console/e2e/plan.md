@@ -4,6 +4,79 @@
 
 **Totals:** 352 high · 478 med · 157 low · 316 blocked/out-of-scope
 
+---
+
+## 🚀 Priority 0 — Make the suite fast (do this BEFORE writing more specs)
+
+> **Why this is first:** a full run is ~30 min for 332 tests on 3 workers (~16s/test),
+> and we have only ~20% of flows covered. At this per-test cost the suite grows toward
+> 2h+ as coverage fills in, which makes it unusable as a feedback loop. The target is a
+> full run in **~5 min**. We fix the cost structure first, then resume authoring against
+> a fast suite.
+
+**Where the time goes (measured this session):**
+
+| Driver                                    | Cost                                         | Notes                                                                |
+| ----------------------------------------- | -------------------------------------------- | -------------------------------------------------------------------- |
+| Per-test seeding (`seedLoggedInUser`)     | ~10–15s × **132 calls** ≈ 22–33 min of setup | register → verify → login → onboarding, serialized inside each test  |
+| Dev-server route compilation (`next dev`) | 3–45s on first hit per route                 | `navigationTimeout` is 60s _specifically_ to absorb this             |
+| Memory degradation over a long run        | progressive slowdown + tail failures         | dev server bloats to ~15GB; see [`run-sharded.sh`](./run-sharded.sh) |
+| Low worker count                          | 3 local / 1 CI                               | capped by backend register/login contention from seeding             |
+
+> A built app has **no** compile step (real test time is a few seconds). Items 2 and 3
+> are entirely artifacts of running against `next dev`.
+
+### Tasks (in order of ROI)
+
+- [x] **P0.1 — Convert mutation-free specs from `seedLoggedInUser` → storage-state (`fixtures/auth`).** ✅
+      Done: ~102 tests moved to the shared Owner session. Per-test seed calls dropped from
+      ~120 → **17** (excluding `auth.spec.ts`, which must stay on fresh users — it is the
+      login-UI spec). Fully converted: `exposure`, `registry`, `developers`. The 8 MIXED
+      specs keep their few fresh-org tests in-file via a **two-instance pattern**: import the
+      storage-state `test` from `../fixtures/auth` for share-safe tests, plus
+      `import { test as freshTest } from '@playwright/test'` for the tests that must seed a
+      pristine org (empty-state assertions, shared-membership/invite-count tests, the
+      cross-cutting `logout` test). Fresh tests are grouped in a top-level
+      `freshTest.describe('… — fresh org', …)` block. Email assertions use
+      `readManifest().ownerEmail`. `kept fresh`: user-management (9 invite/count), cross-cutting
+      (2: logout + empty-notifications), policies/evidence/controls/procedures/programs/tasks
+      (1 empty-state each). Static checks pass: `tsc -p e2e/tsconfig.json` clean,
+      `playwright --list` = 356 tests / 34 files. **⚠ Live run not yet verified** — backend
+      stack was down (Docker unavailable in this WSL distro). Run the sample in the DoD before P0.2.
+      _Expected: ~30 → ~18 min._
+- [ ] **P0.2 — Raise `workers` once seeding load drops** (3 → 8+). Only safe after P0.1,
+      because per-test register/login is what forces the cap to 3. Near-linear speedup.
+      _Expected: ~18 → ~8 min._
+- [ ] **P0.3 — Adopt the sharded runner for full runs** ([`run-sharded.sh`](./run-sharded.sh) /
+      `bun run e2e:sharded`). Restarts the dev server when it bloats past a threshold so the
+      run never hits the degradation tail. Already built; make it the documented way to run
+      the whole suite locally.
+- [ ] **P0.4 — Warm heavy routes once per server lifetime** so first-hit compilation happens
+      outside the test timing window (or as part of the sharded runner's post-restart step).
+- [x] **P0.5 — UNBLOCKED. Run the fast suite against a production build.** ✅ (code done)
+      A `next build` + `next start` server removes the compile tax _and_ the memory
+      degradation — the only path that reliably reaches ~5 min and keeps it there as coverage
+      grows. The blocker was the auth-cookie profile (`secure`/`sameSite=none`/`domain` was
+      gated on build-time `NODE_ENV`, which Next constant-folds → prod build always emitted
+      secure cookies, rejected over HTTP localhost → CSRF/session errors). Fixed with a
+      default-OFF runtime flag decoupled from `NODE_ENV`:
+      `useInsecureCookies = process.env.COOKIE_PLAYWRIGHT_INSECURE === 'true' || isDevelopment`
+      in `packages/dally/src/index.ts`; `set-csrf-cookie.ts` + `set-session-cookie.ts` now gate
+      on `useInsecureCookies`. Prod deploys unaffected (flag unset → secure cookies as before).
+      Run with `COOKIE_PLAYWRIGHT_INSECURE=true` on `bun run build` + `bun run start` (port 3001).
+      Remaining dev/prod gaps are SSO/OAuth-only and NOT on the credentials-login path the suite
+      uses: `auth.ts:45,50` (`checks: isDevelopment ? ['none'] : undefined`) and
+      `parse-response-cookies.ts` `parseSSOCookies` (`secure:true`). Gate those on
+      `useInsecureCookies` too only when adding SSO/passkey/OAuth specs.
+
+### Definition of done
+
+- [ ] Full local run (sharded) completes in **≤ ~8 min** with P0.1–P0.4.
+- [ ] No spec uses `seedLoggedInUser` unless it actually mutates state or asserts a fresh-org/empty state.
+- [ ] `workers` raised and the suite stays green at the higher concurrency.
+
+---
+
 ## 🔴 High priority (352)
 
 ### automation

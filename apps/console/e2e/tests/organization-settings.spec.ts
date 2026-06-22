@@ -133,13 +133,13 @@ test.describe('organization-settings — authentication (owner)', () => {
     await expect(page.getByRole('heading', { level: 2, name: /^Authentication$/ })).toBeVisible({ timeout: 20_000 })
 
     // allowed-domains.tsx PanelHeader + sso.tsx <h3>SSO Configuration</h3>.
-    await expect(page.getByText('Allowed domains')).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByText('SSO Configuration').first()).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Allowed domains' })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: 'SSO Configuration' }).first()).toBeVisible()
   })
 
   test('an invalid allowed-domain shows a validation error (no mutation)', async ({ page }) => {
     await page.goto('/organization-settings/authentication', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByText('Allowed domains')).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByRole('heading', { name: 'Allowed domains' })).toBeVisible({ timeout: 20_000 })
 
     // allowed-domains.tsx validates with isValidDomain BEFORE mutating, so an
     // invalid value surfaces the inline error and never touches the org setting.

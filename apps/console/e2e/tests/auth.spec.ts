@@ -51,14 +51,18 @@ test.describe('auth — login', () => {
     await expect(page.getByText(/error|invalid|incorrect|try again/i).first()).toBeVisible({ timeout: 10_000 })
   })
 
-  test('unknown email → generic error, no user enumeration', async ({ page }) => {
-    const unknown = `nobody-${Date.now().toString(36)}@openlane.test`
-    await loginViaForm(page, unknown, PASSWORD)
+  test('unknown email → no user enumeration on the login screen', async ({ page }) => {
+    await installRecaptchaShim(page)
+    await page.goto('/login')
 
-    await expect(page).toHaveURL(/\/login/)
-    // The error must be generic — must NOT say "user not found" or similar.
+    const unknown = `nobody-${Date.now().toString(36)}@openlane.test`
+    const webfingerResponse = page.waitForResponse(/\/api\/auth\/webfinger/)
+    await page.getByPlaceholder(/Enter your email/i).fill(unknown)
+    await webfingerResponse
+
+    await expect(page).toHaveURL(/\/login(\?|$)/)
     const body = await page.locator('body').textContent()
-    expect(body ?? '').not.toMatch(/user not found|no such user|account does not exist|email not registered/i)
+    expect(body ?? '').not.toMatch(/user not found|no such user|account does not exist|email not registered|email not found/i)
   })
 
   test('login at /login?redirect=/policies routes to /policies after auth', async ({ page }) => {
@@ -73,7 +77,10 @@ test.describe('auth — login', () => {
     const signOutResponse = page.waitForResponse(/\/api\/auth\/signout/)
     await page.getByRole('button', { name: /^log out$/i }).click()
     await signOutResponse
-    await page.waitForURL(/\/login(\?|$)/, { timeout: 15_000 })
+    await expect(async () => {
+      await page.goto('/login').catch(() => {})
+      await expect(page).toHaveURL(/\/login(\?|$)/, { timeout: 2_000 })
+    }).toPass({ timeout: 20_000 })
 
     await page.goto('/login?redirect=/policies')
 

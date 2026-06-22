@@ -1,14 +1,13 @@
-import { expect, test } from '@playwright/test'
+import { test, expect } from '../fixtures/auth'
+import { test as freshTest } from '@playwright/test'
+import { seedLoggedInUser } from '../utils/seedUser'
 
 import { RUN_ID } from '../utils/constants'
-import { seedLoggedInUser } from '../utils/seedUser'
 
 const programName = (slug: string) => `E2E Program ${slug} ${RUN_ID} ${Date.now().toString(36)}`
 
 test.describe('programs — create wizard entry', () => {
   test('/programs/create shows all 5 template cards (Quickstart + Custom)', async ({ page }) => {
-    await seedLoggedInUser(page, 'prog-tpl')
-
     await page.goto('/programs/create')
 
     // Quickstart cards (each is a Card wrapped in a Link with a known href).
@@ -20,18 +19,6 @@ test.describe('programs — create wizard entry', () => {
     await expect(page.getByRole('link', { name: /Generic Program/ })).toHaveAttribute('href', '/programs/create/generic-program')
     await expect(page.getByRole('link', { name: /Advanced Setup/ })).toHaveAttribute('href', '/programs/create/advanced-setup')
   })
-
-  test('fresh org with no programs lands on the template picker via /programs', async ({ page }) => {
-    await seedLoggedInUser(page, 'prog-empty')
-
-    await page.goto('/programs')
-
-    // ProgramsDashboardPage renders ProgramsCreate(noPrograms=true) when
-    // there are zero programs. The "No programs found" copy is what the
-    // user sees in that state.
-    await expect(page.getByText(/no programs found/i)).toBeVisible()
-    await expect(page.getByRole('link', { name: /Generic Program/ })).toBeVisible()
-  })
 })
 
 test.describe('programs — generic program create', () => {
@@ -39,8 +26,6 @@ test.describe('programs — generic program create', () => {
   // exposes the standard Back + Continue/Create buttons.
   for (const path of ['/programs/create/framework-based', '/programs/create/soc2', '/programs/create/risk-assessment', '/programs/create/advanced-setup']) {
     test(`${path} renders the wizard with Back + Continue buttons`, async ({ page }) => {
-      await seedLoggedInUser(page, `prog-tpl-${path.split('/').pop()}`)
-
       await page.goto(path)
 
       await expect(page.getByRole('button', { name: /^back$/i })).toBeVisible({ timeout: 15_000 })
@@ -52,8 +37,6 @@ test.describe('programs — generic program create', () => {
   }
 
   test('Back from generic-program → confirm Exit → returns to /programs/create', async ({ page }) => {
-    await seedLoggedInUser(page, 'prog-back')
-
     await page.goto('/programs/create/generic-program')
     await page.getByRole('button', { name: /^back$/i }).click()
 
@@ -69,8 +52,6 @@ test.describe('programs — generic program create', () => {
   })
 
   test('required validation — submitting without a Program Name shows the inline error', async ({ page }) => {
-    await seedLoggedInUser(page, 'prog-required')
-
     await page.goto('/programs/create/generic-program')
 
     await page.getByRole('button', { name: /^create program$/i }).click()
@@ -82,8 +63,6 @@ test.describe('programs — generic program create', () => {
   })
 
   test('happy path — fill name + program type, submit, land on the program detail page', async ({ page }) => {
-    await seedLoggedInUser(page, 'prog-create')
-
     await page.goto('/programs/create/generic-program')
 
     // Open the Program Type combobox. There's exactly one role=combobox
@@ -119,8 +98,6 @@ test.describe('programs — generic program create', () => {
   })
 
   test('program detail breadcrumb includes the program name', async ({ page }) => {
-    await seedLoggedInUser(page, 'prog-bc')
-
     await page.goto('/programs/create/generic-program')
 
     const programTypeTrigger = page.locator('button[role="combobox"]')
@@ -140,8 +117,6 @@ test.describe('programs — generic program create', () => {
   })
 
   test('newly created program registers under the "Other" framework group on /programs', async ({ page }) => {
-    await seedLoggedInUser(page, 'prog-listed')
-
     // Reuse the create-flow steps from the happy-path test.
     await page.goto('/programs/create/generic-program')
 
@@ -164,5 +139,16 @@ test.describe('programs — generic program create', () => {
     // controlled-mode behavior is owned by Radix and not worth racing.
     await page.goto('/programs')
     await expect(page.getByRole('button', { name: /^Other$/ })).toBeVisible({ timeout: 15_000 })
+  })
+})
+
+freshTest.describe('programs — fresh org', () => {
+  freshTest('fresh org with no programs lands on the template picker via /programs', async ({ page }) => {
+    await seedLoggedInUser(page, 'prog-empty')
+
+    await page.goto('/programs')
+
+    await expect(page.getByText(/no programs found/i)).toBeVisible()
+    await expect(page.getByRole('link', { name: /Generic Program/ })).toBeVisible()
   })
 })

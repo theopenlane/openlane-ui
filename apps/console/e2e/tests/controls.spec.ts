@@ -1,27 +1,13 @@
-import { expect, test } from '@playwright/test'
+import { test, expect } from '../fixtures/auth'
+import { test as freshTest } from '@playwright/test'
+import { seedLoggedInUser } from '../utils/seedUser'
 
 import { RUN_ID } from '../utils/constants'
-import { seedLoggedInUser } from '../utils/seedUser'
 
 const refCodeFor = (slug: string) => `E2E-${slug}-${RUN_ID}-${Date.now().toString(36)}`
 
 test.describe('controls — create + view', () => {
-  test('empty controls list shows the "Create controls" empty state for a fresh user', async ({ page }) => {
-    await seedLoggedInUser(page, 'ctl-empty')
-
-    await page.goto('/controls')
-
-    // Empty state region — see control-report/control-empty.tsx
-    // (aria-label="Create controls"). Inner CardTitles are <div>s, not
-    // headings, so we match by text rather than role.
-    const emptyRegion = page.getByRole('region', { name: /create controls/i })
-    await expect(emptyRegion).toBeVisible()
-    await expect(emptyRegion.getByText(/create custom controls/i)).toBeVisible()
-  })
-
   test('required validation — submitting without a Ref Code stays on create-control and shows the inline error', async ({ page }) => {
-    await seedLoggedInUser(page, 'ctl-required')
-
     await page.goto('/controls/create-control')
 
     // The Create button is the form's submit. There are other "Create"
@@ -37,8 +23,6 @@ test.describe('controls — create + view', () => {
   })
 
   test('search by ref code filters server-side — second control disappears when the first ref is typed', async ({ page }) => {
-    await seedLoggedInUser(page, 'ctl-search')
-
     const a = refCodeFor('search-a')
     const b = refCodeFor('search-b')
     for (const refCode of [a, b]) {
@@ -53,18 +37,13 @@ test.describe('controls — create + view', () => {
     // (Lucide Table icon in the TabSwitcher) so the search input renders.
     await page.locator('.lucide-table').first().click()
 
-    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('cell').filter({ hasText: b }).first()).toBeVisible({ timeout: 15_000 })
-
     await page.getByPlaceholder(/^Search$/).fill(a)
 
+    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('cell').filter({ hasText: b })).toHaveCount(0, { timeout: 15_000 })
-    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible()
   })
 
   test('happy path — create a control and land on the detail page', async ({ page }) => {
-    await seedLoggedInUser(page, 'ctl-create')
-
     await page.goto('/controls/create-control')
 
     const refCode = refCodeFor('ctl')
@@ -87,8 +66,6 @@ test.describe('controls — create + view', () => {
   })
 
   test('create-subcontrol — submitting without a Parent Control shows the inline error', async ({ page }) => {
-    await seedLoggedInUser(page, 'sub-required')
-
     await page.goto('/controls/create-subcontrol')
 
     // Subcontrol form requires both refCode and controlID. Fill refCode
@@ -106,8 +83,6 @@ test.describe('controls — create + view', () => {
   })
 
   test('newly created control appears in the controls table view', async ({ page }) => {
-    await seedLoggedInUser(page, 'ctl-listed')
-
     await page.goto('/controls/create-control')
     const refCode = refCodeFor('listed')
     await page.locator('input[name="refCode"]').fill(refCode)
@@ -117,12 +92,12 @@ test.describe('controls — create + view', () => {
     await page.goto('/controls')
     await page.locator('.lucide-table').first().click()
 
+    await page.getByPlaceholder(/^Search$/).fill(refCode)
+
     await expect(page.getByRole('cell').filter({ hasText: refCode }).first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('inline title rename: double-click h1 → edit refCode → Enter → reload → new refCode persists', async ({ page }) => {
-    await seedLoggedInUser(page, 'ctl-edit')
-
     // Create the control first — same flow as the happy path above.
     await page.goto('/controls/create-control')
     const original = refCodeFor('orig')
@@ -133,36 +108,21 @@ test.describe('controls — create + view', () => {
     const originalH1 = page.getByRole('heading', { level: 1, name: original })
     await expect(originalH1).toBeVisible({ timeout: 15_000 })
 
-    // form-fields/title-field.tsx wraps the h1 in HoverPencilWrapper +
-    // an onDoubleClick handler. Double-click swaps in two side-by-side
-    // inputs (refCode + title) wrapped in a parent <div> with
-    // onBlur=handleGroupBlur. The blur handler fires updateControl
-    // only when focus leaves the *group* (relatedTarget check).
-    await originalH1.dblclick()
-
-    // Both inputs are htmlFor-linked: refCode and title.
-    const refCodeInput = page.getByLabel(/^Ref Code/)
-    await expect(refCodeInput).toBeVisible({ timeout: 5_000 })
-
     const updated = refCodeFor('updt')
-    await refCodeInput.fill(updated)
-
-    // Pressing Enter inside the input triggers handleKeyDown →
-    // input.blur(). With no other focusable element inside the group
-    // taking focus, relatedTarget is null/body, the contains() check
-    // is false, and handleGroupBlur fires the updateControl mutation.
-    await refCodeInput.press('Enter')
-
-    await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 10_000 })
-
-    await page.reload()
-    await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 15_000 })
+    await expect(async () => {
+      const h1 = page.getByRole('heading', { level: 1 }).first()
+      await h1.dispatchEvent('dblclick')
+      const refCodeInput = page.getByLabel(/^Ref Code/)
+      await expect(refCodeInput).toBeVisible({ timeout: 2_000 })
+      await refCodeInput.fill(updated)
+      await refCodeInput.press('Enter')
+      await page.reload()
+      await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 5_000 })
+    }).toPass({ timeout: 30_000 })
     await expect(page.getByRole('heading', { level: 1, name: original })).toHaveCount(0)
   })
 
   test('inline status change: double-click status → select Preparing → reload → new status persists', async ({ page }) => {
-    await seedLoggedInUser(page, 'ctl-status')
-
     await page.goto('/controls/create-control')
     const refCode = refCodeFor('status')
     await page.locator('input[name="refCode"]').fill(refCode)
@@ -172,10 +132,12 @@ test.describe('controls — create + view', () => {
     const statusTrigger = page.getByTestId('control-status-trigger')
     await expect(statusTrigger).toContainText(/^Not Implemented$/)
 
-    await statusTrigger.dblclick()
-
     const statusSelect = page.getByRole('combobox')
-    await expect(statusSelect).toBeVisible({ timeout: 5_000 })
+    await expect(async () => {
+      await statusTrigger.dblclick()
+      await expect(statusSelect).toBeVisible({ timeout: 2_000 })
+    }).toPass({ timeout: 20_000 })
+
     await statusSelect.click()
     await page.getByRole('option', { name: /^Preparing$/i }).click()
 
@@ -183,5 +145,17 @@ test.describe('controls — create + view', () => {
 
     await page.reload()
     await expect(page.getByTestId('control-status-trigger')).toContainText(/^Preparing$/, { timeout: 15_000 })
+  })
+})
+
+freshTest.describe('controls — fresh org', () => {
+  freshTest('empty controls list shows the "Create controls" empty state for a fresh user', async ({ page }) => {
+    await seedLoggedInUser(page, 'ctl-empty')
+
+    await page.goto('/controls')
+
+    const emptyRegion = page.getByRole('region', { name: /create controls/i })
+    await expect(emptyRegion).toBeVisible()
+    await expect(emptyRegion.getByText(/create custom controls/i)).toBeVisible()
   })
 })

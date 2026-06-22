@@ -1,4 +1,6 @@
-import { expect, type Page, test } from '@playwright/test'
+import { test, expect, readManifest } from '../fixtures/auth'
+import { test as freshTest } from '@playwright/test'
+import { type Page } from '@playwright/test'
 
 import { seedLoggedInUser } from '../utils/seedUser'
 
@@ -31,8 +33,6 @@ const openInvitesTab = async (page: Page): Promise<void> => {
 
 test.describe('user management — groups page', () => {
   test('/user-management/groups renders the Groups heading and Create button', async ({ page }) => {
-    await seedLoggedInUser(page, 'um-groups-list')
-
     await page.goto('/user-management/groups')
 
     await expect(page.getByRole('heading', { level: 2, name: /^Groups$/ })).toBeVisible()
@@ -45,8 +45,6 @@ test.describe('user management — groups page', () => {
   })
 
   test('required validation — submitting Create Group with empty name shows inline error', async ({ page }) => {
-    await seedLoggedInUser(page, 'um-group-required')
-
     await page.goto('/user-management/groups')
     // CreateGroupDialog renders DialogTrigger > Button — both expose
     // role=button with accessible name "Create" (button-in-button), so
@@ -69,8 +67,6 @@ test.describe('user management — groups page', () => {
   })
 
   test('happy path — create a group with name only, group appears in the groups table', async ({ page }) => {
-    await seedLoggedInUser(page, 'um-group-create')
-
     await page.goto('/user-management/groups')
     // CreateGroupDialog renders DialogTrigger > Button — both expose
     // role=button with accessible name "Create" (button-in-button), so
@@ -97,15 +93,18 @@ test.describe('user management — groups page', () => {
     // a success toast — the dialog disappears from the DOM tree.
     await expect(dialog).toBeHidden({ timeout: 15_000 })
 
-    // Default tab is the table view; the new group shows in a name cell.
+    // The groups page toolbar Search input (placeholder "Search...",
+    // name="groupSearch") routes to the backend nameContainsFold filter.
+    // Search the unique name so the row isn't pushed off the default
+    // page by concurrent data growth in the shared org.
+    await page.getByPlaceholder('Search...').fill(groupName)
+
     await expect(page.getByRole('cell').filter({ hasText: groupName }).first()).toBeVisible({ timeout: 15_000 })
   })
 })
 
 test.describe('user management — members page', () => {
   test('/user-management/members renders the Members heading and Invite member CTA', async ({ page }) => {
-    await seedLoggedInUser(page, 'um-list')
-
     await page.goto('/user-management/members')
 
     // PageHeading from @repo/ui renders the heading as an <h2>.
@@ -113,41 +112,16 @@ test.describe('user management — members page', () => {
     await expect(page.getByRole('button', { name: /^invite member$/i })).toBeVisible()
   })
 
-  test('Awaiting Response tab shows zero pending invites for a fresh org', async ({ page }) => {
-    await seedLoggedInUser(page, 'um-empty-invites')
-
-    await page.goto('/user-management/members')
-    await openInvitesTab(page)
-
-    // No invitee email cells should appear. Only the header row with
-    // "Invited user" / "Role" / "Status" / "Sent" / "Resend Attempts" /
-    // "Action" headers exists in the table.
-    await expect(page.getByRole('cell').filter({ hasText: /@/ })).toHaveCount(0, { timeout: 10_000 })
-  })
-
-  test('member email is the only data row in a freshly-onboarded org', async ({ page }) => {
-    const { email } = await seedLoggedInUser(page, 'um-single-member')
-
-    await page.goto('/user-management/members')
-
-    // Members tab is the default. Cells with the seeded user's email
-    // are the only data cells in the email column. Cells with @ in
-    // their text from any other org member would surface here.
-    await expect(page.getByRole('cell', { name: email })).toHaveCount(1, { timeout: 15_000 })
-  })
-
   test('the freshly-onboarded owner is listed as a member of their own org', async ({ page }) => {
-    const { email } = await seedLoggedInUser(page, 'um-self')
+    const { ownerEmail } = readManifest()
 
     await page.goto('/user-management/members')
 
     // The members table should have the owner's email in a cell.
-    await expect(page.getByRole('cell', { name: email })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('cell', { name: ownerEmail })).toBeVisible({ timeout: 15_000 })
   })
 
   test('invite sheet — PanelRightClose icon closes the sheet', async ({ page }) => {
-    await seedLoggedInUser(page, 'um-invite-x-close')
-
     await page.goto('/user-management/members')
     await page.getByRole('button', { name: /^invite member$/i }).click()
 
@@ -162,8 +136,6 @@ test.describe('user management — members page', () => {
   })
 
   test('invite sheet — Cancel button closes the sheet without inviting', async ({ page }) => {
-    await seedLoggedInUser(page, 'um-invite-cancel-btn')
-
     await page.goto('/user-management/members')
     await page.getByRole('button', { name: /^invite member$/i }).click()
 
@@ -177,8 +149,6 @@ test.describe('user management — members page', () => {
   })
 
   test('invite sheet — Invite button is disabled when no email chip is committed', async ({ page }) => {
-    await seedLoggedInUser(page, 'um-invite-disabled')
-
     await page.goto('/user-management/members')
     await page.getByRole('button', { name: /^invite member$/i }).click()
 
@@ -193,39 +163,39 @@ test.describe('user management — members page', () => {
   })
 
   test('invite sheet — committing the same email twice shows the duplicate-tag message', async ({ page }) => {
-    const { email } = await seedLoggedInUser(page, 'um-invite-dup')
-
     await page.goto('/user-management/members')
     await page.getByRole('button', { name: /^invite member$/i }).click()
     const dialog = page.getByRole('dialog')
     await expect(dialog).toBeVisible({ timeout: 10_000 })
 
-    const inviteDomain = email.split('@')[1]
-    const dupEmail = `e2e-dup-${Date.now().toString(36)}@${inviteDomain}`
+    const dupEmail = `e2e-dup-${Date.now().toString(36)}@invitee.invalid`
 
     const input = dialog.getByRole('textbox').first()
-    await input.fill(dupEmail)
+    await input.click()
+    await input.pressSequentially(dupEmail)
     await input.press('Enter')
+
     await expect(dialog.getByText(dupEmail)).toBeVisible()
 
-    // Second commit of the same email — validateTag returns false and
-    // sets invalidEmail = "This email is already added.".
-    await input.fill(dupEmail)
+    // emblor leaves the committed text in the controlled input, so a
+    // plain fill of the same value is a no-op that never syncs React
+    // state. Select-all + retype drives real keystrokes so the second
+    // Enter re-runs validateTag, which rejects the duplicate and sets
+    // the "This email is already added." feedback.
+    await input.press('ControlOrMeta+a')
+    await input.pressSequentially(dupEmail)
     await input.press('Enter')
 
     await expect(dialog.getByText(/^This email is already added\.$/)).toBeVisible({ timeout: 5_000 })
   })
 
   test('invite sheet — typing comma after a valid email commits the chip', async ({ page }) => {
-    const { email } = await seedLoggedInUser(page, 'um-invite-comma')
-
     await page.goto('/user-management/members')
     await page.getByRole('button', { name: /^invite member$/i }).click()
     const dialog = page.getByRole('dialog')
     await expect(dialog).toBeVisible({ timeout: 10_000 })
 
-    const inviteDomain = email.split('@')[1]
-    const inviteEmail = `e2e-comma-${Date.now().toString(36)}@${inviteDomain}`
+    const inviteEmail = `e2e-comma-${Date.now().toString(36)}@invitee.invalid`
 
     // emblor's TagInput delimiterList accepts ' ', ',', 'Enter', 'Tab'.
     // Typing the email + comma should commit the chip same as Enter.
@@ -238,8 +208,6 @@ test.describe('user management — members page', () => {
   })
 
   test('invite sheet — invalid email is rejected by validateTag and never commits', async ({ page }) => {
-    await seedLoggedInUser(page, 'um-invite-invalid')
-
     await page.goto('/user-management/members')
     await page.getByRole('button', { name: /^invite member$/i }).click()
 
@@ -259,8 +227,6 @@ test.describe('user management — members page', () => {
   })
 
   test('clicking Invite member opens the invite sheet', async ({ page }) => {
-    await seedLoggedInUser(page, 'um-invite')
-
     await page.goto('/user-management/members')
 
     await page.getByRole('button', { name: /^invite member$/i }).click()
@@ -269,8 +235,6 @@ test.describe('user management — members page', () => {
   })
 
   test('happy path — invite a single email at the default Member role, sheet closes on success', async ({ page }) => {
-    const { email } = await seedLoggedInUser(page, 'um-send-invite')
-
     await page.goto('/user-management/members')
     await page.getByRole('button', { name: /^invite member$/i }).click()
 
@@ -282,7 +246,10 @@ test.describe('user management — members page', () => {
     // packages/ui/src/tag-input/tag-input.tsx). Press Enter to commit
     // the email as a chip; without a committed chip the Invite button
     // stays disabled (emails.length === 0 guard on the submit button).
-    const inviteDomain = email.split('@')[1]
+    // The shared org enforces allowed-domains, so the recipient must use
+    // the owner's own domain or createBulkInvite returns "email domain
+    // not allowed in organization".
+    const inviteDomain = readManifest().ownerEmail.split('@')[1]
     const inviteEmail = `e2e-invitee-${Date.now().toString(36)}@${inviteDomain}`
 
     // The TagInput input is the first textbox in the sheet — the only
@@ -290,10 +257,18 @@ test.describe('user management — members page', () => {
     // down. The Email <p> next to it is not a <label>, so getByLabel
     // can't reach the input directly.
     const emailInput = dialog.getByRole('textbox').first()
-    await emailInput.fill(inviteEmail)
+    await emailInput.click()
+    await emailInput.pressSequentially(inviteEmail)
     await emailInput.press('Enter')
 
     await expect(dialog.getByText(inviteEmail)).toBeVisible()
+
+    // emblor leaves the committed text in the controlled input. Clearing
+    // it stops the Invite button's blur from re-running validateTag on the
+    // residual value (which would surface a duplicate-email message and
+    // suppress the submit). The single committed chip drives the request.
+    await emailInput.press('ControlOrMeta+a')
+    await emailInput.press('Delete')
 
     // Default role is Member — no role-select interaction needed. The
     // header "Invite" button is the submit (the trigger that opened
@@ -306,18 +281,22 @@ test.describe('user management — members page', () => {
   })
 
   test('invite success — toast `Invite sent successfully` appears', async ({ page }) => {
-    const { email } = await seedLoggedInUser(page, 'um-invite-toast')
-
     await page.goto('/user-management/members')
     await page.getByRole('button', { name: /^invite member$/i }).click()
     const dialog = page.getByRole('dialog')
     await expect(dialog).toBeVisible({ timeout: 10_000 })
 
-    const inviteDomain = email.split('@')[1]
+    // The shared org enforces allowed-domains; use the owner's own
+    // domain so createBulkInvite succeeds and fires the success toast.
+    const inviteDomain = readManifest().ownerEmail.split('@')[1]
     const inviteEmail = `e2e-toast-${Date.now().toString(36)}@${inviteDomain}`
     const emailInput = dialog.getByRole('textbox').first()
-    await emailInput.fill(inviteEmail)
+    await emailInput.click()
+    await emailInput.pressSequentially(inviteEmail)
     await emailInput.press('Enter')
+
+    await emailInput.press('ControlOrMeta+a')
+    await emailInput.press('Delete')
 
     await dialog.getByRole('button', { name: /^invite$/i }).click()
 
@@ -325,8 +304,33 @@ test.describe('user management — members page', () => {
     // "Invite sent successfully" (singular for emails.length === 1).
     await expect(page.getByText(/^Invite sent successfully$/).first()).toBeVisible({ timeout: 15_000 })
   })
+})
 
-  test('default invite — pending row shows Member in the Role cell', async ({ page }) => {
+freshTest.describe('user management — fresh org members', () => {
+  freshTest('Awaiting Response tab shows zero pending invites for a fresh org', async ({ page }) => {
+    await seedLoggedInUser(page, 'um-empty-invites')
+
+    await page.goto('/user-management/members')
+    await openInvitesTab(page)
+
+    // No invitee email cells should appear. Only the header row with
+    // "Invited user" / "Role" / "Status" / "Sent" / "Resend Attempts" /
+    // "Action" headers exists in the table.
+    await expect(page.getByRole('cell').filter({ hasText: /@/ })).toHaveCount(0, { timeout: 10_000 })
+  })
+
+  freshTest('member email is the only data row in a freshly-onboarded org', async ({ page }) => {
+    const { email } = await seedLoggedInUser(page, 'um-single-member')
+
+    await page.goto('/user-management/members')
+
+    // Members tab is the default. Cells with the seeded user's email
+    // are the only data cells in the email column. Cells with @ in
+    // their text from any other org member would surface here.
+    await expect(page.getByRole('cell', { name: email })).toHaveCount(1, { timeout: 15_000 })
+  })
+
+  freshTest('default invite — pending row shows Member in the Role cell', async ({ page }) => {
     const { email } = await seedLoggedInUser(page, 'um-default-role')
 
     await page.goto('/user-management/members')
@@ -342,7 +346,7 @@ test.describe('user management — members page', () => {
     await expect(row.getByText(/^Member$/)).toBeVisible()
   })
 
-  test('invite at Admin role — pending row shows Admin in the Role cell', async ({ page }) => {
+  freshTest('invite at Admin role — pending row shows Admin in the Role cell', async ({ page }) => {
     const { email } = await seedLoggedInUser(page, 'um-admin-invite')
 
     await page.goto('/user-management/members')
@@ -381,7 +385,7 @@ test.describe('user management — members page', () => {
     await expect(row.getByText(/^Admin$/)).toBeVisible()
   })
 
-  test('Awaiting Response tab shows a "1" badge after a single invite', async ({ page }) => {
+  freshTest('Awaiting Response tab shows a "1" badge after a single invite', async ({ page }) => {
     const { email } = await seedLoggedInUser(page, 'um-tab-badge')
 
     await page.goto('/user-management/members')
@@ -396,7 +400,7 @@ test.describe('user management — members page', () => {
     await expect(page.getByRole('tab', { name: /awaiting response\s*1/i })).toBeVisible({ timeout: 15_000 })
   })
 
-  test('after inviting, the pending row appears in the Awaiting Response tab with the recipient and Invitation Sent status', async ({ page }) => {
+  freshTest('after inviting, the pending row appears in the Awaiting Response tab with the recipient and Invitation Sent status', async ({ page }) => {
     const { email } = await seedLoggedInUser(page, 'um-pending-row')
 
     await page.goto('/user-management/members')
@@ -418,7 +422,7 @@ test.describe('user management — members page', () => {
     await expect(row.getByText(/^Invitation Sent$/)).toBeVisible()
   })
 
-  test('multi-email invite — two committed chips create two pending rows', async ({ page }) => {
+  freshTest('multi-email invite — two committed chips create two pending rows', async ({ page }) => {
     const { email } = await seedLoggedInUser(page, 'um-multi-invite')
 
     await page.goto('/user-management/members')
@@ -436,7 +440,7 @@ test.describe('user management — members page', () => {
     await expect(page.getByRole('cell').filter({ hasText: second }).first()).toBeVisible({ timeout: 15_000 })
   })
 
-  test('resend invite — pending row resend triggers the success toast', async ({ page }) => {
+  freshTest('resend invite — pending row resend triggers the success toast', async ({ page }) => {
     const { email } = await seedLoggedInUser(page, 'um-resend-invite')
 
     await page.goto('/user-management/members')
@@ -450,7 +454,7 @@ test.describe('user management — members page', () => {
     const row = page.getByRole('row').filter({ hasText: inviteEmail })
     await expect(row).toBeVisible({ timeout: 15_000 })
 
-    await row.locator('.lucide-ellipsis-vertical').click()
+    await row.getByTestId('invite-actions-trigger').click()
     await page.getByRole('menuitem', { name: /resend invite/i }).click()
 
     // The InviteActions component fires successNotification with title
@@ -459,7 +463,7 @@ test.describe('user management — members page', () => {
     await expect(page.getByText(/^Invite resent successfully$/).first()).toBeVisible({ timeout: 15_000 })
   })
 
-  test('cancel invite — deleting a pending row removes it from the table', async ({ page }) => {
+  freshTest('cancel invite — deleting a pending row removes it from the table', async ({ page }) => {
     const { email } = await seedLoggedInUser(page, 'um-cancel-invite')
 
     await page.goto('/user-management/members')
@@ -473,12 +477,7 @@ test.describe('user management — members page', () => {
     const row = page.getByRole('row').filter({ hasText: inviteEmail })
     await expect(row).toBeVisible({ timeout: 15_000 })
 
-    // The row's action cell is a MoreVertical icon trigger that opens a
-    // DropdownMenu. The DropdownMenuTrigger uses asChild on a <div>,
-    // which Radix doesn't expose as role=button. Click the lucide icon
-    // directly — note `MoreVertical` is aliased to `EllipsisVertical`
-    // in lucide-react, so the rendered class is `lucide-ellipsis-vertical`.
-    await row.locator('.lucide-ellipsis-vertical').click()
+    await row.getByTestId('invite-actions-trigger').click()
 
     await page.getByRole('menuitem', { name: /delete invite/i }).click()
 

@@ -1,5 +1,5 @@
 'use server'
-import { sessionCookieName, sessionCookieExpiration, isDevelopment, cookieDomain } from '@repo/dally/auth'
+import { sessionCookieName, sessionCookieExpiration, useInsecureCookies, cookieDomain } from '@repo/dally/auth'
 import { cookies } from 'next/headers'
 
 export const setSessionCookie = async (session: string) => {
@@ -9,8 +9,7 @@ export const setSessionCookie = async (session: string) => {
   const expires = new Date()
   expires.setTime(expires.getTime() + 1000 * 60 * expirationTime)
 
-  // if in development, don't set domain
-  if (isDevelopment) {
+  if (useInsecureCookies) {
     cookieStore.set(`${sessionCookieName}`, session, {
       expires,
     })
