@@ -42,9 +42,7 @@ const FindingPage: React.FC = () => {
     mutateAsync: async (params: { input: File }) => baseBulkCreateMutation.mutateAsync({ input: params.input }),
   }
 
-  const severityWhereFilter = selectedSeverity
-    ? { securityLevelIn: [FindingSecurityLevel[selectedSeverity.toUpperCase() as keyof typeof FindingSecurityLevel]], findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }
-    : undefined
+  const severityWhereFilter = selectedSeverity ? { securityLevelIn: [FindingSecurityLevel[selectedSeverity.toUpperCase() as keyof typeof FindingSecurityLevel]], open: true } : undefined
 
   const tableConfig: FindingTablePageConfig = {
     objectType,

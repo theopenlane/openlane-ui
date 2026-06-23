@@ -164,9 +164,7 @@ const VulnerabilityPage: React.FC = () => {
     renderFields: (props: VulnerabilityFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }
 
-  const severityWhereFilter = selectedSeverity
-    ? { securityLevelIn: [VulnerabilitySecurityLevel[selectedSeverity.toUpperCase() as keyof typeof VulnerabilitySecurityLevel]], vulnerabilityStatusNameIn: ['Open', 'In Progress', 'Triaged'] }
-    : undefined
+  const severityWhereFilter = selectedSeverity ? { securityLevelIn: [VulnerabilitySecurityLevel[selectedSeverity.toUpperCase() as keyof typeof VulnerabilitySecurityLevel]], open: true } : undefined
 
   const tableConfig: VulnerabilityTablePageConfig = {
     objectType,

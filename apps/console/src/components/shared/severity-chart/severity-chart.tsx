@@ -21,8 +21,8 @@ type Props = {
 }
 
 const LABELS: Record<Props['variant'], string> = {
-  vulnerability: 'Vulnerabilities by Severity',
-  finding: 'Findings by Severity',
+  vulnerability: 'Open Vulnerabilities by Severity',
+  finding: 'Open Findings by Severity',
 }
 
 const SeverityChart: React.FC<Props> = ({ variant, selectedSeverity, onSeveritySelect }) => {
