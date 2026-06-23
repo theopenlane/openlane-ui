@@ -22,6 +22,7 @@ import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '../create/utils'
 import { type CreateReviewInput, type UpdateReviewInput, type GetReviewAssociationsQuery } from '@repo/codegen/src/schema'
+import { ReviewStatusOptions } from '@/components/shared/enum-mapper/review-enum'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
@@ -119,6 +120,7 @@ const ReviewPage: React.FC = () => {
     environmentOptions,
     scopeOptions,
     tagOptions: tagOptions.tagOptions,
+    statusOptions: ReviewStatusOptions,
   }
 
   const handleCloseViewSheet = () => {

@@ -4,24 +4,22 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
   fragment ControlListFields on Control {
     id
     refCode
-    description
-    status
-    category
-    subcategory
-    tags
-    mappedCategories
     referenceFramework
-    referenceID
-    auditorReferenceID
-    source
-    sourceName
-    controlKindName
-    publicRepresentation
-    title
-    subcontrols {
-      totalCount
-    }
-    controlOwner {
+    description @include(if: $includeDescription)
+    status @include(if: $includeStatus)
+    category @include(if: $includeCategory)
+    subcategory @include(if: $includeSubcategory)
+    referenceID @include(if: $includeReferenceID)
+    auditorReferenceID @include(if: $includeAuditorReferenceID)
+    source @include(if: $includeSource)
+    sourceName @include(if: $includeSourceName)
+    controlKindName @include(if: $includeControlKindName)
+    title @include(if: $includeTitle)
+    updatedAt @include(if: $includeUpdatedAt)
+    updatedBy @include(if: $includeUpdatedBy)
+    createdAt @include(if: $includeCreatedAt)
+    createdBy @include(if: $includeCreatedBy)
+    controlOwner @include(if: $includeControlOwner) {
       id
       displayName
       logoURL
@@ -30,7 +28,8 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
         base64
       }
     }
-    subcontrols {
+    subcontrols @include(if: $includeSubcontrols) {
+      totalCount
       edges {
         node {
           id
@@ -38,7 +37,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
         }
       }
     }
-    delegate {
+    delegate @include(if: $includeDelegate) {
       displayName
       logoURL
       gravatarLogoURL
@@ -46,7 +45,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
         base64
       }
     }
-    responsibleParty {
+    responsibleParty @include(if: $includeResponsibleParty) {
       id
       displayName
       name
@@ -54,29 +53,24 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
         base64
       }
     }
-
-    controlImplementations {
+    controlImplementations @include(if: $includeControlImplementations) {
       edges {
         node {
           details
         }
       }
     }
-    comments {
+    comments @include(if: $includeComments) {
       totalCount
     }
-    updatedAt
-    updatedBy
-    createdAt
-    createdBy
-    controlObjectives {
+    controlObjectives @include(if: $includeControlObjectives) {
       edges {
         node {
           desiredOutcome
         }
       }
     }
-    tasks {
+    tasks @include(if: $includeTasks) {
       edges {
         node {
           id
@@ -85,7 +79,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
       }
       totalCount
     }
-    internalPolicies {
+    internalPolicies @include(if: $includeInternalPolicies) {
       edges {
         node {
           id
@@ -94,7 +88,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
       }
       totalCount
     }
-    procedures {
+    procedures @include(if: $includeProcedures) {
       edges {
         node {
           id
@@ -103,8 +97,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
       }
       totalCount
     }
-
-    programs {
+    programs @include(if: $includePrograms) {
       totalCount
       edges {
         node {
@@ -113,7 +106,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
         }
       }
     }
-    risks {
+    risks @include(if: $includeRisks) {
       edges {
         node {
           id
@@ -268,7 +261,40 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
 
 export const GET_ALL_CONTROLS = gql`
   ${CONTROL_LIST_FIELDS_FRAGMENT}
-  query GetAllControls($where: ControlWhereInput, $orderBy: [ControlOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+  query GetAllControls(
+    $where: ControlWhereInput
+    $orderBy: [ControlOrder!]
+    $first: Int
+    $after: Cursor
+    $last: Int
+    $before: Cursor
+    $includeDescription: Boolean = false
+    $includeStatus: Boolean = false
+    $includeCategory: Boolean = false
+    $includeSubcategory: Boolean = false
+    $includeReferenceID: Boolean = false
+    $includeAuditorReferenceID: Boolean = false
+    $includeSource: Boolean = false
+    $includeSourceName: Boolean = false
+    $includeControlKindName: Boolean = false
+    $includeTitle: Boolean = false
+    $includeCreatedAt: Boolean = false
+    $includeCreatedBy: Boolean = false
+    $includeUpdatedAt: Boolean = false
+    $includeUpdatedBy: Boolean = false
+    $includeControlOwner: Boolean = false
+    $includeSubcontrols: Boolean = false
+    $includeDelegate: Boolean = false
+    $includeResponsibleParty: Boolean = false
+    $includeControlImplementations: Boolean = false
+    $includeComments: Boolean = false
+    $includeControlObjectives: Boolean = false
+    $includeTasks: Boolean = false
+    $includeInternalPolicies: Boolean = false
+    $includeProcedures: Boolean = false
+    $includePrograms: Boolean = false
+    $includeRisks: Boolean = false
+  ) {
     controls(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {

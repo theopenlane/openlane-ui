@@ -39,7 +39,7 @@ const HIDDEN_COLUMNS: Record<string, boolean> = {
   approvedAt: false,
 }
 
-const COLUMN_ORDER = ['title', 'summary', 'state', 'reporter', 'reportedAt', 'reviewedAt']
+const COLUMN_ORDER = ['title', 'summary', 'status', 'reporter', 'reportedAt', 'reviewedAt']
 
 const ReviewsTable: React.FC<ReviewsTableProps> = ({ controlId, subcontrolIds }) => {
   const { replace } = useSmartRouter()

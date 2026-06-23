@@ -26,8 +26,8 @@ const TYPES = [
     icon: Bug,
     href: '/exposure/vulnerabilities',
     tableKey: TableKeyEnum.VULNERABILITY,
-    critFilter: { severityContainsFold: 'critical' } as TFilterState,
-    highFilter: { severityContainsFold: 'high' } as TFilterState,
+    critFilter: { securityLevelIn: ['CRITICAL'], open: true } as TFilterState,
+    highFilter: { securityLevelIn: ['HIGH'], open: true } as TFilterState,
   },
   {
     key: 'findings' as const,
@@ -35,8 +35,8 @@ const TYPES = [
     icon: FileSearch,
     href: '/exposure/findings',
     tableKey: TableKeyEnum.FINDING,
-    critFilter: { severityContainsFold: 'critical' } as TFilterState,
-    highFilter: { severityContainsFold: 'high' } as TFilterState,
+    critFilter: { securityLevelIn: ['CRITICAL'], open: true } as TFilterState,
+    highFilter: { securityLevelIn: ['HIGH'], open: true } as TFilterState,
   },
   {
     key: 'risks' as const,
@@ -44,8 +44,8 @@ const TYPES = [
     icon: AlertTriangle,
     href: '/exposure/risks',
     tableKey: TableKeyEnum.RISK,
-    critFilter: { impactIn: ['CRITICAL'] } as TFilterState,
-    highFilter: { impactIn: ['HIGH'] } as TFilterState,
+    critFilter: { impactIn: ['CRITICAL'], statusIn: ['OPEN', 'IDENTIFIED'] } as TFilterState,
+    highFilter: { impactIn: ['HIGH'], statusIn: ['OPEN', 'IDENTIFIED'] } as TFilterState,
   },
 ]
 

@@ -3,11 +3,20 @@ import { type ColumnDef, type Row } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import React from 'react'
 
-function buildSelectColumn<T extends { id: string }>(selectedItems: { id: string }[], setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>): ColumnDef<T> {
+function buildSelectColumn<T extends { id: string }>(
+  selectedItems: { id: string }[],
+  setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>,
+  isSelectable?: (item: T) => boolean,
+): ColumnDef<T> {
+  const canSelect = (item: T) => (isSelectable ? isSelectable(item) : true)
+
   return {
     id: 'select',
     header: ({ table }) => {
-      const currentPageItems = table.getRowModel().rows.map((row) => row.original)
+      const currentPageItems = table
+        .getRowModel()
+        .rows.map((row) => row.original)
+        .filter(canSelect)
       const allSelected = currentPageItems.length > 0 && currentPageItems.every((item) => selectedItems.some((sc) => sc.id === item.id))
 
       return (
@@ -25,7 +34,12 @@ function buildSelectColumn<T extends { id: string }>(selectedItems: { id: string
       )
     },
     cell: ({ row }: { row: Row<T> }) => {
-      const { id } = row.original
+      const item = row.original
+      if (!canSelect(item)) {
+        return null
+      }
+
+      const { id } = item
       const isChecked = selectedItems.some((c) => c.id === id)
 
       return (
@@ -51,10 +65,18 @@ function buildSelectColumn<T extends { id: string }>(selectedItems: { id: string
   }
 }
 
-export function useSelectColumn<T extends { id: string }>(selectedItems: { id: string }[], setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>): ColumnDef<T> {
-  return useMemo(() => buildSelectColumn<T>(selectedItems, setSelectedItems), [selectedItems, setSelectedItems])
+export function useSelectColumn<T extends { id: string }>(
+  selectedItems: { id: string }[],
+  setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>,
+  isSelectable?: (item: T) => boolean,
+): ColumnDef<T> {
+  return useMemo(() => buildSelectColumn<T>(selectedItems, setSelectedItems, isSelectable), [selectedItems, setSelectedItems, isSelectable])
 }
 
-export function createSelectColumn<T extends { id: string }>(selectedItems: { id: string }[], setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>): ColumnDef<T> {
-  return buildSelectColumn<T>(selectedItems, setSelectedItems)
+export function createSelectColumn<T extends { id: string }>(
+  selectedItems: { id: string }[],
+  setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>,
+  isSelectable?: (item: T) => boolean,
+): ColumnDef<T> {
+  return buildSelectColumn<T>(selectedItems, setSelectedItems, isSelectable)
 }

@@ -8,6 +8,7 @@ import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet
 import { getFieldsToRender } from '@/components/pages/protected/reviews/table/table-config'
 import { type ReviewSheetConfig, type ReviewFieldProps, objectType } from '@/components/pages/protected/reviews/table/types'
 import { type CreateReviewInput, type UpdateReviewInput, type GetReviewAssociationsQuery } from '@repo/codegen/src/schema'
+import { ReviewStatusOptions } from '@/components/shared/enum-mapper/review-enum'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
@@ -83,7 +84,7 @@ const ReviewDetailsSheet: React.FC<ReviewDetailsSheetProps> = ({ queryParamKey }
   const { enumOptions: scopeOptions } = useGetCustomTypeEnums({ where: { field: 'scope' } })
   const tagOptions = useGetTags()
 
-  const enumOpts = { environmentOptions, scopeOptions, tagOptions: tagOptions.tagOptions }
+  const enumOpts = { environmentOptions, scopeOptions, tagOptions: tagOptions.tagOptions, statusOptions: ReviewStatusOptions }
 
   function getName(d: ReviewsNodeNonNull) {
     return d?.title

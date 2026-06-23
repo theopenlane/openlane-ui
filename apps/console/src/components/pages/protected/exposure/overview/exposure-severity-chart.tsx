@@ -29,9 +29,9 @@ const sevColor = (sev: string) => `var(--color-severity-${sev})`
 
 const SEVERITIES = ['critical', 'high', 'medium', 'low'] as const
 const TYPES = [
-  { key: 'vulns', label: 'Vulnerabilities' },
-  { key: 'findings', label: 'Findings' },
-  { key: 'risks', label: 'Risks' },
+  { key: 'vulns', label: 'Open Vulnerabilities' },
+  { key: 'findings', label: 'Open Findings' },
+  { key: 'risks', label: 'Open Risks' },
 ] as const
 
 const SeverityRow = ({
@@ -52,9 +52,9 @@ const SeverityRow = ({
     let filter: TFilterState
     if (severityData.tableKey === TableKeyEnum.RISK) {
       const impactMap: Record<string, string> = { critical: 'CRITICAL', high: 'HIGH', medium: 'MODERATE', low: 'LOW' }
-      filter = { impactIn: [impactMap[sev] ?? sev.toUpperCase()] }
+      filter = { impactIn: [impactMap[sev] ?? sev.toUpperCase()], statusIn: ['OPEN', 'IDENTIFIED'] }
     } else {
-      filter = { severityContainsFold: sev }
+      filter = { securityLevelIn: [sev.toUpperCase()], open: true }
     }
     saveFilters(severityData.tableKey, filter)
     router.push(severityData.href)

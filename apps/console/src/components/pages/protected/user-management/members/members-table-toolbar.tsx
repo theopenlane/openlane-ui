@@ -13,9 +13,10 @@ type TMembersTableToolbarProps = {
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   setFilters: (filters: ExtendedOrgMembershipWhereInput) => void
+  hideFilter?: boolean
 }
 
-const MembersTableToolbar: React.FC<TMembersTableToolbarProps> = ({ searching, searchTerm, setFilters, setSearchTerm }) => {
+const MembersTableToolbar: React.FC<TMembersTableToolbarProps> = ({ searching, searchTerm, setFilters, setSearchTerm, hideFilter }) => {
   const isSearching = useDebounce(searching, 200)
 
   return (
@@ -30,9 +31,11 @@ const MembersTableToolbar: React.FC<TMembersTableToolbarProps> = ({ searching, s
             variant="searchTable"
           />
         </div>
-        <div className="grow flex flex-row items-center gap-2 justify-end">
-          <TableFilter filterFields={MEMBERS_FILTER_FIELDS} onFilterChange={setFilters} pageKey={TableKeyEnum.MEMBER} />
-        </div>
+        {!hideFilter && (
+          <div className="grow flex flex-row items-center gap-2 justify-end">
+            <TableFilter filterFields={MEMBERS_FILTER_FIELDS} onFilterChange={setFilters} pageKey={TableKeyEnum.MEMBER} />
+          </div>
+        )}
       </div>
     </>
   )

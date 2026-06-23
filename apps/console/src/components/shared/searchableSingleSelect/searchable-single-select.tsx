@@ -19,6 +19,7 @@ interface SearchableSingleSelectProps {
   className?: string
   clearable?: boolean
   clearLabel?: string
+  disabled?: boolean
 }
 
 export const SearchableSingleSelect = ({
@@ -31,6 +32,7 @@ export const SearchableSingleSelect = ({
   className,
   clearable = false,
   clearLabel = 'Unassigned',
+  disabled = false,
 }: SearchableSingleSelectProps) => {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLDivElement>(null)
@@ -44,9 +46,12 @@ export const SearchableSingleSelect = ({
 
   return (
     <div ref={triggerRef} className={`${className} w-full`}>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={(next) => !disabled && setOpen(next)}>
         <PopoverTrigger asChild>
-          <div className="w-full flex text-sm h-10 px-3 py-0! justify-between border bg-input rounded-md items-center cursor-pointer" onClick={() => setOpen(true)}>
+          <div
+            className={`w-full flex text-sm h-10 px-3 py-0! justify-between border bg-input rounded-md items-center ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+            onClick={() => !disabled && setOpen(true)}
+          >
             <span className="truncate">
               <CustomTypeEnumValue value={value} options={options} placeholder={placeholder} />
             </span>

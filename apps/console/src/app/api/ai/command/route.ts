@@ -1,5 +1,5 @@
 import { createUIMessageStream, createUIMessageStreamResponse, generateText, Output, streamText, type StreamTextTransform, tool, type ToolSet } from 'ai'
-import { google } from '@ai-sdk/google'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
 
 import { NextResponse, type NextRequest } from 'next/server'
 
@@ -13,6 +13,10 @@ import { getChooseToolPrompt, getCommentPrompt, getEditPrompt, getGeneratePrompt
 import { auth } from '@/lib/auth/auth'
 
 const DEFAULT_MODEL = 'gemini-2.5-flash'
+
+const google = createGoogleGenerativeAI({
+  headers: { Referer: process.env.NEXT_PUBLIC_SITE_URL },
+})
 
 // api/ai/command is used for AI-powered commands within the editor, such as commenting, editing, and generating content.
 // this is different than the ai/suggestions endpoint, which is used for generating suggestions based on context outside of the editor and is from the fine-tuned model.

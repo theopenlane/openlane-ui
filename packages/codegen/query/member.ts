@@ -36,6 +36,7 @@ export const GET_ORG_MEMBERSHIPS = gql`
           id
           createdAt
           role
+          additionalRoles
           user {
             id
             displayName
