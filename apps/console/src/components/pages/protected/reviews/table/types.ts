@@ -32,7 +32,7 @@ export const exportType = ExportExportType.REVIEW
 export const orderFieldEnum = ReviewOrderField
 export const defaultSorting = [{ field: ReviewOrderField.updated_at, direction: OrderDirection.DESC }]
 
-type ReviewEnumKeys = 'environmentOptions' | 'scopeOptions' | 'tagOptions'
+type ReviewEnumKeys = 'environmentOptions' | 'scopeOptions' | 'tagOptions' | 'statusOptions'
 
 export type EnumOptions = EnumOptionsGeneric<ReviewEnumKeys>
 

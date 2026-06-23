@@ -7,8 +7,10 @@ import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import type { FilterField } from '@/types'
 import { TruncatedCell } from '@repo/ui/data-table'
+import { type ReviewReviewStatus } from '@repo/codegen/src/schema'
 
 const TIER_COLORS: Record<string, string> = {
   high: 'bg-red-500/16 text-red-400 border-red-500/24',
@@ -30,7 +32,7 @@ export const isHighRiskTier = (tier?: string | null) => {
 export const DEFAULT_VISIBILITY: VisibilityState = {
   category: false,
   source: false,
-  state: false,
+  status: false,
   tags: false,
   createdAt: false,
   updatedAt: false,
@@ -94,10 +96,10 @@ export const reviewHistoryColumns: ColumnDef<ReviewsNodeNonNull>[] = [
     cell: ({ row }) => <span className="block truncate">{row.original.source ?? '—'}</span>,
   },
   {
-    accessorKey: 'state',
-    header: 'State',
+    accessorKey: 'status',
+    header: 'Status',
     size: 130,
-    cell: ({ row }) => <span className="block truncate">{row.original.state ?? '—'}</span>,
+    cell: ({ row }) => <span className="block truncate">{getEnumLabel(row.original.status as ReviewReviewStatus) || '—'}</span>,
   },
   {
     accessorKey: 'tags',

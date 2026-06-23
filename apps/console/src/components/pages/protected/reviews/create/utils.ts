@@ -18,7 +18,7 @@ const toStringObject = (value: string | null | undefined, field: keyof ReviewFor
   value?.trim() ? { [field]: value } : options.useClearFlags && options.dirtyFields?.[field] ? { [clearField]: true } : {}
 
 export const buildPayload = async (data: ReviewFormData, plateEditorHelper: ReturnType<typeof usePlateEditor>, options: BuildPayloadOptions = {}) => {
-  const { summary, category, classification, state, source, reporter, externalID, externalOwnerID, externalURI, environmentName, scopeName, ...rest } = data
+  const { summary, category, classification, status, source, reporter, externalID, externalOwnerID, externalURI, environmentName, scopeName, ...rest } = data
   const details = rest.details ? await plateEditorHelper.convertToHtml(rest.details as Value) : undefined
 
   return {
@@ -26,7 +26,7 @@ export const buildPayload = async (data: ReviewFormData, plateEditorHelper: Retu
     ...toStringObject(summary, 'summary', 'clearSummary', options),
     ...toStringObject(category, 'category', 'clearCategory', options),
     ...toStringObject(classification, 'classification', 'clearClassification', options),
-    ...toStringObject(state, 'state', 'clearState', options),
+    ...(status ? { status } : options.useClearFlags && options.dirtyFields?.status ? { clearStatus: true } : {}),
     ...toStringObject(source, 'source', 'clearSource', options),
     ...toStringObject(reporter, 'reporter', 'clearReporter', options),
     ...toStringObject(externalID, 'externalID', 'clearExternalID', options),
