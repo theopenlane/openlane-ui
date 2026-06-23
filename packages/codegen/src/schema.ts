@@ -21663,6 +21663,8 @@ export interface Group extends Node {
   actionPlanBlockedGroups: ActionPlanConnection
   actionPlanEditors: ActionPlanConnection
   actionPlanViewers: ActionPlanConnection
+  /** additionalRoles are the functional/organization roles assigned to the group on top of object permissions */
+  additionalRoles?: Maybe<Array<Scalars['String']['output']>>
   avatarFile?: Maybe<File>
   /** The group's local avatar file id, takes precedence over the gravatar logo URL */
   avatarLocalFileID?: Maybe<Scalars['ID']['output']>
@@ -34448,6 +34450,7 @@ export interface OrgMembersInput {
 
 export interface OrgMembership extends Node {
   __typename?: 'OrgMembership'
+  additionalRoles?: Maybe<Array<Scalars['String']['output']>>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   events: EventConnection
@@ -68795,29 +68798,21 @@ export type ControlListFieldsFragment = {
   __typename?: 'Control'
   id: string
   refCode: string
+  referenceFramework?: string | null
   description?: string | null
   status?: ControlControlStatus | null
   category?: string | null
   subcategory?: string | null
-  tags?: Array<string> | null
-  mappedCategories?: Array<string> | null
-  referenceFramework?: string | null
   referenceID?: string | null
   auditorReferenceID?: string | null
   source?: ControlControlSource | null
   sourceName?: string | null
   controlKindName?: string | null
-  publicRepresentation?: string | null
   title?: string | null
   updatedAt?: any | null
   updatedBy?: string | null
   createdAt?: any | null
   createdBy?: string | null
-  subcontrols: {
-    __typename?: 'SubcontrolConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
-  }
   controlOwner?: {
     __typename?: 'Group'
     id: string
@@ -68826,30 +68821,35 @@ export type ControlListFieldsFragment = {
     gravatarLogoURL?: string | null
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
   } | null
+  subcontrols?: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+  }
   delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-  controlImplementations: {
+  controlImplementations?: {
     __typename?: 'ControlImplementationConnection'
     edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
   }
-  comments: { __typename?: 'NoteConnection'; totalCount: number }
-  controlObjectives: {
+  comments?: { __typename?: 'NoteConnection'; totalCount: number }
+  controlObjectives?: {
     __typename?: 'ControlObjectiveConnection'
     edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
   }
-  tasks: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
-  internalPolicies: {
+  tasks?: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
+  internalPolicies?: {
     __typename?: 'InternalPolicyConnection'
     totalCount: number
     edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
   }
-  procedures: {
+  procedures?: {
     __typename?: 'ProcedureConnection'
     totalCount: number
     edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
   }
-  programs: { __typename?: 'ProgramConnection'; totalCount: number; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
-  risks: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+  programs?: { __typename?: 'ProgramConnection'; totalCount: number; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
+  risks?: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
 }
 
 export type ControlListStandardFieldsFragment = {
@@ -68975,6 +68975,32 @@ export type GetAllControlsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
+  includeDescription?: InputMaybe<Scalars['Boolean']['input']>
+  includeStatus?: InputMaybe<Scalars['Boolean']['input']>
+  includeCategory?: InputMaybe<Scalars['Boolean']['input']>
+  includeSubcategory?: InputMaybe<Scalars['Boolean']['input']>
+  includeReferenceID?: InputMaybe<Scalars['Boolean']['input']>
+  includeAuditorReferenceID?: InputMaybe<Scalars['Boolean']['input']>
+  includeSource?: InputMaybe<Scalars['Boolean']['input']>
+  includeSourceName?: InputMaybe<Scalars['Boolean']['input']>
+  includeControlKindName?: InputMaybe<Scalars['Boolean']['input']>
+  includeTitle?: InputMaybe<Scalars['Boolean']['input']>
+  includeCreatedAt?: InputMaybe<Scalars['Boolean']['input']>
+  includeCreatedBy?: InputMaybe<Scalars['Boolean']['input']>
+  includeUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
+  includeUpdatedBy?: InputMaybe<Scalars['Boolean']['input']>
+  includeControlOwner?: InputMaybe<Scalars['Boolean']['input']>
+  includeSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  includeDelegate?: InputMaybe<Scalars['Boolean']['input']>
+  includeResponsibleParty?: InputMaybe<Scalars['Boolean']['input']>
+  includeControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
+  includeComments?: InputMaybe<Scalars['Boolean']['input']>
+  includeControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
+  includeTasks?: InputMaybe<Scalars['Boolean']['input']>
+  includeInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  includeProcedures?: InputMaybe<Scalars['Boolean']['input']>
+  includePrograms?: InputMaybe<Scalars['Boolean']['input']>
+  includeRisks?: InputMaybe<Scalars['Boolean']['input']>
 }>
 
 export type GetAllControlsQuery = {
@@ -68989,29 +69015,21 @@ export type GetAllControlsQuery = {
         __typename: 'Control'
         id: string
         refCode: string
+        referenceFramework?: string | null
         description?: string | null
         status?: ControlControlStatus | null
         category?: string | null
         subcategory?: string | null
-        tags?: Array<string> | null
-        mappedCategories?: Array<string> | null
-        referenceFramework?: string | null
         referenceID?: string | null
         auditorReferenceID?: string | null
         source?: ControlControlSource | null
         sourceName?: string | null
         controlKindName?: string | null
-        publicRepresentation?: string | null
         title?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
-        subcontrols: {
-          __typename?: 'SubcontrolConnection'
-          totalCount: number
-          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
-        }
         controlOwner?: {
           __typename?: 'Group'
           id: string
@@ -69020,34 +69038,39 @@ export type GetAllControlsQuery = {
           gravatarLogoURL?: string | null
           avatarFile?: { __typename?: 'File'; base64?: string | null } | null
         } | null
+        subcontrols?: {
+          __typename?: 'SubcontrolConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+        }
         delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-        controlImplementations: {
+        controlImplementations?: {
           __typename?: 'ControlImplementationConnection'
           edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
         }
-        comments: { __typename?: 'NoteConnection'; totalCount: number }
-        controlObjectives: {
+        comments?: { __typename?: 'NoteConnection'; totalCount: number }
+        controlObjectives?: {
           __typename?: 'ControlObjectiveConnection'
           edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
         }
-        tasks: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
-        internalPolicies: {
+        tasks?: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
+        internalPolicies?: {
           __typename?: 'InternalPolicyConnection'
           totalCount: number
           edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
         }
-        procedures: {
+        procedures?: {
           __typename?: 'ProcedureConnection'
           totalCount: number
           edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
         }
-        programs: {
+        programs?: {
           __typename?: 'ProgramConnection'
           totalCount: number
           edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null
         }
-        risks: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+        risks?: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -72314,6 +72337,7 @@ export type GetGroupDetailsQuery = {
     gravatarLogoURL?: string | null
     isManaged?: boolean | null
     tags?: Array<string> | null
+    additionalRoles?: Array<string> | null
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
     members: {
       __typename?: 'GroupMembershipConnection'
@@ -73980,6 +74004,7 @@ export type OrgMembershipsQuery = {
         id: string
         createdAt?: any | null
         role: OrgMembershipRole
+        additionalRoles?: Array<string> | null
         user: {
           __typename?: 'User'
           id: string
@@ -75849,7 +75874,7 @@ export type ReviewsWithFilterQuery = {
         scopeID?: string | null
         scopeName?: string | null
         source?: string | null
-        state?: string | null
+        status?: ReviewReviewStatus | null
         summary?: string | null
         systemOwned?: boolean | null
         tags?: Array<string> | null
@@ -75900,7 +75925,7 @@ export type ReviewQuery = {
     scopeID?: string | null
     scopeName?: string | null
     source?: string | null
-    state?: string | null
+    status?: ReviewReviewStatus | null
     summary?: string | null
     systemOwned?: boolean | null
     tags?: Array<string> | null
@@ -78936,8 +78961,10 @@ export type GetTrustCenterQuery = {
           logoRemoteURL?: string | null
           securityContact?: string | null
           ndaApprovalRequired?: boolean | null
+          ndaApproverGroupID?: string | null
           logoFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
+          ndaApproverGroup?: { __typename?: 'Group'; id: string; displayName: string; name: string } | null
         } | null
         previewSetting?: {
           __typename?: 'TrustCenterSetting'
