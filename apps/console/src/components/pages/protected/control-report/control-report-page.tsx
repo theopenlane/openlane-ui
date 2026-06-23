@@ -3,7 +3,7 @@
 import React, { use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
-import { type ControlReportItem, useControlReportsByCategory } from '@/lib/graphql-hooks/control'
+import { type ControlReportItem, useControlReports } from '@/lib/graphql-hooks/control'
 import { ControlControlStatus, type ControlWhereInput } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { hasPermission } from '@/lib/authz/utils'
@@ -79,7 +79,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     return base
   }, [effectiveStandard])
 
-  const { data, isLoading, isFetching } = useControlReportsByCategory({
+  const { data, isLoading, isFetching } = useControlReports({
     where,
     enabled: Boolean(currentOrgId),
   })

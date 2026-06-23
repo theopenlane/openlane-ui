@@ -171,6 +171,7 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
           parentControlId={isSubcontrol ? (subcontrol?.control?.id ?? undefined) : undefined}
           refCode={refCode}
           sourceFramework={isSubcontrol ? subcontrol?.referenceFramework : control?.referenceFramework}
+          canEdit={props.canEdit}
         />
       </TabsContent>
 

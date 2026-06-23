@@ -1,26 +1,14 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useGetMappedControls } from './mapped-control'
+import { useGetControlRelatedControls } from './control'
 
 export type EntityRef = { id: string; refCode: string; href: string }
 
 export const useMappedEntityRefs = (controlId?: string, subcontrolIds?: string[]) => {
   const subcontrolIdSet = useMemo(() => new Set(subcontrolIds ?? []), [subcontrolIds])
 
-  const where = useMemo(() => {
-    if (!controlId) return undefined
-    return {
-      or: [
-        { hasFromControlsWith: [{ id: controlId }] },
-        { hasToControlsWith: [{ id: controlId }] },
-        { hasFromSubcontrolsWith: [{ controlID: controlId }] },
-        { hasToSubcontrolsWith: [{ controlID: controlId }] },
-      ],
-    }
-  }, [controlId])
-
-  const { data, isLoading } = useGetMappedControls({ where, enabled: Boolean(controlId) })
+  const { data, isLoading } = useGetControlRelatedControls(controlId)
 
   const { mappedControlRefs, mappedSubcontrolRefs } = useMemo(() => {
     const controlRefs: EntityRef[] = []
@@ -28,29 +16,23 @@ export const useMappedEntityRefs = (controlId?: string, subcontrolIds?: string[]
     const seenControls = new Set<string>()
     const seenSubcontrols = new Set<string>()
 
-    const edges = data?.mappedControls?.edges ?? []
-    edges.forEach((edge) => {
-      const node = edge?.node
-      if (!node) return
+    const related = data?.control?.relatedControls ?? []
+    related.forEach((node) => {
+      if (!node?.id || !node?.refCode) return
 
-      const allControls = [...(node.fromControls?.edges ?? []).map((e) => e?.node), ...(node.toControls?.edges ?? []).map((e) => e?.node)]
-      const allSubcontrols = [...(node.fromSubcontrols?.edges ?? []).map((e) => e?.node), ...(node.toSubcontrols?.edges ?? []).map((e) => e?.node)]
+      if (node.isSubcontrol) {
+        if (subcontrolIdSet.has(node.id)) return
+        if (seenSubcontrols.has(node.id)) return
+        if (!node.parentControlID) return
+        seenSubcontrols.add(node.id)
+        subcontrolRefs.push({ id: node.id, refCode: node.refCode, href: `/controls/${node.parentControlID}/${node.id}` })
+        return
+      }
 
-      allControls.forEach((c) => {
-        if (!c?.id || !c?.refCode) return
-        if (c.id === controlId) return
-        if (seenControls.has(c.id)) return
-        seenControls.add(c.id)
-        controlRefs.push({ id: c.id, refCode: c.refCode, href: `/controls/${c.id}` })
-      })
-
-      allSubcontrols.forEach((s) => {
-        if (!s?.id || !s?.refCode) return
-        if (subcontrolIdSet.has(s.id)) return
-        if (seenSubcontrols.has(s.id)) return
-        seenSubcontrols.add(s.id)
-        subcontrolRefs.push({ id: s.id, refCode: s.refCode, href: `/controls/${s.controlID}/${s.id}` })
-      })
+      if (node.id === controlId) return
+      if (seenControls.has(node.id)) return
+      seenControls.add(node.id)
+      controlRefs.push({ id: node.id, refCode: node.refCode, href: `/controls/${node.id}` })
     })
 
     return { mappedControlRefs: controlRefs, mappedSubcontrolRefs: subcontrolRefs }

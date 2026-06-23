@@ -56,6 +56,9 @@ export const useCreateMappedControl = () => {
     mutationFn: (variables) => client.request(CREATE_MAPPED_CONTROL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
+      queryClient.invalidateQueries({
+        predicate: (query) => (query.queryKey[0] === 'controls' || query.queryKey[0] === 'subcontrols') && query.queryKey[2] === 'relatedControls',
+      })
     },
   })
 }
@@ -81,10 +84,16 @@ export const useGetMappedControlById = ({ mappedControlId, enabled }: { mappedCo
 }
 
 export const useUpdateMappedControl = () => {
-  const { client } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation<UpdateMappedControlMutation, unknown, UpdateMappedControlMutationVariables>({
     mutationFn: (variables) => client.request(UPDATE_MAPPED_CONTROL, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
+      queryClient.invalidateQueries({
+        predicate: (query) => (query.queryKey[0] === 'controls' || query.queryKey[0] === 'subcontrols') && query.queryKey[2] === 'relatedControls',
+      })
+    },
   })
 }
 
@@ -95,6 +104,9 @@ export const useDeleteMappedControl = () => {
     mutationFn: (variables) => client.request(DELETE_MAPPED_CONTROL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
+      queryClient.invalidateQueries({
+        predicate: (query) => (query.queryKey[0] === 'controls' || query.queryKey[0] === 'subcontrols') && query.queryKey[2] === 'relatedControls',
+      })
     },
   })
 }

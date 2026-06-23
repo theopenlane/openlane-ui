@@ -16,6 +16,7 @@ import { type MapControl } from '@/types'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import OrgCoverageCell from './org-coverage-cell'
 import EvidenceCoverageCell from './evidence-coverage-cell'
+import ReportShowMore from './report-show-more'
 import { getGridCols } from './control-report-grid'
 import { deriveOrgCoverage, getOrgRelatedControls, getFrameworkRelatedControls } from './report-coverage'
 
@@ -102,20 +103,31 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
         {policies.length === 0 ? (
           <span className="text-xs italic text-muted-foreground">None linked</span>
         ) : (
-          policies.map((p) => (
-            <Link key={p.id} href={`/policies/${p.id}/view`} target="_blank" rel="noopener noreferrer">
-              <span className="inline-block rounded bg-muted px-1.5 py-0.5 text-xs hover:bg-accent cursor-pointer">{p.name}</span>
-            </Link>
-          ))
+          <ReportShowMore
+            items={policies}
+            renderItem={(p) => (
+              <Link key={p.id} href={`/policies/${p.id}/view`} target="_blank" rel="noopener noreferrer">
+                <span className="inline-block rounded bg-muted px-1.5 py-0.5 text-xs hover:bg-accent cursor-pointer">{p.name}</span>
+              </Link>
+            )}
+          />
         )}
       </div>
 
       <div className="flex flex-wrap gap-1.5 min-w-0" onClick={(e) => e.stopPropagation()}>
-        {isCustomView
-          ? frameworkRefs.map((ref) => (
+        {isCustomView ? (
+          <ReportShowMore
+            items={frameworkRefs}
+            renderItem={(ref) => (
               <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode, referenceFramework: ref.referenceFramework } as MapControl} hideStandard />
-            ))
-          : orgRefs.map((ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode } as MapControl} hideStandard hideHexagon />)}
+            )}
+          />
+        ) : (
+          <ReportShowMore
+            items={orgRefs}
+            renderItem={(ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode } as MapControl} hideStandard hideHexagon />}
+          />
+        )}
       </div>
     </div>
   )

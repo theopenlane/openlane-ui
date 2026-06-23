@@ -679,88 +679,80 @@ export const GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS = gql`
   }
 `
 
+export const CONTROL_REPORT_FIELDS_FRAGMENT = gql`
+  fragment ControlReportFields on ControlReport {
+    id
+    refCode
+    title
+    description
+    status
+    category
+    subcategory
+    referenceFramework
+    controlOwner {
+      displayName
+      gravatarLogoURL
+      avatarFile {
+        base64
+      }
+    }
+    relatedControls {
+      id
+      refCode
+      status
+      referenceFramework
+      isSubcontrol
+    }
+    linkedPolicies {
+      totalCount
+      internalPolicies {
+        id
+        name
+        status
+      }
+    }
+    evidenceStatus {
+      totalCount
+      worstStatus
+      approvedCount
+      countByStatus {
+        status
+        totalCount
+      }
+    }
+  }
+`
+
 export const CONTROL_REPORTS_BY_CATEGORY = gql`
+  ${CONTROL_REPORT_FIELDS_FRAGMENT}
   query ControlReportsByCategory($where: ControlWhereInput) {
     controlReportsByCategory(where: $where) {
       category
       totalCount
       controls {
-        id
-        refCode
-        title
-        description
-        status
-        category
-        subcategory
-        referenceFramework
-        controlOwner {
-          displayName
-          gravatarLogoURL
-          avatarFile {
-            base64
-          }
-        }
-        relatedControls {
-          id
-          refCode
-          status
-          referenceFramework
-          isSubcontrol
-        }
-        linkedPolicies {
-          totalCount
-          internalPolicies {
-            id
-            name
-            status
-          }
-        }
-        evidenceStatus {
-          totalCount
-          worstStatus
-          approvedCount
-          countByStatus {
-            status
-            totalCount
-          }
-        }
+        ...ControlReportFields
         subcontrols {
-          id
-          refCode
-          title
-          description
-          status
-          referenceFramework
-          controlOwner {
-            displayName
-            gravatarLogoURL
-            avatarFile {
-              base64
-            }
-          }
-          relatedControls {
-            id
-            refCode
-            status
-            referenceFramework
-            isSubcontrol
-          }
-          linkedPolicies {
-            totalCount
-            internalPolicies {
-              id
-              name
-              status
-            }
-          }
-          evidenceStatus {
-            totalCount
-            worstStatus
-            approvedCount
-            countByStatus {
-              status
-              totalCount
-            }
+          ...ControlReportFields
+        }
+      }
+    }
+  }
+`
+
+export const CONTROL_REPORTS = gql`
+  ${CONTROL_REPORT_FIELDS_FRAGMENT}
+  query ControlReports($where: ControlWhereInput, $orderBy: [ControlReportOrder!], $first: Int, $after: Cursor) {
+    controlReports(where: $where, orderBy: $orderBy, first: $first, after: $after) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          ...ControlReportFields
+          subcontrols {
+            ...ControlReportFields
           }
         }
       }
@@ -823,6 +815,27 @@ export const GET_CONTROLS_BY_REFCODE = gql`
             }
           }
         }
+      }
+    }
+  }
+`
+
+export const GET_CONTROL_RELATED_CONTROLS = gql`
+  query GetControlRelatedControls($controlId: ID!) {
+    control(id: $controlId) {
+      id
+      relatedControls {
+        id
+        refCode
+        status
+        referenceFramework
+        isSubcontrol
+        parentControlID
+        mappedControlReferenceIDs
+        inheritedFromSubcontrolIDs
+        category
+        subcategory
+        description
       }
     }
   }

@@ -24,9 +24,6 @@ type MappedControlsTableProps = {
   implementedCount?: number
 }
 
-type MappingTypeFilter = 'all' | MappedControlRow['mappingType']
-type MappingSourceFilter = 'all' | MappedControlRow['source']
-
 const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, columns, searchPlaceholder, showFrameworkFilter = false, action, countLabel, implementedCount }) => {
   const [open, setOpen] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -42,8 +39,6 @@ const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, 
   const controlSourceFilter = useMemo(() => (filterValues.sourceIn ?? []) as string[] | string, [filterValues.sourceIn])
   const categoryFilter = useMemo(() => (filterValues.categoryContainsFold ?? '') as string, [filterValues.categoryContainsFold])
   const subcategoryFilter = useMemo(() => (filterValues.subcategoryContainsFold ?? '') as string, [filterValues.subcategoryContainsFold])
-  const mappingTypeFilter = useMemo(() => (filterValues.mappingTypeIn ?? []) as MappingTypeFilter[] | MappingTypeFilter, [filterValues.mappingTypeIn])
-  const mappingSourceFilter = useMemo(() => (filterValues.mappingSourceIn ?? []) as MappingSourceFilter[] | MappingSourceFilter, [filterValues.mappingSourceIn])
   const frameworkFilter = useMemo(() => (filterValues.referenceFrameworkIn ?? []) as string[] | string, [filterValues.referenceFrameworkIn])
 
   const filteredRows = useMemo(() => {
@@ -60,12 +55,6 @@ const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, 
       if (normalizedCategory && !(row.category ?? '').toLowerCase().includes(normalizedCategory)) return false
 
       if (normalizedSubcategory && !(row.subcategory ?? '').toLowerCase().includes(normalizedSubcategory)) return false
-
-      if (Array.isArray(mappingTypeFilter) && mappingTypeFilter.length > 0 && !mappingTypeFilter.includes(row.mappingType)) return false
-      if (!Array.isArray(mappingTypeFilter) && mappingTypeFilter !== 'all' && row.mappingType !== mappingTypeFilter) return false
-
-      if (Array.isArray(mappingSourceFilter) && mappingSourceFilter.length > 0 && !mappingSourceFilter.includes(row.source)) return false
-      if (!Array.isArray(mappingSourceFilter) && mappingSourceFilter !== 'all' && row.source !== mappingSourceFilter) return false
 
       if (showFrameworkFilter) {
         if (Array.isArray(frameworkFilter) && frameworkFilter.length > 0 && !frameworkFilter.includes(row.referenceFramework ?? '')) return false
@@ -84,7 +73,7 @@ const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, 
         (row.referenceFramework ?? '').toLowerCase().includes(normalizedSearch)
       )
     })
-  }, [rows, typeFilter, controlSourceFilter, categoryFilter, subcategoryFilter, mappingTypeFilter, mappingSourceFilter, frameworkFilter, showFrameworkFilter, normalizedSearch])
+  }, [rows, typeFilter, controlSourceFilter, categoryFilter, subcategoryFilter, frameworkFilter, showFrameworkFilter, normalizedSearch])
 
   useEffect(() => {
     setPagination((prev) => ({
