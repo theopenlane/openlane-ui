@@ -9,13 +9,15 @@ import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip'
 import { TruncatedCell } from '@repo/ui/data-table'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { type ReviewReviewStatus } from '@repo/codegen/src/schema'
 
 export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<ReviewsNodeNonNull>[] => {
   return [
     createSelectColumn<ReviewsNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
     { accessorKey: 'title', header: 'Title', size: 200, cell: ({ cell }) => cell.getValue() || '' },
-    { accessorKey: 'state', header: 'State', size: 120 },
+    { accessorKey: 'status', header: 'Status', size: 130, cell: ({ cell }) => getEnumLabel(cell.getValue() as ReviewReviewStatus) || '-' },
     { accessorKey: 'category', header: 'Category', size: 120 },
     { accessorKey: 'classification', header: 'Classification', size: 130 },
     { accessorKey: 'source', header: 'Source', size: 120 },
