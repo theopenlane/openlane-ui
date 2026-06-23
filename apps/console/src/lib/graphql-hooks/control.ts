@@ -99,17 +99,19 @@ type UseGetAllControlsArgs = {
   pagination?: TPagination | null
   orderBy?: GetAllControlsQueryVariables['orderBy']
   enabled?: boolean
+  includeVars?: Record<string, boolean>
 }
 
-export const useGetAllControls = ({ where, pagination, orderBy, enabled = true }: UseGetAllControlsArgs) => {
+export const useGetAllControls = ({ where, pagination, orderBy, enabled = true, includeVars }: UseGetAllControlsArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetAllControlsQuery>({
-    queryKey: ['controls', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryKey: ['controls', where, orderBy, pagination?.page, pagination?.pageSize, includeVars],
     queryFn: () =>
       client.request(GET_ALL_CONTROLS, {
         where,
         orderBy,
+        ...includeVars,
         ...pagination?.query,
       }),
     enabled,
