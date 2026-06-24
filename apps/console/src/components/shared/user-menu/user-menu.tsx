@@ -38,7 +38,7 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
-        <div className={trigger()}>
+        <div className={trigger()} data-testid="user-menu-trigger">
           <Avatar entity={data?.user as User}></Avatar>
         </div>
       </DropdownMenuTrigger>

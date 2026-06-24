@@ -155,6 +155,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
               }}
             >
               <div
+                data-testid="policy-status-trigger"
                 className="flex items-center space-x-2 w-full text-sm"
                 onDoubleClick={() => {
                   if (!isEditing && editAllowed) {

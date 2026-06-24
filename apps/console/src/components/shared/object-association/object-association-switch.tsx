@@ -75,7 +75,11 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
               <TooltipProvider delayDuration={100}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div onClick={() => setIsGraphView((prevState) => !prevState)} className="flex items-center p-1 bg-background border rounded-lg cursor-pointer overflow-hidden">
+                    <div
+                      data-testid="assoc-view-toggle"
+                      onClick={() => setIsGraphView((prevState) => !prevState)}
+                      className="flex items-center p-1 bg-background border rounded-lg cursor-pointer overflow-hidden"
+                    >
                       <Button type="button" variant={!isGraphView ? 'transparent' : 'secondary'} size="sm" className="mr-1 h-6" style={{ boxShadow: 'none', outline: 'none', border: 'none' }}>
                         <Waypoints size={14} />
                       </Button>

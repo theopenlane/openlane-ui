@@ -23,5 +23,5 @@
     "src/components/pages/protected/assets/create/sidebar/details-sheet.tsx.backup",
     "src/components/pages/protected/assets/create/sidebar/details-sheet.tsx.bakcup"
   ],
-  "exclude": ["node_modules", "dist", "build", "coverage", ".next", ".turbo"]
+  "exclude": ["node_modules", "dist", "build", "coverage", ".next", ".turbo", "e2e"]
 }

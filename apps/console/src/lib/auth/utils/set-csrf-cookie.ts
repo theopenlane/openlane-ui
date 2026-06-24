@@ -1,12 +1,12 @@
 'use server'
 
-import { cookieDomain, csrfCookieName, isDevelopment } from '@repo/dally/auth'
+import { cookieDomain, csrfCookieName, useInsecureCookies } from '@repo/dally/auth'
 import { cookies } from 'next/headers'
 
 export const setCSRFCookie = async (csrfToken: string) => {
   const cookieStore = await cookies()
 
-  if (isDevelopment) {
+  if (useInsecureCookies) {
     cookieStore.set(`${csrfCookieName}`, csrfToken, {
       sameSite: 'lax',
       secure: false,

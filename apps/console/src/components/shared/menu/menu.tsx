@@ -12,9 +12,11 @@ interface MenuProps {
   side?: 'top' | 'right' | 'bottom' | 'left'
   closeOnSelect?: boolean
   className?: string
+  /** Applied to the default trigger button for stable e2e selection. */
+  triggerTestId?: string
 }
 
-const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, side, closeOnSelect, className }) => {
+const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, side, closeOnSelect, className, triggerTestId }) => {
   const [open, setOpen] = useState(false)
 
   const handleClose = () => {
@@ -29,7 +31,9 @@ const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, side
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>{trigger ?? <Button variant="secondary" descriptiveTooltipText="Action" className="h-8 !px-2 !pl-0 " icon={<Ellipsis size={16} />} />}</DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
+        {trigger ?? <Button variant="secondary" descriptiveTooltipText="Action" className="h-8 !px-2 !pl-0 " icon={<Ellipsis size={16} />} data-testid={triggerTestId} />}
+      </DropdownMenuTrigger>
       <DropdownMenuContent className={cn('border shadow-md p-0 ', className)} align={align ?? 'end'} side={side ?? undefined}>
         <div className="flex flex-col space-y-2 px-3 py-3">{renderContent(content)}</div>
         {extraContent && (
