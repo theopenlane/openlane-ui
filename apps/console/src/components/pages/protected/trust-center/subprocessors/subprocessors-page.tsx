@@ -22,7 +22,8 @@ import { useStorageSearch } from '@/hooks/useStorageSearch'
 import useFileExport from '@/components/shared/export/use-file-export'
 import { EditTrustCenterSubprocessorSheet } from './sheet/edit-trust-center-subprocessor-sheet'
 import { EmbedSubprocessorSheet } from './sheet/embed-subprocessor-sheet'
-import { useGetTrustCenter, useUpdateTrustCenter, useUpdateTrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
+import { useGetTrustCenter, useUpdateTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { useHandleUpdateSetting } from '../branding/helpers/useHandleUpdateSetting'
 import { Switch } from '@repo/ui/switch'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { useNotification } from '@/hooks/useNotification'
@@ -82,23 +83,11 @@ const SubprocessorsPage = () => {
 
   const setting = trustCenterNode?.setting
   const { mutateAsync: updateTrustCenter, isPending: isSavingURL } = useUpdateTrustCenter()
-  const { mutateAsync: updateTrustCenterSetting } = useUpdateTrustCenterSetting()
+  const { updateTrustCenterSetting } = useHandleUpdateSetting()
   const { mutateAsync: deleteSubprocessor } = useDeleteTrustCenterSubprocessor()
 
-  const handleToggleSubprocessorNotify = async (checked: boolean) => {
-    if (!setting?.id) {
-      return
-    }
-
-    try {
-      await updateTrustCenterSetting({
-        updateTrustCenterSettingId: setting.id,
-        input: { notifySubscribersOnSubprocessorChange: checked },
-      })
-      successNotification({ title: checked ? 'Subscribers will be emailed when subprocessors change' : 'Subprocessor change notifications disabled' })
-    } catch (error) {
-      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
-    }
+  const handleToggleSubprocessorNotify = (checked: boolean) => {
+    updateTrustCenterSetting({ id: setting?.id, input: { notifySubscribersOnSubprocessorChange: checked } })
   }
   const { mutateAsync: bulkDeleteSubprocessors } = useBulkDeleteTrustCenterSubprocessors()
   const fetchAllSubprocessorIds = useFetchAllTrustCenterSubprocessorIds()
