@@ -6,10 +6,12 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Input } from '@repo/ui/input'
+import { useDebounce } from '@uidotdev/usehooks'
+import { LoaderCircle, SearchIcon } from 'lucide-react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
-import { useGetAllSubscribers, useDeleteSubscriber, useUnsubscribeSubscriber } from '@/lib/graphql-hooks/subscriber'
+import { useGetAllSubscribers, useDeleteSubscriber, useUpdateSubscriber } from '@/lib/graphql-hooks/subscriber'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit as canEditTrustCenter } from '@/lib/authz/utils'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -17,6 +19,8 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SubscriberOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { getSubscriberColumns } from './table/columns'
+
+const SUBSCRIBER_ORDER_BY = [{ field: SubscriberOrderField.email, direction: OrderDirection.ASC }]
 
 const SubscribersPage = () => {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -32,20 +36,26 @@ const SubscribersPage = () => {
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
   const canEdit = canEditTrustCenter(tcPermission?.roles)
 
-  const where = {
-    trustCenterID,
-    ...(searchTerm ? { emailContainsFold: searchTerm } : {}),
-  }
+  const debouncedSearch = useDebounce(searchTerm, 300)
+  const searching = searchTerm !== debouncedSearch
+
+  const where = useMemo(
+    () => ({
+      trustCenterID,
+      ...(debouncedSearch ? { emailContainsFold: debouncedSearch } : {}),
+    }),
+    [trustCenterID, debouncedSearch],
+  )
 
   const { subscribers, paginationMeta, isLoading } = useGetAllSubscribers({
     where,
-    orderBy: [{ field: SubscriberOrderField.email, direction: OrderDirection.ASC }],
+    orderBy: SUBSCRIBER_ORDER_BY,
     pagination,
     enabled: !!trustCenterID,
   })
 
   const { mutateAsync: deleteSubscriber } = useDeleteSubscriber()
-  const { mutateAsync: unsubscribe } = useUnsubscribeSubscriber()
+  const { mutateAsync: unsubscribe } = useUpdateSubscriber()
 
   const handleUnsubscribe = useCallback(
     async (email: string) => {
@@ -74,7 +84,7 @@ const SubscribersPage = () => {
     }
   }
 
-  const columns = useMemo(() => getSubscriberColumns({ canEdit, onUnsubscribe: handleUnsubscribe, onDelete: setDeleteEmail }), [canEdit, handleUnsubscribe])
+  const columns = useMemo(() => getSubscriberColumns({ canEdit, onUnsubscribe: handleUnsubscribe, onDelete: setDeleteEmail }), [canEdit, handleUnsubscribe, setDeleteEmail])
 
   useEffect(() => {
     setCrumbs([
@@ -90,16 +100,19 @@ const SubscribersPage = () => {
         <h2 className="text-xl font-semibold">Subscribers</h2>
       </div>
 
-      <div className="mb-4 max-w-sm">
-        <Input
-          maxWidth
-          placeholder="Search by email"
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value)
-            setPagination(DEFAULT_PAGINATION)
-          }}
-        />
+      <div className="flex items-center gap-2 my-2">
+        <div className="grow flex flex-row items-center gap-2">
+          <Input
+            icon={searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              setPagination(DEFAULT_PAGINATION)
+            }}
+            variant="searchTable"
+          />
+        </div>
       </div>
 
       <DataTable

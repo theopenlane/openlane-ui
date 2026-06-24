@@ -1,6 +1,8 @@
 import { type ColumnDef } from '@tanstack/react-table'
 import { type Subscriber } from '@repo/codegen/src/schema'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
+import { createRowActionsColumn } from '@/components/shared/crud-base/columns/row-actions-column'
 import { BellOff, Trash2 } from 'lucide-react'
 
 type GetSubscriberColumnsArgs = {
@@ -33,8 +35,7 @@ export const getSubscriberColumns = ({ canEdit, onUnsubscribe, onDelete }: GetSu
     {
       accessorKey: 'verifiedEmail',
       header: 'Verified',
-      size: 100,
-      cell: ({ cell }) => <div>{cell.getValue() ? 'Yes' : 'No'}</div>,
+      cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean} />,
     },
     {
       accessorKey: 'createdAt',
@@ -45,27 +46,14 @@ export const getSubscriberColumns = ({ canEdit, onUnsubscribe, onDelete }: GetSu
   ]
 
   if (canEdit) {
-    columns.push({
-      id: 'actions',
-      header: '',
-      size: 90,
-      cell: ({ row }) => {
-        const subscriber = row.original
-
-        return (
-          <div className="flex gap-3 justify-end">
-            {!subscriber.unsubscribed && (
-              <button type="button" className="text-muted-foreground" title="Unsubscribe" onClick={() => onUnsubscribe(subscriber.email)}>
-                <BellOff size={16} />
-              </button>
-            )}
-            <button type="button" className="text-muted-foreground" title="Remove" onClick={() => onDelete(subscriber.email)}>
-              <Trash2 size={16} />
-            </button>
-          </div>
-        )
-      },
-    })
+    columns.push(
+      createRowActionsColumn<Subscriber>({
+        actions: [
+          { label: 'Unsubscribe', icon: <BellOff size={16} />, onClick: (row) => onUnsubscribe(row.email), disabled: (row) => !!row.unsubscribed },
+          { label: 'Remove', icon: <Trash2 size={16} />, onClick: (row) => onDelete(row.email) },
+        ],
+      }),
+    )
   }
 
   return columns
