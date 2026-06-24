@@ -118,6 +118,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     where: controlsWhere,
     orderBy,
     pagination,
+    includeVars: { includeDescription: true },
   })
 
   const {

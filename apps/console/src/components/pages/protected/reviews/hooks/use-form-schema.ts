@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type Value } from 'platejs'
+import { ReviewReviewStatus } from '@repo/codegen/src/schema'
 
 const formSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -11,7 +12,7 @@ const formSchema = z.object({
   summary: z.string().optional(),
   category: z.string().optional(),
   classification: z.string().optional(),
-  state: z.string().optional(),
+  status: z.preprocess((v) => (v === '' ? null : v), z.nativeEnum(ReviewReviewStatus).optional().nullable()),
   source: z.string().optional(),
   reporter: z.string().optional(),
   approved: z.boolean().optional(),
@@ -34,7 +35,7 @@ const formSchema = z.object({
 })
 
 export const bulkEditFieldSchema = z.object({
-  state: z.string().optional(),
+  status: z.nativeEnum(ReviewReviewStatus).optional().nullable(),
   category: z.string().optional(),
   classification: z.string().optional(),
   source: z.string().optional(),
