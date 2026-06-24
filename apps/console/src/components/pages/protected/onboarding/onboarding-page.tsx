@@ -76,11 +76,11 @@ export default function MultiStepForm() {
   const userDepartment = useWatch({ control: methods.control, name: 'userDetails.department' })
   const frameworks = useWatch({ control: methods.control, name: 'compliance.frameworks' })
   const controlsDocumented = useWatch({ control: methods.control, name: 'compliance.controls_documented' })
-  const policiesProcedures = useWatch({ control: methods.control, name: 'compliance.policies_procedures' })
-  const auditorStatus = useWatch({ control: methods.control, name: 'compliance.auditor_status' })
-  const auditorRecommendations = useWatch({ control: methods.control, name: 'compliance.auditor_recommendations' })
-  const vcisoPartner = useWatch({ control: methods.control, name: 'compliance.vciso_partner' })
-  const vcisoPartnerRecommendations = useWatch({ control: methods.control, name: 'compliance.vciso_partner_recommendations' })
+  const policiesDocumented = useWatch({ control: methods.control, name: 'compliance.policies_documented' })
+  const hasAuditor = useWatch({ control: methods.control, name: 'compliance.has_auditor' })
+  const recommendAuditors = useWatch({ control: methods.control, name: 'compliance.recommend_auditors' })
+  const hasVcisoPartner = useWatch({ control: methods.control, name: 'compliance.has_vciso_partner' })
+  const recommendVcisoPartner = useWatch({ control: methods.control, name: 'compliance.recommend_vciso_partner' })
   const demoRequested = useWatch({ control: methods.control, name: 'demo_requested' })
 
   const onSubmit = async (data?: OnboardingFormInput | OnboardingFormData) => {
@@ -197,9 +197,9 @@ export default function MultiStepForm() {
     } else if (stepper.current.id === '1') {
       isValid = await methods.trigger(['userDetails.role', 'userDetails.department'])
     } else if (stepper.current.id === '2') {
-      isValid = await methods.trigger(['compliance.frameworks', 'compliance.controls_documented', 'compliance.policies_procedures'])
+      isValid = await methods.trigger(['compliance.frameworks', 'compliance.controls_documented', 'compliance.policies_documented'])
     } else {
-      isValid = await methods.trigger(['compliance.auditor_status', 'compliance.auditor_recommendations', 'compliance.vciso_partner', 'compliance.vciso_partner_recommendations', 'demo_requested'])
+      isValid = await methods.trigger(['compliance.has_auditor', 'compliance.recommend_auditors', 'compliance.has_vciso_partner', 'compliance.recommend_vciso_partner', 'demo_requested'])
     }
 
     if (!isValid) return
@@ -224,9 +224,8 @@ export default function MultiStepForm() {
   const isCurrentStepIncomplete =
     (stepper.current.id === '0' && (!companyName || companyName.length < 3 || !domains?.length || !companySize || !companySector)) ||
     (stepper.current.id === '1' && (!userRole || !userDepartment)) ||
-    (stepper.current.id === '2' && (!frameworks?.length || controlsDocumented === undefined || policiesProcedures === undefined)) ||
-    (stepper.current.id === '3' &&
-      (auditorStatus === undefined || auditorRecommendations === undefined || vcisoPartner === undefined || vcisoPartnerRecommendations === undefined || demoRequested === undefined))
+    (stepper.current.id === '2' && (!frameworks?.length || controlsDocumented === undefined || policiesDocumented === undefined)) ||
+    (stepper.current.id === '3' && (hasAuditor === undefined || recommendAuditors === undefined || hasVcisoPartner === undefined || recommendVcisoPartner === undefined || demoRequested === undefined))
   const isNextDisabled = hasFormErrors || isCurrentStepIncomplete
 
   return (
