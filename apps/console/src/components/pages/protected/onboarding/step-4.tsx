@@ -8,14 +8,14 @@ import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
 
 export const step4Schema = z.object({
   compliance: z.object({
-    auditor_status: z.boolean({ required_error: 'Select an option' }),
-    auditor_recommendations: z.boolean({ required_error: 'Select an option' }),
-    vciso_partner: z.boolean({ required_error: 'Select an option' }),
-    // vciso_partner is just a boolean but in reality false could either be "i will do this later" or "no, we want recommendations"
-    // which is this vciso_partner_recommendations exists.
+    has_auditor: z.boolean({ required_error: 'Select an option' }),
+    recommend_auditors: z.boolean({ required_error: 'Select an option' }),
+    has_vciso_partner: z.boolean({ required_error: 'Select an option' }),
+    // has_vciso_partner is just a boolean but in reality false could either be "i will do this later" or "no, we want recommendations"
+    // which is why recommend_vciso_partner exists.
     // The above can be a string but then we will need to start hardcoding strings across frontend and backend
     // this makes it easier to be able to pull from db (if needed ) orgs that asked for a recommendation
-    vciso_partner_recommendations: z.boolean({ required_error: 'Select an option' }),
+    recommend_vciso_partner: z.boolean({ required_error: 'Select an option' }),
   }),
   demo_requested: z.boolean({ required_error: 'Select an option' }),
 })
@@ -28,7 +28,7 @@ type RadioOption = {
 }
 
 type RadioQuestionProps = {
-  name: 'auditor_status' | 'vciso_partner' | 'demo_requested'
+  name: 'has_auditor' | 'has_vciso_partner' | 'demo_requested'
   title: string
   helper: string
   options: RadioOption[]
@@ -36,7 +36,7 @@ type RadioQuestionProps = {
 
 const questions: RadioQuestionProps[] = [
   {
-    name: 'auditor_status',
+    name: 'has_auditor',
     title: 'Are you currently working with an auditor?',
     helper: '',
     options: [
@@ -46,7 +46,7 @@ const questions: RadioQuestionProps[] = [
     ],
   },
   {
-    name: 'vciso_partner',
+    name: 'has_vciso_partner',
     title: 'Looking for a Hands-On Compliance Team?',
     helper: "We can suggest audit partners and next steps when you're ready.",
     options: [
@@ -82,28 +82,28 @@ export default function Step4() {
       return
     }
 
-    if (name === 'auditor_status') {
-      setValue('compliance.auditor_status', value === 'yes', { shouldDirty: true, shouldValidate: true })
-      setValue('compliance.auditor_recommendations', value === 'recommendations', { shouldDirty: true, shouldValidate: true })
+    if (name === 'has_auditor') {
+      setValue('compliance.has_auditor', value === 'yes', { shouldDirty: true, shouldValidate: true })
+      setValue('compliance.recommend_auditors', value === 'recommendations', { shouldDirty: true, shouldValidate: true })
       return
     }
 
-    if (name === 'vciso_partner') {
-      setValue('compliance.vciso_partner', value === 'existing_partner', { shouldDirty: true, shouldValidate: true })
-      setValue('compliance.vciso_partner_recommendations', value === 'connect_vciso_partner', { shouldDirty: true, shouldValidate: true })
+    if (name === 'has_vciso_partner') {
+      setValue('compliance.has_vciso_partner', value === 'existing_partner', { shouldDirty: true, shouldValidate: true })
+      setValue('compliance.recommend_vciso_partner', value === 'connect_vciso_partner', { shouldDirty: true, shouldValidate: true })
     }
   }
 
   const auditorStatusValue = () => {
-    if (watch('compliance.auditor_status') === undefined || watch('compliance.auditor_recommendations') === undefined) {
+    if (watch('compliance.has_auditor') === undefined || watch('compliance.recommend_auditors') === undefined) {
       return ''
     }
 
-    if (watch('compliance.auditor_status')) {
+    if (watch('compliance.has_auditor')) {
       return 'yes'
     }
 
-    if (watch('compliance.auditor_recommendations')) {
+    if (watch('compliance.recommend_auditors')) {
       return 'recommendations'
     }
 
@@ -111,15 +111,15 @@ export default function Step4() {
   }
 
   const vcisoPartnerValue = () => {
-    if (watch('compliance.vciso_partner') === undefined || watch('compliance.vciso_partner_recommendations') === undefined) {
+    if (watch('compliance.has_vciso_partner') === undefined || watch('compliance.recommend_vciso_partner') === undefined) {
       return ''
     }
 
-    if (watch('compliance.vciso_partner')) {
+    if (watch('compliance.has_vciso_partner')) {
       return 'existing_partner'
     }
 
-    if (watch('compliance.vciso_partner_recommendations')) {
+    if (watch('compliance.recommend_vciso_partner')) {
       return 'connect_vciso_partner'
     }
 
@@ -139,9 +139,9 @@ export default function Step4() {
             ? watch('demo_requested') === undefined
               ? ''
               : String(watch('demo_requested'))
-            : question.name === 'auditor_status'
+            : question.name === 'has_auditor'
               ? auditorStatusValue()
-              : question.name === 'vciso_partner'
+              : question.name === 'has_vciso_partner'
                 ? vcisoPartnerValue()
                 : ''
         const error = question.name === 'demo_requested' ? errors.demo_requested : errors.compliance?.[question.name]

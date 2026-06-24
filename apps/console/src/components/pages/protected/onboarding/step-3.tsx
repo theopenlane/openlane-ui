@@ -12,7 +12,7 @@ export const step3Schema = z.object({
   compliance: z.object({
     frameworks: z.array(z.string()).min(1, 'Select at least one compliance program'),
     controls_documented: z.boolean({ required_error: 'Select an option' }),
-    policies_procedures: z.boolean({ required_error: 'Select an option' }),
+    policies_documented: z.boolean({ required_error: 'Select an option' }),
   }),
 })
 
@@ -47,7 +47,7 @@ export default function Step3() {
   }
 
   const handlePolicyChange = (value: string) => {
-    setValue('compliance.policies_procedures', value === 'true', { shouldDirty: true, shouldValidate: true })
+    setValue('compliance.policies_documented', value === 'true', { shouldDirty: true, shouldValidate: true })
   }
 
   return (
@@ -113,13 +113,13 @@ export default function Step3() {
       <div className="space-y-3">
         <Label>3. Do you already have policies and procedures?</Label>
         <RadioGroup
-          value={watch('compliance.policies_procedures') === undefined ? '' : String(watch('compliance.policies_procedures'))}
+          value={watch('compliance.policies_documented') === undefined ? '' : String(watch('compliance.policies_documented'))}
           onValueChange={handlePolicyChange}
           className="grid gap-3 sm:grid-cols-2"
         >
           {policyOptions.map((option) => {
             const id = `policies-${option.value}`
-            const checked = String(watch('compliance.policies_procedures')) === option.value
+            const checked = String(watch('compliance.policies_documented')) === option.value
 
             return (
               <Label
@@ -138,7 +138,7 @@ export default function Step3() {
             )
           })}
         </RadioGroup>
-        {errors.compliance?.policies_procedures && <p className="text-red-500 text-sm">{errors.compliance.policies_procedures.message}</p>}
+        {errors.compliance?.policies_documented && <p className="text-red-500 text-sm">{errors.compliance.policies_documented.message}</p>}
       </div>
     </div>
   )
