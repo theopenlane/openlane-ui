@@ -147,6 +147,9 @@ export default function MultiStepForm() {
           if (userSelectedFrameworks.length > 1) {
             const params = new URLSearchParams()
             userSelectedFrameworks.forEach((framework) => params.append('frameworks', framework))
+            if (!formValues.compliance?.controls_documented) {
+              params.set('suggestedControls', 'true')
+            }
             router.push(`${ONBOARDING_PROGRAM_ROUTES.advancedSetup}?${params.toString()}`)
             return
           }
