@@ -40,8 +40,9 @@ export default function Soc2Wizard() {
   const standardID = data?.standards?.edges?.[0]?.node?.id
 
   const { useStepper } = defineStepper(
-    { id: '0', label: 'Pick Categories', schema: fullSchema.pick({ categories: true, standardID: true }) },
-    ...(includeSuggestedControls ? [{ id: '1', label: 'Import Controls', schema: suggestedControlsStepSchema }] : []),
+    ...(includeSuggestedControls
+      ? [{ id: '0', label: 'Import Controls', schema: suggestedControlsStepSchema }]
+      : [{ id: '0', label: 'Pick Categories', schema: fullSchema.pick({ categories: true, standardID: true }) }]),
     { id: '2', label: 'Team Setup', schema: fullSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) },
     { id: '3', label: 'Access Control', schema: fullSchema.pick({ programKindName: true }) },
   )
@@ -51,7 +52,7 @@ export default function Soc2Wizard() {
     resolver: zodResolver(fullSchema),
     mode: 'onChange',
     defaultValues: {
-      categories: includeSuggestedControls ? ['Security', 'Availability'] : ['Security'],
+      categories: includeSuggestedControls ? [] : ['Security'],
       suggestedControlIDs: [],
     },
   })
@@ -122,9 +123,7 @@ export default function Soc2Wizard() {
     if (!stepper.isLast) {
       let isValid: boolean
       if (stepper.current.id === '0') {
-        isValid = await methods.trigger(['categories', 'standardID'])
-      } else if (stepper.current.id === '1') {
-        isValid = await methods.trigger('suggestedControlIDs')
+        isValid = includeSuggestedControls ? await methods.trigger(['suggestedControlIDs', 'categories']) : await methods.trigger(['categories', 'standardID'])
       } else {
         isValid = await methods.trigger(['programAdmins', 'programMembers', 'viewerIDs', 'editorIDs'])
       }
@@ -166,8 +165,7 @@ export default function Soc2Wizard() {
           <form onSubmit={handleNext}>
             <div className="py-6">
               {stepper.switch({
-                0: () => <SelectCategoryStep />,
-                1: () => <SuggestedControlsStep standardID={standardID} />,
+                0: () => (includeSuggestedControls ? <SuggestedControlsStep frameworkName="SOC 2" /> : <SelectCategoryStep />),
                 2: () => <TeamSetupStep />,
                 3: () => <StartTypeStep />,
               })}
