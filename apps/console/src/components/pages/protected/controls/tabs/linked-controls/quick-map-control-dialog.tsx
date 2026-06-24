@@ -14,6 +14,8 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { toast } from 'sonner'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { TruncatedCell } from '@repo/ui/data-table'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { cn } from '@repo/ui/lib/utils'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
 
 type QuickMapVariant = 'org' | 'framework'
@@ -23,6 +25,7 @@ type Props = {
   subcontrolId?: string
   refCode: string
   variant?: QuickMapVariant
+  alreadyMappedControlIds?: Set<string>
 }
 
 type ControlOption = {
@@ -60,7 +63,7 @@ const getSuggestionRefCode = (refCode: string): string => {
   return lastSeparator > 0 ? refCode.slice(0, lastSeparator) : refCode
 }
 
-export const QuickMapControlDialog: React.FC<Props> = ({ controlId, subcontrolId, refCode, variant = 'org' }) => {
+export const QuickMapControlDialog: React.FC<Props> = ({ controlId, subcontrolId, refCode, variant = 'org', alreadyMappedControlIds }) => {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(() => new Set())
   const [search, setSearch] = useState('')
@@ -165,16 +168,19 @@ export const QuickMapControlDialog: React.FC<Props> = ({ controlId, subcontrolId
 
   const isLoading = isSearching ? isSearchLoading : isSuggestedLoading
 
-  const allSelected = displayControls.length > 0 && displayControls.every((c) => selected.has(c.id))
-  const someSelected = displayControls.some((c) => selected.has(c.id)) && !allSelected
+  const isAlreadyMapped = (id: string) => alreadyMappedControlIds?.has(id) ?? false
+  const selectableControls = useMemo(() => displayControls.filter((c) => !alreadyMappedControlIds?.has(c.id)), [displayControls, alreadyMappedControlIds])
+
+  const allSelected = selectableControls.length > 0 && selectableControls.every((c) => selected.has(c.id))
+  const someSelected = selectableControls.some((c) => selected.has(c.id)) && !allSelected
 
   const toggleAll = () => {
     setSelected((prev) => {
       const next = new Set(prev)
       if (allSelected) {
-        displayControls.forEach((c) => next.delete(c.id))
+        selectableControls.forEach((c) => next.delete(c.id))
       } else {
-        displayControls.forEach((c) => next.add(c.id))
+        selectableControls.forEach((c) => next.add(c.id))
       }
       return next
     })
@@ -209,26 +215,42 @@ export const QuickMapControlDialog: React.FC<Props> = ({ controlId, subcontrolId
           ) : (
             <>
               <div className="flex items-center gap-3 px-3 py-2 bg-muted/80 border-b">
-                <Checkbox checked={someSelected ? 'indeterminate' : allSelected} onCheckedChange={toggleAll} />
+                <Checkbox checked={someSelected ? 'indeterminate' : allSelected} onCheckedChange={toggleAll} disabled={selectableControls.length === 0} />
                 <span className="text-xs font-medium text-muted-foreground">{!isSearching ? `Suggested — matches ${refCode}` : 'Select all'}</span>
               </div>
-              {displayControls.map((ctrl) => (
-                <label key={ctrl.id} className="flex items-start gap-3 px-3 py-2.5 hover:bg-muted/40 cursor-pointer">
-                  <Checkbox checked={selected.has(ctrl.id)} onCheckedChange={() => toggle(ctrl.id)} className="mt-0.5 shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium leading-tight">{ctrl.refCode}</p>
-                      <StandardChip referenceFramework={ctrl.referenceFramework ?? ''} />
+              {displayControls.map((ctrl) => {
+                const mapped = isAlreadyMapped(ctrl.id)
+                return (
+                  <label key={ctrl.id} className={cn('flex items-start gap-3 px-3 py-2.5', mapped ? 'cursor-default opacity-60' : 'hover:bg-muted/40 cursor-pointer')}>
+                    <Checkbox checked={mapped || selected.has(ctrl.id)} disabled={mapped} onCheckedChange={mapped ? undefined : () => toggle(ctrl.id)} className="mt-0.5 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium leading-tight">{ctrl.refCode}</p>
+                        <StandardChip referenceFramework={ctrl.referenceFramework ?? ''} />
+                      </div>
+                      {ctrl.description && (
+                        <TruncatedCell portal className="text-xs text-muted-foreground mt-0.5 line-clamp-2 text-justify whitespace-normal">
+                          {convertToReadOnly(ctrl.description, 0)}
+                        </TruncatedCell>
+                      )}
                     </div>
-                    {ctrl.description && (
-                      <TruncatedCell portal className="text-xs text-muted-foreground mt-0.5 line-clamp-2 text-justify whitespace-normal">
-                        {convertToReadOnly(ctrl.description, 0)}
-                      </TruncatedCell>
+                    {mapped ? (
+                      <TooltipProvider delayDuration={200}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="shrink-0 text-xs italic text-muted-foreground">Already mapped</span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" portal>
+                            <p className="text-xs">This control is already directly mapped.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      ctrl.status && <span className="shrink-0 text-xs text-muted-foreground">{getEnumLabel(ctrl.status)}</span>
                     )}
-                  </div>
-                  {ctrl.status && <span className="shrink-0 text-xs text-muted-foreground">{getEnumLabel(ctrl.status)}</span>}
-                </label>
-              ))}
+                  </label>
+                )
+              })}
             </>
           )}
         </div>

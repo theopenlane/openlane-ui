@@ -232,6 +232,9 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
     [enrichedMappedControls, orgAdoptedFrameworkKeys],
   )
 
+  const directlyMappedOrgControlIds = useMemo(() => new Set(customMappedControls.filter((row) => !row.inheritedFromSubcontrols?.length).map((row) => row.targetId)), [customMappedControls])
+  const directlyMappedFrameworkControlIds = useMemo(() => new Set(frameworkMappedControls.filter((row) => !row.inheritedFromSubcontrols?.length).map((row) => row.targetId)), [frameworkMappedControls])
+
   const actionsColumn = useMemo(() => getMappedControlsActionsColumn(pathname, canEdit), [pathname, canEdit])
   const orgControlsColumns = useMemo(
     () => [...getOrgControlsColumns(controlLinkMap, subcontrolLinkMap, convertToReadOnly), actionsColumn],
@@ -259,9 +262,9 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
         implementedCount={implementedOrgControlsCount}
         action={
           controlId && !isSubcontrolMode ? (
-            <QuickMapControlDialog controlId={controlId} refCode={refCode} />
+            <QuickMapControlDialog controlId={controlId} refCode={refCode} alreadyMappedControlIds={directlyMappedOrgControlIds} />
           ) : isSubcontrolMode && subcontrolId ? (
-            <QuickMapControlDialog subcontrolId={subcontrolId} refCode={refCode} />
+            <QuickMapControlDialog subcontrolId={subcontrolId} refCode={refCode} alreadyMappedControlIds={directlyMappedOrgControlIds} />
           ) : undefined
         }
       />
@@ -273,9 +276,9 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
         showFrameworkFilter
         action={
           controlId && !isSubcontrolMode ? (
-            <QuickMapControlDialog variant="framework" controlId={controlId} refCode={refCode} />
+            <QuickMapControlDialog variant="framework" controlId={controlId} refCode={refCode} alreadyMappedControlIds={directlyMappedFrameworkControlIds} />
           ) : isSubcontrolMode && subcontrolId ? (
-            <QuickMapControlDialog variant="framework" subcontrolId={subcontrolId} refCode={refCode} />
+            <QuickMapControlDialog variant="framework" subcontrolId={subcontrolId} refCode={refCode} alreadyMappedControlIds={directlyMappedFrameworkControlIds} />
           ) : undefined
         }
       />
