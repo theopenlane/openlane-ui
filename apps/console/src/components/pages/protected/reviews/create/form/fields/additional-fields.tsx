@@ -8,6 +8,7 @@ import { type UpdateReviewInput } from '@repo/codegen/src/schema'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { type EnumOptions } from '../../../table/types'
+import { ReviewStatusOptions } from '@/components/shared/enum-mapper/review-enum'
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 
@@ -41,11 +42,11 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-md p-0">Classification</CardTitle>
-          <CardDescription className="p-0">State, category, and classification for the review</CardDescription>
+          <CardDescription className="p-0">Status, category, and classification for the review</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="state" label="State" {...sharedFieldProps} />
+            <SelectField name="status" label="Status" options={ReviewStatusOptions} {...sharedFieldProps} />
             <TextField name="category" label="Category" {...sharedFieldProps} />
           </div>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
