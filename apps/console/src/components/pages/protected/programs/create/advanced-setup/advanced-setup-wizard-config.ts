@@ -6,6 +6,10 @@ export const categoriesStepSchema = z.object({
   categories: z.array(z.string()),
 })
 
+export const suggestedControlsStepSchema = z.object({
+  suggestedControlIDs: z.array(z.string()).optional(),
+})
+
 export const step1Schema = z.object({
   programKindName: z.string({
     required_error: 'Please select a program type',
@@ -136,6 +140,7 @@ export const step5Schema = z.object({
 })
 
 export const fullSchema = categoriesStepSchema
+  .merge(suggestedControlsStepSchema)
   .merge(step1Schema)
   .merge(step3Schema)
   .merge(step4Schema)
