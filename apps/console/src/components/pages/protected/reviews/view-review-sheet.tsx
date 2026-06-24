@@ -15,7 +15,6 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { REVIEW_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
-import { useCanModifyReviews } from './hooks/use-can-modify-reviews'
 
 type Props = {
   entityId: string | null
@@ -24,7 +23,6 @@ type Props = {
 
 const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose }) => {
   const { form } = useFormSchema()
-  const canModifyReviews = useCanModifyReviews()
   const { data, isLoading } = useReview(entityId || undefined)
   const { data: associationsData } = useGetReviewAssociations(entityId || undefined)
   const plateEditorHelper = usePlateEditor()
@@ -125,7 +123,6 @@ const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose }) => {
           existingFileIdsRef.current = fileIds
         },
       ),
-    canEditOverride: canModifyReviews,
   }
 
   return <GenericDetailsSheet onClose={onClose} {...sheetConfig} />

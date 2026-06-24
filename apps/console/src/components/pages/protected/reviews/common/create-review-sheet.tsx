@@ -14,7 +14,6 @@ import { buildAssociationPayload } from '@/components/shared/object-association/
 import { REVIEW_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '@/components/pages/protected/reviews/create/utils'
-import { useCanModifyReviews } from '@/components/pages/protected/reviews/hooks/use-can-modify-reviews'
 
 interface CreateReviewSheetProps {
   entityId?: string
@@ -24,7 +23,6 @@ interface CreateReviewSheetProps {
 
 const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, riskId, onClose }) => {
   const { form } = useFormSchema()
-  const canModifyReviews = useCanModifyReviews()
   const plateEditorHelper = usePlateEditor()
   const stagedFilesRef = useRef<File[]>([])
   const existingFileIdsRef = useRef<string[]>([])
@@ -102,7 +100,6 @@ const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, riskId,
           existingFileIdsRef.current = fileIds
         },
       ),
-    canEditOverride: canModifyReviews,
   }
 
   return <GenericDetailsSheet onClose={handleClose} {...sheetConfig} />

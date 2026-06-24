@@ -136,7 +136,6 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   defaultFilterValues?: TFilterState
   hideCreate?: boolean
   hideBreadcrumbs?: boolean
-  canEditOverride?: (accessRole: TAccessRole[] | undefined) => boolean
 }
 
 export function GenericTablePage<
@@ -173,7 +172,6 @@ export function GenericTablePage<
   } = config
 
   const { beforeTable, additionalWhereFilter, defaultFilterValues } = config
-  const canEditForPage = config.canEditOverride ?? canEdit
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -381,7 +379,7 @@ export function GenericTablePage<
           setPagination((prev) => ({ ...prev, page: 1, query: { first: prev.pageSize } }))
         }}
         searching={searching}
-        canEdit={canEditForPage}
+        canEdit={canEdit}
         permission={permission}
         selectedItems={selectedItems}
         setSelectedItems={setSelectedItems}
@@ -409,7 +407,7 @@ export function GenericTablePage<
         setColumnVisibility={setColumnVisibility}
         selectedItems={selectedItems}
         setSelectedItems={setSelectedItems}
-        canEdit={canEditForPage}
+        canEdit={canEdit}
         defaultSorting={defaultSorting}
         permission={permission}
         rowHref={rowHref}

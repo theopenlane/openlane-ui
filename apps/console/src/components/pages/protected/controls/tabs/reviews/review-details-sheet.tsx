@@ -16,7 +16,6 @@ import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { REVIEW_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '@/components/pages/protected/reviews/create/utils'
-import { useCanModifyReviews } from '@/components/pages/protected/reviews/hooks/use-can-modify-reviews'
 
 type ReviewDetailsSheetProps = {
   queryParamKey: string
@@ -28,7 +27,6 @@ const ReviewDetailsSheet: React.FC<ReviewDetailsSheetProps> = ({ queryParamKey }
   const entityId = searchParams.get(queryParamKey)
 
   const { form } = useFormSchema()
-  const canModifyReviews = useCanModifyReviews()
   const { data, isLoading } = useReview(entityId || undefined)
   const { data: associationsData } = useGetReviewAssociations(entityId || undefined)
 
@@ -136,7 +134,6 @@ const ReviewDetailsSheet: React.FC<ReviewDetailsSheetProps> = ({ queryParamKey }
           existingFileIdsRef.current = fileIds
         },
       ),
-    canEditOverride: canModifyReviews,
   }
 
   return <GenericDetailsSheet onClose={handleClose} {...sheetConfig} />

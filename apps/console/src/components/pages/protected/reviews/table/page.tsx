@@ -29,11 +29,9 @@ import { buildAssociationPayload } from '@/components/shared/object-association/
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { REVIEW_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import ViewReviewSheet from '../view-review-sheet'
-import { useCanModifyReviews } from '../hooks/use-can-modify-reviews'
 
 const ReviewPage: React.FC = () => {
   const { form } = useFormSchema()
-  const canModifyReviews = useCanModifyReviews()
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -168,7 +166,6 @@ const ReviewPage: React.FC = () => {
           existingFileIdsRef.current = fileIds
         },
       ),
-    canEditOverride: canModifyReviews,
   }
 
   const tableConfig: ReviewTablePageConfig = {
@@ -198,7 +195,6 @@ const ReviewPage: React.FC = () => {
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
-    canEditOverride: canModifyReviews,
   }
 
   return (

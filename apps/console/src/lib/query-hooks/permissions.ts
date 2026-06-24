@@ -33,7 +33,9 @@ export const useAccountRoles = (objectType: string, id?: string | number | null,
           object_id: id,
         }),
       })
-      return readPermissionResponse<TPermissionData>(res, 'Failed to fetch roles')
+      const permission = await readPermissionResponse<TPermissionData>(res, 'Failed to fetch roles')
+      console.log('account-roles response', { objectType: snakeCaseObjectType, objectId: id, response: permission })
+      return permission
     },
   })
   useEffect(() => {

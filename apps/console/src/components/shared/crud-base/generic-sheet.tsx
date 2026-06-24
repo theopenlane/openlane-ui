@@ -17,7 +17,6 @@ import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
 import type { BulkDeletePayload } from './types'
 import { getBulkActionFailureDescription } from './bulk-action-feedback'
-import { type TAccessRole } from '@/types/authz'
 
 export interface InternalEditingType {
   (field: string | null): void
@@ -86,7 +85,6 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   extraHeaderActions?: React.ReactNode
   overrideContent?: React.ReactNode
   overrideHeader?: React.ReactNode
-  canEditOverride?: (accessRole: TAccessRole[] | undefined) => boolean
   minWidth?: string | number
   initialWidth?: string | number
 }
@@ -119,7 +117,6 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     extraHeaderActions,
     overrideContent,
     overrideHeader,
-    canEditOverride,
     onClose,
     entityId: entityIdOverride,
     isCreateMode,
@@ -136,7 +133,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   const isCreate = isCreateMode !== undefined ? isCreateMode : searchParams.get('create') === 'true'
 
   const permissionRoles = useObjectPermissionRoles(objectType, id)
-  const isEditAllowed = !!updateMutation && (canEditOverride ?? canEdit)(permissionRoles)
+  const isEditAllowed = !!updateMutation && canEdit(permissionRoles)
   const isDeleteAllowed = !!deleteMutation && canDelete(permissionRoles)
 
   const objectTypeName = objectType.charAt(0).toUpperCase() + objectType.slice(1).toLowerCase()
