@@ -17,6 +17,7 @@ import ReportVirtualList from './report-virtual-list'
 import ReportEmptyState from './report-empty-state'
 import { useReportSelection } from './use-report-selection'
 import { getOrgRelatedControls, getFrameworkRelatedControls } from './report-coverage'
+import { type ReportFilterId } from './report-filter-options'
 
 type TControlReportPageProps = {
   active: 'dashboard' | 'table'
@@ -36,7 +37,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   const [hasAutoExpanded, setHasAutoExpanded] = useState(false)
   const [expandedControls, setExpandedControls] = useState<Record<string, boolean>>({})
   const [isSelectionMode, setIsSelectionMode] = useState(false)
-  const [reportFilters, setReportFilters] = useState<Set<string>>(() => new Set())
+  const [reportFilters, setReportFilters] = useState<Set<ReportFilterId>>(() => new Set())
   const userSelectedStandardRef = useRef(false)
 
   const { data: permission } = useOrganizationRoles()
@@ -177,7 +178,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   const { selectedControlIds, selectedSubcontrolIds, toggleControlSelection, toggleSubcontrolSelection, batchSelectSubcontrols, setSelectionForCategory, clearSelection, handleBulkAction } =
     useReportSelection({ mappedControlIdsByControl })
 
-  const toggleReportFilter = useCallback((filterId: string) => {
+  const toggleReportFilter = useCallback((filterId: ReportFilterId) => {
     setReportFilters((prev) => {
       const next = new Set(prev)
       if (next.has(filterId)) next.delete(filterId)

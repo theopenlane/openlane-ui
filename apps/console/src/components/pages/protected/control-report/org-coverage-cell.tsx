@@ -11,7 +11,7 @@ export type OrgCoverageData = {
   approvedCount: number
   activeCount: number
   worstStatus: ControlControlStatus | null
-  orgControlRefs: Array<{ id: string; refCode: string; status?: string | null }>
+  orgControlRefs: Array<{ id: string; refCode: string; status?: ControlControlStatus | null }>
 }
 
 type Props = {
@@ -46,7 +46,7 @@ const OrgCoverageCell: React.FC<Props> = ({ data }) => {
                 <div className="text-xs min-w-[160px] max-w-[240px] space-y-1.5">
                   <p className="font-semibold mb-1">Controls by status</p>
                   {orgControlRefs.map((ref) => {
-                    const refStyle = ref.status ? CONTROL_STATUS_STYLES[ref.status as ControlControlStatus] : null
+                    const refStyle = ref.status ? CONTROL_STATUS_STYLES[ref.status] : null
                     return (
                       <div key={ref.id} className="flex items-center gap-2">
                         {refStyle ? (

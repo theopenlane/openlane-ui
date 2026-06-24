@@ -63,10 +63,15 @@ const ReportVirtualList: React.FC<ReportVirtualListProps> = ({
 }) => {
   const listRef = useRef<HTMLDivElement>(null)
   const [scrollEl, setScrollEl] = useState<HTMLElement | null>(null)
+  const [scrollMargin, setScrollMargin] = useState(0)
 
   useEffect(() => {
     setScrollEl(document.querySelector<HTMLElement>('[data-scroll-container="main"]'))
   }, [])
+
+  useEffect(() => {
+    if (listRef.current) setScrollMargin(listRef.current.offsetTop)
+  }, [scrollEl])
 
   const flatRows = useMemo<FlatRow[]>(() => {
     const rows: FlatRow[] = []
@@ -102,7 +107,7 @@ const ReportVirtualList: React.FC<ReportVirtualListProps> = ({
     estimateSize: () => 88,
     overscan: 5,
     getItemKey: (index) => flatRows[index].key,
-    scrollMargin: listRef.current?.offsetTop ?? 0,
+    scrollMargin,
   })
 
   const minWidth = getGridMinWidth(isCustomView, isSelectionMode)

@@ -1,5 +1,7 @@
+export type ReportFilterId = 'NOT_APPROVED' | 'NO_OWNER' | 'NO_EVIDENCE' | 'EVIDENCE_NON_APPROVED' | 'NO_POLICIES' | 'NO_ORG_CONTROLS' | 'NO_FRAMEWORK_CONTROLS'
+
 export type ReportFilterOption = {
-  id: string
+  id: ReportFilterId
   label: string
   viewRestriction?: 'framework' | 'custom'
 }

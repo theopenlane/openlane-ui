@@ -2,7 +2,6 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { type EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { EVIDENCE_STATUS_STYLES } from '@/components/shared/enum-mapper/evidence-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -51,7 +50,7 @@ const EvidenceCoverageCell: React.FC<EvidenceCoverageProps> = ({ data, primaryCo
                   <div className="text-xs min-w-[180px] max-w-[280px] space-y-1.5">
                     <p className="font-semibold mb-1">Evidence by status</p>
                     {sortedCounts.map((entry) => {
-                      const style = EVIDENCE_STATUS_STYLES[entry.status as EvidenceEvidenceStatus]
+                      const style = EVIDENCE_STATUS_STYLES[entry.status]
                       return (
                         <div key={entry.status} className="flex items-center justify-between gap-2">
                           {style ? (

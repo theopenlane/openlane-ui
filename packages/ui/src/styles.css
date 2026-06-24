@@ -790,7 +790,6 @@
   .rich-text ul,
   ul.rich-text {
     list-style-type: disc;
-    /* padding-left: 1.25rem; */
     margin: 0.5rem 0;
   }
   .rich-text li {

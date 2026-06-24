@@ -6,8 +6,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Checkbox } from '@repo/ui/checkbox'
 import { UserCog, Tag, X } from 'lucide-react'
-import { type ControlControlStatus } from '@repo/codegen/src/schema'
+import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
+
+const BULK_STATUS_OPTIONS = ControlStatusOptions.filter((opt) => opt.value !== ControlControlStatus.ARCHIVED && opt.value !== ControlControlStatus.NOT_APPLICABLE)
 
 type BulkEditGroup = { id: string; displayName?: string | null }
 
@@ -100,7 +102,7 @@ const ReportBulkActionBar: React.FC<ReportBulkActionBarProps> = ({ selectedContr
               <SelectValue placeholder="Select status…" />
             </SelectTrigger>
             <SelectContent>
-              {ControlStatusOptions.map((opt) => (
+              {BULK_STATUS_OPTIONS.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
                 </SelectItem>

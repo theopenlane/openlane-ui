@@ -5,14 +5,12 @@ import Link from 'next/link'
 import { ChevronRight, TriangleAlert } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type ControlReportItem } from '@/lib/graphql-hooks/control'
-import { type ControlControlStatus } from '@repo/codegen/src/schema'
 import { CONTROL_STATUS_STYLES } from '@/components/shared/enum-mapper/control-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Checkbox } from '@repo/ui/checkbox'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { TruncatedCell } from '@repo/ui/data-table'
-import { type MapControl } from '@/types'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import OrgCoverageCell from './org-coverage-cell'
 import EvidenceCoverageCell from './evidence-coverage-cell'
@@ -40,7 +38,7 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
   )
 
   const orgCoverage = deriveOrgCoverage(control.relatedControls)
-  const controlStatusStyle = control.status ? CONTROL_STATUS_STYLES[control.status as ControlControlStatus] : null
+  const controlStatusStyle = control.status ? CONTROL_STATUS_STYLES[control.status] : null
   const linkedPolicies = control.linkedPolicies?.internalPolicies ?? []
   const orgRefs = getOrgRelatedControls(control.relatedControls)
   const frameworkRefs = getFrameworkRelatedControls(control.relatedControls)
@@ -126,17 +124,12 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
         <div className="flex flex-wrap gap-1.5 min-w-0" onClick={(e) => e.stopPropagation()}>
           <ReportShowMore
             items={frameworkRefs}
-            renderItem={(ref) => (
-              <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode, referenceFramework: ref.referenceFramework } as MapControl} hideStandard />
-            )}
+            renderItem={(ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode, referenceFramework: ref.referenceFramework }} hideStandard />}
           />
         </div>
       ) : (
         <div className="flex flex-wrap gap-1.5 min-w-0" onClick={(e) => e.stopPropagation()}>
-          <ReportShowMore
-            items={orgRefs}
-            renderItem={(ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode } as MapControl} hideStandard hideHexagon />}
-          />
+          <ReportShowMore items={orgRefs} renderItem={(ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode }} hideStandard hideHexagon />} />
         </div>
       )}
     </div>

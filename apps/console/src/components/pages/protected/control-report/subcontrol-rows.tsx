@@ -5,14 +5,12 @@ import Link from 'next/link'
 import { TriangleAlert } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type ControlReportItem, type ControlReportSubcontrolItem } from '@/lib/graphql-hooks/control'
-import { type ControlControlStatus } from '@repo/codegen/src/schema'
 import { CONTROL_STATUS_STYLES } from '@/components/shared/enum-mapper/control-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Checkbox } from '@repo/ui/checkbox'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { TruncatedCell } from '@repo/ui/data-table'
-import { type MapControl } from '@/types'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import OrgCoverageCell from './org-coverage-cell'
 import EvidenceCoverageCell from './evidence-coverage-cell'
@@ -37,7 +35,7 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
   const { convertToReadOnly } = usePlateEditor()
   const descriptionNode = useMemo(() => (sub.description ? convertToReadOnly(sub.description, 0) : <span className="italic">No description</span>), [sub.description, convertToReadOnly])
 
-  const subStatusStyle = sub.status ? CONTROL_STATUS_STYLES[sub.status as ControlControlStatus] : null
+  const subStatusStyle = sub.status ? CONTROL_STATUS_STYLES[sub.status] : null
   const orgCoverage = deriveOrgCoverage(sub.relatedControls)
   const policies = sub.linkedPolicies?.internalPolicies ?? []
   const orgRefs = getOrgRelatedControls(sub.relatedControls)
@@ -118,15 +116,10 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
         {isCustomView ? (
           <ReportShowMore
             items={frameworkRefs}
-            renderItem={(ref) => (
-              <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode, referenceFramework: ref.referenceFramework } as MapControl} hideStandard />
-            )}
+            renderItem={(ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode, referenceFramework: ref.referenceFramework }} hideStandard />}
           />
         ) : (
-          <ReportShowMore
-            items={orgRefs}
-            renderItem={(ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode } as MapControl} hideStandard hideHexagon />}
-          />
+          <ReportShowMore items={orgRefs} renderItem={(ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode }} hideStandard hideHexagon />} />
         )}
       </div>
     </div>

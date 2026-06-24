@@ -13,7 +13,7 @@ import Menu from '@/components/shared/menu/menu'
 import { BulkCSVCloneControlDialog } from '../controls/bulk-csv-clone-control-dialog'
 import { BulkCSVCreateControlDialog } from '../controls/bulk-csv-create-control-dialog'
 import { BulkCSVCreateMappedControlDialog } from '../controls/bulk-csv-create-map-control-dialog'
-import { REPORT_FILTER_OPTIONS } from './report-filter-options'
+import { REPORT_FILTER_OPTIONS, type ReportFilterId } from './report-filter-options'
 
 type ReportToolbarProps = {
   active: 'dashboard' | 'table'
@@ -27,8 +27,8 @@ type ReportToolbarProps = {
   standardOptions: { value: string; label: string }[]
   onSelectFilter: (value: string) => void
   isCustomView: boolean
-  reportFilters: Set<string>
-  onToggleReportFilter: (id: string) => void
+  reportFilters: Set<ReportFilterId>
+  onToggleReportFilter: (id: ReportFilterId) => void
   onClearReportFilters: () => void
   createAllowed: boolean
   hasNoControls: boolean

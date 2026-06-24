@@ -21,7 +21,6 @@ export type LinkedControlsTabProps = {
   subcontrolId?: string
   parentControlId?: string
   refCode: string
-  sourceFramework?: string | null
   canEdit?: boolean
 }
 
