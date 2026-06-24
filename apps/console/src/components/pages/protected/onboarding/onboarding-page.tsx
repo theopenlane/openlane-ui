@@ -75,8 +75,8 @@ export default function MultiStepForm() {
   const userRole = useWatch({ control: methods.control, name: 'userDetails.role' })
   const userDepartment = useWatch({ control: methods.control, name: 'userDetails.department' })
   const frameworks = useWatch({ control: methods.control, name: 'compliance.frameworks' })
-  const controlsDocumented = useWatch({ control: methods.control, name: 'compliance.controls_documented' })
-  const policiesDocumented = useWatch({ control: methods.control, name: 'compliance.policies_documented' })
+  const existingControls = useWatch({ control: methods.control, name: 'compliance.existing_controls' })
+  const existingPoliciesProcedures = useWatch({ control: methods.control, name: 'compliance.existing_policies_procedures' })
   const hasAuditor = useWatch({ control: methods.control, name: 'compliance.has_auditor' })
   const recommendAuditors = useWatch({ control: methods.control, name: 'compliance.recommend_auditors' })
   const hasVcisoPartner = useWatch({ control: methods.control, name: 'compliance.has_vciso_partner' })
@@ -147,7 +147,7 @@ export default function MultiStepForm() {
           if (userSelectedFrameworks.length > 1) {
             const params = new URLSearchParams()
             userSelectedFrameworks.forEach((framework) => params.append('frameworks', framework))
-            if (!formValues.compliance?.controls_documented) {
+            if (!formValues.compliance?.existing_controls) {
               params.set('suggestedControls', 'true')
             }
             router.push(`${ONBOARDING_PROGRAM_ROUTES.advancedSetup}?${params.toString()}`)
@@ -158,7 +158,7 @@ export default function MultiStepForm() {
 
           if (selectedFramework === COMPLIANCE_FRAMEWORKS.soc2) {
             const params = new URLSearchParams()
-            if (!formValues.compliance?.controls_documented) {
+            if (!formValues.compliance?.existing_controls) {
               params.set('suggestedControls', 'true')
             }
 
@@ -168,7 +168,7 @@ export default function MultiStepForm() {
 
           if (selectedFramework) {
             const params = new URLSearchParams({ framework: selectedFramework })
-            if (!formValues.compliance?.controls_documented) {
+            if (!formValues.compliance?.existing_controls) {
               params.set('suggestedControls', 'true')
             }
             router.push(`${ONBOARDING_PROGRAM_ROUTES.frameworkBased}?${params.toString()}`)
@@ -197,7 +197,7 @@ export default function MultiStepForm() {
     } else if (stepper.current.id === '1') {
       isValid = await methods.trigger(['userDetails.role', 'userDetails.department'])
     } else if (stepper.current.id === '2') {
-      isValid = await methods.trigger(['compliance.frameworks', 'compliance.controls_documented', 'compliance.policies_documented'])
+      isValid = await methods.trigger(['compliance.frameworks', 'compliance.existing_controls', 'compliance.existing_policies_procedures'])
     } else {
       isValid = await methods.trigger(['compliance.has_auditor', 'compliance.recommend_auditors', 'compliance.has_vciso_partner', 'compliance.recommend_vciso_partner', 'demo_requested'])
     }
@@ -224,7 +224,7 @@ export default function MultiStepForm() {
   const isCurrentStepIncomplete =
     (stepper.current.id === '0' && (!companyName || companyName.length < 3 || !domains?.length || !companySize || !companySector)) ||
     (stepper.current.id === '1' && (!userRole || !userDepartment)) ||
-    (stepper.current.id === '2' && (!frameworks?.length || controlsDocumented === undefined || policiesDocumented === undefined)) ||
+    (stepper.current.id === '2' && (!frameworks?.length || existingControls === undefined || existingPoliciesProcedures === undefined)) ||
     (stepper.current.id === '3' && (hasAuditor === undefined || recommendAuditors === undefined || hasVcisoPartner === undefined || recommendVcisoPartner === undefined || demoRequested === undefined))
   const isNextDisabled = hasFormErrors || isCurrentStepIncomplete
 

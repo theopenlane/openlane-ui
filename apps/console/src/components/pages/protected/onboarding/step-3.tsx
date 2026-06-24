@@ -11,8 +11,8 @@ import { COMPLIANCE_FRAMEWORK_OPTIONS } from '@/components/pages/protected/onboa
 export const step3Schema = z.object({
   compliance: z.object({
     frameworks: z.array(z.string()).min(1, 'Select at least one compliance program'),
-    controls_documented: z.boolean({ required_error: 'Select an option' }),
-    policies_documented: z.boolean({ required_error: 'Select an option' }),
+    existing_controls: z.boolean({ required_error: 'Select an option' }),
+    existing_policies_procedures: z.boolean({ required_error: 'Select an option' }),
   }),
 })
 
@@ -43,11 +43,11 @@ export default function Step3() {
   }
 
   const handleControlChange = (value: string) => {
-    setValue('compliance.controls_documented', value === 'true', { shouldDirty: true, shouldValidate: true })
+    setValue('compliance.existing_controls', value === 'true', { shouldDirty: true, shouldValidate: true })
   }
 
   const handlePolicyChange = (value: string) => {
-    setValue('compliance.policies_documented', value === 'true', { shouldDirty: true, shouldValidate: true })
+    setValue('compliance.existing_policies_procedures', value === 'true', { shouldDirty: true, shouldValidate: true })
   }
 
   return (
@@ -82,13 +82,13 @@ export default function Step3() {
       <div className="space-y-3">
         <Label>2. Do you already have compliance controls documented?</Label>
         <RadioGroup
-          value={watch('compliance.controls_documented') === undefined ? '' : String(watch('compliance.controls_documented'))}
+          value={watch('compliance.existing_controls') === undefined ? '' : String(watch('compliance.existing_controls'))}
           onValueChange={handleControlChange}
           className="grid gap-3 sm:grid-cols-2"
         >
           {controlOptions.map((option) => {
             const id = `controls-${option.value}`
-            const checked = String(watch('compliance.controls_documented')) === option.value
+            const checked = String(watch('compliance.existing_controls')) === option.value
 
             return (
               <Label
@@ -107,19 +107,19 @@ export default function Step3() {
             )
           })}
         </RadioGroup>
-        {errors.compliance?.controls_documented && <p className="text-red-500 text-sm">{errors.compliance.controls_documented.message}</p>}
+        {errors.compliance?.existing_controls && <p className="text-red-500 text-sm">{errors.compliance.existing_controls.message}</p>}
       </div>
 
       <div className="space-y-3">
         <Label>3. Do you already have policies and procedures?</Label>
         <RadioGroup
-          value={watch('compliance.policies_documented') === undefined ? '' : String(watch('compliance.policies_documented'))}
+          value={watch('compliance.existing_policies_procedures') === undefined ? '' : String(watch('compliance.existing_policies_procedures'))}
           onValueChange={handlePolicyChange}
           className="grid gap-3 sm:grid-cols-2"
         >
           {policyOptions.map((option) => {
             const id = `policies-${option.value}`
-            const checked = String(watch('compliance.policies_documented')) === option.value
+            const checked = String(watch('compliance.existing_policies_procedures')) === option.value
 
             return (
               <Label
@@ -138,7 +138,7 @@ export default function Step3() {
             )
           })}
         </RadioGroup>
-        {errors.compliance?.policies_documented && <p className="text-red-500 text-sm">{errors.compliance.policies_documented.message}</p>}
+        {errors.compliance?.existing_policies_procedures && <p className="text-red-500 text-sm">{errors.compliance.existing_policies_procedures.message}</p>}
       </div>
     </div>
   )
