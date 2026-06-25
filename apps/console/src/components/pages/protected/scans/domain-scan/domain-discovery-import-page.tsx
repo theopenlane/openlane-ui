@@ -233,7 +233,7 @@ const SelectionRow = ({
   badges?: string[]
   trailing?: React.ReactNode
 }) => (
-  <div className={`flex items-start gap-4 px-6 py-2.5 ${disabled ? 'opacity-60' : ''}`}>
+  <div className={`flex items-start gap-4 px-6 py-1 ${disabled ? 'opacity-60' : ''}`}>
     <div className="pt-0.5">
       <Checkbox checked={checked} disabled={disabled} onCheckedChange={(value) => onCheckedChange(value === true)} />
     </div>
