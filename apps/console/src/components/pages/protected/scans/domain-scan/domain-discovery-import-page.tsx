@@ -201,14 +201,14 @@ const severityToSecurityLevel = (severity?: string) => {
 
 const SectionCard = ({ title, description, children, footer }: { title: string; description?: string; children: React.ReactNode; footer?: React.ReactNode }) => (
   <Card>
-    <CardTitle>{title}</CardTitle>
-    {description ? <CardDescription>{description}</CardDescription> : null}
+    <CardTitle className="text-xl py-3">{title}</CardTitle>
+    {description ? <CardDescription className="pb-3">{description}</CardDescription> : null}
     <Separator separatorClass="bg-border" />
     <CardContent className="p-0">{children}</CardContent>
     {footer ? (
       <>
         <Separator separatorClass="bg-border" />
-        <CardFooter className="pt-6">{footer}</CardFooter>
+        <CardFooter className="py-3">{footer}</CardFooter>
       </>
     ) : null}
   </Card>
@@ -233,8 +233,8 @@ const SelectionRow = ({
   badges?: string[]
   trailing?: React.ReactNode
 }) => (
-  <div className={`flex items-start gap-4 px-6 py-4 ${disabled ? 'opacity-60' : ''}`}>
-    <div className="pt-1">
+  <div className={`flex items-start gap-4 px-6 py-2.5 ${disabled ? 'opacity-60' : ''}`}>
+    <div className="pt-0.5">
       <Checkbox checked={checked} disabled={disabled} onCheckedChange={(value) => onCheckedChange(value === true)} />
     </div>
     <div className="min-w-0 flex-1">
@@ -246,21 +246,21 @@ const SelectionRow = ({
           </Badge>
         ))}
       </div>
-      {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
+      {description ? <p className="mt-0.5 text-sm text-muted-foreground">{description}</p> : null}
     </div>
     <div className="shrink-0 text-sm text-muted-foreground">{trailing ?? meta}</div>
   </div>
 )
 
 const SummaryRow = ({ label, value }: { label: string; value: string }) => (
-  <div className="px-6 py-4">
+  <div className="px-6 py-3">
     <p className="text-sm font-medium text-muted-foreground">{label}</p>
-    <p className="mt-1 text-base">{value}</p>
+    <p className="mt-0.5 text-base">{value}</p>
   </div>
 )
 
 const EmptyState = ({ message }: { message: string }) => (
-  <div className="px-6 py-8">
+  <div className="px-6 py-5">
     <p className="text-sm text-muted-foreground">{message}</p>
   </div>
 )
@@ -336,7 +336,7 @@ const AssetsStep = ({
   const selectedExternalCount = external.filter((item) => selected.has(item.id)).length
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <SectionCard title="Owned domains">
         {owned.length === 0 ? (
           <EmptyState message="No owned domains were detected in this notification." />
@@ -631,13 +631,13 @@ export default function DomainDiscoveryImportPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-4">
       <PageHeading eyebrow="Discovery" heading="Domain Discovery Results" />
-      <p className="mt-2 text-sm text-muted-foreground">Vendors, assets, and findings discovered for {domains.hostname} are listed below. Select what to bring into your organization.</p>
+      <p className="mt-1 text-sm text-muted-foreground">Vendors, assets, and findings discovered for {domains.hostname} are listed below. Select what to bring into your organization.</p>
 
-      <div className="py-6">
-        <StepHeader stepper={stepper} className="mb-6" />
+      <div className="pt-4">
+        <StepHeader stepper={stepper} className="mb-4" />
         <Separator separatorClass="bg-card" />
 
-        <div className="py-6">
+        <div className="py-4">
           {stepper.switch({
             vendors: () => <VendorsStep vendors={vendors} selected={selectedVendorIds} setSelected={setSelectedVendorIds} existingIds={existingVendorIds} />,
             assets: () => <AssetsStep owned={domains.owned} external={domains.external} selected={selectedDomainIds} setSelected={setSelectedDomainIds} existingIds={existingAssetIds} />,
