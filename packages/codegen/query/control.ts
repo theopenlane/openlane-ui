@@ -797,6 +797,7 @@ export const GET_CONTROLS_BY_REFCODE = gql`
           standardID
           ownerID
           systemOwned
+          isTrustCenterControl
           internalPolicies {
             edges {
               node {

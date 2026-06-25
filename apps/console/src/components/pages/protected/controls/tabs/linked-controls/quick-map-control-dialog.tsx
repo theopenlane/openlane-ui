@@ -56,7 +56,9 @@ const VARIANT_COPY: Record<QuickMapVariant, { buttonLabel: string; dialogTitle: 
 }
 
 const getScopeWhere = (variant: QuickMapVariant): ControlWhereInput =>
-  variant === 'framework' ? { referenceFrameworkNotNil: true, referenceFrameworkNEQ: 'CUSTOM', systemOwned: false } : { referenceFrameworkIsNil: true, systemOwned: false }
+  variant === 'framework'
+    ? { referenceFrameworkNotNil: true, referenceFrameworkNEQ: 'CUSTOM', systemOwned: false, isTrustCenterControl: false }
+    : { referenceFrameworkIsNil: true, systemOwned: false, isTrustCenterControl: false }
 
 const getSuggestionRefCode = (refCode: string): string => {
   const lastSeparator = Math.max(refCode.lastIndexOf('.'), refCode.lastIndexOf('-'))

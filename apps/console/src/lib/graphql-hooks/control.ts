@@ -658,6 +658,7 @@ export const useGetExistingOrgControls = ({ refCodeIn, referenceFrameworkIn, ena
         where: {
           refCodeIn,
           systemOwned: false,
+          isTrustCenterControl: false,
           ...(referenceFrameworkIn?.length && { referenceFrameworkIn }),
         },
       }),

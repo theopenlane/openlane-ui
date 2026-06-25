@@ -5974,6 +5974,11 @@ export interface ControlEvidence {
   approvedCount: Scalars['Int']['output']
   /** breakdown of evidence item counts by status */
   countByStatus?: Maybe<Array<EvidenceCountByStatus>>
+  /**
+   * from the total number, the amount inherited from linked controls instead of directly
+   * linked to this control
+   */
+  inheritedCount: Scalars['Int']['output']
   /** total number of evidence items linked to the control */
   totalCount: Scalars['Int']['output']
   /** the most severe evidence status among all linked evidence items */
@@ -39489,6 +39494,8 @@ export interface PolicySummary extends Node {
   __typename?: 'PolicySummary'
   /** unique identifier of the policy */
   id: Scalars['ID']['output']
+  /** empty when linked directly to the control; otherwise the related/mapped control IDs that contributed it */
+  inheritedFromIDs?: Maybe<Array<Scalars['ID']['output']>>
   /** the name of the policy */
   name: Scalars['String']['output']
   /** status of the policy, e.g. draft, published, archived, etc. */
@@ -69648,6 +69655,7 @@ export type GetControlsByRefCodeQuery = {
         standardID?: string | null
         ownerID?: string | null
         systemOwned?: boolean | null
+        isTrustCenterControl?: boolean | null
         internalPolicies: {
           __typename?: 'InternalPolicyConnection'
           edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null

@@ -175,7 +175,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
     const set = new Set<string>()
     refcodeData?.controls?.edges?.forEach((edge) => {
       const node = edge?.node
-      if (node?.refCode && node.referenceFramework && !node.systemOwned) {
+      if (node?.refCode && node.referenceFramework && !node.systemOwned && !node.isTrustCenterControl) {
         set.add(`${node.referenceFramework}|${node.refCode}`)
       }
     })
