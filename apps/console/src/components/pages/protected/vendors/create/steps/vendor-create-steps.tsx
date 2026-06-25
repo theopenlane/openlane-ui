@@ -7,6 +7,7 @@ import type { StepConfig } from '@/components/shared/crud-base/types'
 import StepVendorInfo from './step-vendor-info'
 import StepVendorLogo from './step-vendor-logo'
 import StepOwnership from './step-ownership'
+import StepSecurity from './step-security'
 import StepUploadImport from './step-upload-import'
 
 export const createVendorSteps = (onStagedFilesChange: (files: File[]) => void, onExistingFileIdsChange: (fileIds: string[]) => void, onLogoFileChange: (file: File | null) => void): StepConfig[] => [
@@ -37,6 +38,18 @@ export const createVendorSteps = (onStagedFilesChange: (files: File[]) => void, 
       reviewedBy: responsibilityFieldSchema,
     }),
     render: () => <StepOwnership />,
+  },
+  {
+    id: 'security',
+    label: 'Security',
+    schema: z.object({
+      hasSoc2: z.boolean().optional(),
+      soc2PeriodEnd: z.string().optional(),
+      ssoEnforced: z.boolean().optional(),
+      mfaSupported: z.boolean().optional(),
+      mfaEnforced: z.boolean().optional(),
+    }),
+    render: () => <StepSecurity />,
   },
   {
     id: 'upload-import',
