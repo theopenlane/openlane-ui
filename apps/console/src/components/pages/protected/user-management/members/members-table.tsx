@@ -227,6 +227,12 @@ export const MembersTable = () => {
       maxSize: 180,
     },
     {
+      accessorKey: 'ssoExempt',
+      header: 'SSO',
+      cell: ({ cell }) => (cell.getValue() ? <Badge variant="outline">Exempt</Badge> : null),
+      size: 100,
+    },
+    {
       id: 'actions',
       header: '',
       cell: ({ cell }) => {
@@ -237,6 +243,7 @@ export const MembersTable = () => {
             memberUserId={cell.row.original.user?.id}
             memberRole={cell.row.original.role}
             additionalRoles={cell.row.original.additionalRoles}
+            memberSSOExempt={cell.row.original.ssoExempt ?? false}
           />
         )
       },

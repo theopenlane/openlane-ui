@@ -16,6 +16,23 @@ export const credentialsProvider = Credentials({
       accessToken?: string
       refreshToken?: string
       session?: string
+      type?: string
+    }
+
+    // Openlane support session: the support identity is virtual and has no database user, so the
+    // userinfo lookup would fail. Build the session directly from the impersonation token; the org,
+    // impersonator, and impersonation flag are derived from the token claims in the session callback.
+    if (credentials.type === 'support' && credentials.accessToken) {
+      return {
+        id: 'openlane-support',
+        name: 'Openlane Support',
+        email: 'support@theopenlane.io',
+        accessToken: credentials.accessToken,
+        refreshToken: '',
+        session: '',
+        isTfaEnabled: false,
+        isOnboarding: false,
+      }
     }
 
     let accessToken: string

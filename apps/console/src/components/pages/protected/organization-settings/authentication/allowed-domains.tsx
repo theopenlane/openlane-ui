@@ -28,6 +28,7 @@ const AllowedDomains = () => {
 
   const settingId = data?.organization?.setting?.id
   const domains = data?.organization?.setting?.allowedEmailDomains ?? []
+  const exemptDomains = data?.organization?.setting?.ssoExemptDomains ?? []
   const allowAutoJoin = !!data?.organization?.setting?.allowMatchingDomainsAutojoin
 
   const updateSetting = async (input: UpdateOrganizationSettingInput, successMsg = 'Settings saved successfully.') => {
@@ -55,6 +56,11 @@ const AllowedDomains = () => {
 
     if (domains.includes(trimmed)) {
       setInputError(`"${trimmed}" is already allowed.`)
+      return
+    }
+
+    if (exemptDomains.includes(trimmed)) {
+      setInputError(`"${trimmed}" is an SSO-exempt domain, so it can't also be an allowed domain. Remove it from SSO-exempt domains first.`)
       return
     }
 

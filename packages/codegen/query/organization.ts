@@ -169,6 +169,8 @@ export const GET_ORGANIZATION_SETTING = gql`
         geoLocation
         billingNotificationsEnabled
         allowedEmailDomains
+        ssoExemptDomains
+        allowSupportAccess
         identityProvider
         identityProviderClientID
         identityProviderClientSecret

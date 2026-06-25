@@ -798,6 +798,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'ownershipTransfer', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'role', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'InviteRole' },
     { name: 'sendAttempts', kind: 'number', list: false, nonNull: true, listItemNonNull: false },
+    { name: 'ssoExempt', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'status', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'InviteInviteStatus' },
   ],
   JobResult: [
@@ -926,7 +927,11 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'version', kind: 'number', list: false, nonNull: true, listItemNonNull: false },
     { name: 'workflowDefinitionID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
   ],
-  OrgMembership: [{ name: 'role', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'OrgMembershipRole' }],
+  OrgMembership: [
+    { name: 'role', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'OrgMembershipRole' },
+    { name: 'ssoExempt', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'ssoExemptReason', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+  ],
   Organization: [
     { name: 'avatarRemoteURL', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'avatarUpdatedAt', kind: 'date', list: false, nonNull: false, listItemNonNull: false },
@@ -937,6 +942,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
   OrganizationSetting: [
     { name: 'allowedEmailDomains', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'allowMatchingDomainsAutojoin', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'allowSupportAccess', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'billingAddress', kind: 'json', list: false, nonNull: false, listItemNonNull: false },
     { name: 'billingContact', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'billingEmail', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
@@ -958,6 +964,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'samlCert', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'samlIssuer', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'samlSigninURL', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'ssoExemptDomains', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'taxIdentifier', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
   ],
