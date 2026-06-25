@@ -225,6 +225,15 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           source
           category
           subcategory
+          evidence {
+            edges {
+              node {
+                id
+                name
+                status
+              }
+            }
+          }
         }
       }
     }
@@ -670,27 +679,80 @@ export const GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS = gql`
   }
 `
 
-export const GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER = gql`
-  query GetControlsGroupedByCategoryResolver($where: ControlWhereInput, $category: String, $after: Cursor) {
-    controlsGroupByCategory(where: $where, category: $category, after: $after) {
+export const CONTROL_REPORT_FIELDS_FRAGMENT = gql`
+  fragment ControlReportFields on ControlReport {
+    id
+    refCode
+    title
+    description
+    status
+    category
+    subcategory
+    referenceFramework
+    controlOwner {
+      displayName
+      gravatarLogoURL
+      avatarFile {
+        base64
+      }
+    }
+    relatedControls {
+      id
+      refCode
+      status
+      referenceFramework
+      isSubcontrol
+    }
+    linkedPolicies {
+      totalCount
+      internalPolicies {
+        id
+        name
+        status
+      }
+    }
+    evidenceStatus {
+      totalCount
+      worstStatus
+      approvedCount
+      countByStatus {
+        status
+        totalCount
+      }
+    }
+  }
+`
+
+export const CONTROL_REPORTS_BY_CATEGORY = gql`
+  ${CONTROL_REPORT_FIELDS_FRAGMENT}
+  query ControlReportsByCategory($where: ControlWhereInput) {
+    controlReportsByCategory(where: $where) {
+      category
+      totalCount
+      controls {
+        ...ControlReportFields
+        subcontrols {
+          ...ControlReportFields
+        }
+      }
+    }
+  }
+`
+
+export const CONTROL_REPORTS = gql`
+  ${CONTROL_REPORT_FIELDS_FRAGMENT}
+  query ControlReports($where: ControlWhereInput, $orderBy: [ControlReportOrder!], $first: Int, $after: Cursor) {
+    controlReports(where: $where, orderBy: $orderBy, first: $first, after: $after) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
       edges {
         node {
-          category
-          controls {
-            totalCount
-            pageInfo {
-              endCursor
-              hasNextPage
-            }
-            edges {
-              node {
-                __typename
-                id
-                refCode
-                status
-                referenceFramework
-              }
-            }
+          ...ControlReportFields
+          subcontrols {
+            ...ControlReportFields
           }
         }
       }
@@ -702,6 +764,18 @@ export const BULK_EDIT_CONTROL = gql`
   mutation UpdateBulkControl($ids: [ID!]!, $input: UpdateControlInput!) {
     updateBulkControl(ids: $ids, input: $input) {
       updatedIDs
+    }
+  }
+`
+
+export const GET_SUBCONTROL_IDS_BY_CONTROL = gql`
+  query GetSubcontrolIdsByControl($where: SubcontrolWhereInput) {
+    subcontrols(where: $where) {
+      edges {
+        node {
+          id
+        }
+      }
     }
   }
 `
@@ -723,7 +797,46 @@ export const GET_CONTROLS_BY_REFCODE = gql`
           standardID
           ownerID
           systemOwned
+          isTrustCenterControl
+          internalPolicies {
+            edges {
+              node {
+                id
+                name
+              }
+            }
+          }
+          evidence {
+            edges {
+              node {
+                id
+                name
+                status
+              }
+            }
+          }
         }
+      }
+    }
+  }
+`
+
+export const GET_CONTROL_RELATED_CONTROLS = gql`
+  query GetControlRelatedControls($controlId: ID!) {
+    control(id: $controlId) {
+      id
+      relatedControls {
+        id
+        refCode
+        status
+        referenceFramework
+        isSubcontrol
+        parentControlID
+        mappedControlReferenceIDs
+        inheritedFromSubcontrolIDs
+        category
+        subcategory
+        description
       }
     }
   }

@@ -17,6 +17,7 @@ import ScrollableTabsList from '@/components/pages/protected/controls/tabs/scrol
 import ControlTabsList from '@/components/pages/protected/controls/tabs/control-tabs-list'
 import { useGetControlAssociationsById, type ControlByIdNode } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolAssociationsById, type SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
+import { useMappedEntityRefs } from '@/lib/graphql-hooks/use-mapped-entity-refs'
 import { buildControlEvidenceData, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
 import { type UpdateSubcontrolInput, type UpdateControlInput } from '@repo/codegen/src/schema.ts'
 
@@ -59,6 +60,8 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
     if (isSubcontrol && subcontrol) return [subcontrol.id]
     return (control?.subcontrols?.edges ?? []).map((edge) => edge?.node?.id).filter((id): id is string => Boolean(id))
   }, [isSubcontrol, control?.subcontrols?.edges, subcontrol])
+
+  const { mappedControlRefs, mappedSubcontrolRefs } = useMappedEntityRefs(isSubcontrol ? undefined : control?.id, subcontrolIds)
 
   const evidenceRequests = isSubcontrol ? (subcontrol as { evidenceRequests?: unknown } | undefined)?.evidenceRequests : (control as { evidenceRequests?: unknown } | undefined)?.evidenceRequests
   const refCode = (isSubcontrol ? subcontrol?.refCode : control?.refCode) ?? ''
@@ -152,15 +155,22 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
       </TabsContent>
 
       <TabsContent value="evidence" className="space-y-6">
-        <EvidenceTab evidenceFormData={evidenceFormData} subcontrolIds={subcontrolIds} evidenceRequests={evidenceRequests as { documentationType?: string; description?: string }[] | null} />
+        <EvidenceTab
+          evidenceFormData={evidenceFormData}
+          subcontrolIds={subcontrolIds}
+          evidenceRequests={evidenceRequests as { documentationType?: string; description?: string }[] | null}
+          mappedControlRefs={mappedControlRefs}
+          mappedSubcontrolRefs={mappedSubcontrolRefs}
+        />
       </TabsContent>
 
       <TabsContent value="linked-controls" className="space-y-6">
         <LinkedControlsTab
           controlId={isSubcontrol ? undefined : control?.id}
           subcontrolId={isSubcontrol ? subcontrol?.id : undefined}
+          parentControlId={isSubcontrol ? (subcontrol?.control?.id ?? undefined) : undefined}
           refCode={refCode}
-          sourceFramework={isSubcontrol ? subcontrol?.referenceFramework : control?.referenceFramework}
+          canEdit={props.canEdit}
         />
       </TabsContent>
 
@@ -182,7 +192,14 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
       )}
 
       <TabsContent value="documentation" className="space-y-6">
-        <DocumentationTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} canEdit={props.canEdit} />
+        <DocumentationTab
+          controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')}
+          subcontrolIds={subcontrolIds}
+          canEdit={props.canEdit}
+          isSubcontrol={isSubcontrol}
+          mappedControlRefs={mappedControlRefs}
+          mappedSubcontrolRefs={mappedSubcontrolRefs}
+        />
       </TabsContent>
 
       <TabsContent value="assets-scans" className="space-y-6">

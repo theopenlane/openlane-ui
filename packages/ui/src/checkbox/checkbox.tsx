@@ -13,7 +13,7 @@ type TCheckboxProps = React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Ro
 const Checkbox = ({ className, stroke = 2, ref, ...props }: TCheckboxProps & { ref?: React.Ref<React.ComponentRef<typeof CheckboxPrimitive.Root>> }) => (
   <CheckboxPrimitive.Root ref={ref} className={cn(root(), className)} {...props}>
     <CheckboxPrimitive.Indicator className={cn(indicator(), className)}>
-      <Check className={cn(checkIcon(), className)} strokeWidth={stroke} />
+      {props.checked !== 'indeterminate' && <Check className={cn(checkIcon(), className)} strokeWidth={stroke} />}
     </CheckboxPrimitive.Indicator>
   </CheckboxPrimitive.Root>
 )
