@@ -2,18 +2,15 @@
 
 import React from 'react'
 import ImportControlsDialog from './program-settings-import-controls-dialog'
-import { canEdit } from '@/lib/authz/utils'
-import { useParams } from 'next/navigation'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 export const ProgramSettingsImportControls = () => {
-  const { id } = useParams<{ id: string | undefined }>()
+  const { data: permission } = useOrganizationRoles()
+  const createControlAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateControl)
 
-  const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
-  const editAllowed = canEdit(permission?.roles)
-
-  if (!editAllowed) {
+  if (!createControlAllowed) {
     return null
   }
 
