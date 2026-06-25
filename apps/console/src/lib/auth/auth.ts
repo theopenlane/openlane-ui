@@ -199,6 +199,12 @@ export const config = {
         const decodedToken = typeof token.accessToken === 'string' ? jwtDecode<JwtPayload>(token.accessToken) : {}
         const features = (decodedToken.modules ?? []).flatMap((m: PlanEnum) => featureUtil.getPlanFeatures(m)).filter((f: string, i: number, arr: string[]) => arr.indexOf(f) === i)
 
+        // a support/impersonation token carries an impersonator and type claim; surface them so the UI
+        // can render the impersonation banner and clearly indicate the active organization
+        const impersonatorId = (decodedToken as { impersonator_id?: string })?.impersonator_id
+        const tokenType = (decodedToken as { type?: string })?.type
+        const impersonationSessionId = (decodedToken as { session_id?: string })?.session_id
+
         session.user = {
           ...session.user,
           accessToken: token.accessToken ?? null,
@@ -209,6 +215,9 @@ export const config = {
           isOnboarding: token.isOnboarding ?? false,
           modules: decodedToken?.modules ?? [],
           features,
+          isImpersonation: tokenType === 'support' || !!impersonatorId,
+          impersonator: impersonatorId ?? null,
+          impersonationSessionId: impersonationSessionId ?? null,
         }
       } catch (error) {
         console.error('JWT decoding error in session callback:', error)

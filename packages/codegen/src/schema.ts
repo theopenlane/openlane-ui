@@ -134,6 +134,8 @@ export interface ApiToken extends Node {
   token: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 /** Return response for createBulkAPIToken mutation */
@@ -395,6 +397,22 @@ export interface ApiTokenWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -519,6 +537,8 @@ export interface ActionPlan extends Node {
   title: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** This will contain the url used to create or update the action_plan */
   url?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
@@ -1276,6 +1296,22 @@ export interface ActionPlanWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -1349,6 +1385,8 @@ export interface Assessment extends Node {
   uischema?: Maybe<Scalars['Map']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
 }
 
@@ -1543,6 +1581,8 @@ export interface AssessmentResponse extends Node {
   status: AssessmentResponseAssessmentResponseStatus
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   vendorRiskScores: VendorRiskScoreConnection
 }
 
@@ -1950,6 +1990,22 @@ export interface AssessmentResponseWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -2160,6 +2216,22 @@ export interface AssessmentWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -2285,6 +2357,8 @@ export interface Asset extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
   /** the website of the asset, if applicable */
   website?: Maybe<Scalars['String']['output']>
@@ -3230,6 +3304,22 @@ export interface AssetWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -3360,6 +3450,8 @@ export interface Campaign extends Node {
   trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   users: UserConnection
   viewers: GroupConnection
   /** internal marker field for workflow eligibility, not exposed in API */
@@ -3642,6 +3734,8 @@ export interface CampaignTarget extends Node {
   subscriberID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   /** the user associated with the campaign target */
   userID?: Maybe<Scalars['ID']['output']>
@@ -3969,6 +4063,22 @@ export interface CampaignTargetWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -4525,6 +4635,22 @@ export interface CampaignWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -4568,6 +4694,8 @@ export interface CheckResult extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
 }
 
@@ -4888,6 +5016,22 @@ export interface CheckResultWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -4991,6 +5135,8 @@ export interface Contact extends Node {
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface ContactCampaignTargetsArgs {
@@ -5383,6 +5529,22 @@ export interface ContactWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -5537,6 +5699,8 @@ export interface Control extends Node {
   trustCenterVisibility?: Maybe<ControlTrustCenterControlVisibility>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
@@ -5974,11 +6138,6 @@ export interface ControlEvidence {
   approvedCount: Scalars['Int']['output']
   /** breakdown of evidence item counts by status */
   countByStatus?: Maybe<Array<EvidenceCountByStatus>>
-  /**
-   * from the total number, the amount inherited from linked controls instead of directly
-   * linked to this control
-   */
-  inheritedCount: Scalars['Int']['output']
   /** total number of evidence items linked to the control */
   totalCount: Scalars['Int']['output']
   /** the most severe evidence status among all linked evidence items */
@@ -6046,6 +6205,8 @@ export interface ControlImplementation extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** date the control implementation was verified */
   verificationDate?: Maybe<Scalars['Time']['output']>
   /** set to true if the control implementation has been verified */
@@ -6379,6 +6540,22 @@ export interface ControlImplementationWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -6415,12 +6592,8 @@ export interface ControlInfo {
   description?: Maybe<Scalars['String']['output']>
   /** unique identifier of the control */
   id: Scalars['ID']['output']
-  /** id(s) of the subcontrol the mapping was inherited from, this is null if the control was directly mapped, if it was inherited from a subcontrol it will have the subcontrol IDs that are providing the mapping */
-  inheritedFromSubcontrolIDs?: Maybe<Array<Scalars['ID']['output']>>
   /** whether this entry is a subcontrol rather than a top-level control */
   isSubcontrol: Scalars['Boolean']['output']
-  /** id(s) of the mapped_control this related control from if the mapping is org owned */
-  mappedControlReferenceIDs?: Maybe<Array<Scalars['ID']['output']>>
   /** the id of the parent control if this is a subcontrol, empty if isSubcontrol is false */
   parentControlID?: Maybe<Scalars['ID']['output']>
   /** the unique reference code for the control */
@@ -6484,6 +6657,8 @@ export interface ControlObjective extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
 }
 
@@ -6981,6 +7156,22 @@ export interface ControlObjectiveWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -7789,6 +7980,22 @@ export interface ControlWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -9640,6 +9847,8 @@ export interface CreateInviteInput {
   role?: InputMaybe<InviteRole>
   /** the number of attempts made to perform email send of the invitation, maximum of 5 */
   sendAttempts?: InputMaybe<Scalars['Int']['input']>
+  /** when accepted, grants the member an SSO exemption so they are not redirected through the organization's SSO login flow */
+  ssoExempt?: InputMaybe<Scalars['Boolean']['input']>
   /** the status of the invitation */
   status?: InputMaybe<InviteInviteStatus>
 }
@@ -10018,6 +10227,10 @@ export interface CreateOrgMembershipInput {
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   organizationID: Scalars['ID']['input']
   role?: InputMaybe<OrgMembershipRole>
+  /** member is exempt from the SSO login redirect for this organization; TFA enforcement still applies. Who may set this is gated by the org membership mutation policy */
+  ssoExempt?: InputMaybe<Scalars['Boolean']['input']>
+  /** reason the member was granted an SSO exemption */
+  ssoExemptReason?: InputMaybe<Scalars['String']['input']>
   userID: Scalars['ID']['input']
 }
 
@@ -10209,6 +10422,8 @@ export interface CreateOrganizationInput {
 export interface CreateOrganizationSettingInput {
   /** allow users who can successfully confirm their email or who login via social providers with an email that matches the organizations configured allowed domain to auto-join the organization */
   allowMatchingDomainsAutojoin?: InputMaybe<Scalars['Boolean']['input']>
+  /** allow Openlane support to access this organization without a directory account */
+  allowSupportAccess?: InputMaybe<Scalars['Boolean']['input']>
   /** domains allowed to access the organization, if empty all domains are allowed */
   allowedEmailDomains?: InputMaybe<Array<Scalars['String']['input']>>
   /** the billing address to send billing information to */
@@ -10251,6 +10466,8 @@ export interface CreateOrganizationSettingInput {
   samlIssuer?: InputMaybe<Scalars['String']['input']>
   /** the sign in URL to be used for SAML-based authentication */
   samlSigninURL?: InputMaybe<Scalars['String']['input']>
+  /** email domains whose existing members skip the SSO redirect even when SSO is enforced; TFA enforcement still applies */
+  ssoExemptDomains?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** Usually government-issued tax ID or business ID such as ABN in Australia */
@@ -11871,6 +12088,8 @@ export interface CustomDomain extends Node {
   trustCenterID?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 /** Return response for createBulkCustomDomain mutation */
@@ -12165,6 +12384,22 @@ export interface CustomDomainWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -12212,6 +12447,8 @@ export interface CustomTypeEnum extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface CustomTypeEnumActionPlansArgs {
@@ -12611,6 +12848,22 @@ export interface CustomTypeEnumWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -12651,6 +12904,8 @@ export interface DnsVerification extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface DnsVerificationCustomDomainsArgs {
@@ -12995,6 +13250,22 @@ export interface DnsVerificationWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -13113,6 +13384,8 @@ export interface DirectoryAccount extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
 }
 
@@ -13870,6 +14143,22 @@ export interface DirectoryAccountWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -13957,6 +14246,8 @@ export interface DirectoryGroup extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
 }
 
@@ -14489,6 +14780,22 @@ export interface DirectoryGroupWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -14561,6 +14868,8 @@ export interface DirectoryMembership extends Node {
   source?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
 }
 
@@ -14888,6 +15197,22 @@ export interface DirectoryMembershipWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -14950,6 +15275,8 @@ export interface DirectorySyncRun extends Node {
   status: DirectorySyncRunDirectorySyncRunStatus
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface DirectorySyncRunDirectoryAccountsArgs {
@@ -15371,6 +15698,22 @@ export interface DirectorySyncRunWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -15400,6 +15743,8 @@ export interface Discussion extends Node {
   subcontrol?: Maybe<Subcontrol>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface DiscussionCommentsArgs {
@@ -15595,6 +15940,22 @@ export interface DiscussionWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -15633,6 +15994,8 @@ export interface DocumentData extends Node {
   templateID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface DocumentDataEntitiesArgs {
@@ -15917,6 +16280,22 @@ export interface DocumentDataWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -15973,6 +16352,8 @@ export interface EmailTemplate extends Node {
   trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** template version */
   version: Scalars['Int']['output']
   viewers: GroupConnection
@@ -16534,6 +16915,22 @@ export interface EmailTemplateWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -16738,6 +17135,8 @@ export interface Entity extends Node {
   tier?: Maybe<EntityVendorTier>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** vendor metadata such as additional enrichment info, company size, public, etc. */
   vendorMetadata?: Maybe<Scalars['Map']['output']>
   vendorRiskScores: VendorRiskScoreConnection
@@ -17091,6 +17490,8 @@ export interface EntityType extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface EntityTypeEntitiesArgs {
@@ -17326,6 +17727,22 @@ export interface EntityTypeWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -18201,6 +18618,22 @@ export interface EntityWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -18646,6 +19079,8 @@ export interface Evidence extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** the url of the evidence if not uploaded directly to the system */
   url?: Maybe<Scalars['String']['output']>
   /** internal marker field for workflow eligibility, not exposed in API */
@@ -19205,6 +19640,22 @@ export interface EvidenceWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -19265,6 +19716,8 @@ export interface Export extends Node {
   status: ExportExportStatus
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface ExportEventsArgs {
@@ -19574,6 +20027,22 @@ export interface ExportWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -19668,6 +20137,8 @@ export interface File extends Node {
   trustCenterEntities: TrustCenterEntityConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** the full URI of the file */
   uri?: Maybe<Scalars['String']['output']>
 }
@@ -20265,6 +20736,22 @@ export interface FileWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -20415,6 +20902,8 @@ export interface Finding extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** true when the finding has been validated by the security team */
   validated?: Maybe<Scalars['Boolean']['output']>
   /** attack vector string such as a CVSS vector */
@@ -20687,6 +21176,8 @@ export interface FindingControl extends Node {
   standardID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 /** Return response for createBulkFindingControl mutation */
@@ -20892,6 +21383,22 @@ export interface FindingControlWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -21633,6 +22140,22 @@ export interface FindingWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -21760,6 +22283,8 @@ export interface Group extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   users: UserConnection
 }
 
@@ -22301,6 +22826,8 @@ export interface GroupMembership extends Node {
   role: GroupMembershipRole
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   user: User
   userID: Scalars['ID']['output']
 }
@@ -22475,6 +23002,22 @@ export interface GroupMembershipWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -22624,6 +23167,8 @@ export interface GroupSetting extends Node {
   syncToSlack?: Maybe<Scalars['Boolean']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** whether the group is visible to it's members / owners only or if it's searchable by anyone within the organization */
   visibility: GroupSettingVisibility
 }
@@ -22824,6 +23369,22 @@ export interface GroupSettingWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -23238,6 +23799,22 @@ export interface GroupWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -23281,6 +23858,8 @@ export interface Hush extends Node {
   systemOwned?: Maybe<Scalars['Boolean']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface HushEventsArgs {
@@ -23595,6 +24174,22 @@ export interface HushWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -23703,6 +24298,8 @@ export interface IdentityHolder extends Node {
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   /** the user id associated with the identity holder record */
   userID?: Maybe<Scalars['ID']['output']>
@@ -24531,6 +25128,22 @@ export interface IdentityHolderWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -24640,6 +25253,8 @@ export interface Integration extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   vulnerabilities: VulnerabilityConnection
   webhookURLs?: Maybe<Scalars['Map']['output']>
 }
@@ -25276,6 +25891,22 @@ export interface IntegrationWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -25397,6 +26028,8 @@ export interface InternalPolicy extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** This will contain the url used to create or update the policy */
   url?: Maybe<Scalars['String']['output']>
   /** internal marker field for workflow eligibility, not exposed in API */
@@ -26203,6 +26836,22 @@ export interface InternalPolicyWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -26254,10 +26903,14 @@ export interface Invite extends Node {
   role: InviteRole
   /** the number of attempts made to perform email send of the invitation, maximum of 5 */
   sendAttempts: Scalars['Int']['output']
+  /** when accepted, grants the member an SSO exemption so they are not redirected through the organization's SSO login flow */
+  ssoExempt?: Maybe<Scalars['Boolean']['output']>
   /** the status of the invitation */
   status: InviteInviteStatus
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface InviteEventsArgs {
@@ -26511,6 +27164,11 @@ export interface InviteWhereInput {
   sendAttemptsLTE?: InputMaybe<Scalars['Int']['input']>
   sendAttemptsNEQ?: InputMaybe<Scalars['Int']['input']>
   sendAttemptsNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  /** sso_exempt field predicates */
+  ssoExempt?: InputMaybe<Scalars['Boolean']['input']>
+  ssoExemptIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ssoExemptNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  ssoExemptNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
   status?: InputMaybe<InviteInviteStatus>
   statusIn?: InputMaybe<Array<InviteInviteStatus>>
@@ -26536,6 +27194,22 @@ export interface InviteWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -26570,6 +27244,8 @@ export interface JobResult extends Node {
   status: JobResultJobExecutionStatus
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 /** A connection to a list of items. */
@@ -26806,6 +27482,22 @@ export interface JobResultWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -26846,6 +27538,8 @@ export interface JobRunner extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** the version of the runner */
   version?: Maybe<Scalars['String']['output']>
 }
@@ -26933,6 +27627,8 @@ export interface JobRunnerRegistrationToken extends Node {
   token: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 /** Return response for createBulkJobRunnerRegistrationToken mutation */
@@ -27108,6 +27804,22 @@ export interface JobRunnerRegistrationTokenWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -27142,6 +27854,8 @@ export interface JobRunnerToken extends Node {
   token: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface JobRunnerTokenJobRunnersArgs {
@@ -27370,6 +28084,22 @@ export interface JobRunnerTokenWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -27589,6 +28319,22 @@ export interface JobRunnerWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -27647,6 +28393,8 @@ export interface JobTemplate extends Node {
   title: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface JobTemplateScheduledJobsArgs {
@@ -27924,6 +28672,22 @@ export interface JobTemplateWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -27955,6 +28719,8 @@ export interface MappableDomain extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** DNS Zone ID of the mappable domain. */
   zoneID: Scalars['String']['output']
 }
@@ -28136,6 +28902,22 @@ export interface MappableDomainWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -28191,6 +28973,8 @@ export interface MappedControl extends Node {
   toSubcontrols: SubcontrolConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface MappedControlBlockedGroupsArgs {
@@ -28528,6 +29312,22 @@ export interface MappedControlWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -32529,6 +33329,8 @@ export interface Narrative extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
 }
 
@@ -32883,6 +33685,22 @@ export interface NarrativeWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -32942,6 +33760,8 @@ export interface Note extends Node {
   trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface NoteFilesArgs {
@@ -33232,6 +34052,22 @@ export interface NoteWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -33272,6 +34108,8 @@ export interface Notification extends Node {
   topic?: Maybe<NotificationNotificationTopic>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** the user this notification is for */
   userID?: Maybe<Scalars['ID']['output']>
 }
@@ -33382,6 +34220,8 @@ export interface NotificationPreference extends Node {
   topicPatterns?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   user: User
   /** the user this preference applies to */
   userID: Scalars['ID']['output']
@@ -33763,6 +34603,22 @@ export interface NotificationPreferenceWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -33858,6 +34714,8 @@ export interface NotificationTemplate extends Node {
   uischema?: Maybe<Scalars['Map']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** template version */
   version: Scalars['Int']['output']
   workflowDefinition?: Maybe<WorkflowDefinition>
@@ -34309,6 +35167,22 @@ export interface NotificationTemplateWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -34463,8 +35337,18 @@ export interface OrgMembership extends Node {
   organization: Organization
   organizationID: Scalars['ID']['output']
   role: OrgMembershipRole
+  /** member is exempt from the SSO login redirect for this organization; TFA enforcement still applies. Who may set this is gated by the org membership mutation policy */
+  ssoExempt?: Maybe<Scalars['Boolean']['output']>
+  /** when the SSO exemption was granted; stamped server-side, not settable via the API */
+  ssoExemptGrantedAt?: Maybe<Scalars['DateTime']['output']>
+  /** id of the user that granted the SSO exemption; stamped server-side, not settable via the API */
+  ssoExemptGrantedBy?: Maybe<Scalars['String']['output']>
+  /** reason the member was granted an SSO exemption */
+  ssoExemptReason?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   user: User
   userID: Scalars['ID']['output']
 }
@@ -34623,6 +35507,54 @@ export interface OrgMembershipWhereInput {
   roleIn?: InputMaybe<Array<OrgMembershipRole>>
   roleNEQ?: InputMaybe<OrgMembershipRole>
   roleNotIn?: InputMaybe<Array<OrgMembershipRole>>
+  /** sso_exempt field predicates */
+  ssoExempt?: InputMaybe<Scalars['Boolean']['input']>
+  /** sso_exempt_granted_at field predicates */
+  ssoExemptGrantedAt?: InputMaybe<Scalars['DateTime']['input']>
+  ssoExemptGrantedAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  ssoExemptGrantedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  ssoExemptGrantedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  ssoExemptGrantedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ssoExemptGrantedAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  ssoExemptGrantedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  ssoExemptGrantedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  ssoExemptGrantedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  ssoExemptGrantedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** sso_exempt_granted_by field predicates */
+  ssoExemptGrantedBy?: InputMaybe<Scalars['String']['input']>
+  ssoExemptGrantedByContains?: InputMaybe<Scalars['String']['input']>
+  ssoExemptGrantedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  ssoExemptGrantedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  ssoExemptGrantedByGT?: InputMaybe<Scalars['String']['input']>
+  ssoExemptGrantedByGTE?: InputMaybe<Scalars['String']['input']>
+  ssoExemptGrantedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  ssoExemptGrantedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  ssoExemptGrantedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ssoExemptGrantedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ssoExemptGrantedByLT?: InputMaybe<Scalars['String']['input']>
+  ssoExemptGrantedByLTE?: InputMaybe<Scalars['String']['input']>
+  ssoExemptGrantedByNEQ?: InputMaybe<Scalars['String']['input']>
+  ssoExemptGrantedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ssoExemptGrantedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  ssoExemptIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ssoExemptNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  ssoExemptNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** sso_exempt_reason field predicates */
+  ssoExemptReason?: InputMaybe<Scalars['String']['input']>
+  ssoExemptReasonContains?: InputMaybe<Scalars['String']['input']>
+  ssoExemptReasonContainsFold?: InputMaybe<Scalars['String']['input']>
+  ssoExemptReasonEqualFold?: InputMaybe<Scalars['String']['input']>
+  ssoExemptReasonGT?: InputMaybe<Scalars['String']['input']>
+  ssoExemptReasonGTE?: InputMaybe<Scalars['String']['input']>
+  ssoExemptReasonHasPrefix?: InputMaybe<Scalars['String']['input']>
+  ssoExemptReasonHasSuffix?: InputMaybe<Scalars['String']['input']>
+  ssoExemptReasonIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ssoExemptReasonIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ssoExemptReasonLT?: InputMaybe<Scalars['String']['input']>
+  ssoExemptReasonLTE?: InputMaybe<Scalars['String']['input']>
+  ssoExemptReasonNEQ?: InputMaybe<Scalars['String']['input']>
+  ssoExemptReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ssoExemptReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -34643,6 +35575,22 @@ export interface OrgMembershipWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -34679,6 +35627,8 @@ export interface OrgSubscription extends Node {
   trialExpiresAt?: Maybe<Scalars['Time']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface OrgSubscriptionEventsArgs {
@@ -34892,6 +35842,22 @@ export interface OrgSubscriptionWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -35073,6 +36039,8 @@ export interface Organization extends Node {
   trustCenters: TrustCenterConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   users: UserConnection
   vendorRiskScoreCreators: GroupConnection
   vendorRiskScores: VendorRiskScoreConnection
@@ -36573,6 +37541,8 @@ export interface OrganizationSetting extends Node {
   __typename?: 'OrganizationSetting'
   /** allow users who can successfully confirm their email or who login via social providers with an email that matches the organizations configured allowed domain to auto-join the organization */
   allowMatchingDomainsAutojoin?: Maybe<Scalars['Boolean']['output']>
+  /** allow Openlane support to access this organization without a directory account */
+  allowSupportAccess?: Maybe<Scalars['Boolean']['output']>
   /** domains allowed to access the organization, if empty all domains are allowed */
   allowedEmailDomains?: Maybe<Array<Scalars['String']['output']>>
   /** the billing address to send billing information to */
@@ -36626,12 +37596,16 @@ export interface OrganizationSetting extends Node {
   samlIssuer?: Maybe<Scalars['String']['output']>
   /** the sign in URL to be used for SAML-based authentication */
   samlSigninURL?: Maybe<Scalars['String']['output']>
+  /** email domains whose existing members skip the SSO redirect even when SSO is enforced; TFA enforcement still applies */
+  ssoExemptDomains?: Maybe<Array<Scalars['String']['output']>>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** Usually government-issued tax ID or business ID such as ABN in Australia */
   taxIdentifier?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface OrganizationSettingFilesArgs {
@@ -36754,6 +37728,11 @@ export interface OrganizationSettingWhereInput {
   allowMatchingDomainsAutojoinIsNil?: InputMaybe<Scalars['Boolean']['input']>
   allowMatchingDomainsAutojoinNEQ?: InputMaybe<Scalars['Boolean']['input']>
   allowMatchingDomainsAutojoinNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** allow_support_access field predicates */
+  allowSupportAccess?: InputMaybe<Scalars['Boolean']['input']>
+  allowSupportAccessIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  allowSupportAccessNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  allowSupportAccessNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** Filter for allowedEmailDomainsHas to contain a specific value */
   allowedEmailDomainsHas?: InputMaybe<Scalars['String']['input']>
   and?: InputMaybe<Array<OrganizationSettingWhereInput>>
@@ -37055,6 +38034,8 @@ export interface OrganizationSettingWhereInput {
   samlSigninURLNEQ?: InputMaybe<Scalars['String']['input']>
   samlSigninURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   samlSigninURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for ssoExemptDomainsHas to contain a specific value */
+  ssoExemptDomainsHas?: InputMaybe<Scalars['String']['input']>
   /** Filter for tagsHas to contain a specific value */
   tagsHas?: InputMaybe<Scalars['String']['input']>
   /** tax_identifier field predicates */
@@ -37093,6 +38074,22 @@ export interface OrganizationSettingWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -37750,6 +38747,22 @@ export interface OrganizationWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -37814,6 +38827,8 @@ export interface PersonalAccessToken extends Node {
   token: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface PersonalAccessTokenEventsArgs {
@@ -38063,6 +39078,22 @@ export interface PersonalAccessTokenWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -38230,6 +39261,8 @@ export interface Platform extends Node {
   trustBoundaryDiagrams: FileConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
@@ -39475,6 +40508,22 @@ export interface PlatformWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -39494,8 +40543,6 @@ export interface PolicySummary extends Node {
   __typename?: 'PolicySummary'
   /** unique identifier of the policy */
   id: Scalars['ID']['output']
-  /** empty when linked directly to the control; otherwise the related/mapped control IDs that contributed it */
-  inheritedFromIDs?: Maybe<Array<Scalars['ID']['output']>>
   /** the name of the policy */
   name: Scalars['String']['output']
   /** status of the policy, e.g. draft, published, archived, etc. */
@@ -39600,6 +40647,8 @@ export interface Procedure extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** This will contain the url used to create or update the procedure */
   url?: Maybe<Scalars['String']['output']>
   /** internal marker field for workflow eligibility, not exposed in API */
@@ -40306,6 +41355,22 @@ export interface ProcedureWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -40400,6 +41465,8 @@ export interface Program extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   users: UserConnection
   viewers: GroupConnection
 }
@@ -40628,6 +41695,8 @@ export interface ProgramMembership extends Node {
   role: ProgramMembershipRole
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   user: User
   userID: Scalars['ID']['output']
 }
@@ -40794,6 +41863,22 @@ export interface ProgramMembershipWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -41195,6 +42280,22 @@ export interface ProgramWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -43405,6 +44506,8 @@ export interface Remediation extends Node {
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   vulnerabilities: VulnerabilityConnection
 }
 
@@ -44196,6 +45299,22 @@ export interface RemediationWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -44315,6 +45434,8 @@ export interface Review extends Node {
   title: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   vulnerabilities: VulnerabilityConnection
 }
 
@@ -45049,6 +46170,22 @@ export interface ReviewWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -45162,6 +46299,8 @@ export interface Risk extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
 }
 
@@ -46033,6 +47172,22 @@ export interface RiskWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -46062,6 +47217,8 @@ export interface SlaDefinition extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface SlaDefinitionBlockedGroupsArgs {
@@ -46296,6 +47453,22 @@ export interface SlaDefinitionWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -46380,6 +47553,8 @@ export interface Scan extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   vulnerabilities: VulnerabilityConnection
   /** identifiers of vulnerabilities discovered during the scan */
   vulnerabilityIds?: Maybe<Array<Scalars['String']['output']>>
@@ -47027,6 +48202,22 @@ export interface ScanWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -47064,6 +48255,8 @@ export interface ScheduledJob extends Node {
   subcontrols: SubcontrolConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface ScheduledJobControlsArgs {
@@ -47187,6 +48380,8 @@ export interface ScheduledJobRun extends Node {
   status: ScheduledJobRunScheduledJobRunStatus
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 /** A connection to a list of items. */
@@ -47397,6 +48592,22 @@ export interface ScheduledJobRunWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -47557,6 +48768,22 @@ export interface ScheduledJobWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -47697,6 +48924,8 @@ export interface Standard extends Node {
   trustCenterDocs: TrustCenterDocConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** version of the standard */
   version?: Maybe<Scalars['String']['output']>
 }
@@ -48129,6 +49358,22 @@ export interface StandardWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -48276,6 +49521,8 @@ export interface Subcontrol extends Node {
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
@@ -49137,6 +50384,22 @@ export interface SubcontrolWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -49192,6 +50455,8 @@ export interface Subprocessor extends Node {
   trustCenterSubprocessors: TrustCenterSubprocessorConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface SubprocessorEntitiesArgs {
@@ -49490,6 +50755,22 @@ export interface SubprocessorWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -49529,6 +50810,8 @@ export interface Subscriber extends Node {
   unsubscribed: Scalars['Boolean']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   /** the user matched to this subscriber by email, set automatically when a matching user exists */
   userID?: Maybe<Scalars['ID']['output']>
@@ -49801,6 +51084,22 @@ export interface SubscriberWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -49874,6 +51173,8 @@ export interface SystemDetail extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** system version used in OSCAL metadata */
   version?: Maybe<Scalars['String']['output']>
 }
@@ -50172,6 +51473,22 @@ export interface SystemDetailWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -50207,6 +51524,8 @@ export interface TfaSetting extends Node {
   totpAllowed?: Maybe<Scalars['Boolean']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** specifies if the TFA device has been verified */
   verified: Scalars['Boolean']['output']
 }
@@ -50338,6 +51657,22 @@ export interface TfaSettingWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -50376,6 +51711,8 @@ export interface TagDefinition extends Node {
   systemOwned?: Maybe<Scalars['Boolean']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 /** Return response for createBulkTagDefinition mutation */
@@ -50628,6 +51965,22 @@ export interface TagDefinitionWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -50714,6 +52067,8 @@ export interface Task extends Node {
   title: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   vulnerabilities: VulnerabilityConnection
   workflowObjectRefs: WorkflowObjectRefConnection
 }
@@ -51393,6 +52748,22 @@ export interface TaskWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -51452,6 +52823,8 @@ export interface Template extends Node {
   uischema?: Maybe<Scalars['Map']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface TemplateAssessmentsArgs {
@@ -51911,6 +53284,22 @@ export interface TemplateWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -51965,6 +53354,8 @@ export interface TrustCenter extends Node {
   trustCenterSubprocessors: TrustCenterSubprocessorConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   watermarkConfig?: Maybe<TrustCenterWatermarkConfig>
 }
 
@@ -52108,6 +53499,8 @@ export interface TrustCenterCompliance extends Node {
   trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface TrustCenterComplianceBlockedGroupsArgs {
@@ -52320,6 +53713,22 @@ export interface TrustCenterComplianceWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -52386,6 +53795,8 @@ export interface TrustCenterDoc extends Node {
   trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** visibility of the document */
   visibility?: Maybe<TrustCenterDocTrustCenterDocumentVisibility>
   /** status of the watermarking */
@@ -52709,6 +54120,22 @@ export interface TrustCenterDocWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -52772,6 +54199,8 @@ export interface TrustCenterEntity extends Node {
   trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** URL of customer's website */
   url?: Maybe<Scalars['String']['output']>
 }
@@ -52984,6 +54413,22 @@ export interface TrustCenterEntityWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -53033,6 +54478,8 @@ export interface TrustCenterFaq extends Node {
   trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface TrustCenterFaqBlockedGroupsArgs {
@@ -53306,6 +54753,22 @@ export interface TrustCenterFaqWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -53363,6 +54826,8 @@ export interface TrustCenterNdaRequest extends Node {
   trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface TrustCenterNdaRequestBlockedGroupsArgs {
@@ -53740,6 +55205,22 @@ export interface TrustCenterNdaRequestWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -53842,6 +55323,8 @@ export interface TrustCenterSetting extends Node {
   trustCenterID?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface TrustCenterSettingBlockedGroupsArgs {
@@ -54396,6 +55879,22 @@ export interface TrustCenterSettingWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -54427,6 +55926,8 @@ export interface TrustCenterSubprocessor extends Node {
   trustCenterSubprocessorKindName?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface TrustCenterSubprocessorBlockedGroupsArgs {
@@ -54674,6 +56175,22 @@ export interface TrustCenterSubprocessorWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -54732,6 +56249,8 @@ export interface TrustCenterWatermarkConfig extends Node {
   trustCenterID?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
 }
 
 export interface TrustCenterWatermarkConfigBlockedGroupsArgs {
@@ -55037,6 +56556,22 @@ export interface TrustCenterWatermarkConfigWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -55306,6 +56841,22 @@ export interface TrustCenterWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -58287,6 +59838,7 @@ export interface UpdateInviteInput {
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearOwnershipTransfer?: InputMaybe<Scalars['Boolean']['input']>
+  clearSSOExempt?: InputMaybe<Scalars['Boolean']['input']>
   /** the expiration date of the invitation token which defaults to 14 days in the future from creation */
   expires?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -58297,6 +59849,8 @@ export interface UpdateInviteInput {
   role?: InputMaybe<InviteRole>
   /** the number of attempts made to perform email send of the invitation, maximum of 5 */
   sendAttempts?: InputMaybe<Scalars['Int']['input']>
+  /** when accepted, grants the member an SSO exemption so they are not redirected through the organization's SSO login flow */
+  ssoExempt?: InputMaybe<Scalars['Boolean']['input']>
   /** the status of the invitation */
   status?: InputMaybe<InviteInviteStatus>
 }
@@ -58752,8 +60306,14 @@ export interface UpdateNotificationTemplateInput {
 export interface UpdateOrgMembershipInput {
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
+  clearSSOExempt?: InputMaybe<Scalars['Boolean']['input']>
+  clearSSOExemptReason?: InputMaybe<Scalars['Boolean']['input']>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   role?: InputMaybe<OrgMembershipRole>
+  /** member is exempt from the SSO login redirect for this organization; TFA enforcement still applies. Who may set this is gated by the org membership mutation policy */
+  ssoExempt?: InputMaybe<Scalars['Boolean']['input']>
+  /** reason the member was granted an SSO exemption */
+  ssoExemptReason?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -59261,10 +60821,13 @@ export interface UpdateOrganizationSettingInput {
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** allow users who can successfully confirm their email or who login via social providers with an email that matches the organizations configured allowed domain to auto-join the organization */
   allowMatchingDomainsAutojoin?: InputMaybe<Scalars['Boolean']['input']>
+  /** allow Openlane support to access this organization without a directory account */
+  allowSupportAccess?: InputMaybe<Scalars['Boolean']['input']>
   /** domains allowed to access the organization, if empty all domains are allowed */
   allowedEmailDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendAllowedEmailDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendDomains?: InputMaybe<Array<Scalars['String']['input']>>
+  appendSSOExemptDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the billing address to send billing information to */
   billingAddress?: InputMaybe<Scalars['Address']['input']>
@@ -59277,6 +60840,7 @@ export interface UpdateOrganizationSettingInput {
   /** Phone number to contact for billing */
   billingPhone?: InputMaybe<Scalars['String']['input']>
   clearAllowMatchingDomainsAutojoin?: InputMaybe<Scalars['Boolean']['input']>
+  clearAllowSupportAccess?: InputMaybe<Scalars['Boolean']['input']>
   clearAllowedEmailDomains?: InputMaybe<Scalars['Boolean']['input']>
   clearBillingAddress?: InputMaybe<Scalars['Boolean']['input']>
   clearBillingContact?: InputMaybe<Scalars['Boolean']['input']>
@@ -59295,6 +60859,7 @@ export interface UpdateOrganizationSettingInput {
   clearOidcDiscoveryEndpoint?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganization?: InputMaybe<Scalars['Boolean']['input']>
   clearPendingDeletionAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearSSOExemptDomains?: InputMaybe<Scalars['Boolean']['input']>
   clearSamlCert?: InputMaybe<Scalars['Boolean']['input']>
   clearSamlIssuer?: InputMaybe<Scalars['Boolean']['input']>
   clearSamlSigninURL?: InputMaybe<Scalars['Boolean']['input']>
@@ -59332,6 +60897,8 @@ export interface UpdateOrganizationSettingInput {
   samlIssuer?: InputMaybe<Scalars['String']['input']>
   /** the sign in URL to be used for SAML-based authentication */
   samlSigninURL?: InputMaybe<Scalars['String']['input']>
+  /** email domains whose existing members skip the SSO redirect even when SSO is enforced; TFA enforcement still applies */
+  ssoExemptDomains?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** Usually government-issued tax ID or business ID such as ABN in Australia */
@@ -62255,6 +63822,8 @@ export interface UserSetting extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userID?: Maybe<Scalars['ID']['output']>
 }
@@ -62494,6 +64063,22 @@ export interface UserSettingWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -62939,6 +64524,8 @@ export interface VendorRiskScore extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   vendorScoringConfig?: Maybe<VendorScoringConfig>
   /** the scoring config this assessment belongs to; auto-resolved from org context if not provided */
   vendorScoringConfigID?: Maybe<Scalars['ID']['output']>
@@ -63301,6 +64888,22 @@ export interface VendorRiskScoreWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -63344,6 +64947,8 @@ export interface VendorScoringConfig extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   vendorRiskScores: VendorRiskScoreConnection
 }
 
@@ -63541,6 +65146,22 @@ export interface VendorScoringConfigWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -63675,6 +65296,8 @@ export interface Vulnerability extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** true when the vulnerability has been validated by the security team */
   validated?: Maybe<Scalars['Boolean']['output']>
   /** attack vector string such as a CVSS vector */
@@ -64678,6 +66301,22 @@ export interface VulnerabilityWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -64939,6 +66578,8 @@ export interface WorkflowAssignment extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** User who acted on this assignment */
   user?: Maybe<User>
   workflowAssignmentTargets: WorkflowAssignmentTargetConnection
@@ -65036,6 +66677,8 @@ export interface WorkflowAssignmentTarget extends Node {
   targetUserID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** User target when target_type is USER */
   user?: Maybe<User>
   /** Assignment this target belongs to */
@@ -65251,6 +66894,22 @@ export interface WorkflowAssignmentTargetWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -65518,6 +67177,22 @@ export interface WorkflowAssignmentWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -65597,6 +67272,8 @@ export interface WorkflowDefinition extends Node {
   trackedFields?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
   /** Kind of workflow, e.g. APPROVAL, LIFECYCLE, NOTIFICATION */
   workflowKind: WorkflowDefinitionWorkflowKind
@@ -65970,6 +67647,22 @@ export interface WorkflowDefinitionWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -66009,6 +67702,8 @@ export interface WorkflowEvent extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   workflowInstance: WorkflowInstance
   /** ID of the workflow instance that generated the event */
   workflowInstanceID: Scalars['ID']['output']
@@ -66157,6 +67852,22 @@ export interface WorkflowEventWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -66300,6 +68011,8 @@ export interface WorkflowInstance extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   workflowAssignments: WorkflowAssignmentConnection
   /** Definition driving this instance */
   workflowDefinition: WorkflowDefinition
@@ -66726,6 +68439,22 @@ export interface WorkflowInstanceWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -66854,6 +68583,8 @@ export interface WorkflowObjectRef extends Node {
   taskID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** Workflow instance this object is associated with */
   workflowInstance: WorkflowInstance
   /** Workflow instance this object is associated with */
@@ -67281,6 +69012,22 @@ export interface WorkflowObjectRefWhereInput {
   updatedByGTE?: InputMaybe<Scalars['String']['input']>
   updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
   updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** updated_by_impersonator field predicates */
+  updatedByImpersonator?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContains?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByImpersonatorLT?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByImpersonatorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByImpersonatorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
   updatedByLT?: InputMaybe<Scalars['String']['input']>
@@ -67354,6 +69101,8 @@ export interface WorkflowProposal extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** the real user acting through an impersonation session when the record was last mutated, if any */
+  updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** WorkflowObjectRef record that identifies the target object for this proposal */
   workflowObjectRefID: Scalars['ID']['output']
 }
@@ -68805,21 +70554,29 @@ export type ControlListFieldsFragment = {
   __typename?: 'Control'
   id: string
   refCode: string
-  referenceFramework?: string | null
   description?: string | null
   status?: ControlControlStatus | null
   category?: string | null
   subcategory?: string | null
+  tags?: Array<string> | null
+  mappedCategories?: Array<string> | null
+  referenceFramework?: string | null
   referenceID?: string | null
   auditorReferenceID?: string | null
   source?: ControlControlSource | null
   sourceName?: string | null
   controlKindName?: string | null
+  publicRepresentation?: string | null
   title?: string | null
   updatedAt?: any | null
   updatedBy?: string | null
   createdAt?: any | null
   createdBy?: string | null
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+  }
   controlOwner?: {
     __typename?: 'Group'
     id: string
@@ -68828,35 +70585,30 @@ export type ControlListFieldsFragment = {
     gravatarLogoURL?: string | null
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
   } | null
-  subcontrols?: {
-    __typename?: 'SubcontrolConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
-  }
   delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-  controlImplementations?: {
+  controlImplementations: {
     __typename?: 'ControlImplementationConnection'
     edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
   }
-  comments?: { __typename?: 'NoteConnection'; totalCount: number }
-  controlObjectives?: {
+  comments: { __typename?: 'NoteConnection'; totalCount: number }
+  controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
     edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
   }
-  tasks?: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
-  internalPolicies?: {
+  tasks: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
+  internalPolicies: {
     __typename?: 'InternalPolicyConnection'
     totalCount: number
     edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
   }
-  procedures?: {
+  procedures: {
     __typename?: 'ProcedureConnection'
     totalCount: number
     edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
   }
-  programs?: { __typename?: 'ProgramConnection'; totalCount: number; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
-  risks?: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+  programs: { __typename?: 'ProgramConnection'; totalCount: number; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
+  risks: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
 }
 
 export type ControlListStandardFieldsFragment = {
@@ -68949,10 +70701,6 @@ export type ControlDetailsFieldsFragment = {
         source?: SubcontrolControlSource | null
         category?: string | null
         subcategory?: string | null
-        evidence: {
-          __typename?: 'EvidenceConnection'
-          edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null } | null } | null> | null
-        }
       } | null
     } | null> | null
   }
@@ -68982,32 +70730,6 @@ export type GetAllControlsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
-  includeDescription?: InputMaybe<Scalars['Boolean']['input']>
-  includeStatus?: InputMaybe<Scalars['Boolean']['input']>
-  includeCategory?: InputMaybe<Scalars['Boolean']['input']>
-  includeSubcategory?: InputMaybe<Scalars['Boolean']['input']>
-  includeReferenceID?: InputMaybe<Scalars['Boolean']['input']>
-  includeAuditorReferenceID?: InputMaybe<Scalars['Boolean']['input']>
-  includeSource?: InputMaybe<Scalars['Boolean']['input']>
-  includeSourceName?: InputMaybe<Scalars['Boolean']['input']>
-  includeControlKindName?: InputMaybe<Scalars['Boolean']['input']>
-  includeTitle?: InputMaybe<Scalars['Boolean']['input']>
-  includeCreatedAt?: InputMaybe<Scalars['Boolean']['input']>
-  includeCreatedBy?: InputMaybe<Scalars['Boolean']['input']>
-  includeUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
-  includeUpdatedBy?: InputMaybe<Scalars['Boolean']['input']>
-  includeControlOwner?: InputMaybe<Scalars['Boolean']['input']>
-  includeSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
-  includeDelegate?: InputMaybe<Scalars['Boolean']['input']>
-  includeResponsibleParty?: InputMaybe<Scalars['Boolean']['input']>
-  includeControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
-  includeComments?: InputMaybe<Scalars['Boolean']['input']>
-  includeControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
-  includeTasks?: InputMaybe<Scalars['Boolean']['input']>
-  includeInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
-  includeProcedures?: InputMaybe<Scalars['Boolean']['input']>
-  includePrograms?: InputMaybe<Scalars['Boolean']['input']>
-  includeRisks?: InputMaybe<Scalars['Boolean']['input']>
 }>
 
 export type GetAllControlsQuery = {
@@ -69022,21 +70744,29 @@ export type GetAllControlsQuery = {
         __typename: 'Control'
         id: string
         refCode: string
-        referenceFramework?: string | null
         description?: string | null
         status?: ControlControlStatus | null
         category?: string | null
         subcategory?: string | null
+        tags?: Array<string> | null
+        mappedCategories?: Array<string> | null
+        referenceFramework?: string | null
         referenceID?: string | null
         auditorReferenceID?: string | null
         source?: ControlControlSource | null
         sourceName?: string | null
         controlKindName?: string | null
+        publicRepresentation?: string | null
         title?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
+        subcontrols: {
+          __typename?: 'SubcontrolConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+        }
         controlOwner?: {
           __typename?: 'Group'
           id: string
@@ -69045,39 +70775,34 @@ export type GetAllControlsQuery = {
           gravatarLogoURL?: string | null
           avatarFile?: { __typename?: 'File'; base64?: string | null } | null
         } | null
-        subcontrols?: {
-          __typename?: 'SubcontrolConnection'
-          totalCount: number
-          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
-        }
         delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-        controlImplementations?: {
+        controlImplementations: {
           __typename?: 'ControlImplementationConnection'
           edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
         }
-        comments?: { __typename?: 'NoteConnection'; totalCount: number }
-        controlObjectives?: {
+        comments: { __typename?: 'NoteConnection'; totalCount: number }
+        controlObjectives: {
           __typename?: 'ControlObjectiveConnection'
           edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
         }
-        tasks?: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
-        internalPolicies?: {
+        tasks: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
+        internalPolicies: {
           __typename?: 'InternalPolicyConnection'
           totalCount: number
           edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
         }
-        procedures?: {
+        procedures: {
           __typename?: 'ProcedureConnection'
           totalCount: number
           edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
         }
-        programs?: {
+        programs: {
           __typename?: 'ProgramConnection'
           totalCount: number
           edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null
         }
-        risks?: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+        risks: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -69157,10 +70882,6 @@ export type GetControlByIdQuery = {
           source?: SubcontrolControlSource | null
           category?: string | null
           subcategory?: string | null
-          evidence: {
-            __typename?: 'EvidenceConnection'
-            edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null } | null } | null> | null
-          }
         } | null
       } | null> | null
     }
@@ -69457,161 +71178,32 @@ export type GetControlsPaginatedWithListFieldsQuery = {
   }
 }
 
-export type ControlReportFieldsFragment = {
-  __typename?: 'ControlReport'
-  id: string
-  refCode: string
-  title?: string | null
-  description?: string | null
-  status?: ControlControlStatus | null
-  category?: string | null
-  subcategory?: string | null
-  referenceFramework?: string | null
-  controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-  relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
-  linkedPolicies?: {
-    __typename?: 'ControlPolicies'
-    totalCount: number
-    internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
-  } | null
-  evidenceStatus?: {
-    __typename?: 'ControlEvidence'
-    totalCount: number
-    worstStatus?: EvidenceEvidenceStatus | null
-    approvedCount: number
-    countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
-  } | null
-}
-
-export type ControlReportsByCategoryQueryVariables = Exact<{
+export type GetControlsGroupedByCategoryResolverQueryVariables = Exact<{
   where?: InputMaybe<ControlWhereInput>
-}>
-
-export type ControlReportsByCategoryQuery = {
-  __typename?: 'Query'
-  controlReportsByCategory: Array<{
-    __typename?: 'ControlReportCategory'
-    category: string
-    totalCount: number
-    controls: Array<{
-      __typename?: 'ControlReport'
-      id: string
-      refCode: string
-      title?: string | null
-      description?: string | null
-      status?: ControlControlStatus | null
-      category?: string | null
-      subcategory?: string | null
-      referenceFramework?: string | null
-      subcontrols?: Array<{
-        __typename?: 'ControlReport'
-        id: string
-        refCode: string
-        title?: string | null
-        description?: string | null
-        status?: ControlControlStatus | null
-        category?: string | null
-        subcategory?: string | null
-        referenceFramework?: string | null
-        controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-        relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
-        linkedPolicies?: {
-          __typename?: 'ControlPolicies'
-          totalCount: number
-          internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
-        } | null
-        evidenceStatus?: {
-          __typename?: 'ControlEvidence'
-          totalCount: number
-          worstStatus?: EvidenceEvidenceStatus | null
-          approvedCount: number
-          countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
-        } | null
-      }> | null
-      controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-      relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
-      linkedPolicies?: {
-        __typename?: 'ControlPolicies'
-        totalCount: number
-        internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
-      } | null
-      evidenceStatus?: {
-        __typename?: 'ControlEvidence'
-        totalCount: number
-        worstStatus?: EvidenceEvidenceStatus | null
-        approvedCount: number
-        countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
-      } | null
-    }>
-  }>
-}
-
-export type ControlReportsQueryVariables = Exact<{
-  where?: InputMaybe<ControlWhereInput>
-  orderBy?: InputMaybe<Array<ControlReportOrder> | ControlReportOrder>
-  first?: InputMaybe<Scalars['Int']['input']>
+  category?: InputMaybe<Scalars['String']['input']>
   after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
-export type ControlReportsQuery = {
+export type GetControlsGroupedByCategoryResolverQuery = {
   __typename?: 'Query'
-  controlReports: {
-    __typename?: 'ControlReportConnection'
-    totalCount: number
-    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
-    edges?: Array<{
-      __typename?: 'ControlReportEdge'
-      node?: {
-        __typename?: 'ControlReport'
-        id: string
-        refCode: string
-        title?: string | null
-        description?: string | null
-        status?: ControlControlStatus | null
-        category?: string | null
-        subcategory?: string | null
-        referenceFramework?: string | null
-        subcontrols?: Array<{
-          __typename?: 'ControlReport'
-          id: string
-          refCode: string
-          title?: string | null
-          description?: string | null
-          status?: ControlControlStatus | null
-          category?: string | null
-          subcategory?: string | null
-          referenceFramework?: string | null
-          controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-          relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
-          linkedPolicies?: {
-            __typename?: 'ControlPolicies'
-            totalCount: number
-            internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
-          } | null
-          evidenceStatus?: {
-            __typename?: 'ControlEvidence'
-            totalCount: number
-            worstStatus?: EvidenceEvidenceStatus | null
-            approvedCount: number
-            countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
-          } | null
-        }> | null
-        controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-        relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
-        linkedPolicies?: {
-          __typename?: 'ControlPolicies'
+  controlsGroupByCategory: {
+    __typename?: 'ControlGroupConnection'
+    edges: Array<{
+      __typename?: 'ControlGroupEdge'
+      node: {
+        __typename?: 'ControlGroup'
+        category: string
+        controls: {
+          __typename?: 'ControlConnection'
           totalCount: number
-          internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
-        } | null
-        evidenceStatus?: {
-          __typename?: 'ControlEvidence'
-          totalCount: number
-          worstStatus?: EvidenceEvidenceStatus | null
-          approvedCount: number
-          countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
-        } | null
-      } | null
-    } | null> | null
+          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean }
+          edges?: Array<{
+            __typename?: 'ControlEdge'
+            node?: { __typename: 'Control'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null } | null
+          } | null> | null
+        }
+      }
+    }>
   }
 }
 
@@ -69621,15 +71213,6 @@ export type UpdateBulkControlMutationVariables = Exact<{
 }>
 
 export type UpdateBulkControlMutation = { __typename?: 'Mutation'; updateBulkControl: { __typename?: 'ControlBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
-
-export type GetSubcontrolIdsByControlQueryVariables = Exact<{
-  where?: InputMaybe<SubcontrolWhereInput>
-}>
-
-export type GetSubcontrolIdsByControlQuery = {
-  __typename?: 'Query'
-  subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string } | null } | null> | null }
-}
 
 export type GetControlsByRefCodeQueryVariables = Exact<{
   refCodeIn?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
@@ -69655,43 +71238,8 @@ export type GetControlsByRefCodeQuery = {
         standardID?: string | null
         ownerID?: string | null
         systemOwned?: boolean | null
-        isTrustCenterControl?: boolean | null
-        internalPolicies: {
-          __typename?: 'InternalPolicyConnection'
-          edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
-        }
-        evidence: {
-          __typename?: 'EvidenceConnection'
-          edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null } | null } | null> | null
-        }
       } | null
     } | null> | null
-  }
-}
-
-export type GetControlRelatedControlsQueryVariables = Exact<{
-  controlId: Scalars['ID']['input']
-}>
-
-export type GetControlRelatedControlsQuery = {
-  __typename?: 'Query'
-  control: {
-    __typename?: 'Control'
-    id: string
-    relatedControls?: Array<{
-      __typename?: 'ControlInfo'
-      id: string
-      refCode: string
-      status?: ControlControlStatus | null
-      referenceFramework?: string | null
-      isSubcontrol: boolean
-      parentControlID?: string | null
-      mappedControlReferenceIDs?: Array<string> | null
-      inheritedFromSubcontrolIDs?: Array<string> | null
-      category?: string | null
-      subcategory?: string | null
-      description?: string | null
-    }> | null
   }
 }
 
@@ -70481,8 +72029,6 @@ export type GetDocumentationPoliciesQuery = {
         updatedBy?: string | null
         updatedAt?: any | null
         approver?: { __typename?: 'Group'; id: string; displayName: string } | null
-        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
-        subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -70513,8 +72059,6 @@ export type GetDocumentationProceduresQuery = {
         updatedBy?: string | null
         updatedAt?: any | null
         approver?: { __typename?: 'Group'; id: string; displayName: string } | null
-        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
-        subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -71505,8 +73049,6 @@ export type GetEvidenceListLightQuery = {
         source?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
-        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
-        subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
       } | null
     } | null> | null
   }
@@ -72345,7 +73887,6 @@ export type GetGroupDetailsQuery = {
     gravatarLogoURL?: string | null
     isManaged?: boolean | null
     tags?: Array<string> | null
-    additionalRoles?: Array<string> | null
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
     members: {
       __typename?: 'GroupMembershipConnection'
@@ -73981,7 +75522,10 @@ export type UpdateUserRoleInOrgMutationVariables = Exact<{
 
 export type UpdateUserRoleInOrgMutation = {
   __typename?: 'Mutation'
-  updateOrgMembership: { __typename?: 'OrgMembershipUpdatePayload'; orgMembership: { __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; userID: string; organizationID: string } }
+  updateOrgMembership: {
+    __typename?: 'OrgMembershipUpdatePayload'
+    orgMembership: { __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; userID: string; organizationID: string; ssoExempt?: boolean | null; ssoExemptReason?: string | null }
+  }
 }
 
 export type RemoveUserFromOrgMutationVariables = Exact<{
@@ -74012,7 +75556,8 @@ export type OrgMembershipsQuery = {
         id: string
         createdAt?: any | null
         role: OrgMembershipRole
-        additionalRoles?: Array<string> | null
+        ssoExempt?: boolean | null
+        ssoExemptReason?: string | null
         user: {
           __typename?: 'User'
           id: string
@@ -74550,6 +76095,8 @@ export type GetOrganizationSettingQuery = {
       geoLocation?: OrganizationSettingRegion | null
       billingNotificationsEnabled: boolean
       allowedEmailDomains?: Array<string> | null
+      ssoExemptDomains?: Array<string> | null
+      allowSupportAccess?: boolean | null
       identityProvider?: OrganizationSettingSsoProvider | null
       identityProviderClientID?: string | null
       identityProviderClientSecret?: string | null
@@ -75882,7 +77429,7 @@ export type ReviewsWithFilterQuery = {
         scopeID?: string | null
         scopeName?: string | null
         source?: string | null
-        status?: ReviewReviewStatus | null
+        state?: string | null
         summary?: string | null
         systemOwned?: boolean | null
         tags?: Array<string> | null
@@ -75933,7 +77480,7 @@ export type ReviewQuery = {
     scopeID?: string | null
     scopeName?: string | null
     source?: string | null
-    status?: ReviewReviewStatus | null
+    state?: string | null
     summary?: string | null
     systemOwned?: boolean | null
     tags?: Array<string> | null
@@ -77437,30 +78984,6 @@ export type GetSubcontrolsByRefCodeQuery = {
         control: { __typename?: 'Control'; standardID?: string | null }
       } | null
     } | null> | null
-  }
-}
-
-export type GetSubcontrolRelatedControlsQueryVariables = Exact<{
-  subcontrolId: Scalars['ID']['input']
-}>
-
-export type GetSubcontrolRelatedControlsQuery = {
-  __typename?: 'Query'
-  subcontrol: {
-    __typename?: 'Subcontrol'
-    id: string
-    relatedControls?: Array<{
-      __typename?: 'ControlInfo'
-      id: string
-      refCode: string
-      status?: ControlControlStatus | null
-      referenceFramework?: string | null
-      isSubcontrol: boolean
-      mappedControlReferenceIDs?: Array<string> | null
-      category?: string | null
-      subcategory?: string | null
-      description?: string | null
-    }> | null
   }
 }
 
@@ -78969,10 +80492,8 @@ export type GetTrustCenterQuery = {
           logoRemoteURL?: string | null
           securityContact?: string | null
           ndaApprovalRequired?: boolean | null
-          ndaApproverGroupID?: string | null
           logoFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
-          ndaApproverGroup?: { __typename?: 'Group'; id: string; displayName: string; name: string } | null
         } | null
         previewSetting?: {
           __typename?: 'TrustCenterSetting'

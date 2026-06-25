@@ -1,4 +1,4 @@
-import { DefaultUser } from 'next-auth'
+import { type DefaultUser } from 'next-auth'
 
 /**
  * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
@@ -12,6 +12,9 @@ declare module 'next-auth' {
       image: string
       isTfaEnabled: boolean
       isOnboarding: boolean
+      isImpersonation?: boolean
+      impersonator?: string | null
+      impersonationSessionId?: string | null
     }
   }
   interface User extends DefaultUser {
