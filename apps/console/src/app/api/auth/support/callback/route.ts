@@ -6,9 +6,6 @@ interface SupportCallbackRequest {
   state: string
 }
 
-// Completes the second factor of the Openlane support access flow by forwarding the identity provider
-// authorization code and state to the backend, which exchanges the code, enforces the configured domain
-// restriction, and returns the support session token.
 export async function POST(request: NextRequest) {
   try {
     const body: SupportCallbackRequest = await request.json()

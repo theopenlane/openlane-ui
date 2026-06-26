@@ -6,9 +6,6 @@ import { signIn } from 'next-auth/react'
 
 const LOGIN_URL = '/login'
 
-// SupportCallbackContent completes the second factor of the Openlane support access flow. The identity
-// provider redirects here with a code and state; we exchange them for the support session token and
-// establish an impersonated session.
 const SupportCallbackContent: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()

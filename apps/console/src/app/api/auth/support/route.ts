@@ -9,10 +9,6 @@ interface SupportLoginRequest {
   reason: string
 }
 
-// The Openlane support login is the first factor of the support access flow. It posts to the standard
-// login endpoint, which detects the configured support identity email and (instead of a database
-// password check) validates the shared password from configuration and returns the second factor
-// identity provider redirect.
 export async function POST(request: NextRequest) {
   try {
     const body: SupportLoginRequest = await request.json()
@@ -36,7 +32,6 @@ export async function POST(request: NextRequest) {
     if (loginData.ok && fetchedData.success && fetchedData.redirect_uri) {
       const response = NextResponse.json(fetchedData, { status: loginData.status })
 
-      // forward the state/nonce/org cookies set by the backend so the callback can validate them
       const responseCookies = loginData.headers.get('set-cookie')
       if (responseCookies) {
         parseAndSetResponseCookies(response, responseCookies)
