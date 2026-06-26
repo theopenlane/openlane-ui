@@ -5,6 +5,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { Button } from '@repo/ui/button'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
+import { SUPPORT_LOGIN_URL } from '@/constants'
 
 const ImpersonationBanner: React.FC = () => {
   const { data: session } = useSession()
@@ -37,7 +38,7 @@ const ImpersonationBanner: React.FC = () => {
       }
     }
 
-    await signOut({ redirect: true, redirectTo: '/login' })
+    await signOut({ redirect: true, redirectTo: SUPPORT_LOGIN_URL })
   }
 
   return (
