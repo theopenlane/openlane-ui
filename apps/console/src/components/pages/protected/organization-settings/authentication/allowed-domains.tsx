@@ -89,7 +89,11 @@ const AllowedDomains = () => {
   return (
     <>
       <Panel>
-        <PanelHeader heading="Allowed domains" subheading="Restrict user logins to the organization by email domain" noBorder />
+        <PanelHeader
+          heading="Allowed domains"
+          subheading="Restrict user logins to the organization by email domain. This does not apply to users logging in with SSO when configured. Do not add your company domain(s) that are used for SSO here if SSO is enforced. Any domain here will not be allowed to be excluded from SSO settings."
+          noBorder
+        />
 
         <DomainListEditor
           domains={domains}

@@ -74,7 +74,7 @@ export const SSOInfoSlideOut = () => {
       trigger={(open) => (
         <Callout variant="info" compact>
           Need help configuring SSO?{' '}
-          <button type="button" onClick={open} className="text-primary font-medium underline-offset-4 hover:underline transition-colors">
+          <button type="button" onClick={open} className="underline underline-offset-4 decoration-2 hover:decoration-4 font-medium transition-all">
             View setup guide
           </button>
         </Callout>
@@ -89,7 +89,7 @@ export const SSOInfoSlideOut = () => {
           <h4 className="text-sm font-semibold text-text-header">Supported Providers</h4>
           <div className="flex flex-wrap gap-3">
             {PROVIDERS.map(({ name, logo }) => (
-              <div key={name} className="flex flex-col items-center rounded-lg border border-border bg-muted/40 px-3 pt-3 pb-2 w-[80px] h-[76px]">
+              <div key={name} className="flex flex-col items-center rounded-lg border border-border bg-muted/40 px-3 pt-3 pb-2 w-20 h-19">
                 <div className="flex flex-1 items-center justify-center">
                   <Image src={logo} width={28} height={28} alt={name} className="object-contain max-h-7 max-w-7" />
                 </div>

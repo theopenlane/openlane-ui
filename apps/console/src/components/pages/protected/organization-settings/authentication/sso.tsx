@@ -237,10 +237,10 @@ const SSOPage = () => {
   const formSchema = useMemo(
     () =>
       z.object({
-        identityProvider: z.enum(identityProviderOptions as [string, ...string[]]).optional(),
-        identityProviderClientID: z.string().optional(),
-        identityProviderClientSecret: z.string().optional(),
-        oidcDiscoveryEndpoint: z.string().optional(),
+        identityProvider: z.enum(identityProviderOptions as [string, ...string[]], { required_error: 'Identity provider is required' }),
+        identityProviderClientID: z.string().min(1, 'Client ID is required'),
+        identityProviderClientSecret: z.string().min(1, 'Client Secret is required'),
+        oidcDiscoveryEndpoint: z.string().min(1, 'OIDC Discovery Endpoint is required').url('Enter a valid URL'),
       }),
     [identityProviderOptions],
   )
@@ -288,7 +288,7 @@ const SSOPage = () => {
 
     await updateOrgSetting({ updateOrganizationSettingId: currentSetting.id, input })
     setIsSuccess(true)
-    if (credentialsChanged) setShowReTestWarning(true)
+    if (credentialsChanged && currentSetting.identityProviderAuthTested) setShowReTestWarning(true)
     invalidateOrgSetting()
   }
 
