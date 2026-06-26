@@ -20,6 +20,7 @@ export const COMPLIANCE_FRAMEWORK_OPTIONS = [
   { value: COMPLIANCE_FRAMEWORKS.iso27001, label: COMPLIANCE_FRAMEWORKS.iso27001, icon: Globe2 },
   { value: COMPLIANCE_FRAMEWORKS.hipaa, label: COMPLIANCE_FRAMEWORKS.hipaa, icon: Heart },
   { value: COMPLIANCE_FRAMEWORKS.pciDss, label: COMPLIANCE_FRAMEWORKS.pciDss, icon: CreditCard },
-  { value: COMPLIANCE_FRAMEWORKS.nistCsf, label: COMPLIANCE_FRAMEWORKS.nistCsf, icon: ShieldCheck },
+  // NIST CSF for matching, but we display NIST in UI.
+  { value: COMPLIANCE_FRAMEWORKS.nistCsf, label: 'NIST', icon: ShieldCheck },
   { value: COMPLIANCE_FRAMEWORKS.other, label: COMPLIANCE_FRAMEWORKS.other, icon: Ellipsis },
 ] as const

@@ -8,8 +8,8 @@ import { z, type infer as zInfer } from 'zod'
 
 export const step2Schema = z.object({
   userDetails: z.object({
-    role: z.string().min(1, 'Role is required'),
-    department: z.string().min(1, 'Department is required'),
+    role: z.string().optional(),
+    department: z.string().optional(),
   }),
 })
 
@@ -30,7 +30,7 @@ export default function Step2() {
       <h2 className="text-xl font-semibold">User Info</h2>
       <div className="space-y-2">
         <Label htmlFor="role">Role</Label>
-        <Input id="role" {...register('userDetails.role')} required />
+        <Input id="role" {...register('userDetails.role')} />
         {errors.userDetails?.role && <p className="text-red-500 text-sm">{errors.userDetails.role.message}</p>}
       </div>
       <div className="space-y-2">

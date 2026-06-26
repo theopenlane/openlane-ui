@@ -51,6 +51,7 @@ export default function AdvancedSetupWizard() {
   const searchParams = useSearchParams()
   const defaultFrameworks = searchParams.getAll('frameworks')
   const includeSuggestedControls = searchParams.get('suggestedControls') === 'true'
+  const isOnboardingFlow = searchParams.get('onboarding') === 'true'
   const [summaryData, setSummaryData] = useState<WizardValues>({} as WizardValues)
   const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
@@ -59,7 +60,8 @@ export default function AdvancedSetupWizard() {
   const { useStepper } = defineStepper(
     { id: '0', label: 'Select a Program Type', schema: step1Schema },
     { id: '1', label: 'General Information', schema: step2Schema },
-    ...(includeSuggestedControls ? [{ id: '2', label: 'Import Controls', schema: suggestedControlsStepSchema }] : [{ id: '2', label: 'Select SOC 2 Categories', schema: categoriesStepSchema }]),
+    { id: '2', label: 'Select SOC 2 Categories', schema: categoriesStepSchema },
+    ...(includeSuggestedControls ? [{ id: '2a', label: 'Import Controls', schema: suggestedControlsStepSchema }] : []),
     { id: '3', label: 'Auditors', schema: step3Schema },
     { id: '4', label: 'Add Team Members', schema: step4Schema },
     { id: '5', label: 'Associate Existing Objects', schema: step5Schema },
@@ -85,8 +87,9 @@ export default function AdvancedSetupWizard() {
       riskIDs: [],
       internalPolicyIDs: [],
       procedureIDs: [],
-      categories: includeSuggestedControls ? [] : ['Security'],
+      categories: ['Security'],
       suggestedControlIDs: [],
+      suggestedControlCategories: [],
       frameworks: [],
       ...(defaultFrameworks.length > 1 ? { programKindName: 'Framework' } : {}),
     },
@@ -97,7 +100,7 @@ export default function AdvancedSetupWizard() {
 
   const hasSoc2Framework = framework === SOC2_FRAMEWORK_NAME || selectedFrameworks?.some((selectedFramework) => selectedFramework.value === SOC2_FRAMEWORK_NAME)
 
-  const disabledIDs = includeSuggestedControls || hasSoc2Framework ? [] : ['2']
+  const disabledIDs = [...(hasSoc2Framework ? [] : ['2']), ...(isOnboardingFlow ? ['4'] : [])]
 
   const handleNext = async () => {
     if (!stepper.isLast) {
@@ -234,6 +237,12 @@ export default function AdvancedSetupWizard() {
   return (
     <>
       <div className="max-w-6xl mx-auto px-6 py-2">
+        {isOnboardingFlow && (
+          <div className="mb-6 rounded-md border border-brand/30 bg-brand/5 p-4">
+            <p className="text-sm font-semibold">Program creation</p>
+            <p className="mt-1 text-sm text-muted-foreground">Your onboarding answers are saved. Now create your compliance program and choose the controls you want to start with.</p>
+          </div>
+        )}
         <StepHeader stepper={stepper} disabledIDs={disabledIDs} className="mb-6" />
         <Separator separatorClass="bg-card" />
         <FormProvider key={stepper.current.id} {...form}>
@@ -242,12 +251,8 @@ export default function AdvancedSetupWizard() {
               {stepper.switch({
                 0: () => <AdvancedSetupStep1 />,
                 1: () => <AdvancedSetupStep2 defaultFrameworks={defaultFrameworks} />,
-                2: () =>
-                  includeSuggestedControls ? (
-                    <SuggestedControlsStep frameworkName={selectedFrameworks?.map((selectedFramework) => selectedFramework.value).join(', ') || framework} />
-                  ) : (
-                    <SelectCategoryStep />
-                  ),
+                2: () => <SelectCategoryStep />,
+                '2a': () => <SuggestedControlsStep frameworkName={selectedFrameworks?.map((selectedFramework) => selectedFramework.value).join(', ') || framework} />,
                 3: () => <AdvancedSetupStep3 />,
                 4: () => <AdvancedSetupStep4 isMemberSheetOpen={isMemberSheetOpen} setIsMemberSheetOpen={setIsMemberSheetOpen} />,
                 5: () => <AdvancedSetupStep5 />,
