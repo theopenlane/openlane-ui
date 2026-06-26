@@ -8,7 +8,21 @@ export default auth(async (req) => {
   req.headers.append('next-url', req.nextUrl.toString())
 
   //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
-  const publicPages = ['/login', '/login/sso', '/login/sso/enforce', '/tfa', '/invite', '/verify', '/resend-verify', '/forgot-password', '/password-reset', '/signup', '/questionnaire']
+  const publicPages = [
+    '/login',
+    '/login/sso',
+    '/login/sso/enforce',
+    '/login/support',
+    '/login/support/callback',
+    '/tfa',
+    '/invite',
+    '/verify',
+    '/resend-verify',
+    '/forgot-password',
+    '/password-reset',
+    '/signup',
+    '/questionnaire',
+  ]
 
   const personalOrgPages = ['/onboarding', '/organization', '/user-settings/profile']
 

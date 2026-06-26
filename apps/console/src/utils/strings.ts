@@ -39,6 +39,8 @@ export function toHumanLabel(input: string): string {
   return label.replace(/\b\w+\b/g, (word) => (ACRONYMS.has(word.toLowerCase()) ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()))
 }
 
+export const isValidDomain = (domain: string): boolean => /^(?!:\/\/)([a-zA-Z0-9-_]+\.)+[a-zA-Z]{2,}$/.test(domain)
+
 export function formatPhoneNumber(value?: string | null): string {
   if (!value) return ''
 
