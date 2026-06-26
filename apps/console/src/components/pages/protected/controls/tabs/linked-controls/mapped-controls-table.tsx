@@ -11,6 +11,7 @@ import { extractFilterValues } from '@/components/pages/protected/controls/table
 import { useDebounce } from '@uidotdev/usehooks'
 import { getMappedControlsFilterFields } from './mapped-controls-config'
 import type { MappedControlRow } from './mapped-controls-types'
+import { Card } from '@repo/ui/cardpanel'
 
 type MappedControlsTableProps = {
   title: string
@@ -19,20 +20,12 @@ type MappedControlsTableProps = {
   searchPlaceholder: string
   showFrameworkFilter?: boolean
   action?: React.ReactNode
+  countLabel?: string
+  implementedCount?: number
 }
 
-const SectionToggle: React.FC<{ open: boolean; title: string }> = ({ open, title }) => (
-  <CollapsibleTrigger className="flex items-center gap-2 group">
-    <ChevronDown className={`h-4 w-4 transition-transform ${open ? '' : '-rotate-90'}`} />
-    <h2 className="text-lg font-semibold">{title}</h2>
-  </CollapsibleTrigger>
-)
-
-type MappingTypeFilter = 'all' | MappedControlRow['mappingType']
-type MappingSourceFilter = 'all' | MappedControlRow['source']
-
-const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, columns, searchPlaceholder, showFrameworkFilter = false, action }) => {
-  const [isOpen, setIsOpen] = useState(true)
+const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, columns, searchPlaceholder, showFrameworkFilter = false, action, countLabel, implementedCount }) => {
+  const [open, setOpen] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearch = useDebounce(searchQuery, 300)
   const [filters, setFilters] = useState<WhereCondition>({})
@@ -46,8 +39,6 @@ const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, 
   const controlSourceFilter = useMemo(() => (filterValues.sourceIn ?? []) as string[] | string, [filterValues.sourceIn])
   const categoryFilter = useMemo(() => (filterValues.categoryContainsFold ?? '') as string, [filterValues.categoryContainsFold])
   const subcategoryFilter = useMemo(() => (filterValues.subcategoryContainsFold ?? '') as string, [filterValues.subcategoryContainsFold])
-  const mappingTypeFilter = useMemo(() => (filterValues.mappingTypeIn ?? []) as MappingTypeFilter[] | MappingTypeFilter, [filterValues.mappingTypeIn])
-  const mappingSourceFilter = useMemo(() => (filterValues.mappingSourceIn ?? []) as MappingSourceFilter[] | MappingSourceFilter, [filterValues.mappingSourceIn])
   const frameworkFilter = useMemo(() => (filterValues.referenceFrameworkIn ?? []) as string[] | string, [filterValues.referenceFrameworkIn])
 
   const filteredRows = useMemo(() => {
@@ -64,12 +55,6 @@ const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, 
       if (normalizedCategory && !(row.category ?? '').toLowerCase().includes(normalizedCategory)) return false
 
       if (normalizedSubcategory && !(row.subcategory ?? '').toLowerCase().includes(normalizedSubcategory)) return false
-
-      if (Array.isArray(mappingTypeFilter) && mappingTypeFilter.length > 0 && !mappingTypeFilter.includes(row.mappingType)) return false
-      if (!Array.isArray(mappingTypeFilter) && mappingTypeFilter !== 'all' && row.mappingType !== mappingTypeFilter) return false
-
-      if (Array.isArray(mappingSourceFilter) && mappingSourceFilter.length > 0 && !mappingSourceFilter.includes(row.source)) return false
-      if (!Array.isArray(mappingSourceFilter) && mappingSourceFilter !== 'all' && row.source !== mappingSourceFilter) return false
 
       if (showFrameworkFilter) {
         if (Array.isArray(frameworkFilter) && frameworkFilter.length > 0 && !frameworkFilter.includes(row.referenceFramework ?? '')) return false
@@ -88,7 +73,7 @@ const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, 
         (row.referenceFramework ?? '').toLowerCase().includes(normalizedSearch)
       )
     })
-  }, [rows, typeFilter, controlSourceFilter, categoryFilter, subcategoryFilter, mappingTypeFilter, mappingSourceFilter, frameworkFilter, showFrameworkFilter, normalizedSearch])
+  }, [rows, typeFilter, controlSourceFilter, categoryFilter, subcategoryFilter, frameworkFilter, showFrameworkFilter, normalizedSearch])
 
   useEffect(() => {
     setPagination((prev) => ({
@@ -104,32 +89,60 @@ const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, 
   }, [filteredRows, pagination.page, pagination.pageSize])
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <SectionToggle open={isOpen} title={title} />
-      </div>
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <Card className="p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold">{title}</h2>
+            {countLabel && <span className="text-sm text-muted-foreground">{countLabel}</span>}
+          </div>
+          <div className="flex items-center gap-3">
+            {implementedCount !== undefined && rows.length > 0 && (
+              <div className="flex items-center gap-2">
+                <div className="w-24 h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${Math.round((implementedCount / rows.length) * 100)}%` }} />
+                </div>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">
+                  {implementedCount} of {rows.length} implemented
+                </span>
+              </div>
+            )}
+            <CollapsibleTrigger asChild>
+              <button className="text-muted-foreground hover:text-foreground transition-colors" aria-label={open ? 'Collapse' : 'Expand'}>
+                <ChevronDown size={18} className={`transition-transform duration-200 ${open ? '' : '-rotate-90'}`} />
+              </button>
+            </CollapsibleTrigger>
+          </div>
+        </div>
 
-      <CollapsibleContent forceMount hidden={!isOpen} className="space-y-4">
-        <SearchFilterBar
-          placeholder={searchPlaceholder}
-          isSearching={searchQuery !== debouncedSearch}
-          searchValue={searchQuery}
-          onSearchChange={setSearchQuery}
-          filterFields={action ? null : filterFields}
-          onFilterChange={setFilters}
-          actionButtons={action}
-        />
+        <CollapsibleContent>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <SearchFilterBar
+                  placeholder={searchPlaceholder}
+                  isSearching={searchQuery !== debouncedSearch}
+                  searchValue={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  filterFields={filterFields}
+                  onFilterChange={setFilters}
+                />
+              </div>
+              {action}
+            </div>
 
-        <DataTable
-          columns={columns}
-          data={pagedRows}
-          pagination={pagination}
-          onPaginationChange={setPagination}
-          paginationMeta={{ totalCount: filteredRows.length }}
-          noResultsText="No mapped controls found."
-          tableKey={undefined}
-        />
-      </CollapsibleContent>
+            <DataTable
+              columns={columns}
+              data={pagedRows}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              paginationMeta={{ totalCount: filteredRows.length }}
+              noResultsText="No mapped controls found."
+              tableKey={undefined}
+            />
+          </div>
+        </CollapsibleContent>
+      </Card>
     </Collapsible>
   )
 }

@@ -14,10 +14,13 @@ import {
   GET_CONTROLS_PAGINATED,
   UPDATE_CONTROL,
   GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS,
-  GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER,
+  CONTROL_REPORTS_BY_CATEGORY,
+  CONTROL_REPORTS,
   BULK_EDIT_CONTROL,
+  GET_SUBCONTROL_IDS_BY_CONTROL,
   CLONE_CSV_BULK_CONTROL,
   GET_CONTROLS_BY_REFCODE,
+  GET_CONTROL_RELATED_CONTROLS,
   GET_CONTROL_COMMENTS,
   UPDATE_CONTROL_COMMENT,
   CREATE_CSV_BULK_MAPPED_CONTROL,
@@ -60,12 +63,14 @@ import {
   type GetControlsPaginatedWithListFieldsQuery,
   type GetControlsPaginatedWithListFieldsQueryVariables,
   type ControlListStandardFieldsFragment,
-  type GetControlsGroupedByCategoryResolverQuery,
   type UpdateBulkControlMutation,
   type UpdateBulkControlMutationVariables,
+  type GetSubcontrolIdsByControlQuery,
+  type GetSubcontrolIdsByControlQueryVariables,
   type CloneBulkCsvControlMutation,
   type CloneBulkCsvControlMutationVariables,
   type GetControlsByRefCodeQuery,
+  type GetControlRelatedControlsQuery,
   type GetControlCommentsQuery,
   type GetControlCommentsQueryVariables,
   type UpdateControlCommentMutation,
@@ -85,6 +90,12 @@ import {
   type InsertControlPlateCommentMutationVariables,
   type GetControlDiscussionByIdQuery,
   type GetExistingControlsForOrganizationQuery,
+  type ControlReportsByCategoryQuery,
+  type ControlReportsByCategoryQueryVariables,
+  type ControlReportsQuery,
+  type ControlReportsQueryVariables,
+  ControlReportOrderField,
+  OrderDirection,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -176,6 +187,17 @@ export const useBulkEditControl = () => {
       queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
+}
+
+export const useSubcontrolIdFetcher = () => {
+  const { client } = useGraphQLClient()
+  return async (controlIds: string[]): Promise<string[]> => {
+    if (controlIds.length === 0) return []
+    const data = await client.request<GetSubcontrolIdsByControlQuery, GetSubcontrolIdsByControlQueryVariables>(GET_SUBCONTROL_IDS_BY_CONTROL, {
+      where: { controlIDIn: controlIds },
+    })
+    return (data.subcontrols.edges ?? []).map((e) => e?.node?.id).filter((id): id is string => !!id)
+  }
 }
 
 export const useGetControlCountsByStatus = (programId?: string | null) => {
@@ -431,71 +453,79 @@ export function useGetControlMinifiedById(controlId?: string, enabled = true) {
   })
 }
 
-export const useGetControlsGroupedByCategoryResolver = ({ where, enabled }: { where?: ControlWhereInput; enabled: boolean }) => {
+export type ControlReportItem = NonNullable<NonNullable<NonNullable<ControlReportsQuery['controlReports']['edges']>[number]>['node']>
+export type ControlReportSubcontrolItem = NonNullable<ControlReportItem['subcontrols']>[number]
+export type ControlReportCategoryItem = { category: string; totalCount: number; controls: ControlReportItem[] }
+
+export const useControlReportsByCategory = ({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
-  return useQuery({
-    queryKey: ['controls', 'allGroupedByCategory', where],
+  return useQuery<ControlReportCategoryItem[], Error>({
+    queryKey: ['controls', 'reportsByCategory', where],
     enabled,
     queryFn: async () => {
-      const allControls: Record<
-        string,
-        {
-          id: string
-          refCode: string
-          status?: string | null
-          referenceFramework?: string | null
-        }[]
-      > = {}
-
-      const cursors: Record<string, string | null> = {}
-      const hasNextMap: Record<string, boolean> = {}
-
-      const initial = await client.request<GetControlsGroupedByCategoryResolverQuery>(GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER, { where })
-
-      for (const edge of initial.controlsGroupByCategory.edges) {
-        const category = edge.node.category
-
-        const controls = edge.node.controls.edges?.map((e) => e?.node).filter((node): node is NonNullable<typeof node> => Boolean(node?.id && node?.refCode))
-
-        if (controls && category) {
-          allControls[category] = controls
-          cursors[category] = edge.node.controls.pageInfo.endCursor
-          hasNextMap[category] = edge.node.controls.pageInfo.hasNextPage
-        }
-      }
-
-      const fetchNextForCategory = async (category: string, after: string) => {
-        const response = await client.request<GetControlsGroupedByCategoryResolverQuery>(GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER, {
-          where,
-          category,
-          after,
-        })
-
-        const node = response.controlsGroupByCategory.edges?.[0]?.node
-        if (!node) return
-
-        const newControls = node.controls?.edges?.map((e) => e?.node).filter((node): node is NonNullable<typeof node> => Boolean(node?.id && node?.refCode)) ?? []
-
-        allControls[category] = [...(allControls[category] || []), ...newControls]
-
-        if (node.controls.pageInfo.hasNextPage && node.controls.pageInfo.endCursor) {
-          await fetchNextForCategory(category, node.controls.pageInfo.endCursor)
-        }
-      }
-
-      const promises = Object.entries(hasNextMap)
-        .filter(([, hasNext]) => hasNext)
-        .map(([category]) => fetchNextForCategory(category, cursors[category] ?? ''))
-
-      await Promise.all(promises)
-
-      return Object.entries(allControls).map(([category, controls]) => ({
-        category,
-        controls,
-      }))
+      const data = await client.request<ControlReportsByCategoryQuery, ControlReportsByCategoryQueryVariables>(CONTROL_REPORTS_BY_CATEGORY, { where })
+      return data.controlReportsByCategory
     },
   })
+}
+
+const CONTROL_REPORTS_PAGE_SIZE = 100
+
+export const useControlReports = ({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  const { data, isLoading, isFetching, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteQuery<
+    ControlReportsQuery['controlReports'],
+    Error,
+    InfiniteData<ControlReportsQuery['controlReports']>,
+    ['controlReports', ControlWhereInput | undefined],
+    string | null
+  >({
+    queryKey: ['controlReports', where],
+    queryFn: async ({ pageParam }) => {
+      const res = await client.request<ControlReportsQuery, ControlReportsQueryVariables>(CONTROL_REPORTS, {
+        where,
+        orderBy: [{ field: ControlReportOrderField.refCode, direction: OrderDirection.ASC }],
+        first: CONTROL_REPORTS_PAGE_SIZE,
+        after: pageParam ?? undefined,
+      })
+      return res.controlReports
+    },
+    initialPageParam: null,
+    getNextPageParam: (last) => (last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined),
+    enabled,
+  })
+
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const reports = useMemo(() => {
+    const raw = data?.pages.flatMap((page) => page.edges?.map((edge) => edge?.node) ?? []) ?? []
+    return raw.filter((node): node is ControlReportItem => node != null)
+  }, [data?.pages])
+
+  const grouped = useMemo<ControlReportCategoryItem[]>(() => {
+    const map = new Map<string, ControlReportItem[]>()
+    for (const report of reports) {
+      const category = report.category ?? ''
+      const bucket = map.get(category)
+      if (bucket) bucket.push(report)
+      else map.set(category, [report])
+    }
+    return Array.from(map.entries()).map(([category, controls]) => ({ category, totalCount: controls.length, controls }))
+  }, [reports])
+
+  const isLoadingAll = isLoading || isFetchingNextPage || hasNextPage
+
+  return {
+    data: isLoadingAll ? undefined : grouped,
+    isLoading: isLoadingAll,
+    isFetching,
+  }
 }
 
 type UseGetControlsByRefCodeArgs = {
@@ -511,6 +541,16 @@ export const useGetControlsByRefCode = ({ refCodeIn, enabled = true }: UseGetCon
     queryFn: async () => await client.request(GET_CONTROLS_BY_REFCODE, { refCodeIn }),
 
     enabled: enabled && refCodeIn.length > 0,
+  })
+}
+
+export const useGetControlRelatedControls = (controlId?: string | null, enabled = true) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetControlRelatedControlsQuery, unknown>({
+    queryKey: ['controls', controlId, 'relatedControls'],
+    queryFn: async () => client.request(GET_CONTROL_RELATED_CONTROLS, { controlId }),
+    enabled: !!controlId && enabled,
   })
 }
 
@@ -618,6 +658,7 @@ export const useGetExistingOrgControls = ({ refCodeIn, referenceFrameworkIn, ena
         where: {
           refCodeIn,
           systemOwned: false,
+          isTrustCenterControl: false,
           ...(referenceFrameworkIn?.length && { referenceFrameworkIn }),
         },
       }),

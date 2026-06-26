@@ -1,8 +1,6 @@
 'use client'
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ChevronDown } from 'lucide-react'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/react-collapsible'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -18,12 +16,13 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getSubcontrolsColumns, getSubcontrolsFilterFields, type SubcontrolRow } from './subcontrols-table-config'
 import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
-import { SubcontrolControlSource, type SubcontrolWhereInput } from '@repo/codegen/src/schema'
+import { SubcontrolControlSource, SubcontrolControlStatus, type SubcontrolWhereInput } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
-import { BulkEditSubcontrolsDialog } from '@/components/pages/protected/controls/bulk-edit/bulk-edit-controls'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { Card } from '@repo/ui/cardpanel'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/react-collapsible'
+import { ChevronDown } from 'lucide-react'
 
 const SubcontrolsTable: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -36,7 +35,6 @@ const SubcontrolsTable: React.FC = () => {
   const [filters, setFilters] = useState<WhereCondition>({})
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filterFields, setFilterFields] = useState<FilterField[] | null>(null)
-  const [selectedSubcontrols, setSelectedSubcontrols] = useState<{ id: string; refCode: string }[]>([])
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
       objectType: objectToSnakeCase(ObjectTypes.CONTROL),
@@ -64,6 +62,16 @@ const SubcontrolsTable: React.FC = () => {
     pagination,
     enabled: Boolean(id),
   })
+
+  const { paginationMeta: approvedMeta } = useGetSubcontrolsPaginated({
+    where: id ? { controlID: id, status: SubcontrolControlStatus.APPROVED } : undefined,
+    pagination: { page: 1, pageSize: 1, query: { first: 1 } },
+    enabled: Boolean(id),
+  })
+
+  const totalCount = paginationMeta?.totalCount ?? 0
+  const implementedCount = approvedMeta?.totalCount ?? 0
+  const implementedPercent = totalCount > 0 ? Math.round((implementedCount / totalCount) * 100) : 0
 
   const cleanedSubcontrols = useMemo<SubcontrolRow[]>(
     () =>
@@ -105,62 +113,60 @@ const SubcontrolsTable: React.FC = () => {
     }))
   }, [searchQuery, filters])
 
-  const canBulkEditSubcontrols = canEdit(permission?.roles)
-
-  const columns = useMemo(
-    () =>
-      getSubcontrolsColumns({
-        controlId: id,
-        convertToReadOnly,
-        selectedSubcontrols,
-        setSelectedSubcontrols,
-        canSelect: canBulkEditSubcontrols,
-      }),
-    [canBulkEditSubcontrols, convertToReadOnly, id, selectedSubcontrols],
-  )
-
-  const hasBulkSelection = canBulkEditSubcontrols && selectedSubcontrols.length > 0
-  const bulkActionButtons = hasBulkSelection ? (
-    <div className="flex items-center gap-2">
-      <BulkEditSubcontrolsDialog selectedSubcontrols={selectedSubcontrols} setSelectedSubcontrols={setSelectedSubcontrols} />
-      <CancelButton onClick={() => setSelectedSubcontrols([])} />
-    </div>
-  ) : null
+  const columns = useMemo(() => getSubcontrolsColumns({ controlId: id, convertToReadOnly }), [convertToReadOnly, id])
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mt-8 space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <CollapsibleTrigger className="flex items-center gap-2 group">
-            <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? '' : '-rotate-90'}`} />
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Card className="p-5 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
             <h2 className="text-lg font-semibold">Subcontrols</h2>
-          </CollapsibleTrigger>
-          {(hasPermission(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) || canEdit(permission?.roles)) && <CreateButton type="subcontrol" href={`/controls/${id}/create-subcontrol`} />}
+            <span className="text-sm text-muted-foreground">({totalCount} total)</span>
+            {(hasPermission(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) || canEdit(permission?.roles)) && <CreateButton type="subcontrol" href={`/controls/${id}/create-subcontrol`} />}
+          </div>
+          <div className="flex items-center gap-3">
+            {totalCount > 0 && (
+              <div className="flex items-center gap-2">
+                <div className="w-24 h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${implementedPercent}%` }} />
+                </div>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">
+                  {implementedCount} of {totalCount} implemented
+                </span>
+              </div>
+            )}
+            <CollapsibleTrigger asChild>
+              <button className="text-muted-foreground hover:text-foreground transition-colors" aria-label={isOpen ? 'Collapse' : 'Expand'}>
+                <ChevronDown size={18} className={`transition-transform duration-200 ${isOpen ? '' : '-rotate-90'}`} />
+              </button>
+            </CollapsibleTrigger>
+          </div>
         </div>
-      </div>
 
-      <CollapsibleContent forceMount hidden={!isOpen} className="space-y-4">
-        <SearchFilterBar
-          placeholder="Search subcontrols"
-          isSearching={searchQuery !== debouncedSearch}
-          searchValue={searchQuery}
-          onSearchChange={setSearchQuery}
-          filterFields={hasBulkSelection ? null : filterFields}
-          onFilterChange={handleFilterChange}
-          actionButtons={bulkActionButtons}
-        />
+        <CollapsibleContent>
+          <div className="space-y-4">
+            <SearchFilterBar
+              placeholder="Search subcontrols"
+              isSearching={searchQuery !== debouncedSearch}
+              searchValue={searchQuery}
+              onSearchChange={setSearchQuery}
+              filterFields={filterFields}
+              onFilterChange={handleFilterChange}
+            />
 
-        <DataTable
-          columns={columns}
-          data={cleanedSubcontrols}
-          loading={isLoading}
-          pagination={pagination}
-          onPaginationChange={setPagination}
-          paginationMeta={paginationMeta}
-          noResultsText="No subcontrols found."
-          tableKey={undefined}
-        />
-      </CollapsibleContent>
+            <DataTable
+              columns={columns}
+              data={cleanedSubcontrols}
+              loading={isLoading}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              paginationMeta={paginationMeta}
+              noResultsText="No subcontrols found."
+              tableKey={undefined}
+            />
+          </div>
+        </CollapsibleContent>
+      </Card>
     </Collapsible>
   )
 }

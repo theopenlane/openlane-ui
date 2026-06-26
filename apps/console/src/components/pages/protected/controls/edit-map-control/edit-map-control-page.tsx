@@ -16,7 +16,7 @@ import {
   type SubcontrolEdge,
 } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
-import { useGetMappedControlById, useUpdateMappedControl } from '@/lib/graphql-hooks/mapped-control'
+import { useGetMappedControlById, useUpdateMappedControl, useDeleteMappedControl } from '@/lib/graphql-hooks/mapped-control'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
@@ -45,6 +45,7 @@ const EditMapControlPage = () => {
   const [droppedControlsFrom, setDroppedControlsFrom] = useState<MapControl[]>([])
   const [droppedControlsTo, setDroppedControlsTo] = useState<MapControl[]>([])
   const { mutateAsync: update, data: updateData, isPending } = useUpdateMappedControl()
+  const { mutateAsync: deleteMappedControl, isPending: isDeleting } = useDeleteMappedControl()
 
   const isControl = !subcontrolId && !!id
   const isSubControl = !!subcontrolId
@@ -112,6 +113,19 @@ const EditMapControlPage = () => {
     }
 
     return input
+  }
+
+  const handleDelete = async () => {
+    if (!mappedControlId) return
+    try {
+      await deleteMappedControl({ deleteMappedControlId: mappedControlId })
+      successNotification({ title: 'Mapping deleted' })
+      const redirectUrl = subcontrolId ? `/controls/${id}/${subcontrolId}?tab=linked-controls` : `/controls/${id}?tab=linked-controls`
+      router.push(redirectUrl)
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({ title: 'Error', description: errorMessage })
+    }
   }
 
   const onSubmit = async (data: MapControlsFormData) => {
@@ -240,7 +254,7 @@ const EditMapControlPage = () => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Controls - ${isSubControl ? subcontrolData?.subcontrol?.refCode : controlData?.control?.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-6">
-          <SlideBarLayout sidebarContent={<MapControlsRelations />}>
+          <SlideBarLayout sidebarContent={<MapControlsRelations onDelete={mappedControlId ? handleDelete : undefined} deleteLoading={isDeleting} />}>
             <div className="p-8 space-y-6">
               <div>
                 <h1 className="text-2xl font-bold">Map Controls</h1>

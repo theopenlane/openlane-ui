@@ -38,45 +38,17 @@ export const useEvidenceSuggestedControls = ({ evidenceControls, evidenceSubcont
     }))
   }, [mappedControls, evidenceControls, evidenceSubcontrols])
 
-  const controlRefCodes = useMemo(() => Array.from(new Set(suggestions.filter((s) => s.typeName === ObjectTypes.CONTROL && s.referenceFramework).map((s) => s.refCode))), [suggestions])
+  const controlRefCodes = useMemo(() => Array.from(new Set(suggestions.filter((s) => s.typeName === ObjectTypes.CONTROL).map((s) => s.refCode))), [suggestions])
 
-  const subcontrolRefCodes = useMemo(() => Array.from(new Set(suggestions.filter((s) => s.typeName === ObjectTypes.SUBCONTROL && s.referenceFramework).map((s) => s.refCode))), [suggestions])
-
-  const controlFrameworks = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          suggestions
-            .filter((s) => s.typeName === ObjectTypes.CONTROL && s.referenceFramework)
-            .map((s) => s.referenceFramework)
-            .filter((v): v is string => v !== null),
-        ),
-      ),
-    [suggestions],
-  )
-
-  const subcontrolFrameworks = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          suggestions
-            .filter((s) => s.typeName === ObjectTypes.SUBCONTROL && s.referenceFramework)
-            .map((s) => s.referenceFramework)
-            .filter((v): v is string => v !== null),
-        ),
-      ),
-    [suggestions],
-  )
+  const subcontrolRefCodes = useMemo(() => Array.from(new Set(suggestions.filter((s) => s.typeName === ObjectTypes.SUBCONTROL).map((s) => s.refCode))), [suggestions])
 
   const { data: orgControls, isLoading: isOrgControlsLoading } = useGetExistingOrgControls({
     refCodeIn: controlRefCodes,
-    referenceFrameworkIn: controlFrameworks,
     enabled: enabled && controlRefCodes.length > 0,
   })
 
   const { data: orgSubcontrols, isLoading: isOrgSubcontrolsLoading } = useGetExistingOrgSubcontrols({
     refCodeIn: subcontrolRefCodes,
-    referenceFrameworkIn: subcontrolFrameworks,
     enabled: enabled && subcontrolRefCodes.length > 0,
   })
 
@@ -102,9 +74,7 @@ export const useEvidenceSuggestedControls = ({ evidenceControls, evidenceSubcont
     if (!suggestions.length) return []
 
     const filtered = suggestions.filter((item) => {
-      if (!item.referenceFramework) return false
-
-      const key = `${item.refCode}::${item.referenceFramework}`
+      const key = `${item.refCode}::${item.referenceFramework ?? 'CUSTOM'}`
       if (item.typeName === ObjectTypes.CONTROL) return orgControlSet.has(key)
       if (item.typeName === ObjectTypes.SUBCONTROL) return orgSubcontrolSet.has(key)
       return false
