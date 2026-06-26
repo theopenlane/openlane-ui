@@ -8,6 +8,7 @@ export const categoriesStepSchema = z.object({
 
 export const suggestedControlsStepSchema = z.object({
   suggestedControlIDs: z.array(z.string()).optional(),
+  suggestedControlCategories: z.array(z.string()).optional(),
 })
 
 export const step1Schema = z.object({
@@ -170,6 +171,8 @@ export async function validateStepAndNotify(methods: UseFormReturn<WizardValues>
     isValid = await methods.trigger(['name', 'startDate', 'endDate', 'framework'])
   } else if (stepId === '2') {
     isValid = await methods.trigger('categories')
+  } else if (stepId === '2a') {
+    isValid = await methods.trigger('suggestedControlIDs')
   } else if (stepId === '3') {
     isValid = await methods.trigger('auditPartnerEmail')
   } else {

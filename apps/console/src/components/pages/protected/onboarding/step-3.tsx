@@ -10,22 +10,22 @@ import { COMPLIANCE_FRAMEWORK_OPTIONS } from '@/components/pages/protected/onboa
 
 export const step3Schema = z.object({
   compliance: z.object({
-    frameworks: z.array(z.string()).min(1, 'Select at least one compliance program'),
-    existing_controls: z.boolean({ required_error: 'Select an option' }),
-    existing_policies_procedures: z.boolean({ required_error: 'Select an option' }),
+    frameworks: z.array(z.string()).optional(),
+    existing_controls: z.boolean().optional(),
+    existing_policies_procedures: z.boolean().optional(),
   }),
 })
 
 type Step3Values = zInfer<typeof step3Schema>
 
 const controlOptions = [
-  { value: 'true', label: 'Yes, we have existing controls', description: "We'd like to import our current controls." },
-  { value: 'false', label: 'No, we need a starting template', description: 'Use recommended controls to get started.' },
+  { value: 'true', label: 'Yes, we have existing controls', description: 'Controls define the requirements and activities your organization uses to meet compliance objectives.' },
+  { value: 'false', label: "No, we'd like a starting template", description: 'Controls define the requirements and activities your organization uses to meet compliance objectives.' },
 ]
 
 const policyOptions = [
-  { value: 'true', label: 'Yes, we have existing policies', description: "We'd like to import our current policies." },
-  { value: 'false', label: 'No, we need policy templates', description: 'Use policy templates to get started.' },
+  { value: 'true', label: "Yes, we'd like to import them", description: 'Policies and procedures document how your organization operates and supports compliance requirements.' },
+  { value: 'false', label: "No, we'd like policy templates", description: 'Policies and procedures document how your organization operates and supports compliance requirements.' },
 ]
 
 export default function Step3() {
@@ -58,7 +58,10 @@ export default function Step3() {
       </div>
 
       <div className="space-y-3">
-        <Label>1. What compliance program are you working toward? (Select all that apply)</Label>
+        <div className="space-y-1">
+          <Label>1. What compliance program are you working toward?</Label>
+          <p className="text-xs text-text-light">Select all frameworks you are currently pursuing</p>
+        </div>
         <div className="grid gap-3 sm:grid-cols-3">
           {COMPLIANCE_FRAMEWORK_OPTIONS.map((framework) => {
             const id = `framework-${framework.value.toLowerCase().replaceAll(' ', '-').replaceAll('/', '-')}`
@@ -66,7 +69,12 @@ export default function Step3() {
             const Icon = framework.icon
 
             return (
-              <div key={framework.value} className={`flex items-center gap-3 rounded-md border bg-background p-3 ${checked ? 'border-brand bg-brand/5' : ''}`}>
+              <div
+                key={framework.value}
+                className={`flex items-center gap-3 rounded-md border bg-background p-3 [&_[role=checkbox]]:border-slate-400 [&_[role=checkbox]]:bg-white [&_[role=checkbox]]:shadow-sm dark:[&_[role=checkbox]]:border-border dark:[&_[role=checkbox]]:bg-background [&_[role=checkbox][data-state=checked]]:border-brand [&_[role=checkbox][data-state=checked]]:bg-brand ${
+                  checked ? 'border-brand bg-brand/10 ring-1 ring-brand' : 'border-border'
+                }`}
+              >
                 <Checkbox id={id} checked={checked} onCheckedChange={(value) => toggleFramework(framework.value, value === true)} />
                 <Icon size={18} />
                 <Label htmlFor={id} className="w-full cursor-pointer font-medium">
@@ -80,7 +88,7 @@ export default function Step3() {
       </div>
 
       <div className="space-y-3">
-        <Label>2. Do you already have compliance controls documented?</Label>
+        <Label>2. Do you already have your own organization controls documented?</Label>
         <RadioGroup
           value={watch('compliance.existing_controls') === undefined ? '' : String(watch('compliance.existing_controls'))}
           onValueChange={handleControlChange}
@@ -95,10 +103,14 @@ export default function Step3() {
                 key={option.value}
                 htmlFor={id}
                 className={`flex min-h-[96px] w-full cursor-pointer items-start gap-3 rounded-md border p-4 font-normal leading-5 transition-colors ${
-                  checked ? 'border-brand bg-secondary ring-1 ring-brand' : 'bg-transparent hover:bg-muted/20'
+                  checked ? 'border-brand bg-brand/10 ring-1 ring-brand' : 'border-border bg-background hover:bg-muted/20'
                 }`}
               >
-                <RadioGroupItem id={id} value={option.value} className="mt-1 data-[state=checked]:bg-brand data-[state=checked]:text-white" />
+                <RadioGroupItem
+                  id={id}
+                  value={option.value}
+                  className="mt-1 h-5 w-5 shrink-0 border-slate-400 bg-white text-brand shadow-sm data-[state=checked]:border-brand data-[state=checked]:bg-brand dark:border-border dark:bg-background"
+                />
                 <span className="block">
                   <span className="block font-semibold">{option.label}</span>
                   <span className="block text-xs text-text-light">{option.description}</span>
@@ -126,10 +138,14 @@ export default function Step3() {
                 key={option.value}
                 htmlFor={id}
                 className={`flex min-h-[96px] w-full cursor-pointer items-start gap-3 rounded-md border p-4 font-normal leading-5 transition-colors ${
-                  checked ? 'border-brand bg-secondary ring-1 ring-brand' : 'bg-transparent hover:bg-muted/20'
+                  checked ? 'border-brand bg-brand/10 ring-1 ring-brand' : 'border-border bg-background hover:bg-muted/20'
                 }`}
               >
-                <RadioGroupItem id={id} value={option.value} className="mt-1 data-[state=checked]:bg-brand data-[state=checked]:text-white" />
+                <RadioGroupItem
+                  id={id}
+                  value={option.value}
+                  className="mt-1 h-5 w-5 shrink-0 border-slate-400 bg-white text-brand shadow-sm data-[state=checked]:border-brand data-[state=checked]:bg-brand dark:border-border dark:bg-background"
+                />
                 <span className="block">
                   <span className="block font-semibold">{option.label}</span>
                   <span className="block text-xs text-text-light">{option.description}</span>

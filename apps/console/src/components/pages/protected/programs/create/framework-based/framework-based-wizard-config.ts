@@ -28,6 +28,7 @@ export const categoriesStepSchema = z.object({
 
 export const suggestedControlsStepSchema = z.object({
   suggestedControlIDs: z.array(z.string()).optional(),
+  suggestedControlCategories: z.array(z.string()).optional(),
 })
 
 export const wizardSchema = selectFrameworkSchema.merge(programInviteSchema).merge(categoriesStepSchema).merge(suggestedControlsStepSchema).merge(programTypeSchema)

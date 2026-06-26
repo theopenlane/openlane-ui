@@ -8,16 +8,16 @@ import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
 
 export const step4Schema = z.object({
   compliance: z.object({
-    has_auditor: z.boolean({ required_error: 'Select an option' }),
-    recommend_auditors: z.boolean({ required_error: 'Select an option' }),
-    has_vciso_partner: z.boolean({ required_error: 'Select an option' }),
+    has_auditor: z.boolean().optional(),
+    recommend_auditors: z.boolean().optional(),
+    has_vciso_partner: z.boolean().optional(),
     // has_vciso_partner is just a boolean but in reality false could either be "i will do this later" or "no, we want recommendations"
     // which is why recommend_vciso_partner exists.
     // The above can be a string but then we will need to start hardcoding strings across frontend and backend
     // this makes it easier to be able to pull from db (if needed ) orgs that asked for a recommendation
-    recommend_vciso_partner: z.boolean({ required_error: 'Select an option' }),
+    recommend_vciso_partner: z.boolean().optional(),
   }),
-  demo_requested: z.boolean({ required_error: 'Select an option' }),
+  demo_requested: z.boolean().optional(),
 })
 
 type Step4Values = zInfer<typeof step4Schema>
@@ -38,17 +38,17 @@ const questions: RadioQuestionProps[] = [
   {
     name: 'has_auditor',
     title: 'Are you currently working with an auditor?',
-    helper: '',
+    helper: "We can suggest audit partners and next steps when you're ready.",
     options: [
-      { value: 'yes', label: "Yes, we have an auditor\nI'll add their details after setup." },
-      { value: 'recommendations', label: 'No, we need recommendations\nShow me recommended audit partners.' },
-      { value: 'not_yet', label: "Not yet\nI'll decide later." },
+      { value: 'yes', label: 'Yes' },
+      { value: 'recommendations', label: "No, we'd like recommendations" },
+      { value: 'not_yet', label: 'Not yet' },
     ],
   },
   {
     name: 'has_vciso_partner',
     title: 'Looking for a Hands-On Compliance Team?',
-    helper: "We can suggest audit partners and next steps when you're ready.",
+    helper: "We can suggest partners and next steps when you're ready.",
     options: [
       { value: 'no', label: 'No' },
       {
@@ -141,9 +141,7 @@ export default function Step4() {
               : String(watch('demo_requested'))
             : question.name === 'has_auditor'
               ? auditorStatusValue()
-              : question.name === 'has_vciso_partner'
-                ? vcisoPartnerValue()
-                : ''
+              : vcisoPartnerValue()
         const error = question.name === 'demo_requested' ? errors.demo_requested : errors.compliance?.[question.name]
 
         return (
@@ -163,10 +161,14 @@ export default function Step4() {
                     key={option.value}
                     htmlFor={id}
                     className={`flex min-h-[72px] w-full cursor-pointer items-start gap-3 rounded-md border p-4 font-normal leading-5 transition-colors ${
-                      checked ? 'border-brand bg-secondary ring-1 ring-brand' : 'bg-transparent hover:bg-muted/20'
+                      checked ? 'border-brand bg-brand/10 ring-1 ring-brand' : 'border-border bg-background hover:bg-muted/20'
                     }`}
                   >
-                    <RadioGroupItem id={id} value={option.value} className="mt-0.5 data-[state=checked]:bg-brand data-[state=checked]:text-white" />
+                    <RadioGroupItem
+                      id={id}
+                      value={option.value}
+                      className="mt-0.5 h-5 w-5 shrink-0 border-slate-400 bg-white text-brand shadow-sm data-[state=checked]:border-brand data-[state=checked]:bg-brand dark:border-border dark:bg-background"
+                    />
                     <span className="block">
                       <span className="block font-semibold">{label}</span>
                       {description && <span className="block text-xs text-text-light">{description}</span>}

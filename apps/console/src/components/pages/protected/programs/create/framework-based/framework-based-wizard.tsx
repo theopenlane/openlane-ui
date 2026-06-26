@@ -30,6 +30,7 @@ export default function FrameworkBasedWizard() {
   const searchParams = useSearchParams()
   const defaultFramework = searchParams.get('framework') ?? undefined
   const includeSuggestedControls = searchParams.get('suggestedControls') === 'true'
+  const isOnboardingFlow = searchParams.get('onboarding') === 'true'
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const { mutateAsync: cloneControls, isPending: isControlBeingCloned } = useCloneControls()
@@ -41,7 +42,7 @@ export default function FrameworkBasedWizard() {
     ...(includeSuggestedControls
       ? [{ id: '1', label: 'Import Controls', schema: suggestedControlsStepSchema }]
       : [{ id: '1', label: 'Select Categories', schema: wizardSchema.pick({ categories: true }) }]),
-    { id: '2', label: 'Team Setup', schema: wizardSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) },
+    ...(!isOnboardingFlow ? [{ id: '2', label: 'Team Setup', schema: wizardSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) }] : []),
     { id: '3', label: 'Program Type', schema: wizardSchema.pick({ programKindName: true }) },
   )
 
@@ -53,6 +54,7 @@ export default function FrameworkBasedWizard() {
     defaultValues: {
       categories: includeSuggestedControls ? [] : ['Security'],
       suggestedControlIDs: [],
+      suggestedControlCategories: [],
     },
   })
 
@@ -160,7 +162,13 @@ export default function FrameworkBasedWizard() {
 
   return (
     <>
-      <div className="max-w-3xl mx-auto px-6 py-2">
+      <div className="max-w-6xl mx-auto px-6 py-2">
+        {isOnboardingFlow && (
+          <div className="mb-6 rounded-md border border-brand/30 bg-brand/5 p-4">
+            <p className="text-sm font-semibold">Program creation</p>
+            <p className="mt-1 text-sm text-muted-foreground">Your onboarding answers are saved. Now create your compliance program and choose the controls you want to start with.</p>
+          </div>
+        )}
         <StepHeader stepper={stepper} disabledIDs={disabledIDs} className="mb-6" />
         <Separator className="" separatorClass="bg-card" />
         <FormProvider {...methods}>

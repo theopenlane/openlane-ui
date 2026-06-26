@@ -70,18 +70,6 @@ export default function MultiStepForm() {
   })
   const companyName = useWatch({ control: methods.control, name: 'companyName' })
   const domains = useWatch({ control: methods.control, name: 'domains' })
-  const companySize = useWatch({ control: methods.control, name: 'companyDetails.size' })
-  const companySector = useWatch({ control: methods.control, name: 'companyDetails.sector' })
-  const userRole = useWatch({ control: methods.control, name: 'userDetails.role' })
-  const userDepartment = useWatch({ control: methods.control, name: 'userDetails.department' })
-  const frameworks = useWatch({ control: methods.control, name: 'compliance.frameworks' })
-  const existingControls = useWatch({ control: methods.control, name: 'compliance.existing_controls' })
-  const existingPoliciesProcedures = useWatch({ control: methods.control, name: 'compliance.existing_policies_procedures' })
-  const hasAuditor = useWatch({ control: methods.control, name: 'compliance.has_auditor' })
-  const recommendAuditors = useWatch({ control: methods.control, name: 'compliance.recommend_auditors' })
-  const hasVcisoPartner = useWatch({ control: methods.control, name: 'compliance.has_vciso_partner' })
-  const recommendVcisoPartner = useWatch({ control: methods.control, name: 'compliance.recommend_vciso_partner' })
-  const demoRequested = useWatch({ control: methods.control, name: 'demo_requested' })
 
   const onSubmit = async (data?: OnboardingFormInput | OnboardingFormData) => {
     setIsLoading(true)
@@ -143,11 +131,13 @@ export default function MultiStepForm() {
           })
 
           const userSelectedFrameworks = (formValues.compliance?.frameworks ?? []).filter((framework) => framework !== COMPLIANCE_FRAMEWORKS.other)
+          const shouldImportSuggestedControls = formValues.compliance?.existing_controls === false
 
           if (userSelectedFrameworks.length > 1) {
             const params = new URLSearchParams()
+            params.set('onboarding', 'true')
             userSelectedFrameworks.forEach((framework) => params.append('frameworks', framework))
-            if (!formValues.compliance?.existing_controls) {
+            if (shouldImportSuggestedControls) {
               params.set('suggestedControls', 'true')
             }
             router.push(`${ONBOARDING_PROGRAM_ROUTES.advancedSetup}?${params.toString()}`)
@@ -158,7 +148,8 @@ export default function MultiStepForm() {
 
           if (selectedFramework === COMPLIANCE_FRAMEWORKS.soc2) {
             const params = new URLSearchParams()
-            if (!formValues.compliance?.existing_controls) {
+            params.set('onboarding', 'true')
+            if (shouldImportSuggestedControls) {
               params.set('suggestedControls', 'true')
             }
 
@@ -167,15 +158,15 @@ export default function MultiStepForm() {
           }
 
           if (selectedFramework) {
-            const params = new URLSearchParams({ framework: selectedFramework })
-            if (!formValues.compliance?.existing_controls) {
+            const params = new URLSearchParams({ framework: selectedFramework, onboarding: 'true' })
+            if (shouldImportSuggestedControls) {
               params.set('suggestedControls', 'true')
             }
             router.push(`${ONBOARDING_PROGRAM_ROUTES.frameworkBased}?${params.toString()}`)
             return
           }
 
-          router.push(ONBOARDING_PROGRAM_ROUTES.frameworkBased)
+          router.push(`${ONBOARDING_PROGRAM_ROUTES.frameworkBased}?onboarding=true`)
         }
       }
     } catch (error) {
@@ -193,13 +184,9 @@ export default function MultiStepForm() {
     let isValid: boolean
 
     if (stepper.current.id === '0') {
-      isValid = await methods.trigger(['companyName', 'domains', 'companyDetails.size', 'companyDetails.sector'])
-    } else if (stepper.current.id === '1') {
-      isValid = await methods.trigger(['userDetails.role', 'userDetails.department'])
-    } else if (stepper.current.id === '2') {
-      isValid = await methods.trigger(['compliance.frameworks', 'compliance.existing_controls', 'compliance.existing_policies_procedures'])
+      isValid = await methods.trigger(['companyName', 'domains'])
     } else {
-      isValid = await methods.trigger(['compliance.has_auditor', 'compliance.recommend_auditors', 'compliance.has_vciso_partner', 'compliance.recommend_vciso_partner', 'demo_requested'])
+      isValid = true
     }
 
     if (!isValid) return
@@ -221,15 +208,11 @@ export default function MultiStepForm() {
   const isLastStep = stepper.isLast
   const isFirstStep = stepper.isFirst
   const hasFormErrors = Object.keys(methods.formState.errors).length > 0
-  const isCurrentStepIncomplete =
-    (stepper.current.id === '0' && (!companyName || companyName.length < 3 || !domains?.length || !companySize || !companySector)) ||
-    (stepper.current.id === '1' && (!userRole || !userDepartment)) ||
-    (stepper.current.id === '2' && (!frameworks?.length || existingControls === undefined || existingPoliciesProcedures === undefined)) ||
-    (stepper.current.id === '3' && (hasAuditor === undefined || recommendAuditors === undefined || hasVcisoPartner === undefined || recommendVcisoPartner === undefined || demoRequested === undefined))
+  const isCurrentStepIncomplete = stepper.current.id === '0' && (!companyName || companyName.length < 3 || !domains?.length)
   const isNextDisabled = hasFormErrors || isCurrentStepIncomplete
 
   return (
-    <div className="flex justify-center flex-col items-center max-w-[545px] m-auto">
+    <div className="flex justify-center flex-col items-center w-full max-w-4xl m-auto px-4">
       <div className="self-start w-full">
         <h1 className="text-2xl py-3 font-medium text-left">Welcome to Openlane</h1>
         <p className="text-sm font-normal pb-5 text-left">We are glad to have you! Let&apos;s get started with a few questions.</p>
@@ -277,7 +260,7 @@ export default function MultiStepForm() {
                     {isLastStep ? 'Submit' : steps[currentIndex + 1]?.label}
                   </Button>
                 </div>
-                {currentIndex === 1 && (
+                {currentIndex > 0 && (
                   <div className="border-t pt-5 mt-5 text-sm" onClick={methods.handleSubmit((data) => onSubmit(data))}>
                     <span className="text-blue-500 cursor-pointer">Exit the onboarding process</span> <span> and use general template for my account.</span>
                   </div>
