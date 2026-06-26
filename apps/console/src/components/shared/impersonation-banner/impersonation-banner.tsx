@@ -5,9 +5,6 @@ import { useSession, signOut } from 'next-auth/react'
 import { Button } from '@repo/ui/button'
 import { useOrganization } from '@/hooks/useOrganization'
 
-// ImpersonationBanner renders a persistent, high-visibility banner whenever the active session is an
-// impersonation (Openlane support) session. It makes the impersonated context unmistakable so staff do
-// not confuse it with a normal session, showing the organization in scope and the acting individual.
 const ImpersonationBanner: React.FC = () => {
   const { data: session } = useSession()
   const { getOrganizationByID } = useOrganization()
@@ -24,8 +21,6 @@ const ImpersonationBanner: React.FC = () => {
   const stop = async () => {
     const sessionId = session.user.impersonationSessionId
 
-    // revoke the support session server-side first so the token cannot be reused, then clear the local
-    // session; revocation is best effort so a failure still logs the staff member out locally
     if (sessionId) {
       try {
         await fetch('/api/auth/impersonation/end', {
@@ -34,8 +29,8 @@ const ImpersonationBanner: React.FC = () => {
           body: JSON.stringify({ session_id: sessionId, reason: 'support session ended by staff' }),
           credentials: 'include',
         })
-      } catch {
-        // best effort
+      } catch (error) {
+        console.error('Failed to revoke support session:', error)
       }
     }
 

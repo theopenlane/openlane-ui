@@ -7,12 +7,13 @@ import { InfoSlideOut } from '@repo/ui/info-slide-out'
 import { Callout } from '@/components/shared/callout/callout'
 import { SSO_PROVIDER_LOGOS, SSO_PROVIDER_NAMES } from '@/components/shared/enum-mapper/sso-provider-enum'
 import { type OrganizationSettingSsoProvider } from '@repo/codegen/src/schema'
+import { siteUrl } from '@repo/dally/auth'
 
-const REDIRECT_URI = 'https://console.theopenlane.io/login/sso'
+const REDIRECT_URI = `${siteUrl}/login/sso`
 
 const SETUP_STEPS = [
   'In your identity provider, create an OAuth / OIDC client application (Web Application type).',
-  null, // rendered inline with copy button
+  null,
   'Copy the Client ID, Client Secret, and OIDC Discovery Endpoint from your IdP.',
   'Select the Identity Provider, enter the credentials, and save the configuration.',
   'Click Re-test Connection to verify authentication works end-to-end.',
@@ -57,7 +58,7 @@ const TROUBLESHOOTING = [
   { issue: 'Invalid redirect URI / login loop', fix: 'Ensure the redirect URI matches exactly — scheme, host, and path must all be identical.' },
 ]
 
-export function SSOInfoSlideOut() {
+export const SSOInfoSlideOut = () => {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = () => {

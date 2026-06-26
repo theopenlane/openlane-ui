@@ -99,8 +99,6 @@ export const useGetOrgUserList = ({ where }: TUseGetOrgUserListProps) => {
 
   const users = useMemo(() => (queryResult.data?.orgMemberships?.edges ?? []).map((edge) => edge?.node?.user) as User[], [queryResult.data])
 
-  // the virtual Openlane support identity has no membership, so the query never returns it; inject it
-  // when its ID was requested so author attribution resolves it instead of falling back to a deleted user
   const requestedIds = where?.hasUserWith?.[0]?.idIn ?? []
   const injectSupport = !!OPENLANE_SUPPORT_USER_ID && requestedIds.includes(OPENLANE_SUPPORT_USER_ID) && !users.some((u) => u?.id === OPENLANE_SUPPORT_USER_ID)
 

@@ -5,10 +5,6 @@ import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { PasswordInput } from '@repo/ui/password-input'
 
-// SupportLoginPage is the first factor of the Openlane support access flow. Support staff authenticate
-// the shared support identity with its configured password and choose the organization to access; the
-// backend then redirects to the configured identity provider for the second factor, which identifies
-// the individual staff member.
 const SupportLoginPage: React.FC = () => {
   const [email, setEmail] = useState('support@theopenlane.io')
   const [password, setPassword] = useState('')

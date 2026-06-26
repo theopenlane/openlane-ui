@@ -3,9 +3,6 @@ import { auth } from '@/lib/auth/auth'
 import { csrfHeader } from '@repo/dally/auth'
 import { getCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
 
-// Ends the active Openlane support / impersonation session. It forwards the impersonation token to the
-// backend, which revokes the session so the token can no longer be used before its expiry. The client
-// then clears its local session via signOut.
 export async function POST(request: Request) {
   const session = await auth()
   const token = session?.user?.accessToken
@@ -14,31 +11,36 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
   }
 
-  const bodyData = await request.json()
-  const cookies = request.headers.get('cookie')
+  try {
+    const bodyData = await request.json().catch(() => ({}))
+    const cookies = request.headers.get('cookie')
 
-  const headers: HeadersInit = {
-    'content-type': 'application/json',
-    Authorization: `Bearer ${token}`,
+    const headers: HeadersInit = {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    }
+
+    if (cookies) {
+      headers['cookie'] = cookies
+    }
+
+    const csrfToken = await getCSRFCookie(cookies)
+    if (csrfToken) {
+      headers[csrfHeader] = csrfToken
+    }
+
+    const fData = await fetch(`${process.env.API_REST_URL}/v1/impersonation/end`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(bodyData),
+      credentials: 'include',
+    })
+
+    const fetchedData = await fData.json().catch(() => ({}))
+
+    return NextResponse.json(fetchedData, { status: fData.status })
+  } catch (error) {
+    console.error('Impersonation end error:', error)
+    return NextResponse.json({ success: false, message: 'Could not end impersonation session' }, { status: 500 })
   }
-
-  if (cookies) {
-    headers['cookie'] = cookies
-  }
-
-  const csrfToken = await getCSRFCookie(cookies)
-  if (csrfToken) {
-    headers[csrfHeader] = csrfToken
-  }
-
-  const fData = await fetch(`${process.env.API_REST_URL}/v1/impersonation/end`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(bodyData),
-    credentials: 'include',
-  })
-
-  const fetchedData = await fData.json().catch(() => ({}))
-
-  return NextResponse.json(fetchedData, { status: fData.status })
 }
