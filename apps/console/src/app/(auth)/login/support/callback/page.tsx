@@ -1,15 +1,15 @@
 'use client'
 
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 
 const LOGIN_URL = '/login'
 
-// SupportCallbackPage completes the second factor of the Openlane support access flow. The identity
+// SupportCallbackContent completes the second factor of the Openlane support access flow. The identity
 // provider redirects here with a code and state; we exchange them for the support session token and
 // establish an impersonated session.
-const SupportCallbackPage: React.FC = () => {
+const SupportCallbackContent: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -69,5 +69,11 @@ const SupportCallbackPage: React.FC = () => {
     </div>
   )
 }
+
+const SupportCallbackPage: React.FC = () => (
+  <Suspense>
+    <SupportCallbackContent />
+  </Suspense>
+)
 
 export default SupportCallbackPage
