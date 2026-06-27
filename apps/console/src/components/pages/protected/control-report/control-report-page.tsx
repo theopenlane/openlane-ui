@@ -3,8 +3,9 @@
 import React, { use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
+import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { type ControlReportItem, useControlReports } from '@/lib/graphql-hooks/control'
-import { ControlControlStatus, type ControlWhereInput } from '@repo/codegen/src/schema'
+import { ControlControlStatus, ProgramProgramStatus, type ControlWhereInput } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -25,6 +26,19 @@ type TControlReportPageProps = {
 }
 
 const REPORT_STANDARD_KEY = 'control_report_selected_standard'
+const REPORT_PROGRAMS_KEY = 'control_report_selected_programs'
+
+const readStoredPrograms = (): string[] => {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(REPORT_PROGRAMS_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []
+  } catch {
+    return []
+  }
+}
 
 const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActive }) => {
   const { currentOrgId } = useOrganization()
@@ -33,6 +47,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     if (typeof window === 'undefined') return ''
     return localStorage.getItem(REPORT_STANDARD_KEY) ?? ''
   })
+  const [selectedPrograms, setSelectedPrograms] = useState<string[]>(readStoredPrograms)
   const [expandedItems, setExpandedItems] = useState<string[]>([])
   const [hasAutoExpanded, setHasAutoExpanded] = useState(false)
   const [expandedControls, setExpandedControls] = useState<Record<string, boolean>>({})
@@ -55,6 +70,10 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     enabled: Boolean(currentOrgId),
   })
 
+  const { programOptions } = useProgramSelect({
+    where: { statusNEQ: ProgramProgramStatus.ARCHIVED },
+  })
+
   const effectiveStandard = useMemo(() => {
     if (selectedStandard) return selectedStandard
     const neverSet = typeof window !== 'undefined' && localStorage.getItem(REPORT_STANDARD_KEY) === null
@@ -70,6 +89,10 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
       statusNotIn: [ControlControlStatus.ARCHIVED, ControlControlStatus.NOT_APPLICABLE],
     }
 
+    if (selectedPrograms.length > 0) {
+      base.hasProgramsWith = [{ idIn: selectedPrograms }]
+    }
+
     if (!effectiveStandard) return base
     if (effectiveStandard === 'CUSTOM') {
       base.referenceFrameworkIsNil = true
@@ -78,7 +101,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
 
     base.standardIDIn = [effectiveStandard]
     return base
-  }, [effectiveStandard])
+  }, [effectiveStandard, selectedPrograms])
 
   const { data, isLoading, isFetching } = useControlReports({
     where,
@@ -228,6 +251,14 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     localStorage.setItem(REPORT_STANDARD_KEY, next)
   }
 
+  const toggleProgram = useCallback((id: string) => {
+    setSelectedPrograms((prev) => {
+      const next = prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
+      localStorage.setItem(REPORT_PROGRAMS_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [])
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -259,6 +290,9 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
         effectiveStandard={effectiveStandard}
         standardOptions={standardOptions}
         onSelectFilter={selectFilter}
+        programOptions={programOptions}
+        selectedPrograms={selectedPrograms}
+        onToggleProgram={toggleProgram}
         isCustomView={isCustomView}
         reportFilters={reportFilters}
         onToggleReportFilter={toggleReportFilter}
