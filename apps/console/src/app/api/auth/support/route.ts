@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
-import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
+import { parseAndSetResponseCookies, supportOnlyCookies } from '@/lib/auth/utils/parse-response-cookies'
 
 interface SupportLoginRequest {
   email: string
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
       const responseCookies = loginData.headers.get('set-cookie')
       if (responseCookies) {
-        parseAndSetResponseCookies(response, responseCookies)
+        parseAndSetResponseCookies(response, responseCookies, supportOnlyCookies)
       }
 
       return response

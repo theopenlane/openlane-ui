@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 
 interface SupportCallbackRequest {
   code: string
@@ -31,7 +32,11 @@ export async function POST(request: NextRequest) {
     const callbackResponse = await callbackData.json()
 
     if (callbackData.ok && callbackResponse.success) {
-      return NextResponse.json({ success: true, ...callbackResponse }, { status: 200 })
+      await setSessionCookie(callbackResponse.session_id)
+
+      const response = NextResponse.json({ success: true, ...callbackResponse }, { status: 200 })
+
+      return response
     }
 
     return NextResponse.json(

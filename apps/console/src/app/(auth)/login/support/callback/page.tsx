@@ -3,8 +3,7 @@
 import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
-
-const LOGIN_URL = '/login'
+import { SUPPORT_LOGIN_URL } from '@/constants'
 
 const SupportCallbackContent: React.FC = () => {
   const router = useRouter()
@@ -17,7 +16,7 @@ const SupportCallbackContent: React.FC = () => {
         const code = searchParams?.get('code')
 
         if (!code || !state) {
-          router.push(`${LOGIN_URL}?error=missing_oauth_params`)
+          router.push(`${SUPPORT_LOGIN_URL}?error=missing_oauth_params`)
           return
         }
 
@@ -44,12 +43,12 @@ const SupportCallbackContent: React.FC = () => {
             return
           }
 
-          router.push(`${LOGIN_URL}?error=support_signin_failed`)
+          router.push(`${SUPPORT_LOGIN_URL}?error=support_signin_failed`)
         } else {
-          router.push(`${LOGIN_URL}?error=support_callback_failed`)
+          router.push(`${SUPPORT_LOGIN_URL}?error=support_callback_failed`)
         }
       } catch {
-        router.push(`${LOGIN_URL}?error=support_callback_error`)
+        router.push(`${SUPPORT_LOGIN_URL}?error=support_callback_error`)
       }
     }
 
