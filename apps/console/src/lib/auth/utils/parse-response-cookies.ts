@@ -4,20 +4,6 @@ const ssoOnlyCookieTokens = new Set(['state', 'nonce', 'user_sso', 'token_id', '
 
 export const supportOnlyCookies = new Set(['support_pending', 'support_state', 'support_nonce', 'support_org', 'support_reason'])
 
-export interface CookieOptions {
-  httpOnly?: boolean
-  secure?: boolean
-  sameSite?: 'strict' | 'lax' | 'none'
-  path?: string
-  maxAge?: number
-  expires?: Date
-  domain?: string
-}
-
-export interface CookieStore {
-  set(name: string, value: string, options?: CookieOptions): void
-}
-
 /**
  * Parses a raw Set-Cookie header string and sets allowed cookies on the NextResponse.
  * Only cookies whose names are in allowedCookies are forwarded.
