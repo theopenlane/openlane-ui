@@ -392,7 +392,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
       title: 'Developers',
       href: '/developers',
       icon: Bot,
-      hidden: session?.user?.isOnboarding || billingExpired || isAuditor,
+      hidden: session?.user?.isOnboarding || billingExpired || isAuditor || session?.user?.isImpersonation,
       children: [
         {
           title: 'API Tokens',
@@ -409,6 +409,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
     {
       title: 'User settings',
       href: '/user-settings',
+      hidden: session?.user?.isImpersonation,
       children: [
         {
           title: 'Profile',

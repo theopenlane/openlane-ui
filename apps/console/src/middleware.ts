@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from './lib/auth/auth'
 import { hasNoModules } from '@/lib/auth/utils/modules'
 import { buildLoginRedirect } from '@/lib/auth/utils/redirect'
+import { SUPPORT_BLOCKED_PAGES } from '@/constants/support'
 
 export default auth(async (req) => {
   // Attach `next-url` header for client-side route metadata
@@ -55,6 +56,10 @@ export default auth(async (req) => {
 
   if (isInvite) {
     return NextResponse.next()
+  }
+
+  if (session?.user?.isImpersonation && SUPPORT_BLOCKED_PAGES.some((page) => path === page || path.startsWith(`${page}/`))) {
+    return NextResponse.redirect(new URL('/dashboard', req.url))
   }
 
   // needed for accepting invites to orgs

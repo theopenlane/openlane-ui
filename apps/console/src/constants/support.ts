@@ -10,3 +10,5 @@ export const supportUser = (): User =>
     displayName: OPENLANE_SUPPORT_USER_NAME,
     email: '',
   }) as unknown as User
+
+export const SUPPORT_BLOCKED_PAGES = ['/user-settings/profile', '/developers/personal-access-tokens', '/developers/api-tokens']

@@ -2,6 +2,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { type TAccessRole, type TPermissionData, type TScopesResponse } from '@/types/authz'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { objectToSnakeCase } from '../../utils/strings'
 import { useFetchWithRetry, getIsSessionInvalid } from '@/lib/graphqlClient'
 
@@ -18,12 +19,14 @@ export const shouldRetryPermission = (failureCount: number): boolean => !getIsSe
 export const useAccountRoles = (objectType: string, id?: string | number | null, enabled: boolean = true) => {
   const { errorNotification } = useNotification()
   const fetchWithRetry = useFetchWithRetry()
+  const { data: session } = useSession()
+  const isImpersonation = !!session?.user?.isImpersonation
 
   const snakeCaseObjectType = objectToSnakeCase(objectType)
 
   const resp = useQuery<TPermissionData>({
     queryKey: ['accountRoles', snakeCaseObjectType, id],
-    enabled: !!snakeCaseObjectType && !!id && enabled,
+    enabled: !!snakeCaseObjectType && !!id && enabled && !isImpersonation,
     retry: shouldRetryPermission,
     queryFn: async () => {
       const res = await fetchWithRetry('/api/permissions/account-roles', {
@@ -51,9 +54,12 @@ export const useAccountRoles = (objectType: string, id?: string | number | null,
 export const useOrganizationRoles = () => {
   const { errorNotification } = useNotification()
   const fetchWithRetry = useFetchWithRetry()
+  const { data: session } = useSession()
+  const isImpersonation = !!session?.user?.isImpersonation
 
   const resp = useQuery<TPermissionData>({
     queryKey: ['organizationRole'],
+    enabled: !isImpersonation,
     retry: shouldRetryPermission,
     queryFn: async () => {
       const res = await fetchWithRetry('/api/permissions/organization-roles', { method: 'GET' })
@@ -74,9 +80,12 @@ export const useOrganizationRoles = () => {
 export const useScopes = () => {
   const { errorNotification } = useNotification()
   const fetchWithRetry = useFetchWithRetry()
+  const { data: session } = useSession()
+  const isImpersonation = !!session?.user?.isImpersonation
 
   const resp = useQuery<TScopesResponse>({
     queryKey: ['scopes'],
+    enabled: !isImpersonation,
     retry: shouldRetryPermission,
     queryFn: async () => {
       const res = await fetchWithRetry('/api/permissions/scopes', { method: 'GET' })
@@ -111,10 +120,12 @@ type UseAccountRolesManyParams = {
 export const useAccountRolesMany = ({ objectType, ids, enabled = true }: UseAccountRolesManyParams) => {
   const { errorNotification } = useNotification()
   const fetchWithRetry = useFetchWithRetry()
+  const { data: session } = useSession()
+  const isImpersonation = !!session?.user?.isImpersonation
 
   const resp = useQuery<useAccountRolesManyResponse>({
     queryKey: ['accountRolesMany', objectType, ids.sort().join('')],
-    enabled: !!objectType && ids.length > 0 && enabled,
+    enabled: !!objectType && ids.length > 0 && enabled && !isImpersonation,
     retry: shouldRetryPermission,
     queryFn: async () => {
       const res = await fetchWithRetry('/api/permissions/account-roles', {
