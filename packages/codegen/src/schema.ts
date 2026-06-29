@@ -5974,6 +5974,11 @@ export interface ControlEvidence {
   approvedCount: Scalars['Int']['output']
   /** breakdown of evidence item counts by status */
   countByStatus?: Maybe<Array<EvidenceCountByStatus>>
+  /**
+   * from the total number, the amount inherited from linked controls instead of directly
+   * linked to this control
+   */
+  inheritedCount: Scalars['Int']['output']
   /** total number of evidence items linked to the control */
   totalCount: Scalars['Int']['output']
   /** the most severe evidence status among all linked evidence items */
@@ -6410,8 +6415,14 @@ export interface ControlInfo {
   description?: Maybe<Scalars['String']['output']>
   /** unique identifier of the control */
   id: Scalars['ID']['output']
+  /** id(s) of the subcontrol the mapping was inherited from, this is null if the control was directly mapped, if it was inherited from a subcontrol it will have the subcontrol IDs that are providing the mapping */
+  inheritedFromSubcontrolIDs?: Maybe<Array<Scalars['ID']['output']>>
   /** whether this entry is a subcontrol rather than a top-level control */
   isSubcontrol: Scalars['Boolean']['output']
+  /** id(s) of the mapped_control this related control from if the mapping is org owned */
+  mappedControlReferenceIDs?: Maybe<Array<Scalars['ID']['output']>>
+  /** the id of the parent control if this is a subcontrol, empty if isSubcontrol is false */
+  parentControlID?: Maybe<Scalars['ID']['output']>
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
   /** the reference framework this control belongs to, e.g. SOC2, ISO27001 */
@@ -7030,6 +7041,8 @@ export interface ControlReport extends Node {
   id: Scalars['ID']['output']
   /** internal policies linked to this control */
   linkedPolicies?: Maybe<ControlPolicies>
+  /** the id of the parent control, only populated when the object is a subcontrol */
+  parentControlID?: Maybe<Scalars['ID']['output']>
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
   /** the reference framework this control belongs to, e.g. SOC2, ISO27001 */
@@ -39481,6 +39494,8 @@ export interface PolicySummary extends Node {
   __typename?: 'PolicySummary'
   /** unique identifier of the policy */
   id: Scalars['ID']['output']
+  /** empty when linked directly to the control; otherwise the related/mapped control IDs that contributed it */
+  inheritedFromIDs?: Maybe<Array<Scalars['ID']['output']>>
   /** the name of the policy */
   name: Scalars['String']['output']
   /** status of the policy, e.g. draft, published, archived, etc. */
@@ -68790,29 +68805,21 @@ export type ControlListFieldsFragment = {
   __typename?: 'Control'
   id: string
   refCode: string
+  referenceFramework?: string | null
   description?: string | null
   status?: ControlControlStatus | null
   category?: string | null
   subcategory?: string | null
-  tags?: Array<string> | null
-  mappedCategories?: Array<string> | null
-  referenceFramework?: string | null
   referenceID?: string | null
   auditorReferenceID?: string | null
   source?: ControlControlSource | null
   sourceName?: string | null
   controlKindName?: string | null
-  publicRepresentation?: string | null
   title?: string | null
   updatedAt?: any | null
   updatedBy?: string | null
   createdAt?: any | null
   createdBy?: string | null
-  subcontrols: {
-    __typename?: 'SubcontrolConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
-  }
   controlOwner?: {
     __typename?: 'Group'
     id: string
@@ -68821,30 +68828,35 @@ export type ControlListFieldsFragment = {
     gravatarLogoURL?: string | null
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
   } | null
+  subcontrols?: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+  }
   delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-  controlImplementations: {
+  controlImplementations?: {
     __typename?: 'ControlImplementationConnection'
     edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
   }
-  comments: { __typename?: 'NoteConnection'; totalCount: number }
-  controlObjectives: {
+  comments?: { __typename?: 'NoteConnection'; totalCount: number }
+  controlObjectives?: {
     __typename?: 'ControlObjectiveConnection'
     edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
   }
-  tasks: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
-  internalPolicies: {
+  tasks?: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
+  internalPolicies?: {
     __typename?: 'InternalPolicyConnection'
     totalCount: number
     edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
   }
-  procedures: {
+  procedures?: {
     __typename?: 'ProcedureConnection'
     totalCount: number
     edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
   }
-  programs: { __typename?: 'ProgramConnection'; totalCount: number; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
-  risks: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+  programs?: { __typename?: 'ProgramConnection'; totalCount: number; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
+  risks?: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
 }
 
 export type ControlListStandardFieldsFragment = {
@@ -68937,6 +68949,10 @@ export type ControlDetailsFieldsFragment = {
         source?: SubcontrolControlSource | null
         category?: string | null
         subcategory?: string | null
+        evidence: {
+          __typename?: 'EvidenceConnection'
+          edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null } | null } | null> | null
+        }
       } | null
     } | null> | null
   }
@@ -68966,6 +68982,32 @@ export type GetAllControlsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
+  includeDescription?: InputMaybe<Scalars['Boolean']['input']>
+  includeStatus?: InputMaybe<Scalars['Boolean']['input']>
+  includeCategory?: InputMaybe<Scalars['Boolean']['input']>
+  includeSubcategory?: InputMaybe<Scalars['Boolean']['input']>
+  includeReferenceID?: InputMaybe<Scalars['Boolean']['input']>
+  includeAuditorReferenceID?: InputMaybe<Scalars['Boolean']['input']>
+  includeSource?: InputMaybe<Scalars['Boolean']['input']>
+  includeSourceName?: InputMaybe<Scalars['Boolean']['input']>
+  includeControlKindName?: InputMaybe<Scalars['Boolean']['input']>
+  includeTitle?: InputMaybe<Scalars['Boolean']['input']>
+  includeCreatedAt?: InputMaybe<Scalars['Boolean']['input']>
+  includeCreatedBy?: InputMaybe<Scalars['Boolean']['input']>
+  includeUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
+  includeUpdatedBy?: InputMaybe<Scalars['Boolean']['input']>
+  includeControlOwner?: InputMaybe<Scalars['Boolean']['input']>
+  includeSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  includeDelegate?: InputMaybe<Scalars['Boolean']['input']>
+  includeResponsibleParty?: InputMaybe<Scalars['Boolean']['input']>
+  includeControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
+  includeComments?: InputMaybe<Scalars['Boolean']['input']>
+  includeControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
+  includeTasks?: InputMaybe<Scalars['Boolean']['input']>
+  includeInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  includeProcedures?: InputMaybe<Scalars['Boolean']['input']>
+  includePrograms?: InputMaybe<Scalars['Boolean']['input']>
+  includeRisks?: InputMaybe<Scalars['Boolean']['input']>
 }>
 
 export type GetAllControlsQuery = {
@@ -68980,29 +69022,21 @@ export type GetAllControlsQuery = {
         __typename: 'Control'
         id: string
         refCode: string
+        referenceFramework?: string | null
         description?: string | null
         status?: ControlControlStatus | null
         category?: string | null
         subcategory?: string | null
-        tags?: Array<string> | null
-        mappedCategories?: Array<string> | null
-        referenceFramework?: string | null
         referenceID?: string | null
         auditorReferenceID?: string | null
         source?: ControlControlSource | null
         sourceName?: string | null
         controlKindName?: string | null
-        publicRepresentation?: string | null
         title?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
-        subcontrols: {
-          __typename?: 'SubcontrolConnection'
-          totalCount: number
-          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
-        }
         controlOwner?: {
           __typename?: 'Group'
           id: string
@@ -69011,34 +69045,39 @@ export type GetAllControlsQuery = {
           gravatarLogoURL?: string | null
           avatarFile?: { __typename?: 'File'; base64?: string | null } | null
         } | null
+        subcontrols?: {
+          __typename?: 'SubcontrolConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+        }
         delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-        controlImplementations: {
+        controlImplementations?: {
           __typename?: 'ControlImplementationConnection'
           edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
         }
-        comments: { __typename?: 'NoteConnection'; totalCount: number }
-        controlObjectives: {
+        comments?: { __typename?: 'NoteConnection'; totalCount: number }
+        controlObjectives?: {
           __typename?: 'ControlObjectiveConnection'
           edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
         }
-        tasks: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
-        internalPolicies: {
+        tasks?: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
+        internalPolicies?: {
           __typename?: 'InternalPolicyConnection'
           totalCount: number
           edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
         }
-        procedures: {
+        procedures?: {
           __typename?: 'ProcedureConnection'
           totalCount: number
           edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
         }
-        programs: {
+        programs?: {
           __typename?: 'ProgramConnection'
           totalCount: number
           edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null
         }
-        risks: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+        risks?: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -69118,6 +69157,10 @@ export type GetControlByIdQuery = {
           source?: SubcontrolControlSource | null
           category?: string | null
           subcategory?: string | null
+          evidence: {
+            __typename?: 'EvidenceConnection'
+            edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null } | null } | null> | null
+          }
         } | null
       } | null> | null
     }
@@ -69414,32 +69457,161 @@ export type GetControlsPaginatedWithListFieldsQuery = {
   }
 }
 
-export type GetControlsGroupedByCategoryResolverQueryVariables = Exact<{
+export type ControlReportFieldsFragment = {
+  __typename?: 'ControlReport'
+  id: string
+  refCode: string
+  title?: string | null
+  description?: string | null
+  status?: ControlControlStatus | null
+  category?: string | null
+  subcategory?: string | null
+  referenceFramework?: string | null
+  controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+  relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
+  linkedPolicies?: {
+    __typename?: 'ControlPolicies'
+    totalCount: number
+    internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
+  } | null
+  evidenceStatus?: {
+    __typename?: 'ControlEvidence'
+    totalCount: number
+    worstStatus?: EvidenceEvidenceStatus | null
+    approvedCount: number
+    countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
+  } | null
+}
+
+export type ControlReportsByCategoryQueryVariables = Exact<{
   where?: InputMaybe<ControlWhereInput>
-  category?: InputMaybe<Scalars['String']['input']>
+}>
+
+export type ControlReportsByCategoryQuery = {
+  __typename?: 'Query'
+  controlReportsByCategory: Array<{
+    __typename?: 'ControlReportCategory'
+    category: string
+    totalCount: number
+    controls: Array<{
+      __typename?: 'ControlReport'
+      id: string
+      refCode: string
+      title?: string | null
+      description?: string | null
+      status?: ControlControlStatus | null
+      category?: string | null
+      subcategory?: string | null
+      referenceFramework?: string | null
+      subcontrols?: Array<{
+        __typename?: 'ControlReport'
+        id: string
+        refCode: string
+        title?: string | null
+        description?: string | null
+        status?: ControlControlStatus | null
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+        controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
+        linkedPolicies?: {
+          __typename?: 'ControlPolicies'
+          totalCount: number
+          internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
+        } | null
+        evidenceStatus?: {
+          __typename?: 'ControlEvidence'
+          totalCount: number
+          worstStatus?: EvidenceEvidenceStatus | null
+          approvedCount: number
+          countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
+        } | null
+      }> | null
+      controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+      relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
+      linkedPolicies?: {
+        __typename?: 'ControlPolicies'
+        totalCount: number
+        internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
+      } | null
+      evidenceStatus?: {
+        __typename?: 'ControlEvidence'
+        totalCount: number
+        worstStatus?: EvidenceEvidenceStatus | null
+        approvedCount: number
+        countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
+      } | null
+    }>
+  }>
+}
+
+export type ControlReportsQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+  orderBy?: InputMaybe<Array<ControlReportOrder> | ControlReportOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
   after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
-export type GetControlsGroupedByCategoryResolverQuery = {
+export type ControlReportsQuery = {
   __typename?: 'Query'
-  controlsGroupByCategory: {
-    __typename?: 'ControlGroupConnection'
-    edges: Array<{
-      __typename?: 'ControlGroupEdge'
-      node: {
-        __typename?: 'ControlGroup'
-        category: string
-        controls: {
-          __typename?: 'ControlConnection'
+  controlReports: {
+    __typename?: 'ControlReportConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
+    edges?: Array<{
+      __typename?: 'ControlReportEdge'
+      node?: {
+        __typename?: 'ControlReport'
+        id: string
+        refCode: string
+        title?: string | null
+        description?: string | null
+        status?: ControlControlStatus | null
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+        subcontrols?: Array<{
+          __typename?: 'ControlReport'
+          id: string
+          refCode: string
+          title?: string | null
+          description?: string | null
+          status?: ControlControlStatus | null
+          category?: string | null
+          subcategory?: string | null
+          referenceFramework?: string | null
+          controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+          relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
+          linkedPolicies?: {
+            __typename?: 'ControlPolicies'
+            totalCount: number
+            internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
+          } | null
+          evidenceStatus?: {
+            __typename?: 'ControlEvidence'
+            totalCount: number
+            worstStatus?: EvidenceEvidenceStatus | null
+            approvedCount: number
+            countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
+          } | null
+        }> | null
+        controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
+        linkedPolicies?: {
+          __typename?: 'ControlPolicies'
           totalCount: number
-          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean }
-          edges?: Array<{
-            __typename?: 'ControlEdge'
-            node?: { __typename: 'Control'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null } | null
-          } | null> | null
-        }
-      }
-    }>
+          internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
+        } | null
+        evidenceStatus?: {
+          __typename?: 'ControlEvidence'
+          totalCount: number
+          worstStatus?: EvidenceEvidenceStatus | null
+          approvedCount: number
+          countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
+        } | null
+      } | null
+    } | null> | null
   }
 }
 
@@ -69449,6 +69621,15 @@ export type UpdateBulkControlMutationVariables = Exact<{
 }>
 
 export type UpdateBulkControlMutation = { __typename?: 'Mutation'; updateBulkControl: { __typename?: 'ControlBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type GetSubcontrolIdsByControlQueryVariables = Exact<{
+  where?: InputMaybe<SubcontrolWhereInput>
+}>
+
+export type GetSubcontrolIdsByControlQuery = {
+  __typename?: 'Query'
+  subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string } | null } | null> | null }
+}
 
 export type GetControlsByRefCodeQueryVariables = Exact<{
   refCodeIn?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
@@ -69474,8 +69655,43 @@ export type GetControlsByRefCodeQuery = {
         standardID?: string | null
         ownerID?: string | null
         systemOwned?: boolean | null
+        isTrustCenterControl?: boolean | null
+        internalPolicies: {
+          __typename?: 'InternalPolicyConnection'
+          edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+        }
+        evidence: {
+          __typename?: 'EvidenceConnection'
+          edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null } | null } | null> | null
+        }
       } | null
     } | null> | null
+  }
+}
+
+export type GetControlRelatedControlsQueryVariables = Exact<{
+  controlId: Scalars['ID']['input']
+}>
+
+export type GetControlRelatedControlsQuery = {
+  __typename?: 'Query'
+  control: {
+    __typename?: 'Control'
+    id: string
+    relatedControls?: Array<{
+      __typename?: 'ControlInfo'
+      id: string
+      refCode: string
+      status?: ControlControlStatus | null
+      referenceFramework?: string | null
+      isSubcontrol: boolean
+      parentControlID?: string | null
+      mappedControlReferenceIDs?: Array<string> | null
+      inheritedFromSubcontrolIDs?: Array<string> | null
+      category?: string | null
+      subcategory?: string | null
+      description?: string | null
+    }> | null
   }
 }
 
@@ -70265,6 +70481,8 @@ export type GetDocumentationPoliciesQuery = {
         updatedBy?: string | null
         updatedAt?: any | null
         approver?: { __typename?: 'Group'; id: string; displayName: string } | null
+        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+        subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -70295,6 +70513,8 @@ export type GetDocumentationProceduresQuery = {
         updatedBy?: string | null
         updatedAt?: any | null
         approver?: { __typename?: 'Group'; id: string; displayName: string } | null
+        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+        subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -71285,6 +71505,8 @@ export type GetEvidenceListLightQuery = {
         source?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
+        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+        subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
       } | null
     } | null> | null
   }
@@ -77215,6 +77437,30 @@ export type GetSubcontrolsByRefCodeQuery = {
         control: { __typename?: 'Control'; standardID?: string | null }
       } | null
     } | null> | null
+  }
+}
+
+export type GetSubcontrolRelatedControlsQueryVariables = Exact<{
+  subcontrolId: Scalars['ID']['input']
+}>
+
+export type GetSubcontrolRelatedControlsQuery = {
+  __typename?: 'Query'
+  subcontrol: {
+    __typename?: 'Subcontrol'
+    id: string
+    relatedControls?: Array<{
+      __typename?: 'ControlInfo'
+      id: string
+      refCode: string
+      status?: ControlControlStatus | null
+      referenceFramework?: string | null
+      isSubcontrol: boolean
+      mappedControlReferenceIDs?: Array<string> | null
+      category?: string | null
+      subcategory?: string | null
+      description?: string | null
+    }> | null
   }
 }
 

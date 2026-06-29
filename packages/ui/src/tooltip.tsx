@@ -8,8 +8,8 @@ const TooltipProvider = TooltipPrimitive.Provider
 const Tooltip = TooltipPrimitive.Root
 const TooltipTrigger = TooltipPrimitive.Trigger
 
-function TooltipContent({ className, sideOffset = 4, ...props }: React.ComponentProps<typeof TooltipPrimitive.Content>) {
-  return (
+function TooltipContent({ className, sideOffset = 4, portal = false, ...props }: React.ComponentProps<typeof TooltipPrimitive.Content> & { portal?: boolean }) {
+  const content = (
     <TooltipPrimitive.Content
       sideOffset={sideOffset}
       className={cn(
@@ -22,6 +22,8 @@ function TooltipContent({ className, sideOffset = 4, ...props }: React.Component
       {...props}
     />
   )
+
+  return portal ? <TooltipPrimitive.Portal>{content}</TooltipPrimitive.Portal> : content
 }
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 

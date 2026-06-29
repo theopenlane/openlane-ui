@@ -359,6 +359,22 @@ export const GET_EVIDENCE_LIST_LIGHT = gql`
           source
           updatedAt
           updatedBy
+          controls {
+            edges {
+              node {
+                id
+                refCode
+              }
+            }
+          }
+          subcontrols {
+            edges {
+              node {
+                id
+                refCode
+              }
+            }
+          }
         }
       }
     }
