@@ -1,4 +1,4 @@
-import { format } from 'date-fns'
+import { format, isPast } from 'date-fns'
 
 // dateFallback is a helper for all date formats to determine the correct fallback value
 const dateFallback = (empty?: string): string => {
@@ -24,6 +24,16 @@ const formatDate = (date: string | null | undefined, empty?: string): string => 
 }
 
 export { formatDate }
+
+const isPastDate = (date: string | null | undefined): boolean => {
+  if (!date || date === '') {
+    return false
+  }
+
+  return isPast(new Date(date))
+}
+
+export { isPastDate }
 
 /*
  * Formats a date to a human-readable string in "MMMM d, yyyy hh:mm aa" format.
