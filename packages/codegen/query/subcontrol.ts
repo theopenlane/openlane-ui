@@ -357,6 +357,25 @@ export const GET_SUBCONTROLS_BY_REFCODE = gql`
   }
 `
 
+export const GET_SUBCONTROL_RELATED_CONTROLS = gql`
+  query GetSubcontrolRelatedControls($subcontrolId: ID!) {
+    subcontrol(id: $subcontrolId) {
+      id
+      relatedControls {
+        id
+        refCode
+        status
+        referenceFramework
+        isSubcontrol
+        mappedControlReferenceIDs
+        category
+        subcategory
+        description
+      }
+    }
+  }
+`
+
 export const GET_SUBCONTROL_COMMENTS = gql`
   query GetSubcontrolComments($subcontrolId: ID!) {
     subcontrol(id: $subcontrolId) {

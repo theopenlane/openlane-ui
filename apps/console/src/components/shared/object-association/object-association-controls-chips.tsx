@@ -134,6 +134,7 @@ const ObjectAssociationControlsChips = ({
         where: {
           refCodeIn: [refCode],
           systemOwned: false,
+          isTrustCenterControl: false,
           referenceFrameworkIn: [referenceFramework || 'CUSTOM'],
         },
       })

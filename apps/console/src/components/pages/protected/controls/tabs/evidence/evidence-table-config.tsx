@@ -8,6 +8,7 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { KeyRound } from 'lucide-react'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
+import InheritedBadge from '@/components/shared/inherited-badge/inherited-badge'
 
 export type EvidenceRow = {
   id: string
@@ -28,14 +29,22 @@ export const getEvidenceFilterFields = (): FilterField[] => [
   { key: 'externalUUIDContainsFold', label: 'External UUID', type: 'text', icon: FilterIcons.ID },
 ]
 
-export const getEvidenceColumns = (onOpenEvidence: (id: string) => void, userMap: Record<string, User>, tokenMap: Record<string, ApiToken>): ColumnDef<EvidenceRow>[] => [
+export const getEvidenceColumns = (
+  onOpenEvidence: (id: string) => void,
+  userMap: Record<string, User>,
+  tokenMap: Record<string, ApiToken>,
+  inheritedFromMap?: Map<string, { refCode: string; href: string }[]>,
+): ColumnDef<EvidenceRow>[] => [
   {
     accessorKey: 'name',
     header: () => <span className="whitespace-nowrap">Name</span>,
     cell: ({ row }) => (
-      <button type="button" className="text-blue-500 hover:underline truncate whitespace-nowrap" onClick={() => onOpenEvidence(row.original.id)}>
-        {row.original.name}
-      </button>
+      <div className="flex flex-col gap-1">
+        <button type="button" className="text-blue-500 hover:underline truncate whitespace-nowrap text-left" onClick={() => onOpenEvidence(row.original.id)}>
+          {row.original.name}
+        </button>
+        {inheritedFromMap?.has(row.original.id) && <InheritedBadge sources={inheritedFromMap.get(row.original.id) ?? []} />}
+      </div>
     ),
     size: 220,
   },

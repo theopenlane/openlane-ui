@@ -2,12 +2,13 @@
 
 import React, { use, useEffect, useMemo, useState } from 'react'
 import { type ProgramFromGetProgramDashboard as Program, useGetProgramDashboard } from '@/lib/graphql-hooks/program'
-import { Calendar, ChevronRight, SquarePlus, SearchIcon, UserRoundPlus, Undo, UserIcon } from 'lucide-react'
+import { Calendar, ChevronRight, SquarePlus, SearchIcon, UserRoundPlus, Undo, UserIcon, TriangleAlert } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { formatDate } from '@/utils/date'
+import { formatDate, isPastDate } from '@/utils/date'
 import { useAccountRolesMany, useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { hasPermission, canEdit } from '@/lib/authz/utils'
@@ -24,7 +25,6 @@ import clsx from 'clsx'
 import { useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useQueryClient } from '@tanstack/react-query'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Callout } from '@/components/shared/callout/callout'
@@ -33,6 +33,7 @@ import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { ProgramSettingsAssignUserDialog } from '../[id]/settings/users/program-settings-assign-user-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { ProgramsDashboardSkeleton } from '../skeleton/programs-dashboard-skeleton'
+import { PROGRAMS_LIST_HREF, PROGRAMS_VIEW_ALL, PROGRAMS_VIEW_PARAM } from '@/constants/programs'
 
 const ProgramsDashboardPage = () => {
   const [search, setSearch] = useState('')
@@ -40,10 +41,19 @@ const ProgramsDashboardPage = () => {
   const [filterStatus, setFilterStatus] = useState<'ACTIVE' | 'ARCHIVED'>('ACTIVE')
   const { data: orgPermission } = useOrganizationRoles()
   const { setCrumbs } = use(BreadcrumbContext)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const showAll = searchParams.get(PROGRAMS_VIEW_PARAM) === PROGRAMS_VIEW_ALL
 
   const where: ProgramWhereInput = filterStatus === 'ACTIVE' ? { statusNEQ: ProgramProgramStatus.ARCHIVED } : { status: ProgramProgramStatus.ARCHIVED }
 
   const { data, isSuccess, isLoading } = useGetProgramDashboard({ where })
+
+  const singleProgramId = !showAll && !search && filterStatus === 'ACTIVE' && isSuccess && data?.programs.edges?.length === 1 ? data.programs.edges[0]?.node?.id : undefined
+
+  useEffect(() => {
+    if (singleProgramId) router.replace(`/programs/${singleProgramId}`)
+  }, [singleProgramId, router])
 
   const programIds = (data?.programs.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? []
   const hasData = !!data?.programs?.edges && data.programs.edges.length > 0
@@ -94,12 +104,12 @@ const ProgramsDashboardPage = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Compliance', href: '/programs' },
-      { label: 'Programs', href: '/programs' },
+      { label: 'Compliance', href: PROGRAMS_LIST_HREF },
+      { label: 'Programs', href: PROGRAMS_LIST_HREF },
     ])
   }, [setCrumbs])
 
-  if (isLoading) {
+  if (isLoading || singleProgramId) {
     return <ProgramsDashboardSkeleton />
   }
 
@@ -209,10 +219,10 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
   const openTasks = program?.tasks?.edges?.filter((t) => t?.node?.status && [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW].includes(t.node.status)).length ?? 0
   const status = program.status === ProgramProgramStatus.READY_FOR_AUDITOR ? ProgramProgramStatus.IN_PROGRESS : program.status
   const isArchived = status === ProgramProgramStatus.ARCHIVED
+  const showArchiveSuggestion = editAllowed && !isArchived && program.status === ProgramProgramStatus.COMPLETED && isPastDate(program.endDate)
 
-  const { mutateAsync: updateProgram, isPending: isUnarchiving } = useUpdateProgram()
+  const { mutateAsync: updateProgram, isPending: isUpdatingStatus } = useUpdateProgram()
   const { successNotification, errorNotification } = useNotification()
-  const queryClient = useQueryClient()
 
   const ownerDisplayName = program.programOwner?.displayName
 
@@ -236,26 +246,17 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
     }
   }
 
-  const handleUnarchive = async () => {
+  const handleStatusChange = async (status: ProgramProgramStatus, successTitle: string) => {
     try {
-      await updateProgram({
-        updateProgramId: program.id,
-        input: { status: ProgramProgramStatus.IN_PROGRESS },
-      })
-
-      successNotification({
-        title: 'The program has been successfully unarchived.',
-      })
-
-      queryClient.invalidateQueries({ queryKey: ['programs'] })
+      await updateProgram({ updateProgramId: program.id, input: { status } })
+      successNotification({ title: successTitle })
     } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
     }
   }
+
+  const handleUnarchive = () => handleStatusChange(ProgramProgramStatus.IN_PROGRESS, 'The program has been successfully unarchived.')
+  const handleArchive = () => handleStatusChange(ProgramProgramStatus.ARCHIVED, 'The program has been successfully archived.')
 
   return (
     <Card className="p-6 gap-6  flex flex-col ">
@@ -267,8 +268,8 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
         </div>
         <div className="flex items-center gap-3">
           {isArchived ? (
-            <Button icon={<Undo />} variant="secondary" iconPosition="left" aria-label="Unarchive program" onClick={handleUnarchive} disabled={isUnarchiving}>
-              {isUnarchiving ? 'Unarchiving...' : 'Unarchive'}
+            <Button icon={<Undo />} variant="secondary" iconPosition="left" aria-label="Unarchive program" onClick={handleUnarchive} disabled={isUpdatingStatus}>
+              {isUpdatingStatus ? 'Unarchiving...' : 'Unarchive'}
             </Button>
           ) : (
             <>
@@ -288,6 +289,21 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
           )}
         </div>
       </div>
+
+      {showArchiveSuggestion && (
+        <div className="flex items-center justify-between gap-4 rounded-md border border-[var(--color-warning)]/40 bg-[var(--color-warning)]/10 p-4">
+          <div className="flex items-start gap-3">
+            <TriangleAlert className="size-5 shrink-0 text-[var(--color-warning)]" />
+            <div className="text-sm">
+              <p className="font-medium">This program is completed and past its end date</p>
+              <p className="text-muted-foreground">To keep your workspace organized, we recommend archiving it</p>
+            </div>
+          </div>
+          <Button variant="secondary" className="shrink-0 border-[var(--color-warning)]/60 " onClick={handleArchive} disabled={isUpdatingStatus} aria-label="Archive program">
+            {isUpdatingStatus ? 'Archiving...' : 'Archive Program'}
+          </Button>
+        </div>
+      )}
 
       {/* Status row */}
       <div className="flex items-center gap-3 text-sm ">

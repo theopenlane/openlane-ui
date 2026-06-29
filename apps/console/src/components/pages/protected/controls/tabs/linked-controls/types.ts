@@ -1,11 +1,10 @@
 export type LinkedControlDetails = {
-  id?: string
-  href?: string
-  systemOwned?: boolean
   description?: string | null
   status?: string | null
   type?: string | null
   controlSource?: string | null
   category?: string | null
   subcategory?: string | null
+  linkedPolicies?: Array<{ id: string; name: string }>
+  evidenceRefs?: Array<{ id: string; name: string; status?: string | null }>
 }

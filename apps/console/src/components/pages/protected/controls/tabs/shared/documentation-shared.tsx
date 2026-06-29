@@ -1,19 +1,22 @@
 'use client'
 
-export const buildAssociationFilter = (controlId?: string, subcontrolIds: string[] = []) => {
-  if (controlId && subcontrolIds.length > 0) {
-    return {
-      or: [{ hasControlsWith: [{ id: controlId }] }, { hasSubcontrolsWith: [{ idIn: subcontrolIds }] }],
-    }
-  }
+import type { EntityRef } from '@/lib/graphql-hooks/use-mapped-entity-refs'
 
-  if (controlId) {
-    return { hasControlsWith: [{ id: controlId }] }
-  }
+export type { EntityRef }
 
-  if (subcontrolIds.length > 0) {
-    return { hasSubcontrolsWith: [{ idIn: subcontrolIds }] }
-  }
+export const buildAssociationFilter = (controlId?: string, subcontrolIds: string[] = [], mappedControlRefs: EntityRef[] = [], mappedSubcontrolRefs: EntityRef[] = []) => {
+  const conditions: object[] = []
 
-  return {}
+  if (controlId) conditions.push({ hasControlsWith: [{ id: controlId }] })
+  if (subcontrolIds.length > 0) conditions.push({ hasSubcontrolsWith: [{ idIn: subcontrolIds }] })
+
+  const mappedControlIds = mappedControlRefs.map((r) => r.id)
+  const mappedSubcontrolIds = mappedSubcontrolRefs.map((r) => r.id)
+
+  if (mappedControlIds.length > 0) conditions.push({ hasControlsWith: [{ idIn: mappedControlIds }] })
+  if (mappedSubcontrolIds.length > 0) conditions.push({ hasSubcontrolsWith: [{ idIn: mappedSubcontrolIds }] })
+
+  if (conditions.length === 0) return {}
+  if (conditions.length === 1) return conditions[0]
+  return { or: conditions }
 }

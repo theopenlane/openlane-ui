@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react'
 import { Presentation, Table } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { type TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 
 type TTab = 'dashboard' | 'table'
@@ -11,12 +10,16 @@ type TTabSwitcherProps = {
   storageKey: TabSwitcherStorageKeys
   active?: TTab
   setActive?: (tab: TTab) => void
+  labels?: { dashboard?: string; table?: string }
 }
+
+const DEFAULT_LABELS = { dashboard: 'Report', table: 'Table' }
 
 export const STORAGE_KEY_PREFIX = 'tab-switch'
 
-const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: externalActive, setActive: externalSetActive }) => {
+const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: externalActive, setActive: externalSetActive, labels }) => {
   const storageKeyWithPrefix = `${STORAGE_KEY_PREFIX}-${storageKey}`
+  const resolvedLabels = { ...DEFAULT_LABELS, ...labels }
 
   const [internalActive, setInternalActive] = useState<TTab>(() => {
     if (typeof window !== 'undefined') {
@@ -40,27 +43,23 @@ const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: external
 
   return (
     <div className="flex items-center p-[3px] gap-1 border rounded-md cursor-pointer overflow-hidden bg-background">
-      <TooltipProvider delayDuration={100}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Presentation className={`cursor-pointer p-1 ${active === 'dashboard' ? 'bg-btn-secondary rounded-md' : 'text-muted-foreground'}`} onClick={() => setActive('dashboard')} size={24} />
-          </TooltipTrigger>
-          <TooltipContent side="top">
-            <p>Dashboard</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <button
+        type="button"
+        className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${active === 'dashboard' ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
+        onClick={() => setActive('dashboard')}
+      >
+        <Presentation size={16} />
+        <span>{resolvedLabels.dashboard}</span>
+      </button>
 
-      <TooltipProvider delayDuration={100}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Table className={`cursor-pointer p-1 ${active === 'table' ? 'bg-btn-secondary rounded-md' : 'text-muted-foreground'}`} onClick={() => setActive('table')} size={24} />
-          </TooltipTrigger>
-          <TooltipContent side="top">
-            <p>Table View</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <button
+        type="button"
+        className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${active === 'table' ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
+        onClick={() => setActive('table')}
+      >
+        <Table size={16} />
+        <span>{resolvedLabels.table}</span>
+      </button>
     </div>
   )
 }

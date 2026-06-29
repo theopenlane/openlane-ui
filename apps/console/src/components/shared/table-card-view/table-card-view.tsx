@@ -1,4 +1,3 @@
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import { LayoutGrid, Table as TableIcon } from 'lucide-react'
 
 type TTableCardViewProps = {
@@ -8,25 +7,25 @@ type TTableCardViewProps = {
 
 const TableCardView = ({ onTabChange, activeTab }: TTableCardViewProps) => {
   return (
-    <div className="flex gap-1 size-fit bg-transparent py-0.5 px-1 border rounded-md">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div aria-label="Table view" className={`py-1.5 px-2.5 rounded-md cursor-pointer ${activeTab === 'table' ? 'bg-card' : 'bg-transparent'}`} onClick={() => onTabChange('table')}>
-              <TableIcon size={16} />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>Table view</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div aria-label="Card view" className={`py-1.5 px-2.5 rounded-md cursor-pointer ${activeTab === 'card' ? 'bg-card' : 'bg-transparent'}`} onClick={() => onTabChange('card')}>
-              <LayoutGrid size={16} />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>Card view</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+    <div className="flex items-center p-[3px] gap-1 border rounded-md bg-background">
+      <button
+        type="button"
+        aria-label="Table view"
+        className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${activeTab === 'table' ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
+        onClick={() => onTabChange('table')}
+      >
+        <TableIcon size={16} />
+        <span>Table</span>
+      </button>
+      <button
+        type="button"
+        aria-label="Card view"
+        className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${activeTab === 'card' ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
+        onClick={() => onTabChange('card')}
+      >
+        <LayoutGrid size={16} />
+        <span>Card</span>
+      </button>
     </div>
   )
 }

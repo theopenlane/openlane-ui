@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import type { TTableCellElement, TTableElement } from 'platejs'
+import type { TElement, TTableCellElement, TTableElement } from 'platejs'
 
 import { BaseTablePlugin } from '@platejs/table'
 import { SlateElement, type SlateElementProps } from 'platejs/static'
@@ -11,10 +11,28 @@ export function TableElementStatic({ children, ...props }: SlateElementProps<TTa
   const { disableMarginLeft } = props.editor.getOptions(BaseTablePlugin)
   const marginLeft = disableMarginLeft ? 0 : props.element.marginLeft
 
+  const colSizes = props.element.colSizes ?? []
+  const firstRow = props.element.children[0] as TElement | undefined
+  const columnCount = colSizes.length > 0 ? colSizes.length : (firstRow?.children?.length ?? 0)
+  const resolvedColSizes = colSizes.length > 0 ? colSizes.map((colSize) => colSize || 120) : Array.from({ length: columnCount }, () => 120)
+  const colSizesTotal = resolvedColSizes.reduce((total, colSize) => total + colSize, 0)
+
   return (
     <SlateElement {...props} className="overflow-x-auto py-5" style={{ paddingLeft: marginLeft }}>
-      <div className="group/table relative w-fit">
-        <table className="mr-0 ml-px table h-px table-fixed border-collapse">
+      <div className="group/table relative w-full">
+        <table className="mr-0 ml-px table h-px table-fixed border-collapse" style={{ maxWidth: '100%', width: '100%' }}>
+          {resolvedColSizes.length > 0 && (
+            <colgroup>
+              {resolvedColSizes.map((colSize, index) => (
+                <col
+                  key={index}
+                  style={{
+                    width: colSizesTotal > 0 ? `${(colSize / colSizesTotal) * 100}%` : `${100 / resolvedColSizes.length}%`,
+                  }}
+                />
+              ))}
+            </colgroup>
+          )}
           <tbody className="min-w-full">{children}</tbody>
         </table>
       </div>
@@ -39,7 +57,7 @@ export function TableCellElementStatic({
   const { editor, element } = props
   const { api } = editor.getPlugin(BaseTablePlugin)
 
-  const { minHeight, width } = api.table.getCellSize({ element })
+  const { minHeight } = api.table.getCellSize({ element })
   const borders = api.table.getCellBorders({ element })
 
   return (
@@ -64,8 +82,6 @@ export function TableCellElementStatic({
         {
           '--cellBackground': element.background,
           backgroundColor: element.background,
-          maxWidth: width || 240,
-          minWidth: width || 120,
         } as React.CSSProperties
       }
       attributes={{
