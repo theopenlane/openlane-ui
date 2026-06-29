@@ -112,6 +112,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
     responsibilityFields?: ResponsibilityFieldsMap
     createMode?: CreateMode
     hideCreate?: boolean
+    createPermission?: TAccessRole
     additionalActiveFilterCount?: number
     defaultFilterValues?: TFilterState
   }>
@@ -135,6 +136,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   additionalWhereFilter?: Partial<TWhereInput>
   defaultFilterValues?: TFilterState
   hideCreate?: boolean
+  createPermission?: TAccessRole
   hideBreadcrumbs?: boolean
 }
 
@@ -393,6 +395,7 @@ export function GenericTablePage<
         responsibilityFields={config.responsibilityFields}
         createMode={createMode}
         hideCreate={config.hideCreate}
+        createPermission={config.createPermission}
         additionalActiveFilterCount={additionalWhereFilter ? Object.values(additionalWhereFilter).filter((v) => v != null).length : 0}
         defaultFilterValues={defaultFilterValues}
       />
