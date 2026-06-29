@@ -1,25 +1,26 @@
 'use client'
-import { defineStepper } from '@stepperize/react'
-import { useForm, FormProvider } from 'react-hook-form'
+
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@repo/ui/button'
-
-import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Separator } from '@repo/ui/separator'
+import { defineStepper } from '@stepperize/react'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { StepHeader } from '@/components/shared/step-header/step-header'
-import SelectCategoryStep from '../shared/steps/select-category-step'
-import TeamSetupStep from '../shared/steps/team-setup-step'
-import StartTypeStep from '../shared/steps/start-type-step'
-import { fullSchema, validateFullAndNotify, type WizardValues } from './sco2-wizard-config'
 import { useNotification } from '@/hooks/useNotification'
-import { type CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
-import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
-import { addYears, getYear } from 'date-fns'
+import { useCloneControls, useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { type CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { Separator } from '@repo/ui/separator'
+import { addYears, getYear } from 'date-fns'
+import { useRouter, useSearchParams } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+import SelectCategoryStep from '../shared/steps/select-category-step'
+import StartTypeStep from '../shared/steps/start-type-step'
+import TeamSetupStep from '../shared/steps/team-setup-step'
+import { fullSchema, suggestedControlsStepSchema, validateFullAndNotify, type WizardValues } from './soc2-wizard-config'
+import SuggestedControlsStep from './suggested-controls-step'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -27,8 +28,12 @@ const currentYear = getYear(today)
 
 export default function Soc2Wizard() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const includeSuggestedControls = searchParams.get('suggestedControls') === 'true'
+  const isOnboardingFlow = searchParams.get('onboarding') === 'true'
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
+  const { mutateAsync: cloneControls, isPending: isControlBeingCloned } = useCloneControls()
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { data } = useStandardsSelect({ where: { shortName: 'SOC 2' } })
   const [showExitConfirm, setShowExitConfirm] = useState(false)
@@ -37,8 +42,9 @@ export default function Soc2Wizard() {
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Pick Categories', schema: fullSchema.pick({ categories: true, standardID: true }) },
-    { id: '1', label: 'Team Setup', schema: fullSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) },
-    { id: '2', label: 'Access Control', schema: fullSchema.pick({ programKindName: true }) },
+    ...(includeSuggestedControls ? [{ id: '1', label: 'Import Controls', schema: suggestedControlsStepSchema }] : []),
+    ...(!isOnboardingFlow ? [{ id: '2', label: 'Team Setup', schema: fullSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) }] : []),
+    { id: '3', label: 'Access Control', schema: fullSchema.pick({ programKindName: true }) },
   )
   const stepper = useStepper()
 
@@ -47,8 +53,19 @@ export default function Soc2Wizard() {
     mode: 'onChange',
     defaultValues: {
       categories: ['Security'],
+      suggestedControlIDs: [],
+      suggestedControlCategories: [],
     },
   })
+
+  const programKindName = useWatch({ control: methods.control, name: 'programKindName' })
+  const isCreationDisabled = stepper.isLast && !programKindName
+
+  useEffect(() => {
+    if (standardID) {
+      methods.setValue('standardID', standardID, { shouldValidate: true })
+    }
+  }, [methods, standardID])
 
   const handleSubmit = async () => {
     const data = methods.getValues()
@@ -82,11 +99,23 @@ export default function Soc2Wizard() {
 
     try {
       const resp = await createProgram({ input })
+      const programID = resp.createProgramWithMembers.program.id
+
+      // clone the selected controls in the program
+      if (includeSuggestedControls && data.suggestedControlIDs?.length) {
+        await cloneControls({
+          input: {
+            programID,
+            controlIDs: data.suggestedControlIDs,
+          },
+        })
+      }
+
       successNotification({
         title: 'Program Created',
         description: `Your program has been successfully created`,
       })
-      router.push(`/programs/${resp.createProgramWithMembers.program.id}`)
+      router.push(`/programs/${programID}`)
     } catch (e) {
       const errorMessage = parseErrorMessage(e)
       errorNotification({
@@ -101,7 +130,17 @@ export default function Soc2Wizard() {
     if (!stepper.isLast) {
       let isValid: boolean
       if (stepper.current.id === '0') {
+        if (!standardID) {
+          errorNotification({
+            title: 'SOC 2 standard is still loading',
+            description: 'Please try again in a moment.',
+          })
+          return
+        }
+
         isValid = await methods.trigger(['categories', 'standardID'])
+      } else if (stepper.current.id === '1') {
+        isValid = await methods.trigger(['suggestedControlIDs'])
       } else {
         isValid = await methods.trigger(['programAdmins', 'programMembers', 'viewerIDs', 'editorIDs'])
       }
@@ -136,7 +175,13 @@ export default function Soc2Wizard() {
 
   return (
     <>
-      <div className="max-w-3xl mx-auto px-6 py-2">
+      <div className="max-w-6xl mx-auto px-6 py-2">
+        {isOnboardingFlow && (
+          <div className="mb-6 rounded-md border border-brand/30 bg-brand/5 p-4">
+            <p className="text-sm font-semibold">Program creation</p>
+            <p className="mt-1 text-sm text-muted-foreground">Your onboarding answers are saved. Now create your SOC 2 program and choose the controls you want to start with.</p>
+          </div>
+        )}
         <StepHeader stepper={stepper} className="mb-6" />
         <Separator separatorClass="bg-card" />
         <FormProvider {...methods}>
@@ -144,14 +189,15 @@ export default function Soc2Wizard() {
             <div className="py-6">
               {stepper.switch({
                 0: () => <SelectCategoryStep />,
-                1: () => <TeamSetupStep />,
-                2: () => <StartTypeStep />,
+                1: () => <SuggestedControlsStep frameworkName="SOC 2" />,
+                2: () => <TeamSetupStep />,
+                3: () => <StartTypeStep />,
               })}
               <div className="flex justify-between mt-8">
                 <Button type="button" variant="secondary" onClick={handleBack} iconPosition="left">
                   Back
                 </Button>
-                <Button variant="primary" type="button" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
+                <Button variant="primary" type="button" onClick={() => handleNext()} disabled={isPending || isControlBeingCloned || isCreationDisabled} loading={isPending || isControlBeingCloned}>
                   {stepper.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>

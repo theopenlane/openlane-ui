@@ -6,6 +6,11 @@ export const categoriesStepSchema = z.object({
   categories: z.array(z.string()),
 })
 
+export const suggestedControlsStepSchema = z.object({
+  suggestedControlIDs: z.array(z.string()).optional(),
+  suggestedControlCategories: z.array(z.string()).optional(),
+})
+
 export const step1Schema = z.object({
   programKindName: z.string({
     required_error: 'Please select a program type',
@@ -135,7 +140,25 @@ export const step5Schema = z.object({
   procedureIDs: z.array(optionSchema).optional(),
 })
 
-export const fullSchema = categoriesStepSchema.merge(step1Schema).merge(step3Schema).merge(step4Schema).merge(step5Schema).and(step2Schema)
+export const fullSchema = categoriesStepSchema
+  .merge(suggestedControlsStepSchema)
+  .merge(step1Schema)
+  .merge(step3Schema)
+  .merge(step4Schema)
+  .merge(step5Schema)
+  .and(step2Schema)
+  .and(
+    z.object({
+      frameworks: z
+        .array(
+          z.object({
+            label: z.string(),
+            value: z.string(),
+          }),
+        )
+        .optional(),
+    }),
+  )
 
 export type WizardValues = z.infer<typeof fullSchema>
 
@@ -148,6 +171,8 @@ export async function validateStepAndNotify(methods: UseFormReturn<WizardValues>
     isValid = await methods.trigger(['name', 'startDate', 'endDate', 'framework'])
   } else if (stepId === '2') {
     isValid = await methods.trigger('categories')
+  } else if (stepId === '2a') {
+    isValid = await methods.trigger('suggestedControlIDs')
   } else if (stepId === '3') {
     isValid = await methods.trigger('auditPartnerEmail')
   } else {

@@ -26,7 +26,12 @@ export const categoriesStepSchema = z.object({
   categories: z.array(z.string()),
 })
 
-export const wizardSchema = selectFrameworkSchema.merge(programInviteSchema).merge(categoriesStepSchema).merge(programTypeSchema)
+export const suggestedControlsStepSchema = z.object({
+  suggestedControlIDs: z.array(z.string()).optional(),
+  suggestedControlCategories: z.array(z.string()).optional(),
+})
+
+export const wizardSchema = selectFrameworkSchema.merge(programInviteSchema).merge(categoriesStepSchema).merge(suggestedControlsStepSchema).merge(programTypeSchema)
 
 export type WizardValues = z.infer<typeof wizardSchema>
 

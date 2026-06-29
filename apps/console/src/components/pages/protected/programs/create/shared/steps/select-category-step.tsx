@@ -28,7 +28,15 @@ export default function SelectCategoryStep() {
     <>
       <div>
         <h2 className="text-lg font-semibold">Add Trust Service Categories</h2>
-        <p className="text-sm text-muted-foreground">Security is automatically included. Add additional categories to expand your SOC 2 coverage.</p>
+        <div className="rounded-md border border-brand/40 bg-brand/10 p-3">
+          <div className="mb-1 flex items-center gap-2">
+            <span className="rounded-full border border-brand/40 bg-brand/15 px-2 py-0.5 text-xs font-medium text-brand">Recommended</span>
+            <p className="text-sm font-medium">Start with Security</p>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Security is already selected for SOC 2. For your first audit, start with Security and optionally add Availability if uptime and service resilience are part of your customer commitments.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 mt-7">

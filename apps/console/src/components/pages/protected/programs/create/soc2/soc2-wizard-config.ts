@@ -7,6 +7,11 @@ export const step1Schema = z.object({
   standardID: z.string().optional(),
 })
 
+export const suggestedControlsStepSchema = z.object({
+  suggestedControlIDs: z.array(z.string()).optional(),
+  suggestedControlCategories: z.array(z.string()).optional(),
+})
+
 export const programInviteSchema = z.object({
   programAdmins: z.array(z.string()).optional(),
   programMembers: z.array(z.string()).optional(),
@@ -25,7 +30,7 @@ export const step3Schema = z.object({
   }),
 })
 
-export const fullSchema = step1Schema.merge(programInviteSchema).merge(step3Schema)
+export const fullSchema = step1Schema.merge(suggestedControlsStepSchema).merge(programInviteSchema).merge(step3Schema)
 export type WizardValues = z.infer<typeof fullSchema>
 
 export async function validateFullAndNotify(methods: UseFormReturn<WizardValues>, notify: (props: TErrorProps) => void): Promise<boolean> {

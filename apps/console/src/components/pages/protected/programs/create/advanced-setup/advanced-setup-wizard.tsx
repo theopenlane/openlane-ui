@@ -2,9 +2,9 @@
 
 import React, { use, useEffect, useState } from 'react'
 import { defineStepper, type Step } from '@stepperize/react'
-import { useForm, FormProvider } from 'react-hook-form'
+import { useForm, FormProvider, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
@@ -16,6 +16,7 @@ import AdvancedSetupStep5 from './advanced-setup-steps/advanced-setup-step5'
 import {
   categoriesStepSchema,
   fullSchema,
+  suggestedControlsStepSchema,
   step1Schema,
   step2Schema,
   step3Schema,
@@ -34,14 +35,23 @@ import { AdvancedSetupFormSummary } from './advanced-setup-form-summary'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import SelectCategoryStep from '../shared/steps/select-category-step'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import SuggestedControlsStep from '../soc2/suggested-controls-step'
+import { useCloneControls } from '@/lib/graphql-hooks/standard'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
 
+const SOC2_FRAMEWORK_NAME = 'SOC 2'
+
 export default function AdvancedSetupWizard() {
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
+  const { mutateAsync: cloneControls, isPending: isControlBeingCloned } = useCloneControls()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const defaultFrameworks = searchParams.getAll('frameworks')
+  const includeSuggestedControls = searchParams.get('suggestedControls') === 'true'
+  const isOnboardingFlow = searchParams.get('onboarding') === 'true'
   const [summaryData, setSummaryData] = useState<WizardValues>({} as WizardValues)
   const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
@@ -51,6 +61,7 @@ export default function AdvancedSetupWizard() {
     { id: '0', label: 'Select a Program Type', schema: step1Schema },
     { id: '1', label: 'General Information', schema: step2Schema },
     { id: '2', label: 'Select SOC 2 Categories', schema: categoriesStepSchema },
+    ...(includeSuggestedControls ? [{ id: '2a', label: 'Import Controls', schema: suggestedControlsStepSchema }] : []),
     { id: '3', label: 'Auditors', schema: step3Schema },
     { id: '4', label: 'Add Team Members', schema: step4Schema },
     { id: '5', label: 'Associate Existing Objects', schema: step5Schema },
@@ -77,12 +88,19 @@ export default function AdvancedSetupWizard() {
       internalPolicyIDs: [],
       procedureIDs: [],
       categories: ['Security'],
+      suggestedControlIDs: [],
+      suggestedControlCategories: [],
+      frameworks: [],
+      ...(defaultFrameworks.length > 1 ? { programKindName: 'Framework' } : {}),
     },
   })
 
-  const framework = form.watch('framework')
+  const framework = useWatch({ control: form.control, name: 'framework' })
+  const selectedFrameworks = useWatch({ control: form.control, name: 'frameworks' })
 
-  const disabledIDs = framework === 'SOC 2' ? [] : ['2']
+  const hasSoc2Framework = framework === SOC2_FRAMEWORK_NAME || selectedFrameworks?.some((selectedFramework) => selectedFramework.value === SOC2_FRAMEWORK_NAME)
+
+  const disabledIDs = [...(hasSoc2Framework ? [] : ['2']), ...(isOnboardingFlow ? ['4'] : [])]
 
   const handleNext = async () => {
     if (!stepper.isLast) {
@@ -168,18 +186,29 @@ export default function AdvancedSetupWizard() {
         viewerIDs: data?.readOnlyGroups?.map((g) => g.id),
         editorIDs: data?.editAccessGroups?.map((g) => g.id),
       },
-      categories: framework === 'SOC 2' ? data.categories : undefined,
+      categories: hasSoc2Framework ? data.categories : undefined,
       members: [...programMembers, ...programAdmins],
       standardID: data.standardID,
     }
 
     try {
       const resp = await createProgram({ input })
+      const programID = resp.createProgramWithMembers.program.id
+
+      if (includeSuggestedControls && data.suggestedControlIDs?.length) {
+        await cloneControls({
+          input: {
+            programID,
+            controlIDs: data.suggestedControlIDs,
+          },
+        })
+      }
+
       successNotification({
         title: 'Program Created',
         description: `Your program, ${data.name}, has been successfully created`,
       })
-      router.push(`/programs/${resp.createProgramWithMembers.program.id}`)
+      router.push(`/programs/${programID}`)
     } catch (e) {
       const errorMessage = parseErrorMessage(e)
       errorNotification({
@@ -208,6 +237,12 @@ export default function AdvancedSetupWizard() {
   return (
     <>
       <div className="max-w-6xl mx-auto px-6 py-2">
+        {isOnboardingFlow && (
+          <div className="mb-6 rounded-md border border-brand/30 bg-brand/5 p-4">
+            <p className="text-sm font-semibold">Program creation</p>
+            <p className="mt-1 text-sm text-muted-foreground">Your onboarding answers are saved. Now create your compliance program and choose the controls you want to start with.</p>
+          </div>
+        )}
         <StepHeader stepper={stepper} disabledIDs={disabledIDs} className="mb-6" />
         <Separator separatorClass="bg-card" />
         <FormProvider key={stepper.current.id} {...form}>
@@ -215,8 +250,9 @@ export default function AdvancedSetupWizard() {
             <div className="flex flex-col flex-1">
               {stepper.switch({
                 0: () => <AdvancedSetupStep1 />,
-                1: () => <AdvancedSetupStep2 />,
+                1: () => <AdvancedSetupStep2 defaultFrameworks={defaultFrameworks} />,
                 2: () => <SelectCategoryStep />,
+                '2a': () => <SuggestedControlsStep frameworkName={selectedFrameworks?.map((selectedFramework) => selectedFramework.value).join(', ') || framework} />,
                 3: () => <AdvancedSetupStep3 />,
                 4: () => <AdvancedSetupStep4 isMemberSheetOpen={isMemberSheetOpen} setIsMemberSheetOpen={setIsMemberSheetOpen} />,
                 5: () => <AdvancedSetupStep5 />,
@@ -226,7 +262,7 @@ export default function AdvancedSetupWizard() {
                 <Button variant="secondary" onClick={handleBack} iconPosition="left">
                   Back
                 </Button>
-                <Button variant="primary" onClick={handleNext} disabled={isPending} loading={isPending}>
+                <Button variant="primary" onClick={handleNext} disabled={isPending || isControlBeingCloned} loading={isPending || isControlBeingCloned}>
                   {stepper.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>

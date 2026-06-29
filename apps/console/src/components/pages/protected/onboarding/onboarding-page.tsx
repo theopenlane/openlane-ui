@@ -1,34 +1,58 @@
 'use client'
-import React, { useState } from 'react'
-import { useForm, FormProvider } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { defineStepper } from '@stepperize/react'
-import { useSession } from 'next-auth/react'
-import { type CreateOnboardingInput } from '@repo/codegen/src/schema'
-import { Card } from '@repo/ui/cardpanel'
-import { Button } from '@repo/ui/button'
-import { ArrowRight, ArrowLeft, PartyPopper, WindIcon } from 'lucide-react'
+
+import { COMPLIANCE_FRAMEWORKS, ONBOARDING_PROGRAM_ROUTES } from '@/components/pages/protected/onboarding/constants'
 import Step1, { step1Schema } from '@/components/pages/protected/onboarding/step-1'
 import Step2, { step2Schema } from '@/components/pages/protected/onboarding/step-2'
 import Step3, { step3Schema } from '@/components/pages/protected/onboarding/step-3'
-import { useRef } from 'react'
+import Step4, { step4Schema } from '@/components/pages/protected/onboarding/step-4'
 import { useNotification } from '@/hooks/useNotification'
-import { useRouter } from 'next/navigation'
-import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { useCreateOnboarding } from '@/lib/graphql-hooks/onboarding'
-import { useQueryClient } from '@tanstack/react-query'
+import { handleSSORedirect, switchOrganization } from '@/lib/user'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { type CreateOnboardingInput } from '@repo/codegen/src/schema'
+import { Button } from '@repo/ui/button'
+import { Card } from '@repo/ui/cardpanel'
+import { defineStepper } from '@stepperize/react'
+import { useQueryClient } from '@tanstack/react-query'
+import { ArrowLeft, ArrowRight, PartyPopper, WindIcon } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { type DefaultValues, FormProvider, useForm, useWatch } from 'react-hook-form'
 import { type z } from 'zod'
 
 const { useStepper, steps } = defineStepper(
   { id: '0', label: `Company Info`, schema: step1Schema },
   { id: '1', label: `User Info`, schema: step2Schema },
-  { id: '2', label: `Compliance Info`, schema: step3Schema },
+  { id: '2', label: `Compliance Setup`, schema: step3Schema },
+  { id: '3', label: `Auditor Info`, schema: step4Schema },
 )
 
-const onboardingSchema = step1Schema.merge(step2Schema).merge(step3Schema)
+const onboardingSchema = step1Schema.merge(step2Schema).merge(
+  step3Schema.extend({
+    compliance: step3Schema.shape.compliance.merge(step4Schema.shape.compliance),
+    demo_requested: step4Schema.shape.demo_requested,
+  }),
+)
 type OnboardingFormInput = z.input<typeof onboardingSchema>
 type OnboardingFormData = z.output<typeof onboardingSchema>
+
+const defaultOnboardingValues: DefaultValues<OnboardingFormInput> = {
+  companyName: '',
+  domains: [],
+  companyDetails: {
+    size: '',
+    sector: '',
+  },
+  userDetails: {
+    role: '',
+    department: '',
+  },
+  compliance: {
+    frameworks: [],
+  },
+}
 
 export default function MultiStepForm() {
   const queryClient = useQueryClient()
@@ -39,35 +63,32 @@ export default function MultiStepForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const { successNotification, errorNotification } = useNotification()
 
-  const formDataRef = useRef<OnboardingFormInput>({
-    companyName: '',
-    domains: [],
-    companyDetails: {},
-    userDetails: {},
-    compliance: {},
-  })
-
   const methods = useForm<OnboardingFormInput, undefined, OnboardingFormData>({
     resolver: zodResolver(onboardingSchema),
-    defaultValues: formDataRef.current,
+    defaultValues: defaultOnboardingValues,
     mode: 'onChange',
   })
+  const companyName = useWatch({ control: methods.control, name: 'companyName' })
+  const domains = useWatch({ control: methods.control, name: 'domains' })
 
-  const onSubmit = async () => {
+  const onSubmit = async (data?: OnboardingFormInput | OnboardingFormData) => {
     setIsLoading(true)
     try {
-      if (formDataRef.current.companyDetails.sector === 'Other (Please Specify)') {
-        formDataRef.current.companyDetails.sector = formDataRef.current.companyDetails.otherSector || ''
-        formDataRef.current.companyDetails.otherSector = undefined
+      const formValues = data ?? methods.getValues()
+      const companyDetails = { ...(formValues.companyDetails || {}) }
+
+      if (companyDetails.sector === 'Other (Please Specify)') {
+        companyDetails.sector = companyDetails.otherSector || ''
+        companyDetails.otherSector = undefined
       }
 
       const fullData: CreateOnboardingInput = {
-        companyName: formDataRef.current.companyName || '',
-        domains: formDataRef.current.domains || [],
-        companyDetails: formDataRef.current.companyDetails || {},
-        userDetails: formDataRef.current.userDetails || {},
-        compliance: formDataRef.current.compliance || {},
-        demoRequested: formDataRef.current.demo_requested ?? false,
+        companyName: formValues.companyName || '',
+        domains: formValues.domains || [],
+        companyDetails,
+        userDetails: formValues.userDetails || {},
+        compliance: formValues.compliance || {},
+        demoRequested: formValues.demo_requested ?? false,
       }
 
       const response = await createOnboarding({
@@ -104,10 +125,48 @@ export default function MultiStepForm() {
               isOnboarding: false,
             },
           })
+
           requestAnimationFrame(() => {
             queryClient?.clear()
           })
-          router.push('/dashboard')
+
+          const userSelectedFrameworks = (formValues.compliance?.frameworks ?? []).filter((framework) => framework !== COMPLIANCE_FRAMEWORKS.other)
+          const shouldImportSuggestedControls = formValues.compliance?.existing_controls === false
+
+          if (userSelectedFrameworks.length > 1) {
+            const params = new URLSearchParams()
+            params.set('onboarding', 'true')
+            userSelectedFrameworks.forEach((framework) => params.append('frameworks', framework))
+            if (shouldImportSuggestedControls) {
+              params.set('suggestedControls', 'true')
+            }
+            router.push(`${ONBOARDING_PROGRAM_ROUTES.advancedSetup}?${params.toString()}`)
+            return
+          }
+
+          const selectedFramework = userSelectedFrameworks[0]
+
+          if (selectedFramework === COMPLIANCE_FRAMEWORKS.soc2) {
+            const params = new URLSearchParams()
+            params.set('onboarding', 'true')
+            if (shouldImportSuggestedControls) {
+              params.set('suggestedControls', 'true')
+            }
+
+            router.push(`${ONBOARDING_PROGRAM_ROUTES.soc2}${params.size ? `?${params.toString()}` : ''}`)
+            return
+          }
+
+          if (selectedFramework) {
+            const params = new URLSearchParams({ framework: selectedFramework, onboarding: 'true' })
+            if (shouldImportSuggestedControls) {
+              params.set('suggestedControls', 'true')
+            }
+            router.push(`${ONBOARDING_PROGRAM_ROUTES.frameworkBased}?${params.toString()}`)
+            return
+          }
+
+          router.push(`${ONBOARDING_PROGRAM_ROUTES.frameworkBased}?onboarding=true`)
         }
       }
     } catch (error) {
@@ -126,20 +185,16 @@ export default function MultiStepForm() {
 
     if (stepper.current.id === '0') {
       isValid = await methods.trigger(['companyName', 'domains'])
-    } else if (stepper.current.id === '1') {
-      isValid = await methods.trigger(['userDetails.role', 'userDetails.department'])
     } else {
-      isValid = await methods.trigger(['compliance.existing_policies_procedures', 'compliance.completed_risk_assessment', 'compliance.completed_gap_analysis', 'compliance.existing_controls'])
+      isValid = true
     }
 
     if (!isValid) return
 
-    formDataRef.current = { ...formDataRef.current, ...methods.getValues() }
-
     if (!stepper.isLast) {
       stepper.next()
     } else {
-      methods.handleSubmit(() => onSubmit())()
+      methods.handleSubmit((data) => onSubmit(data))()
     }
   }
 
@@ -152,9 +207,12 @@ export default function MultiStepForm() {
   const currentIndex = stepper.all.findIndex((item) => item.id === stepper.current.id)
   const isLastStep = stepper.isLast
   const isFirstStep = stepper.isFirst
+  const hasFormErrors = Object.keys(methods.formState.errors).length > 0
+  const isCurrentStepIncomplete = stepper.current.id === '0' && (!companyName || companyName.length < 3 || !domains?.length)
+  const isNextDisabled = hasFormErrors || isCurrentStepIncomplete
 
   return (
-    <div className="flex justify-center flex-col items-center max-w-[545px] m-auto">
+    <div className="flex justify-center flex-col items-center w-full max-w-4xl m-auto px-4">
       <div className="self-start w-full">
         <h1 className="text-2xl py-3 font-medium text-left">Welcome to Openlane</h1>
         <p className="text-sm font-normal pb-5 text-left">We are glad to have you! Let&apos;s get started with a few questions.</p>
@@ -177,7 +235,7 @@ export default function MultiStepForm() {
 
       {!isLoading && (
         <FormProvider {...methods}>
-          <form className="w-full" onSubmit={methods.handleSubmit(onSubmit)}>
+          <form className="w-full" onSubmit={methods.handleSubmit((data) => onSubmit(data))}>
             <Card className="bg-transparent">
               <p className="text-center p-2">{`Let’s get you started (${currentIndex + 1}/${steps.length})`}</p>
               <div className="relative bg-progressbar h-1 w-full">
@@ -188,6 +246,7 @@ export default function MultiStepForm() {
                   0: () => <Step1 />,
                   1: () => <Step2 />,
                   2: () => <Step3 />,
+                  3: () => <Step4 />,
                 })}
                 <div className="flex justify-between mt-6">
                   {!isFirstStep ? (
@@ -197,12 +256,12 @@ export default function MultiStepForm() {
                   ) : (
                     <div />
                   )}
-                  <Button className="self-end" type="button" onClick={handleNext} icon={<ArrowRight />}>
+                  <Button className="self-end" type="button" onClick={handleNext} icon={<ArrowRight />} disabled={isNextDisabled}>
                     {isLastStep ? 'Submit' : steps[currentIndex + 1]?.label}
                   </Button>
                 </div>
-                {currentIndex === 1 && (
-                  <div className="border-t pt-5 mt-5 text-sm" onClick={methods.handleSubmit(onSubmit)}>
+                {currentIndex > 0 && (
+                  <div className="border-t pt-5 mt-5 text-sm" onClick={methods.handleSubmit((data) => onSubmit(data))}>
                     <span className="text-blue-500 cursor-pointer">Exit the onboarding process</span> <span> and use general template for my account.</span>
                   </div>
                 )}

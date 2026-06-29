@@ -7,12 +7,10 @@ import { useFormContext } from 'react-hook-form'
 import { z, type infer as zInfer } from 'zod'
 
 export const step2Schema = z.object({
-  userDetails: z
-    .object({
-      role: z.string().optional(),
-      department: z.string().optional(),
-    })
-    .optional(),
+  userDetails: z.object({
+    role: z.string().optional(),
+    department: z.string().optional(),
+  }),
 })
 
 const departments = ['Engineering', 'Operations', 'Infosec', 'Corporate IT', 'Internal Audit', 'Marketing', 'Sales', 'Human Resources', 'Finance', 'Legal', 'Other']
@@ -32,12 +30,12 @@ export default function Step2() {
       <h2 className="text-xl font-semibold">User Info</h2>
       <div className="space-y-2">
         <Label htmlFor="role">Role</Label>
-        <Input id="role" {...register('userDetails.role')} required />
+        <Input id="role" {...register('userDetails.role')} />
         {errors.userDetails?.role && <p className="text-red-500 text-sm">{errors.userDetails.role.message}</p>}
       </div>
       <div className="space-y-2">
         <Label>Department</Label>
-        <Select onValueChange={(value) => setValue('userDetails.department', value)} defaultValue={watch('userDetails.department')}>
+        <Select onValueChange={(value) => setValue('userDetails.department', value, { shouldDirty: true, shouldValidate: true })} defaultValue={watch('userDetails.department')}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select department" />
           </SelectTrigger>
@@ -49,6 +47,7 @@ export default function Step2() {
             ))}
           </SelectContent>
         </Select>
+        {errors.userDetails?.department && <p className="text-red-500 text-sm">{errors.userDetails.department.message}</p>}
       </div>
     </div>
   )
