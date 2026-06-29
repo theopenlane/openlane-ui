@@ -10460,10 +10460,14 @@ export interface CreateOrganizationSettingInput {
   identityProviderClientSecret?: InputMaybe<Scalars['String']['input']>
   /** SAML entity ID for the SSO provider */
   identityProviderEntityID?: InputMaybe<Scalars['String']['input']>
+  /** when SSO login is enforced, automatically provision organization membership for users who successfully authenticate against the configured identity provider */
+  identityProviderJitProvisioning?: InputMaybe<Scalars['Boolean']['input']>
   /** enforce SSO authentication for organization members */
   identityProviderLoginEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** metadata URL for the SSO provider */
   identityProviderMetadataEndpoint?: InputMaybe<Scalars['String']['input']>
+  /** when set, restricts just-in-time provisioning to users whose authenticated email domain is in this list; when empty, any user who authenticates against the identity provider is provisioned */
+  jitAllowedEmailDomains?: InputMaybe<Array<Scalars['String']['input']>>
   /** enforce 2fa / multifactor authentication for organization members */
   multifactorAuthEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** OIDC discovery URL for the SSO provider */
@@ -36015,6 +36019,8 @@ export interface Organization extends Node {
   setting?: Maybe<OrganizationSetting>
   slaDefinitionCreators: GroupConnection
   slaDefinitions: SlaDefinitionConnection
+  /** a stable slug identifying the organization in its public SSO initiation URL, e.g. /orgs/<sso_slug>/sso */
+  slugName?: Maybe<Scalars['String']['output']>
   standardCreators: GroupConnection
   standards: StandardConnection
   /** the stripe customer ID this organization is associated to */
@@ -37584,10 +37590,14 @@ export interface OrganizationSetting extends Node {
   identityProviderClientSecret?: Maybe<Scalars['String']['output']>
   /** SAML entity ID for the SSO provider */
   identityProviderEntityID?: Maybe<Scalars['String']['output']>
+  /** when SSO login is enforced, automatically provision organization membership for users who successfully authenticate against the configured identity provider */
+  identityProviderJitProvisioning: Scalars['Boolean']['output']
   /** enforce SSO authentication for organization members */
   identityProviderLoginEnforced: Scalars['Boolean']['output']
   /** metadata URL for the SSO provider */
   identityProviderMetadataEndpoint?: Maybe<Scalars['String']['output']>
+  /** when set, restricts just-in-time provisioning to users whose authenticated email domain is in this list; when empty, any user who authenticates against the identity provider is provisioned */
+  jitAllowedEmailDomains?: Maybe<Array<Scalars['String']['output']>>
   /** enforce 2fa / multifactor authentication for organization members */
   multifactorAuthEnforced?: Maybe<Scalars['Boolean']['output']>
   /** OIDC discovery URL for the SSO provider */
@@ -37920,6 +37930,9 @@ export interface OrganizationSettingWhereInput {
   identityProviderEntityIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   identityProviderIn?: InputMaybe<Array<OrganizationSettingSsoProvider>>
   identityProviderIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** identity_provider_jit_provisioning field predicates */
+  identityProviderJitProvisioning?: InputMaybe<Scalars['Boolean']['input']>
+  identityProviderJitProvisioningNEQ?: InputMaybe<Scalars['Boolean']['input']>
   /** identity_provider_login_enforced field predicates */
   identityProviderLoginEnforced?: InputMaybe<Scalars['Boolean']['input']>
   identityProviderLoginEnforcedNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -37942,6 +37955,8 @@ export interface OrganizationSettingWhereInput {
   identityProviderNEQ?: InputMaybe<OrganizationSettingSsoProvider>
   identityProviderNotIn?: InputMaybe<Array<OrganizationSettingSsoProvider>>
   identityProviderNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for jitAllowedEmailDomainsHas to contain a specific value */
+  jitAllowedEmailDomainsHas?: InputMaybe<Scalars['String']['input']>
   /** multifactor_auth_enforced field predicates */
   multifactorAuthEnforced?: InputMaybe<Scalars['Boolean']['input']>
   multifactorAuthEnforcedIsNil?: InputMaybe<Scalars['Boolean']['input']>
@@ -38734,6 +38749,22 @@ export interface OrganizationWhereInput {
   personalOrgIsNil?: InputMaybe<Scalars['Boolean']['input']>
   personalOrgNEQ?: InputMaybe<Scalars['Boolean']['input']>
   personalOrgNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** slug_name field predicates */
+  slugName?: InputMaybe<Scalars['String']['input']>
+  slugNameContains?: InputMaybe<Scalars['String']['input']>
+  slugNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  slugNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  slugNameGT?: InputMaybe<Scalars['String']['input']>
+  slugNameGTE?: InputMaybe<Scalars['String']['input']>
+  slugNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  slugNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  slugNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  slugNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  slugNameLT?: InputMaybe<Scalars['String']['input']>
+  slugNameLTE?: InputMaybe<Scalars['String']['input']>
+  slugNameNEQ?: InputMaybe<Scalars['String']['input']>
+  slugNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  slugNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** Filter for tagsHas to contain a specific value */
   tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
@@ -60838,6 +60869,7 @@ export interface UpdateOrganizationSettingInput {
   allowedEmailDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendAllowedEmailDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendDomains?: InputMaybe<Array<Scalars['String']['input']>>
+  appendJitAllowedEmailDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendSSOExemptDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the billing address to send billing information to */
@@ -60866,6 +60898,7 @@ export interface UpdateOrganizationSettingInput {
   clearIdentityProviderClientSecret?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityProviderEntityID?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityProviderMetadataEndpoint?: InputMaybe<Scalars['Boolean']['input']>
+  clearJitAllowedEmailDomains?: InputMaybe<Scalars['Boolean']['input']>
   clearMultifactorAuthEnforced?: InputMaybe<Scalars['Boolean']['input']>
   clearOidcDiscoveryEndpoint?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganization?: InputMaybe<Scalars['Boolean']['input']>
@@ -60890,10 +60923,14 @@ export interface UpdateOrganizationSettingInput {
   identityProviderClientSecret?: InputMaybe<Scalars['String']['input']>
   /** SAML entity ID for the SSO provider */
   identityProviderEntityID?: InputMaybe<Scalars['String']['input']>
+  /** when SSO login is enforced, automatically provision organization membership for users who successfully authenticate against the configured identity provider */
+  identityProviderJitProvisioning?: InputMaybe<Scalars['Boolean']['input']>
   /** enforce SSO authentication for organization members */
   identityProviderLoginEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** metadata URL for the SSO provider */
   identityProviderMetadataEndpoint?: InputMaybe<Scalars['String']['input']>
+  /** when set, restricts just-in-time provisioning to users whose authenticated email domain is in this list; when empty, any user who authenticates against the identity provider is provisioned */
+  jitAllowedEmailDomains?: InputMaybe<Array<Scalars['String']['input']>>
   /** enforce 2fa / multifactor authentication for organization members */
   multifactorAuthEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** OIDC discovery URL for the SSO provider */
@@ -76298,6 +76335,7 @@ export type GetOrganizationSettingQuery = {
   __typename?: 'Query'
   organization: {
     __typename?: 'Organization'
+    slugName?: string | null
     setting?: {
       __typename?: 'OrganizationSetting'
       id: string

@@ -28,7 +28,9 @@ export default auth(async (req) => {
   const personalOrgPages = ['/onboarding', '/organization', '/user-settings/profile']
 
   const path = req.nextUrl.pathname
-  const isPublicPage = publicPages.includes(path) || path.startsWith('/questionnaire/')
+  // the public, shareable per-org SSO initiation page, e.g. /orgs/<slug>/sso
+  const isSSOInitiate = /^\/orgs\/[^/]+\/sso$/.test(path)
+  const isPublicPage = publicPages.includes(path) || path.startsWith('/questionnaire/') || isSSOInitiate
   const validForPersonalOrg = personalOrgPages.includes(path)
   const isInvite = path === '/invite'
   const isQuestionnaire = path === '/questionnaire' || path.startsWith('/questionnaire/')
@@ -64,6 +66,12 @@ export default auth(async (req) => {
 
   // needed for accepting invites to orgs
   if (path === '/login/sso/enforce') {
+    return NextResponse.next()
+  }
+
+  // the shareable per-org SSO initiation page is reachable by anyone, including users already
+  // signed in to a different organization who are joining a new one via the link
+  if (isSSOInitiate) {
     return NextResponse.next()
   }
 

@@ -23,7 +23,8 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Alert, AlertDescription } from '@repo/ui/alert'
-import { Info, MoreHorizontal, Pencil, RefreshCw, X } from 'lucide-react'
+import { Check, Copy, Info, MoreHorizontal, Pencil, RefreshCw, X } from 'lucide-react'
+import { siteUrl } from '@repo/dally/auth'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import Link from 'next/link'
@@ -61,6 +62,7 @@ const StatusAlert = ({ tone, message, onClose }: { tone: 'warning' | 'success' |
 
 const SSOOverview = ({
   setting,
+  slugName,
   onEdit,
   onRemove,
   showRemoveDialog,
@@ -71,6 +73,7 @@ const SSOOverview = ({
   isTogglingEnforcement,
 }: {
   setting: OrganizationSetting | undefined
+  slugName?: string | null
   onEdit: () => void
   onRemove: () => void
   showRemoveDialog: boolean
@@ -82,6 +85,15 @@ const SSOOverview = ({
 }) => {
   const isSSOConfigured = setting?.identityProvider && setting.identityProvider !== 'NONE'
   const providerLogo = SSO_PROVIDER_LOGOS[setting?.identityProvider as OrganizationSettingSsoProvider]
+  const [copied, setCopied] = useState(false)
+  const shareableUrl = slugName ? `${siteUrl}/orgs/${slugName}/sso` : ''
+
+  const handleCopyShareableUrl = () => {
+    if (!shareableUrl) return
+    navigator.clipboard.writeText(shareableUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), RESET_SUCCESS_STATE_MS)
+  }
 
   return (
     <div className="space-y-4">
@@ -169,6 +181,23 @@ const SSOOverview = ({
         </Card>
       )}
 
+      {isSSOConfigured && shareableUrl && (
+        <Card>
+          <CardContent className="pt-4">
+            <div className="space-y-2">
+              <span className="text-sm font-medium text-muted-foreground">Shareable SSO URL</span>
+              <p className="text-sm text-muted-foreground">Share this link so members can sign in to this organization through your identity provider.</p>
+              <div className="flex items-center gap-2">
+                <Input readOnly value={shareableUrl} className="font-mono text-sm" />
+                <Button variant="secondary" size="sm" onClick={handleCopyShareableUrl} className="shrink-0">
+                  {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {isSSOConfigured && (
         <div className="space-y-2">
           <div className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -229,6 +258,7 @@ const SSOPage = () => {
 
   const { data: orgSettingData } = useGetOrganizationSetting(currentOrgId || '')
   const currentSetting = orgSettingData?.organization?.setting as OrganizationSetting | undefined
+  const orgSlugName = orgSettingData?.organization?.slugName
   const isSSOConfigured = !!(currentSetting?.identityProvider && currentSetting.identityProvider !== 'NONE')
   const allowedDomains = currentSetting?.allowedEmailDomains ?? []
 
@@ -534,6 +564,7 @@ const SSOPage = () => {
         {viewMode === 'overview' ? (
           <SSOOverview
             setting={currentSetting}
+            slugName={orgSlugName}
             onEdit={handleEdit}
             onRemove={handleRemoveSSO}
             showRemoveDialog={showRemoveDialog}

@@ -153,6 +153,7 @@ export const GET_ORGANIZATION_BILLING_BANNER = gql`
 export const GET_ORGANIZATION_SETTING = gql`
   query GetOrganizationSetting($organizationId: ID!) {
     organization(id: $organizationId) {
+      slugName
       setting {
         id
         createdAt

@@ -38,7 +38,7 @@ const publicPages = [
 const Providers = ({ children }: ProvidersProps) => {
   const { status, data } = useSession()
   const pathname = usePathname()
-  const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/questionnaire/')
+  const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/questionnaire/') || /^\/orgs\/[^/]+\/sso$/.test(pathname)
 
   const queryClient = useMemo(
     () =>
