@@ -222,6 +222,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
   }, [mappedControls, controlDetailsMap, subcontrolDetailsMap, inheritedSubcontrolIdsByTargetId, childSubcontrolById, controlId])
 
   const customMappedControls = useMemo(() => enrichedMappedControls.filter((row) => !row.referenceFramework || row.referenceFramework === 'CUSTOM'), [enrichedMappedControls])
+  const activeOrgControlsCount = useMemo(() => customMappedControls.filter((row) => row.status !== ControlControlStatus.ARCHIVED).length, [customMappedControls])
   const implementedOrgControlsCount = useMemo(() => customMappedControls.filter((row) => row.status === ControlControlStatus.APPROVED).length, [customMappedControls])
   const frameworkMappedControls = useMemo(
     () =>
@@ -258,7 +259,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
         columns={orgControlsColumns}
         searchPlaceholder="Search organization controls"
         showFrameworkFilter={false}
-        countLabel={`(${customMappedControls.length} mapped)`}
+        countLabel={`(${activeOrgControlsCount} mapped)`}
         implementedCount={implementedOrgControlsCount}
         action={
           controlId && !isSubcontrolMode ? (

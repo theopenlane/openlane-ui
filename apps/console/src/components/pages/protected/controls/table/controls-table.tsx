@@ -20,6 +20,7 @@ import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { hasStatusCondition } from '@/components/shared/table-filter/has-status-condition'
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
@@ -107,14 +108,6 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
 
       return { [key]: value } as ControlWhereInput
     })
-
-    // Check if the user explicitly filtered by status
-    const hasStatusCondition = (obj: ControlWhereInput): boolean => {
-      if ('status' in obj || 'statusNEQ' in obj || 'statusIn' in obj || 'statusNotIn' in obj) return true
-      if (Array.isArray(obj.and) && obj.and.some(hasStatusCondition)) return true
-      if (Array.isArray(obj.or) && obj.or.some(hasStatusCondition)) return true
-      return false
-    }
 
     // Automatically exclude archived unless overridden
     if (!hasStatusCondition(result)) {

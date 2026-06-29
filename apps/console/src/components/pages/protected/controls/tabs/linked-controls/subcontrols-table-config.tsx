@@ -1,8 +1,9 @@
 import React from 'react'
 import Link from 'next/link'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Folder, FolderTree, Layers, Tag } from 'lucide-react'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { CircleDot, Folder, FolderTree, Layers, Tag } from 'lucide-react'
+import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { SubcontrolControlStatus } from '@repo/codegen/src/schema'
 import type { FilterField } from '@/types'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
@@ -71,6 +72,13 @@ export const getSubcontrolsFilterFields = (typeOptions: string[], sourceOptions:
     type: 'multiselect',
     icon: Layers,
     options: sourceOptions.map((value) => ({ value, label: getEnumLabel(value) })),
+  },
+  {
+    key: 'statusIn',
+    label: 'Status',
+    type: 'multiselect',
+    icon: CircleDot,
+    options: enumToOptions(SubcontrolControlStatus),
   },
   {
     key: 'categoryContainsFold',
