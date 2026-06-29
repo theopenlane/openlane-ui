@@ -2,15 +2,15 @@ import React from 'react'
 import Link from 'next/link'
 import type { ColumnDef } from '@tanstack/react-table'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
-import { FileBadge2, Folder, FolderTree, Layers, Lock, MoreHorizontal, Pencil, Tag } from 'lucide-react'
+import { CircleDot, FileBadge2, Folder, FolderTree, Layers, Lock, MoreHorizontal, Pencil, Tag } from 'lucide-react'
 import LinkedPoliciesCell from '@/components/shared/linked-policies-cell/linked-policies-cell'
 import LinkedEvidenceCell from '@/components/shared/linked-evidence-cell/linked-evidence-cell'
 import InheritedBadge from '@/components/shared/inherited-badge/inherited-badge'
-import { type ControlControlStatus } from '@repo/codegen/src/schema'
+import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { ControlIconMapper16 } from '@/components/shared/enum-mapper/control-enum'
 import type { FilterField } from '@/types'
 import type { MappedControlRow } from './mapped-controls-types'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
@@ -184,6 +184,13 @@ export const getMappedControlsFilterFields = (rows: MappedControlRow[], showFram
       type: 'multiselect',
       icon: Layers,
       options: sourceOptions.map((value) => ({ value, label: getEnumLabel(value) })),
+    },
+    {
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
+      icon: CircleDot,
+      options: enumToOptions(ControlControlStatus),
     },
     {
       key: 'categoryContainsFold',

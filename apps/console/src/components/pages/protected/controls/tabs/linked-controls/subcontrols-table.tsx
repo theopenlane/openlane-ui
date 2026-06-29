@@ -14,6 +14,7 @@ import { SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import type { FilterField, WhereCondition } from '@/types'
 import { useDebounce } from '@uidotdev/usehooks'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { hasStatusCondition } from '@/components/shared/table-filter/has-status-condition'
 import { getSubcontrolsColumns, getSubcontrolsFilterFields, type SubcontrolRow } from './subcontrols-table-config'
 import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
 import { SubcontrolControlSource, SubcontrolControlStatus, type SubcontrolWhereInput } from '@repo/codegen/src/schema'
@@ -50,11 +51,17 @@ const SubcontrolsTable: React.FC = () => {
 
   const where = useMemo<SubcontrolWhereInput>(() => {
     const searchText = debouncedSearch.trim()
-    return {
+    const result: SubcontrolWhereInput = {
       ...filterWhere,
       ...(id ? { controlID: id } : {}),
       ...(searchText ? { or: [{ refCodeContainsFold: searchText }, { descriptionContainsFold: searchText }] } : {}),
     }
+
+    if (!hasStatusCondition(result)) {
+      result.statusNEQ = SubcontrolControlStatus.ARCHIVED
+    }
+
+    return result
   }, [id, filterWhere, debouncedSearch])
 
   const { subcontrols, paginationMeta, isLoading } = useGetSubcontrolsPaginated({

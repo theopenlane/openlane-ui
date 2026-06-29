@@ -7,7 +7,8 @@ import { Input } from '@repo/ui/input'
 import { useParams } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type ControlListStandardFieldsFragment, type ControlWhereInput } from '@repo/codegen/src/schema'
-import { canEdit } from '@/lib/authz/utils.ts'
+import { hasPermission } from '@/lib/authz/utils.ts'
+import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { type TPermissionData } from '@/types/authz'
 import { DataTable } from '@repo/ui/data-table'
 import { getColumns } from './columns'
@@ -91,11 +92,11 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
 
   useEffect(() => {
     if (!isLoadingPermission) {
-      const canEditPermission = canEdit(permission?.roles)
+      const canCreateControlPermission = hasPermission(permission?.roles, AccessEnum.CanCreateControl)
 
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEditPermission,
+        select: canCreateControlPermission,
       }))
     }
   }, [isLoadingPermission, permission])

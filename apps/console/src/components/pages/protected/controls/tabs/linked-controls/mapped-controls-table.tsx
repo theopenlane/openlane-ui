@@ -12,6 +12,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { getMappedControlsFilterFields } from './mapped-controls-config'
 import type { MappedControlRow } from './mapped-controls-types'
 import { Card } from '@repo/ui/cardpanel'
+import { ControlControlStatus } from '@repo/codegen/src/schema'
 
 type MappedControlsTableProps = {
   title: string
@@ -40,12 +41,20 @@ const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, 
   const categoryFilter = useMemo(() => (filterValues.categoryContainsFold ?? '') as string, [filterValues.categoryContainsFold])
   const subcategoryFilter = useMemo(() => (filterValues.subcategoryContainsFold ?? '') as string, [filterValues.subcategoryContainsFold])
   const frameworkFilter = useMemo(() => (filterValues.referenceFrameworkIn ?? []) as string[] | string, [filterValues.referenceFrameworkIn])
+  const statusFilter = useMemo(() => (filterValues.statusIn ?? []) as string[] | string, [filterValues.statusIn])
+  const hasStatusFilter = Array.isArray(statusFilter) ? statusFilter.length > 0 : statusFilter !== 'all' && statusFilter !== ''
 
   const filteredRows = useMemo(() => {
     const normalizedCategory = categoryFilter.trim().toLowerCase()
     const normalizedSubcategory = subcategoryFilter.trim().toLowerCase()
 
     return rows.filter((row) => {
+      if (hasStatusFilter) {
+        if (Array.isArray(statusFilter) ? !statusFilter.includes(row.status ?? '') : row.status !== statusFilter) return false
+      } else if (row.status === ControlControlStatus.ARCHIVED) {
+        return false
+      }
+
       if (Array.isArray(typeFilter) && typeFilter.length > 0 && !typeFilter.includes(row.type ?? '')) return false
       if (!Array.isArray(typeFilter) && typeFilter !== 'all' && row.type !== typeFilter) return false
 
@@ -73,7 +82,9 @@ const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, 
         (row.referenceFramework ?? '').toLowerCase().includes(normalizedSearch)
       )
     })
-  }, [rows, typeFilter, controlSourceFilter, categoryFilter, subcategoryFilter, frameworkFilter, showFrameworkFilter, normalizedSearch])
+  }, [rows, typeFilter, controlSourceFilter, categoryFilter, subcategoryFilter, frameworkFilter, statusFilter, hasStatusFilter, showFrameworkFilter, normalizedSearch])
+
+  const activeRowsCount = useMemo(() => rows.filter((row) => row.status !== ControlControlStatus.ARCHIVED).length, [rows])
 
   useEffect(() => {
     setPagination((prev) => ({
@@ -97,13 +108,13 @@ const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, 
             {countLabel && <span className="text-sm text-muted-foreground">{countLabel}</span>}
           </div>
           <div className="flex items-center gap-3">
-            {implementedCount !== undefined && rows.length > 0 && (
+            {implementedCount !== undefined && activeRowsCount > 0 && (
               <div className="flex items-center gap-2">
                 <div className="w-24 h-1.5 rounded-full bg-muted overflow-hidden">
-                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${Math.round((implementedCount / rows.length) * 100)}%` }} />
+                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${Math.round((implementedCount / activeRowsCount) * 100)}%` }} />
                 </div>
                 <span className="text-sm text-muted-foreground whitespace-nowrap">
-                  {implementedCount} of {rows.length} implemented
+                  {implementedCount} of {activeRowsCount} implemented
                 </span>
               </div>
             )}
