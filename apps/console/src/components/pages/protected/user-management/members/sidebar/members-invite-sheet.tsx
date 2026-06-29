@@ -154,6 +154,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const roleOptions = useMemo(() => {
     const candidates: { role: InviteRole; allowed: boolean }[] = [
       { role: InviteRole.ADMIN, allowed: canInviteAdmins },
+      { role: InviteRole.AUDITOR, allowed: canInviteAdmins },
       { role: InviteRole.MEMBER, allowed: canInviteMembers },
       { role: InviteRole.SUPER_ADMIN, allowed: canInviteAdmins },
     ]

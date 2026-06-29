@@ -29,6 +29,7 @@ import { buildAssociationPayload } from '@/components/shared/object-association/
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { REVIEW_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import ViewReviewSheet from '../view-review-sheet'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const ReviewPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -195,6 +196,7 @@ const ReviewPage: React.FC = () => {
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
+    createPermission: AccessEnum.CanCreateReview,
   }
 
   return (
