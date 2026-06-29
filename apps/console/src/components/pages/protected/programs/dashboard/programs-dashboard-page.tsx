@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { formatDate } from '@/utils/date'
+import { formatDate, isPastDate } from '@/utils/date'
 import { useAccountRolesMany, useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { hasPermission, canEdit } from '@/lib/authz/utils'
@@ -219,8 +219,7 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
   const openTasks = program?.tasks?.edges?.filter((t) => t?.node?.status && [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW].includes(t.node.status)).length ?? 0
   const status = program.status === ProgramProgramStatus.READY_FOR_AUDITOR ? ProgramProgramStatus.IN_PROGRESS : program.status
   const isArchived = status === ProgramProgramStatus.ARCHIVED
-  const [isPastEndDate] = useState(() => true)
-  const showArchiveSuggestion = editAllowed && !isArchived && program.status === ProgramProgramStatus.COMPLETED && isPastEndDate
+  const showArchiveSuggestion = editAllowed && !isArchived && program.status === ProgramProgramStatus.COMPLETED && isPastDate(program.endDate)
 
   const { mutateAsync: updateProgram, isPending: isUpdatingStatus } = useUpdateProgram()
   const { successNotification, errorNotification } = useNotification()

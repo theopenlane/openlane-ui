@@ -108,7 +108,7 @@ const ProgramDetailsPage: React.FC = () => {
                 closeOnSelect
                 content={(close) => (
                   <>
-                    <Link href={PROGRAMS_LIST_HREF} onClick={close} className="flex items-start gap-2 px-1 py-1 text-sm hover:text-brand">
+                    <Link href={PROGRAMS_LIST_HREF} onClick={close} className="flex w-full items-start gap-2 px-1 py-1 text-sm hover:text-brand">
                       <FolderOpen size={16} strokeWidth={2} className="mt-0.5 shrink-0" />
                       <span className="flex flex-col">
                         <span>View All Programs</span>
@@ -116,42 +116,36 @@ const ProgramDetailsPage: React.FC = () => {
                       </span>
                     </Link>
                     {canCreateProgram && (
-                      <Link href="/programs/create" onClick={close} className="flex">
-                        <Button type="button" size="sm" variant="transparent" className="flex w-full justify-start space-x-2">
-                          <CirclePlus size={16} strokeWidth={2} />
-                          <span>Create Program</span>
-                        </Button>
+                      <Link href="/programs/create" onClick={close} className="flex w-full items-center gap-2 px-1 py-1 text-sm hover:text-brand">
+                        <CirclePlus size={16} strokeWidth={2} className="shrink-0" />
+                        <span>Create Program</span>
                       </Link>
                     )}
                     {editAllowed && (
-                      <Button
+                      <button
                         type="button"
-                        size="sm"
-                        variant="transparent"
-                        className="flex justify-start space-x-2"
+                        className="flex w-full items-center gap-2 px-1 py-1 text-sm hover:text-brand"
                         onClick={() => {
                           close()
                           setStatusDialogOpen(true)
                         }}
                       >
-                        {isArchived ? <ArchiveRestore size={16} strokeWidth={2} /> : <Archive size={16} strokeWidth={2} />}
+                        {isArchived ? <ArchiveRestore size={16} strokeWidth={2} className="shrink-0" /> : <Archive size={16} strokeWidth={2} className="shrink-0" />}
                         <span>{isArchived ? 'Unarchive Program' : 'Archive Program'}</span>
-                      </Button>
+                      </button>
                     )}
                     {deleteAllowed && (
-                      <Button
+                      <button
                         type="button"
-                        size="sm"
-                        variant="transparent"
-                        className="flex justify-start space-x-2 text-destructive"
+                        className="flex w-full items-center gap-2 px-1 py-1 text-sm text-destructive hover:opacity-80"
                         onClick={() => {
                           close()
                           setDeleteOpen(true)
                         }}
                       >
-                        <Trash2 size={16} strokeWidth={2} />
+                        <Trash2 size={16} strokeWidth={2} className="shrink-0" />
                         <span>Delete Program</span>
-                      </Button>
+                      </button>
                     )}
                   </>
                 )}
