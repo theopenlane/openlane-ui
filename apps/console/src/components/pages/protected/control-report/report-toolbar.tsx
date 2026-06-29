@@ -102,23 +102,21 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Popover open={programPopoverOpen} onOpenChange={setProgramPopoverOpen}>
-          <PopoverTrigger asChild>
-            <Button variant="outline" icon={<FolderKanban />} iconPosition="left" className={`h-7.5 px-2! pl-3! ${selectedPrograms.length > 0 ? 'border border-primary' : ''}`}>
-              <span className="text-muted-foreground">Program:</span>
-              <span>
-                {selectedPrograms.length === 0
-                  ? 'All programs'
-                  : selectedPrograms.length === 1
-                    ? (programOptions.find((o) => o.value === selectedPrograms[0])?.label ?? '1 program')
-                    : `${selectedPrograms.length} programs`}
-              </span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="start" className="w-72 p-4 space-y-2">
-            {programOptions.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No programs available</p>
-            ) : (
+        {programOptions.length > 0 && (
+          <Popover open={programPopoverOpen} onOpenChange={setProgramPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" icon={<FolderKanban />} iconPosition="left" className={`h-7.5 px-2! pl-3! ${selectedPrograms.length > 0 ? 'border border-primary' : ''}`}>
+                <span className="text-muted-foreground">Program:</span>
+                <span>
+                  {selectedPrograms.length === 0
+                    ? 'All programs'
+                    : selectedPrograms.length === 1
+                      ? (programOptions.find((o) => o.value === selectedPrograms[0])?.label ?? '1 program')
+                      : `${selectedPrograms.length} programs`}
+                </span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-72 p-4 space-y-2">
               <div className="max-h-72 overflow-y-auto space-y-2">
                 {programOptions.map((opt) => (
                   <label key={opt.value} className="flex items-center gap-2 text-sm cursor-pointer">
@@ -127,9 +125,9 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
                   </label>
                 ))}
               </div>
-            )}
-          </PopoverContent>
-        </Popover>
+            </PopoverContent>
+          </Popover>
+        )}
         {showActions && (
           <Popover open={reportPopoverOpen} onOpenChange={setReportPopoverOpen}>
             <PopoverTrigger asChild>
