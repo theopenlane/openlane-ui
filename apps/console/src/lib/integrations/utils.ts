@@ -12,22 +12,55 @@ import {
 const FINALIZED_INTEGRATION_STATUSES = new Set(['CONNECTED', 'DISABLED', 'ERRORED'])
 
 const PROVIDER_ICON_MAP: Record<string, string> = {
-  'Amazon Web Services': '/icons/brand/integrations/aws.jpg',
-  Azure: '/icons/brand/integrations/microsoft_azure.png',
+  Authentik: '/icons/brand/integrations/authentik.png',
+  AWS: '/icons/brand/integrations/aws.jpg',
+  'Azure EntraID': '/icons/brand/integrations/microsoft_azure.png',
+  'Microsoft Defender for Cloud': '/icons/brand/integrations/microsoft_azure.png',
   Buildkite: '/icons/brand/integrations/buildkite.png',
   Cloudflare: '/icons/brand/integrations/cloudflare.png',
   'Google Cloud': '/icons/brand/integrations/googlecloud.png',
-  GitHub: '/icons/brand/integrations/gh.png',
+  'GCP Security Command Center': '/icons/brand/integrations/googlecloud.png',
+  'GitHub App': '/icons/brand/integrations/gh.png',
+  'Google Drive': '/icons/brand/integrations/google_drive.png',
   'Google Workspace': '/icons/brand/integrations/google_workspace.png',
-  Microsoft: '/icons/brand/integrations/microsoft_teams.png',
+  'Microsoft OneDrive': '/icons/brand/integrations/onedrive.png',
+  'Microsoft Teams': '/icons/brand/integrations/microsoft_teams.png',
   Okta: '/icons/brand/integrations/okta.png',
   scim: '/icons/brand/integrations/scim.png',
   Slack: '/icons/brand/integrations/slack.png',
   Vercel: '/icons/brand/integrations/vercel.png',
-  email: '/icons/brand/integrations/email_icon.png',
+  Email: '/icons/brand/integrations/email_icon.png',
+  Tailscale: '/icons/brand/integrations/tailscale.png',
+  Keycloak: '/icons/brand/integrations/keycloak.png',
+  Zitadel: '/icons/brand/integrations/zitadel.png',
 }
 
 const fallbackIcon = '/icons/brand/integrations/default.png'
+
+export type DocumentFolderFieldConfig = {
+  label: string
+  placeholder: string
+  description: string
+}
+
+const DEFAULT_DOCUMENT_FOLDER_FIELD: DocumentFolderFieldConfig = {
+  label: 'Folder',
+  placeholder: '',
+  description: "Only documents inside this folder are synced into Openlane. Leave blank to sync everything you've granted access to.",
+}
+
+const DOCUMENT_FOLDER_FIELD_CONFIG: Record<string, DocumentFolderFieldConfig> = {
+  googledrive: {
+    label: 'Folder ID or URL',
+    placeholder: 'e.g. 1A2b3C... or https://drive.google.com/drive/folders/1A2b3C...',
+    description: "Only documents inside this Google Drive folder are synced into Openlane. Leave blank to sync everything you've granted access to.",
+  },
+  onedrive: {
+    label: 'Folder name',
+    placeholder: 'e.g. Policies',
+    description: "Only documents inside this OneDrive folder are synced into Openlane. Leave blank to sync everything you've granted access to.",
+  },
+}
 
 type FinalizedIntegrationFields = Pick<IntegrationNode, 'definitionID' | 'definitionSlug' | 'family' | 'kind' | 'name' | 'status'>
 
@@ -71,6 +104,17 @@ export function normalizeIntegrationToken(value?: string | null): string {
 
 export function getProviderIcon(name: string): string {
   return PROVIDER_ICON_MAP[name] ?? fallbackIcon
+}
+
+export function getDocumentFolderFieldConfig(provider?: IntegrationProvider): DocumentFolderFieldConfig {
+  for (const token of [provider?.slug, provider?.family, provider?.displayName, provider?.id]) {
+    const config = DOCUMENT_FOLDER_FIELD_CONFIG[normalizeIntegrationToken(token)]
+    if (config) {
+      return config
+    }
+  }
+
+  return DEFAULT_DOCUMENT_FOLDER_FIELD
 }
 
 export function toAvailableIntegration(provider: IntegrationProvider): AvailableIntegrationNode {
@@ -137,6 +181,15 @@ export function collectRequiredSchemaFields(schema?: IntegrationSchemaNode): Set
 
 export function schemaHasProperties(schema?: IntegrationSchemaNode): boolean {
   return Object.keys(resolveSchemaRoot(schema)?.properties ?? {}).length > 0
+}
+
+type IntegrationClientConfig = {
+  clientConfig?: Record<string, unknown>
+}
+
+export function readIntegrationUserInput(integration: Pick<IntegrationNode, 'config'>): Record<string, unknown> {
+  const config = integration.config as IntegrationClientConfig | null
+  return config?.clientConfig ?? {}
 }
 
 export function integrationDefinitionID(integration: IntegrationProviderMatchFields, providers: IntegrationProvider[]): string | undefined {

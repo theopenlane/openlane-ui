@@ -1,6 +1,10 @@
 import { type GetIntegrationsQuery } from '@repo/codegen/src/schema'
-import { countFinalizedIntegrationsForProvider, parseIntegrationErrorMessage, primaryCredentialRef, primaryCredentialSchema, schemaHasProperties } from './utils'
+import { countFinalizedIntegrationsForProvider, parseIntegrationErrorMessage, primaryCredentialRef, primaryCredentialSchema, resolveSchemaRoot, schemaHasProperties } from './utils'
 import { type IntegrationConfigurationResult, type IntegrationProvider, type StartIntegrationResponse } from './types'
+
+export const PRIMARY_DIRECTORY_FIELD = 'primaryDirectory'
+export const PRIMARY_DOCUMENT_FIELD = 'primary'
+export const DOCUMENT_FOLDER_FIELD = 'folderId'
 
 const INTEGRATION_AUTH_START_PATH = '/v1/integrations/auth/start'
 
@@ -28,6 +32,16 @@ export function providerHasUserInputSchema(provider?: IntegrationProvider): bool
 
 export function providerSupportsAuth(provider?: IntegrationProvider): boolean {
   return Boolean(provider?.hasAuth)
+}
+
+export function providerSupportsPrimaryDirectory(provider?: IntegrationProvider): boolean {
+  const schema = resolveSchemaRoot(provider?.userInputSchema)
+  return Boolean(schema?.properties && PRIMARY_DIRECTORY_FIELD in schema.properties)
+}
+
+export function providerSupportsDocumentSync(provider?: IntegrationProvider): boolean {
+  const properties = resolveSchemaRoot(provider?.userInputSchema)?.properties
+  return Boolean(properties && PRIMARY_DOCUMENT_FIELD in properties && DOCUMENT_FOLDER_FIELD in properties)
 }
 
 export function providerSupportsInstalledConfiguration(provider?: IntegrationProvider): boolean {

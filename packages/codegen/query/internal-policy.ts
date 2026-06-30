@@ -56,6 +56,7 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
           createdAt
           createdBy
           summary
+          managementMode
           approvalRequired
           approver {
             displayName
@@ -151,6 +152,43 @@ export const INTERNAL_POLICY_BY_ID = gql`
     summary
     detailsJSON
     internalPolicyKindName
+    liveExternalContents
+    url
+    externalFileID
+    integrations {
+      edges {
+        node {
+          id
+          name
+          kind
+          integrationType
+          description
+          definitionID
+          definitionSlug
+          definitionVersion
+          family
+          environmentID
+          environmentName
+          scopeID
+          scopeName
+          platformID
+          status
+          primaryDirectory
+          campaignEmail
+          systemOwned
+          tags
+          config
+          metadata
+          providerMetadataSnapshot
+          webhookURLs
+          ownerID
+          createdAt
+          createdBy
+          updatedAt
+          updatedBy
+        }
+      }
+    }
     file {
       id
       presignedURL

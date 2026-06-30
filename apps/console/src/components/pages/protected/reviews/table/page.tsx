@@ -22,12 +22,14 @@ import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '../create/utils'
 import { type CreateReviewInput, type UpdateReviewInput, type GetReviewAssociationsQuery } from '@repo/codegen/src/schema'
+import { ReviewStatusOptions } from '@/components/shared/enum-mapper/review-enum'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { REVIEW_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import ViewReviewSheet from '../view-review-sheet'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const ReviewPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -117,6 +119,7 @@ const ReviewPage: React.FC = () => {
     environmentOptions,
     scopeOptions,
     tagOptions: tagOptions.tagOptions,
+    statusOptions: ReviewStatusOptions,
   }
 
   const handleCloseViewSheet = () => {
@@ -193,6 +196,7 @@ const ReviewPage: React.FC = () => {
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
+    createPermission: AccessEnum.CanCreateReview,
   }
 
   return (

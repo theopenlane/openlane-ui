@@ -19,16 +19,14 @@ type VersionSlideoutProps = {
   historyId: string | null
   histories: HistoryNode[]
   currentPolicy: InternalPolicyByIdFragment
+  canRestore?: boolean
   onClose: () => void
   onRestore: (id: string) => void
 }
 
-const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories, currentPolicy, onClose, onRestore }) => {
-  const isExternalReference = currentPolicy.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
-  // External-reference docs don't have a diff view — the file itself is the source of
-  // truth — so force the "version" pane regardless of what the user previously selected.
+const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories, currentPolicy, canRestore = true, onClose, onRestore }) => {
+  const metadataOnly = currentPolicy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION
   const [selectedPane, setSelectedPane] = useState<'version' | 'diff'>('version')
-  const activePane = isExternalReference ? 'version' : selectedPane
   const record = useMemo(() => (historyId ? (histories.find((h) => h?.id === historyId) ?? null) : null), [historyId, histories])
   const open = !!record
   const previousValue = useMemo(() => toPlateValue(record?.detailsJSON) ?? stringToPlateValue(record?.details), [record?.detailsJSON, record?.details])
@@ -50,17 +48,17 @@ const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories,
             </SheetHeader>
 
             <div className="flex-1 overflow-y-auto px-4 py-3">
-              <Tabs value={activePane} onValueChange={(v) => setSelectedPane(v as 'version' | 'diff')}>
+              <Tabs value={selectedPane} onValueChange={(v) => setSelectedPane(v as 'version' | 'diff')}>
                 <TabsList>
                   <TabsTrigger value="version">Version</TabsTrigger>
-                  {!isExternalReference && <TabsTrigger value="diff">Diff</TabsTrigger>}
+                  <TabsTrigger value="diff">Diff</TabsTrigger>
                 </TabsList>
                 <TabsContent value="version">
                   <div className="flex flex-col gap-4">
-                    <CollapsibleSection label="Metadata">
+                    <CollapsibleSection label="Metadata" defaultOpen={metadataOnly}>
                       <FieldsSummary history={record} />
                     </CollapsibleSection>
-                    {!isExternalReference && (
+                    {!metadataOnly && (
                       <div>
                         <h4 className="mb-2 text-sm font-medium">Details</h4>
                         <VersionReadonly value={previousValue} detailsHtml={record.details ?? null} cacheKey={record.id} />
@@ -68,27 +66,29 @@ const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories,
                     )}
                   </div>
                 </TabsContent>
-                {!isExternalReference && (
-                  <TabsContent value="diff">
-                    <div className="flex flex-col gap-4">
-                      <CollapsibleSection label="Field changes">
-                        <FieldsDiff history={record} current={currentPolicy} />
-                      </CollapsibleSection>
+                <TabsContent value="diff">
+                  <div className="flex flex-col gap-4">
+                    <CollapsibleSection label="Field changes" defaultOpen>
+                      <FieldsDiff history={record} current={currentPolicy} />
+                    </CollapsibleSection>
+                    {!metadataOnly && (
                       <div>
                         <h4 className="mb-2 text-sm font-medium">Details diff</h4>
                         <VersionDiff previous={previousValue} current={currentValue} />
                       </div>
-                    </div>
-                  </TabsContent>
-                )}
+                    )}
+                  </div>
+                </TabsContent>
               </Tabs>
             </div>
 
-            <div className="flex justify-end gap-2 border-t border-border p-3">
-              <Button type="button" onClick={() => onRestore(record.id)}>
-                Restore this version
-              </Button>
-            </div>
+            {canRestore && (
+              <div className="flex justify-end gap-2 border-t border-border p-3">
+                <Button type="button" onClick={() => onRestore(record.id)}>
+                  Restore this version
+                </Button>
+              </div>
+            )}
           </div>
         ) : null}
       </SheetContent>

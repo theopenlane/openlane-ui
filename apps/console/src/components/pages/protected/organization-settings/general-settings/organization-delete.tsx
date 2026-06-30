@@ -1,18 +1,19 @@
 'use client'
-import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useSession } from 'next-auth/react'
 import { Button } from '@repo/ui/button'
+import { Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
 import { useDeleteOrganization } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { canDelete } from '@/lib/authz/utils.ts'
 import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { switchOrganization, handleSSORedirect } from '@/lib/user'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { ManagementRow } from './management-row'
+
+const DELETE_ORGANIZATION_DESCRIPTION = 'Permanently delete this organization and all associated data. This action cannot be undone.'
 
 type OrganizationDeleteProps = {
   onLoadingChange?: (val: boolean) => void
@@ -24,7 +25,6 @@ const OrganizationDelete = ({ onLoadingChange }: OrganizationDeleteProps) => {
   const queryClient = useQueryClient()
   const { mutateAsync: deleteOrganization, isPending } = useDeleteOrganization()
   const { data: sessionData, update } = useSession()
-  const { data } = useOrganizationRoles()
   const { currentOrgId, allOrgs } = useOrganization()
   const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
 
@@ -82,34 +82,34 @@ const OrganizationDelete = ({ onLoadingChange }: OrganizationDeleteProps) => {
     }
   }
 
-  if (!canDelete(data?.roles)) {
-    return null
-  }
-
   return (
-    <Panel>
-      <PanelHeader heading="Delete organization" noBorder />
-      <Panel align="start" destructive>
-        <p className="text-red-600">Deleting your organization is irreversible.</p>
-        <Button variant="redOutline" type="button" onClick={() => setIsDialogOpen(true)}>
-          Delete this organization
-        </Button>
+    <>
+      <ManagementRow
+        icon={<Trash2 className="size-5" />}
+        iconClassName="bg-red-500/15 text-red-500"
+        title="Delete organization"
+        description={DELETE_ORGANIZATION_DESCRIPTION}
+        action={
+          <Button variant="redOutline" type="button" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDialogOpen(true)}>
+            Delete organization
+          </Button>
+        }
+      />
 
-        <ConfirmationDialog
-          open={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-          onConfirm={clickHandler}
-          confirmationText="Delete"
-          title={`Delete Organization ${currentOrganization?.displayName}`}
-          description={
-            <>
-              This action is irreversible and will permanently delete the organization <b>{currentOrganization?.displayName}</b> and all associated data.
-            </>
-          }
-          showInput={true}
-        />
-      </Panel>
-    </Panel>
+      <ConfirmationDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onConfirm={clickHandler}
+        confirmationText="Delete"
+        title={`Delete Organization ${currentOrganization?.displayName}`}
+        description={
+          <>
+            This action is irreversible and will permanently delete the organization <b>{currentOrganization?.displayName}</b> and all associated data.
+          </>
+        }
+        showInput={true}
+      />
+    </>
   )
 }
 

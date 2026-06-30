@@ -20,9 +20,11 @@ import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { hasStatusCondition } from '@/components/shared/table-filter/has-status-condition'
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
+import { getIncludeVars } from '@/components/shared/crud-base/columns/get-include-vars'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
@@ -57,7 +59,6 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     subcategory: false,
     source: false,
     sourceName: false,
-    publicRepresentation: false,
     referenceFramework: false,
     delegate: false,
     responsibleParty: false,
@@ -108,14 +109,6 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       return { [key]: value } as ControlWhereInput
     })
 
-    // Check if the user explicitly filtered by status
-    const hasStatusCondition = (obj: ControlWhereInput): boolean => {
-      if ('status' in obj || 'statusNEQ' in obj || 'statusIn' in obj || 'statusNotIn' in obj) return true
-      if (Array.isArray(obj.and) && obj.and.some(hasStatusCondition)) return true
-      if (Array.isArray(obj.or) && obj.or.some(hasStatusCondition)) return true
-      return false
-    }
-
     // Automatically exclude archived unless overridden
     if (!hasStatusCondition(result)) {
       result.statusNEQ = ControlControlStatus.ARCHIVED
@@ -157,10 +150,16 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     ])
   }, [setCrumbs])
 
+  const includeVars = useMemo(
+    () => getIncludeVars(getControlColumns({ convertToReadOnly, userMap: {}, selectedControls: [], setSelectedControls, enumOptions }), columnVisibility),
+    [convertToReadOnly, setSelectedControls, enumOptions, columnVisibility],
+  )
+
   const { controls, isError, paginationMeta, isLoading, isFetching } = useGetAllControls({
     where: whereWithSearch,
     orderBy,
     pagination,
+    includeVars,
     enabled: true,
   })
 

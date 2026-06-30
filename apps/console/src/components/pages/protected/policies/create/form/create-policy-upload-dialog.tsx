@@ -5,9 +5,12 @@ import React, { cloneElement, useEffect, useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateInternalPolicy, useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { INTEGRATIONS_DOCUMENT_FILTER_URL } from '@/constants'
 import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
 import { type CreateInternalPolicyInput, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
 import { Import, Trash2 } from 'lucide-react'
@@ -39,8 +42,9 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [uploadedFiles, setUploadedFiles] = useState<TUploadedFile[]>([])
   const { successNotification, errorNotification } = useNotification()
-  const { mutateAsync: createUploadPolicy, isPending: isSubmitting } = useCreateUploadInternalPolicy()
-  const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy()
+  const { queryClient } = useGraphQLClient()
+  const { mutateAsync: createUploadPolicy, isPending: isSubmitting } = useCreateUploadInternalPolicy({ autoInvalidate: false })
+  const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy({ autoInvalidate: false })
 
   const [showTemplateBrowser, setShowTemplateBrowser] = useState(false)
 
@@ -67,6 +71,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
       await handleLinkUpload()
     }
 
+    queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
     setIsOpen(false)
   }
 
@@ -214,8 +219,12 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
           <DialogTitle>Import Existing Policy(s)</DialogTitle>
         </DialogHeader>
         <Callout title="File Format">
-          You can upload one or multiple files at once, or pull documents directly from a URL (for example, if your policies are stored in GitHub as Markdown). Each uploaded file will be imported
-          separately and create its own policy. For more details on supported file types and formatting, please refer to our{' '}
+          You can upload one or multiple files at once, or pull documents directly from a public URL (for example, if your policies are stored in GitHub as Markdown). Each uploaded file will be
+          imported separately and create its own policy. Want to import from Google Drive? Try our{' '}
+          <Link href={INTEGRATIONS_DOCUMENT_FILTER_URL} className="text-brand hover:underline">
+            Google Drive integration
+          </Link>{' '}
+          instead. For more details on supported file types and formatting, please refer to our{' '}
           <a href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/onboarding/policies`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
             documentation
           </a>
@@ -257,7 +266,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
           <div className="flex flex-col gap-2 border rounded-md p-3 bg-secondary">
             <span className="text-sm font-medium">Management mode</span>
             <RadioGroup value={managementMode} onValueChange={(v) => setManagementMode(v as InternalPolicyDocumentManagementMode)} className="gap-3">
-              {ManagementModeOptions.map((option) => {
+              {ManagementModeOptions.filter((option) => option.value !== InternalPolicyDocumentManagementMode.INTEGRATION).map((option) => {
                 const isExternal = option.value === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
                 const disabled = isExternal && !canKeepAsWord
                 const id = `mgmt-${option.value}`

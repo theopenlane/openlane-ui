@@ -6,9 +6,11 @@ import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Textarea } from '@repo/ui/textarea'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { InfoIcon } from 'lucide-react'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { Button } from '@repo/ui/button'
+import { InfoIcon, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import React from 'react'
+import React, { useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 
 const relationTypes = [
@@ -19,9 +21,15 @@ const relationTypes = [
   { label: 'Superset', value: MappedControlMappingType.SUPERSET },
 ]
 
-const MapControlsRelations = () => {
+type Props = {
+  onDelete?: () => Promise<void>
+  deleteLoading?: boolean
+}
+
+const MapControlsRelations = ({ onDelete, deleteLoading }: Props) => {
   const { control, setValue } = useFormContext()
   const router = useRouter()
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   return (
     <div className="flex flex-col space-y-6">
@@ -129,6 +137,24 @@ const MapControlsRelations = () => {
         <SaveButton />
         <CancelButton onClick={() => router.back()}></CancelButton>
       </div>
+
+      {onDelete && (
+        <>
+          <div className="border-t pt-4">
+            <Button type="button" variant="destructive" icon={<Trash2 />} iconPosition="left" full onClick={() => setConfirmOpen(true)}>
+              Delete mapping
+            </Button>
+          </div>
+          <ConfirmationDialog
+            title="Delete mapping"
+            open={confirmOpen}
+            onOpenChange={setConfirmOpen}
+            onConfirm={onDelete}
+            loading={deleteLoading}
+            description="This action cannot be undone. This will permanently remove this control mapping."
+          />
+        </>
+      )}
     </div>
   )
 }

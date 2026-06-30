@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { DownloadIcon, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
+import { DownloadIcon, FileText, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreateProcedureDialog from '@/components/pages/protected/procedures/create/form/bulk-csv-create-procedure-dialog'
@@ -10,7 +10,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { type VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { type ProcedureWhereInput } from '@repo/codegen/src/schema'
+import { ExportExportFormat, type ProcedureWhereInput } from '@repo/codegen/src/schema'
 import { BulkEditProceduresDialog } from '../bulk-edit/bulk-edit-procedures'
 import { Button } from '@repo/ui/button'
 import CreateProcedureUploadDialog from '../create/form/create-procedure-upload-dialog'
@@ -30,7 +30,7 @@ type TProceduresTableToolbarProps = {
   setSearchTerm: (searchTerm: string) => void
   setFilters: (filters: ProcedureWhereInput) => void
   handleCreateNew: () => void
-  handleExport: () => void
+  handleExport: (format?: ExportExportFormat) => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   mappedColumns: {
@@ -180,12 +180,22 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                     <div
                       className={`flex items-center space-x-2 px-1 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
                       onClick={() => {
-                        handleExport()
+                        handleExport(ExportExportFormat.CSV)
                         close()
                       }}
                     >
                       <DownloadIcon size={16} strokeWidth={2} />
-                      <span>Export</span>
+                      <span>Export to CSV</span>
+                    </div>
+                    <div
+                      className={`flex items-center space-x-2 px-1 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                      onClick={() => {
+                        handleExport(ExportExportFormat.PDF)
+                        close()
+                      }}
+                    >
+                      <FileText size={16} strokeWidth={2} />
+                      <span>Export to PDF</span>
                     </div>
                   </>
                 )}

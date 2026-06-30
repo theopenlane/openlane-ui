@@ -8,8 +8,16 @@ import { Card } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
-import { getInstalledIntegrationConfig, installedIntegrationDisplayName, providerSupportsHealth, resolveConnectionEntry, resolveCredentialEntry, resolveManageUrl } from '@/lib/integrations/utils'
-import { providerHasUserInputSchema } from '@/lib/integrations/flow'
+import {
+  getInstalledIntegrationConfig,
+  installedIntegrationDisplayName,
+  providerSupportsHealth,
+  readIntegrationUserInput,
+  resolveConnectionEntry,
+  resolveCredentialEntry,
+  resolveManageUrl,
+} from '@/lib/integrations/utils'
+import { PRIMARY_DOCUMENT_FIELD, providerHasUserInputSchema } from '@/lib/integrations/flow'
 import { useDisconnectIntegration, useIntegrationHealth } from '@/lib/query-hooks/integrations'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { Avatar } from '@/components/shared/avatar/avatar'
@@ -32,6 +40,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage }: Install
   const provider = integrationConfig?.provider
   const supportsHealth = providerSupportsHealth(provider)
   const hasUserInput = providerHasUserInputSchema(provider)
+  const isPrimaryDocument = readIntegrationUserInput(integration)[PRIMARY_DOCUMENT_FIELD] === true
 
   // The GraphQL query requests `metadata` but codegen maps it to `providerMetadataSnapshot`.
   // At runtime the response key is `metadata`. A single cast bridges the mismatch until
@@ -64,11 +73,12 @@ const InstalledIntegrationCard = ({ integration, providers, canManage }: Install
         {/* Header row: icon + name + health badge */}
         <div className="flex justify-between items-center">
           <div className="font-medium flex items-center gap-3">
-            <IntegrationCardIcons providerName={provider?.slug ?? integration.definitionSlug ?? integration.kind ?? integration.name} logoUrl={provider?.logoUrl} />
+            <IntegrationCardIcons providerName={displayName} logoUrl={provider?.logoUrl} />
             {displayName}
           </div>
           <div className="flex items-center gap-2">
             {integration.primaryDirectory ? <Badge variant="blue">Primary Directory</Badge> : null}
+            {isPrimaryDocument ? <Badge variant="blue">Primary Document</Badge> : null}
             <Badge variant={healthStatus.variant} title={healthStatus.summary}>
               {healthStatus.label}
             </Badge>

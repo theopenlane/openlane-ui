@@ -64,8 +64,8 @@ export function Callout({ variant = 'info', title, compact, icon, className, chi
           <div
             className={cn(
               'text-sm leading-relaxed ' +
-                '[&_a]:underline [&_a]:underline-offset-4 [&_a]:decoration-2 ' +
-                '[&_a]:hover:decoration-4 ' +
+                '[&_a]:underline [&_a]:underline-offset-4 [&_a]:decoration-1 ' +
+                '[&_a]:hover:decoration-2 ' +
                 '[&_a]:focus:outline-none [&_a]:focus:ring-2 [&_a]:focus:ring-offset-2 ' +
                 '[&_a]:focus:ring-[var(--color-info)] dark:[&_a]:focus:ring-[var(--color-info)]',
               v.link,

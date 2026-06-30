@@ -13,6 +13,7 @@ import {
   GET_SUBCONTROL_DISCUSSION_BY_ID,
   GET_SUBCONTROL_SELECT_OPTIONS,
   GET_SUBCONTROLS_BY_REFCODE,
+  GET_SUBCONTROL_RELATED_CONTROLS,
   GET_SUBCONTROLS_PAGINATED,
   UPDATE_SUBCONTROL,
   UPDATE_SUBCONTROL_COMMENT,
@@ -33,6 +34,7 @@ import {
   type GetSubcontrolByIdQuery,
   type GetSubcontrolDiscussionByIdQuery,
   type GetSubcontrolsByRefCodeQuery,
+  type GetSubcontrolRelatedControlsQuery,
   type GetSubcontrolSelectOptionsQuery,
   type GetSubcontrolSelectOptionsQueryVariables,
   type GetSubcontrolsPaginatedQuery,
@@ -312,6 +314,16 @@ export const useGetSubcontrolsByRefCode = ({ refCodeIn, enabled = true }: UseGet
     queryFn: async () => await client.request(GET_SUBCONTROLS_BY_REFCODE, { refCodeIn }),
 
     enabled: enabled && refCodeIn.length > 0,
+  })
+}
+
+export const useGetSubcontrolRelatedControls = (subcontrolId?: string | null, enabled = true) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetSubcontrolRelatedControlsQuery, unknown>({
+    queryKey: ['subcontrols', subcontrolId, 'relatedControls'],
+    queryFn: async () => client.request(GET_SUBCONTROL_RELATED_CONTROLS, { subcontrolId }),
+    enabled: !!subcontrolId && enabled,
   })
 }
 

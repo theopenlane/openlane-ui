@@ -15,6 +15,22 @@ export const GET_DOCUMENTATION_POLICIES = gql`
             displayName
           }
           updatedAt
+          controls {
+            edges {
+              node {
+                id
+                refCode
+              }
+            }
+          }
+          subcontrols {
+            edges {
+              node {
+                id
+                refCode
+              }
+            }
+          }
         }
       }
       pageInfo {
@@ -42,6 +58,22 @@ export const GET_DOCUMENTATION_PROCEDURES = gql`
             displayName
           }
           updatedAt
+          controls {
+            edges {
+              node {
+                id
+                refCode
+              }
+            }
+          }
+          subcontrols {
+            edges {
+              node {
+                id
+                refCode
+              }
+            }
+          }
         }
       }
       pageInfo {

@@ -1534,6 +1534,7 @@ export interface AssessmentResponse extends Node {
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  questionnaireTransformError?: Maybe<Scalars['String']['output']>
   /** the number of attempts made to perform email send to the recipient about this assessment, maximum of 5 */
   sendAttempts: Scalars['Int']['output']
   /** when the user started the assessment */
@@ -3354,6 +3355,9 @@ export interface Campaign extends Node {
   template?: Maybe<Template>
   /** the template associated with the campaign */
   templateID?: Maybe<Scalars['ID']['output']>
+  trustCenter?: Maybe<TrustCenter>
+  /** the trust center this campaign sends updates for, if any */
+  trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   users: UserConnection
@@ -3496,6 +3500,7 @@ export enum CampaignCampaignType {
   POLICY_ATTESTATION = 'POLICY_ATTESTATION',
   QUESTIONNAIRE = 'QUESTIONNAIRE',
   TRAINING = 'TRAINING',
+  TRUST_CENTER_UPDATE = 'TRUST_CENTER_UPDATE',
   VENDOR_ASSESSMENT = 'VENDOR_ASSESSMENT',
 }
 
@@ -3632,6 +3637,9 @@ export interface CampaignTarget extends Node {
   sentAt?: Maybe<Scalars['DateTime']['output']>
   /** the delivery or response status for the campaign target */
   status: CampaignTargetAssessmentResponseStatus
+  subscriber?: Maybe<Subscriber>
+  /** the trust center subscriber this target was generated from, if any */
+  subscriberID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
@@ -3871,6 +3879,9 @@ export interface CampaignTargetWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** subscriber edge predicates */
+  hasSubscriber?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubscriberWith?: InputMaybe<Array<SubscriberWhereInput>>
   /** user edge predicates */
   hasUser?: InputMaybe<Scalars['Boolean']['input']>
   hasUserWith?: InputMaybe<Array<UserWhereInput>>
@@ -3922,6 +3933,22 @@ export interface CampaignTargetWhereInput {
   statusIn?: InputMaybe<Array<CampaignTargetAssessmentResponseStatus>>
   statusNEQ?: InputMaybe<CampaignTargetAssessmentResponseStatus>
   statusNotIn?: InputMaybe<Array<CampaignTargetAssessmentResponseStatus>>
+  /** subscriber_id field predicates */
+  subscriberID?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDContains?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDGT?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDGTE?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  subscriberIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  subscriberIDLT?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDLTE?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  subscriberIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  subscriberIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -4192,6 +4219,9 @@ export interface CampaignWhereInput {
   /** template edge predicates */
   hasTemplate?: InputMaybe<Scalars['Boolean']['input']>
   hasTemplateWith?: InputMaybe<Array<TemplateWhereInput>>
+  /** trust_center edge predicates */
+  hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
   /** users edge predicates */
   hasUsers?: InputMaybe<Scalars['Boolean']['input']>
   hasUsersWith?: InputMaybe<Array<UserWhereInput>>
@@ -4459,6 +4489,22 @@ export interface CampaignWhereInput {
   templateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   templateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   templateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** trust_center_id field predicates */
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContains?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterIDLT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDLTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -4938,6 +4984,7 @@ export interface Contact extends Node {
   phoneNumber?: Maybe<Scalars['String']['output']>
   /** status of the contact */
   status: ContactUserStatus
+  subscribers: SubscriberConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the title of the contact */
@@ -4980,6 +5027,15 @@ export interface ContactFilesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FileOrder>>
   where?: InputMaybe<FileWhereInput>
+}
+
+export interface ContactSubscribersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubscriberOrder>>
+  where?: InputMaybe<SubscriberWhereInput>
 }
 
 /** Return response for createBulkContact mutation */
@@ -5209,6 +5265,9 @@ export interface ContactWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** subscribers edge predicates */
+  hasSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubscribersWith?: InputMaybe<Array<SubscriberWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -5435,6 +5494,8 @@ export interface Control extends Node {
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
   references?: Maybe<Array<Scalars['Reference']['output']>>
+  /** relatedControls show the controls and frameworks mapped to this control */
+  relatedControls?: Maybe<Array<ControlInfo>>
   remediations: RemediationConnection
   /** the entity who is responsible for the control implementation when it is a third party */
   responsibleParty?: Maybe<Entity>
@@ -5906,6 +5967,24 @@ export interface ControlEdge {
   node?: Maybe<Control>
 }
 
+/** ControlEvidence summarizes the evidence status across all evidence linked to a control */
+export interface ControlEvidence {
+  __typename?: 'ControlEvidence'
+  /** number of evidence items with auditor-approved status */
+  approvedCount: Scalars['Int']['output']
+  /** breakdown of evidence item counts by status */
+  countByStatus?: Maybe<Array<EvidenceCountByStatus>>
+  /**
+   * from the total number, the amount inherited from linked controls instead of directly
+   * linked to this control
+   */
+  inheritedCount: Scalars['Int']['output']
+  /** total number of evidence items linked to the control */
+  totalCount: Scalars['Int']['output']
+  /** the most severe evidence status among all linked evidence items */
+  worstStatus?: Maybe<EvidenceEvidenceStatus>
+}
+
 /** ControlFieldDiff describes a single field that differs between two control revisions */
 export interface ControlFieldDiff {
   __typename?: 'ControlFieldDiff'
@@ -6323,6 +6402,37 @@ export interface ControlImplementationWhereInput {
   verifiedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   verifiedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   verifiedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** ControlInfo provides a lightweight summary of a control or subcontrol, used when referencing related controls */
+export interface ControlInfo {
+  __typename?: 'ControlInfo'
+  /** category of the control */
+  category?: Maybe<Scalars['String']['output']>
+  /** the group of users who are responsible for the control, will be assigned tasks, approval, etc. */
+  controlOwner?: Maybe<Group>
+  /** description of what the control is supposed to accomplish */
+  description?: Maybe<Scalars['String']['output']>
+  /** unique identifier of the control */
+  id: Scalars['ID']['output']
+  /** id(s) of the subcontrol the mapping was inherited from, this is null if the control was directly mapped, if it was inherited from a subcontrol it will have the subcontrol IDs that are providing the mapping */
+  inheritedFromSubcontrolIDs?: Maybe<Array<Scalars['ID']['output']>>
+  /** whether this entry is a subcontrol rather than a top-level control */
+  isSubcontrol: Scalars['Boolean']['output']
+  /** id(s) of the mapped_control this related control from if the mapping is org owned */
+  mappedControlReferenceIDs?: Maybe<Array<Scalars['ID']['output']>>
+  /** the id of the parent control if this is a subcontrol, empty if isSubcontrol is false */
+  parentControlID?: Maybe<Scalars['ID']['output']>
+  /** the unique reference code for the control */
+  refCode: Scalars['String']['output']
+  /** the reference framework this control belongs to, e.g. SOC2, ISO27001 */
+  referenceFramework?: Maybe<Scalars['String']['output']>
+  /** status of the control */
+  status?: Maybe<ControlControlStatus>
+  /** subcategory of the control */
+  subcategory?: Maybe<Scalars['String']['output']>
+  /** human readable title of the control for quick identification */
+  title?: Maybe<Scalars['String']['output']>
 }
 
 export interface ControlObjective extends Node {
@@ -6901,6 +7011,104 @@ export enum ControlOrderField {
   ref_code = 'ref_code',
   subcategory = 'subcategory',
   title = 'title',
+  updated_at = 'updated_at',
+}
+
+/** ControlPolicies summarizes the internal policies linked to a control */
+export interface ControlPolicies {
+  __typename?: 'ControlPolicies'
+  /** the policies linked to the control */
+  internalPolicies?: Maybe<Array<PolicySummary>>
+  /** total number of policies linked to the control */
+  totalCount: Scalars['Int']['output']
+}
+
+/**
+ * ControlReport is a custom resolver that is used to show detailed, but selective information about
+ * an organizations controls vs. the standards
+ */
+export interface ControlReport extends Node {
+  __typename?: 'ControlReport'
+  /** category of the control */
+  category?: Maybe<Scalars['String']['output']>
+  /** the group of users who are responsible for the control, will be assigned tasks, approval, etc. */
+  controlOwner?: Maybe<Group>
+  /** description of what the control is supposed to accomplish */
+  description?: Maybe<Scalars['String']['output']>
+  /** aggregated evidence status across all evidence linked to this control */
+  evidenceStatus?: Maybe<ControlEvidence>
+  /** unique identifier of the control */
+  id: Scalars['ID']['output']
+  /** internal policies linked to this control */
+  linkedPolicies?: Maybe<ControlPolicies>
+  /** the id of the parent control, only populated when the object is a subcontrol */
+  parentControlID?: Maybe<Scalars['ID']['output']>
+  /** the unique reference code for the control */
+  refCode: Scalars['String']['output']
+  /** the reference framework this control belongs to, e.g. SOC2, ISO27001 */
+  referenceFramework?: Maybe<Scalars['String']['output']>
+  /** controls from other frameworks that map to this control */
+  relatedControls?: Maybe<Array<ControlInfo>>
+  /** status of the control */
+  status?: Maybe<ControlControlStatus>
+  /** subcategory of the control */
+  subcategory?: Maybe<Scalars['String']['output']>
+  /** child subcontrols nested under this control */
+  subcontrols?: Maybe<Array<ControlReport>>
+  /** human readable title of the control for quick identification */
+  title?: Maybe<Scalars['String']['output']>
+}
+
+/** ControlReportCategory groups control reports by their category */
+export interface ControlReportCategory {
+  __typename?: 'ControlReportCategory'
+  /** the category name; empty string when controls have no category assigned */
+  category: Scalars['String']['output']
+  /** controls belonging to this category */
+  controls: Array<ControlReport>
+  /** total number of controls in this category */
+  totalCount: Scalars['Int']['output']
+}
+
+/** A connection to a list of items. */
+export interface ControlReportConnection {
+  __typename?: 'ControlReportConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<ControlReportEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface ControlReportEdge {
+  __typename?: 'ControlReportEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<ControlReport>
+}
+
+/** Ordering options for ControlReport connections */
+export interface ControlReportOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order ControlReport. */
+  field: ControlReportOrderField
+}
+
+/** Properties by which ControlReport connections can be ordered. */
+export enum ControlReportOrderField {
+  /** Order by creation time */
+  created_at = 'created_at',
+  /** Order by reference code */
+  refCode = 'refCode',
+  /** Order by reference framework */
+  referenceFramework = 'referenceFramework',
+  /** Order by title */
+  title = 'title',
+  /** Order by last update time */
   updated_at = 'updated_at',
 }
 
@@ -7939,6 +8147,7 @@ export interface CreateCampaignInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
   userIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal marker field for workflow eligibility, not exposed in API */
@@ -7967,6 +8176,7 @@ export interface CreateCampaignTargetInput {
   sentAt?: InputMaybe<Scalars['DateTime']['input']>
   /** the delivery or response status for the campaign target */
   status?: InputMaybe<CampaignTargetAssessmentResponseStatus>
+  subscriberID?: InputMaybe<Scalars['ID']['input']>
   userID?: InputMaybe<Scalars['ID']['input']>
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
@@ -8036,6 +8246,7 @@ export interface CreateContactInput {
   phoneNumber?: InputMaybe<Scalars['String']['input']>
   /** status of the contact */
   status?: InputMaybe<ContactUserStatus>
+  subscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the title of the contact */
@@ -8629,6 +8840,7 @@ export interface CreateEmailTemplateInput {
   templateContext?: InputMaybe<EmailTemplateTemplateContext>
   /** plain text fallback template for the email */
   textTemplate?: InputMaybe<Scalars['String']['input']>
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** uischema for a template builder */
   uischema?: InputMaybe<Scalars['Map']['input']>
   /** template version */
@@ -8766,7 +8978,6 @@ export interface CreateEntityInput {
   /** vendor metadata such as additional enrichment info, company size, public, etc. */
   vendorMetadata?: InputMaybe<Scalars['Map']['input']>
   vendorRiskScoreIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -9090,7 +9301,6 @@ export interface CreateFindingInput {
   validated?: InputMaybe<Scalars['Boolean']['input']>
   /** attack vector string such as a CVSS vector */
   vector?: InputMaybe<Scalars['String']['input']>
-  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
@@ -9134,9 +9344,10 @@ export interface CreateGroupInput {
   displayName?: InputMaybe<Scalars['String']['input']>
   entityBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  entityViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  findingBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  findingEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9164,12 +9375,15 @@ export interface CreateGroupInput {
   programBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  remediationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  remediationEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  scanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** whether the SCIM group is marked as active */
   scimActive?: InputMaybe<Scalars['Boolean']['input']>
   /** the SCIM displayname for the group */
@@ -9419,7 +9633,7 @@ export interface CreateInviteInput {
   expires?: InputMaybe<Scalars['Time']['input']>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes admin and invitee becomes owner */
+  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes super admin and invitee becomes owner */
   ownershipTransfer?: InputMaybe<Scalars['Boolean']['input']>
   /** the email used as input to generate the invitation token and is the destination person the invitation is sent to who is required to accept to join the organization */
   recipient: Scalars['String']['input']
@@ -9631,6 +9845,8 @@ export interface CreateNoteInput {
   isEdited?: InputMaybe<Scalars['Boolean']['input']>
   /** ref location of the note */
   noteRef?: InputMaybe<Scalars['String']['input']>
+  /** when set on a trust center post, sends the published update to the trust center's subscribers */
+  notifySubscribers?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureID?: InputMaybe<Scalars['ID']['input']>
   riskID?: InputMaybe<Scalars['ID']['input']>
@@ -10410,7 +10626,6 @@ export interface CreateRemediationInput {
   ticketReference?: InputMaybe<Scalars['String']['input']>
   /** title or short description of the remediation effort */
   title?: InputMaybe<Scalars['String']['input']>
-  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
@@ -10485,7 +10700,6 @@ export interface CreateReviewInput {
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** title of the review */
   title: Scalars['String']['input']
-  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
@@ -10588,7 +10802,6 @@ export interface CreateSlaDefinitionInput {
   slaDays: Scalars['Int']['input']
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
-  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -10644,7 +10857,6 @@ export interface CreateScanInput {
   /** the target of the scan, e.g., a domain name or IP address, codebase */
   target: Scalars['String']['input']
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** identifiers of vulnerabilities discovered during the scan */
   vulnerabilityIds?: InputMaybe<Array<Scalars['String']['input']>>
@@ -10863,6 +11075,8 @@ export interface CreateSubprocessorInput {
  * Input was generated by ent.
  */
 export interface CreateSubscriberInput {
+  campaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  contactID?: InputMaybe<Scalars['ID']['input']>
   /** email address of the subscriber */
   email: Scalars['String']['input']
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -10871,6 +11085,8 @@ export interface CreateSubscriberInput {
   phoneNumber?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  userID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -10962,6 +11178,8 @@ export interface CreateTaskInput {
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** indicates if the task is intended to be used as a template */
+  isTemplate?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   parentID?: InputMaybe<Scalars['ID']['input']>
   platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -11117,9 +11335,11 @@ export interface CreateTrustCenterFaqInput {
  */
 export interface CreateTrustCenterInput {
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   createTrustCenterSetting?: InputMaybe<CreateTrustCenterSettingInput>
   customDomainID?: InputMaybe<Scalars['ID']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  emailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** Pirsch access link */
   pirschAccessLink?: InputMaybe<Scalars['String']['input']>
@@ -11135,6 +11355,7 @@ export interface CreateTrustCenterInput {
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** External URL for the trust center subprocessors */
   subprocessorURL?: InputMaybe<Scalars['String']['input']>
+  subscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -11249,6 +11470,9 @@ export interface CreateTrustCenterSettingInput {
   logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
+  ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
+  /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
+  notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   /** overview of the trust center */
   overview?: InputMaybe<Scalars['String']['input']>
   /** primary color for the trust center */
@@ -11366,6 +11590,7 @@ export interface CreateUserInput {
   /** the Subject of the user JWT */
   sub?: InputMaybe<Scalars['String']['input']>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  subscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   targetedImpersonationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -15743,6 +15968,9 @@ export interface EmailTemplate extends Node {
   systemOwned?: Maybe<Scalars['Boolean']['output']>
   /** runtime data context defining available variable keys for this template */
   templateContext?: Maybe<EmailTemplateTemplateContext>
+  trustCenter?: Maybe<TrustCenter>
+  /** the trust center this template is associated with, if any */
+  trustCenterID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   /** template version */
@@ -15862,6 +16090,12 @@ export interface EmailTemplateCatalogEntry {
   configSchema: Scalars['Map']['output']
   /** Human-readable description of the template type. */
   description: Scalars['String']['output']
+  /**
+   * Example/default field values used to render the preview, keyed by the same
+   * field names as configSchema. The UI pre-fills the editor form with these so
+   * the author starts from — and can see — what the default preview renders.
+   */
+  exampleValues?: Maybe<Scalars['Map']['output']>
   /** Rendered HTML preview of the template with default/example values. */
   htmlPreview: Scalars['String']['output']
   /**
@@ -15869,6 +16103,18 @@ export interface EmailTemplateCatalogEntry {
    * rendering pipeline at send time.
    */
   key: Scalars['String']['output']
+  /**
+   * RJSF-style UI schema describing how the configurable fields should be
+   * rendered as a form: authoring order, color widgets for hex fields,
+   * repeatable lists for body paragraphs, and hidden per-send fields.
+   */
+  uiSchema: Scalars['Map']['output']
+  /**
+   * System-provided template variables available for interpolation in this
+   * template's string fields (e.g. {{ .firstName }}), with descriptions for
+   * the UI variable picker.
+   */
+  variables: Array<TemplateVariable>
 }
 
 /** A connection to a list of items. */
@@ -16045,6 +16291,9 @@ export interface EmailTemplateWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** trust_center edge predicates */
+  hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
@@ -16249,6 +16498,22 @@ export interface EmailTemplateWhereInput {
   textTemplateNEQ?: InputMaybe<Scalars['String']['input']>
   textTemplateNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   textTemplateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** trust_center_id field predicates */
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContains?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterIDLT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDLTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -16476,7 +16741,6 @@ export interface Entity extends Node {
   /** vendor metadata such as additional enrichment info, company size, public, etc. */
   vendorMetadata?: Maybe<Scalars['Map']['output']>
   vendorRiskScores: VendorRiskScoreConnection
-  viewers: GroupConnection
 }
 
 export interface EntityAssessmentResponsesArgs {
@@ -16675,15 +16939,6 @@ export interface EntityVendorRiskScoresArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<VendorRiskScoreOrder>>
   where?: InputMaybe<VendorRiskScoreWhereInput>
-}
-
-export interface EntityViewersArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkEntity mutation */
@@ -17499,9 +17754,6 @@ export interface EntityWhereInput {
   /** vendor_risk_scores edge predicates */
   hasVendorRiskScores?: InputMaybe<Scalars['Boolean']['input']>
   hasVendorRiskScoresWith?: InputMaybe<Array<VendorRiskScoreWhereInput>>
-  /** viewers edge predicates */
-  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -18547,6 +18799,15 @@ export interface EvidenceConnection {
   /** Information to aid in pagination. */
   pageInfo: PageInfo
   /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** EvidenceCountByStatus pairs an evidence status with the number of evidence items in that state */
+export interface EvidenceCountByStatus {
+  __typename?: 'EvidenceCountByStatus'
+  /** the evidence status value */
+  status: EvidenceEvidenceStatus
+  /** number of evidence items with this status */
   totalCount: Scalars['Int']['output']
 }
 
@@ -20158,7 +20419,6 @@ export interface Finding extends Node {
   validated?: Maybe<Scalars['Boolean']['output']>
   /** attack vector string such as a CVSS vector */
   vector?: Maybe<Scalars['String']['output']>
-  viewers: GroupConnection
   vulnerabilities: VulnerabilityConnection
   workflowObjectRefs: WorkflowObjectRefConnection
 }
@@ -20341,15 +20601,6 @@ export interface FindingTasksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TaskOrder>>
   where?: InputMaybe<TaskWhereInput>
-}
-
-export interface FindingViewersArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface FindingVulnerabilitiesArgs {
@@ -21050,9 +21301,6 @@ export interface FindingWhereInput {
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
-  /** viewers edge predicates */
-  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
   /** vulnerabilities edge predicates */
   hasVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   hasVulnerabilitiesWith?: InputMaybe<Array<VulnerabilityWhereInput>>
@@ -21420,6 +21668,8 @@ export interface Group extends Node {
   actionPlanBlockedGroups: ActionPlanConnection
   actionPlanEditors: ActionPlanConnection
   actionPlanViewers: ActionPlanConnection
+  /** additionalRoles are the functional/organization roles assigned to the group on top of object permissions */
+  additionalRoles?: Maybe<Array<Scalars['String']['output']>>
   avatarFile?: Maybe<File>
   /** The group's local avatar file id, takes precedence over the gravatar logo URL */
   avatarLocalFileID?: Maybe<Scalars['ID']['output']>
@@ -21446,9 +21696,10 @@ export interface Group extends Node {
   displayName: Scalars['String']['output']
   entityBlockedGroups: EntityConnection
   entityEditors: EntityConnection
-  entityViewers: EntityConnection
   events: EventConnection
   files: FileConnection
+  findingBlockedGroups: FindingConnection
+  findingEditors: FindingConnection
   /** the URL to an auto generated gravatar image for the group */
   gravatarLogoURL?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
@@ -21486,12 +21737,15 @@ export interface Group extends Node {
   programBlockedGroups: ProgramConnection
   programEditors: ProgramConnection
   programViewers: ProgramConnection
+  remediationBlockedGroups: RemediationConnection
+  remediationEditors: RemediationConnection
+  reviewBlockedGroups: ReviewConnection
+  reviewEditors: ReviewConnection
   riskBlockedGroups: RiskConnection
   riskEditors: RiskConnection
   riskViewers: RiskConnection
   scanBlockedGroups: ScanConnection
   scanEditors: ScanConnection
-  scanViewers: ScanConnection
   /** whether the SCIM group is marked as active */
   scimActive?: Maybe<Scalars['Boolean']['output']>
   /** the SCIM displayname for the group */
@@ -21671,15 +21925,6 @@ export interface GroupEntityEditorsArgs {
   where?: InputMaybe<EntityWhereInput>
 }
 
-export interface GroupEntityViewersArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<EntityOrder>>
-  where?: InputMaybe<EntityWhereInput>
-}
-
 export interface GroupEventsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -21696,6 +21941,24 @@ export interface GroupFilesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FileOrder>>
   where?: InputMaybe<FileWhereInput>
+}
+
+export interface GroupFindingBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FindingOrder>>
+  where?: InputMaybe<FindingWhereInput>
+}
+
+export interface GroupFindingEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FindingOrder>>
+  where?: InputMaybe<FindingWhereInput>
 }
 
 export interface GroupIntegrationsArgs {
@@ -21858,6 +22121,42 @@ export interface GroupProgramViewersArgs {
   where?: InputMaybe<ProgramWhereInput>
 }
 
+export interface GroupRemediationBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RemediationOrder>>
+  where?: InputMaybe<RemediationWhereInput>
+}
+
+export interface GroupRemediationEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RemediationOrder>>
+  where?: InputMaybe<RemediationWhereInput>
+}
+
+export interface GroupReviewBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ReviewOrder>>
+  where?: InputMaybe<ReviewWhereInput>
+}
+
+export interface GroupReviewEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ReviewOrder>>
+  where?: InputMaybe<ReviewWhereInput>
+}
+
 export interface GroupRiskBlockedGroupsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -21895,15 +22194,6 @@ export interface GroupScanBlockedGroupsArgs {
 }
 
 export interface GroupScanEditorsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<ScanOrder>>
-  where?: InputMaybe<ScanWhereInput>
-}
-
-export interface GroupScanViewersArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -22689,15 +22979,18 @@ export interface GroupWhereInput {
   /** entity_editors edge predicates */
   hasEntityEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEntityEditorsWith?: InputMaybe<Array<EntityWhereInput>>
-  /** entity_viewers edge predicates */
-  hasEntityViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasEntityViewersWith?: InputMaybe<Array<EntityWhereInput>>
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
+  /** finding_blocked_groups edge predicates */
+  hasFindingBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingBlockedGroupsWith?: InputMaybe<Array<FindingWhereInput>>
+  /** finding_editors edge predicates */
+  hasFindingEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingEditorsWith?: InputMaybe<Array<FindingWhereInput>>
   /** integrations edge predicates */
   hasIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   hasIntegrationsWith?: InputMaybe<Array<IntegrationWhereInput>>
@@ -22752,6 +23045,18 @@ export interface GroupWhereInput {
   /** program_viewers edge predicates */
   hasProgramViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramViewersWith?: InputMaybe<Array<ProgramWhereInput>>
+  /** remediation_blocked_groups edge predicates */
+  hasRemediationBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasRemediationBlockedGroupsWith?: InputMaybe<Array<RemediationWhereInput>>
+  /** remediation_editors edge predicates */
+  hasRemediationEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasRemediationEditorsWith?: InputMaybe<Array<RemediationWhereInput>>
+  /** review_blocked_groups edge predicates */
+  hasReviewBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewBlockedGroupsWith?: InputMaybe<Array<ReviewWhereInput>>
+  /** review_editors edge predicates */
+  hasReviewEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewEditorsWith?: InputMaybe<Array<ReviewWhereInput>>
   /** risk_blocked_groups edge predicates */
   hasRiskBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasRiskBlockedGroupsWith?: InputMaybe<Array<RiskWhereInput>>
@@ -22767,9 +23072,6 @@ export interface GroupWhereInput {
   /** scan_editors edge predicates */
   hasScanEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasScanEditorsWith?: InputMaybe<Array<ScanWhereInput>>
-  /** scan_viewers edge predicates */
-  hasScanViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasScanViewersWith?: InputMaybe<Array<ScanWhereInput>>
   /** setting edge predicates */
   hasSetting?: InputMaybe<Scalars['Boolean']['input']>
   hasSettingWith?: InputMaybe<Array<GroupSettingWhereInput>>
@@ -25943,7 +26245,7 @@ export interface Invite extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes admin and invitee becomes owner */
+  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes super admin and invitee becomes owner */
   ownershipTransfer?: Maybe<Scalars['Boolean']['output']>
   /** the email used as input to generate the invitation token and is the destination person the invitation is sent to who is required to accept to join the organization */
   recipient: Scalars['String']['output']
@@ -26065,8 +26367,10 @@ export enum InviteOrderField {
 /** InviteRole is enum for the field role */
 export enum InviteRole {
   ADMIN = 'ADMIN',
+  AUDITOR = 'AUDITOR',
   MEMBER = 'MEMBER',
   OWNER = 'OWNER',
+  SUPER_ADMIN = 'SUPER_ADMIN',
 }
 
 /** Return response for updateInvite mutation */
@@ -32615,6 +32919,10 @@ export interface Note extends Node {
   isEdited: Scalars['Boolean']['output']
   /** ref location of the note */
   noteRef?: Maybe<Scalars['String']['output']>
+  /** when subscribers were notified about this post */
+  notifiedAt?: Maybe<Scalars['Time']['output']>
+  /** when set on a trust center post, sends the published update to the trust center's subscribers */
+  notifySubscribers?: Maybe<Scalars['Boolean']['output']>
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -32825,6 +33133,22 @@ export interface NoteWhereInput {
   noteRefNEQ?: InputMaybe<Scalars['String']['input']>
   noteRefNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   noteRefNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** notified_at field predicates */
+  notifiedAt?: InputMaybe<Scalars['Time']['input']>
+  notifiedAtGT?: InputMaybe<Scalars['Time']['input']>
+  notifiedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  notifiedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  notifiedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  notifiedAtLT?: InputMaybe<Scalars['Time']['input']>
+  notifiedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  notifiedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  notifiedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  notifiedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** notify_subscribers field predicates */
+  notifySubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  notifySubscribersIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  notifySubscribersNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  notifySubscribersNotNil?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<NoteWhereInput>>
   /** owner_id field predicates */
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -34131,6 +34455,7 @@ export interface OrgMembersInput {
 
 export interface OrgMembership extends Node {
   __typename?: 'OrgMembership'
+  additionalRoles?: Maybe<Array<Scalars['String']['output']>>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   events: EventConnection
@@ -39164,6 +39489,19 @@ export interface PlatformWhereInput {
   workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** PolicySummary provides a lightweight summary of an internal policy */
+export interface PolicySummary extends Node {
+  __typename?: 'PolicySummary'
+  /** unique identifier of the policy */
+  id: Scalars['ID']['output']
+  /** empty when linked directly to the control; otherwise the related/mapped control IDs that contributed it */
+  inheritedFromIDs?: Maybe<Array<Scalars['ID']['output']>>
+  /** the name of the policy */
+  name: Scalars['String']['output']
+  /** status of the policy, e.g. draft, published, archived, etc. */
+  status: InternalPolicyDocumentStatus
+}
+
 export interface Procedure extends Node {
   __typename?: 'Procedure'
   /** Returns active workflow instances for this procedure (RUNNING or PAUSED) */
@@ -40925,6 +41263,10 @@ export interface Query {
   /** Search across ControlObjective objects */
   controlObjectiveSearch?: Maybe<ControlObjectiveConnection>
   controlObjectives: ControlObjectiveConnection
+  /** Returns a paginated list of control reports for the organization, showing control compliance status against standards */
+  controlReports: ControlReportConnection
+  /** Returns control reports grouped by category for the organization */
+  controlReportsByCategory: Array<ControlReportCategory>
   /** Search across Control objects */
   controlSearch?: Maybe<ControlConnection>
   /** All existing subcategories or domains used in the organization @deprecated */
@@ -41108,6 +41450,13 @@ export interface Query {
   /** Search across Platform objects */
   platformSearch?: Maybe<PlatformConnection>
   platforms: PlatformConnection
+  /**
+   * Renders a customer-selectable email template to HTML for live preview. The
+   * catalog example is the base layer and the supplied draft values override it,
+   * so fields the author has not yet filled in still render with representative
+   * demo content.
+   */
+  previewEmailTemplate: Scalars['String']['output']
   /** Look up procedure by ID */
   procedure: Procedure
   /** Search across Procedure objects */
@@ -41497,6 +41846,19 @@ export interface QueryControlObjectivesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlObjectiveOrder>>
   where?: InputMaybe<ControlObjectiveWhereInput>
+}
+
+export interface QueryControlReportsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlReportOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
+export interface QueryControlReportsByCategoryArgs {
+  where?: InputMaybe<ControlWhereInput>
 }
 
 export interface QueryControlSearchArgs {
@@ -42235,6 +42597,11 @@ export interface QueryPlatformsArgs {
   where?: InputMaybe<PlatformWhereInput>
 }
 
+export interface QueryPreviewEmailTemplateArgs {
+  defaults: Scalars['Map']['input']
+  key: Scalars['String']['input']
+}
+
 export interface QueryProcedureArgs {
   id: Scalars['ID']['input']
 }
@@ -42920,6 +43287,38 @@ export interface ReassignWorkflowAssignmentInput {
   targets: Array<WorkflowAssignmentTargetInput>
 }
 
+/** A connection to a list of items. */
+export interface RelatedControlConnection {
+  __typename?: 'RelatedControlConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<RelatedControlEdge>>>
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface RelatedControlEdge {
+  __typename?: 'RelatedControlEdge'
+  /** The item at the end of the edge. */
+  node: Control
+}
+
+/** A connection to a list of items. */
+export interface RelatedSubcontrolConnection {
+  __typename?: 'RelatedSubcontrolConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<RelatedSubcontrolEdge>>>
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface RelatedSubcontrolEdge {
+  __typename?: 'RelatedSubcontrolEdge'
+  /** The item at the end of the edge. */
+  node: Subcontrol
+}
+
 export interface Remediation extends Node {
   __typename?: 'Remediation'
   actionPlans: ActionPlanConnection
@@ -43006,7 +43405,6 @@ export interface Remediation extends Node {
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  viewers: GroupConnection
   vulnerabilities: VulnerabilityConnection
 }
 
@@ -43152,15 +43550,6 @@ export interface RemediationTasksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TaskOrder>>
   where?: InputMaybe<TaskWhereInput>
-}
-
-export interface RemediationViewersArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface RemediationVulnerabilitiesArgs {
@@ -43506,9 +43895,6 @@ export interface RemediationWhereInput {
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
-  /** viewers edge predicates */
-  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
   /** vulnerabilities edge predicates */
   hasVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   hasVulnerabilitiesWith?: InputMaybe<Array<VulnerabilityWhereInput>>
@@ -43929,7 +44315,6 @@ export interface Review extends Node {
   title: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  viewers: GroupConnection
   vulnerabilities: VulnerabilityConnection
 }
 
@@ -44075,15 +44460,6 @@ export interface ReviewTasksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TaskOrder>>
   where?: InputMaybe<TaskWhereInput>
-}
-
-export interface ReviewViewersArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ReviewVulnerabilitiesArgs {
@@ -44427,9 +44803,6 @@ export interface ReviewWhereInput {
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
-  /** viewers edge predicates */
-  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
   /** vulnerabilities edge predicates */
   hasVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   hasVulnerabilitiesWith?: InputMaybe<Array<VulnerabilityWhereInput>>
@@ -45689,7 +46062,6 @@ export interface SlaDefinition extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  viewers: GroupConnection
 }
 
 export interface SlaDefinitionBlockedGroupsArgs {
@@ -45702,15 +46074,6 @@ export interface SlaDefinitionBlockedGroupsArgs {
 }
 
 export interface SlaDefinitionEditorsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
-}
-
-export interface SlaDefinitionViewersArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -45868,9 +46231,6 @@ export interface SlaDefinitionWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
-  /** viewers edge predicates */
-  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -46020,7 +46380,6 @@ export interface Scan extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  viewers: GroupConnection
   vulnerabilities: VulnerabilityConnection
   /** identifiers of vulnerabilities discovered during the scan */
   vulnerabilityIds?: Maybe<Array<Scalars['String']['output']>>
@@ -46132,15 +46491,6 @@ export interface ScanTasksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TaskOrder>>
   where?: InputMaybe<TaskWhereInput>
-}
-
-export interface ScanViewersArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ScanVulnerabilitiesArgs {
@@ -46449,9 +46799,6 @@ export interface ScanWhereInput {
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
-  /** viewers edge predicates */
-  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
   /** vulnerabilities edge predicates */
   hasVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   hasVulnerabilitiesWith?: InputMaybe<Array<VulnerabilityWhereInput>>
@@ -47892,6 +48239,8 @@ export interface Subcontrol extends Node {
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
   references?: Maybe<Array<Scalars['Reference']['output']>>
+  /** relatedControls show the controls and frameworks mapped to this control */
+  relatedControls?: Maybe<Array<ControlInfo>>
   remediations: RemediationConnection
   /** the entity who is responsible for the control implementation when it is a third party */
   responsibleParty?: Maybe<Entity>
@@ -49154,6 +49503,10 @@ export interface Subscriber extends Node {
   __typename?: 'Subscriber'
   /** indicates if the subscriber is active or not, active users will have at least one verified contact method */
   active: Scalars['Boolean']['output']
+  campaignTargets: CampaignTargetConnection
+  contact?: Maybe<Contact>
+  /** the contact record matched to this subscriber by email, set automatically when a matching contact exists */
+  contactID?: Maybe<Scalars['ID']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** email address of the subscriber */
@@ -49169,14 +49522,29 @@ export interface Subscriber extends Node {
   sendAttempts: Scalars['Int']['output']
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
+  trustCenter?: Maybe<TrustCenter>
+  /** the trust center the subscriber is subscribed to, null for legacy organization-level subscribers */
+  trustCenterID?: Maybe<Scalars['ID']['output']>
   /** indicates if the subscriber has unsubscribed from communications */
   unsubscribed: Scalars['Boolean']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  user?: Maybe<User>
+  /** the user matched to this subscriber by email, set automatically when a matching user exists */
+  userID?: Maybe<Scalars['ID']['output']>
   /** indicates if the email address has been verified */
   verifiedEmail: Scalars['Boolean']['output']
   /** indicates if the phone number has been verified */
   verifiedPhone: Scalars['Boolean']['output']
+}
+
+export interface SubscriberCampaignTargetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignTargetOrder>>
+  where?: InputMaybe<CampaignTargetWhereInput>
 }
 
 export interface SubscriberEventsArgs {
@@ -49263,6 +49631,22 @@ export interface SubscriberWhereInput {
   active?: InputMaybe<Scalars['Boolean']['input']>
   activeNEQ?: InputMaybe<Scalars['Boolean']['input']>
   and?: InputMaybe<Array<SubscriberWhereInput>>
+  /** contact_id field predicates */
+  contactID?: InputMaybe<Scalars['ID']['input']>
+  contactIDContains?: InputMaybe<Scalars['ID']['input']>
+  contactIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  contactIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  contactIDGT?: InputMaybe<Scalars['ID']['input']>
+  contactIDGTE?: InputMaybe<Scalars['ID']['input']>
+  contactIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  contactIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  contactIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  contactIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  contactIDLT?: InputMaybe<Scalars['ID']['input']>
+  contactIDLTE?: InputMaybe<Scalars['ID']['input']>
+  contactIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  contactIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  contactIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -49304,12 +49688,24 @@ export interface SubscriberWhereInput {
   emailLTE?: InputMaybe<Scalars['String']['input']>
   emailNEQ?: InputMaybe<Scalars['String']['input']>
   emailNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** campaign_targets edge predicates */
+  hasCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignTargetsWith?: InputMaybe<Array<CampaignTargetWhereInput>>
+  /** contact edge predicates */
+  hasContact?: InputMaybe<Scalars['Boolean']['input']>
+  hasContactWith?: InputMaybe<Array<ContactWhereInput>>
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** trust_center edge predicates */
+  hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
+  /** user edge predicates */
+  hasUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasUserWith?: InputMaybe<Array<UserWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -49366,6 +49762,22 @@ export interface SubscriberWhereInput {
   sendAttemptsNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   /** Filter for tagsHas to contain a specific value */
   tagsHas?: InputMaybe<Scalars['String']['input']>
+  /** trust_center_id field predicates */
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContains?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterIDLT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDLTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** unsubscribed field predicates */
   unsubscribed?: InputMaybe<Scalars['Boolean']['input']>
   unsubscribedNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -49396,6 +49808,22 @@ export interface SubscriberWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** user_id field predicates */
+  userID?: InputMaybe<Scalars['ID']['input']>
+  userIDContains?: InputMaybe<Scalars['ID']['input']>
+  userIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  userIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  userIDGT?: InputMaybe<Scalars['ID']['input']>
+  userIDGTE?: InputMaybe<Scalars['ID']['input']>
+  userIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  userIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  userIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  userIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  userIDLT?: InputMaybe<Scalars['ID']['input']>
+  userIDLTE?: InputMaybe<Scalars['ID']['input']>
+  userIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  userIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  userIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** verified_email field predicates */
   verifiedEmail?: InputMaybe<Scalars['Boolean']['input']>
   verifiedEmailNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -50251,6 +50679,8 @@ export interface Task extends Node {
   idempotencyKey?: Maybe<Scalars['String']['output']>
   identityHolders: IdentityHolderConnection
   internalPolicies: InternalPolicyConnection
+  /** indicates if the task is intended to be used as a template */
+  isTemplate: Scalars['Boolean']['output']
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -50525,6 +50955,7 @@ export enum TaskOrderField {
   completed = 'completed',
   created_at = 'created_at',
   due = 'due',
+  is_template = 'is_template',
   title = 'title',
   updated_at = 'updated_at',
 }
@@ -50817,6 +51248,9 @@ export interface TaskWhereInput {
   idempotencyKeyNEQ?: InputMaybe<Scalars['String']['input']>
   idempotencyKeyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   idempotencyKeyNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** is_template field predicates */
+  isTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  isTemplateNEQ?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TaskWhereInput>
   or?: InputMaybe<Array<TaskWhereInput>>
   /** owner_id field predicates */
@@ -51489,12 +51923,14 @@ export interface TemplateWhereInput {
 export interface TrustCenter extends Node {
   __typename?: 'TrustCenter'
   blockedGroups: GroupConnection
+  campaigns: CampaignConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   customDomain?: Maybe<CustomDomain>
   /** custom domain id for the trust center */
   customDomainID?: Maybe<Scalars['ID']['output']>
   editors: GroupConnection
+  emailTemplates: EmailTemplateConnection
   id: Scalars['ID']['output']
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
@@ -51517,6 +51953,7 @@ export interface TrustCenter extends Node {
   slug?: Maybe<Scalars['String']['output']>
   /** External URL for the trust center subprocessors */
   subprocessorURL?: Maybe<Scalars['String']['output']>
+  subscribers: SubscriberConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   templates: TemplateConnection
@@ -51540,6 +51977,15 @@ export interface TrustCenterBlockedGroupsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface TrustCenterCampaignsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
+}
+
 export interface TrustCenterEditorsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -51549,6 +51995,15 @@ export interface TrustCenterEditorsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface TrustCenterEmailTemplatesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EmailTemplateOrder>>
+  where?: InputMaybe<EmailTemplateWhereInput>
+}
+
 export interface TrustCenterPostsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -51556,6 +52011,15 @@ export interface TrustCenterPostsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<NoteOrder>>
   where?: InputMaybe<NoteWhereInput>
+}
+
+export interface TrustCenterSubscribersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubscriberOrder>>
+  where?: InputMaybe<SubscriberWhereInput>
 }
 
 export interface TrustCenterTemplatesArgs {
@@ -53349,6 +53813,11 @@ export interface TrustCenterSetting extends Node {
   logoRemoteURL?: Maybe<Scalars['String']['output']>
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: Maybe<Scalars['Boolean']['output']>
+  ndaApproverGroup?: Maybe<Group>
+  /** group whose members approve trust center NDA requests */
+  ndaApproverGroupID?: Maybe<Scalars['ID']['output']>
+  /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
+  notifySubscribersOnSubprocessorChange?: Maybe<Scalars['Boolean']['output']>
   /** overview of the trust center */
   overview?: Maybe<Scalars['String']['output']>
   /** primary color for the trust center */
@@ -53363,6 +53832,8 @@ export interface TrustCenterSetting extends Node {
   securityContact?: Maybe<Scalars['String']['output']>
   /** URL to the company's status page */
   statusPageURL?: Maybe<Scalars['String']['output']>
+  /** watermark of the most recent subprocessor change subscribers have been notified about */
+  subprocessorsNotifiedAt?: Maybe<Scalars['Time']['output']>
   /** Theme mode for the trust center */
   themeMode?: Maybe<TrustCenterSettingTrustCenterThemeMode>
   /** title of the trust center */
@@ -53664,6 +54135,9 @@ export interface TrustCenterSettingWhereInput {
   /** logo_file edge predicates */
   hasLogoFile?: InputMaybe<Scalars['Boolean']['input']>
   hasLogoFileWith?: InputMaybe<Array<FileWhereInput>>
+  /** nda_approver_group edge predicates */
+  hasNdaApproverGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasNdaApproverGroupWith?: InputMaybe<Array<GroupWhereInput>>
   /** hero_image_local_file_id field predicates */
   heroImageLocalFileID?: InputMaybe<Scalars['ID']['input']>
   heroImageLocalFileIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -53728,7 +54202,28 @@ export interface TrustCenterSettingWhereInput {
   ndaApprovalRequiredIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ndaApprovalRequiredNEQ?: InputMaybe<Scalars['Boolean']['input']>
   ndaApprovalRequiredNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** nda_approver_group_id field predicates */
+  ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ndaApproverGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ndaApproverGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ndaApproverGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TrustCenterSettingWhereInput>
+  /** notify_subscribers_on_subprocessor_change field predicates */
+  notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
+  notifySubscribersOnSubprocessorChangeIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  notifySubscribersOnSubprocessorChangeNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  notifySubscribersOnSubprocessorChangeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<TrustCenterSettingWhereInput>>
   /** overview field predicates */
   overview?: InputMaybe<Scalars['String']['input']>
@@ -53831,6 +54326,17 @@ export interface TrustCenterSettingWhereInput {
   statusPageURLNEQ?: InputMaybe<Scalars['String']['input']>
   statusPageURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   statusPageURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** subprocessors_notified_at field predicates */
+  subprocessorsNotifiedAt?: InputMaybe<Scalars['Time']['input']>
+  subprocessorsNotifiedAtGT?: InputMaybe<Scalars['Time']['input']>
+  subprocessorsNotifiedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  subprocessorsNotifiedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  subprocessorsNotifiedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  subprocessorsNotifiedAtLT?: InputMaybe<Scalars['Time']['input']>
+  subprocessorsNotifiedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  subprocessorsNotifiedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  subprocessorsNotifiedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  subprocessorsNotifiedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** theme_mode field predicates */
   themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
   themeModeIn?: InputMaybe<Array<TrustCenterSettingTrustCenterThemeMode>>
@@ -54592,12 +55098,18 @@ export interface TrustCenterWhereInput {
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** campaigns edge predicates */
+  hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
   /** custom_domain edge predicates */
   hasCustomDomain?: InputMaybe<Scalars['Boolean']['input']>
   hasCustomDomainWith?: InputMaybe<Array<CustomDomainWhereInput>>
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** email_templates edge predicates */
+  hasEmailTemplates?: InputMaybe<Scalars['Boolean']['input']>
+  hasEmailTemplatesWith?: InputMaybe<Array<EmailTemplateWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -54613,6 +55125,9 @@ export interface TrustCenterWhereInput {
   /** setting edge predicates */
   hasSetting?: InputMaybe<Scalars['Boolean']['input']>
   hasSettingWith?: InputMaybe<Array<TrustCenterSettingWhereInput>>
+  /** subscribers edge predicates */
+  hasSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubscribersWith?: InputMaybe<Array<SubscriberWhereInput>>
   /** templates edge predicates */
   hasTemplates?: InputMaybe<Scalars['Boolean']['input']>
   hasTemplatesWith?: InputMaybe<Array<TemplateWhereInput>>
@@ -55260,6 +55775,7 @@ export interface UpdateCampaignInput {
   clearScheduledAt?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   clearUsers?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
@@ -55327,6 +55843,7 @@ export interface UpdateCampaignInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
 }
@@ -55344,6 +55861,7 @@ export interface UpdateCampaignTargetInput {
   clearGroup?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearSentAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubscriber?: InputMaybe<Scalars['Boolean']['input']>
   clearUser?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
@@ -55362,6 +55880,7 @@ export interface UpdateCampaignTargetInput {
   sentAt?: InputMaybe<Scalars['DateTime']['input']>
   /** the delivery or response status for the campaign target */
   status?: InputMaybe<CampaignTargetAssessmentResponseStatus>
+  subscriberID?: InputMaybe<Scalars['ID']['input']>
   userID?: InputMaybe<Scalars['ID']['input']>
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
@@ -55418,6 +55937,7 @@ export interface UpdateContactInput {
   addCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the address of the contact */
   address?: InputMaybe<Scalars['String']['input']>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -55434,6 +55954,7 @@ export interface UpdateContactInput {
   clearObservedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPhoneNumber?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubscribers?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTitle?: InputMaybe<Scalars['Boolean']['input']>
   /** the company of the contact */
@@ -55455,6 +55976,7 @@ export interface UpdateContactInput {
   removeCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** status of the contact */
   status?: InputMaybe<ContactUserStatus>
   /** tags associated with the object */
@@ -56329,6 +56851,7 @@ export interface UpdateEmailTemplateInput {
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplateContext?: InputMaybe<Scalars['Boolean']['input']>
   clearTextTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowDefinition?: InputMaybe<Scalars['Boolean']['input']>
@@ -56370,6 +56893,7 @@ export interface UpdateEmailTemplateInput {
   templateContext?: InputMaybe<EmailTemplateTemplateContext>
   /** plain text fallback template for the email */
   textTemplate?: InputMaybe<Scalars['String']['input']>
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** uischema for a template builder */
   uischema?: InputMaybe<Scalars['Map']['input']>
   /** template version */
@@ -56405,7 +56929,6 @@ export interface UpdateEntityInput {
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVendorRiskScoreIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** annual spend associated with the entity */
   annualSpend?: InputMaybe<Scalars['Float']['input']>
   appendDomains?: InputMaybe<Array<Scalars['String']['input']>>
@@ -56496,7 +57019,6 @@ export interface UpdateEntityInput {
   clearTier?: InputMaybe<Scalars['Boolean']['input']>
   clearVendorMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearVendorRiskScores?: InputMaybe<Scalars['Boolean']['input']>
-  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   /** end date for the entity contract */
   contractEndDate?: InputMaybe<Scalars['DateTime']['input']>
   /** when the entity contract is up for renewal */
@@ -56576,7 +57098,6 @@ export interface UpdateEntityInput {
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVendorRiskScoreIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** renewal risk rating for the entity */
   renewalRisk?: InputMaybe<Scalars['String']['input']>
   /** the cadence for reviewing the entity */
@@ -56983,7 +57504,6 @@ export interface UpdateFindingInput {
   addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendCategories?: InputMaybe<Array<Scalars['String']['input']>>
@@ -57063,7 +57583,6 @@ export interface UpdateFindingInput {
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearValidated?: InputMaybe<Scalars['Boolean']['input']>
   clearVector?: InputMaybe<Scalars['Boolean']['input']>
-  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   /** long form description of the finding */
@@ -57133,7 +57652,6 @@ export interface UpdateFindingInput {
   removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** timestamp when the finding was first reported by the source */
@@ -57192,9 +57710,10 @@ export interface UpdateGroupInput {
   addControlObjectiveViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addEntityViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFindingBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFindingEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupMembers?: InputMaybe<Array<CreateGroupMembershipInput>>
   addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57212,12 +57731,15 @@ export interface UpdateGroupInput {
   addProgramBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addRemediationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addRemediationEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addReviewBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addReviewEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addScanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendOscalContactUuids?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -57242,9 +57764,10 @@ export interface UpdateGroupInput {
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearEntityBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearEntityEditors?: InputMaybe<Scalars['Boolean']['input']>
-  clearEntityViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearFindingBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearFindingEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyEditors?: InputMaybe<Scalars['Boolean']['input']>
@@ -57266,12 +57789,15 @@ export interface UpdateGroupInput {
   clearProgramBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearProgramEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearProgramViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearRemediationBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearRemediationEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearScanBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearScanEditors?: InputMaybe<Scalars['Boolean']['input']>
-  clearScanViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearScimActive?: InputMaybe<Scalars['Boolean']['input']>
   clearScimDisplayName?: InputMaybe<Scalars['Boolean']['input']>
   clearScimExternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -57317,9 +57843,10 @@ export interface UpdateGroupInput {
   removeControlObjectiveViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeEntityViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFindingBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFindingEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupMembers?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57337,12 +57864,15 @@ export interface UpdateGroupInput {
   removeProgramBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRemediationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRemediationEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeReviewBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeReviewEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeScanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** whether the SCIM group is marked as active */
   scimActive?: InputMaybe<Scalars['Boolean']['input']>
@@ -57760,7 +58290,7 @@ export interface UpdateInviteInput {
   /** the expiration date of the invitation token which defaults to 14 days in the future from creation */
   expires?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes admin and invitee becomes owner */
+  /** indicates if this invitation is for transferring organization ownership - when accepted, current owner becomes super admin and invitee becomes owner */
   ownershipTransfer?: InputMaybe<Scalars['Boolean']['input']>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -59336,7 +59866,6 @@ export interface UpdateRemediationInput {
   addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
@@ -59382,7 +59911,6 @@ export interface UpdateRemediationInput {
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearTicketReference?: InputMaybe<Scalars['Boolean']['input']>
   clearTitle?: InputMaybe<Scalars['Boolean']['input']>
-  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   /** timestamp when the remediation was completed */
   completedAt?: InputMaybe<Scalars['DateTime']['input']>
@@ -59431,7 +59959,6 @@ export interface UpdateRemediationInput {
   removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** source code repository URI associated with the remediation */
   repositoryURI?: InputMaybe<Scalars['String']['input']>
@@ -59477,7 +60004,6 @@ export interface UpdateReviewInput {
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** true when the review has been approved */
@@ -59529,7 +60055,6 @@ export interface UpdateReviewInput {
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
-  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   /** detailed notes captured during the review */
   details?: InputMaybe<Scalars['String']['input']>
@@ -59564,7 +60089,6 @@ export interface UpdateReviewInput {
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** timestamp when the review was reported or opened */
   reportedAt?: InputMaybe<Scalars['DateTime']['input']>
@@ -59763,17 +60287,14 @@ export interface UpdateRiskInput {
 export interface UpdateSlaDefinitionInput {
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
-  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** remediation service level agreement in days for the severity level */
   slaDays?: InputMaybe<Scalars['Int']['input']>
   /** tags associated with the object */
@@ -59797,7 +60318,6 @@ export interface UpdateScanInput {
   addRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   appendVulnerabilityIds?: InputMaybe<Array<Scalars['String']['input']>>
@@ -59836,7 +60356,6 @@ export interface UpdateScanInput {
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
-  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilityIds?: InputMaybe<Scalars['Boolean']['input']>
   environmentID?: InputMaybe<Scalars['ID']['input']>
@@ -59863,7 +60382,6 @@ export interface UpdateScanInput {
   removeRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** who reviewed the scan when no user or group is linked */
   reviewedBy?: InputMaybe<Scalars['String']['input']>
@@ -60228,22 +60746,29 @@ export interface UpdateSubprocessorInput {
  * Input was generated by ent.
  */
 export interface UpdateSubscriberInput {
+  addCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
+  clearContact?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPhoneNumber?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearUser?: InputMaybe<Scalars['Boolean']['input']>
+  contactID?: InputMaybe<Scalars['ID']['input']>
   /** email address of the subscriber */
   email?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** phone number of the subscriber */
   phoneNumber?: InputMaybe<Scalars['String']['input']>
+  removeCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** indicates if the subscriber has unsubscribed from communications */
   unsubscribed?: InputMaybe<Scalars['Boolean']['input']>
+  userID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -60405,6 +60930,8 @@ export interface UpdateTaskInput {
   externalReferenceURL?: InputMaybe<Array<Scalars['String']['input']>>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
+  /** indicates if the task is intended to be used as a template */
+  isTemplate?: InputMaybe<Scalars['Boolean']['input']>
   parentID?: InputMaybe<Scalars['ID']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -60610,10 +61137,13 @@ export interface UpdateTrustCenterFaqInput {
  */
 export interface UpdateTrustCenterInput {
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEmailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** adds a post for the trust center feed */
   addPost?: InputMaybe<CreateNoteInput>
   addPostIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -60623,8 +61153,10 @@ export interface UpdateTrustCenterInput {
   addTrustCenterSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   clearCustomDomain?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEmailTemplates?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschAccessLink?: InputMaybe<Scalars['Boolean']['input']>
   clearPirschDomainID?: InputMaybe<Scalars['Boolean']['input']>
@@ -60635,6 +61167,7 @@ export interface UpdateTrustCenterInput {
   clearPreviewStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSetting?: InputMaybe<Scalars['Boolean']['input']>
   clearSubprocessorURL?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubscribers?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplates?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterCompliances?: InputMaybe<Scalars['Boolean']['input']>
@@ -60659,8 +61192,11 @@ export interface UpdateTrustCenterInput {
   /** preview status of the trust center */
   previewStatus?: InputMaybe<TrustCenterTrustCenterPreviewStatus>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEmailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePostIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterDocIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -60754,6 +61290,8 @@ export interface UpdateTrustCenterSettingInput {
   clearLogoFile?: InputMaybe<Scalars['Boolean']['input']>
   clearLogoRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearNdaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
+  clearNdaApproverGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearNotifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   clearOverview?: InputMaybe<Scalars['Boolean']['input']>
   clearPrimaryColor?: InputMaybe<Scalars['Boolean']['input']>
   clearSecondaryBackgroundColor?: InputMaybe<Scalars['Boolean']['input']>
@@ -60782,6 +61320,9 @@ export interface UpdateTrustCenterSettingInput {
   logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
+  ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
+  /** whether to email trust center subscribers when subprocessors are added, updated, or removed */
+  notifySubscribersOnSubprocessorChange?: InputMaybe<Scalars['Boolean']['input']>
   /** overview of the trust center */
   overview?: InputMaybe<Scalars['String']['input']>
   /** primary color for the trust center */
@@ -60885,6 +61426,7 @@ export interface UpdateUserInput {
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramsOwnedIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTargetedImpersonationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTfaSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWebauthnIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -60926,6 +61468,7 @@ export interface UpdateUserInput {
   clearScimUsername?: InputMaybe<Scalars['Boolean']['input']>
   clearSub?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubscribers?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTargetedImpersonations?: InputMaybe<Scalars['Boolean']['input']>
   clearTfaSettings?: InputMaybe<Scalars['Boolean']['input']>
@@ -60956,6 +61499,7 @@ export interface UpdateUserInput {
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramsOwnedIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTargetedImpersonationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTfaSettingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWebauthnIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -61417,6 +61961,7 @@ export interface User extends Node {
   /** the Subject of the user JWT */
   sub?: Maybe<Scalars['String']['output']>
   subcontrols: SubcontrolConnection
+  subscribers: SubscriberConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tfaSettings: TfaSettingConnection
@@ -61576,6 +62121,15 @@ export interface UserSubcontrolsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<SubcontrolOrder>>
   where?: InputMaybe<SubcontrolWhereInput>
+}
+
+export interface UserSubscribersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubscriberOrder>>
+  where?: InputMaybe<SubscriberWhereInput>
 }
 
 export interface UserTfaSettingsArgs {
@@ -62168,6 +62722,9 @@ export interface UserWhereInput {
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** subscribers edge predicates */
+  hasSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubscribersWith?: InputMaybe<Array<SubscriberWhereInput>>
   /** tfa_settings edge predicates */
   hasTfaSettings?: InputMaybe<Scalars['Boolean']['input']>
   hasTfaSettingsWith?: InputMaybe<Array<TfaSettingWhereInput>>
@@ -68248,29 +68805,21 @@ export type ControlListFieldsFragment = {
   __typename?: 'Control'
   id: string
   refCode: string
+  referenceFramework?: string | null
   description?: string | null
   status?: ControlControlStatus | null
   category?: string | null
   subcategory?: string | null
-  tags?: Array<string> | null
-  mappedCategories?: Array<string> | null
-  referenceFramework?: string | null
   referenceID?: string | null
   auditorReferenceID?: string | null
   source?: ControlControlSource | null
   sourceName?: string | null
   controlKindName?: string | null
-  publicRepresentation?: string | null
   title?: string | null
   updatedAt?: any | null
   updatedBy?: string | null
   createdAt?: any | null
   createdBy?: string | null
-  subcontrols: {
-    __typename?: 'SubcontrolConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
-  }
   controlOwner?: {
     __typename?: 'Group'
     id: string
@@ -68279,30 +68828,35 @@ export type ControlListFieldsFragment = {
     gravatarLogoURL?: string | null
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
   } | null
+  subcontrols?: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+  }
   delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-  controlImplementations: {
+  controlImplementations?: {
     __typename?: 'ControlImplementationConnection'
     edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
   }
-  comments: { __typename?: 'NoteConnection'; totalCount: number }
-  controlObjectives: {
+  comments?: { __typename?: 'NoteConnection'; totalCount: number }
+  controlObjectives?: {
     __typename?: 'ControlObjectiveConnection'
     edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
   }
-  tasks: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
-  internalPolicies: {
+  tasks?: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
+  internalPolicies?: {
     __typename?: 'InternalPolicyConnection'
     totalCount: number
     edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
   }
-  procedures: {
+  procedures?: {
     __typename?: 'ProcedureConnection'
     totalCount: number
     edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
   }
-  programs: { __typename?: 'ProgramConnection'; totalCount: number; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
-  risks: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+  programs?: { __typename?: 'ProgramConnection'; totalCount: number; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
+  risks?: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
 }
 
 export type ControlListStandardFieldsFragment = {
@@ -68395,6 +68949,10 @@ export type ControlDetailsFieldsFragment = {
         source?: SubcontrolControlSource | null
         category?: string | null
         subcategory?: string | null
+        evidence: {
+          __typename?: 'EvidenceConnection'
+          edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null } | null } | null> | null
+        }
       } | null
     } | null> | null
   }
@@ -68424,6 +68982,32 @@ export type GetAllControlsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
+  includeDescription?: InputMaybe<Scalars['Boolean']['input']>
+  includeStatus?: InputMaybe<Scalars['Boolean']['input']>
+  includeCategory?: InputMaybe<Scalars['Boolean']['input']>
+  includeSubcategory?: InputMaybe<Scalars['Boolean']['input']>
+  includeReferenceID?: InputMaybe<Scalars['Boolean']['input']>
+  includeAuditorReferenceID?: InputMaybe<Scalars['Boolean']['input']>
+  includeSource?: InputMaybe<Scalars['Boolean']['input']>
+  includeSourceName?: InputMaybe<Scalars['Boolean']['input']>
+  includeControlKindName?: InputMaybe<Scalars['Boolean']['input']>
+  includeTitle?: InputMaybe<Scalars['Boolean']['input']>
+  includeCreatedAt?: InputMaybe<Scalars['Boolean']['input']>
+  includeCreatedBy?: InputMaybe<Scalars['Boolean']['input']>
+  includeUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
+  includeUpdatedBy?: InputMaybe<Scalars['Boolean']['input']>
+  includeControlOwner?: InputMaybe<Scalars['Boolean']['input']>
+  includeSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  includeDelegate?: InputMaybe<Scalars['Boolean']['input']>
+  includeResponsibleParty?: InputMaybe<Scalars['Boolean']['input']>
+  includeControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
+  includeComments?: InputMaybe<Scalars['Boolean']['input']>
+  includeControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
+  includeTasks?: InputMaybe<Scalars['Boolean']['input']>
+  includeInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  includeProcedures?: InputMaybe<Scalars['Boolean']['input']>
+  includePrograms?: InputMaybe<Scalars['Boolean']['input']>
+  includeRisks?: InputMaybe<Scalars['Boolean']['input']>
 }>
 
 export type GetAllControlsQuery = {
@@ -68438,29 +69022,21 @@ export type GetAllControlsQuery = {
         __typename: 'Control'
         id: string
         refCode: string
+        referenceFramework?: string | null
         description?: string | null
         status?: ControlControlStatus | null
         category?: string | null
         subcategory?: string | null
-        tags?: Array<string> | null
-        mappedCategories?: Array<string> | null
-        referenceFramework?: string | null
         referenceID?: string | null
         auditorReferenceID?: string | null
         source?: ControlControlSource | null
         sourceName?: string | null
         controlKindName?: string | null
-        publicRepresentation?: string | null
         title?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
-        subcontrols: {
-          __typename?: 'SubcontrolConnection'
-          totalCount: number
-          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
-        }
         controlOwner?: {
           __typename?: 'Group'
           id: string
@@ -68469,34 +69045,39 @@ export type GetAllControlsQuery = {
           gravatarLogoURL?: string | null
           avatarFile?: { __typename?: 'File'; base64?: string | null } | null
         } | null
+        subcontrols?: {
+          __typename?: 'SubcontrolConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+        }
         delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-        controlImplementations: {
+        controlImplementations?: {
           __typename?: 'ControlImplementationConnection'
           edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
         }
-        comments: { __typename?: 'NoteConnection'; totalCount: number }
-        controlObjectives: {
+        comments?: { __typename?: 'NoteConnection'; totalCount: number }
+        controlObjectives?: {
           __typename?: 'ControlObjectiveConnection'
           edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; desiredOutcome?: string | null } | null } | null> | null
         }
-        tasks: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
-        internalPolicies: {
+        tasks?: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
+        internalPolicies?: {
           __typename?: 'InternalPolicyConnection'
           totalCount: number
           edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
         }
-        procedures: {
+        procedures?: {
           __typename?: 'ProcedureConnection'
           totalCount: number
           edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
         }
-        programs: {
+        programs?: {
           __typename?: 'ProgramConnection'
           totalCount: number
           edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null
         }
-        risks: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+        risks?: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -68576,6 +69157,10 @@ export type GetControlByIdQuery = {
           source?: SubcontrolControlSource | null
           category?: string | null
           subcategory?: string | null
+          evidence: {
+            __typename?: 'EvidenceConnection'
+            edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null } | null } | null> | null
+          }
         } | null
       } | null> | null
     }
@@ -68872,32 +69457,161 @@ export type GetControlsPaginatedWithListFieldsQuery = {
   }
 }
 
-export type GetControlsGroupedByCategoryResolverQueryVariables = Exact<{
+export type ControlReportFieldsFragment = {
+  __typename?: 'ControlReport'
+  id: string
+  refCode: string
+  title?: string | null
+  description?: string | null
+  status?: ControlControlStatus | null
+  category?: string | null
+  subcategory?: string | null
+  referenceFramework?: string | null
+  controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+  relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
+  linkedPolicies?: {
+    __typename?: 'ControlPolicies'
+    totalCount: number
+    internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
+  } | null
+  evidenceStatus?: {
+    __typename?: 'ControlEvidence'
+    totalCount: number
+    worstStatus?: EvidenceEvidenceStatus | null
+    approvedCount: number
+    countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
+  } | null
+}
+
+export type ControlReportsByCategoryQueryVariables = Exact<{
   where?: InputMaybe<ControlWhereInput>
-  category?: InputMaybe<Scalars['String']['input']>
+}>
+
+export type ControlReportsByCategoryQuery = {
+  __typename?: 'Query'
+  controlReportsByCategory: Array<{
+    __typename?: 'ControlReportCategory'
+    category: string
+    totalCount: number
+    controls: Array<{
+      __typename?: 'ControlReport'
+      id: string
+      refCode: string
+      title?: string | null
+      description?: string | null
+      status?: ControlControlStatus | null
+      category?: string | null
+      subcategory?: string | null
+      referenceFramework?: string | null
+      subcontrols?: Array<{
+        __typename?: 'ControlReport'
+        id: string
+        refCode: string
+        title?: string | null
+        description?: string | null
+        status?: ControlControlStatus | null
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+        controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
+        linkedPolicies?: {
+          __typename?: 'ControlPolicies'
+          totalCount: number
+          internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
+        } | null
+        evidenceStatus?: {
+          __typename?: 'ControlEvidence'
+          totalCount: number
+          worstStatus?: EvidenceEvidenceStatus | null
+          approvedCount: number
+          countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
+        } | null
+      }> | null
+      controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+      relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
+      linkedPolicies?: {
+        __typename?: 'ControlPolicies'
+        totalCount: number
+        internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
+      } | null
+      evidenceStatus?: {
+        __typename?: 'ControlEvidence'
+        totalCount: number
+        worstStatus?: EvidenceEvidenceStatus | null
+        approvedCount: number
+        countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
+      } | null
+    }>
+  }>
+}
+
+export type ControlReportsQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+  orderBy?: InputMaybe<Array<ControlReportOrder> | ControlReportOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
   after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
-export type GetControlsGroupedByCategoryResolverQuery = {
+export type ControlReportsQuery = {
   __typename?: 'Query'
-  controlsGroupByCategory: {
-    __typename?: 'ControlGroupConnection'
-    edges: Array<{
-      __typename?: 'ControlGroupEdge'
-      node: {
-        __typename?: 'ControlGroup'
-        category: string
-        controls: {
-          __typename?: 'ControlConnection'
+  controlReports: {
+    __typename?: 'ControlReportConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
+    edges?: Array<{
+      __typename?: 'ControlReportEdge'
+      node?: {
+        __typename?: 'ControlReport'
+        id: string
+        refCode: string
+        title?: string | null
+        description?: string | null
+        status?: ControlControlStatus | null
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+        subcontrols?: Array<{
+          __typename?: 'ControlReport'
+          id: string
+          refCode: string
+          title?: string | null
+          description?: string | null
+          status?: ControlControlStatus | null
+          category?: string | null
+          subcategory?: string | null
+          referenceFramework?: string | null
+          controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+          relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
+          linkedPolicies?: {
+            __typename?: 'ControlPolicies'
+            totalCount: number
+            internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
+          } | null
+          evidenceStatus?: {
+            __typename?: 'ControlEvidence'
+            totalCount: number
+            worstStatus?: EvidenceEvidenceStatus | null
+            approvedCount: number
+            countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
+          } | null
+        }> | null
+        controlOwner?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null; isSubcontrol: boolean }> | null
+        linkedPolicies?: {
+          __typename?: 'ControlPolicies'
           totalCount: number
-          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean }
-          edges?: Array<{
-            __typename?: 'ControlEdge'
-            node?: { __typename: 'Control'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null } | null
-          } | null> | null
-        }
-      }
-    }>
+          internalPolicies?: Array<{ __typename?: 'PolicySummary'; id: string; name: string; status: InternalPolicyDocumentStatus }> | null
+        } | null
+        evidenceStatus?: {
+          __typename?: 'ControlEvidence'
+          totalCount: number
+          worstStatus?: EvidenceEvidenceStatus | null
+          approvedCount: number
+          countByStatus?: Array<{ __typename?: 'EvidenceCountByStatus'; status: EvidenceEvidenceStatus; totalCount: number }> | null
+        } | null
+      } | null
+    } | null> | null
   }
 }
 
@@ -68907,6 +69621,15 @@ export type UpdateBulkControlMutationVariables = Exact<{
 }>
 
 export type UpdateBulkControlMutation = { __typename?: 'Mutation'; updateBulkControl: { __typename?: 'ControlBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type GetSubcontrolIdsByControlQueryVariables = Exact<{
+  where?: InputMaybe<SubcontrolWhereInput>
+}>
+
+export type GetSubcontrolIdsByControlQuery = {
+  __typename?: 'Query'
+  subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string } | null } | null> | null }
+}
 
 export type GetControlsByRefCodeQueryVariables = Exact<{
   refCodeIn?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
@@ -68932,8 +69655,43 @@ export type GetControlsByRefCodeQuery = {
         standardID?: string | null
         ownerID?: string | null
         systemOwned?: boolean | null
+        isTrustCenterControl?: boolean | null
+        internalPolicies: {
+          __typename?: 'InternalPolicyConnection'
+          edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+        }
+        evidence: {
+          __typename?: 'EvidenceConnection'
+          edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null } | null } | null> | null
+        }
       } | null
     } | null> | null
+  }
+}
+
+export type GetControlRelatedControlsQueryVariables = Exact<{
+  controlId: Scalars['ID']['input']
+}>
+
+export type GetControlRelatedControlsQuery = {
+  __typename?: 'Query'
+  control: {
+    __typename?: 'Control'
+    id: string
+    relatedControls?: Array<{
+      __typename?: 'ControlInfo'
+      id: string
+      refCode: string
+      status?: ControlControlStatus | null
+      referenceFramework?: string | null
+      isSubcontrol: boolean
+      parentControlID?: string | null
+      mappedControlReferenceIDs?: Array<string> | null
+      inheritedFromSubcontrolIDs?: Array<string> | null
+      category?: string | null
+      subcategory?: string | null
+      description?: string | null
+    }> | null
   }
 }
 
@@ -69723,6 +70481,8 @@ export type GetDocumentationPoliciesQuery = {
         updatedBy?: string | null
         updatedAt?: any | null
         approver?: { __typename?: 'Group'; id: string; displayName: string } | null
+        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+        subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -69753,6 +70513,8 @@ export type GetDocumentationProceduresQuery = {
         updatedBy?: string | null
         updatedAt?: any | null
         approver?: { __typename?: 'Group'; id: string; displayName: string } | null
+        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+        subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -70743,6 +71505,8 @@ export type GetEvidenceListLightQuery = {
         source?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
+        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+        subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
       } | null
     } | null> | null
   }
@@ -71581,6 +72345,7 @@ export type GetGroupDetailsQuery = {
     gravatarLogoURL?: string | null
     isManaged?: boolean | null
     tags?: Array<string> | null
+    additionalRoles?: Array<string> | null
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
     members: {
       __typename?: 'GroupMembershipConnection'
@@ -72222,6 +72987,7 @@ export type GetInternalPoliciesListQuery = {
         createdAt?: any | null
         createdBy?: string | null
         summary?: string | null
+        managementMode?: InternalPolicyDocumentManagementMode | null
         approvalRequired?: boolean | null
         internalPolicyKindName?: string | null
         reviewDue?: any | null
@@ -72277,6 +73043,46 @@ export type InternalPolicyByIdFragment = {
   summary?: string | null
   detailsJSON?: Array<any> | null
   internalPolicyKindName?: string | null
+  liveExternalContents?: string | null
+  url?: string | null
+  externalFileID?: string | null
+  integrations: {
+    __typename?: 'IntegrationConnection'
+    edges?: Array<{
+      __typename?: 'IntegrationEdge'
+      node?: {
+        __typename?: 'Integration'
+        id: string
+        name: string
+        kind?: string | null
+        integrationType?: string | null
+        description?: string | null
+        definitionID?: string | null
+        definitionSlug?: string | null
+        definitionVersion?: string | null
+        family?: string | null
+        environmentID?: string | null
+        environmentName?: string | null
+        scopeID?: string | null
+        scopeName?: string | null
+        platformID?: string | null
+        status: IntegrationIntegrationStatus
+        primaryDirectory: boolean
+        campaignEmail: boolean
+        systemOwned?: boolean | null
+        tags?: Array<string> | null
+        config?: any | null
+        metadata?: any | null
+        providerMetadataSnapshot?: any | null
+        webhookURLs?: any | null
+        ownerID?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+  }
   file?: { __typename?: 'File'; id: string; presignedURL?: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType?: string | null } | null
   approver?: {
     __typename?: 'Group'
@@ -72328,6 +73134,46 @@ export type GetInternalPolicyDetailsByIdQuery = {
     summary?: string | null
     detailsJSON?: Array<any> | null
     internalPolicyKindName?: string | null
+    liveExternalContents?: string | null
+    url?: string | null
+    externalFileID?: string | null
+    integrations: {
+      __typename?: 'IntegrationConnection'
+      edges?: Array<{
+        __typename?: 'IntegrationEdge'
+        node?: {
+          __typename?: 'Integration'
+          id: string
+          name: string
+          kind?: string | null
+          integrationType?: string | null
+          description?: string | null
+          definitionID?: string | null
+          definitionSlug?: string | null
+          definitionVersion?: string | null
+          family?: string | null
+          environmentID?: string | null
+          environmentName?: string | null
+          scopeID?: string | null
+          scopeName?: string | null
+          platformID?: string | null
+          status: IntegrationIntegrationStatus
+          primaryDirectory: boolean
+          campaignEmail: boolean
+          systemOwned?: boolean | null
+          tags?: Array<string> | null
+          config?: any | null
+          metadata?: any | null
+          providerMetadataSnapshot?: any | null
+          webhookURLs?: any | null
+          ownerID?: string | null
+          createdAt?: any | null
+          createdBy?: string | null
+          updatedAt?: any | null
+          updatedBy?: string | null
+        } | null
+      } | null> | null
+    }
     file?: { __typename?: 'File'; id: string; presignedURL?: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType?: string | null } | null
     approver?: {
       __typename?: 'Group'
@@ -73166,6 +74012,7 @@ export type OrgMembershipsQuery = {
         id: string
         createdAt?: any | null
         role: OrgMembershipRole
+        additionalRoles?: Array<string> | null
         user: {
           __typename?: 'User'
           id: string
@@ -75035,7 +75882,7 @@ export type ReviewsWithFilterQuery = {
         scopeID?: string | null
         scopeName?: string | null
         source?: string | null
-        state?: string | null
+        status?: ReviewReviewStatus | null
         summary?: string | null
         systemOwned?: boolean | null
         tags?: Array<string> | null
@@ -75086,7 +75933,7 @@ export type ReviewQuery = {
     scopeID?: string | null
     scopeName?: string | null
     source?: string | null
-    state?: string | null
+    status?: ReviewReviewStatus | null
     summary?: string | null
     systemOwned?: boolean | null
     tags?: Array<string> | null
@@ -76590,6 +77437,30 @@ export type GetSubcontrolsByRefCodeQuery = {
         control: { __typename?: 'Control'; standardID?: string | null }
       } | null
     } | null> | null
+  }
+}
+
+export type GetSubcontrolRelatedControlsQueryVariables = Exact<{
+  subcontrolId: Scalars['ID']['input']
+}>
+
+export type GetSubcontrolRelatedControlsQuery = {
+  __typename?: 'Query'
+  subcontrol: {
+    __typename?: 'Subcontrol'
+    id: string
+    relatedControls?: Array<{
+      __typename?: 'ControlInfo'
+      id: string
+      refCode: string
+      status?: ControlControlStatus | null
+      referenceFramework?: string | null
+      isSubcontrol: boolean
+      mappedControlReferenceIDs?: Array<string> | null
+      category?: string | null
+      subcategory?: string | null
+      description?: string | null
+    }> | null
   }
 }
 
@@ -78098,8 +78969,10 @@ export type GetTrustCenterQuery = {
           logoRemoteURL?: string | null
           securityContact?: string | null
           ndaApprovalRequired?: boolean | null
+          ndaApproverGroupID?: string | null
           logoFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
+          ndaApproverGroup?: { __typename?: 'Group'; id: string; displayName: string; name: string } | null
         } | null
         previewSetting?: {
           __typename?: 'TrustCenterSetting'

@@ -92,7 +92,7 @@ const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode
           <PencilLine size={12} />
           <span className="font-medium">{display.detailLabel}</span>
         </div>
-        <div className="line-clamp-4 text-justify">{display.detailContentIsRichText ? convertToReadOnly(display.detailContent) : display.detailContent}</div>
+        <div className="line-clamp-4">{display.detailContentIsRichText ? convertToReadOnly(display.detailContent) : display.detailContent}</div>
       </div>
     </div>
   )

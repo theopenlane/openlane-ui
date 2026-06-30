@@ -158,7 +158,7 @@ export const ProceduresTable = () => {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 
-  const handleExportFile = () => {
+  const handleExportFile = (format: ExportExportFormat = ExportExportFormat.CSV) => {
     if (!procedures || procedures.length === 0) {
       return
     }
@@ -166,8 +166,8 @@ export const ProceduresTable = () => {
     handleExport({
       exportType: ExportExportType.PROCEDURE,
       filters: JSON.stringify(where),
-      fields: columns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
-      format: ExportExportFormat.CSV,
+      fields: format === ExportExportFormat.PDF ? null : columns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
+      format,
     })
   }
 

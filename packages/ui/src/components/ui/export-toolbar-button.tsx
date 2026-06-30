@@ -8,9 +8,10 @@ import { exportEditorToDocx } from '@platejs/docx-io'
 import { MarkdownPlugin } from '@platejs/markdown'
 import { ArrowDownToLineIcon } from 'lucide-react'
 import { createSlateEditor } from 'platejs'
-import { useEditorRef } from 'platejs/react'
+import { useEditorRef, usePluginOption } from 'platejs/react'
 import { serializeHtml } from 'platejs/static'
 import { splitParagraphNewlinesForExport } from './export-docx-helper'
+import { pdfExportPlugin } from '../editor/plugins/pdf-export-kit.tsx'
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
@@ -30,6 +31,7 @@ const getExportFilename = (title: string, ext: string) => {
 
 export function ExportToolbarButton({ title = 'document', ...props }: DropdownMenuProps & { title?: string }) {
   const editor = useEditorRef()
+  const onExportPdf = usePluginOption(pdfExportPlugin, 'onExportPdf') as (() => void) | null
   const [open, setOpen] = React.useState(false)
 
   const getCanvas = async () => {
@@ -86,26 +88,6 @@ export function ExportToolbarButton({ title = 'document', ...props }: DropdownMe
 
     // Clean up the blob URL
     window.URL.revokeObjectURL(blobUrl)
-  }
-
-  const exportToPdf = async () => {
-    const canvas = await getCanvas()
-
-    const PDFLib = await import('pdf-lib')
-    const pdfDoc = await PDFLib.PDFDocument.create()
-    const PDF_MARGIN = 96
-    const page = pdfDoc.addPage([canvas.width + PDF_MARGIN * 2, canvas.height + PDF_MARGIN * 2])
-    const imageEmbed = await pdfDoc.embedPng(canvas.toDataURL('PNG'))
-    const { height, width } = imageEmbed.scale(1)
-    page.drawImage(imageEmbed, {
-      height,
-      width,
-      x: PDF_MARGIN,
-      y: PDF_MARGIN,
-    })
-    const pdfBase64 = await pdfDoc.saveAsBase64({ dataUri: true })
-
-    await downloadFile(pdfBase64, getExportFilename(title, 'pdf'))
   }
 
   const exportToImage = async () => {
@@ -187,7 +169,7 @@ export function ExportToolbarButton({ title = 'document', ...props }: DropdownMe
       <DropdownMenuContent align="start">
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={exportToHtml}>Export as HTML</DropdownMenuItem>
-          <DropdownMenuItem onSelect={exportToPdf}>Export as PDF</DropdownMenuItem>
+          {onExportPdf && <DropdownMenuItem onSelect={onExportPdf}>Export as PDF</DropdownMenuItem>}
           <DropdownMenuItem onSelect={exportToImage}>Export as Image</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToMarkdown}>Export as Markdown</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToWord}>Export as Word</DropdownMenuItem>

@@ -41,6 +41,7 @@ import { MinimalisticFixedToolbarKit } from '@repo/ui/components/editor/plugins/
 import { MinimalisticFloatingToolbarKit } from '@repo/ui/components/editor/plugins/minimalistic-floating-toolbar-kit.tsx'
 import { createReadOnlyToolbarKit } from './plugins/read-only-toolbar-kit.tsx'
 import { DocxExportKit } from './plugins/docx-export-kit.tsx'
+import { PdfExportKit } from './plugins/pdf-export-kit.tsx'
 
 export const EditorKit = [
   /*
@@ -84,6 +85,7 @@ export const EditorKit = [
   // Parsers
   ...DocxKit,
   ...DocxExportKit,
+  ...PdfExportKit,
   ...MarkdownKit,
   // UI
   ...BlockPlaceholderKit,

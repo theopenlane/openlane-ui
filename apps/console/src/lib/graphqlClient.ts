@@ -19,7 +19,6 @@ let sessionExpiredModalOpen = false
 let refreshPromise: Promise<Tokens | null> | null = null
 let lastAccessToken = ''
 let refreshAllowedAfter = Number.POSITIVE_INFINITY
-let csrfPromise: Promise<string> | null = null
 
 export function useFetchWithRetry() {
   const { data: session } = useSession()
@@ -53,21 +52,10 @@ export function useFetchWithRetry() {
     let csrfCookieValue = getCookie(csrfCookieName)
 
     if (!csrfCookieValue) {
-      if (!csrfPromise) {
-        console.log('⏳ Fetching new CSRF token...')
-        csrfPromise = fetchCSRFToken()
-      } else {
-        console.log('🕓 Waiting for existing CSRF promise...')
-        csrfPromise = fetchCSRFToken()
-      }
-
       try {
-        csrfCookieValue = await csrfPromise
-        console.log('✅ CSRF token fetched successfully.')
+        csrfCookieValue = await fetchCSRFToken()
       } catch (error) {
         console.log('❌ CSRF fetch failed:', error)
-      } finally {
-        csrfPromise = null
       }
     }
 
@@ -157,6 +145,10 @@ function handleSessionExpired() {
   if (isSessionInvalid) return
   isSessionInvalid = true
   window.dispatchEvent(new Event('session-expired'))
+}
+
+export function getIsSessionInvalid() {
+  return isSessionInvalid
 }
 
 function updateRefreshSchedule(accessToken: string) {

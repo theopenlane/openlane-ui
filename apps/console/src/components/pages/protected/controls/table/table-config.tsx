@@ -118,6 +118,34 @@ export const CONTROLS_SORT_FIELDS = [
   { key: 'ref_code', label: 'Ref' },
 ]
 
+export type ControlIncludeVar =
+  | 'includeDescription'
+  | 'includeStatus'
+  | 'includeCategory'
+  | 'includeSubcategory'
+  | 'includeReferenceID'
+  | 'includeAuditorReferenceID'
+  | 'includeSource'
+  | 'includeSourceName'
+  | 'includeControlKindName'
+  | 'includeTitle'
+  | 'includeCreatedAt'
+  | 'includeCreatedBy'
+  | 'includeUpdatedAt'
+  | 'includeUpdatedBy'
+  | 'includeControlOwner'
+  | 'includeSubcontrols'
+  | 'includeDelegate'
+  | 'includeResponsibleParty'
+  | 'includeControlImplementations'
+  | 'includeComments'
+  | 'includeControlObjectives'
+  | 'includeTasks'
+  | 'includeInternalPolicies'
+  | 'includeProcedures'
+  | 'includePrograms'
+  | 'includeRisks'
+
 type Params = {
   convertToReadOnly: (value: string, depth: number) => React.ReactNode
   userMap: Record<string, User>
@@ -186,6 +214,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Title',
       accessorKey: 'title',
+      meta: {
+        gqlInclude: ['includeTitle'] satisfies ControlIncludeVar[],
+      },
       cell: ({ row }) => <div className="font-bold">{row.getValue('title')}</div>,
       size: 90,
       minSize: 90,
@@ -193,13 +224,16 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Description',
       accessorKey: 'description',
+      meta: {
+        gqlInclude: ['includeDescription', 'includeCategory', 'includeSubcategory'] satisfies ControlIncludeVar[],
+      },
       cell: ({ row }) => {
         const referenceFramework = row.original.referenceFramework
         const description = convertToReadOnly(row.getValue('description') as string, 0)
 
         return (
           <div>
-            <div className="line-clamp-3 text-justify">{description}</div>
+            <div className="line-clamp-3">{description}</div>
             <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
               <StandardChip referenceFramework={referenceFramework ?? ''} />
               {row.original.category && <Badge variant={'outline'}>{row.original.category}</Badge>}
@@ -215,6 +249,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       accessorKey: 'status',
       size: 170,
       minSize: 170,
+      meta: {
+        gqlInclude: ['includeStatus'] satisfies ControlIncludeVar[],
+      },
       cell: ({ row }) => {
         const value: ControlControlStatus = row.getValue('status')
         const label = getEnumLabel(value) ?? value
@@ -237,12 +274,18 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       header: 'Category',
       accessorKey: 'category',
       size: 120,
+      meta: {
+        gqlInclude: ['includeCategory'] satisfies ControlIncludeVar[],
+      },
       cell: ({ row }) => <div>{row.getValue('category') || '-'}</div>,
     },
     {
       header: 'Subcategory',
       accessorKey: 'subcategory',
       size: 120,
+      meta: {
+        gqlInclude: ['includeSubcategory'] satisfies ControlIncludeVar[],
+      },
       cell: ({ row }) => <div>{row.getValue('subcategory') || '-'}</div>,
     },
     {
@@ -250,6 +293,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       accessorKey: ControlOrderField.CONTROL_OWNER_name,
       meta: {
         exportPrefix: 'controlOwner.name',
+        gqlInclude: ['includeControlOwner'] satisfies ControlIncludeVar[],
       },
       cell: ({ row }) => {
         const owner = row.original.controlOwner
@@ -262,30 +306,45 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       header: 'Reference ID',
       accessorKey: 'referenceID',
       size: 120,
+      meta: {
+        gqlInclude: ['includeReferenceID'] satisfies ControlIncludeVar[],
+      },
       cell: ({ row }) => <div>{row.getValue('referenceID') || '-'}</div>,
     },
     {
       header: 'Auditor Reference ID',
       accessorKey: 'auditorReferenceID',
       size: 120,
+      meta: {
+        gqlInclude: ['includeAuditorReferenceID'] satisfies ControlIncludeVar[],
+      },
       cell: ({ row }) => <div>{row.getValue('auditorReferenceID') || '-'}</div>,
     },
     {
       header: 'Source',
       accessorKey: 'source',
       size: 120,
+      meta: {
+        gqlInclude: ['includeSource'] satisfies ControlIncludeVar[],
+      },
       cell: ({ row }) => <div>{row.getValue('source') || '-'}</div>,
     },
     {
       header: 'Source Name',
       accessorKey: 'sourceName',
       size: 120,
+      meta: {
+        gqlInclude: ['includeSourceName'] satisfies ControlIncludeVar[],
+      },
       cell: ({ row }) => <div>{row.getValue('sourceName') || '-'}</div>,
     },
     {
       header: 'Control Type',
       accessorKey: 'controlKindName',
       size: 120,
+      meta: {
+        gqlInclude: ['includeControlKindName'] satisfies ControlIncludeVar[],
+      },
       cell: ({ row }) => (
         <div>
           <CustomTypeEnumValue value={row.getValue('controlKindName') || ''} options={enumOptions} placeholder="-" />
@@ -303,6 +362,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       accessorKey: 'subcontrol',
       meta: {
         exportPrefix: 'subcontrols.refCode',
+        gqlInclude: ['includeSubcontrols'] satisfies ControlIncludeVar[],
       },
       size: 200,
       cell: SubcontrolCell,
@@ -312,6 +372,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       accessorKey: ControlOrderField.DELEGATE_name,
       meta: {
         exportPrefix: 'delegate.name',
+        gqlInclude: ['includeDelegate'] satisfies ControlIncludeVar[],
       },
       size: 120,
       cell: ({ row }) => {
@@ -325,6 +386,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       accessorKey: 'responsibleParty',
       meta: {
         exportPrefix: 'responsibleParty.displayName',
+        gqlInclude: ['includeResponsibleParty'] satisfies ControlIncludeVar[],
       },
       size: 200,
       cell: ({ row }) => {
@@ -342,6 +404,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       header: 'Created by',
       accessorKey: 'createdBy',
       size: 200,
+      meta: {
+        gqlInclude: ['includeCreatedBy'] satisfies ControlIncludeVar[],
+      },
       cell: ({ row }) => {
         const user = userMap[row.original.createdBy ?? '']
         return user ? (
@@ -358,12 +423,18 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       header: 'Created At',
       accessorKey: 'createdAt',
       size: 150,
+      meta: {
+        gqlInclude: ['includeCreatedAt'] satisfies ControlIncludeVar[],
+      },
       cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
     },
     {
       header: 'Updated By',
       accessorKey: 'updatedBy',
       size: 200,
+      meta: {
+        gqlInclude: ['includeUpdatedBy'] satisfies ControlIncludeVar[],
+      },
       cell: ({ row }) => {
         const user = userMap[row.original.updatedBy ?? '']
         return user ? (
@@ -380,6 +451,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       header: 'Last Updated',
       accessorKey: 'updatedAt',
       size: 100,
+      meta: {
+        gqlInclude: ['includeUpdatedAt'] satisfies ControlIncludeVar[],
+      },
       cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
     {
@@ -388,6 +462,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       size: 220,
       meta: {
         exportPrefix: 'controlObjectives.desiredOutcome',
+        gqlInclude: ['includeControlObjectives'] satisfies ControlIncludeVar[],
       },
       cell: ({ row }) => {
         const desiredOutcome = row.original.controlObjectives?.edges?.[0]?.node?.desiredOutcome ?? '-'
@@ -404,6 +479,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       size: 220,
       meta: {
         exportPrefix: 'controlImplementations.details',
+        gqlInclude: ['includeControlImplementations'] satisfies ControlIncludeVar[],
       },
       cell: ({ row }) => {
         const controlImplementationsDetails = row.original.controlImplementations?.edges?.[0]?.node?.details ?? '-'
@@ -419,6 +495,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       accessorKey: 'associatedObjects',
       size: 180,
       minSize: 180,
+      meta: {
+        gqlInclude: ['includeTasks', 'includeInternalPolicies', 'includeProcedures', 'includePrograms', 'includeRisks'] satisfies ControlIncludeVar[],
+      },
       cell: ({ row }) => <AssociatedObjectsCell control={row.original} />,
     },
     {
@@ -428,6 +507,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       minSize: 120,
       meta: {
         exportPrefix: 'comments.text',
+        gqlInclude: ['includeComments'] satisfies ControlIncludeVar[],
       },
       cell: ({ row }) => {
         return (
@@ -444,6 +524,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       accessorKey: 'linkedPolicies',
       meta: {
         exportPrefix: 'internalPolicies.name',
+        gqlInclude: ['includeInternalPolicies'] satisfies ControlIncludeVar[],
       },
       size: 220,
       cell: LinkedPoliciesCell,
@@ -453,6 +534,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       accessorKey: 'linkedProcedures',
       meta: {
         exportPrefix: 'procedures.name',
+        gqlInclude: ['includeProcedures'] satisfies ControlIncludeVar[],
       },
       size: 220,
       cell: LinkedProceduresCell,

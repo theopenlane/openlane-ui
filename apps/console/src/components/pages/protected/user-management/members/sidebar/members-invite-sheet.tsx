@@ -36,6 +36,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { RoleInfoSlideOut } from '@/components/shared/role-info-slide-out/role-info-slide-out'
+import { SuperAdminRoleWarning } from '@/components/shared/organization-roles/super-admin-role-warning'
 import useMembersInviteFormSchema, { type MembersInviteFormData } from './use-members-invite-form-schema'
 import { MultiEmailInput } from './multi-email-input'
 
@@ -102,6 +103,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   } = form
 
   const emails = watch('emails')
+  const selectedRole = watch('role')
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -150,11 +152,11 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   }
 
   const roleOptions = useMemo(() => {
-    // OWNER can never be assigned via invite
-    // TODO: add InviteRole.SUPER_ADMIN here (gated on CanInviteSuperAdmins) and InviteRole.AUDITOR (gated on canInviteAdmins) once the enum is updated
     const candidates: { role: InviteRole; allowed: boolean }[] = [
       { role: InviteRole.ADMIN, allowed: canInviteAdmins },
+      { role: InviteRole.AUDITOR, allowed: canInviteAdmins },
       { role: InviteRole.MEMBER, allowed: canInviteMembers },
+      { role: InviteRole.SUPER_ADMIN, allowed: canInviteAdmins },
     ]
     return candidates.filter(({ allowed }) => allowed).map(({ role }) => role)
   }, [canInviteAdmins, canInviteMembers])
@@ -230,6 +232,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
                         </FormItem>
                       )}
                     />
+                    {selectedRole === InviteRole.SUPER_ADMIN && <SuperAdminRoleWarning />}
                     <RoleInfoSlideOut />
                   </div>
                 </div>

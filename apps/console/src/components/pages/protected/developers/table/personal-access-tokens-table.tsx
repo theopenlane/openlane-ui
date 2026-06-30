@@ -359,6 +359,10 @@ export const PersonalAccessTokenTable = () => {
             </span>
           )
         }
+        const isExpired = new Date(value) < new Date()
+        if (isExpired) {
+          return <SystemTooltip icon={<span className="text-red-500 font-medium whitespace-nowrap cursor-default">❗ Expired</span>} content={`Expired on ${formatDate(value)}`} side="top" />
+        }
         return formatDate(value)
       },
     },

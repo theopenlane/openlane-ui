@@ -17,10 +17,14 @@ import { Loading } from '@/components/shared/loading/loading'
 import { Callout } from '@/components/shared/callout/callout'
 import { Button } from '@repo/ui/button'
 import { filterFinalizedIntegrationsForProvider, HEALTH_CHECK_OPERATION_NAME, resolveSchemaRoot } from '@/lib/integrations/utils'
+import { providerSupportsDocumentSync, providerSupportsPrimaryDirectory } from '@/lib/integrations/flow'
 import { writePendingVendorIntegrationLink, clearPendingVendorIntegrationLink } from '@/lib/integrations/pending-vendor-link'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CREDENTIALS_PREFIX, USER_INPUT_PREFIX, useIntegrationSchemaForm } from './schema-form'
 import InstalledIntegrationCard from './installed-integration-card'
+import PrimaryDirectoryPromptDialog from './primary-directory-prompt-dialog'
+import DocumentSyncPromptDialog from './document-sync-prompt-dialog'
+import { useIntegrationPostConnectPrompt } from './use-integration-post-connect-prompt'
 import IntegrationCardIcons from './integration-card-icons'
 import IntegrationTagList from './integration-tag-list'
 import OperationsTable from './operations-table'
@@ -63,6 +67,17 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
 
   const visibleOperations = useMemo(() => (provider?.operations ?? []).filter((op) => op.name !== HEALTH_CHECK_OPERATION_NAME), [provider?.operations])
 
+  const supportsPrimaryDirectory = useMemo(() => providerSupportsPrimaryDirectory(provider), [provider])
+  const supportsDocumentSync = useMemo(() => providerSupportsDocumentSync(provider), [provider])
+  const supportsPostConnectPrompt = supportsPrimaryDirectory || supportsDocumentSync
+  const { promptKind, promptIntegration, queueAfterRedirect, queueAfterInlineConnect, dismissPrompt } = useIntegrationPostConnectPrompt({
+    provider,
+    canManage,
+    supportsPrimaryDirectory,
+    supportsDocumentSync,
+    installedInstances,
+  })
+
   const credentialEntries = useMemo(() => provider?.credentialSchemas ?? [], [provider?.credentialSchemas])
   const [selectedCredentialIndex, setSelectedCredentialIndex] = useState(-1)
   // Tracks which schema to use — only updates when a credential is actively selected, not when the accordion closes
@@ -102,6 +117,9 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     async ({ integrationId }: { integrationId?: string }) => {
       setSelectedCredentialIndex(-1)
       if (!vendorId || !integrationId) {
+        if (!vendorId && integrationId && provider && supportsPostConnectPrompt) {
+          queueAfterInlineConnect(provider.id, integrationId)
+        }
         return
       }
       try {
@@ -122,7 +140,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
         })
       }
     },
-    [vendorId, updateEntity, successNotification, errorNotification, router],
+    [vendorId, provider, supportsPostConnectPrompt, queueAfterInlineConnect, updateEntity, successNotification, errorNotification, router],
   )
 
   const handleConnectRedirect = useCallback(() => {
@@ -131,9 +149,11 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     }
     if (vendorId) {
       writePendingVendorIntegrationLink(vendorId, provider.id)
+    } else if (supportsPostConnectPrompt) {
+      queueAfterRedirect(provider.id, installedInstances.length)
     }
     startPolling(provider, installedInstances.length)
-  }, [provider, vendorId, startPolling, installedInstances.length])
+  }, [provider, vendorId, supportsPostConnectPrompt, queueAfterRedirect, startPolling, installedInstances.length])
 
   const { isConnecting, webhookDetails, dismissWebhookDetails, handleAuthConnect, handleSubmit } = useIntegrationConnect({
     provider,
@@ -187,7 +207,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
           <div>
             {provider.category ? <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">{provider.category}</p> : null}
             <div className="flex items-center gap-3">
-              <IntegrationCardIcons providerName={provider.slug} logoUrl={provider.logoUrl} />
+              <IntegrationCardIcons providerName={provider.displayName} logoUrl={provider.logoUrl} />
               <PageHeading heading={provider.displayName} />
             </div>
             {provider.description ? <p className="mt-2 text-sm text-muted-foreground">{provider.description}</p> : null}
@@ -245,6 +265,32 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
           Reach out to an organization admin to install this integration on your behalf, or request access to manage integrations.
         </Callout>
       )}
+
+      {promptIntegration && promptKind === 'directory' ? (
+        <PrimaryDirectoryPromptDialog
+          open={!!promptIntegration}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) {
+              dismissPrompt()
+            }
+          }}
+          provider={provider}
+          integration={promptIntegration}
+        />
+      ) : null}
+
+      {promptIntegration && promptKind === 'document' ? (
+        <DocumentSyncPromptDialog
+          open={!!promptIntegration}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) {
+              dismissPrompt()
+            }
+          }}
+          provider={provider}
+          integration={promptIntegration}
+        />
+      ) : null}
     </div>
   )
 }

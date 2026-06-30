@@ -179,7 +179,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
                         <PencilLine size={12} />
                         <span className="font-medium">Description</span>
                       </div>
-                      <div className="max-w-xs text-justify line-clamp-4">{details ? plateEditorHelper.convertToReadOnly(details) : 'No details available'}</div>
+                      <div className="max-w-xs line-clamp-4">{details ? plateEditorHelper.convertToReadOnly(details) : 'No details available'}</div>
                     </div>
                   </div>
                 </TooltipContent>

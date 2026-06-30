@@ -57,6 +57,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   bulkEditFieldLabels?: Record<string, string>
   createMode?: CreateMode
   hideCreate?: boolean
+  createPermission?: TAccessRole
   additionalActiveFilterCount?: number
   defaultFilterValues?: TFilterState
 }
@@ -71,6 +72,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
 
   const entityLabel = props.displayName ?? props.entityType.charAt(0).toUpperCase() + props.entityType.slice(1).toLowerCase()
   const entityLabelPlural = `${entityLabel}s`
+  const shouldShowCreationButton = !props.hideCreate && (props.createPermission ? props.permission?.roles.includes(props.createPermission) : props.canEdit(props.permission?.roles))
 
   const openCreateSheet = () => {
     if (props.createMode?.type === 'full-page') {
@@ -222,7 +224,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                   defaultFilterValues={props.defaultFilterValues}
                 />
               )}
-              {!props.hideCreate && props.canEdit(props.permission?.roles) && (
+              {shouldShowCreationButton && (
                 <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet}>
                   Create
                 </Button>

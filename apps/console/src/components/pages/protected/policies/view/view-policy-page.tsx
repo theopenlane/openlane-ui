@@ -47,6 +47,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import HistoryTab from './tabs/history/history-tab'
 import { VersionBump } from '@/lib/enums/revision-enum'
 import ExternalReferenceView from '@/components/pages/protected/policies/view/fields/external-reference-view'
+import IntegrationDocumentView from '@/components/pages/protected/policies/view/fields/integration-document-view'
 
 type TViewPolicyPage = {
   policyId: string
@@ -82,6 +83,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const plateEditorHelper = usePlateEditor()
   const [activeTab, setActiveTab] = useState<TabValue>('policy')
   const isExternalReference = policy?.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
+  const isIntegration = policy?.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION
   const hasFile = !!policy?.file
   const showManagementModeAction = editAllowed && hasFile && !isExternalReference
 
@@ -188,7 +190,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
         }
 
-        if (detailsJSON !== undefined && !isExternalReference) {
+        if (detailsJSON !== undefined && !isExternalReference && !isIntegration) {
           input.detailsJSON = detailsJSON
           input.details = await plateEditorHelper.convertToHtml(detailsJSON as Value)
         }
@@ -238,7 +240,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         })
       }
     },
-    [policy, plateEditorHelper, updatePolicy, successNotification, errorNotification, queryClient, policyId, initialDetailsCanonicalRef, isExternalReference],
+    [policy, plateEditorHelper, updatePolicy, successNotification, errorNotification, queryClient, policyId, initialDetailsCanonicalRef, isExternalReference, isIntegration],
   )
 
   const handleFormSubmit = useCallback(
@@ -403,7 +405,9 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         </TabsList>
 
         <TabsContent value="policy">
-          {isExternalReference && policy.file ? (
+          {policy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION ? (
+            <IntegrationDocumentView policy={policy} />
+          ) : isExternalReference && policy.file ? (
             <ExternalReferenceView policy={policy} editAllowed={editAllowed} />
           ) : (
             <DetailsField isEditing={isEditing} form={form} policy={policy} discussionData={discussionData?.internalPolicy} />
