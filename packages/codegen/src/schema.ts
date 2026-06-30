@@ -71612,6 +71612,46 @@ export type GetControlsPaginatedQuery = {
   }
 }
 
+export type GetAuditorDashboardControlsQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+  programId: Scalars['ID']['input']
+  orderBy?: InputMaybe<Array<ControlOrder> | ControlOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetAuditorDashboardControlsQuery = {
+  __typename?: 'Query'
+  controls: {
+    __typename?: 'ControlConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: {
+        __typename?: 'Control'
+        id: string
+        refCode: string
+        title?: string | null
+        controlOwner?: {
+          __typename?: 'Group'
+          displayName: string
+          gravatarLogoURL?: string | null
+          logoURL?: string | null
+          avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+        } | null
+        evidence: { __typename?: 'EvidenceConnection'; edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; status?: EvidenceEvidenceStatus | null } | null } | null> | null }
+        reviews: {
+          __typename?: 'ReviewConnection'
+          edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; status?: ReviewReviewStatus | null; reviewedAt?: string | null } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean }
+  }
+}
+
 export type GetControlByIdMinifiedQueryVariables = Exact<{
   controlId: Scalars['ID']['input']
 }>
@@ -78329,6 +78369,16 @@ export type GetReviewFilesPaginatedQuery = {
       } | null> | null
     }
   }
+}
+
+export type GetProgramReviewStatsQueryVariables = Exact<{
+  programId: Scalars['ID']['input']
+}>
+
+export type GetProgramReviewStatsQuery = {
+  __typename?: 'Query'
+  completed: { __typename?: 'ReviewConnection'; totalCount: number }
+  inProgress: { __typename?: 'ReviewConnection'; totalCount: number }
 }
 
 export type RiskFieldsFragment = {

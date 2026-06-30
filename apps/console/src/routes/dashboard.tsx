@@ -82,6 +82,11 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       hidden: session?.user?.isOnboarding || billingExpired,
       children: [
         {
+          title: 'Auditor Dashboard',
+          href: '/auditor-dashboard',
+          icon: ClipboardPenLine,
+        },
+        {
           title: 'Programs',
           href: '/programs',
           icon: ShieldCheck,
