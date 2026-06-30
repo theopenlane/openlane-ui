@@ -20,9 +20,10 @@ type ExportEvidenceDialogProps = {
       loading: boolean
     }>
   >
+  filters?: string
 }
 
-const ExportEvidenceDialog: React.FC<ExportEvidenceDialogProps> = ({ trigger }) => {
+const ExportEvidenceDialog: React.FC<ExportEvidenceDialogProps> = ({ trigger, filters }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [mode, setMode] = useState<ExportExportMode>(ExportExportMode.FOLDER)
   const { successNotification, errorNotification } = useNotification()
@@ -34,6 +35,7 @@ const ExportEvidenceDialog: React.FC<ExportEvidenceDialogProps> = ({ trigger }) 
         input: {
           exportType: ExportExportType.EVIDENCE,
           mode,
+          ...(filters ? { filters } : {}),
         },
       })
       successNotification({
