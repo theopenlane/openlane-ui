@@ -84,6 +84,7 @@ export enum AdditionalTableKeyEnum {
   VENDOR_REVIEWS = 'vendor-reviews',
   RISK_REVIEWS = 'risk-reviews',
   PERSONNEL_LINKED_ACCOUNTS = 'personnel-linked-accounts',
+  AUDITOR_DASHBOARD_CONTROLS = 'auditor-dashboard-controls',
 }
 
 export const TableKey = Object.freeze({

@@ -645,6 +645,51 @@ export const GET_CONTROLS_PAGINATED = gql`
   }
 `
 
+export const GET_AUDITOR_DASHBOARD_CONTROLS = gql`
+  query GetAuditorDashboardControls($where: ControlWhereInput, $programId: ID!, $orderBy: [ControlOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    controls(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
+      totalCount
+      edges {
+        node {
+          id
+          refCode
+          title
+          controlOwner {
+            displayName
+            gravatarLogoURL
+            logoURL
+            avatarFile {
+              base64
+            }
+          }
+          evidence(where: { hasProgramsWith: [{ id: $programId }] }) {
+            edges {
+              node {
+                status
+              }
+            }
+          }
+          reviews(where: { hasProgramsWith: [{ id: $programId }] }) {
+            edges {
+              node {
+                id
+                status
+                reviewedAt
+              }
+            }
+          }
+        }
+      }
+      pageInfo {
+        startCursor
+        endCursor
+        hasNextPage
+        hasPreviousPage
+      }
+    }
+  }
+`
+
 export const GET_CONTROL_BY_ID_MINIFIED = gql`
   query GetControlByIdMinified($controlId: ID!) {
     control(id: $controlId) {
