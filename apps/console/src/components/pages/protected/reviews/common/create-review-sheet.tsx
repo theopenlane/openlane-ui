@@ -18,10 +18,12 @@ import { buildPayload } from '@/components/pages/protected/reviews/create/utils'
 interface CreateReviewSheetProps {
   entityId?: string
   riskId?: string
+  controlId?: string
+  programId?: string
   onClose: () => void
 }
 
-const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, riskId, onClose }) => {
+const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, riskId, controlId, programId, onClose }) => {
   const { form } = useFormSchema()
   const plateEditorHelper = usePlateEditor()
   const stagedFilesRef = useRef<File[]>([])
@@ -74,12 +76,20 @@ const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, riskId,
       const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, riskIDs, taskIDs, assetIDs, programIDs, ...rest } = formData
       const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper)
 
-      const mergedEntityIDs = [...new Set([...(entityIDs ?? []), entityId].filter((id): id is string => id !== undefined))]
-      const mergedRiskIDs = [...new Set([...(riskIDs ?? []), riskId].filter((id): id is string => id !== undefined))]
+      const mergeSeedId = (ids: string[] | undefined, seed: string | undefined) => [...new Set([...(ids ?? []), seed].filter((id): id is string => id !== undefined))]
 
       const associationPayload = buildAssociationPayload(
         REVIEW_ASSOCIATION_CONFIG.associationKeys,
-        { controlIDs, subcontrolIDs, remediationIDs, entityIDs: mergedEntityIDs, riskIDs: mergedRiskIDs, taskIDs, assetIDs, programIDs },
+        {
+          controlIDs: mergeSeedId(controlIDs, controlId),
+          subcontrolIDs,
+          remediationIDs,
+          entityIDs: mergeSeedId(entityIDs, entityId),
+          riskIDs: mergeSeedId(riskIDs, riskId),
+          taskIDs,
+          assetIDs,
+          programIDs: mergeSeedId(programIDs, programId),
+        },
         true,
         {},
       )
