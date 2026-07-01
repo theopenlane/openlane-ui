@@ -25,6 +25,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { useFormDraft } from '@/hooks/useFormDraft.ts'
 import DraftRestoreModal from '@/components/shared/draft-restore-modal/draft-restore-modal.tsx'
+import { getOrganizationStorageKey } from '@/lib/storage/organization-storage'
 
 const POLICY_DRAFT_KEY = 'draft:policy-create'
 
@@ -45,7 +46,7 @@ const CreatePolicyForm: React.FC = () => {
   const plateEditorHelper = usePlateEditor()
 
   const { pendingDraft, restore, discard, clearDraft, editorKey } = useFormDraft<CreatePolicyFormData>({
-    storageKey: POLICY_DRAFT_KEY,
+    storageKey: getOrganizationStorageKey(POLICY_DRAFT_KEY, currentOrgId),
     enabled: true,
     form,
   })

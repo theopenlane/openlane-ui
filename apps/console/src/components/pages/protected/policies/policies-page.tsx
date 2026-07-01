@@ -12,13 +12,14 @@ import Link from 'next/link'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { Checkbox } from '@repo/ui/checkbox'
-import { isStringArray, loadFilters, saveFilters } from '@/components/shared/table-filter/filter-storage'
+import { getFiltersUpdatedEvent, isStringArray, loadFilters, saveFilters } from '@/components/shared/table-filter/filter-storage'
 import { PolicySuggestedActions } from './policies-suggested-actions'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 import { useInternalPoliciesCount } from '@/lib/graphql-hooks/internal-policy'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useOrganization } from '@/hooks/useOrganization'
 
 type TPoliciesPageProps = {
   active: 'dashboard' | 'table'
@@ -26,6 +27,7 @@ type TPoliciesPageProps = {
 }
 
 const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
+  const { currentOrgId } = useOrganization()
   const { data: permission } = useOrganizationRoles()
   const { groupOptions } = useGroupSelect()
   const { setCrumbs } = use(BreadcrumbContext)
@@ -38,7 +40,7 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
   const [selectedGroups, setSelectedGroups] = useState<string[]>([])
 
   useEffect(() => {
-    const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY)
+    const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY, undefined, currentOrgId)
     const validated = isStringArray(saved?.approverIDIn) ? saved?.approverIDIn : []
     setSelectedGroups(validated)
 
@@ -46,23 +48,28 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
       setSelectedGroups((e.detail?.approverIDIn as string[]) || [])
     }
 
-    // eslint-disable-next-line @eslint-react/web-api/no-leaked-event-listener
-    window.addEventListener(`filters-updated:${TableKeyEnum.INTERNAL_POLICY}`, handleUpdate as EventListener)
+     
+    const eventName = getFiltersUpdatedEvent(TableKeyEnum.INTERNAL_POLICY, currentOrgId)
+    window.addEventListener(eventName, handleUpdate as EventListener)
 
     return () => {
-      window.removeEventListener(`filters-updated:${TableKeyEnum.INTERNAL_POLICY}`, handleUpdate as EventListener)
+      window.removeEventListener(eventName, handleUpdate as EventListener)
     }
-  }, [])
+  }, [currentOrgId])
 
   const handleGroupToggle = (value: string) => {
-    const existingFilters = loadFilters(TableKeyEnum.INTERNAL_POLICY) || {}
+    const existingFilters = loadFilters(TableKeyEnum.INTERNAL_POLICY, undefined, currentOrgId) || {}
     const validated = isStringArray(existingFilters?.approverIDIn) ? existingFilters?.approverIDIn : []
     const newGroups = validated.includes(value) ? validated.filter((v) => v !== value) : [...validated, value]
 
-    saveFilters(TableKeyEnum.INTERNAL_POLICY, {
-      ...existingFilters,
-      approverIDIn: newGroups,
-    })
+    saveFilters(
+      TableKeyEnum.INTERNAL_POLICY,
+      {
+        ...existingFilters,
+        approverIDIn: newGroups,
+      },
+      currentOrgId,
+    )
   }
 
   useEffect(() => {

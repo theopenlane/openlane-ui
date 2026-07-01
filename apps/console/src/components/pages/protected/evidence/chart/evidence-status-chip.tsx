@@ -10,6 +10,7 @@ import { type EvidenceWhereInput } from '@repo/codegen/src/schema'
 import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import Link from 'next/link'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useOrganization } from '@/hooks/useOrganization'
 
 type TEvidenceStatusChipProps = {
   data: TChardData
@@ -45,6 +46,7 @@ type TEvidenceTooltipContentProps = {
 }
 
 const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ programId, evidenceData }) => {
+  const { currentOrgId } = useOrganization()
   const where: EvidenceWhereInput = {
     hasProgramsWith: programId ? [{ id: programId }] : undefined,
     status: evidenceData.status,
@@ -66,7 +68,7 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
       status: [evidenceData.status],
     }
 
-    saveFilters(TableKeyEnum.EVIDENCE, filters)
+    saveFilters(TableKeyEnum.EVIDENCE, filters, currentOrgId)
   }
 
   return (

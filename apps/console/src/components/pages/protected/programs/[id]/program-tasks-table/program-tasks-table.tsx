@@ -20,6 +20,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum.ts'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip.tsx'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { useOrganization } from '@/hooks/useOrganization'
 
 type FormattedTask = {
   id: string
@@ -31,6 +32,7 @@ type FormattedTask = {
 }
 
 const ProgramTasksTable = () => {
+  const { currentOrgId } = useOrganization()
   const { id } = useParams<{ id: string | undefined }>()
   const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.PROGRAM, {
@@ -142,7 +144,7 @@ const ProgramTasksTable = () => {
       hasProgramsWith: [id],
     }
 
-    saveFilters(TableKeyEnum.TASK, filters)
+    saveFilters(TableKeyEnum.TASK, filters, currentOrgId)
   }
 
   return (

@@ -1,8 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Presentation, Table } from 'lucide-react'
 import { type TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
+import { useOrganization } from '@/hooks/useOrganization'
+import { getOrganizationStorageKey } from '@/lib/storage/organization-storage'
 
 type TTab = 'dashboard' | 'table'
 
@@ -18,7 +20,8 @@ const DEFAULT_LABELS = { dashboard: 'Report', table: 'Table' }
 export const STORAGE_KEY_PREFIX = 'tab-switch'
 
 const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: externalActive, setActive: externalSetActive, labels }) => {
-  const storageKeyWithPrefix = `${STORAGE_KEY_PREFIX}-${storageKey}`
+  const { currentOrgId } = useOrganization()
+  const storageKeyWithPrefix = getOrganizationStorageKey(`${STORAGE_KEY_PREFIX}-${storageKey}`, currentOrgId)
   const resolvedLabels = { ...DEFAULT_LABELS, ...labels }
 
   const [internalActive, setInternalActive] = useState<TTab>(() => {
@@ -30,6 +33,11 @@ const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: external
     }
     return 'dashboard'
   })
+
+  useEffect(() => {
+    const savedTab = localStorage.getItem(storageKeyWithPrefix)
+    setInternalActive(savedTab === 'dashboard' || savedTab === 'table' ? savedTab : 'dashboard')
+  }, [storageKeyWithPrefix])
 
   const active = externalActive ?? internalActive
   const setActive =
