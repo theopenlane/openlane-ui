@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_ALL_SUBSCRIBERS, DELETE_SUBSCRIBER, CREATE_CSV_BULK_SUBSCRIBER } from '@repo/codegen/query/subscriber'
+import { GET_ALL_SUBSCRIBERS, DELETE_SUBSCRIBER, UPDATE_SUBSCRIBER, CREATE_CSV_BULK_SUBSCRIBER } from '@repo/codegen/query/subscriber'
 
 import {
   type GetAllSubscribersQuery,
@@ -8,6 +8,8 @@ import {
   type DeleteSubscriberMutationVariables,
   type GetAllSubscribersQueryVariables,
   type Subscriber,
+  type UpdateSubscriberMutation,
+  type UpdateSubscriberMutationVariables,
   type CreateBulkCsvSubscriberMutation,
   type CreateBulkCsvSubscriberMutationVariables,
 } from '@repo/codegen/src/schema'
@@ -54,8 +56,19 @@ export const useGetAllSubscribers = ({ where, orderBy, pagination, enabled = tru
 export const useDeleteSubscriber = () => {
   const { client, queryClient } = useGraphQLClient()
 
-  return useMutation<DeleteSubscriberMutation, unknown, DeleteSubscriberMutationVariables>({
+  return useMutation<DeleteSubscriberMutation, Error, DeleteSubscriberMutationVariables>({
     mutationFn: (variables) => client.request(DELETE_SUBSCRIBER, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscribers'] })
+    },
+  })
+}
+
+export const useUpdateSubscriber = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateSubscriberMutation, Error, UpdateSubscriberMutationVariables>({
+    mutationFn: (variables) => client.request(UPDATE_SUBSCRIBER, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscribers'] })
     },
@@ -65,7 +78,7 @@ export const useDeleteSubscriber = () => {
 export const useCreateBulkCSVSubscriber = () => {
   const { queryClient } = useGraphQLClient()
 
-  return useMutation<CreateBulkCsvSubscriberMutation, unknown, CreateBulkCsvSubscriberMutationVariables>({
+  return useMutation<CreateBulkCsvSubscriberMutation, Error, CreateBulkCsvSubscriberMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_SUBSCRIBER, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscribers'] })

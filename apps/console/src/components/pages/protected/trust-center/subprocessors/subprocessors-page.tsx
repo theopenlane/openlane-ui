@@ -23,6 +23,8 @@ import useFileExport from '@/components/shared/export/use-file-export'
 import { EditTrustCenterSubprocessorSheet } from './sheet/edit-trust-center-subprocessor-sheet'
 import { EmbedSubprocessorSheet } from './sheet/embed-subprocessor-sheet'
 import { useGetTrustCenter, useUpdateTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { useHandleUpdateSetting } from '../branding/helpers/useHandleUpdateSetting'
+import { Switch } from '@repo/ui/switch'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { useNotification } from '@/hooks/useNotification'
 import { Input } from '@repo/ui/input'
@@ -79,8 +81,14 @@ const SubprocessorsPage = () => {
   const [subprocessorURL, setSubprocessorURL] = useState(savedSubprocessorURL)
   const [mode, setMode] = useState<SubprocessorMode>(savedSubprocessorURL ? 'link' : 'manage')
 
+  const setting = trustCenterNode?.setting
   const { mutateAsync: updateTrustCenter, isPending: isSavingURL } = useUpdateTrustCenter()
+  const { updateTrustCenterSetting } = useHandleUpdateSetting()
   const { mutateAsync: deleteSubprocessor } = useDeleteTrustCenterSubprocessor()
+
+  const handleToggleSubprocessorNotify = (checked: boolean) => {
+    updateTrustCenterSetting({ id: setting?.id, input: { notifySubscribersOnSubprocessorChange: checked } })
+  }
   const { mutateAsync: bulkDeleteSubprocessors } = useBulkDeleteTrustCenterSubprocessors()
   const fetchAllSubprocessorIds = useFetchAllTrustCenterSubprocessorIds()
 
@@ -297,6 +305,11 @@ const SubprocessorsPage = () => {
 
         {mode === 'manage' ? (
           <>
+            <div className="flex items-center gap-2 mb-4">
+              <Switch checked={!!setting?.notifySubscribersOnSubprocessorChange} onCheckedChange={handleToggleSubprocessorNotify} disabled={!setting?.id || !canEditSubprocessor} />
+              <span className="text-sm">Email subscribers when subprocessors change</span>
+            </div>
+
             <SubprocessorsTableToolbar
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
