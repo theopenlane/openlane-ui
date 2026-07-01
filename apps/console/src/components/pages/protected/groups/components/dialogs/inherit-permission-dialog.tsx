@@ -18,6 +18,7 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { Permission } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 const PERMISSION_LABELS: Record<Permission, string> = {
   [Permission.VIEWER]: 'View',
@@ -39,6 +40,7 @@ const InheritPermissionDialog = () => {
   const [isExpanded, setIsExpanded] = useState(false)
   const { errorNotification, successNotification } = useNotification()
   const { selectedGroup } = useGroupsStore()
+  const { data: session } = useSession()
   const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup)
   const queryClient = useQueryClient()
 
@@ -112,7 +114,7 @@ const InheritPermissionDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="secondary" icon={<Copy />} iconPosition="left" disabled={!!isManaged || !canEdit(permission?.roles)}>
+        <Button variant="secondary" icon={<Copy />} iconPosition="left" disabled={!!isManaged || !canEdit(permission?.roles, session)}>
           Inherit permission
         </Button>
       </DialogTrigger>

@@ -16,6 +16,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useSession } from 'next-auth/react'
+import { type Session } from 'next-auth'
 
 type TCampaignTableToolbarProps = {
   onFilterChange: (filters: CampaignWhereInput) => void
@@ -30,7 +32,7 @@ type TCampaignTableToolbarProps = {
   setSearchTerm: (searchTerm: string) => void
   searching?: boolean
   exportEnabled: boolean
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   permission: TPermissionData | undefined
   handleClearSelectedCampaigns: () => void
   selectedCampaigns: { id: string }[]
@@ -40,6 +42,7 @@ type TCampaignTableToolbarProps = {
 
 const CampaignTableToolbar: React.FC<TCampaignTableToolbarProps> = (props) => {
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
+  const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteCampaign } = useDeleteCampaign()
   const filterFields: FilterField[] = useMemo(() => getCampaignFilterFields(), [])
@@ -84,7 +87,7 @@ const CampaignTableToolbar: React.FC<TCampaignTableToolbarProps> = (props) => {
       <div className="grow flex flex-row items-center gap-2 justify-end">
         {props.selectedCampaigns.length > 0 ? (
           <>
-            {props.canEdit(props.permission?.roles) && (
+            {props.canEdit(props.permission?.roles, session) && (
               <>
                 <Button
                   type="button"

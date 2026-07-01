@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
+import { useSession } from 'next-auth/react'
 
 type TProps = {
   onFilterChange: (filters: PersonalAccessTokenWhereInput) => void
@@ -16,9 +17,10 @@ const TokensTableToolbar: React.FC<TProps> = (props: TProps) => {
   const path = usePathname()
   const isApiTokenPage = path.includes('/api-tokens')
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
 
   // API tokens are org-scoped; only admin and above can create them
-  const canCreateApiToken = !isApiTokenPage || canEdit(permission?.roles)
+  const canCreateApiToken = !isApiTokenPage || canEdit(permission?.roles, session)
 
   return (
     <>

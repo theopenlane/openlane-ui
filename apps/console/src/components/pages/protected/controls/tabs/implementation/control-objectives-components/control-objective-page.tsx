@@ -20,6 +20,7 @@ import { ObjectiveItem } from './objective-item'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import CreateControlObjectiveSheet from './create-control-objective-sheet'
+import { useSession } from 'next-auth/react'
 
 const ControlObjectivePage = () => {
   const searchParams = useSearchParams()
@@ -40,8 +41,9 @@ const ControlObjectivePage = () => {
   const { data: subcontrolData, isLoading: isSubcontrolLoading } = useGetSubcontrolById(isSubControl ? (subcontrolId as string) : null)
 
   const { data: orgPermission } = useOrganizationRoles()
+  const { data: session } = useSession()
 
-  const createAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanCreateControlObjective)
+  const createAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanCreateControlObjective, session)
 
   const { data, isLoading } = useGetAllControlObjectives({
     ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),

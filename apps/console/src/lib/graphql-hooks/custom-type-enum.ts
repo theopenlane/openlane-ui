@@ -20,6 +20,7 @@ import {
 import { GET_CUSTOM_TYPE_ENUMS_PAGINATED, GET_CUSTOM_TYPE_ENUM_BY_ID, CREATE_CUSTOM_TYPE_ENUM, UPDATE_CUSTOM_TYPE_ENUM, DELETE_CUSTOM_TYPE_ENUM } from '@repo/codegen/query/custom-type-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
+import { useSession } from 'next-auth/react'
 
 export type CustomTypeEnumOption = Option & { color?: string; description?: string }
 
@@ -193,7 +194,9 @@ export const useDeleteCustomTypeEnum = (): UseMutationResult<DeleteCustomTypeEnu
 
 export const useCreatableEnumOptions = ({ objectType, field, isEditAllowed }: { objectType?: string; field: string; isEditAllowed?: boolean }) => {
   const { data: orgPermission } = useOrganizationRoles()
-  const canEditOrg = canEdit(orgPermission?.roles)
+  const { data: session } = useSession()
+
+  const canEditOrg = canEdit(orgPermission?.roles, session)
   const resolvedEditAllowed = isEditAllowed ?? canEditOrg
 
   const { enumOptions, ...rest } = useGetCustomTypeEnums({

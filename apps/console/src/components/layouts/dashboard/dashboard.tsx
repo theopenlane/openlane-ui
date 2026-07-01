@@ -4,7 +4,8 @@ import Header from '@/components/shared/header/header'
 import { dashboardStyles } from './dashboard.styles'
 import ChatBot from '@/components/shared/chat/chat'
 import { CommandMenu } from '@/components/shared/search/command'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useElementHeight } from '@/hooks/useElementHeight'
 import SessionExpiredModal from '@/components/shared/session-expired-modal/session-expired-modal'
 import { useSession } from 'next-auth/react'
 import { useSessionExpiry } from '@/hooks/useSessionExpiry'
@@ -19,6 +20,8 @@ import { useCurrentUserRole } from '@/lib/graphql-hooks/member'
 import { SheetNavigationProvider } from '@/providers/sheet-navigation-provider'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
+import ImpersonationBanner from '@/components/shared/impersonation-banner/impersonation-banner'
+import { IMPERSONATION_BANNER_HEIGHT_VAR } from '@/constants/layout'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -60,6 +63,9 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const isOnboarding = sessionData?.user?.isOnboarding
   const contentMarginLeft = isOnboarding ? 8 : primaryWidth + secondaryWidth + 4
 
+  const bannerRef = useRef<HTMLDivElement>(null)
+  const bannerHeight = useElementHeight(bannerRef)
+
   const currentActivePanel = [...navItems, ...footerNavItems]
     .filter(isNavItem)
     .find((item) => item.children?.some((child) => pathname === child.href || pathname.startsWith(`${child.href}/`)))
@@ -82,40 +88,53 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   return (
     <DndProvider backend={HTML5Backend}>
       <SheetNavigationProvider>
-        <SessionExpiredModal open={showSessionExpiredModal} />
-        <Sidebar
-          navItems={navItems}
-          footerNavItems={footerNavItems}
-          openPanel={openPanel}
-          primaryExpanded={primaryExpanded}
-          secondaryExpanded={secondaryExpanded}
-          onPrimaryExpandToggle={() => {
-            const newState = !primaryExpanded
-            setPrimaryExpanded(newState)
-            if (typeof window !== 'undefined') {
-              localStorage.setItem('sidebar-primary-expanded', String(newState))
-            }
-          }}
-          onSecondaryExpandToggle={() => {
-            const newState = !secondaryExpanded
-            setSecondaryExpanded(newState)
-            if (typeof window !== 'undefined') {
-              localStorage.setItem('sidebar-secondary-expanded', String(newState))
-            }
-          }}
-          onToggle={handleOpenPanel}
-          isOrganizationSelected={isOrganizationSelected}
-        />
+        <div style={{ [IMPERSONATION_BANNER_HEIGHT_VAR]: `${bannerHeight}px` } as React.CSSProperties}>
+          <div ref={bannerRef} className="fixed top-0 left-0 right-0 z-50">
+            <ImpersonationBanner />
+          </div>
 
-        <div className="flex flex-col h-screen overflow-hidden transition-all duration-200" style={{ marginLeft: contentMarginLeft, marginRight: '8px' }}>
-          <Header />
+          <SessionExpiredModal open={showSessionExpiredModal} />
+          <Sidebar
+            navItems={navItems}
+            footerNavItems={footerNavItems}
+            openPanel={openPanel}
+            primaryExpanded={primaryExpanded}
+            secondaryExpanded={secondaryExpanded}
+            onPrimaryExpandToggle={() => {
+              const newState = !primaryExpanded
+              setPrimaryExpanded(newState)
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('sidebar-primary-expanded', String(newState))
+              }
+            }}
+            onSecondaryExpandToggle={() => {
+              const newState = !secondaryExpanded
+              setSecondaryExpanded(newState)
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('sidebar-secondary-expanded', String(newState))
+              }
+            }}
+            onToggle={handleOpenPanel}
+            isOrganizationSelected={isOrganizationSelected}
+          />
+          <div
+            className="flex flex-col overflow-hidden transition-all duration-200"
+            style={{
+              marginLeft: contentMarginLeft,
+              marginRight: '8px',
+              marginTop: `var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px)`,
+              height: `calc(100vh - var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px))`,
+            }}
+          >
+            <Header />
 
-          <div className={base()}>
-            <main className={main()} data-scroll-container="main">
-              {error ?? children}
-            </main>
-            <ChatBot />
-            <CommandMenu items={navItems} />
+            <div className={base()}>
+              <main className={main()} data-scroll-container="main">
+                {error ?? children}
+              </main>
+              <ChatBot />
+              <CommandMenu items={navItems} />
+            </div>
           </div>
         </div>
       </SheetNavigationProvider>

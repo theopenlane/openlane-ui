@@ -17,6 +17,7 @@ import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
 import type { BulkDeletePayload } from './types'
 import { getBulkActionFailureDescription } from './bulk-action-feedback'
+import { useSession } from 'next-auth/react'
 
 export interface InternalEditingType {
   (field: string | null): void
@@ -126,6 +127,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   } = config
   const { reset } = form
   const queryClient = useQueryClient()
+  const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
 
   const searchParams = useSearchParams()
@@ -133,7 +135,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   const isCreate = isCreateMode !== undefined ? isCreateMode : searchParams.get('create') === 'true'
 
   const permissionRoles = useObjectPermissionRoles(objectType, id)
-  const isEditAllowed = !!updateMutation && canEdit(permissionRoles)
+  const isEditAllowed = !!updateMutation && canEdit(permissionRoles, session)
   const isDeleteAllowed = !!deleteMutation && canDelete(permissionRoles)
 
   const objectTypeName = objectType.charAt(0).toUpperCase() + objectType.slice(1).toLowerCase()

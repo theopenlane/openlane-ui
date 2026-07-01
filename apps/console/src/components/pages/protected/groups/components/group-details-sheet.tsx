@@ -179,7 +179,7 @@ const GroupDetailsSheet = () => {
                     <SaveButton onClick={handleSubmit(onSubmit)} />
                   </div>
                 ) : (
-                  <Button disabled={!!isManaged || !canEdit(permission?.roles)} icon={<Pencil />} iconPosition="left" variant="secondary" onClick={() => setIsEditing(true)}>
+                  <Button disabled={!!isManaged || !canEdit(permission?.roles, sessionData)} icon={<Pencil />} iconPosition="left" variant="secondary" onClick={() => setIsEditing(true)}>
                     Edit Group
                   </Button>
                 )}

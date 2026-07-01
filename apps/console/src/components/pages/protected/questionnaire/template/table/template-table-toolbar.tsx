@@ -17,6 +17,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { Button } from '@repo/ui/button'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
+import { useSession } from 'next-auth/react'
 
 type TTemplateTableToolbarProps = {
   creating: boolean
@@ -48,6 +49,7 @@ const TemplateTableToolbar: React.FC<TTemplateTableToolbarProps> = ({
 }) => {
   const isSearching = useDebounce(searching, 200)
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const filterFields = useTemplateFilters()
 
   const quickFilters = useMemo<TQuickFilter[]>(
@@ -71,7 +73,7 @@ const TemplateTableToolbar: React.FC<TTemplateTableToolbarProps> = ({
   )
 
   const createButton = () => {
-    if (includeQuestionnaireCreation === 'true' && hasPermission(permission?.roles, AccessEnum.CanCreateTemplate)) {
+    if (includeQuestionnaireCreation === 'true' && hasPermission(permission?.roles, AccessEnum.CanCreateTemplate, session)) {
       return <CreateTemplateButton />
     }
   }

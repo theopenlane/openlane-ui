@@ -26,6 +26,8 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { useTemplateSelect } from '@/lib/graphql-hooks/template'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
+import { type Session } from 'next-auth'
+import { useSession } from 'next-auth/react'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
@@ -43,7 +45,7 @@ type TQuestionnaireTableToolbarProps = {
   exportEnabled: boolean
   selectedQuestionnaires: { id: string }[]
   setSelectedQuestionnaires: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   handleClearSelectedQuestionnaires: () => void
 }
 
@@ -65,7 +67,8 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
 }) => {
   const isSearching = useDebounce(searching, 200)
   const { data: permission } = useOrganizationRoles()
-  const canEditQuestionnaires = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const canEditQuestionnaires = canEdit(permission?.roles, session)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteQuestionnaires } = useDeleteBulkAssessment()
@@ -91,7 +94,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
   )
 
   const createDropdown = () => {
-    if (includeQuestionnaireCreation === 'true' && hasPermission(permission?.roles, AccessEnum.CanCreateTemplate)) {
+    if (includeQuestionnaireCreation === 'true' && hasPermission(permission?.roles, AccessEnum.CanCreateTemplate, session)) {
       return <CreateDropdown />
     }
   }

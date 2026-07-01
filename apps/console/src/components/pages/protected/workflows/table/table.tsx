@@ -13,6 +13,7 @@ import { objectName, tableKey } from './types'
 import { createRowActionsColumn } from '@/components/shared/crud-base/columns/row-actions-column'
 import { Copy, Pencil, Trash2 } from 'lucide-react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useSession } from 'next-auth/react'
 
 const TableComponent = ({
   onSortChange,
@@ -34,6 +35,7 @@ const TableComponent = ({
   const { successNotification, errorNotification } = useNotification()
   const deleteMutation = useDeleteWorkflowDefinition()
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const { data: session } = useSession()
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -60,10 +62,10 @@ const TableComponent = ({
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles, setColumnVisibility, canEdit])
+  }, [permission?.roles, setColumnVisibility, canEdit, session])
 
   useEffect(() => {
     if (isError) {

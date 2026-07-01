@@ -1,5 +1,9 @@
 import { gql } from 'graphql-request'
 
+// WARNING: If more edges are added, the backend `supportUserFromCaller` function
+// must be updated to include those edges for the support user because that is not
+// a real user and even though all the data might not be needed, the edge needs
+// to be there
 export const GET_USER_PROFILE = gql`
   query GetUserProfile($userId: ID!) {
     user(id: $userId) {

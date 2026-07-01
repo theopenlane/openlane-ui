@@ -9,10 +9,15 @@ import { isOwnerOrSuperAdmin } from '@/lib/authz/utils.ts'
 import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useCurrentUserRole } from '@/lib/graphql-hooks/member'
+import { useSession } from 'next-auth/react'
 
 const BillingPage: React.FC = () => {
   const { role, isLoading } = useCurrentUserRole()
   const { setCrumbs } = use(BreadcrumbContext)
+
+  const { data: session } = useSession()
+  const isImpersonation = session?.user?.isImpersonation
+  const canView = isOwnerOrSuperAdmin(role) || isImpersonation
 
   useEffect(() => {
     setCrumbs([
@@ -23,8 +28,8 @@ const BillingPage: React.FC = () => {
   }, [setCrumbs])
   return (
     <>
-      {!isLoading && !isOwnerOrSuperAdmin(role) && <ProtectedArea />}
-      {!isLoading && isOwnerOrSuperAdmin(role) && (
+      {!isLoading && !canView && <ProtectedArea />}
+      {!isLoading && canView && (
         <>
           <PageHeading heading="Billing" eyebrow="Organization Settings" />
           <Suspense>

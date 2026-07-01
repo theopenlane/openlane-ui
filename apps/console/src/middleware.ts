@@ -2,18 +2,35 @@ import { NextResponse } from 'next/server'
 import { auth } from './lib/auth/auth'
 import { hasNoModules } from '@/lib/auth/utils/modules'
 import { buildLoginRedirect } from '@/lib/auth/utils/redirect'
+import { SUPPORT_BLOCKED_PAGES } from '@/constants/support'
 
 export default auth(async (req) => {
   // Attach `next-url` header for client-side route metadata
   req.headers.append('next-url', req.nextUrl.toString())
 
   //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
-  const publicPages = ['/login', '/login/sso', '/login/sso/enforce', '/tfa', '/invite', '/verify', '/resend-verify', '/forgot-password', '/password-reset', '/signup', '/questionnaire']
+  const publicPages = [
+    '/login',
+    '/login/sso',
+    '/login/sso/enforce',
+    '/login/support',
+    '/login/support/callback',
+    '/tfa',
+    '/invite',
+    '/verify',
+    '/resend-verify',
+    '/forgot-password',
+    '/password-reset',
+    '/signup',
+    '/questionnaire',
+  ]
 
   const personalOrgPages = ['/onboarding', '/organization', '/user-settings/profile']
 
   const path = req.nextUrl.pathname
-  const isPublicPage = publicPages.includes(path) || path.startsWith('/questionnaire/')
+  // the public, shareable per-org SSO initiation page, e.g. /orgs/<slug>/sso
+  const isSSOInitiate = /^\/orgs\/[^/]+\/sso$/.test(path)
+  const isPublicPage = publicPages.includes(path) || path.startsWith('/questionnaire/') || isSSOInitiate
   const validForPersonalOrg = personalOrgPages.includes(path)
   const isInvite = path === '/invite'
   const isQuestionnaire = path === '/questionnaire' || path.startsWith('/questionnaire/')
@@ -43,8 +60,18 @@ export default auth(async (req) => {
     return NextResponse.next()
   }
 
+  if (session?.user?.isImpersonation && SUPPORT_BLOCKED_PAGES.some((page) => path === page || path.startsWith(`${page}/`))) {
+    return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+
   // needed for accepting invites to orgs
   if (path === '/login/sso/enforce') {
+    return NextResponse.next()
+  }
+
+  // the shareable per-org SSO initiation page is reachable by anyone, including users already
+  // signed in to a different organization who are joining a new one via the link
+  if (isSSOInitiate) {
     return NextResponse.next()
   }
 

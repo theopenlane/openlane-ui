@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRolesMany, useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useSession } from 'next-auth/react'
 
 type CampaignEdge = { node?: { id: string; entityID?: string | null } | null } | null
 
@@ -24,7 +25,9 @@ const collectCampaignAndEntityIds = (assessments: AssessmentWithCampaigns[]) => 
 
 export const useCanSendQuestionnaire = (campaignIds: string[], entityIds: string[]): boolean => {
   const { data: orgPermission } = useOrganizationRoles()
-  const isAdminOrAbove = canEdit(orgPermission?.roles)
+  const { data: session } = useSession()
+
+  const isAdminOrAbove = canEdit(orgPermission?.roles, session)
 
   const dedupedCampaignIds = useMemo(() => [...new Set(campaignIds.filter(Boolean))], [campaignIds])
   const dedupedEntityIds = useMemo(() => [...new Set(entityIds.filter(Boolean))], [entityIds])
@@ -42,15 +45,16 @@ export const useCanSendQuestionnaire = (campaignIds: string[], entityIds: string
 
   return useMemo(() => {
     if (isAdminOrAbove) return true
-    const campaignEditable = dedupedCampaignIds.some((id) => canEdit(campaignRoles?.object_roles?.[id]))
-    const entityEditable = dedupedEntityIds.some((id) => canEdit(entityRoles?.object_roles?.[id]))
+    const campaignEditable = dedupedCampaignIds.some((id) => canEdit(campaignRoles?.object_roles?.[id], session))
+    const entityEditable = dedupedEntityIds.some((id) => canEdit(entityRoles?.object_roles?.[id], session))
     return campaignEditable || entityEditable
-  }, [isAdminOrAbove, dedupedCampaignIds, dedupedEntityIds, campaignRoles, entityRoles])
+  }, [isAdminOrAbove, dedupedCampaignIds, dedupedEntityIds, campaignRoles, entityRoles, session])
 }
 
 export const useAssessmentSendPermissionMap = (assessments: AssessmentWithCampaigns[]): Record<string, boolean> => {
   const { data: orgPermission } = useOrganizationRoles()
-  const isAdminOrAbove = canEdit(orgPermission?.roles)
+  const { data: session } = useSession()
+  const isAdminOrAbove = canEdit(orgPermission?.roles, session)
 
   const { campaignIds, entityIds } = useMemo(() => collectCampaignAndEntityIds(assessments), [assessments])
 
@@ -73,10 +77,10 @@ export const useAssessmentSendPermissionMap = (assessments: AssessmentWithCampai
         return
       }
       const edges = assessment.campaigns?.edges ?? []
-      const campaignEditable = edges.some((edge) => edge?.node?.id && canEdit(campaignRoles?.object_roles?.[edge.node.id]))
-      const entityEditable = edges.some((edge) => edge?.node?.entityID && canEdit(entityRoles?.object_roles?.[edge.node.entityID]))
+      const campaignEditable = edges.some((edge) => edge?.node?.id && canEdit(campaignRoles?.object_roles?.[edge.node.id], session))
+      const entityEditable = edges.some((edge) => edge?.node?.entityID && canEdit(entityRoles?.object_roles?.[edge.node.entityID], session))
       map[assessment.id] = campaignEditable || entityEditable
     })
     return map
-  }, [assessments, isAdminOrAbove, campaignRoles, entityRoles])
+  }, [assessments, isAdminOrAbove, campaignRoles, entityRoles, session])
 }

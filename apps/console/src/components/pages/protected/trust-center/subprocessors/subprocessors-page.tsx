@@ -38,6 +38,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import SubprocessorsModeToggle, { type SubprocessorMode } from './SubprocessorsModeToggle'
+import { useSession } from 'next-auth/react'
 
 const SubprocessorsPage = () => {
   const router = useRouter()
@@ -68,8 +69,9 @@ const SubprocessorsPage = () => {
 
   const { successNotification, errorNotification } = useNotification()
   const { data: orgPermission } = useOrganizationRoles()
-  const canCreateSubprocessor = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterSubprocessor)
-  const canEditSubprocessor = hasPermission(orgPermission?.roles, AccessEnum.CanEditTrustCenterSubprocessor)
+  const { data: session } = useSession()
+  const canCreateSubprocessor = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterSubprocessor, session)
+  const canEditSubprocessor = hasPermission(orgPermission?.roles, AccessEnum.CanEditTrustCenterSubprocessor, session)
 
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterNode = trustCenterData?.trustCenters?.edges?.[0]?.node

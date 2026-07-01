@@ -75,13 +75,13 @@ export default function CreateControlForm() {
   const [createImplementation, setCreateImplementation] = useState(false)
   const [mappedControls, setMappedControls] = useState<{ controls: Control[]; subcontrols: Subcontrol[] }>({ controls: [], subcontrols: [] })
   const { data: permission, isLoading: permissionsLoading } = useOrganizationRoles()
-  const createAllowed = hasPermission(permission?.roles, isCreateSubcontrol ? AccessEnum.CanCreateSubcontrol : AccessEnum.CanCreateControl)
+  const { data: sessionData } = useSession()
+  const createAllowed = hasPermission(permission?.roles, isCreateSubcontrol ? AccessEnum.CanCreateSubcontrol : AccessEnum.CanCreateControl, sessionData)
 
   const { mutateAsync: createControlImplementation } = useCreateControlImplementation()
   const { mutateAsync: createControlObjective } = useCreateControlObjective()
   const { mutateAsync: createMappedControl } = useCreateMappedControl()
   const { data: discussionData } = useGetControlDiscussionById(id ?? null)
-  const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
   const dropdownRef = useClickOutside(() => setOpen(false))

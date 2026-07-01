@@ -24,12 +24,14 @@ import { objectToSnakeCase } from '@/utils/strings'
 import { Card } from '@repo/ui/cardpanel'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/react-collapsible'
 import { ChevronDown } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 
 const SubcontrolsTable: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { convertToReadOnly } = usePlateEditor()
   const { data: orgPermission } = useOrganizationRoles()
   const { data: permission } = useAccountRoles(ObjectTypes.CONTROL, id)
+  const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearch = useDebounce(searchQuery, 300)
@@ -129,7 +131,9 @@ const SubcontrolsTable: React.FC = () => {
           <div className="flex items-center gap-2.5">
             <h2 className="text-lg font-semibold">Subcontrols</h2>
             <span className="text-sm text-muted-foreground">({totalCount} total)</span>
-            {(hasPermission(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) || canEdit(permission?.roles)) && <CreateButton type="subcontrol" href={`/controls/${id}/create-subcontrol`} />}
+            {(hasPermission(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) || canEdit(permission?.roles, session)) && (
+              <CreateButton type="subcontrol" href={`/controls/${id}/create-subcontrol`} />
+            )}
           </div>
           <div className="flex items-center gap-3">
             {totalCount > 0 && (

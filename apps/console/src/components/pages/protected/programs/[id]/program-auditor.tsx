@@ -24,6 +24,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 interface ProgramAuditorProps {
   firm?: string | null
@@ -48,7 +49,9 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
   const hasAuditor = !!(firm || name || email)
   const { id } = useParams<{ id: string | undefined }>()
   const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
-  const isEditAllowed = canEdit(permission?.roles)
+  const { data: session } = useSession()
+
+  const isEditAllowed = canEdit(permission?.roles, session)
 
   const [isEditing, setIsEditing] = useState(false)
   const [isEligibleForAuditorSet, setIsEligibleForAuditorSet] = useState(false)

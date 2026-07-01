@@ -27,6 +27,7 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useSession } from 'next-auth/react'
 
 const DEFAULT_ENUM_COLUMN_VISIBILITY: VisibilityState = {
   objectType: false,
@@ -41,8 +42,9 @@ const CustomEnumsTab: FC = () => {
   const { push } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
   const { data: permission } = useOrganizationRoles()
-  const canCreateEnum = hasPermission(permission?.roles, AccessEnum.CanCreateCustomTypeEnum)
-  const canEditEnum = hasPermission(permission?.roles, AccessEnum.CanEditCustomTypeEnum)
+  const { data: session } = useSession()
+  const canCreateEnum = hasPermission(permission?.roles, AccessEnum.CanCreateCustomTypeEnum, session)
+  const canEditEnum = hasPermission(permission?.roles, AccessEnum.CanEditCustomTypeEnum, session)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.CUSTOM_ENUMS, DEFAULT_ENUM_COLUMN_VISIBILITY))
   const defaultSorting = getInitialSortConditions(TableKeyEnum.CUSTOM_ENUMS, CustomTypeEnumOrderField, [
     {

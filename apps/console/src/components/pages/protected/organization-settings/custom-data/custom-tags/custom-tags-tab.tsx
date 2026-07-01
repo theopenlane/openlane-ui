@@ -21,6 +21,7 @@ import { type VisibilityState } from '@tanstack/react-table'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canDelete, canEdit } from '@/lib/authz/utils'
+import { useSession } from 'next-auth/react'
 
 const DEFAULT_TAGS_COLUMN_VISIBILITY: VisibilityState = {
   type: false,
@@ -34,6 +35,7 @@ const CustomTagsTab: FC = () => {
   const { push } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.CUSTOM_TAGS, DEFAULT_TAGS_COLUMN_VISIBILITY))
 
   const [searchValue, setSearchValue] = useState('')
@@ -106,7 +108,7 @@ const CustomTagsTab: FC = () => {
     }
   }
 
-  const canEditTags = canEdit(permission?.roles)
+  const canEditTags = canEdit(permission?.roles, session)
   const canDeleteTags = canDelete(permission?.roles)
 
   const { columns, mappedColumns } = useGetCustomTagColumns({

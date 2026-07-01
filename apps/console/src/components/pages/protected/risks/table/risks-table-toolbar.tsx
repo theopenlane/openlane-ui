@@ -24,6 +24,8 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
+import { useSession } from 'next-auth/react'
+import { type Session } from 'next-auth'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void
@@ -42,7 +44,7 @@ type TProps = {
   handleClearSelectedControls: () => void
   selectedRisks: { id: string }[]
   setSelectedRisks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   permission: TPermissionData | undefined
 }
 
@@ -63,6 +65,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
   canEdit,
   permission,
 }: TProps) => {
+  const { data: session } = useSession()
   const { programOptions, isSuccess: isProgramsSuccess } = useProgramSelect({})
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
@@ -143,7 +146,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
         </div>
         {selectedRisks.length > 0 ? (
           <>
-            {canEdit(permission?.roles) && <BulkEditRisksDialog selectedRisks={selectedRisks} setSelectedRisks={setSelectedRisks}></BulkEditRisksDialog>}
+            {canEdit(permission?.roles, session) && <BulkEditRisksDialog selectedRisks={selectedRisks} setSelectedRisks={setSelectedRisks}></BulkEditRisksDialog>}
             <Button
               type="button"
               variant="secondary"
@@ -153,7 +156,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
             >
               {selectedRisks && selectedRisks.length > 0 ? `Bulk Delete (${selectedRisks.length})` : 'Bulk Delete'}
             </Button>
-            {canEdit(permission?.roles) && (
+            {canEdit(permission?.roles, session) && (
               <>
                 <ConfirmationDialog
                   open={isBulkDeleteDialogOpen}
@@ -179,7 +182,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
               closeOnSelect={true}
               content={(close) => (
                 <>
-                  {hasPermission(permission?.roles, AccessEnum.CanCreateRisk) && (
+                  {hasPermission(permission?.roles, AccessEnum.CanCreateRisk, session) && (
                     <BulkCSVCreateRiskDialog
                       trigger={
                         <div className="flex items-center space-x-2 px-1">
@@ -206,7 +209,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
               <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.RISK} />
             )}
             {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableKeyEnum.RISK} />}
-            {hasPermission(permission?.roles, AccessEnum.CanCreateRisk) && (
+            {hasPermission(permission?.roles, AccessEnum.CanCreateRisk, session) && (
               <Button variant="primary" onClick={handleCreateNew} className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                 Create
               </Button>

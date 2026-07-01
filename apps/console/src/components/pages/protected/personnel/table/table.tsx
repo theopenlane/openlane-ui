@@ -12,6 +12,7 @@ import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
 import { isUlid } from '@/lib/validators'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 
 const TableComponent = ({
   onSortChange,
@@ -29,6 +30,7 @@ const TableComponent = ({
   defaultSorting,
 }: TTableProps<IdentityHolderWhereInput>) => {
   const { push } = useRouter()
+  const { data: session } = useSession()
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -77,10 +79,10 @@ const TableComponent = ({
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles, setColumnVisibility, canEdit])
+  }, [permission?.roles, setColumnVisibility, canEdit, session])
 
   useEffect(() => {
     if (isError) {
