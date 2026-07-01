@@ -5,7 +5,6 @@ import { type SelectedItem, type TSharedImportControlsComponentsPropsPrograms } 
 import { useMemo, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type ControlWhereInput } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
 import { Button } from '@repo/ui/button'
@@ -15,7 +14,7 @@ import { Hourglass } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, useTablePagination } from '@repo/ui/data-table'
 import { getColumnsForImportControlsDialogFramework } from '../program-tasks-table/columns'
 import { useParams } from 'next/navigation'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -28,14 +27,12 @@ const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selected
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const { wrapper, content } = statCardStyles({ color: 'green' })
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_IMPORT_CONTROLS_PROGRAM, {
-      ...DEFAULT_PAGINATION,
-      page: 1,
-      pageSize: 5,
-      query: { first: 5 },
-    }),
-  )
+  const [pagination, setPagination] = useTablePagination({
+    ...DEFAULT_PAGINATION,
+    page: 1,
+    pageSize: 5,
+    query: { first: 5 },
+  })
 
   const where: ControlWhereInput = useMemo(() => {
     const initialWhereFilters: ControlWhereInput[] = [{ hasPrograms: true }]

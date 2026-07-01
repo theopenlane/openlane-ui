@@ -5,8 +5,7 @@ import { useGetEntityFilesPaginated, useUploadEntityFiles, useUpdateEntity } fro
 import { DocumentsSection } from '@/components/shared/documents-section/documents-section'
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'
 import { type FileOrder, type FileWhereInput, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
-import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useNotification } from '@/hooks/useNotification'
@@ -23,8 +22,8 @@ type EntityDocumentsSectionProps = {
 }
 
 const EntityDocumentsSection: React.FC<EntityDocumentsSectionProps> = ({ entityId, isEditAllowed, isCreate, onStagedFilesChange, onExistingFileIdsChange, logoFileId }) => {
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.ENTITY_FILES, DEFAULT_PAGINATION))
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.ENTITY_FILES, FileOrderField, [
+  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
+  const defaultSorting = useInitialSortConditions(TableKeyEnum.ENTITY_FILES, FileOrderField, [
     {
       field: FileOrderField.created_at,
       direction: OrderDirection.ASC,

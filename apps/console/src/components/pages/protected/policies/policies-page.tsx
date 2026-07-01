@@ -48,7 +48,6 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
       setSelectedGroups((e.detail?.approverIDIn as string[]) || [])
     }
 
-     
     const eventName = getFiltersUpdatedEvent(TableKeyEnum.INTERNAL_POLICY, currentOrgId)
     window.addEventListener(eventName, handleUpdate as EventListener)
 

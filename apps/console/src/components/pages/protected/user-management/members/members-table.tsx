@@ -14,7 +14,7 @@ import { pageStyles } from './page.styles'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Copy, Info, KeyRoundIcon } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
 import { type ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
 import { useCopyToClipboard, useDebounce } from '@uidotdev/usehooks'
@@ -51,10 +51,10 @@ export const MembersTable = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [, copyToClipboard] = useCopyToClipboard()
   const { successNotification, errorNotification } = useNotification()
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.MEMBER, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const [orderBy, setOrderBy] = useState<OrgMembershipsQueryVariables['orderBy']>(() =>
-    getInitialSortConditions(TableKeyEnum.MEMBER, OrgMembershipOrderField, [
+  const [orderBy, setOrderBy] = useState<OrgMembershipsQueryVariables['orderBy']>(
+    useInitialSortConditions(TableKeyEnum.MEMBER, OrgMembershipOrderField, [
       {
         field: OrgMembershipOrderField.created_at,
         direction: OrderDirection.DESC,

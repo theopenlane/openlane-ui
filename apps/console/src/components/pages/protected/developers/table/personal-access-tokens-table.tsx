@@ -8,7 +8,7 @@ import {
   OrderDirection,
   PersonalAccessTokenOrderField,
 } from '@repo/codegen/src/schema'
-import { DataTable, getInitialSortConditions, getInitialPagination, TruncatedCell } from '@repo/ui/data-table'
+import { DataTable, useInitialSortConditions, useTablePagination, TruncatedCell } from '@repo/ui/data-table'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
@@ -22,7 +22,6 @@ import TokensTableToolbar from '@/components/pages/protected/developers/table/pe
 import { useMemo, useState, useEffect } from 'react'
 import { TokenAction } from '@/components/pages/protected/developers/actions/pat-actions.tsx'
 import { TOKEN_SORT_FIELDS } from '@/components/pages/protected/developers/table/table-config.ts'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { useNotification } from '@/hooks/useNotification'
@@ -178,7 +177,7 @@ export const PersonalAccessTokenTable = () => {
   const { data: permission } = useOrganizationRoles()
   const canManageApiToken = !isApiTokenPage || canEdit(permission?.roles)
   const tableKey = isApiTokenPage ? TableKeyEnum.API_TOKEN : TableKeyEnum.PERSONAL_ACCESS_TOKEN
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(tableKey, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
   const { successNotification, errorNotification } = useNotification()
 
   type CommonWhereType = GetPersonalAccessTokensQueryVariables['where'] | GetApiTokensQueryVariables['where']
@@ -189,7 +188,7 @@ export const PersonalAccessTokenTable = () => {
   }>
 
   const [filters, setFilters] = useState<CommonWhereType | null>(null)
-  const defaultSorting = getInitialSortConditions(tableKey, PersonalAccessTokenOrderField, [
+  const defaultSorting = useInitialSortConditions(tableKey, PersonalAccessTokenOrderField, [
     {
       field: PersonalAccessTokenOrderField.created_at,
       direction: OrderDirection.DESC,

@@ -2,12 +2,11 @@
 
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
 import { type ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { formatDate } from '@/utils/date'
 import { addDays } from 'date-fns'
 import { type GetInternalPoliciesListQueryVariables, InternalPolicyOrderField, type InternalPolicyWhereInput, OrderDirection, type Organization } from '@repo/codegen/src/schema'
@@ -72,19 +71,17 @@ const columns: ColumnDef<FormattedPolicy>[] = [
 ]
 
 export default function ReviewDueSoonTable() {
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.POLICIES_REVIEW_DUE_SOON, {
-      ...DEFAULT_PAGINATION,
-      pageSize: 5,
-    }),
-  )
+  const [pagination, setPagination] = useTablePagination({
+    ...DEFAULT_PAGINATION,
+    pageSize: 5,
+  })
 
   const where: InternalPolicyWhereInput = {
     ...wherePoliciesDashboard,
     reviewDueLTE: dueSoonLimit.toISOString(),
   }
 
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.POLICIES_REVIEW_DUE_SOON, InternalPolicyOrderField, [
+  const defaultSorting = useInitialSortConditions(TableKeyEnum.POLICIES_REVIEW_DUE_SOON, InternalPolicyOrderField, [
     {
       field: InternalPolicyOrderField.review_due,
       direction: OrderDirection.ASC,

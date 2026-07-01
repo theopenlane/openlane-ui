@@ -2,8 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { type AssessmentResponse, type AssessmentResponseQuery, AssessmentResponseAssessmentResponseStatus, AssessmentResponseOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { useAssessmentResponsesWithFilter, useAssessmentResponse, useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessment-response'
@@ -48,8 +47,8 @@ const StatusBadge: React.FC<{ status: AssessmentResponseAssessmentResponseStatus
 const SORT_FIELDS = [{ label: 'Created At', key: AssessmentResponseOrderField.created_at }]
 
 const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelEmail }) => {
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.ASSESSMENT_RESPONSE, DEFAULT_PAGINATION))
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.ASSESSMENT_RESPONSE, AssessmentResponseOrderField, [
+  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
+  const defaultSorting = useInitialSortConditions(TableKeyEnum.ASSESSMENT_RESPONSE, AssessmentResponseOrderField, [
     {
       field: AssessmentResponseOrderField.created_at,
       direction: OrderDirection.DESC,

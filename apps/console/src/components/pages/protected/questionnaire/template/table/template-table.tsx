@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
+import { DataTable, useInitialSortConditions } from '@repo/ui/data-table'
 import React, { useCallback, use, useEffect, useMemo, useState } from 'react'
 import { getTemplateColumns } from './columns'
 import TemplateTableToolbar from '@/components/pages/protected/questionnaire/template/table/template-table-toolbar.tsx'
@@ -44,7 +44,7 @@ export const TemplatesTable = () => {
   const canCreateTemplate = hasPermission(permission?.roles, AccessEnum.CanCreateTemplate)
   const canCreateQuestionnaires = includeQuestionnaireCreation === 'true' && canCreateTemplate
 
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.TEMPLATE, TemplateOrderField, [
+  const defaultSorting = useInitialSortConditions(TableKeyEnum.TEMPLATE, TemplateOrderField, [
     {
       field: TemplateOrderField.name,
       direction: OrderDirection.ASC,

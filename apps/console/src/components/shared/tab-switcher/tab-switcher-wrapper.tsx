@@ -2,9 +2,8 @@
 
 import React, { useEffect, useState } from 'react'
 import { type TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys'
-import { STORAGE_KEY_PREFIX } from '@/components/shared/tab-switcher/tab-switcher'
-import { useOrganization } from '@/hooks/useOrganization'
-import { getOrganizationStorageKey } from '@/lib/storage/organization-storage'
+import { STORAGE_KEY_PREFIX, readStoredTab } from '@/components/shared/tab-switcher/tab-switcher'
+import { useOrganizationStorageKey } from '@/hooks/useOrganizationStorageKey'
 
 type TTab = 'dashboard' | 'table'
 
@@ -14,22 +13,12 @@ type TTabSwitcherWrapperProps = {
 }
 
 const TabSwitcherWrapper: React.FC<TTabSwitcherWrapperProps> = ({ storageKey, children }) => {
-  const { currentOrgId } = useOrganization()
-  const fullKey = getOrganizationStorageKey(`${STORAGE_KEY_PREFIX}-${storageKey}`, currentOrgId)
+  const fullKey = useOrganizationStorageKey(`${STORAGE_KEY_PREFIX}-${storageKey}`)
 
-  const [active, setActive] = useState<TTab>(() => {
-    if (typeof window === 'undefined') return 'dashboard'
-
-    const saved = localStorage.getItem(fullKey)
-    if (saved === 'dashboard' || saved === 'table') {
-      return saved
-    }
-    return 'dashboard'
-  })
+  const [active, setActive] = useState<TTab>(() => readStoredTab(fullKey))
 
   useEffect(() => {
-    const saved = localStorage.getItem(fullKey)
-    setActive(saved === 'dashboard' || saved === 'table' ? saved : 'dashboard')
+    setActive(readStoredTab(fullKey))
   }, [fullKey])
 
   const handleSetActive = (tab: TTab) => {

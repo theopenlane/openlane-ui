@@ -3,7 +3,6 @@
 import React, { use, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getRiskColumns } from '@/components/pages/protected/risks/table/columns.tsx'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import { ExportExportFormat, ExportExportType, type GetAllRisksQueryVariables, OrderDirection, RiskOrderField, type RiskWhereInput } from '@repo/codegen/src/schema.ts'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
@@ -11,7 +10,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { useRisks } from '@/lib/graphql-hooks/risk'
 import { PageHeading } from '@repo/ui/page-heading'
 import RisksTableToolbar from '@/components/pages/protected/risks/table/risks-table-toolbar.tsx'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
 import { RISKS_SORT_FIELDS } from '@/components/pages/protected/risks/table/table-config.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -32,13 +31,13 @@ const RiskTable: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.RISK)
   const [filters, setFilters] = useState<RiskWhereInput | null>(null)
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.RISK, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
   const [selectedRisks, setSelectedRisks] = useState<{ id: string }[]>([])
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.RISK, RiskOrderField, [
+  const defaultSorting = useInitialSortConditions(TableKeyEnum.RISK, RiskOrderField, [
     {
       field: RiskOrderField.name,
       direction: OrderDirection.ASC,

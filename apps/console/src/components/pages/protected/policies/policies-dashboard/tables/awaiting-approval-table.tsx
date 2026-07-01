@@ -1,12 +1,11 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import React, { useMemo } from 'react'
+import { DataTable, useTablePagination } from '@repo/ui/data-table'
 import { type ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { formatDate } from '@/utils/date'
 import { type Group, InternalPolicyDocumentStatus, type InternalPolicyWhereInput } from '@repo/codegen/src/schema'
 import { wherePoliciesDashboard } from '../dashboard-config'
@@ -58,12 +57,10 @@ const columns: ColumnDef<FormattedPolicy>[] = [
 ]
 
 export default function AwaitingApprovalTable() {
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.POLICY_AWAITING_APPROVAL, {
-      ...DEFAULT_PAGINATION,
-      pageSize: 5,
-    }),
-  )
+  const [pagination, setPagination] = useTablePagination({
+    ...DEFAULT_PAGINATION,
+    pageSize: 5,
+  })
 
   const where: InternalPolicyWhereInput = {
     ...wherePoliciesDashboard,

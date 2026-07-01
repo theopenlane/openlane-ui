@@ -4,7 +4,6 @@ import TaskTableToolbar from '@/components/pages/protected/tasks/table/task-tabl
 import { type TOrgMembers, useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { ExportExportFormat, ExportExportType, OrderDirection, type Task, TaskOrderField, type TasksWithFilterQueryVariables, TaskTaskStatus, type TaskWhereInput } from '@repo/codegen/src/schema'
 import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import TaskInfiniteCards from '@/components/pages/protected/tasks/cards/task-infinite-cards.tsx'
@@ -20,7 +19,7 @@ import { Loading } from '@/components/shared/loading/loading'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator, whereContainsKey } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { useTablePagination, useInitialSortConditions } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
@@ -33,13 +32,13 @@ const TasksPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showMyTasks, setShowMyTasks] = useState<boolean>(false)
   const [filters, setFilters] = useState<TaskWhereInput | null>(null)
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.OBJECT_ASSOCIATION_PROGRAMS, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
   const searchParams = useSearchParams()
   const { data: session } = useSession()
   const { data: membersData, isLoading: isMembersLoading } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { handleExport } = useFileExport()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.TASK, TaskOrderField, [
+  const defaultSorting = useInitialSortConditions(TableKeyEnum.TASK, TaskOrderField, [
     {
       field: TaskOrderField.due,
       direction: OrderDirection.ASC,

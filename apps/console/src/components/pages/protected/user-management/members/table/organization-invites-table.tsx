@@ -1,7 +1,7 @@
 'use client'
 
 import { type GetInvitesQueryVariables, type InviteInviteStatus, InviteOrderField, type InviteRole, type InviteWhereInput, OrderDirection } from '@repo/codegen/src/schema'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
 import { useGetInvites } from '@/lib/graphql-hooks/organization'
 import { InvitesColumns } from '@/components/pages/protected/user-management/members/table/columns.tsx'
 import OrganizationInvitesTableToolbar from '@/components/pages/protected/user-management/members/table/organization-invites-table-toolbar.tsx'
@@ -23,9 +23,9 @@ type InviteNode = {
 
 export const OrganizationInvitesTable = () => {
   const [filters, setFilters] = useState<InviteWhereInput | null>(null)
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.ORG_INVITE, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
   const { columns } = InvitesColumns()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.ORG_INVITE, InviteOrderField, [
+  const defaultSorting = useInitialSortConditions(TableKeyEnum.ORG_INVITE, InviteOrderField, [
     {
       field: InviteOrderField.created_at,
       direction: OrderDirection.DESC,

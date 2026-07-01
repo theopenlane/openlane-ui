@@ -3,10 +3,15 @@
 import React, { useEffect, useState } from 'react'
 import { Presentation, Table } from 'lucide-react'
 import { type TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
-import { useOrganization } from '@/hooks/useOrganization'
-import { getOrganizationStorageKey } from '@/lib/storage/organization-storage'
+import { useOrganizationStorageKey } from '@/hooks/useOrganizationStorageKey'
 
 type TTab = 'dashboard' | 'table'
+
+export const readStoredTab = (key: string): TTab => {
+  if (typeof window === 'undefined') return 'dashboard'
+  const saved = localStorage.getItem(key)
+  return saved === 'dashboard' || saved === 'table' ? saved : 'dashboard'
+}
 
 type TTabSwitcherProps = {
   storageKey: TabSwitcherStorageKeys
@@ -20,23 +25,13 @@ const DEFAULT_LABELS = { dashboard: 'Report', table: 'Table' }
 export const STORAGE_KEY_PREFIX = 'tab-switch'
 
 const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: externalActive, setActive: externalSetActive, labels }) => {
-  const { currentOrgId } = useOrganization()
-  const storageKeyWithPrefix = getOrganizationStorageKey(`${STORAGE_KEY_PREFIX}-${storageKey}`, currentOrgId)
+  const storageKeyWithPrefix = useOrganizationStorageKey(`${STORAGE_KEY_PREFIX}-${storageKey}`)
   const resolvedLabels = { ...DEFAULT_LABELS, ...labels }
 
-  const [internalActive, setInternalActive] = useState<TTab>(() => {
-    if (typeof window !== 'undefined') {
-      const savedTab = localStorage.getItem(storageKeyWithPrefix)
-      if (savedTab === 'dashboard' || savedTab === 'table') {
-        return savedTab
-      }
-    }
-    return 'dashboard'
-  })
+  const [internalActive, setInternalActive] = useState<TTab>(() => readStoredTab(storageKeyWithPrefix))
 
   useEffect(() => {
-    const savedTab = localStorage.getItem(storageKeyWithPrefix)
-    setInternalActive(savedTab === 'dashboard' || savedTab === 'table' ? savedTab : 'dashboard')
+    setInternalActive(readStoredTab(storageKeyWithPrefix))
   }, [storageKeyWithPrefix])
 
   const active = externalActive ?? internalActive

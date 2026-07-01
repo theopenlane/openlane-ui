@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
+import { DataTable, useInitialSortConditions } from '@repo/ui/data-table'
 import React, { useCallback, use, useEffect, useMemo, useState } from 'react'
 import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
@@ -40,7 +40,7 @@ export const QuestionnairesTable = () => {
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
   const { data: permission } = useOrganizationRoles()
 
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, AssessmentOrderField, [
+  const defaultSorting = useInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, AssessmentOrderField, [
     {
       field: AssessmentOrderField.updated_at,
       direction: OrderDirection.DESC,

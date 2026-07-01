@@ -4,12 +4,11 @@ import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
 import { type ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/task.ts'
 import { OrderDirection, TaskOrderField, type TasksWithFilterQueryVariables, TaskTaskStatus, type TaskWhereInput, type User } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TASK_SORT_FIELDS } from '../../../tasks/table/table-config.ts'
 import { useParams } from 'next/navigation'
@@ -34,12 +33,10 @@ type FormattedTask = {
 const ProgramTasksTable = () => {
   const { currentOrgId } = useOrganization()
   const { id } = useParams<{ id: string | undefined }>()
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.PROGRAM, {
-      ...DEFAULT_PAGINATION,
-      pageSize: 5,
-    }),
-  )
+  const [pagination, setPagination] = useTablePagination({
+    ...DEFAULT_PAGINATION,
+    pageSize: 5,
+  })
 
   const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
     where: {
@@ -114,7 +111,7 @@ const ProgramTasksTable = () => {
         statusNotIn: [TaskTaskStatus.COMPLETED, TaskTaskStatus.WONT_DO],
       }
     : {}
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.PROGRAM, TaskOrderField, [
+  const defaultSorting = useInitialSortConditions(TableKeyEnum.PROGRAM, TaskOrderField, [
     {
       field: TaskOrderField.due,
       direction: OrderDirection.ASC,

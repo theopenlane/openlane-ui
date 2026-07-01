@@ -2,8 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { DataTable, useTablePagination } from '@repo/ui/data-table'
 import { ProgramProgramStatus, type ProgramWhereInput } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import usePlateEditor from '../plate/usePlateEditor'
@@ -27,14 +26,12 @@ export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({
   const [frameworks, setFrameworks] = useState<string[]>([])
   const { convertToReadOnly } = usePlateEditor()
 
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.OBJECT_ASSOCIATION_PROGRAMS, {
-      ...DEFAULT_PAGINATION,
-      page: 1,
-      pageSize: 5,
-      query: { first: 5 },
-    }),
-  )
+  const [pagination, setPagination] = useTablePagination({
+    ...DEFAULT_PAGINATION,
+    page: 1,
+    pageSize: 5,
+    query: { first: 5 },
+  })
 
   useEffect(() => {
     if (open) {

@@ -1,10 +1,9 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
 import React, { useState, useMemo, useEffect, use } from 'react'
 import { type Evidence, type EvidenceOrder, EvidenceOrderField, type EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@tanstack/react-table'
@@ -27,7 +26,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.EVIDENCE, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<EvidenceWhereInput>({})
   const { setCrumbs } = use(BreadcrumbContext)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.EVIDENCE)
@@ -36,7 +35,7 @@ export const EvidenceTable = () => {
   const [selectedEvidence, setSelectedEvidence] = useState<{ id: string }[]>([])
   const { data: permission } = useOrganizationRoles()
 
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE, EvidenceOrderField, [
+  const defaultSorting = useInitialSortConditions(TableKeyEnum.EVIDENCE, EvidenceOrderField, [
     {
       field: EvidenceOrderField.name,
       direction: OrderDirection.ASC,
@@ -169,7 +168,7 @@ export const EvidenceTable = () => {
         onRowClick={handleRowClick}
         loading={fetching || fetchingUsers}
         pagination={pagination}
-        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+        onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}

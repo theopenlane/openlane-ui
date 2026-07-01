@@ -5,8 +5,7 @@ import { useGetReviewFilesPaginated, useUpdateReview, useUploadReviewFiles } fro
 import { DocumentsSection } from '@/components/shared/documents-section/documents-section'
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'
 import { type FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
-import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { useTablePagination, useInitialSortConditions } from '@repo/ui/data-table'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useNotification } from '@/hooks/useNotification'
@@ -24,8 +23,8 @@ type ReviewDocumentsSectionProps = {
 const REVIEW_FILES_TABLE_KEY = 'review-files' as TableKeyValue
 
 const ReviewDocumentsSection: React.FC<ReviewDocumentsSectionProps> = ({ reviewId, isEditAllowed, isCreate, onStagedFilesChange, onExistingFileIdsChange }) => {
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(REVIEW_FILES_TABLE_KEY, DEFAULT_PAGINATION))
-  const defaultSorting = getInitialSortConditions(REVIEW_FILES_TABLE_KEY, FileOrderField, [
+  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
+  const defaultSorting = useInitialSortConditions(REVIEW_FILES_TABLE_KEY, FileOrderField, [
     {
       field: FileOrderField.created_at,
       direction: OrderDirection.DESC,

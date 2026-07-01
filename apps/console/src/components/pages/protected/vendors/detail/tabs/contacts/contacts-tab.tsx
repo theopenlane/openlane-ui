@@ -3,8 +3,7 @@
 import React, { useState, useMemo } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { DataTable, useTablePagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
@@ -82,7 +81,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
   }
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.VENDOR_CONTACTS, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_CONTACTS, {}))
   const [selectedContacts, setSelectedContacts] = useState<{ id: string }[]>([])
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)

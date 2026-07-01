@@ -2,11 +2,10 @@
 
 import React, { useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, useTablePagination } from '@repo/ui/data-table'
 import { type ColumnDef } from '@tanstack/table-core'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { formatDate } from '@/utils/date'
 import { type InternalPolicyWhereInput } from '@repo/codegen/src/schema'
 import { wherePoliciesDashboard } from '../dashboard-config'
@@ -23,12 +22,10 @@ type FormattedPolicy = {
 }
 
 export default function PoliciesWithoutProceduresTable() {
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.POLICY_WITHOUT_PROCEDURE, {
-      ...DEFAULT_PAGINATION,
-      pageSize: 5,
-    }),
-  )
+  const [pagination, setPagination] = useTablePagination({
+    ...DEFAULT_PAGINATION,
+    pageSize: 5,
+  })
   const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null)
 
   const where: InternalPolicyWhereInput = {

@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
 import React, { use, useEffect, useMemo, useState } from 'react'
 import {
   ExportExportFormat,
@@ -13,7 +13,6 @@ import {
 } from '@repo/codegen/src/schema'
 import PoliciesTableToolbar from '@/components/pages/protected/policies/table/policies-table-toolbar.tsx'
 import { INTERNAL_POLICIES_SORT_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
@@ -36,13 +35,13 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 
 export const PoliciesTable = () => {
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.INTERNAL_POLICY, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<InternalPolicyWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.INTERNAL_POLICY)
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.INTERNAL_POLICY, InternalPolicyOrderField, [
+  const defaultSorting = useInitialSortConditions(TableKeyEnum.INTERNAL_POLICY, InternalPolicyOrderField, [
     {
       field: InternalPolicyOrderField.name,
       direction: OrderDirection.ASC,
@@ -236,7 +235,7 @@ export const PoliciesTable = () => {
         rowHref={(row) => `/policies/${row.id}/view`}
         loading={fetching}
         pagination={pagination}
-        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+        onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}

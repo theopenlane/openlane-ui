@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { PlusCircle } from 'lucide-react'
 import { type ColumnDef } from '@tanstack/react-table'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, useTablePagination } from '@repo/ui/data-table'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { acceptedFileTypes, acceptedFileTypesShort, maxFileSizeInMb } from '@/components/shared/file-upload/file-upload-config'
 import { type TUploadedFile } from '@/components/shared/file-upload/types'
@@ -31,14 +31,12 @@ type DocumentsCreateSectionProps = {
 
 const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFilesChange, onFileIdsChange }) => {
   const [allFiles, setAllFiles] = useState<TUploadedFile[]>([])
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.EXISTING_FILES, {
-      ...DEFAULT_PAGINATION,
-      pageSize: 5,
-      page: 1,
-      query: { first: 5 },
-    }),
-  )
+  const [pagination, setPagination] = useTablePagination({
+    ...DEFAULT_PAGINATION,
+    pageSize: 5,
+    page: 1,
+    query: { first: 5 },
+  })
 
   const { data, isLoading, paginationMeta } = useGetFiles({ pagination })
   const [existingFiles, setExistingFiles] = useState<ExistingFileRow[]>([])

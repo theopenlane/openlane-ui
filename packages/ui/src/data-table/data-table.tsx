@@ -28,7 +28,7 @@ import { CSS } from '@dnd-kit/utilities'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table/table'
 import { Button } from '../button/button'
-import { memo, ReactElement, type CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { memo, ReactElement, type CSSProperties, type Dispatch, type SetStateAction, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Input } from '../input/input'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../dropdown-menu/dropdown-menu'
 import { ArrowDown, ArrowUp, ArrowUpDown, EyeIcon, GripVertical } from 'lucide-react'
@@ -37,6 +37,8 @@ import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
 import { cn } from '../../lib/utils'
 import { TableKeyValue } from '../data-table/table-key.ts'
+import { getOrganizationStorageKey } from '../storage/organization-storage'
+import { useOrgStorageId } from '../storage/org-storage-context'
 export { TruncatedCell } from './truncated-cell'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
@@ -46,18 +48,6 @@ type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
 }
 
 type TStickyOption = { stickyHeader: true; stickyDialogHeader?: false } | { stickyHeader?: false; stickyDialogHeader: true } | { stickyHeader?: false; stickyDialogHeader?: false }
-
-export function getInitialPagination<T extends TPagination>(key: TableKeyValue, fallback: T): T {
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem(`${STORAGE_PAGINATION_KEY_PREFIX}${key}`)
-    if (stored) {
-      try {
-        return JSON.parse(stored)
-      } catch {}
-    }
-  }
-  return fallback
-}
 
 interface BaseDataTableProps<TData, TValue> {
   columns: CustomColumnDef<TData, TValue>[]
@@ -86,7 +76,6 @@ interface BaseDataTableProps<TData, TValue> {
 type DataTableProps<TData, TValue> = BaseDataTableProps<TData, TValue> & TStickyOption
 
 export const STORAGE_SORTING_KEY_PREFIX = 'sorting:'
-export const STORAGE_PAGINATION_KEY_PREFIX = 'pagination:'
 export const STORAGE_COLUMN_ORDER_KEY_PREFIX = 'column-order:'
 export type SortCondition<TField extends string> = {
   field: TField
@@ -97,10 +86,11 @@ export function getInitialSortConditions<TField extends string>(
   tableKey: TableKeyValue,
   validSortKeys: Record<string, TField> | TField[],
   defaultSortFields: SortCondition<TField>[],
+  organizationId?: string,
 ): SortCondition<TField>[] {
   const validKeysArray = Array.isArray(validSortKeys) ? validSortKeys : Object.values(validSortKeys)
   if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`)
+    const stored = localStorage.getItem(getOrganizationStorageKey(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`, organizationId))
     if (stored) {
       try {
         const parsed = JSON.parse(stored) as SortCondition<string>[]
@@ -114,6 +104,31 @@ export function getInitialSortConditions<TField extends string>(
   }
 
   return defaultSortFields
+}
+
+export function useTablePagination(fallback: TPagination): [TPagination, Dispatch<SetStateAction<TPagination>>] {
+  const organizationId = useOrgStorageId()
+  const [pagination, setPagination] = useState<TPagination>(fallback)
+  const prevOrganizationIdRef = useRef(organizationId)
+  const fallbackRef = useRef(fallback)
+  fallbackRef.current = fallback
+
+  useEffect(() => {
+    if (prevOrganizationIdRef.current === organizationId) return
+    prevOrganizationIdRef.current = organizationId
+    setPagination(fallbackRef.current)
+  }, [organizationId])
+
+  return [pagination, setPagination]
+}
+
+export function useInitialSortConditions<TField extends string>(
+  tableKey: TableKeyValue,
+  validSortKeys: Record<string, TField> | TField[],
+  defaultSortFields: SortCondition<TField>[],
+): SortCondition<TField>[] {
+  const organizationId = useOrgStorageId()
+  return getInitialSortConditions(tableKey, validSortKeys, defaultSortFields, organizationId)
 }
 
 export function getInitialColumnOrder(tableKey: TableKeyValue): string[] {
@@ -308,7 +323,11 @@ export function DataTable<TData, TValue>({
   stickyDialogHeader = false,
   renderExpandedRow,
 }: DataTableProps<TData, TValue>) {
+  const orgStorageId = useOrgStorageId()
   const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>(defaultSorting ?? [])
+  const prevOrgStorageIdRef = useRef(orgStorageId)
+  const defaultSortingRef = useRef(defaultSorting)
+  defaultSortingRef.current = defaultSorting
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
   const [columnOrder, setColumnOrder] = useState<string[]>(() => (tableKey ? getInitialColumnOrder(tableKey) : []))
@@ -328,25 +347,6 @@ export function DataTable<TData, TValue>({
   const totalPages = useMemo(() => {
     return totalCount ? Math.ceil(totalCount / currentPageSize) : 1
   }, [totalCount, currentPageSize])
-
-  const updatePagination = (next: TPagination) => {
-    if (typeof window !== 'undefined' && tableKey) {
-      const safePagination = {
-        page: next.page,
-        pageSize: next.pageSize,
-        query: {
-          first: next.query?.first,
-          last: next.query?.last,
-          after: next.query?.after,
-          before: next.query?.before,
-        },
-      }
-
-      localStorage.setItem(`${STORAGE_PAGINATION_KEY_PREFIX}${tableKey}`, JSON.stringify(safePagination))
-    }
-
-    onPaginationChange?.(next)
-  }
 
   const handleSortChange = (field: string) => {
     setSortConditions((prev) => {
@@ -537,7 +537,7 @@ export function DataTable<TData, TValue>({
     }
 
     const next = { ...pagination, page: newPage, query }
-    updatePagination(next)
+    onPaginationChange?.(next)
   }
 
   const handlePageSizeChange = (newSize: number) => {
@@ -551,7 +551,7 @@ export function DataTable<TData, TValue>({
       pageSize: newSize,
       query: { first: newSize },
     }
-    updatePagination(next)
+    onPaginationChange?.(next)
   }
 
   const goToFirstPage = () => {
@@ -590,10 +590,16 @@ export function DataTable<TData, TValue>({
   }
 
   useEffect(() => {
+    if (prevOrgStorageIdRef.current !== orgStorageId) {
+      prevOrgStorageIdRef.current = orgStorageId
+      setSortConditions(defaultSortingRef.current ?? [])
+      return
+    }
+
     if (sortConditions && sortConditions.length > 0 && sortConditions.every(({ direction }) => direction !== undefined)) {
       onSortChange?.(sortConditions as { field: string; direction: OrderDirection }[])
       if (typeof window !== 'undefined' && tableKey) {
-        localStorage.setItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`, JSON.stringify(sortConditions))
+        localStorage.setItem(getOrganizationStorageKey(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`, orgStorageId), JSON.stringify(sortConditions))
       }
       return
     }
@@ -601,9 +607,9 @@ export function DataTable<TData, TValue>({
     // Keep server/client sorting in sync when user clears all sorts
     onSortChange?.([])
     if (typeof window !== 'undefined' && tableKey) {
-      localStorage.removeItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`)
+      localStorage.removeItem(getOrganizationStorageKey(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`, orgStorageId))
     }
-  }, [onSortChange, sortConditions, tableKey])
+  }, [onSortChange, sortConditions, tableKey, orgStorageId])
 
   useEffect(() => {
     if (typeof window !== 'undefined' && tableKey && columnOrder.length > 0) {

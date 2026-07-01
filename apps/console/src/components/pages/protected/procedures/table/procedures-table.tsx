@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
 import React, { use, useEffect, useMemo, useState } from 'react'
 import {
   ExportExportFormat,
@@ -17,7 +17,6 @@ import {
 import { getProceduresColumns } from '@/components/pages/protected/procedures/table/columns.tsx'
 import ProceduresTableToolbar from '@/components/pages/protected/procedures/table/procedures-table-toolbar.tsx'
 import { PROCEDURES_SORTABLE_FIELDS } from '@/components/pages/protected/procedures/table/table-config.ts'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useProcedures } from '@/lib/graphql-hooks/procedure'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -39,7 +38,7 @@ import { objectToSnakeCase } from '@/utils/strings'
 
 export const ProceduresTable = () => {
   const router = useRouter()
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.PROCEDURE, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<ProcedureWhereInput | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[] | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.PROCEDURE)
@@ -47,7 +46,7 @@ export const ProceduresTable = () => {
   const { data: permission } = useOrganizationRoles()
   const { errorNotification } = useNotification()
   const { handleExport } = useFileExport()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.PROCEDURE, ProcedureOrderField, [
+  const defaultSorting = useInitialSortConditions(TableKeyEnum.PROCEDURE, ProcedureOrderField, [
     {
       field: ProcedureOrderField.name,
       direction: OrderDirection.ASC,
@@ -240,7 +239,7 @@ export const ProceduresTable = () => {
         rowHref={(row) => `/procedures/${row.id}/view`}
         loading={fetching}
         pagination={pagination}
-        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+        onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}

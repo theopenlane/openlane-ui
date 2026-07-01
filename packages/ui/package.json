@@ -23,6 +23,8 @@
     "./command": "./src/command.tsx",
     "./data-table": "./src/data-table/data-table.tsx",
     "./table-key": "./src/data-table/table-key.ts",
+    "./storage/organization-storage": "./src/storage/organization-storage.ts",
+    "./storage/org-storage-context": "./src/storage/org-storage-context.tsx",
     "./dialog": "./src/dialog/dialog.tsx",
     "./dropdown-menu": "./src/dropdown-menu/dropdown-menu.tsx",
     "./form": "./src/form/form.tsx",

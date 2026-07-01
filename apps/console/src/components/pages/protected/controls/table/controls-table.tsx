@@ -2,12 +2,11 @@
 
 import React, { use, useEffect, useMemo, useState } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
 import { type ColumnDef } from '@tanstack/table-core'
 import { ControlControlStatus, ControlOrderField, type ControlWhereInput, ExportExportFormat, ExportExportType, type GetAllControlsQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
 
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import ControlsTableToolbar from './controls-table-toolbar'
 import { CONTROLS_SORT_FIELDS, getControlColumns } from './table-config'
@@ -43,7 +42,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.CONTROL, ControlOrderField, [
+  const defaultSorting = useInitialSortConditions(TableKeyEnum.CONTROL, ControlOrderField, [
     {
       field: ControlOrderField.ref_code,
       direction: OrderDirection.ASC,
@@ -78,7 +77,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.CONTROL, defaultVisibility))
 
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.CONTROL)
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.CONTROL, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
 
@@ -256,7 +255,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
         defaultSorting={defaultSorting}
         rowHref={(row) => `/controls/${row.id}`}
         pagination={pagination}
-        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+        onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
         sortFields={CONTROLS_SORT_FIELDS}
         onSortChange={setOrderBy}

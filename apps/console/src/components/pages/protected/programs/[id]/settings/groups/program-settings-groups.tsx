@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, useTablePagination } from '@repo/ui/data-table'
 import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { type ColumnDef, type Row } from '@tanstack/react-table'
@@ -15,7 +15,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { EditGroupRoleDialog } from '../program-settings-edit-role-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import Pagination from '@repo/ui/pagination'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -37,14 +36,12 @@ export const ProgramSettingsGroups = () => {
   const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
   const editAllowed = canEdit(permission?.roles)
   const queryClient = useQueryClient()
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_GROUP, {
-      ...DEFAULT_PAGINATION,
-      pageSize: 5,
-      page: 1,
-      query: {},
-    }),
-  )
+  const [pagination, setPagination] = useTablePagination({
+    ...DEFAULT_PAGINATION,
+    pageSize: 5,
+    page: 1,
+    query: {},
+  })
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<GroupRow | null>(null)

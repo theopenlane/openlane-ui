@@ -10,9 +10,8 @@ import { useGetStandards } from '@/lib/graphql-hooks/standard'
 import { FolderIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useUpdateControl } from '@/lib/graphql-hooks/control'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, useTablePagination } from '@repo/ui/data-table'
 import { type ColumnDef } from '@tanstack/react-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -26,14 +25,12 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
 
   const { mutateAsync: updateControl, isPending } = useUpdateControl()
 
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.CONTROLS_MAPPED_CATEGORIES, {
-      ...DEFAULT_PAGINATION,
-      page: 1,
-      pageSize: 5,
-      query: { first: 5 },
-    }),
-  )
+  const [pagination, setPagination] = useTablePagination({
+    ...DEFAULT_PAGINATION,
+    page: 1,
+    pageSize: 5,
+    query: { first: 5 },
+  })
 
   const { setValue, getValues } = useFormContext()
   const { data, isLoading } = useGetStandards({})

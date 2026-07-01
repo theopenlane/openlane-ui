@@ -3,8 +3,7 @@
 import React, { useState, useMemo } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type ColumnDef, type VisibilityState, type Row } from '@tanstack/react-table'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { type TFile } from '@/components/shared/file-table/columns'
 import { FILE_SORT_FIELDS } from '@/components/shared/file-table/table-config'
@@ -40,8 +39,8 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const queryClient = useQueryClient()
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.IDENTITY_HOLDER_FILES, DEFAULT_PAGINATION))
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.IDENTITY_HOLDER_FILES, FileOrderField, [
+  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
+  const defaultSorting = useInitialSortConditions(TableKeyEnum.IDENTITY_HOLDER_FILES, FileOrderField, [
     {
       field: FileOrderField.created_at,
       direction: OrderDirection.ASC,

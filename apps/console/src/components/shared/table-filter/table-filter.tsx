@@ -124,7 +124,6 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
       onFilterChange?.(buildWhereCondition(cleaned, filterFields))
     }
 
-     
     const eventName = getFiltersUpdatedEvent(pageKey, currentOrgId)
     window.addEventListener(eventName, listener as EventListener)
     return () => window.removeEventListener(eventName, listener as EventListener)
