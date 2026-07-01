@@ -1,19 +1,10 @@
 'use client'
 
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
 import React, { use, useEffect, useMemo, useState } from 'react'
-import {
-  ExportExportFormat,
-  ExportExportType,
-  type GetInternalPoliciesListQueryVariables,
-  InternalPolicyDocumentStatus,
-  InternalPolicyOrderField,
-  type InternalPolicyWhereInput,
-  OrderDirection,
-} from '@repo/codegen/src/schema'
+import { ExportExportFormat, ExportExportType, InternalPolicyDocumentStatus, InternalPolicyOrderField, type InternalPolicyWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import PoliciesTableToolbar from '@/components/pages/protected/policies/table/policies-table-toolbar.tsx'
 import { INTERNAL_POLICIES_SORT_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
@@ -31,24 +22,24 @@ import { whereGenerator } from '@/components/shared/table-filter/where-generator
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 
 export const PoliciesTable = () => {
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.INTERNAL_POLICY, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<InternalPolicyWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.INTERNAL_POLICY)
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.INTERNAL_POLICY, InternalPolicyOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.INTERNAL_POLICY, InternalPolicyOrderField, [
     {
       field: InternalPolicyOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>(defaultSorting)
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const { enumOptions } = useGetCustomTypeEnums({
@@ -230,13 +221,13 @@ export const PoliciesTable = () => {
       <DataTable
         sortFields={INTERNAL_POLICIES_SORT_FIELDS}
         onSortChange={setOrderBy}
-        defaultSorting={defaultSorting}
+        sorting={orderBy}
         columns={columns}
         data={policies}
         rowHref={(row) => `/policies/${row.id}/view`}
         loading={fetching}
         pagination={pagination}
-        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+        onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}

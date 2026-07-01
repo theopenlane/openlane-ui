@@ -1,8 +1,8 @@
 import { useGetEvidenceWithFilesPaginated, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
-import { type FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
+import { FileOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
 import React, { useState } from 'react'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import { fileColumns, type TFile } from '@/components/pages/protected/controls/control-evidence-files/table/columns.tsx'
 import { EVIDENCE_FILES_SORT_FIELDS } from '@/components/pages/protected/controls/control-evidence-files/table/table-config.ts'
@@ -26,7 +26,7 @@ type TControlEvidenceFiles = {
 }
 
 const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowed }) => {
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.EVIDENCE_FILES, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
   const [deleteFileInfo, setDeleteFileInfo] = useState<{
@@ -36,13 +36,12 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
   const [previewFile, setPreviewFile] = useState<TFile | null>(null)
   const [previewIsOpen, setPreviewIsOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE_FILES, FileOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.EVIDENCE_FILES, FileOrderField, [
     {
       field: FileOrderField.created_at,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<FileOrder[]>(defaultSorting)
   const { files, isLoading: fetching, isError, pageInfo, totalCount } = useGetEvidenceWithFilesPaginated({ evidenceId: evidenceID, orderBy: orderBy, pagination: pagination })
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
 
@@ -160,7 +159,7 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
       <DataTable
         columns={columns}
         sortFields={EVIDENCE_FILES_SORT_FIELDS}
-        defaultSorting={defaultSorting}
+        sorting={orderBy}
         onSortChange={setOrderBy}
         data={files.filter((f) => !!f)}
         loading={fetching}

@@ -5,8 +5,8 @@ import { SquarePlus, LoaderCircle, Search as SearchIcon } from 'lucide-react'
 import { type FC, useEffect, useMemo, useState, useCallback } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -40,13 +40,11 @@ const CustomTagsTab: FC = () => {
   const debouncedSearch = useDebounce(searchValue, 300)
   const [tagToDelete, setTagToDelete] = useState<{ id: string; name: string } | null>(null)
 
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.CUSTOM_TAGS, {
-      ...DEFAULT_PAGINATION,
-      pageSize: 10,
-      query: { first: 10 },
-    }),
-  )
+  const [pagination, setPagination] = useOrgTablePagination({
+    ...DEFAULT_PAGINATION,
+    pageSize: 10,
+    query: { first: 10 },
+  })
 
   const { tags, isLoading, isError, paginationMeta } = useTagsPaginated({
     pagination,
@@ -85,7 +83,7 @@ const CustomTagsTab: FC = () => {
       page: 1,
       query: { ...prev.query, after: undefined, before: undefined, first: prev.pageSize },
     }))
-  }, [])
+  }, [setPagination])
 
   useEffect(() => {
     resetPagination()
@@ -149,7 +147,7 @@ const CustomTagsTab: FC = () => {
           data={tags}
           loading={isLoading}
           pagination={pagination}
-          onPaginationChange={(p: TPagination) => setPagination(p)}
+          onPaginationChange={setPagination}
           paginationMeta={paginationMeta}
           tableKey={TableKeyEnum.CUSTOM_TAGS}
           columnVisibility={columnVisibility}

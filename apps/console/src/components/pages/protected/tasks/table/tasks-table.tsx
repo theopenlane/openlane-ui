@@ -1,8 +1,8 @@
 'use client'
 
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, type SortCondition } from '@repo/ui/data-table'
 import React, { useEffect, useImperativeHandle, useMemo } from 'react'
-import { type OrderDirection, type TaskOrder, type TaskWhereInput } from '@repo/codegen/src/schema'
+import type { OrderDirection, TaskOrder, TaskOrderField, TaskWhereInput } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { TASK_SORT_FIELDS } from '@/components/pages/protected/tasks/table/table-config.ts'
@@ -17,7 +17,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 
 type TTasksTableProps = {
-  onSortChange?: (sortCondition: TaskOrder[] | TaskOrder | undefined) => void
+  onSortChange?: (next: SortCondition<TaskOrderField>[]) => void
   pagination: TPagination
   onPaginationChange: (pagination: TPagination) => void
   whereFilter: TaskWhereInput | null
@@ -138,7 +138,7 @@ const TasksTable = ({
       onSortChange={onSortChange}
       data={tasks}
       loading={fetching || fetchingUsers}
-      defaultSorting={defaultSorting}
+      sorting={defaultSorting}
       onRowClick={(task) => {
         replace({ id: task.id })
       }}

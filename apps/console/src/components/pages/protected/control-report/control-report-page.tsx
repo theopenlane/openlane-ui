@@ -19,6 +19,7 @@ import ReportEmptyState from './report-empty-state'
 import { useReportSelection } from './use-report-selection'
 import { getOrgRelatedControls, getFrameworkRelatedControls } from './report-coverage'
 import { type ReportFilterId } from './report-filter-options'
+import { getOrganizationStorageKey } from '@/lib/storage/organization-storage'
 
 type TControlReportPageProps = {
   active: 'dashboard' | 'table'
@@ -28,10 +29,10 @@ type TControlReportPageProps = {
 const REPORT_STANDARD_KEY = 'control_report_selected_standard'
 const REPORT_PROGRAMS_KEY = 'control_report_selected_programs'
 
-const readStoredPrograms = (): string[] => {
+const readStoredPrograms = (storageKey: string): string[] => {
   if (typeof window === 'undefined') return []
   try {
-    const raw = localStorage.getItem(REPORT_PROGRAMS_KEY)
+    const raw = localStorage.getItem(storageKey)
     if (!raw) return []
     const parsed = JSON.parse(raw)
     return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []
@@ -42,12 +43,14 @@ const readStoredPrograms = (): string[] => {
 
 const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActive }) => {
   const { currentOrgId } = useOrganization()
+  const standardStorageKey = getOrganizationStorageKey(REPORT_STANDARD_KEY, currentOrgId)
+  const programsStorageKey = getOrganizationStorageKey(REPORT_PROGRAMS_KEY, currentOrgId)
   const { setCrumbs } = use(BreadcrumbContext)
   const [selectedStandard, setSelectedStandard] = useState<string>(() => {
     if (typeof window === 'undefined') return ''
-    return localStorage.getItem(REPORT_STANDARD_KEY) ?? ''
+    return localStorage.getItem(standardStorageKey) ?? ''
   })
-  const [selectedPrograms, setSelectedPrograms] = useState<string[]>(readStoredPrograms)
+  const [selectedPrograms, setSelectedPrograms] = useState<string[]>(() => readStoredPrograms(programsStorageKey))
   const [expandedItems, setExpandedItems] = useState<string[]>([])
   const [hasAutoExpanded, setHasAutoExpanded] = useState(false)
   const [expandedControls, setExpandedControls] = useState<Record<string, boolean>>({})
@@ -70,16 +73,17 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     enabled: Boolean(currentOrgId),
   })
 
-  const { programOptions } = useProgramSelect({
+  const { programOptions, isSuccess: isSuccessPrograms } = useProgramSelect({
     where: { statusNEQ: ProgramProgramStatus.ARCHIVED },
   })
 
   const effectiveStandard = useMemo(() => {
-    if (selectedStandard) return selectedStandard
-    const neverSet = typeof window !== 'undefined' && localStorage.getItem(REPORT_STANDARD_KEY) === null
+    const selectedStandardIsAvailable = selectedStandard === 'CUSTOM' || standardOptions.some((option) => option.value === selectedStandard)
+    if (selectedStandard && (!isSuccessStandards || selectedStandardIsAvailable)) return selectedStandard
+    const neverSet = typeof window !== 'undefined' && localStorage.getItem(standardStorageKey) === null
     if (neverSet && isSuccessStandards && standardOptions.length > 0) return standardOptions[0].value
     return ''
-  }, [selectedStandard, isSuccessStandards, standardOptions])
+  }, [selectedStandard, isSuccessStandards, standardOptions, standardStorageKey])
 
   const isCustomView = effectiveStandard === 'CUSTOM'
 
@@ -166,12 +170,37 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   }, [sortedData, reportFilters, isCustomView])
 
   useEffect(() => {
-    if (isSuccessStandards && standardOptions.length > 0 && localStorage.getItem(REPORT_STANDARD_KEY) === null) {
+    setSelectedStandard(localStorage.getItem(standardStorageKey) ?? '')
+    setSelectedPrograms(readStoredPrograms(programsStorageKey))
+    setReportFilters(new Set())
+    userSelectedStandardRef.current = false
+  }, [standardStorageKey, programsStorageKey])
+
+  useEffect(() => {
+    if (!isSuccessStandards || !selectedStandard || selectedStandard === 'CUSTOM') return
+    if (standardOptions.some((option) => option.value === selectedStandard)) return
+
+    setSelectedStandard('')
+    localStorage.setItem(standardStorageKey, '')
+  }, [isSuccessStandards, selectedStandard, standardOptions, standardStorageKey])
+
+  useEffect(() => {
+    if (!isSuccessPrograms || selectedPrograms.length === 0) return
+    const availableProgramIds = new Set(programOptions.map((option) => option.value))
+    const validPrograms = selectedPrograms.filter((id) => availableProgramIds.has(id))
+    if (validPrograms.length === selectedPrograms.length) return
+
+    setSelectedPrograms(validPrograms)
+    localStorage.setItem(programsStorageKey, JSON.stringify(validPrograms))
+  }, [isSuccessPrograms, selectedPrograms, programOptions, programsStorageKey])
+
+  useEffect(() => {
+    if (isSuccessStandards && standardOptions.length > 0 && localStorage.getItem(standardStorageKey) === null) {
       const first = standardOptions[0].value
       setSelectedStandard(first)
-      localStorage.setItem(REPORT_STANDARD_KEY, first)
+      localStorage.setItem(standardStorageKey, first)
     }
-  }, [isSuccessStandards, standardOptions])
+  }, [isSuccessStandards, standardOptions, standardStorageKey])
 
   useEffect(() => {
     if (userSelectedStandardRef.current) return
@@ -248,16 +277,19 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     userSelectedStandardRef.current = true
     const next = value === effectiveStandard ? '' : value
     setSelectedStandard(next)
-    localStorage.setItem(REPORT_STANDARD_KEY, next)
+    localStorage.setItem(standardStorageKey, next)
   }
 
-  const toggleProgram = useCallback((id: string) => {
-    setSelectedPrograms((prev) => {
-      const next = prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-      localStorage.setItem(REPORT_PROGRAMS_KEY, JSON.stringify(next))
-      return next
-    })
-  }, [])
+  const toggleProgram = useCallback(
+    (id: string) => {
+      setSelectedPrograms((prev) => {
+        const next = prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
+        localStorage.setItem(programsStorageKey, JSON.stringify(next))
+        return next
+      })
+    },
+    [programsStorageKey],
+  )
 
   useEffect(() => {
     setCrumbs([

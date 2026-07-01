@@ -1,10 +1,10 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import React, { useState, useMemo, useEffect, use } from 'react'
 import { type Evidence, type EvidenceOrder, EvidenceOrderField, type EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@tanstack/react-table'
@@ -27,7 +27,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.EVIDENCE, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<EvidenceWhereInput>({})
   const { setCrumbs } = use(BreadcrumbContext)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.EVIDENCE)
@@ -36,13 +36,12 @@ export const EvidenceTable = () => {
   const [selectedEvidence, setSelectedEvidence] = useState<{ id: string }[]>([])
   const { data: permission } = useOrganizationRoles()
 
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE, EvidenceOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.EVIDENCE, EvidenceOrderField, [
     {
       field: EvidenceOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<EvidenceOrder[] | undefined>(() => (Array.isArray(defaultSorting) ? defaultSorting : defaultSorting ? [defaultSorting] : undefined))
 
   const debouncedSearch = useDebounce(searchTerm, 300)
 
@@ -163,13 +162,13 @@ export const EvidenceTable = () => {
       <DataTable
         sortFields={EVIDENCE_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
-        defaultSorting={defaultSorting}
+        sorting={orderBy}
         columns={columns}
         data={evidences}
         onRowClick={handleRowClick}
         loading={fetching || fetchingUsers}
         pagination={pagination}
-        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+        onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}

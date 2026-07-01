@@ -27,7 +27,8 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { groupTableForInvitesColumns } from '../table/columns'
 import { type VisibilityState } from '@tanstack/react-table'
 import { hasPermission, canEdit } from '@/lib/authz/utils.ts'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { toHumanLabel } from '@/utils/strings'
@@ -51,7 +52,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const queryClient = useQueryClient()
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.MEMBERS_INVITE_SHEET, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [selectedGroups, setSelectedGroups] = useState<AllGroupsPaginatedFieldsFragment[]>([])
   const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()
   const columnVisibility = useMemo<VisibilityState>(() => {
@@ -110,7 +111,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
       form.reset()
       setSearchQuery('')
       setSelectedGroups([])
-      setPagination(getInitialPagination(TableKeyEnum.MEMBERS_INVITE_SHEET, DEFAULT_PAGINATION))
+      setPagination(DEFAULT_PAGINATION)
     }
     setIsMemberSheetOpen(open)
   }

@@ -1,15 +1,15 @@
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { useCallback, useEffect, useState } from 'react'
+import { useOrganization } from '@/hooks/useOrganization'
+import { getOrganizationStorageKey } from '@/lib/storage/organization-storage'
 
-function searchKey(key: ObjectTypes): string {
-  return key.toLowerCase()
-}
+const searchKey = (key: ObjectTypes): string => key.toLowerCase()
 
 export const STORAGE_SEARCH_KEY_PREFIX = 'table-search:'
 
-export function getInitialSearchTerm(key: ObjectTypes, fallback = ''): string {
+export const getInitialSearchTerm = (key: ObjectTypes, organizationId?: string, fallback = ''): string => {
   if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem(`${STORAGE_SEARCH_KEY_PREFIX}${searchKey(key)}`)
+    const stored = localStorage.getItem(getOrganizationStorageKey(`${STORAGE_SEARCH_KEY_PREFIX}${searchKey(key)}`, organizationId))
     if (stored != null) {
       return stored
     }
@@ -22,10 +22,11 @@ type UseStorageSearchOptions = {
   persist?: boolean
 }
 
-export function useStorageSearch(key: ObjectTypes, options: UseStorageSearchOptions = {}): [string, (value: string) => void] {
+export const useStorageSearch = (key: ObjectTypes, options: UseStorageSearchOptions = {}): [string, (value: string) => void] => {
   const { fallback = '', persist = true } = options
+  const { currentOrgId } = useOrganization()
 
-  const [searchTerm, setSearchTerm] = useState<string>(() => getInitialSearchTerm(key, fallback))
+  const [searchTerm, setSearchTerm] = useState<string>(() => getInitialSearchTerm(key, currentOrgId, fallback))
 
   const updateSearchTerm = useCallback(
     (value: string) => {
@@ -34,7 +35,7 @@ export function useStorageSearch(key: ObjectTypes, options: UseStorageSearchOpti
       if (!persist) return
       if (typeof window === 'undefined') return
 
-      const storageKey = `${STORAGE_SEARCH_KEY_PREFIX}${searchKey(key)}`
+      const storageKey = getOrganizationStorageKey(`${STORAGE_SEARCH_KEY_PREFIX}${searchKey(key)}`, currentOrgId)
 
       if (!value) {
         localStorage.removeItem(storageKey)
@@ -42,12 +43,12 @@ export function useStorageSearch(key: ObjectTypes, options: UseStorageSearchOpti
         localStorage.setItem(storageKey, value)
       }
     },
-    [key, persist],
+    [key, persist, currentOrgId],
   )
 
   useEffect(() => {
-    setSearchTerm(getInitialSearchTerm(key, fallback))
-  }, [key, fallback])
+    setSearchTerm(getInitialSearchTerm(key, currentOrgId, fallback))
+  }, [key, currentOrgId, fallback])
 
   return [searchTerm, updateSearchTerm]
 }

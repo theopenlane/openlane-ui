@@ -1,11 +1,11 @@
 'use client'
 
-import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
 import React, { useCallback, use, useEffect, useMemo, useState } from 'react'
 import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
 import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
-import { OrderDirection, type Assessment, AssessmentOrderField, type AssessmentWhereInput, type FilterAssessmentsQueryVariables } from '@repo/codegen/src/schema.ts'
+import { OrderDirection, type Assessment, AssessmentOrderField, type AssessmentWhereInput } from '@repo/codegen/src/schema.ts'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -25,6 +25,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SendQuestionnaireDialog } from '@/components/pages/protected/questionnaire/dialog/send-questionnaire-dialog'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useAssessmentSendPermissionMap } from '@/lib/authz/use-can-send-questionnaire'
+import { useOrgTableSort } from '@/hooks/use-org-table-state'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
@@ -40,13 +41,12 @@ export const QuestionnairesTable = () => {
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
   const { data: permission } = useOrganizationRoles()
 
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, AssessmentOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.QUESTIONNAIRE, AssessmentOrderField, [
     {
       field: AssessmentOrderField.updated_at,
       direction: OrderDirection.DESC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<FilterAssessmentsQueryVariables['orderBy']>(defaultSorting)
 
   const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
 
@@ -280,7 +280,7 @@ export const QuestionnairesTable = () => {
           rowHref={(row) => `/automation/questionnaires/${row.id}`}
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
-          defaultSorting={defaultSorting}
+          sorting={orderBy}
           tableKey={TableKeyEnum.QUESTIONNAIRE}
         />
       </div>

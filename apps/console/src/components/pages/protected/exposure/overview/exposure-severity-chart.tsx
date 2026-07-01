@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { useRouter } from 'next/navigation'
 import { TableKeyEnum, type TableKeyValue } from '@repo/ui/table-key'
+import { useOrganization } from '@/hooks/useOrganization'
 
 type SeverityCounts = { href: string; tableKey: TableKeyValue; critical: number; high: number; medium: number; low: number }
 type SeverityItems = { critical: string[]; high: string[]; medium: string[]; low: string[] }
@@ -45,6 +46,7 @@ const SeverityRow = ({
   counts: SeverityCounts
   items?: SeverityItems
 }) => {
+  const { currentOrgId } = useOrganization()
   const router = useRouter()
   const total = counts.critical + counts.high + counts.medium + counts.low || 1
   const totalCount = counts.critical + counts.high + counts.medium + counts.low
@@ -56,7 +58,7 @@ const SeverityRow = ({
     } else {
       filter = { securityLevelIn: [sev.toUpperCase()], open: true }
     }
-    saveFilters(severityData.tableKey, filter)
+    saveFilters(severityData.tableKey, filter, currentOrgId)
     router.push(severityData.href)
   }
   return (

@@ -8,10 +8,12 @@ import Link from 'next/link'
 import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { useParams } from 'next/navigation'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useOrganization } from '@/hooks/useOrganization'
 
 const chartColors = ['#4ADE80', '#EAB308', '#EF4444', '#107565', '#017BFE']
 
-export function ControlsSummaryCard() {
+export const ControlsSummaryCard = () => {
+  const { currentOrgId } = useOrganization()
   const { id } = useParams<{ id: string | undefined }>()
 
   const { data, isLoading } = useGetControlCountsByStatus(id)
@@ -44,7 +46,7 @@ export function ControlsSummaryCard() {
       hasProgramsWith: [id],
     }
 
-    saveFilters(TableKeyEnum.CONTROL, filters)
+    saveFilters(TableKeyEnum.CONTROL, filters, currentOrgId)
   }
 
   return (

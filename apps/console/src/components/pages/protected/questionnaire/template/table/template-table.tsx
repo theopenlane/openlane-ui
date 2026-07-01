@@ -1,11 +1,11 @@
 'use client'
 
-import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
 import React, { useCallback, use, useEffect, useMemo, useState } from 'react'
 import { getTemplateColumns } from './columns'
 import TemplateTableToolbar from '@/components/pages/protected/questionnaire/template/table/template-table-toolbar.tsx'
 import { TEMPLATE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/template/table/table-config.ts'
-import { OrderDirection, type Template, TemplateOrderField, type TemplateWhereInput, type FilterTemplatesQueryVariables, TemplateTemplateKind } from '@repo/codegen/src/schema.ts'
+import { OrderDirection, type Template, TemplateOrderField, type TemplateWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema.ts'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -26,6 +26,7 @@ import { hasPermission, canDelete, canEdit } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
+import { useOrgTableSort } from '@/hooks/use-org-table-state'
 
 export const TemplatesTable = () => {
   const router = useRouter()
@@ -44,13 +45,12 @@ export const TemplatesTable = () => {
   const canCreateTemplate = hasPermission(permission?.roles, AccessEnum.CanCreateTemplate)
   const canCreateQuestionnaires = includeQuestionnaireCreation === 'true' && canCreateTemplate
 
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.TEMPLATE, TemplateOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.TEMPLATE, TemplateOrderField, [
     {
       field: TemplateOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>(defaultSorting)
 
   const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
 
@@ -253,7 +253,7 @@ export const TemplatesTable = () => {
           rowHref={(row) => `/automation/questionnaires/templates/template-viewer?id=${row.id}`}
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
-          defaultSorting={defaultSorting}
+          sorting={orderBy}
           tableKey={TableKeyEnum.TEMPLATE}
         />
       </div>

@@ -26,7 +26,6 @@ const TableComponent = ({
   setSelectedItems,
   canEdit,
   permission,
-  defaultSorting,
 }: TTableProps<IdentityHolderWhereInput>) => {
   const { push } = useRouter()
 
@@ -112,7 +111,7 @@ const TableComponent = ({
       onSortChange={onSortChange}
       data={items}
       loading={fetching || fetchingUsers}
-      defaultSorting={defaultSorting}
+      sorting={orderBy}
       onRowClick={(item) => {
         push(`/registry/personnel/${item.id}`)
       }}

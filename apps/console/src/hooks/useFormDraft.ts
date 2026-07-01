@@ -72,8 +72,22 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
   const [decisionMade, setDecisionMade] = useState(false)
   const [editorKey, setEditorKey] = useState(0)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const prevStorageKeyRef = useRef(storageKey)
 
   useEffect(() => {
+    const storageKeyChanged = prevStorageKeyRef.current !== storageKey
+    prevStorageKeyRef.current = storageKey
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+      debounceRef.current = null
+    }
+
+    if (storageKeyChanged) {
+      form.reset()
+      setEditorKey((k) => k + 1)
+    }
+
     if (!enabled) {
       setPendingDraft(null)
       setDecisionMade(true)
@@ -82,11 +96,12 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
     const draft = safeReadDraft<TForm, TStore>(storageKey)
     if (draft) {
       setPendingDraft(draft)
+      setDecisionMade(false)
     } else {
       setPendingDraft(null)
       setDecisionMade(true)
     }
-  }, [storageKey, enabled])
+  }, [storageKey, enabled, form])
 
   const persist = useCallback(() => {
     if (!enabled || !decisionMade || typeof window === 'undefined') return

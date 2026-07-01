@@ -1,8 +1,8 @@
 'use client'
 
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, type SortCondition } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { type CampaignOrder, type CampaignWhereInput, type OrderDirection } from '@repo/codegen/src/schema'
+import type { CampaignOrder, CampaignOrderField, CampaignWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { getCampaignColumns } from '@/components/pages/protected/campaigns/table/columns'
 import { CAMPAIGN_SORT_FIELDS } from '@/components/pages/protected/campaigns/table/table-config'
@@ -15,7 +15,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TCampaignsTableProps = {
-  onSortChange?: (sortCondition: CampaignOrder[] | CampaignOrder | undefined) => void
+  onSortChange?: (next: SortCondition<CampaignOrderField>[]) => void
   pagination: TPagination
   onPaginationChange: (pagination: TPagination) => void
   whereFilter: CampaignWhereInput | null
@@ -67,7 +67,7 @@ const CampaignsTable = ({
     if (onHasCampaignsChange) {
       onHasCampaignsChange(hasCampaigns)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps
   }, [hasCampaigns])
 
   useEffect(() => {
@@ -77,7 +77,7 @@ const CampaignsTable = ({
         select: canEdit(permission.roles),
       }))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps
   }, [permission?.roles])
 
   useEffect(() => {
@@ -87,7 +87,7 @@ const CampaignsTable = ({
         description: 'Failed to load campaigns',
       })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps
   }, [isError])
 
   const { users, isFetching: fetchingUsers } = useGetOrgUserList({
@@ -111,7 +111,7 @@ const CampaignsTable = ({
       onSortChange={onSortChange}
       data={campaigns}
       loading={fetching || fetchingUsers}
-      defaultSorting={defaultSorting}
+      sorting={defaultSorting}
       rowHref={(campaign) => `/automation/campaigns/${campaign.id}`}
       pagination={pagination}
       onPaginationChange={onPaginationChange}

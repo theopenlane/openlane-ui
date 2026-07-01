@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { TabsContent } from '@repo/ui/tabs'
 import { type ColumnDef } from '@tanstack/react-table'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { PlusCircle } from 'lucide-react'
 import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { useGetEvidenceFiles } from '@/lib/graphql-hooks/evidence'
 import { formatDateSince } from '@/utils/date'
 import { type TUploadedFile } from './types/TUploadedFile'
 import { type TEvidenceFilesColumn } from './types/TEvidenceFilesColumn'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
@@ -19,14 +19,12 @@ type TProps = {
 }
 
 const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.EVIDENCE_EXISTING_FILES, {
-      ...DEFAULT_PAGINATION,
-      pageSize: 5,
-      page: 1,
-      query: { first: 5 },
-    }),
-  )
+  const [pagination, setPagination] = useOrgTablePagination({
+    ...DEFAULT_PAGINATION,
+    pageSize: 5,
+    page: 1,
+    query: { first: 5 },
+  })
 
   const { data, isLoading, paginationMeta } = useGetEvidenceFiles({ pagination })
 
@@ -95,14 +93,7 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
 
   return (
     <TabsContent value="existingFiles">
-      <DataTable
-        columns={columns}
-        data={files}
-        pagination={pagination}
-        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
-        paginationMeta={paginationMeta}
-        tableKey={TableKeyEnum.EVIDENCE_EXISTING_FILES}
-      />
+      <DataTable columns={columns} data={files} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} tableKey={TableKeyEnum.EVIDENCE_EXISTING_FILES} />
     </TabsContent>
   )
 }
