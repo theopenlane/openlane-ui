@@ -111,7 +111,7 @@ export const MembersTable = () => {
   const { members, isError, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
 
   const { data: orgRoles } = useOrganizationRoles()
-  const canEditMembers = canEdit(orgRoles?.roles)
+  const canEditMembers = canEdit(orgRoles?.roles, sessionData)
   const currentUserId = sessionData?.user?.userId
 
   const isMemberSelectable = useCallback((member: OrgMembership) => !!currentUserId && member.user?.id !== currentUserId, [currentUserId])

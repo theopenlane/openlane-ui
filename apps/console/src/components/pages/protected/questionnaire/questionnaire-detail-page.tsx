@@ -39,6 +39,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { useCanSendQuestionnaire } from '@/lib/authz/use-can-send-questionnaire'
 import Menu from '@/components/shared/menu/menu'
+import { useSession } from 'next-auth/react'
 
 type DetailTabValue = 'delivery' | 'responses'
 const DEFAULT_TAB: DetailTabValue = 'delivery'
@@ -113,6 +114,7 @@ const QuestionnaireDetailPage = () => {
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
   const { mutateAsync: generateAssessmentAccessURL, isPending: isGeneratingAccessURL } = useGenerateAssessmentAccessURL()
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
 
   const { campaignIds, entityIds } = useMemo(() => {
     const edges = assessment?.campaigns?.edges ?? []
@@ -382,7 +384,7 @@ const QuestionnaireDetailPage = () => {
                     <Eye size={16} strokeWidth={2} />
                     <span>Preview</span>
                   </Button>
-                  {canEdit(permission?.roles) && !assessment.systemOwned && (
+                  {canEdit(permission?.roles, session) && !assessment.systemOwned && (
                     <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/automation/questionnaires/questionnaire-editor?id=${id}`)}>
                       <Pencil size={16} strokeWidth={2} />
                       <span>Edit</span>

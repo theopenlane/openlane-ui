@@ -36,9 +36,11 @@ import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
+import { useSession } from 'next-auth/react'
 
 export const ProceduresTable = () => {
   const router = useRouter()
+  const { data: session } = useSession()
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.PROCEDURE, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<ProcedureWhereInput | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[] | null>(null)
@@ -175,10 +177,10 @@ export const ProceduresTable = () => {
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles])
+  }, [permission?.roles, session])
 
   useEffect(() => {
     if (procedures.length > 0 && !memberIds) {

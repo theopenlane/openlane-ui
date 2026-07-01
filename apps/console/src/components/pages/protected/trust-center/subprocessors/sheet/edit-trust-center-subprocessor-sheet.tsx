@@ -26,6 +26,7 @@ import { LogoField } from './form-fields/logo-field'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
+import { useSession } from 'next-auth/react'
 
 const schema = z.object({
   category: z.string().min(1, 'Category is required'),
@@ -51,7 +52,8 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   const { mutateAsync: updateTCSubprocessor } = useUpdateTrustCenterSubprocessor()
   const { mutateAsync: updateSubprocessor } = useUpdateSubprocessor()
   const { data: orgPermission } = useOrganizationRoles()
-  const canEditOrg = canEdit(orgPermission?.roles)
+  const { data: session } = useSession()
+  const canEditOrg = canEdit(orgPermission?.roles, session)
 
   const { data } = useGetTrustCenterSubprocessorByID({ trustCenterSubprocessorId: trustCenterSubprocessorId || '' })
 

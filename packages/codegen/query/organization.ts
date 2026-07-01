@@ -178,6 +178,8 @@ export const GET_ORGANIZATION_SETTING = gql`
         oidcDiscoveryEndpoint
         identityProviderLoginEnforced
         identityProviderAuthTested
+        identityProviderJitProvisioning
+        jitAllowedEmailDomains
         allowMatchingDomainsAutojoin
       }
     }

@@ -10,6 +10,7 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import Menu from '@/components/shared/menu/menu'
 import { LinkControlsModal } from './link-controls-modal'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 type Props = {
   node: ControlObjectiveFieldsFragment
@@ -20,7 +21,8 @@ type Props = {
 
 export const ObjectiveItem: React.FC<Props> = ({ node, onEdit, onUnarchive, onDelete }) => {
   const { data: permission, isLoading: permLoading } = useAccountRoles(ObjectTypes.CONTROL_OBJECTIVE, node.id)
-  const isEditAllowed = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const isEditAllowed = canEdit(permission?.roles, session)
   const totalLinks = (node.controls?.edges?.length ?? 0) + (node.subcontrols?.edges?.length ?? 0)
   const willUnlink = totalLinks > 1
   return (

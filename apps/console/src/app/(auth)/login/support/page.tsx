@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { PasswordInput } from '@repo/ui/password-input'
+import { Logo } from '@repo/ui/logo'
+import { ArrowRight, Headphones } from 'lucide-react'
 
 const SupportLoginPage: React.FC = () => {
   const [email, setEmail] = useState('support@theopenlane.io')
@@ -47,39 +49,56 @@ const SupportLoginPage: React.FC = () => {
   }
 
   return (
-    <div className="flex h-full w-full min-h-screen justify-center items-center">
-      <form onSubmit={submit} className="w-full max-w-md space-y-4 p-6">
-        <div>
-          <h1 className="text-xl font-semibold">Openlane Support Access</h1>
-          <p className="text-sm text-gray-600 mt-1">Authenticate the support identity, then verify with your Openlane identity provider.</p>
+    <div className="flex h-full w-full min-h-screen justify-center items-center bg-surface-0 dark:bg-dk-surface-0">
+      <div className="flex flex-col items-center gap-6 w-full max-w-xl px-4 py-12">
+        <Logo width={200} height={30} />
+
+        <div className="shadow-md bg-card rounded-lg flex flex-col w-full py-10 px-10 border border-border">
+          <div className="flex flex-col items-center text-center mb-6">
+            <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center mb-4">
+              <Headphones className="text-primary" size={24} />
+            </div>
+            <h1 className="text-lg font-bold">Openlane support access</h1>
+            <p className="text-sm text-muted-foreground mt-1">Authenticate with your support identity, then verify with the Openlane identity provider</p>
+          </div>
+
+          {error && <p className="text-sm text-toast-error-icon mb-4 text-center">{error}</p>}
+
+          <form onSubmit={submit} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm">Support Identity</label>
+              <Input type="email" variant="light" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-transparent" />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm">Support Password</label>
+              <PasswordInput variant="light" value={password} onChange={(e) => setPassword(e.target.value)} required className="bg-transparent !text-text" />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm">Organization ID</label>
+              <Input variant="light" value={organizationId} onChange={(e) => setOrganizationId(e.target.value)} placeholder="Organization to access" required className="bg-transparent" />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm">Reason</label>
+              <Input
+                variant="light"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="Reason for accessing this organization (min 10 characters)"
+                required
+                minLength={10}
+                className="bg-transparent"
+              />
+            </div>
+
+            <Button variant="primary" type="submit" disabled={submitting} className="w-full flex justify-center items-center h-10 mt-2" icon={<ArrowRight size={16} />}>
+              {submitting ? 'Starting…' : 'Continue to identity provider'}
+            </Button>
+          </form>
         </div>
-
-        {error && <p className="text-sm text-red-600">{error}</p>}
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Support identity</label>
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Support password</label>
-          <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Organization ID</label>
-          <Input value={organizationId} onChange={(e) => setOrganizationId(e.target.value)} placeholder="organization to access" required />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Reason</label>
-          <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="reason for accessing the organization (min 10 characters)" required minLength={10} />
-        </div>
-
-        <Button type="submit" disabled={submitting} className="w-full">
-          {submitting ? 'Starting…' : 'Continue to identity provider'}
-        </Button>
-      </form>
+      </div>
     </div>
   )
 }

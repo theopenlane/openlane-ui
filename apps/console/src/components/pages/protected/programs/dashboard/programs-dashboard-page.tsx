@@ -34,9 +34,11 @@ import { ProgramSettingsAssignUserDialog } from '../[id]/settings/users/program-
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { ProgramsDashboardSkeleton } from '../skeleton/programs-dashboard-skeleton'
 import { PROGRAMS_LIST_HREF, PROGRAMS_VIEW_ALL, PROGRAMS_VIEW_PARAM } from '@/constants/programs'
+import { useSession } from 'next-auth/react'
 
 const ProgramsDashboardPage = () => {
   const [search, setSearch] = useState('')
+  const { data: session } = useSession()
   const [expanded, setExpanded] = useState<string[]>([])
   const [filterStatus, setFilterStatus] = useState<'ACTIVE' | 'ARCHIVED'>('ACTIVE')
   const { data: orgPermission } = useOrganizationRoles()
@@ -127,7 +129,7 @@ const ProgramsDashboardPage = () => {
               See docs to learn more.
             </a>
           </Callout>
-          {hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram) ? (
+          {hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram, session) ? (
             <ProgramsCreate disableHeader={true} noPrograms={true} />
           ) : (
             <Callout variant="warning" className="max-w-6xl mx-33 mt-10" title="You do not have permission to create a program">
@@ -166,7 +168,7 @@ const ProgramsDashboardPage = () => {
               <TabsTrigger value="ARCHIVED">Archived</TabsTrigger>
             </TabsList>
           </Tabs>
-          {hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram) && (
+          {hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram, session) && (
             <Link href="/programs/create">
               <Button icon={<SquarePlus />} iconPosition="left">
                 Create
@@ -200,7 +202,7 @@ const ProgramsDashboardPage = () => {
                   <span className="text-lg">{framework}</span>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="flex flex-wrap gap-4 mt-4">{programs.map((p) => p && <ProgramCard key={p.id} program={p} editAllowed={canEdit(permission?.object_roles[p.id])} />)}</div>
+                  <div className="flex flex-wrap gap-4 mt-4">{programs.map((p) => p && <ProgramCard key={p.id} program={p} editAllowed={canEdit(permission?.object_roles[p.id], session)} />)}</div>
                 </AccordionContent>
               </AccordionItem>
             )

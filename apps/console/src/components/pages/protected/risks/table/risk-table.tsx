@@ -25,6 +25,7 @@ import { getInitialVisibility } from '@/components/shared/column-visibility-menu
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 const RiskTable: React.FC = () => {
   const router = useRouter()
@@ -36,6 +37,7 @@ const RiskTable: React.FC = () => {
   const [selectedRisks, setSelectedRisks] = useState<{ id: string }[]>([])
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
   const defaultSorting = getInitialSortConditions(TableKeyEnum.RISK, RiskOrderField, [
@@ -122,10 +124,10 @@ const RiskTable: React.FC = () => {
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles])
+  }, [permission?.roles, session])
 
   useEffect(() => {
     setCrumbs([

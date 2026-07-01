@@ -96,7 +96,7 @@ const AddMembersDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="secondary" icon={<Plus />} iconPosition="left" disabled={!!isManaged || !canEdit(permission?.roles)}>
+        <Button variant="secondary" icon={<Plus />} iconPosition="left" disabled={!!isManaged || !canEdit(permission?.roles, session)}>
           Add members
         </Button>
       </DialogTrigger>

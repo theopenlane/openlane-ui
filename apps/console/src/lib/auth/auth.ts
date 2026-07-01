@@ -2,14 +2,14 @@ import type { NextAuthConfig } from 'next-auth'
 import NextAuth from 'next-auth'
 import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
-import { isDevelopment } from '@repo/dally/auth'
+import { isDevelopment, openlaneAPIUrl } from '@repo/dally/auth'
 import { jwtDecode } from 'jwt-decode'
 import { type JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
 import { checkWebfinger, getTokenFromOpenlaneAPI, type OAuthUserRequest } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { cookies } from 'next/headers'
-import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
+import { allowedLoginDomains } from '@repo/dally/auth'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
 import { passKeyProvider } from './providers/passkey'
 import { skipCSRFCheck } from '@auth/core'
@@ -56,10 +56,34 @@ export const config = {
   // instead of the default NextAuth CSRF protection
   skipCSRFCheck: skipCSRFCheck,
   events: {
-    async signOut() {
+    async signOut(message) {
       const cookieStore = await cookies()
-      if (sessionCookieName && cookieStore.has(sessionCookieName)) {
-        cookieStore.delete(sessionCookieName)
+      // revoke the tokens and session on the server so logout is enforced server-side rather
+      // than only clearing client state. Without this the access and refresh tokens remain valid
+      // until they expire even after the user signs out
+      const token = 'token' in message ? message.token : null
+      const accessToken = token?.accessToken as string | undefined
+      const refreshToken = token?.refreshToken as string | undefined
+
+      if (accessToken || refreshToken) {
+        try {
+          const cookieHeader = cookieStore
+            .getAll()
+            .map((c) => `${c.name}=${c.value}`)
+            .join('; ')
+
+          await fetch(`${openlaneAPIUrl}/v1/logout`, {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+              ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+              ...(cookieHeader ? { cookie: cookieHeader } : {}),
+            },
+            body: JSON.stringify({ refresh_token: refreshToken ?? '' }),
+          })
+        } catch (error) {
+          console.error('Failed to revoke tokens on logout:', error)
+        }
       }
     },
   },

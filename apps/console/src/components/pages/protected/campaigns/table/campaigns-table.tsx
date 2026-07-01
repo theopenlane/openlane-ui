@@ -13,6 +13,8 @@ import { type VisibilityState } from '@tanstack/react-table'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { useNotification } from '@/hooks/useNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useSession } from 'next-auth/react'
+import { type Session } from 'next-auth'
 
 type TCampaignsTableProps = {
   onSortChange?: (sortCondition: CampaignOrder[] | CampaignOrder | undefined) => void
@@ -25,7 +27,7 @@ type TCampaignsTableProps = {
   onHasCampaignsChange?: (hasCampaigns: boolean) => void
   selectedCampaigns: { id: string }[]
   setSelectedCampaigns: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   permission: TPermissionData | undefined
   defaultSorting: { field: string; direction?: OrderDirection }[] | undefined
 }
@@ -47,6 +49,7 @@ const CampaignsTable = ({
 }: TCampaignsTableProps) => {
   const { CampaignsNodes: campaigns, isLoading: fetching, data, isFetching, isError } = useCampaignsWithFilter({ where: whereFilter, orderBy: orderByFilter, pagination, enabled: !!whereFilter })
 
+  const { data: session } = useSession()
   const { errorNotification } = useNotification()
 
   const userIds = useMemo(() => {
@@ -67,18 +70,16 @@ const CampaignsTable = ({
     if (onHasCampaignsChange) {
       onHasCampaignsChange(hasCampaigns)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasCampaigns])
+  }, [hasCampaigns, onHasCampaignsChange])
 
   useEffect(() => {
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permission?.roles])
+  }, [permission?.roles, session, canEdit, setColumnVisibility])
 
   useEffect(() => {
     if (isError) {
@@ -87,8 +88,7 @@ const CampaignsTable = ({
         description: 'Failed to load campaigns',
       })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isError])
+  }, [isError, errorNotification])
 
   const { users, isFetching: fetchingUsers } = useGetOrgUserList({
     where: { hasUserWith: [{ idIn: userIds }] },

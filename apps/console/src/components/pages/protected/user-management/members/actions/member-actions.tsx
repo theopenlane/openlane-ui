@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreHorizontal, ShieldOff, ShieldPlus, Trash2, UserRoundPen, UsersRound } from 'lucide-react'
+import { MoreHorizontal, ShieldCheck, ShieldOff, ShieldPlus, Trash2, UserRoundPen, UsersRound } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
@@ -104,7 +104,8 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
         input: granting ? { ssoExempt: true, ssoExemptReason: exemptReason.trim() || undefined } : { ssoExempt: false, clearSSOExemptReason: true },
       })
       successNotification({
-        title: granting ? 'Member marked as SSO exempt' : 'SSO exemption removed',
+        title: 'SSO Exemption Updated',
+        description: granting ? 'Member marked as SSO exempt' : 'SSO exemption removed',
         variant: 'success',
       })
 
@@ -145,7 +146,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
     return null
   }
 
-  if (!canEdit(data?.roles)) {
+  if (!canEdit(data?.roles, sessionData)) {
     //MEMBERS CANT EDIT ANYONE
     return null
   }
@@ -216,7 +217,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
               <DropdownMenuGroup>
                 <DropdownMenuItem onSelect={() => (memberSSOExempt ? handleToggleSSOExempt() : setShowSSOExempt(true))}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
-                    {memberSSOExempt ? <ShieldOff width={ICON_SIZE} /> : <ShieldPlus width={ICON_SIZE} />} &nbsp; {memberSSOExempt ? 'Remove SSO Exemption' : 'Mark as SSO Exempt'}
+                    {memberSSOExempt ? <ShieldCheck width={ICON_SIZE} /> : <ShieldOff width={ICON_SIZE} />} &nbsp; {memberSSOExempt ? 'Remove SSO Exemption' : 'Mark as SSO Exempt'}
                   </div>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
@@ -291,7 +292,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
           <AlertDialogHeader>
             <AlertDialogTitle>Mark as SSO Exempt</AlertDialogTitle>
             <AlertDialogDescription>
-              <b>{memberName}</b> will be allowed to sign in without the organization&apos;s SSO directory, even when SSO is enforced. Multi-factor authentication still applies.
+              <b>{memberName} </b> will be allowed to sign in without the organization&apos;s SSO directory, even when SSO is enforced. Multi-factor authentication still applies.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex flex-col gap-1.5">

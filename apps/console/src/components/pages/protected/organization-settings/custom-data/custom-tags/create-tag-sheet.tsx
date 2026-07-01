@@ -22,6 +22,7 @@ import { useCreateTag, useUpdateTag, useDeleteTag, useGetTagDetails } from '@/li
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
+import { useSession } from 'next-auth/react'
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -37,7 +38,8 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
   const { replace } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
   const { data: permission } = useOrganizationRoles()
-  const canEditTags = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const canEditTags = canEdit(permission?.roles, session)
 
   const isCreate = params.get('create') === 'true'
   const id = params.get('id')

@@ -11,6 +11,7 @@ import { type CreateProcedureFormData } from '@/components/pages/protected/proce
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
+import { useSession } from 'next-auth/react'
 
 type TTagsCardProps = {
   form: UseFormReturn<CreateProcedureFormData>
@@ -20,7 +21,8 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form }) => {
   const [tagValues, setTagValues] = useState<Option[]>([])
   const { tagOptions } = useGetTags()
   const { data: permission } = useOrganizationRoles()
-  const canCreateTags = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const canCreateTags = canEdit(permission?.roles, session)
 
   useEffect(() => {
     if (form.getValues('tags')) {

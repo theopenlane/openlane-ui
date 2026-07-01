@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const callbackResponse = await callbackData.json()
 
     if (callbackData.ok && callbackResponse.success) {
-      await setSessionCookie(callbackResponse.session_id)
+      await setSessionCookie(callbackResponse.session)
 
       const response = NextResponse.json({ success: true, ...callbackResponse }, { status: 200 })
 

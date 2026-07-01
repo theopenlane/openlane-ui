@@ -105,7 +105,7 @@ export default function SideNav({
 
   const sidebarItems = [...navItems, ...footerNavItems]
   const { data: orgPermission } = useOrganizationRoles()
-  const isCreateProgramAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram)
+  const isCreateProgramAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram, session)
   const billingExpired = hasNoModules(session)
 
   useEffect(() => {

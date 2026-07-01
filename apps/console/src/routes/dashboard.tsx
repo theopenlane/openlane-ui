@@ -320,6 +320,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
 export const bottomNavigationItems = (session: Session | null, orgPermission?: TPermissionData, currentUserRole?: OrgMembershipRole): (NavItem | Separator | NavHeading)[] => {
   const billingExpired = hasNoModules(session)
   const isAuditor = currentUserRole === OrgMembershipRole.AUDITOR
+  const isImpersonation = session?.user?.isImpersonation
   return [
     {
       title: 'Organization settings',
@@ -330,13 +331,13 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
         {
           title: 'General Settings',
           href: '/organization-settings/general-settings',
-          hidden: !canEdit(orgPermission?.roles),
+          hidden: !canEdit(orgPermission?.roles, session),
           icon: SettingsIcon,
         },
         {
           title: 'Authentication',
           href: '/organization-settings/authentication',
-          hidden: billingExpired || !canEdit(orgPermission?.roles),
+          hidden: billingExpired || !canEdit(orgPermission?.roles, session),
           icon: GlobeLock,
         },
         {
@@ -354,7 +355,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
         {
           title: 'Billing',
           href: '/organization-settings/billing',
-          hidden: !isOwnerOrSuperAdmin(currentUserRole),
+          hidden: !isOwnerOrSuperAdmin(currentUserRole) && !isImpersonation,
           icon: DollarSign,
         },
         {
@@ -392,7 +393,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
       title: 'Developers',
       href: '/developers',
       icon: Bot,
-      hidden: session?.user?.isOnboarding || billingExpired || isAuditor || session?.user?.isImpersonation,
+      hidden: session?.user?.isOnboarding || billingExpired || isAuditor || isImpersonation,
       children: [
         {
           title: 'API Tokens',
@@ -409,7 +410,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
     {
       title: 'User settings',
       href: '/user-settings',
-      hidden: session?.user?.isImpersonation,
+      hidden: isImpersonation,
       children: [
         {
           title: 'Profile',

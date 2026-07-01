@@ -26,6 +26,7 @@ import { hasPermission, canDelete, canEdit } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
+import { useSession } from 'next-auth/react'
 
 export const TemplatesTable = () => {
   const router = useRouter()
@@ -41,7 +42,8 @@ export const TemplatesTable = () => {
   const { mutateAsync: deleteTemplate } = useDeleteTemplate()
   const { mutateAsync: createTemplate } = useCreateTemplate()
   const { data: permission } = useOrganizationRoles()
-  const canCreateTemplate = hasPermission(permission?.roles, AccessEnum.CanCreateTemplate)
+  const { data: session } = useSession()
+  const canCreateTemplate = hasPermission(permission?.roles, AccessEnum.CanCreateTemplate, session)
   const canCreateQuestionnaires = includeQuestionnaireCreation === 'true' && canCreateTemplate
 
   const defaultSorting = getInitialSortConditions(TableKeyEnum.TEMPLATE, TemplateOrderField, [
@@ -180,7 +182,7 @@ export const TemplatesTable = () => {
     onDelete: handleDelete,
     onCreateQuestionnaire: handleCreateQuestionnaire,
     onDuplicate: handleDuplicate,
-    canEdit: canEdit(permission?.roles),
+    canEdit: canEdit(permission?.roles, session),
     canDelete: canDelete(permission?.roles),
     canCreateQuestionnaire: canCreateQuestionnaires,
     canDuplicate: canCreateTemplate,

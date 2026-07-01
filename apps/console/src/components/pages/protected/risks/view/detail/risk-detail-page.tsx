@@ -36,6 +36,7 @@ import RiskLabel from '../../risk-label'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
 import TaskDetailsSheet from '../../../tasks/create-task/sidebar/task-details-sheet'
+import { useSession } from 'next-auth/react'
 
 interface RiskDetailPageProps {
   riskId: string
@@ -55,6 +56,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   const { data: associationsData } = useGetRiskAssociations(riskId)
   const { data: permission } = useAccountRoles(ObjectTypes.RISK, riskId)
   const { data: orgPermission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const { mutateAsync: updateRisk } = useUpdateRisk()
   const { mutateAsync: deleteRisk } = useDeleteRisk()
 
@@ -75,7 +77,9 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   const isEditingRef = useRef(isEditing)
-  isEditingRef.current = isEditing
+  useEffect(() => {
+    isEditingRef.current = isEditing
+  }, [isEditing])
 
   useEffect(() => {
     setCrumbs([
@@ -202,6 +206,9 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
 
   const queryClient = useQueryClient()
 
+  // depending on the leaf fields instead of associationsData?.risk would satisfy the react-compiler
+  // advisory rule but trips exhaustive-deps, which treats the parent as the real dep here
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const memoizedSections = useMemo(() => {
     if (!associationsData?.risk) return {}
     return {
@@ -226,7 +233,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
       node: data.risk,
       type: ObjectAssociationNodeEnum.RISKS,
     }
-  }, [data?.risk])
+  }, [data])
 
   const handleRemoveAssociation = useAssociationRemoval({
     entityId: riskId,
@@ -240,8 +247,8 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   })
 
   const risk = data?.risk
-  const canEditRisk = canEdit(permission?.roles) || hasPermission(orgPermission?.roles, AccessEnum.CanEditRisk)
-  const canDeleteRisk = canDelete(permission?.roles) || hasPermission(orgPermission?.roles, AccessEnum.CanDeleteRisk)
+  const canEditRisk = canEdit(permission?.roles, session) || hasPermission(orgPermission?.roles, AccessEnum.CanEditRisk, session)
+  const canDeleteRisk = canDelete(permission?.roles) || hasPermission(orgPermission?.roles, AccessEnum.CanDeleteRisk, session)
 
   const canInlineEdit = (field: InlineEditField) => !isEditing && canEditRisk && inlineEditField !== field
 

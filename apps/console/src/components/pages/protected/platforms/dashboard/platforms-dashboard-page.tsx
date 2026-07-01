@@ -40,7 +40,7 @@ const PlatformsDashboardPage: React.FC = () => {
 
   const { data: session } = useSession()
   const { data: orgPermission } = useOrganizationRoles()
-  const canCreatePlatform = hasPermission(orgPermission?.roles, AccessEnum.CanCreatePlatform)
+  const canCreatePlatform = hasPermission(orgPermission?.roles, AccessEnum.CanCreatePlatform, session)
   const { platformsNodes, isLoading, isSuccess } = usePlatformsWithFilter({})
   const { mutateAsync: createPlatform, isPending: isCreatePending } = useCreatePlatform()
   const { mutateAsync: updatePlatform, isPending: isUpdatePending } = useUpdatePlatform()

@@ -20,7 +20,6 @@ const ImpersonationBanner: React.FC = () => {
 
   const fallbackOrg = getOrganizationByID(orgId)
   const orgName = orgData?.organization?.displayName || orgData?.organization?.name || fallbackOrg?.node?.displayName || fallbackOrg?.node?.name || orgId
-  const impersonator = session?.user?.impersonator
 
   const stop = async () => {
     const sessionId = session?.user?.impersonationSessionId
@@ -42,19 +41,12 @@ const ImpersonationBanner: React.FC = () => {
   }
 
   return (
-    <div className="flex items-center justify-center gap-3 bg-amber-500 px-4 py-2 text-sm font-medium text-black">
+    <div className="flex items-center justify-center gap-3 bg-amber-400 px-4 py-2 text-sm font-medium text-amber-950">
       <span>
         Support session — acting as <strong>Openlane Support</strong> in <strong>{orgName}</strong>
-        {orgName !== orgId ? <> ({orgId})</> : null}
-        {impersonator ? (
-          <>
-            {' '}
-            by <strong>{impersonator}</strong>
-          </>
-        ) : null}
-        . You are working inside a customer account; every action is logged and audited.
+        {orgName !== orgId ? <> ({orgId})</> : null}. You are working inside a customer account; every action is logged and audited.
       </span>
-      <Button onClick={stop} variant="outline" className="h-7 px-3 py-0">
+      <Button onClick={stop} variant="outline" className="h-7 px-3 py-0 border-amber-800 text-amber-950 hover:bg-amber-300 hover:text-amber-950 bg-amber-400">
         Exit support session
       </Button>
     </div>

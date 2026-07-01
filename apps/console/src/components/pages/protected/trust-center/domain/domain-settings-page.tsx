@@ -17,6 +17,7 @@ import { normalizeUrl } from '@/utils/normalizeUrl'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 const DomainSettingsPage = () => {
   const { data, isLoading, error, refetch } = useGetTrustCenter()
@@ -39,7 +40,8 @@ const DomainSettingsPage = () => {
 
   const trustCenter = data?.trustCenters?.edges?.[0]?.node
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenter?.id)
-  const canEditTc = canEdit(tcPermission?.roles)
+  const { data: session } = useSession()
+  const canEditTc = canEdit(tcPermission?.roles, session)
   const setting = trustCenter?.setting
 
   useEffect(() => {

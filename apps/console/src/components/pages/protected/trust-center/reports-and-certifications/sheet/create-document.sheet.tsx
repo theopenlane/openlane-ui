@@ -36,6 +36,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useSession } from 'next-auth/react'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -60,9 +61,10 @@ export const CreateDocumentSheet: React.FC = () => {
 
   const { data: permission } = useAccountRoles(ObjectTypes.TRUST_CENTER_DOC, documentId)
   const { data: orgPermission } = useOrganizationRoles()
+  const { data: session } = useSession()
 
-  const isEditAllowed = canEdit(permission?.roles)
-  const canCreateDoc = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument)
+  const isEditAllowed = canEdit(permission?.roles, session)
+  const canCreateDoc = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument, session)
   const isDeleteAllowed = canDelete(permission?.roles)
 
   const [isEditing, setIsEditing] = useState(false)

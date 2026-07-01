@@ -58,7 +58,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const searchParams = useSearchParams()
   const id = entityIdProp !== undefined ? entityIdProp : searchParams.get(queryParamKey)
   const { data: permission } = useAccountRoles(ObjectTypes.TASK, id)
-  const isEditAllowed = canEdit(permission?.roles)
+  const isEditAllowed = canEdit(permission?.roles, session)
   const { data, isLoading: fetching } = useTask(id as string)
   const taskData = data?.task
   const { form } = useFormSchema()

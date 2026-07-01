@@ -17,6 +17,8 @@ import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { getFilterFields } from './table-config'
 import { tableKey } from './types'
+import { useSession } from 'next-auth/react'
+import { type Session } from 'next-auth'
 
 type WorkflowsTableToolbarProps = {
   searching?: boolean
@@ -30,7 +32,7 @@ type WorkflowsTableToolbarProps = {
   handleClearSelected: () => void
   selectedItems: { id: string }[]
   setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (roles: TAccessRole[]) => boolean
+  canEdit: (roles: TAccessRole[], session?: Session | null) => boolean
   permission: TPermissionData | undefined
 }
 
@@ -49,6 +51,7 @@ const WorkflowsTableToolbar: React.FC<WorkflowsTableToolbarProps> = ({
   permission,
 }) => {
   const router = useRouter()
+  const { data: session } = useSession()
   const isSearching = useDebounce(searching, 200)
   const filterFields = getFilterFields()
   const quickFilters: TQuickFilter[] = [{ label: 'Active', key: 'active', type: 'boolean', isActive: false }]
@@ -90,7 +93,7 @@ const WorkflowsTableToolbar: React.FC<WorkflowsTableToolbarProps> = ({
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {selectedItems.length > 0 ? (
             <>
-              {canEdit(permission?.roles ?? []) && (
+              {canEdit(permission?.roles ?? [], session) && (
                 <>
                   <Button type="button" variant="secondary" onClick={() => setIsBulkDeleteDialogOpen(true)}>
                     {`Bulk Delete (${selectedItems.length})`}

@@ -13,9 +13,11 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 const DeleteGroupDialog = () => {
   const { selectedGroup, setSelectedGroup } = useGroupsStore()
+  const { data: session } = useSession()
   const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup)
   const [isOpen, setIsOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
@@ -48,7 +50,7 @@ const DeleteGroupDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button icon={<Trash2 />} iconPosition="left" variant="secondary" disabled={!!isManaged || !canEdit(permission?.roles)}>
+        <Button icon={<Trash2 />} iconPosition="left" variant="secondary" disabled={!!isManaged || !canEdit(permission?.roles, session)}>
           Delete
         </Button>
       </DialogTrigger>

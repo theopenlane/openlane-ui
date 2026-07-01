@@ -49,7 +49,7 @@ const TableComponent = ({
   const [createTaskRow, setCreateTaskRow] = useState<FindingsNodeNonNull | null>(null)
   const [trackRemediationRow, setTrackRemediationRow] = useState<FindingsNodeNonNull | null>(null)
   const { data: orgPermission } = useOrganizationRoles()
-  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation)
+  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -96,10 +96,10 @@ const TableComponent = ({
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles, setColumnVisibility, canEdit])
+  }, [permission?.roles, setColumnVisibility, canEdit, session])
 
   useEffect(() => {
     if (isError) {

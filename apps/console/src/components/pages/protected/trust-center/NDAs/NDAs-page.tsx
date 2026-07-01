@@ -21,19 +21,21 @@ import NdaRequestsTable from './table/nda-requests-table.tsx'
 import { NdaApprovalGroupCard } from './components/nda-approval-group-card'
 import { ObjectTypes } from '@repo/codegen/src/type-names.ts'
 import { type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
+import { useSession } from 'next-auth/react'
 
 const NDAsPage = () => {
   const { latestFile, isLoading, latestTemplate } = useGetTrustCenterNDAFiles()
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: trustCenterData } = useGetTrustCenter()
   const { updateTrustCenterSetting, isPending: isUpdatingSetting } = useHandleUpdateSetting()
+  const { data: session } = useSession()
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenter?.id)
-  const canEditTc = canEdit(tcPermission?.roles)
-  const canEditNdaRequest = hasPermission(tcPermission?.roles, AccessEnum.CanEditTrustCenterNdaRequest)
+  const canEditTc = canEdit(tcPermission?.roles, session)
+  const canEditNdaRequest = hasPermission(tcPermission?.roles, AccessEnum.CanEditTrustCenterNdaRequest, session)
   const trustCenterSetting = trustCenter?.setting
   const ndaApprovalRequired = !!trustCenterSetting?.ndaApprovalRequired
 
