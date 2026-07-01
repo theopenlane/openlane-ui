@@ -8,7 +8,6 @@ import { useSidebar } from '@/hooks/useSidebar'
 import React, { useCallback, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import SystemNotificationTracker from '@/components/shared/SystemNotification/SystemNotification.tsx'
-import ImpersonationBanner from '@/components/shared/impersonation-banner/impersonation-banner'
 
 type ActivePanel = 'notifications' | 'user-menu' | null
 
@@ -47,7 +46,6 @@ export default function Header() {
 
   return (
     <>
-      <ImpersonationBanner />
       <div className={header()}>
         <nav className={nav()}>
           <div className={expandNav({ isOpen: !isOpen })}>
