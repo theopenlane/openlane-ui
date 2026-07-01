@@ -3,11 +3,12 @@
 import React, { useState, useMemo } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type ColumnDef, type VisibilityState, type Row } from '@tanstack/react-table'
-import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { type TFile } from '@/components/shared/file-table/columns'
 import { FILE_SORT_FIELDS } from '@/components/shared/file-table/table-config'
-import { type FileOrder, type FileWhereInput, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { type FileWhereInput, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { useGetIdentityHolderFilesPaginated, useUploadIdentityHolderFiles, useUpdateIdentityHolder } from '@/lib/graphql-hooks/identity-holder'
 import { useGetEvidencesWithFileIds } from '@/lib/graphql-hooks/evidence'
 import { useNotification } from '@/hooks/useNotification'
@@ -39,14 +40,13 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const queryClient = useQueryClient()
-  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
-  const defaultSorting = useInitialSortConditions(TableKeyEnum.IDENTITY_HOLDER_FILES, FileOrderField, [
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.IDENTITY_HOLDER_FILES, FileOrderField, [
     {
       field: FileOrderField.created_at,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<FileOrder[]>(defaultSorting)
   const [searchTerm, setSearchTerm] = useState('')
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.IDENTITY_HOLDER_FILES, {}))
   const { successNotification, errorNotification } = useNotification()
@@ -288,7 +288,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
       <DataTable
         columns={columns}
         sortFields={FILE_SORT_FIELDS}
-        defaultSorting={defaultSorting}
+        sorting={orderBy}
         onSortChange={setOrderBy}
         data={validFiles}
         loading={isLoading}

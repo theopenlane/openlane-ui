@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { DataTable, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { TrustCenterNdaRequestTrustCenterNdaRequestStatus, type TrustCenterNdaRequestWhereInput } from '@repo/codegen/src/schema'
@@ -29,7 +30,7 @@ const NdaRequestsTable = ({ requireApproval, canRevoke }: NdaRequestsTableProps)
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false)
   const [revokeLoading, setRevokeLoading] = useState(false)
-  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<TrustCenterNdaRequestWhereInput | null>(null)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: updateNdaRequest } = useUpdateTrustCenterNdaRequest()

@@ -5,7 +5,8 @@ import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
 import { useUpdateProgram } from '@/lib/graphql-hooks/program'
-import { DataTable, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { type ColumnDef } from '@tanstack/react-table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -31,7 +32,7 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
   const [open, setOpen] = useState(false)
   const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
   const [roleMap, setRoleMap] = useState<Record<string, 'View' | 'Edit'>>({})
-  const [pagination, setPagination] = useTablePagination(defaultPagination)
+  const [pagination, setPagination] = useOrgTablePagination(defaultPagination)
 
   const [searchValue, setSearchValue] = useState('')
 

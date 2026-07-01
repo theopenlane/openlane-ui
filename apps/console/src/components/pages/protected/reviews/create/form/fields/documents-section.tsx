@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { useGetReviewFilesPaginated, useUpdateReview, useUploadReviewFiles } from '@/lib/graphql-hooks/review'
 import { DocumentsSection } from '@/components/shared/documents-section/documents-section'
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'
-import { type FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
-import { useTablePagination, useInitialSortConditions } from '@repo/ui/data-table'
+import { FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useNotification } from '@/hooks/useNotification'
@@ -23,14 +23,13 @@ type ReviewDocumentsSectionProps = {
 const REVIEW_FILES_TABLE_KEY = 'review-files' as TableKeyValue
 
 const ReviewDocumentsSection: React.FC<ReviewDocumentsSectionProps> = ({ reviewId, isEditAllowed, isCreate, onStagedFilesChange, onExistingFileIdsChange }) => {
-  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
-  const defaultSorting = useInitialSortConditions(REVIEW_FILES_TABLE_KEY, FileOrderField, [
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [orderBy, setOrderBy] = useOrgTableSort(REVIEW_FILES_TABLE_KEY, FileOrderField, [
     {
       field: FileOrderField.created_at,
       direction: OrderDirection.DESC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<FileOrder[]>(defaultSorting)
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
 
@@ -105,7 +104,7 @@ const ReviewDocumentsSection: React.FC<ReviewDocumentsSectionProps> = ({ reviewI
       totalCount={totalCount}
       pagination={pagination}
       onPaginationChange={setPagination}
-      defaultSorting={defaultSorting}
+      defaultSorting={orderBy}
       onSortChange={setOrderBy}
       onUpload={handleUpload}
       isUploading={isUploading}

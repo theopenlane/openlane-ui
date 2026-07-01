@@ -7,7 +7,8 @@ import { statCardStyles } from '@/components/shared/stats-cards/stats-cards-styl
 import { Hourglass } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Label } from '@repo/ui/label'
-import { DataTable, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { Button } from '@repo/ui/button'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -25,7 +26,7 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
   const { wrapper, content } = statCardStyles({ color: 'green' })
   const [customSelected, setCustomSelected] = useState(false)
 
-  const [pagination, setPagination] = useTablePagination({
+  const [pagination, setPagination] = useOrgTablePagination({
     ...DEFAULT_PAGINATION,
     page: 1,
     pageSize: 5,

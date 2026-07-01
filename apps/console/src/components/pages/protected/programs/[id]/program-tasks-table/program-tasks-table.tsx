@@ -1,14 +1,14 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import Link from 'next/link'
 import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
-import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
 import { type ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/task.ts'
-import { OrderDirection, TaskOrderField, type TasksWithFilterQueryVariables, TaskTaskStatus, type TaskWhereInput, type User } from '@repo/codegen/src/schema'
+import { OrderDirection, TaskOrderField, TaskTaskStatus, type TaskWhereInput, type User } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TASK_SORT_FIELDS } from '../../../tasks/table/table-config.ts'
 import { useParams } from 'next/navigation'
@@ -20,6 +20,7 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum.ts'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip.tsx'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { useOrganization } from '@/hooks/useOrganization'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 
 type FormattedTask = {
   id: string
@@ -33,7 +34,7 @@ type FormattedTask = {
 const ProgramTasksTable = () => {
   const { currentOrgId } = useOrganization()
   const { id } = useParams<{ id: string | undefined }>()
-  const [pagination, setPagination] = useTablePagination({
+  const [pagination, setPagination] = useOrgTablePagination({
     ...DEFAULT_PAGINATION,
     pageSize: 5,
   })
@@ -111,13 +112,12 @@ const ProgramTasksTable = () => {
         statusNotIn: [TaskTaskStatus.COMPLETED, TaskTaskStatus.WONT_DO],
       }
     : {}
-  const defaultSorting = useInitialSortConditions(TableKeyEnum.PROGRAM, TaskOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.PROGRAM, TaskOrderField, [
     {
       field: TaskOrderField.due,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>(defaultSorting)
 
   const { data, tasks, isLoading, isFetching } = useTasksWithFilter({ where, pagination, orderBy, enabled: !!id })
 
@@ -164,7 +164,7 @@ const ProgramTasksTable = () => {
         loading={isLoading}
         sortFields={TASK_SORT_FIELDS}
         onSortChange={setOrderBy}
-        defaultSorting={defaultSorting}
+        sorting={orderBy}
         tableKey={TableKeyEnum.PROGRAM}
       />
     </div>

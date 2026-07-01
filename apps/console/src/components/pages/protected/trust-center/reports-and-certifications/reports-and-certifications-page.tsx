@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useCallback, use, useEffect, useMemo, useState } from 'react'
-import { DataTable, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { Loading } from '@/components/shared/loading/loading'
 import { type VisibilityState } from '@tanstack/react-table'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -23,7 +24,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 const ReportsAndCertificationsPage = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.TRUST_CENTER_DOC)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.DOCUMENTS, { createdAt: false, updatedAt: false }))
-  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<TrustCenterDocWhereInput | null>(null)
   const [selectedDocs, setSelectedDocs] = useState<{ id: string }[]>([])
 

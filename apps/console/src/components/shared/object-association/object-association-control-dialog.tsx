@@ -4,11 +4,11 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
-import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { useGetAllSubcontrols } from '@/lib/graphql-hooks/subcontrol'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type ControlListFieldsFragment, ControlOrderField, type GetAllControlsQueryVariables, OrderDirection, type Subcontrol } from '@repo/codegen/src/schema'
+import { type ControlListFieldsFragment, ControlOrderField, OrderDirection, type Subcontrol } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import usePlateEditor from '../plate/usePlateEditor'
 import { getControlsAndSubcontrolsColumns } from './object-association-controls-columns'
@@ -17,6 +17,7 @@ import { type CustomEvidenceControl } from '@/components/pages/protected/evidenc
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SaveButton } from '../save-button/save-button'
 import { CancelButton } from '../cancel-button.tsx/cancel-button'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 
 export enum AccordionEnum {
   Control = 'Control',
@@ -59,15 +60,14 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     wasOpenRef.current = open
   }, [open, evidenceControls, evidenceSubcontrols, form])
 
-  const [pagination, setPagination] = useTablePagination({
+  const [pagination, setPagination] = useOrgTablePagination({
     ...DEFAULT_PAGINATION,
     page: 1,
     pageSize: 5,
     query: { first: 5 },
   })
 
-  const defaultSorting = useInitialSortConditions(TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS, ControlOrderField, [{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }])
-  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>(defaultSorting)
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS, ControlOrderField, [{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }])
 
   useEffect(() => {
     setPagination({
@@ -214,7 +214,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
           paginationMeta={paginationMeta}
           onSortChange={setOrderBy}
           loading={isLoading || isFetching}
-          defaultSorting={defaultSorting}
+          sorting={orderBy}
           tableKey={TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS}
         />
 

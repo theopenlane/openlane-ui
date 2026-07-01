@@ -1,12 +1,12 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import React, { use, useEffect, useMemo, useState } from 'react'
 import {
   ExportExportFormat,
   ExportExportType,
-  type GetProceduresListQueryVariables,
   type Maybe,
   OrderDirection,
   type OrgMembershipWhereInput,
@@ -38,7 +38,7 @@ import { objectToSnakeCase } from '@/utils/strings'
 
 export const ProceduresTable = () => {
   const router = useRouter()
-  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<ProcedureWhereInput | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[] | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.PROCEDURE)
@@ -46,13 +46,12 @@ export const ProceduresTable = () => {
   const { data: permission } = useOrganizationRoles()
   const { errorNotification } = useNotification()
   const { handleExport } = useFileExport()
-  const defaultSorting = useInitialSortConditions(TableKeyEnum.PROCEDURE, ProcedureOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.PROCEDURE, ProcedureOrderField, [
     {
       field: ProcedureOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>(defaultSorting)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
 
@@ -243,7 +242,7 @@ export const ProceduresTable = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
-        defaultSorting={defaultSorting}
+        sorting={orderBy}
         tableKey={TableKeyEnum.PROCEDURE}
       />
     </>

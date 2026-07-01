@@ -6,7 +6,8 @@ import { Plus } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
-import { DataTable, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { type ColumnDef } from '@tanstack/table-core'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { generateColumns, generateGroupsPermissionsWhere, type TableDataItem } from '@/constants/groups'
@@ -44,7 +45,7 @@ const AssignPermissionsDialog = () => {
   const [roles, setRoles] = useState<Record<string, string>>({})
   const [searchValue, setSearchValue] = useState('')
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
-  const [pagination, setPagination] = useTablePagination(defaultPagination)
+  const [pagination, setPagination] = useOrgTablePagination(defaultPagination)
 
   const { mutateAsync: updateGroup } = useUpdateGroup()
 

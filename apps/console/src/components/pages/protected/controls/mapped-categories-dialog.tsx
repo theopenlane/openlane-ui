@@ -11,7 +11,8 @@ import { FolderIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useUpdateControl } from '@/lib/graphql-hooks/control'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { DataTable, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { type ColumnDef } from '@tanstack/react-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -25,7 +26,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
 
   const { mutateAsync: updateControl, isPending } = useUpdateControl()
 
-  const [pagination, setPagination] = useTablePagination({
+  const [pagination, setPagination] = useOrgTablePagination({
     ...DEFAULT_PAGINATION,
     page: 1,
     pageSize: 5,

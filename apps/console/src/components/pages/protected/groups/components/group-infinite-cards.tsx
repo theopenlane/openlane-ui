@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import { useGetAllGroupsInfinite } from '@/lib/graphql-hooks/group'
 import { type GroupOrder, type GroupWhereInput } from '@repo/codegen/src/schema.ts'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination.ts'
-import { useTablePagination } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 
 type TGroupInfiniteCardsProps = {
   whereFilter: GroupWhereInput | null
@@ -12,7 +12,7 @@ type TGroupInfiniteCardsProps = {
 }
 
 const GroupInfiniteCards = ({ whereFilter, orderByFilter }: TGroupInfiniteCardsProps) => {
-  const [cardPagination, setCardPagination] = useTablePagination(CARD_DEFAULT_PAGINATION)
+  const [cardPagination, setCardPagination] = useOrgTablePagination(CARD_DEFAULT_PAGINATION)
   const { groups, isError, paginationMeta, fetchNextPage } = useGetAllGroupsInfinite({
     where: whereFilter,
     orderBy: orderByFilter,

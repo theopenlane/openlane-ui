@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { DataTable, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { type ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
@@ -57,7 +58,7 @@ const columns: ColumnDef<FormattedPolicy>[] = [
 ]
 
 export default function AwaitingApprovalTable() {
-  const [pagination, setPagination] = useTablePagination({
+  const [pagination, setPagination] = useOrgTablePagination({
     ...DEFAULT_PAGINATION,
     pageSize: 5,
   })

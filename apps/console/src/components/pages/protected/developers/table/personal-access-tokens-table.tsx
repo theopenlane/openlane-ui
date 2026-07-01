@@ -8,7 +8,8 @@ import {
   OrderDirection,
   PersonalAccessTokenOrderField,
 } from '@repo/codegen/src/schema'
-import { DataTable, useInitialSortConditions, useTablePagination, TruncatedCell } from '@repo/ui/data-table'
+import { DataTable, TruncatedCell } from '@repo/ui/data-table'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
@@ -177,24 +178,18 @@ export const PersonalAccessTokenTable = () => {
   const { data: permission } = useOrganizationRoles()
   const canManageApiToken = !isApiTokenPage || canEdit(permission?.roles)
   const tableKey = isApiTokenPage ? TableKeyEnum.API_TOKEN : TableKeyEnum.PERSONAL_ACCESS_TOKEN
-  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const { successNotification, errorNotification } = useNotification()
 
   type CommonWhereType = GetPersonalAccessTokensQueryVariables['where'] | GetApiTokensQueryVariables['where']
 
-  type CommonOrderByType = Array<{
-    field: PersonalAccessTokenOrderField
-    direction: OrderDirection
-  }>
-
   const [filters, setFilters] = useState<CommonWhereType | null>(null)
-  const defaultSorting = useInitialSortConditions(tableKey, PersonalAccessTokenOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(tableKey, PersonalAccessTokenOrderField, [
     {
       field: PersonalAccessTokenOrderField.created_at,
       direction: OrderDirection.DESC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<CommonOrderByType>(defaultSorting)
 
   const whereFilter = useMemo(() => {
     return { ...filters } as CommonWhereType
@@ -401,7 +396,7 @@ export const PersonalAccessTokenTable = () => {
     <>
       <TokensTableToolbar onFilterChange={setFilters} />
       <DataTable
-        defaultSorting={defaultSorting}
+        sorting={orderBy}
         loading={isFetching}
         columns={columns}
         data={tokens}

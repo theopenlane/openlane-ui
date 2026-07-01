@@ -25,7 +25,7 @@ import { whereGenerator, whereContainsKey } from '@/components/shared/table-filt
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { useGroupsFilters } from './table/table-config'
-import { useTablePagination } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
 import Menu from '@/components/shared/menu/menu'
@@ -39,7 +39,7 @@ const GroupsPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const { data: session } = useSession()
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const defaultVisibility: VisibilityState = {
     id: false,
     updatedAt: false,

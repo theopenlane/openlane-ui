@@ -1,7 +1,8 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import React, { useState, useMemo, useEffect, use } from 'react'
 import { type Evidence, type EvidenceOrder, EvidenceOrderField, type EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -26,7 +27,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
-  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<EvidenceWhereInput>({})
   const { setCrumbs } = use(BreadcrumbContext)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.EVIDENCE)
@@ -35,13 +36,12 @@ export const EvidenceTable = () => {
   const [selectedEvidence, setSelectedEvidence] = useState<{ id: string }[]>([])
   const { data: permission } = useOrganizationRoles()
 
-  const defaultSorting = useInitialSortConditions(TableKeyEnum.EVIDENCE, EvidenceOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.EVIDENCE, EvidenceOrderField, [
     {
       field: EvidenceOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<EvidenceOrder[] | undefined>(() => (Array.isArray(defaultSorting) ? defaultSorting : defaultSorting ? [defaultSorting] : undefined))
 
   const debouncedSearch = useDebounce(searchTerm, 300)
 
@@ -162,7 +162,7 @@ export const EvidenceTable = () => {
       <DataTable
         sortFields={EVIDENCE_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
-        defaultSorting={defaultSorting}
+        sorting={orderBy}
         columns={columns}
         data={evidences}
         onRowClick={handleRowClick}

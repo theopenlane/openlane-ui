@@ -14,8 +14,9 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { useInitialSortConditions, useTablePagination, type SortCondition } from '@repo/ui/data-table'
+import { type SortCondition } from '@repo/ui/data-table'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { type ObjectNames, type ObjectTypes } from '@repo/codegen/src/type-names'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { type FieldValues, type UseFormReturn } from 'react-hook-form'
@@ -185,8 +186,8 @@ export function GenericTablePage<
   const { handleExport } = useFileExport()
 
   const [filters, setFilters] = useState<TWhereInput | null>(null)
-  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
-  const [orderBy, setOrderBy] = useState<SortCondition<TOrderField>[]>(useInitialSortConditions(tableKey, orderFieldEnum, defaultSorting))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [orderBy, setOrderBy] = useOrgTableSort(tableKey, orderFieldEnum, defaultSorting)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(tableKey, defaultVisibility))
   const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
 

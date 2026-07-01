@@ -2,7 +2,8 @@
 
 import React, { useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { DataTable, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { type ColumnDef, type Row } from '@tanstack/react-table'
@@ -36,7 +37,7 @@ export const ProgramSettingsGroups = () => {
   const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
   const editAllowed = canEdit(permission?.roles)
   const queryClient = useQueryClient()
-  const [pagination, setPagination] = useTablePagination({
+  const [pagination, setPagination] = useOrgTablePagination({
     ...DEFAULT_PAGINATION,
     pageSize: 5,
     page: 1,

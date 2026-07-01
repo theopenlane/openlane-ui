@@ -2,8 +2,9 @@
 
 import React, { useMemo, useState } from 'react'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
-import { DataTable, useInitialSortConditions, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { type AssessmentResponse, type AssessmentResponseQuery, AssessmentResponseAssessmentResponseStatus, AssessmentResponseOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { useAssessmentResponsesWithFilter, useAssessmentResponse, useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessment-response'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -47,14 +48,13 @@ const StatusBadge: React.FC<{ status: AssessmentResponseAssessmentResponseStatus
 const SORT_FIELDS = [{ label: 'Created At', key: AssessmentResponseOrderField.created_at }]
 
 const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelEmail }) => {
-  const [pagination, setPagination] = useTablePagination(DEFAULT_PAGINATION)
-  const defaultSorting = useInitialSortConditions(TableKeyEnum.ASSESSMENT_RESPONSE, AssessmentResponseOrderField, [
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.ASSESSMENT_RESPONSE, AssessmentResponseOrderField, [
     {
       field: AssessmentResponseOrderField.created_at,
       direction: OrderDirection.DESC,
     },
   ])
-  const [orderBy, setOrderBy] = useState(defaultSorting)
   const columnVisibility: VisibilityState = {}
   const [selectedResponseId, setSelectedResponseId] = useState<string | null>(null)
   const { successNotification, errorNotification } = useNotification()
@@ -144,7 +144,7 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
       <DataTable
         columns={columns}
         sortFields={SORT_FIELDS}
-        defaultSorting={defaultSorting}
+        sorting={orderBy}
         onSortChange={setOrderBy}
         data={rows}
         loading={isLoading}

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { PlusCircle } from 'lucide-react'
 import { type ColumnDef } from '@tanstack/react-table'
-import { DataTable, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { acceptedFileTypes, acceptedFileTypesShort, maxFileSizeInMb } from '@/components/shared/file-upload/file-upload-config'
 import { type TUploadedFile } from '@/components/shared/file-upload/types'
@@ -14,6 +14,7 @@ import { formatDateSince } from '@/utils/date'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 
 type ExistingFileRow = {
   id: string
@@ -31,7 +32,7 @@ type DocumentsCreateSectionProps = {
 
 const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFilesChange, onFileIdsChange }) => {
   const [allFiles, setAllFiles] = useState<TUploadedFile[]>([])
-  const [pagination, setPagination] = useTablePagination({
+  const [pagination, setPagination] = useOrgTablePagination({
     ...DEFAULT_PAGINATION,
     pageSize: 5,
     page: 1,

@@ -14,7 +14,8 @@ import { Hourglass } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
-import { DataTable, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { getColumnsForImportControlsDialogFramework } from '../program-tasks-table/columns'
 import { useParams } from 'next/navigation'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -27,7 +28,7 @@ const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selected
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const { wrapper, content } = statCardStyles({ color: 'green' })
-  const [pagination, setPagination] = useTablePagination({
+  const [pagination, setPagination] = useOrgTablePagination({
     ...DEFAULT_PAGINATION,
     page: 1,
     pageSize: 5,

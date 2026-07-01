@@ -2,7 +2,8 @@
 
 import React, { useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { DataTable, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { type ColumnDef } from '@tanstack/table-core'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -22,7 +23,7 @@ type FormattedPolicy = {
 }
 
 export default function PoliciesWithoutProceduresTable() {
-  const [pagination, setPagination] = useTablePagination({
+  const [pagination, setPagination] = useOrgTablePagination({
     ...DEFAULT_PAGINATION,
     pageSize: 5,
   })

@@ -5,7 +5,8 @@ import { SquarePlus, LoaderCircle, Search as SearchIcon } from 'lucide-react'
 import { type FC, useEffect, useMemo, useState, useCallback } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { DataTable, useTablePagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -39,7 +40,7 @@ const CustomTagsTab: FC = () => {
   const debouncedSearch = useDebounce(searchValue, 300)
   const [tagToDelete, setTagToDelete] = useState<{ id: string; name: string } | null>(null)
 
-  const [pagination, setPagination] = useTablePagination({
+  const [pagination, setPagination] = useOrgTablePagination({
     ...DEFAULT_PAGINATION,
     pageSize: 10,
     query: { first: 10 },
