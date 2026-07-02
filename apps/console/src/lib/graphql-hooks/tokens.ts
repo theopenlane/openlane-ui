@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
@@ -26,7 +27,6 @@ import {
   type GetPersonalAccessTokensQueryVariables,
   type GetApiTokensByIdsQuery,
   type GetApiTokensByIdsQueryVariables,
-  type ApiToken,
   type UpdatePersonalAccessTokenMutation,
   type UpdatePersonalAccessTokenMutationVariables,
   type UpdateApiTokenMutation,
@@ -159,7 +159,7 @@ export const useGetApiTokensByIds = ({ where }: UseGetApiTokensArgs) => {
     enabled: idInNotEmpty,
   })
 
-  const tokens = (queryResult.data?.apiTokens?.edges ?? []).map((edge) => edge?.node) as ApiToken[]
+  const tokens = useMemo(() => (queryResult.data?.apiTokens?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [queryResult.data])
 
   return {
     ...queryResult,

@@ -1,9 +1,9 @@
 import { type ColumnDef } from '@tanstack/react-table'
 import React from 'react'
-import { type ApiToken, type Group, type Procedure, type User } from '@repo/codegen/src/schema.ts'
-import { KeyRound } from 'lucide-react'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
+import { type Group, type Procedure, type User } from '@repo/codegen/src/schema.ts'
+import { type AuthorToken } from '@/lib/authors'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import ApproverCell from './approver-cell'
 import DelegateCell from './delegate-cell'
@@ -19,14 +19,14 @@ import { createSelectColumn } from '@/components/shared/crud-base/columns/select
 import { formatDate } from '@/utils/date'
 
 type TProceduresColumnsProps = {
-  users?: User[]
-  tokens?: ApiToken[]
+  userMap?: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   selectedProcedures: { id: string }[]
   setSelectedProcedures: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   enumOptions: CustomTypeEnumOption[]
 }
 
-export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSelectedProcedures, enumOptions }: TProceduresColumnsProps) => {
+export const getProceduresColumns = ({ userMap, tokenMap, selectedProcedures, setSelectedProcedures, enumOptions }: TProceduresColumnsProps) => {
   const columns: ColumnDef<Procedure>[] = [
     createSelectColumn<Procedure>(selectedProcedures, setSelectedProcedures),
     {
@@ -164,22 +164,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => {
-        const userId = row.original.createdBy
-        const token = tokens?.find((item) => item.id === userId)
-        const user = users?.find((item) => item.id === userId)
-
-        if (!token && !user) {
-          return 'Deleted user'
-        }
-
-        return (
-          <div className="flex items-center gap-2">
-            {token ? <KeyRound size={18} /> : <Avatar entity={user} />}
-            {token ? token.name : user?.displayName || '-'}
-          </div>
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'createdAt',
@@ -191,22 +176,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => {
-        const userId = row.original.updatedBy
-        const token = tokens?.find((item) => item.id === userId)
-        const user = users?.find((item) => item.id === userId)
-
-        if (!token && !user) {
-          return 'Deleted user'
-        }
-
-        return (
-          <div className="flex items-center gap-2">
-            {token ? <KeyRound size={18} /> : <Avatar entity={user} />}
-            {token ? token.name : user?.displayName || '-'}
-          </div>
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'updatedAt',

@@ -15,7 +15,7 @@ import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo
 import { RISKS_SORT_FIELDS } from '@/components/pages/protected/risks/table/table-config.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -104,19 +104,9 @@ const RiskTable: React.FC = () => {
     return Array.from(ids)
   }, [risks])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
-
-  const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap, convertToReadOnly, selectedRisks, setSelectedRisks }), [userMap, convertToReadOnly, selectedRisks])
+  const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap, tokenMap, convertToReadOnly, selectedRisks, setSelectedRisks }), [userMap, tokenMap, convertToReadOnly, selectedRisks])
 
   useEffect(() => {
     if (permission?.roles) {

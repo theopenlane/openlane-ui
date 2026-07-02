@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useNotification } from '@/hooks/useNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -104,17 +104,7 @@ export const TemplatesTable = () => {
     return Array.from(ids)
   }, [templates])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
   const handleEdit = useCallback(
     (template: Template) => {
@@ -176,6 +166,7 @@ export const TemplatesTable = () => {
 
   const { columns, mappedColumns } = getTemplateColumns({
     userMap,
+    tokenMap,
     onEdit: handleEdit,
     onDelete: handleDelete,
     onCreateQuestionnaire: handleCreateQuestionnaire,

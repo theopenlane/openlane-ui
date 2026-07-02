@@ -22,8 +22,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type TPagination } from '@repo/ui/pagination-types'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { type VisibilityState } from '@tanstack/react-table'
-import { CustomTypeEnumOrderField, type GetCustomTypeEnumsPaginatedQueryVariables, OrderDirection, type User } from '@repo/codegen/src/schema'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { CustomTypeEnumOrderField, type GetCustomTypeEnumsPaginatedQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -107,17 +107,7 @@ const CustomEnumsTab: FC = () => {
     return Array.from(ids)
   }, [enums])
 
-  const { users } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, User> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap } = useAuthorMaps(userIds)
 
   const { columns, mappedColumns } = useGetCustomEnumColumns({
     onEdit: handleEditOpen,
@@ -126,6 +116,7 @@ const CustomEnumsTab: FC = () => {
       if (item) setEnumToDelete({ id: item.id, name: item.name })
     },
     userMap,
+    tokenMap,
     canEditEnum,
   })
 

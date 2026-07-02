@@ -9,11 +9,11 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import CommentList from '@/components/shared/comments/CommentList'
 import AddComment from '@/components/shared/comments/AddComment'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import type { TComments } from '@/components/shared/comments/types/TComments'
 import type { TCommentData } from '@/components/shared/comments/types/TCommentData'
-import { toBase64DataUri } from '@/lib/image-utils'
+import { resolveAuthor } from '@/lib/authors'
 
 const ActivityCommentsSection = () => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
@@ -39,19 +39,7 @@ const ActivityCommentsSection = () => {
     return Array.from(new Set(edges.map((item) => item?.node?.createdBy).filter((itemId): itemId is string => typeof itemId === 'string')))
   }, [commentSource])
 
-  const { data: userData, isLoading: isUsersLoading } = useGetOrgMemberships({
-    where: { hasUserWith: [{ idIn: userIds }] },
-    enabled: userIds.length > 0,
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { base64?: string | null } | null; avatarRemoteURL?: string | null }> = {}
-    userData?.orgMemberships?.edges?.forEach((edge) => {
-      const user = edge?.node?.user
-      if (user) map[user.id] = user
-    })
-    return map
-  }, [userData])
+  const { userMap, tokenMap, isLoading: isUsersLoading } = useAuthorMaps(userIds)
 
   const invalidateComments = useCallback(() => {
     if (isSubcontrol) {
@@ -129,20 +117,17 @@ const ActivityCommentsSection = () => {
     if (!commentSource?.comments?.edges?.length) return []
 
     const mapped = commentSource.comments.edges.map((item) => {
-      const user = item?.node?.createdBy ? userMap[item.node.createdBy] : undefined
-      const avatarUrl = (user?.avatarFile?.base64 ? toBase64DataUri(user.avatarFile.base64) : null) || user?.avatarRemoteURL
       return {
         comment: item?.node?.text,
-        avatarUrl,
         createdAt: item?.node?.createdAt,
-        userName: user?.displayName || 'Deleted user',
+        author: resolveAuthor(item?.node?.createdBy, { userMap, tokenMap }),
         createdBy: item?.node?.createdBy,
         id: item?.node?.id || '',
       } as TCommentData
     })
 
     return mapped.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
-  }, [commentSortIsAsc, commentSource, userMap])
+  }, [commentSortIsAsc, commentSource, tokenMap, userMap])
 
   return (
     <div className="space-y-4">

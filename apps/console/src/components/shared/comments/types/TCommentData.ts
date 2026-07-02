@@ -1,7 +1,8 @@
+import { type ResolvedAuthor } from '@/lib/authors'
+
 export type TCommentData = {
-  userName: string
+  author: ResolvedAuthor
   createdAt: string
-  avatarUrl?: string
   comment: string
   createdBy: string
   id: string
