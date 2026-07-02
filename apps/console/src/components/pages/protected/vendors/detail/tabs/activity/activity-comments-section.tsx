@@ -8,14 +8,11 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import CommentList from '@/components/shared/comments/CommentList'
 import AddComment from '@/components/shared/comments/AddComment'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import type { TComments } from '@/components/shared/comments/types/TComments'
 import type { TCommentData } from '@/components/shared/comments/types/TCommentData'
-import type { OrgMembershipsQuery } from '@repo/codegen/src/schema'
-import { toBase64DataUri } from '@/lib/image-utils'
-
-type OrgMembershipUser = NonNullable<NonNullable<NonNullable<OrgMembershipsQuery['orgMemberships']['edges']>[number]>['node']>['user']
+import { resolveAuthor } from '@/lib/authors'
 
 type ActivityCommentsSectionProps = {
   vendorId: string
@@ -38,19 +35,7 @@ const ActivityCommentsSection: React.FC<ActivityCommentsSectionProps> = ({ vendo
     return Array.from(new Set(edges.map((item) => item?.node?.createdBy).filter((itemId): itemId is string => typeof itemId === 'string')))
   }, [commentSource])
 
-  const { data: userData, isLoading: isUsersLoading } = useGetOrgMemberships({
-    where: { hasUserWith: [{ idIn: userIds }] },
-    enabled: userIds.length > 0,
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, OrgMembershipUser> = {}
-    userData?.orgMemberships?.edges?.forEach((edge) => {
-      const user = edge?.node?.user
-      if (user) map[user.id] = user
-    })
-    return map
-  }, [userData])
+  const { userMap, tokenMap, isLoading: isUsersLoading } = useAuthorMaps(userIds)
 
   const invalidateComments = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['entityComments', vendorId] })
@@ -97,13 +82,10 @@ const ActivityCommentsSection: React.FC<ActivityCommentsSectionProps> = ({ vendo
       .map((item) => item?.node)
       .filter((node): node is NonNullable<typeof node> => !!node && !!node.id)
       .map((node): TCommentData => {
-        const user = node.createdBy ? userMap[node.createdBy] : undefined
-        const avatarUrl = ((user?.avatarFile?.base64 ? toBase64DataUri(user.avatarFile.base64) : null) || user?.avatarRemoteURL) ?? undefined
         return {
           comment: node.text ?? '',
-          avatarUrl,
           createdAt: node.createdAt ?? '',
-          userName: user?.displayName || 'Deleted user',
+          author: resolveAuthor(node.createdBy, { userMap, tokenMap }),
           createdBy: node.createdBy ?? '',
           id: node.id,
         }
@@ -113,7 +95,7 @@ const ActivityCommentsSection: React.FC<ActivityCommentsSectionProps> = ({ vendo
       const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       return commentSortIsAsc ? diff : -diff
     })
-  }, [commentSortIsAsc, commentSource, userMap])
+  }, [commentSortIsAsc, commentSource, tokenMap, userMap])
 
   return (
     <div className="space-y-4">

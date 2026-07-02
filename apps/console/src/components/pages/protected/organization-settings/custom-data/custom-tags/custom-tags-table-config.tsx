@@ -10,15 +10,17 @@ import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import ColorCell from '../shared/color-cell'
 import { useUpdateTag } from '@/lib/graphql-hooks/tag-definition'
-import { Avatar } from '@/components/shared/avatar/avatar'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { formatDate, formatDateSince } from '@/utils/date'
 import { type TagDefinition, type User } from '@repo/codegen/src/schema'
+import { type AuthorToken } from '@/lib/authors'
 import { TruncatedCell } from '@repo/ui/data-table'
 
 type ColumnsParams = {
   onEdit?: (id: string) => void
   onDelete?: (id: string) => void
   userMap?: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   canEditTags?: boolean
   canDeleteTags?: boolean
 }
@@ -28,7 +30,7 @@ export const normalizeColor = (color?: string | null) => {
   return color.startsWith('#') ? color : `#${color}`
 }
 
-export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, canEditTags = true, canDeleteTags = true }: ColumnsParams) => {
+export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, tokenMap, canEditTags = true, canDeleteTags = true }: ColumnsParams) => {
   const { mutateAsync: updateTag } = useUpdateTag()
 
   const columns = useMemo<ColumnDef<TagDefinition>[]>(() => {
@@ -110,17 +112,7 @@ export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, canEditTags 
       {
         accessorKey: 'createdBy',
         header: 'Created By',
-        cell: ({ row }) => {
-          const user = userMap?.[row.original.createdBy ?? '']
-          return user ? (
-            <div className="flex items-center gap-1">
-              <Avatar entity={user} className="w-6 h-6" />
-              <p className="text-sm">{user.displayName}</p>
-            </div>
-          ) : (
-            <span className="text-muted-foreground italic text-sm">Deleted user</span>
-          )
-        },
+        cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
         size: 200,
       },
       {
@@ -132,17 +124,7 @@ export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, canEditTags 
       {
         accessorKey: 'updatedBy',
         header: 'Updated By',
-        cell: ({ row }) => {
-          const user = userMap?.[row.original.updatedBy ?? '']
-          return user ? (
-            <div className="flex items-center gap-1">
-              <Avatar entity={user} className="w-6 h-6" />
-              <p className="text-sm">{user.displayName}</p>
-            </div>
-          ) : (
-            <span className="text-muted-foreground italic text-sm">Deleted user</span>
-          )
-        },
+        cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
         size: 200,
       },
       {
@@ -153,7 +135,7 @@ export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, canEditTags 
       },
       ...(canEditTags || canDeleteTags ? [actionsCol] : []),
     ]
-  }, [onEdit, onDelete, userMap, updateTag, canEditTags, canDeleteTags])
+  }, [onEdit, onDelete, userMap, tokenMap, updateTag, canEditTags, canDeleteTags])
 
   const mappedColumns = useMemo(() => {
     return columns

@@ -5,7 +5,7 @@ import { type EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { type EntityEntityStatus } from '@repo/codegen/src/schema.ts'
 import { VendorStatusBadge } from '@/components/shared/enum-mapper/vendor-enum'
-import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
@@ -32,7 +32,7 @@ const renderVendorIdentityCell = (row: EntitiesNodeNonNull, label: string) => {
   )
 }
 
-export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<EntitiesNodeNonNull>[] => {
+export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<EntitiesNodeNonNull>[] => {
   return [
     createSelectColumn<EntitiesNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
@@ -173,14 +173,14 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
   ]
 }

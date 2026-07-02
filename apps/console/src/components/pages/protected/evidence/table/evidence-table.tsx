@@ -13,7 +13,7 @@ import { useGetEvidenceList } from '@/lib/graphql-hooks/evidence.ts'
 import { useGetEvidenceColumns } from '@/components/pages/protected/evidence/table/columns.tsx'
 import { EVIDENCE_SORTABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
 import EvidenceTableToolbar from '@/components/pages/protected/evidence/table/evidence-table-toolbar.tsx'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
@@ -106,19 +106,9 @@ export const EvidenceTable = () => {
     return Array.from(ids)
   }, [evidences])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
-
-  const { columns, mappedColumns } = useGetEvidenceColumns({ userMap, selectedEvidence, setSelectedEvidence })
+  const { columns, mappedColumns } = useGetEvidenceColumns({ userMap, tokenMap, selectedEvidence, setSelectedEvidence })
 
   useEffect(() => {
     setCrumbs([

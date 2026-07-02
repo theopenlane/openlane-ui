@@ -9,7 +9,6 @@ import {
   type GetProceduresListQueryVariables,
   type Maybe,
   OrderDirection,
-  type OrgMembershipWhereInput,
   ProcedureDocumentStatus,
   ProcedureOrderField,
   type ProcedureWhereInput,
@@ -22,8 +21,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useProcedures } from '@/lib/graphql-hooks/procedure'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
-import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
@@ -94,33 +92,8 @@ export const ProceduresTable = () => {
     return merged
   }, [filters, debouncedSearch])
 
-  const userListWhere: OrgMembershipWhereInput = useMemo(() => {
-    if (!memberIds) {
-      return {}
-    }
-
-    const conditions = {
-      hasUserWith: [{ idIn: memberIds }],
-    }
-
-    return conditions
-  }, [memberIds])
-
-  const tokensWhere = useMemo(() => {
-    if (!memberIds) {
-      return {}
-    }
-
-    const conditions = {
-      idIn: memberIds,
-    }
-
-    return conditions
-  }, [memberIds])
-
   const { procedures, isError, isLoading: fetching, paginationMeta } = useProcedures({ where, orderBy, pagination, enabled: !!filters })
-  const { users } = useGetOrgUserList({ where: userListWhere })
-  const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
+  const { userMap, tokenMap } = useAuthorMaps(memberIds ?? [])
   const [selectedProcedures, setSelectedProcedures] = useState<{ id: string }[]>([])
   const defaultVisibility: VisibilityState = {
     id: false,
@@ -148,7 +121,7 @@ export const ProceduresTable = () => {
     },
   })
 
-  const { columns, mappedColumns } = getProceduresColumns({ users, tokens, selectedProcedures, setSelectedProcedures, enumOptions })
+  const { columns, mappedColumns } = getProceduresColumns({ userMap, tokenMap, selectedProcedures, setSelectedProcedures, enumOptions })
 
   const handleCreateNew = async () => {
     router.push(`/procedures/create`)
@@ -182,7 +155,7 @@ export const ProceduresTable = () => {
 
   useEffect(() => {
     if (procedures.length > 0 && !memberIds) {
-      const userIds = [...new Set(procedures.map((item) => item.updatedBy))]
+      const userIds = [...new Set(procedures.flatMap((item) => [item.createdBy, item.updatedBy]))]
       setMemberIds(userIds)
     }
   }, [procedures, memberIds, filters])

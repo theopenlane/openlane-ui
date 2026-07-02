@@ -18,7 +18,7 @@ import { CreateTagSheet } from './create-tag-sheet'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { type VisibilityState } from '@tanstack/react-table'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 
@@ -66,17 +66,7 @@ const CustomTagsTab: FC = () => {
     return Array.from(ids)
   }, [tags])
 
-  const { users } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[number]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap } = useAuthorMaps(userIds)
 
   const resetPagination = useCallback(() => {
     setPagination((prev) => ({
@@ -116,6 +106,7 @@ const CustomTagsTab: FC = () => {
       setTagToDelete(tag ? { id: tag.id, name: tag.name } : null)
     },
     userMap,
+    tokenMap,
     canEditTags,
     canDeleteTags,
   })

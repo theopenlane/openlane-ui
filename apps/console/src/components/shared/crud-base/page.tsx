@@ -28,6 +28,7 @@ import { type TableKeyValue } from '@repo/ui/table-key'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { type FilterField } from '@/types'
 import { type User } from '@repo/codegen/src/schema'
+import { type AuthorToken } from '@/lib/authors'
 import type { BulkDeletePayload, ViewEditMode, CreateMode } from './types'
 
 type TOrderByInput = { field: string; direction?: OrderDirection }[] | undefined
@@ -39,6 +40,7 @@ export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promi
 
 export type ColumnOptions = {
   userMap: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
   selectedItems: { id: string }[]
   setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>

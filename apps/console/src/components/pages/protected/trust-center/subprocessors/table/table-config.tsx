@@ -6,8 +6,9 @@ import { type FilterField } from '@/types'
 import { SubprocessorsFilterIcons } from '@/components/shared/enum-mapper/subprocessors-enum'
 import { CountryFlag } from '@repo/ui/country-flag'
 import { formatDate, formatTimeSince } from '@/utils/date'
-import { Avatar } from '@/components/shared/avatar/avatar'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { type User } from '@repo/codegen/src/schema'
+import { type AuthorToken } from '@/lib/authors'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { createRowActionsColumn } from '@/components/shared/crud-base/columns/row-actions-column'
 import { Pencil, Trash2 } from 'lucide-react'
@@ -29,6 +30,7 @@ type Params = {
   selectedRows: { id: string }[]
   setSelectedRows: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   userMap: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   canEditSubprocessor: boolean
   onEdit: (id: string) => void
   onDelete: (id: string) => void
@@ -39,7 +41,7 @@ type ColumnConfig = {
   mappedColumns: { accessorKey: string; header: string }[]
 }
 
-export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap, canEditSubprocessor, onEdit, onDelete }: Params): ColumnConfig => {
+export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap, tokenMap, canEditSubprocessor, onEdit, onDelete }: Params): ColumnConfig => {
   const toggleSelection = (row: { id: string }) => {
     setSelectedRows((prev) => {
       const exists = prev.some((r) => r.id === row.id)
@@ -159,18 +161,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       accessorKey: 'createdBy',
       maxSize: 200,
       size: 150,
-      cell: ({ row }) => {
-        const user = userMap[row.original.createdBy ?? '']
-
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
 
     {
@@ -184,18 +175,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       header: 'Updated By',
       accessorKey: 'updatedBy',
       size: 200,
-      cell: ({ row }) => {
-        const user = userMap[row.original.updatedBy ?? '']
-
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
   ]
 
