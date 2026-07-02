@@ -1,20 +1,15 @@
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { useCallback, useEffect, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
-import { getOrganizationStorageKey } from '@/lib/storage/organization-storage'
+import { getOrganizationStorageItem, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
 
 const searchKey = (key: ObjectTypes): string => key.toLowerCase()
 
 export const STORAGE_SEARCH_KEY_PREFIX = 'table-search:'
 
 export const getInitialSearchTerm = (key: ObjectTypes, organizationId?: string, fallback = ''): string => {
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem(getOrganizationStorageKey(`${STORAGE_SEARCH_KEY_PREFIX}${searchKey(key)}`, organizationId))
-    if (stored != null) {
-      return stored
-    }
-  }
-  return fallback
+  const stored = getOrganizationStorageItem(`${STORAGE_SEARCH_KEY_PREFIX}${searchKey(key)}`, organizationId)
+  return stored ?? fallback
 }
 
 type UseStorageSearchOptions = {
@@ -33,14 +28,13 @@ export const useStorageSearch = (key: ObjectTypes, options: UseStorageSearchOpti
       setSearchTerm(value)
 
       if (!persist) return
-      if (typeof window === 'undefined') return
 
-      const storageKey = getOrganizationStorageKey(`${STORAGE_SEARCH_KEY_PREFIX}${searchKey(key)}`, currentOrgId)
+      const storageKey = `${STORAGE_SEARCH_KEY_PREFIX}${searchKey(key)}`
 
       if (!value) {
-        localStorage.removeItem(storageKey)
+        removeOrganizationStorageItem(storageKey, currentOrgId)
       } else {
-        localStorage.setItem(storageKey, value)
+        setOrganizationStorageItem(storageKey, value, currentOrgId)
       }
     },
     [key, persist, currentOrgId],

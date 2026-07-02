@@ -31,7 +31,6 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
 import { useFormDraft } from '@/hooks/useFormDraft.ts'
 import DraftRestoreModal from '@/components/shared/draft-restore-modal/draft-restore-modal.tsx'
-import { getOrganizationStorageKey } from '@/lib/storage/organization-storage'
 
 const PROCEDURE_DRAFT_KEY = 'draft:procedure-create'
 
@@ -74,7 +73,8 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const plateEditorHelper = usePlateEditor()
 
   const { pendingDraft, restore, discard, clearDraft, editorKey } = useFormDraft<CreateProcedureFormData>({
-    storageKey: getOrganizationStorageKey(PROCEDURE_DRAFT_KEY, currentOrgId),
+    storageKey: PROCEDURE_DRAFT_KEY,
+    organizationId: currentOrgId,
     enabled: !isEditable,
     form,
   })

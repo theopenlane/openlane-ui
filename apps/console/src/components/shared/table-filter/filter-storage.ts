@@ -3,7 +3,7 @@ import { type FilterField } from '@/types'
 import type { DateRange } from 'react-day-picker'
 import { isValid } from 'date-fns'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
-import { getOrganizationStorageKey } from '@/lib/storage/organization-storage'
+import { getOrganizationStorageItem, getOrganizationStorageKey, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
 
 export type TNumberRange = { min: number; max: number }
 export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | TNumberRange | undefined
@@ -13,12 +13,12 @@ export type TQuickFilterState = { key: string; condition: TFilterState } | Recor
 const STORAGE_FILTER_PREFIX = 'filters:'
 const STORAGE_QUICK_FILTERS_PREFIX = 'quick-filters:'
 
-const storageFilterKey = (pageKey: TableKeyValue, organizationId?: string) => getOrganizationStorageKey(`${STORAGE_FILTER_PREFIX}${pageKey}`, organizationId)
-const storageQuickFilterKey = (pageKey: TableKeyValue, organizationId?: string) => getOrganizationStorageKey(`${STORAGE_QUICK_FILTERS_PREFIX}${pageKey}`, organizationId)
-const filtersUpdatedEvent = (pageKey: TableKeyValue, organizationId?: string) => `filters-updated:${storageFilterKey(pageKey, organizationId)}`
+const filterKey = (pageKey: TableKeyValue) => `${STORAGE_FILTER_PREFIX}${pageKey}`
+const quickFilterKey = (pageKey: TableKeyValue) => `${STORAGE_QUICK_FILTERS_PREFIX}${pageKey}`
+const filtersUpdatedEvent = (pageKey: TableKeyValue, organizationId?: string) => `filters-updated:${getOrganizationStorageKey(filterKey(pageKey), organizationId)}`
 
 export const saveFilters = (pageKey: TableKeyValue, state: TFilterState, organizationId?: string): void => {
-  localStorage.setItem(storageFilterKey(pageKey, organizationId), JSON.stringify(state))
+  setOrganizationStorageItem(filterKey(pageKey), JSON.stringify(state), organizationId)
   window.dispatchEvent(new CustomEvent(filtersUpdatedEvent(pageKey, organizationId), { detail: state }))
 }
 
@@ -38,11 +38,11 @@ export const saveQuickFilters = (pageKey: TableKeyValue, activeFilter: TQuickFil
     }
   }
 
-  localStorage.setItem(storageQuickFilterKey(pageKey, organizationId), JSON.stringify(quickFilterState))
+  setOrganizationStorageItem(quickFilterKey(pageKey), JSON.stringify(quickFilterState), organizationId)
 }
 
 export const clearQuickFilters = (pageKey: TableKeyValue, organizationId?: string): void => {
-  localStorage.removeItem(storageQuickFilterKey(pageKey, organizationId))
+  removeOrganizationStorageItem(quickFilterKey(pageKey), organizationId)
 }
 
 export const loadQuickFilter = (pageKey: TableKeyValue, quickFilters: TQuickFilter[] = [], organizationId?: string): TQuickFilter | null => {
@@ -54,7 +54,7 @@ export const loadQuickFilter = (pageKey: TableKeyValue, quickFilters: TQuickFilt
     return activeQuickFilter
   }
 
-  const saved = localStorage.getItem(storageQuickFilterKey(pageKey, organizationId))
+  const saved = getOrganizationStorageItem(quickFilterKey(pageKey), organizationId)
   if (!saved) return null
 
   try {
@@ -88,7 +88,7 @@ export const loadQuickFilter = (pageKey: TableKeyValue, quickFilters: TQuickFilt
 }
 
 export const loadFilters = (pageKey: TableKeyValue, filterFields?: FilterField[], organizationId?: string): TFilterState | null => {
-  const saved = localStorage.getItem(storageFilterKey(pageKey, organizationId))
+  const saved = getOrganizationStorageItem(filterKey(pageKey), organizationId)
   if (!saved) {
     return null
   }

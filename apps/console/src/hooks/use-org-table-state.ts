@@ -3,7 +3,7 @@ import { type SortCondition } from '@repo/ui/data-table'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { useOrganization } from '@/hooks/useOrganization'
-import { getOrganizationStorageKey } from '@/lib/storage/organization-storage'
+import { getOrganizationStorageItem, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
 
 const SORTING_KEY_PREFIX = 'sorting:'
 
@@ -14,30 +14,27 @@ const readSort = <TField extends string>(
   organizationId?: string,
 ): SortCondition<TField>[] => {
   const validKeysArray = Array.isArray(validSortKeys) ? validSortKeys : Object.values(validSortKeys)
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem(getOrganizationStorageKey(`${SORTING_KEY_PREFIX}${tableKey}`, organizationId))
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as SortCondition<string>[]
-        const sanitized = parsed.filter((item): item is SortCondition<TField> => validKeysArray.includes(item.field as TField))
-        if (sanitized.length > 0) {
-          return sanitized
-        }
-      } catch {
-        return defaultSortFields
+  const stored = getOrganizationStorageItem(`${SORTING_KEY_PREFIX}${tableKey}`, organizationId)
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored) as SortCondition<string>[]
+      const sanitized = parsed.filter((item): item is SortCondition<TField> => validKeysArray.includes(item.field as TField))
+      if (sanitized.length > 0) {
+        return sanitized
       }
+    } catch {
+      return defaultSortFields
     }
   }
   return defaultSortFields
 }
 
 const writeSort = <TField extends string>(tableKey: TableKeyValue, sorting: SortCondition<TField>[], organizationId?: string): void => {
-  if (typeof window === 'undefined') return
-  const key = getOrganizationStorageKey(`${SORTING_KEY_PREFIX}${tableKey}`, organizationId)
+  const key = `${SORTING_KEY_PREFIX}${tableKey}`
   if (sorting.length > 0 && sorting.every((condition) => condition.direction !== undefined)) {
-    localStorage.setItem(key, JSON.stringify(sorting))
+    setOrganizationStorageItem(key, JSON.stringify(sorting), organizationId)
   } else {
-    localStorage.removeItem(key)
+    removeOrganizationStorageItem(key, organizationId)
   }
 }
 

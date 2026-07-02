@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import type { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { getOrganizationStorageItem, getOrganizationStorageKey, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
 
 const STORAGE_VERSION = 1
 const PERSIST_DEBOUNCE_MS = 500
@@ -19,7 +20,9 @@ export type AssociationDraftStore = {
 }
 
 type Options<TForm extends FieldValues, TStore> = {
+  // Unscoped storage key; reads/writes are org-scoped via the organization-storage helpers
   storageKey: string
+  organizationId?: string
   enabled: boolean
   form: UseFormReturn<TForm>
   subscribeStore?: (listener: () => void) => () => void
@@ -27,20 +30,20 @@ type Options<TForm extends FieldValues, TStore> = {
   applyStoreSnapshot?: (snapshot: TStore) => void
 }
 
-const safeReadDraft = <TForm extends FieldValues, TStore>(storageKey: string): FormDraftPayload<TForm, TStore> | null => {
+const safeReadDraft = <TForm extends FieldValues, TStore>(storageKey: string, organizationId?: string): FormDraftPayload<TForm, TStore> | null => {
   if (typeof window === 'undefined') return null
   try {
-    const raw = window.localStorage.getItem(storageKey)
+    const raw = getOrganizationStorageItem(storageKey, organizationId)
     if (!raw) return null
     const parsed = JSON.parse(raw) as FormDraftPayload<TForm, TStore>
     if (!parsed || parsed.version !== STORAGE_VERSION) {
-      window.localStorage.removeItem(storageKey)
+      removeOrganizationStorageItem(storageKey, organizationId)
       return null
     }
     return parsed
   } catch {
     try {
-      window.localStorage.removeItem(storageKey)
+      removeOrganizationStorageItem(storageKey, organizationId)
     } catch {
       /* ignore */
     }
@@ -48,17 +51,17 @@ const safeReadDraft = <TForm extends FieldValues, TStore>(storageKey: string): F
   }
 }
 
-const safeRemove = (storageKey: string) => {
-  if (typeof window === 'undefined') return
+const safeRemove = (storageKey: string, organizationId?: string) => {
   try {
-    window.localStorage.removeItem(storageKey)
+    removeOrganizationStorageItem(storageKey, organizationId)
   } catch {
     /* ignore */
   }
 }
 
 export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: Options<TForm, TStore>) {
-  const { storageKey, enabled, form } = opts
+  const { storageKey, organizationId, enabled, form } = opts
+  const scopedKey = getOrganizationStorageKey(storageKey, organizationId)
 
   // Held in a ref so callers don't need to memoize them — otherwise inline
   // arrow-function props would invalidate persist's deps and re-subscribe
@@ -72,11 +75,11 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
   const [decisionMade, setDecisionMade] = useState(false)
   const [editorKey, setEditorKey] = useState(0)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const prevStorageKeyRef = useRef(storageKey)
+  const prevStorageKeyRef = useRef(scopedKey)
 
   useEffect(() => {
-    const storageKeyChanged = prevStorageKeyRef.current !== storageKey
-    prevStorageKeyRef.current = storageKey
+    const storageKeyChanged = prevStorageKeyRef.current !== scopedKey
+    prevStorageKeyRef.current = scopedKey
 
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
@@ -93,7 +96,7 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
       setDecisionMade(true)
       return
     }
-    const draft = safeReadDraft<TForm, TStore>(storageKey)
+    const draft = safeReadDraft<TForm, TStore>(storageKey, organizationId)
     if (draft) {
       setPendingDraft(draft)
       setDecisionMade(false)
@@ -101,7 +104,7 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
       setPendingDraft(null)
       setDecisionMade(true)
     }
-  }, [storageKey, enabled, form])
+  }, [storageKey, organizationId, scopedKey, enabled, form])
 
   const persist = useCallback(() => {
     if (!enabled || !decisionMade || typeof window === 'undefined') return
@@ -113,11 +116,11 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
         formValues: form.getValues(),
         storeSnapshot: callbacksRef.current.getStoreSnapshot?.(),
       }
-      window.localStorage.setItem(storageKey, JSON.stringify(payload))
+      setOrganizationStorageItem(storageKey, JSON.stringify(payload), organizationId)
     } catch {
       /* ignore quota / private mode errors */
     }
-  }, [enabled, decisionMade, form, storageKey])
+  }, [enabled, decisionMade, form, storageKey, organizationId])
 
   const schedulePersist = useCallback(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -153,14 +156,14 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
   }, [form, pendingDraft])
 
   const discard = useCallback(() => {
-    safeRemove(storageKey)
+    safeRemove(storageKey, organizationId)
     setPendingDraft(null)
     setDecisionMade(true)
-  }, [storageKey])
+  }, [storageKey, organizationId])
 
   const clearDraft = useCallback(() => {
-    safeRemove(storageKey)
-  }, [storageKey])
+    safeRemove(storageKey, organizationId)
+  }, [storageKey, organizationId])
 
   return {
     pendingDraft,

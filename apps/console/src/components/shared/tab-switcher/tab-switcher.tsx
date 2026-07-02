@@ -3,13 +3,13 @@
 import React, { useEffect, useState } from 'react'
 import { Presentation, Table } from 'lucide-react'
 import { type TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
-import { useOrganizationStorageKey } from '@/hooks/useOrganizationStorageKey'
+import { useOrganization } from '@/hooks/useOrganization'
+import { getOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
 
 type TTab = 'dashboard' | 'table'
 
-export const readStoredTab = (key: string): TTab => {
-  if (typeof window === 'undefined') return 'dashboard'
-  const saved = localStorage.getItem(key)
+export const readStoredTab = (key: string, organizationId?: string): TTab => {
+  const saved = getOrganizationStorageItem(key, organizationId)
   return saved === 'dashboard' || saved === 'table' ? saved : 'dashboard'
 }
 
@@ -25,23 +25,22 @@ const DEFAULT_LABELS = { dashboard: 'Report', table: 'Table' }
 export const STORAGE_KEY_PREFIX = 'tab-switch'
 
 const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: externalActive, setActive: externalSetActive, labels }) => {
-  const storageKeyWithPrefix = useOrganizationStorageKey(`${STORAGE_KEY_PREFIX}-${storageKey}`)
+  const { currentOrgId } = useOrganization()
+  const storageKeyWithPrefix = `${STORAGE_KEY_PREFIX}-${storageKey}`
   const resolvedLabels = { ...DEFAULT_LABELS, ...labels }
 
-  const [internalActive, setInternalActive] = useState<TTab>(() => readStoredTab(storageKeyWithPrefix))
+  const [internalActive, setInternalActive] = useState<TTab>(() => readStoredTab(storageKeyWithPrefix, currentOrgId))
 
   useEffect(() => {
-    setInternalActive(readStoredTab(storageKeyWithPrefix))
-  }, [storageKeyWithPrefix])
+    setInternalActive(readStoredTab(storageKeyWithPrefix, currentOrgId))
+  }, [storageKeyWithPrefix, currentOrgId])
 
   const active = externalActive ?? internalActive
   const setActive =
     externalSetActive ??
     ((tab: TTab) => {
       setInternalActive(tab)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(storageKeyWithPrefix, tab)
-      }
+      setOrganizationStorageItem(storageKeyWithPrefix, tab, currentOrgId)
     })
 
   return (
