@@ -256,6 +256,7 @@ export const MembersTable = () => {
         loading={isLoading}
         columns={columns}
         sortFields={MEMBERS_SORT_FIELDS}
+        sorting={orderBy}
         onSortChange={setOrderBy}
         data={sortedMembers}
         pagination={pagination}

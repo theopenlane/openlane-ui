@@ -79,6 +79,9 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
       return
     }
 
+    setValues({})
+    setActiveQuickFilters(quickFilters)
+
     const savedQuickFilter = loadQuickFilter(pageKey, quickFilters, currentOrgId)
     const saved = loadFilters(pageKey, filterFields, currentOrgId)
 

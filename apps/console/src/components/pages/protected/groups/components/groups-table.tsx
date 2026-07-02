@@ -77,6 +77,7 @@ const GroupsTable = ({ onSortChange, pagination, onPaginationChange, whereFilter
       data={groups}
       onRowClick={handleRowClick}
       sortFields={GROUP_SORT_FIELDS}
+      sorting={Array.isArray(orderByFilter) ? orderByFilter : orderByFilter ? [orderByFilter] : undefined}
       onSortChange={onSortChange}
       pagination={pagination}
       onPaginationChange={(pagination: TPagination) => onPaginationChange(pagination)}
