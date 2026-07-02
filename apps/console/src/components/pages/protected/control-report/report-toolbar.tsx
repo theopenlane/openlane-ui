@@ -68,18 +68,22 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
       <div className="flex items-center gap-4">
         <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
         <TabSwitcher active={active} setActive={setActive} storageKey={TabSwitcherStorageKeys.CONTROL} />
-        {showActions && hasVisibleControls ? (
+        {showActions && (
           <>
-            <Button type="button" variant="outline" className="h-7.5 px-3 gap-1.5" onClick={onToggleExpandAll}>
-              <ChevronsUpDown size={15} />
-              {allExpanded ? 'Collapse all' : 'Expand all'}
-            </Button>
-            <Button type="button" className={`h-7.5 px-3 gap-1.5 ${isSelectionMode ? 'border border-primary' : ''}`} variant="outline" onClick={onToggleSelectionMode}>
-              <ListChecks size={15} />
-              Select
-            </Button>
+            {hasVisibleControls && (
+              <Button type="button" variant="outline" className="h-7.5 px-3 gap-1.5" onClick={onToggleExpandAll}>
+                <ChevronsUpDown size={15} />
+                {allExpanded ? 'Collapse all' : 'Expand all'}
+              </Button>
+            )}
+            {(hasVisibleControls || isSelectionMode) && (
+              <Button type="button" className={`h-7.5 px-3 gap-1.5 ${isSelectionMode ? 'border border-primary' : ''}`} variant="outline" onClick={onToggleSelectionMode}>
+                <ListChecks size={15} />
+                Select
+              </Button>
+            )}
           </>
-        ) : null}
+        )}
       </div>
 
       <div className="flex items-center gap-2">
