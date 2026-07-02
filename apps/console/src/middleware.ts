@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from './lib/auth/auth'
-import { hasNoModules } from '@/lib/auth/utils/modules'
+import { hasNoModules } from '@/lib/subscription-plan/plans'
 import { buildLoginRedirect } from '@/lib/auth/utils/redirect'
 import { SUPPORT_BLOCKED_PAGES } from '@/constants/support'
 
