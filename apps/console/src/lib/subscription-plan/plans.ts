@@ -1,6 +1,8 @@
 import { FeatureEnum } from './feature-enum'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 import { type OpenlaneProductsResponse } from '@/types/stripe.ts'
+import { type Session } from 'next-auth'
+import { isImpersonation } from '../authz/utils'
 
 export const featureUtil = {
   notAvailableText: 'Not available in your current plan',
@@ -72,7 +74,34 @@ export const featureUtil = {
   planHasFeature: (plan: PlanEnum, feature: FeatureEnum) => {
     return featureUtil.getPlanFeatures(plan).includes(feature)
   },
-  hasModule(userModules: PlanEnum[], requiredModule: PlanEnum): boolean {
+
+  hasModule(userModules: PlanEnum[], requiredModule: PlanEnum, session?: Session | null): boolean {
+    // support role has no modules, skip check
+    if (isImpersonation(session)) {
+      return true
+    }
+
     return userModules.includes(requiredModule)
+  },
+
+  hasNoModules(session: Session | null): boolean {
+    if (!session) {
+      return false
+    }
+
+    // support role has no modules return so should skip check
+    if (isImpersonation(session)) {
+      return false
+    }
+
+    const featureEnabled = process.env.NEXT_PUBLIC_ENABLE_PLAN
+
+    if (featureEnabled === 'false') {
+      return false
+    }
+
+    const modules = session.user?.modules ?? []
+
+    return modules.length === 0
   },
 }

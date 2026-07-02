@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from './lib/auth/auth'
-import { hasNoModules } from '@/lib/auth/utils/modules'
+import { featureUtil } from '@/lib/subscription-plan/plans'
 import { buildLoginRedirect } from '@/lib/auth/utils/redirect'
 import { SUPPORT_BLOCKED_PAGES } from '@/constants/support'
 
@@ -41,7 +41,7 @@ export default auth(async (req) => {
   const isTfaEnabled = session?.user?.isTfaEnabled
   const isOnboarding = session?.user?.isOnboarding
 
-  const noModules = hasNoModules(session)
+  const noModules = featureUtil.hasNoModules(session)
   const noModulesAllowedPages = ['/organization-settings/billing', '/organization-settings/general-settings', '/user-settings/profile']
 
   if (!isLoggedIn) {
