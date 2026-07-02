@@ -113,12 +113,12 @@ export default function SideNav({
     if (!openPanel) {
       const firstItem = navItems
         .filter((item): item is NavItem => 'title' in item)
-        .filter((item) => !(featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item.plan)))
+        .filter((item) => !(featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item.plan, session)))
         .find((item) => item.children && item.children.length > 0)
 
       onToggleAction(firstItem?.title?.toLowerCase() as PanelKey)
     }
-  }, [featureEnabled, modules, navItems, onToggleAction, openPanel])
+  }, [featureEnabled, modules, navItems, onToggleAction, openPanel, session])
 
   const handleTogglePanel = (item: NavItem) => {
     const panelKey = item?.title?.toLowerCase() as PanelKey
@@ -177,7 +177,7 @@ export default function SideNav({
           <div key={idx} className="relative flex w-full items-center justify-center">
             <div className="w-2.5 h-full flex absolute left-0">{isActive && <span className="h-full w-0.5 bg-foreground dark:bg-primary absolute" />}</div>
 
-            {featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item?.plan) && <Lock className="absolute bottom-6 right-[5px] w-3 h-3 z-90 text-gray-400" />}
+            {featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item?.plan, session) && <Lock className="absolute bottom-6 right-[5px] w-3 h-3 z-90 text-gray-400" />}
 
             {isExpandable ? (
               <Button

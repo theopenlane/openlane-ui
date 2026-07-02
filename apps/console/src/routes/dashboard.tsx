@@ -61,7 +61,8 @@ import { hasNoModules } from '@/lib/auth/utils/modules'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
 
 export const topNavigationItems = (session: Session | null, currentUserRole?: OrgMembershipRole): (NavItem | Separator | NavHeading)[] => {
-  const billingExpired = hasNoModules(session)
+  const isImpersonation = session?.user?.isImpersonation
+  const billingExpired = hasNoModules(session) && !isImpersonation
   const isAuditor = currentUserRole === OrgMembershipRole.AUDITOR
   return [
     {
@@ -318,9 +319,9 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
 }
 
 export const bottomNavigationItems = (session: Session | null, orgPermission?: TPermissionData, currentUserRole?: OrgMembershipRole): (NavItem | Separator | NavHeading)[] => {
-  const billingExpired = hasNoModules(session)
-  const isAuditor = currentUserRole === OrgMembershipRole.AUDITOR
   const isImpersonation = session?.user?.isImpersonation
+  const billingExpired = hasNoModules(session) && !isImpersonation
+  const isAuditor = currentUserRole === OrgMembershipRole.AUDITOR
   return [
     {
       title: 'Organization settings',
