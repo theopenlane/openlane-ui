@@ -178,7 +178,7 @@
     "name": "General Settings"
   },
   {
-    "route": "/organization-settings/integrations",
+    "route": "/automation/integrations",
     "name": "Integrations"
   },
   {

@@ -5,8 +5,9 @@ import IntegrationsToolbar from './integrations-toolbar'
 import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { IntegrationsGrid } from './integrations-grid'
-import { type IntegrationTab } from '@/lib/integrations/types'
+import { type IntegrationStatusFilter } from '@/lib/integrations/types'
 import { integrationDefinitionID, isFinalizedIntegration, installedIntegrationDisplayName, latestFinalizedIntegrationForProvider, toAvailableIntegration } from '@/lib/integrations/utils'
+import { providerSupportsPrimaryDirectory } from '@/lib/integrations/flow'
 import { readPendingVendorIntegrationLink, clearPendingVendorIntegrationLink } from '@/lib/integrations/pending-vendor-link'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
@@ -22,12 +23,10 @@ import { useSession } from 'next-auth/react'
 const IntegrationsPage = () => {
   const searchParams = useSearchParams()
   const queryClient = useQueryClient()
-  const [activeTab, setActiveTab] = useState<IntegrationTab>(() => (searchParams.get('status') === 'success' ? 'Installed' : 'All'))
+  const [statusFilter, setStatusFilter] = useState<IntegrationStatusFilter>(() => (searchParams.get('status') === 'success' ? 'Installed' : 'All'))
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedTags, setSelectedTags] = useState<string[]>(() => {
-    const tagsParam = searchParams.get('tags')
-    return tagsParam ? tagsParam.split(',').filter(Boolean) : []
-  })
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+
   const { data, isLoading: integrationsLoading } = useGetIntegrations({ where: {} })
   const { data: providersData, isLoading: providersLoading } = useIntegrationProviders()
   const { setCrumbs } = use(BreadcrumbContext)
@@ -62,14 +61,14 @@ const IntegrationsPage = () => {
       pendingLinkRef.current = null
     }
 
-    router.replace('/organization-settings/integrations')
+    router.replace('/automation/integrations')
   }, [queryClient, successNotification, errorNotification, router, searchParams])
 
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Organization Settings', href: '/organization-settings/general-settings' },
-      { label: 'Integrations', href: '/organization-settings/integrations' },
+      { label: 'Automation', href: '/automation/general-settings' },
+      { label: 'Integrations', href: '/automation/integrations' },
     ])
   }, [setCrumbs])
 
@@ -150,6 +149,7 @@ const IntegrationsPage = () => {
         .map((provider) => ({
           ...toAvailableIntegration(provider),
           installedCount: installedProviderCounts.get(provider.id) ?? 0,
+          supportsPrimaryDirectory: providerSupportsPrimaryDirectory(provider),
         }))
         .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
     [providers, installedProviderCounts],
@@ -165,12 +165,13 @@ const IntegrationsPage = () => {
     return Array.from(tags).sort()
   }, [availableIntegrations])
 
-  const { allCount, comingSoonCount } = useMemo(() => {
-    const active = availableIntegrations.filter((ai) => ai.provider.active).length
+  const { comingSoonCount, notInstalledCount } = useMemo(() => {
     const upcoming = availableIntegrations.filter((ai) => !ai.provider.active).length
-    return { allCount: active, comingSoonCount: upcoming }
+    const notInstalled = availableIntegrations.filter((ai) => ai.installedCount === 0).length
+    return { comingSoonCount: upcoming, notInstalledCount: notInstalled }
   }, [availableIntegrations])
 
+  const allCount = availableIntegrations.length
   const installedCount = installedIntegrations.length
 
   if (isLoading || integrationsLoading || providersLoading) {
@@ -180,11 +181,12 @@ const IntegrationsPage = () => {
     <div>
       <PageHeading heading="Integrations" />
       <IntegrationsToolbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
         allCount={allCount}
         comingSoonCount={comingSoonCount}
         installedCount={installedCount}
+        notInstalledCount={notInstalledCount}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         allTags={allTags}
@@ -194,7 +196,7 @@ const IntegrationsPage = () => {
       <IntegrationsGrid
         installedIntegrations={installedIntegrations}
         availableIntegrations={availableIntegrations}
-        activeTab={activeTab}
+        statusFilter={statusFilter}
         providers={providers}
         searchQuery={searchQuery}
         selectedTags={selectedTags}

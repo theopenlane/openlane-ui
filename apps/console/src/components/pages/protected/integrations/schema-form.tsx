@@ -14,8 +14,8 @@ import { toHumanLabel } from '@/utils/strings'
 import { type IntegrationSchemaNode, type IntegrationSchemaProperty } from '@/lib/integrations/types'
 import {
   type FormValues,
-  type ResolvedSchemaField,
   type SchemaSection,
+  buildFieldEntries,
   buildInitialValues,
   buildSections,
   buildZodSchema,
@@ -26,8 +26,8 @@ import {
 } from '@/lib/integrations/schema'
 import { useNotification } from '@/hooks/useNotification'
 
-export { CREDENTIALS_PREFIX, normalizeIntegrationFormPayloads, USER_INPUT_PREFIX } from '@/lib/integrations/schema'
-export type { FormValues, NormalizedIntegrationFormPayloads, SchemaSection } from '@/lib/integrations/schema'
+export { CREDENTIALS_PREFIX, normalizeIntegrationFormPayloads, USER_INPUT_PREFIX, buildFieldEntries, getResolvedSchemaFields } from '@/lib/integrations/schema'
+export type { FieldEntry, FormValues, NormalizedIntegrationFormPayloads, SchemaSection } from '@/lib/integrations/schema'
 
 type SchemaFieldProps = {
   fieldKey: string
@@ -171,25 +171,6 @@ export const SchemaField = ({ fieldKey, fieldName, property, required }: SchemaF
   )
 }
 
-type FieldEntry = { type: 'field'; field: ResolvedSchemaField } | { type: 'group'; groupLabel: string; fields: ResolvedSchemaField[] }
-
-function buildFieldEntries(fields: ResolvedSchemaField[]): FieldEntry[] {
-  const entries: FieldEntry[] = []
-  for (const field of fields) {
-    if (!field.groupLabel) {
-      entries.push({ type: 'field', field })
-      continue
-    }
-    const last = entries[entries.length - 1]
-    if (last?.type === 'group' && last.groupLabel === field.groupLabel) {
-      last.fields.push(field)
-    } else {
-      entries.push({ type: 'group', groupLabel: field.groupLabel, fields: [field] })
-    }
-  }
-  return entries
-}
-
 export function IntegrationSchemaSections({
   sections,
   hideDescriptions,
@@ -254,11 +235,24 @@ export function useIntegrationSchemaForm({ credentialSchema, userInputSchema, cr
     resolver: zodResolver(zodSchema),
     defaultValues: initialValues,
   })
-  const { reset } = formMethods
+  const { reset, getValues } = formMethods
 
   useEffect(() => {
-    reset(initialValues)
-  }, [initialValues, reset])
+    // Preserve any already-set generatable value (e.g. a generated External ID) across re-initialization
+    // so it stays stable on background refetches — it only changes on a full page refresh (remount) or
+    // when the user clicks the regenerate button. Non-generatable fields still reset to their defaults.
+    const current = getValues()
+    const preserved: FormValues = {}
+    for (const section of sections) {
+      for (const { fieldKey, property } of getResolvedSchemaFields(section.schema)) {
+        const fieldName = `${section.prefix}${fieldKey}`
+        if (property.generate === true && current[fieldName]) {
+          preserved[fieldName] = current[fieldName]
+        }
+      }
+    }
+    reset({ ...initialValues, ...preserved })
+  }, [initialValues, reset, getValues, sections])
 
   return {
     formMethods,

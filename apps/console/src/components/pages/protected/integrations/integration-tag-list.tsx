@@ -6,16 +6,18 @@ const MAX_VISIBLE_TAGS = 5
 
 type IntegrationTagListProps = {
   tags: string[]
+  /** Overrides the displayed label for specific tags, e.g. { directory: 'Primary Directory' } */
+  tagLabelOverrides?: Partial<Record<string, string>>
 }
 
-const IntegrationTagList = ({ tags }: IntegrationTagListProps) => {
+const IntegrationTagList = ({ tags, tagLabelOverrides }: IntegrationTagListProps) => {
   const visibleTags = tags.slice(0, MAX_VISIBLE_TAGS)
   const hiddenTagCount = Math.max(tags.length - visibleTags.length, 0)
 
   return (
     <div className="flex items-center gap-1 overflow-hidden">
       {visibleTags.map((tag, index) => (
-        <IntegrationTagPill key={`${tag}-${index}`} tag={tag} />
+        <IntegrationTagPill key={`${tag}-${index}`} tag={tag} label={tagLabelOverrides?.[tag]} />
       ))}
       {hiddenTagCount > 0 ? (
         <Badge variant="outline" className="h-5 rounded-sm border-transparent bg-muted/35 px-2 text-[10px] font-medium text-muted-foreground">

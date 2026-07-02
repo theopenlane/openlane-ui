@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
@@ -41,7 +41,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   const { setValue, register } = useFormContext()
   const [inlineEditing, setInlineEditing] = useState<'name' | 'displayName' | null>(null)
   const [localValue, setLocalValue] = useState('')
-  const originalValueRef = useRef<string>('')
+  const [originalValue, setOriginalValue] = useState('')
   const [logoDialogOpen, setLogoDialogOpen] = useState(false)
   const { mutateAsync: updateLogo, isPending: isLogoUploading } = useUpdateEntityLogo()
   const { successNotification, errorNotification } = useNotification()
@@ -67,7 +67,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   }
 
   const handleBlur = async (field: 'name' | 'displayName') => {
-    if (localValue !== originalValueRef.current) {
+    if (localValue !== originalValue) {
       setValue(field, localValue)
       await handleUpdateField({ [field]: localValue })
     }
@@ -75,14 +75,14 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   }
 
   const handleEscape = (field: 'name' | 'displayName') => {
-    setValue(field, originalValueRef.current)
+    setValue(field, originalValue)
     setInlineEditing(null)
   }
 
   const startEditing = (field: 'name' | 'displayName') => {
     if (!canEditVendor || isEditing) return
     const current = (field === 'name' ? vendor.name : vendor.displayName) ?? ''
-    originalValueRef.current = current
+    setOriginalValue(current)
     setLocalValue(current)
     setInlineEditing(field)
   }
@@ -188,13 +188,13 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
                   content={
                     <>
                       {canEditVendor && !hasIntegration && matchedProvider && (
-                        <Link href={`/organization-settings/integrations/${matchedProvider.id}?vendorId=${vendor.id}`} className="flex items-center space-x-2 px-1 cursor-pointer">
+                        <Link href={`/automation/integrations/${matchedProvider.id}?vendorId=${vendor.id}`} className="flex items-center space-x-2 px-1 cursor-pointer">
                           <PlusIcon size={16} strokeWidth={2} />
                           <span>Add Integration</span>
                         </Link>
                       )}
                       {canEditVendor && hasIntegration && integrationDefId !== '' && (
-                        <Link href={`/organization-settings/integrations/${integrationDefId}`} className="flex items-center space-x-2 px-1 cursor-pointer">
+                        <Link href={`/automation/integrations/${integrationDefId}`} className="flex items-center space-x-2 px-1 cursor-pointer">
                           <CogIcon size={16} strokeWidth={2} />
                           <span>Configure Integration</span>
                         </Link>

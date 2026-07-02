@@ -11,6 +11,7 @@ type IntegrationCardShellProps = {
   docsUrl?: string
   displayName: string
   tags: string[]
+  tagLabelOverrides?: Partial<Record<string, string>>
   description: string
   headerBadge?: React.ReactNode
   titleExtra?: React.ReactNode
@@ -19,7 +20,7 @@ type IntegrationCardShellProps = {
   footer: React.ReactNode
 }
 
-const IntegrationCardShell = ({ logoUrl, docsUrl, displayName, tags, description, headerBadge, titleExtra, statusBadge, metadata, footer }: IntegrationCardShellProps) => {
+const IntegrationCardShell = ({ logoUrl, docsUrl, displayName, tags, tagLabelOverrides, description, headerBadge, titleExtra, statusBadge, metadata, footer }: IntegrationCardShellProps) => {
   return (
     <Card className="relative flex h-full min-h-[300px] flex-col overflow-visible transition-all duration-200 hover:-translate-y-1 hover:border-primary">
       <CardHeader className="relative flex-row items-start gap-3 space-y-0 pb-3">
@@ -41,7 +42,7 @@ const IntegrationCardShell = ({ logoUrl, docsUrl, displayName, tags, description
           {statusBadge ? <div className="mt-2 flex min-h-[22px]">{statusBadge}</div> : null}
 
           <div className="mb-1 mt-3 border-t pt-3">
-            <IntegrationTagList tags={tags} />
+            <IntegrationTagList tags={tags} tagLabelOverrides={tagLabelOverrides} />
           </div>
         </div>
       </CardHeader>

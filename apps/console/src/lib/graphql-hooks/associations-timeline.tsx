@@ -200,7 +200,7 @@ export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssoci
     const integrationDefinitionId = n.integration?.definitionID ?? null
     const integrationEl: React.ReactNode = integrationName ? (
       integrationDefinitionId ? (
-        <Link href={`/organization-settings/integrations/${integrationDefinitionId}`} className="hover:underline">
+        <Link href={`/automation/integrations/${integrationDefinitionId}`} className="hover:underline">
           {integrationName}
         </Link>
       ) : (

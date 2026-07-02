@@ -22,7 +22,7 @@ const AvailableIntegrationCard = ({ integration, canManage }: AvailableIntegrati
       return
     }
 
-    router.push(`/organization-settings/integrations/${provider.id}`)
+    router.push(`/automation/integrations/${provider.id}`)
   }
 
   return (
@@ -31,6 +31,7 @@ const AvailableIntegrationCard = ({ integration, canManage }: AvailableIntegrati
       docsUrl={integration.docsUrl}
       displayName={integration.name}
       tags={integration.tags}
+      tagLabelOverrides={integration.supportsPrimaryDirectory ? { directory: 'primary directory' } : undefined}
       description={integration.description || 'Connect to keep your workflows connected and risks actionable.'}
       headerBadge={
         isComingSoon ? (
@@ -39,9 +40,9 @@ const AvailableIntegrationCard = ({ integration, canManage }: AvailableIntegrati
           </Badge>
         ) : null
       }
-      titleExtra={
+      statusBadge={
         integration.installedCount > 0 ? (
-          <Badge variant="outline" className="shrink-0 text-[10px] uppercase tracking-[0.05em]">
+          <Badge variant="outline" className="text-[10px] uppercase tracking-[0.05em]">
             {integration.installedCount} {integration.installedCount === 1 ? 'instance' : 'instances'}
           </Badge>
         ) : null
