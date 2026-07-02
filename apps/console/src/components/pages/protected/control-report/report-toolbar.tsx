@@ -35,6 +35,7 @@ type ReportToolbarProps = {
   onClearReportFilters: () => void
   createAllowed: boolean
   hasNoControls: boolean
+  hasVisibleControls: boolean
 }
 
 const ReportToolbar: React.FC<ReportToolbarProps> = ({
@@ -57,6 +58,7 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
   onClearReportFilters,
   createAllowed,
   hasNoControls,
+  hasVisibleControls,
 }) => {
   const [reportPopoverOpen, setReportPopoverOpen] = useState(false)
   const [programPopoverOpen, setProgramPopoverOpen] = useState(false)
@@ -66,7 +68,7 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
       <div className="flex items-center gap-4">
         <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
         <TabSwitcher active={active} setActive={setActive} storageKey={TabSwitcherStorageKeys.CONTROL} />
-        {showActions ? (
+        {showActions && hasVisibleControls ? (
           <>
             <Button type="button" variant="outline" className="h-7.5 px-3 gap-1.5" onClick={onToggleExpandAll}>
               <ChevronsUpDown size={15} />
