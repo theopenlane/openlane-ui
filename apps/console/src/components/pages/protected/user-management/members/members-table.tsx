@@ -44,7 +44,7 @@ import { toHumanLabel } from '@/utils/strings'
 const SSO_EXEMPT_ROLES = [OrgMembershipRole.OWNER, OrgMembershipRole.AUDITOR]
 
 const getSsoExemptReason = (member: OrgMembership, exemptDomains: string[]): string | null => {
-  if (SSO_EXEMPT_ROLES.includes(member.role)) return 'Exempt due to Owner or Auditor role'
+  if (SSO_EXEMPT_ROLES.includes(member.role)) return 'Exempt due to Owner role'
   const emailDomain = member.user?.email?.split('@')[1]?.toLowerCase()
   if (emailDomain && exemptDomains.some((d) => d.toLowerCase() === emailDomain)) return `Exempt via domain (${emailDomain})`
   if (member.ssoExempt) return member.ssoExemptReason || 'Manually marked as SSO exempt'
