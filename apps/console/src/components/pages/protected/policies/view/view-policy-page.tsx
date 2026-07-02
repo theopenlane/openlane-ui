@@ -48,6 +48,7 @@ import HistoryTab from './tabs/history/history-tab'
 import { VersionBump } from '@/lib/enums/revision-enum'
 import ExternalReferenceView from '@/components/pages/protected/policies/view/fields/external-reference-view'
 import IntegrationDocumentView from '@/components/pages/protected/policies/view/fields/integration-document-view'
+import { useSession } from 'next-auth/react'
 
 type TViewPolicyPage = {
   policyId: string
@@ -56,6 +57,7 @@ type TViewPolicyPage = {
 type TabValue = 'policy' | 'procedures' | 'history'
 
 const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
+  const { data: session } = useSession()
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const { data, isLoading } = useGetInternalPolicyDetailsById(policyId, !isDeleting)
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
@@ -67,7 +69,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { successNotification, errorNotification } = useNotification()
   const { data: permission } = useAccountRoles(ObjectTypes.INTERNAL_POLICY, policyId)
   const deleteAllowed = canDelete(permission?.roles)
-  const editAllowed = canEdit(permission?.roles)
+  const editAllowed = canEdit(permission?.roles, session)
   const { mutateAsync: deletePolicy } = useDeleteInternalPolicy()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [pendingManagementMode, setPendingManagementMode] = useState<InternalPolicyDocumentManagementMode | null>(null)

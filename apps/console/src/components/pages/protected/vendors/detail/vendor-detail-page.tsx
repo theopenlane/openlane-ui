@@ -31,6 +31,7 @@ import VendorDetailHeader from './vendor-detail-header'
 import VendorPropertiesSidebar from './vendor-properties-sidebar'
 import VendorDetailTabs from './tabs/vendor-detail-tabs'
 import type { EditVendorFormData } from '../hooks/use-form-schema'
+import { useSession } from 'next-auth/react'
 
 interface VendorDetailPageProps {
   vendorId: string
@@ -50,6 +51,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
   const { successNotification, errorNotification } = useNotification()
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
+  const { data: session } = useSession()
 
   const { data, isLoading, isError } = useEntity(vendorId)
   const { data: associationsData } = useGetEntityAssociations(vendorId)
@@ -235,7 +237,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
   })
 
   const vendor = data?.entity
-  const canEditVendor = canEdit(permission?.roles)
+  const canEditVendor = canEdit(permission?.roles, session)
 
   if (isLoading) {
     return null

@@ -30,6 +30,7 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
+import { useSession } from 'next-auth/react'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -42,6 +43,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>
 
 const BasicInformation = () => {
+  const { data: session } = useSession()
   const { id } = useParams<{ id: string }>()
   const { data } = useGetProgramBasicInfo(id)
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
@@ -58,7 +60,7 @@ const BasicInformation = () => {
   })
 
   const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
-  const isEditAllowed = canEdit(permission?.roles)
+  const isEditAllowed = canEdit(permission?.roles, session)
 
   const [isEditing, setIsEditing] = useState(false)
   const [tagValues, setTagValues] = useState<{ value: string; label: string }[]>([])

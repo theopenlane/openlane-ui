@@ -25,6 +25,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SendQuestionnaireDialog } from '@/components/pages/protected/questionnaire/dialog/send-questionnaire-dialog'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useAssessmentSendPermissionMap } from '@/lib/authz/use-can-send-questionnaire'
+import { useSession } from 'next-auth/react'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
@@ -39,6 +40,7 @@ export const QuestionnairesTable = () => {
 
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
 
   const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, AssessmentOrderField, [
     {
@@ -167,7 +169,7 @@ export const QuestionnairesTable = () => {
     onViewDetails: handleViewDetails,
     onDelete: handleDelete,
     canSendMap,
-    canEdit: canEdit(permission?.roles),
+    canEdit: canEdit(permission?.roles, session),
     canDelete: canDelete(permission?.roles),
   })
 

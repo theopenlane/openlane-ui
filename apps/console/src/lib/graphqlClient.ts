@@ -39,8 +39,9 @@ export function useFetchWithRetry() {
     const requestUrl = typeof input === 'string' || input instanceof URL ? input.toString() : input
     const accessToken = session?.user?.accessToken
     const refreshToken = session?.user?.refreshToken
+    const isImpersonation = session?.user?.isImpersonation
 
-    if (!accessToken || !refreshToken) {
+    if (!accessToken || (!refreshToken && !isImpersonation)) {
       handleSessionExpired()
       throw new Error('Session expired')
     }
@@ -81,7 +82,7 @@ export function useFetchWithRetry() {
 
     const refreshBeforeExpired = now >= refreshAllowedAfter
 
-    if (refreshBeforeExpired) {
+    if (refreshBeforeExpired && refreshToken) {
       console.log('⏰ Access token near expiry, refreshing now...')
 
       try {

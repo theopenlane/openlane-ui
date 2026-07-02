@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useSession } from 'next-auth/react'
 
 type Props = {
   entityId: string | null
@@ -28,7 +29,8 @@ const FindingRemediationButton: React.FC<RemediationButtonProps> = ({ entityId, 
   const sheetNav = useSheetNavigation()
   const router = useRouter()
   const { data: orgPermission } = useOrganizationRoles()
-  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation)
+  const { data: session } = useSession()
+  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
   const { data } = useGetFindingAssociations(entityId)
   const firstRemediationId = data?.finding?.remediations?.edges?.[0]?.node?.id
 

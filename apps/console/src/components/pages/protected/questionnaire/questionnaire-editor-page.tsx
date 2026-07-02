@@ -7,6 +7,7 @@ import { useSearchParams } from 'next/navigation'
 import { canEdit } from '@/lib/authz/utils.ts'
 import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useSession } from 'next-auth/react'
 
 const QuestionnaireEditor = dynamic(() => import('@/components/pages/protected/questionnaire/questionnaire-editor'), {
   ssr: false,
@@ -17,7 +18,8 @@ const QuestionnaireEditorPage: React.FC = () => {
   const existingId = searchParams.get('id') as string
   const templateId = searchParams.get('template_id') as string
   const { data: permission, isLoading } = useOrganizationRoles()
-  const editAllowed = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const editAllowed = canEdit(permission?.roles, session)
 
   return (
     <>

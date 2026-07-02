@@ -20,12 +20,15 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { SlidersHorizontal } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
+import { useSession } from 'next-auth/react'
 
 const EvidenceDetailsPage = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const programId = searchParams.get('programId')
+
+  const { data: session } = useSession()
 
   const { data, isLoading } = useGetAllPrograms({
     where: { statusNotIn: [ProgramProgramStatus.COMPLETED, ProgramProgramStatus.ARCHIVED] },
@@ -40,7 +43,7 @@ const EvidenceDetailsPage = () => {
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const { data: permission } = useOrganizationRoles()
 
-  const createAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateEvidence)
+  const createAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateEvidence, session)
 
   useEffect(() => {
     const crumbs: Crumb[] = [

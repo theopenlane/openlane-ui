@@ -23,6 +23,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 type GroupRow = {
   id: string
@@ -35,7 +36,8 @@ type GroupRow = {
 export const ProgramSettingsGroups = () => {
   const { id } = useParams<{ id: string | undefined }>()
   const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
-  const editAllowed = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const editAllowed = canEdit(permission?.roles, session)
   const queryClient = useQueryClient()
   const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_GROUP, {

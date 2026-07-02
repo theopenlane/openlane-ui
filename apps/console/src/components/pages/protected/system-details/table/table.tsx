@@ -12,6 +12,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { getColumns } from './columns'
 import { SYSTEM_DETAILS_SORT_FIELDS } from './table-config'
 import { objectName, tableKey } from './types'
+import { useSession } from 'next-auth/react'
 
 const TableComponent = ({
   onSortChange,
@@ -29,6 +30,7 @@ const TableComponent = ({
   defaultSorting,
 }: TTableProps<SystemDetailWhereInput>) => {
   const { replace } = useSmartRouter()
+  const { data: session } = useSession()
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) {
@@ -87,10 +89,10 @@ const TableComponent = ({
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles, setColumnVisibility, canEdit])
+  }, [permission?.roles, setColumnVisibility, canEdit, session])
 
   useEffect(() => {
     if (isError) {

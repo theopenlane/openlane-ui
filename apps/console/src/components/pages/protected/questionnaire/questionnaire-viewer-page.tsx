@@ -17,6 +17,7 @@ import { TemplateDocumentType } from '@repo/codegen/src/schema'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { SendQuestionnaireDialog } from './dialog/send-questionnaire-dialog'
+import { useSession } from 'next-auth/react'
 
 const ViewQuestionnaire = dynamic(() => import('@/components/pages/protected/questionnaire/questionnaire-viewer'), {
   ssr: false,
@@ -28,7 +29,8 @@ const QuestionnaireViewerPage: React.FC = () => {
   const existingId = searchParams.get('id') as string
 
   const { data: permission, isLoading } = useOrganizationRoles()
-  const editAllowed = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const editAllowed = canEdit(permission?.roles, session)
 
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()

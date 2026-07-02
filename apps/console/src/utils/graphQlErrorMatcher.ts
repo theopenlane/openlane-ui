@@ -59,7 +59,13 @@ export const parseErrorMessage = (error: unknown): string => {
   const unknownMessage = 'Something went wrong. Please try again.'
   if (error instanceof ClientError) {
     const message = error.response.errors?.[0]?.message
-    if (message) return message
+    if (message) {
+      if (message.includes('cannot be in both the sso exempt domains and allowed email domains')) {
+        return "You can't add an SSO exclusion for a domain that's also in your allowed domains. Remove it from one list first."
+      }
+
+      return message
+    }
   }
 
   const parsed = parseError(error)

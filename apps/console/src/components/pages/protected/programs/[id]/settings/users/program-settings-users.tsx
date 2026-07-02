@@ -39,7 +39,7 @@ export const ProgramSettingsUsers = () => {
 
   const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
 
-  const editAllowed = canEdit(permission?.roles)
+  const editAllowed = canEdit(permission?.roles, session)
 
   const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_USERS, {

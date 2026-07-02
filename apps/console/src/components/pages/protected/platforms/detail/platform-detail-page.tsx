@@ -7,6 +7,7 @@ import { usePlatform, useUpdatePlatform, useDeletePlatform } from '@/lib/graphql
 import { useNotification } from '@/hooks/useNotification'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit, canDelete } from '@/lib/authz/utils'
+import { useSession } from 'next-auth/react'
 import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { Badge } from '@repo/ui/badge'
@@ -66,6 +67,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
 
   const { data, isLoading } = usePlatform(platformId)
   const { data: permission } = useAccountRoles(ObjectTypes.PLATFORM, platformId)
+  const { data: session } = useSession()
   const { mutateAsync: deletePlatform } = useDeletePlatform()
   const { mutateAsync: updatePlatformMutation, isPending: isUpdatePending } = useUpdatePlatform()
 
@@ -75,7 +77,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
   const [hideOutOfScope, setHideOutOfScope] = useState(true)
 
   const platform = data?.platform as Platform | undefined
-  const canEditPlatform = canEdit(permission?.roles)
+  const canEditPlatform = canEdit(permission?.roles, session)
   const canDeletePlatform = canDelete(permission?.roles)
 
   const hasScrollbar = useHasScrollbar([platform])

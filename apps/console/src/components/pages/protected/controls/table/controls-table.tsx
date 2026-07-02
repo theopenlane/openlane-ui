@@ -16,6 +16,7 @@ import { type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { canEdit } from '@/lib/authz/utils.ts'
+import { useSession } from 'next-auth/react'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
@@ -41,6 +42,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const [filters, setFilters] = useState<ControlWhereInput>({})
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
   const defaultSorting = getInitialSortConditions(TableKeyEnum.CONTROL, ControlOrderField, [
@@ -137,10 +139,10 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles])
+  }, [permission?.roles, session])
 
   useEffect(() => {
     setCrumbs([

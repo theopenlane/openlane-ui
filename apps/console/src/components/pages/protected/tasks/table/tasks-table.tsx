@@ -15,6 +15,8 @@ import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { useNotification } from '@/hooks/useNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useSession } from 'next-auth/react'
+import { type Session } from 'next-auth'
 
 type TTasksTableProps = {
   onSortChange?: (sortCondition: TaskOrder[] | TaskOrder | undefined) => void
@@ -27,7 +29,7 @@ type TTasksTableProps = {
   onHasTasksChange?: (hasTasks: boolean) => void
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   permission: TPermissionData | undefined
   defaultSorting: { field: string; direction?: OrderDirection }[] | undefined
 }
@@ -64,6 +66,7 @@ const TasksTable = ({
 
   const { convertToReadOnly } = usePlateEditor()
   const { errorNotification } = useNotification()
+  const { data: session } = useSession()
 
   const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
     where: {
@@ -96,10 +99,10 @@ const TasksTable = ({
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles, setColumnVisibility, canEdit])
+  }, [permission?.roles, setColumnVisibility, canEdit, session])
 
   useEffect(() => {
     if (isError) {

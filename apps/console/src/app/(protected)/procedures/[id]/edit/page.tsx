@@ -9,15 +9,19 @@ import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx
 import { canEdit } from '@/lib/authz/utils.ts'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 const Page: NextPage = () => {
   const { id } = useParams<{ id: string }>()
   const { data: permission, isLoading } = useAccountRoles(ObjectTypes.PROCEDURE, id)
 
+  const { data: session } = useSession()
+  const canViewPage = canEdit(permission?.roles, session)
+
   return (
     <>
-      {!isLoading && !canEdit(permission?.roles) && <ProtectedArea />}
-      {!isLoading && canEdit(permission?.roles) && (
+      {!isLoading && !canViewPage && <ProtectedArea />}
+      {!isLoading && canViewPage && (
         <>
           <PageHeading heading="Edit procedure" />
           <EditProcedurePage procedureId={id as string} />

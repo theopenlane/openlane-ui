@@ -19,6 +19,7 @@ import ReportEmptyState from './report-empty-state'
 import { useReportSelection } from './use-report-selection'
 import { getOrgRelatedControls, getFrameworkRelatedControls } from './report-coverage'
 import { type ReportFilterId } from './report-filter-options'
+import { useSession } from 'next-auth/react'
 
 type TControlReportPageProps = {
   active: 'dashboard' | 'table'
@@ -56,7 +57,8 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   const userSelectedStandardRef = useRef(false)
 
   const { data: permission } = useOrganizationRoles()
-  const createAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateControl)
+  const { data: session } = useSession()
+  const createAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateControl, session)
 
   const { standardOptions, isSuccess: isSuccessStandards } = useStandardsSelect({
     where: {

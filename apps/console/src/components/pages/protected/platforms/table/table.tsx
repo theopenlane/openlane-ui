@@ -12,6 +12,7 @@ import { getColumns } from './columns'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
 import { isUlid } from '@/lib/validators'
+import { useSession } from 'next-auth/react'
 
 const TableComponent = ({
   onSortChange,
@@ -54,6 +55,7 @@ const TableComponent = ({
   })
 
   const { errorNotification } = useNotification()
+  const { data: session } = useSession()
 
   const userIds = useMemo(() => {
     if (!items) return []
@@ -81,10 +83,10 @@ const TableComponent = ({
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles, setColumnVisibility, canEdit])
+  }, [permission?.roles, setColumnVisibility, canEdit, session])
 
   useEffect(() => {
     if (isError) {

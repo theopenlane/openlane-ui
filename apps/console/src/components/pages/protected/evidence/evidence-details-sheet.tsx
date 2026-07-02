@@ -90,6 +90,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectWorkflowPanel } from '@/components/workflows/object-workflow-panel'
+import { useSession } from 'next-auth/react'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -114,6 +115,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const { convertToHtml, convertToReadOnly } = usePlateEditor()
   const objectAssociationRef = React.useRef<HTMLDivElement | null>(null)
   const [isEditing, setIsEditing] = useState(false)
+
+  const { data: session } = useSession()
 
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
@@ -159,7 +162,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { data: permission } = useAccountRoles(ObjectTypes.EVIDENCE, data?.evidence.id)
 
-  const editAllowed = canEdit(permission?.roles)
+  const editAllowed = canEdit(permission?.roles, session)
 
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope', isEditAllowed: editAllowed })
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment', isEditAllowed: editAllowed })

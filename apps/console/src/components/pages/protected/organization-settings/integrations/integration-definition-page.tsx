@@ -32,6 +32,7 @@ import WebhookDetailsSection from './webhook-details-section'
 import CredentialConnectionSection from './credential-connection-section'
 import { useInstallationPolling } from './use-installation-polling'
 import { useIntegrationConnect } from './use-integration-connect'
+import { useSession } from 'next-auth/react'
 
 type IntegrationDefinitionPageProps = {
   definitionId: string
@@ -47,7 +48,8 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
   const { mutateAsync: updateEntity } = useUpdateEntity()
   const { successNotification, errorNotification } = useNotification()
   const { data: orgPermission } = useOrganizationRoles()
-  const canManage = canEdit(orgPermission?.roles)
+  const { data: session } = useSession()
+  const canManage = canEdit(orgPermission?.roles, session)
 
   const { startPolling } = useInstallationPolling()
 

@@ -34,12 +34,14 @@ import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
+import { useSession } from 'next-auth/react'
 
 export const PoliciesTable = () => {
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.INTERNAL_POLICY, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<InternalPolicyWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.INTERNAL_POLICY)
   const { setCrumbs } = use(BreadcrumbContext)
+  const { data: session } = useSession()
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const defaultSorting = getInitialSortConditions(TableKeyEnum.INTERNAL_POLICY, InternalPolicyOrderField, [
@@ -188,10 +190,10 @@ export const PoliciesTable = () => {
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles])
+  }, [permission?.roles, session])
 
   useEffect(() => {
     setCrumbs([
