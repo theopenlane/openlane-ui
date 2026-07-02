@@ -83,25 +83,25 @@ export const featureUtil = {
 
     return userModules.includes(requiredModule)
   },
-}
 
-export function hasNoModules(session: Session | null): boolean {
-  if (!session) {
-    return false
-  }
+  hasNoModules(session: Session | null): boolean {
+    if (!session) {
+      return false
+    }
 
-  // support role has no modules return so should skip check
-  if (isImpersonation(session)) {
-    return false
-  }
+    // support role has no modules return so should skip check
+    if (isImpersonation(session)) {
+      return false
+    }
 
-  const featureEnabled = process.env.NEXT_PUBLIC_ENABLE_PLAN
+    const featureEnabled = process.env.NEXT_PUBLIC_ENABLE_PLAN
 
-  if (featureEnabled === 'false') {
-    return false
-  }
+    if (featureEnabled === 'false') {
+      return false
+    }
 
-  const modules = session.user?.modules ?? []
+    const modules = session.user?.modules ?? []
 
-  return modules.length === 0
+    return modules.length === 0
+  },
 }

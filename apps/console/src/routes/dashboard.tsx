@@ -58,10 +58,10 @@ import { canEdit, isOwnerOrSuperAdmin } from '@/lib/authz/utils'
 import { type TPermissionData } from '@/types/authz'
 import type { Session } from 'next-auth'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
-import { hasNoModules } from '@/lib/subscription-plan/plans'
+import { featureUtil } from '@/lib/subscription-plan/plans'
 
 export const topNavigationItems = (session: Session | null, currentUserRole?: OrgMembershipRole): (NavItem | Separator | NavHeading)[] => {
-  const billingExpired = hasNoModules(session)
+  const billingExpired = featureUtil.hasNoModules(session)
   const isAuditor = currentUserRole === OrgMembershipRole.AUDITOR
   return [
     {
@@ -319,7 +319,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
 
 export const bottomNavigationItems = (session: Session | null, orgPermission?: TPermissionData, currentUserRole?: OrgMembershipRole): (NavItem | Separator | NavHeading)[] => {
   const isImpersonation = session?.user?.isImpersonation
-  const billingExpired = hasNoModules(session)
+  const billingExpired = featureUtil.hasNoModules(session)
   const isAuditor = currentUserRole === OrgMembershipRole.AUDITOR
   return [
     {
