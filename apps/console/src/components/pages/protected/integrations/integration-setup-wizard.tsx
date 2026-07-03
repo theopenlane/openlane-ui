@@ -27,9 +27,7 @@ type IntegrationSetupWizardProps = {
   isSubmitting: boolean
   formMethods: UseFormReturn<FormValues>
   onSubmit: (values: Record<string, unknown>) => void
-  /** Reflects the page's `selectedCredentialIndex` — flips to -1 on a successful connect, which closes the wizard */
   closeSignal: number
-  /** Real values (Principal ARN, generated External ID, etc.) to inline into the guide instead of placeholders */
   liveValues?: GuideLiveValues
 }
 
@@ -81,9 +79,7 @@ const IntegrationSetupWizard = ({
   const isLastStep = clampedIndex === steps.length - 1
   const fieldsInStep = step.entry.type === 'field' ? [step.entry.field] : step.entry.fields
   const fieldNames = fieldsInStep.map(({ fieldKey }) => `${step.prefix}${fieldKey}`)
-  // Single-field steps already show their title/description via SchemaField's own label — showing them
-  // again here would just duplicate it. Only group steps need a heading, since SchemaField has no
-  // group-level label of its own.
+  // Only group steps need a heading, since SchemaField has no group-level label of its own.
   const stepTitle = step.entry.type === 'group' ? step.entry.groupLabel : undefined
 
   const handleNext = async () => {

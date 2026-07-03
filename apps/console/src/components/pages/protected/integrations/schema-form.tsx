@@ -238,9 +238,9 @@ export function useIntegrationSchemaForm({ credentialSchema, userInputSchema, cr
   const { reset, getValues } = formMethods
 
   useEffect(() => {
-    // Preserve any already-set generatable value (e.g. a generated External ID) across re-initialization
+    // Preserve any already-set generated value (e.g. a generated External ID) across re-initialization
     // so it stays stable on background refetches — it only changes on a full page refresh (remount) or
-    // when the user clicks the regenerate button. Non-generatable fields still reset to their defaults.
+    // when the user clicks the regenerate button. Non-generated fields still reset to their defaults.
     const current = getValues()
     const preserved: FormValues = {}
     for (const section of sections) {

@@ -10,14 +10,10 @@ import ProviderIcon from './provider-icon'
 
 type IntegrationSetupGuideProps = {
   provider: IntegrationProvider
-  /** Credential entry name (e.g. "Slack Bot Token") — picks a connection-specific guide when the provider has more than one */
   connectionLabel?: string
   className?: string
-  /** When provided, shows a "Start setup wizard" CTA that closes this panel and hands off to a guided form walkthrough */
   onStartWizard?: () => void
-  /** Real values (Principal ARN, generated External ID, etc.) to inline into the guide instead of placeholders */
   liveValues?: GuideLiveValues
-  /** Called when the guide opens — used to select this credential so its generatable values (External ID) exist in form state */
   onOpen?: () => void
 }
 
@@ -65,8 +61,6 @@ const IntegrationSetupGuide = ({ provider, connectionLabel, className, onStartWi
                 icon={<ArrowRight className="h-4 w-4" />}
                 onClick={() => {
                   close()
-                  // Defer to the next tick — opening the wizard Dialog in the same tick as closing the
-                  // Sheet races with Radix's outside-click dismissal and can close the Dialog right back.
                   setTimeout(() => onStartWizard(), 0)
                 }}
               >

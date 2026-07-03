@@ -6,15 +6,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../sheet/sheet'
 
 type InfoSlideOutProps = {
   title: string
-  /** Optional muted line rendered under the title */
   subtitle?: React.ReactNode
-  /** Plain content, or a render prop that receives `close` so content can dismiss the panel itself (e.g. before handing off to another flow) */
   children: React.ReactNode | ((close: () => void) => React.ReactNode)
-  /** Render prop — receives `open` callback so callers can wire any element as the trigger */
   trigger?: (open: () => void) => React.ReactNode
-  /** Optional URL rendered as a "View documentation" link at the bottom of the panel */
   docsUrl?: string
-  /** Optional icon/logo rendered to the left of the title */
   icon?: React.ReactNode
   width?: number
 }
@@ -37,8 +32,6 @@ export function InfoSlideOut({ title, subtitle, children, trigger, docsUrl, icon
         initialWidth={width}
         minWidth={380}
         resizable={false}
-        // The panel is portaled, but React still bubbles events through the component tree to whatever the
-        // trigger is nested in (e.g. a clickable card) — stop them so copy buttons/links inside don't toggle it
         onClick={(e) => e.stopPropagation()}
         header={
           <SheetHeader>

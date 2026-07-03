@@ -18,10 +18,6 @@ const TAG_COLORS: Record<string, string> = {
 
 export type TagSectionMeta = { title: string; description?: string; tags: string[] }
 
-// Section headings for grouping the "All" integrations grid by tag — order here is display order. An
-// integration appears in every section whose tags it matches (e.g. GitHub App is tagged
-// `[vulnerabilities, assets, directory]`, so it shows up under Security Findings, Asset Inventory, and
-// Identity & Access all at once).
 export const TAG_SECTIONS: TagSectionMeta[] = [
   { title: 'Identity & Access', description: 'Keep your team and permissions aligned with the systems you already use', tags: ['directory'] },
   { title: 'Asset Inventory', description: 'Maintain a clear view of the systems, devices, and services in scope', tags: ['assets'] },

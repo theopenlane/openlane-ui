@@ -115,7 +115,7 @@ export function IntegrationsGrid({ installedIntegrations, availableIntegrations,
     return (
       <div className="grid gap-4 lg:grid-cols-2 mt-5">
         {filteredInstalledIntegrations.map((integration) => (
-          <InstalledIntegrationCard key={integration.id} integration={integration} providers={providers} canManage={canManage} />
+          <InstalledIntegrationCard key={integration.id} integration={integration} providers={providers} canManage={canManage} linkToDetail />
         ))}
       </div>
     )
@@ -158,7 +158,7 @@ export function IntegrationsGrid({ installedIntegrations, availableIntegrations,
   )
 }
 
-// Number of cards shown before a section is collapsed — matches the widest grid breakpoint (lg:grid-cols-3)
+// Number of cards shown before a section is collapsed
 const COLLAPSED_SECTION_SIZE = 3
 
 type IntegrationTagSectionProps = {
@@ -223,8 +223,6 @@ function compareIntegrationsForDisplay(a: AvailableIntegrationNode, b: Available
 }
 
 function groupByTagSection(integrations: AvailableIntegrationNode[], selectedTags: string[]): { title: string; description?: string; integrations: AvailableIntegrationNode[] }[] {
-  // When a tag filter is active, only the sections that cover a selected tag are eligible — no "Other"
-  // fallback and no unrelated sections picking up integrations via a tag the user didn't select.
   const eligibleSections = selectedTags.length > 0 ? TAG_SECTIONS.filter((section) => section.tags.some((tag) => selectedTags.includes(tag))) : TAG_SECTIONS
 
   const buckets = new Map<TagSectionMeta, AvailableIntegrationNode[]>()
@@ -238,9 +236,6 @@ function groupByTagSection(integrations: AvailableIntegrationNode[], selectedTag
     }
   }
 
-  // Anything left over — either an integration with no curated tag at all, or (when a tag filter is active)
-  // one whose selected tag isn't mapped into any TAG_SECTIONS entry — still needs a home, or it silently
-  // vanishes from the grid even though it matched the active filter.
   const unmatched = integrations.filter((integration) => !matchedAny.has(integration))
   if (unmatched.length > 0) {
     buckets.set(OTHER_TAG_SECTION_META, unmatched)

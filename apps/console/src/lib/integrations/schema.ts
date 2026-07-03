@@ -204,7 +204,6 @@ export function getResolvedSchemaFields(schema?: IntegrationSchemaNode): Resolve
 
 export type FieldEntry = { type: 'field'; field: ResolvedSchemaField } | { type: 'group'; groupLabel: string; fields: ResolvedSchemaField[] }
 
-/** Groups consecutive fields that share a `groupLabel` (nested schema objects) into a single entry */
 export function buildFieldEntries(fields: ResolvedSchemaField[]): FieldEntry[] {
   const entries: FieldEntry[] = []
   for (const field of fields) {

@@ -6,7 +6,6 @@ const MAX_VISIBLE_TAGS = 5
 
 type IntegrationTagListProps = {
   tags: string[]
-  /** Overrides the displayed label for specific tags, e.g. { directory: 'Primary Directory' } */
   tagLabelOverrides?: Partial<Record<string, string>>
 }
 

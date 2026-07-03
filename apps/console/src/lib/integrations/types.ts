@@ -118,7 +118,6 @@ export type AvailableIntegrationNode = {
   docsUrl: string
   installedCount: number
   provider: IntegrationProvider
-  /** True when this provider's schema supports being designated the organization's primary directory */
   supportsPrimaryDirectory?: boolean
 }
 
