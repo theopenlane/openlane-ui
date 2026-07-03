@@ -46,8 +46,6 @@ export const visibilityFields = {
 }
 
 export const getFieldsToRender = (props: ContactFieldProps, enumOptions: EnumOptions) => {
-  // The sheet's TData is the (leaner) table-row type, but at runtime the detail sheet is fed the
-  // richer Contact detail query, so narrow to it once here rather than casting at every call site.
   const contactData = props.data as ContactQuery['contact'] | undefined
   const handleUpdateField = props.handleUpdateField as ((input: UpdateContactInput) => Promise<void>) | undefined
 

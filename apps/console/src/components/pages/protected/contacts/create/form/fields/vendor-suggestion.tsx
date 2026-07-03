@@ -5,22 +5,11 @@ import { useFormContext } from 'react-hook-form'
 import { Sparkles, X } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
+import { getEmailDomain } from '@/utils/strings'
 import { type ContactFormData } from '../../../hooks/use-form-schema'
 
-// The vendor list is not filterable by domain server-side, so we fetch a bounded page and match client-side.
 const VENDOR_SUGGESTION_PAGINATION = { page: 1, pageSize: 200, query: { first: 200 } }
 
-const getEmailDomain = (email?: string): string | null => {
-  if (!email) return null
-  const parts = email.trim().toLowerCase().split('@')
-  return parts.length === 2 && parts[1] ? parts[1] : null
-}
-
-/**
- * When creating a contact, suggests linking it to a vendor whose configured domain exactly
- * matches the contact's email domain (e.g. john@devrev.ai -> DevRev). Selecting a vendor adds
- * its id to the form's `entityIDs`, which flows into the create mutation.
- */
 const VendorSuggestion: React.FC = () => {
   const { watch, setValue } = useFormContext<ContactFormData>()
   const email = watch('email')
@@ -34,7 +23,6 @@ const VendorSuggestion: React.FC = () => {
     return vendorNodes.filter((v) => (v.domains ?? []).some((d) => d?.toLowerCase().trim() === domain))
   }, [vendorNodes, domain])
 
-  // `matches` is only non-empty when `domain` is set (see memo above), so this also covers the no-domain case.
   if (matches.length === 0) return null
 
   const toggle = (id: string) => {

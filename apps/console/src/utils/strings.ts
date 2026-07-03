@@ -41,6 +41,12 @@ export function toHumanLabel(input: string): string {
 
 export const isValidDomain = (domain: string): boolean => /^([a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/.test(domain)
 
+export const getEmailDomain = (email?: string | null): string | null => {
+  if (!email) return null
+  const parts = email.trim().toLowerCase().split('@')
+  return parts.length === 2 && parts[1] ? parts[1] : null
+}
+
 export function formatPhoneNumber(value?: string | null): string {
   if (!value) return ''
 

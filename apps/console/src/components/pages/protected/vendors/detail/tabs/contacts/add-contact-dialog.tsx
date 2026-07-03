@@ -57,19 +57,16 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
     enabled: mode === 'link',
   })
 
-  // Domains configured on the vendor, used to suggest contacts with a matching email domain.
   const { data: vendorData } = useEntity(mode === 'link' ? vendorId : undefined)
   const vendorDomains = useMemo(() => (vendorData?.entity?.domains ?? []).map((d) => d.toLowerCase().trim()).filter(Boolean), [vendorData])
 
-  // Contacts whose email domain exactly matches one of the vendor's domains and that are not yet linked.
   const { contacts: suggestedResults } = useContacts({
     where: vendorDomains.length ? { and: [{ or: vendorDomains.map((d) => ({ emailHasSuffix: `@${d}` })) }, { not: { hasEntitiesWith: [{ id: vendorId }] } }] } : undefined,
     enabled: mode === 'link' && vendorDomains.length > 0,
   })
 
-  const suggestedContacts = useMemo(() => suggestedResults.filter((c) => !existingContactIds.includes(c.id)), [suggestedResults, existingContactIds])
+  const suggestedContacts = useMemo(() => (vendorDomains.length ? suggestedResults.filter((c) => !existingContactIds.includes(c.id)) : []), [vendorDomains, suggestedResults, existingContactIds])
 
-  // Exclude already-linked contacts and anything already shown in the Suggested group.
   const suggestedIds = new Set(suggestedContacts.map((c) => c.id))
   const availableContacts = searchResults.filter((c) => !existingContactIds.includes(c.id) && !suggestedIds.has(c.id))
 

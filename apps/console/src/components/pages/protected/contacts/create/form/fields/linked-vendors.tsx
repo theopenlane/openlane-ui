@@ -7,7 +7,7 @@ import { Button } from '@repo/ui/button'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { type ContactQuery } from '@repo/codegen/src/schema'
+import { type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
 import { useUpdateContact } from '@/lib/graphql-hooks/contact'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
@@ -18,15 +18,10 @@ interface LinkedVendorsProps {
   isEditAllowed: boolean
 }
 
-/**
- * Lists the vendors a contact is linked to and lets the user add/remove links.
- * Add/remove go through UpdateContact (addEntityIDs / removeEntityIDs); the mutation
- * invalidates the ['contacts'] query, refreshing this contact's linked vendors.
- */
 const LinkedVendors: React.FC<LinkedVendorsProps> = ({ data, isEditAllowed }) => {
   const contactId = data?.id
   const linkedVendors = useMemo(() => (data?.entities?.edges ?? []).map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => !!node), [data])
-  const linkedIds = new Set(linkedVendors.map((v) => v.id))
+  const linkedIds = useMemo(() => new Set(linkedVendors.map((v) => v.id)), [linkedVendors])
 
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -41,27 +36,24 @@ const LinkedVendors: React.FC<LinkedVendorsProps> = ({ data, isEditAllowed }) =>
   })
   const availableVendors = vendorNodes.filter((v) => !linkedIds.has(v.id))
 
-  const linkVendor = async (vendorId: string) => {
+  const mutateLink = async (input: UpdateContactInput, successTitle: string, successDescription: string, onSuccess?: () => void) => {
     if (!contactId) return
     try {
-      await updateContact({ updateContactId: contactId, input: { addEntityIDs: [vendorId] } })
-      successNotification({ title: 'Vendor linked', description: 'The vendor has been linked to this contact.' })
-      setOpen(false)
-      setSearch('')
+      await updateContact({ updateContactId: contactId, input })
+      successNotification({ title: successTitle, description: successDescription })
+      onSuccess?.()
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
     }
   }
 
-  const unlinkVendor = async (vendorId: string) => {
-    if (!contactId) return
-    try {
-      await updateContact({ updateContactId: contactId, input: { removeEntityIDs: [vendorId] } })
-      successNotification({ title: 'Vendor unlinked', description: 'The vendor has been unlinked from this contact.' })
-    } catch (error) {
-      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
-    }
-  }
+  const linkVendor = (vendorId: string) =>
+    mutateLink({ addEntityIDs: [vendorId] }, 'Vendor linked', 'The vendor has been linked to this contact.', () => {
+      setOpen(false)
+      setSearch('')
+    })
+
+  const unlinkVendor = (vendorId: string) => mutateLink({ removeEntityIDs: [vendorId] }, 'Vendor unlinked', 'The vendor has been unlinked from this contact.')
 
   return (
     <Card>
