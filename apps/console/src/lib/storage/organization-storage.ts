@@ -9,17 +9,29 @@ export const getOrganizationStorageKey = (key: string, organizationId?: string):
 // legacy key — otherwise a cleared value would resurrect from the fallback.
 export const getOrganizationStorageItem = (key: string, organizationId?: string): string | null => {
   if (typeof window === 'undefined') return null
-  return localStorage.getItem(getOrganizationStorageKey(key, organizationId)) ?? localStorage.getItem(key)
+  try {
+    return localStorage.getItem(getOrganizationStorageKey(key, organizationId)) ?? localStorage.getItem(key)
+  } catch {
+    return null
+  }
 }
 
 export const setOrganizationStorageItem = (key: string, value: string, organizationId?: string): void => {
   if (typeof window === 'undefined') return
-  localStorage.setItem(getOrganizationStorageKey(key, organizationId), value)
-  localStorage.removeItem(key)
+  try {
+    localStorage.setItem(getOrganizationStorageKey(key, organizationId), value)
+    localStorage.removeItem(key)
+  } catch {
+    return
+  }
 }
 
 export const removeOrganizationStorageItem = (key: string, organizationId?: string): void => {
   if (typeof window === 'undefined') return
-  localStorage.removeItem(getOrganizationStorageKey(key, organizationId))
-  localStorage.removeItem(key)
+  try {
+    localStorage.removeItem(getOrganizationStorageKey(key, organizationId))
+    localStorage.removeItem(key)
+  } catch {
+    return
+  }
 }
