@@ -7,8 +7,7 @@ import { Button } from '@repo/ui/button'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { getEmailDomain } from '@/utils/strings'
 import { type ContactFormData } from '../../../hooks/use-form-schema'
-
-const VENDOR_SUGGESTION_PAGINATION = { page: 1, pageSize: 200, query: { first: 200 } }
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
 const VendorSuggestion: React.FC = () => {
   const { watch, setValue } = useFormContext<ContactFormData>()
@@ -16,7 +15,7 @@ const VendorSuggestion: React.FC = () => {
   const entityIDs = watch('entityIDs') ?? []
   const domain = getEmailDomain(email)
 
-  const { vendorNodes } = useVendorsWithFilter({ pagination: VENDOR_SUGGESTION_PAGINATION, enabled: !!domain })
+  const { vendorNodes } = useVendorsWithFilter({ pagination: DEFAULT_PAGINATION, enabled: !!domain })
 
   const matches = useMemo(() => {
     if (!domain) return []

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
+import { useDebounce } from '@uidotdev/usehooks'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -39,6 +40,7 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
   const { successNotification, errorNotification } = useNotification()
   const [mode, setMode] = useState<DialogMode>('create')
   const [searchText, setSearchText] = useState('')
+  const debouncedSearch = useDebounce(searchText.trim(), 300)
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null)
 
   const { form } = useContactFormSchema(vendorName)
@@ -53,7 +55,7 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
   const { mutateAsync: updateContact, isPending: isLinking } = useUpdateContact()
 
   const { contacts: searchResults, isLoading: isSearching } = useContacts({
-    where: searchText.trim() ? { fullNameContainsFold: searchText.trim() } : undefined,
+    where: debouncedSearch ? { fullNameContainsFold: debouncedSearch } : undefined,
     enabled: mode === 'link',
   })
 
@@ -61,7 +63,15 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
   const vendorDomains = useMemo(() => (vendorData?.entity?.domains ?? []).map((d) => d.toLowerCase().trim()).filter(Boolean), [vendorData])
 
   const { contacts: suggestedResults } = useContacts({
-    where: vendorDomains.length ? { and: [{ or: vendorDomains.map((d) => ({ emailHasSuffix: `@${d}` })) }, { not: { hasEntitiesWith: [{ id: vendorId }] } }] } : undefined,
+    where: vendorDomains.length
+      ? {
+          and: [
+            { or: vendorDomains.map((d) => ({ emailHasSuffix: `@${d}` })) },
+            { not: { hasEntitiesWith: [{ id: vendorId }] } },
+            ...(debouncedSearch ? [{ fullNameContainsFold: debouncedSearch }] : []),
+          ],
+        }
+      : undefined,
     enabled: mode === 'link' && vendorDomains.length > 0,
   })
 
