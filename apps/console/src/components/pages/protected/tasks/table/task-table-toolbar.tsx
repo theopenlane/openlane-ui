@@ -1,6 +1,7 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useMemo, useState } from 'react'
 import { getTasksFilterFields } from '@/components/pages/protected/tasks/table/table-config.ts'
+import { taskDefaultFilterValues } from '@/components/pages/protected/tasks/util/task'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { type FilterField } from '@/types'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
@@ -242,7 +243,9 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
               {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={TableKeyEnum.TASK} />
               )}
-              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableKeyEnum.TASK} quickFilters={quickFilters} />}
+              {filterFields && (
+                <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableKeyEnum.TASK} quickFilters={quickFilters} defaultFilterValues={taskDefaultFilterValues} />
+              )}
               <CreateTaskDialog />
             </>
           )}
