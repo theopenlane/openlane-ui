@@ -5,6 +5,7 @@ import { ContactOrderField, type ContactQuery, type UpdateContactInput } from '@
 import NameField from '../create/form/fields/name-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
+import LinkedVendors from '../create/form/fields/linked-vendors'
 import { type ContactFieldProps, type EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 
@@ -45,6 +46,11 @@ export const visibilityFields = {
 }
 
 export const getFieldsToRender = (props: ContactFieldProps, enumOptions: EnumOptions) => {
+  // The sheet's TData is the (leaner) table-row type, but at runtime the detail sheet is fed the
+  // richer Contact detail query, so narrow to it once here rather than casting at every call site.
+  const contactData = props.data as ContactQuery['contact'] | undefined
+  const handleUpdateField = props.handleUpdateField as ((input: UpdateContactInput) => Promise<void>) | undefined
+
   return (
     <div className="mr-6">
       <div className="flex flex-row items-center mb-6">
@@ -55,29 +61,34 @@ export const getFieldsToRender = (props: ContactFieldProps, enumOptions: EnumOpt
             initialValue={props.isCreate ? '' : (props.data?.fullName ?? '')}
             internalEditing={props.internalEditing}
             setInternalEditing={props.setInternalEditing}
-            handleUpdateField={props.handleUpdateField as ((input: UpdateContactInput) => Promise<void>) | undefined}
+            handleUpdateField={handleUpdateField}
           />
         </div>
         <div className="ml-20 mt-6">
           <Properties
             isEditing={props.isEditing}
             isEditAllowed={props.isEditAllowed}
-            data={props.data as ContactQuery['contact'] | undefined}
+            data={contactData}
             internalEditing={props.internalEditing}
             setInternalEditing={props.setInternalEditing}
-            handleUpdateField={props.handleUpdateField as ((input: UpdateContactInput) => Promise<void>) | undefined}
+            handleUpdateField={handleUpdateField}
           />
         </div>
       </div>
       <AdditionalFields
         isEditing={props.isEditing}
         isEditAllowed={props.isEditAllowed}
-        data={props.data}
+        data={contactData}
         internalEditing={props.internalEditing}
         setInternalEditing={props.setInternalEditing}
-        handleUpdateField={props.handleUpdateField as ((input: UpdateContactInput) => Promise<void>) | undefined}
+        handleUpdateField={handleUpdateField}
         enumOptions={enumOptions}
       />
+      {!props.isCreate && (
+        <div className="mt-6">
+          <LinkedVendors data={contactData} isEditAllowed={props.isEditAllowed} />
+        </div>
+      )}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -17,7 +17,8 @@ import { ContactUserStatus, type CreateContactMutation, type CreateContactMutati
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useContacts, useUpdateContact } from '@/lib/graphql-hooks/contact'
-import { Check, Users } from 'lucide-react'
+import { useEntity } from '@/lib/graphql-hooks/entity'
+import { Check, Sparkles, Users } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import useContactFormSchema, { type AddContactFormData } from './use-contact-form-schema'
 
@@ -56,7 +57,21 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
     enabled: mode === 'link',
   })
 
-  const availableContacts = searchResults.filter((c) => !existingContactIds.includes(c.id))
+  // Domains configured on the vendor, used to suggest contacts with a matching email domain.
+  const { data: vendorData } = useEntity(mode === 'link' ? vendorId : undefined)
+  const vendorDomains = useMemo(() => (vendorData?.entity?.domains ?? []).map((d) => d.toLowerCase().trim()).filter(Boolean), [vendorData])
+
+  // Contacts whose email domain exactly matches one of the vendor's domains and that are not yet linked.
+  const { contacts: suggestedResults } = useContacts({
+    where: vendorDomains.length ? { and: [{ or: vendorDomains.map((d) => ({ emailHasSuffix: `@${d}` })) }, { not: { hasEntitiesWith: [{ id: vendorId }] } }] } : undefined,
+    enabled: mode === 'link' && vendorDomains.length > 0,
+  })
+
+  const suggestedContacts = useMemo(() => suggestedResults.filter((c) => !existingContactIds.includes(c.id)), [suggestedResults, existingContactIds])
+
+  // Exclude already-linked contacts and anything already shown in the Suggested group.
+  const suggestedIds = new Set(suggestedContacts.map((c) => c.id))
+  const availableContacts = searchResults.filter((c) => !existingContactIds.includes(c.id) && !suggestedIds.has(c.id))
 
   const handleSubmit = async (data: AddContactFormData) => {
     try {
@@ -104,6 +119,22 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
         description: errorMessage,
       })
     }
+  }
+
+  const renderContactItem = (contact: (typeof searchResults)[number], isSuggested = false) => {
+    const isSelected = selectedContactId === contact.id
+    return (
+      <CommandItem key={contact.id} value={contact.id} onSelect={() => setSelectedContactId(isSelected ? null : contact.id)}>
+        <div className={cn('mr-2 flex h-4 w-4 items-center justify-center rounded-sm border', isSelected ? 'border-primary bg-primary text-primary-foreground' : 'opacity-50')}>
+          {isSelected && <Check className="h-3 w-3" />}
+        </div>
+        {isSuggested ? <Sparkles className="mr-2 h-4 w-4 text-primary" /> : <Users className="mr-2 h-4 w-4 text-muted-foreground" />}
+        <div className="flex flex-col">
+          <span>{contact.fullName}</span>
+          {contact.email && <span className="text-xs text-muted-foreground">{contact.email}</span>}
+        </div>
+      </CommandItem>
+    )
   }
 
   return (
@@ -254,24 +285,9 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
               <CommandInput placeholder="Search contacts by name..." value={searchText} onValueChange={setSearchText} />
               <CommandList className="max-h-62.5">
                 <CommandEmpty>{isSearching ? 'Searching...' : 'No contacts found.'}</CommandEmpty>
+                {suggestedContacts.length > 0 && <CommandGroup heading="Suggested — matching email domain">{suggestedContacts.map((contact) => renderContactItem(contact, true))}</CommandGroup>}
                 {availableContacts.length > 0 && (
-                  <CommandGroup>
-                    {availableContacts.map((contact) => {
-                      const isSelected = selectedContactId === contact.id
-                      return (
-                        <CommandItem key={contact.id} value={contact.id} onSelect={() => setSelectedContactId(isSelected ? null : contact.id)}>
-                          <div className={cn('mr-2 flex h-4 w-4 items-center justify-center rounded-sm border', isSelected ? 'border-primary bg-primary text-primary-foreground' : 'opacity-50')}>
-                            {isSelected && <Check className="h-3 w-3" />}
-                          </div>
-                          <Users className="mr-2 h-4 w-4 text-muted-foreground" />
-                          <div className="flex flex-col">
-                            <span>{contact.fullName}</span>
-                            {contact.email && <span className="text-xs text-muted-foreground">{contact.email}</span>}
-                          </div>
-                        </CommandItem>
-                      )
-                    })}
-                  </CommandGroup>
+                  <CommandGroup heading={suggestedContacts.length > 0 ? 'All contacts' : undefined}>{availableContacts.map((contact) => renderContactItem(contact))}</CommandGroup>
                 )}
               </CommandList>
             </Command>
