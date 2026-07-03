@@ -39,7 +39,7 @@ import { useControlEvidenceStore } from '@/components/pages/protected/controls/h
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { type Control, EvidenceEvidenceStatus, EvidenceFrequency, type Subcontrol } from '@repo/codegen/src/schema.ts'
+import { type Control, EvidenceEvidenceStatus, EvidenceFrequency, OrgMembershipRole, type Subcontrol } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { type EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Controller } from 'react-hook-form'
@@ -50,7 +50,7 @@ import { fileDownload } from '@/components/shared/lib/export.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { EvidenceRenewDialog } from '@/components/pages/protected/evidence/evidence-renew-dialog'
 import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useCurrentUserRole, useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import ObjectAssociation from '@/components/shared/object-association/object-association.tsx'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
@@ -162,7 +162,10 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { data: permission } = useAccountRoles(ObjectTypes.EVIDENCE, data?.evidence.id)
 
-  const editAllowed = canEdit(permission?.roles, session)
+  const { role: currentUserRole } = useCurrentUserRole()
+  const isAuditor = currentUserRole === OrgMembershipRole.AUDITOR
+
+  const editAllowed = canEdit(permission?.roles, session) || isAuditor
 
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope', isEditAllowed: editAllowed })
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment', isEditAllowed: editAllowed })
