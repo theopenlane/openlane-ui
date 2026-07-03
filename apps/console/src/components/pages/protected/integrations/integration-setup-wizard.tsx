@@ -102,7 +102,7 @@ const IntegrationSetupWizard = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl w-[92vw] p-0 overflow-hidden">
+      <DialogContent className="max-w-5xl w-[92vw] p-0 overflow-hidden" overlayClassName="backdrop-blur-xs">
         <div className="flex max-h-[80vh] flex-col md:flex-row">
           {guide ? (
             <div className="md:w-[52%] shrink-0 border-b md:border-b-0 md:border-r bg-muted/30 p-6 overflow-y-auto">
