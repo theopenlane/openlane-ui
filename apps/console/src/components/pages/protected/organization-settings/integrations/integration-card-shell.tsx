@@ -27,15 +27,12 @@ const IntegrationCardShell = ({ logoUrl, docsUrl, displayName, tags, description
         {docsUrl ? <DocsLinkTooltip href={docsUrl} label={displayName} /> : null}
 
         <div className="w-full">
-          <div className="flex gap-4">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
             <IntegrationCardIcons providerName={displayName} logoUrl={logoUrl} />
 
-            <div className="flex min-w-0 flex-1 flex-col justify-center self-center">
-              <div className="flex min-w-0 items-center gap-2">
-                <span className="truncate">{displayName}</span>
-                {titleExtra}
-              </div>
-            </div>
+            <span className="line-clamp-2 min-w-0">{displayName}</span>
+
+            {titleExtra ? <div className={`ml-auto flex shrink-0 items-center ${docsUrl ? 'pr-7' : ''}`}>{titleExtra}</div> : null}
           </div>
 
           {statusBadge ? <div className="mt-2 flex min-h-[22px]">{statusBadge}</div> : null}
