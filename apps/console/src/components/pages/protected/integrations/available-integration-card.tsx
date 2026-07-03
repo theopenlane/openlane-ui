@@ -40,9 +40,9 @@ const AvailableIntegrationCard = ({ integration, canManage }: AvailableIntegrati
           </Badge>
         ) : null
       }
-      statusBadge={
+      titleExtra={
         integration.installedCount > 0 ? (
-          <Badge variant="outline" className="text-[10px] uppercase tracking-[0.05em]">
+          <Badge variant="outline" className="shrink-0 text-[10px] uppercase tracking-[0.05em]">
             {integration.installedCount} {integration.installedCount === 1 ? 'instance' : 'instances'}
           </Badge>
         ) : null

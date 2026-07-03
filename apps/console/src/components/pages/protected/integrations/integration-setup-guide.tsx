@@ -17,9 +17,11 @@ type IntegrationSetupGuideProps = {
   onStartWizard?: () => void
   /** Real values (Principal ARN, generated External ID, etc.) to inline into the guide instead of placeholders */
   liveValues?: GuideLiveValues
+  /** Called when the guide opens — used to select this credential so its generatable values (External ID) exist in form state */
+  onOpen?: () => void
 }
 
-const IntegrationSetupGuide = ({ provider, connectionLabel, className, onStartWizard, liveValues }: IntegrationSetupGuideProps) => {
+const IntegrationSetupGuide = ({ provider, connectionLabel, className, onStartWizard, liveValues, onOpen }: IntegrationSetupGuideProps) => {
   const guide = getProviderSetupGuide(provider, connectionLabel, liveValues)
 
   if (!guide) {
@@ -45,6 +47,7 @@ const IntegrationSetupGuide = ({ provider, connectionLabel, className, onStartWi
           className={className}
           onClick={(e) => {
             e.stopPropagation()
+            onOpen?.()
             open()
           }}
         >

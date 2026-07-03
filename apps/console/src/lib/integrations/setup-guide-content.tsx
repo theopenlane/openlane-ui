@@ -7,21 +7,20 @@ import { normalizeIntegrationToken } from './utils'
 
 export type ProviderSetupGuide = {
   intro?: React.ReactNode
-  /** Display name of the external system the first group of steps is performed in, e.g. "AWS", "Google Cloud" */
+  // Display name of the external system the first group of steps is performed
   systemName?: string
-  /** Steps performed in the external system, before or after the Openlane steps */
+  // Steps performed in the external system, before or after the Openlane steps
   externalSteps?: React.ReactNode[]
-  /** Steps performed here in Openlane, on the screen this guide is opened from */
+  // Steps performed here in Openlane, on the screen this guide is opened from
   openlaneSteps: React.ReactNode[]
 }
 
-/** Marks a step as unnumbered, full-width supplementary content (e.g. a code block or callout) that follows
- * the preceding step flush with the left edge — rather than nested and indented under a number bubble. */
-function GuideNote({ children }: { children: React.ReactNode }) {
-  return <div className="pt-2">{children}</div>
+// Marks a step as unnumbered, full-width supplementary content (e.g. a code block or callout) that follows
+function GuideNote({ children, indent }: { children: React.ReactNode; indent?: boolean }) {
+  return <div className={`pt-2 ${indent ? 'ml-7' : ''}`}>{children}</div>
 }
 
-/** An external link styled consistently inside guide steps — opens in a new tab */
+// An external link styled consistently inside guide steps — opens in a new tab
 function GuideLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" className="font-medium text-brand hover:underline">
@@ -46,7 +45,7 @@ function StepList({ steps }: { steps: React.ReactNode[] }) {
           <li key={i}>{step}</li>
         ) : (
           <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground">
-            <span className="shrink-0 mt-0.5 h-5 w-5 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-foreground">{number}</span>
+            <span className="shrink-0 mt-0.5 h-5 w-5 rounded-full bg-muted border border-border flex items-center justify-center text-xs font-medium text-foreground">{number}</span>
             <span>{step}</span>
           </li>
         ),
@@ -55,7 +54,7 @@ function StepList({ steps }: { steps: React.ReactNode[] }) {
   )
 }
 
-/** Renders a guide's steps as two labeled groups — "In {systemName}" and "In Openlane" — skipping any empty group */
+// Renders a guide's steps as two labeled groups
 export function GuideStepGroups({ guide }: { guide: ProviderSetupGuide }) {
   return (
     <>
@@ -75,20 +74,19 @@ export function GuideStepGroups({ guide }: { guide: ProviderSetupGuide }) {
   )
 }
 
-/** Live values pulled from the credential form / connection metadata — available by the time the guide opens */
+//  Live values pulled from the credential form / connection metadata
+//  These values are available by the time the guide opens
 export type GuideLiveValues = {
   principalArn?: string
   externalId?: string
-  /** Deduped permissions/scopes aggregated from the provider's operations (`requiredPermissions`) */
   requiredPermissions?: string[]
 }
 
-/** Renders a list of permission/scope strings as a copyable code block, one per line */
+// Renders a list of permission/scope strings as a copyable code block, one per line
 function ScopeList({ scopes }: { scopes: string[] }) {
   return <CodeBlock code={scopes.join('\n')} />
 }
 
-/** A guide can be static content, or a function of the live form/connection values (e.g. to inline a real ARN into a code block instead of a placeholder) */
 type MaybeDynamicGuide = ProviderSetupGuide | ((live: GuideLiveValues) => ProviderSetupGuide)
 
 type ProviderSetupGuideConfig =
@@ -102,7 +100,6 @@ function resolveGuide(guide: MaybeDynamicGuide, live: GuideLiveValues): Provider
   return typeof guide === 'function' ? guide(live) : guide
 }
 
-/** Inline, copyable command/script block for setup steps that involve running something in a terminal */
 function CodeBlock({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
 
@@ -124,7 +121,6 @@ function CodeBlock({ code }: { code: string }) {
 
 type FieldTableRow = { field: string; required: string; description: React.ReactNode }
 
-/** Inline reference table for setup steps that list several form-field options at once */
 function FieldTable({ rows }: { rows: FieldTableRow[] }) {
   return (
     <div className="mt-2 overflow-hidden rounded-md border">
@@ -150,7 +146,6 @@ function FieldTable({ rows }: { rows: FieldTableRow[] }) {
   )
 }
 
-/** Shared explanation embedded wherever a guide step references a "Filter Expression" sync setting */
 const CEL_FILTER_GUIDE: React.ReactNode = (
   <Callout variant="suggestion" title="Filtering with CEL" compact>
     <p>
@@ -165,8 +160,6 @@ const CEL_FILTER_GUIDE: React.ReactNode = (
   </Callout>
 )
 
-/** A step that references a Filter Expression setting, paired with the shared CEL explanation as its own
- * flush-left note — spread this into a steps array, e.g. `...filterExpressionStep('..')` */
 function filterExpressionStep(context: React.ReactNode): React.ReactNode[] {
   return [context, <GuideNote>{CEL_FILTER_GUIDE}</GuideNote>]
 }
@@ -177,28 +170,33 @@ const gcpGuide: ProviderSetupGuide = {
   systemName: 'Google Cloud',
   externalSteps: [
     'Enable the Security Command Center API in the target GCP project and confirm you have permission to create service accounts and IAM bindings',
-    <>Download and run the Openlane GCP setup script — it configures IAM, enables required APIs, and prints the service account key JSON to paste into Openlane</>,
+    <>Download the Openlane GCP setup script:</>,
     <GuideNote>
       <CodeBlock
         code={`curl -fsSL https://docs.theopenlane.io/integrations/setup/gcp/openlane-gcp-scc-setup.sh \
   -o openlane-gcp-scc-setup.sh
-chmod +x openlane-gcp-scc-setup.sh
-./openlane-gcp-scc-setup.sh \
+chmod +x openlane-gcp-scc-setup.sh`}
+      />
+    </GuideNote>,
+    <>Run the script to configure IAM and enable required APIs — it prints out the service account key JSON to paste into Openlane:</>,
+    <GuideNote>
+      <CodeBlock
+        code={`./openlane-gcp-scc-setup.sh \
   --project-id <PROJECT_ID> \
   --organization-id <ORGANIZATION_ID>`}
       />
     </GuideNote>,
-    <GuideNote>
-      <p className="font-medium text-foreground">Finding your SCC source IDs (optional)</p>
+    <>Optionally, find your SCC source IDs to limit which findings are ingested:</>,
+    <GuideNote indent>
       <GuideNote>
-        <p className="font-medium text-foreground">Option A: GCP Console</p>
+        <p>Option A: GCP Console</p>
         <div className="mt-1 flex flex-col gap-2 text-sm text-muted-foreground">
           <p>1. Go to Security Command Center &gt; Settings &gt; Sources.</p>
-          <p>2. Each row shows a source — the numeric ID at the end of the resource name is what you need.</p>
+          <p>2. Each row shows a source. The numeric ID at the end of the resource name is what you need.</p>
         </div>
       </GuideNote>
       <GuideNote>
-        <p className="font-medium text-foreground">Option B: REST API</p>
+        <p>Option B: REST API</p>
         <div className="mt-1 flex flex-col gap-2 text-sm text-muted-foreground">
           <p>1. List the sources for your organization:</p>
           <CodeBlock
@@ -208,7 +206,7 @@ chmod +x openlane-gcp-scc-setup.sh
   "https://securitycenter.googleapis.com/v2/organizations/<ORG_ID>/sources?pageSize=100"`}
           />
           <p>
-            2. This returns source resource names like <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">organizations/123/sources/456</code> — paste the full name or just the
+            2. This returns source resource names like <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">organizations/123/sources/456</code>. Paste the full name or just the
             numeric suffix into <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">sccSourceIds</code>.
           </p>
         </div>
@@ -234,7 +232,6 @@ chmod +x openlane-gcp-scc-setup.sh
   ],
 }
 
-// Keyed by normalizeIntegrationToken(provider.slug | provider.family | provider.displayName) — add an entry to enable the "Setup guide" slide-out for that integration
 const PROVIDER_SETUP_GUIDES: Record<string, ProviderSetupGuideConfig> = {
   authentik: {
     intro: 'Authentik connects with a static API token scoped to a dedicated service account.',
@@ -261,11 +258,12 @@ const PROVIDER_SETUP_GUIDES: Record<string, ProviderSetupGuideConfig> = {
         systemName: 'AWS',
         externalSteps: [
           'Choose one of the following methods to create the cross-account IAM role that trusts Openlane',
-          <GuideNote>
-            <p className="font-medium text-foreground">Option A: CloudFormation</p>
+          <GuideNote indent>
+            <p>Option A: CloudFormation</p>
             <div className="mt-1 flex flex-col gap-2 text-sm text-muted-foreground">
               <p>
-                1. Run <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">aws sts get-caller-identity</code> to confirm you are targeting the correct account before proceeding.
+                1. Run the following to confirm you are targeting the correct account before proceeding.
+                <CodeBlock code={`aws sts get-caller-identity`} />
               </p>
               <p>2. Download the Openlane CloudFormation template:</p>
               <CodeBlock
@@ -274,7 +272,7 @@ const PROVIDER_SETUP_GUIDES: Record<string, ProviderSetupGuideConfig> = {
               />
               <p>
                 3. Deploy the template to create the cross-account role, trust policy, and a read-only inline policy scoped to Security Hub (IAM and Config access are opt-in). This already contains
-                your Principal ARN and a unique External ID — just fill in the home region.
+                your Principal ARN and a unique External ID. This should be the same that is in the form when you add the details. You will need to fill in the home region.
               </p>
               <CodeBlock
                 code={`aws cloudformation deploy \\
@@ -295,8 +293,8 @@ const PROVIDER_SETUP_GUIDES: Record<string, ProviderSetupGuideConfig> = {
               />
             </div>
           </GuideNote>,
-          <GuideNote>
-            <p className="font-medium text-foreground">Option B: AWS Console (manual)</p>
+          <GuideNote indent>
+            <p>Option B: AWS Console (manual)</p>
             <div className="mt-1 flex flex-col gap-2 text-sm text-muted-foreground">
               <p>1. In the AWS Console, go to IAM &gt; Roles &gt; Create role.</p>
               <p>2. Under Trusted entity type, select Custom trust policy.</p>
@@ -321,7 +319,8 @@ const PROVIDER_SETUP_GUIDES: Record<string, ProviderSetupGuideConfig> = {
 }`}
               />
               <p>4. Click Next, then click Next again to skip attaching managed policies — you&apos;ll add an inline policy instead.</p>
-              <p>5. Name the role (e.g. OpenlaneIntegrationReadOnlyRole) and click Create role.</p>
+              <p>5. Name the role (e.g. OpenlaneIntegrationReadOnlyRole)</p>
+              <p> Create role.</p>
               <p>6. Open the role, go to the Permissions tab, and click Add permissions &gt; Create inline policy.</p>
               <p>7. Switch to the JSON editor and paste the policy below, removing any blocks for data sources you don&apos;t want to grant:</p>
               <CodeBlock
@@ -544,8 +543,6 @@ type VariantConfig = { default: MaybeDynamicGuide; variants: { match: string[]; 
 
 const isVariantConfig = (config: ProviderSetupGuideConfig): config is VariantConfig => typeof config === 'object' && config !== null && 'default' in config
 
-/** `connectionLabel` is typically the credential entry's name (e.g. "Slack Bot Token") — used to pick a connection-specific variant.
- * `live` supplies real values (e.g. the connection's Principal ARN, the generated External ID) for guides that inline them into code blocks. */
 export const getProviderSetupGuide = (provider?: Pick<IntegrationProvider, 'slug' | 'family' | 'displayName'>, connectionLabel?: string, live: GuideLiveValues = {}): ProviderSetupGuide | null => {
   let config: ProviderSetupGuideConfig | undefined
   for (const candidate of [provider?.slug, provider?.family, provider?.displayName]) {

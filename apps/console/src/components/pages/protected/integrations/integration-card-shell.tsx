@@ -15,12 +15,11 @@ type IntegrationCardShellProps = {
   description: string
   headerBadge?: React.ReactNode
   titleExtra?: React.ReactNode
-  statusBadge?: React.ReactNode
   metadata?: React.ReactNode
   footer: React.ReactNode
 }
 
-const IntegrationCardShell = ({ logoUrl, docsUrl, displayName, tags, tagLabelOverrides, description, headerBadge, titleExtra, statusBadge, metadata, footer }: IntegrationCardShellProps) => {
+const IntegrationCardShell = ({ logoUrl, docsUrl, displayName, tags, tagLabelOverrides, description, headerBadge, titleExtra, metadata, footer }: IntegrationCardShellProps) => {
   return (
     <Card className="relative flex h-full min-h-[300px] flex-col overflow-visible transition-all duration-200 hover:-translate-y-1 hover:border-primary">
       <CardHeader className="relative flex-row items-start gap-3 space-y-0 pb-3">
@@ -28,18 +27,13 @@ const IntegrationCardShell = ({ logoUrl, docsUrl, displayName, tags, tagLabelOve
         {docsUrl ? <DocsLinkTooltip href={docsUrl} label={displayName} /> : null}
 
         <div className="w-full">
-          <div className="flex gap-4">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
             <IntegrationCardIcons providerName={displayName} logoUrl={logoUrl} />
 
-            <div className="flex min-w-0 flex-1 flex-col justify-center self-center">
-              <div className="flex min-w-0 items-center gap-2">
-                <span className="truncate">{displayName}</span>
-                {titleExtra}
-              </div>
-            </div>
-          </div>
+            <span className="line-clamp-2 min-w-[7rem] flex-1">{displayName}</span>
 
-          {statusBadge ? <div className="mt-2 flex min-h-[22px]">{statusBadge}</div> : null}
+            {titleExtra ? <div className={`flex shrink-0 items-center ${docsUrl ? 'pr-7' : ''}`}>{titleExtra}</div> : null}
+          </div>
 
           <div className="mb-1 mt-3 border-t pt-3">
             <IntegrationTagList tags={tags} tagLabelOverrides={tagLabelOverrides} />

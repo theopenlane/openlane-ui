@@ -53,13 +53,11 @@ const CredentialConnectionSection = ({
   const activeConnection = activeEntry ? resolveConnectionEntry(provider, activeEntry.ref) : undefined
   const activeIsAuth = activeConnection?.auth != null
 
-  // Deduped scopes/permissions across all operations, so guides can list the exact scopes to grant
   const requiredPermissions = useMemo(() => {
     const all = (provider.operations ?? []).flatMap((op) => op.requiredPermissions ?? [])
     return Array.from(new Set(all))
   }, [provider.operations])
 
-  // Watched so guides can inline the live, already-generated value instead of a placeholder
   const externalId = formMethods.watch(`${CREDENTIALS_PREFIX}externalId`) as string | undefined
   const getLiveValues = (connection?: IntegrationConnectionEntry): GuideLiveValues => ({
     principalArn: connection?.meta?.['Openlane Principal ARN']?.Value,
@@ -111,6 +109,7 @@ const CredentialConnectionSection = ({
                           className="shrink-0"
                           onStartWizard={!isAuth && (hasFields || hasUserInputFields) ? () => handleStartWizard(index) : undefined}
                           liveValues={getLiveValues(connection)}
+                          onOpen={() => onSelectCredential(index)}
                         />
                       </div>
                       {connection?.description || entry.description ? <p className="ml-5 mt-0.5 text-xs text-muted-foreground">{connection?.description || entry.description}</p> : null}
