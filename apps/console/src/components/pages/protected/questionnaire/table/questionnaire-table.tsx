@@ -14,7 +14,8 @@ import { useRouter } from 'next/navigation'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
+import { resolveAuthorName } from '@/lib/authors'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
@@ -104,17 +105,7 @@ export const QuestionnairesTable = () => {
     return Array.from(ids)
   }, [assessments])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
   const handleViewDetails = useCallback(
     (assessment: Assessment) => {
@@ -161,6 +152,7 @@ export const QuestionnairesTable = () => {
 
   const { columns, mappedColumns } = getQuestionnaireColumns({
     userMap,
+    tokenMap,
     selectedQuestionnaires,
     setSelectedQuestionnaires,
     onSend: handleSend,
@@ -194,9 +186,9 @@ export const QuestionnairesTable = () => {
         case 'tags':
           return assessment.tags?.join(', ') ?? ''
         case 'createdBy':
-          return userMap[assessment.createdBy ?? '']?.displayName ?? 'Deleted user'
+          return resolveAuthorName(assessment.createdBy, { userMap, tokenMap })
         case 'updatedBy':
-          return userMap[assessment.updatedBy ?? '']?.displayName ?? 'Deleted user'
+          return resolveAuthorName(assessment.updatedBy, { userMap, tokenMap })
         default: {
           const value = assessment[key as keyof Assessment]
           if (typeof value === 'string' || typeof value === 'number') return value
@@ -205,7 +197,7 @@ export const QuestionnairesTable = () => {
         }
       }
     },
-    [userMap],
+    [userMap, tokenMap],
   )
 
   const handleExport = () => {

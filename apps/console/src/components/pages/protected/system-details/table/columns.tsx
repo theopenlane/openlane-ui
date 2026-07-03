@@ -4,7 +4,7 @@ import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
-import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type SystemDetailsNodeNonNull } from '@/lib/graphql-hooks/system-detail'
 
@@ -13,7 +13,7 @@ const renderRichTextCell = (value: string, convertToReadOnly?: ColumnOptions['co
   return value.includes('slate') ? convertToReadOnly?.(value) || value : <TruncatedCell>{value}</TruncatedCell>
 }
 
-export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<SystemDetailsNodeNonNull>[] => {
+export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<SystemDetailsNodeNonNull>[] => {
   return [
     createSelectColumn<SystemDetailsNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
@@ -54,14 +54,14 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" /> },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
   ]
 }

@@ -10,9 +10,10 @@ import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 
 import ColorCell from '../shared/color-cell'
-import { Avatar } from '@/components/shared/avatar/avatar'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { formatDate, formatDateSince } from '@/utils/date'
 import { CustomTypeEnumOrderField, type User } from '@repo/codegen/src/schema'
+import { type AuthorToken } from '@/lib/authors'
 import { type CustomTypeEnumNodeNonNull, useUpdateCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enum'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { TruncatedCell } from '@repo/ui/data-table'
@@ -21,6 +22,7 @@ type ColumnsParams = {
   onEdit?: (id: string) => void
   onDelete?: (id: string) => void
   userMap?: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   canEditEnum?: boolean
 }
 
@@ -35,7 +37,7 @@ const TypeBadge = ({ systemOwned }: { systemOwned?: boolean | null }) => (
   </Badge>
 )
 
-export const useGetCustomEnumColumns = ({ onEdit, onDelete, userMap, canEditEnum = true }: ColumnsParams) => {
+export const useGetCustomEnumColumns = ({ onEdit, onDelete, userMap, tokenMap, canEditEnum = true }: ColumnsParams) => {
   const { mutateAsync: updateEnum } = useUpdateCustomTypeEnum()
 
   const columns = useMemo<ColumnDef<CustomTypeEnumNodeNonNull>[]>(() => {
@@ -132,17 +134,7 @@ export const useGetCustomEnumColumns = ({ onEdit, onDelete, userMap, canEditEnum
       {
         accessorKey: 'createdBy',
         header: 'Created By',
-        cell: ({ row }) => {
-          const user = userMap?.[row.original.createdBy ?? '']
-          return user ? (
-            <div className="flex items-center gap-1">
-              <Avatar entity={user} className="w-6 h-6" />
-              <p className="text-sm">{user.displayName}</p>
-            </div>
-          ) : (
-            <span className="text-muted-foreground italic text-sm">Deleted user</span>
-          )
-        },
+        cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
         size: 200,
       },
       {
@@ -154,17 +146,7 @@ export const useGetCustomEnumColumns = ({ onEdit, onDelete, userMap, canEditEnum
       {
         accessorKey: 'updatedBy',
         header: 'Updated By',
-        cell: ({ row }) => {
-          const user = userMap?.[row.original.updatedBy ?? '']
-          return user ? (
-            <div className="flex items-center gap-1">
-              <Avatar entity={user} className="w-6 h-6" />
-              <p className="text-sm">{user.displayName}</p>
-            </div>
-          ) : (
-            <span className="text-muted-foreground italic text-sm">Deleted user</span>
-          )
-        },
+        cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
         size: 200,
       },
       {
@@ -175,7 +157,7 @@ export const useGetCustomEnumColumns = ({ onEdit, onDelete, userMap, canEditEnum
       },
       ...(canEditEnum ? [actionsCol] : []),
     ]
-  }, [onEdit, onDelete, userMap, updateEnum, canEditEnum])
+  }, [onEdit, onDelete, userMap, tokenMap, updateEnum, canEditEnum])
 
   const mappedColumns = useMemo(() => {
     return columns

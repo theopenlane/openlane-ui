@@ -1,20 +1,22 @@
 import { type ColumnDef } from '@tanstack/react-table'
 import { type User } from '@repo/codegen/src/schema'
+import { type AuthorToken } from '@/lib/authors'
 import { type CampaignsNodeNonNull } from '@/lib/graphql-hooks/campaign'
 import { formatDate } from '@/utils/date'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 
 type ColumnOptions = {
   userMap: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   selectedCampaigns: { id: string }[]
   setSelectedCampaigns: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export const getCampaignColumns = ({ userMap, selectedCampaigns, setSelectedCampaigns }: ColumnOptions): ColumnDef<CampaignsNodeNonNull>[] => {
+export const getCampaignColumns = ({ userMap, tokenMap, selectedCampaigns, setSelectedCampaigns }: ColumnOptions): ColumnDef<CampaignsNodeNonNull>[] => {
   return [
     createSelectColumn<CampaignsNodeNonNull>(selectedCampaigns, setSelectedCampaigns),
     {
@@ -83,7 +85,7 @@ export const getCampaignColumns = ({ userMap, selectedCampaigns, setSelectedCamp
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'createdAt',
@@ -95,7 +97,7 @@ export const getCampaignColumns = ({ userMap, selectedCampaigns, setSelectedCamp
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'updatedAt',

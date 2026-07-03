@@ -4,7 +4,7 @@ import { DataTable } from '@repo/ui/data-table'
 import { useEffect, useMemo } from 'react'
 import { type ContactWhereInput, type Contact, type ContactOrderField } from '@repo/codegen/src/schema'
 import { type ContactsNodeNonNull, useContactsWithFilter } from '@/lib/graphql-hooks/contact'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
 import { CONTACTS_SORT_FIELDS } from './table-config'
@@ -93,19 +93,9 @@ const TableComponent = ({
     }
   }, [isError, errorNotification])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
-
-  const columns = useMemo(() => getColumns({ userMap, selectedItems, setSelectedItems }), [userMap, selectedItems, setSelectedItems])
+  const columns = useMemo(() => getColumns({ userMap, tokenMap, selectedItems, setSelectedItems }), [userMap, tokenMap, selectedItems, setSelectedItems])
 
   return (
     <DataTable<ContactsNodeNonNull, Contact>

@@ -5,11 +5,11 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { type ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import type { ReviewWhereInput, User } from '@repo/codegen/src/schema'
+import type { ReviewWhereInput } from '@repo/codegen/src/schema'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useReviewsWithFilter, type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { getColumns } from '@/components/pages/protected/reviews/table/columns'
 import { buildAssociationFilter } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
 import { mergeWhere, SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
@@ -65,19 +65,10 @@ const ReviewsTable: React.FC<ReviewsTableProps> = ({ controlId, subcontrolIds })
 
   const memberIds = useMemo(() => [...new Set(reviewsNodes.flatMap((r) => [r.createdBy, r.updatedBy]).filter((id): id is string => typeof id === 'string' && id.length > 0))], [reviewsNodes])
 
-  const userListWhere = useMemo(() => (memberIds.length > 0 ? { hasUserWith: [{ idIn: memberIds }] } : undefined), [memberIds])
-  const { users } = useGetOrgUserList({ where: userListWhere })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, User> = {}
-    users?.forEach((user) => {
-      map[user.id] = user
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap } = useAuthorMaps(memberIds)
 
   const columns = useMemo<ColumnDef<ReviewsNodeNonNull>[]>(() => {
-    const allCols = getColumns({ userMap, selectedItems: [], setSelectedItems: () => {} })
+    const allCols = getColumns({ userMap, tokenMap, selectedItems: [], setSelectedItems: () => {} })
     return allCols
       .filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
       .sort((a, b) => {
@@ -100,7 +91,7 @@ const ReviewsTable: React.FC<ReviewsTableProps> = ({ controlId, subcontrolIds })
         }
         return col
       })
-  }, [userMap, replace])
+  }, [userMap, tokenMap, replace])
 
   const paginationMeta = useMemo(
     () => ({

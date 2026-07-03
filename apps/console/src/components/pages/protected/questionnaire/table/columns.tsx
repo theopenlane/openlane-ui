@@ -1,7 +1,8 @@
 import { type ColumnDef, type Row } from '@tanstack/react-table'
 import { type Assessment, type User, TemplateTemplateKind } from '@repo/codegen/src/schema'
+import { type AuthorToken } from '@/lib/authors'
 import { formatDate, formatTimeSince } from '@/utils/date'
-import { Avatar } from '@/components/shared/avatar/avatar'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
@@ -13,6 +14,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 type Params = {
   userMap?: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   selectedQuestionnaires: { id: string }[]
   setSelectedQuestionnaires: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   onSend?: (assessment: Assessment) => void
@@ -27,6 +29,7 @@ type Params = {
 
 export const getQuestionnaireColumns = (params?: Params) => {
   const userMap = params?.userMap || {}
+  const tokenMap = params?.tokenMap || {}
   const toggleSelection = (questionnaire: { id: string }) => {
     params?.setSelectedQuestionnaires((prev) => {
       const exists = prev.some((c) => c.id === questionnaire.id)
@@ -189,18 +192,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => {
-        const userId = row.original.createdBy
-        const user = userMap?.[userId ?? '']
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'createdAt',
@@ -212,18 +204,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => {
-        const userId = row.original.updatedBy
-        const user = userMap?.[userId ?? '']
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'updatedAt',

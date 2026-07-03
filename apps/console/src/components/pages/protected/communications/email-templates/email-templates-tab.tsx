@@ -10,7 +10,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useEmailTemplatesWithFilter, useDeleteEmailTemplate, useUpdateEmailTemplate, useCreateEmailTemplate } from '@/lib/graphql-hooks/email-template'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
+import { resolveAuthorName } from '@/lib/authors'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { formatDate } from '@/utils/date'
@@ -53,17 +54,7 @@ export const EmailTemplatesTab: React.FC = () => {
 
   const userIds = useMemo(() => Array.from(new Set(emailTemplatesNodes.map((t) => t.createdBy).filter((id): id is string => !!id))), [emailTemplatesNodes])
 
-  const { users } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[number]> = {}
-    users?.forEach((u) => {
-      if (u?.id) map[u.id] = u
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap } = useAuthorMaps(userIds)
 
   const openSheet = (templateId: string | undefined, readOnly: boolean) => {
     setSheetTemplateId(templateId)
@@ -167,8 +158,7 @@ export const EmailTemplatesTab: React.FC = () => {
       ) : (
         <div className="flex flex-col gap-2">
           {emailTemplatesNodes.map((template) => {
-            const author = template.createdBy ? userMap[template.createdBy] : undefined
-            const authorName = author?.displayName ?? '—'
+            const authorName = template.createdBy ? resolveAuthorName(template.createdBy, { userMap, tokenMap }) : '—'
             const campaignsCount = template.campaigns?.totalCount ?? 0
             return (
               <div key={template.id} className="flex items-start gap-4 rounded-lg border border-border bg-card p-4 transition-colors">

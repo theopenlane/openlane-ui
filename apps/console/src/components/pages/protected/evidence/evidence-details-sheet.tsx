@@ -38,7 +38,7 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { formatDate } from '@/utils/date.ts'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { type Control, EvidenceEvidenceStatus, EvidenceFrequency, type Subcontrol } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { type EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
@@ -50,7 +50,7 @@ import { fileDownload } from '@/components/shared/lib/export.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { EvidenceRenewDialog } from '@/components/pages/protected/evidence/evidence-renew-dialog'
 import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import ObjectAssociation from '@/components/shared/object-association/object-association.tsx'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
@@ -169,17 +169,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const evidence = data?.evidence
 
-  const userIds = []
-  if (evidence?.updatedBy) {
-    userIds.push(evidence.updatedBy)
-  }
-  if (evidence?.createdBy) {
-    userIds.push(evidence.createdBy)
-  }
-
-  const { users } = useGetOrgUserList({ where: { hasUserWith: [{ idIn: userIds }] } })
-  const updatedByUser = users?.find((item) => item.id === evidence?.updatedBy)
-  const createdByUser = users?.find((item) => item.id === evidence?.createdBy)
+  const { userMap, tokenMap } = useAuthorMaps([evidence?.createdBy, evidence?.updatedBy])
 
   const evidenceName = evidence?.name
   const statusOptions = EvidenceStatusOptions
@@ -1123,10 +1113,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 Created By
                               </div>
                               <div className="text-sm cursor-not-allowed">
-                                <p className="text-sm justify-end flex items-center">
-                                  <Avatar entity={createdByUser} variant="small" />
-                                  <span>{createdByUser?.displayName}</span>
-                                </p>
+                                <AuthorCell id={evidence?.createdBy} userMap={userMap} tokenMap={tokenMap} className="text-sm justify-end flex items-center gap-2" />
                               </div>
                             </div>
 
@@ -1146,10 +1133,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 Updated By
                               </div>
                               <div className="text-sm cursor-not-allowed">
-                                <p className="text-sm justify-end flex items-center ">
-                                  <Avatar entity={updatedByUser} variant="small" />
-                                  <span>{updatedByUser?.displayName}</span>
-                                </p>
+                                <AuthorCell id={evidence?.updatedBy} userMap={userMap} tokenMap={tokenMap} className="text-sm justify-end flex items-center gap-2" />
                               </div>
                             </div>
                             {evidence?.url && (

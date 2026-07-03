@@ -7,7 +7,7 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import { getCampaignColumns } from '@/components/pages/protected/campaigns/table/columns'
 import { CAMPAIGN_SORT_FIELDS } from '@/components/pages/protected/campaigns/table/table-config'
 import { useCampaignsWithFilter } from '@/lib/graphql-hooks/campaign'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { type VisibilityState } from '@tanstack/react-table'
 
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
@@ -90,19 +90,9 @@ const CampaignsTable = ({
     }
   }, [isError, errorNotification])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
-
-  const columns = useMemo(() => getCampaignColumns({ userMap, selectedCampaigns, setSelectedCampaigns }), [userMap, selectedCampaigns, setSelectedCampaigns])
+  const columns = useMemo(() => getCampaignColumns({ userMap, tokenMap, selectedCampaigns, setSelectedCampaigns }), [userMap, tokenMap, selectedCampaigns, setSelectedCampaigns])
 
   return (
     <DataTable
