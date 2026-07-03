@@ -74,6 +74,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
 
   const { pendingDraft, restore, discard, clearDraft, editorKey } = useFormDraft<CreateProcedureFormData>({
     storageKey: PROCEDURE_DRAFT_KEY,
+    organizationId: currentOrgId,
     enabled: !isEditable,
     form,
   })

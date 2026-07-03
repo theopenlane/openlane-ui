@@ -27,7 +27,6 @@ const TableComponent = ({
   setSelectedItems,
   canEdit,
   permission,
-  defaultSorting,
   onRowClick,
   rowHref,
 }: TTableProps<PlatformWhereInput>) => {
@@ -118,7 +117,7 @@ const TableComponent = ({
       onSortChange={onSortChange}
       data={items}
       loading={fetching || fetchingUsers}
-      defaultSorting={defaultSorting}
+      sorting={orderBy}
       onRowClick={(item) => {
         if (onRowClick) {
           onRowClick(item)

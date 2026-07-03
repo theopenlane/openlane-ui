@@ -27,7 +27,6 @@ const TableComponent = ({
   setSelectedItems,
   canEdit,
   permission,
-  defaultSorting,
 }: TTableProps<ActionPlanWhereInput>) => {
   const { replace } = useSmartRouter()
   const { data: session } = useSession()
@@ -100,7 +99,7 @@ const TableComponent = ({
       onSortChange={onSortChange}
       data={items ?? []}
       loading={fetching || fetchingUsers}
-      defaultSorting={defaultSorting}
+      sorting={orderBy}
       onRowClick={(item) => replace({ id: item.id })}
       pagination={pagination}
       onPaginationChange={onPaginationChange}

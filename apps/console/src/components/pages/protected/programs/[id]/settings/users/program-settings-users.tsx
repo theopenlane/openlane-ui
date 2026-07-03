@@ -3,7 +3,8 @@
 import React, { use, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { type ColumnDef, type Row } from '@tanstack/react-table'
@@ -12,7 +13,6 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { ProgramMembershipRole, ProgramProgramStatus, type User } from '@repo/codegen/src/schema'
 import { ProgramSettingsAssignUserDialog } from './program-settings-assign-user-dialog'
 import { useQueryClient } from '@tanstack/react-query'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { EditGroupRoleDialog } from '../program-settings-edit-role-dialog' // You can reuse for users
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -41,13 +41,11 @@ export const ProgramSettingsUsers = () => {
 
   const editAllowed = canEdit(permission?.roles, session)
 
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_USERS, {
-      ...DEFAULT_PAGINATION,
-      pageSize: 5,
-      query: { first: 5 },
-    }),
-  )
+  const [pagination, setPagination] = useOrgTablePagination({
+    ...DEFAULT_PAGINATION,
+    pageSize: 5,
+    query: { first: 5 },
+  })
 
   const [selectedUser, setSelectedUser] = useState<MemberRow | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)

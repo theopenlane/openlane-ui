@@ -1,8 +1,8 @@
 'use client'
 
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, type SortCondition } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { type CampaignOrder, type CampaignWhereInput, type OrderDirection } from '@repo/codegen/src/schema'
+import type { CampaignOrder, CampaignOrderField, CampaignWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { getCampaignColumns } from '@/components/pages/protected/campaigns/table/columns'
 import { CAMPAIGN_SORT_FIELDS } from '@/components/pages/protected/campaigns/table/table-config'
@@ -17,7 +17,7 @@ import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
 
 type TCampaignsTableProps = {
-  onSortChange?: (sortCondition: CampaignOrder[] | CampaignOrder | undefined) => void
+  onSortChange?: (next: SortCondition<CampaignOrderField>[]) => void
   pagination: TPagination
   onPaginationChange: (pagination: TPagination) => void
   whereFilter: CampaignWhereInput | null
@@ -101,7 +101,7 @@ const CampaignsTable = ({
       onSortChange={onSortChange}
       data={campaigns}
       loading={fetching || fetchingUsers}
-      defaultSorting={defaultSorting}
+      sorting={defaultSorting}
       rowHref={(campaign) => `/automation/campaigns/${campaign.id}`}
       pagination={pagination}
       onPaginationChange={onPaginationChange}

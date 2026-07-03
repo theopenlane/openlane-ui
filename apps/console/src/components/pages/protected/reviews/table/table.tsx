@@ -28,7 +28,6 @@ const TableComponent = ({
   setSelectedItems,
   canEdit,
   permission,
-  defaultSorting,
   rowHref,
 }: TTableProps<ReviewWhereInput>) => {
   const { replace } = useSmartRouter()
@@ -107,7 +106,7 @@ const TableComponent = ({
       onSortChange={onSortChange}
       data={items}
       loading={fetching || fetchingUsers}
-      defaultSorting={defaultSorting}
+      sorting={orderBy}
       onRowClick={(item) => {
         replace({ id: item.id })
       }}

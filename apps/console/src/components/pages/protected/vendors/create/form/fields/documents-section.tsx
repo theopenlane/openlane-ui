@@ -1,12 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { useGetEntityFilesPaginated, useUploadEntityFiles, useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { DocumentsSection } from '@/components/shared/documents-section/documents-section'
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'
-import { type FileOrder, type FileWhereInput, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
-import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { type FileWhereInput, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useNotification } from '@/hooks/useNotification'
@@ -23,14 +22,13 @@ type EntityDocumentsSectionProps = {
 }
 
 const EntityDocumentsSection: React.FC<EntityDocumentsSectionProps> = ({ entityId, isEditAllowed, isCreate, onStagedFilesChange, onExistingFileIdsChange, logoFileId }) => {
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.ENTITY_FILES, DEFAULT_PAGINATION))
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.ENTITY_FILES, FileOrderField, [
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.ENTITY_FILES, FileOrderField, [
     {
       field: FileOrderField.created_at,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<FileOrder[]>(defaultSorting)
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
 
@@ -108,7 +106,7 @@ const EntityDocumentsSection: React.FC<EntityDocumentsSectionProps> = ({ entityI
       totalCount={totalCount}
       pagination={pagination}
       onPaginationChange={setPagination}
-      defaultSorting={defaultSorting}
+      defaultSorting={orderBy}
       onSortChange={setOrderBy}
       onUpload={handleUpload}
       isUploading={isUploading}

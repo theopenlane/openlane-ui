@@ -19,6 +19,7 @@ import ReportEmptyState from './report-empty-state'
 import { useReportSelection } from './use-report-selection'
 import { getOrgRelatedControls, getFrameworkRelatedControls } from './report-coverage'
 import { type ReportFilterId } from './report-filter-options'
+import { getOrganizationStorageItem, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
 import { useSession } from 'next-auth/react'
 
 type TControlReportPageProps = {
@@ -29,10 +30,9 @@ type TControlReportPageProps = {
 const REPORT_STANDARD_KEY = 'control_report_selected_standard'
 const REPORT_PROGRAMS_KEY = 'control_report_selected_programs'
 
-const readStoredPrograms = (): string[] => {
-  if (typeof window === 'undefined') return []
+const readStoredPrograms = (organizationId?: string): string[] => {
   try {
-    const raw = localStorage.getItem(REPORT_PROGRAMS_KEY)
+    const raw = getOrganizationStorageItem(REPORT_PROGRAMS_KEY, organizationId)
     if (!raw) return []
     const parsed = JSON.parse(raw)
     return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []
@@ -44,11 +44,8 @@ const readStoredPrograms = (): string[] => {
 const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActive }) => {
   const { currentOrgId } = useOrganization()
   const { setCrumbs } = use(BreadcrumbContext)
-  const [selectedStandard, setSelectedStandard] = useState<string>(() => {
-    if (typeof window === 'undefined') return ''
-    return localStorage.getItem(REPORT_STANDARD_KEY) ?? ''
-  })
-  const [selectedPrograms, setSelectedPrograms] = useState<string[]>(readStoredPrograms)
+  const [selectedStandard, setSelectedStandard] = useState<string>(() => getOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId) ?? '')
+  const [selectedPrograms, setSelectedPrograms] = useState<string[]>(() => readStoredPrograms(currentOrgId))
   const [expandedItems, setExpandedItems] = useState<string[]>([])
   const [hasAutoExpanded, setHasAutoExpanded] = useState(false)
   const [expandedControls, setExpandedControls] = useState<Record<string, boolean>>({})
@@ -72,16 +69,17 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     enabled: Boolean(currentOrgId),
   })
 
-  const { programOptions } = useProgramSelect({
+  const { programOptions, isSuccess: isSuccessPrograms } = useProgramSelect({
     where: { statusNEQ: ProgramProgramStatus.ARCHIVED },
   })
 
   const effectiveStandard = useMemo(() => {
-    if (selectedStandard) return selectedStandard
-    const neverSet = typeof window !== 'undefined' && localStorage.getItem(REPORT_STANDARD_KEY) === null
+    const selectedStandardIsAvailable = selectedStandard === 'CUSTOM' || standardOptions.some((option) => option.value === selectedStandard)
+    if (selectedStandard && (!isSuccessStandards || selectedStandardIsAvailable)) return selectedStandard
+    const neverSet = typeof window !== 'undefined' && getOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId) === null
     if (neverSet && isSuccessStandards && standardOptions.length > 0) return standardOptions[0].value
     return ''
-  }, [selectedStandard, isSuccessStandards, standardOptions])
+  }, [selectedStandard, isSuccessStandards, standardOptions, currentOrgId])
 
   const isCustomView = effectiveStandard === 'CUSTOM'
 
@@ -182,12 +180,42 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   }, [sortedData, reportFilters, isCustomView])
 
   useEffect(() => {
-    if (isSuccessStandards && standardOptions.length > 0 && localStorage.getItem(REPORT_STANDARD_KEY) === null) {
+    setSelectedStandard(getOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId) ?? '')
+    setSelectedPrograms(readStoredPrograms(currentOrgId))
+    setReportFilters(new Set())
+    userSelectedStandardRef.current = false
+  }, [currentOrgId])
+
+  useEffect(() => {
+    if (!isSuccessStandards || !selectedStandard || selectedStandard === 'CUSTOM') return
+    if (standardOptions.some((option) => option.value === selectedStandard)) return
+    // On an org switch this effect can fire with the previous org's standard still in
+    // state (the reset effect's update lands next render); only clean up once state
+    // reflects what is actually stored for the current org.
+    if (getOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId) !== selectedStandard) return
+
+    setSelectedStandard('')
+    // Remove rather than store '' so the auto-select effect can still pick a default
+    removeOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId)
+  }, [isSuccessStandards, selectedStandard, standardOptions, currentOrgId])
+
+  useEffect(() => {
+    if (!isSuccessPrograms || selectedPrograms.length === 0) return
+    const availableProgramIds = new Set(programOptions.map((option) => option.value))
+    const validPrograms = selectedPrograms.filter((id) => availableProgramIds.has(id))
+    if (validPrograms.length === selectedPrograms.length) return
+
+    setSelectedPrograms(validPrograms)
+    setOrganizationStorageItem(REPORT_PROGRAMS_KEY, JSON.stringify(validPrograms), currentOrgId)
+  }, [isSuccessPrograms, selectedPrograms, programOptions, currentOrgId])
+
+  useEffect(() => {
+    if (isSuccessStandards && standardOptions.length > 0 && getOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId) === null) {
       const first = standardOptions[0].value
       setSelectedStandard(first)
-      localStorage.setItem(REPORT_STANDARD_KEY, first)
+      setOrganizationStorageItem(REPORT_STANDARD_KEY, first, currentOrgId)
     }
-  }, [isSuccessStandards, standardOptions])
+  }, [isSuccessStandards, standardOptions, currentOrgId])
 
   useEffect(() => {
     if (userSelectedStandardRef.current) return
@@ -264,16 +292,19 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     userSelectedStandardRef.current = true
     const next = value === effectiveStandard ? '' : value
     setSelectedStandard(next)
-    localStorage.setItem(REPORT_STANDARD_KEY, next)
+    setOrganizationStorageItem(REPORT_STANDARD_KEY, next, currentOrgId)
   }
 
-  const toggleProgram = useCallback((id: string) => {
-    setSelectedPrograms((prev) => {
-      const next = prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-      localStorage.setItem(REPORT_PROGRAMS_KEY, JSON.stringify(next))
-      return next
-    })
-  }, [])
+  const toggleProgram = useCallback(
+    (id: string) => {
+      setSelectedPrograms((prev) => {
+        const next = prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
+        setOrganizationStorageItem(REPORT_PROGRAMS_KEY, JSON.stringify(next), currentOrgId)
+        return next
+      })
+    },
+    [currentOrgId],
+  )
 
   useEffect(() => {
     setCrumbs([

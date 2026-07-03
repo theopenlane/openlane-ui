@@ -27,7 +27,6 @@ const TableComponent = ({
   setSelectedItems,
   canEdit,
   permission,
-  defaultSorting,
   onRowClick,
   rowHref,
 }: TTableProps<WorkflowDefinitionWhereInput>) => {
@@ -116,7 +115,7 @@ const TableComponent = ({
         onSortChange={onSortChange}
         data={items}
         loading={fetching}
-        defaultSorting={defaultSorting}
+        sorting={orderBy}
         onRowClick={onRowClick}
         rowHref={rowHref}
         pagination={pagination}

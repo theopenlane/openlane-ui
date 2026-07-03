@@ -481,10 +481,10 @@ export const useControlReports = ({ where, enabled = true }: { where?: ControlWh
     ControlReportsQuery['controlReports'],
     Error,
     InfiniteData<ControlReportsQuery['controlReports']>,
-    ['controlReports', ControlWhereInput | undefined],
+    ['controls', 'report', ControlWhereInput | undefined],
     string | null
   >({
-    queryKey: ['controlReports', where],
+    queryKey: ['controls', 'report', where],
     queryFn: async ({ pageParam }) => {
       const res = await client.request<ControlReportsQuery, ControlReportsQueryVariables>(CONTROL_REPORTS, {
         where,

@@ -1,20 +1,12 @@
 'use client'
 
-import {
-  OrderDirection,
-  type OrgMembership,
-  OrgMembershipOrderField,
-  OrgMembershipRole,
-  type OrgMembershipsQueryVariables,
-  type OrgMembershipWhereInput,
-  type User,
-  UserAuthProvider,
-} from '@repo/codegen/src/schema'
+import { OrderDirection, type OrgMembership, OrgMembershipOrderField, OrgMembershipRole, type OrgMembershipWhereInput, type User, UserAuthProvider } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Copy, Info, KeyRoundIcon, Shield, ShieldOff } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { type ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
 import { useCopyToClipboard, useDebounce } from '@uidotdev/usehooks'
@@ -68,16 +60,14 @@ export const MembersTable = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [, copyToClipboard] = useCopyToClipboard()
   const { successNotification, errorNotification } = useNotification()
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.MEMBER, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const [orderBy, setOrderBy] = useState<OrgMembershipsQueryVariables['orderBy']>(() =>
-    getInitialSortConditions(TableKeyEnum.MEMBER, OrgMembershipOrderField, [
-      {
-        field: OrgMembershipOrderField.created_at,
-        direction: OrderDirection.DESC,
-      },
-    ]),
-  )
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.MEMBER, OrgMembershipOrderField, [
+    {
+      field: OrgMembershipOrderField.created_at,
+      direction: OrderDirection.DESC,
+    },
+  ])
 
   const whereFilters: OrgMembershipWhereInput = useMemo(() => {
     const filtersWithSearch = {
@@ -316,6 +306,7 @@ export const MembersTable = () => {
         loading={isLoading}
         columns={columns}
         sortFields={MEMBERS_SORT_FIELDS}
+        sorting={orderBy}
         onSortChange={setOrderBy}
         data={sortedMembers}
         pagination={pagination}

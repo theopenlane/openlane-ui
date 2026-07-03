@@ -27,7 +27,6 @@ const TableComponent = ({
   setSelectedItems,
   canEdit,
   permission,
-  defaultSorting,
 }: TTableProps<EntityWhereInput>) => {
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -104,7 +103,7 @@ const TableComponent = ({
       onSortChange={onSortChange}
       data={items}
       loading={fetching || fetchingUsers}
-      defaultSorting={defaultSorting}
+      sorting={orderBy}
       rowHref={(row) => `/registry/vendors/${row.id}`}
       pagination={pagination}
       onPaginationChange={onPaginationChange}
