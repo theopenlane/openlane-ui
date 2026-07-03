@@ -10,7 +10,7 @@ import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { type VisibilityState } from '@tanstack/react-table'
 import { getGroupTableColumns } from '../table/columns'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useNotification } from '@/hooks/useNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
@@ -44,19 +44,9 @@ const GroupsTable = ({ onSortChange, pagination, onPaginationChange, whereFilter
     return Array.from(ids)
   }, [groups])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
-
-  const { columns } = useMemo(() => getGroupTableColumns({ userMap }), [userMap])
+  const { columns } = useMemo(() => getGroupTableColumns({ userMap, tokenMap }), [userMap, tokenMap])
 
   const handleRowClick = (group: Group) => {
     replace({ id: group.id })

@@ -26,6 +26,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { PROGRAMS_LIST_HREF } from '@/constants/programs'
 import { ProgramsPageSkeleton } from '../skeleton/programs-page-skeleton'
+import { useSession } from 'next-auth/react'
 
 const ProgramDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -34,6 +35,7 @@ const ProgramDetailsPage: React.FC = () => {
   const { data: basicInfoData, isLoading } = useGetProgramBasicInfo(id)
   const { data: permission } = useOrganizationRoles()
   const { data: objectPermission } = useAccountRoles(ObjectTypes.PROGRAM, id)
+  const { data: session } = useSession()
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
@@ -44,8 +46,8 @@ const ProgramDetailsPage: React.FC = () => {
   const [statusDialogOpen, setStatusDialogOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
 
-  const canCreateProgram = hasPermission(permission?.roles, AccessEnum.CanCreateProgram)
-  const editAllowed = canEdit(objectPermission?.roles)
+  const canCreateProgram = hasPermission(permission?.roles, AccessEnum.CanCreateProgram, session)
+  const editAllowed = canEdit(objectPermission?.roles, session)
   const deleteAllowed = canDelete(objectPermission?.roles)
   const isArchived = basicInfoData?.program?.status === ProgramProgramStatus.ARCHIVED
   const programName = basicInfoData?.program?.name ?? ''

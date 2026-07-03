@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useSession } from 'next-auth/react'
 
 const DashboardActions = () => {
   const router = useRouter()
   const { data: orgPermission } = useOrganizationRoles()
-  const canCreateRisk = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRisk)
+  const { data: session } = useSession()
+  const canCreateRisk = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRisk, session)
 
   const handleViewControls = () => {
     router.push('/controls')

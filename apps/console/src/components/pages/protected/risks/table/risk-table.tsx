@@ -15,7 +15,7 @@ import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-st
 import { RISKS_SORT_FIELDS } from '@/components/pages/protected/risks/table/table-config.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -25,6 +25,7 @@ import { getInitialVisibility } from '@/components/shared/column-visibility-menu
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 const RiskTable: React.FC = () => {
   const router = useRouter()
@@ -36,6 +37,7 @@ const RiskTable: React.FC = () => {
   const [selectedRisks, setSelectedRisks] = useState<{ id: string }[]>([])
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.RISK, RiskOrderField, [
@@ -103,28 +105,18 @@ const RiskTable: React.FC = () => {
     return Array.from(ids)
   }, [risks])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
-
-  const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap, convertToReadOnly, selectedRisks, setSelectedRisks }), [userMap, convertToReadOnly, selectedRisks])
+  const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap, tokenMap, convertToReadOnly, selectedRisks, setSelectedRisks }), [userMap, tokenMap, convertToReadOnly, selectedRisks])
 
   useEffect(() => {
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles])
+  }, [permission?.roles, session])
 
   useEffect(() => {
     setCrumbs([

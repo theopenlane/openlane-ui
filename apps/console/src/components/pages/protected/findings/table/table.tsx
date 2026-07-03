@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { type FindingWhereInput, type Finding, type FindingOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/findings/table/columns.tsx'
 import { type FindingsNodeNonNull, useFindingsWithFilter } from '@/lib/graphql-hooks/finding'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useNotification } from '@/hooks/useNotification'
@@ -48,7 +48,7 @@ const TableComponent = ({
   const [createTaskRow, setCreateTaskRow] = useState<FindingsNodeNonNull | null>(null)
   const [trackRemediationRow, setTrackRemediationRow] = useState<FindingsNodeNonNull | null>(null)
   const { data: orgPermission } = useOrganizationRoles()
-  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation)
+  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -95,10 +95,10 @@ const TableComponent = ({
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles, setColumnVisibility, canEdit])
+  }, [permission?.roles, setColumnVisibility, canEdit, session])
 
   useEffect(() => {
     if (isError) {
@@ -109,17 +109,7 @@ const TableComponent = ({
     }
   }, [isError, errorNotification])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
   const handleTrackRemediation = (row: FindingsNodeNonNull) => {
     setTrackRemediationRow(row)
@@ -143,6 +133,7 @@ const TableComponent = ({
     () =>
       getColumns({
         userMap,
+        tokenMap,
         convertToReadOnly,
         selectedItems,
         setSelectedItems,
@@ -150,7 +141,7 @@ const TableComponent = ({
         onOpenRemediation: handleOpenRemediation,
         onCreateTask: handleCreateTask,
       }),
-    [userMap, convertToReadOnly, selectedItems, setSelectedItems, handleOpenRemediation, canCreateRemediation],
+    [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, handleOpenRemediation, canCreateRemediation],
   )
 
   const createTaskInitialValues = useMemo(() => {

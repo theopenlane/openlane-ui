@@ -29,7 +29,9 @@ import { type TableKeyValue } from '@repo/ui/table-key'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { type FilterField } from '@/types'
 import { type User } from '@repo/codegen/src/schema'
+import { type AuthorToken } from '@/lib/authors'
 import type { BulkDeletePayload, ViewEditMode, CreateMode } from './types'
+import { type Session } from 'next-auth'
 
 type TOrderByInput = { field: string; direction?: OrderDirection }[] | undefined
 type TOrderFieldEnum<TField> = Record<string, TField> | TField[]
@@ -40,6 +42,7 @@ export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promi
 
 export type ColumnOptions = {
   userMap: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
   selectedItems: { id: string }[]
   setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>
@@ -57,7 +60,7 @@ export interface TTableProps<TWhereInput> {
   onHasChange?: (hasItems: boolean) => void
   selectedItems: { id: string }[]
   setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   permission: TPermissionData | undefined
   defaultSorting: SortCondition<string>[]
   onRowClick?: (item: { id: string }) => void
@@ -104,7 +107,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
     searchTerm: string
     setSearchTerm: (term: string) => void
     searching: boolean
-    canEdit: (roles: TAccessRole[]) => boolean
+    canEdit: (roles: TAccessRole[], session?: Session | null) => boolean
     permission: TPermissionData | undefined
     selectedItems: { id: string }[]
     setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>

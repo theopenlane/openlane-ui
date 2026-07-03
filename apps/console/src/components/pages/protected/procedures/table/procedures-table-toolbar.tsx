@@ -22,6 +22,8 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
+import { type Session } from 'next-auth'
+import { useSession } from 'next-auth/react'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -41,7 +43,7 @@ type TProceduresTableToolbarProps = {
   handleClearSelectedProcedures: () => void
   selectedProcedures: { id: string }[]
   setSelectedProcedures: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   permission: TPermissionData | undefined
 }
 
@@ -67,6 +69,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteProcedures } = useBulkDeleteProcedures()
+  const { data: session } = useSession()
 
   const handleBulkDelete = async () => {
     if (!selectedProcedures) {
@@ -121,7 +124,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {selectedProcedures.length > 0 ? (
             <>
-              {canEdit(permission?.roles) && <BulkEditProceduresDialog selectedProcedures={selectedProcedures} setSelectedProcedures={setSelectedProcedures}></BulkEditProceduresDialog>}
+              {canEdit(permission?.roles, session) && <BulkEditProceduresDialog selectedProcedures={selectedProcedures} setSelectedProcedures={setSelectedProcedures}></BulkEditProceduresDialog>}
               <Button
                 type="button"
                 variant="secondary"
@@ -131,7 +134,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
               >
                 {selectedProcedures && selectedProcedures.length > 0 ? `Bulk Delete (${selectedProcedures.length})` : 'Bulk Delete'}
               </Button>
-              {canEdit(permission?.roles) && (
+              {canEdit(permission?.roles, session) && (
                 <>
                   <ConfirmationDialog
                     open={isBulkDeleteDialogOpen}
@@ -157,7 +160,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                 closeOnSelect={true}
                 content={(close) => (
                   <>
-                    {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                    {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
                       <CreateProcedureUploadDialog
                         trigger={
                           <div className="flex items-center bg-transparent space-x-2 px-1">
@@ -167,7 +170,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                         }
                       />
                     )}
-                    {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                    {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
                       <BulkCSVCreateProcedureDialog
                         trigger={
                           <div className="flex items-center bg-transparent space-x-2 px-1">
@@ -204,7 +207,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.PROCEDURE} />
               )}
               {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} pageKey={TableKeyEnum.PROCEDURE} />}
-              {hasPermission(permission?.roles, AccessEnum.CanCreateProcedure) && (
+              {hasPermission(permission?.roles, AccessEnum.CanCreateProcedure, session) && (
                 <Button variant="primary" onClick={handleCreateNew} className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                   Create
                 </Button>

@@ -1,5 +1,6 @@
 import { type FilterField } from '@/types'
 import { type ControlControlStatus, type ControlListFieldsFragment, ControlOrderField, type Entity, type Group, type User } from '@repo/codegen/src/schema.ts'
+import { type AuthorToken } from '@/lib/authors'
 import { type ColumnDef, type Row } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
@@ -18,6 +19,7 @@ import { LinkedPoliciesCell } from './linked-policies-cell'
 import { LinkedProceduresCell } from './linked-procedures-cell'
 import AssociatedObjectsCell from './associated-objects-cell'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
@@ -149,12 +151,13 @@ export type ControlIncludeVar =
 type Params = {
   convertToReadOnly: (value: string, depth: number) => React.ReactNode
   userMap: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   selectedControls: { id: string; refCode: string }[]
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
   enumOptions: CustomTypeEnumOption[]
 }
 
-export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls, setSelectedControls, enumOptions }: Params): ColumnDef<ControlListFieldsFragment>[] => {
+export const getControlColumns = ({ convertToReadOnly, userMap, tokenMap, selectedControls, setSelectedControls, enumOptions }: Params): ColumnDef<ControlListFieldsFragment>[] => {
   const toggleSelection = (control: { id: string; refCode: string }) => {
     setSelectedControls((prev) => {
       const exists = prev.some((c) => c.id === control.id)
@@ -406,17 +409,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       meta: {
         gqlInclude: ['includeCreatedBy'] satisfies ControlIncludeVar[],
       },
-      cell: ({ row }) => {
-        const user = userMap[row.original.createdBy ?? '']
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       header: 'Created At',
@@ -434,17 +427,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       meta: {
         gqlInclude: ['includeUpdatedBy'] satisfies ControlIncludeVar[],
       },
-      cell: ({ row }) => {
-        const user = userMap[row.original.updatedBy ?? '']
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       header: 'Last Updated',

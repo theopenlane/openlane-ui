@@ -334,7 +334,7 @@ const ControlDetailsPage: React.FC = () => {
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3 flex-wrap">
             <TitleField
-              isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+              isEditAllowed={!isSourceFramework && canEdit(permission?.roles, sessionData)}
               isEditing={isEditing}
               handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
               initialRefCode={initialValues.refCode}
@@ -376,7 +376,7 @@ const ControlDetailsPage: React.FC = () => {
       <DescriptionField
         isEditing={isEditing}
         initialValue={initialValues.descriptionJSON ?? initialValues.description}
-        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+        isEditAllowed={!isSourceFramework && canEdit(permission?.roles, sessionData)}
         discussionData={discussionData?.subcontrol}
         systemCreated={!initialValues.descriptionJSON && !!initialValues.description}
       />
@@ -392,9 +392,9 @@ const ControlDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      <QuickActions kind="subcontrol" controlId={id} subcontrolId={subcontrolId} subcontrol={subcontrol} canEdit={canEdit(permission?.roles)} />
+      <QuickActions kind="subcontrol" controlId={id} subcontrolId={subcontrolId} subcontrol={subcontrol} canEdit={canEdit(permission?.roles, sessionData)} />
 
-      <ControlTabs kind="subcontrol" subcontrol={subcontrol} isEditing={isEditing} data={subcontrol} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
+      <ControlTabs kind="subcontrol" subcontrol={subcontrol} isEditing={isEditing} data={subcontrol} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles, sessionData)} />
     </div>
   )
 
@@ -405,12 +405,12 @@ const ControlDetailsPage: React.FC = () => {
           controlId={subcontrol.control?.id}
           sections={memoizedSections}
           centerNode={memoizedCenterNode}
-          canEdit={canEdit(permission?.roles)}
+          canEdit={canEdit(permission?.roles, sessionData)}
           onRemoveAssociation={handleRemoveAssociation}
         />
       )}
 
-      <PropertiesCard data={subcontrol} isEditing={isEditing} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
+      <PropertiesCard data={subcontrol} isEditing={isEditing} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles, sessionData)} />
     </>
   )
 

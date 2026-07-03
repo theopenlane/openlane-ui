@@ -17,6 +17,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useIntegrationProviders } from '@/lib/query-hooks/integrations'
 import { useQueryClient } from '@tanstack/react-query'
+import { useSession } from 'next-auth/react'
 
 const IntegrationsPage = () => {
   const searchParams = useSearchParams()
@@ -32,7 +33,8 @@ const IntegrationsPage = () => {
   const { setCrumbs } = use(BreadcrumbContext)
 
   const { data: orgPermission, isLoading } = useOrganizationRoles()
-  const canManage = canEdit(orgPermission?.roles)
+  const { data: session } = useSession()
+  const canManage = canEdit(orgPermission?.roles, session)
 
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()

@@ -19,13 +19,11 @@ import { type ColumnDef } from '@tanstack/react-table'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Button } from '@repo/ui/button'
-import { Avatar } from '@/components/shared/avatar/avatar'
-import { KeyRound, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import InheritedBadge from '@/components/shared/inherited-badge/inherited-badge'
 import { formatTimeSince } from '@/utils/date'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
-import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens'
-import type { ApiToken, User } from '@repo/codegen/src/schema'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 
 type PoliciesTableProps = {
   controlId?: string
@@ -126,28 +124,7 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds,
 
   const memberIds = useMemo(() => [...new Set(policies.map((policy) => policy.updatedBy).filter((id): id is string => typeof id === 'string' && id.length > 0))], [policies])
 
-  const userListWhere = useMemo(() => (memberIds.length > 0 ? { hasUserWith: [{ idIn: memberIds }] } : undefined), [memberIds])
-
-  const tokensWhere = useMemo(() => (memberIds.length > 0 ? { idIn: memberIds } : undefined), [memberIds])
-
-  const { users } = useGetOrgUserList({ where: userListWhere })
-  const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, User> = {}
-    users?.forEach((user) => {
-      map[user.id] = user
-    })
-    return map
-  }, [users])
-
-  const tokenMap = useMemo(() => {
-    const map: Record<string, ApiToken> = {}
-    tokens?.forEach((token) => {
-      map[token.id] = token
-    })
-    return map
-  }, [tokens])
+  const { userMap, tokenMap } = useAuthorMaps(memberIds)
 
   const columns = useMemo<ColumnDef<AssociationRow>[]>(
     () => [
@@ -195,22 +172,7 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds,
       {
         accessorKey: 'updatedBy',
         header: () => <span className="whitespace-nowrap">Last Updated By</span>,
-        cell: ({ row }) => {
-          const updatedBy = row.original.updatedBy ?? ''
-          const user = userMap[updatedBy]
-          const token = tokenMap[updatedBy]
-
-          if (!user && !token) {
-            return <span className="text-muted-foreground italic">Deleted user</span>
-          }
-
-          return (
-            <div className="flex items-center gap-2 whitespace-nowrap">
-              {token ? <KeyRound size={16} /> : <Avatar entity={user} className="w-6 h-6" />}
-              <span>{token ? token.name : user?.displayName || '-'}</span>
-            </div>
-          )
-        },
+        cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} className="flex items-center gap-2 whitespace-nowrap" />,
         size: 200,
       },
       {

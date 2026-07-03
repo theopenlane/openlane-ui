@@ -197,7 +197,7 @@ const GroupsPage = () => {
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.GROUP} />
           )}
           {filterFields && filterFields.length > 0 && <TableFilter filterFields={filterFields} onFilterChange={setWhereFilters} pageKey={TableKeyEnum.GROUP} quickFilters={quickFilters} />}
-          {hasPermission(permissions?.roles, AccessEnum.CanCreateGroup) && (
+          {hasPermission(permissions?.roles, AccessEnum.CanCreateGroup, session) && (
             <CreateGroupDialog
               trigger={
                 <Button className="h-8 !px-2" icon={<PlusCircle />} iconPosition="left">

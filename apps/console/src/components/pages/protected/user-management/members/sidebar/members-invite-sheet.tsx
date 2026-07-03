@@ -40,6 +40,7 @@ import { RoleInfoSlideOut } from '@/components/shared/role-info-slide-out/role-i
 import { SuperAdminRoleWarning } from '@/components/shared/organization-roles/super-admin-role-warning'
 import useMembersInviteFormSchema, { type MembersInviteFormData } from './use-members-invite-form-schema'
 import { MultiEmailInput } from './multi-email-input'
+import { useSession } from 'next-auth/react'
 
 type TMembersInviteSheet = {
   isMemberSheetOpen: boolean
@@ -55,13 +56,14 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [selectedGroups, setSelectedGroups] = useState<AllGroupsPaginatedFieldsFragment[]>([])
   const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const columnVisibility = useMemo<VisibilityState>(() => {
     if (isLoadingPermission) return { check: true }
-    return { check: canEdit(permission?.roles) }
-  }, [isLoadingPermission, permission])
+    return { check: canEdit(permission?.roles, session) }
+  }, [isLoadingPermission, permission, session])
 
-  const canInviteAdmins = hasPermission(permission?.roles, AccessEnum.CanInviteAdmins)
-  const canInviteMembers = hasPermission(permission?.roles, AccessEnum.CanInviteMembers)
+  const canInviteAdmins = hasPermission(permission?.roles, AccessEnum.CanInviteAdmins, session)
+  const canInviteMembers = hasPermission(permission?.roles, AccessEnum.CanInviteMembers, session)
 
   const [orderBy, setOrderBy] = useState<GetAllGroupsPaginatedQueryVariables['orderBy']>([
     {

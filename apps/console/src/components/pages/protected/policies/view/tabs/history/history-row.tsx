@@ -4,23 +4,21 @@ import React from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { formatTimeSince } from '@/utils/date'
-import { type ApiToken, type User } from '@repo/codegen/src/schema'
-import AuthorBadge from '@/components/shared/user-display/author-badge'
+import { AuthorDisplay } from '@/components/shared/user-display/author-cell'
+import { type ResolvedAuthor } from '@/lib/authors'
 import { getRevisionKind } from './utils'
 
 type HistoryRowProps = {
   id: string
   revision: string | null | undefined
   occurredAt: string | null | undefined
-  user?: User
-  token?: ApiToken
-  label?: string
+  author: ResolvedAuthor
   isCurrent?: boolean
   onView?: (id: string) => void
   onRestore?: (id: string) => void
 }
 
-const HistoryRow: React.FC<HistoryRowProps> = ({ id, revision, occurredAt, user, token, label, isCurrent, onView, onRestore }) => {
+const HistoryRow: React.FC<HistoryRowProps> = ({ id, revision, occurredAt, author, isCurrent, onView, onRestore }) => {
   const kind = getRevisionKind(revision)
 
   return (
@@ -34,7 +32,7 @@ const HistoryRow: React.FC<HistoryRowProps> = ({ id, revision, occurredAt, user,
           <span className="text-xs text-muted-foreground flex items-center gap-2">
             {occurredAt ? formatTimeSince(occurredAt) : null}
             {occurredAt ? <span aria-hidden="true">·</span> : null}
-            <AuthorBadge user={user} token={token} fallback={label} />
+            <AuthorDisplay author={author} className="flex items-center gap-1" />
           </span>
         </div>
       </div>

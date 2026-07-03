@@ -24,6 +24,7 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { OBJECT_TYPE_PERMISSIONS_CONFIG, ObjectTypes, TypesWithPermissions, type PermissionsAllQueriesData } from '@repo/codegen/src/type-names'
 import { toHumanLabel } from '@/utils/strings'
+import { useSession } from 'next-auth/react'
 
 const options = Object.values(TypesWithPermissions)
 
@@ -35,6 +36,7 @@ const defaultPagination = {
 
 const AssignPermissionsDialog = () => {
   const { selectedGroup } = useGroupsStore()
+  const { data: session } = useSession()
   const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup)
   const { queryClient, client } = useGraphQLClient()
   const [isOpen, setIsOpen] = useState(false)
@@ -249,7 +251,7 @@ const AssignPermissionsDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="secondary" icon={<Plus />} iconPosition="left" disabled={!canEdit(permission?.roles)}>
+        <Button variant="secondary" icon={<Plus />} iconPosition="left" disabled={!canEdit(permission?.roles, session)}>
           Assign permissions to group
         </Button>
       </DialogTrigger>

@@ -8,12 +8,14 @@ import CreateRemediationSheet from '@/components/pages/protected/remediations/cr
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useSession } from 'next-auth/react'
 
 const ExposureQuickActions = () => {
   const router = useRouter()
   const [createRemediationOpen, setCreateRemediationOpen] = useState(false)
   const { data: orgPermission } = useOrganizationRoles()
-  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation)
+  const { data: session } = useSession()
+  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
 
   const actions = [
     {

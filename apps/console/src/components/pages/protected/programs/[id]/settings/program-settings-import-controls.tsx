@@ -6,12 +6,14 @@ import { canEdit } from '@/lib/authz/utils'
 import { useParams } from 'next/navigation'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 export const ProgramSettingsImportControls = () => {
   const { id } = useParams<{ id: string | undefined }>()
 
   const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
-  const editAllowed = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const editAllowed = canEdit(permission?.roles, session)
 
   if (!editAllowed) {
     return null

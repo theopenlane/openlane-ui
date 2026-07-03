@@ -1,9 +1,9 @@
 'use client'
 
-import { OrderDirection, type OrgMembership, OrgMembershipOrderField, type OrgMembershipRole, type OrgMembershipWhereInput, type User, UserAuthProvider } from '@repo/codegen/src/schema'
+import { OrderDirection, type OrgMembership, OrgMembershipOrderField, OrgMembershipRole, type OrgMembershipWhereInput, type User, UserAuthProvider } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Copy, Info, KeyRoundIcon } from 'lucide-react'
+import { Copy, Info, KeyRoundIcon, Shield, ShieldOff } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
@@ -17,6 +17,8 @@ import { MemberActions } from './actions/member-actions'
 import { MembersBulkActions } from './actions/members-bulk-actions'
 import { AdditionalRolesCell } from '@/components/shared/organization-roles/additional-roles-cell'
 import { useNotification } from '@/hooks/useNotification'
+import { useOrganization } from '@/hooks/useOrganization'
+import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -31,6 +33,16 @@ import { whereGenerator } from '@/components/shared/table-filter/where-generator
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { toHumanLabel } from '@/utils/strings'
 
+const SSO_EXEMPT_ROLES = [OrgMembershipRole.OWNER, OrgMembershipRole.AUDITOR]
+
+const getSsoExemptReason = (member: OrgMembership, exemptDomains: string[]): string | null => {
+  if (SSO_EXEMPT_ROLES.includes(member.role)) return 'Exempt due to Owner role'
+  const emailDomain = member.user?.email?.split('@')[1]?.toLowerCase()
+  if (emailDomain && exemptDomains.some((d) => d.toLowerCase() === emailDomain)) return `Exempt via domain (${emailDomain})`
+  if (member.ssoExempt) return member.ssoExemptReason || 'Manually marked as SSO exempt'
+  return null
+}
+
 export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
   providersIn?: UserAuthProvider[]
 }
@@ -38,6 +50,11 @@ export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
 export const MembersTable = () => {
   const { nameRow, copyIcon } = pageStyles()
   const { data: sessionData } = useSession()
+  const { currentOrgId } = useOrganization()
+  const { data: orgSettingData } = useGetOrganizationSetting(currentOrgId || '')
+  const orgSetting = orgSettingData?.organization?.setting
+  const ssoEnforced = !!(orgSetting?.identityProvider && orgSetting.identityProvider !== 'NONE' && orgSetting.identityProviderLoginEnforced)
+  const exemptDomains = orgSetting?.ssoExemptDomains ?? []
   const [filters, setFilters] = useState<ExtendedOrgMembershipWhereInput | null>(null)
   const [selectedIds, setSelectedIds] = useState<{ id: string }[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -84,7 +101,7 @@ export const MembersTable = () => {
   const { members, isError, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
 
   const { data: orgRoles } = useOrganizationRoles()
-  const canEditMembers = canEdit(orgRoles?.roles)
+  const canEditMembers = canEdit(orgRoles?.roles, sessionData)
   const currentUserId = sessionData?.user?.userId
 
   const isMemberSelectable = useCallback((member: OrgMembership) => !!currentUserId && member.user?.id !== currentUserId, [currentUserId])
@@ -131,6 +148,37 @@ export const MembersTable = () => {
       default:
         return <KeyRoundIcon width={18} />
     }
+  }
+
+  const ssoColumn: ColumnDef<OrgMembership> = {
+    id: 'sso',
+    header: 'SSO',
+    cell: ({ row }) => {
+      const reason = getSsoExemptReason(row.original, exemptDomains)
+      if (!reason) {
+        return (
+          <Badge variant="primary" className="gap-1 text-xs">
+            <Shield className="h-3 w-3" />
+            Enforced
+          </Badge>
+        )
+      }
+      return (
+        <SystemTooltip
+          icon={
+            <span className="cursor-default">
+              <Badge variant="select" className="gap-1 text-xs pointer-events-none">
+                <ShieldOff className="h-3 w-3" />
+                Exempt
+              </Badge>
+            </span>
+          }
+          content={reason}
+        />
+      )
+    },
+    size: 120,
+    maxSize: 120,
   }
 
   const columns: ColumnDef<OrgMembership>[] = [
@@ -216,6 +264,7 @@ export const MembersTable = () => {
       size: 150,
       maxSize: 180,
     },
+    ...(ssoEnforced ? [ssoColumn] : []),
     {
       id: 'actions',
       header: '',
@@ -227,6 +276,7 @@ export const MembersTable = () => {
             memberUserId={cell.row.original.user?.id}
             memberRole={cell.row.original.role}
             additionalRoles={cell.row.original.additionalRoles}
+            memberSSOExempt={cell.row.original.ssoExempt ?? false}
           />
         )
       },

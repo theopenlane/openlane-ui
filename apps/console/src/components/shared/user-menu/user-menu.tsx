@@ -74,12 +74,16 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
 
         <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1" />
 
-        <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => handleSettingsRedirect()}>
-          <UserCog size={16} className="text-muted-foreground" />
-          <span>User Settings</span>
-        </Button>
+        {!sessionData?.user?.isImpersonation && (
+          <>
+            <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => handleSettingsRedirect()}>
+              <UserCog size={16} className="text-muted-foreground" />
+              <span>User Settings</span>
+            </Button>
 
-        <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1" />
+            <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1" />
+          </>
+        )}
 
         <div className="flex items-center justify-between pl-2 mt-3">
           <div className="flex items-center gap-2">

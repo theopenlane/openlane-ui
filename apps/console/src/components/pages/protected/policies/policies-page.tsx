@@ -20,6 +20,7 @@ import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-swi
 import { useInternalPoliciesCount } from '@/lib/graphql-hooks/internal-policy'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useOrganization } from '@/hooks/useOrganization'
+import { useSession } from 'next-auth/react'
 
 type TPoliciesPageProps = {
   active: 'dashboard' | 'table'
@@ -29,6 +30,7 @@ type TPoliciesPageProps = {
 const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
   const { currentOrgId } = useOrganization()
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const { groupOptions } = useGroupSelect()
   const { setCrumbs } = use(BreadcrumbContext)
   const { isLoading: fetching, totalCount } = useInternalPoliciesCount({
@@ -120,7 +122,7 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
               </DropdownMenu>
             )}
 
-            {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy) && totalCount > 0 && (
+            {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && totalCount > 0 && (
               <Link href="/policies/create">
                 <Button className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
                   Create

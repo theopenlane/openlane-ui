@@ -4,16 +4,7 @@ import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import React, { use, useEffect, useMemo, useState } from 'react'
-import {
-  ExportExportFormat,
-  ExportExportType,
-  type Maybe,
-  OrderDirection,
-  type OrgMembershipWhereInput,
-  ProcedureDocumentStatus,
-  ProcedureOrderField,
-  type ProcedureWhereInput,
-} from '@repo/codegen/src/schema'
+import { ExportExportFormat, ExportExportType, type Maybe, OrderDirection, ProcedureDocumentStatus, ProcedureOrderField, type ProcedureWhereInput } from '@repo/codegen/src/schema'
 import { getProceduresColumns } from '@/components/pages/protected/procedures/table/columns.tsx'
 import ProceduresTableToolbar from '@/components/pages/protected/procedures/table/procedures-table-toolbar.tsx'
 import { PROCEDURES_SORTABLE_FIELDS } from '@/components/pages/protected/procedures/table/table-config.ts'
@@ -21,8 +12,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useProcedures } from '@/lib/graphql-hooks/procedure'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
-import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
@@ -35,9 +25,11 @@ import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
+import { useSession } from 'next-auth/react'
 
 export const ProceduresTable = () => {
   const router = useRouter()
+  const { data: session } = useSession()
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<ProcedureWhereInput | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[] | null>(null)
@@ -92,33 +84,8 @@ export const ProceduresTable = () => {
     return merged
   }, [filters, debouncedSearch])
 
-  const userListWhere: OrgMembershipWhereInput = useMemo(() => {
-    if (!memberIds) {
-      return {}
-    }
-
-    const conditions = {
-      hasUserWith: [{ idIn: memberIds }],
-    }
-
-    return conditions
-  }, [memberIds])
-
-  const tokensWhere = useMemo(() => {
-    if (!memberIds) {
-      return {}
-    }
-
-    const conditions = {
-      idIn: memberIds,
-    }
-
-    return conditions
-  }, [memberIds])
-
   const { procedures, isError, isLoading: fetching, paginationMeta } = useProcedures({ where, orderBy, pagination, enabled: !!filters })
-  const { users } = useGetOrgUserList({ where: userListWhere })
-  const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
+  const { userMap, tokenMap } = useAuthorMaps(memberIds ?? [])
   const [selectedProcedures, setSelectedProcedures] = useState<{ id: string }[]>([])
   const defaultVisibility: VisibilityState = {
     id: false,
@@ -146,7 +113,7 @@ export const ProceduresTable = () => {
     },
   })
 
-  const { columns, mappedColumns } = getProceduresColumns({ users, tokens, selectedProcedures, setSelectedProcedures, enumOptions })
+  const { columns, mappedColumns } = getProceduresColumns({ userMap, tokenMap, selectedProcedures, setSelectedProcedures, enumOptions })
 
   const handleCreateNew = async () => {
     router.push(`/procedures/create`)
@@ -173,14 +140,14 @@ export const ProceduresTable = () => {
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles])
+  }, [permission?.roles, session])
 
   useEffect(() => {
     if (procedures.length > 0 && !memberIds) {
-      const userIds = [...new Set(procedures.map((item) => item.updatedBy))]
+      const userIds = [...new Set(procedures.flatMap((item) => [item.createdBy, item.updatedBy]))]
       setMemberIds(userIds)
     }
   }, [procedures, memberIds, filters])

@@ -17,6 +17,7 @@ import { pluralizeTypeName, toHumanLabel } from '@/utils/strings'
 import type { TabConfig } from './types'
 import type { RenderFieldsProps, RenderHeaderProps, GenericDetailsSheetConfig } from './generic-sheet'
 import { getBulkActionFailureDescription } from './bulk-action-feedback'
+import { useSession } from 'next-auth/react'
 
 export interface TabbedDetailViewConfig<TFormData extends FieldValues, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData> extends Omit<
   GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>,
@@ -61,7 +62,8 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
   const isCreate = searchParams.get('create') === 'true'
 
   const { data: permission } = useAccountRoles(objectType, id)
-  const isEditAllowed = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const isEditAllowed = canEdit(permission?.roles, session)
 
   const objectTypeName = displayName ?? toHumanLabel(objectType)
   const queryKey = [pluralizeTypeName(objectType.toLowerCase())]

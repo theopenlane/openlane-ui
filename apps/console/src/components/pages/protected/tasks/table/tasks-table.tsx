@@ -7,7 +7,7 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { TASK_SORT_FIELDS } from '@/components/pages/protected/tasks/table/table-config.ts'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/task'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { type VisibilityState } from '@tanstack/react-table'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -15,6 +15,8 @@ import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { useNotification } from '@/hooks/useNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useSession } from 'next-auth/react'
+import { type Session } from 'next-auth'
 
 type TTasksTableProps = {
   onSortChange?: (next: SortCondition<TaskOrderField>[]) => void
@@ -27,7 +29,7 @@ type TTasksTableProps = {
   onHasTasksChange?: (hasTasks: boolean) => void
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   permission: TPermissionData | undefined
   defaultSorting: { field: string; direction?: OrderDirection }[] | undefined
 }
@@ -64,6 +66,7 @@ const TasksTable = ({
 
   const { convertToReadOnly } = usePlateEditor()
   const { errorNotification } = useNotification()
+  const { data: session } = useSession()
 
   const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
     where: {
@@ -96,10 +99,10 @@ const TasksTable = ({
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles, setColumnVisibility, canEdit])
+  }, [permission?.roles, setColumnVisibility, canEdit, session])
 
   useEffect(() => {
     if (isError) {
@@ -110,25 +113,15 @@ const TasksTable = ({
     }
   }, [isError, errorNotification])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
   useImperativeHandle(ref, () => ({
     exportData: () => tasks,
   }))
 
   const columns = useMemo(
-    () => getTaskColumns({ userMap, convertToReadOnly, selectedTasks, setSelectedTasks, taskKindOptions }),
-    [userMap, convertToReadOnly, selectedTasks, setSelectedTasks, taskKindOptions],
+    () => getTaskColumns({ userMap, tokenMap, convertToReadOnly, selectedTasks, setSelectedTasks, taskKindOptions }),
+    [userMap, tokenMap, convertToReadOnly, selectedTasks, setSelectedTasks, taskKindOptions],
   )
 
   return (

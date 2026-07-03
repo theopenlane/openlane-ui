@@ -1,11 +1,12 @@
 'use client'
 
-import { MoreHorizontal, ShieldPlus, Trash2, UserRoundPen, UsersRound } from 'lucide-react'
+import { MoreHorizontal, ShieldCheck, ShieldOff, ShieldPlus, Trash2, UserRoundPen, UsersRound } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
+import { Input } from '@repo/ui/input'
 import React, { useState } from 'react'
 import { Form, FormControl, FormField, FormItem } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -38,14 +39,17 @@ type MemberActionsProps = {
   memberRole: OrgMembershipRole
   memberName: string
   additionalRoles?: string[] | null
+  memberSSOExempt?: boolean
 }
 
 const ICON_SIZE = 12
 
-export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, additionalRoles }: MemberActionsProps) => {
+export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, additionalRoles, memberSSOExempt = false }: MemberActionsProps) => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [showChangeRole, setShowChangeRole] = useState(false)
   const [showManageRoles, setShowManageRoles] = useState(false)
+  const [showSSOExempt, setShowSSOExempt] = useState(false)
+  const [exemptReason, setExemptReason] = useState('')
   const hasFullAccess = memberRole === OrgMembershipRole.OWNER || memberRole === OrgMembershipRole.SUPER_ADMIN
   const { changeRoleGrid } = pageStyles()
   const { mutateAsync: deleteMember } = useRemoveUserFromOrg()
@@ -92,6 +96,31 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
     }
   }
 
+  const handleToggleSSOExempt = async () => {
+    const granting = !memberSSOExempt
+    try {
+      await updateMember({
+        updateOrgMemberId: memberId,
+        input: granting ? { ssoExempt: true, ssoExemptReason: exemptReason.trim() || undefined } : { ssoExempt: false, clearSSOExemptReason: true },
+      })
+      successNotification({
+        title: 'SSO Exemption Updated',
+        description: granting ? 'Member marked as SSO exempt' : 'SSO exemption removed',
+        variant: 'success',
+      })
+
+      invalidateMembershipQueries(queryClient)
+
+      setShowSSOExempt(false)
+      setExemptReason('')
+    } catch (error) {
+      errorNotification({
+        title: 'Error',
+        description: parseErrorMessage(error),
+      })
+    }
+  }
+
   const formSchema = z.object({
     role: z
       .nativeEnum(OrgMembershipRole, {
@@ -117,7 +146,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
     return null
   }
 
-  if (!canEdit(data?.roles)) {
+  if (!canEdit(data?.roles, sessionData)) {
     //MEMBERS CANT EDIT ANYONE
     return null
   }
@@ -182,6 +211,13 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
                 >
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <ShieldPlus width={ICON_SIZE} /> &nbsp; Manage Additional Roles
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuGroup>
+                <DropdownMenuItem onSelect={() => (memberSSOExempt ? handleToggleSSOExempt() : setShowSSOExempt(true))}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    {memberSSOExempt ? <ShieldCheck width={ICON_SIZE} /> : <ShieldOff width={ICON_SIZE} />} &nbsp; {memberSSOExempt ? 'Remove SSO Exemption' : 'Mark as SSO Exempt'}
                   </div>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
@@ -251,6 +287,30 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
         subjectName={memberName}
         currentRoleNames={additionalRoles ?? []}
       />
+      <AlertDialog open={showSSOExempt} onOpenChange={setShowSSOExempt}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Mark as SSO Exempt</AlertDialogTitle>
+            <AlertDialogDescription>
+              <b>{memberName} </b> will be allowed to sign in without the organization&apos;s SSO directory, even when SSO is enforced. Multi-factor authentication still applies.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm text-muted-foreground">Reason (optional)</span>
+            <Input value={exemptReason} onChange={(e) => setExemptReason(e.target.value)} placeholder="External auditor" />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <CancelButton />
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button variant="primary" onClick={handleToggleSSOExempt}>
+                Mark exempt
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }

@@ -20,6 +20,7 @@ import { type VisibilityState } from '@tanstack/react-table'
 import ControlDetailsSheet from './control-details-sheet'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useSession } from 'next-auth/react'
 
 const generateWhere = (id: string, searchValue: string) => ({
   and: [
@@ -51,6 +52,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
 }) => {
   const params = useParams()
   const id = typeof params?.id === 'string' ? params.id : ''
+  const { data: session } = useSession()
 
   const hasInitializedRef = useRef(false)
   const [paginations, setPaginations] = useState<Record<string, TPagination>>({})
@@ -92,14 +94,14 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
 
   useEffect(() => {
     if (!isLoadingPermission) {
-      const canCreateControlPermission = hasPermission(permission?.roles, AccessEnum.CanCreateControl)
+      const canCreateControlPermission = hasPermission(permission?.roles, AccessEnum.CanCreateControl, session)
 
       setColumnVisibility((prev) => ({
         ...prev,
         select: canCreateControlPermission,
       }))
     }
-  }, [isLoadingPermission, permission])
+  }, [isLoadingPermission, permission, session])
 
   const columnsByCategory = useMemo(() => {
     return Object.fromEntries(

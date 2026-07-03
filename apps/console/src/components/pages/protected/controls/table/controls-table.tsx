@@ -14,8 +14,9 @@ import { CONTROLS_SORT_FIELDS, getControlColumns } from './table-config'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { canEdit } from '@/lib/authz/utils.ts'
+import { useSession } from 'next-auth/react'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
@@ -41,6 +42,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const [filters, setFilters] = useState<ControlWhereInput>({})
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.CONTROL, ControlOrderField, [
@@ -136,10 +138,10 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles])
+  }, [permission?.roles, session])
 
   useEffect(() => {
     setCrumbs([
@@ -181,19 +183,12 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     return Array.from(ids)
   }, [controls])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap, isLoading: isLoadingAuthors } = useAuthorMaps(userIds)
 
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
-
-  const columns = useMemo(() => getControlColumns({ convertToReadOnly, userMap, selectedControls, setSelectedControls, enumOptions }), [convertToReadOnly, userMap, selectedControls, enumOptions])
+  const columns = useMemo(
+    () => getControlColumns({ convertToReadOnly, userMap, tokenMap, selectedControls, setSelectedControls, enumOptions }),
+    [convertToReadOnly, userMap, tokenMap, selectedControls, enumOptions],
+  )
 
   const mappedColumns: { accessorKey: string; header: string }[] = columns
     .filter((column): column is { accessorKey: string; header: string } => typeof column.header === 'string')
@@ -261,7 +256,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
         onSortChange={setOrderBy}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
-        loading={fetchingUsers || isLoading || isFetching}
+        loading={isLoadingAuthors || isLoading || isFetching}
         tableKey={TableKeyEnum.CONTROL}
       />
     </div>

@@ -5,9 +5,9 @@ import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/internal-polic
 import { wherePoliciesDashboard } from './dashboard-config'
 import { formatDate } from '@/utils/date'
 import { cn } from '@repo/ui/lib/utils'
-import { Avatar } from '@/components/shared/avatar/avatar'
-import { type User } from '@repo/codegen/src/schema'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { AuthorDisplay } from '@/components/shared/user-display/author-cell'
+import { resolveAuthor } from '@/lib/authors'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { ViewPolicySheet } from '@/components/pages/protected/policies/view-policy-sheet'
 
 const RecentActivity = () => {
@@ -30,9 +30,7 @@ const RecentActivity = () => {
     return Array.from(ids)
   }, [recentPolicies])
 
-  const { users } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap } = useAuthorMaps(userIds)
 
   if (!recentPolicies?.length) {
     return <p className="text-sm text-muted-foreground">No recent activity</p>
@@ -46,8 +44,7 @@ const RecentActivity = () => {
         {recentPolicies.map((policy) => {
           const isCreated = policy.createdAt === policy.updatedAt
           const userId = isCreated ? policy.createdBy : policy.updatedBy
-          const user = users.find((u) => u?.id === userId)
-          const userName = user?.displayName || 'Unknown user'
+          const author = resolveAuthor(userId, { userMap, tokenMap })
           const action = isCreated ? 'created' : 'updated'
           const timestamp = isCreated ? policy.createdAt : policy.updatedAt
           const formattedDate = formatDate(timestamp)
@@ -55,10 +52,9 @@ const RecentActivity = () => {
             <li key={policy.id} className={cn('flex justify-between items-center border-b pb-2 last:border-b-0 cursor-pointer')} onClick={() => setSelectedPolicyId(policy.id)}>
               <div className="flex-1 flex justify-between items-center">
                 <div className="flex items-center gap-3">
-                  <span className="text-sm flex items-center">
-                    <strong>{policy.name}</strong> &nbsp;was {action} by&nbsp;
-                    <Avatar entity={user as User}></Avatar>
-                    &nbsp;{userName}
+                  <span className="text-sm flex items-center gap-1">
+                    <strong>{policy.name}</strong> was {action} by
+                    <AuthorDisplay author={author} className="flex items-center gap-1" />
                   </span>
                 </div>
                 <span className="text-sm text-text-informational">{formattedDate}</span>

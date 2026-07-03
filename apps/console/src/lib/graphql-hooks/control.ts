@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient, useInfiniteQuery, type InfiniteData } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery, type InfiniteData, type QueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   CREATE_CONTROL,
@@ -164,6 +164,13 @@ export const useGetControlAssociationsById = (controlId?: string | null) => {
   })
 }
 
+const invalidateControlQueries = (queryClient: QueryClient) => {
+  queryClient.invalidateQueries({ queryKey: ['controls'] })
+  queryClient.invalidateQueries({ queryKey: ['controlReports'] })
+  queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
+  queryClient.invalidateQueries({ queryKey: ['standards'] })
+}
+
 export const useUpdateControl = () => {
   const { client, queryClient } = useGraphQLClient()
 
@@ -171,8 +178,7 @@ export const useUpdateControl = () => {
     mutationFn: async (variables) => client.request(UPDATE_CONTROL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['controlsDiscussion'] })
-      queryClient.invalidateQueries({ queryKey: ['controls'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
+      invalidateControlQueries(queryClient)
     },
   })
 }
@@ -183,8 +189,7 @@ export const useBulkEditControl = () => {
   return useMutation<UpdateBulkControlMutation, unknown, UpdateBulkControlMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_EDIT_CONTROL, variables),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['controls'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
+      invalidateControlQueries(queryClient)
     },
   })
 }
@@ -216,7 +221,7 @@ export const useCreateBulkCSVControl = () => {
   return useMutation<CreateBulkCsvControlMutation, unknown, CreateBulkCsvControlMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_CONTROL, variables }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['controls'] })
+      invalidateControlQueries(queryClient)
     },
   })
 }
@@ -227,7 +232,7 @@ export const useUpdateBulkCSVControl = () => {
   return useMutation<UpdateBulkCsvControlMutation, unknown, UpdateBulkCsvControlMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: UPDATE_CSV_BULK_CONTROL, variables }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['controls'] })
+      invalidateControlQueries(queryClient)
     },
   })
 }
@@ -238,8 +243,7 @@ export const useCreateBulkCSVMappedControl = () => {
   return useMutation<CreateBulkCsvMappedControlMutation, unknown, CreateBulkCsvMappedControlMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_MAPPED_CONTROL, variables }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['controls'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
+      invalidateControlQueries(queryClient)
     },
   })
 }
@@ -250,7 +254,7 @@ export const useCloneBulkCSVControl = () => {
   return useMutation<CloneBulkCsvControlMutation, unknown, CloneBulkCsvControlMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CLONE_CSV_BULK_CONTROL, variables }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['controls'] })
+      invalidateControlQueries(queryClient)
     },
   })
 }
@@ -262,8 +266,7 @@ export const useDeleteControl = () => {
   return useMutation<DeleteControlMutation, unknown, DeleteControlMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_CONTROL, variables),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['controls'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
+      invalidateControlQueries(queryClient)
     },
   })
 }
@@ -275,8 +278,7 @@ export const useCreateControl = () => {
   return useMutation<CreateControlMutation, unknown, CreateControlMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_CONTROL, variables),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['controls'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
+      invalidateControlQueries(queryClient)
     },
   })
 }
@@ -590,8 +592,7 @@ export const useBulkDeleteControls = () => {
   return useMutation<DeleteBulkControlMutation, unknown, DeleteBulkControlMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_DELETE_CONTROL, variables),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['controls'] })
-      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
+      invalidateControlQueries(queryClient)
     },
   })
 }

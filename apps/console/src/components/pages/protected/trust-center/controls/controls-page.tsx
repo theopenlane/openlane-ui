@@ -26,6 +26,7 @@ import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useGetStandards, useCloneControls } from '@/lib/graphql-hooks/standard'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { ControlCategoryIcon } from '@/components/shared/control-category-icon-mapper/control-category-icon-mapper'
+import { useSession } from 'next-auth/react'
 
 type FilterTab = 'all' | 'added' | 'not-added' | 'recommended'
 type DraftAction = 'add' | 'remove'
@@ -44,7 +45,8 @@ export default function ControlsPage() {
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
-  const canEditTc = canEdit(tcPermission?.roles)
+  const { data: session } = useSession()
+  const canEditTc = canEdit(tcPermission?.roles, session)
 
   useEffect(() => {
     if (tabDefaulted) return

@@ -8,10 +8,9 @@ import { INTERNAL_POLICIES_SORT_FIELDS } from '@/components/pages/protected/poli
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { getPoliciesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
 import { isUlid } from '@/lib/validators'
-import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
@@ -26,12 +25,14 @@ import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-st
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
+import { useSession } from 'next-auth/react'
 
 export const PoliciesTable = () => {
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<InternalPolicyWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.INTERNAL_POLICY)
   const { setCrumbs } = use(BreadcrumbContext)
+  const { data: session } = useSession()
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.INTERNAL_POLICY, InternalPolicyOrderField, [
@@ -97,35 +98,10 @@ export const PoliciesTable = () => {
       return []
     }
 
-    return [...new Set(policies.map((item) => item.updatedBy).filter((id): id is string => !!id && isUlid(id)))]
+    return [...new Set(policies.flatMap((item) => [item.createdBy, item.updatedBy]).filter((id): id is string => !!id && isUlid(id)))]
   }, [policies])
 
-  const userListWhere = useMemo(() => {
-    if (!memberIds) {
-      return {}
-    }
-
-    const conditions = {
-      hasUserWith: [{ idIn: memberIds }],
-    }
-
-    return conditions
-  }, [memberIds])
-
-  const tokensWhere = useMemo(() => {
-    if (!memberIds) {
-      return {}
-    }
-
-    const conditions = {
-      idIn: memberIds,
-    }
-
-    return conditions
-  }, [memberIds])
-
-  const { users } = useGetOrgUserList({ where: userListWhere })
-  const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
+  const { userMap, tokenMap } = useAuthorMaps(memberIds)
   const [selectedPolicies, setSelectedPolicies] = useState<{ id: string }[]>([])
   const { errorNotification } = useNotification()
   const defaultVisibility: VisibilityState = {
@@ -147,7 +123,7 @@ export const PoliciesTable = () => {
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.INTERNAL_POLICY, defaultVisibility))
 
-  const { columns, mappedColumns } = useMemo(() => getPoliciesColumns({ users, tokens, selectedPolicies, setSelectedPolicies, enumOptions }), [users, tokens, selectedPolicies, enumOptions])
+  const { columns, mappedColumns } = useMemo(() => getPoliciesColumns({ userMap, tokenMap, selectedPolicies, setSelectedPolicies, enumOptions }), [userMap, tokenMap, selectedPolicies, enumOptions])
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
@@ -179,10 +155,10 @@ export const PoliciesTable = () => {
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles])
+  }, [permission?.roles, session])
 
   useEffect(() => {
     setCrumbs([

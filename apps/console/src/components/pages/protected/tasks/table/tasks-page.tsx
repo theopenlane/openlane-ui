@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import TaskTableToolbar from '@/components/pages/protected/tasks/table/task-table-toolbar'
 import { type TOrgMembers, useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { ExportExportFormat, ExportExportType, OrderDirection, type Task, TaskOrderField, TaskTaskStatus, type TaskWhereInput } from '@repo/codegen/src/schema'
+import { ExportExportFormat, ExportExportType, OrderDirection, type Task, TaskOrderField, type TaskWhereInput } from '@repo/codegen/src/schema'
 import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
@@ -17,7 +17,7 @@ import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { Loading } from '@/components/shared/loading/loading'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { whereGenerator, whereContainsKey } from '@/components/shared/table-filter/where-generator'
+import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -44,8 +44,6 @@ const TasksPage: React.FC = () => {
       direction: OrderDirection.ASC,
     },
   ])
-  const allStatuses = useMemo(() => Object.values(TaskTaskStatus), [])
-  const statusesWithoutCompleteAndWontDo = useMemo(() => allStatuses.filter((status) => status !== TaskTaskStatus.COMPLETED && status !== TaskTaskStatus.WONT_DO), [allStatuses])
   const { data: permission } = useOrganizationRoles()
   const defaultVisibility: VisibilityState = {
     id: false,
@@ -82,19 +80,14 @@ const TasksPage: React.FC = () => {
       return { [key]: value } as TaskWhereInput
     })
 
-    const statusInSet = whereContainsKey(result, 'statusIn')
-
-    const merged: TaskWhereInput = {
-      ...result,
-      ...(!statusInSet && { statusIn: statusesWithoutCompleteAndWontDo }),
-    }
+    const merged: TaskWhereInput = { ...result }
 
     if (debouncedSearch) {
       merged.and = [...(merged.and || []), { or: [{ titleContainsFold: debouncedSearch }, { detailsContainsFold: debouncedSearch }] }]
     }
 
     return merged
-  }, [filters, debouncedSearch, statusesWithoutCompleteAndWontDo])
+  }, [filters, debouncedSearch])
 
   useEffect(() => {
     setCrumbs([

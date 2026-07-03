@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
 import type { TAccessRole } from '@/types/authz'
+import { useSession } from 'next-auth/react'
 
 interface ControlHeaderActionsProps {
   controlId: string
@@ -24,9 +25,10 @@ interface ControlHeaderActionsProps {
 }
 
 const ControlHeaderActions: React.FC<ControlHeaderActionsProps> = ({ controlId, isEditing, onEdit, onCancel, onDeleteClick, onAskAI, permissionRoles, orgPermissionRoles, showClone = true }) => {
-  const canEditControl = canEdit(permissionRoles)
+  const { data: session } = useSession()
+  const canEditControl = canEdit(permissionRoles, session)
   const canDeleteControl = canDelete(permissionRoles)
-  const canCloneControl = showClone && hasPermission(orgPermissionRoles, AccessEnum.CanCreateControl)
+  const canCloneControl = showClone && hasPermission(orgPermissionRoles, AccessEnum.CanCreateControl, session)
 
   if (isEditing) {
     return (

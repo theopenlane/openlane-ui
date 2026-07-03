@@ -30,6 +30,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import PersonalApiKeyDialog, { type EditTokenData } from '@/components/pages/protected/developers/personal-access-token-crud-slideout'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
+import { useSession } from 'next-auth/react'
 
 type TokenNode = {
   id: string
@@ -176,7 +177,8 @@ export const PersonalAccessTokenTable = () => {
   const searchParams = useSearchParams()
   const isApiTokenPage = path.includes('/api-tokens')
   const { data: permission } = useOrganizationRoles()
-  const canManageApiToken = !isApiTokenPage || canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const canManageApiToken = !isApiTokenPage || canEdit(permission?.roles, session)
   const tableKey = isApiTokenPage ? TableKeyEnum.API_TOKEN : TableKeyEnum.PERSONAL_ACCESS_TOKEN
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const { successNotification, errorNotification } = useNotification()
