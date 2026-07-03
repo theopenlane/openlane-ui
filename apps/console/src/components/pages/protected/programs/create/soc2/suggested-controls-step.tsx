@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
-import { CheckCircle2, ChevronDown, ChevronRight, Info, ShieldCheck } from 'lucide-react'
+import { CheckCircle2, ChevronDown, ChevronRight, ShieldCheck } from 'lucide-react'
 
 type suggestedControlFormValues = {
   suggestedControlIDs?: string[]
@@ -137,7 +137,7 @@ export default function SuggestedControlsStep({ frameworkName }: { frameworkName
             <Button type="button" variant="secondary" onClick={toggleAllOptions} disabled={isLoading || allControlIDs.length === 0}>
               {allSelected ? 'Deselect all' : 'Select all categories'}
             </Button>
-            <Button type="button" variant="secondary" onClick={() => setExpandedDomains(expandedDomains.length ? [] : categories)}>
+            <Button type="button" variant="secondary" onClick={() => setExpandedDomains(expandedDomains.length ? [] : categories)} disabled={expandedDomains.length === 0 || isLoading}>
               {expandedDomains.length ? 'Collapse all' : 'Expand all'}
             </Button>
           </div>
@@ -196,16 +196,6 @@ export default function SuggestedControlsStep({ frameworkName }: { frameworkName
             )
           })}
         </Accordion>
-      </div>
-
-      <div className="flex items-center justify-between rounded-md border bg-secondary p-4 text-sm">
-        <div className="flex items-start gap-3">
-          <Info size={18} className="mt-0.5 text-muted-foreground" />
-          <div>
-            <p>Controls and domains are loaded from backend organization controls.</p>
-            <p className="text-muted-foreground">You can customize mappings or add additional controls after import.</p>
-          </div>
-        </div>
       </div>
     </div>
   )
