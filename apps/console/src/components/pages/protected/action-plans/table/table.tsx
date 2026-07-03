@@ -5,13 +5,14 @@ import { DataTable } from '@repo/ui/data-table'
 import { type ActionPlanWhereInput, type ActionPlanOrderField } from '@repo/codegen/src/schema'
 import { getColumns } from './columns'
 import { useActionPlansWithFilter } from '@/lib/graphql-hooks/action-plan'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { ACTION_PLANS_SORT_FIELDS } from './table-config'
 import { tableKey as defaultTableKey } from './types'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName } from './types'
 import { useNotification } from '@/hooks/useNotification'
+import { useSession } from 'next-auth/react'
 
 const TableComponent = ({
   onSortChange,
@@ -26,9 +27,9 @@ const TableComponent = ({
   setSelectedItems,
   canEdit,
   permission,
-  defaultSorting,
 }: TTableProps<ActionPlanWhereInput>) => {
   const { replace } = useSmartRouter()
+  const { data: session } = useSession()
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -73,10 +74,10 @@ const TableComponent = ({
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles, setColumnVisibility, canEdit])
+  }, [permission?.roles, setColumnVisibility, canEdit, session])
 
   useEffect(() => {
     if (isError) {
@@ -87,19 +88,9 @@ const TableComponent = ({
     }
   }, [isError, errorNotification])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
-
-  const columns = useMemo(() => getColumns({ userMap, selectedItems, setSelectedItems }), [userMap, selectedItems, setSelectedItems])
+  const columns = useMemo(() => getColumns({ userMap, tokenMap, selectedItems, setSelectedItems }), [userMap, tokenMap, selectedItems, setSelectedItems])
 
   return (
     <DataTable
@@ -108,7 +99,7 @@ const TableComponent = ({
       onSortChange={onSortChange}
       data={items ?? []}
       loading={fetching || fetchingUsers}
-      defaultSorting={defaultSorting}
+      sorting={orderBy}
       onRowClick={(item) => replace({ id: item.id })}
       pagination={pagination}
       onPaginationChange={onPaginationChange}

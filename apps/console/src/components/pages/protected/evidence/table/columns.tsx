@@ -1,5 +1,6 @@
 import { type ColumnDef } from '@tanstack/react-table'
 import { type Evidence, type User } from '@repo/codegen/src/schema.ts'
+import { type AuthorToken } from '@/lib/authors'
 import Link from 'next/link'
 import React from 'react'
 import { Check, LinkIcon, Minus } from 'lucide-react'
@@ -9,7 +10,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { EvidenceIconMapper } from '@/components/shared/enum-mapper/evidence-enum'
 import EvidenceFileChip from '@/components/pages/protected/evidence/table/evidence-file-chip.tsx'
-import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
@@ -19,11 +20,12 @@ import { TruncatedCell } from '@repo/ui/data-table'
 
 type TGetEvidenceColumnsProps = {
   userMap: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   selectedEvidence: { id: string }[]
   setSelectedEvidence: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEvidence }: TGetEvidenceColumnsProps) => {
+export const useGetEvidenceColumns = ({ userMap, tokenMap, selectedEvidence, setSelectedEvidence }: TGetEvidenceColumnsProps) => {
   const { convertToReadOnly } = usePlateEditor()
   const columns: ColumnDef<Evidence>[] = [
     createSelectColumn<Evidence>(selectedEvidence, setSelectedEvidence),
@@ -176,7 +178,7 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'createdAt',
@@ -188,7 +190,7 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'updatedAt',

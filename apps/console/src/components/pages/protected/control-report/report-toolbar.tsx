@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { ChevronsUpDown, ListChecks, SlidersHorizontal, SquarePlus, Upload, FileSearch } from 'lucide-react'
+import { ChevronsUpDown, ListChecks, SlidersHorizontal, SquarePlus, Upload, FileSearch, FolderKanban } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
@@ -26,12 +26,16 @@ type ReportToolbarProps = {
   effectiveStandard: string
   standardOptions: { value: string; label: string }[]
   onSelectFilter: (value: string) => void
+  programOptions: { value: string; label: string }[]
+  selectedPrograms: string[]
+  onToggleProgram: (id: string) => void
   isCustomView: boolean
   reportFilters: Set<ReportFilterId>
   onToggleReportFilter: (id: ReportFilterId) => void
   onClearReportFilters: () => void
   createAllowed: boolean
   hasNoControls: boolean
+  hasVisibleControls: boolean
 }
 
 const ReportToolbar: React.FC<ReportToolbarProps> = ({
@@ -45,32 +49,41 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
   effectiveStandard,
   standardOptions,
   onSelectFilter,
+  programOptions,
+  selectedPrograms,
+  onToggleProgram,
   isCustomView,
   reportFilters,
   onToggleReportFilter,
   onClearReportFilters,
   createAllowed,
   hasNoControls,
+  hasVisibleControls,
 }) => {
   const [reportPopoverOpen, setReportPopoverOpen] = useState(false)
+  const [programPopoverOpen, setProgramPopoverOpen] = useState(false)
 
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex justify-between items-center gap-2 flex-wrap">
       <div className="flex items-center gap-4">
         <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
         <TabSwitcher active={active} setActive={setActive} storageKey={TabSwitcherStorageKeys.CONTROL} />
-        {showActions ? (
+        {showActions && (
           <>
-            <Button type="button" variant="outline" className="h-7.5 px-3 gap-1.5" onClick={onToggleExpandAll}>
-              <ChevronsUpDown size={15} />
-              {allExpanded ? 'Collapse all' : 'Expand all'}
-            </Button>
-            <Button type="button" className={`h-7.5 px-3 gap-1.5 ${isSelectionMode ? 'border border-primary' : ''}`} variant="outline" onClick={onToggleSelectionMode}>
-              <ListChecks size={15} />
-              Select
-            </Button>
+            {hasVisibleControls && (
+              <Button type="button" variant="outline" className="h-7.5 px-3 gap-1.5" onClick={onToggleExpandAll}>
+                <ChevronsUpDown size={15} />
+                {allExpanded ? 'Collapse all' : 'Expand all'}
+              </Button>
+            )}
+            {(hasVisibleControls || isSelectionMode) && (
+              <Button type="button" className={`h-7.5 px-3 gap-1.5 ${isSelectionMode ? 'border border-primary' : ''}`} variant="outline" onClick={onToggleSelectionMode}>
+                <ListChecks size={15} />
+                Select
+              </Button>
+            )}
           </>
-        ) : null}
+        )}
       </div>
 
       <div className="flex items-center gap-2">
@@ -95,6 +108,32 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
+        {programOptions.length > 0 && (
+          <Popover open={programPopoverOpen} onOpenChange={setProgramPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" icon={<FolderKanban />} iconPosition="left" className={`h-7.5 px-2! pl-3! ${selectedPrograms.length > 0 ? 'border border-primary' : ''}`}>
+                <span className="text-muted-foreground">Program:</span>
+                <span>
+                  {selectedPrograms.length === 0
+                    ? 'All programs'
+                    : selectedPrograms.length === 1
+                      ? (programOptions.find((o) => o.value === selectedPrograms[0])?.label ?? '1 program')
+                      : `${selectedPrograms.length} programs`}
+                </span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-72 p-4 space-y-2">
+              <div className="max-h-72 overflow-y-auto space-y-2">
+                {programOptions.map((opt) => (
+                  <label key={opt.value} className="flex items-center gap-2 text-sm cursor-pointer">
+                    <Checkbox checked={selectedPrograms.includes(opt.value)} onCheckedChange={() => onToggleProgram(opt.value)} />
+                    <span className="truncate">{opt.label}</span>
+                  </label>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
         {showActions && (
           <Popover open={reportPopoverOpen} onOpenChange={setReportPopoverOpen}>
             <PopoverTrigger asChild>

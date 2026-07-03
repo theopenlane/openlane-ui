@@ -14,9 +14,11 @@ import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/c
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
+import { useOrganization } from '@/hooks/useOrganization'
 
-export default function CoverageByType({ onTypeClick }: { onTypeClick: () => void }) {
-  const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY) || {}
+const CoverageByType = ({ onTypeClick }: { onTypeClick: () => void }) => {
+  const { currentOrgId } = useOrganization()
+  const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY, undefined, currentOrgId) || {}
   const validated = isStringArray(saved?.approverIDIn) ? saved?.approverIDIn : []
   const { policies } = useInternalPoliciesDashboard({
     where: {
@@ -25,13 +27,13 @@ export default function CoverageByType({ onTypeClick }: { onTypeClick: () => voi
     },
   })
 
-  function handleTypeClick(type: string) {
+  const handleTypeClick = (type: string) => {
     const newState = {
       approverIDIn: saved.approverIDIn || undefined,
       internalPolicyKindNameIn: type !== 'Unknown' ? [type] : undefined,
     }
 
-    saveFilters(TableKeyEnum.INTERNAL_POLICY, newState)
+    saveFilters(TableKeyEnum.INTERNAL_POLICY, newState, currentOrgId)
   }
 
   const { enumOptions } = useGetCustomTypeEnums({
@@ -128,3 +130,5 @@ export default function CoverageByType({ onTypeClick }: { onTypeClick: () => voi
     </div>
   )
 }
+
+export default CoverageByType

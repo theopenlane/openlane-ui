@@ -2,24 +2,26 @@
 
 import React, { use, useEffect, useMemo, useState } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { type ColumnDef } from '@tanstack/table-core'
-import { ControlControlStatus, ControlOrderField, type ControlWhereInput, ExportExportFormat, ExportExportType, type GetAllControlsQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
+import { ControlControlStatus, ControlOrderField, type ControlWhereInput, ExportExportFormat, ExportExportType, OrderDirection } from '@repo/codegen/src/schema'
 
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import ControlsTableToolbar from './controls-table-toolbar'
 import { CONTROLS_SORT_FIELDS, getControlColumns } from './table-config'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { canEdit } from '@/lib/authz/utils.ts'
+import { useSession } from 'next-auth/react'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { hasStatusCondition } from '@/components/shared/table-filter/has-status-condition'
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
@@ -40,15 +42,15 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const [filters, setFilters] = useState<ControlWhereInput>({})
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.CONTROL, ControlOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.CONTROL, ControlOrderField, [
     {
       field: ControlOrderField.ref_code,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>(defaultSorting)
 
   const defaultVisibility: VisibilityState = {
     id: false,
@@ -77,7 +79,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.CONTROL, defaultVisibility))
 
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.CONTROL)
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.CONTROL, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
 
@@ -108,14 +110,6 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       return { [key]: value } as ControlWhereInput
     })
 
-    // Check if the user explicitly filtered by status
-    const hasStatusCondition = (obj: ControlWhereInput): boolean => {
-      if ('status' in obj || 'statusNEQ' in obj || 'statusIn' in obj || 'statusNotIn' in obj) return true
-      if (Array.isArray(obj.and) && obj.and.some(hasStatusCondition)) return true
-      if (Array.isArray(obj.or) && obj.or.some(hasStatusCondition)) return true
-      return false
-    }
-
     // Automatically exclude archived unless overridden
     if (!hasStatusCondition(result)) {
       result.statusNEQ = ControlControlStatus.ARCHIVED
@@ -144,10 +138,10 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles])
+  }, [permission?.roles, session])
 
   useEffect(() => {
     setCrumbs([
@@ -189,19 +183,12 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     return Array.from(ids)
   }, [controls])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap, isLoading: isLoadingAuthors } = useAuthorMaps(userIds)
 
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
-
-  const columns = useMemo(() => getControlColumns({ convertToReadOnly, userMap, selectedControls, setSelectedControls, enumOptions }), [convertToReadOnly, userMap, selectedControls, enumOptions])
+  const columns = useMemo(
+    () => getControlColumns({ convertToReadOnly, userMap, tokenMap, selectedControls, setSelectedControls, enumOptions }),
+    [convertToReadOnly, userMap, tokenMap, selectedControls, enumOptions],
+  )
 
   const mappedColumns: { accessorKey: string; header: string }[] = columns
     .filter((column): column is { accessorKey: string; header: string } => typeof column.header === 'string')
@@ -260,16 +247,16 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       <DataTable
         columns={columns}
         data={controls}
-        defaultSorting={defaultSorting}
+        sorting={orderBy}
         rowHref={(row) => `/controls/${row.id}`}
         pagination={pagination}
-        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+        onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
         sortFields={CONTROLS_SORT_FIELDS}
         onSortChange={setOrderBy}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
-        loading={fetchingUsers || isLoading || isFetching}
+        loading={isLoadingAuthors || isLoading || isFetching}
         tableKey={TableKeyEnum.CONTROL}
       />
     </div>

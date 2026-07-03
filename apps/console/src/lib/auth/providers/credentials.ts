@@ -16,6 +16,20 @@ export const credentialsProvider = Credentials({
       accessToken?: string
       refreshToken?: string
       session?: string
+      type?: string
+    }
+
+    if (credentials.type === 'support' && credentials.accessToken) {
+      return {
+        id: 'openlane-support',
+        name: 'Openlane Support',
+        email: 'support@theopenlane.io',
+        accessToken: credentials.accessToken,
+        refreshToken: '',
+        session: '',
+        isTfaEnabled: false,
+        isOnboarding: false,
+      }
     }
 
     let accessToken: string

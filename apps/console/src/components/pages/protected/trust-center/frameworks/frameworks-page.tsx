@@ -38,7 +38,7 @@ export default function FrameworksPage() {
   const { successNotification, errorNotification } = useNotification()
   const { setCrumbs } = use(BreadcrumbContext)
   const { currentOrgId } = useOrganization()
-  const { status: sessionStatus } = useSession()
+  const { data: session, status: sessionStatus } = useSession()
 
   const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -50,8 +50,8 @@ export default function FrameworksPage() {
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
-  const canEditTc = canEdit(tcPermission?.roles)
-  const canEditCompliance = hasPermission(tcPermission?.roles, AccessEnum.CanEditTrustCenterCompliance)
+  const canEditTc = canEdit(tcPermission?.roles, session)
+  const canEditCompliance = hasPermission(tcPermission?.roles, AccessEnum.CanEditTrustCenterCompliance, session)
 
   const { compliances, isError: compliancesError, isFetched: compliancesFetched } = useGetTrustCenterCompliances()
   const baseWhere: StandardWhereInput = {

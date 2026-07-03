@@ -1,6 +1,7 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useMemo, useState } from 'react'
 import { getTasksFilterFields } from '@/components/pages/protected/tasks/table/table-config.ts'
+import { taskDefaultFilterValues } from '@/components/pages/protected/tasks/util/task'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { type FilterField } from '@/types'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
@@ -17,6 +18,7 @@ import { Button } from '@repo/ui/button'
 import { BulkEditTasksDialog } from '../bulk-edit/bulk-edit-tasks'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { useSession } from 'next-auth/react'
+import { type Session } from 'next-auth'
 import { endOfWeek, format, startOfDay, startOfWeek } from 'date-fns'
 import { DateFormatStorage, type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { useNotification } from '@/hooks/useNotification'
@@ -42,7 +44,7 @@ type TTaskTableToolbarProps = {
   setSearchTerm: (searchTerm: string) => void
   searching?: boolean
   exportEnabled: boolean
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   permission: TPermissionData | undefined
   handleClearSelectedTasks: () => void
   selectedTasks: { id: string }[]
@@ -188,7 +190,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {props.selectedTasks.length > 0 ? (
             <>
-              {props.canEdit(props.permission?.roles) && <BulkEditTasksDialog selectedTasks={props.selectedTasks} setSelectedTasks={props.setSelectedTasks}></BulkEditTasksDialog>}
+              {props.canEdit(props.permission?.roles, session) && <BulkEditTasksDialog selectedTasks={props.selectedTasks} setSelectedTasks={props.setSelectedTasks}></BulkEditTasksDialog>}
               <Button
                 type="button"
                 variant="secondary"
@@ -198,7 +200,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
               >
                 {props.selectedTasks && props.selectedTasks.length > 0 ? `Bulk Delete (${props.selectedTasks.length})` : 'Bulk Delete'}
               </Button>
-              {props.canEdit(props.permission?.roles) && (
+              {props.canEdit(props.permission?.roles, session) && (
                 <>
                   <ConfirmationDialog
                     open={isBulkDeleteDialogOpen}
@@ -241,7 +243,9 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
               {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={TableKeyEnum.TASK} />
               )}
-              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableKeyEnum.TASK} quickFilters={quickFilters} />}
+              {filterFields && (
+                <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableKeyEnum.TASK} quickFilters={quickFilters} defaultFilterValues={taskDefaultFilterValues} />
+              )}
               <CreateTaskDialog />
             </>
           )}

@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
+import { useOrganization } from '@/hooks/useOrganization'
 
 type TFilter = {
   field: string
@@ -45,6 +46,7 @@ const getTrendColor = (trendType: 'up' | 'down' | 'flat' | undefined, isRejected
 }
 
 const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNode; programId: string | undefined }> = ({ stat, hasData, tooltip, programId }) => {
+  const { currentOrgId } = useOrganization()
   const { title, percentage, count, total, color, trend, trendType, trendColor } = stat
   const { wrapper, content, title: titleClass, percentage: percentageClass, statDetails, progressWrapper, progressBar, trendBadge } = statCardStyles({ color })
 
@@ -60,7 +62,7 @@ const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNo
       [filter.field]: [filter.value],
     }
 
-    saveFilters(TableKeyEnum.EVIDENCE, filters)
+    saveFilters(TableKeyEnum.EVIDENCE, filters, currentOrgId)
   }
 
   return (

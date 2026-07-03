@@ -1,7 +1,7 @@
 import { type ColumnDef } from '@tanstack/react-table'
-import { type ApiToken, type Group, type InternalPolicy, InternalPolicyDocumentManagementMode, type User } from '@repo/codegen/src/schema.ts'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { KeyRound } from 'lucide-react'
+import { type Group, type InternalPolicy, InternalPolicyDocumentManagementMode, type User } from '@repo/codegen/src/schema.ts'
+import { type AuthorToken } from '@/lib/authors'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import React from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
@@ -17,17 +17,16 @@ import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { formatDate } from '@/utils/date'
-import { isUlid } from '@/lib/validators'
 
 type TPoliciesColumnsProps = {
-  users?: User[]
-  tokens?: ApiToken[]
+  userMap?: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   selectedPolicies: { id: string }[]
   setSelectedPolicies: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   enumOptions: CustomTypeEnumOption[]
 }
 
-export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelectedPolicies, enumOptions }: TPoliciesColumnsProps) => {
+export const getPoliciesColumns = ({ userMap, tokenMap, selectedPolicies, setSelectedPolicies, enumOptions }: TPoliciesColumnsProps) => {
   const columns: ColumnDef<InternalPolicy>[] = [
     createSelectColumn<InternalPolicy>(selectedPolicies, setSelectedPolicies),
     {
@@ -164,25 +163,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => {
-        const userId = row.original.createdBy
-        if (!userId || !isUlid(userId)) {
-          return '—'
-        }
-        const token = tokens?.find((item) => item.id === userId)
-        const user = users?.find((item) => item.id === userId)
-
-        if (!token && !user) {
-          return 'Deleted user'
-        }
-
-        return (
-          <div className="flex items-center gap-2">
-            {token ? <KeyRound size={18} /> : <Avatar entity={user} />}
-            {token ? token.name : user?.displayName || '-'}
-          </div>
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'createdAt',
@@ -194,25 +175,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => {
-        const userId = row.original.updatedBy
-        if (!userId || !isUlid(userId)) {
-          return '-'
-        }
-        const token = tokens?.find((item) => item.id === userId)
-        const user = users?.find((item) => item.id === userId)
-
-        if (!token && !user) {
-          return 'Deleted user'
-        }
-
-        return (
-          <div className="flex items-center gap-2">
-            {token ? <KeyRound size={18} /> : <Avatar entity={user} />}
-            {token ? token.name : user?.displayName || '-'}
-          </div>
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'updatedAt',

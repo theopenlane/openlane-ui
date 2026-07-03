@@ -2,7 +2,6 @@
 
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
 import { InfoSlideOut } from '@repo/ui/info-slide-out'
-import { Badge } from '@repo/ui/badge'
 import { Callout } from '@/components/shared/callout/callout'
 import { UserRoleIconMapper } from '@/components/shared/enum-mapper/user-role-enum'
 import { toHumanLabel } from '@/utils/strings'
@@ -11,7 +10,6 @@ type RoleInfo = {
   role: OrgMembershipRole
   description: string
   capabilities: string[]
-  comingSoon?: boolean
 }
 
 const ROLE_INFO: RoleInfo[] = [
@@ -45,7 +43,6 @@ const ROLE_INFO: RoleInfo[] = [
     role: OrgMembershipRole.AUDITOR,
     description: 'Read-only access for compliance and review',
     capabilities: ['Read-only access to a limited set of resources', 'Can write comments, create evidence requests, and tasks', 'Suitable for compliance reviewers and auditors'],
-    comingSoon: true,
   },
 ]
 
@@ -64,16 +61,11 @@ export function RoleInfoSlideOut() {
       )}
     >
       <div className="flex flex-col gap-6 pt-2">
-        {ROLE_INFO.map(({ role, description, capabilities, comingSoon }) => (
+        {ROLE_INFO.map(({ role, description, capabilities }) => (
           <div key={role} className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2">
               <span className="text-muted-foreground">{UserRoleIconMapper[role]}</span>
               <h4 className="font-semibold text-sm text-text-header">{toHumanLabel(role)}</h4>
-              {comingSoon && (
-                <Badge variant="outline" className="text-xs font-normal text-muted-foreground">
-                  Coming soon
-                </Badge>
-              )}
             </div>
             <p className="text-sm text-muted-foreground">{description}</p>
             <ul className="flex flex-col gap-1 mt-0.5">

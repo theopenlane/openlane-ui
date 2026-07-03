@@ -39,6 +39,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -55,8 +56,9 @@ const ViewProcedurePage: React.FC = () => {
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
   const { data: permission } = useAccountRoles(ObjectTypes.PROCEDURE, procedureId)
+  const { data: session } = useSession()
   const deleteAllowed = canDelete(permission?.roles)
-  const editAllowed = canEdit(permission?.roles)
+  const editAllowed = canEdit(permission?.roles, session)
   const { mutateAsync: deleteProcedure } = useDeleteProcedure()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const { currentOrgId, getOrganizationByID } = useOrganization()

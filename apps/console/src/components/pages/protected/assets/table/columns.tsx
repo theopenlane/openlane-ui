@@ -2,7 +2,7 @@ import { type ColumnDef } from '@tanstack/react-table'
 import { type AssetsNodeNonNull } from '@/lib/graphql-hooks/asset'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
@@ -11,7 +11,7 @@ import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom
 import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 import { TruncatedCell } from '@repo/ui/data-table'
 
-export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<AssetsNodeNonNull>[] => {
+export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<AssetsNodeNonNull>[] => {
   return [
     createSelectColumn<AssetsNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
@@ -41,7 +41,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} fallback={row.original.createdBy ?? undefined} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     { accessorKey: 'criticalityName', header: 'Criticality', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="asset" field="criticality" /> },
     {
@@ -113,7 +113,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} fallback={row.original.updatedBy ?? undefined} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     { accessorKey: 'website', header: 'Website', size: 120 },
     {

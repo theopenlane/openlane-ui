@@ -10,9 +10,11 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { Button } from '@repo/ui/button'
-import { canEdit } from '@/lib/authz/utils.ts'
+import { hasPermission } from '@/lib/authz/utils.ts'
+import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Loading from './loading'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useSession } from 'next-auth/react'
 
 const StandardDetailsPage = () => {
   const { id } = useParams()
@@ -22,6 +24,7 @@ const StandardDetailsPage = () => {
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()
+  const { data: session } = useSession()
 
   useEffect(() => {
     setCrumbs([
@@ -72,7 +75,7 @@ const StandardDetailsPage = () => {
 
   const menuComponent = (
     <div>
-      {canEdit(permission?.roles) && (
+      {hasPermission(permission?.roles, AccessEnum.CanCreateControl, session) && (
         <Button
           variant="secondary"
           className="h-8 !px-2"

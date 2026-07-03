@@ -47,18 +47,6 @@ type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
 
 type TStickyOption = { stickyHeader: true; stickyDialogHeader?: false } | { stickyHeader?: false; stickyDialogHeader: true } | { stickyHeader?: false; stickyDialogHeader?: false }
 
-export function getInitialPagination<T extends TPagination>(key: TableKeyValue, fallback: T): T {
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem(`${STORAGE_PAGINATION_KEY_PREFIX}${key}`)
-    if (stored) {
-      try {
-        return JSON.parse(stored)
-      } catch {}
-    }
-  }
-  return fallback
-}
-
 interface BaseDataTableProps<TData, TValue> {
   columns: CustomColumnDef<TData, TValue>[]
   loading?: boolean
@@ -79,41 +67,16 @@ interface BaseDataTableProps<TData, TValue> {
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   footer?: ReactElement | null
   tableKey: TableKeyValue | undefined
-  defaultSorting?: { field: string; direction?: OrderDirection }[] | undefined
+  sorting?: { field: string; direction?: OrderDirection }[] | undefined
   renderExpandedRow?: (row: Row<TData>) => React.ReactNode
 }
 
 type DataTableProps<TData, TValue> = BaseDataTableProps<TData, TValue> & TStickyOption
 
-export const STORAGE_SORTING_KEY_PREFIX = 'sorting:'
-export const STORAGE_PAGINATION_KEY_PREFIX = 'pagination:'
 export const STORAGE_COLUMN_ORDER_KEY_PREFIX = 'column-order:'
 export type SortCondition<TField extends string> = {
   field: TField
   direction: OrderDirection
-}
-
-export function getInitialSortConditions<TField extends string>(
-  tableKey: TableKeyValue,
-  validSortKeys: Record<string, TField> | TField[],
-  defaultSortFields: SortCondition<TField>[],
-): SortCondition<TField>[] {
-  const validKeysArray = Array.isArray(validSortKeys) ? validSortKeys : Object.values(validSortKeys)
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`)
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as SortCondition<string>[]
-        const sanitized: SortCondition<TField>[] = parsed.filter((item): item is SortCondition<TField> => validKeysArray.includes(item.field as TField))
-
-        if (sanitized.length > 0) {
-          return sanitized
-        }
-      } catch {}
-    }
-  }
-
-  return defaultSortFields
 }
 
 export function getInitialColumnOrder(tableKey: TableKeyValue): string[] {
@@ -303,12 +266,11 @@ export function DataTable<TData, TValue>({
   columnVisibility,
   footer,
   tableKey,
-  defaultSorting,
+  sorting,
   stickyHeader = false,
   stickyDialogHeader = false,
   renderExpandedRow,
 }: DataTableProps<TData, TValue>) {
-  const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>(defaultSorting ?? [])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
   const [columnOrder, setColumnOrder] = useState<string[]>(() => (tableKey ? getInitialColumnOrder(tableKey) : []))
@@ -329,36 +291,15 @@ export function DataTable<TData, TValue>({
     return totalCount ? Math.ceil(totalCount / currentPageSize) : 1
   }, [totalCount, currentPageSize])
 
-  const updatePagination = (next: TPagination) => {
-    if (typeof window !== 'undefined' && tableKey) {
-      const safePagination = {
-        page: next.page,
-        pageSize: next.pageSize,
-        query: {
-          first: next.query?.first,
-          last: next.query?.last,
-          after: next.query?.after,
-          before: next.query?.before,
-        },
-      }
-
-      localStorage.setItem(`${STORAGE_PAGINATION_KEY_PREFIX}${tableKey}`, JSON.stringify(safePagination))
-    }
-
-    onPaginationChange?.(next)
-  }
-
   const handleSortChange = (field: string) => {
-    setSortConditions((prev) => {
-      const existing = prev.find((sc) => sc.field === field)
-      if (!existing) {
-        return [{ field, direction: OrderDirection.ASC }]
-      } else if (existing.direction === OrderDirection.ASC) {
-        return [{ field, direction: OrderDirection.DESC }]
-      } else {
-        return []
-      }
-    })
+    const existing = (sorting ?? []).find((sc) => sc.field === field)
+    if (!existing) {
+      onSortChange?.([{ field, direction: OrderDirection.ASC }])
+    } else if (existing.direction === OrderDirection.ASC) {
+      onSortChange?.([{ field, direction: OrderDirection.DESC }])
+    } else {
+      onSortChange?.([])
+    }
   }
 
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -537,7 +478,7 @@ export function DataTable<TData, TValue>({
     }
 
     const next = { ...pagination, page: newPage, query }
-    updatePagination(next)
+    onPaginationChange?.(next)
   }
 
   const handlePageSizeChange = (newSize: number) => {
@@ -551,7 +492,7 @@ export function DataTable<TData, TValue>({
       pageSize: newSize,
       query: { first: newSize },
     }
-    updatePagination(next)
+    onPaginationChange?.(next)
   }
 
   const goToFirstPage = () => {
@@ -588,22 +529,6 @@ export function DataTable<TData, TValue>({
     const query = isForward ? { first: currentPageSize, after: pageInfo?.endCursor ?? null } : { last: currentPageSize, before: pageInfo?.startCursor ?? null }
     setNewPagination(newPage, query)
   }
-
-  useEffect(() => {
-    if (sortConditions && sortConditions.length > 0 && sortConditions.every(({ direction }) => direction !== undefined)) {
-      onSortChange?.(sortConditions as { field: string; direction: OrderDirection }[])
-      if (typeof window !== 'undefined' && tableKey) {
-        localStorage.setItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`, JSON.stringify(sortConditions))
-      }
-      return
-    }
-
-    // Keep server/client sorting in sync when user clears all sorts
-    onSortChange?.([])
-    if (typeof window !== 'undefined' && tableKey) {
-      localStorage.removeItem(`${STORAGE_SORTING_KEY_PREFIX}${tableKey}`)
-    }
-  }, [onSortChange, sortConditions, tableKey])
 
   useEffect(() => {
     if (typeof window !== 'undefined' && tableKey && columnOrder.length > 0) {
@@ -677,13 +602,13 @@ export function DataTable<TData, TValue>({
                       <TableRow variant="data" key={headerGroup.id}>
                         {headerGroup.headers.map((header, index) => {
                           const sortField = sortFields?.find((sf) => normalizeKey(sf.key) === normalizeKey(header.column.id))
-                          const sorting = sortConditions.find((sc) => sc.field === sortField?.key)?.direction || undefined
+                          const columnDirection = sorting?.find((sc) => sc.field === sortField?.key)?.direction || undefined
                           return (
                             <SortableHeaderCell
                               key={header.id}
                               header={header}
                               sortField={sortField}
-                              sorting={sorting}
+                              sorting={columnDirection}
                               handleSortChange={handleSortChange}
                               isLastHeader={index >= headerGroup.headers.length - 1}
                             />

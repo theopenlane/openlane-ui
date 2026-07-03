@@ -6,6 +6,7 @@ export type TAccessRole =
   | 'can_create_risk'
   | 'can_edit_risk'
   | 'can_delete_risk'
+  | 'can_create_review'
   | 'can_create_procedure'
   | 'can_create_group'
   | 'can_create_control_objective'

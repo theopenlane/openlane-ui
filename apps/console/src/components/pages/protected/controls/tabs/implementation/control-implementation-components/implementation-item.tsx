@@ -10,6 +10,7 @@ import Menu from '@/components/shared/menu/menu'
 import { Button } from '@repo/ui/button'
 import { LinkControlsModal } from './link-controls-modal'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 type Props = {
   node: ControlImplementationFieldsFragment
@@ -21,7 +22,8 @@ type Props = {
 
 export const ImplementationItem: React.FC<Props> = ({ node, onEdit, onMarkVerified, onDelete, isUpdating }) => {
   const { data: permission, isLoading: permLoading } = useAccountRoles(ObjectTypes.CONTROL_IMPLEMENTATION, node.id)
-  const isEditAllowed = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const isEditAllowed = canEdit(permission?.roles, session)
   const [associationsOpen, setAssociationsOpen] = React.useState(false)
   const totalLinks = (node.controls?.edges?.length ?? 0) + (node.subcontrols?.edges?.length ?? 0)
   const willUnlink = totalLinks > 1

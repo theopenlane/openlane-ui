@@ -1,11 +1,11 @@
 'use client'
 
-import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
 import React, { useCallback, use, useEffect, useMemo, useState } from 'react'
 import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
 import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
-import { OrderDirection, type Assessment, AssessmentOrderField, type AssessmentWhereInput, type FilterAssessmentsQueryVariables } from '@repo/codegen/src/schema.ts'
+import { OrderDirection, type Assessment, AssessmentOrderField, type AssessmentWhereInput } from '@repo/codegen/src/schema.ts'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -14,7 +14,8 @@ import { useRouter } from 'next/navigation'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
+import { resolveAuthorName } from '@/lib/authors'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
@@ -25,6 +26,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SendQuestionnaireDialog } from '@/components/pages/protected/questionnaire/dialog/send-questionnaire-dialog'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useAssessmentSendPermissionMap } from '@/lib/authz/use-can-send-questionnaire'
+import { useOrgTableSort } from '@/hooks/use-org-table-state'
+import { useSession } from 'next-auth/react'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
@@ -39,14 +42,14 @@ export const QuestionnairesTable = () => {
 
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
 
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, AssessmentOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.QUESTIONNAIRE, AssessmentOrderField, [
     {
       field: AssessmentOrderField.updated_at,
       direction: OrderDirection.DESC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<FilterAssessmentsQueryVariables['orderBy']>(defaultSorting)
 
   const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
 
@@ -102,17 +105,7 @@ export const QuestionnairesTable = () => {
     return Array.from(ids)
   }, [assessments])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
   const handleViewDetails = useCallback(
     (assessment: Assessment) => {
@@ -159,6 +152,7 @@ export const QuestionnairesTable = () => {
 
   const { columns, mappedColumns } = getQuestionnaireColumns({
     userMap,
+    tokenMap,
     selectedQuestionnaires,
     setSelectedQuestionnaires,
     onSend: handleSend,
@@ -167,7 +161,7 @@ export const QuestionnairesTable = () => {
     onViewDetails: handleViewDetails,
     onDelete: handleDelete,
     canSendMap,
-    canEdit: canEdit(permission?.roles),
+    canEdit: canEdit(permission?.roles, session),
     canDelete: canDelete(permission?.roles),
   })
 
@@ -192,9 +186,9 @@ export const QuestionnairesTable = () => {
         case 'tags':
           return assessment.tags?.join(', ') ?? ''
         case 'createdBy':
-          return userMap[assessment.createdBy ?? '']?.displayName ?? 'Deleted user'
+          return resolveAuthorName(assessment.createdBy, { userMap, tokenMap })
         case 'updatedBy':
-          return userMap[assessment.updatedBy ?? '']?.displayName ?? 'Deleted user'
+          return resolveAuthorName(assessment.updatedBy, { userMap, tokenMap })
         default: {
           const value = assessment[key as keyof Assessment]
           if (typeof value === 'string' || typeof value === 'number') return value
@@ -203,7 +197,7 @@ export const QuestionnairesTable = () => {
         }
       }
     },
-    [userMap],
+    [userMap, tokenMap],
   )
 
   const handleExport = () => {
@@ -280,7 +274,7 @@ export const QuestionnairesTable = () => {
           rowHref={(row) => `/automation/questionnaires/${row.id}`}
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
-          defaultSorting={defaultSorting}
+          sorting={orderBy}
           tableKey={TableKeyEnum.QUESTIONNAIRE}
         />
       </div>

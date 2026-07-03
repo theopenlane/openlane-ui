@@ -46,6 +46,7 @@ const CreatePolicyForm: React.FC = () => {
 
   const { pendingDraft, restore, discard, clearDraft, editorKey } = useFormDraft<CreatePolicyFormData>({
     storageKey: POLICY_DRAFT_KEY,
+    organizationId: currentOrgId,
     enabled: true,
     form,
   })

@@ -15,6 +15,7 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
+import { useSession } from 'next-auth/react'
 
 type TTagsCardProps = {
   form: UseFormReturn<CreateProcedureFormData>
@@ -39,7 +40,8 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing, editAl
   }
   const { tagOptions } = useGetTags()
   const { data: permission } = useOrganizationRoles()
-  const canCreateTags = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const canCreateTags = canEdit(permission?.roles, session)
 
   const tags = form.watch('tags')
   const tagValues = useMemo(() => {

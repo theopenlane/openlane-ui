@@ -4,13 +4,14 @@ import React, { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Link, PlusCircle } from 'lucide-react'
 import { Button } from '@repo/ui/button'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
 import { useGetFiles } from '@/lib/graphql-hooks/file'
 import { formatDateSince } from '@/utils/date'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { type ColumnDef } from '@tanstack/react-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 
 type ExistingFileRow = {
   id: string
@@ -27,14 +28,12 @@ type ExistingFilesDialogProps = {
 
 const ExistingFilesDialog: React.FC<ExistingFilesDialogProps> = ({ selectedFileIds, onFileSelected }) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.EXISTING_FILES, {
-      ...DEFAULT_PAGINATION,
-      pageSize: 5,
-      page: 1,
-      query: { first: 5 },
-    }),
-  )
+  const [pagination, setPagination] = useOrgTablePagination({
+    ...DEFAULT_PAGINATION,
+    pageSize: 5,
+    page: 1,
+    query: { first: 5 },
+  })
 
   const { data, isLoading, paginationMeta } = useGetFiles({ pagination })
   const [files, setFiles] = useState<ExistingFileRow[]>([])

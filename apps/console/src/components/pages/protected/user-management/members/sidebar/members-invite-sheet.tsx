@@ -27,7 +27,8 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { groupTableForInvitesColumns } from '../table/columns'
 import { type VisibilityState } from '@tanstack/react-table'
 import { hasPermission, canEdit } from '@/lib/authz/utils.ts'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { toHumanLabel } from '@/utils/strings'
@@ -39,6 +40,7 @@ import { RoleInfoSlideOut } from '@/components/shared/role-info-slide-out/role-i
 import { SuperAdminRoleWarning } from '@/components/shared/organization-roles/super-admin-role-warning'
 import useMembersInviteFormSchema, { type MembersInviteFormData } from './use-members-invite-form-schema'
 import { MultiEmailInput } from './multi-email-input'
+import { useSession } from 'next-auth/react'
 
 type TMembersInviteSheet = {
   isMemberSheetOpen: boolean
@@ -51,16 +53,17 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const queryClient = useQueryClient()
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.MEMBERS_INVITE_SHEET, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [selectedGroups, setSelectedGroups] = useState<AllGroupsPaginatedFieldsFragment[]>([])
   const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const columnVisibility = useMemo<VisibilityState>(() => {
     if (isLoadingPermission) return { check: true }
-    return { check: canEdit(permission?.roles) }
-  }, [isLoadingPermission, permission])
+    return { check: canEdit(permission?.roles, session) }
+  }, [isLoadingPermission, permission, session])
 
-  const canInviteAdmins = hasPermission(permission?.roles, AccessEnum.CanInviteAdmins)
-  const canInviteMembers = hasPermission(permission?.roles, AccessEnum.CanInviteMembers)
+  const canInviteAdmins = hasPermission(permission?.roles, AccessEnum.CanInviteAdmins, session)
+  const canInviteMembers = hasPermission(permission?.roles, AccessEnum.CanInviteMembers, session)
 
   const [orderBy, setOrderBy] = useState<GetAllGroupsPaginatedQueryVariables['orderBy']>([
     {
@@ -110,7 +113,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
       form.reset()
       setSearchQuery('')
       setSelectedGroups([])
-      setPagination(getInitialPagination(TableKeyEnum.MEMBERS_INVITE_SHEET, DEFAULT_PAGINATION))
+      setPagination(DEFAULT_PAGINATION)
     }
     setIsMemberSheetOpen(open)
   }
@@ -154,6 +157,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const roleOptions = useMemo(() => {
     const candidates: { role: InviteRole; allowed: boolean }[] = [
       { role: InviteRole.ADMIN, allowed: canInviteAdmins },
+      { role: InviteRole.AUDITOR, allowed: canInviteAdmins },
       { role: InviteRole.MEMBER, allowed: canInviteMembers },
       { role: InviteRole.SUPER_ADMIN, allowed: canInviteAdmins },
     ]

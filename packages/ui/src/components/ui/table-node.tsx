@@ -81,6 +81,8 @@ const TABLE_DEFAULT_COLUMN_WIDTH = 120
 const TABLE_DEFERRED_COLUMN_RESIZE_CELL_COUNT = 1200
 const TABLE_MULTI_SELECTION_TOOLBAR_DELAY_MS = 150
 
+export const PRINTABLE_DOCUMENT_WIDTH = 700
+
 const TableResizeContext = React.createContext<TableResizeContextValue | null>(null)
 
 function useTableResizeContext() {
@@ -335,9 +337,11 @@ function useTableResizeController({
       const currentInitial = effectiveColSizesRef.current[dragState.colIndex] ?? dragState.initialSize
       const nextInitial = effectiveColSizesRef.current[dragState.colIndex + 1]
       const complement = (width: number) => currentInitial + nextInitial - width
+      const otherColsTotal = effectiveColSizesRef.current.reduce((total, colSize) => total + colSize, 0) - currentInitial
+      const lastColMax = Math.max(minColumnWidth, PRINTABLE_DOCUMENT_WIDTH - marginLeftRef.current - otherColsTotal)
       const currentWidth = roundCellSizeToStep(
         resizeLengthClampStatic(currentInitial + delta, {
-          max: nextInitial ? complement(minColumnWidth) : undefined,
+          max: nextInitial ? complement(minColumnWidth) : lastColMax,
           min: minColumnWidth,
         }),
         undefined,

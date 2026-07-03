@@ -18,6 +18,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ImplementationItem } from './implementation-item'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useSession } from 'next-auth/react'
 
 const ControlImplementationPage = () => {
   const searchParams = useSearchParams()
@@ -44,7 +45,8 @@ const ControlImplementationPage = () => {
   const edges = data?.controlImplementations?.edges?.filter((edge): edge is { node: ControlImplementationFieldsFragment } => !!edge?.node)
 
   const { data: orgPermission } = useOrganizationRoles()
-  const createAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanCreateControlImplementation)
+  const { data: session } = useSession()
+  const createAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanCreateControlImplementation, session)
 
   const handleMarkVerified = async (id: string, verified: boolean) => {
     try {

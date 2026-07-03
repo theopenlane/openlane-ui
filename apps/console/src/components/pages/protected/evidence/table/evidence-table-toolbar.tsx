@@ -22,6 +22,8 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
+import { useSession } from 'next-auth/react'
+import { type Session } from 'next-auth'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -37,7 +39,7 @@ type TEvidenceTableToolbarProps = {
   }[]
   selectedEvidence: { id: string }[]
   setSelectedEvidence: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   permission: TPermissionData | undefined
 }
 
@@ -56,6 +58,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
 }) => {
   const { mutateAsync: bulkDeleteEvidence } = useBulkDeleteEvidence()
   const { successNotification, errorNotification } = useNotification()
+  const { data: session } = useSession()
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const isSearching = useDebounce(searching, 200)
   const { currentOrgId } = useOrganization()
@@ -124,7 +127,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {selectedEvidence.length > 0 ? (
             <>
-              {canEdit(permission?.roles) && <BulkEditEvidenceDialog selectedEvidence={selectedEvidence} setSelectedEvidence={setSelectedEvidence}></BulkEditEvidenceDialog>}
+              {canEdit(permission?.roles, session) && <BulkEditEvidenceDialog selectedEvidence={selectedEvidence} setSelectedEvidence={setSelectedEvidence}></BulkEditEvidenceDialog>}
               <Button
                 type="button"
                 variant="secondary"
@@ -134,7 +137,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
               >
                 {selectedEvidence && selectedEvidence.length > 0 ? `Bulk Delete (${selectedEvidence.length})` : 'Bulk Delete'}
               </Button>
-              {canEdit(permission?.roles) && (
+              {canEdit(permission?.roles, session) && (
                 <>
                   <ConfirmationDialog
                     open={isBulkDeleteDialogOpen}

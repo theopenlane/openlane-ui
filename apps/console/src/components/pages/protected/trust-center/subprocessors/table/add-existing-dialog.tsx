@@ -15,6 +15,7 @@ import { useCreateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-cent
 import { type CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
+import { useSession } from 'next-auth/react'
 
 const schema = z.object({
   subprocessorID: z.string().min(1, 'Please select a subprocessor'),
@@ -42,7 +43,8 @@ export const AddExistingDialog = ({
   const resolvedOpen = isControlled ? controlledOpen : open
   const { successNotification, errorNotification } = useNotification()
   const { data: orgPermission } = useOrganizationRoles()
-  const canEditOrg = canEdit(orgPermission?.roles)
+  const { data: session } = useSession()
+  const canEditOrg = canEdit(orgPermission?.roles, session)
 
   const { mutateAsync: createTCSubprocessor } = useCreateTrustCenterSubprocessor()
 

@@ -11,11 +11,11 @@ import {
   useBulkDeleteTrustCenterSubprocessors,
   useFetchAllTrustCenterSubprocessorIds,
 } from '@/lib/graphql-hooks/trust-center-subprocessor'
-import { ExportExportFormat, ExportExportType, type TrustCenterSubprocessorWhereInput, type User } from '@repo/codegen/src/schema'
+import { ExportExportFormat, ExportExportType, type TrustCenterSubprocessorWhereInput } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import SubprocessorsTableToolbar from './table/subprocessors-table-toolbar'
 import { getSubprocessorsColumns, type SubprocessorTableItem } from './table/table-config'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
@@ -38,6 +38,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import SubprocessorsModeToggle, { type SubprocessorMode } from './SubprocessorsModeToggle'
+import { useSession } from 'next-auth/react'
 
 const SubprocessorsPage = () => {
   const router = useRouter()
@@ -68,8 +69,9 @@ const SubprocessorsPage = () => {
 
   const { successNotification, errorNotification } = useNotification()
   const { data: orgPermission } = useOrganizationRoles()
-  const canCreateSubprocessor = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterSubprocessor)
-  const canEditSubprocessor = hasPermission(orgPermission?.roles, AccessEnum.CanEditTrustCenterSubprocessor)
+  const { data: session } = useSession()
+  const canCreateSubprocessor = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterSubprocessor, session)
+  const canEditSubprocessor = hasPermission(orgPermission?.roles, AccessEnum.CanEditTrustCenterSubprocessor, session)
 
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterNode = trustCenterData?.trustCenters?.edges?.[0]?.node
@@ -145,22 +147,12 @@ const SubprocessorsPage = () => {
     return Array.from(ids)
   }, [trustCenterSubprocessors])
 
-  const { users } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap } = useAuthorMaps(userIds)
 
   const handleFilterChange = useCallback((newFilters: TrustCenterSubprocessorWhereInput) => {
     setFilters(newFilters)
     setPagination(DEFAULT_PAGINATION)
   }, [])
-
-  const userMap = useMemo(() => {
-    const map: Record<string, User> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
 
   const tableData: SubprocessorTableItem[] = useMemo(
     () =>
@@ -189,8 +181,8 @@ const SubprocessorsPage = () => {
   )
 
   const { columns, mappedColumns } = useMemo(
-    () => getSubprocessorsColumns({ selectedRows, setSelectedRows, userMap, canEditSubprocessor, onEdit: handleEditSubprocessor, onDelete: setDeleteId }),
-    [selectedRows, userMap, canEditSubprocessor, handleEditSubprocessor],
+    () => getSubprocessorsColumns({ selectedRows, setSelectedRows, userMap, tokenMap, canEditSubprocessor, onEdit: handleEditSubprocessor, onDelete: setDeleteId }),
+    [selectedRows, userMap, tokenMap, canEditSubprocessor, handleEditSubprocessor],
   )
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {

@@ -145,7 +145,9 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
               <OrganizationItem
                 org={currentOrg as Organization}
                 isCurrent={true}
-                role={(currentOrg?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role ?? 'Unknown'}
+                role={
+                  (currentOrg?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role ?? (sessionData?.user.isImpersonation ? 'Support' : 'Unknown')
+                }
                 onClick={() => handleOrganizationSwitch(currentOrg?.id)}
               />
             )}
@@ -155,7 +157,9 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
                 key={org?.node?.id}
                 org={org?.node as Organization}
                 isCurrent={false}
-                role={(org?.node?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role ?? 'Unknown'}
+                role={
+                  (org?.node?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role ?? (sessionData?.user.isImpersonation ? 'Support' : 'Unknown')
+                }
                 onClick={() => handleOrganizationSwitch(org?.node?.id)}
               />
             ))}

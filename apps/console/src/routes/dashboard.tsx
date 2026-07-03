@@ -57,11 +57,12 @@ import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 import { canEdit, isOwnerOrSuperAdmin } from '@/lib/authz/utils'
 import { type TPermissionData } from '@/types/authz'
 import type { Session } from 'next-auth'
-import { hasNoModules } from '@/lib/auth/utils/modules'
-import { type OrgMembershipRole } from '@repo/codegen/src/schema'
+import { OrgMembershipRole } from '@repo/codegen/src/schema'
+import { featureUtil } from '@/lib/subscription-plan/plans'
 
-export const topNavigationItems = (session: Session | null): (NavItem | Separator | NavHeading)[] => {
-  const billingExpired = hasNoModules(session)
+export const topNavigationItems = (session: Session | null, currentUserRole?: OrgMembershipRole): (NavItem | Separator | NavHeading)[] => {
+  const billingExpired = featureUtil.hasNoModules(session)
+  const isAuditor = currentUserRole === OrgMembershipRole.AUDITOR
   return [
     {
       type: 'separator',
@@ -157,7 +158,7 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
       href: '/trust-center',
       icon: Handshake,
       isChildren: true,
-      hidden: session?.user?.isOnboarding || billingExpired,
+      hidden: session?.user?.isOnboarding || billingExpired || isAuditor,
       children: [
         {
           title: 'Overview',
@@ -250,7 +251,7 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
       href: '/automation',
       icon: Route,
       isChildren: true,
-      hidden: session?.user?.isOnboarding || billingExpired,
+      hidden: session?.user?.isOnboarding || billingExpired || isAuditor,
       children: [
         {
           title: 'Tasks',
@@ -317,24 +318,26 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
 }
 
 export const bottomNavigationItems = (session: Session | null, orgPermission?: TPermissionData, currentUserRole?: OrgMembershipRole): (NavItem | Separator | NavHeading)[] => {
-  const billingExpired = hasNoModules(session)
+  const isImpersonation = session?.user?.isImpersonation
+  const billingExpired = featureUtil.hasNoModules(session)
+  const isAuditor = currentUserRole === OrgMembershipRole.AUDITOR
   return [
     {
       title: 'Organization settings',
       href: '/organization-settings',
-      hidden: session?.user?.isOnboarding,
+      hidden: session?.user?.isOnboarding || isAuditor,
       icon: Building2,
       children: [
         {
           title: 'General Settings',
           href: '/organization-settings/general-settings',
-          hidden: !canEdit(orgPermission?.roles),
+          hidden: !canEdit(orgPermission?.roles, session),
           icon: SettingsIcon,
         },
         {
           title: 'Authentication',
           href: '/organization-settings/authentication',
-          hidden: billingExpired || !canEdit(orgPermission?.roles),
+          hidden: billingExpired || !canEdit(orgPermission?.roles, session),
           icon: GlobeLock,
         },
         {
@@ -352,7 +355,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
         {
           title: 'Billing',
           href: '/organization-settings/billing',
-          hidden: !isOwnerOrSuperAdmin(currentUserRole),
+          hidden: !isOwnerOrSuperAdmin(currentUserRole) && !isImpersonation,
           icon: DollarSign,
         },
         {
@@ -372,7 +375,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
       title: 'User Management',
       href: '/user-management',
       icon: UserRoundPen,
-      hidden: session?.user?.isOnboarding || billingExpired,
+      hidden: session?.user?.isOnboarding || billingExpired || isAuditor,
       children: [
         {
           title: 'Members',
@@ -390,7 +393,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
       title: 'Developers',
       href: '/developers',
       icon: Bot,
-      hidden: session?.user?.isOnboarding || billingExpired,
+      hidden: session?.user?.isOnboarding || billingExpired || isAuditor || isImpersonation,
       children: [
         {
           title: 'API Tokens',
@@ -407,6 +410,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
     {
       title: 'User settings',
       href: '/user-settings',
+      hidden: isImpersonation,
       children: [
         {
           title: 'Profile',
