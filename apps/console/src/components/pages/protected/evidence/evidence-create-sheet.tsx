@@ -42,6 +42,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { EvidenceEvidenceStatus, EvidenceFrequency } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { useIsAuditor } from '@/lib/graphql-hooks/member'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -63,6 +64,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   controlParam,
 }: TEvidenceCreateSheetProps) => {
   const { form } = useFormSchema()
+  const { isAuditor } = useIsAuditor()
   const { successNotification, errorNotification } = useNotification()
   const [tagValues, setTagValues] = useState<Option[]>([])
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
@@ -83,6 +85,12 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const { tagOptions } = useGetTags()
 
   const { convertToHtml } = usePlateEditor()
+
+  useEffect(() => {
+    if (open && isAuditor && !form.getValues('status')) {
+      form.setValue('status', EvidenceEvidenceStatus.REQUESTED)
+    }
+  }, [open, isAuditor, form])
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
     const collectionProcedure = data.collectionProcedure && typeof data.collectionProcedure !== 'string' ? await convertToHtml(data.collectionProcedure) : data.collectionProcedure
@@ -677,7 +685,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
           <GridRow columns={1}>
             <GridCell>
               <Button onClick={form.handleSubmit(onSubmitHandler)} loading={isPending} disabled={isPending}>
-                {isPending ? 'Submitting...' : 'Submit for review'}
+                {isPending ? 'Submitting...' : isAuditor ? 'Submit Request' : 'Submit for review'}
               </Button>
             </GridCell>
           </GridRow>

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { Download, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
+import { Download, LoaderCircle, RefreshCw, SearchIcon, Stamp, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@tanstack/react-table'
@@ -41,6 +41,10 @@ type TEvidenceTableToolbarProps = {
   setSelectedEvidence: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   permission: TPermissionData | undefined
+  isAuditor?: boolean
+  auditorActionPending?: boolean
+  onBulkApprove?: (ids: string[]) => void | Promise<void>
+  onBulkRequestChanges?: (ids: string[]) => void
 }
 
 const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
@@ -55,6 +59,10 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
   setSelectedEvidence,
   canEdit,
   permission,
+  isAuditor,
+  auditorActionPending,
+  onBulkApprove,
+  onBulkRequestChanges,
 }) => {
   const { mutateAsync: bulkDeleteEvidence } = useBulkDeleteEvidence()
   const { successNotification, errorNotification } = useNotification()
@@ -127,6 +135,30 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {selectedEvidence.length > 0 ? (
             <>
+              {isAuditor && (
+                <>
+                  <Button
+                    type="button"
+                    variant="success"
+                    icon={<Stamp size={16} />}
+                    iconPosition="left"
+                    disabled={auditorActionPending}
+                    onClick={() => onBulkApprove?.(selectedEvidence.map((evidence) => evidence.id))}
+                  >
+                    {`Approve (${selectedEvidence.length})`}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    icon={<RefreshCw size={16} />}
+                    iconPosition="left"
+                    disabled={auditorActionPending}
+                    onClick={() => onBulkRequestChanges?.(selectedEvidence.map((evidence) => evidence.id))}
+                  >
+                    {`Request Changes (${selectedEvidence.length})`}
+                  </Button>
+                </>
+              )}
               {canEdit(permission?.roles, session) && <BulkEditEvidenceDialog selectedEvidence={selectedEvidence} setSelectedEvidence={setSelectedEvidence}></BulkEditEvidenceDialog>}
               <Button
                 type="button"
