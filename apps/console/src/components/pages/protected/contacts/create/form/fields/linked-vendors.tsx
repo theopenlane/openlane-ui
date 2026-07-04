@@ -30,8 +30,9 @@ const LinkedVendors: React.FC<LinkedVendorsProps> = ({ data, isEditAllowed }) =>
   const { mutateAsync: updateContact, isPending } = useUpdateContact()
   const { successNotification, errorNotification } = useNotification()
 
+  const trimmedSearch = debouncedSearch.trim()
   const { vendorNodes } = useVendorsWithFilter({
-    where: debouncedSearch.trim() ? { displayNameContainsFold: debouncedSearch.trim() } : undefined,
+    where: trimmedSearch ? { or: [{ displayNameContainsFold: trimmedSearch }, { nameContainsFold: trimmedSearch }] } : undefined,
     enabled: open,
   })
   const availableVendors = vendorNodes.filter((v) => !linkedIds.has(v.id))

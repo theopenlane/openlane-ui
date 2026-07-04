@@ -1,13 +1,12 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Sparkles, X } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { getEmailDomain } from '@/utils/strings'
 import { type ContactFormData } from '../../../hooks/use-form-schema'
-import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
 const VendorSuggestion: React.FC = () => {
   const { watch, setValue } = useFormContext<ContactFormData>()
@@ -15,12 +14,7 @@ const VendorSuggestion: React.FC = () => {
   const entityIDs = watch('entityIDs') ?? []
   const domain = getEmailDomain(email)
 
-  const { vendorNodes } = useVendorsWithFilter({ pagination: DEFAULT_PAGINATION, enabled: !!domain })
-
-  const matches = useMemo(() => {
-    if (!domain) return []
-    return vendorNodes.filter((v) => (v.domains ?? []).some((d) => d?.toLowerCase().trim() === domain))
-  }, [vendorNodes, domain])
+  const { vendorNodes: matches } = useVendorsWithFilter({ where: domain ? { domainsHas: domain } : undefined, enabled: !!domain })
 
   if (matches.length === 0) return null
 

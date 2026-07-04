@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
@@ -17,31 +17,34 @@ import { CREATE_CONTACT } from '@repo/codegen/query/contact'
 import { ContactUserStatus, type CreateContactMutation, type CreateContactMutationVariables } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
-import { useContacts, useUpdateContact } from '@/lib/graphql-hooks/contact'
-import { useEntity } from '@/lib/graphql-hooks/entity'
+import { useContacts } from '@/lib/graphql-hooks/contact'
+import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { Check, Sparkles, Users } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import useContactFormSchema, { type AddContactFormData } from './use-contact-form-schema'
+import { useSuggestedContacts } from './use-suggested-contacts'
+
+type DialogMode = 'create' | 'link'
 
 interface AddContactDialogProps {
   vendorId: string
   onClose: () => void
   vendorName?: string
   existingContactIds?: string[]
+  initialMode?: DialogMode
+  preselectSuggested?: boolean
 }
 
 const STATUS_OPTIONS = enumToOptions(ContactUserStatus)
 
-type DialogMode = 'create' | 'link'
-
-const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, vendorName, existingContactIds = [] }) => {
+const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, vendorName, existingContactIds = [], initialMode = 'create', preselectSuggested = false }) => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
-  const [mode, setMode] = useState<DialogMode>('create')
+  const [mode, setMode] = useState<DialogMode>(initialMode)
   const [searchText, setSearchText] = useState('')
   const debouncedSearch = useDebounce(searchText.trim(), 300)
-  const [selectedContactId, setSelectedContactId] = useState<string | null>(null)
+  const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(() => new Set())
 
   const { form } = useContactFormSchema(vendorName)
 
@@ -52,33 +55,27 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
     },
   })
 
-  const { mutateAsync: updateContact, isPending: isLinking } = useUpdateContact()
+  const { mutateAsync: updateEntity, isPending: isLinking } = useUpdateEntity()
 
   const { contacts: searchResults, isLoading: isSearching } = useContacts({
     where: debouncedSearch ? { fullNameContainsFold: debouncedSearch } : undefined,
     enabled: mode === 'link',
   })
 
-  const { data: vendorData } = useEntity(mode === 'link' ? vendorId : undefined)
-  const vendorDomains = useMemo(() => (vendorData?.entity?.domains ?? []).map((d) => d.toLowerCase().trim()).filter(Boolean), [vendorData])
+  const { suggestedContacts } = useSuggestedContacts({ vendorId, search: debouncedSearch, enabled: mode === 'link' })
 
-  const { contacts: suggestedResults } = useContacts({
-    where: vendorDomains.length
-      ? {
-          and: [
-            { or: vendorDomains.map((d) => ({ emailHasSuffix: `@${d}` })) },
-            { not: { hasEntitiesWith: [{ id: vendorId }] } },
-            ...(debouncedSearch ? [{ fullNameContainsFold: debouncedSearch }] : []),
-          ],
-        }
-      : undefined,
-    enabled: mode === 'link' && vendorDomains.length > 0,
-  })
+  const didPreselectRef = useRef(false)
+  useEffect(() => {
+    if (preselectSuggested && !didPreselectRef.current && suggestedContacts.length > 0) {
+      didPreselectRef.current = true
+      setSelectedContactIds(new Set(suggestedContacts.map((c) => c.id)))
+    }
+  }, [preselectSuggested, suggestedContacts])
 
-  const suggestedContacts = useMemo(() => (vendorDomains.length ? suggestedResults.filter((c) => !existingContactIds.includes(c.id)) : []), [vendorDomains, suggestedResults, existingContactIds])
-
-  const suggestedIds = new Set(suggestedContacts.map((c) => c.id))
-  const availableContacts = searchResults.filter((c) => !existingContactIds.includes(c.id) && !suggestedIds.has(c.id))
+  const availableContacts = useMemo(() => {
+    const suggestedIds = new Set(suggestedContacts.map((c) => c.id))
+    return searchResults.filter((c) => !existingContactIds.includes(c.id) && !suggestedIds.has(c.id))
+  }, [searchResults, suggestedContacts, existingContactIds])
 
   const handleSubmit = async (data: AddContactFormData) => {
     try {
@@ -109,14 +106,25 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
     }
   }
 
-  const handleLinkContact = async () => {
-    if (!selectedContactId) return
+  const toggleContact = (id: string) => {
+    setSelectedContactIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
 
+  const handleLinkContacts = async () => {
+    if (selectedContactIds.size === 0) return
+
+    const count = selectedContactIds.size
     try {
-      await updateContact({ updateContactId: selectedContactId, input: { addEntityIDs: [vendorId] } })
+      await updateEntity({ updateEntityId: vendorId, input: { addContactIDs: [...selectedContactIds] } })
+      queryClient.invalidateQueries({ queryKey: ['contacts'] })
       successNotification({
-        title: 'Contact linked',
-        description: 'The contact has been linked to this vendor.',
+        title: count === 1 ? 'Contact linked' : 'Contacts linked',
+        description: `${count} contact${count === 1 ? '' : 's'} linked to this vendor.`,
       })
       onClose()
     } catch (error) {
@@ -129,9 +137,9 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
   }
 
   const renderContactItem = (contact: (typeof searchResults)[number], isSuggested = false) => {
-    const isSelected = selectedContactId === contact.id
+    const isSelected = selectedContactIds.has(contact.id)
     return (
-      <CommandItem key={contact.id} value={contact.id} onSelect={() => setSelectedContactId(isSelected ? null : contact.id)}>
+      <CommandItem key={contact.id} value={contact.id} onSelect={() => toggleContact(contact.id)}>
         <div className={cn('mr-2 flex h-4 w-4 items-center justify-center rounded-sm border', isSelected ? 'border-primary bg-primary text-primary-foreground' : 'opacity-50')}>
           {isSelected && <Check className="h-3 w-3" />}
         </div>
@@ -301,7 +309,13 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
 
             <DialogFooter className="mt-4">
               <CancelButton onClick={onClose} />
-              <SaveButton disabled={!selectedContactId || isLinking} isSaving={isLinking} title="Link Contact" savingTitle="Linking..." onClick={handleLinkContact} />
+              <SaveButton
+                disabled={selectedContactIds.size === 0 || isLinking}
+                isSaving={isLinking}
+                title={selectedContactIds.size > 1 ? `Link ${selectedContactIds.size} Contacts` : 'Link Contact'}
+                savingTitle="Linking..."
+                onClick={handleLinkContacts}
+              />
             </DialogFooter>
           </TabsContent>
         </Tabs>

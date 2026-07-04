@@ -76,6 +76,7 @@ export const getFieldsToRender = (props: ContactFieldProps, enumOptions: EnumOpt
       <AdditionalFields
         isEditing={props.isEditing}
         isEditAllowed={props.isEditAllowed}
+        isCreate={props.isCreate}
         data={contactData}
         internalEditing={props.internalEditing}
         setInternalEditing={props.setInternalEditing}

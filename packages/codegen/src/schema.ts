@@ -10433,7 +10433,7 @@ export interface CreateOrganizationSettingInput {
   allowMatchingDomainsAutojoin?: InputMaybe<Scalars['Boolean']['input']>
   /** allow Openlane support to access this organization without a directory account */
   allowSupportAccess?: InputMaybe<Scalars['Boolean']['input']>
-  /** domains allowed to access the organization via autojoin */
+  /** domains allowed to access the organization, if empty all domains are allowed */
   allowedEmailDomains?: InputMaybe<Array<Scalars['String']['input']>>
   /** the billing address to send billing information to */
   billingAddress?: InputMaybe<Scalars['Address']['input']>
@@ -37558,7 +37558,7 @@ export interface OrganizationSetting extends Node {
   allowMatchingDomainsAutojoin?: Maybe<Scalars['Boolean']['output']>
   /** allow Openlane support to access this organization without a directory account */
   allowSupportAccess?: Maybe<Scalars['Boolean']['output']>
-  /** domains allowed to access the organization via autojoin */
+  /** domains allowed to access the organization, if empty all domains are allowed */
   allowedEmailDomains?: Maybe<Array<Scalars['String']['output']>>
   /** the billing address to send billing information to */
   billingAddress?: Maybe<Scalars['Address']['output']>
@@ -60865,7 +60865,7 @@ export interface UpdateOrganizationSettingInput {
   allowMatchingDomainsAutojoin?: InputMaybe<Scalars['Boolean']['input']>
   /** allow Openlane support to access this organization without a directory account */
   allowSupportAccess?: InputMaybe<Scalars['Boolean']['input']>
-  /** domains allowed to access the organization via autojoin */
+  /** domains allowed to access the organization, if empty all domains are allowed */
   allowedEmailDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendAllowedEmailDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendDomains?: InputMaybe<Array<Scalars['String']['input']>>
@@ -76365,8 +76365,6 @@ export type GetOrganizationSettingQuery = {
       oidcDiscoveryEndpoint?: string | null
       identityProviderLoginEnforced: boolean
       identityProviderAuthTested: boolean
-      identityProviderJitProvisioning: boolean
-      jitAllowedEmailDomains?: Array<string> | null
       allowMatchingDomainsAutojoin?: boolean | null
     } | null
   }
