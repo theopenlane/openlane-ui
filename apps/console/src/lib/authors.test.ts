@@ -1,5 +1,5 @@
 import { type ApiToken, type User } from '@repo/codegen/src/schema'
-import { DELETED_USER_LABEL, resolveAuthor, resolveAuthorName, SUPPORT_DISPLAY_NAME, SUPPORT_SUBJECT_ID } from './authors'
+import { DELETED_USER_LABEL, resolveAuthor, resolveAuthorName, SUPPORT_DISPLAY_NAME, SUPPORT_SUBJECT_ID, UNKNOWN_AUTHOR_ID, UNKNOWN_AUTHOR_LABEL } from './authors'
 
 const user = { id: '01HXAMPLEUSER0000000000000', displayName: 'Sarah Funkhouser' } as User
 const token = { id: '01HXAMPLETOKEN000000000000', name: 'ci-token' } as ApiToken
@@ -27,6 +27,10 @@ describe('resolveAuthor', () => {
   it('resolves an api token by name', () => {
     const author = resolveAuthor(token.id, { userMap, tokenMap })
     expect(author).toEqual({ kind: 'token', displayName: 'ci-token', token })
+  })
+
+  it('resolves the backend unknown sentinel to an unknown author', () => {
+    expect(resolveAuthor(UNKNOWN_AUTHOR_ID, { userMap, tokenMap })).toEqual({ kind: 'unknown', displayName: UNKNOWN_AUTHOR_LABEL })
   })
 
   it('falls back to deleted user for unknown and empty ids', () => {

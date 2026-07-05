@@ -35,13 +35,14 @@ export const AuthorDisplay: React.FC<AuthorDisplayProps> = ({ author, showAvatar
             </span>
           )
         )
+      case 'unknown':
       case 'deleted':
         return null
     }
   })()
 
   return (
-    <span className={cn('flex items-center gap-1 text-sm', author.kind === 'deleted' && 'text-muted-foreground italic', className)}>
+    <span className={cn('flex items-center gap-1 text-sm', (author.kind === 'deleted' || author.kind === 'unknown') && 'text-muted-foreground', author.kind === 'deleted' && 'italic', className)}>
       {content}
       {author.displayName}
     </span>
