@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
-import { Bug, FileSearch, Wrench, ClipboardCheck } from 'lucide-react'
+import { Bug, FileSearch, Wrench, ClipboardCheck, ListChecks } from 'lucide-react'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
@@ -18,6 +18,13 @@ const ExposureQuickActions = () => {
   const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
 
   const actions = [
+    {
+      label: 'Triage Queue',
+      onClick: () => router.push('/exposure/triage'),
+      icon: ListChecks,
+      color: 'text-danger',
+      bg: 'bg-danger/12',
+    },
     {
       label: 'View Vulnerabilities',
       onClick: () => router.push('/exposure/vulnerabilities'),
@@ -49,7 +56,7 @@ const ExposureQuickActions = () => {
 
   return (
     <>
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {actions.map((action) => (
           <Card
             key={action.label}

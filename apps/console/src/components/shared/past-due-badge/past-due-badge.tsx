@@ -1,19 +1,20 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useSlaDefinitionsWithFilter } from '@/lib/graphql-hooks/sla-definition'
-import { buildSlaDaysByLevel, getSlaDueDate, isSlaPastDue } from '@/lib/sla'
+import { getVulnerabilityDueDate } from '@/utils/vulnerability-due-date'
 
 type Props = {
   severity?: string | null | undefined
   createdAt?: string | null | undefined
+  discoveredAt?: string | null | undefined
+  remediationSLA?: number | null | undefined
   show?: boolean
 }
 
-const PastDueBadge: React.FC<Props> = ({ severity, createdAt, show }) => {
+const PastDueBadge: React.FC<Props> = ({ severity, createdAt, discoveredAt, remediationSLA, show }) => {
   const { slaDefinitionsNodes } = useSlaDefinitionsWithFilter({})
-  const slaDaysByLevel = useMemo(() => buildSlaDaysByLevel(slaDefinitionsNodes), [slaDefinitionsNodes])
 
   if (show) {
     return (
@@ -29,10 +30,8 @@ const PastDueBadge: React.FC<Props> = ({ severity, createdAt, show }) => {
 
   if (!severity || !createdAt) return null
 
-  const dueDate = getSlaDueDate(createdAt, severity, slaDaysByLevel)
-  if (!dueDate || !isSlaPastDue(dueDate)) return null
-
-  const slaDays = slaDaysByLevel[severity.toUpperCase()]
+  const { pastDue, slaDays, dueDate } = getVulnerabilityDueDate({ severity, createdAt, discoveredAt, remediationSLA }, slaDefinitionsNodes)
+  if (!pastDue || !dueDate) return null
 
   return (
     <TooltipProvider delayDuration={200}>

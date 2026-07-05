@@ -179,7 +179,9 @@ export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: E
         {vulnData.source}
       </Badge>
     ) : null
-  const pastDueBadge = showPastDue ? <PastDueBadge severity={vulnData?.securityLevel} createdAt={vulnData?.createdAt} /> : null
+  const pastDueBadge = showPastDue ? (
+    <PastDueBadge severity={vulnData?.securityLevel} createdAt={vulnData?.createdAt} discoveredAt={vulnData?.discoveredAt} remediationSLA={vulnData?.remediationSLA} />
+  ) : null
   const headerBadges =
     sourceBadge || pastDueBadge ? (
       <>

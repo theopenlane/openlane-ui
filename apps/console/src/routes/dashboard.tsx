@@ -216,6 +216,11 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           icon: LayoutDashboard,
         },
         {
+          title: 'Triage Queue',
+          href: '/exposure/triage',
+          icon: ListChecks,
+        },
+        {
           title: 'Risks',
           href: '/exposure/risks',
           icon: AlertTriangle,
