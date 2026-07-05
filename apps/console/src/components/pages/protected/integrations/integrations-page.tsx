@@ -25,7 +25,10 @@ const IntegrationsPage = () => {
   const queryClient = useQueryClient()
   const [statusFilter, setStatusFilter] = useState<IntegrationStatusFilter>(() => (searchParams.get('status') === 'success' ? 'Installed' : 'All'))
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [selectedTags, setSelectedTags] = useState<string[]>(() => {
+    const tagsParam = searchParams.get('tags')
+    return tagsParam ? tagsParam.split(',').filter(Boolean) : []
+  })
 
   const { data, isLoading: integrationsLoading } = useGetIntegrations({ where: {} })
   const { data: providersData, isLoading: providersLoading } = useIntegrationProviders()
