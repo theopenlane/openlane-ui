@@ -429,6 +429,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         updateEvidenceId: config.id,
         input: { status: EvidenceEvidenceStatus.REJECTED, addComment: { text: comment } },
       })
+      queryClient.invalidateQueries({ queryKey: ['evidenceComments', config.id] })
       successNotification({ title: 'Changes requested', description: 'The evidence has been marked as changes requested and your comment was added.' })
       setRequestChangesOpen(false)
     } catch (error) {
@@ -576,11 +577,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           <Pencil size={16} strokeWidth={2} />
                         </Button>
                       )}
+
+                      <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
+                        <Trash2 size={16} strokeWidth={2} />
+                      </Button>
                       {isAuditor && evidence && (
                         <>
                           <Button
                             type="button"
-                            variant="success"
                             className="h-8 p-2"
                             icon={<Stamp size={16} />}
                             iconPosition="left"
@@ -605,9 +609,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       )}
                     </>
                   )}
-                  <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
-                    <Trash2 size={16} strokeWidth={2} />
-                  </Button>
                 </div>
                 <ConfirmationDialog
                   open={deleteDialogIsOpen}

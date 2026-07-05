@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -71,6 +71,7 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
 
   const [showFinding, setShowFinding] = useState(false)
   const [isPending, setIsPending] = useState(false)
+  const createdReviewIdRef = useRef<string | null>(null)
 
   const control = controlData?.control
   const relatedControls = useMemo(() => relatedData?.control?.relatedControls ?? [], [relatedData])
@@ -107,6 +108,7 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
   }, [open, activePrograms, form])
 
   const resetAndClose = () => {
+    createdReviewIdRef.current = null
     form.reset({ title: '', linkedControlIDs: [], linkedSubcontrolIDs: [] })
     setShowFinding(false)
     onOpenChange(false)
@@ -125,22 +127,26 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
       const controlIDs = subcontrolId ? [...data.linkedControlIDs] : [controlId, ...data.linkedControlIDs]
       const subcontrolIDs = subcontrolId ? [subcontrolId, ...data.linkedSubcontrolIDs] : [...data.linkedSubcontrolIDs]
 
-      const input: CreateReviewInput = {
-        title: data.title,
-        status,
-        reporter: session?.user?.email ?? undefined,
-        reviewerID: session?.user?.userId ?? undefined,
-        reportedAt: new Date().toISOString(),
-        ...(data.testApplied ? { details: data.testApplied } : {}),
-        ...(data.auditorNotes?.trim() ? { summary: data.auditorNotes.trim() } : {}),
-        ...(data.externalID ? { externalID: data.externalID } : {}),
-        controlIDs,
-        subcontrolIDs,
-        ...(data.programID ? { programIDs: [data.programID] } : {}),
-      }
+      let reviewId = createdReviewIdRef.current
+      if (!reviewId) {
+        const input: CreateReviewInput = {
+          title: data.title,
+          status,
+          reporter: session?.user?.email ?? undefined,
+          reviewerID: session?.user?.userId ?? undefined,
+          reportedAt: new Date().toISOString(),
+          ...(data.testApplied ? { details: data.testApplied } : {}),
+          ...(data.auditorNotes?.trim() ? { summary: data.auditorNotes.trim() } : {}),
+          ...(data.externalID ? { externalID: data.externalID } : {}),
+          controlIDs,
+          subcontrolIDs,
+          ...(data.programID ? { programIDs: [data.programID] } : {}),
+        }
 
-      const res = await createReview({ input })
-      const reviewId = res.createReview.review.id
+        const res = await createReview({ input })
+        reviewId = res.createReview.review.id
+        createdReviewIdRef.current = reviewId
+      }
 
       const hasFinding = !!(data.findingTitle?.trim() || data.findingDescription?.trim() || data.findingSeverity)
       if (hasFinding) {
