@@ -136,6 +136,7 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
           reviewerID: session?.user?.userId ?? undefined,
           reportedAt: new Date().toISOString(),
           ...(data.testApplied ? { details: data.testApplied } : {}),
+          //NOTE: we need a way to store comments, something like addComment on create, for now I am using summary
           ...(data.auditorNotes?.trim() ? { summary: data.auditorNotes.trim() } : {}),
           ...(data.externalID ? { externalID: data.externalID } : {}),
           controlIDs,
