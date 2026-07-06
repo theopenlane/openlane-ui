@@ -260,9 +260,9 @@
   --indicator: #e1e7ea;
   --color-svg-secondary: #09151d;
 
-  --color-active-filter-border: #09151d;
-  --color-active-filter-background: #09151d;
-  --color-active-filter-text: #ffffff;
+  --color-active-filter-border: #2dcdad;
+  --color-active-filter-background: #2dcdad1f;
+  --color-active-filter-text: #09151d;
 
   --color-switch-bg-active: #9af5dc;
   --color-switch-bg-inactive: #ced6da;

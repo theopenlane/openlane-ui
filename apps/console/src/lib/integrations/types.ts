@@ -1,6 +1,6 @@
 import { type GetIntegrationsQuery } from '@repo/codegen/src/schema'
 
-export type IntegrationTab = 'All' | 'Coming Soon' | 'Installed'
+export type IntegrationStatusFilter = 'All' | 'Coming Soon' | 'Installed' | 'Not Installed'
 
 export type IntegrationMetadata = {
   externalName?: string
@@ -118,6 +118,7 @@ export type AvailableIntegrationNode = {
   docsUrl: string
   installedCount: number
   provider: IntegrationProvider
+  supportsPrimaryDirectory?: boolean
 }
 
 export type RawDefinitionSpec = {

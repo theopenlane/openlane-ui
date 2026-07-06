@@ -7,7 +7,6 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
-import { getProviderHelperContent } from '@/lib/integrations/provider-helper-content'
 import { type IntegrationProvider, type IntegrationSchemaNode } from '@/lib/integrations/types'
 import { disabledOperationConfigKeys, resolveConnectionEntry, resolveCredentialEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
 import { connectViaAuth, saveIntegrationConfiguration } from '@/lib/integrations/flow'
@@ -32,7 +31,6 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
 
   const activeCredentialEntry = useMemo(() => resolveCredentialEntry(provider, credentialRef), [provider, credentialRef])
   const activeCredentialRef = credentialRef ?? activeCredentialEntry?.ref
-  const providerHelper = getProviderHelperContent(provider)
   const disabledConfigKeys = useMemo(() => disabledOperationConfigKeys(provider), [provider])
 
   const credentialSchema = useMemo(
@@ -198,7 +196,6 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
               <FormProvider {...credForm.formMethods}>
                 <form onSubmit={credForm.formMethods.handleSubmit(onSubmitCredentials)} className="flex flex-1 flex-col overflow-hidden">
                   <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
-                    {providerHelper}
                     <Callout variant="warning" title="Updating Credentials" className="mb-[30px]">
                       We only load non-sensitive values. When saving, the entire form is validated—so you'll need to re-enter any required values that aren’t pre-filled (like secrets).
                     </Callout>
@@ -238,7 +235,6 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
           <FormProvider {...combined.formMethods}>
             <form onSubmit={combined.formMethods.handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-hidden">
               <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
-                {providerHelper}
                 {combined.sections.length === 0 ? <p className="text-sm text-muted-foreground">No additional input is required for this integration.</p> : null}
                 <IntegrationSchemaSections sections={combined.sections} hideFieldKeys={disabledConfigKeys} />
               </div>

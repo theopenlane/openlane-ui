@@ -29,6 +29,16 @@ const nextConfig = {
         destination: '/exposure/risks/:path*',
         permanent: true,
       },
+      {
+        source: '/organization-settings/integrations',
+        destination: '/automation/integrations',
+        permanent: true,
+      },
+      {
+        source: '/organization-settings/integrations/:path*',
+        destination: '/automation/integrations/:path*',
+        permanent: true,
+      },
     ]
   },
   images: {

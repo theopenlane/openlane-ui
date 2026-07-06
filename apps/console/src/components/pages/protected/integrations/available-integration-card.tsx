@@ -22,7 +22,7 @@ const AvailableIntegrationCard = ({ integration, canManage }: AvailableIntegrati
       return
     }
 
-    router.push(`/organization-settings/integrations/${provider.id}`)
+    router.push(`/automation/integrations/${provider.id}`)
   }
 
   return (
@@ -31,6 +31,7 @@ const AvailableIntegrationCard = ({ integration, canManage }: AvailableIntegrati
       docsUrl={integration.docsUrl}
       displayName={integration.name}
       tags={integration.tags}
+      tagLabelOverrides={integration.supportsPrimaryDirectory ? { directory: 'primary directory' } : undefined}
       description={integration.description || 'Connect to keep your workflows connected and risks actionable.'}
       headerBadge={
         isComingSoon ? (
