@@ -103,9 +103,7 @@ const TriageDetail: React.FC<Props> = ({ vuln }) => {
       <div className="mt-6">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Description</p>
         {vuln.description ? (
-          <div className="mt-2 rounded-lg border bg-card p-4">
-            <PlateEditor key={vuln.id} initialValue={vuln.description} readonly variant="readonly" />
-          </div>
+          <PlateEditor key={vuln.id} toolbarClassName="hidden" initialValue={vuln.description} readonly variant="readonly" />
         ) : vuln.summary ? (
           <p className="mt-2 rounded-lg border bg-card p-4 text-sm">{vuln.summary}</p>
         ) : (
