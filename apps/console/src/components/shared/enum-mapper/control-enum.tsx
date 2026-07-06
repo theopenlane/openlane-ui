@@ -24,6 +24,7 @@ import { type ControlControlSource, ControlControlStatus, ControlImplementationD
 import { getEnumLabel } from './common-enum'
 
 export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> = {
+  [ControlControlStatus.DRAFT]: <FilePenLine height={16} width={16} className="text-draft" />,
   [ControlControlStatus.APPROVED]: <Stamp height={16} width={16} className="text-approved" />,
   [ControlControlStatus.NEEDS_APPROVAL]: <ScanEye height={16} width={16} className="text-needs-approval" />,
   [ControlControlStatus.CHANGES_REQUESTED]: <RefreshCw height={16} width={16} className="text-changes-requested" />,
@@ -34,6 +35,7 @@ export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> 
 }
 
 export const ControlIconMapper: Record<ControlControlStatus, React.ElementType> = {
+  [ControlControlStatus.DRAFT]: FilePenLine,
   [ControlControlStatus.NOT_IMPLEMENTED]: RouteOff,
   [ControlControlStatus.PREPARING]: Circle,
   [ControlControlStatus.NEEDS_APPROVAL]: ScanEye,
@@ -79,6 +81,7 @@ export const ControlStatusOrder: ControlControlStatus[] = [
 
 // Tooltip explanations for control statuses
 export const ControlStatusTooltips: Record<ControlControlStatus, string> = {
+  [ControlControlStatus.DRAFT]: 'Control is a draft and has not been submitted for implementation or review yet.',
   [ControlControlStatus.NOT_IMPLEMENTED]:
     'Control has not been implemented yet. This is the initial state for new controls, controls are not considered as part of an audit program until they are implemented.',
   [ControlControlStatus.PREPARING]: 'Control is being prepared and documented. Implementation details are being worked on to prepare for review and approval.',
