@@ -13,8 +13,8 @@ import { useNotification } from '@/hooks/useNotification'
 import { useDebounce } from '@uidotdev/usehooks'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { buildPastDueVulnerabilityFilter } from '@/utils/vulnerability-due-date'
-import ViewVulnerabilitySheet from '@/components/pages/protected/vulnerabilities/view-vulnerability-sheet'
-import { buildTriageGroups, buildVulnerabilitySearchFilter, combineVulnerabilityWhere, type TriageFacet } from './triage-utils'
+import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
+import { buildTriageGroups, buildVulnerabilitySearchFilter, combineVulnerabilityWhere, getVulnerabilityName, type TriageFacet, type TriageGroups } from './triage-utils'
 import TriageListRail from './triage-list-rail'
 import TriageDetail from './triage-detail'
 import TriageQuickActions from './triage-quick-actions'
@@ -74,11 +74,12 @@ const TriagePage: React.FC = () => {
   const { mutateAsync: updateVulnerability, isPending: isUpdating } = useUpdateVulnerability()
 
   const groups = useMemo(() => buildTriageGroups(vulnerabilitiesNodes, slaDefinitionsNodes), [vulnerabilitiesNodes, slaDefinitionsNodes])
-  const ordered = groups.ordered
+  const displayGroups = useMemo<TriageGroups>(() => (facet === 'pastdue' ? { pastDue: groups.pastDue, open: [], ordered: groups.pastDue } : groups), [facet, groups])
+  const ordered = displayGroups.ordered
 
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [acceptRiskOpen, setAcceptRiskOpen] = useState(false)
-  const [remediateId, setRemediateId] = useState<string | null>(null)
+  const [remediateVuln, setRemediateVuln] = useState<{ id: string; name: string } | null>(null)
 
   useEffect(() => {
     if (ordered.length === 0) {
@@ -106,7 +107,7 @@ const TriagePage: React.FC = () => {
     if (!selectedVuln || !canEditSelected) return
     try {
       await updateVulnerability({ updateVulnerabilityId: selectedVuln.id, input })
-      successNotification({ title: successMessage })
+      successNotification({ title: 'Vulnerability Updated', description: successMessage })
       onDone?.()
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
@@ -145,17 +146,9 @@ const TriagePage: React.FC = () => {
     runUpdate({ remediationSLA: newSla }, 'Snoozed for 7 days')
   }
 
-  const handleRemediate = async () => {
+  const handleRemediate = () => {
     if (!selectedVuln) return
-    const currentUserId = session?.user?.userId
-    if (canEditSelected && currentUserId && selectedVuln.externalOwnerID !== currentUserId) {
-      try {
-        await updateVulnerability({ updateVulnerabilityId: selectedVuln.id, input: { externalOwnerID: currentUserId } })
-      } catch (error) {
-        errorNotification({ title: 'Error', description: parseErrorMessage(error) })
-      }
-    }
-    setRemediateId(selectedVuln.id)
+    setRemediateVuln({ id: selectedVuln.id, name: getVulnerabilityName(selectedVuln) })
   }
 
   return (
@@ -163,7 +156,7 @@ const TriagePage: React.FC = () => {
       <div className="flex h-full min-h-0 overflow-hidden rounded-lg border">
         <div className="w-[340px] shrink-0">
           <TriageListRail
-            groups={groups}
+            groups={displayGroups}
             counts={{ all: allCount, pastDue: pastDueCount, critical: criticalCount }}
             search={search}
             onSearchChange={setSearch}
@@ -180,7 +173,7 @@ const TriagePage: React.FC = () => {
         <div className="flex min-w-0 flex-1 flex-col bg-secondary">
           {selectedVuln ? (
             <>
-              <TriageDetail vuln={selectedVuln} onAssign={handleAssign} isAssigning={isUpdating} canEdit={canEditSelected} />
+              <TriageDetail vuln={selectedVuln} />
               <TriageQuickActions
                 vuln={selectedVuln}
                 onAssign={handleAssign}
@@ -204,14 +197,20 @@ const TriagePage: React.FC = () => {
       {selectedVuln && (
         <AcceptRiskDialog
           isOpen={acceptRiskOpen}
-          vulnerabilityName={selectedVuln.displayName || selectedVuln.displayID || selectedVuln.externalID}
+          vulnerabilityName={getVulnerabilityName(selectedVuln)}
           isSubmitting={isUpdating}
           onClose={() => setAcceptRiskOpen(false)}
           onConfirm={handleAcceptRisk}
         />
       )}
 
-      <ViewVulnerabilitySheet entityId={remediateId} onClose={() => setRemediateId(null)} />
+      <CreateRemediationSheet
+        isOpen={Boolean(remediateVuln)}
+        onClose={() => setRemediateVuln(null)}
+        initialData={remediateVuln ? { vulnerabilityIDs: [remediateVuln.id] } : undefined}
+        defaultTitle={remediateVuln ? `${remediateVuln.name} Remediation`.trim() : undefined}
+        onSuccess={() => setRemediateVuln(null)}
+      />
     </>
   )
 }

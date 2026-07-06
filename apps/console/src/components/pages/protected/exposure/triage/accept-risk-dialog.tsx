@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@repo/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Textarea } from '@repo/ui/textarea'
+import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { DISMISS_REASONS, OTHER_DISMISS_REASON } from '../vulnerability-dismiss-reasons'
 
 type Props = {
   isOpen: boolean
@@ -15,23 +17,23 @@ type Props = {
   onConfirm: (reason: string, comment: string) => void
 }
 
-const REASONS: { value: string; label: string }[] = [
-  { value: 'tolerable_risk', label: 'Tolerable risk' },
-  { value: 'not_used', label: 'Not used' },
-  { value: 'ineligible', label: 'Ineligible' },
-  { value: 'no_bandwidth', label: 'No bandwidth' },
-]
-
 const AcceptRiskDialog: React.FC<Props> = ({ isOpen, vulnerabilityName, isSubmitting, onClose, onConfirm }) => {
   const [reason, setReason] = useState('')
+  const [customReason, setCustomReason] = useState('')
   const [comment, setComment] = useState('')
 
   useEffect(() => {
     if (!isOpen) {
       setReason('')
+      setCustomReason('')
       setComment('')
     }
   }, [isOpen])
+
+  const isOther = reason === OTHER_DISMISS_REASON
+  const selectedDescription = DISMISS_REASONS.find((option) => option.value === reason)?.description
+  const resolvedReason = isOther ? customReason.trim() : reason
+  const canSubmit = Boolean(resolvedReason)
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -52,13 +54,16 @@ const AcceptRiskDialog: React.FC<Props> = ({ isOpen, vulnerabilityName, isSubmit
                 <SelectValue placeholder="Select a reason" />
               </SelectTrigger>
               <SelectContent>
-                {REASONS.map((option) => (
+                {DISMISS_REASONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
                 ))}
+                <SelectItem value={OTHER_DISMISS_REASON}>Other</SelectItem>
               </SelectContent>
             </Select>
+            {selectedDescription && <p className="text-xs text-muted-foreground">{selectedDescription}</p>}
+            {isOther && <Input value={customReason} onChange={(e) => setCustomReason(e.target.value)} placeholder="Enter a reason" autoFocus />}
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="accept-risk-comment" className="text-sm font-medium">
@@ -69,7 +74,7 @@ const AcceptRiskDialog: React.FC<Props> = ({ isOpen, vulnerabilityName, isSubmit
         </div>
         <div className="flex justify-end gap-2">
           <CancelButton disabled={isSubmitting} onClick={onClose} />
-          <Button variant="destructive" loading={isSubmitting} disabled={isSubmitting || !reason} onClick={() => onConfirm(reason, comment.trim())}>
+          <Button variant="destructive" loading={isSubmitting} disabled={isSubmitting || !canSubmit} onClick={() => onConfirm(resolvedReason, comment.trim())}>
             Accept risk
           </Button>
         </div>

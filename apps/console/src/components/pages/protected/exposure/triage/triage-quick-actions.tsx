@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { Button } from '@repo/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { ArrowLeft, ArrowRight, ShieldCheck, ShieldOff, Clock, UserPlus } from 'lucide-react'
 import AssigneeSelect from './assignee-select'
 import { type TriageVuln } from './triage-utils'
@@ -43,9 +44,16 @@ const TriageQuickActions: React.FC<Props> = ({ vuln, onAssign, onRemediate, onAc
         <Button variant="outline" size="md" icon={<ShieldOff size={14} />} iconPosition="left" onClick={onAcceptRisk} disabled={mutationsDisabled}>
           Accept risk
         </Button>
-        <Button variant="outline" size="md" icon={<Clock size={14} />} iconPosition="left" onClick={onSnooze} disabled={mutationsDisabled}>
-          Snooze
-        </Button>
+        <TooltipProvider delayDuration={200}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="md" icon={<Clock size={14} />} iconPosition="left" onClick={onSnooze} disabled={mutationsDisabled}>
+                Snooze
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">Snoozes the alert for 7 days</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <div className="flex items-center gap-2">

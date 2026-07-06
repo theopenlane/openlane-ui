@@ -1,18 +1,18 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React from 'react'
 import { useGetVulnerabilityAssociations } from '@/lib/graphql-hooks/vulnerability'
-import { useHtmlPurifier, HTML_SANITIZE_CONFIG } from '@/lib/html/sanitize-html'
+import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { getSeverityStyle } from '@/utils/severity'
+import { toHumanLabel } from '@/utils/strings'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
-import AssigneeSelect from './assignee-select'
-import { getSeverityLabel, type TriageVuln } from './triage-utils'
+import PlateEditor from '@/components/shared/plate/plate-editor'
+import { useSheetNavigation } from '@/providers/sheet-navigation-provider'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import { getSeverityLabel, getVulnerabilityName, type TriageVuln } from './triage-utils'
 
 type Props = {
   vuln: TriageVuln
-  onAssign: (userId: string | null) => void
-  isAssigning?: boolean
-  canEdit: boolean
 }
 
 const StatCard: React.FC<{ label: string; value: React.ReactNode; sub?: React.ReactNode; valueClassName?: string }> = ({ label, value, sub, valueClassName }) => (
@@ -23,9 +23,10 @@ const StatCard: React.FC<{ label: string; value: React.ReactNode; sub?: React.Re
   </div>
 )
 
-const TriageDetail: React.FC<Props> = ({ vuln, onAssign, isAssigning, canEdit }) => {
+const TriageDetail: React.FC<Props> = ({ vuln }) => {
   const { data: associations } = useGetVulnerabilityAssociations(vuln.id)
-  const purifier = useHtmlPurifier()
+  const { userOptions } = useUserSelect({})
+  const sheetNav = useSheetNavigation()
 
   const severityLabel = getSeverityLabel(vuln)
   const severityStyle = getSeverityStyle(severityLabel)
@@ -33,7 +34,7 @@ const TriageDetail: React.FC<Props> = ({ vuln, onAssign, isAssigning, canEdit })
   const assets = (associations?.vulnerability?.assets?.edges ?? []).map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => Boolean(node))
   const remediationCount = associations?.vulnerability?.remediations?.totalCount ?? 0
 
-  const sanitizedDescription = useMemo(() => (vuln.description ? purifier.sanitize(vuln.description, HTML_SANITIZE_CONFIG) : ''), [purifier, vuln.description])
+  const assigneeName = userOptions.find((option) => option.value === vuln.externalOwnerID)?.label
 
   const { dueDate, pastDue, daysOverdue, daysUntilDue } = vuln.dueInfo
   const dueSubtitle = (() => {
@@ -42,12 +43,15 @@ const TriageDetail: React.FC<Props> = ({ vuln, onAssign, isAssigning, canEdit })
     return `${daysUntilDue ?? 0} days left`
   })()
 
+  const statusValue = vuln.vulnerabilityStatusName ? toHumanLabel(vuln.vulnerabilityStatusName) : vuln.open ? 'Open' : '—'
+  const exploitabilityValue = typeof vuln.exploitability === 'number' && vuln.exploitability !== 0 ? vuln.exploitability.toFixed(1) : '—'
+
   return (
     <div className="min-h-0 flex-1 overflow-y-auto p-6">
       <div className="mb-6">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">{vuln.displayID || vuln.externalID}</p>
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">{vuln.cveID || vuln.externalID || vuln.displayID}</p>
         <div className="mt-1 flex flex-wrap items-center gap-2">
-          <h2 className="text-xl font-semibold">{vuln.displayName || vuln.displayID}</h2>
+          <h2 className="text-xl font-semibold">{getVulnerabilityName(vuln)}</h2>
           <span className="rounded-full px-2 py-0.5 text-xs font-medium capitalize" style={severityStyle}>
             {severityLabel}
           </span>
@@ -57,13 +61,13 @@ const TriageDetail: React.FC<Props> = ({ vuln, onAssign, isAssigning, canEdit })
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="CVSS score" value={typeof vuln.score === 'number' ? vuln.score.toFixed(1) : '—'} sub={<span className="capitalize">{severityLabel}</span>} valueClassName="text-danger" />
-        <StatCard label="Exploitability" value={typeof vuln.exploitability === 'number' ? vuln.exploitability.toFixed(1) : '—'} />
+        <StatCard label="Exploitability" value={exploitabilityValue} />
         <StatCard
           label="Due date"
           value={dueDate ? dueDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
           sub={<span className={pastDue ? 'text-danger' : ''}>{dueSubtitle}</span>}
         />
-        <StatCard label="Status" value={vuln.vulnerabilityStatusName || (vuln.open ? 'Open' : '—')} sub={vuln.source ? `Source: ${vuln.source}` : undefined} />
+        <StatCard label="Status" value={statusValue} sub={vuln.source ? `Source: ${vuln.source}` : undefined} />
       </div>
 
       <div className="mt-6">
@@ -76,9 +80,14 @@ const TriageDetail: React.FC<Props> = ({ vuln, onAssign, isAssigning, canEdit })
         <div className="mt-2 flex flex-wrap gap-2">
           {assets.length > 0 ? (
             assets.map((asset) => (
-              <span key={asset.id} className="rounded-md border bg-card px-2.5 py-1 text-sm">
+              <button
+                key={asset.id}
+                type="button"
+                onClick={() => sheetNav?.openSheet(asset.id, ObjectAssociationNodeEnum.ASSET)}
+                className="rounded-md border bg-card px-2.5 py-1 text-sm transition-colors hover:bg-muted"
+              >
                 {asset.displayName || asset.name}
-              </span>
+              </button>
             ))
           ) : (
             <span className="text-sm text-muted-foreground">No linked assets</span>
@@ -88,15 +97,15 @@ const TriageDetail: React.FC<Props> = ({ vuln, onAssign, isAssigning, canEdit })
 
       <div className="mt-6">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Ownership</p>
-        <div className="mt-2 max-w-xs">
-          <AssigneeSelect value={vuln.externalOwnerID} onAssign={onAssign} disabled={isAssigning || !canEdit} />
-        </div>
+        <p className="mt-2 text-sm">{assigneeName || <span className="text-muted-foreground">Unassigned</span>}</p>
       </div>
 
       <div className="mt-6">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Description</p>
-        {sanitizedDescription ? (
-          <div className="prose prose-sm mt-2 max-w-none rounded-lg border bg-card p-4 dark:prose-invert" dangerouslySetInnerHTML={{ __html: sanitizedDescription }} />
+        {vuln.description ? (
+          <div className="mt-2 rounded-lg border bg-card p-4">
+            <PlateEditor key={vuln.id} initialValue={vuln.description} readonly variant="readonly" />
+          </div>
         ) : vuln.summary ? (
           <p className="mt-2 rounded-lg border bg-card p-4 text-sm">{vuln.summary}</p>
         ) : (

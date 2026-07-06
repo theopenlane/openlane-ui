@@ -4,7 +4,8 @@ import React from 'react'
 import { Loader2, Search } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { getSeverityStyle } from '@/utils/severity'
-import { getSeverityLabel, type TriageFacet, type TriageGroups, type TriageVuln } from './triage-utils'
+import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
+import { getSeverityLabel, getVulnerabilityName, type TriageFacet, type TriageGroups, type TriageVuln } from './triage-utils'
 
 type Props = {
   groups: TriageGroups
@@ -27,7 +28,7 @@ const getSubline = (vuln: TriageVuln): string => {
   return vuln.source || vuln.category || '—'
 }
 
-const VulnRow: React.FC<{ vuln: TriageVuln; isSelected: boolean; isLate: boolean; onSelect: (id: string) => void }> = ({ vuln, isSelected, isLate, onSelect }) => {
+const VulnRow: React.FC<{ vuln: TriageVuln; isSelected: boolean; onSelect: (id: string) => void }> = ({ vuln, isSelected, onSelect }) => {
   const severityLabel = getSeverityLabel(vuln)
   return (
     <button
@@ -39,10 +40,10 @@ const VulnRow: React.FC<{ vuln: TriageVuln; isSelected: boolean; isLate: boolean
         {typeof vuln.score === 'number' ? vuln.score.toFixed(1) : '—'}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium">{vuln.displayName || vuln.displayID || vuln.externalID}</span>
+        <span className="block truncate text-sm font-medium">{getVulnerabilityName(vuln)}</span>
         <span className="block truncate text-xs text-muted-foreground">{getSubline(vuln)}</span>
       </span>
-      {isLate && <span className="shrink-0 rounded-full border border-danger/30 bg-danger/15 px-1.5 py-0.5 text-xs font-medium text-danger">Late</span>}
+      <PastDueBadge severity={vuln.securityLevel || vuln.severity} createdAt={vuln.createdAt} discoveredAt={vuln.discoveredAt} remediationSLA={vuln.remediationSLA} />
     </button>
   )
 }
@@ -99,9 +100,9 @@ const TriageListRail: React.FC<Props> = ({ groups, counts, search, onSearchChang
             {totalShown === 0 && <p className="p-4 text-sm text-muted-foreground">No vulnerabilities match.</p>}
 
             {pastDue.length > 0 && (
-              <Section title="Past due" count={pastDue.length}>
+              <Section title="Past Due" count={pastDue.length}>
                 {pastDue.map((vuln) => (
-                  <VulnRow key={vuln.id} vuln={vuln} isSelected={vuln.id === selectedId} isLate onSelect={onSelect} />
+                  <VulnRow key={vuln.id} vuln={vuln} isSelected={vuln.id === selectedId} onSelect={onSelect} />
                 ))}
               </Section>
             )}
@@ -109,7 +110,7 @@ const TriageListRail: React.FC<Props> = ({ groups, counts, search, onSearchChang
             {open.length > 0 && (
               <Section title="Open" count={open.length}>
                 {open.map((vuln) => (
-                  <VulnRow key={vuln.id} vuln={vuln} isSelected={vuln.id === selectedId} isLate={false} onSelect={onSelect} />
+                  <VulnRow key={vuln.id} vuln={vuln} isSelected={vuln.id === selectedId} onSelect={onSelect} />
                 ))}
               </Section>
             )}

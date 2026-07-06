@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
-import { Bug, FileSearch, Wrench, ClipboardCheck, ListChecks } from 'lucide-react'
+import { Bug, FileSearch, Wrench, ClipboardCheck, ListOrdered } from 'lucide-react'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
@@ -21,9 +21,9 @@ const ExposureQuickActions = () => {
     {
       label: 'Triage Queue',
       onClick: () => router.push('/exposure/triage'),
-      icon: ListChecks,
-      color: 'text-danger',
-      bg: 'bg-danger/12',
+      icon: ListOrdered,
+      color: 'text-violet-500',
+      bg: 'bg-violet-500/12',
     },
     {
       label: 'View Vulnerabilities',
