@@ -55,6 +55,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [selectedGroups, setSelectedGroups] = useState<AllGroupsPaginatedFieldsFragment[]>([])
+  const [isEmailInputValid, setIsEmailInputValid] = useState(true)
   const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()
   const { data: session } = useSession()
   const columnVisibility = useMemo<VisibilityState>(() => {
@@ -114,6 +115,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
       setSearchQuery('')
       setSelectedGroups([])
       setPagination(DEFAULT_PAGINATION)
+      setIsEmailInputValid(true)
     }
     setIsMemberSheetOpen(open)
   }
@@ -175,7 +177,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
               <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
               <div className="flex justify-end gap-2">
                 <CancelButton onClick={() => handleOpenChange(false)}></CancelButton>
-                <Button iconPosition="left" type="button" form="inviteForm" onClick={handleSubmit(onSubmit)} disabled={!emails?.length}>
+                <Button iconPosition="left" type="button" form="inviteForm" onClick={handleSubmit(onSubmit)} disabled={!emails?.length || !isEmailInputValid}>
                   Invite
                 </Button>
               </div>
@@ -203,7 +205,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
                     <Controller
                       name="emails"
                       control={control}
-                      render={({ field, fieldState }) => <MultiEmailInput value={field.value ?? []} onChange={field.onChange} error={fieldState.error?.message} />}
+                      render={({ field, fieldState }) => <MultiEmailInput value={field.value ?? []} onChange={field.onChange} error={fieldState.error?.message} onValidChange={setIsEmailInputValid} />}
                     />
                   </div>
                   <div className="flex items-center gap-1">
