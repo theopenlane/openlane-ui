@@ -2,18 +2,20 @@
 import { type ColumnDef } from '@tanstack/react-table'
 import { GlobeIcon, LockIcon, StarsIcon } from 'lucide-react'
 import { type Group, type User } from '@repo/codegen/src/schema'
+import { type AuthorToken } from '@/lib/authors'
 import AvatarList from '@/components/shared/avatar-list/avatar-list'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
-import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { TruncatedCell } from '@repo/ui/data-table'
 
 type Params = {
   userMap?: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
 }
 
-export const getGroupTableColumns = ({ userMap }: Params) => {
+export const getGroupTableColumns = ({ userMap, tokenMap }: Params) => {
   const columns: ColumnDef<Group>[] = [
     {
       accessorKey: 'id',
@@ -120,7 +122,7 @@ export const getGroupTableColumns = ({ userMap }: Params) => {
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => <UserCell user={userMap?.[row.original.createdBy ?? '']} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'createdAt',
@@ -132,7 +134,7 @@ export const getGroupTableColumns = ({ userMap }: Params) => {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => <UserCell user={userMap?.[row.original.updatedBy ?? '']} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'updatedAt',

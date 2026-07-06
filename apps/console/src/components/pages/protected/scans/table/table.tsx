@@ -5,7 +5,7 @@ import React, { useEffect, useMemo } from 'react'
 import { type ScanWhereInput, type Scan, type ScanOrderField } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/scans/table/columns.tsx'
 import { type ScansNodeNonNull, useScansWithFilter } from '@/lib/graphql-hooks/scan'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
 import { SCANS_SORT_FIELDS } from './table-config'
@@ -27,7 +27,6 @@ const TableComponent = ({
   setSelectedItems,
   canEdit,
   permission,
-  defaultSorting,
   rowHref,
 }: TTableProps<ScanWhereInput>) => {
   const { replace } = useSmartRouter()
@@ -94,19 +93,9 @@ const TableComponent = ({
     }
   }, [isError, errorNotification])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
-
-  const columns = useMemo(() => getColumns({ userMap, selectedItems, setSelectedItems }), [userMap, selectedItems, setSelectedItems])
+  const columns = useMemo(() => getColumns({ userMap, tokenMap, selectedItems, setSelectedItems }), [userMap, tokenMap, selectedItems, setSelectedItems])
 
   return (
     <DataTable<ScansNodeNonNull, Scan>
@@ -115,7 +104,7 @@ const TableComponent = ({
       onSortChange={onSortChange}
       data={items}
       loading={fetching || fetchingUsers}
-      defaultSorting={defaultSorting}
+      sorting={orderBy}
       onRowClick={(item) => {
         replace({ id: item.id })
       }}

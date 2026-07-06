@@ -5,7 +5,7 @@ import React, { useEffect, useMemo } from 'react'
 import { type AssetWhereInput, type Asset, type AssetOrderField } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/assets/table/columns.tsx'
 import { type AssetsNodeNonNull, useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useNotification } from '@/hooks/useNotification'
@@ -28,7 +28,6 @@ const TableComponent = ({
   setSelectedItems,
   canEdit,
   permission,
-  defaultSorting,
   rowHref,
 }: TTableProps<AssetWhereInput>) => {
   const { replace } = useSmartRouter()
@@ -97,19 +96,9 @@ const TableComponent = ({
     }
   }, [isError, errorNotification])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
-
-  const columns = useMemo(() => getColumns({ userMap, convertToReadOnly, selectedItems, setSelectedItems }), [userMap, convertToReadOnly, selectedItems, setSelectedItems])
+  const columns = useMemo(() => getColumns({ userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems }), [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems])
 
   return (
     <DataTable<AssetsNodeNonNull, Asset>
@@ -118,7 +107,7 @@ const TableComponent = ({
       onSortChange={onSortChange}
       data={items}
       loading={fetching || fetchingUsers}
-      defaultSorting={defaultSorting}
+      sorting={orderBy}
       onRowClick={(item) => {
         replace({ id: item.id })
       }}

@@ -10,8 +10,10 @@ import { DateFormatStorage, type TQuickFilter } from '@/components/shared/table-
 import { format, startOfDay } from 'date-fns'
 import { useRouter } from 'next/navigation'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useOrganization } from '@/hooks/useOrganization'
 
 const DashboardComplianceOverview = () => {
+  const { currentOrgId } = useOrganization()
   const router = useRouter()
   const { totalCount: controlNotImplementedCount } = useGetControlNotImplementedCount()
   const { totalCount: evidenceMissingArtifactCount } = useGetEvidenceMissingArtifactCount()
@@ -24,7 +26,7 @@ const DashboardComplianceOverview = () => {
       statusIn: [ControlControlStatus.NOT_IMPLEMENTED],
     }
 
-    saveFilters(TableKeyEnum.CONTROL, filters)
+    saveFilters(TableKeyEnum.CONTROL, filters, currentOrgId)
     router.push('/controls')
   }
 
@@ -33,7 +35,7 @@ const DashboardComplianceOverview = () => {
       statusIn: [EvidenceEvidenceStatus.MISSING_ARTIFACT],
     }
 
-    saveFilters(TableKeyEnum.EVIDENCE, filters)
+    saveFilters(TableKeyEnum.EVIDENCE, filters, currentOrgId)
     router.push('/evidence')
   }
 
@@ -46,7 +48,7 @@ const DashboardComplianceOverview = () => {
       isActive: true,
     }
 
-    saveQuickFilters(TableKeyEnum.TASK, filters)
+    saveQuickFilters(TableKeyEnum.TASK, filters, currentOrgId)
     router.push('/automation/tasks')
   }
 
@@ -55,7 +57,7 @@ const DashboardComplianceOverview = () => {
       statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED],
     }
 
-    saveFilters(TableKeyEnum.RISK, filters)
+    saveFilters(TableKeyEnum.RISK, filters, currentOrgId)
     router.push('/exposure/risks')
   }
 

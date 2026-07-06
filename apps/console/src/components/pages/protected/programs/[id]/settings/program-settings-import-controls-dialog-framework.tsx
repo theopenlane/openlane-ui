@@ -7,10 +7,10 @@ import { statCardStyles } from '@/components/shared/stats-cards/stats-cards-styl
 import { Hourglass } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Label } from '@repo/ui/label'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { Button } from '@repo/ui/button'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Input } from '@repo/ui/input'
@@ -26,14 +26,12 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
   const { wrapper, content } = statCardStyles({ color: 'green' })
   const [customSelected, setCustomSelected] = useState(false)
 
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_IMPORT_CONTROLS, {
-      ...DEFAULT_PAGINATION,
-      page: 1,
-      pageSize: 5,
-      query: { first: 5 },
-    }),
-  )
+  const [pagination, setPagination] = useOrgTablePagination({
+    ...DEFAULT_PAGINATION,
+    page: 1,
+    pageSize: 5,
+    query: { first: 5 },
+  })
 
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)

@@ -1,21 +1,23 @@
 import { type ColumnDef } from '@tanstack/react-table'
 import { type Group, type RiskRiskStatus, type RiskTableFieldsFragment, type User } from '@repo/codegen/src/schema.ts'
+import { type AuthorToken } from '@/lib/authors'
 import React from 'react'
 import RiskLabel from '@/components/pages/protected/risks/risk-label.tsx'
-import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import DelegateCell from './delegate-cell'
 import StakeholderCell from './stakeholder-cell'
 
 type Params = {
-  userMap: Record<string, { id: string; displayName: string; gravatarLogoURL?: string; logoURL?: string }>
+  userMap: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   convertToReadOnly?: (value: string, depth: number) => React.ReactNode
   selectedRisks: { id: string }[]
   setSelectedRisks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setSelectedRisks }: Params) => {
+export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedRisks, setSelectedRisks }: Params) => {
   const columns: ColumnDef<RiskTableFieldsFragment>[] = [
     createSelectColumn<RiskTableFieldsFragment>(selectedRisks, setSelectedRisks),
     {
@@ -135,7 +137,7 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? ''] as User | undefined} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'createdAt',
@@ -147,7 +149,7 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? ''] as User | undefined} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'updatedAt',

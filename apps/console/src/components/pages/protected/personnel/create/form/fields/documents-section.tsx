@@ -1,12 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { useGetIdentityHolderFilesPaginated, useUploadIdentityHolderFiles, useUpdateIdentityHolder } from '@/lib/graphql-hooks/identity-holder'
 import { DocumentsSection } from '@/components/shared/documents-section/documents-section'
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'
-import { type FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
-import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useNotification } from '@/hooks/useNotification'
@@ -22,14 +21,13 @@ type IdentityHolderDocumentsSectionProps = {
 }
 
 const IdentityHolderDocumentsSection: React.FC<IdentityHolderDocumentsSectionProps> = ({ identityHolderId, isEditAllowed, isCreate, onStagedFilesChange, onExistingFileIdsChange }) => {
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.IDENTITY_HOLDER_FILES, DEFAULT_PAGINATION))
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.IDENTITY_HOLDER_FILES, FileOrderField, [
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.IDENTITY_HOLDER_FILES, FileOrderField, [
     {
       field: FileOrderField.created_at,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<FileOrder[]>(defaultSorting)
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
 
@@ -104,7 +102,7 @@ const IdentityHolderDocumentsSection: React.FC<IdentityHolderDocumentsSectionPro
       totalCount={totalCount}
       pagination={pagination}
       onPaginationChange={setPagination}
-      defaultSorting={defaultSorting}
+      defaultSorting={orderBy}
       onSortChange={setOrderBy}
       onUpload={handleUpload}
       isUploading={isUploading}
