@@ -12,7 +12,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { useDebounce } from '@uidotdev/usehooks'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { buildPastDueVulnerabilityFilter } from '@/utils/vulnerability-due-date'
+import { buildPastDueVulnerabilityFilter, MS_PER_DAY } from '@/utils/vulnerability-due-date'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
 import { buildTriageGroups, buildVulnerabilitySearchFilter, combineVulnerabilityWhere, getVulnerabilityName, type TriageFacet, type TriageGroups } from './triage-utils'
 import TriageListRail from './triage-list-rail'
@@ -20,7 +20,6 @@ import TriageDetail from './triage-detail'
 import TriageQuickActions from './triage-quick-actions'
 import AcceptRiskDialog from './accept-risk-dialog'
 
-const MS_PER_DAY = 1000 * 60 * 60 * 24
 const MS_PER_HOUR = 1000 * 60 * 60
 const PAGE_SIZE = 20
 const ORDER_BY = [{ field: VulnerabilityOrderField.security_level, direction: OrderDirection.ASC }]
@@ -69,7 +68,7 @@ const TriagePage: React.FC = () => {
 
   const { count: allCount } = useVulnerabilitiesCount(allWhere)
   const { count: criticalCount } = useVulnerabilitiesCount(criticalWhere)
-  const { count: pastDueCount } = useVulnerabilitiesCount(pastDueWhere ?? { open: true }, Boolean(pastDueWhere))
+  const { count: pastDueCount } = useVulnerabilitiesCount(pastDueWhere, Boolean(pastDueWhere))
 
   const { mutateAsync: updateVulnerability, isPending: isUpdating } = useUpdateVulnerability()
 

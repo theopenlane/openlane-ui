@@ -28,7 +28,7 @@ const PastDueBadge: React.FC<Props> = ({ severity, createdAt, discoveredAt, reme
     )
   }
 
-  if (!severity || !createdAt) return null
+  if (!severity || (!createdAt && !discoveredAt)) return null
 
   const { pastDue, slaDays, dueDate } = getVulnerabilityDueDate({ severity, createdAt, discoveredAt, remediationSLA }, slaDefinitionsNodes)
   if (!pastDue || !dueDate) return null
