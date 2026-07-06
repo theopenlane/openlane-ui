@@ -34,6 +34,7 @@ export async function GET() {
     organization,
     user: {
       id: userId,
+      email: session.user.email,
       displayName: session.user.displayName,
     },
   })

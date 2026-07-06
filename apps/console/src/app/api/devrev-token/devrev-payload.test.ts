@@ -10,6 +10,7 @@ describe('buildDevRevPayload', () => {
       },
       user: {
         id: 'user-1',
+        email: 'test@example.com',
         displayName: 'Test User',
       },
     })
@@ -19,6 +20,7 @@ describe('buildDevRevPayload', () => {
         user_ref: 'user-1:org-2',
         account_ref: 'acme-and-sons',
         user_traits: {
+          email: 'test@example.com',
           display_name: 'Test User',
         },
         account_traits: {
@@ -29,6 +31,5 @@ describe('buildDevRevPayload', () => {
         },
       },
     })
-    expect(payload.rev_info.user_traits).not.toHaveProperty('email')
   })
 })

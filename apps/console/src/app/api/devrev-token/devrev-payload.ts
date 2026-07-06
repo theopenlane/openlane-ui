@@ -6,6 +6,7 @@ type DevRevPayloadInput = {
   }
   user: {
     displayName?: string | null
+    email?: string | null
     id: string
   }
 }
@@ -15,7 +16,7 @@ export const buildDevRevPayload = ({ currentOrgId, organization, user }: DevRevP
     user_ref: `${user.id}:${currentOrgId}`,
     account_ref: organization.name,
     user_traits: {
-      // Composite users must coexist even when DevRev enforces unique contact emails.
+      email: user.email,
       display_name: user.displayName,
     },
     account_traits: {
