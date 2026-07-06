@@ -1,31 +1,42 @@
 import { auth } from '@/lib/auth/auth'
-import { type NextRequest, NextResponse } from 'next/server'
+import { fetchGraphqlServer } from '@/lib/server/fetch-graphql'
+import { GET_ORGANIZATION_NAME_BY_ID } from '@repo/codegen/query/organization'
+import { type GetOrganizationNameByIdQuery } from '@repo/codegen/src/schema'
+import { sessionCookieName } from '@repo/dally/auth'
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
+import { buildDevRevPayload } from './devrev-payload'
 
-export async function GET(req: NextRequest) {
-  const session = await auth()
-  if (!session || !session.user?.accessToken) {
+export async function GET() {
+  const [session, cookieStore] = await Promise.all([auth(), cookies()])
+  const accessToken = session?.user?.accessToken
+  const currentOrgId = session?.user?.activeOrganizationId
+  const userId = session?.user?.userId
+  const sessionCookie = cookieStore.get(sessionCookieName as string)?.value
+
+  if (!accessToken || !userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const currentOrgId = req.nextUrl.searchParams.get('orgId')
-  const orgName = req.nextUrl.searchParams.get('orgName')
-
-  const payload = {
-    rev_info: {
-      user_ref: session.user.userId,
-      account_ref: orgName,
-      user_traits: {
-        email: session.user.email,
-        display_name: session.user.displayName,
-      },
-      account_traits: {
-        display_name: orgName,
-        custom_fields: {
-          tnt__orgid: currentOrgId,
-        },
-      },
-    },
+  if (!currentOrgId || !sessionCookie) {
+    return NextResponse.json({ error: 'Active organization unavailable' }, { status: 400 })
   }
+
+  const organizationData = await fetchGraphqlServer<GetOrganizationNameByIdQuery>(GET_ORGANIZATION_NAME_BY_ID, { organizationId: currentOrgId }, accessToken, sessionCookie)
+  const organization = organizationData?.organization
+
+  if (!organization?.name || !organization.displayName) {
+    return NextResponse.json({ error: 'Unable to resolve active organization' }, { status: 502 })
+  }
+
+  const payload = buildDevRevPayload({
+    currentOrgId,
+    organization,
+    user: {
+      id: userId,
+      displayName: session.user.displayName,
+    },
+  })
 
   const response = await fetch('https://api.devrev.ai/auth-tokens.create', {
     method: 'POST',
@@ -44,5 +55,6 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     session_token: data.access_token,
+    organization_id: currentOrgId,
   })
 }
