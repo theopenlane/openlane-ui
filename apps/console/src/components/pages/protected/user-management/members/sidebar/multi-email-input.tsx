@@ -1,84 +1,86 @@
-import { useMemo, useState } from 'react'
+import { type KeyboardEvent, useEffect, useMemo, useState } from 'react'
 import { type Tag } from 'emblor'
 import { TagInput } from '@repo/ui/tag-input'
-import { isValidEmail } from '@/lib/validators'
+import { dedupeEmails, isDuplicateEmail, isValidEmail } from '@/lib/validators'
 
 type TMultiEmailInputProps = {
   value: string[]
   onChange: (emails: string[]) => void
   error?: string
   disabled?: boolean
+  onValidChange?: (isValid: boolean) => void
 }
 
-const dedupe = (emails: string[]): string[] => {
-  const seen = new Set<string>()
-  return emails.filter((email) => {
-    const key = email.toLowerCase()
-    if (seen.has(key)) {
-      return false
-    }
-    seen.add(key)
-    return true
-  })
+const DUPLICATE_EMAIL_MESSAGE = 'This email is already added.'
+const INVALID_EMAIL_MESSAGE = 'Your email is invalid.'
+
+const CARET_NAVIGATION_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'Home', 'End'])
+
+const preventTagNavigationHijack = (event: KeyboardEvent<HTMLDivElement>) => {
+  if (CARET_NAVIGATION_KEYS.has(event.key)) {
+    event.stopPropagation()
+  }
 }
 
-export const MultiEmailInput = ({ value, onChange, error, disabled }: TMultiEmailInputProps) => {
-  const [currentValue, setCurrentValue] = useState('')
+export const MultiEmailInput = ({ value, onChange, error, disabled, onValidChange }: TMultiEmailInputProps) => {
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null)
   const [feedback, setFeedback] = useState<string | null>(null)
 
   const tags = useMemo<Tag[]>(() => value.map((email) => ({ id: email, text: email })), [value])
 
-  const commit = (raw: string): boolean => {
+  useEffect(() => {
+    onValidChange?.(feedback === null)
+  }, [feedback, onValidChange])
+
+  const validateEmail = (raw: string): boolean => {
     const email = raw.trim()
     if (!email) {
       return false
     }
 
     if (!isValidEmail(email)) {
-      setFeedback('Your email is invalid.')
+      setFeedback(INVALID_EMAIL_MESSAGE)
       return false
     }
 
-    if (value.some((existing) => existing.toLowerCase() === email.toLowerCase())) {
-      setFeedback('This email is already added.')
+    if (isDuplicateEmail(email, value)) {
+      setFeedback(DUPLICATE_EMAIL_MESSAGE)
       return false
     }
 
     setFeedback(null)
-    onChange([...value, email])
     return true
+  }
+
+  const handleInputChange = (next: string) => {
+    const email = next.trim()
+    if (email && isDuplicateEmail(email, value)) {
+      setFeedback(DUPLICATE_EMAIL_MESSAGE)
+      return
+    }
+    if (feedback) {
+      setFeedback(null)
+    }
   }
 
   const message = feedback ?? error
 
   return (
-    <div className="w-full">
+    <div className="w-full" onKeyDownCapture={preventTagNavigationHijack}>
       <TagInput
         tags={tags}
-        validateTag={(tag) => commit(tag)}
+        validateTag={validateEmail}
         setTags={(newTags) => {
           if (typeof newTags === 'function') {
             return
           }
-          // emblor drives removals (Backspace / X) through here; additions are handled
-          // by validateTag's commit(). Re-sync from the authoritative tag list.
-          onChange(dedupe(newTags.map((tag) => tag.text)))
+          onChange(dedupeEmails(newTags.map((tag) => tag.text.trim())))
         }}
+        addTagsOnBlur
         activeTagIndex={activeTagIndex}
         setActiveTagIndex={setActiveTagIndex}
-        inputProps={{ value: currentValue, disabled }}
-        onInputChange={(next) => {
-          setCurrentValue(next)
-          if (feedback) {
-            setFeedback(null)
-          }
-        }}
-        onBlur={() => {
-          if (commit(currentValue)) {
-            setCurrentValue('')
-          }
-        }}
+        inputProps={{ disabled }}
+        onInputChange={handleInputChange}
       />
       {message && <p className="text-sm font-medium text-destructive mt-1 text-left">{message}</p>}
     </div>
