@@ -19,6 +19,10 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SubscriberOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { getSubscriberColumns } from './table/columns'
+import { Switch } from '@repo/ui/switch'
+import { Label } from '@repo/ui/label'
+import { Card, CardContent } from '@repo/ui/cardpanel'
+import { useHandleUpdateSetting } from '../branding/helpers/useHandleUpdateSetting'
 
 const SUBSCRIBER_ORDER_BY = [{ field: SubscriberOrderField.email, direction: OrderDirection.ASC }]
 
@@ -32,9 +36,12 @@ const SubscribersPage = () => {
 
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
+  const trustCenterSetting = trustCenterData?.trustCenters?.edges?.[0]?.node?.setting
+  const allowSubscribers = trustCenterSetting?.allowSubscribers !== false
 
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
   const canEdit = canEditTrustCenter(tcPermission?.roles)
+  const { updateTrustCenterSetting, isPending: isUpdatingSetting } = useHandleUpdateSetting()
 
   const debouncedSearch = useDebounce(searchTerm, 300)
   const searching = searchTerm !== debouncedSearch
@@ -99,6 +106,28 @@ const SubscribersPage = () => {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold">Subscribers</h2>
       </div>
+
+      <Card className="mb-4">
+        <CardContent className="pt-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <Label className="text-sm font-medium">Allow new subscribers</Label>
+              <p className="mt-1 text-sm text-muted-foreground">When enabled, visitors can subscribe from your trust center to receive update emails.</p>
+            </div>
+            <Switch
+              checked={allowSubscribers}
+              onCheckedChange={(checked) => {
+                if (!trustCenterSetting?.id) return
+                updateTrustCenterSetting({
+                  id: trustCenterSetting.id,
+                  input: { allowSubscribers: checked },
+                })
+              }}
+              disabled={isUpdatingSetting || !trustCenterSetting?.id || !canEdit}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="flex items-center gap-2 my-2">
         <div className="grow flex flex-row items-center gap-2">

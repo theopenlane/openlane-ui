@@ -57,6 +57,7 @@ export const GET_ALL_TRUST_CENTERS = gql`
             securityContact
             ndaApprovalRequired
             notifySubscribersOnSubprocessorChange
+            allowSubscribers
             ndaApproverGroupID
             ndaApproverGroup {
               id
