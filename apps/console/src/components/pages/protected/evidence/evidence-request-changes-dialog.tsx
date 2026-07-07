@@ -31,8 +31,8 @@ const EvidenceRequestChangesDialog: React.FC<TEvidenceRequestChangesDialogProps>
 
   const description =
     count && count > 1
-      ? `Add a comment explaining the changes needed. It will be added to all ${count} selected evidences and their status set to Rejected.`
-      : `Add a comment explaining the changes needed${evidenceName ? ` for "${evidenceName}"` : ''}. It will be stored with the evidence comments and the status set to Rejected.`
+      ? `Provide feedback describing what needs to be updated before this evidence can be approved. Your comment will be added to all ${count} selected evidence, and their status will change to Rejected.`
+      : `Provide feedback describing what needs to be updated before this evidence${evidenceName ? ` (${evidenceName}) ` : ''} can be approved. Your comment will be saved with the evidence, and its status will change to Rejected.`
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

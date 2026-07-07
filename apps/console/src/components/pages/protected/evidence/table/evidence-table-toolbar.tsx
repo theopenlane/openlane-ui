@@ -139,23 +139,22 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
                 <>
                   <Button
                     type="button"
-                    variant="success"
-                    icon={<Stamp size={16} />}
-                    iconPosition="left"
+                    className="p-2 h-8 w-8 justify-center"
                     disabled={auditorActionPending}
+                    descriptiveTooltipText={`Approve (${selectedEvidence.length})`}
                     onClick={() => onBulkApprove?.(selectedEvidence.map((evidence) => evidence.id))}
                   >
-                    {`Approve (${selectedEvidence.length})`}
+                    <Stamp size={16} />
                   </Button>
                   <Button
                     type="button"
                     variant="destructive"
-                    icon={<RefreshCw size={16} />}
-                    iconPosition="left"
+                    className="p-2 h-8 w-8 justify-center"
                     disabled={auditorActionPending}
+                    descriptiveTooltipText={`Request Changes (${selectedEvidence.length})`}
                     onClick={() => onBulkRequestChanges?.(selectedEvidence.map((evidence) => evidence.id))}
                   >
-                    {`Request Changes (${selectedEvidence.length})`}
+                    <RefreshCw size={16} />
                   </Button>
                 </>
               )}

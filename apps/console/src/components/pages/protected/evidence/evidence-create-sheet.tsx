@@ -332,24 +332,26 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                   </InputRow>
 
                   {/* Collection Procedure */}
-                  <InputRow className="w-full">
-                    <FormField
-                      control={form.control}
-                      name="collectionProcedure"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <div className="flex items-center">
-                            <FormLabel>Collection Procedure</FormLabel>
-                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
-                          </div>
-                          <FormControl>
-                            <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
-                          </FormControl>
-                          {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
-                        </FormItem>
-                      )}
-                    />
-                  </InputRow>
+                  {!isAuditor && (
+                    <InputRow className="w-full">
+                      <FormField
+                        control={form.control}
+                        name="collectionProcedure"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <div className="flex items-center">
+                              <FormLabel>Collection Procedure</FormLabel>
+                              <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
+                            </div>
+                            <FormControl>
+                              <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
+                            </FormControl>
+                            {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
+                          </FormItem>
+                        )}
+                      />
+                    </InputRow>
+                  )}
 
                   {/* Source Field */}
                   <InputRow className="w-full">
@@ -676,8 +678,12 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                   </GridRow>
                 </div>
 
-                <p className="pt-5 pb-5">Provide supporting file(s)</p>
-                <EvidenceUploadForm evidenceFiles={handleUploadedFiles} resetEvidenceFiles={resetEvidenceFiles} setResetEvidenceFiles={handleResetEvidenceFiles} form={form} />
+                {!isAuditor && (
+                  <>
+                    <p className="pt-5 pb-5">Provide supporting file(s)</p>
+                    <EvidenceUploadForm evidenceFiles={handleUploadedFiles} resetEvidenceFiles={resetEvidenceFiles} setResetEvidenceFiles={handleResetEvidenceFiles} form={form} />
+                  </>
+                )}
               </Form>
             </GridCell>
           </GridRow>

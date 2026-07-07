@@ -571,16 +571,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       <Button className="h-8 p-2" icon={<Copy />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
                         Copy link
                       </Button>
-                      {evidence && <EvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
-                      {editAllowed && (
-                        <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setIsEditing(true)} aria-label="Edit evidence">
-                          <Pencil size={16} strokeWidth={2} />
-                        </Button>
-                      )}
-
-                      <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
-                        <Trash2 size={16} strokeWidth={2} />
-                      </Button>
+                      {evidence && !isAuditor && <EvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
                       {isAuditor && evidence && (
                         <>
                           <Button
@@ -607,6 +598,15 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           </Button>
                         </>
                       )}
+                      {editAllowed && (
+                        <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setIsEditing(true)} aria-label="Edit evidence">
+                          <Pencil size={16} strokeWidth={2} />
+                        </Button>
+                      )}
+
+                      <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
+                        <Trash2 size={16} strokeWidth={2} />
+                      </Button>
                     </>
                   )}
                 </div>

@@ -15,7 +15,7 @@ import { Panel } from '@repo/ui/panel'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { InfoIcon, X } from 'lucide-react'
+import { ChevronDown, InfoIcon, X } from 'lucide-react'
 import { type CreateFindingInput, type CreateReviewInput, FindingSecurityLevel, ProgramProgramStatus, ReviewReviewStatus } from '@repo/codegen/src/schema'
 import { useGetControlById, useGetControlRelatedControls } from '@/lib/graphql-hooks/control'
 import { useGetAllPrograms } from '@/lib/graphql-hooks/program'
@@ -39,6 +39,8 @@ const controlReviewSchema = z.object({
 })
 
 type ControlReviewFormData = z.infer<typeof controlReviewSchema>
+
+type TRelatedItem = { id: string; refCode: string; field: 'linkedControlIDs' | 'linkedSubcontrolIDs' }
 
 const INACTIVE_PROGRAM_STATUSES = new Set<ProgramProgramStatus>([ProgramProgramStatus.COMPLETED, ProgramProgramStatus.ARCHIVED])
 
@@ -70,7 +72,8 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
   const { mutateAsync: createFinding } = useCreateFinding()
 
   const [showFinding, setShowFinding] = useState(false)
-  const [isPending, setIsPending] = useState(false)
+  const [showRelated, setShowRelated] = useState(false)
+  const [pendingAction, setPendingAction] = useState<ReviewReviewStatus | null>(null)
   const createdReviewIdRef = useRef<string | null>(null)
 
   const control = controlData?.control
@@ -81,6 +84,30 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
     const nodes = (programsData?.programs?.edges ?? []).map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => !!node)
     return nodes.filter((program) => !INACTIVE_PROGRAM_STATUSES.has(program.status))
   }, [programsData])
+
+  const relatedGroups = useMemo(() => {
+    const groups = new Map<string, { label: string; framework?: string; isSubcontrols: boolean; items: TRelatedItem[] }>()
+    const add = (key: string, label: string, framework: string | undefined, isSubcontrols: boolean, item: TRelatedItem) => {
+      const existing = groups.get(key)
+      if (existing) {
+        existing.items.push(item)
+      } else {
+        groups.set(key, { label, framework, isSubcontrols, items: [item] })
+      }
+    }
+    relatedControls.forEach((related) => {
+      const framework = related.referenceFramework ?? undefined
+      add(framework ?? 'custom', framework ?? 'CUSTOM', framework, false, {
+        id: related.id,
+        refCode: related.refCode,
+        field: related.isSubcontrol ? 'linkedSubcontrolIDs' : 'linkedControlIDs',
+      })
+    })
+    subcontrols.forEach((sub) => add('subcontrols', 'Subcontrols', undefined, true, { id: sub.id, refCode: sub.refCode, field: 'linkedSubcontrolIDs' }))
+    return Array.from(groups.values())
+  }, [relatedControls, subcontrols])
+
+  const totalRelatedCount = useMemo(() => relatedGroups.reduce((sum, group) => sum + group.items.length, 0), [relatedGroups])
 
   const form = useForm<ControlReviewFormData>({
     resolver: zodResolver(controlReviewSchema),
@@ -122,7 +149,7 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
   }
 
   const submit = async (data: ControlReviewFormData, status: ReviewReviewStatus) => {
-    setIsPending(true)
+    setPendingAction(status)
     try {
       const controlIDs = subcontrolId ? [...data.linkedControlIDs] : [controlId, ...data.linkedControlIDs]
       const subcontrolIDs = subcontrolId ? [subcontrolId, ...data.linkedSubcontrolIDs] : [...data.linkedSubcontrolIDs]
@@ -173,13 +200,31 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
     } finally {
-      setIsPending(false)
+      setPendingAction(null)
     }
   }
 
   const toggleId = (field: 'linkedControlIDs' | 'linkedSubcontrolIDs', id: string, checked: boolean) => {
     const current = form.getValues(field)
     form.setValue(field, checked ? [...current, id] : current.filter((value) => value !== id))
+  }
+
+  const selectedControlIDs = form.watch('linkedControlIDs')
+  const selectedSubcontrolIDs = form.watch('linkedSubcontrolIDs')
+
+  const isItemSelected = (item: TRelatedItem) => (item.field === 'linkedSubcontrolIDs' ? selectedSubcontrolIDs : selectedControlIDs).includes(item.id)
+
+  const setGroupSelection = (items: TRelatedItem[], checked: boolean) => {
+    const controlIDs = items.filter((item) => item.field === 'linkedControlIDs').map((item) => item.id)
+    const subcontrolIDs = items.filter((item) => item.field === 'linkedSubcontrolIDs').map((item) => item.id)
+    if (controlIDs.length) {
+      const current = form.getValues('linkedControlIDs')
+      form.setValue('linkedControlIDs', checked ? Array.from(new Set([...current, ...controlIDs])) : current.filter((id) => !controlIDs.includes(id)))
+    }
+    if (subcontrolIDs.length) {
+      const current = form.getValues('linkedSubcontrolIDs')
+      form.setValue('linkedSubcontrolIDs', checked ? Array.from(new Set([...current, ...subcontrolIDs])) : current.filter((id) => !subcontrolIDs.includes(id)))
+    }
   }
 
   return (
@@ -223,49 +268,63 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
                 <StandardChip referenceFramework={control?.referenceFramework ?? undefined} />
               </div>
 
-              <FormField
-                control={form.control}
-                name="programID"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Program</FormLabel>
-                    <FormControl>
-                      <Select value={field.value ?? undefined} onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder={activePrograms.length ? 'Select a program...' : 'No active programs'} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {activePrograms.map((program) => (
-                            <SelectItem key={program.id} value={program.id}>
-                              {program.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+              {activePrograms.length > 0 && (
+                <FormField
+                  control={form.control}
+                  name="programID"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Program</FormLabel>
+                      <FormControl>
+                        <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select a program..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {activePrograms.map((program) => (
+                              <SelectItem key={program.id} value={program.id}>
+                                {program.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              )}
 
-              {(relatedControls.length > 0 || subcontrols.length > 0) && (
+              {totalRelatedCount > 0 && (
                 <div className="flex flex-col gap-2">
-                  <span className="text-sm text-muted-foreground">Also link to related controls</span>
-                  {relatedControls.map((related) => (
-                    <label key={related.id} className="flex items-center gap-2 text-sm cursor-pointer">
-                      <Checkbox
-                        checked={form.watch(related.isSubcontrol ? 'linkedSubcontrolIDs' : 'linkedControlIDs').includes(related.id)}
-                        onCheckedChange={(checked) => toggleId(related.isSubcontrol ? 'linkedSubcontrolIDs' : 'linkedControlIDs', related.id, checked === true)}
-                      />
-                      <span>{related.refCode}</span>
-                      <StandardChip referenceFramework={related.referenceFramework ?? undefined} />
-                    </label>
-                  ))}
-                  {subcontrols.map((sub) => (
-                    <label key={sub.id} className="flex items-center gap-2 text-sm cursor-pointer">
-                      <Checkbox checked={form.watch('linkedSubcontrolIDs').includes(sub.id)} onCheckedChange={(checked) => toggleId('linkedSubcontrolIDs', sub.id, checked === true)} />
-                      <span>{sub.refCode}</span>
-                    </label>
-                  ))}
+                  <button type="button" className="group flex items-center gap-2 text-sm text-muted-foreground self-start" onClick={() => setShowRelated((prev) => !prev)}>
+                    <ChevronDown size={16} className={`transition-transform ${showRelated ? '' : '-rotate-90'}`} />
+                    <span>Also link to related controls</span>
+                    <span className="rounded-full border border-border text-xs flex items-center justify-center h-5 min-w-5 px-1">{totalRelatedCount}</span>
+                  </button>
+                  {showRelated && (
+                    <div className="flex flex-col gap-4 pl-1">
+                      {relatedGroups.map((group) => {
+                        const allSelected = group.items.every(isItemSelected)
+                        return (
+                          <div key={group.label} className="flex flex-col gap-2">
+                            <label className="flex items-center gap-2 text-sm cursor-pointer">
+                              <Checkbox checked={allSelected} onCheckedChange={(checked) => setGroupSelection(group.items, checked === true)} />
+                              {group.isSubcontrols ? <span className="font-medium">{group.label}</span> : <StandardChip referenceFramework={group.framework} />}
+                              <span className="text-xs text-muted-foreground">Select all</span>
+                            </label>
+                            <div className="flex flex-col gap-2 pl-6">
+                              {group.items.map((item) => (
+                                <label key={item.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                                  <Checkbox checked={isItemSelected(item)} onCheckedChange={(checked) => toggleId(item.field, item.id, checked === true)} />
+                                  <span>{item.refCode}</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
             </Panel>
@@ -395,13 +454,24 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
         </Form>
 
         <div className="mt-auto flex items-center justify-end gap-2 border-t pt-4">
-          <Button type="button" variant="secondary" onClick={resetAndClose} disabled={isPending}>
+          <Button type="button" variant="secondary" onClick={resetAndClose} disabled={pendingAction !== null}>
             Cancel
           </Button>
-          <Button type="button" variant="secondary" onClick={form.handleSubmit((data) => submit(data, ReviewReviewStatus.IN_PROGRESS))} loading={isPending} disabled={isPending}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={form.handleSubmit((data) => submit(data, ReviewReviewStatus.IN_PROGRESS))}
+            loading={pendingAction === ReviewReviewStatus.IN_PROGRESS}
+            disabled={pendingAction !== null}
+          >
             Save Draft
           </Button>
-          <Button type="button" onClick={form.handleSubmit((data) => submit(data, ReviewReviewStatus.COMPLETED))} loading={isPending} disabled={isPending}>
+          <Button
+            type="button"
+            onClick={form.handleSubmit((data) => submit(data, ReviewReviewStatus.COMPLETED))}
+            loading={pendingAction === ReviewReviewStatus.COMPLETED}
+            disabled={pendingAction !== null}
+          >
             Create Review
           </Button>
         </div>

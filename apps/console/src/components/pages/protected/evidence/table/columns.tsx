@@ -209,23 +209,15 @@ export const useGetEvidenceColumns = ({ userMap, tokenMap, selectedEvidence, set
     columns.push({
       id: 'auditorActions',
       header: 'Actions',
-      size: 220,
-      minSize: 200,
+      size: 290,
+      minSize: 290,
       enableHiding: false,
       cell: ({ row }) => {
         const evidence = row.original
         const alreadyApproved = evidence.status === EvidenceEvidenceStatus.AUDITOR_APPROVED
         return (
           <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-            <Button
-              type="button"
-              variant="success"
-              className="h-7 px-2"
-              icon={<Stamp size={14} />}
-              iconPosition="left"
-              disabled={auditorActionPending || alreadyApproved}
-              onClick={() => onApprove?.(evidence)}
-            >
+            <Button type="button" className="h-7 px-2" icon={<Stamp size={14} />} iconPosition="left" disabled={auditorActionPending || alreadyApproved} onClick={() => onApprove?.(evidence)}>
               Approve
             </Button>
             <Button
