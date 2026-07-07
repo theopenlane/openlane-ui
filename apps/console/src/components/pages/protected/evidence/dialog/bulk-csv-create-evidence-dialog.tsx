@@ -8,11 +8,12 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
+import { EVIDENCE_DOCS_URL } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import { type TUploadedFile } from '../upload/types/TUploadedFile'
 import { useCreateBulkCSVEvidence } from '@/lib/graphql-hooks/evidence'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { EvidenceCSVInfoSheet } from './evidence-csv-info-sheet'
 
 type BulkCSVCreateEvidenceDialogProps = {
   trigger?: React.ReactElement<
@@ -26,6 +27,7 @@ type BulkCSVCreateEvidenceDialogProps = {
 
 const BulkCSVCreateEvidenceDialog: React.FC<BulkCSVCreateEvidenceDialogProps> = ({ trigger }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [isInfoOpen, setIsInfoOpen] = useState<boolean>(false)
   const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createBulkEvidence, isPending: isSubmitting } = useCreateBulkCSVEvidence()
@@ -59,57 +61,71 @@ const BulkCSVCreateEvidenceDialog: React.FC<BulkCSVCreateEvidenceDialogProps> = 
     await exportCSV({ filename: 'evidence' })
   }
 
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      {trigger ? (
-        <DialogTrigger className="bg-transparent">
-          {/* eslint-disable-next-line @eslint-react/no-clone-element */}
-          {cloneElement(trigger, {
-            onClick: () => setIsOpen(true),
-            disabled: isSubmitting,
-          })}
-        </DialogTrigger>
-      ) : (
-        <DialogTrigger asChild>
-          <Button variant="transparent" icon={<Upload />} className="h-8 px-2!" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
-            Bulk Upload
-          </Button>
-        </DialogTrigger>
-      )}
+  const handleDialogOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (!open) {
+      setIsInfoOpen(false)
+    }
+  }
 
-      <DialogContent className="sm:max-w-[640px] bg-secondary">
-        <DialogHeader>
-          <DialogTitle>Bulk Upload</DialogTitle>
-        </DialogHeader>
-        <Callout title="CSV Format">
-          <p className="text-sm">
-            You can upload a csv containing evidence. Please refer to our{' '}
-            <a href={`${GRAPHQL_OBJECT_DOCS}#evidence`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
-              documentation
-            </a>{' '}
-            for column format. We also provide a{' '}
-            <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
-              template csv file
-            </a>{' '}
-            for you to fill out.
-          </p>
-        </Callout>
-        <FileUpload
-          acceptedFileTypes={['text/csv']}
-          acceptedFileTypesShort={['CSV']}
-          maxFileSizeInMb={1}
-          onFileUpload={handleUploadedFile}
-          multipleFiles={false}
-          acceptedFilesClass="flex justify-between text-sm"
-        />
-        <div className="flex flex-col gap-2">
-          <Button variant="primary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || !uploadedFile}>
-            {isSubmitting ? 'Uploading...' : 'Upload'}
-          </Button>
-          <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
-        </div>
-      </DialogContent>
-    </Dialog>
+  return (
+    <>
+      <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
+        {trigger ? (
+          <DialogTrigger className="bg-transparent">
+            {/* eslint-disable-next-line @eslint-react/no-clone-element */}
+            {cloneElement(trigger, {
+              onClick: () => setIsOpen(true),
+              disabled: isSubmitting,
+            })}
+          </DialogTrigger>
+        ) : (
+          <DialogTrigger asChild>
+            <Button variant="transparent" icon={<Upload />} className="h-8 px-2!" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
+              Bulk Upload
+            </Button>
+          </DialogTrigger>
+        )}
+
+        <DialogContent className="sm:max-w-[640px] bg-secondary">
+          <DialogHeader>
+            <DialogTitle>Bulk Upload</DialogTitle>
+          </DialogHeader>
+          <Callout title="CSV Format">
+            <p className="text-sm">
+              You can upload a csv containing evidence. See the{' '}
+              <a className="text-brand hover:underline cursor-pointer" onClick={() => setIsInfoOpen(true)}>
+                CSV format guide
+              </a>{' '}
+              for the fields and an example, or refer to our{' '}
+              <a href={EVIDENCE_DOCS_URL} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+                documentation
+              </a>
+              . We also provide a{' '}
+              <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
+                template csv file
+              </a>{' '}
+              for you to fill out.
+            </p>
+          </Callout>
+          <FileUpload
+            acceptedFileTypes={['text/csv']}
+            acceptedFileTypesShort={['CSV']}
+            maxFileSizeInMb={1}
+            onFileUpload={handleUploadedFile}
+            multipleFiles={false}
+            acceptedFilesClass="flex justify-between text-sm"
+          />
+          <div className="flex flex-col gap-2">
+            <Button variant="primary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || !uploadedFile}>
+              {isSubmitting ? 'Uploading...' : 'Upload'}
+            </Button>
+            <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
+          </div>
+        </DialogContent>
+      </Dialog>
+      <EvidenceCSVInfoSheet open={isInfoOpen} onOpenChange={setIsInfoOpen} />
+    </>
   )
 }
 
