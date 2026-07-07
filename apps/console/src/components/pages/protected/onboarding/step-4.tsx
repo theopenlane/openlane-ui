@@ -3,6 +3,7 @@
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { z, type infer as zInfer } from 'zod'
+import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
 
@@ -10,6 +11,8 @@ export const step4Schema = z.object({
   compliance: z.object({
     has_auditor: z.boolean().optional(),
     recommend_auditors: z.boolean().optional(),
+    auditor_name: z.string().optional(),
+    auditor_email: z.string().email('Enter a valid email address').optional().or(z.literal('')),
     has_vciso_partner: z.boolean().optional(),
     // has_vciso_partner is just a boolean but in reality false could either be "i will do this later" or "no, we want recommendations"
     // which is why recommend_vciso_partner exists.
@@ -34,11 +37,16 @@ type RadioQuestionProps = {
   options: RadioOption[]
 }
 
+const gridColsClass: Record<number, string> = {
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-3',
+}
+
 const questions: RadioQuestionProps[] = [
   {
     name: 'has_auditor',
     title: 'Are you currently working with an auditor?',
-    helper: "We can suggest audit partners and next steps when you're ready.",
+    helper: 'This helps us tailor your setup and, if needed, recommend an auditor experienced with your compliance framework',
     options: [
       { value: 'yes', label: 'Yes' },
       { value: 'recommendations', label: "No, we'd like recommendations" },
@@ -48,12 +56,12 @@ const questions: RadioQuestionProps[] = [
   {
     name: 'has_vciso_partner',
     title: 'Looking for a Hands-On Compliance Team?',
-    helper: "We can suggest partners and next steps when you're ready.",
+    helper: 'Need extra support? We can introduce you to trusted partners who can help build and manage your compliance program',
     options: [
       { value: 'no', label: 'No' },
       {
         value: 'connect_vciso_partner',
-        label: "Yes, I'd like to connect with a vCISO partner for ongoing program management, audit readiness, control ownership, and compliance leadership",
+        label: "Yes, I'd like to connect with a vCISO",
       },
       { value: 'existing_partner', label: 'Yes, I already have a partner' },
     ],
@@ -61,7 +69,7 @@ const questions: RadioQuestionProps[] = [
   {
     name: 'demo_requested',
     title: 'Want help getting started?',
-    helper: 'Our team can reach out to help you get set up and on the right track.',
+    helper: 'Schedule time with our team for onboarding guidance, product questions, and best practices',
     options: [
       { value: 'true', label: 'Yes, please reach out' },
       { value: 'false', label: "No, I'm good for now" },
@@ -72,6 +80,7 @@ const questions: RadioQuestionProps[] = [
 export default function Step4() {
   const {
     formState: { errors },
+    register,
     setValue,
     watch,
   } = useFormContext<Step4Values>()
@@ -85,6 +94,10 @@ export default function Step4() {
     if (name === 'has_auditor') {
       setValue('compliance.has_auditor', value === 'yes', { shouldDirty: true, shouldValidate: true })
       setValue('compliance.recommend_auditors', value === 'recommendations', { shouldDirty: true, shouldValidate: true })
+      if (value !== 'yes') {
+        setValue('compliance.auditor_name', '', { shouldDirty: true, shouldValidate: true })
+        setValue('compliance.auditor_email', '', { shouldDirty: true, shouldValidate: true })
+      }
       return
     }
 
@@ -150,34 +163,36 @@ export default function Step4() {
               <Label>{question.title}</Label>
               {question.helper && <p className="text-xs text-text-light">{question.helper}</p>}
             </div>
-            <RadioGroup value={value} onValueChange={(value) => handleValueChange(question.name, value)}>
+            <RadioGroup value={value} onValueChange={(value) => handleValueChange(question.name, value)} className={`grid gap-3 ${gridColsClass[question.options.length] ?? ''}`}>
               {question.options.map((option) => {
                 const id = `${question.name}-${option.value}`
                 const [label, description] = option.label.split('\n')
                 const checked = value === option.value
 
                 return (
-                  <Label
-                    key={option.value}
-                    htmlFor={id}
-                    className={`flex min-h-[72px] w-full cursor-pointer items-start gap-3 rounded-md border p-4 font-normal leading-5 transition-colors ${
-                      checked ? 'border-brand bg-brand/10 ring-1 ring-brand' : 'border-border bg-background hover:bg-muted/20'
-                    }`}
-                  >
-                    <RadioGroupItem
-                      id={id}
-                      value={option.value}
-                      className="mt-0.5 h-5 w-5 shrink-0 border-slate-400 bg-white text-brand shadow-sm data-[state=checked]:border-brand data-[state=checked]:bg-brand dark:border-border dark:bg-background"
-                    />
-                    <span className="block">
-                      <span className="block font-semibold">{label}</span>
-                      {description && <span className="block text-xs text-text-light">{description}</span>}
-                    </span>
+                  <Label key={option.value} htmlFor={id} variant="card" selected={checked} className="min-h-[72px]">
+                    <RadioGroupItem id={id} value={option.value} className="mt-0.5 h-5 w-5 shrink-0" />
+                    <span className="block text-sm">{label}</span>
+                    {description && <span className="block text-xs text-text-light">{description}</span>}
                   </Label>
                 )
               })}
             </RadioGroup>
             {error && <p className="text-red-500 text-sm">{error.message}</p>}
+            {question.name === 'has_auditor' && value === 'yes' && (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label htmlFor="auditor_name">Auditor name</Label>
+                  <Input id="auditor_name" placeholder="Amy Shields" {...register('compliance.auditor_name')} />
+                  {errors.compliance?.auditor_name && <p className="text-red-500 text-sm">{errors.compliance.auditor_name.message}</p>}
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="auditor_email">Auditor email</Label>
+                  <Input id="auditor_email" type="email" placeholder="amy.shields@securesphere.io" {...register('compliance.auditor_email')} />
+                  {errors.compliance?.auditor_email && <p className="text-red-500 text-sm">{errors.compliance.auditor_email.message}</p>}
+                </div>
+              </div>
+            )}
           </div>
         )
       })}

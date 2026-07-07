@@ -6,8 +6,11 @@ import { defineStepper } from '@stepperize/react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { StepHeader } from '@/components/shared/step-header/step-header'
 import { useNotification } from '@/hooks/useNotification'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
 import { useCloneControls, useStandardsSelect } from '@/lib/graphql-hooks/standard'
+import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
+import { recreateSeededControlMappings } from '@/lib/graphql-hooks/suggested-control-mappings'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
@@ -31,9 +34,13 @@ export default function Soc2Wizard() {
   const searchParams = useSearchParams()
   const includeSuggestedControls = searchParams.get('suggestedControls') === 'true'
   const isOnboardingFlow = searchParams.get('onboarding') === 'true'
+  const auditorName = searchParams.get('auditorName') ?? undefined
+  const auditorEmail = searchParams.get('auditorEmail') ?? undefined
   const { errorNotification, successNotification } = useNotification()
+  const { client } = useGraphQLClient()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const { mutateAsync: cloneControls, isPending: isControlBeingCloned } = useCloneControls()
+  const { mutateAsync: createMappedControl } = useCreateMappedControl()
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { data } = useStandardsSelect({ where: { shortName: 'SOC 2' } })
   const [showExitConfirm, setShowExitConfirm] = useState(false)
@@ -91,6 +98,8 @@ export default function Soc2Wizard() {
         viewerIDs: data.viewerIDs,
         editorIDs: data.editorIDs,
         frameworkName: 'SOC 2',
+        auditor: auditorName,
+        auditorEmail: auditorEmail,
       },
       standardID,
       categories: data.categories,
@@ -109,6 +118,18 @@ export default function Soc2Wizard() {
             controlIDs: data.suggestedControlIDs,
           },
         })
+      }
+
+      // recreate the system-seeded control mappings for the org's cloned copies; best-effort so it doesn't block program creation from succeeding
+      try {
+        await recreateSeededControlMappings({
+          client,
+          programID,
+          mappingGroups: data.suggestedControlMappings,
+          createMappedControl,
+        })
+      } catch (mappingError) {
+        console.error('Failed to recreate control mappings', mappingError)
       }
 
       successNotification({
@@ -176,12 +197,6 @@ export default function Soc2Wizard() {
   return (
     <>
       <div className="max-w-6xl mx-auto px-6 py-2">
-        {isOnboardingFlow && (
-          <div className="mb-6 rounded-md border border-brand/30 bg-brand/5 p-4">
-            <p className="text-sm font-semibold">Program creation</p>
-            <p className="mt-1 text-sm text-muted-foreground">Your onboarding answers are saved. Now create your SOC 2 program and choose the controls you want to start with.</p>
-          </div>
-        )}
         <StepHeader stepper={stepper} className="mb-6" />
         <Separator separatorClass="bg-card" />
         <FormProvider {...methods}>

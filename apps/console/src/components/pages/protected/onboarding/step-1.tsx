@@ -1,7 +1,6 @@
 'use client'
 
 import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -23,6 +22,15 @@ export const step1Schema = z.object({
 })
 
 type Step1Values = zInfer<typeof step1Schema>
+
+const deriveCompanyName = (domain: string) => {
+  const root = domain.split('.')[0]
+  return root
+    .split(/[-_]+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
 
 const companySizes = [
   { value: '1-10', label: '1-10 employees (Freelancers, solo entrepreneurs, or small startups)' },
@@ -71,6 +79,10 @@ export default function Step1() {
     if (userDomain && !currentDomains.includes(userDomain)) {
       setValue('domains', [...currentDomains, userDomain])
     }
+
+    if (userDomain && !watch('companyName')) {
+      setValue('companyName', deriveCompanyName(userDomain), { shouldValidate: true })
+    }
   }, [userDomain, setValue, watch])
 
   const addDomain = () => {
@@ -116,18 +128,21 @@ export default function Step1() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="domains">Company Domain(s)*</Label>
-        <TooltipProvider disableHoverableContent={true}>
-          <Tooltip>
-            <TooltipTrigger type="button" className="bg-transparent">
-              <InfoIcon size={14} className="mx-1 mt-1" />
-            </TooltipTrigger>
-            <TooltipContent side="right">
-              <p>Add the top-level domains associated with your company (e.g., acme.com). Avoid subdomains like app.acme.com</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <div className="flex flex-wrap gap-2 border rounded-md p-2">
+        <div className="flex items-center gap-1">
+          <Label htmlFor="domains">Company Domains</Label>
+          <TooltipProvider disableHoverableContent={true}>
+            <Tooltip>
+              <TooltipTrigger type="button" className="bg-transparent">
+                <InfoIcon size={14} />
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Add the top-level domains associated with your company (e.g., acme.com). Avoid subdomains like app.acme.com</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        <p className="text-sm text-muted-foreground">We&apos;ll use this to setup auto-join to your organization for your teammates and discovery of your vendors and assets automatically</p>
+        <div className="flex flex-wrap items-center gap-2 border rounded-md p-2">
           {domains.map((domain) => (
             <Badge key={domain} className="flex items-center gap-1">
               {domain}
@@ -136,19 +151,17 @@ export default function Step1() {
               </button>
             </Badge>
           ))}
-          <Input id="domains" type="text" value={domainInput} onChange={(e) => setDomainInput(e.target.value)} onKeyDown={handleKeyDown} />
+          <Input
+            id="domains"
+            type="text"
+            value={domainInput}
+            onChange={(e) => setDomainInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={addDomain}
+            placeholder=""
+            className="h-auto flex-1 min-w-[180px] border-none p-0 shadow-none focus-visible:ring-0"
+          />
         </div>
-        <Button
-          onClick={(e) => {
-            e.preventDefault()
-            addDomain()
-          }}
-          variant="secondary"
-          className="mt-2 "
-        >
-          Add Domain
-        </Button>
-        {domainInput.trim() && <p className="text-amber-500 text-sm">You have an unadded domain. Click &quot;Add Domain&quot; to add it.</p>}
         {errors.domains && <p className="text-red-500 text-sm">{errors.domains.message as string}</p>}
       </div>
 

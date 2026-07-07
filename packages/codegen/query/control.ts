@@ -514,7 +514,7 @@ export const UPDATE_CONTROL = gql`
 
 export const GET_CONTROL_COUNTS_BY_STATUS = gql`
   query GetControlCountsByStatus($programId: ID!) {
-    preparing: controls(where: { status: PREPARING, hasProgramsWith: [{ id: $programId }] }) {
+    preparing: controls(where: { statusIn: [PREPARING, DRAFT, NOT_IMPLEMENTED], hasProgramsWith: [{ id: $programId }] }) {
       totalCount
     }
     needsApproval: controls(where: { status: NEEDS_APPROVAL, hasProgramsWith: [{ id: $programId }] }) {
@@ -632,6 +632,8 @@ export const GET_CONTROLS_PAGINATED = gql`
           __typename
           id
           refCode
+          title
+          description
           category
           subcategory
           referenceFramework
@@ -815,6 +817,19 @@ export const GET_CONTROLS_BY_REFCODE = gql`
               }
             }
           }
+        }
+      }
+    }
+  }
+`
+
+export const GET_PROGRAM_CONTROLS_BY_REFCODE = gql`
+  query GetProgramControlsByRefCode($refCodeIn: [String!], $programId: ID!) {
+    controls(where: { refCodeIn: $refCodeIn, hasProgramsWith: [{ id: $programId }] }) {
+      edges {
+        node {
+          id
+          refCode
         }
       }
     }

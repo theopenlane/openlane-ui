@@ -6,7 +6,8 @@ import { z, type infer as zInfer } from 'zod'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Label } from '@repo/ui/label'
 import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
-import { COMPLIANCE_FRAMEWORK_OPTIONS } from '@/components/pages/protected/onboarding/constants'
+import { COMPLIANCE_FRAMEWORK_OPTIONS, COMPLIANCE_FRAMEWORKS } from '@/components/pages/protected/onboarding/constants'
+import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 
 export const step3Schema = z.object({
   compliance: z.object({
@@ -19,13 +20,13 @@ export const step3Schema = z.object({
 type Step3Values = zInfer<typeof step3Schema>
 
 const controlOptions = [
-  { value: 'true', label: 'Yes, we have existing controls', description: 'Controls define the requirements and activities your organization uses to meet compliance objectives.' },
-  { value: 'false', label: "No, we'd like a starting template", description: 'Controls define the requirements and activities your organization uses to meet compliance objectives.' },
+  { value: 'true', label: 'Yes', description: 'We have existing controls we want to import' },
+  { value: 'false', label: 'No', description: 'Import templates to help us get started' },
 ]
 
 const policyOptions = [
-  { value: 'true', label: "Yes, we'd like to import them", description: 'Policies and procedures document how your organization operates and supports compliance requirements.' },
-  { value: 'false', label: "No, we'd like policy templates", description: 'Policies and procedures document how your organization operates and supports compliance requirements.' },
+  { value: 'true', label: 'Yes', description: "We'd like to import them via upload or integrations" },
+  { value: 'false', label: 'No', description: "We'd like policy templates to get us started" },
 ]
 
 export default function Step3() {
@@ -66,17 +67,16 @@ export default function Step3() {
           {COMPLIANCE_FRAMEWORK_OPTIONS.map((framework) => {
             const id = `framework-${framework.value.toLowerCase().replaceAll(' ', '-').replaceAll('/', '-')}`
             const checked = frameworks.includes(framework.value)
-            const Icon = framework.icon
 
             return (
               <div
                 key={framework.value}
-                className={`flex items-center gap-3 rounded-md border bg-background p-3 [&_[role=checkbox]]:border-slate-400 [&_[role=checkbox]]:bg-white [&_[role=checkbox]]:shadow-sm dark:[&_[role=checkbox]]:border-border dark:[&_[role=checkbox]]:bg-background [&_[role=checkbox][data-state=checked]]:border-brand [&_[role=checkbox][data-state=checked]]:bg-brand ${
-                  checked ? 'border-brand bg-brand/10 ring-1 ring-brand' : 'border-border'
+                className={`flex items-center gap-3 rounded-md border bg-background p-3 [&_[role=checkbox]]:border-slate-400 [&_[role=checkbox]]:bg-white [&_[role=checkbox]]:shadow-sm dark:[&_[role=checkbox]]:border-border dark:[&_[role=checkbox]]:bg-background [&_[role=checkbox][data-state=checked]]:border-primary [&_[role=checkbox][data-state=checked]]:bg-primary ${
+                  checked ? 'border-primary bg-primary/10 ring-1 ring-primary' : 'border-border'
                 }`}
               >
                 <Checkbox id={id} checked={checked} onCheckedChange={(value) => toggleFramework(framework.value, value === true)} />
-                <Icon size={18} />
+                {framework.value !== COMPLIANCE_FRAMEWORKS.other && <StandardsIconMapper shortName={framework.value} height={64} width={64} />}
                 <Label htmlFor={id} className="w-full cursor-pointer font-medium">
                   {framework.label}
                 </Label>
@@ -99,21 +99,11 @@ export default function Step3() {
             const checked = String(watch('compliance.existing_controls')) === option.value
 
             return (
-              <Label
-                key={option.value}
-                htmlFor={id}
-                className={`flex min-h-[96px] w-full cursor-pointer items-start gap-3 rounded-md border p-4 font-normal leading-5 transition-colors ${
-                  checked ? 'border-brand bg-brand/10 ring-1 ring-brand' : 'border-border bg-background hover:bg-muted/20'
-                }`}
-              >
-                <RadioGroupItem
-                  id={id}
-                  value={option.value}
-                  className="mt-1 h-5 w-5 shrink-0 border-slate-400 bg-white text-brand shadow-sm data-[state=checked]:border-brand data-[state=checked]:bg-brand dark:border-border dark:bg-background"
-                />
+              <Label key={option.value} htmlFor={id} variant="card" selected={checked}>
+                <RadioGroupItem id={id} value={option.value} className="mt-1 h-5 w-5 shrink-0" />
                 <span className="block">
-                  <span className="block font-semibold">{option.label}</span>
-                  <span className="block text-xs text-text-light">{option.description}</span>
+                  <span className="block font-semibold text-sm">{option.label}</span>
+                  {option.description && <span className="block text-xs text-text-light">{option.description}</span>}
                 </span>
               </Label>
             )
@@ -134,21 +124,11 @@ export default function Step3() {
             const checked = String(watch('compliance.existing_policies_procedures')) === option.value
 
             return (
-              <Label
-                key={option.value}
-                htmlFor={id}
-                className={`flex min-h-[96px] w-full cursor-pointer items-start gap-3 rounded-md border p-4 font-normal leading-5 transition-colors ${
-                  checked ? 'border-brand bg-brand/10 ring-1 ring-brand' : 'border-border bg-background hover:bg-muted/20'
-                }`}
-              >
-                <RadioGroupItem
-                  id={id}
-                  value={option.value}
-                  className="mt-1 h-5 w-5 shrink-0 border-slate-400 bg-white text-brand shadow-sm data-[state=checked]:border-brand data-[state=checked]:bg-brand dark:border-border dark:bg-background"
-                />
+              <Label key={option.value} htmlFor={id} variant="card" selected={checked}>
+                <RadioGroupItem id={id} value={option.value} className="mt-1 h-5 w-5 shrink-0" />
                 <span className="block">
-                  <span className="block font-semibold">{option.label}</span>
-                  <span className="block text-xs text-text-light">{option.description}</span>
+                  <span className="block font-semibold text-sm">{option.label}</span>
+                  {option.description && <span className="block text-xs text-text-light">{option.description}</span>}
                 </span>
               </Label>
             )

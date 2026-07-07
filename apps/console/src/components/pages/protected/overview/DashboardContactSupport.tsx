@@ -1,6 +1,7 @@
 import { Button } from '@repo/ui/button'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Headset } from 'lucide-react'
+import Link from 'next/link'
 import { SUPPORT_URL } from '@/constants'
 
 const DashboardContactSupport = () => {
@@ -14,7 +15,12 @@ const DashboardContactSupport = () => {
 
           <div className="flex-1">
             <h3 className="font-medium text-sm">Contact Support</h3>
-            <p className="text-xs text-muted-foreground">Got issues? Reach out. Our support team already tried turning themselves off and on again.</p>
+            <p className="text-xs text-muted-foreground">
+              Got issues? Reach out. Our support team already tried turning themselves off and on again. If you need help with objects directly in your organization, turn on{' '}
+              <Link href="/organization-settings/authentication" className="underline">
+                Openlane Support Access
+              </Link>
+            </p>
           </div>
         </div>
 

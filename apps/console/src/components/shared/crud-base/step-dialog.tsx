@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useRef } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
@@ -37,9 +38,11 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
   const { successNotification, errorNotification } = useNotification()
 
   const stepperDefRef = useRef<ReturnType<typeof defineStepper> | null>(null)
+  // eslint-disable-next-line react-hooks/refs -- intentional lazy ref init; defineStepper must only run once per dialog instance
   if (!stepperDefRef.current) {
     stepperDefRef.current = defineStepper(...steps.map((step) => ({ id: step.id })))
   }
+  // eslint-disable-next-line react-hooks/refs -- same stable ref read, not a per-render value
   const stepper = stepperDefRef.current.useStepper()
 
   const objectTypeName = toHumanLabel(objectType)
@@ -112,7 +115,13 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
         </FormProvider>
 
         <DialogFooter>
-          <CancelButton onClick={handleBack} title={stepper.isFirst ? 'Cancel' : 'Back'} />
+          {stepper.isFirst ? (
+            <CancelButton onClick={handleBack} title="Cancel" />
+          ) : (
+            <Button type="button" variant="secondary" onClick={handleBack} icon={<ArrowLeft />} iconPosition="left">
+              Back
+            </Button>
+          )}
           {stepper.isLast ? (
             <SaveButton onClick={handleNext} disabled={createMutation.isPending} isSaving={createMutation.isPending} title="Create" savingTitle="Creating..." />
           ) : (

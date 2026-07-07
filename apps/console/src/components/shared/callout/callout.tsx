@@ -1,9 +1,9 @@
 // components/Callout.tsx
 import * as React from 'react'
-import { Info, AlertTriangle, AlertCircle, CheckCircle2, LightbulbIcon } from 'lucide-react'
+import { Info, AlertTriangle, AlertCircle, CheckCircle2, LightbulbIcon, Sparkles } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 
-type Variant = 'info' | 'success' | 'warning' | 'danger' | 'suggestion'
+type Variant = 'info' | 'success' | 'warning' | 'danger' | 'suggestion' | 'recommendation'
 
 const variantToVars: Record<Variant, { bg: string; border: string; icon: string; iconEl: React.ElementType; link: string }> = {
   info: {
@@ -40,6 +40,13 @@ const variantToVars: Record<Variant, { bg: string; border: string; icon: string;
     icon: 'text-[var(--color-danger)]',
     iconEl: AlertCircle,
     link: '[&_a]:text-[hsl(var(--foreground))] [&_a]:decoration-[var(--color-danger)]',
+  },
+  recommendation: {
+    bg: 'bg-[var(--color-recommendation)]/10 dark:bg-[var(--color-recommendation)]/18',
+    border: 'border-[var(--color-recommendation)]/60',
+    icon: 'text-[var(--color-recommendation)]',
+    iconEl: Sparkles,
+    link: '[&_a]:text-[hsl(var(--foreground))] [&_a]:decoration-[var(--color-recommendation)]',
   },
 }
 

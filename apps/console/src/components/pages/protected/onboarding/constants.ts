@@ -1,5 +1,3 @@
-import { CreditCard, Ellipsis, Globe2, Heart, ShieldCheck } from 'lucide-react'
-
 export const ONBOARDING_PROGRAM_ROUTES = {
   soc2: '/programs/create/soc2',
   frameworkBased: '/programs/create/framework-based',
@@ -11,16 +9,15 @@ export const COMPLIANCE_FRAMEWORKS = {
   iso27001: 'ISO 27001',
   hipaa: 'HIPAA',
   pciDss: 'PCI DSS',
-  nistCsf: 'NIST CSF',
+  iso42001: 'ISO 42001',
   other: 'Other',
 } as const
 
 export const COMPLIANCE_FRAMEWORK_OPTIONS = [
-  { value: COMPLIANCE_FRAMEWORKS.soc2, label: COMPLIANCE_FRAMEWORKS.soc2, icon: ShieldCheck },
-  { value: COMPLIANCE_FRAMEWORKS.iso27001, label: COMPLIANCE_FRAMEWORKS.iso27001, icon: Globe2 },
-  { value: COMPLIANCE_FRAMEWORKS.hipaa, label: COMPLIANCE_FRAMEWORKS.hipaa, icon: Heart },
-  { value: COMPLIANCE_FRAMEWORKS.pciDss, label: COMPLIANCE_FRAMEWORKS.pciDss, icon: CreditCard },
-  // NIST CSF for matching, but we display NIST in UI.
-  { value: COMPLIANCE_FRAMEWORKS.nistCsf, label: 'NIST', icon: ShieldCheck },
-  { value: COMPLIANCE_FRAMEWORKS.other, label: COMPLIANCE_FRAMEWORKS.other, icon: Ellipsis },
+  { value: COMPLIANCE_FRAMEWORKS.soc2, label: COMPLIANCE_FRAMEWORKS.soc2 },
+  { value: COMPLIANCE_FRAMEWORKS.iso27001, label: COMPLIANCE_FRAMEWORKS.iso27001 },
+  { value: COMPLIANCE_FRAMEWORKS.hipaa, label: COMPLIANCE_FRAMEWORKS.hipaa },
+  { value: COMPLIANCE_FRAMEWORKS.pciDss, label: COMPLIANCE_FRAMEWORKS.pciDss },
+  { value: COMPLIANCE_FRAMEWORKS.iso42001, label: COMPLIANCE_FRAMEWORKS.iso42001 },
+  { value: COMPLIANCE_FRAMEWORKS.other, label: COMPLIANCE_FRAMEWORKS.other },
 ] as const

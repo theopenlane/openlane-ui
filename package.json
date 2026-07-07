@@ -33,7 +33,7 @@
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "latest",
-    "turbo": "^2.9.6"
+    "turbo": "^2.10.4"
   },
   "engines": {
     "node": "24.14.x"

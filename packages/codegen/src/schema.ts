@@ -71191,7 +71191,16 @@ export type GetControlsPaginatedQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'ControlEdge'
-      node?: { __typename: 'Control'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+      node?: {
+        __typename: 'Control'
+        id: string
+        refCode: string
+        title?: string | null
+        description?: string | null
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+      } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
   }
@@ -71466,6 +71475,16 @@ export type GetControlsByRefCodeQuery = {
       } | null
     } | null> | null
   }
+}
+
+export type GetProgramControlsByRefCodeQueryVariables = Exact<{
+  refCodeIn?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
+  programId: Scalars['ID']['input']
+}>
+
+export type GetProgramControlsByRefCodeQuery = {
+  __typename?: 'Query'
+  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
 }
 
 export type GetControlRelatedControlsQueryVariables = Exact<{
@@ -75673,12 +75692,15 @@ export type MappedControlsFragmentFragment = { __typename: 'Control'; id: string
 
 export type GetAllMappedControlsQueryVariables = Exact<{
   where?: InputMaybe<MappedControlWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllMappedControlsQuery = {
   __typename?: 'Query'
   mappedControls: {
     __typename?: 'MappedControlConnection'
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
     edges?: Array<{
       __typename?: 'MappedControlEdge'
       node?: {

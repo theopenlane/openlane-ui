@@ -13,7 +13,10 @@ import SelectFrameworkStep from '../shared/steps/select-framework-step'
 import { suggestedControlsStepSchema, validateFullAndNotify, wizardSchema, type WizardValues } from './framework-based-wizard-config'
 import { ProgramMembershipRole, type CreateProgramWithMembersInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
+import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
+import { recreateSeededControlMappings } from '@/lib/graphql-hooks/suggested-control-mappings'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -31,9 +34,13 @@ export default function FrameworkBasedWizard() {
   const defaultFramework = searchParams.get('framework') ?? undefined
   const includeSuggestedControls = searchParams.get('suggestedControls') === 'true'
   const isOnboardingFlow = searchParams.get('onboarding') === 'true'
+  const auditorName = searchParams.get('auditorName') ?? undefined
+  const auditorEmail = searchParams.get('auditorEmail') ?? undefined
   const { successNotification, errorNotification } = useNotification()
+  const { client } = useGraphQLClient()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const { mutateAsync: cloneControls, isPending: isControlBeingCloned } = useCloneControls()
+  const { mutateAsync: createMappedControl } = useCreateMappedControl()
   const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
 
@@ -118,6 +125,8 @@ export default function FrameworkBasedWizard() {
         endDate: oneYearFromToday,
         viewerIDs: values.viewerIDs,
         editorIDs: values.editorIDs,
+        auditor: auditorName,
+        auditorEmail: auditorEmail,
       },
       categories: framework === 'SOC 2' ? values.categories : undefined,
       standardID: values.standardID,
@@ -135,6 +144,17 @@ export default function FrameworkBasedWizard() {
             controlIDs: values.suggestedControlIDs,
           },
         })
+      }
+
+      try {
+        await recreateSeededControlMappings({
+          client,
+          programID,
+          mappingGroups: values.suggestedControlMappings,
+          createMappedControl,
+        })
+      } catch (mappingError) {
+        console.error('Failed to recreate control mappings', mappingError)
       }
 
       successNotification({
@@ -163,12 +183,6 @@ export default function FrameworkBasedWizard() {
   return (
     <>
       <div className="max-w-6xl mx-auto px-6 py-2">
-        {isOnboardingFlow && (
-          <div className="mb-6 rounded-md border border-brand/30 bg-brand/5 p-4">
-            <p className="text-sm font-semibold">Program creation</p>
-            <p className="mt-1 text-sm text-muted-foreground">Your onboarding answers are saved. Now create your compliance program and choose the controls you want to start with.</p>
-          </div>
-        )}
         <StepHeader stepper={stepper} disabledIDs={disabledIDs} className="mb-6" />
         <Separator className="" separatorClass="bg-card" />
         <FormProvider {...methods}>

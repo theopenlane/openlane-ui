@@ -7,9 +7,18 @@ export const step1Schema = z.object({
   standardID: z.string().optional(),
 })
 
+export const suggestedControlMappingSchema = z.object({
+  fromRefCodes: z.array(z.string()),
+  toRefCodes: z.array(z.string()),
+  mappingType: z.string(),
+  confidence: z.number().nullable().optional(),
+  relation: z.string().nullable().optional(),
+})
+
 export const suggestedControlsStepSchema = z.object({
   suggestedControlIDs: z.array(z.string()).optional(),
   suggestedControlCategories: z.array(z.string()).optional(),
+  suggestedControlMappings: z.array(suggestedControlMappingSchema).optional(),
 })
 
 export const programInviteSchema = z.object({

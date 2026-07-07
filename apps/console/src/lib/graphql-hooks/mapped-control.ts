@@ -13,7 +13,8 @@ import {
   EvidenceEvidenceStatus,
   MappedControlMappingSource,
 } from '@repo/codegen/src/schema'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useInfiniteQuery, type InfiniteData } from '@tanstack/react-query'
+import { useEffect, useMemo } from 'react'
 import { CREATE_MAPPED_CONTROL, DELETE_MAPPED_CONTROL, GET_MAPPED_CONTROL_BY_ID, GET_ALL_MAPPED_CONTROLS, UPDATE_MAPPED_CONTROL } from '@repo/codegen/query/mapped-control'
 
 type BuildLinkedControlsWhereArgs = {
@@ -71,6 +72,43 @@ export const useGetMappedControls = ({ where, enabled = true }: { where: GetAllM
     queryFn: () => client.request(GET_ALL_MAPPED_CONTROLS, { where }),
     enabled,
   })
+}
+
+export function useFetchAllMappedControls(where?: MappedControlWhereInput, enabled = true) {
+  const { client } = useGraphQLClient()
+
+  return useInfiniteQuery<GetAllMappedControlsQuery['mappedControls'], Error, InfiniteData<GetAllMappedControlsQuery['mappedControls']>, ['mappedControls', 'infinite', MappedControlWhereInput?]>({
+    queryKey: ['mappedControls', 'infinite', where],
+    queryFn: async ({ pageParam }) => {
+      const { mappedControls } = await client.request<GetAllMappedControlsQuery, GetAllMappedControlsQueryVariables>(GET_ALL_MAPPED_CONTROLS, {
+        where,
+        after: pageParam,
+      })
+      return mappedControls
+    },
+    initialPageParam: undefined,
+    getNextPageParam: (last) => (last.pageInfo.hasNextPage ? last.pageInfo.endCursor : undefined),
+    enabled,
+  })
+}
+
+export const useGetAllMappedControlsGrouped = ({ where, enabled = true }: { where?: MappedControlWhereInput; enabled?: boolean }) => {
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isFetching } = useFetchAllMappedControls(where, enabled)
+
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const mappedControlEdges = useMemo(() => data?.pages.flatMap((page) => page.edges ?? []) ?? [], [data?.pages])
+
+  const isLoadingAll = isLoading || isFetchingNextPage || hasNextPage || isFetching
+
+  return {
+    mappedControlEdges,
+    isLoading: isLoadingAll,
+  }
 }
 
 export const useGetMappedControlById = ({ mappedControlId, enabled }: { mappedControlId?: string; enabled: boolean }) => {
