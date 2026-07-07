@@ -11,7 +11,7 @@ import { formatDate } from '@/utils/date'
 import { type TaskQuery, type TaskTaskStatus, type UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useTaskStore } from '../../../hooks/useTaskStore'
 import { type EditTaskFormData } from '../../../hooks/use-form-schema'
-import { TaskStatusOptions } from '@/components/shared/enum-mapper/task-enum'
+import { TaskStatusIconMapper, TaskStatusOptions } from '@/components/shared/enum-mapper/task-enum'
 import RelatedObjects from './related-objects'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
@@ -244,10 +244,19 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
         ) : (
           <HoverPencilWrapper
             showPencil={isEditAllowed}
-            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} flex items-center space-x-2 pr-5`}
+            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} flex items-center space-x-2 text-sm pr-5`}
             onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}
           >
-            <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}>{taskData?.status ? getEnumLabel(taskData.status) : 'No status'}</div>
+            <div className="flex items-center space-x-2" onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}>
+              {taskData?.status ? (
+                <>
+                  {TaskStatusIconMapper[taskData.status]}
+                  <p>{getEnumLabel(taskData.status)}</p>
+                </>
+              ) : (
+                'No status'
+              )}
+            </div>
           </HoverPencilWrapper>
         )}
       </div>
