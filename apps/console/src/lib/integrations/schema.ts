@@ -202,6 +202,25 @@ export function getResolvedSchemaFields(schema?: IntegrationSchemaNode): Resolve
   return resolveFields(schema, registry, [], undefined)
 }
 
+export type FieldEntry = { type: 'field'; field: ResolvedSchemaField } | { type: 'group'; groupLabel: string; fields: ResolvedSchemaField[] }
+
+export function buildFieldEntries(fields: ResolvedSchemaField[]): FieldEntry[] {
+  const entries: FieldEntry[] = []
+  for (const field of fields) {
+    if (!field.groupLabel) {
+      entries.push({ type: 'field', field })
+      continue
+    }
+    const last = entries[entries.length - 1]
+    if (last?.type === 'group' && last.groupLabel === field.groupLabel) {
+      last.fields.push(field)
+    } else {
+      entries.push({ type: 'group', groupLabel: field.groupLabel, fields: [field] })
+    }
+  }
+  return entries
+}
+
 function resolveFields(schema: IntegrationSchemaNode | undefined, registry: Record<string, IntegrationSchemaNode>, parentPath: string[], groupLabel: string | undefined): ResolvedSchemaField[] {
   const requiredFields = collectRequiredSchemaFields(schema)
 
