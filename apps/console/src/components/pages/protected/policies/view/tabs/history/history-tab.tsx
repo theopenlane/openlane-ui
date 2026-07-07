@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useGetInternalPolicyHistories, useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
+import { useGetGroupNames } from '@/lib/graphql-hooks/group'
 import { type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode, InternalPolicyDocumentStatus, InternalPolicyFrequency, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
 import HistoryRow from './history-row'
 import VersionSlideout from './version-slideout'
@@ -55,6 +56,27 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
 
   const { userMap, tokenMap } = useAuthorMaps(authorIds)
 
+  const groupIds = useMemo(() => {
+    const ids = new Set<string>()
+    historyNodes.forEach((n) => {
+      if (n.approverID) ids.add(n.approverID)
+      if (n.delegateID) ids.add(n.delegateID)
+    })
+    return Array.from(ids)
+  }, [historyNodes])
+
+  const groupListWhere = useMemo(() => ({ idIn: groupIds }), [groupIds])
+  const canViewHistory = policy.managementMode !== InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
+  const { groups } = useGetGroupNames({ where: groupListWhere, enabled: canViewHistory && groupIds.length > 0 })
+
+  const groupNameMap = useMemo(() => {
+    const m = new Map<string, string>()
+    if (policy.approver?.id) m.set(policy.approver.id, policy.approver.displayName || policy.approver.id)
+    if (policy.delegate?.id) m.set(policy.delegate.id, policy.delegate.displayName || policy.delegate.id)
+    groups?.forEach((g) => g?.id && m.set(g.id, g.displayName || g.name || g.id))
+    return m
+  }, [groups, policy.approver, policy.delegate])
+
   const restoreTarget = useMemo(() => historyNodes.find((n) => n.id === restoreTargetId) ?? null, [historyNodes, restoreTargetId])
 
   const handleRestore = async (historyId: string) => {
@@ -91,7 +113,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
   }
 
   const currentAuthor = resolveAuthor(policy.updatedBy, { userMap, tokenMap })
-  const isExternalReference = policy.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
+  const isExternalReference = !canViewHistory
   const isIntegration = policy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION
   const handleView = isExternalReference ? undefined : (id: string) => setSelectedHistoryId(id)
   const handleRestoreClick = isExternalReference || isIntegration ? undefined : (id: string) => setRestoreTargetId(id)
@@ -130,6 +152,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
           historyId={selectedHistoryId}
           histories={historyNodes}
           currentPolicy={policy}
+          groupNameMap={groupNameMap}
           canRestore={!isIntegration}
           onClose={() => setSelectedHistoryId(null)}
           onRestore={(id) => setRestoreTargetId(id)}

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient, type InfiniteData } from '@tanst
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   GET_ALL_GROUPS,
+  GET_GROUP_NAMES,
   GET_GROUP_DETAILS,
   GET_GROUP_PERMISSIONS,
   CREATE_GROUP_WITH_MEMBERS,
@@ -78,6 +79,23 @@ export const useGetAllGroups = ({ where, orderBy, pagination, enabled = true }: 
     paginationMeta,
     isLoading: queryResult.isPending,
   }
+}
+
+type GroupNameNode = Pick<Group, 'id' | 'name' | 'displayName'>
+type GetGroupNamesResult = { groups?: { edges?: ({ node?: GroupNameNode | null } | null)[] | null } | null }
+
+export const useGetGroupNames = ({ where, enabled = true }: { where?: GroupWhereInput; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetGroupNamesResult>({
+    queryKey: ['groups', 'names', where],
+    queryFn: () => client.request(GET_GROUP_NAMES, { where }),
+    enabled,
+  })
+
+  const groups = queryResult.data?.groups?.edges?.map((edge) => edge?.node).filter((node): node is GroupNameNode => !!node) ?? []
+
+  return { ...queryResult, groups, isLoading: queryResult.isPending }
 }
 
 export const useGroupSelect = () => {
