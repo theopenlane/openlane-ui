@@ -61,16 +61,14 @@ const BulkCSVCreateEvidenceDialog: React.FC<BulkCSVCreateEvidenceDialogProps> = 
     await exportCSV({ filename: 'evidence' })
   }
 
-  const handleDialogOpenChange = (open: boolean) => {
-    setIsOpen(open)
-    if (!open) {
-      setIsInfoOpen(false)
-    }
+  const handleOpenInfo = () => {
+    setIsOpen(false)
+    setIsInfoOpen(true)
   }
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
         {trigger ? (
           <DialogTrigger className="bg-transparent">
             {/* eslint-disable-next-line @eslint-react/no-clone-element */}
@@ -94,7 +92,7 @@ const BulkCSVCreateEvidenceDialog: React.FC<BulkCSVCreateEvidenceDialogProps> = 
           <Callout title="CSV Format">
             <p className="text-sm">
               You can upload a csv containing evidence. See the{' '}
-              <a className="text-brand hover:underline cursor-pointer" onClick={() => setIsInfoOpen(true)}>
+              <a className="text-brand hover:underline cursor-pointer" onClick={handleOpenInfo}>
                 CSV format guide
               </a>{' '}
               for the fields and an example, or refer to our{' '}
