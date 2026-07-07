@@ -81,7 +81,7 @@ export const ControlStatusOrder: ControlControlStatus[] = [
 
 // Tooltip explanations for control statuses
 export const ControlStatusTooltips: Record<ControlControlStatus, string> = {
-  [ControlControlStatus.DRAFT]: 'Control is a draft and should be updated before it is ready for implementation and review.,
+  [ControlControlStatus.DRAFT]: 'Control is a draft and should be updated before it is ready for implementation and review.',
   [ControlControlStatus.NOT_IMPLEMENTED]:
     'Control has not been implemented yet. This is the initial state for new controls, controls are not considered as part of an audit program until they are implemented.',
   [ControlControlStatus.PREPARING]: 'Control is being prepared and documented. Implementation details are being worked on to prepare for review and approval.',
