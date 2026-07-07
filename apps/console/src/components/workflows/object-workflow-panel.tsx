@@ -9,7 +9,9 @@ import { formatDistanceToNow } from 'date-fns'
 import { Textarea } from '@repo/ui/textarea'
 import { Label } from '@repo/ui/label'
 import { WorkflowStatusBadge } from '@/components/workflows/workflow-status-badge'
-import { useApproveAssignment, useRejectAssignment, useRequestChangesAssignment, useWorkflowInstancesForObject, useWorkflowProposalsForObject } from '@/lib/graphql-hooks/workflows'
+import { useApproveAssignment, useRejectAssignment, useRequestChangesAssignment, useWorkflowInstancesForObject } from '@/lib/graphql-hooks/workflows'
+// commented out because of ISS-2473
+// import { useWorkflowProposalsForObject } from '@/lib/graphql-hooks/workflows'
 import { useNotification } from '@/hooks/useNotification'
 import { definitionHasApprovalAction, definitionHasApprovalTiming, resolveApprovalTiming } from '@/utils/workflow'
 import { toHumanLabel } from '@/utils/strings'
@@ -34,17 +36,18 @@ export const ObjectWorkflowPanel = ({ objectId, objectType, objectLabel }: Objec
   const [showRejectForm, setShowRejectForm] = useState(false)
   const [showChangeRequestForm, setShowChangeRequestForm] = useState(false)
 
-  const { instances, isLoading, refetch } = useWorkflowInstancesForObject({
+  const { instances, refetch } = useWorkflowInstancesForObject({
     objectId,
     objectType,
     first: 50,
   })
 
-  const { proposals, isLoading: isLoadingProposals } = useWorkflowProposalsForObject({
-    objectId,
-    objectType,
-    includeStates: ['DRAFT', 'SUBMITTED', 'APPLIED', 'REJECTED', 'SUPERSEDED'],
-  })
+  // ISS-2473
+  // const { proposals, isLoading: isLoadingProposals } = useWorkflowProposalsForObject({
+  //   objectId,
+  //   objectType,
+  //   includeStates: ['DRAFT', 'SUBMITTED', 'APPLIED', 'REJECTED', 'SUPERSEDED'],
+  // })
 
   const approveMutation = useApproveAssignment()
   const rejectMutation = useRejectAssignment()
@@ -144,28 +147,15 @@ export const ObjectWorkflowPanel = ({ objectId, objectType, objectLabel }: Objec
     }
   }
 
-  const hasProposals = proposals.length > 0
-
-  if (isLoading && pendingAssignments.length === 0 && !hasProposals) {
-    return null
-  }
-
-  if (pendingAssignments.length === 0 && !hasProposals && !isLoadingProposals) {
+  if (pendingAssignments.length === 0) {
     return null
   }
 
   const objectTypeLabel = toHumanLabel(objectType)
-  const headerTitle = pendingAssignments.length > 0 ? 'Pending Approvals' : 'Workflow Proposals'
-  const headerDescription =
-    pendingAssignments.length > 0
-      ? objectLabel
-        ? `${objectLabel} requires your action`
-        : `This ${objectTypeLabel.toLowerCase()} requires your action`
-      : objectLabel
-        ? `${objectLabel} has staged workflow proposals`
-        : `This ${objectTypeLabel.toLowerCase()} has staged workflow proposals`
-  const headerCount = pendingAssignments.length > 0 ? pendingAssignments.length : proposals.length
-  const headerCountLabel = pendingAssignments.length > 0 ? 'pending' : proposals.length === 1 ? 'proposal' : 'proposals'
+  const headerTitle = 'Pending Approvals'
+  const headerDescription = objectLabel ? `${objectLabel} requires your action` : `This ${objectTypeLabel.toLowerCase()} requires your action`
+  const headerCount = pendingAssignments.length
+  const headerCountLabel = 'pending'
 
   return (
     <Card className="border-amber-500">
@@ -311,52 +301,6 @@ export const ObjectWorkflowPanel = ({ objectId, objectType, objectLabel }: Objec
             </div>
           )
         })}
-
-        {hasProposals && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">Workflow proposals</p>
-                <p className="text-xs text-muted-foreground">Staged changes for this {objectTypeLabel.toLowerCase()}.</p>
-              </div>
-              <Badge variant="outline" className="text-xs">
-                {proposals.length} proposal{proposals.length === 1 ? '' : 's'}
-              </Badge>
-            </div>
-
-            {proposals.map((proposal) => {
-              const changesObject = proposal.changes && typeof proposal.changes === 'object' && !Array.isArray(proposal.changes) ? proposal.changes : null
-              const proposalChanges = changesObject && Object.keys(changesObject).length > 0 ? JSON.stringify(changesObject, null, 2) : ''
-              const stateLabel = String(proposal.state || 'UNKNOWN')
-                .replace(/_/g, ' ')
-                .toLowerCase()
-              const stateDisplay = stateLabel.charAt(0).toUpperCase() + stateLabel.slice(1)
-              const proposalIdSuffix = proposal.id ? proposal.id.slice(-6) : ''
-              const updatedAt = proposal.updatedAt || proposal.createdAt
-
-              return (
-                <div key={proposal.id} className="border rounded-lg p-4 space-y-2">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">Proposal {proposalIdSuffix ? `…${proposalIdSuffix}` : ''}</p>
-                      {proposal.domainKey && <p className="text-xs text-muted-foreground">Domain: {proposal.domainKey}</p>}
-                      {updatedAt && <p className="text-xs text-muted-foreground">Updated {formatDistanceToNow(new Date(updatedAt), { addSuffix: true })}</p>}
-                    </div>
-                    <Badge variant="secondary" className="text-xs">
-                      {stateDisplay}
-                    </Badge>
-                  </div>
-
-                  {proposalChanges ? (
-                    <pre className="text-xs rounded-md bg-muted/40 p-3 whitespace-pre-wrap">{proposalChanges}</pre>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">No proposal changes recorded.</p>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        )}
       </CardContent>
     </Card>
   )
