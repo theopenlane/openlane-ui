@@ -77,12 +77,15 @@ export const LoginPage = () => {
 
   const passwordIsDefault = webfingerSaysNoSSO || (isSSOEmail && !ssoIsDefault)
 
-  const showSSOButton = ssoAvailable && (preferredMethod === 'sso' || (preferredMethod === null && ssoIsDefault))
+  const preferenceIsAvailable = preferredMethod === 'sso' ? ssoAvailable : preferredMethod === 'password' ? isPasswordAvailable : true
+  const activePreference = preferenceIsAvailable ? preferredMethod : null
 
-  const showPasswordField = isPasswordAvailable && (preferredMethod === 'password' || (preferredMethod === null && passwordIsDefault))
+  const showSSOButton = ssoAvailable && (activePreference === 'sso' || (activePreference === null && ssoIsDefault))
 
-  const showSwitchToPassword = showSSOButton && isPasswordAvailable && !showPasswordField
-  const showSwitchToSSO = showPasswordField && ssoAvailable && !showSSOButton
+  const showPasswordField = isPasswordAvailable && (activePreference === 'password' || (activePreference === null && passwordIsDefault))
+
+  const showSwitchToPassword = !webfingerLoading && showSSOButton && isPasswordAvailable && !showPasswordField
+  const showSwitchToSSO = !webfingerLoading && showPasswordField && ssoAvailable && !showSSOButton
 
   const handleSSOLogin = useCallback(async () => {
     // the button stays enabled even when webfinger can't resolve the email — error here, don't use a stale org
