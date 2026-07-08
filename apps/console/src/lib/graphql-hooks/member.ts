@@ -17,6 +17,7 @@ import {
   type OrgMembership,
   type User,
   type OrgMembershipsByIdsQuery,
+  OrgMembershipRole,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 
@@ -79,6 +80,14 @@ export const useCurrentUserRole = () => {
 
   return {
     role: members[0]?.role,
+    isLoading,
+  }
+}
+
+export const useIsAuditor = () => {
+  const { role, isLoading } = useCurrentUserRole()
+  return {
+    isAuditor: role === OrgMembershipRole.AUDITOR,
     isLoading,
   }
 }

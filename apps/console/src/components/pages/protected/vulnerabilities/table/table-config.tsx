@@ -56,6 +56,12 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
     icon: FilterIcons.Category,
   },
   {
+    key: 'externalIDContainsFold',
+    label: 'External ID',
+    type: 'text',
+    icon: FilterIcons.ID,
+  },
+  {
     key: 'open',
     label: 'Open',
     type: 'radio',

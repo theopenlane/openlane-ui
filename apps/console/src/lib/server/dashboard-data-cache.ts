@@ -11,6 +11,7 @@ export const getOrgDisplayNameForRequest = async (token: string, sessionCookie: 
   const data = await getDashboardDataForRequest(token, sessionCookie)
   if (!data) return null
   const org = data.organizations.edges.find(({ node }) => node.id === organizationId)
-  if (!org?.node.displayName) return null
+  if (!org) return null
+  if (org.node.personalOrg || !org.node.displayName) return null
   return capitalizeFirstLetter(org.node.displayName)
 }

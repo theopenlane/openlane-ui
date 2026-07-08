@@ -265,6 +265,11 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           plan: PlanEnum.COMPLIANCE_MODULE,
         },
         {
+          title: 'Integrations',
+          href: '/automation/integrations',
+          icon: Waypoints,
+        },
+        {
           title: 'Workflow Definitions',
           href: '/automation/workflows',
           icon: NotebookPen,
@@ -363,11 +368,6 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
           href: '/organization-settings/logs',
           icon: History,
           hidden: true,
-        },
-        {
-          title: 'Integrations',
-          href: '/organization-settings/integrations',
-          icon: Waypoints,
         },
       ],
     },

@@ -1,0 +1,56 @@
+'use client'
+
+import React from 'react'
+import { Card, CardContent, CardFooter, CardHeader } from '@repo/ui/cardpanel'
+import DocsLinkTooltip from './docs-link-tooltip'
+import IntegrationCardIcons from './integration-card-icons'
+import IntegrationTagList from './integration-tag-list'
+
+type IntegrationCardShellProps = {
+  logoUrl?: string
+  docsUrl?: string
+  displayName: string
+  tags: string[]
+  tagLabelOverrides?: Partial<Record<string, string>>
+  description: string
+  headerBadge?: React.ReactNode
+  titleExtra?: React.ReactNode
+  metadata?: React.ReactNode
+  footer: React.ReactNode
+}
+
+const IntegrationCardShell = ({ logoUrl, docsUrl, displayName, tags, tagLabelOverrides, description, headerBadge, titleExtra, metadata, footer }: IntegrationCardShellProps) => {
+  return (
+    <Card className="relative flex h-full min-h-[300px] flex-col overflow-visible transition-all duration-200 hover:-translate-y-1 hover:border-primary">
+      <CardHeader className="relative flex-row items-start gap-3 space-y-0 pb-3">
+        {headerBadge}
+        {docsUrl ? <DocsLinkTooltip href={docsUrl} label={displayName} /> : null}
+
+        <div className="w-full">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+            <IntegrationCardIcons providerName={displayName} logoUrl={logoUrl} />
+
+            <span className="line-clamp-2 min-w-[7rem] flex-1">{displayName}</span>
+
+            {titleExtra ? <div className={`flex shrink-0 items-center ${docsUrl ? 'pr-7' : ''}`}>{titleExtra}</div> : null}
+          </div>
+
+          <div className="mb-1 mt-3 border-t pt-3">
+            <IntegrationTagList tags={tags} tagLabelOverrides={tagLabelOverrides} />
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="flex min-h-[112px] flex-1 items-center pb-2 pt-4">
+        <div className="w-full">
+          <p className="line-clamp-3 text-sm text-muted-foreground">{description}</p>
+          {metadata}
+        </div>
+      </CardContent>
+
+      <CardFooter className="mt-auto gap-2 pt-0">{footer}</CardFooter>
+    </Card>
+  )
+}
+
+export default IntegrationCardShell

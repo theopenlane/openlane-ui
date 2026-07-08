@@ -6,6 +6,9 @@ export const SUPPORT_SUBJECT_ID = process.env.NEXT_PUBLIC_SUPPORT_SUBJECT_ID || 
 export const SUPPORT_DISPLAY_NAME = 'Openlane Support'
 export const DELETED_USER_LABEL = 'Deleted user'
 
+export const UNKNOWN_AUTHOR_ID = 'unknown'
+export const UNKNOWN_AUTHOR_LABEL = 'Unknown'
+
 export type AuthorToken = { id: string; name: string }
 
 export type AuthorMaps = {
@@ -17,10 +20,12 @@ export type ResolvedAuthor =
   | { kind: 'user'; displayName: string; user: User }
   | { kind: 'support'; displayName: string }
   | { kind: 'token'; displayName: string; token: AuthorToken }
+  | { kind: 'unknown'; displayName: string }
   | { kind: 'deleted'; displayName: string }
 
 export function resolveAuthor(id: string | null | undefined, { userMap, tokenMap }: AuthorMaps = {}): ResolvedAuthor {
   if (!id) return { kind: 'deleted', displayName: DELETED_USER_LABEL }
+  if (id === UNKNOWN_AUTHOR_ID) return { kind: 'unknown', displayName: UNKNOWN_AUTHOR_LABEL }
   const user = userMap?.[id]
   if (user) return { kind: 'user', displayName: user.displayName || '-', user }
   if (id === SUPPORT_SUBJECT_ID) return { kind: 'support', displayName: SUPPORT_DISPLAY_NAME }

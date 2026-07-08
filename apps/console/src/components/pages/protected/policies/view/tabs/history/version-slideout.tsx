@@ -19,12 +19,13 @@ type VersionSlideoutProps = {
   historyId: string | null
   histories: HistoryNode[]
   currentPolicy: InternalPolicyByIdFragment
+  groupNameMap?: Map<string, string>
   canRestore?: boolean
   onClose: () => void
   onRestore: (id: string) => void
 }
 
-const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories, currentPolicy, canRestore = true, onClose, onRestore }) => {
+const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories, currentPolicy, groupNameMap, canRestore = true, onClose, onRestore }) => {
   const metadataOnly = currentPolicy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION
   const [selectedPane, setSelectedPane] = useState<'version' | 'diff'>('version')
   const record = useMemo(() => (historyId ? (histories.find((h) => h?.id === historyId) ?? null) : null), [historyId, histories])
@@ -56,7 +57,7 @@ const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories,
                 <TabsContent value="version">
                   <div className="flex flex-col gap-4">
                     <CollapsibleSection label="Metadata" defaultOpen={metadataOnly}>
-                      <FieldsSummary history={record} />
+                      <FieldsSummary history={record} groupNameMap={groupNameMap} />
                     </CollapsibleSection>
                     {!metadataOnly && (
                       <div>
@@ -69,7 +70,7 @@ const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories,
                 <TabsContent value="diff">
                   <div className="flex flex-col gap-4">
                     <CollapsibleSection label="Field changes" defaultOpen>
-                      <FieldsDiff history={record} current={currentPolicy} />
+                      <FieldsDiff history={record} current={currentPolicy} groupNameMap={groupNameMap} />
                     </CollapsibleSection>
                     {!metadataOnly && (
                       <div>
