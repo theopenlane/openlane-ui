@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
@@ -128,7 +128,7 @@ export function IntegrationsGrid({ installedIntegrations, availableIntegrations,
       {grouped ? (
         <div className="flex flex-col gap-8">
           {groupByTagSection(filteredAvailableIntegrations, selectedTags).map((section) => (
-            <IntegrationTagSection key={section.title} {...section} canManage={canManage} />
+            <IntegrationTagSection key={section.title} {...section} canManage={canManage} forceExpanded={selectedTags.length > 0} />
           ))}
         </div>
       ) : (
@@ -166,13 +166,22 @@ type IntegrationTagSectionProps = {
   description?: string
   integrations: AvailableIntegrationNode[]
   canManage: boolean
+  forceExpanded?: boolean
 }
 
-function IntegrationTagSection({ title, description, integrations, canManage }: IntegrationTagSectionProps) {
+function IntegrationTagSection({ title, description, integrations, canManage, forceExpanded = false }: IntegrationTagSectionProps) {
   const [expanded, setExpanded] = useState(false)
+
+  useEffect(() => {
+    if (!forceExpanded) {
+      setExpanded(false)
+    }
+  }, [forceExpanded])
+
+  const isExpanded = forceExpanded || expanded
   const sortedIntegrations = [...integrations].sort(compareIntegrationsForDisplay)
   const hasMore = sortedIntegrations.length > COLLAPSED_SECTION_SIZE
-  const visibleIntegrations = expanded ? sortedIntegrations : sortedIntegrations.slice(0, COLLAPSED_SECTION_SIZE)
+  const visibleIntegrations = isExpanded ? sortedIntegrations : sortedIntegrations.slice(0, COLLAPSED_SECTION_SIZE)
 
   return (
     <section>
@@ -184,7 +193,7 @@ function IntegrationTagSection({ title, description, integrations, canManage }: 
               {integrations.length}
             </Badge>
           </div>
-          {hasMore ? (
+          {hasMore && !forceExpanded ? (
             <Button type="button" variant="transparent" className="text-sm text-brand" onClick={() => setExpanded((prev) => !prev)}>
               {expanded ? 'Show less' : 'See all'}
             </Button>
