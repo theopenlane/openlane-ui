@@ -47,7 +47,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
   const { setCrumbs } = use(BreadcrumbContext)
   const { mutateAsync: updateEntity } = useUpdateEntity()
   const { successNotification, errorNotification } = useNotification()
-  const { data: orgPermission } = useOrganizationRoles()
+  const { data: orgPermission, isLoading: permissionsLoading } = useOrganizationRoles()
   const { data: session } = useSession()
   const canManage = canEdit(orgPermission?.roles, session)
 
@@ -181,7 +181,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     ])
   }, [provider, definitionId, setCrumbs])
 
-  if (integrationsLoading || providersLoading) {
+  if (integrationsLoading || providersLoading || permissionsLoading) {
     return <Loading />
   }
 
