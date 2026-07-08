@@ -71,19 +71,36 @@ export const LoginPage = () => {
   const isSSOEnforcedForNonOwner = isSSOEmail && Boolean(webfingerResponse?.enforced) && !webfingerResponse?.is_org_owner
   const isPasswordAvailable = !isSSOEnforcedForNonOwner
 
+  // What follows decides which login control to render. It works in three layers:
+  //   1. availability  — is each method even an option for this email/device?
+  //   2. default       — with no user choice, which method leads?
+  //   3. preference     — the user can override the default via a "Switch to..." link.
+  // The final show* flags combine all three.
+
+  // --- Layer 1: availability ---
+  // SSO is offerable when webfinger didn't rule it out AND either the email resolves to an SSO org
+  // or this device last logged in with SSO (so we can surface the button before webfinger answers).
   const ssoAvailable = !webfingerSaysNoSSO && (isSSOEmail || ssoLastUsed)
 
+  // --- Layer 2: which method leads by default ---
+  // SSO leads when the org enforces it, or when this device's last login was SSO.
   const ssoIsDefault = (isSSOEmail && Boolean(webfingerResponse?.enforced)) || ssoLastUsed
 
+  // Password leads when the email has no SSO at all, or when it's an SSO org that only *offers*
+  // SSO (not enforced) — in that case we show password first and offer SSO as a switch.
   const passwordIsDefault = webfingerSaysNoSSO || (isSSOEmail && !ssoIsDefault)
 
+  // --- Layer 3: honor the user's explicit "Switch to..." choice, but only if it's actually usable ---
+  // (e.g. ignore a stale 'password' preference once we learn SSO is enforced with no password fallback).
   const preferenceIsAvailable = preferredMethod === 'sso' ? ssoAvailable : preferredMethod === 'password' ? isPasswordAvailable : true
   const activePreference = preferenceIsAvailable ? preferredMethod : null
 
+  // --- Final visibility: show a method when it's available AND (the user picked it OR it's the default with no pick) ---
   const showSSOButton = ssoAvailable && (activePreference === 'sso' || (activePreference === null && ssoIsDefault))
 
   const showPasswordField = isPasswordAvailable && (activePreference === 'password' || (activePreference === null && passwordIsDefault))
 
+  // Offer a switch link only when the *other* method is available but currently hidden.
   const showSwitchToPassword = !webfingerLoading && showSSOButton && isPasswordAvailable && !showPasswordField
   const showSwitchToSSO = !webfingerLoading && showPasswordField && ssoAvailable && !showSSOButton
 
