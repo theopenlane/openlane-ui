@@ -220,6 +220,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
         onOpenChange={setLogoDialogOpen}
         vendorName={vendor.name ?? ''}
         vendorDisplayName={vendor.displayName ?? undefined}
+        domains={vendor.domains ?? undefined}
         onLogoSelect={handleLogoSelect}
         isLoading={isLogoUploading}
       />
