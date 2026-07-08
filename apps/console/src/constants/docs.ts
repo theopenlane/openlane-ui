@@ -8,6 +8,8 @@ export const DEVELOPER_DOCS_URL = `${DOCS_URL}/docs/developers`
 // GraphQL API docs for objects, this should be used and add the object type, e.g. `#control` at the end
 export const GRAPHQL_OBJECT_DOCS = `${DOCS_URL}/docs/api/graph-api/objects`
 
+export const EVIDENCE_DOCS_URL = `${DOCS_URL}/docs/category/evidence`
+
 // docs within the compliance management section
 export const COMPLIANCE_MANAGEMENT_DOCS_URL = `${PLATFORM_DOCS_URL}/compliance-management`
 // docs within the trust center section
