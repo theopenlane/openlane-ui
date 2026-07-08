@@ -45,7 +45,7 @@ export const LoginPage = () => {
   const [email, setEmail] = useState('')
   const [webfingerResponse, setWebfingerResponse] = useState<WebfingerResponse | null>(null)
   const [webfingerLoading, setWebfingerLoading] = useState(false)
-  const [usePasswordInsteadOfSSO, setUsePasswordInsteadOfSSO] = useState(false)
+  const [preferredMethod, setPreferredMethod] = useState<'sso' | 'password' | null>(null)
   // the method the user most recently signed in with, remembered per-device
   const [lastUsedProvider, setLastUsedProvider] = useState<UserAuthProvider | null>(null)
   const { errorNotification } = useNotification()
@@ -71,14 +71,38 @@ export const LoginPage = () => {
   const isSSOEnforcedForNonOwner = isSSOEmail && Boolean(webfingerResponse?.enforced) && !webfingerResponse?.is_org_owner
   const isPasswordAvailable = !isSSOEnforcedForNonOwner
 
-  // show on confirmed SSO or the last-used default; hidden once the user switches or there's no SSO
-  const showSSOButton = !usePasswordInsteadOfSSO && !webfingerSaysNoSSO && (isSSOEmail || ssoLastUsed)
+  // What follows decides which login control to render. It works in three layers:
+  //   1. availability  — is each method even an option for this email/device?
+  //   2. default       — with no user choice, which method leads?
+  //   3. preference     — the user can override the default via a "Switch to..." link.
+  // The final show* flags combine all three.
 
-  // password shows when the user switched to it or the email has no SSO; otherwise SSO is preferred
-  const showPasswordField = !isSSOEnforcedForNonOwner && (usePasswordInsteadOfSSO || webfingerSaysNoSSO)
+  // --- Layer 1: availability ---
+  // SSO is offerable when webfinger didn't rule it out AND either the email resolves to an SSO org
+  // or this device last logged in with SSO (so we can surface the button before webfinger answers).
+  const ssoAvailable = !webfingerSaysNoSSO && (isSSOEmail || ssoLastUsed)
 
-  // the "Switch to password" link shows when SSO is shown but a password is available and hidden
-  const showToggleOption = showSSOButton && isPasswordAvailable && !showPasswordField
+  // --- Layer 2: which method leads by default ---
+  // SSO leads when the org enforces it, or when this device's last login was SSO.
+  const ssoIsDefault = (isSSOEmail && Boolean(webfingerResponse?.enforced)) || ssoLastUsed
+
+  // Password leads when the email has no SSO at all, or when it's an SSO org that only *offers*
+  // SSO (not enforced) — in that case we show password first and offer SSO as a switch.
+  const passwordIsDefault = webfingerSaysNoSSO || (isSSOEmail && !ssoIsDefault)
+
+  // --- Layer 3: honor the user's explicit "Switch to..." choice, but only if it's actually usable ---
+  // (e.g. ignore a stale 'password' preference once we learn SSO is enforced with no password fallback).
+  const preferenceIsAvailable = preferredMethod === 'sso' ? ssoAvailable : preferredMethod === 'password' ? isPasswordAvailable : true
+  const activePreference = preferenceIsAvailable ? preferredMethod : null
+
+  // --- Final visibility: show a method when it's available AND (the user picked it OR it's the default with no pick) ---
+  const showSSOButton = ssoAvailable && (activePreference === 'sso' || (activePreference === null && ssoIsDefault))
+
+  const showPasswordField = isPasswordAvailable && (activePreference === 'password' || (activePreference === null && passwordIsDefault))
+
+  // Offer a switch link only when the *other* method is available but currently hidden.
+  const showSwitchToPassword = !webfingerLoading && showSSOButton && isPasswordAvailable && !showPasswordField
+  const showSwitchToSSO = !webfingerLoading && showPasswordField && ssoAvailable && !showSSOButton
 
   const handleSSOLogin = useCallback(async () => {
     // the button stays enabled even when webfinger can't resolve the email — error here, don't use a stale org
@@ -164,8 +188,7 @@ export const LoginPage = () => {
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setEmail(value)
-    // reset toggle when email address changes until next webfinger api check
-    setUsePasswordInsteadOfSSO(false)
+    setPreferredMethod(null)
     // a prior "Invalid email" error no longer applies once the address changes
     setSignInError(false)
 
@@ -410,13 +433,22 @@ export const LoginPage = () => {
             <div className="flex items-center justify-between items-centeer">
               <p className="text-sm">Email</p>
               <LastUsedBadge provider={UserAuthProvider.CREDENTIALS} lastUsedProvider={lastUsedProvider} />
-              {showToggleOption && (
+              {showSwitchToPassword && (
                 <button
                   type="button"
-                  onClick={() => setUsePasswordInsteadOfSSO(true)}
+                  onClick={() => setPreferredMethod('password')}
                   className="text-xs bg-unset text-muted-foreground underline hover:text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition-colors duration-500"
                 >
                   Switch to password
+                </button>
+              )}
+              {showSwitchToSSO && (
+                <button
+                  type="button"
+                  onClick={() => setPreferredMethod('sso')}
+                  className="text-xs bg-unset text-muted-foreground underline hover:text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition-colors duration-500"
+                >
+                  Sign in with SSO
                 </button>
               )}
             </div>

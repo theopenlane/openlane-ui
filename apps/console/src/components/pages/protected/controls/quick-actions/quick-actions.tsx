@@ -2,15 +2,17 @@
 
 import React, { useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { PlusSquare, Upload, CheckCircle2, Target, GitBranch } from 'lucide-react'
+import { PlusSquare, Upload, CheckCircle2, Target, GitBranch, ClipboardCheck } from 'lucide-react'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
 import Link from 'next/link'
 import EvidenceCreateSheet from '@/components/pages/protected/evidence/evidence-create-sheet'
+import CreateControlReviewSheet from '@/components/pages/protected/controls/quick-actions/create-control-review-sheet'
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/create-control-implementation-sheet'
 import type { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import QuickActionsBar, { type QuickActionItem } from '@/components/shared/crud-base/quick-actions/quick-actions-bar'
 import { useGetControlAssociationsById } from '@/lib/graphql-hooks/control'
+import { useIsAuditor } from '@/lib/graphql-hooks/member'
 import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol'
 import { buildControlEvidenceData, buildEvidenceControlParam, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
 import CreateControlObjectiveSheet from '../tabs/implementation/control-objectives-components/create-control-objective-sheet'
@@ -58,7 +60,9 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
   const [isEvidenceSheetOpen, setIsEvidenceSheetOpen] = useState(false)
   const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
   const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)
+  const [showCreateReviewSheet, setShowCreateReviewSheet] = useState(false)
 
+  const { isAuditor } = useIsAuditor()
   const isSubcontrol = props.kind === 'subcontrol'
   const subcontrolId = isSubcontrol ? props.subcontrolId : undefined
   const controlId = props.controlId
@@ -103,7 +107,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
       },
       {
         id: 'upload-evidence',
-        label: 'Upload Evidence',
+        label: isAuditor ? 'Request Evidence' : 'Upload Evidence',
         icon: <Upload size={16} />,
         onClick: () => setIsEvidenceSheetOpen(true),
       },
@@ -112,6 +116,16 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
         label: 'Create Task',
         icon: <CheckCircle2 size={16} />,
       },
+      ...(isAuditor
+        ? [
+            {
+              id: 'create-review',
+              label: 'Create Review',
+              icon: <ClipboardCheck size={16} />,
+              onClick: () => setShowCreateReviewSheet(true),
+            },
+          ]
+        : []),
     ]
 
     if (isSubcontrol) {
@@ -141,7 +155,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
         href: `/controls/${controlId}/map-control`,
       },
     ]
-  }, [isSubcontrol, controlId, subcontrolId])
+  }, [isSubcontrol, controlId, subcontrolId, isAuditor])
 
   const filteredActions = useMemo(() => {
     if (props.canEdit) return actions
@@ -237,6 +251,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
       />
       <CreateControlImplementationSheet open={showCreateImplementationSheet} onOpenChange={setShowCreateImplementationSheet} />
       <CreateControlObjectiveSheet open={showCreateObjectiveSheet} onOpenChange={setShowCreateObjectiveSheet} />
+      {isAuditor && <CreateControlReviewSheet open={showCreateReviewSheet} onOpenChange={setShowCreateReviewSheet} controlId={controlId} subcontrolId={subcontrolId} />}
     </div>
   )
 }

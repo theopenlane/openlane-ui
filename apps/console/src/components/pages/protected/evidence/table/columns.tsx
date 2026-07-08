@@ -1,9 +1,10 @@
 import { type ColumnDef } from '@tanstack/react-table'
-import { type Evidence, type User } from '@repo/codegen/src/schema.ts'
+import { type Evidence, EvidenceEvidenceStatus, type User } from '@repo/codegen/src/schema.ts'
 import { type AuthorToken } from '@/lib/authors'
 import Link from 'next/link'
 import React from 'react'
-import { Check, LinkIcon, Minus } from 'lucide-react'
+import { Check, LinkIcon, Minus, RefreshCw, Stamp } from 'lucide-react'
+import { Button } from '@repo/ui/button'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip.tsx'
 import { Badge } from '@repo/ui/badge'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -23,9 +24,13 @@ type TGetEvidenceColumnsProps = {
   tokenMap?: Record<string, AuthorToken>
   selectedEvidence: { id: string }[]
   setSelectedEvidence: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  isAuditor?: boolean
+  onApprove?: (evidence: Evidence) => void
+  onRequestChanges?: (evidence: Evidence) => void
+  auditorActionPending?: boolean
 }
 
-export const useGetEvidenceColumns = ({ userMap, tokenMap, selectedEvidence, setSelectedEvidence }: TGetEvidenceColumnsProps) => {
+export const useGetEvidenceColumns = ({ userMap, tokenMap, selectedEvidence, setSelectedEvidence, isAuditor, onApprove, onRequestChanges, auditorActionPending }: TGetEvidenceColumnsProps) => {
   const { convertToReadOnly } = usePlateEditor()
   const columns: ColumnDef<Evidence>[] = [
     createSelectColumn<Evidence>(selectedEvidence, setSelectedEvidence),
@@ -199,6 +204,38 @@ export const useGetEvidenceColumns = ({ userMap, tokenMap, selectedEvidence, set
       cell: ({ row }) => <DateCell value={row.original.updatedAt} variant="timesince" />,
     },
   ]
+
+  if (isAuditor) {
+    columns.push({
+      id: 'auditorActions',
+      header: 'Actions',
+      size: 290,
+      minSize: 290,
+      enableHiding: false,
+      cell: ({ row }) => {
+        const evidence = row.original
+        const alreadyApproved = evidence.status === EvidenceEvidenceStatus.AUDITOR_APPROVED
+        return (
+          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+            <Button type="button" className="h-7 px-2" icon={<Stamp size={14} />} iconPosition="left" disabled={auditorActionPending || alreadyApproved} onClick={() => onApprove?.(evidence)}>
+              Approve
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              className="h-7 px-2"
+              icon={<RefreshCw size={14} />}
+              iconPosition="left"
+              disabled={auditorActionPending}
+              onClick={() => onRequestChanges?.(evidence)}
+            >
+              Request Changes
+            </Button>
+          </div>
+        )
+      },
+    })
+  }
 
   const mappedColumns = columns
     .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && 'header' in column && typeof column.header === 'string')

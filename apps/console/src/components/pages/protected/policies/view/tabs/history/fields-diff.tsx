@@ -5,15 +5,17 @@ import { type InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { fmtArr, fmtBool, fmtDate, fmtEnum, fmtStr, norm } from './formatters'
 import { type HistoryNode } from './types'
+import { makeGroupResolver, type ResolveGroup } from './utils'
 
 type FieldsDiffProps = {
   history: HistoryNode
   current: InternalPolicyByIdFragment
+  groupNameMap?: Map<string, string>
 }
 
 type FieldDef = {
   label: string
-  format: (h: HistoryNode, c: InternalPolicyByIdFragment) => { was: string; now: string; equal: boolean }
+  format: (h: HistoryNode, c: InternalPolicyByIdFragment, resolveGroup: ResolveGroup) => { was: string; now: string; equal: boolean }
 }
 
 const eqStr = (a: unknown, b: unknown): boolean => norm(a) === norm(b)
@@ -35,14 +37,21 @@ const FIELDS: FieldDef[] = [
     label: 'Review frequency',
     format: (h, c) => ({ was: fmtEnum(h.reviewFrequency, getEnumLabel), now: fmtEnum(c.reviewFrequency, getEnumLabel), equal: eqStr(h.reviewFrequency, c.reviewFrequency) }),
   },
-  { label: 'Approver', format: (h, c) => ({ was: fmtStr(h.approverID), now: fmtStr(c.approver?.id), equal: eqStr(h.approverID, c.approver?.id) }) },
-  { label: 'Delegate', format: (h, c) => ({ was: fmtStr(h.delegateID), now: fmtStr(c.delegate?.id), equal: eqStr(h.delegateID, c.delegate?.id) }) },
+  {
+    label: 'Approver',
+    format: (h, c, resolveGroup) => ({ was: fmtStr(resolveGroup(h.approverID)), now: fmtStr(c.approver?.displayName ?? resolveGroup(c.approver?.id)), equal: eqStr(h.approverID, c.approver?.id) }),
+  },
+  {
+    label: 'Delegate',
+    format: (h, c, resolveGroup) => ({ was: fmtStr(resolveGroup(h.delegateID)), now: fmtStr(c.delegate?.displayName ?? resolveGroup(c.delegate?.id)), equal: eqStr(h.delegateID, c.delegate?.id) }),
+  },
   { label: 'Kind', format: (h, c) => ({ was: fmtStr(h.internalPolicyKindName), now: fmtStr(c.internalPolicyKindName), equal: eqStr(h.internalPolicyKindName, c.internalPolicyKindName) }) },
   { label: 'Tags', format: (h, c) => ({ was: fmtArr(h.tags), now: fmtArr(c.tags), equal: eqArr(h.tags, c.tags) }) },
 ]
 
-const FieldsDiff: React.FC<FieldsDiffProps> = ({ history, current }) => {
-  const changed = FIELDS.map((f) => ({ label: f.label, ...f.format(history, current) })).filter((r) => !r.equal)
+const FieldsDiff: React.FC<FieldsDiffProps> = ({ history, current, groupNameMap }) => {
+  const resolveGroup = makeGroupResolver(groupNameMap)
+  const changed = FIELDS.map((f) => ({ label: f.label, ...f.format(history, current, resolveGroup) })).filter((r) => !r.equal)
 
   if (changed.length === 0) {
     return <div className="text-sm text-muted-foreground">No field changes detected.</div>
