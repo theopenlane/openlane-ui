@@ -13,7 +13,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { Loading } from '@/components/shared/loading/loading'
+import IntegrationDefinitionSkeleton from './integration-definition-skeleton'
 import { Callout } from '@/components/shared/callout/callout'
 import { Button } from '@repo/ui/button'
 import { filterFinalizedIntegrationsForProvider, HEALTH_CHECK_OPERATION_NAME, resolveSchemaRoot } from '@/lib/integrations/utils'
@@ -182,7 +182,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
   }, [provider, definitionId, setCrumbs])
 
   if (integrationsLoading || providersLoading || permissionsLoading) {
-    return <Loading />
+    return <IntegrationDefinitionSkeleton />
   }
 
   if (!provider) {
