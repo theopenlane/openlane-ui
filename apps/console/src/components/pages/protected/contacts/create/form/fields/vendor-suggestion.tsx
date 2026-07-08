@@ -5,16 +5,18 @@ import { useFormContext } from 'react-hook-form'
 import { Sparkles, X } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
-import { getEmailDomain } from '@/utils/strings'
+import { getEmailDomain, isValidDomain } from '@/utils/strings'
 import { type ContactFormData } from '../../../hooks/use-form-schema'
 
 const VendorSuggestion: React.FC = () => {
   const { watch, setValue } = useFormContext<ContactFormData>()
   const email = watch('email')
   const entityIDs = watch('entityIDs') ?? []
-  const domain = getEmailDomain(email)
+  const emailDomain = getEmailDomain(email)
+  const domain = emailDomain && isValidDomain(emailDomain) ? emailDomain : null
 
-  const { vendorNodes: matches } = useVendorsWithFilter({ where: domain ? { domainsHas: domain } : undefined, enabled: !!domain })
+  const { vendorNodes } = useVendorsWithFilter({ where: domain ? { domainsHas: domain } : undefined, enabled: !!domain })
+  const matches = domain ? vendorNodes : []
 
   if (matches.length === 0) return null
 
