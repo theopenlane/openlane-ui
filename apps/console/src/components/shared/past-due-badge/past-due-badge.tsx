@@ -1,8 +1,9 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useSlaDefinitionsWithFilter } from '@/lib/graphql-hooks/sla-definition'
+import { buildSlaDaysByLevel, getSlaDueDate, isSlaPastDue } from '@/lib/sla'
 
 type Props = {
   severity?: string | null | undefined
@@ -12,6 +13,7 @@ type Props = {
 
 const PastDueBadge: React.FC<Props> = ({ severity, createdAt, show }) => {
   const { slaDefinitionsNodes } = useSlaDefinitionsWithFilter({})
+  const slaDaysByLevel = useMemo(() => buildSlaDaysByLevel(slaDefinitionsNodes), [slaDefinitionsNodes])
 
   if (show) {
     return (
@@ -27,13 +29,10 @@ const PastDueBadge: React.FC<Props> = ({ severity, createdAt, show }) => {
 
   if (!severity || !createdAt) return null
 
-  const sla = slaDefinitionsNodes.find((def) => def.securityLevel?.toLowerCase() === severity.toLowerCase())
-  if (!sla?.slaDays) return null
+  const dueDate = getSlaDueDate(createdAt, severity, slaDaysByLevel)
+  if (!dueDate || !isSlaPastDue(dueDate)) return null
 
-  const dueDate = new Date(createdAt)
-  dueDate.setDate(dueDate.getDate() + 2)
-
-  if (dueDate >= new Date()) return null
+  const slaDays = slaDaysByLevel[severity.toUpperCase()]
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -44,7 +43,7 @@ const PastDueBadge: React.FC<Props> = ({ severity, createdAt, show }) => {
         <TooltipContent side="top" className="max-w-56">
           <p className="font-medium mb-1">SLA Exceeded</p>
           <p className="text-xs text-muted-foreground">
-            {sla.slaDays}-day SLA for {severity.toLowerCase()} severity
+            {slaDays}-day SLA for {severity.toLowerCase()} severity
           </p>
           <p className="text-xs text-muted-foreground">Due: {dueDate.toLocaleDateString()}</p>
         </TooltipContent>

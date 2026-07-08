@@ -14,6 +14,7 @@ import { useFindingSheetConfig } from '../hooks/use-finding-sheet-config'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
 import ViewFindingSheet from '../view-finding-sheet'
 import { FindingSeverityChart } from '@/components/shared/severity-chart/severity-chart'
+import { useSlaQuickFilters } from '@/hooks/useSla'
 
 const DEFAULT_FILTER_VALUES = { open: true }
 
@@ -25,6 +26,8 @@ const FindingPage: React.FC = () => {
   const [selectedSeverity, setSelectedSeverity] = useState<'critical' | 'high' | 'medium' | 'low' | null>(null)
 
   const { enumOpts, form, ...sheetConfig } = useFindingSheetConfig(null, isCreate)
+
+  const quickFilters = useSlaQuickFilters()
 
   const handleCloseViewSheet = () => {
     const newSearchParams = new URLSearchParams(searchParams.toString())
@@ -53,6 +56,7 @@ const FindingPage: React.FC = () => {
     defaultSorting,
     defaultVisibility: visibilityFields,
     filterFields: getFilterFields(enumOpts),
+    quickFilters,
     searchFields: ['displayNameContainsFold', 'descriptionContainsFold', 'externalIDContainsFold', 'categoryContainsFold'],
     breadcrumbs,
     form,

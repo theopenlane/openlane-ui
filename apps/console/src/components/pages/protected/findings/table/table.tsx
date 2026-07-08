@@ -23,6 +23,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useSlaDaysByLevel } from '@/hooks/useSla'
 
 const TableComponent = ({
   onSortChange,
@@ -45,6 +46,7 @@ const TableComponent = ({
   const { data: session } = useSession()
   const { errorNotification } = useNotification()
   const { convertToReadOnly } = usePlateEditor()
+  const slaDaysByLevel = useSlaDaysByLevel()
   const [createTaskRow, setCreateTaskRow] = useState<FindingsNodeNonNull | null>(null)
   const [trackRemediationRow, setTrackRemediationRow] = useState<FindingsNodeNonNull | null>(null)
   const { data: orgPermission } = useOrganizationRoles()
@@ -140,8 +142,9 @@ const TableComponent = ({
         onTrackRemediation: canCreateRemediation ? handleTrackRemediation : undefined,
         onOpenRemediation: handleOpenRemediation,
         onCreateTask: handleCreateTask,
+        slaDaysByLevel,
       }),
-    [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, handleOpenRemediation, canCreateRemediation],
+    [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, handleOpenRemediation, canCreateRemediation, slaDaysByLevel],
   )
 
   const createTaskInitialValues = useMemo(() => {

@@ -23,6 +23,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useSlaDaysByLevel } from '@/hooks/useSla'
 
 const TableComponent = ({
   onSortChange,
@@ -71,6 +72,8 @@ const TableComponent = ({
   })
 
   const { convertToReadOnly } = usePlateEditor()
+
+  const slaDaysByLevel = useSlaDaysByLevel()
 
   const userIds = useMemo(() => {
     if (!items) return []
@@ -141,8 +144,9 @@ const TableComponent = ({
         onTrackRemediation: canCreateRemediation ? handleTrackRemediation : undefined,
         onOpenRemediation: handleOpenRemediation,
         onCreateTask: handleCreateTask,
+        slaDaysByLevel,
       }),
-    [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, canCreateRemediation, handleOpenRemediation],
+    [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, canCreateRemediation, handleOpenRemediation, slaDaysByLevel],
   )
 
   const createTaskInitialValues = useMemo(() => {

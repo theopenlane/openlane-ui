@@ -28,6 +28,7 @@ import { type ResponsibilityFieldsMap } from '@/components/shared/crud-base/dial
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { type FilterField } from '@/types'
+import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type User } from '@repo/codegen/src/schema'
 import { type AuthorToken } from '@/lib/authors'
 import type { BulkDeletePayload, ViewEditMode, CreateMode } from './types'
@@ -82,6 +83,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
 
   defaultVisibility: VisibilityState
   filterFields?: FilterField[] | undefined
+  quickFilters?: TQuickFilter[]
   searchFields?: string[]
 
   // Breadcrumbs
@@ -119,6 +121,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
     createPermission?: TAccessRole
     additionalActiveFilterCount?: number
     defaultFilterValues?: TFilterState
+    quickFilters?: TQuickFilter[]
   }>
 
   // Sheet configuration
@@ -163,6 +166,7 @@ export function GenericTablePage<
     defaultSorting,
     defaultVisibility,
     filterFields,
+    quickFilters,
     searchFields,
     breadcrumbs,
     form,
@@ -189,6 +193,7 @@ export function GenericTablePage<
   const { handleExport } = useFileExport()
 
   const [filters, setFilters] = useState<TWhereInput | null>(null)
+  const [filtersInitialized, setFiltersInitialized] = useState(() => !(filterFields && filterFields.length > 0))
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [orderBy, setOrderBy] = useOrgTableSort(tableKey, orderFieldEnum, defaultSorting)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(tableKey, defaultVisibility))
@@ -292,6 +297,11 @@ export function GenericTablePage<
     setSelectedItems([])
   }
 
+  const handleFilterChange = useCallback((newFilters: TWhereInput | null) => {
+    setFiltersInitialized(true)
+    setFilters((prev) => (JSON.stringify(prev) !== JSON.stringify(newFilters) ? newFilters : prev))
+  }, [])
+
   const handleSortChange = useCallback(
     (sortCondition: TOrderByInput) => {
       setOrderBy(
@@ -365,20 +375,14 @@ export function GenericTablePage<
       <ToolbarToUse
         entityType={objectType}
         displayName={displayName}
-        onFilterChange={(filters) => {
-          setFilters((prev) => {
-            if (JSON.stringify(prev) !== JSON.stringify(filters)) {
-              return filters as TWhereInput
-            }
-            return prev
-          })
-        }}
+        onFilterChange={handleFilterChange}
         handleClearSelected={handleClearSelected}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         filterFields={filterFields}
+        quickFilters={quickFilters}
         searchTerm={searchQuery}
         setSearchTerm={(val) => {
           setSearchQuery(val)
@@ -404,21 +408,23 @@ export function GenericTablePage<
         defaultFilterValues={defaultFilterValues}
       />
 
-      <TableComponent
-        orderByFilter={orderByFilter}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        whereFilter={whereFilter}
-        onSortChange={handleSortChange}
-        columnVisibility={columnVisibility}
-        setColumnVisibility={setColumnVisibility}
-        selectedItems={selectedItems}
-        setSelectedItems={setSelectedItems}
-        canEdit={canEdit}
-        defaultSorting={defaultSorting}
-        permission={permission}
-        rowHref={rowHref}
-      />
+      {filtersInitialized && (
+        <TableComponent
+          orderByFilter={orderByFilter}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          whereFilter={whereFilter}
+          onSortChange={handleSortChange}
+          columnVisibility={columnVisibility}
+          setColumnVisibility={setColumnVisibility}
+          selectedItems={selectedItems}
+          setSelectedItems={setSelectedItems}
+          canEdit={canEdit}
+          defaultSorting={defaultSorting}
+          permission={permission}
+          rowHref={rowHref}
+        />
+      )}
 
       {renderDetailView()}
     </>

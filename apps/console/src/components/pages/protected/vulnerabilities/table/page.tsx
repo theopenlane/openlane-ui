@@ -29,6 +29,7 @@ import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { VULNERABILITY_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
 import ViewVulnerabilitySheet from '../view-vulnerability-sheet'
+import { useSlaQuickFilters } from '@/hooks/useSla'
 import type { Value } from 'platejs'
 
 const DEFAULT_FILTER_VALUES = { open: true }
@@ -46,6 +47,8 @@ const VulnerabilityPage: React.FC = () => {
   const { data: associationsData } = useGetVulnerabilityAssociations(id || undefined)
 
   const plateEditorHelper = usePlateEditor()
+
+  const quickFilters = useSlaQuickFilters()
 
   const extractAssociations = useCallback((assocData: GetVulnerabilityAssociationsQuery) => {
     const vulnerability = assocData.vulnerability
@@ -175,6 +178,7 @@ const VulnerabilityPage: React.FC = () => {
     defaultSorting,
     defaultVisibility: visibilityFields,
     filterFields: getFilterFields(enumOpts),
+    quickFilters,
     searchFields: ['displayNameContainsFold', 'descriptionContainsFold', 'cveIDContainsFold', 'externalIDContainsFold'],
     breadcrumbs,
     form,

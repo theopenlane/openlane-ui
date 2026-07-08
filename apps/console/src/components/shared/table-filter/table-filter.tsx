@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { type FilterField, type WhereCondition } from '@/types'
 import { Filter, ChevronDown, CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
@@ -62,6 +62,8 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
   const [values, setValues] = useState<TFilterState>({})
   const [open, setOpen] = useState(false)
   const [activeQuickFilters, setActiveQuickFilters] = useState<TQuickFilter[]>(quickFilters)
+  const userEditedRef = useRef(false)
+  const initializedContextRef = useRef<string | null>(null)
   const activeFilterCount = useMemo(() => getActiveFilterCount(values, activeQuickFilters) + additionalActiveFilterCount, [values, activeQuickFilters, additionalActiveFilterCount])
   const storageEnabled = Boolean(pageKey)
 
@@ -76,6 +78,21 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
   useEffect(() => {
     if (!storageEnabled || !pageKey) {
       onFilterChange?.({})
+      return
+    }
+
+    const contextKey = `${pageKey}:${currentOrgId ?? ''}`
+    if (initializedContextRef.current !== contextKey) {
+      initializedContextRef.current = contextKey
+      userEditedRef.current = false
+    }
+
+    if (userEditedRef.current) {
+      setActiveQuickFilters((prev) => {
+        const activeKey = prev.find((f) => f.isActive)?.key
+        const next = quickFilters.map((f) => ({ ...f, isActive: f.key === activeKey }))
+        return JSON.stringify(prev) === JSON.stringify(next) ? prev : next
+      })
       return
     }
 
@@ -155,6 +172,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
   )
 
   const resetFilters = useCallback(() => {
+    userEditedRef.current = true
     resetRegularFilters()
     resetQuickFilters()
     onFilterChange?.({})
@@ -175,6 +193,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
 
   const toggleQuickFilter = useCallback(
     (qf: TQuickFilter) => {
+      userEditedRef.current = true
       resetRegularFilters(false)
       setActiveQuickFilters((prev) => prev.map((item) => (item.key === qf.key && item.label === qf.label ? { ...item, isActive: !item.isActive } : { ...item, isActive: false })))
 
@@ -190,6 +209,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
 
   const handleChange = useCallback(
     (key: string, value: TFilterValue) => {
+      userEditedRef.current = true
       resetQuickFilters(false)
       setValues((prev) => ({ ...prev, [key]: value }))
     },
