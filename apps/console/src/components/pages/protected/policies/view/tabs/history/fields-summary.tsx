@@ -4,12 +4,16 @@ import React from 'react'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { fmtArr, fmtBool, fmtDate, fmtEnum, fmtStr } from './formatters'
 import { type HistoryNode } from './types'
+import { makeGroupResolver } from './utils'
 
 type FieldsSummaryProps = {
   history: HistoryNode
+  groupNameMap?: Map<string, string>
 }
 
-const FieldsSummary: React.FC<FieldsSummaryProps> = ({ history }) => {
+const FieldsSummary: React.FC<FieldsSummaryProps> = ({ history, groupNameMap }) => {
+  const resolveGroup = makeGroupResolver(groupNameMap)
+
   const rows: Array<[string, string]> = [
     ['Name', fmtStr(history.name)],
     ['Revision', fmtStr(history.revision)],
@@ -17,8 +21,8 @@ const FieldsSummary: React.FC<FieldsSummaryProps> = ({ history }) => {
     ['Approval required', fmtBool(history.approvalRequired)],
     ['Review due', fmtDate(history.reviewDue)],
     ['Review frequency', fmtEnum(history.reviewFrequency, getEnumLabel)],
-    ['Approver', fmtStr(history.approverID)],
-    ['Delegate', fmtStr(history.delegateID)],
+    ['Approver', fmtStr(resolveGroup(history.approverID))],
+    ['Delegate', fmtStr(resolveGroup(history.delegateID))],
     ['Kind', fmtStr(history.internalPolicyKindName)],
     ['Environment', fmtStr(history.environmentName)],
     ['Scope', fmtStr(history.scopeName)],

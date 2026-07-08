@@ -175,9 +175,9 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
 
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Organization Settings', href: '/organization-settings/general-settings' },
-      { label: 'Integrations', href: '/organization-settings/integrations' },
-      { label: provider.displayName, href: `/organization-settings/integrations/${definitionId}` },
+      { label: 'Automation', href: '/automation/general-settings' },
+      { label: 'Integrations', href: '/automation/integrations' },
+      { label: provider.displayName, href: `/automation/integrations/${definitionId}` },
     ])
   }, [provider, definitionId, setCrumbs])
 
@@ -189,7 +189,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     return (
       <div className="py-16 text-center text-muted-foreground">
         <p>Integration not found.</p>
-        <Button variant="secondary" className="mt-4" onClick={() => router.push('/organization-settings/integrations')}>
+        <Button variant="secondary" className="mt-4" onClick={() => router.push('/automation/integrations')}>
           Back to Integrations
         </Button>
       </div>
@@ -198,7 +198,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
 
   return (
     <div>
-      <button className="mb-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground" onClick={() => router.push('/organization-settings/integrations')}>
+      <button className="mb-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground" onClick={() => router.push('/automation/integrations')}>
         <ArrowLeft className="h-4 w-4" />
         Integrations
       </button>
@@ -244,10 +244,6 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
         </section>
       ) : null}
 
-      <OperationsTable operations={visibleOperations} />
-
-      {webhookDetails ? <WebhookDetailsSection details={webhookDetails} onDismiss={dismissWebhookDetails} /> : null}
-
       {canManage ? (
         <CredentialConnectionSection
           provider={provider}
@@ -267,6 +263,10 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
           Reach out to an organization admin to install this integration on your behalf, or request access to manage integrations.
         </Callout>
       )}
+
+      {webhookDetails ? <WebhookDetailsSection details={webhookDetails} onDismiss={dismissWebhookDetails} /> : null}
+
+      <OperationsTable operations={visibleOperations} />
 
       {promptIntegration && promptKind === 'directory' ? (
         <PrimaryDirectoryPromptDialog

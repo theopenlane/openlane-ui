@@ -7,6 +7,7 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 import { useRouter } from 'next/navigation'
 import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { TableKeyEnum, type TableKeyValue } from '@repo/ui/table-key'
+import { useOrganization } from '@/hooks/useOrganization'
 
 type Counts = {
   vulns: { critical: number; high: number }
@@ -50,10 +51,11 @@ const TYPES = [
 ]
 
 const ExposureCriticalCounts = ({ counts, isLoading }: Props) => {
+  const { currentOrgId } = useOrganization()
   const router = useRouter()
 
   const handleClick = (tableKey: TableKeyValue, href: string, filter: TFilterState) => {
-    saveFilters(tableKey, filter)
+    saveFilters(tableKey, filter, currentOrgId)
     router.push(href)
   }
 

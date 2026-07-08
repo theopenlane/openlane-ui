@@ -2,7 +2,7 @@ import { type ColumnDef } from '@tanstack/react-table'
 import { type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
-import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
@@ -12,7 +12,7 @@ import { TruncatedCell } from '@repo/ui/data-table'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type ReviewReviewStatus } from '@repo/codegen/src/schema'
 
-export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<ReviewsNodeNonNull>[] => {
+export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<ReviewsNodeNonNull>[] => {
   return [
     createSelectColumn<ReviewsNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
@@ -38,14 +38,14 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" /> },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'relatedControls',

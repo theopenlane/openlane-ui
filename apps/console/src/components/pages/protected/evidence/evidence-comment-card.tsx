@@ -1,5 +1,5 @@
 import { useGetEvidenceComments } from '@/lib/graphql-hooks/evidence'
-import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import EvidenceCommentSheet from './evidence-comments-sheet'
@@ -7,13 +7,13 @@ import { Card } from '@repo/ui/cardpanel'
 import { Link, PanelRightClose, PanelRightOpen } from 'lucide-react'
 import { SheetContent, SheetHeader, Sheet } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { useNotification } from '@/hooks/useNotification'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { formatDateTime } from '@/utils/date'
-import { toBase64DataUri } from '@/lib/image-utils'
+import { resolveAuthor } from '@/lib/authors'
+import { AuthorDisplay } from '@/components/shared/user-display/author-cell'
 
 const EvidenceCommentsCard = () => {
   const searchParams = useSearchParams()
@@ -30,12 +30,7 @@ const EvidenceCommentsCard = () => {
 
   const userIds = useMemo(() => (hasData ? Array.from(new Set(commentsData.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'))) : []), [commentsData, hasData])
 
-  const { data: userData, isLoading: isUsersLoading } = useGetOrgMemberships({
-    where: {
-      hasUserWith: [{ idIn: userIds }],
-    },
-    enabled: userIds.length > 0,
-  })
+  const { userMap, tokenMap, isLoading: isUsersLoading } = useAuthorMaps(userIds)
 
   const latestComment = useMemo(() => {
     if (!hasData) return null
@@ -43,11 +38,7 @@ const EvidenceCommentsCard = () => {
     return sorted[0]?.node ?? null
   }, [commentsData, hasData])
 
-  const latestCommentUser = useMemo(() => {
-    if (!latestComment || !userData?.orgMemberships?.edges) return null
-    const membership = userData.orgMemberships.edges.find((edge) => edge?.node?.user?.id === latestComment.createdBy)
-    return membership?.node?.user ?? null
-  }, [latestComment, userData])
+  const latestCommentAuthor = useMemo(() => resolveAuthor(latestComment?.createdBy, { userMap, tokenMap }), [latestComment?.createdBy, tokenMap, userMap])
 
   const handleCopyLink = () => {
     if (!evidenceId) return
@@ -117,19 +108,9 @@ const EvidenceCommentsCard = () => {
             </>
           ) : (
             <>
-              <Avatar className="h-8 w-8 border border-border shrink-0" title={latestCommentUser?.displayName}>
-                {(latestCommentUser?.avatarFile?.base64 ? toBase64DataUri(latestCommentUser.avatarFile.base64) : null) || latestCommentUser?.avatarRemoteURL ? (
-                  <AvatarImage
-                    src={((latestCommentUser?.avatarFile?.base64 ? toBase64DataUri(latestCommentUser.avatarFile.base64) : null) || latestCommentUser?.avatarRemoteURL) ?? ''}
-                    alt={latestCommentUser?.displayName || 'User'}
-                  />
-                ) : (
-                  <AvatarFallback>{latestCommentUser?.displayName?.slice(0, 2).toUpperCase() || '?'}</AvatarFallback>
-                )}
-              </Avatar>
               <div className="flex flex-col min-w-0 flex-1">
                 <div className="flex items-baseline gap-2">
-                  <p className="text-sm font-medium truncate">{latestCommentUser?.displayName || 'Deleted user'}</p>
+                  <AuthorDisplay author={latestCommentAuthor} className="font-medium truncate" avatarClassName="h-8 w-8" />
                   <p className="text-xs text-muted-foreground whitespace-nowrap">{formatDateTime(latestComment.createdAt)}</p>
                 </div>
                 <div className="text-sm text-muted-foreground line-clamp-2 overflow-hidden mt-0.5">{plateEditorHelper.convertToReadOnly(latestComment.text, 0, { padding: 0 })}</div>

@@ -218,7 +218,7 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
             icon: <Settings size={16} />,
             onClick: (row) => {
               if (row.integrationDefinitionId) {
-                router.push(`/organization-settings/integrations/${row.integrationDefinitionId}`)
+                router.push(`/automation/integrations/${row.integrationDefinitionId}`)
               }
             },
             disabled: (row) => !row.integrationDefinitionId,

@@ -1,4 +1,4 @@
-import IntegrationDefinitionPage from '@/components/pages/protected/organization-settings/integrations/integration-definition-page'
+import IntegrationDefinitionPage from '@/components/pages/protected/integrations/integration-definition-page'
 import { type Metadata } from 'next'
 import React from 'react'
 

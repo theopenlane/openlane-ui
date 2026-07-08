@@ -6,11 +6,11 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { type ColumnDef } from '@tanstack/react-table'
-import type { Risk, RiskTableFieldsFragment, RiskWhereInput, User } from '@repo/codegen/src/schema'
+import type { Risk, RiskTableFieldsFragment, RiskWhereInput } from '@repo/codegen/src/schema'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useRisks } from '@/lib/graphql-hooks/risk'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { getRiskColumns } from '@/components/pages/protected/risks/table/columns'
 import { buildAssociationFilter } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
 import { mergeWhere, SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
@@ -59,18 +59,9 @@ const RisksTable: React.FC<RisksTableProps> = ({ controlId, subcontrolIds }) => 
 
   const memberIds = useMemo(() => [...new Set((risks ?? []).flatMap((r) => [r.createdBy, r.updatedBy]).filter((id): id is string => typeof id === 'string' && id.length > 0))], [risks])
 
-  const userListWhere = useMemo(() => (memberIds.length > 0 ? { hasUserWith: [{ idIn: memberIds }] } : undefined), [memberIds])
-  const { users } = useGetOrgUserList({ where: userListWhere })
+  const { userMap, tokenMap } = useAuthorMaps(memberIds)
 
-  const userMap = useMemo(() => {
-    const map: Record<string, User> = {}
-    users?.forEach((user) => {
-      map[user.id] = user as User
-    })
-    return map
-  }, [users])
-
-  const { columns } = useMemo(() => getRiskColumns({ userMap, convertToReadOnly, selectedRisks: [], setSelectedRisks: () => {} }), [userMap, convertToReadOnly])
+  const { columns } = useMemo(() => getRiskColumns({ userMap, tokenMap, convertToReadOnly, selectedRisks: [], setSelectedRisks: () => {} }), [userMap, tokenMap, convertToReadOnly])
 
   const filteredColumns = useMemo<ColumnDef<RiskTableFieldsFragment>[]>(
     () =>

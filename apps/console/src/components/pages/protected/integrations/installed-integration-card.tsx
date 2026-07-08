@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Activity, ExternalLink, Settings, UserIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Activity, ExternalLink, Settings, SlidersHorizontal, UserIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
@@ -19,8 +20,8 @@ import {
 } from '@/lib/integrations/utils'
 import { PRIMARY_DOCUMENT_FIELD, providerHasUserInputSchema } from '@/lib/integrations/flow'
 import { useDisconnectIntegration, useIntegrationHealth } from '@/lib/query-hooks/integrations'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
-import { Avatar } from '@/components/shared/avatar/avatar'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import IntegrationCardIcons from './integration-card-icons'
 import IntegrationConfigurationDialog from './integration-configuration-dialog'
@@ -29,9 +30,13 @@ type InstalledIntegrationCardProps = {
   integration: IntegrationNode
   providers: IntegrationProvider[]
   canManage: boolean
+  // Shows a "Manage Connections" button linking to the provider detail page
+  // on provider detail page it shows configure instead
+  linkToDetail?: boolean
 }
 
-const InstalledIntegrationCard = ({ integration, providers, canManage }: InstalledIntegrationCardProps) => {
+const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDetail }: InstalledIntegrationCardProps) => {
+  const router = useRouter()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [configOpen, setConfigOpen] = useState(false)
 
@@ -58,9 +63,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage }: Install
   const healthQuery = useIntegrationHealth(integration.id, supportsHealth)
   const healthStatus = resolveHealthStatus(healthQuery.isPending, healthQuery.isError, healthQuery.data)
 
-  const userIds = integration.createdBy ? [integration.createdBy] : []
-  const { users } = useGetOrgUserList({ where: { hasUserWith: [{ idIn: userIds }] } })
-  const createdByUser = users?.find((u) => u.id === integration.createdBy)
+  const { userMap, tokenMap } = useAuthorMaps([integration.createdBy])
 
   const handleDisconnect = () => {
     setConfirmOpen(false)
@@ -106,19 +109,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage }: Install
           <div className="flex flex-col text-sm">
             <span className="text-muted-foreground text-xs">INSTALLED BY</span>
             <div className="flex gap-2 items-center">
-              {createdByUser ? (
-                <>
-                  <Avatar entity={createdByUser} variant="small" />
-                  <span>{createdByUser.displayName ?? 'Unknown'}</span>
-                </>
-              ) : integration.createdBy ? (
-                <>
-                  <UserIcon className="size-4 text-muted-foreground" />
-                  <span>Unknown</span>
-                </>
-              ) : (
-                <span className="text-muted-foreground">—</span>
-              )}
+              <AuthorCell id={integration.createdBy} userMap={userMap} tokenMap={tokenMap} emptyLabel="—" />
             </div>
           </div>
           <Separator vertical className="mx-4 w-fit" separatorClass="h-10" />
@@ -130,10 +121,15 @@ const InstalledIntegrationCard = ({ integration, providers, canManage }: Install
 
         {/* Stacked action buttons */}
         <div className="flex flex-col gap-2">
+          {linkToDetail && provider ? (
+            <Button variant="secondary" icon={<SlidersHorizontal className="size-4" />} iconPosition="left" onClick={() => router.push(`/automation/integrations/${provider.id}`)}>
+              Manage Connections
+            </Button>
+          ) : null}
           <Button variant="secondary" icon={<Activity className="size-4" />} iconPosition="left" onClick={() => healthQuery.refetch()} disabled={healthQuery.isFetching}>
             {healthQuery.isFetching ? 'Checking...' : 'Health Check'}
           </Button>
-          {canManage && hasUserInput ? (
+          {!linkToDetail && canManage && hasUserInput ? (
             <Button variant="secondary" icon={<Settings className="size-4" />} iconPosition="left" onClick={() => setConfigOpen(true)}>
               Configure
             </Button>

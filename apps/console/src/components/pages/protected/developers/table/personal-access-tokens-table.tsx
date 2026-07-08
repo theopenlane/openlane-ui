@@ -8,7 +8,8 @@ import {
   OrderDirection,
   PersonalAccessTokenOrderField,
 } from '@repo/codegen/src/schema'
-import { DataTable, getInitialSortConditions, getInitialPagination, TruncatedCell } from '@repo/ui/data-table'
+import { DataTable, TruncatedCell } from '@repo/ui/data-table'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
@@ -22,7 +23,6 @@ import TokensTableToolbar from '@/components/pages/protected/developers/table/pe
 import { useMemo, useState, useEffect } from 'react'
 import { TokenAction } from '@/components/pages/protected/developers/actions/pat-actions.tsx'
 import { TOKEN_SORT_FIELDS } from '@/components/pages/protected/developers/table/table-config.ts'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { useNotification } from '@/hooks/useNotification'
@@ -180,24 +180,18 @@ export const PersonalAccessTokenTable = () => {
   const { data: session } = useSession()
   const canManageApiToken = !isApiTokenPage || canEdit(permission?.roles, session)
   const tableKey = isApiTokenPage ? TableKeyEnum.API_TOKEN : TableKeyEnum.PERSONAL_ACCESS_TOKEN
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(tableKey, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const { successNotification, errorNotification } = useNotification()
 
   type CommonWhereType = GetPersonalAccessTokensQueryVariables['where'] | GetApiTokensQueryVariables['where']
 
-  type CommonOrderByType = Array<{
-    field: PersonalAccessTokenOrderField
-    direction: OrderDirection
-  }>
-
   const [filters, setFilters] = useState<CommonWhereType | null>(null)
-  const defaultSorting = getInitialSortConditions(tableKey, PersonalAccessTokenOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(tableKey, PersonalAccessTokenOrderField, [
     {
       field: PersonalAccessTokenOrderField.created_at,
       direction: OrderDirection.DESC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<CommonOrderByType>(defaultSorting)
 
   const whereFilter = useMemo(() => {
     return { ...filters } as CommonWhereType
@@ -404,7 +398,7 @@ export const PersonalAccessTokenTable = () => {
     <>
       <TokensTableToolbar onFilterChange={setFilters} />
       <DataTable
-        defaultSorting={defaultSorting}
+        sorting={orderBy}
         loading={isFetching}
         columns={columns}
         data={tokens}

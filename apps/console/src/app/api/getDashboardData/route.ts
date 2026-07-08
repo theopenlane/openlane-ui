@@ -6,6 +6,7 @@ import { sessionCookieName } from '@repo/dally/auth'
 export interface OrganizationNode {
   id: string
   displayName: string
+  personalOrg: boolean
 }
 
 export interface OrganizationEdge {
@@ -51,6 +52,7 @@ const GetDashboardDataDocument = `
         node {
           id
           displayName
+          personalOrg
         }
       }
     }

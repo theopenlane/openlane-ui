@@ -4,8 +4,8 @@ import React, { useState, useMemo } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useQueryClient } from '@tanstack/react-query'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
@@ -85,7 +85,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [linkSuggestions, setLinkSuggestions] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.VENDOR_CONTACTS, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_CONTACTS, {}))
   const [selectedContacts, setSelectedContacts] = useState<{ id: string }[]>([])
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)

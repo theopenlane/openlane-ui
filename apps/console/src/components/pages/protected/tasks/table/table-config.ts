@@ -1,5 +1,5 @@
 import { type FilterField } from '@/types'
-import { TaskStatusWithoutCompletedAndOpen } from '@/components/pages/protected/tasks/util/task'
+import { TaskTaskStatus } from '@repo/codegen/src/schema'
 import { type TOrgMembers } from '../hooks/useTaskStore'
 import { TaskFilterIcons } from '@/components/shared/enum-mapper/task-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
@@ -23,7 +23,7 @@ export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: 
     label: 'Status',
     type: 'multiselect',
     icon: TaskFilterIcons.Status,
-    options: enumToOptions(TaskStatusWithoutCompletedAndOpen),
+    options: enumToOptions(TaskTaskStatus),
   },
 
   {

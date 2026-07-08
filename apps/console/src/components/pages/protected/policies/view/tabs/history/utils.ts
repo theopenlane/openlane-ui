@@ -19,3 +19,10 @@ export const getRevisionKind = (rev: string | null | undefined): 'major' | 'mino
 }
 
 export const toPlateValue = (json: unknown): Value | null => (Array.isArray(json) ? (json as Value) : null)
+
+export type ResolveGroup = (id: string | null | undefined) => string | null | undefined
+
+export const makeGroupResolver =
+  (groupNameMap?: Map<string, string>): ResolveGroup =>
+  (id) =>
+    id ? (groupNameMap?.get(id) ?? id) : id

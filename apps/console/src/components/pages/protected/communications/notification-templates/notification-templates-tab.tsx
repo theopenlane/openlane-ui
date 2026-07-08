@@ -11,7 +11,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useNotificationTemplatesWithFilter, useDeleteNotificationTemplate, useUpdateNotificationTemplate, useCreateNotificationTemplate } from '@/lib/graphql-hooks/notification-template'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
+import { resolveAuthorName } from '@/lib/authors'
 import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
 import { useWorkflowDefinitionsWithFilter } from '@/lib/graphql-hooks/workflow-definition'
 import { useNotification } from '@/hooks/useNotification'
@@ -60,9 +61,7 @@ export const NotificationTemplatesTab: React.FC = () => {
 
   const userIds = useMemo(() => Array.from(new Set(notificationTemplatesNodes.map((t) => t.createdBy).filter((id): id is string => !!id))), [notificationTemplatesNodes])
 
-  const { users } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap } = useAuthorMaps(userIds)
 
   const { data: integrationsData } = useGetIntegrations({ where: {} })
   const integrationOptions = useMemo(
@@ -103,14 +102,6 @@ export const NotificationTemplatesTab: React.FC = () => {
     ],
     [integrationOptions, workflowOptions],
   )
-
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[number]> = {}
-    users?.forEach((u) => {
-      if (u?.id) map[u.id] = u
-    })
-    return map
-  }, [users])
 
   const openSheet = (templateId: string | undefined, readOnly: boolean) => {
     setSheetTemplateId(templateId)
@@ -220,8 +211,7 @@ export const NotificationTemplatesTab: React.FC = () => {
       ) : (
         <div className="flex flex-col gap-2">
           {notificationTemplatesNodes.map((template) => {
-            const author = template.createdBy ? userMap[template.createdBy] : undefined
-            const authorName = author?.displayName ?? '—'
+            const authorName = template.createdBy ? resolveAuthorName(template.createdBy, { userMap, tokenMap }) : '—'
             return (
               <div key={template.id} className="flex items-start gap-4 rounded-lg border border-border bg-card p-4 transition-colors">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-avatar-transparent">

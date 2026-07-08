@@ -14,8 +14,9 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { getInitialSortConditions, getInitialPagination, type SortCondition } from '@repo/ui/data-table'
+import { type SortCondition } from '@repo/ui/data-table'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { type ObjectNames, type ObjectTypes } from '@repo/codegen/src/type-names'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { type FieldValues, type UseFormReturn } from 'react-hook-form'
@@ -28,6 +29,7 @@ import { type TableKeyValue } from '@repo/ui/table-key'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { type FilterField } from '@/types'
 import { type User } from '@repo/codegen/src/schema'
+import { type AuthorToken } from '@/lib/authors'
 import type { BulkDeletePayload, ViewEditMode, CreateMode } from './types'
 import { type Session } from 'next-auth'
 
@@ -40,6 +42,7 @@ export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promi
 
 export type ColumnOptions = {
   userMap: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
   selectedItems: { id: string }[]
   setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>
@@ -186,8 +189,8 @@ export function GenericTablePage<
   const { handleExport } = useFileExport()
 
   const [filters, setFilters] = useState<TWhereInput | null>(null)
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(tableKey, DEFAULT_PAGINATION))
-  const [orderBy, setOrderBy] = useState<SortCondition<TOrderField>[]>(() => getInitialSortConditions(tableKey, orderFieldEnum, defaultSorting))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [orderBy, setOrderBy] = useOrgTableSort(tableKey, orderFieldEnum, defaultSorting)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(tableKey, defaultVisibility))
   const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
 
@@ -240,7 +243,7 @@ export function GenericTablePage<
       return
     }
     setPagination((prev) => (prev.page === 1 ? prev : { ...prev, page: 1, query: { first: prev.pageSize } }))
-  }, [filterFingerprint])
+  }, [filterFingerprint, setPagination])
 
   useEffect(() => {
     if (!config.hideBreadcrumbs) {

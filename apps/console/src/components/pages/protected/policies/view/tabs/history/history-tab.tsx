@@ -3,22 +3,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useGetInternalPolicyHistories, useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
-import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
-import {
-  type InternalPolicyByIdFragment,
-  InternalPolicyDocumentManagementMode,
-  InternalPolicyDocumentStatus,
-  InternalPolicyFrequency,
-  type UpdateInternalPolicyInput,
-  type ApiToken,
-  type User,
-} from '@repo/codegen/src/schema'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
+import { useGetGroupNames } from '@/lib/graphql-hooks/group'
+import { type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode, InternalPolicyDocumentStatus, InternalPolicyFrequency, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
 import HistoryRow from './history-row'
 import VersionSlideout from './version-slideout'
 import RestoreDialog from './restore-dialog'
 import { stringToPlateValue } from '@/components/shared/plate/plate-utils'
-import { isUlid } from '@/lib/validators'
+import { resolveAuthor } from '@/lib/authors'
 
 const hasStr = (s: string | null | undefined): s is string => typeof s === 'string' && s.length > 0
 const hasArr = (a: ReadonlyArray<unknown> | null | undefined): a is ReadonlyArray<unknown> => Array.isArray(a) && a.length > 0
@@ -54,43 +46,36 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
     return () => observer.unobserve(el)
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  const userIds = useMemo(() => {
-    const ids = new Set<string>()
-    if (policy.updatedBy && isUlid(policy.updatedBy)) ids.add(policy.updatedBy)
-    if (policy.createdBy && isUlid(policy.createdBy)) ids.add(policy.createdBy)
+  const authorIds = useMemo(() => {
+    const ids: Array<string | null | undefined> = [policy.updatedBy, policy.createdBy]
     historyNodes.forEach((n) => {
-      if (n.createdBy && isUlid(n.createdBy)) ids.add(n.createdBy)
-      if (n.updatedBy && isUlid(n.updatedBy)) ids.add(n.updatedBy)
+      ids.push(n.createdBy, n.updatedBy)
     })
-    return Array.from(ids)
+    return ids
   }, [policy.updatedBy, policy.createdBy, historyNodes])
 
-  const userListWhere = useMemo(() => ({ hasUserWith: [{ idIn: userIds }] }), [userIds])
-  const tokenListWhere = useMemo(() => ({ idIn: userIds }), [userIds])
+  const { userMap, tokenMap } = useAuthorMaps(authorIds)
 
-  const { users } = useGetOrgUserList({ where: userListWhere })
-  const { tokens } = useGetApiTokensByIds({ where: tokenListWhere })
+  const groupIds = useMemo(() => {
+    const ids = new Set<string>()
+    historyNodes.forEach((n) => {
+      if (n.approverID) ids.add(n.approverID)
+      if (n.delegateID) ids.add(n.delegateID)
+    })
+    return Array.from(ids)
+  }, [historyNodes])
 
-  const userMap = useMemo(() => {
-    const m = new Map<string, User>()
-    users?.forEach((u) => u?.id && m.set(u.id, u))
+  const groupListWhere = useMemo(() => ({ idIn: groupIds }), [groupIds])
+  const canViewHistory = policy.managementMode !== InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
+  const { groups } = useGetGroupNames({ where: groupListWhere, enabled: canViewHistory && groupIds.length > 0 })
+
+  const groupNameMap = useMemo(() => {
+    const m = new Map<string, string>()
+    if (policy.approver?.id) m.set(policy.approver.id, policy.approver.displayName || policy.approver.id)
+    if (policy.delegate?.id) m.set(policy.delegate.id, policy.delegate.displayName || policy.delegate.id)
+    groups?.forEach((g) => g?.id && m.set(g.id, g.displayName || g.name || g.id))
     return m
-  }, [users])
-
-  const tokenMap = useMemo(() => {
-    const m = new Map<string, ApiToken>()
-    tokens?.forEach((t) => t?.id && m.set(t.id, t))
-    return m
-  }, [tokens])
-
-  const lookupAuthor = (id: string | null | undefined): { user?: User; token?: ApiToken; label?: string } => {
-    if (!id) return {}
-    const token = tokenMap.get(id)
-    if (token) return { token }
-    const user = userMap.get(id)
-    if (user) return { user }
-    return isUlid(id) ? {} : { label: id }
-  }
+  }, [groups, policy.approver, policy.delegate])
 
   const restoreTarget = useMemo(() => historyNodes.find((n) => n.id === restoreTargetId) ?? null, [historyNodes, restoreTargetId])
 
@@ -127,8 +112,8 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
     }
   }
 
-  const currentAuthor = lookupAuthor(policy.updatedBy)
-  const isExternalReference = policy.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
+  const currentAuthor = resolveAuthor(policy.updatedBy, { userMap, tokenMap })
+  const isExternalReference = !canViewHistory
   const isIntegration = policy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION
   const handleView = isExternalReference ? undefined : (id: string) => setSelectedHistoryId(id)
   const handleRestoreClick = isExternalReference || isIntegration ? undefined : (id: string) => setRestoreTargetId(id)
@@ -137,7 +122,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
     <div className="mt-5 flex flex-col gap-3">
       <p className="text-sm text-muted-foreground">Showing major and minor versions only · patch versions (e.g. v1.2.1) excluded</p>
 
-      <HistoryRow id={policyId} revision={policy.revision} occurredAt={policy.updatedAt} user={currentAuthor.user} token={currentAuthor.token} label={currentAuthor.label} isCurrent />
+      <HistoryRow id={policyId} revision={policy.revision} occurredAt={policy.updatedAt} author={currentAuthor} isCurrent />
 
       {isLoading && historyNodes.length === 0 ? (
         <p className="text-sm text-muted-foreground">Loading history…</p>
@@ -145,22 +130,17 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
         <p className="text-sm text-muted-foreground">No prior major or minor versions.</p>
       ) : (
         <>
-          {historyNodes.map((node) => {
-            const author = lookupAuthor(node.createdBy ?? node.updatedBy)
-            return (
-              <HistoryRow
-                key={node.id}
-                id={node.id}
-                revision={node.revision}
-                occurredAt={node.historyTime}
-                user={author.user}
-                token={author.token}
-                label={author.label}
-                onView={handleView}
-                onRestore={handleRestoreClick}
-              />
-            )
-          })}
+          {historyNodes.map((node) => (
+            <HistoryRow
+              key={node.id}
+              id={node.id}
+              revision={node.revision}
+              occurredAt={node.historyTime}
+              author={resolveAuthor(node.createdBy ?? node.updatedBy, { userMap, tokenMap })}
+              onView={handleView}
+              onRestore={handleRestoreClick}
+            />
+          ))}
           <div ref={sentinelRef} className="flex justify-center py-2 text-xs text-muted-foreground">
             {isFetchingNextPage ? 'Loading more…' : !hasNextPage && historyNodes.length > 0 ? `${historyNodes.length} prior version${historyNodes.length === 1 ? '' : 's'}` : null}
           </div>
@@ -172,6 +152,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
           historyId={selectedHistoryId}
           histories={historyNodes}
           currentPolicy={policy}
+          groupNameMap={groupNameMap}
           canRestore={!isIntegration}
           onClose={() => setSelectedHistoryId(null)}
           onRestore={(id) => setRestoreTargetId(id)}

@@ -1,12 +1,11 @@
 'use client'
 
 import React from 'react'
-import { type ApiToken, type ProcedureByIdFragment, type User } from '@repo/codegen/src/schema'
-import { CalendarCheck2, CalendarClock, KeyRound, UserRoundCheck, UserRoundPen } from 'lucide-react'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
+import { type ProcedureByIdFragment } from '@repo/codegen/src/schema'
+import { CalendarCheck2, CalendarClock, UserRoundCheck, UserRoundPen } from 'lucide-react'
 import { formatTimeSince } from '@/utils/date'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
-import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 
 type TPropertiesCardProps = {
   procedure: ProcedureByIdFragment
@@ -21,25 +20,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ procedure }) => {
     userIds.push(procedure.createdBy)
   }
 
-  const { users } = useGetOrgUserList({ where: { hasUserWith: [{ idIn: userIds }] } })
-  const { tokens } = useGetApiTokensByIds({ where: { idIn: userIds } })
-  const updatedByToken = tokens?.find((item) => item.id === procedure?.updatedBy)
-  const updatedByUser = users?.find((item) => item.id === procedure?.updatedBy)
-  const createdByToken = tokens?.find((item) => item.id === procedure?.createdBy)
-  const createdByUser = users?.find((item) => item.id === procedure?.createdBy)
-
-  const handleUserDisplay = (token?: ApiToken, user?: User) => {
-    if (!token && !user) {
-      return 'Deleted user'
-    }
-
-    return (
-      <>
-        {token ? <KeyRound size={16} /> : <Avatar entity={user} variant="small" />}
-        {token ? token.name : user?.displayName || '—'}
-      </>
-    )
-  }
+  const { userMap, tokenMap } = useAuthorMaps(userIds)
 
   return (
     <div className="flex flex-col gap-4 pb-4">
@@ -51,7 +32,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ procedure }) => {
         </div>
 
         <div className="w-full">
-          <div className="flex gap-2 cursor-not-allowed text-sm">{handleUserDisplay(createdByToken, createdByUser)}</div>
+          <AuthorCell id={procedure.createdBy} userMap={userMap} tokenMap={tokenMap} className="flex items-center gap-2 cursor-not-allowed text-sm" />
         </div>
       </div>
 
@@ -77,7 +58,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ procedure }) => {
         </div>
 
         <div className="w-full">
-          <div className="flex gap-2 cursor-not-allowed text-sm">{handleUserDisplay(updatedByToken, updatedByUser)}</div>
+          <AuthorCell id={procedure.updatedBy} userMap={userMap} tokenMap={tokenMap} className="flex items-center gap-2 cursor-not-allowed text-sm" />
         </div>
       </div>
 
