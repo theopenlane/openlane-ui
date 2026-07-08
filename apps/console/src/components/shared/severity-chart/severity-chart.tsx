@@ -1,11 +1,16 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useVulnerabilitySeverityCounts } from '@/lib/graphql-hooks/vulnerability'
 import { useFindingSeverityCounts } from '@/lib/graphql-hooks/finding'
 import { cn } from '@repo/ui/lib/utils'
+import { type TableKeyValue } from '@repo/ui/table-key'
+import { getFiltersUpdatedEvent, saveFilters, loadFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage'
+import { useOrganization } from '@/hooks/useOrganization'
 
 type SeverityLevel = 'critical' | 'high' | 'medium' | 'low'
+
+const SEVERITY_LEVELS: SeverityLevel[] = ['critical', 'high', 'medium', 'low']
 
 const SEVERITY_CONFIG: { level: SeverityLevel; label: string; color: string; bgColor: string }[] = [
   { level: 'critical', label: 'Critical', color: 'var(--color-severity-critical)', bgColor: 'color-mix(in srgb, var(--color-severity-critical) 20%, transparent)' },
@@ -16,8 +21,7 @@ const SEVERITY_CONFIG: { level: SeverityLevel; label: string; color: string; bgC
 
 type Props = {
   variant: 'vulnerability' | 'finding'
-  selectedSeverity: SeverityLevel | null
-  onSeveritySelect: (severity: SeverityLevel | null) => void
+  tableKey: TableKeyValue
 }
 
 const LABELS: Record<Props['variant'], string> = {
@@ -25,14 +29,39 @@ const LABELS: Record<Props['variant'], string> = {
   finding: 'Open Findings by Severity',
 }
 
-const SeverityChart: React.FC<Props> = ({ variant, selectedSeverity, onSeveritySelect }) => {
+const deriveSelectedSeverity = (filterState: TFilterState | null): SeverityLevel | null => {
+  const raw = filterState?.securityLevelIn
+  const values = Array.isArray(raw) ? raw : []
+  if (values.length !== 1) return null
+  const level = String(values[0]).toLowerCase()
+  return SEVERITY_LEVELS.find((l) => l === level) ?? null
+}
+
+const SeverityChart: React.FC<Props> = ({ variant, tableKey }) => {
+  const { currentOrgId } = useOrganization()
   const vulnCounts = useVulnerabilitySeverityCounts(variant === 'vulnerability')
   const findingCounts = useFindingSeverityCounts(variant === 'finding')
   const counts = variant === 'finding' ? findingCounts : vulnCounts
   const total = counts.critical + counts.high + counts.medium + counts.low
 
+  const [selectedSeverity, setSelectedSeverity] = useState<SeverityLevel | null>(null)
+
+  useEffect(() => {
+    const sync = () => setSelectedSeverity(deriveSelectedSeverity(loadFilters(tableKey, undefined, currentOrgId)))
+    sync()
+    const eventName = getFiltersUpdatedEvent(tableKey, currentOrgId)
+    window.addEventListener(eventName, sync)
+    return () => window.removeEventListener(eventName, sync)
+  }, [tableKey, currentOrgId])
+
+  const applySeverity = (level: SeverityLevel | null) => {
+    const { securityLevelIn: _omit, ...rest } = loadFilters(tableKey, undefined, currentOrgId) ?? {}
+    const next: TFilterState = level ? { ...rest, open: true, securityLevelIn: [level.toUpperCase()] } : { ...rest }
+    saveFilters(tableKey, next, currentOrgId)
+  }
+
   const handleClick = (level: SeverityLevel) => {
-    onSeveritySelect(selectedSeverity === level ? null : level)
+    applySeverity(selectedSeverity === level ? null : level)
   }
 
   return (
@@ -63,7 +92,7 @@ const SeverityChart: React.FC<Props> = ({ variant, selectedSeverity, onSeverityS
         })}
       </div>
       {selectedSeverity && (
-        <button type="button" onClick={() => onSeveritySelect(null)} className="mt-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
+        <button type="button" onClick={() => applySeverity(null)} className="mt-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
           Clear filter
         </button>
       )}
