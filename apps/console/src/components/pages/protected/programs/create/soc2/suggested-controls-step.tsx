@@ -6,7 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@r
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
-import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
+import { type ControlListStandardFieldsFragment } from '@repo/codegen/src/schema'
 import { CheckCircle2, ChevronDown, ChevronRight, ShieldCheck } from 'lucide-react'
 
 type suggestedControlFormValues = {
@@ -23,16 +23,16 @@ const formatMappedCategories = (mappedCategories?: string[] | null) => {
   return mappedCategories.slice(0, 3).join(', ')
 }
 
-export default function SuggestedControlsStep({ frameworkName }: { frameworkName?: string }) {
+type SuggestedControlsStepProps = {
+  controls: ControlListStandardFieldsFragment[]
+  frameworkName?: string
+  isLoading: boolean
+}
+
+export default function SuggestedControlsStep({ controls: allControls, frameworkName, isLoading }: SuggestedControlsStepProps) {
   const { control, setValue } = useFormContext<suggestedControlFormValues>()
   const [expandedDomains, setExpandedDomains] = useState<string[]>([])
   const initializedSelectionRef = useRef(false)
-  const { allControls, isLoading } = useAllControlsGroupedWithListFields({
-    where: {
-      refCodeHasPrefix: 'OL-',
-      systemOwned: true,
-    },
-  })
 
   const selectedControlIDs = useWatch({ control, name: 'suggestedControlIDs' }) ?? emptySelection
   const selectedControlCategories = useWatch({ control, name: 'suggestedControlCategories' }) ?? emptySelection

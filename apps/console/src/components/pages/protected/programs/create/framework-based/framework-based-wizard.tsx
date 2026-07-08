@@ -21,6 +21,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import SelectCategoryStep from '../shared/steps/select-category-step'
 import SuggestedControlsStep from '../soc2/suggested-controls-step'
 import { useCloneControls } from '@/lib/graphql-hooks/standard'
+import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -36,10 +37,18 @@ export default function FrameworkBasedWizard() {
   const { mutateAsync: cloneControls, isPending: isControlBeingCloned } = useCloneControls()
   const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
+  const { allControls: suggestedControls, isLoading: isLoadingSuggestedControls } = useAllControlsGroupedWithListFields({
+    where: {
+      refCodeHasPrefix: 'OL-',
+      systemOwned: true,
+    },
+    enabled: includeSuggestedControls,
+  })
+  const shouldShowSuggestedControlsStep = includeSuggestedControls && (isLoadingSuggestedControls || suggestedControls.length > 0)
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Select Framework', schema: wizardSchema.pick({ framework: true, standardID: true, name: true }) },
-    ...(includeSuggestedControls
+    ...(shouldShowSuggestedControlsStep
       ? [{ id: '1', label: 'Import Controls', schema: suggestedControlsStepSchema }]
       : [{ id: '1', label: 'Select Categories', schema: wizardSchema.pick({ categories: true }) }]),
     ...(!isOnboardingFlow ? [{ id: '2', label: 'Team Setup', schema: wizardSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) }] : []),
@@ -59,7 +68,8 @@ export default function FrameworkBasedWizard() {
   })
 
   const framework = useWatch({ control: methods.control, name: 'framework' })
-  const disabledIDs = includeSuggestedControls || framework === 'SOC 2' ? [] : ['1']
+  const disabledIDs = shouldShowSuggestedControlsStep || framework === 'SOC 2' ? [] : ['1']
+  const isSuggestedControlButtonDisabled = includeSuggestedControls && isLoadingSuggestedControls && (stepper.current.id === '0' || stepper.current.id === '1')
 
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
@@ -68,7 +78,7 @@ export default function FrameworkBasedWizard() {
       if (stepper.current.id === '0') {
         isValid = await methods.trigger(['framework', 'standardID', 'name'])
       } else if (stepper.current.id === '1') {
-        isValid = includeSuggestedControls ? await methods.trigger(['suggestedControlIDs', 'categories']) : await methods.trigger('categories')
+        isValid = shouldShowSuggestedControlsStep ? await methods.trigger(['suggestedControlIDs', 'categories']) : await methods.trigger('categories')
       } else {
         isValid = await methods.trigger(['programAdmins', 'programMembers', 'viewerIDs', 'editorIDs'])
       }
@@ -176,7 +186,8 @@ export default function FrameworkBasedWizard() {
             <div className="py-6">
               {stepper.switch({
                 0: () => <SelectFrameworkStep required defaultFramework={defaultFramework} />,
-                1: () => (includeSuggestedControls ? <SuggestedControlsStep frameworkName={framework} /> : <SelectCategoryStep />),
+                1: () =>
+                  shouldShowSuggestedControlsStep ? <SuggestedControlsStep controls={suggestedControls} frameworkName={framework} isLoading={isLoadingSuggestedControls} /> : <SelectCategoryStep />,
                 2: () => <TeamSetupStep />,
                 3: () => <StartTypeStep />,
               })}
@@ -184,7 +195,13 @@ export default function FrameworkBasedWizard() {
                 <Button type="button" variant="secondary" onClick={handleBack} iconPosition="left">
                   Back
                 </Button>
-                <Button variant="primary" type="button" onClick={() => handleNext()} disabled={isPending || isControlBeingCloned} loading={isPending || isControlBeingCloned}>
+                <Button
+                  variant="primary"
+                  type="button"
+                  onClick={() => handleNext()}
+                  disabled={isPending || isControlBeingCloned || isSuggestedControlButtonDisabled}
+                  loading={isPending || isControlBeingCloned}
+                >
                   {stepper.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>

@@ -1,21 +1,22 @@
 'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Button } from '@repo/ui/button'
-import { defineStepper } from '@stepperize/react'
-import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { StepHeader } from '@/components/shared/step-header/step-header'
 import { useNotification } from '@/hooks/useNotification'
+import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
 import { useCloneControls, useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { type CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
+import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Separator } from '@repo/ui/separator'
+import { defineStepper } from '@stepperize/react'
 import { addYears, getYear } from 'date-fns'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import SelectCategoryStep from '../shared/steps/select-category-step'
 import StartTypeStep from '../shared/steps/start-type-step'
 import TeamSetupStep from '../shared/steps/team-setup-step'
@@ -39,10 +40,18 @@ export default function Soc2Wizard() {
   const [showExitConfirm, setShowExitConfirm] = useState(false)
 
   const standardID = data?.standards?.edges?.[0]?.node?.id
+  const { allControls: suggestedControls, isLoading: isLoadingSuggestedControls } = useAllControlsGroupedWithListFields({
+    where: {
+      refCodeHasPrefix: 'OL-',
+      systemOwned: true,
+    },
+    enabled: includeSuggestedControls,
+  })
+  const shouldShowSuggestedControlsStep = includeSuggestedControls && (isLoadingSuggestedControls || suggestedControls.length > 0)
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Pick Categories', schema: fullSchema.pick({ categories: true, standardID: true }) },
-    ...(includeSuggestedControls ? [{ id: '1', label: 'Import Controls', schema: suggestedControlsStepSchema }] : []),
+    ...(shouldShowSuggestedControlsStep ? [{ id: '1', label: 'Import Controls', schema: suggestedControlsStepSchema }] : []),
     ...(!isOnboardingFlow ? [{ id: '2', label: 'Team Setup', schema: fullSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) }] : []),
     { id: '3', label: 'Access Control', schema: fullSchema.pick({ programKindName: true }) },
   )
@@ -60,6 +69,7 @@ export default function Soc2Wizard() {
 
   const programKindName = useWatch({ control: methods.control, name: 'programKindName' })
   const isCreationDisabled = stepper.isLast && !programKindName
+  const isSuggestedControlsButtonDisabled = includeSuggestedControls && isLoadingSuggestedControls && (stepper.current.id === '0' || stepper.current.id === '1')
 
   useEffect(() => {
     if (standardID) {
@@ -189,7 +199,7 @@ export default function Soc2Wizard() {
             <div className="py-6">
               {stepper.switch({
                 0: () => <SelectCategoryStep />,
-                1: () => <SuggestedControlsStep frameworkName="SOC 2" />,
+                1: () => <SuggestedControlsStep controls={suggestedControls} frameworkName="SOC 2" isLoading={isLoadingSuggestedControls} />,
                 2: () => <TeamSetupStep />,
                 3: () => <StartTypeStep />,
               })}
@@ -197,7 +207,13 @@ export default function Soc2Wizard() {
                 <Button type="button" variant="secondary" onClick={handleBack} iconPosition="left">
                   Back
                 </Button>
-                <Button variant="primary" type="button" onClick={() => handleNext()} disabled={isPending || isControlBeingCloned || isCreationDisabled} loading={isPending || isControlBeingCloned}>
+                <Button
+                  variant="primary"
+                  type="button"
+                  onClick={() => handleNext()}
+                  disabled={isPending || isControlBeingCloned || isCreationDisabled || isSuggestedControlsButtonDisabled}
+                  loading={isPending || isControlBeingCloned}
+                >
                   {stepper.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>

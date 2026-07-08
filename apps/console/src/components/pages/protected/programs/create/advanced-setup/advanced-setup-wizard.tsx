@@ -1,13 +1,25 @@
 'use client'
 
-import React, { use, useEffect, useState } from 'react'
-import { defineStepper, type Step } from '@stepperize/react'
-import { useForm, FormProvider, useWatch } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@repo/ui/button'
-import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
+import { useNotification } from '@/hooks/useNotification'
+import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
+import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
+import { useCloneControls } from '@/lib/graphql-hooks/standard'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { type CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
+import { Button } from '@repo/ui/button'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { Separator } from '@repo/ui/separator'
+import { defineStepper, type Step } from '@stepperize/react'
+import { addYears } from 'date-fns'
+import { useRouter, useSearchParams } from 'next/navigation'
+import React, { use, useEffect, useState } from 'react'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import SelectCategoryStep from '../shared/steps/select-category-step'
+import SuggestedControlsStep from '../soc2/suggested-controls-step'
+import { AdvancedSetupFormSummary } from './advanced-setup-form-summary'
 import AdvancedSetupStep1 from './advanced-setup-steps/advanced-setup-step1'
 import AdvancedSetupStep2 from './advanced-setup-steps/advanced-setup-step2'
 import AdvancedSetupStep3 from './advanced-setup-steps/advanced-setup-step3'
@@ -16,27 +28,16 @@ import AdvancedSetupStep5 from './advanced-setup-steps/advanced-setup-step5'
 import {
   categoriesStepSchema,
   fullSchema,
-  suggestedControlsStepSchema,
   step1Schema,
   step2Schema,
   step3Schema,
   step4Schema,
   step5Schema,
+  suggestedControlsStepSchema,
   validateFullAndNotify,
   validateStepAndNotify,
   type WizardValues,
 } from './advanced-setup-wizard-config'
-import { type CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
-import { useNotification } from '@/hooks/useNotification'
-import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
-import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { addYears } from 'date-fns'
-import { AdvancedSetupFormSummary } from './advanced-setup-form-summary'
-import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import SelectCategoryStep from '../shared/steps/select-category-step'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import SuggestedControlsStep from '../soc2/suggested-controls-step'
-import { useCloneControls } from '@/lib/graphql-hooks/standard'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -57,11 +58,22 @@ export default function AdvancedSetupWizard() {
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [isMemberSheetOpen, setIsMemberSheetOpen] = useState(false)
 
+  const { allControls: suggestedControls, isLoading: isLoadingSuggestedControls } = useAllControlsGroupedWithListFields({
+    where: {
+      refCodeHasPrefix: 'OL-',
+      systemOwned: true,
+    },
+    enabled: includeSuggestedControls,
+  })
+
+  // should we skip the import screen for openlane seeded controls?
+  const shouldShowSuggestedControlsStep = includeSuggestedControls && (isLoadingSuggestedControls || suggestedControls.length > 0)
+
   const { useStepper } = defineStepper(
     { id: '0', label: 'Select a Program Type', schema: step1Schema },
     { id: '1', label: 'General Information', schema: step2Schema },
     { id: '2', label: 'Select SOC 2 Categories', schema: categoriesStepSchema },
-    ...(includeSuggestedControls ? [{ id: '2a', label: 'Import Controls', schema: suggestedControlsStepSchema }] : []),
+    ...(shouldShowSuggestedControlsStep ? [{ id: '2a', label: 'Import Controls', schema: suggestedControlsStepSchema }] : []),
     { id: '3', label: 'Auditors', schema: step3Schema },
     { id: '4', label: 'Add Team Members', schema: step4Schema },
     { id: '5', label: 'Associate Existing Objects', schema: step5Schema },
@@ -101,6 +113,7 @@ export default function AdvancedSetupWizard() {
   const hasSoc2Framework = framework === SOC2_FRAMEWORK_NAME || selectedFrameworks?.some((selectedFramework) => selectedFramework.value === SOC2_FRAMEWORK_NAME)
 
   const disabledIDs = [...(hasSoc2Framework ? [] : ['2']), ...(isOnboardingFlow ? ['4'] : [])]
+  const isSuggestedControlsButtonDisabled = includeSuggestedControls && isLoadingSuggestedControls && (stepper.current.id === '2' || stepper.current.id === '2a')
 
   const handleNext = async () => {
     if (!stepper.isLast) {
@@ -252,7 +265,13 @@ export default function AdvancedSetupWizard() {
                 0: () => <AdvancedSetupStep1 />,
                 1: () => <AdvancedSetupStep2 defaultFrameworks={defaultFrameworks} />,
                 2: () => <SelectCategoryStep />,
-                '2a': () => <SuggestedControlsStep frameworkName={selectedFrameworks?.map((selectedFramework) => selectedFramework.value).join(', ') || framework} />,
+                '2a': () => (
+                  <SuggestedControlsStep
+                    controls={suggestedControls}
+                    frameworkName={selectedFrameworks?.map((selectedFramework) => selectedFramework.value).join(', ') || framework}
+                    isLoading={isLoadingSuggestedControls}
+                  />
+                ),
                 3: () => <AdvancedSetupStep3 />,
                 4: () => <AdvancedSetupStep4 isMemberSheetOpen={isMemberSheetOpen} setIsMemberSheetOpen={setIsMemberSheetOpen} />,
                 5: () => <AdvancedSetupStep5 />,
@@ -262,7 +281,7 @@ export default function AdvancedSetupWizard() {
                 <Button variant="secondary" onClick={handleBack} iconPosition="left">
                   Back
                 </Button>
-                <Button variant="primary" onClick={handleNext} disabled={isPending || isControlBeingCloned} loading={isPending || isControlBeingCloned}>
+                <Button variant="primary" onClick={handleNext} disabled={isPending || isControlBeingCloned || isSuggestedControlsButtonDisabled} loading={isPending || isControlBeingCloned}>
                   {stepper.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>
