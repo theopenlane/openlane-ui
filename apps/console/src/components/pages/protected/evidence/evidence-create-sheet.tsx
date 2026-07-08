@@ -647,7 +647,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                             <div className="flex items-center justify-between w-full">
                               <AccordionTrigger asChild>
                                 <button className="group flex items-center gap-2 text-sm font-medium bg-unset">
-                                  <ChevronDown size={22} className="text-brand transform rotate-90 transition-transform group-data-[state=open]:rotate-0" />
+                                  <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
                                   Associate more objects
                                 </button>
                               </AccordionTrigger>
