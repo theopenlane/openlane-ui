@@ -70315,6 +70315,10 @@ export type ContactQuery = {
     title?: string | null
     updatedAt?: any | null
     updatedBy?: string | null
+    entities: {
+      __typename?: 'EntityConnection'
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+    }
   }
 }
 

@@ -13,6 +13,7 @@ const formSchema = z.object({
   phoneNumber: z.string().optional(),
   status: z.nativeEnum(ContactUserStatus).optional(),
   tags: z.array(z.string()).optional(),
+  entityIDs: z.array(z.string()).optional(),
 })
 
 export const bulkEditFieldSchema = z.object({

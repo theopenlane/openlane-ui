@@ -65,6 +65,15 @@ export const CONTACT = gql`
       title
       updatedAt
       updatedBy
+      entities(where: { hasEntityTypeWith: [{ name: "vendor" }] }) {
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+      }
     }
   }
 `
