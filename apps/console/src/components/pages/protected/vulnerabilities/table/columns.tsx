@@ -11,6 +11,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from '@repo/ui/button'
 import { MoreHorizontal, ShieldCheck, ListTodo } from 'lucide-react'
 import { getSeverityStyle } from '@/utils/severity'
+import { type SlaDaysByLevel } from '@/lib/sla'
+import { SlaDueDateCell } from '@/components/shared/crud-base/columns/sla-due-date-cell'
 import React from 'react'
 import { TruncatedCell } from '@repo/ui/data-table'
 
@@ -18,6 +20,7 @@ type VulnColumnOptions = ColumnOptions & {
   onTrackRemediation?: (row: VulnerabilitiesNodeNonNull) => void
   onOpenRemediation?: (row: VulnerabilitiesNodeNonNull) => void
   onCreateTask?: (row: VulnerabilitiesNodeNonNull) => void
+  slaDaysByLevel?: SlaDaysByLevel
 }
 
 export const getColumns = ({
@@ -29,6 +32,7 @@ export const getColumns = ({
   onTrackRemediation,
   onOpenRemediation,
   onCreateTask,
+  slaDaysByLevel,
 }: VulnColumnOptions): ColumnDef<VulnerabilitiesNodeNonNull>[] => {
   const columns: ColumnDef<VulnerabilitiesNodeNonNull>[] = [
     createSelectColumn<VulnerabilitiesNodeNonNull>(selectedItems, setSelectedItems),
@@ -70,6 +74,12 @@ export const getColumns = ({
     { accessorKey: 'source', header: 'Source', size: 120 },
     { accessorKey: 'vector', header: 'Vector', size: 160 },
     { accessorKey: 'remediationSLA', header: 'Remediation SLA (days)', size: 160 },
+    {
+      id: 'dueDate',
+      header: 'Due Date',
+      size: 130,
+      cell: ({ row }) => <SlaDueDateCell createdAt={row.original.createdAt} securityLevel={row.original.securityLevel} open={row.original.open} slaDaysByLevel={slaDaysByLevel ?? {}} />,
+    },
     { accessorKey: 'open', header: 'Open', size: 80, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     { accessorKey: 'blocking', header: 'Blocking', size: 90, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     { accessorKey: 'production', header: 'Production', size: 100, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },

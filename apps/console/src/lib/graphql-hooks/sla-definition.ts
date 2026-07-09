@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
@@ -53,9 +54,10 @@ export const useSlaDefinitionsWithFilter = ({ where, orderBy, pagination, enable
     enabled,
   })
 
-  const edges = queryResult.data?.slaDefinitions?.edges ?? []
-
-  const slaDefinitionsNodes: SlaDefinitionsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as SlaDefinitionsNodeNonNull)
+  const slaDefinitionsNodes: SlaDefinitionsNodeNonNull[] = useMemo(() => {
+    const edges = queryResult.data?.slaDefinitions?.edges ?? []
+    return edges.filter((edge) => edge != null).map((edge) => edge?.node as SlaDefinitionsNodeNonNull)
+  }, [queryResult.data])
 
   return { ...queryResult, slaDefinitionsNodes }
 }

@@ -12,12 +12,15 @@ import { Button } from '@repo/ui/button'
 import { MoreHorizontal, ShieldCheck, ListTodo } from 'lucide-react'
 import { getSeverityStyle } from '@/utils/severity'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { type SlaDaysByLevel } from '@/lib/sla'
+import { SlaDueDateCell } from '@/components/shared/crud-base/columns/sla-due-date-cell'
 import React from 'react'
 
 type FindingColumnOptions = ColumnOptions & {
   onTrackRemediation?: (row: FindingsNodeNonNull) => void
   onOpenRemediation?: (row: FindingsNodeNonNull) => void
   onCreateTask?: (row: FindingsNodeNonNull) => void
+  slaDaysByLevel?: SlaDaysByLevel
 }
 
 export const getColumns = ({
@@ -29,6 +32,7 @@ export const getColumns = ({
   onTrackRemediation,
   onOpenRemediation,
   onCreateTask,
+  slaDaysByLevel,
 }: FindingColumnOptions): ColumnDef<FindingsNodeNonNull>[] => {
   const columns: ColumnDef<FindingsNodeNonNull>[] = [
     createSelectColumn<FindingsNodeNonNull>(selectedItems, setSelectedItems),
@@ -70,6 +74,12 @@ export const getColumns = ({
     { accessorKey: 'source', header: 'Source', size: 120 },
     { accessorKey: 'findingClass', header: 'Finding Class', size: 130, cell: ({ cell }) => getEnumLabel(cell.getValue() as string) },
     { accessorKey: 'remediationSLA', header: 'Remediation SLA (days)', size: 160 },
+    {
+      id: 'dueDate',
+      header: 'Due Date',
+      size: 130,
+      cell: ({ row }) => <SlaDueDateCell createdAt={row.original.createdAt} securityLevel={row.original.securityLevel} open={row.original.open} slaDaysByLevel={slaDaysByLevel ?? {}} />,
+    },
     { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
     { accessorKey: 'reportedAt', header: 'Reported At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
