@@ -327,6 +327,11 @@
     "hidden": true
   },
   {
+    "route": "/trust-center/subscribers",
+    "name": "Subscribers",
+    "hidden": true
+  },
+  {
     "route": "/trust-center/updates",
     "name": "Updates",
     "hidden": true
