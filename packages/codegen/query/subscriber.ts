@@ -19,6 +19,7 @@ export const GET_ALL_SUBSCRIBERS = gql`
           email
           id
           verifiedEmail
+          unsubscribed
           createdAt
         }
       }
@@ -39,7 +40,7 @@ export const DELETE_SUBSCRIBER = gql`
   }
 `
 
-export const UNSUBSCRIBE_MUTATION = gql`
+export const UPDATE_SUBSCRIBER = gql`
   mutation UpdateSubscriber($email: String!, $input: UpdateSubscriberInput!) {
     updateSubscriber(email: $email, input: $input) {
       subscriber {

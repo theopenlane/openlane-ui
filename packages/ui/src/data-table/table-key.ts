@@ -57,6 +57,7 @@ export enum AdditionalTableKeyEnum {
   TRUST_CENTER_DOCUMENT_FILES = 'trust-center-document-files',
   TRUST_CENTER_REPORTS_AND_CERTS = 'trust-center-reports-and-certs',
   TRUST_CENTER_NDA_REQUESTS = 'trust-center-nda-requests',
+  TRUST_CENTER_SUBSCRIBERS = 'trust-center-subscribers',
   TABLE_STORIES = 'table-stories',
   TRUST_CENTER_SUBPROCESSORS = 'subprocessors',
   CUSTOM_TAGS = 'custom-tags',
