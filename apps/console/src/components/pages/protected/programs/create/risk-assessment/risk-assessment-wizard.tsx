@@ -102,18 +102,18 @@ export default function RiskAssessmentWizard() {
     const isValid = await methods.trigger()
     if (!isValid) return
 
-    if (!stepper.isLast) {
-      stepper.next()
+    if (!stepper.state.isLast) {
+      stepper.navigation.next()
     } else {
       await handleSubmit()
     }
   }
 
   const handleBack = () => {
-    if (stepper.isFirst) {
+    if (stepper.state.isFirst) {
       setShowExitConfirm(true)
     } else {
-      stepper.prev()
+      stepper.navigation.prev()
     }
   }
 
@@ -135,7 +135,7 @@ export default function RiskAssessmentWizard() {
         <FormProvider {...methods}>
           <form onSubmit={handleNext}>
             <div className="py-6">
-              {stepper.switch({
+              {stepper.flow.switch({
                 0: () => <SelectFrameworkStep />,
                 1: () => <TeamSetupStep />,
                 2: () => <AssociateRisksStep />,
@@ -145,7 +145,7 @@ export default function RiskAssessmentWizard() {
                   Back
                 </Button>
                 <Button variant="primary" type="button" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
-                  {stepper.isLast ? 'Create' : 'Continue'}
+                  {stepper.state.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>
             </div>

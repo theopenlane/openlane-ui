@@ -4,10 +4,9 @@
   "dependencies": {
     "@graphql-tools/schema": "10.0.33",
     "graphql": "16.13.2",
-    "graphql-codegen-plugin-typescript-swr": "^0.8.5",
     "graphql-codegen-typescript-validation-schema": "^0.18.0",
     "graphql-request": "7.4.0",
-    "typescript": "5.9.3"
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
     "@graphql-codegen/add": "6.0.1",

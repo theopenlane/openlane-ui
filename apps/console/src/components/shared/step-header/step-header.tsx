@@ -10,16 +10,16 @@ interface StepHeaderProps<T extends Step[] = Step[]> {
 }
 
 export function StepHeader<T extends Step[]>({ stepper, disabledIDs = [], className }: StepHeaderProps<T>) {
-  const visibleSteps = stepper.all.filter((s) => !disabledIDs.includes(s.id))
-  const currentVisibleIndex = visibleSteps.findIndex((s) => s.id === stepper.current.id)
+  const visibleSteps = stepper.state.all.filter((s) => !disabledIDs.includes(s.id))
+  const currentVisibleIndex = visibleSteps.findIndex((s) => s.id === stepper.state.current.data.id)
 
   return (
     <div className={cn('flex justify-between items-center', className)}>
       <div className="flex items-center gap-5">
         {visibleSteps.map((s) => {
-          const isActive = stepper.current.id === s.id
+          const isActive = stepper.state.current.data.id === s.id
           return (
-            <div key={s.id} onClick={() => !disabledIDs.includes(s.id) && stepper.goTo(s.id)} className="flex items-center cursor-pointer">
+            <div key={s.id} onClick={() => !disabledIDs.includes(s.id) && stepper.navigation.goTo(s.id)} className="flex items-center cursor-pointer">
               <StepIndicator active={isActive} />
             </div>
           )

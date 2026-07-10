@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Activity, ExternalLink, Settings, SlidersHorizontal, UserIcon } from 'lucide-react'
+import { Activity, ExternalLink, Settings, SlidersHorizontal } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'

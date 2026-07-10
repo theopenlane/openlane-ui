@@ -47,11 +47,11 @@ const resolveCouponsFromPhaseDiscounts = async (discounts: Stripe.SubscriptionSc
 
       if (discountRef.promotion_code) {
         const promo = typeof discountRef.promotion_code === 'string' ? await stripe.promotionCodes.retrieve(discountRef.promotion_code) : discountRef.promotion_code
-        return resolveCoupon(promo.coupon)
+        return resolveCoupon(promo.promotion.coupon)
       }
 
       if (discountRef.discount && typeof discountRef.discount !== 'string') {
-        return resolveCoupon(discountRef.discount.coupon)
+        return resolveCoupon(discountRef.discount.source.coupon)
       }
 
       return null
@@ -70,7 +70,7 @@ const resolveCouponsFromSubscription = async (subscriptionId?: string | null): P
   const coupons = await Promise.all(
     subscription.discounts.map(async (discountRef) => {
       if (typeof discountRef === 'string') return null
-      return resolveCoupon(discountRef.coupon)
+      return resolveCoupon(discountRef.source.coupon)
     }),
   )
 
@@ -81,7 +81,7 @@ const resolveCouponsFromCustomer = async (customerId: string): Promise<Stripe.Co
   const customer = await stripe.customers.retrieve(customerId, { expand: ['discount'] })
   if (customer.deleted || !customer.discount) return []
 
-  const coupon = await resolveCoupon(customer.discount.coupon)
+  const coupon = await resolveCoupon(customer.discount.source.coupon)
   return coupon ? [coupon] : []
 }
 

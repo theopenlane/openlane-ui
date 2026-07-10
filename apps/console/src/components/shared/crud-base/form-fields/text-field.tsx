@@ -115,11 +115,7 @@ export const TextField = <TUpdateInput,>({
     }
   }
 
-  if (type === 'currency') {
-    prefix = '$'
-  } else if (type === 'link') {
-    prefix = 'https://'
-  }
+  const resolvedPrefix = type === 'currency' ? '$' : type === 'link' ? 'https://' : prefix
 
   const popoverRef = useRef<HTMLDivElement>(null)
 
@@ -192,7 +188,7 @@ export const TextField = <TUpdateInput,>({
                   {...field}
                   value={field.value ?? ''}
                   type={type}
-                  prefix={prefix}
+                  prefix={resolvedPrefix}
                   placeholder={placeholder}
                   onBlur={handleBlur}
                   onKeyDown={handleKeyDown}

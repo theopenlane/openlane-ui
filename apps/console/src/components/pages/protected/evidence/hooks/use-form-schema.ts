@@ -1,4 +1,5 @@
 'use client'
+import { useMemo } from 'react'
 import { z } from 'zod'
 import { useForm, type UseFormReturn } from 'react-hook-form'
 import { addDays } from 'date-fns'
@@ -60,22 +61,26 @@ export type CreateEvidenceFormMethods = UseFormReturn<CreateEvidenceFormInput, u
 
 const useFormSchema = (isEditScreen?: boolean) => {
   const schema = isEditScreen ? editFormSchema : createFormSchema
+  const defaultValues = useMemo(() => {
+    const now = new Date()
+    return {
+      name: '',
+      description: '',
+      creationDate: now,
+      tags: [],
+      evidenceFiles: [],
+      source: '',
+      fileIDs: [],
+      externalUUID: '',
+      scopeName: '',
+      environmentName: '',
+      ...(isEditScreen ? {} : { renewalDate: addDays(now, 365), reviewFrequency: EvidenceFrequency.YEARLY }),
+    }
+  }, [isEditScreen])
   return {
     form: useForm<CreateEvidenceFormInput, undefined, CreateEvidenceFormData>({
       resolver: zodResolver(schema),
-      defaultValues: {
-        name: '',
-        description: '',
-        creationDate: new Date(),
-        tags: [],
-        evidenceFiles: [],
-        source: '',
-        fileIDs: [],
-        externalUUID: '',
-        scopeName: '',
-        environmentName: '',
-        ...(isEditScreen ? {} : { renewalDate: addDays(new Date(), 365), reviewFrequency: EvidenceFrequency.YEARLY }),
-      },
+      defaultValues,
     }),
   }
 }

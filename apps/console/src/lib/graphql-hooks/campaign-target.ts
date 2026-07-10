@@ -66,7 +66,7 @@ export const useCampaignTargetStats = ({ where, enabled = true }: { where?: Camp
   })
 
   const edges = queryResult.data?.campaignTargets?.edges ?? []
-  const nodes = edges.filter((edge) => edge?.node != null).map((edge) => edge!.node!)
+  const nodes = edges.flatMap((edge) => (edge?.node ? [edge.node] : []))
 
   return {
     ...queryResult,

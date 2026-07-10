@@ -98,16 +98,16 @@ export default function Soc2Wizard() {
 
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
-    if (!stepper.isLast) {
+    if (!stepper.state.isLast) {
       let isValid: boolean
-      if (stepper.current.id === '0') {
+      if (stepper.state.current.data.id === '0') {
         isValid = await methods.trigger(['categories', 'standardID'])
       } else {
         isValid = await methods.trigger(['programAdmins', 'programMembers', 'viewerIDs', 'editorIDs'])
       }
 
       if (!isValid) return
-      stepper.next()
+      stepper.navigation.next()
     } else {
       const validAll = await validateFullAndNotify(methods, errorNotification)
       if (!validAll) return
@@ -117,10 +117,10 @@ export default function Soc2Wizard() {
   }
 
   const handleBack = () => {
-    if (stepper.isFirst) {
+    if (stepper.state.isFirst) {
       setShowExitConfirm(true)
     } else {
-      stepper.prev()
+      stepper.navigation.prev()
     }
   }
 
@@ -142,7 +142,7 @@ export default function Soc2Wizard() {
         <FormProvider {...methods}>
           <form onSubmit={handleNext}>
             <div className="py-6">
-              {stepper.switch({
+              {stepper.flow.switch({
                 0: () => <SelectCategoryStep />,
                 1: () => <TeamSetupStep />,
                 2: () => <StartTypeStep />,
@@ -152,7 +152,7 @@ export default function Soc2Wizard() {
                   Back
                 </Button>
                 <Button variant="primary" type="button" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
-                  {stepper.isLast ? 'Create' : 'Continue'}
+                  {stepper.state.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>
             </div>

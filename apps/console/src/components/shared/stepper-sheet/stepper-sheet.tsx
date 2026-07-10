@@ -34,7 +34,6 @@ export interface StepperSheetProps {
 
 export function StepperSheet({
   open,
-  onOpenChange,
   title,
   steps,
   currentStep,

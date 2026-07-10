@@ -10,7 +10,8 @@
       "@/*": ["./src/*"]
     },
     "strictNullChecks": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "types": ["node", "jest"]
   },
   "include": [
     "next-env.d.ts",

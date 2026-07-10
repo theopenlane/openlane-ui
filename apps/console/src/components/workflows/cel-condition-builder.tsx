@@ -45,6 +45,102 @@ type CELConditionBuilderProps = {
   onChange: (expression: string) => void
 }
 
+type EligibleField = WorkflowObjectTypeMetadata['eligibleFields'][number]
+type UserOption = ReturnType<typeof useUserSelect>['userOptions'][number]
+
+const ConditionValueInput = ({
+  condition,
+  availableFields,
+  userOptions,
+  isLoadingUsers,
+  onChange,
+}: {
+  condition: Condition
+  availableFields: EligibleField[]
+  userOptions: UserOption[]
+  isLoadingUsers: boolean
+  onChange: (val: string) => void
+}) => {
+  if (condition.field === 'user_id') {
+    return (
+      <Select value={condition.value} onValueChange={onChange} disabled={isLoadingUsers}>
+        <SelectTrigger className="h-8 text-xs">
+          <SelectValue placeholder={isLoadingUsers ? 'Loading users...' : 'Select user...'} />
+        </SelectTrigger>
+        <SelectContent>
+          {userOptions.map((user) => (
+            <SelectItem key={user.value} value={user.value}>
+              {user.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    )
+  }
+
+  if (condition.field === 'event_type') {
+    return (
+      <Select value={condition.value} onValueChange={onChange}>
+        <SelectTrigger className="h-8 text-xs">
+          <SelectValue placeholder="Select event type..." />
+        </SelectTrigger>
+        <SelectContent>
+          {TRIGGER_OPERATION_OPTIONS.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    )
+  }
+
+  if (condition.field === 'changed_fields') {
+    return (
+      <Select value={condition.value} onValueChange={onChange}>
+        <SelectTrigger className="h-8 text-xs">
+          <SelectValue placeholder="Select field..." />
+        </SelectTrigger>
+        <SelectContent>
+          {availableFields.map((field) => (
+            <SelectItem key={field.name} value={field.name}>
+              {field.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    )
+  }
+
+  const fieldName = condition.field.replace('object.', '')
+  const field = availableFields.find((f) => f.name === fieldName)
+  const fieldType = field?.type || 'string'
+
+  if (fieldType.includes('int') || fieldType.includes('float') || fieldType.includes('number')) {
+    return <Input className="h-8 text-xs" type="number" value={condition.value} onChange={(e) => onChange(e.target.value)} placeholder="Enter number" />
+  }
+
+  if (fieldType.includes('bool')) {
+    return (
+      <Select value={condition.value} onValueChange={onChange}>
+        <SelectTrigger className="h-8 text-xs">
+          <SelectValue placeholder="true/false" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="true">true</SelectItem>
+          <SelectItem value="false">false</SelectItem>
+        </SelectContent>
+      </Select>
+    )
+  }
+
+  if (fieldType.includes('time') || fieldType.includes('date')) {
+    return <Input className="h-8 text-xs" type="datetime-local" value={condition.value} onChange={(e) => onChange(e.target.value)} placeholder="Select date/time" />
+  }
+
+  return <Input className="h-8 text-xs" value={condition.value} onChange={(e) => onChange(e.target.value)} placeholder="Enter value" />
+}
+
 export const CELConditionBuilder = ({ objectType, objectTypes, initialExpression = '', onChange }: CELConditionBuilderProps) => {
   const [conditions, setConditions] = useState<Condition[]>([])
   const [showRawEditor, setShowRawEditor] = useState(false)
@@ -250,94 +346,13 @@ export const CELConditionBuilder = ({ objectType, objectTypes, initialExpression
 
               <div className="space-y-1">
                 <Label className="text-xs">Value</Label>
-                {(() => {
-                  if (condition.field === 'user_id') {
-                    return (
-                      <Select value={condition.value} onValueChange={(val) => updateCondition(condition.id, 'value', val)} disabled={isLoadingUsers}>
-                        <SelectTrigger className="h-8 text-xs">
-                          <SelectValue placeholder={isLoadingUsers ? 'Loading users...' : 'Select user...'} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {userOptions.map((user) => (
-                            <SelectItem key={user.value} value={user.value}>
-                              {user.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )
-                  }
-
-                  if (condition.field === 'event_type') {
-                    return (
-                      <Select value={condition.value} onValueChange={(val) => updateCondition(condition.id, 'value', val)}>
-                        <SelectTrigger className="h-8 text-xs">
-                          <SelectValue placeholder="Select event type..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TRIGGER_OPERATION_OPTIONS.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )
-                  }
-
-                  if (condition.field === 'changed_fields') {
-                    return (
-                      <Select value={condition.value} onValueChange={(val) => updateCondition(condition.id, 'value', val)}>
-                        <SelectTrigger className="h-8 text-xs">
-                          <SelectValue placeholder="Select field..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableFields.map((field) => (
-                            <SelectItem key={field.name} value={field.name}>
-                              {field.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )
-                  }
-
-                  const fieldName = condition.field.replace('object.', '')
-                  const field = availableFields.find((f) => f.name === fieldName)
-                  const fieldType = field?.type || 'string'
-
-                  if (fieldType.includes('int') || fieldType.includes('float') || fieldType.includes('number')) {
-                    return <Input className="h-8 text-xs" type="number" value={condition.value} onChange={(e) => updateCondition(condition.id, 'value', e.target.value)} placeholder="Enter number" />
-                  }
-
-                  if (fieldType.includes('bool')) {
-                    return (
-                      <Select value={condition.value} onValueChange={(val) => updateCondition(condition.id, 'value', val)}>
-                        <SelectTrigger className="h-8 text-xs">
-                          <SelectValue placeholder="true/false" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="true">true</SelectItem>
-                          <SelectItem value="false">false</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )
-                  }
-
-                  if (fieldType.includes('time') || fieldType.includes('date')) {
-                    return (
-                      <Input
-                        className="h-8 text-xs"
-                        type="datetime-local"
-                        value={condition.value}
-                        onChange={(e) => updateCondition(condition.id, 'value', e.target.value)}
-                        placeholder="Select date/time"
-                      />
-                    )
-                  }
-
-                  return <Input className="h-8 text-xs" value={condition.value} onChange={(e) => updateCondition(condition.id, 'value', e.target.value)} placeholder="Enter value" />
-                })()}
+                <ConditionValueInput
+                  condition={condition}
+                  availableFields={availableFields}
+                  userOptions={userOptions}
+                  isLoadingUsers={isLoadingUsers}
+                  onChange={(val) => updateCondition(condition.id, 'value', val)}
+                />
               </div>
 
               <Button type="button" variant="iconButton" onClick={() => removeCondition(condition.id)} className="h-8 w-8 p-0">
