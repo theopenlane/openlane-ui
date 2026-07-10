@@ -24,7 +24,7 @@ type InviteNode = {
 
 export const OrganizationInvitesTable = () => {
   const [filters, setFilters] = useState<InviteWhereInput | null>(null)
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.ORG_INVITE)
   const { columns } = InvitesColumns()
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.ORG_INVITE, InviteOrderField, [
     {

@@ -23,7 +23,7 @@ type ReviewDocumentsSectionProps = {
 const REVIEW_FILES_TABLE_KEY = 'review-files' as TableKeyValue
 
 const ReviewDocumentsSection: React.FC<ReviewDocumentsSectionProps> = ({ reviewId, isEditAllowed, isCreate, onStagedFilesChange, onExistingFileIdsChange }) => {
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, REVIEW_FILES_TABLE_KEY)
   const [orderBy, setOrderBy] = useOrgTableSort(REVIEW_FILES_TABLE_KEY, FileOrderField, [
     {
       field: FileOrderField.created_at,

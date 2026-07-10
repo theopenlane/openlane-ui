@@ -6,7 +6,6 @@ import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
 import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
 import { OrderDirection, type Assessment, AssessmentOrderField, type AssessmentWhereInput } from '@repo/codegen/src/schema.ts'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useAssessments, useDeleteAssessment } from '@/lib/graphql-hooks/assessment'
@@ -26,12 +25,12 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SendQuestionnaireDialog } from '@/components/pages/protected/questionnaire/dialog/send-questionnaire-dialog'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useAssessmentSendPermissionMap } from '@/lib/authz/use-can-send-questionnaire'
-import { useOrgTableSort } from '@/hooks/use-org-table-state'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { useSession } from 'next-auth/react'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.QUESTIONNAIRE)
   const [filters, setFilters] = useState<AssessmentWhereInput | null>(null)
   const { setCrumbs } = use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
@@ -250,7 +249,7 @@ export const QuestionnairesTable = () => {
           searchTerm={searchTerm}
           setSearchTerm={(inputVal) => {
             setSearchTerm(inputVal)
-            setPagination(DEFAULT_PAGINATION)
+            resetPagination()
           }}
           setFilters={setFilters}
           mappedColumns={mappedColumns}

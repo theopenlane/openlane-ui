@@ -39,12 +39,15 @@ export const ProgramSettingsGroups = () => {
   const { data: session } = useSession()
   const editAllowed = canEdit(permission?.roles, session)
   const queryClient = useQueryClient()
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-    page: 1,
-    query: {},
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      page: 1,
+      query: {},
+    },
+    TableKeyEnum.PROGRAM_SETTINGS_GROUP,
+  )
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<GroupRow | null>(null)

@@ -26,12 +26,15 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
 
   const { mutateAsync: updateControl, isPending } = useUpdateControl()
 
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    page: 1,
-    pageSize: 5,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      page: 1,
+      pageSize: 5,
+      query: { first: 5 },
+    },
+    TableKeyEnum.CONTROLS_MAPPED_CATEGORIES,
+  )
 
   const { setValue, getValues } = useFormContext()
   const { data, isLoading } = useGetStandards({})

@@ -28,12 +28,15 @@ type ExistingFilesDialogProps = {
 
 const ExistingFilesDialog: React.FC<ExistingFilesDialogProps> = ({ selectedFileIds, onFileSelected }) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-    page: 1,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      page: 1,
+      query: { first: 5 },
+    },
+    TableKeyEnum.EXISTING_FILES,
+  )
 
   const { data, isLoading, paginationMeta } = useGetFiles({ pagination })
   const [files, setFiles] = useState<ExistingFileRow[]>([])

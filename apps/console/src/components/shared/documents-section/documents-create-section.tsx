@@ -32,12 +32,15 @@ type DocumentsCreateSectionProps = {
 
 const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFilesChange, onFileIdsChange }) => {
   const [allFiles, setAllFiles] = useState<TUploadedFile[]>([])
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-    page: 1,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      page: 1,
+      query: { first: 5 },
+    },
+    TableKeyEnum.EXISTING_FILES,
+  )
 
   const { data, isLoading, paginationMeta } = useGetFiles({ pagination })
   const [existingFiles, setExistingFiles] = useState<ExistingFileRow[]>([])

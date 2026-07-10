@@ -79,7 +79,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.CONTROL, defaultVisibility))
 
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.CONTROL)
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.CONTROL)
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
 
@@ -233,7 +233,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
         searchTerm={searchTerm}
         setSearchTerm={(inputVal) => {
           setSearchTerm(inputVal)
-          setPagination(DEFAULT_PAGINATION)
+          resetPagination()
         }}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}

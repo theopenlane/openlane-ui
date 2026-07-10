@@ -2,8 +2,8 @@
 
 import React, { use, useCallback, useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -31,7 +31,7 @@ const SubscribersPage = () => {
   const { successNotification, errorNotification } = useNotification()
 
   const [searchTerm, setSearchTerm] = useState('')
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.TRUST_CENTER_SUBSCRIBERS)
   const [deleteEmail, setDeleteEmail] = useState<string | null>(null)
 
   const { data: trustCenterData } = useGetTrustCenter()
@@ -137,7 +137,7 @@ const SubscribersPage = () => {
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value)
-              setPagination(DEFAULT_PAGINATION)
+              resetPagination()
             }}
             variant="searchTable"
           />

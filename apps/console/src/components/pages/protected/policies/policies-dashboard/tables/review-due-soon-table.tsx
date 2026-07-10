@@ -72,10 +72,14 @@ const columns: ColumnDef<FormattedPolicy>[] = [
 ]
 
 export default function ReviewDueSoonTable() {
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      query: { first: 5 },
+    },
+    TableKeyEnum.POLICIES_REVIEW_DUE_SOON,
+  )
 
   const where: InternalPolicyWhereInput = {
     ...wherePoliciesDashboard,

@@ -32,7 +32,7 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
   const [open, setOpen] = useState(false)
   const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
   const [roleMap, setRoleMap] = useState<Record<string, 'View' | 'Edit'>>({})
-  const [pagination, setPagination] = useOrgTablePagination(defaultPagination)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(defaultPagination, TableKeyEnum.PROGRAM_ASSIGN_USER)
 
   const [searchValue, setSearchValue] = useState('')
 
@@ -147,7 +147,7 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value)
-    setPagination(defaultPagination)
+    resetPagination()
   }
 
   return (

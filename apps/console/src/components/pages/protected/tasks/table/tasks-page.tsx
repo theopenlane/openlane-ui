@@ -32,7 +32,7 @@ const TasksPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showMyTasks, setShowMyTasks] = useState<boolean>(false)
   const [filters, setFilters] = useState<TaskWhereInput | null>(null)
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.TASK)
   const searchParams = useSearchParams()
   const { data: session } = useSession()
   const { data: membersData, isLoading: isMembersLoading } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
@@ -179,7 +179,7 @@ const TasksPage: React.FC = () => {
         searchTerm={searchQuery}
         setSearchTerm={(val) => {
           setSearchQuery(val)
-          setPagination(DEFAULT_PAGINATION)
+          resetPagination()
         }}
         searching={searching}
         exportEnabled={hasTasks}

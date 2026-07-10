@@ -23,10 +23,14 @@ type FormattedPolicy = {
 }
 
 export default function PoliciesWithoutProceduresTable() {
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      query: { first: 5 },
+    },
+    TableKeyEnum.POLICY_WITHOUT_PROCEDURE,
+  )
   const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null)
 
   const where: InternalPolicyWhereInput = {

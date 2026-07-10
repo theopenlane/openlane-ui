@@ -53,7 +53,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const queryClient = useQueryClient()
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.MEMBERS_INVITE_SHEET)
   const [selectedGroups, setSelectedGroups] = useState<AllGroupsPaginatedFieldsFragment[]>([])
   const [isEmailInputValid, setIsEmailInputValid] = useState(true)
   const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()
@@ -114,7 +114,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
       form.reset()
       setSearchQuery('')
       setSelectedGroups([])
-      setPagination(DEFAULT_PAGINATION)
+      resetPagination()
       setIsEmailInputValid(true)
     }
     setIsMemberSheetOpen(open)

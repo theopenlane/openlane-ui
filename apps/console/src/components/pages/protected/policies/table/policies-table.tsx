@@ -28,7 +28,7 @@ import { objectToSnakeCase } from '@/utils/strings'
 import { useSession } from 'next-auth/react'
 
 export const PoliciesTable = () => {
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.INTERNAL_POLICY)
   const [filters, setFilters] = useState<InternalPolicyWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.INTERNAL_POLICY)
   const { setCrumbs } = use(BreadcrumbContext)
@@ -180,7 +180,7 @@ export const PoliciesTable = () => {
         searchTerm={searchTerm}
         setSearchTerm={(inputVal) => {
           setSearchTerm(inputVal)
-          setPagination(DEFAULT_PAGINATION)
+          resetPagination()
         }}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}

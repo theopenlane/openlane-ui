@@ -6,7 +6,6 @@ import { getTemplateColumns } from './columns'
 import TemplateTableToolbar from '@/components/pages/protected/questionnaire/template/table/template-table-toolbar.tsx'
 import { TEMPLATE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/template/table/table-config.ts'
 import { OrderDirection, type Template, TemplateOrderField, type TemplateWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema.ts'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useTemplates, useDeleteTemplate, useCreateTemplate } from '@/lib/graphql-hooks/template'
@@ -26,12 +25,12 @@ import { hasPermission, canDelete, canEdit } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
-import { useOrgTableSort } from '@/hooks/use-org-table-state'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { useSession } from 'next-auth/react'
 
 export const TemplatesTable = () => {
   const router = useRouter()
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.TEMPLATE)
   const [filters, setFilters] = useState<TemplateWhereInput>({})
   const { setCrumbs } = use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
@@ -226,7 +225,7 @@ export const TemplatesTable = () => {
           searchTerm={searchTerm}
           setSearchTerm={(inputVal) => {
             setSearchTerm(inputVal)
-            setPagination(DEFAULT_PAGINATION)
+            resetPagination()
           }}
           setFilters={setFilters}
           mappedColumns={mappedColumns}

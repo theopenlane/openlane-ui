@@ -3,8 +3,8 @@
 import React, { useCallback, use, useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import {
   useGetTrustCenterSubprocessors,
   useDeleteTrustCenterSubprocessor,
@@ -59,7 +59,7 @@ const SubprocessorsPage = () => {
       description: false,
     }),
   )
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.TRUST_CENTER_SUBPROCESSORS)
   const [filters, setFilters] = useState<TrustCenterSubprocessorWhereInput | null>(null)
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
   const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -157,10 +157,13 @@ const SubprocessorsPage = () => {
 
   const { userMap, tokenMap } = useAuthorMaps(userIds)
 
-  const handleFilterChange = useCallback((newFilters: TrustCenterSubprocessorWhereInput) => {
-    setFilters(newFilters)
-    setPagination(DEFAULT_PAGINATION)
-  }, [])
+  const handleFilterChange = useCallback(
+    (newFilters: TrustCenterSubprocessorWhereInput) => {
+      setFilters(newFilters)
+      resetPagination()
+    },
+    [resetPagination],
+  )
 
   const tableData: SubprocessorTableItem[] = useMemo(
     () =>

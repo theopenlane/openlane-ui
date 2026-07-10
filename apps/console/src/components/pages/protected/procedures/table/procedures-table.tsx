@@ -30,7 +30,7 @@ import { useSession } from 'next-auth/react'
 export const ProceduresTable = () => {
   const router = useRouter()
   const { data: session } = useSession()
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.PROCEDURE)
   const [filters, setFilters] = useState<ProcedureWhereInput | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[] | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.PROCEDURE)
@@ -183,7 +183,7 @@ export const ProceduresTable = () => {
         searchTerm={searchTerm}
         setSearchTerm={(inputVal) => {
           setSearchTerm(inputVal)
-          setPagination(DEFAULT_PAGINATION)
+          resetPagination()
         }}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}
