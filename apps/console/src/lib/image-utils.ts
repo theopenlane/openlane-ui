@@ -1,5 +1,15 @@
+const base64SignatureMimeTypes: [string, string][] = [
+  ['/9j/', 'image/jpeg'],
+  ['R0lGOD', 'image/gif'],
+  ['iVBOR', 'image/png'],
+  ['UklGR', 'image/webp'],
+  ['PHN2', 'image/svg+xml'],
+  ['PD94', 'image/svg+xml'],
+  ['PCFE', 'image/svg+xml'],
+  ['77u/', 'image/svg+xml'],
+]
+
 export const toBase64DataUri = (base64: string): string => {
-  if (base64.startsWith('/9j/')) return `data:image/jpeg;base64,${base64}`
-  if (base64.startsWith('R0lGOD')) return `data:image/gif;base64,${base64}`
-  return `data:image/png;base64,${base64}`
+  const match = base64SignatureMimeTypes.find(([signature]) => base64.startsWith(signature))
+  return `data:${match?.[1] ?? 'image/png'};base64,${base64}`
 }
