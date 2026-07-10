@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth/auth'
+import { VENDOR_LOGO_DOMAIN_REGEX, VENDOR_LOGO_SIZE } from '@/lib/vendor-logo'
 
 const FAVICON_ENDPOINT = 'https://www.google.com/s2/favicons'
-const DEFAULT_SIZE = 128
-const MIN_SIZE = 16
-const MAX_SIZE = 256
-const DOMAIN_REGEX = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/
 
 export async function GET(req: Request) {
   const session = await auth()
@@ -16,9 +13,10 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url)
   const domain = searchParams.get('domain')?.trim().toLowerCase()
-  const size = Math.min(Math.max(Number(searchParams.get('sz')) || DEFAULT_SIZE, MIN_SIZE), MAX_SIZE)
+  const requestedSize = Math.floor(Number(searchParams.get('sz')))
+  const size = Number.isFinite(requestedSize) ? Math.min(Math.max(requestedSize, VENDOR_LOGO_SIZE.min), VENDOR_LOGO_SIZE.max) : VENDOR_LOGO_SIZE.default
 
-  if (!domain || !DOMAIN_REGEX.test(domain)) {
+  if (!domain || !VENDOR_LOGO_DOMAIN_REGEX.test(domain)) {
     return NextResponse.json({ error: 'Invalid domain' }, { status: 400 })
   }
 

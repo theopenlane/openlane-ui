@@ -23,15 +23,16 @@ const StepVendorLogo: React.FC<StepVendorLogoProps> = ({ onLogoFileChange }) => 
 
   const vendorName = form.watch('name') ?? ''
   const vendorDisplayName = form.watch('displayName')
+  const domains = form.watch('domains')
 
-  const suggestedLogos = useSuggestedVendorLogos({ vendorName, vendorDisplayName })
+  const suggestedLogos = useSuggestedVendorLogos({ vendorName, vendorDisplayName, domains })
 
-  // Auto-select first matching logo
   useEffect(() => {
-    if (hasAutoSelectedRef.current || suggestedLogos.length === 0) return
+    if (hasAutoSelectedRef.current) return
+    const first = suggestedLogos.find((logo) => logo.source === 'subprocessor')
+    if (!first) return
     hasAutoSelectedRef.current = true
 
-    const first = suggestedLogos[0]
     setSelectedSuggestionId(first.id)
     setPreview(first.logoUrl)
     setAutoSelecting(true)
