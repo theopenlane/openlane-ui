@@ -150,6 +150,7 @@ export const ExistingOrganizations = () => {
                       onOpenChange={() => setShowLeaveConfirmation(null)}
                       onConfirm={() => membershipId && handleLeaveOrganization(membershipId, org?.node?.id || '')}
                       title="Leave Organization"
+                      confirmationText="Leave"
                       description={
                         <>
                           This action cannot be undone. You will be permanently removed from <b>{org?.node?.displayName}</b>.
