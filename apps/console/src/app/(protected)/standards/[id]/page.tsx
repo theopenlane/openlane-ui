@@ -7,24 +7,24 @@ import StandardDetailsCard from '@/components/pages/protected/standards/standard
 import StandardDetailsAccordion from '@/components/pages/protected/standards/standard-details-accordion'
 import { useEffect, use, useState } from 'react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
-import { useOrganization } from '@/hooks/useOrganization'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { Button } from '@repo/ui/button'
-import { canEdit } from '@/lib/authz/utils.ts'
+import { hasPermission } from '@/lib/authz/utils.ts'
+import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Loading from './loading'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useSession } from 'next-auth/react'
 
 const StandardDetailsPage = () => {
   const { id } = useParams()
   const { data, isLoading, error } = useGetStandardDetails(id as string)
   const standard = data?.standard
   const { setCrumbs } = use(BreadcrumbContext)
-  const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()
+  const { data: session } = useSession()
 
   useEffect(() => {
     setCrumbs([
@@ -75,7 +75,7 @@ const StandardDetailsPage = () => {
 
   const menuComponent = (
     <div>
-      {canEdit(permission?.roles) && (
+      {hasPermission(permission?.roles, AccessEnum.CanCreateControl, session) && (
         <Button
           variant="secondary"
           className="h-8 !px-2"
@@ -90,12 +90,9 @@ const StandardDetailsPage = () => {
   )
 
   return (
-    <>
-      <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Standards - ${standard?.shortName ?? standard?.name}`}</title>
-      <SlideBarLayout sidebarTitle="Details" menu={menuComponent} sidebarContent={detailsCard}>
-        {mainContent}
-      </SlideBarLayout>
-    </>
+    <SlideBarLayout sidebarTitle="Details" menu={menuComponent} sidebarContent={detailsCard}>
+      {mainContent}
+    </SlideBarLayout>
   )
 }
 

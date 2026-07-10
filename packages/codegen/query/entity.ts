@@ -111,6 +111,18 @@ export const ENTITY = gql`
       environmentName
       hasSoc2
       id
+      integrations {
+        edges {
+          node {
+            id
+            definitionID
+            name
+            directoryGroups(first: 1) {
+              totalCount
+            }
+          }
+        }
+      }
       internalOwner
       internalOwnerGroup {
         id
@@ -121,6 +133,8 @@ export const ENTITY = gql`
         displayName
       }
       lastReviewedAt
+      linkedAssetIds
+      links
       logoFileID
       logoFile {
         base64
@@ -129,6 +143,7 @@ export const ENTITY = gql`
       mfaSupported
       name
       nextReviewAt
+      providedServices
       renewalRisk
       reviewedBy
       reviewedByGroup {
@@ -191,6 +206,16 @@ export const DELETE_ENTITY = gql`
 export const CREATE_CSV_BULK_ENTITY = gql`
   mutation CreateBulkCSVEntity($input: Upload!, $entityTypeName: String) {
     createBulkCSVEntity(input: $input, entityTypeName: $entityTypeName) {
+      entities {
+        id
+      }
+    }
+  }
+`
+
+export const CREATE_BULK_ENTITY = gql`
+  mutation CreateBulkEntity($input: [CreateEntityInput!], $entityTypeName: String) {
+    createBulkEntity(input: $input, entityTypeName: $entityTypeName) {
       entities {
         id
       }
@@ -264,6 +289,24 @@ export const CREATE_ENTITY_WITH_FILES = gql`
   }
 `
 
+export const GET_ENTITY_COMMENTS = gql`
+  query GetEntityComments($entityId: ID!) {
+    entity(id: $entityId) {
+      id
+      notes {
+        edges {
+          node {
+            id
+            createdAt
+            createdBy
+            text
+          }
+        }
+      }
+    }
+  }
+`
+
 export const GET_ENTITY_ASSOCIATIONS = gql`
   query GetEntityAssociations($entityId: ID!) {
     entity(id: $entityId) {
@@ -305,6 +348,8 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
             id
             fullName
             displayID
+            identityHolderType
+            title
           }
         }
         totalCount

@@ -5,10 +5,17 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { Bug, FileSearch, Wrench, ClipboardCheck } from 'lucide-react'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useSession } from 'next-auth/react'
 
 const ExposureQuickActions = () => {
   const router = useRouter()
   const [createRemediationOpen, setCreateRemediationOpen] = useState(false)
+  const { data: orgPermission } = useOrganizationRoles()
+  const { data: session } = useSession()
+  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
 
   const actions = [
     {
@@ -26,8 +33,7 @@ const ExposureQuickActions = () => {
       bg: 'bg-warning/12',
     },
     {
-      label: 'Track Remediation',
-      onClick: () => setCreateRemediationOpen(true),
+      ...(canCreateRemediation ? { label: 'Track Remediation', onClick: () => setCreateRemediationOpen(true) } : { label: 'View Remediations', onClick: () => router.push('/exposure/remediations') }),
       icon: Wrench,
       color: 'text-info',
       bg: 'bg-info/12',

@@ -2,7 +2,8 @@
 
 import React, { useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { type ColumnDef, type Row } from '@tanstack/react-table'
@@ -15,7 +16,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { EditGroupRoleDialog } from '../program-settings-edit-role-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import Pagination from '@repo/ui/pagination'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -23,6 +23,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 type GroupRow = {
   id: string
@@ -35,16 +36,15 @@ type GroupRow = {
 export const ProgramSettingsGroups = () => {
   const { id } = useParams<{ id: string | undefined }>()
   const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
-  const editAllowed = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const editAllowed = canEdit(permission?.roles, session)
   const queryClient = useQueryClient()
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_GROUP, {
-      ...DEFAULT_PAGINATION,
-      pageSize: 5,
-      page: 1,
-      query: {},
-    }),
-  )
+  const [pagination, setPagination] = useOrgTablePagination({
+    ...DEFAULT_PAGINATION,
+    pageSize: 5,
+    page: 1,
+    query: {},
+  })
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<GroupRow | null>(null)
@@ -187,7 +187,7 @@ export const ProgramSettingsGroups = () => {
       ? [
           {
             id: 'actions',
-            header: 'Action',
+            header: '',
             cell: ({ row }: { row: Row<GroupRow> }) => (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

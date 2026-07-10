@@ -6,11 +6,10 @@ import { type ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import type { FindingWhereInput } from '@repo/codegen/src/schema'
-import type { User } from '@repo/codegen/src/schema'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useFindingsWithFilter, type FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { getColumns } from '@/components/pages/protected/findings/table/columns'
 import { buildAssociationFilter } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
 import { mergeWhere, SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
@@ -75,19 +74,10 @@ const FindingsTable: React.FC<FindingsTableProps> = ({ controlId, subcontrolIds 
 
   const memberIds = useMemo(() => [...new Set(findingsNodes.flatMap((f) => [f.createdBy, f.updatedBy]).filter((id): id is string => typeof id === 'string' && id.length > 0))], [findingsNodes])
 
-  const userListWhere = useMemo(() => (memberIds.length > 0 ? { hasUserWith: [{ idIn: memberIds }] } : undefined), [memberIds])
-  const { users } = useGetOrgUserList({ where: userListWhere })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, User> = {}
-    users?.forEach((user) => {
-      map[user.id] = user
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap } = useAuthorMaps(memberIds)
 
   const columns = useMemo<ColumnDef<FindingsNodeNonNull>[]>(() => {
-    const allCols = getColumns({ userMap, selectedItems: [], setSelectedItems: () => {} })
+    const allCols = getColumns({ userMap, tokenMap, selectedItems: [], setSelectedItems: () => {} })
     return allCols
       .filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
       .map((col) => {
@@ -103,7 +93,7 @@ const FindingsTable: React.FC<FindingsTableProps> = ({ controlId, subcontrolIds 
         }
         return col
       })
-  }, [userMap, replace])
+  }, [userMap, tokenMap, replace])
 
   const paginationMeta = useMemo(
     () => ({

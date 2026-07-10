@@ -1,20 +1,20 @@
 'use client'
 
-import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
 import React, { useCallback, use, useEffect, useMemo, useState } from 'react'
 import { getTemplateColumns } from './columns'
 import TemplateTableToolbar from '@/components/pages/protected/questionnaire/template/table/template-table-toolbar.tsx'
 import { TEMPLATE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/template/table/table-config.ts'
-import { OrderDirection, type Template, TemplateOrderField, type TemplateWhereInput, type FilterTemplatesQueryVariables, TemplateTemplateKind } from '@repo/codegen/src/schema.ts'
+import { OrderDirection, type Template, TemplateOrderField, type TemplateWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema.ts'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useTemplates, useDeleteTemplate } from '@/lib/graphql-hooks/template'
+import { useTemplates, useDeleteTemplate, useCreateTemplate } from '@/lib/graphql-hooks/template'
 import { useRouter } from 'next/navigation'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useNotification } from '@/hooks/useNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -22,10 +22,12 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Dialog } from '@repo/ui/dialog'
 import { TemplateList } from '@/components/pages/protected/questionnaire/templates'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { canCreate, canDelete, canEdit } from '@/lib/authz/utils'
+import { hasPermission, canDelete, canEdit } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
+import { useOrgTableSort } from '@/hooks/use-org-table-state'
+import { useSession } from 'next-auth/react'
 
 export const TemplatesTable = () => {
   const router = useRouter()
@@ -39,16 +41,18 @@ export const TemplatesTable = () => {
   const [isCreateQuesDialogOpen, setIsCreateQuesDialogOpen] = useState(false)
 
   const { mutateAsync: deleteTemplate } = useDeleteTemplate()
+  const { mutateAsync: createTemplate } = useCreateTemplate()
   const { data: permission } = useOrganizationRoles()
-  const canCreateQuestionnaires = includeQuestionnaireCreation === 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)
+  const { data: session } = useSession()
+  const canCreateTemplate = hasPermission(permission?.roles, AccessEnum.CanCreateTemplate, session)
+  const canCreateQuestionnaires = includeQuestionnaireCreation === 'true' && canCreateTemplate
 
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.TEMPLATE, TemplateOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.TEMPLATE, TemplateOrderField, [
     {
       field: TemplateOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>(defaultSorting)
 
   const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
 
@@ -102,21 +106,11 @@ export const TemplatesTable = () => {
     return Array.from(ids)
   }, [templates])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
   const handleEdit = useCallback(
     (template: Template) => {
-      router.push(`/automation/assessments/templates/template-editor?id=${template.id}`)
+      router.push(`/automation/questionnaires/templates/template-editor?id=${template.id}`)
     },
     [router],
   )
@@ -142,14 +136,47 @@ export const TemplatesTable = () => {
     setIsCreateQuesDialogOpen(true)
   }, [])
 
+  const handleDuplicate = useCallback(
+    async (template: Template) => {
+      try {
+        const result = await createTemplate({
+          input: {
+            name: `Copy of ${template.name}`,
+            description: template.description ?? undefined,
+            jsonconfig: template.jsonconfig,
+            uischema: template.uischema ?? undefined,
+            kind: template.kind ?? undefined,
+            templateType: template.templateType,
+            environmentName: template.environmentName ?? undefined,
+            scopeName: template.scopeName ?? undefined,
+            tags: template.tags ?? undefined,
+            transformConfiguration: template.transformConfiguration ?? undefined,
+          },
+        })
+        successNotification({ title: 'Template duplicated successfully' })
+        const newId = result?.createTemplate?.template?.id
+        if (newId) {
+          router.push(`/automation/questionnaires/templates/template-viewer?id=${newId}`)
+        }
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
+        errorNotification({ title: 'Error', description: errorMessage })
+      }
+    },
+    [createTemplate, successNotification, errorNotification, router],
+  )
+
   const { columns, mappedColumns } = getTemplateColumns({
     userMap,
+    tokenMap,
     onEdit: handleEdit,
     onDelete: handleDelete,
     onCreateQuestionnaire: handleCreateQuestionnaire,
-    canEdit: canEdit(permission?.roles),
+    onDuplicate: handleDuplicate,
+    canEdit: canEdit(permission?.roles, session),
     canDelete: canDelete(permission?.roles),
     canCreateQuestionnaire: canCreateQuestionnaires,
+    canDuplicate: canCreateTemplate,
   })
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
@@ -175,9 +202,9 @@ export const TemplatesTable = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/assessments' },
-      { label: 'Questionnaires', href: '/automation/assessments' },
-      { label: 'Templates', href: '/automation/assessments/templates' },
+      { label: 'Automation', href: '/automation/questionnaires' },
+      { label: 'Questionnaires', href: '/automation/questionnaires' },
+      { label: 'Templates', href: '/automation/questionnaires/templates' },
     ])
   }, [setCrumbs])
 
@@ -216,10 +243,10 @@ export const TemplatesTable = () => {
           pagination={pagination}
           onPaginationChange={setPagination}
           paginationMeta={paginationMeta}
-          rowHref={(row) => `/automation/assessments/templates/template-viewer?id=${row.id}`}
+          rowHref={(row) => `/automation/questionnaires/templates/template-viewer?id=${row.id}`}
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
-          defaultSorting={defaultSorting}
+          sorting={orderBy}
           tableKey={TableKeyEnum.TEMPLATE}
         />
       </div>

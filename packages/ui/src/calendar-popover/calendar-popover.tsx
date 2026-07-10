@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { addDays, format } from 'date-fns'
 import { CalendarIcon, X } from 'lucide-react'
-import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
+import { Popover, PopoverContent, PopoverPortal, PopoverTrigger } from '@radix-ui/react-popover'
 import { FieldValues, Path, ControllerRenderProps } from 'react-hook-form'
 import { Button } from '../button/button'
 import { calendarPopoverStyles } from '../calendar-popover/calendar-popover.styles'
@@ -19,6 +19,9 @@ export type CalendarPopoverProps<T extends FieldValues> = {
   disableFuture?: boolean
   onChange?: (val: Date | null) => void
   showNowButton?: boolean
+  portal?: boolean
+  side?: 'top' | 'bottom' | 'left' | 'right'
+  align?: 'start' | 'center' | 'end'
 }
 
 const CalendarPopover = <T extends FieldValues>({
@@ -32,6 +35,9 @@ const CalendarPopover = <T extends FieldValues>({
   disableFuture,
   onChange,
   showNowButton,
+  portal,
+  side,
+  align = 'start',
 }: CalendarPopoverProps<T>) => {
   const todayDate = defaultToday ? new Date() : undefined
   const defaultAddDaysDate = defaultAddDays ? addDays(new Date(), defaultAddDays) : undefined
@@ -68,6 +74,23 @@ const CalendarPopover = <T extends FieldValues>({
     setIsCalendarOpen(false)
   }
 
+  const calendarContent = (
+    <Calendar
+      mode="single"
+      disabled={(date) => {
+        const isBeforeMin = disabledFrom ? date < disabledFrom : false
+        const isAfterToday = disableFuture ? date > new Date() : false
+        return isBeforeMin || isAfterToday
+      }}
+      selected={value ?? undefined}
+      defaultMonth={value ?? undefined}
+      onSelect={(calendarValue) => {
+        calendarValue && handleForm(calendarValue)
+      }}
+      autoFocus
+    />
+  )
+
   return (
     <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
       <PopoverTrigger asChild>
@@ -101,22 +124,17 @@ const CalendarPopover = <T extends FieldValues>({
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className={calendarPopoverStyle()} align="start">
-        <Calendar
-          mode="single"
-          disabled={(date) => {
-            const isBeforeMin = disabledFrom ? date < disabledFrom : false
-            const isAfterToday = disableFuture ? date > new Date() : false
-            return isBeforeMin || isAfterToday
-          }}
-          selected={value ?? undefined}
-          defaultMonth={value ?? undefined}
-          onSelect={(calendarValue) => {
-            calendarValue && handleForm(calendarValue)
-          }}
-          autoFocus
-        />
-      </PopoverContent>
+      {portal ? (
+        <PopoverPortal>
+          <PopoverContent className={calendarPopoverStyle()} align={align} side={side}>
+            {calendarContent}
+          </PopoverContent>
+        </PopoverPortal>
+      ) : (
+        <PopoverContent className={calendarPopoverStyle()} align={align} side={side}>
+          {calendarContent}
+        </PopoverContent>
+      )}
     </Popover>
   )
 }

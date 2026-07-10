@@ -17,6 +17,7 @@ import { TemplateDocumentType } from '@repo/codegen/src/schema'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { SendQuestionnaireDialog } from './dialog/send-questionnaire-dialog'
+import { useSession } from 'next-auth/react'
 
 const ViewQuestionnaire = dynamic(() => import('@/components/pages/protected/questionnaire/questionnaire-viewer'), {
   ssr: false,
@@ -28,7 +29,8 @@ const QuestionnaireViewerPage: React.FC = () => {
   const existingId = searchParams.get('id') as string
 
   const { data: permission, isLoading } = useOrganizationRoles()
-  const editAllowed = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const editAllowed = canEdit(permission?.roles, session)
 
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
@@ -42,16 +44,17 @@ const QuestionnaireViewerPage: React.FC = () => {
 
   const questionnaire = assessmentData?.assessment
   const hasTemplate = !!questionnaire?.templateID
+  const isSystemOwned = questionnaire?.systemOwned === true
 
   const handleEdit = () => {
-    router.push(`/automation/assessments/questionnaire-editor?id=${existingId}`)
+    router.push(`/automation/questionnaires/questionnaire-editor?id=${existingId}`)
   }
 
   const handleDelete = async () => {
     try {
       await deleteAssessment({ deleteAssessmentId: existingId })
       successNotification({ title: 'Questionnaire deleted successfully' })
-      router.push('/automation/assessments')
+      router.push('/automation/questionnaires')
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -87,7 +90,7 @@ const QuestionnaireViewerPage: React.FC = () => {
           title: 'Template created successfully',
         })
         setIsSaveAsTemplateDialogOpen(false)
-        router.push(`/automation/assessments/templates/template-viewer?id=${templateId}`)
+        router.push(`/automation/questionnaires/templates/template-viewer?id=${templateId}`)
       }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -106,17 +109,19 @@ const QuestionnaireViewerPage: React.FC = () => {
         <PageHeading eyebrow="Questionnaires" heading="Preview" />
         {!isLoading && (
           <div className="flex gap-2 items-center">
-            {editAllowed && !hasTemplate && <SaveButton type="button" variant="secondary" title="Save as Template" onClick={() => setIsSaveAsTemplateDialogOpen(true)} disabled={isSaving} />}
+            {editAllowed && !hasTemplate && !isSystemOwned && (
+              <SaveButton type="button" variant="secondary" title="Save as Template" onClick={() => setIsSaveAsTemplateDialogOpen(true)} disabled={isSaving} />
+            )}
 
-            {editAllowed && (
-              <>
-                <Button type="button" variant="secondary" className="h-8 px-3" icon={<Edit />} iconPosition="left" onClick={handleEdit}>
-                  Edit
-                </Button>
-                <Button type="button" variant="secondary" className="h-8 px-3" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
-                  Delete
-                </Button>
-              </>
+            {editAllowed && !isSystemOwned && (
+              <Button type="button" variant="secondary" className="h-8 px-3" icon={<Edit />} iconPosition="left" onClick={handleEdit}>
+                Edit
+              </Button>
+            )}
+            {editAllowed && !isSystemOwned && (
+              <Button type="button" variant="secondary" className="h-8 px-3" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
+                Delete
+              </Button>
             )}
 
             <Button type="button" className="h-8 px-3" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>

@@ -2,22 +2,25 @@
 import React, { use, useEffect, useState } from 'react'
 import { PoliciesTable } from './table/policies-table'
 import PoliciesDashboard from './policies-dashboard/policies-dashboard'
+import PoliciesEmptyState from './policies-empty/policies-empty-state'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { SlidersHorizontal, SquarePlus } from 'lucide-react'
 import { Button } from '@repo/ui/button'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import Link from 'next/link'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { Checkbox } from '@repo/ui/checkbox'
-import { isStringArray, loadFilters, saveFilters } from '@/components/shared/table-filter/filter-storage'
+import { getFiltersUpdatedEvent, isStringArray, loadFilters, saveFilters } from '@/components/shared/table-filter/filter-storage'
 import { PolicySuggestedActions } from './policies-suggested-actions'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 import { useInternalPoliciesCount } from '@/lib/graphql-hooks/internal-policy'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useOrganization } from '@/hooks/useOrganization'
+import { useSession } from 'next-auth/react'
 
 type TPoliciesPageProps = {
   active: 'dashboard' | 'table'
@@ -25,7 +28,9 @@ type TPoliciesPageProps = {
 }
 
 const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
+  const { currentOrgId } = useOrganization()
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const { groupOptions } = useGroupSelect()
   const { setCrumbs } = use(BreadcrumbContext)
   const { isLoading: fetching, totalCount } = useInternalPoliciesCount({
@@ -37,7 +42,7 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
   const [selectedGroups, setSelectedGroups] = useState<string[]>([])
 
   useEffect(() => {
-    const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY)
+    const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY, undefined, currentOrgId)
     const validated = isStringArray(saved?.approverIDIn) ? saved?.approverIDIn : []
     setSelectedGroups(validated)
 
@@ -45,23 +50,27 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
       setSelectedGroups((e.detail?.approverIDIn as string[]) || [])
     }
 
-    // eslint-disable-next-line @eslint-react/web-api/no-leaked-event-listener
-    window.addEventListener(`filters-updated:${TableKeyEnum.INTERNAL_POLICY}`, handleUpdate as EventListener)
+    const eventName = getFiltersUpdatedEvent(TableKeyEnum.INTERNAL_POLICY, currentOrgId)
+    window.addEventListener(eventName, handleUpdate as EventListener)
 
     return () => {
-      window.removeEventListener(`filters-updated:${TableKeyEnum.INTERNAL_POLICY}`, handleUpdate as EventListener)
+      window.removeEventListener(eventName, handleUpdate as EventListener)
     }
-  }, [])
+  }, [currentOrgId])
 
   const handleGroupToggle = (value: string) => {
-    const existingFilters = loadFilters(TableKeyEnum.INTERNAL_POLICY) || {}
+    const existingFilters = loadFilters(TableKeyEnum.INTERNAL_POLICY, undefined, currentOrgId) || {}
     const validated = isStringArray(existingFilters?.approverIDIn) ? existingFilters?.approverIDIn : []
     const newGroups = validated.includes(value) ? validated.filter((v) => v !== value) : [...validated, value]
 
-    saveFilters(TableKeyEnum.INTERNAL_POLICY, {
-      ...existingFilters,
-      approverIDIn: newGroups,
-    })
+    saveFilters(
+      TableKeyEnum.INTERNAL_POLICY,
+      {
+        ...existingFilters,
+        approverIDIn: newGroups,
+      },
+      currentOrgId,
+    )
   }
 
   useEffect(() => {
@@ -113,7 +122,7 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
               </DropdownMenu>
             )}
 
-            {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && totalCount > 0 && (
+            {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && totalCount > 0 && (
               <Link href="/policies/create">
                 <Button className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
                   Create
@@ -124,7 +133,7 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
         )}
       </div>
 
-      {active === 'dashboard' ? <PoliciesDashboard setActive={setActive} fetching={fetching} totalCount={totalCount} /> : <PoliciesTable />}
+      {!fetching && totalCount === 0 ? <PoliciesEmptyState /> : active === 'dashboard' ? <PoliciesDashboard setActive={setActive} fetching={fetching} /> : <PoliciesTable />}
     </div>
   )
 }

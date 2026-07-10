@@ -21,6 +21,7 @@ import {
   InputType,
   bulkEditFieldsSchema,
   type BulkEditFieldsFormValues,
+  type SelectOptionSelectedObject,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { type Group } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
@@ -38,29 +39,43 @@ import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-sh
 import { getAssociationSelectedCount } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 
 type BulkEditControlsFormValues = BulkEditFieldsFormValues
+type BulkEditSelection = { id: string; refCode: string }
+type BulkEditInputValue = string | string[]
+type BulkEditInput = Record<string, BulkEditInputValue>
 
-export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ selectedControls, setSelectedControls }) => {
-  const [open, setOpen] = useState(false)
-  const [collapsedAssociations, setCollapsedAssociations] = useState<Record<string, boolean>>({})
-  const { mutateAsync: bulkEditControl } = useBulkEditControl()
-  const { errorNotification, successNotification } = useNotification()
-  const form = useForm<BulkEditControlsFormValues>({
-    resolver: zodResolver(bulkEditFieldsSchema),
-    defaultValues: defaultObject,
-  })
+type BulkEditRecordsDialogProps = {
+  selectedItems: BulkEditSelection[]
+  allOptionSelects: SelectOptionSelectedObject[]
+  onCreateType?: (value: string) => Promise<void>
+  onBulkEdit: (ids: string[], input: BulkEditInput) => Promise<void>
+  onClearSelectedItems: () => void
+  successTitle: string
+  errorTitle: string
+}
 
+const useBulkEditOptionData = () => {
   const { data } = useGetAllGroups({ where: {} })
-
-  const groups = useMemo(() => {
-    if (!data) return
-    return data?.groups?.edges?.map((edge) => edge?.node) || []
-  }, [data])
   const { enumOptions, onCreateOption: createControlType } = useCreatableEnumOptions({
     objectType: objectToSnakeCase(ObjectTypes.CONTROL),
     field: 'kind',
   })
 
-  const allOptionSelects = useGetAllSelectOptionsForBulkEditControls(groups?.filter((g): g is Group => Boolean(g)) ?? [], enumOptions)
+  const groups = useMemo(() => {
+    if (!data) return []
+    return data.groups?.edges?.map((edge) => edge?.node).filter((group): group is Group => Boolean(group)) ?? []
+  }, [data])
+
+  return { groups, enumOptions, createControlType }
+}
+
+const BulkEditRecordsDialog: React.FC<BulkEditRecordsDialogProps> = ({ selectedItems, allOptionSelects, onCreateType, onBulkEdit, onClearSelectedItems, successTitle, errorTitle }) => {
+  const [open, setOpen] = useState(false)
+  const [collapsedAssociations, setCollapsedAssociations] = useState<Record<string, boolean>>({})
+  const { errorNotification, successNotification } = useNotification()
+  const form = useForm<BulkEditControlsFormValues>({
+    resolver: zodResolver(bulkEditFieldsSchema),
+    defaultValues: defaultObject,
+  })
 
   const { control, handleSubmit } = form
   const watchedFields = useWatch({ control, name: 'fieldsArray' }) ?? []
@@ -81,8 +96,8 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
   }, [open, append])
 
   const onSubmit = async () => {
-    const ids = selectedControls.map((control) => control.id)
-    const input: Record<string, string | string[]> = {}
+    const ids = selectedItems.map((item) => item.id)
+    const input: BulkEditInput = {}
     if (watchedFields.length === 0) return
     if (ids.length === 0) return
 
@@ -91,36 +106,30 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
 
       const key = field.selectedObject?.name
       if (!key) return
-      if (key && field?.selectedValue && field?.value) {
+      if (field.selectedValue && field.value) {
         input[key] = field.selectedValue
         return
       }
       const value = form.getValues(key as Path<BulkEditControlsFormValues>)
       if (typeof value === 'string' && value.trim() !== '') {
         input[key] = value
-        return
       }
     })
 
     try {
-      await bulkEditControl({
-        ids,
-        input: {
-          ...input,
-        },
-      })
+      await onBulkEdit(ids, input)
       successNotification({
-        title: 'Successfully bulk updated selected controls.',
+        title: successTitle,
       })
-      setSelectedControls([])
+      onClearSelectedItems()
       setOpen(false)
-    } catch (error: unknown) {
+    } catch (error) {
       let errorMessage: string | undefined
       if (error instanceof ClientError) {
         errorMessage = parseErrorMessage(error.response.errors)
       }
       errorNotification({
-        title: errorMessage ?? 'Failed to bulk edit control. Please try again.',
+        title: errorMessage ?? errorTitle,
       })
     }
   }
@@ -138,8 +147,8 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
     >
       <FormProvider {...form}>
         <DialogTrigger asChild>
-          <Button disabled={selectedControls.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
-            {selectedControls && selectedControls.length > 0 ? `Bulk Edit (${selectedControls.length})` : 'Bulk Edit'}
+          <Button disabled={selectedItems.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
+            {selectedItems.length > 0 ? `Bulk Edit (${selectedItems.length})` : 'Bulk Edit'}
           </Button>
         </DialogTrigger>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -176,11 +185,11 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                       </div>
                       {item.selectedObject && item.selectedObject.inputType === InputType.Select && (
                         <div className="flex flex-col items-center gap-2">
-                          {item.selectedObject.name === 'controlKindName' ? (
+                          {item.selectedObject.name === 'controlKindName' || item.selectedObject.name === 'subcontrolKindName' || item.selectedObject.name === 'kindName' ? (
                             <CreatableCustomTypeEnumSelect
                               value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
                               options={item.selectedObject?.options || []}
-                              onCreateOption={createControlType}
+                              onCreateOption={onCreateType}
                               triggerClassName="w-60"
                               placeholder={item.selectedObject?.placeholder}
                               searchPlaceholder="Search control type..."
@@ -221,25 +230,20 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                           )}
                         </div>
                       )}
-                      {(() => {
-                        const selectedObject = item.selectedObject
-                        if (!selectedObject || selectedObject.inputType !== InputType.TypeAhead) return null
-
-                        return (
-                          <div className="flex flex-col items-center gap-2">
-                            <EditableSelectFromQuery
-                              iconAndLabelVisible={false}
-                              label={selectedObject.selectOptionEnum}
-                              name={selectedObject.name}
-                              isEditAllowed
-                              isEditing
-                              hasGap={false}
-                              gridColWidth="240"
-                              icon={selectedObject.selectOptionEnum === SelectOptionBulkEditControls.Category ? controlIconsMap.Category : controlIconsMap.SubCategory}
-                            />
-                          </div>
-                        )
-                      })()}
+                      {item.selectedObject && item.selectedObject.inputType === InputType.TypeAhead && (
+                        <div className="flex flex-col items-center gap-2">
+                          <EditableSelectFromQuery
+                            iconAndLabelVisible={false}
+                            label={item.selectedObject.selectOptionEnum}
+                            name={item.selectedObject.name}
+                            isEditAllowed
+                            isEditing
+                            hasGap={false}
+                            gridColWidth="240"
+                            icon={item.selectedObject.selectOptionEnum === SelectOptionBulkEditControls.Category ? controlIconsMap.Category : controlIconsMap.SubCategory}
+                          />
+                        </div>
+                      )}
                       {item.selectedObject && item.selectedObject.inputType === InputType.Tag && (
                         <BulkEditTagField control={form.control} name={`fieldsArray.${index}.selectedValue`} placeholder={item.selectedObject?.placeholder} />
                       )}
@@ -296,5 +300,34 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
         </form>
       </FormProvider>
     </Dialog>
+  )
+}
+
+export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ selectedControls, setSelectedControls, onClearSelectedControls }) => {
+  const { mutateAsync: bulkEditControl } = useBulkEditControl()
+  const { groups, enumOptions, createControlType } = useBulkEditOptionData()
+  const allOptionSelects = useGetAllSelectOptionsForBulkEditControls(groups, enumOptions)
+
+  const clearSelectedControls = () => {
+    if (onClearSelectedControls) {
+      onClearSelectedControls()
+      return
+    }
+
+    setSelectedControls?.([])
+  }
+
+  return (
+    <BulkEditRecordsDialog
+      selectedItems={selectedControls}
+      allOptionSelects={allOptionSelects}
+      onCreateType={createControlType}
+      onBulkEdit={async (ids, input) => {
+        await bulkEditControl({ ids, input })
+      }}
+      onClearSelectedItems={clearSelectedControls}
+      successTitle="Successfully bulk updated selected controls."
+      errorTitle="Failed to bulk edit control. Please try again."
+    />
   )
 }

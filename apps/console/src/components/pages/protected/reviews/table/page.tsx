@@ -22,12 +22,14 @@ import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '../create/utils'
 import { type CreateReviewInput, type UpdateReviewInput, type GetReviewAssociationsQuery } from '@repo/codegen/src/schema'
+import { ReviewStatusOptions } from '@/components/shared/enum-mapper/review-enum'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { REVIEW_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import ViewReviewSheet from '../view-review-sheet'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const ReviewPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -49,6 +51,7 @@ const ReviewPage: React.FC = () => {
       taskIDs: (review.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       assetIDs: (review.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       programIDs: (review.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      riskIDs: (review.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
     }
   }, [])
 
@@ -116,6 +119,7 @@ const ReviewPage: React.FC = () => {
     environmentOptions,
     scopeOptions,
     tagOptions: tagOptions.tagOptions,
+    statusOptions: ReviewStatusOptions,
   }
 
   const handleCloseViewSheet = () => {
@@ -134,11 +138,14 @@ const ReviewPage: React.FC = () => {
     createMutation,
     deleteMutation,
     buildPayload: async (data) => {
-      const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, ...rest } = data
-      const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper)
+      const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, riskIDs, ...rest } = data
+      const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper, {
+        dirtyFields: form.formState.dirtyFields,
+        useClearFlags: !isCreate,
+      })
       const associationPayload = buildAssociationPayload(
         REVIEW_ASSOCIATION_CONFIG.associationKeys,
-        { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs },
+        { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, riskIDs },
         isCreate,
         initialAssociationsRef.current,
       )
@@ -189,6 +196,7 @@ const ReviewPage: React.FC = () => {
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
+    createPermission: AccessEnum.CanCreateReview,
   }
 
   return (

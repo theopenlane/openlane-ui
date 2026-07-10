@@ -6,6 +6,8 @@ import { SimpleForm } from '@repo/ui/simple-form'
 import { Button } from '@repo/ui/button'
 import { ArrowRightCircle } from 'lucide-react'
 import { registerUser, type RegisterUser } from '@/lib/user'
+import { recordLastLoginMethod } from '@/lib/auth/utils/last-login-method'
+import { UserAuthProvider } from '@repo/codegen/src/schema'
 import { GoogleIcon } from '@repo/ui/icons/google'
 import { signIn } from 'next-auth/react'
 import { Separator } from '@repo/ui/separator'
@@ -30,10 +32,12 @@ export const SignupPage = () => {
   const showError = !isLoading && !!registrationErrorMessage
 
   const github = async () => {
+    recordLastLoginMethod(UserAuthProvider.GITHUB)
     await signIn('github', { redirectTo: '/' })
   }
 
   const google = async () => {
+    recordLastLoginMethod(UserAuthProvider.GOOGLE)
     await signIn('google', {
       redirect: true,
       redirectTo: '/signup',
@@ -50,7 +54,7 @@ export const SignupPage = () => {
       {!isPasswordActive && (
         <div className="mt-2 text-center">
           <span className="text-muted-foreground text-sm">Already have an account?&nbsp;</span>
-          <Link href="/login" className="text-sm hover:text-blue-500 hover:opacity-80 transition-color duration-500">
+          <Link href={`/login${token ? `?token=${token}` : ''}`} className="text-sm hover:text-blue-500 hover:opacity-80 transition-color duration-500">
             Login
           </Link>
         </div>
@@ -106,10 +110,17 @@ export const SignupPage = () => {
 
               const res = await registerUser(payload)
 
+              if (res?.ok) {
+                recordLastLoginMethod(UserAuthProvider.CREDENTIALS)
+              }
+
               if (res?.ok && token) {
                 router.push(`/login`)
               } else if (res?.ok) {
                 router.push('/verify')
+              } else if (token && res?.message && /already exists/i.test(res.message)) {
+                // invitee already has an account, route to login carrying the invite
+                router.push(`/login?token=${token}&email=${encodeURIComponent(payload.email)}`)
               } else if (res?.message) {
                 setRegistrationErrorMessage(res.message)
               } else {

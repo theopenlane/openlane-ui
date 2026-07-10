@@ -5,13 +5,14 @@ import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Edit, Trash2 } from 'lucide-react'
-import { useDeleteTemplate } from '@/lib/graphql-hooks/template'
+import { useDeleteTemplate, useGetTemplate } from '@/lib/graphql-hooks/template'
 import { useNotification } from '@/hooks/useNotification'
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useSession } from 'next-auth/react'
 
 const ViewTemplate = dynamic(() => import('@/components/pages/protected/questionnaire/template/template-viewer'), {
   ssr: false,
@@ -23,22 +24,25 @@ const TemplateViewerPage: React.FC = () => {
   const existingId = searchParams.get('id') as string
 
   const { data: permission, isLoading } = useOrganizationRoles()
-  const editAllowed = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const editAllowed = canEdit(permission?.roles, session)
 
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteTemplate } = useDeleteTemplate()
+  const { data: templateData } = useGetTemplate(existingId)
+  const isSystemOwned = templateData?.template?.systemOwned === true
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const handleEdit = () => {
-    router.push(`/automation/assessments/templates/template-editor?id=${existingId}`)
+    router.push(`/automation/questionnaires/templates/template-editor?id=${existingId}`)
   }
 
   const handleDelete = async () => {
     try {
       await deleteTemplate({ deleteTemplateId: existingId })
       successNotification({ title: 'Template deleted successfully' })
-      router.push('/automation/assessments/templates')
+      router.push('/automation/questionnaires/templates')
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -54,7 +58,7 @@ const TemplateViewerPage: React.FC = () => {
         <PageHeading eyebrow="Templates" heading="Preview" />
         {!isLoading && (
           <div className="flex gap-2 items-center">
-            {editAllowed && (
+            {editAllowed && !isSystemOwned && (
               <>
                 <Button type="button" variant="secondary" className="h-8 px-3" icon={<Edit />} iconPosition="left" onClick={handleEdit}>
                   Edit

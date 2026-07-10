@@ -14,7 +14,6 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { getSubprocessorsFilterFields } from './table-config'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useBulkDeleteTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessor'
-import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
 import { CreateSubprocessorSheet } from '../sheet/create-subprocessor-sheet'
 import { AddExistingDialog } from './add-existing-dialog'
 import Menu from '@/components/shared/menu/menu'
@@ -35,6 +34,8 @@ type TProps = {
   setSelectedRows: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   onExport: () => void
   exportEnabled: boolean
+  canCreateSubprocessor: boolean
+  canEditSubprocessor: boolean
 }
 
 const SubprocessorsTableToolbar: React.FC<TProps> = ({
@@ -49,6 +50,8 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   setSelectedRows,
   exportEnabled,
   onExport,
+  canCreateSubprocessor,
+  canEditSubprocessor,
 }) => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [createSheetOpen, setCreateSheetOpen] = useState(false)
@@ -73,10 +76,6 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   }, [filterFields, enumOptions, isTypesSuccess])
 
   const [createdSubprocessor, setCreatedSubprocessor] = useState<null | CreateSubprocessorMutation['createSubprocessor']['subprocessor']>(null)
-  const { subprocessors } = useGetSubprocessors({
-    where: { or: [{ hasTrustCenterSubprocessors: false }] },
-  })
-  const hasAvailableSubprocessors = (subprocessors?.length ?? 0) > 0
 
   const handleBulkDelete = () => {
     if (selectedRows.length === 0) return
@@ -152,7 +151,7 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
           />
         </div>
 
-        {selectedRows.length === 0 ? (
+        {selectedRows.length === 0 || !canEditSubprocessor ? (
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <Menu
               closeOnSelect={true}
@@ -178,19 +177,23 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
             )}
 
             {filterFields && <TableFilter filterFields={filterFields} onFilterChange={handleFilterChange} pageKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS} />}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="primary" className="h-8" icon={<ChevronDown size={16} />}>
-                  Create
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {hasAvailableSubprocessors && <DropdownMenuItem onSelect={() => setAddExistingOpen(true)}>Add subprocessor</DropdownMenuItem>}
-                <DropdownMenuItem onSelect={() => setCreateSheetOpen(true)}>Custom subprocessor</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <AddExistingDialog createdSubprocessor={createdSubprocessor} onClose={() => setCreatedSubprocessor(null)} open={addExistingOpen} onOpenChange={setAddExistingOpen} />
-            <CreateSubprocessorSheet onCreateSuccess={setCreatedSubprocessor} open={createSheetOpen} onOpenChange={setCreateSheetOpen} />
+            {canCreateSubprocessor && (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="primary" className="h-8" icon={<ChevronDown size={16} />}>
+                      Create
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onSelect={() => setAddExistingOpen(true)}>Add subprocessor</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => setCreateSheetOpen(true)}>Custom subprocessor</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <AddExistingDialog createdSubprocessor={createdSubprocessor} onClose={() => setCreatedSubprocessor(null)} open={addExistingOpen} onOpenChange={setAddExistingOpen} />
+                <CreateSubprocessorSheet onCreateSuccess={setCreatedSubprocessor} open={createSheetOpen} onOpenChange={setCreateSheetOpen} />
+              </>
+            )}
           </div>
         ) : (
           <div className="flex items-center gap-2 justify-end flex-wrap">

@@ -47,7 +47,7 @@ import { Popover, PopoverAnchor, PopoverContent } from '@repo/ui/popover'
 import { cn } from '@repo/ui/lib/utils'
 
 import { blockSelectionVariants } from './block-selection'
-import { ColorDropdownMenuItems, DEFAULT_COLORS } from './font-color-toolbar-button'
+import { ColorDropdownMenuItems, DEFAULT_BG_COLORS } from './font-color-toolbar-button'
 import { BorderAllIcon, BorderBottomIcon, BorderLeftIcon, BorderNoneIcon, BorderRightIcon, BorderTopIcon } from './table-icons'
 import { Toolbar, ToolbarButton, ToolbarGroup, ToolbarMenuGroup } from './toolbar'
 
@@ -80,6 +80,8 @@ const TABLE_CONTROL_COLUMN_WIDTH = 8
 const TABLE_DEFAULT_COLUMN_WIDTH = 120
 const TABLE_DEFERRED_COLUMN_RESIZE_CELL_COUNT = 1200
 const TABLE_MULTI_SELECTION_TOOLBAR_DELAY_MS = 150
+
+export const PRINTABLE_DOCUMENT_WIDTH = 700
 
 const TableResizeContext = React.createContext<TableResizeContextValue | null>(null)
 
@@ -335,9 +337,11 @@ function useTableResizeController({
       const currentInitial = effectiveColSizesRef.current[dragState.colIndex] ?? dragState.initialSize
       const nextInitial = effectiveColSizesRef.current[dragState.colIndex + 1]
       const complement = (width: number) => currentInitial + nextInitial - width
+      const otherColsTotal = effectiveColSizesRef.current.reduce((total, colSize) => total + colSize, 0) - currentInitial
+      const lastColMax = Math.max(minColumnWidth, PRINTABLE_DOCUMENT_WIDTH - marginLeftRef.current - otherColsTotal)
       const currentWidth = roundCellSizeToStep(
         resizeLengthClampStatic(currentInitial + delta, {
-          max: nextInitial ? complement(minColumnWidth) : undefined,
+          max: nextInitial ? complement(minColumnWidth) : lastColMax,
           min: minColumnWidth,
         }),
         undefined,
@@ -514,12 +518,15 @@ export const TableElement = withHOC(TableProvider, function TableElement({ child
       ...Object.fromEntries(resolvedColSizes.map((colSize, index) => [`--table-col-${index}`, `${colSize}px`])),
     } as React.CSSProperties
   }, [resolvedColSizes])
+  const colSizesTotal = React.useMemo(() => resolvedColSizes.reduce((total, colSize) => total + colSize, 0), [resolvedColSizes])
   const tableStyle = React.useMemo(
     () =>
       ({
-        width: `${resolvedColSizes.reduce((total, colSize) => total + colSize, 0) + controlColumnWidth}px`,
+        // In read-only mode (e.g. policy view), fill the container width and let
+        // <col> percentages preserve the authored column proportions.
+        width: readOnly ? '100%' : `${colSizesTotal + controlColumnWidth}px`,
       }) as React.CSSProperties,
-    [controlColumnWidth, resolvedColSizes],
+    [colSizesTotal, controlColumnWidth, readOnly],
   )
 
   const isSelectingTable = useBlockSelected(props.element.id as string)
@@ -527,13 +534,16 @@ export const TableElement = withHOC(TableProvider, function TableElement({ child
   const content = (
     <PlateElement {...props} className={cn('overflow-x-auto py-5', hasControls && '-ml-2 *:data-[slot=block-selection]:left-2')} style={{ paddingLeft: marginLeft }}>
       <TableResizeContext.Provider value={resizeController}>
-        <div ref={wrapperRef} className="group/table relative w-fit" style={tableVariableStyle}>
+        <div ref={wrapperRef} className={cn('group/table relative', readOnly ? 'w-full' : 'w-fit')} style={tableVariableStyle}>
           <div ref={dragIndicatorRef} className="-translate-x-[1.5px] pointer-events-none absolute inset-y-0 z-36 hidden w-[3px] bg-ring/70" contentEditable={false} />
           <div ref={hoverIndicatorRef} className="-translate-x-[1.5px] pointer-events-none absolute inset-y-0 z-35 hidden w-[3px] bg-ring/80" contentEditable={false} />
           <table
             ref={tableRef}
             className={cn(
-              'mr-0 ml-px table h-px table-fixed border-collapse',
+              'mr-0 table h-px table-fixed border-collapse',
+              // Editable mode keeps ml-px to leave space for the left resize indicator;
+              // read-only has no indicator, and the 1px would otherwise overflow width:100%.
+              !readOnly && 'ml-px',
               'data-[table-selecting=true]:[&_*::selection]:!bg-transparent',
               'data-[table-selecting=true]:[&_*::selection]:!text-inherit',
               'data-[table-selecting=true]:[&_*::-moz-selection]:!bg-transparent',
@@ -557,11 +567,17 @@ export const TableElement = withHOC(TableProvider, function TableElement({ child
                 {resolvedColSizes.map((colSize, index) => (
                   <col
                     key={index}
-                    style={{
-                      maxWidth: colSize,
-                      minWidth: colSize,
-                      width: colSize,
-                    }}
+                    style={
+                      readOnly
+                        ? {
+                            width: colSizesTotal > 0 ? `${(colSize / colSizesTotal) * 100}%` : `${100 / resolvedColSizes.length}%`,
+                          }
+                        : {
+                            maxWidth: colSize,
+                            minWidth: colSize,
+                            width: colSize,
+                          }
+                    }
                   />
                 ))}
               </colgroup>
@@ -843,7 +859,7 @@ function ColorDropdownMenu({ children, tooltip }: { children: React.ReactNode; t
 
       <DropdownMenuContent align="start">
         <ToolbarMenuGroup label="Colors">
-          <ColorDropdownMenuItems className="px-2" colors={DEFAULT_COLORS} updateColor={onUpdateColor} />
+          <ColorDropdownMenuItems className="px-2" colors={DEFAULT_BG_COLORS} updateColor={onUpdateColor} />
         </ToolbarMenuGroup>
         <DropdownMenuGroup>
           <DropdownMenuItem className="p-2" onClick={onClearColor}>

@@ -10,6 +10,7 @@ import { type UpdateFindingInput, FindingSecurityLevel } from '@repo/codegen/src
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
+import { TruncatedCell } from '@repo/ui/data-table'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Textarea } from '@repo/ui/textarea'
@@ -19,6 +20,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatDateTime } from '@/utils/date'
 import { normalizeUrl } from '@/utils/normalizeUrl'
 import { getSeverityStyle } from '@/utils/severity'
+import { toUpperSnakeCase } from '@/utils/strings'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -69,6 +71,16 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
 
   const hasTargetDetails = isPopulatedObject(data?.targetDetails)
   const hasMetadata = Boolean(data?.source || data?.sourceUpdatedAt || data?.eventTime || data?.reportedAt)
+  const isExternalRefLocked = (data?.integrations?.totalCount ?? 0) > 0
+  const externalRefLockedTooltip = 'This field is managed by the source integration and cannot be edited.'
+  const externalRefLockProps = isExternalRefLocked
+    ? {
+        isEditing: false,
+        isEditAllowed: false,
+        handleUpdate: undefined,
+        tooltipContent: externalRefLockedTooltip,
+      }
+    : null
 
   return (
     <div className="space-y-6">
@@ -85,9 +97,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="category" label="Category" formatDisplayValue={plainChipDisplay} {...sharedFieldProps} />
             <TextField name="findingClass" label="Finding Class" formatDisplayValue={enumChipDisplay} {...sharedFieldProps} />
-          </div>
-          <div>
-            <TextField name="description" label="Description" multiline {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>
@@ -231,11 +240,11 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="externalID" label="External ID" {...sharedFieldProps} />
-            <TextField name="externalOwnerID" label="External Owner ID" {...sharedFieldProps} />
+            <TextField name="externalID" label="External ID" {...sharedFieldProps} {...externalRefLockProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
+            <TextField name="externalOwnerID" label="External Owner ID" {...sharedFieldProps} {...externalRefLockProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
           </div>
           <div className="grid grid-cols-1 gap-2">
-            <TextField name="externalURI" label="External URI" type="link" {...sharedFieldProps} />
+            <TextField name="externalURI" label="External URI" type="link" {...sharedFieldProps} {...externalRefLockProps} />
           </div>
         </CardContent>
       </Card>
@@ -404,7 +413,7 @@ const TargetDetailsFields: React.FC<{ value: Record<string, unknown> }> = ({ val
     <div className="space-y-4">
       {entries.map(([key, val]) => (
         <div key={key}>
-          <div className="text-xs uppercase text-muted-foreground tracking-wide mb-2">{key}</div>
+          <div className="text-xs text-muted-foreground tracking-wide mb-2">{toUpperSnakeCase(key)}</div>
           <TargetNode value={val} />
         </div>
       ))}

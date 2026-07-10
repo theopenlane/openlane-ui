@@ -12,18 +12,54 @@ import {
 const FINALIZED_INTEGRATION_STATUSES = new Set(['CONNECTED', 'DISABLED', 'ERRORED'])
 
 const PROVIDER_ICON_MAP: Record<string, string> = {
-  aws: '/icons/brand/integrations/aws.svg',
-  azure: '/icons/brand/integrations/azure.png',
-  buildkite: '/icons/brand/integrations/buildkite.png',
-  cloudflare: '/icons/brand/integrations/cloudflare.png',
-  gcp: '/icons/brand/integrations/google.png',
-  github: '/icons/brand/integrations/github.png',
-  google: '/icons/brand/integrations/google.png',
-  microsoft: '/icons/brand/integrations/microsoft_teams.png',
-  okta: '/icons/brand/integrations/okta.png',
+  Authentik: '/icons/brand/integrations/authentik.png',
+  AWS: '/icons/brand/integrations/aws.jpg',
+  'Azure EntraID': '/icons/brand/integrations/microsoft_azure.png',
+  'Microsoft Defender for Cloud': '/icons/brand/integrations/microsoft_azure.png',
+  Buildkite: '/icons/brand/integrations/buildkite.png',
+  Cloudflare: '/icons/brand/integrations/cloudflare.png',
+  'Google Cloud': '/icons/brand/integrations/googlecloud.png',
+  'GCP Security Command Center': '/icons/brand/integrations/googlecloud.png',
+  'GitHub App': '/icons/brand/integrations/gh.png',
+  'Google Drive': '/icons/brand/integrations/google_drive.png',
+  'Google Workspace': '/icons/brand/integrations/google_workspace.png',
+  'Microsoft OneDrive': '/icons/brand/integrations/onedrive.png',
+  'Microsoft Teams': '/icons/brand/integrations/microsoft_teams.png',
+  Okta: '/icons/brand/integrations/okta.png',
   scim: '/icons/brand/integrations/scim.png',
-  slack: '/icons/brand/integrations/slack.png',
-  vercel: '/icons/brand/integrations/vercel.png',
+  Slack: '/icons/brand/integrations/slack.png',
+  Vercel: '/icons/brand/integrations/vercel.png',
+  Email: '/icons/brand/integrations/email_icon.png',
+  Tailscale: '/icons/brand/integrations/tailscale.png',
+  Keycloak: '/icons/brand/integrations/keycloak.png',
+  Zitadel: '/icons/brand/integrations/zitadel.png',
+}
+
+const fallbackIcon = '/icons/brand/integrations/default.png'
+
+export type DocumentFolderFieldConfig = {
+  label: string
+  placeholder: string
+  description: string
+}
+
+const DEFAULT_DOCUMENT_FOLDER_FIELD: DocumentFolderFieldConfig = {
+  label: 'Folder',
+  placeholder: '',
+  description: "Only documents inside this folder are synced into Openlane. Leave blank to sync everything you've granted access to.",
+}
+
+const DOCUMENT_FOLDER_FIELD_CONFIG: Record<string, DocumentFolderFieldConfig> = {
+  googledrive: {
+    label: 'Folder ID or URL',
+    placeholder: 'e.g. 1A2b3C... or https://drive.google.com/drive/folders/1A2b3C...',
+    description: "Only documents inside this Google Drive folder are synced into Openlane. Leave blank to sync everything you've granted access to.",
+  },
+  onedrive: {
+    label: 'Folder name',
+    placeholder: 'e.g. Policies',
+    description: "Only documents inside this OneDrive folder are synced into Openlane. Leave blank to sync everything you've granted access to.",
+  },
 }
 
 type FinalizedIntegrationFields = Pick<IntegrationNode, 'definitionID' | 'definitionSlug' | 'family' | 'kind' | 'name' | 'status'>
@@ -66,8 +102,19 @@ export function normalizeIntegrationToken(value?: string | null): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '')
 }
 
-export function getProviderIcon(name: string): string | undefined {
-  return PROVIDER_ICON_MAP[normalizeIntegrationToken(name)]
+export function getProviderIcon(name: string): string {
+  return PROVIDER_ICON_MAP[name] ?? fallbackIcon
+}
+
+export function getDocumentFolderFieldConfig(provider?: IntegrationProvider): DocumentFolderFieldConfig {
+  for (const token of [provider?.slug, provider?.family, provider?.displayName, provider?.id]) {
+    const config = DOCUMENT_FOLDER_FIELD_CONFIG[normalizeIntegrationToken(token)]
+    if (config) {
+      return config
+    }
+  }
+
+  return DEFAULT_DOCUMENT_FOLDER_FIELD
 }
 
 export function toAvailableIntegration(provider: IntegrationProvider): AvailableIntegrationNode {
@@ -136,6 +183,15 @@ export function schemaHasProperties(schema?: IntegrationSchemaNode): boolean {
   return Object.keys(resolveSchemaRoot(schema)?.properties ?? {}).length > 0
 }
 
+type IntegrationClientConfig = {
+  clientConfig?: Record<string, unknown>
+}
+
+export function readIntegrationUserInput(integration: Pick<IntegrationNode, 'config'>): Record<string, unknown> {
+  const config = integration.config as IntegrationClientConfig | null
+  return config?.clientConfig ?? {}
+}
+
 export function integrationDefinitionID(integration: IntegrationProviderMatchFields, providers: IntegrationProvider[]): string | undefined {
   const definitionID = integration.definitionID?.trim()
   if (definitionID) {
@@ -192,6 +248,69 @@ export function matchIntegrationProvider(integration: IntegrationProviderMatchFi
   }
 
   return matchProviderByTokens([integration.definitionSlug, integration.family, integration.kind, integration.name], providers)
+}
+
+const VENDOR_NAME_ALIASES: Record<string, string[]> = {
+  gcp: ['googlecloud'],
+  gcpscc: ['googlecloud'],
+}
+
+const VENDOR_MATCH_STOP_WORDS = new Set(['the', 'and', 'inc', 'llc', 'corp', 'ltd'])
+
+const tokenizeWords = (value?: string | null): string[] => {
+  if (!value) return []
+  return value
+    .split(/[^A-Za-z0-9]+/)
+    .map((word) => normalizeIntegrationToken(word))
+    .filter((word) => word.length >= 3 && !VENDOR_MATCH_STOP_WORDS.has(word))
+}
+
+export const matchProviderByVendorName = (vendorName: string | null | undefined, vendorDisplayName: string | null | undefined, providers: IntegrationProvider[]): IntegrationProvider | undefined => {
+  const wholeMatch = matchProviderByTokens([vendorName, vendorDisplayName], providers)
+  if (wholeMatch) {
+    return wholeMatch
+  }
+
+  const vendorWords = new Set([...tokenizeWords(vendorName), ...tokenizeWords(vendorDisplayName)])
+  if (vendorWords.size > 0) {
+    const wordHit = providers.find((provider) => {
+      const providerWords = new Set([
+        ...tokenizeWords(provider.id),
+        ...tokenizeWords(provider.slug),
+        ...tokenizeWords(provider.family),
+        ...tokenizeWords(provider.displayName),
+        ...(provider.tags ?? []).flatMap(tokenizeWords),
+      ])
+      for (const word of vendorWords) {
+        if (providerWords.has(word)) {
+          return true
+        }
+      }
+      return false
+    })
+    if (wordHit) {
+      return wordHit
+    }
+  }
+
+  const vendorTokens = [vendorName, vendorDisplayName].map((value) => normalizeIntegrationToken(value)).filter(Boolean)
+  for (const token of vendorTokens) {
+    const aliasTargets = VENDOR_NAME_ALIASES[token]
+    if (!aliasTargets) {
+      continue
+    }
+    const aliasHit = providers.find((provider) =>
+      [provider.id, provider.slug, provider.family, provider.displayName]
+        .map((value) => normalizeIntegrationToken(value))
+        .filter(Boolean)
+        .some((normalized) => aliasTargets.includes(normalized)),
+    )
+    if (aliasHit) {
+      return aliasHit
+    }
+  }
+
+  return undefined
 }
 
 export function resolveSchemaRoot(schema?: IntegrationSchemaNode): IntegrationSchemaNode | undefined {
@@ -258,6 +377,25 @@ export function resolveConnectionEntry(provider?: IntegrationProvider, credentia
 
 export function providerSupportsHealth(provider?: IntegrationProvider): boolean {
   return Boolean(provider?.operations?.some((operation) => operation.name === HEALTH_CHECK_OPERATION_NAME))
+}
+
+export function disabledOperationConfigKeys(provider?: IntegrationProvider): Set<string> {
+  return new Set((provider?.operations ?? []).filter((op) => op.disabledForAll).map((op) => op.name.charAt(0).toLowerCase() + op.name.slice(1)))
+}
+
+export function resolveManageUrl(provider: IntegrationProvider | undefined, connectionEntry: ReturnType<typeof resolveConnectionEntry>, externalId: string, externalName: string): string | null {
+  if (!connectionEntry?.auth || !externalId) return null
+
+  const token = normalizeIntegrationToken(provider?.slug)
+
+  switch (token) {
+    case 'github':
+      return externalName ? `https://github.com/organizations/${externalName}/settings/installations/${externalId}` : `https://github.com/settings/installations/${externalId}`
+    case 'slack':
+      return `https://app.slack.com/apps-manage/${externalId}/integrations`
+    default:
+      return null
+  }
 }
 
 export async function parseIntegrationErrorMessage(response: Response): Promise<string> {

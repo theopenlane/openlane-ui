@@ -10,7 +10,7 @@ import { useOrganization } from '@/hooks/useOrganization.ts'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import EvidenceSuggestedActions from './table/evidence-suggested-actions'
 import Loading from '@/app/(protected)/evidence/loading'
@@ -20,12 +20,15 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { SlidersHorizontal } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
+import { useSession } from 'next-auth/react'
 
 const EvidenceDetailsPage = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const programId = searchParams.get('programId')
+
+  const { data: session } = useSession()
 
   const { data, isLoading } = useGetAllPrograms({
     where: { statusNotIn: [ProgramProgramStatus.COMPLETED, ProgramProgramStatus.ARCHIVED] },
@@ -40,7 +43,7 @@ const EvidenceDetailsPage = () => {
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const { data: permission } = useOrganizationRoles()
 
-  const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateEvidence)
+  const createAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateEvidence, session)
 
   useEffect(() => {
     const crumbs: Crumb[] = [

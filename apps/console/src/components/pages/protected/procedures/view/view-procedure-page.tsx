@@ -12,12 +12,10 @@ import AuthorityCard from '@/components/pages/protected/procedures/view/cards/au
 import PropertiesCard from '@/components/pages/protected/procedures/view/cards/properties-card.tsx'
 import HistoricalCard from '@/components/pages/protected/procedures/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/view/cards/tags-card.tsx'
-import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedure'
 import { ProcedureDocumentStatus, ProcedureFrequency, type UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
-import { useProcedure } from '@/components/pages/protected/procedures/create/hooks/use-procedure.tsx'
 import { Trash2 } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -41,6 +39,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -49,7 +48,6 @@ const ViewProcedurePage: React.FC = () => {
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { data, isLoading } = useGetProcedureDetailsById(procedureId, !isDeleting)
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
-  const procedureState = useProcedure()
   const procedure = data?.procedure
   const { form } = useFormSchema()
   const [isEditing, setIsEditing] = useState(false)
@@ -58,8 +56,9 @@ const ViewProcedurePage: React.FC = () => {
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
   const { data: permission } = useAccountRoles(ObjectTypes.PROCEDURE, procedureId)
+  const { data: session } = useSession()
   const deleteAllowed = canDelete(permission?.roles)
-  const editAllowed = canEdit(permission?.roles)
+  const editAllowed = canEdit(permission?.roles, session)
   const { mutateAsync: deleteProcedure } = useDeleteProcedure()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const { currentOrgId, getOrganizationByID } = useOrganization()
@@ -72,7 +71,7 @@ const ViewProcedurePage: React.FC = () => {
   const { data: assocData } = useGetProcedureAssociationsById(procedureId, !isDeleting)
 
   const memoizedSections = useMemo(() => {
-    if (!assocData) return {}
+    if (!assocData?.procedure) return {}
     return {
       policies: assocData.procedure.internalPolicies,
       controls: assocData.procedure.controls,
@@ -101,23 +100,7 @@ const ViewProcedurePage: React.FC = () => {
   }, [setCrumbs, procedure, isLoading])
 
   useEffect(() => {
-    if (procedure && assocData && !dataInitialized) {
-      const procedureAssociations: TObjectAssociationMap = {
-        controlIDs: assocData.procedure?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        riskIDs: assocData.procedure?.risks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        programIDs: assocData.procedure?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        internalPolicyIDs: assocData.procedure?.internalPolicies?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        taskIDs: assocData.procedure?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-      }
-
-      const procedureAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: assocData.procedure?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
-        riskIDs: assocData.procedure?.risks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        programIDs: assocData.procedure?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        internalPolicyIDs: assocData.procedure?.internalPolicies?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        taskIDs: assocData.procedure?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-      }
-
+    if (procedure && !dataInitialized) {
       form.reset({
         name: procedure.name,
         details: procedure?.details ?? '',
@@ -133,12 +116,9 @@ const ViewProcedurePage: React.FC = () => {
         delegateID: procedure.delegate?.id,
       })
 
-      procedureState.setInitialAssociations(procedureAssociations)
-      procedureState.setAssociations(procedureAssociations)
-      procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
       setDataInitialized(true)
     }
-  }, [procedure, form, procedureState, dataInitialized, assocData])
+  }, [procedure, form, dataInitialized])
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -171,7 +151,7 @@ const ViewProcedurePage: React.FC = () => {
       return
     }
     try {
-      const { revision, approverID, delegateID, details, detailsJSON, ...restData } = data
+      const { revision, approverID, delegateID, details: _details, detailsJSON, ...restData } = data
       const input: UpdateProcedureInput = {
         ...restData,
         tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
@@ -214,8 +194,9 @@ const ViewProcedurePage: React.FC = () => {
       })
 
       setIsEditing(false)
-      queryClient.invalidateQueries({ queryKey: ['procedures'] })
+      await queryClient.invalidateQueries({ queryKey: ['procedures'] })
       queryClient.invalidateQueries({ queryKey: ['procedureDiscussion', procedureId] })
+      setDataInitialized(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -236,7 +217,8 @@ const ViewProcedurePage: React.FC = () => {
         description: 'Procedure has been successfully updated',
       })
 
-      queryClient.invalidateQueries({ queryKey: ['procedures'] })
+      await queryClient.invalidateQueries({ queryKey: ['procedures'] })
+      setDataInitialized(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({

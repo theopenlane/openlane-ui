@@ -17,7 +17,7 @@ import { useContacts } from '@/lib/graphql-hooks/contact'
 import { useIdentityHoldersWithFilter } from '@/lib/graphql-hooks/identity-holder'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { computeDueDate } from '@/utils/date'
-import { isValidEmail } from '@/lib/validators'
+import { isDuplicateEmail, isValidEmail } from '@/lib/validators'
 
 const formSchema = z.object({
   emails: z.array(z.string().email()).min(1, 'At least one email is required'),
@@ -104,7 +104,7 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
   const pendingInputEmail = useMemo(() => {
     const trimmed = normalizeEmail(inputValue)
     if (!trimmed || !isValidEmail(trimmed)) return null
-    if (emails.some((e) => e.toLowerCase() === trimmed.toLowerCase())) return null
+    if (isDuplicateEmail(trimmed, emails)) return null
     return trimmed
   }, [inputValue, emails])
 
@@ -120,7 +120,7 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
         return false
       }
 
-      if (emails.some((e) => e.toLowerCase() === normalized.toLowerCase())) {
+      if (isDuplicateEmail(normalized, emails)) {
         setInputError(DUPLICATE_EMAIL_MESSAGE)
         return false
       }

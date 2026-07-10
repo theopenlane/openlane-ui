@@ -11,7 +11,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export type DeliveryRow = {
   id: string
-  email: string
+  email?: string | null
   assignedAt: string
   dueDate?: string | null
   status: AssessmentResponseAssessmentResponseStatus
@@ -24,6 +24,7 @@ export type DeliveryRow = {
 type DeliveryColumnCallbacks = {
   onResend: (row: DeliveryRow) => void
   onViewResponse: (row: DeliveryRow) => void
+  canResend?: boolean
 }
 
 const statusVariantMap: Record<AssessmentResponseAssessmentResponseStatus, 'green' | 'blue' | 'default' | 'destructive'> = {
@@ -34,13 +35,13 @@ const statusVariantMap: Record<AssessmentResponseAssessmentResponseStatus, 'gree
   [AssessmentResponseAssessmentResponseStatus.DRAFT]: 'default',
 }
 
-export const getDeliveryColumns = ({ onResend, onViewResponse }: DeliveryColumnCallbacks): ColumnDef<DeliveryRow>[] => [
+export const getDeliveryColumns = ({ onResend, onViewResponse, canResend = false }: DeliveryColumnCallbacks): ColumnDef<DeliveryRow>[] => [
   {
     accessorKey: 'email',
     header: 'Recipient',
     size: 250,
     minSize: 150,
-    cell: ({ cell }) => <div className="truncate">{cell.getValue() as string}</div>,
+    cell: ({ cell }) => <div className="truncate">{(cell.getValue() as string | null | undefined) ?? ''}</div>,
   },
   {
     accessorKey: 'status',
@@ -80,6 +81,9 @@ export const getDeliveryColumns = ({ onResend, onViewResponse }: DeliveryColumnC
     header: '',
     cell: ({ row }) => {
       const isCompleted = row.original.status === AssessmentResponseAssessmentResponseStatus.COMPLETED
+      if (!isCompleted && !canResend) {
+        return null
+      }
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

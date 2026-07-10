@@ -14,38 +14,38 @@ import { useGetEvidenceListLight } from '@/lib/graphql-hooks/evidence'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { SearchFilterBar, mergeWhere } from '@/components/shared/crud-base/tabs/shared'
 import { type EvidenceOrder, EvidenceOrderField, type EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
-import type { ApiToken, User } from '@repo/codegen/src/schema'
 import type { FilterField, WhereCondition } from '@/types'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { getEvidenceColumns, getEvidenceFilterFields, type EvidenceRow } from './evidence-table-config'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
-import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import type { EntityRef } from '@/lib/graphql-hooks/use-mapped-entity-refs'
 
 type Props = {
   control: TFormEvidenceData
   subcontrolIds?: string[]
+  mappedControlRefs?: EntityRef[]
+  mappedSubcontrolRefs?: EntityRef[]
 }
 
-const buildAssociationFilter = (controlId?: string, subcontrolIds?: string[]) => {
-  if (controlId && subcontrolIds && subcontrolIds.length > 0) {
-    return {
-      or: [{ hasControlsWith: [{ id: controlId }] }, { hasSubcontrolsWith: [{ idIn: subcontrolIds }] }],
-    }
-  }
+const buildAssociationFilter = (controlId?: string, subcontrolIds?: string[], mappedControlRefs: EntityRef[] = [], mappedSubcontrolRefs: EntityRef[] = []) => {
+  const conditions: object[] = []
 
-  if (controlId) {
-    return { hasControlsWith: [{ id: controlId }] }
-  }
+  if (controlId) conditions.push({ hasControlsWith: [{ id: controlId }] })
+  if (subcontrolIds && subcontrolIds.length > 0) conditions.push({ hasSubcontrolsWith: [{ idIn: subcontrolIds }] })
 
-  if (subcontrolIds && subcontrolIds.length > 0) {
-    return { hasSubcontrolsWith: [{ idIn: subcontrolIds }] }
-  }
+  const mappedControlIds = mappedControlRefs.map((r) => r.id)
+  const mappedSubcontrolIds = mappedSubcontrolRefs.map((r) => r.id)
 
-  return {}
+  if (mappedControlIds.length > 0) conditions.push({ hasControlsWith: [{ idIn: mappedControlIds }] })
+  if (mappedSubcontrolIds.length > 0) conditions.push({ hasSubcontrolsWith: [{ idIn: mappedSubcontrolIds }] })
+
+  if (conditions.length === 0) return {}
+  if (conditions.length === 1) return conditions[0]
+  return { or: conditions }
 }
 
-const EvidenceTable = ({ control, subcontrolIds }: Props) => {
+const EvidenceTable = ({ control, subcontrolIds, mappedControlRefs = [], mappedSubcontrolRefs = [] }: Props) => {
   const { subcontrolId } = useParams()
   const isSubcontrol = !!subcontrolId
   const router = useSmartRouter()
@@ -63,8 +63,8 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
     if (control.subcontrolID) {
       return buildAssociationFilter(undefined, [control.subcontrolID])
     }
-    return buildAssociationFilter(control.controlID, subcontrolIds)
-  }, [control.controlID, control.subcontrolID, subcontrolIds])
+    return buildAssociationFilter(control.controlID, subcontrolIds, mappedControlRefs, mappedSubcontrolRefs)
+  }, [control.controlID, control.subcontrolID, subcontrolIds, mappedControlRefs, mappedSubcontrolRefs])
 
   const filterFields = useMemo<FilterField[]>(() => getEvidenceFilterFields(), [])
 
@@ -87,29 +87,46 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
     enabled: Boolean(control.controlID || control.subcontrolID),
   })
 
+  const subcontrolIdSet = useMemo(() => new Set(subcontrolIds ?? []), [subcontrolIds])
+  const mappedControlIdToRef = useMemo(() => new Map(mappedControlRefs.map((r) => [r.id, r])), [mappedControlRefs])
+  const mappedSubcontrolIdToRef = useMemo(() => new Map(mappedSubcontrolRefs.map((r) => [r.id, r])), [mappedSubcontrolRefs])
+
+  const inheritedFromMap = useMemo(() => {
+    if (control.subcontrolID) return new Map<string, { refCode: string; href: string }[]>()
+
+    const map = new Map<string, { refCode: string; href: string }[]>()
+    for (const evidence of evidences) {
+      const directlyLinked = evidence.controls?.edges?.some((e) => e?.node?.id === control.controlID) ?? false
+      if (directlyLinked) continue
+
+      const sources: { refCode: string; href: string }[] = []
+
+      for (const edge of evidence.subcontrols?.edges ?? []) {
+        const node = edge?.node
+        if (!node?.id || !node?.refCode) continue
+        if (subcontrolIdSet.has(node.id)) {
+          sources.push({ refCode: node.refCode, href: `/controls/${control.controlID}/${node.id}` })
+        } else {
+          const ref = mappedSubcontrolIdToRef.get(node.id)
+          if (ref) sources.push(ref)
+        }
+      }
+
+      for (const edge of evidence.controls?.edges ?? []) {
+        const node = edge?.node
+        if (!node?.id) continue
+        const ref = mappedControlIdToRef.get(node.id)
+        if (ref) sources.push(ref)
+      }
+
+      if (sources.length > 0) map.set(evidence.id, sources)
+    }
+    return map
+  }, [evidences, control.controlID, control.subcontrolID, subcontrolIdSet, mappedControlIdToRef, mappedSubcontrolIdToRef])
+
   const memberIds = useMemo(() => [...new Set(evidences.map((e) => e.updatedBy).filter((id): id is string => typeof id === 'string' && id.length > 0))], [evidences])
 
-  const userListWhere = useMemo(() => (memberIds.length > 0 ? { hasUserWith: [{ idIn: memberIds }] } : undefined), [memberIds])
-  const tokensWhere = useMemo(() => (memberIds.length > 0 ? { idIn: memberIds } : undefined), [memberIds])
-
-  const { users } = useGetOrgUserList({ where: userListWhere })
-  const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, User> = {}
-    users?.forEach((user) => {
-      map[user.id] = user
-    })
-    return map
-  }, [users])
-
-  const tokenMap = useMemo(() => {
-    const map: Record<string, ApiToken> = {}
-    tokens?.forEach((token) => {
-      map[token.id] = token
-    })
-    return map
-  }, [tokens])
+  const { userMap, tokenMap } = useAuthorMaps(memberIds)
 
   const evidenceSheetHandler = useCallback(
     (controlEvidenceID: string) => {
@@ -130,7 +147,7 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
     __typename: isSubcontrol ? ObjectTypes.SUBCONTROL : ObjectTypes.CONTROL,
   }
 
-  const columns = useMemo(() => getEvidenceColumns(evidenceSheetHandler, userMap, tokenMap), [evidenceSheetHandler, userMap, tokenMap])
+  const columns = useMemo(() => getEvidenceColumns(evidenceSheetHandler, userMap, tokenMap, inheritedFromMap), [evidenceSheetHandler, userMap, tokenMap, inheritedFromMap])
 
   const rows = useMemo<EvidenceRow[]>(
     () =>

@@ -4,16 +4,17 @@ import { useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
 import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion'
-import { type Section, type TBaseAssociatedNode } from '@/components/shared/object-association/types/object-association-types'
+import { type Section, type TBaseAssociatedNode, getObjectName } from '@/components/shared/object-association/types/object-association-types'
 import { ASSOCIATION_REMOVAL_CONFIG, type ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { type TAssociationUpdateInput, type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { SetAssociationDialog, type SetAssociationDialogConfig } from '@/components/shared/object-association/set-association-dialog'
+import { buildInitialAssociationIds } from '@/components/shared/object-association/utils'
 
 export type BaseAssociationSectionProps = {
-  data?: { id: string }
+  data?: TBaseAssociatedNode
   isEditing: boolean
   isCreate: boolean
   isEditAllowed: boolean
@@ -26,7 +27,7 @@ export type AssociationNode = {
   displayID?: string
   fullName?: string
   target?: string
-  title?: string
+  title?: string | null
   refCode?: string
   description?: string | null
   summary?: string | null
@@ -100,27 +101,13 @@ export const AssociationSection = <TConfig extends AssociationEntityConfig>({
   type TRootField = TConfig['dataRootField']
 
   const entityId = data?.id
+  const entityName = getObjectName(data)
+
   const form = useFormContext<Record<string, string[]>>()
   const queryClient = useQueryClient()
   const setAssociationValue = form.setValue as (name: string, value: string[], options?: { shouldDirty?: boolean }) => void
 
-  const initialData: TObjectAssociationMap<TFieldKey> = useMemo(() => {
-    if (!associationsData) return {}
-    const dataRootField = config.dataRootField as TRootField
-    const root = associationsData[dataRootField] as AssociationsRoot<TSectionKey> | undefined
-    if (!root) return {}
-
-    const result: TObjectAssociationMap<TFieldKey> = {}
-    for (const [inputName, edgesField] of Object.entries(config.initialDataKeys) as [TFieldKey, TSectionKey][]) {
-      const connection = root[edgesField]
-      result[inputName] =
-        connection?.edges?.flatMap((edge) => {
-          const id = edge?.node?.id
-          return id ? [id] : []
-        }) ?? []
-    }
-    return result
-  }, [associationsData, config.dataRootField, config.initialDataKeys])
+  const initialData = useMemo(() => buildInitialAssociationIds(config, associationsData) as TObjectAssociationMap<TFieldKey>, [config, associationsData])
 
   useEffect(() => {
     if (isEditing || isCreate) return
@@ -178,7 +165,7 @@ export const AssociationSection = <TConfig extends AssociationEntityConfig>({
   if (isEditing || isCreate) {
     return (
       <Panel className="mt-5">
-        <PanelHeader heading="Associate Related Objects" noBorder />
+        <PanelHeader heading="Associate Related Objects" subheading={`This shows objects directly associated with ${entityName}. This does not include objects linked by inheritance`} noBorder />
         <ObjectAssociation
           initialData={initialData}
           onIdChange={(updatedMap) => {
@@ -198,11 +185,12 @@ export const AssociationSection = <TConfig extends AssociationEntityConfig>({
   if (!hasSections && !isEditAllowed) return null
 
   return (
-    <Panel className="mt-5">
+    <Panel className="mt-5 gap-3">
       <div className="flex items-center justify-between">
         <PanelHeader heading="Associated Objects" noBorder />
         {isEditAllowed && entityId && <SetAssociationDialog config={config.dialogConfig} associationsData={associationsData} onUpdate={onUpdateEntity} />}
       </div>
+      <p className="text-sm text-muted">{`This shows objects directly associated with ${entityName}. This does not include objects linked by inheritance`}</p>
       {hasSections && <AssociatedObjectsAccordion sections={sections} toggleAll={false} removable={isEditAllowed} onRemove={handleRemoveAssociation} />}
     </Panel>
   )

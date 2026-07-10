@@ -5,12 +5,17 @@ import { DataTable } from '@repo/ui/data-table'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useGetTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessor'
-import { ExportExportFormat, ExportExportType, type TrustCenterSubprocessorWhereInput, type User } from '@repo/codegen/src/schema'
+import {
+  useGetTrustCenterSubprocessors,
+  useDeleteTrustCenterSubprocessor,
+  useBulkDeleteTrustCenterSubprocessors,
+  useFetchAllTrustCenterSubprocessorIds,
+} from '@/lib/graphql-hooks/trust-center-subprocessor'
+import { ExportExportFormat, ExportExportType, type TrustCenterSubprocessorWhereInput } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import SubprocessorsTableToolbar from './table/subprocessors-table-toolbar'
 import { getSubprocessorsColumns, type SubprocessorTableItem } from './table/table-config'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
@@ -18,16 +23,30 @@ import useFileExport from '@/components/shared/export/use-file-export'
 import { EditTrustCenterSubprocessorSheet } from './sheet/edit-trust-center-subprocessor-sheet'
 import { EmbedSubprocessorSheet } from './sheet/embed-subprocessor-sheet'
 import { useGetTrustCenter, useUpdateTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { useHandleUpdateSetting } from '../branding/helpers/useHandleUpdateSetting'
+import { Switch } from '@repo/ui/switch'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { useNotification } from '@/hooks/useNotification'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { Button } from '@repo/ui/button'
 import { Code } from 'lucide-react'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import SubprocessorsModeToggle, { type SubprocessorMode } from './SubprocessorsModeToggle'
+import { useSession } from 'next-auth/react'
 
 const SubprocessorsPage = () => {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
   const [embedSheetOpen, setEmbedSheetOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.SUBPROCESSOR)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() =>
@@ -43,33 +62,67 @@ const SubprocessorsPage = () => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<TrustCenterSubprocessorWhereInput | null>(null)
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [switchConfirmOpen, setSwitchConfirmOpen] = useState(false)
+  const [isSwitching, setIsSwitching] = useState(false)
   const { handleExport } = useFileExport()
 
   const { setCrumbs } = use(BreadcrumbContext)
 
   const { successNotification, errorNotification } = useNotification()
+  const { data: orgPermission } = useOrganizationRoles()
+  const { data: session } = useSession()
+  const canCreateSubprocessor = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterSubprocessor, session)
+  const canEditSubprocessor = hasPermission(orgPermission?.roles, AccessEnum.CanEditTrustCenterSubprocessor, session)
+
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterNode = trustCenterData?.trustCenters?.edges?.[0]?.node
   const trustCenterID = trustCenterNode?.id ?? ''
   const slug = trustCenterNode?.slug ?? ''
   const savedSubprocessorURL = trustCenterNode?.subprocessorURL ?? ''
   const [subprocessorURL, setSubprocessorURL] = useState(savedSubprocessorURL)
+  const [mode, setMode] = useState<SubprocessorMode>(savedSubprocessorURL ? 'link' : 'manage')
 
+  const setting = trustCenterNode?.setting
   const { mutateAsync: updateTrustCenter, isPending: isSavingURL } = useUpdateTrustCenter()
+  const { updateTrustCenterSetting } = useHandleUpdateSetting()
+  const { mutateAsync: deleteSubprocessor } = useDeleteTrustCenterSubprocessor()
+
+  const handleToggleSubprocessorNotify = (checked: boolean) => {
+    updateTrustCenterSetting({ id: setting?.id, input: { notifySubscribersOnSubprocessorChange: checked } })
+  }
+  const { mutateAsync: bulkDeleteSubprocessors } = useBulkDeleteTrustCenterSubprocessors()
+  const fetchAllSubprocessorIds = useFetchAllTrustCenterSubprocessorIds()
 
   useEffect(() => {
     setSubprocessorURL(savedSubprocessorURL)
+    if (savedSubprocessorURL) {
+      setMode('link')
+    }
   }, [savedSubprocessorURL])
+
+  useEffect(() => {
+    setColumnVisibility((prev) => ({ ...prev, select: canEditSubprocessor }))
+  }, [canEditSubprocessor])
+
+  const persistSubprocessorURL = async (trimmed: string) => {
+    await updateTrustCenter({
+      updateTrustCenterId: trustCenterID,
+      input: trimmed ? { subprocessorURL: trimmed } : { clearSubprocessorURL: true },
+    })
+  }
 
   const handleSaveSubprocessorURL = async () => {
     const trimmed = subprocessorURL.trim()
     if (trimmed === savedSubprocessorURL) return
 
+    if (trimmed && managedCount > 0) {
+      setSwitchConfirmOpen(true)
+      return
+    }
+
     try {
-      await updateTrustCenter({
-        updateTrustCenterId: trustCenterID,
-        input: trimmed ? { subprocessorURL: trimmed } : { clearSubprocessorURL: true },
-      })
+      await persistSubprocessorURL(trimmed)
       successNotification({ title: 'Saved', description: 'Subprocessor URL updated successfully.' })
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
@@ -86,6 +139,12 @@ const SubprocessorsPage = () => {
     pagination,
   })
 
+  const { paginationMeta: managedMeta } = useGetTrustCenterSubprocessors({
+    where: {},
+    pagination: { page: 1, pageSize: 1, query: { first: 1 } },
+  })
+  const managedCount = managedMeta.totalCount
+
   const userIds = useMemo(() => {
     if (!trustCenterSubprocessors) return []
     const ids = new Set<string>()
@@ -96,22 +155,12 @@ const SubprocessorsPage = () => {
     return Array.from(ids)
   }, [trustCenterSubprocessors])
 
-  const { users } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
+  const { userMap, tokenMap } = useAuthorMaps(userIds)
 
   const handleFilterChange = useCallback((newFilters: TrustCenterSubprocessorWhereInput) => {
     setFilters(newFilters)
     setPagination(DEFAULT_PAGINATION)
   }, [])
-
-  const userMap = useMemo(() => {
-    const map: Record<string, User> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
 
   const tableData: SubprocessorTableItem[] = useMemo(
     () =>
@@ -130,7 +179,19 @@ const SubprocessorsPage = () => {
     [trustCenterSubprocessors],
   )
 
-  const { columns, mappedColumns } = useMemo(() => getSubprocessorsColumns({ selectedRows, setSelectedRows, userMap }), [selectedRows, userMap])
+  const handleEditSubprocessor = useCallback(
+    (id: string) => {
+      const params = new URLSearchParams(searchParams?.toString() ?? '')
+      params.set('id', id)
+      router.push(`${pathname}?${params.toString()}`)
+    },
+    [router, pathname, searchParams],
+  )
+
+  const { columns, mappedColumns } = useMemo(
+    () => getSubprocessorsColumns({ selectedRows, setSelectedRows, userMap, tokenMap, canEditSubprocessor, onEdit: handleEditSubprocessor, onDelete: setDeleteId }),
+    [selectedRows, userMap, tokenMap, canEditSubprocessor, handleEditSubprocessor],
+  )
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
@@ -149,6 +210,67 @@ const SubprocessorsPage = () => {
     })
   }
 
+  const handleDelete = async () => {
+    if (!deleteId) return
+    try {
+      await deleteSubprocessor({ deleteTrustCenterSubprocessorId: deleteId })
+      successNotification({ title: 'Subprocessor deleted' })
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    } finally {
+      setDeleteId(null)
+    }
+  }
+
+  const handleSelectMode = (next: SubprocessorMode) => {
+    if (next === mode) return
+
+    if (next === 'link') {
+      setMode('link')
+      return
+    }
+
+    setMode('manage')
+    if (savedSubprocessorURL) {
+      setSubprocessorURL('')
+      updateTrustCenter({ updateTrustCenterId: trustCenterID, input: { clearSubprocessorURL: true } }).catch((error) => {
+        errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+      })
+    }
+  }
+
+  const confirmSwitchToLink = async () => {
+    const trimmed = subprocessorURL.trim()
+    setIsSwitching(true)
+    try {
+      await persistSubprocessorURL(trimmed)
+
+      const ids = await fetchAllSubprocessorIds({})
+      if (ids.length > 0) {
+        const result = await bulkDeleteSubprocessors({ ids })
+        const payload = result.deleteBulkTrustCenterSubprocessor
+        if (payload.notDeletedIDs.length > 0 || payload.error) {
+          errorNotification({
+            title: 'Switch failed',
+            description: getBulkActionFailureDescription({
+              failedCount: payload.notDeletedIDs.length,
+              singular: 'subprocessor',
+              fallback: payload.error ?? 'Some subprocessors were not deleted.',
+            }),
+          })
+          return
+        }
+      }
+      setSelectedRows([])
+      setSwitchConfirmOpen(false)
+      successNotification({ title: 'Switched to external page', description: 'External page set and managed subprocessors removed.' })
+    } catch (error) {
+      errorNotification({ title: 'Switch failed', description: parseErrorMessage(error) })
+    } finally {
+      setIsSwitching(false)
+    }
+  }
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -164,63 +286,98 @@ const SubprocessorsPage = () => {
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Subprocessors</h2>
-          <Button variant="outline" icon={<Code size={16} />} iconPosition="left" onClick={() => setEmbedSheetOpen(true)}>
-            Embed
-          </Button>
-        </div>
-
-        <div className="flex flex-col justify-center mb-4 gap-3">
-          <p className="text-sm font-medium">Fallback subprocessor list URL (optional)</p>
-          <div className="flex items-center gap-2 max-w-md">
-            <Input
-              maxWidth
-              type="url"
-              placeholder="https://example.com/subprocessors"
-              value={subprocessorURL}
-              onChange={(e) => setSubprocessorURL(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  handleSaveSubprocessorURL()
-                }
-              }}
-            />
-            <SaveButton onClick={handleSaveSubprocessorURL} disabled={isSavingURL || subprocessorURL.trim() === savedSubprocessorURL} isSaving={isSavingURL} className="h-9! w-56 px-5!" />
-          </div>
-          {tableData.length > 0 ? (
-            <p className="text-sm text-muted-foreground">This Trust Center uses the subprocessors listed below. The fallback URL will only be used if this list is empty.</p>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              No subprocessors have been added yet. If you already maintain a public list of subprocessors, you can provide a fallback URL above. Otherwise, add subprocessors here to publish them
-              directly from Openlane.
-            </p>
+          {mode === 'manage' && (
+            <Button variant="outline" icon={<Code size={16} />} iconPosition="left" onClick={() => setEmbedSheetOpen(true)}>
+              Embed
+            </Button>
           )}
         </div>
 
-        <SubprocessorsTableToolbar
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          mappedColumns={mappedColumns}
-          columnVisibility={columnVisibility}
-          setColumnVisibility={setColumnVisibility}
-          handleFilterChange={handleFilterChange}
-          selectedRows={selectedRows}
-          setSelectedRows={setSelectedRows}
-          onExport={handleExportFile}
-          exportEnabled={trustCenterSubprocessors.length === 0}
-        />
+        <SubprocessorsModeToggle value={mode} onChange={handleSelectMode} />
 
-        <DataTable
-          columns={columns}
-          data={tableData}
-          pagination={pagination}
-          onPaginationChange={setPagination}
-          paginationMeta={paginationMeta}
-          loading={isLoading}
-          columnVisibility={columnVisibility}
-          tableKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS}
-        />
+        {mode === 'manage' ? (
+          <>
+            <div className="flex items-center gap-2 mb-4">
+              <Switch checked={!!setting?.notifySubscribersOnSubprocessorChange} onCheckedChange={handleToggleSubprocessorNotify} disabled={!setting?.id || !canEditSubprocessor} />
+              <span className="text-sm">Email subscribers when subprocessors change</span>
+            </div>
+
+            <SubprocessorsTableToolbar
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              mappedColumns={mappedColumns}
+              columnVisibility={columnVisibility}
+              setColumnVisibility={setColumnVisibility}
+              handleFilterChange={handleFilterChange}
+              selectedRows={selectedRows}
+              setSelectedRows={setSelectedRows}
+              onExport={handleExportFile}
+              exportEnabled={trustCenterSubprocessors.length === 0}
+              canCreateSubprocessor={canCreateSubprocessor}
+              canEditSubprocessor={canEditSubprocessor}
+            />
+
+            <DataTable
+              columns={columns}
+              data={tableData}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              paginationMeta={paginationMeta}
+              loading={isLoading}
+              columnVisibility={columnVisibility}
+              tableKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS}
+            />
+          </>
+        ) : (
+          <div className="flex flex-col justify-center gap-3 max-w-md">
+            <p className="text-sm font-medium">External subprocessors page URL</p>
+            <div className="flex items-center gap-2">
+              <Input
+                maxWidth
+                type="url"
+                placeholder="https://example.com/subprocessors"
+                value={subprocessorURL}
+                onChange={(e) => setSubprocessorURL(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleSaveSubprocessorURL()
+                  }
+                }}
+              />
+              <SaveButton onClick={handleSaveSubprocessorURL} disabled={isSavingURL || subprocessorURL.trim() === savedSubprocessorURL} isSaving={isSavingURL} className="h-9! w-56 px-5!" />
+            </div>
+            <p className="text-sm text-muted-foreground">Customers will be redirected to this URL instead of seeing a list in your Trust Center.</p>
+          </div>
+        )}
       </div>
+
+      <ConfirmationDialog
+        open={Boolean(deleteId)}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        onConfirm={handleDelete}
+        title="Delete Subprocessor"
+        description={<>This action cannot be undone. This will permanently remove this subprocessor from your trust center.</>}
+      />
+
+      <ConfirmationDialog
+        open={switchConfirmOpen}
+        onOpenChange={setSwitchConfirmOpen}
+        onConfirm={confirmSwitchToLink}
+        loading={isSwitching}
+        title="Switch to an external page?"
+        description={
+          <>
+            You currently have <b>{managedCount}</b> subprocessor{managedCount === 1 ? '' : 's'} managed in Openlane. Saving this external page URL will permanently delete all of them. This cannot be
+            undone.
+            <br />
+            <br />
+            Customers will be redirected to the URL you provide instead of seeing a list in your Trust Center.
+          </>
+        }
+        confirmationText={isSwitching ? 'Saving...' : 'Save URL and delete subprocessors'}
+        confirmationTextVariant="destructive"
+      />
     </>
   )
 }

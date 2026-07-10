@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { type TCommentData } from '@/components/shared/comments/types/TCommentData'
+import { AuthorDisplay } from '@/components/shared/user-display/author-cell'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { formatDateTime } from '@/utils/date'
 import PlateEditor from '../plate/plate-editor'
@@ -28,7 +28,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove })
 
   const handleEditClick = (item: TCommentData) => {
     setIsEditingItemId(item.id)
-    setDraftValue(item.comment as unknown as Value)
+    setDraftValue(null)
   }
 
   const handleCancelEdit = () => {
@@ -37,7 +37,11 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove })
   }
 
   const handleSaveEdit = async (item: TCommentData) => {
-    if (!draftValue || !onEdit) return
+    if (!onEdit) return
+    if (!draftValue) {
+      setIsEditingItemId(null)
+      return
+    }
     const html = await plateEditorHelper.convertToHtml(draftValue)
     await onEdit(item.id, html)
     setIsEditingItemId(null)
@@ -60,32 +64,31 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove })
         return (
           <div className="w-full p-2 mb-2 hover:bg-panel dark:hover:bg-panel rounded-lg transition-colors duration-500" key={item.id}>
             <div className="flex items-start space-x-3 overflow-auto">
-              <Avatar variant="medium" className="h-10 w-10 mr-2">
-                {item?.avatarUrl && <AvatarImage src={item.avatarUrl} />}
-                <AvatarFallback>{item.userName?.substring(0, 2)}</AvatarFallback>
-              </Avatar>
-
               <div className="flex flex-col w-full min-w-0">
                 <div className="flex items-center justify-between">
                   <div className="flex items-baseline space-x-2">
-                    <p className="font-semibold">{item.userName}</p>
+                    <AuthorDisplay author={item.author} className="font-semibold" avatarClassName="h-10 w-10 mr-2" />
                     <p className="text-sm text-muted-foreground">{formatDateTime(item.createdAt)}</p>
                   </div>
 
-                  {isOwner && !isEditing && (
+                  {isOwner && !isEditing && (onEdit || onRemove) && (
                     <div className="flex gap-2">
-                      <button onClick={() => handleEditClick(item)} className="hover:text-btn-secondary bg-unset">
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setCommentToDelete(item)
-                          setDeleteDialogOpen(true)
-                        }}
-                        className="hover:text-destructive bg-unset"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      {onEdit && (
+                        <button onClick={() => handleEditClick(item)} className="hover:text-btn-secondary bg-unset">
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                      )}
+                      {onRemove && (
+                        <button
+                          onClick={() => {
+                            setCommentToDelete(item)
+                            setDeleteDialogOpen(true)
+                          }}
+                          className="hover:text-destructive bg-unset"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   )}
 
@@ -101,9 +104,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove })
                   )}
                 </div>
 
-                <div className="mt-1">
-                  {isEditing ? <PlateEditor initialValue={item.comment as string} onChange={(val: Value) => setDraftValue(val)} /> : plateEditorHelper.convertToReadOnly(item.comment)}
-                </div>
+                <div className="mt-1">{isEditing ? <PlateEditor initialValue={item.comment} onChange={(val: Value) => setDraftValue(val)} /> : plateEditorHelper.convertToReadOnly(item.comment)}</div>
               </div>
             </div>
           </div>

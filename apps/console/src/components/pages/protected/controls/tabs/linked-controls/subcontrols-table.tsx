@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { canCreate, canEdit } from '@/lib/authz/utils'
+import { hasPermission, canEdit } from '@/lib/authz/utils'
 import { CreateButton } from '@/components/shared/create-button/create-button'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { DataTable } from '@repo/ui/data-table'
@@ -14,18 +14,25 @@ import { SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import type { FilterField, WhereCondition } from '@/types'
 import { useDebounce } from '@uidotdev/usehooks'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { hasStatusCondition } from '@/components/shared/table-filter/has-status-condition'
 import { getSubcontrolsColumns, getSubcontrolsFilterFields, type SubcontrolRow } from './subcontrols-table-config'
 import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
-import { SubcontrolControlSource, type SubcontrolWhereInput } from '@repo/codegen/src/schema'
+import { SubcontrolControlSource, SubcontrolControlStatus, type SubcontrolWhereInput } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
+import { Card } from '@repo/ui/cardpanel'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/react-collapsible'
+import { ChevronDown } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 
 const SubcontrolsTable: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { convertToReadOnly } = usePlateEditor()
   const { data: orgPermission } = useOrganizationRoles()
   const { data: permission } = useAccountRoles(ObjectTypes.CONTROL, id)
+  const { data: session } = useSession()
+  const [isOpen, setIsOpen] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearch = useDebounce(searchQuery, 300)
   const [filters, setFilters] = useState<WhereCondition>({})
@@ -46,11 +53,17 @@ const SubcontrolsTable: React.FC = () => {
 
   const where = useMemo<SubcontrolWhereInput>(() => {
     const searchText = debouncedSearch.trim()
-    return {
+    const result: SubcontrolWhereInput = {
       ...filterWhere,
       ...(id ? { controlID: id } : {}),
       ...(searchText ? { or: [{ refCodeContainsFold: searchText }, { descriptionContainsFold: searchText }] } : {}),
     }
+
+    if (!hasStatusCondition(result)) {
+      result.statusNEQ = SubcontrolControlStatus.ARCHIVED
+    }
+
+    return result
   }, [id, filterWhere, debouncedSearch])
 
   const { subcontrols, paginationMeta, isLoading } = useGetSubcontrolsPaginated({
@@ -58,6 +71,16 @@ const SubcontrolsTable: React.FC = () => {
     pagination,
     enabled: Boolean(id),
   })
+
+  const { paginationMeta: approvedMeta } = useGetSubcontrolsPaginated({
+    where: id ? { controlID: id, status: SubcontrolControlStatus.APPROVED } : undefined,
+    pagination: { page: 1, pageSize: 1, query: { first: 1 } },
+    enabled: Boolean(id),
+  })
+
+  const totalCount = paginationMeta?.totalCount ?? 0
+  const implementedCount = approvedMeta?.totalCount ?? 0
+  const implementedPercent = totalCount > 0 ? Math.round((implementedCount / totalCount) * 100) : 0
 
   const cleanedSubcontrols = useMemo<SubcontrolRow[]>(
     () =>
@@ -99,37 +122,63 @@ const SubcontrolsTable: React.FC = () => {
     }))
   }, [searchQuery, filters])
 
-  const columns = useMemo(() => getSubcontrolsColumns(id, convertToReadOnly), [convertToReadOnly, id])
+  const columns = useMemo(() => getSubcontrolsColumns({ controlId: id, convertToReadOnly }), [convertToReadOnly, id])
 
   return (
-    <div className="mt-8 space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <h2 className="text-lg font-semibold">Subcontrols</h2>
-          {(canCreate(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) || canEdit(permission?.roles)) && <CreateButton type="subcontrol" href={`/controls/${id}/create-subcontrol`} />}
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Card className="p-5 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-lg font-semibold">Subcontrols</h2>
+            <span className="text-sm text-muted-foreground">({totalCount} total)</span>
+            {(hasPermission(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) || canEdit(permission?.roles, session)) && (
+              <CreateButton type="subcontrol" href={`/controls/${id}/create-subcontrol`} />
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            {totalCount > 0 && (
+              <div className="flex items-center gap-2">
+                <div className="w-24 h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${implementedPercent}%` }} />
+                </div>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">
+                  {implementedCount} of {totalCount} implemented
+                </span>
+              </div>
+            )}
+            <CollapsibleTrigger asChild>
+              <button className="text-muted-foreground hover:text-foreground transition-colors" aria-label={isOpen ? 'Collapse' : 'Expand'}>
+                <ChevronDown size={18} className={`transition-transform duration-200 ${isOpen ? '' : '-rotate-90'}`} />
+              </button>
+            </CollapsibleTrigger>
+          </div>
         </div>
-      </div>
 
-      <SearchFilterBar
-        placeholder="Search subcontrols"
-        isSearching={searchQuery !== debouncedSearch}
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        filterFields={filterFields}
-        onFilterChange={handleFilterChange}
-      />
+        <CollapsibleContent>
+          <div className="space-y-4">
+            <SearchFilterBar
+              placeholder="Search subcontrols"
+              isSearching={searchQuery !== debouncedSearch}
+              searchValue={searchQuery}
+              onSearchChange={setSearchQuery}
+              filterFields={filterFields}
+              onFilterChange={handleFilterChange}
+            />
 
-      <DataTable
-        columns={columns}
-        data={cleanedSubcontrols}
-        loading={isLoading}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        paginationMeta={paginationMeta}
-        noResultsText="No subcontrols found."
-        tableKey={undefined}
-      />
-    </div>
+            <DataTable
+              columns={columns}
+              data={cleanedSubcontrols}
+              loading={isLoading}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              paginationMeta={paginationMeta}
+              noResultsText="No subcontrols found."
+              tableKey={undefined}
+            />
+          </div>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   )
 }
 

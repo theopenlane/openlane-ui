@@ -1,8 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import DOMPurify from 'dompurify'
-import ReactMarkdown from 'react-markdown'
+import React, { useEffect, useRef, useState } from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
@@ -10,16 +8,13 @@ import { Textarea } from '@repo/ui/textarea'
 import { Switch } from '@repo/ui/switch'
 import { Badge } from '@repo/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ChevronDown, Plus, SaveIcon, SquarePlus, X } from 'lucide-react'
+import { ChevronDown, Plus, SaveIcon, X } from 'lucide-react'
 import { useCreateEmailTemplate, useUpdateEmailTemplate, useEmailTemplate } from '@/lib/graphql-hooks/email-template'
-import { useEmailBrandingsWithFilter } from '@/lib/graphql-hooks/email-branding'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EmailTemplateNotificationTemplateFormat, EmailTemplateTemplateContext } from '@repo/codegen/src/schema'
-import { EmailBrandingPanel } from '@/components/pages/protected/campaigns/create/email-branding-panel'
-import { CodeBlock } from '@repo/ui/code-block'
 
 interface EmailTemplateSheetProps {
   open: boolean
@@ -39,48 +34,16 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
   const [description, setDescription] = useState('')
   const [locale, setLocale] = useState('en')
   const [format, setFormat] = useState<EmailTemplateNotificationTemplateFormat>(EmailTemplateNotificationTemplateFormat.HTML)
-  const [subjectTemplate, setSubjectTemplate] = useState('')
-  const [preheaderTemplate, setPreheaderTemplate] = useState('')
-  const [bodyTemplate, setBodyTemplate] = useState('')
-  const [textTemplate, setTextTemplate] = useState('')
   const [customVariable, setCustomVariable] = useState('')
   const [variables, setVariables] = useState<string[]>([...DEFAULT_VARIABLES])
-  const [emailBrandingID, setEmailBrandingID] = useState<string | undefined>()
-  const [brandingPanelOpen, setBrandingPanelOpen] = useState(false)
   const [initialized, setInitialized] = useState(false)
 
   const bodyRef = useRef<HTMLTextAreaElement>(null)
-  const sanitizedBody = useMemo(() => DOMPurify.sanitize(bodyTemplate || '<em>No body content</em>'), [bodyTemplate])
-
-  const bodyPlaceholder = useMemo(() => {
-    switch (format) {
-      case EmailTemplateNotificationTemplateFormat.HTML:
-        return '<p>Write your HTML email body here...</p>'
-      case EmailTemplateNotificationTemplateFormat.JSON:
-        return '{\n  "title": "Hello",\n  "body": "Write your JSON email body here..."\n}'
-      case EmailTemplateNotificationTemplateFormat.MARKDOWN:
-        return '# Hello\n\nWrite your **markdown** email body here...'
-      case EmailTemplateNotificationTemplateFormat.TEXT:
-      default:
-        return 'Write your email body content here...'
-    }
-  }, [format])
-
-  const formattedJsonBody = useMemo(() => {
-    if (format !== EmailTemplateNotificationTemplateFormat.JSON) return null
-    if (!bodyTemplate.trim()) return { value: '(No body content)', error: false }
-    try {
-      return { value: JSON.stringify(JSON.parse(bodyTemplate), null, 2), error: false }
-    } catch {
-      return { value: bodyTemplate, error: true }
-    }
-  }, [format, bodyTemplate])
 
   const { data: templateData, isLoading: isLoadingTemplate } = useEmailTemplate(isEditMode ? templateId : undefined)
   const { mutateAsync: createEmailTemplate, isPending: isCreating } = useCreateEmailTemplate()
   const { mutateAsync: updateEmailTemplate, isPending: isUpdating } = useUpdateEmailTemplate()
   const { successNotification, errorNotification } = useNotification()
-  const { emailBrandingsNodes } = useEmailBrandingsWithFilter({ where: {}, enabled: open })
 
   const isPending = isCreating || isUpdating
 
@@ -91,13 +54,8 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
     setDescription('')
     setLocale('en')
     setFormat(EmailTemplateNotificationTemplateFormat.HTML)
-    setSubjectTemplate('')
-    setPreheaderTemplate('')
-    setBodyTemplate('')
-    setTextTemplate('')
     setCustomVariable('')
     setVariables([...DEFAULT_VARIABLES])
-    setEmailBrandingID(undefined)
   }
 
   useEffect(() => {
@@ -120,16 +78,7 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
       setDescription(t.description ?? '')
       setLocale(t.locale ?? 'en')
       setFormat(t.format ?? EmailTemplateNotificationTemplateFormat.HTML)
-      setSubjectTemplate(t.subjectTemplate ?? '')
-      setPreheaderTemplate(t.preheaderTemplate ?? '')
-      setBodyTemplate(t.bodyTemplate ?? '')
-      setTextTemplate(t.textTemplate ?? '')
-      setEmailBrandingID(t.emailBranding?.[0]?.id ?? undefined)
-
-      const tokens: string[] = (t.jsonconfig as { tokens?: string[] })?.tokens ?? []
-      const tokenVars = tokens.map((tok) => `{${tok}}`)
-      const merged = [...new Set([...DEFAULT_VARIABLES, ...tokenVars])]
-      setVariables(merged)
+      setVariables(DEFAULT_VARIABLES)
 
       setInitialized(true)
     }
@@ -152,16 +101,11 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
     const textarea = bodyRef.current
     if (textarea) {
       const start = textarea.selectionStart
-      const end = textarea.selectionEnd
-      const newBody = bodyTemplate.substring(0, start) + variable + bodyTemplate.substring(end)
-      setBodyTemplate(newBody)
       setTimeout(() => {
         textarea.focus()
         const cursorPos = start + variable.length
         textarea.setSelectionRange(cursorPos, cursorPos)
       }, 0)
-    } else {
-      setBodyTemplate((prev) => prev + variable)
     }
   }
 
@@ -189,15 +133,6 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
             locale: locale.trim() || 'en',
             format,
             active,
-            subjectTemplate: subjectTemplate.trim() || undefined,
-            preheaderTemplate: preheaderTemplate.trim() || undefined,
-            bodyTemplate: bodyTemplate.trim() || undefined,
-            textTemplate: textTemplate.trim() || undefined,
-            addEmailBrandingIDs: emailBrandingID ? [emailBrandingID] : undefined,
-            jsonconfig: {
-              tokens: variables.map((v) => v.replace(/[{}]/g, '')),
-              addButtonLink: false,
-            },
           },
         })
         successNotification({ title: 'Email template updated' })
@@ -210,16 +145,7 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
             locale: locale.trim() || 'en',
             format,
             active,
-            subjectTemplate: subjectTemplate.trim() || undefined,
-            preheaderTemplate: preheaderTemplate.trim() || undefined,
-            bodyTemplate: bodyTemplate.trim() || undefined,
-            textTemplate: textTemplate.trim() || undefined,
             templateContext: EmailTemplateTemplateContext.CAMPAIGN_RECIPIENT,
-            emailBrandingIDs: emailBrandingID ? [emailBrandingID] : undefined,
-            jsonconfig: {
-              tokens: variables.map((v) => v.replace(/[{}]/g, '')),
-              addButtonLink: false,
-            },
           },
         })
         successNotification({ title: 'Email template created' })
@@ -272,7 +198,7 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
               <Switch checked={active} onCheckedChange={setActive} disabled={readOnly} />
             </div>
 
-            <Accordion type="multiple" defaultValue={['basic', 'email-content', 'branding-link']} className="flex flex-col gap-6">
+            <Accordion type="multiple" defaultValue={['basic', 'email-content']} className="flex flex-col gap-6">
               <AccordionItem value="basic" className="rounded-lg border border-border bg-card overflow-hidden">
                 <AccordionTrigger asChild>
                   <div className="flex items-center justify-between w-full px-4 py-3 cursor-pointer group">
@@ -348,168 +274,38 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
                         <TabsTrigger value="preview">Preview</TabsTrigger>
                       </TabsList>
 
-                      <TabsContent value="customize" className="flex flex-col gap-4">
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-sm font-medium">Subject Template</label>
-                          <Input value={subjectTemplate} onChange={(e) => setSubjectTemplate(e.target.value)} placeholder="e.g. Welcome to the Team!" disabled={readOnly} />
-                        </div>
-
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-sm font-medium">Preheader Template</label>
-                          <Input value={preheaderTemplate} onChange={(e) => setPreheaderTemplate(e.target.value)} placeholder="e.g. Get started with Openlane today" disabled={readOnly} />
-                        </div>
-
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-sm font-medium">Body Template</label>
-                          <Textarea
-                            ref={bodyRef}
-                            value={bodyTemplate}
-                            onChange={(e) => setBodyTemplate(e.target.value)}
-                            placeholder={bodyPlaceholder}
-                            rows={format === EmailTemplateNotificationTemplateFormat.JSON ? 10 : 6}
-                            className={format === EmailTemplateNotificationTemplateFormat.HTML ? undefined : 'font-mono text-sm'}
-                            disabled={readOnly}
-                          />
-                        </div>
-
-                        {!readOnly && (
-                          <>
-                            <div className="flex items-center gap-2">
-                              <Input
-                                value={customVariable}
-                                onChange={(e) => setCustomVariable(e.target.value)}
-                                placeholder="Enter a variable to insert"
-                                className="flex-1"
-                                onKeyDown={(e) => e.key === 'Enter' && addCustomVariable()}
-                              />
-                              <Button variant="secondary" onClick={addCustomVariable} icon={<Plus size={16} />} iconPosition="left">
-                                Add Variable
-                              </Button>
-                            </div>
-
-                            <div className="flex flex-wrap gap-2">
-                              {variables.map((v) => (
-                                <Badge key={v} variant="outline" className="cursor-pointer font-mono text-xs hover:bg-accent" onClick={() => insertVariable(v)}>
-                                  {v}
-                                </Badge>
-                              ))}
-                            </div>
-                            <p className="text-xs text-muted-foreground">Click a variable to insert it into the body template</p>
-                          </>
-                        )}
-
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-sm font-medium">Text Template</label>
-                          <Textarea value={textTemplate} onChange={(e) => setTextTemplate(e.target.value)} placeholder="Plain text fallback content..." rows={4} disabled={readOnly} />
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="preview" className="flex flex-col gap-4">
-                        <div className="rounded-lg border border-border bg-background p-4">
-                          <div className="mb-3 border-b border-border pb-3">
-                            <p className="text-xs text-muted-foreground">Subject</p>
-                            <p className="text-sm font-medium">{subjectTemplate || '(No subject)'}</p>
+                      {!readOnly && (
+                        <>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              value={customVariable}
+                              onChange={(e) => setCustomVariable(e.target.value)}
+                              placeholder="Enter a variable to insert"
+                              className="flex-1"
+                              onKeyDown={(e) => e.key === 'Enter' && addCustomVariable()}
+                            />
+                            <Button variant="secondary" onClick={addCustomVariable} icon={<Plus size={16} />} iconPosition="left">
+                              Add Variable
+                            </Button>
                           </div>
-                          {preheaderTemplate && (
-                            <div className="mb-3 border-b border-border pb-3">
-                              <p className="text-xs text-muted-foreground">Preheader</p>
-                              <p className="text-sm">{preheaderTemplate}</p>
-                            </div>
-                          )}
-                          <div>
-                            <p className="text-xs text-muted-foreground mb-1">Body</p>
-                            {format === EmailTemplateNotificationTemplateFormat.HTML && (
-                              <Tabs defaultValue="rendered" variant="underline">
-                                <TabsList className="mb-2">
-                                  <TabsTrigger value="rendered">Rendered</TabsTrigger>
-                                  <TabsTrigger value="source">Source</TabsTrigger>
-                                </TabsList>
-                                <TabsContent value="rendered">
-                                  <div className="prose prose-sm dark:prose-invert max-w-none text-sm" dangerouslySetInnerHTML={{ __html: sanitizedBody }} />
-                                </TabsContent>
-                                <TabsContent value="source">
-                                  <CodeBlock code={bodyTemplate || ''} language="html" />
-                                </TabsContent>
-                              </Tabs>
-                            )}
-                            {format === EmailTemplateNotificationTemplateFormat.MARKDOWN && (
-                              <Tabs defaultValue="rendered" variant="underline">
-                                <TabsList className="mb-2">
-                                  <TabsTrigger value="rendered">Rendered</TabsTrigger>
-                                  <TabsTrigger value="source">Source</TabsTrigger>
-                                </TabsList>
-                                <TabsContent value="rendered">
-                                  <div className="prose prose-sm dark:prose-invert max-w-none text-sm">
-                                    <ReactMarkdown>{bodyTemplate || '_No body content_'}</ReactMarkdown>
-                                  </div>
-                                </TabsContent>
-                                <TabsContent value="source">
-                                  <CodeBlock code={bodyTemplate || ''} language="markdown" />
-                                </TabsContent>
-                              </Tabs>
-                            )}
-                            {format === EmailTemplateNotificationTemplateFormat.JSON && (
-                              <>
-                                {formattedJsonBody?.error && <p className="text-xs text-destructive mb-1">Invalid JSON</p>}
-                                <CodeBlock code={formattedJsonBody?.value ?? ''} language="json" />
-                              </>
-                            )}
-                            {format === EmailTemplateNotificationTemplateFormat.TEXT && <CodeBlock code={bodyTemplate || '(No body content)'} language="text" />}
+
+                          <div className="flex flex-wrap gap-2">
+                            {variables.map((v) => (
+                              <Badge key={v} variant="outline" className="cursor-pointer font-mono text-xs hover:bg-accent" onClick={() => insertVariable(v)}>
+                                {v}
+                              </Badge>
+                            ))}
                           </div>
-                        </div>
-                      </TabsContent>
+                          <p className="text-xs text-muted-foreground">Click a variable to insert it into the body template</p>
+                        </>
+                      )}
                     </Tabs>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="branding-link" className="rounded-lg border border-border bg-card overflow-hidden">
-                <AccordionTrigger asChild>
-                  <div className="flex items-center justify-between w-full px-4 py-3 cursor-pointer group">
-                    <span className="text-sm font-semibold">Branding Link</span>
-                    <ChevronDown size={18} className="text-muted-foreground transform transition-transform group-data-[state=open]:rotate-180" />
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="border-t border-border px-4 py-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-medium">Email Branding Config</label>
-                      <Select value={emailBrandingID ?? ''} onValueChange={(val) => setEmailBrandingID(val || undefined)} disabled={readOnly}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select branding..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {emailBrandingsNodes.map((branding) => (
-                            <SelectItem key={branding.id} value={branding.id}>
-                              {branding.name || branding.id}
-                            </SelectItem>
-                          ))}
-                          {!readOnly && (
-                            <div className="border-t border-border mt-1 pt-1 px-2 pb-1">
-                              <button type="button" className="flex items-center gap-2 w-full py-1.5 text-sm font-medium text-primary cursor-pointer" onClick={() => setBrandingPanelOpen(true)}>
-                                <SquarePlus size={16} />
-                                Create New
-                              </button>
-                            </div>
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
           </div>
         )}
-
-        <EmailBrandingPanel
-          open={brandingPanelOpen}
-          onClose={() => setBrandingPanelOpen(false)}
-          onSave={(brandingId) => {
-            setEmailBrandingID(brandingId)
-            setBrandingPanelOpen(false)
-          }}
-        />
       </SheetContent>
     </Sheet>
   )

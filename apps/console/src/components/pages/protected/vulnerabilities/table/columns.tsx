@@ -2,7 +2,7 @@ import { type ColumnDef } from '@tanstack/react-table'
 import { type VulnerabilitiesNodeNonNull } from '@/lib/graphql-hooks/vulnerability'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
-import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
@@ -11,6 +11,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from '@repo/ui/button'
 import { MoreHorizontal, ShieldCheck, ListTodo } from 'lucide-react'
 import { getSeverityStyle } from '@/utils/severity'
+import { type SlaDaysByLevel } from '@/lib/sla'
+import { SlaDueDateCell } from '@/components/shared/crud-base/columns/sla-due-date-cell'
 import React from 'react'
 import { TruncatedCell } from '@repo/ui/data-table'
 
@@ -18,16 +20,19 @@ type VulnColumnOptions = ColumnOptions & {
   onTrackRemediation?: (row: VulnerabilitiesNodeNonNull) => void
   onOpenRemediation?: (row: VulnerabilitiesNodeNonNull) => void
   onCreateTask?: (row: VulnerabilitiesNodeNonNull) => void
+  slaDaysByLevel?: SlaDaysByLevel
 }
 
 export const getColumns = ({
   userMap,
+  tokenMap,
   convertToReadOnly,
   selectedItems,
   setSelectedItems,
   onTrackRemediation,
   onOpenRemediation,
   onCreateTask,
+  slaDaysByLevel,
 }: VulnColumnOptions): ColumnDef<VulnerabilitiesNodeNonNull>[] => {
   const columns: ColumnDef<VulnerabilitiesNodeNonNull>[] = [
     createSelectColumn<VulnerabilitiesNodeNonNull>(selectedItems, setSelectedItems),
@@ -61,10 +66,20 @@ export const getColumns = ({
     { accessorKey: 'exploitability', header: 'Exploitability', size: 120 },
     { accessorKey: 'impact', header: 'Impact', size: 90 },
     { accessorKey: 'cveID', header: 'CVE ID', size: 140 },
+    { accessorKey: 'packageName', header: 'Package Name', size: 160 },
+    { accessorKey: 'packageEcosystem', header: 'Package Ecosystem', size: 160 },
+    { accessorKey: 'vulnerableVersionRange', header: 'Vulnerable Version Range', size: 180 },
+    { accessorKey: 'firstPatchedVersion', header: 'First Patched Version', size: 160 },
     { accessorKey: 'category', header: 'Category', size: 120 },
     { accessorKey: 'source', header: 'Source', size: 120 },
     { accessorKey: 'vector', header: 'Vector', size: 160 },
     { accessorKey: 'remediationSLA', header: 'Remediation SLA (days)', size: 160 },
+    {
+      id: 'dueDate',
+      header: 'Due Date',
+      size: 130,
+      cell: ({ row }) => <SlaDueDateCell createdAt={row.original.createdAt} securityLevel={row.original.securityLevel} open={row.original.open} slaDaysByLevel={slaDaysByLevel ?? {}} />,
+    },
     { accessorKey: 'open', header: 'Open', size: 80, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     { accessorKey: 'blocking', header: 'Blocking', size: 90, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     { accessorKey: 'production', header: 'Production', size: 100, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
@@ -84,14 +99,14 @@ export const getColumns = ({
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} fallback={row.original.createdBy ?? undefined} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" /> },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} fallback={row.original.updatedBy ?? undefined} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'tags',

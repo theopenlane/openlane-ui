@@ -6,7 +6,7 @@ import { ViewPolicySheet } from '@/components/pages/protected/policies/view-poli
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config'
-import { SetObjectAssociationDialog } from '@/components/pages/protected/controls/set-object-association-modal'
+import { SetControlAssociationDialog } from '@/components/pages/protected/controls/set-control-association-dialog'
 import { useDocumentationPolicies } from '@/lib/graphql-hooks/documentation'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { InternalPolicyDocumentStatus, InternalPolicyOrderField, OrderDirection } from '@repo/codegen/src/schema'
@@ -14,27 +14,32 @@ import type { GetInternalPoliciesListQueryVariables, InternalPolicyWhereInput } 
 import type { WhereCondition } from '@/types'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { mergeWhere, SearchFilterBar, AssociationSection, type AssociationRow } from '@/components/shared/crud-base/tabs/shared'
-import { buildAssociationFilter } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { buildAssociationFilter, type EntityRef } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
 import { type ColumnDef } from '@tanstack/react-table'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Button } from '@repo/ui/button'
-import { Avatar } from '@/components/shared/avatar/avatar'
-import { KeyRound, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
+import InheritedBadge from '@/components/shared/inherited-badge/inherited-badge'
 import { formatTimeSince } from '@/utils/date'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
-import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens'
-import type { ApiToken, User } from '@repo/codegen/src/schema'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 
 type PoliciesTableProps = {
   controlId?: string
   subcontrolIds: string[]
   canEdit: boolean
+  isSubcontrol?: boolean
+  mappedControlRefs?: EntityRef[]
+  mappedSubcontrolRefs?: EntityRef[]
 }
 
-const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds, canEdit }) => {
+const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds, canEdit, isSubcontrol = false, mappedControlRefs = [], mappedSubcontrolRefs = [] }) => {
   const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null)
-  const associationFilter = useMemo(() => buildAssociationFilter(controlId, subcontrolIds), [controlId, subcontrolIds])
+  const associationFilter = useMemo(
+    () => buildAssociationFilter(controlId, subcontrolIds, isSubcontrol ? [] : mappedControlRefs, isSubcontrol ? [] : mappedSubcontrolRefs),
+    [controlId, subcontrolIds, isSubcontrol, mappedControlRefs, mappedSubcontrolRefs],
+  )
 
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
@@ -81,30 +86,45 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds,
     enabled: true,
   })
 
+  const subcontrolIdSet = useMemo(() => new Set(subcontrolIds), [subcontrolIds])
+  const mappedControlIdToRef = useMemo(() => new Map(mappedControlRefs.map((r) => [r.id, r])), [mappedControlRefs])
+  const mappedSubcontrolIdToRef = useMemo(() => new Map(mappedSubcontrolRefs.map((r) => [r.id, r])), [mappedSubcontrolRefs])
+
+  const inheritedFromMap = useMemo(() => {
+    if (!controlId || isSubcontrol) return new Map<string, { refCode: string; href: string }[]>()
+    const map = new Map<string, { refCode: string; href: string }[]>()
+    for (const policy of policies) {
+      const directlyLinked = policy.controls?.edges?.some((e) => e?.node?.id === controlId) ?? false
+      if (directlyLinked) continue
+
+      const sources: { refCode: string; href: string }[] = []
+
+      for (const edge of policy.subcontrols?.edges ?? []) {
+        const node = edge?.node
+        if (!node?.id || !node?.refCode) continue
+        if (subcontrolIdSet.has(node.id)) {
+          sources.push({ refCode: node.refCode, href: `/controls/${controlId}/${node.id}` })
+        } else {
+          const ref = mappedSubcontrolIdToRef.get(node.id)
+          if (ref) sources.push(ref)
+        }
+      }
+
+      for (const edge of policy.controls?.edges ?? []) {
+        const node = edge?.node
+        if (!node?.id) continue
+        const ref = mappedControlIdToRef.get(node.id)
+        if (ref) sources.push(ref)
+      }
+
+      if (sources.length > 0) map.set(policy.id, sources)
+    }
+    return map
+  }, [policies, controlId, isSubcontrol, subcontrolIdSet, mappedControlIdToRef, mappedSubcontrolIdToRef])
+
   const memberIds = useMemo(() => [...new Set(policies.map((policy) => policy.updatedBy).filter((id): id is string => typeof id === 'string' && id.length > 0))], [policies])
 
-  const userListWhere = useMemo(() => (memberIds.length > 0 ? { hasUserWith: [{ idIn: memberIds }] } : undefined), [memberIds])
-
-  const tokensWhere = useMemo(() => (memberIds.length > 0 ? { idIn: memberIds } : undefined), [memberIds])
-
-  const { users } = useGetOrgUserList({ where: userListWhere })
-  const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, User> = {}
-    users?.forEach((user) => {
-      map[user.id] = user
-    })
-    return map
-  }, [users])
-
-  const tokenMap = useMemo(() => {
-    const map: Record<string, ApiToken> = {}
-    tokens?.forEach((token) => {
-      map[token.id] = token
-    })
-    return map
-  }, [tokens])
+  const { userMap, tokenMap } = useAuthorMaps(memberIds)
 
   const columns = useMemo<ColumnDef<AssociationRow>[]>(
     () => [
@@ -112,9 +132,12 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds,
         accessorKey: 'name',
         header: () => <span className="whitespace-nowrap">Name</span>,
         cell: ({ row }) => (
-          <span className="text-blue-500 hover:underline whitespace-nowrap cursor-pointer" onClick={() => setSelectedPolicyId(row.original.id)}>
-            {row.original.name}
-          </span>
+          <div className="flex flex-col gap-1">
+            <span className="text-blue-500 hover:underline whitespace-nowrap cursor-pointer" onClick={() => setSelectedPolicyId(row.original.id)}>
+              {row.original.name}
+            </span>
+            {inheritedFromMap.has(row.original.id) && <InheritedBadge sources={inheritedFromMap.get(row.original.id) ?? []} />}
+          </div>
         ),
       },
       {
@@ -149,22 +172,7 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds,
       {
         accessorKey: 'updatedBy',
         header: () => <span className="whitespace-nowrap">Last Updated By</span>,
-        cell: ({ row }) => {
-          const updatedBy = row.original.updatedBy ?? ''
-          const user = userMap[updatedBy]
-          const token = tokenMap[updatedBy]
-
-          if (!user && !token) {
-            return <span className="text-muted-foreground italic">Deleted user</span>
-          }
-
-          return (
-            <div className="flex items-center gap-2 whitespace-nowrap">
-              {token ? <KeyRound size={16} /> : <Avatar entity={user} className="w-6 h-6" />}
-              <span>{token ? token.name : user?.displayName || '-'}</span>
-            </div>
-          )
-        },
+        cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} className="flex items-center gap-2 whitespace-nowrap" />,
         size: 200,
       },
       {
@@ -174,7 +182,7 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds,
         size: 140,
       },
     ],
-    [userMap, tokenMap],
+    [userMap, tokenMap, inheritedFromMap],
   )
 
   const rows = useMemo(
@@ -212,7 +220,7 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds,
             onFilterChange={setFilters}
             actionButtons={
               canEdit ? (
-                <SetObjectAssociationDialog
+                <SetControlAssociationDialog
                   defaultSelectedObject={ObjectTypeObjects.INTERNAL_POLICY}
                   allowedObjectTypes={[ObjectTypeObjects.INTERNAL_POLICY]}
                   trigger={

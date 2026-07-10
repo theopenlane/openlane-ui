@@ -5,9 +5,7 @@ import { Form } from '@repo/ui/form'
 import { StepperSheet, type StepperStep } from '@/components/shared/stepper-sheet/stepper-sheet'
 import { QuestionnaireStep } from './steps/questionnaire-step'
 import { TargetsStep, type CampaignTargetEntry, type TargetTab } from './steps/targets-step'
-import { PreviewStep } from './steps/preview-step'
 import { ScheduleStep } from './steps/schedule-step'
-import { EmailBrandingPanel } from './email-branding-panel'
 import { CreateTemplateSheet } from './create-template-sheet'
 import { useCreateCampaign } from '@/lib/graphql-hooks/campaign'
 import { useCreateBulkCampaignTarget } from '@/lib/graphql-hooks/campaign-target'
@@ -24,7 +22,6 @@ interface CreateCampaignSheetProps {
 export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, onClose }) => {
   const { form } = useCampaignFormSchema()
   const [currentStep, setCurrentStep] = useState(0)
-  const [showEmailBranding, setShowEmailBranding] = useState(false)
   const [showCreateTemplate, setShowCreateTemplate] = useState(false)
 
   const [targets, setTargets] = useState<CampaignTargetEntry[]>([])
@@ -40,7 +37,6 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
     setTargets([])
     setUploadedFile(null)
     setActiveTargetTab('csv')
-    setShowEmailBranding(false)
     setShowCreateTemplate(false)
     form.reset()
   }, [form])
@@ -82,7 +78,6 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
             status,
             templateID: data.questionnaireTemplateID || undefined,
             emailTemplateID: data.templateID || undefined,
-            emailBrandingID: data.emailBrandingID || undefined,
             dueDate: data.sendImmediately ? undefined : data.dueDate || undefined,
             scheduledAt: data.sendImmediately && isLaunching ? now : data.scheduledAt || undefined,
             launchedAt: data.sendImmediately && isLaunching ? now : undefined,
@@ -118,11 +113,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
     const data = form.getValues()
 
     await submitCampaign(data, CampaignCampaignStatus.ACTIVE)
-  }, [form, submitCampaign, errorNotification])
-
-  const handleCreateTemplate = useCallback(() => {
-    setShowCreateTemplate(true)
-  }, [])
+  }, [form, submitCampaign])
 
   const handleTemplateSave = useCallback(
     (templateId: string, templateName: string) => {
@@ -131,14 +122,6 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
         form.setValue('name', templateName, { shouldDirty: true })
       }
       setShowCreateTemplate(false)
-    },
-    [form],
-  )
-
-  const handleEmailBrandingSave = useCallback(
-    (brandingId: string) => {
-      form.setValue('emailBrandingID', brandingId)
-      setShowEmailBranding(false)
     },
     [form],
   )
@@ -158,17 +141,12 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
         ),
       },
       {
-        title: 'Template',
-        description: 'Choose a template to get started with your campaign',
-        content: <PreviewStep form={form} onOpenEmailBranding={() => setShowEmailBranding(true)} onCreateTemplate={handleCreateTemplate} />,
-      },
-      {
         title: 'Schedule',
         description: 'Set when your campaign should start and configure reminders',
         content: <ScheduleStep form={form} />,
       },
     ],
-    [form, targets, uploadedFile, handleCreateTemplate],
+    [form, targets, uploadedFile, activeTargetTab],
   )
 
   return (
@@ -193,7 +171,6 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
           canProceed
         />
       </Form>
-      <EmailBrandingPanel open={showEmailBranding} onClose={() => setShowEmailBranding(false)} onSave={handleEmailBrandingSave} />
       <CreateTemplateSheet open={showCreateTemplate} onClose={() => setShowCreateTemplate(false)} onCreated={handleTemplateSave} />
     </>
   )

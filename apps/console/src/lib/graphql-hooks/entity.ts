@@ -5,6 +5,8 @@ import {
   type EntitiesWithFilterQueryVariables,
   type CreateEntityMutation,
   type CreateEntityMutationVariables,
+  type CreateEntityInput,
+  type EntityBulkCreatePayload,
   type UpdateEntityMutation,
   type UpdateEntityMutationVariables,
   type DeleteEntityMutation,
@@ -18,6 +20,8 @@ import {
   type DeleteBulkEntityMutation,
   type DeleteBulkEntityMutationVariables,
   type GetEntityAssociationsQuery,
+  type GetEntityCommentsQuery,
+  type GetEntityCommentsQueryVariables,
   type GetEntityFilesPaginatedQuery,
   type UpdateEntityWithFilesMutationVariables,
   type CreateEntityWithFilesMutationVariables,
@@ -30,6 +34,7 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_ENTITIES,
   CREATE_ENTITY,
+  CREATE_BULK_ENTITY,
   UPDATE_ENTITY,
   DELETE_ENTITY,
   ENTITY,
@@ -37,6 +42,7 @@ import {
   BULK_EDIT_ENTITY,
   BULK_DELETE_ENTITY,
   GET_ENTITY_ASSOCIATIONS,
+  GET_ENTITY_COMMENTS,
   GET_ENTITY_FILES_PAGINATED,
   UPDATE_ENTITY_WITH_FILES,
   CREATE_ENTITY_WITH_FILES,
@@ -88,6 +94,26 @@ export const useCreateEntity = () => {
   })
 }
 
+type CreateBulkEntityMutation = {
+  createBulkEntity: EntityBulkCreatePayload
+}
+
+type CreateBulkEntityMutationVariables = {
+  input?: CreateEntityInput[]
+  entityTypeName?: string
+}
+
+export const useCreateBulkEntity = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+  return useMutation<CreateBulkEntityMutation, unknown, CreateBulkEntityMutationVariables>({
+    mutationFn: async (variables) => client.request(CREATE_BULK_ENTITY, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['entities'] })
+    },
+  })
+}
+
 export const useUpdateEntity = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
@@ -107,6 +133,16 @@ export const useDeleteEntity = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['entities'] })
     },
+  })
+}
+
+export const useGetEntityComments = (entityId: string) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetEntityCommentsQuery, unknown>({
+    queryKey: ['entityComments', entityId],
+    queryFn: async () => client.request<GetEntityCommentsQuery, GetEntityCommentsQueryVariables>(GET_ENTITY_COMMENTS, { entityId }),
+    enabled: !!entityId,
   })
 }
 

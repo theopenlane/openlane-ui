@@ -15,10 +15,11 @@ import { ControlObjectiveCard } from './control-objective-card'
 import { LinkControlsModal } from './link-controls-modal'
 import { GenericDetailsSheet, type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import useFormSchema, { type TFormData, VersionBump } from './form/use-form-schema'
+import useFormSchema, { type TFormData } from './form/use-form-schema'
 import { ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
+import { VersionBump } from '@/lib/enums/revision-enum'
 
 type Props = {
   queryParamKey?: string

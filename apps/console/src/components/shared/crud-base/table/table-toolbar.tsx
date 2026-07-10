@@ -19,6 +19,7 @@ import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { TableFilter } from '../../table-filter/table-filter'
+import { type TQuickFilter } from '../../table-filter/table-filter-helper'
 import { type FilterField } from '@/types'
 import type { WhereCondition } from '@/types'
 import { type TFilterState } from '../../table-filter/filter-storage'
@@ -26,12 +27,15 @@ import { GenericBulkEditDialog, type ResponsibilityFieldsMap } from '../dialog/b
 import { type EnumOptionsGeneric } from '../page'
 import type { BulkDeletePayload, CreateMode } from '../types'
 import { getBulkActionFailureDescription } from '../bulk-action-feedback'
+import { type Session } from 'next-auth'
+import { useSession } from 'next-auth/react'
 
 type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInput> = {
   entityType: ObjectTypes
   displayName?: string
   handleExport: () => void
   filterFields?: FilterField[] | undefined
+  quickFilters?: TQuickFilter[]
   onFilterChange?: (filters: TWhereInput | null) => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
@@ -42,7 +46,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   searching?: boolean
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   permission: TPermissionData | undefined
   handleClearSelected: () => void
   selectedItems: T[]
@@ -57,6 +61,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   bulkEditFieldLabels?: Record<string, string>
   createMode?: CreateMode
   hideCreate?: boolean
+  createPermission?: TAccessRole
   additionalActiveFilterCount?: number
   defaultFilterValues?: TFilterState
 }
@@ -64,6 +69,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
 function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput>(props: GenericTableToolbarProps<T, TWhereInput, TUpdateInput>) {
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isBulkEditDialogOpen, setIsBulkEditDialogOpen] = useState(false)
+  const { data: session } = useSession()
 
   const { successNotification, errorNotification } = useNotification()
   const { replace } = useSmartRouter()
@@ -71,6 +77,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
 
   const entityLabel = props.displayName ?? props.entityType.charAt(0).toUpperCase() + props.entityType.slice(1).toLowerCase()
   const entityLabelPlural = `${entityLabel}s`
+  const shouldShowCreationButton = !props.hideCreate && (props.createPermission ? props.permission?.roles.includes(props.createPermission) : props.canEdit(props.permission?.roles, session))
 
   const openCreateSheet = () => {
     if (props.createMode?.type === 'full-page') {
@@ -133,7 +140,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {props.selectedItems.length > 0 ? (
             <>
-              {props.canEdit(props.permission?.roles) && props.onBulkEdit && props.bulkEditFormSchema && (
+              {props.canEdit(props.permission?.roles, session) && props.onBulkEdit && props.bulkEditFormSchema && (
                 <>
                   <GenericBulkEditDialog<T, TUpdateInput>
                     open={isBulkEditDialogOpen}
@@ -154,7 +161,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                   />
                 </>
               )}
-              {props.canEdit(props.permission?.roles) && props.onBulkDelete && (
+              {props.canEdit(props.permission?.roles, session) && props.onBulkDelete && (
                 <>
                   <Button
                     type="button"
@@ -167,7 +174,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                   </Button>
                 </>
               )}
-              {props.canEdit(props.permission?.roles) && props.onBulkDelete && (
+              {props.canEdit(props.permission?.roles, session) && props.onBulkDelete && (
                 <>
                   <ConfirmationDialog
                     open={isBulkDeleteDialogOpen}
@@ -216,13 +223,14 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
               {props.filterFields && (
                 <TableFilter
                   filterFields={props.filterFields}
+                  quickFilters={props.quickFilters}
                   onFilterChange={props.onFilterChange as (whereCondition: WhereCondition) => void}
                   pageKey={props.storageKey}
                   additionalActiveFilterCount={props.additionalActiveFilterCount}
                   defaultFilterValues={props.defaultFilterValues}
                 />
               )}
-              {!props.hideCreate && props.canEdit(props.permission?.roles) && (
+              {shouldShowCreationButton && (
                 <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet}>
                   Create
                 </Button>

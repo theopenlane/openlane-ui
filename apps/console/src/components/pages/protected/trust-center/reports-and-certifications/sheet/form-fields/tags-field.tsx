@@ -6,6 +6,7 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
+import { useSession } from 'next-auth/react'
 
 interface Props {
   isEditing: boolean
@@ -21,7 +22,8 @@ export const TagsField = ({ isEditing }: Props) => {
   const tags = watch('tags') || []
   const { tagOptions } = useGetTags()
   const { data: permission } = useOrganizationRoles()
-  const canCreateTags = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const canCreateTags = canEdit(permission?.roles, session)
 
   return (
     <div className="flex flex-col gap-2">

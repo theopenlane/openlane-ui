@@ -2,48 +2,50 @@ import { type ColumnDef } from '@tanstack/react-table'
 import { type FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
-import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
-import { TruncatedCell } from '@repo/ui/data-table'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
 import { MoreHorizontal, ShieldCheck, ListTodo } from 'lucide-react'
 import { getSeverityStyle } from '@/utils/severity'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { type SlaDaysByLevel } from '@/lib/sla'
+import { SlaDueDateCell } from '@/components/shared/crud-base/columns/sla-due-date-cell'
 import React from 'react'
 
 type FindingColumnOptions = ColumnOptions & {
   onTrackRemediation?: (row: FindingsNodeNonNull) => void
   onOpenRemediation?: (row: FindingsNodeNonNull) => void
   onCreateTask?: (row: FindingsNodeNonNull) => void
+  slaDaysByLevel?: SlaDaysByLevel
 }
 
-export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRemediation, onOpenRemediation, onCreateTask }: FindingColumnOptions): ColumnDef<FindingsNodeNonNull>[] => {
+export const getColumns = ({
+  userMap,
+  tokenMap,
+  convertToReadOnly,
+  selectedItems,
+  setSelectedItems,
+  onTrackRemediation,
+  onOpenRemediation,
+  onCreateTask,
+  slaDaysByLevel,
+}: FindingColumnOptions): ColumnDef<FindingsNodeNonNull>[] => {
   const columns: ColumnDef<FindingsNodeNonNull>[] = [
     createSelectColumn<FindingsNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
     { accessorKey: 'displayID', header: 'Display ID', size: 140, cell: ({ cell }) => cell.getValue() || '' },
     { accessorKey: 'displayName', header: 'Display Name', size: 180, cell: ({ cell }) => cell.getValue() || '' },
-    {
-      accessorKey: 'description',
-      header: 'Description',
-      size: 240,
-      minSize: 150,
-      cell: ({ cell }) => {
-        const value = (cell.getValue() as string) || ''
-        if (!value) return ''
-        return <TruncatedCell>{value}</TruncatedCell>
-      },
-    },
+    { accessorKey: 'description', header: 'Description', size: 240, minSize: 150, cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string) || '' },
     { accessorKey: 'category', header: 'Category', size: 130 },
     { accessorKey: 'severity', header: 'Severity', size: 100 },
     {
       accessorKey: 'securityLevel',
       header: 'Severity Level',
-      size: 120,
+      size: 150,
       cell: ({ cell }) => {
         const val = cell.getValue() as string | null | undefined
         if (!val) return ''
@@ -72,6 +74,12 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRe
     { accessorKey: 'source', header: 'Source', size: 120 },
     { accessorKey: 'findingClass', header: 'Finding Class', size: 130, cell: ({ cell }) => getEnumLabel(cell.getValue() as string) },
     { accessorKey: 'remediationSLA', header: 'Remediation SLA (days)', size: 160 },
+    {
+      id: 'dueDate',
+      header: 'Due Date',
+      size: 130,
+      cell: ({ row }) => <SlaDueDateCell createdAt={row.original.createdAt} securityLevel={row.original.securityLevel} open={row.original.open} slaDaysByLevel={slaDaysByLevel ?? {}} />,
+    },
     { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
     { accessorKey: 'reportedAt', header: 'Reported At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
@@ -82,14 +90,14 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRe
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} fallback={row.original.createdBy ?? undefined} />,
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" /> },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} fallback={row.original.updatedBy ?? undefined} />,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'categories',

@@ -16,7 +16,7 @@ import { type ControlWhereInput } from '@repo/codegen/src/schema'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { Button } from '@repo/ui/button'
 import { BulkEditControlsDialog } from '../bulk-edit/bulk-edit-controls'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { BulkCSVCloneControlDialog } from '../bulk-csv-clone-control-dialog'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
@@ -32,6 +32,10 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
+import { useSession } from 'next-auth/react'
+import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
+import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
+import { type Session } from 'next-auth'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -50,7 +54,7 @@ type TProps = {
   handleClearSelectedControls: () => void
   selectedControls: { id: string; refCode: string }[]
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   permission: TPermissionData | undefined
 }
 
@@ -70,9 +74,29 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   canEdit,
   permission,
 }: TProps) => {
+  const { data: session } = useSession()
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
   const groups = useMemo(() => groupOptions || [], [groupOptions])
+
+  const quickFilters: TQuickFilter[] = useMemo(() => {
+    return [
+      {
+        label: 'My Controls',
+        key: 'myControls',
+        type: 'custom',
+        getCondition: () => ({ hasControlOwnerWith: [{ hasMembersWith: [{ userID: session?.user?.userId ?? '' }] }] }) as TFilterState,
+        isActive: false,
+      },
+      {
+        label: 'Controls Without Owner',
+        key: 'controlsWithoutOwner',
+        type: 'custom',
+        getCondition: () => ({ controlOwnerIDIsNil: true }),
+        isActive: false,
+      },
+    ]
+  }, [session?.user?.userId])
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { currentOrgId } = useOrganization()
@@ -93,8 +117,8 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   })
 
   const { successNotification, errorNotification } = useNotification()
-  const createControlAllowed = canCreate(permission?.roles, AccessEnum.CanCreateControl)
-  const createSubcontrolAllowed = canCreate(permission?.roles, AccessEnum.CanCreateSubcontrol)
+  const createControlAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateControl, session)
+  const createSubcontrolAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateSubcontrol, session)
   const { mutateAsync: bulkDeleteControls } = useBulkDeleteControls()
   const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
     where: {
@@ -165,7 +189,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {selectedControls.length > 0 ? (
             <>
-              {canEdit(permission?.roles) && <BulkEditControlsDialog selectedControls={selectedControls} setSelectedControls={setSelectedControls}></BulkEditControlsDialog>}
+              {canEdit(permission?.roles, session) && <BulkEditControlsDialog selectedControls={selectedControls} setSelectedControls={setSelectedControls}></BulkEditControlsDialog>}
               <Button
                 type="button"
                 variant="secondary"
@@ -175,7 +199,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
               >
                 {selectedControls && selectedControls.length > 0 ? `Bulk Delete (${selectedControls.length})` : 'Bulk Delete'}
               </Button>
-              {canEdit(permission?.roles) && (
+              {canEdit(permission?.roles, session) && (
                 <>
                   <ConfirmationDialog
                     open={isBulkDeleteDialogOpen}
@@ -251,7 +275,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.CONTROL} />
               )}
-              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableKeyEnum.CONTROL} />}
+              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableKeyEnum.CONTROL} quickFilters={quickFilters} />}
               {(createControlAllowed || createSubcontrolAllowed) && (
                 <Menu
                   trigger={CreateBtn}

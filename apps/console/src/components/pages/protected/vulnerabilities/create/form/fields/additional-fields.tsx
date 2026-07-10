@@ -12,6 +12,7 @@ import { Input } from '@repo/ui/input'
 import { getSeverityStyle } from '@/utils/severity'
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -119,6 +120,18 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
     handleUpdate: handleUpdateField,
   }
 
+  const hasPackageDetails = Boolean(data?.packageName || data?.vulnerableVersionRange || data?.firstPatchedVersion || data?.packageEcosystem)
+  const isExternalRefLocked = (data?.integrations?.totalCount ?? 0) > 0
+  const externalRefLockedTooltip = 'This field is managed by the source integration and cannot be edited.'
+  const externalRefLockProps = isExternalRefLocked
+    ? {
+        isEditing: false,
+        isEditAllowed: false,
+        handleUpdate: undefined,
+        tooltipContent: externalRefLockedTooltip,
+      }
+    : null
+
   return (
     <div className="space-y-6">
       <Card>
@@ -128,15 +141,14 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="externalID" label="External ID" {...sharedFieldProps} />
             <TextField name="cveID" label="CVE ID" {...sharedFieldProps} />
+            <TextField name="category" label="Category" {...sharedFieldProps} />
           </div>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="category" label="Category" {...sharedFieldProps} />
             <TextField name="source" label="Source" {...sharedFieldProps} />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="priority" label="Priority" {...sharedFieldProps} />
+          </div>
+          <div className="grid grid-cols-1 gap-2">
             <SelectField
               name="vulnerabilityStatusName"
               label="Status"
@@ -147,6 +159,25 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           </div>
         </CardContent>
       </Card>
+
+      {hasPackageDetails && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-md p-0">Package Details</CardTitle>
+            <CardDescription className="p-0">Affected package and patched version information</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+              <TextField name="packageName" label="Package Name" {...sharedFieldProps} />
+              <TextField name="packageEcosystem" label="Package Ecosystem" {...sharedFieldProps} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <TextField name="vulnerableVersionRange" label="Vulnerable Version Range" {...sharedFieldProps} />
+              <TextField name="firstPatchedVersion" label="First Patched Version" {...sharedFieldProps} />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader className="pb-2">
@@ -206,8 +237,11 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="externalOwnerID" label="External Owner ID" {...sharedFieldProps} />
-            <TextField name="externalURI" label="External URI" type="link" {...sharedFieldProps} handleUpdate={handleExternalURIUpdate} />
+            <TextField name="externalID" label="External ID" {...sharedFieldProps} {...externalRefLockProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
+            <TextField name="externalOwnerID" label="External Owner ID" {...sharedFieldProps} {...externalRefLockProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            <TextField name="externalURI" label="External URI" type="link" {...sharedFieldProps} handleUpdate={handleExternalURIUpdate} {...externalRefLockProps} />
           </div>
         </CardContent>
       </Card>

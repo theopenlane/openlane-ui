@@ -4,6 +4,7 @@ import * as React from 'react'
 import * as SheetPrimitive from '@radix-ui/react-dialog'
 import { XIcon } from 'lucide-react'
 import { cn } from '../../lib/utils'
+import { guardToastInteractOutside } from '../../lib/dismissable-outside'
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
@@ -47,6 +48,7 @@ function SheetContent({
   resizable = true,
   header,
   ref,
+  onInteractOutside,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> &
   TSheetContentProps & {
@@ -104,6 +106,7 @@ function SheetContent({
           side === 'bottom' && 'data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t',
           className,
         )}
+        onInteractOutside={guardToastInteractOutside(onInteractOutside)}
         {...props}
       >
         <div onMouseDown={onMouseDown} className={cn('absolute top-0 bottom-0 h-full z-10 w-3 bg-transparent', side === 'right' ? '-left-1 cursor-ew-resize' : '-right-1 cursor-ew-resize')} />

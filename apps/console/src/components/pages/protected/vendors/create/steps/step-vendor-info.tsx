@@ -10,6 +10,7 @@ import { EntityEntityStatus } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
+import { MultiStringField } from '@/components/shared/crud-base/form-fields/multi-text-field'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
 
 const StepVendorInfo: React.FC = () => {
@@ -64,6 +65,8 @@ const StepVendorInfo: React.FC = () => {
           </FormItem>
         )}
       />
+
+      <MultiStringField name="providedServices" label="Provided Services" placeholder="Add service..." isEditing={false} isEditAllowed isCreate internalEditing={null} setInternalEditing={() => {}} />
 
       <div className="grid grid-cols-3 gap-4">
         <FormField

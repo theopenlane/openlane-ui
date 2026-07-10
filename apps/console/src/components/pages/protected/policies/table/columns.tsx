@@ -1,7 +1,7 @@
 import { type ColumnDef } from '@tanstack/react-table'
-import { type ApiToken, type Group, type InternalPolicy, type User } from '@repo/codegen/src/schema.ts'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { KeyRound } from 'lucide-react'
+import { type Group, type InternalPolicy, InternalPolicyDocumentManagementMode, type User } from '@repo/codegen/src/schema.ts'
+import { type AuthorToken } from '@/lib/authors'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import React from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
@@ -19,14 +19,14 @@ import { createSelectColumn } from '@/components/shared/crud-base/columns/select
 import { formatDate } from '@/utils/date'
 
 type TPoliciesColumnsProps = {
-  users?: User[]
-  tokens?: ApiToken[]
+  userMap?: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   selectedPolicies: { id: string }[]
   setSelectedPolicies: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   enumOptions: CustomTypeEnumOption[]
 }
 
-export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelectedPolicies, enumOptions }: TPoliciesColumnsProps) => {
+export const getPoliciesColumns = ({ userMap, tokenMap, selectedPolicies, setSelectedPolicies, enumOptions }: TPoliciesColumnsProps) => {
   const columns: ColumnDef<InternalPolicy>[] = [
     createSelectColumn<InternalPolicy>(selectedPolicies, setSelectedPolicies),
     {
@@ -70,7 +70,8 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       size: 500,
       cell: ({ cell }) => {
         const summary = cell.getValue() as string
-        return <TruncatedCell className="line-clamp-4 text-justify whitespace-normal">{summary === '' ? 'N/A' : summary}</TruncatedCell>
+        const fallback = cell.row.original.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION ? 'Summary not available when managed with integration' : 'N/A'
+        return <TruncatedCell className="line-clamp-4 text-justify whitespace-normal">{summary === '' ? fallback : summary}</TruncatedCell>
       },
     },
     {
@@ -162,22 +163,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => {
-        const userId = row.original.createdBy
-        const token = tokens?.find((item) => item.id === userId)
-        const user = users?.find((item) => item.id === userId)
-
-        if (!token && !user) {
-          return 'Deleted user'
-        }
-
-        return (
-          <div className="flex items-center gap-2">
-            {token ? <KeyRound size={18} /> : <Avatar entity={user} />}
-            {token ? token.name : user?.displayName || '-'}
-          </div>
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'createdAt',
@@ -189,22 +175,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => {
-        const userId = row.original.updatedBy
-        const token = tokens?.find((item) => item.id === userId)
-        const user = users?.find((item) => item.id === userId)
-
-        if (!token && !user) {
-          return 'Deleted user'
-        }
-
-        return (
-          <div className="flex items-center gap-2">
-            {token ? <KeyRound size={18} /> : <Avatar entity={user} />}
-            {token ? token.name : user?.displayName || '-'}
-          </div>
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'updatedAt',

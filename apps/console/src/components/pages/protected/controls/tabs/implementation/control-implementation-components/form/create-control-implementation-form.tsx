@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Button } from '@repo/ui/button'
@@ -13,8 +13,6 @@ import { type Value } from 'platejs'
 import { Info, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { type TFormData } from './use-form-schema'
-import { useGetControlById } from '@/lib/graphql-hooks/control'
-import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useCreateControlImplementation, useDeleteControlImplementation, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementation'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
@@ -37,12 +35,8 @@ export const CreateControlImplementationForm = ({
   const { successNotification, errorNotification } = useNotification()
   const isEditing = !!defaultValues
   const isSubcontrol = !!subcontrolId
-  const { data: controlData, isLoading: isLoadingControl } = useGetControlById(isSubcontrol ? null : (id as string))
-  const { data: subcontrolData, isLoading } = useGetSubcontrolById((subcontrolId as string) || null)
-  const loading = isLoadingControl || isLoading
-  const [defaultValuesSet, setDefaultValuesSet] = useState(false)
   const { convertToHtml } = usePlateEditor()
-  const { handleSubmit, control, reset } = form
+  const { handleSubmit, control } = form
   const { mutate: createImplementation } = useCreateControlImplementation()
   const { mutate: updateImplementation } = useUpdateControlImplementation()
   const { mutate: deleteImplementation } = useDeleteControlImplementation()
@@ -115,22 +109,6 @@ export const CreateControlImplementationForm = ({
       )
     }
   }
-
-  useEffect(() => {
-    if (defaultValuesSet) return
-
-    if (isEditing) {
-      reset(defaultValues)
-      setDefaultValuesSet(true)
-      return
-    }
-
-    if (loading) return
-
-    const defaultValuesCreate = { implementationDate: new Date() }
-    reset(defaultValuesCreate)
-    setDefaultValuesSet(true)
-  }, [defaultValues, reset, isEditing, controlData, subcontrolData, loading, defaultValuesSet])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

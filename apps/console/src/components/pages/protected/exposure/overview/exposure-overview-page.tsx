@@ -23,6 +23,7 @@ import ExposureCriticalCounts from './exposure-critical-counts'
 import ItemsRequiringAttention from './items-requiring-attention'
 import ConfigureSlaSheet from './configure-sla-sheet'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useSession } from 'next-auth/react'
 
 const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
@@ -35,7 +36,8 @@ const ExposureOverviewPage = () => {
   const { setCrumbs } = use(BreadcrumbContext)
   const [slaSheetOpen, setSlaSheetOpen] = useState(false)
   const { data: orgPermission } = useOrganizationRoles()
-  const hasWriteAccess = canEdit(orgPermission?.roles)
+  const { data: session } = useSession()
+  const hasWriteAccess = canEdit(orgPermission?.roles, session)
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Exposure', href: '/exposure/overview' }, { label: 'Overview' }])

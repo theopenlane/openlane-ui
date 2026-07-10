@@ -222,6 +222,8 @@ export const GET_SUBCONTROL_ASSOCIATIONS_BY_ID = gql`
             id
             fullName
             displayID
+            identityHolderType
+            title
           }
         }
         totalCount
@@ -236,6 +238,14 @@ export const UPDATE_SUBCONTROL = gql`
       subcontrol {
         id
       }
+    }
+  }
+`
+
+export const BULK_EDIT_SUBCONTROL = gql`
+  mutation UpdateBulkSubcontrol($ids: [ID!]!, $input: UpdateSubcontrolInput!) {
+    updateBulkSubcontrol(ids: $ids, input: $input) {
+      updatedIDs
     }
   }
 `
@@ -335,12 +345,32 @@ export const GET_SUBCONTROLS_BY_REFCODE = gql`
           publicRepresentation
           category
           subcategory
+          referenceFramework
           systemOwned
           controlID
           control {
             standardID
           }
         }
+      }
+    }
+  }
+`
+
+export const GET_SUBCONTROL_RELATED_CONTROLS = gql`
+  query GetSubcontrolRelatedControls($subcontrolId: ID!) {
+    subcontrol(id: $subcontrolId) {
+      id
+      relatedControls {
+        id
+        refCode
+        status
+        referenceFramework
+        isSubcontrol
+        mappedControlReferenceIDs
+        category
+        subcategory
+        description
       }
     }
   }
@@ -401,6 +431,7 @@ export const SUBCONTROL_DISCUSSION_FIELDS_FRAGMENT = gql`
           id
           externalID
           createdAt
+          isResolved
           comments {
             edges {
               node {

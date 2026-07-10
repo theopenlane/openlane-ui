@@ -25,6 +25,7 @@ import {
 
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { type TPagination } from '@repo/ui/pagination-types'
+import { useCallback } from 'react'
 
 type UseGetTrustCenterSubprocessorsArgs = {
   where?: GetTrustCenterSubprocessorsQueryVariables['where']
@@ -90,6 +91,38 @@ export const useUpdateTrustCenterSubprocessor = () => {
       queryClient.invalidateQueries({ queryKey: ['trustCenterSubprocessors'] })
     },
   })
+}
+
+export const useFetchAllTrustCenterSubprocessorIds = () => {
+  const { client } = useGraphQLClient()
+
+  return useCallback(
+    async (where?: GetTrustCenterSubprocessorsQueryVariables['where']): Promise<string[]> => {
+      const ids: string[] = []
+      let after: GetTrustCenterSubprocessorsQueryVariables['after'] = null
+      let hasNextPage = true
+
+      while (hasNextPage) {
+        const result = await client.request<GetTrustCenterSubprocessorsQuery, GetTrustCenterSubprocessorsQueryVariables>(GET_ALL_TRUST_CENTER_SUBPROCESSORS, {
+          where,
+          first: 100,
+          after,
+        })
+
+        const connection = result.trustCenterSubprocessors
+        connection?.edges?.forEach((edge) => {
+          if (edge?.node?.id) ids.push(edge.node.id)
+        })
+
+        hasNextPage = connection?.pageInfo?.hasNextPage ?? false
+        after = connection?.pageInfo?.endCursor ?? null
+        if (!after) break
+      }
+
+      return ids
+    },
+    [client],
+  )
 }
 
 export const useBulkDeleteTrustCenterSubprocessors = () => {

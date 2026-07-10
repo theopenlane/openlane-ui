@@ -2,13 +2,16 @@ import { type FilterField } from '@/types'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import NameField from '../create/form/fields/name-field'
-import { type FindingQuery, FindingOrderField } from '@repo/codegen/src/schema'
+import DescriptionField from '../create/form/fields/description-field'
+import { type FindingQuery, FindingOrderField, FindingSecurityLevel } from '@repo/codegen/src/schema'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { type FindingFieldProps, type EnumOptions, type EnumCreateHandlers } from './types'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { FindingAssociationSection } from '../create/form/fields/association-section'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
+import { Badge } from '@repo/ui/badge'
 
 export const formId = 'edit' + ObjectNames.FINDING
 
@@ -26,15 +29,17 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
     icon: FilterIcons.Category,
   },
   {
-    key: 'severityContainsFold',
+    key: 'securityLevelIn',
     label: 'Severity',
-    type: 'text',
+    type: 'multiselect',
+    options: enumToOptions(FindingSecurityLevel),
     icon: FilterIcons.Criticality,
   },
   {
-    key: 'findingStatusNameContainsFold',
+    key: 'findingStatusNameIn',
     label: 'Status',
-    type: 'text',
+    type: 'multiselect',
+    options: enumOptions.findingStatusOptions,
     icon: FilterIcons.Status,
   },
   {
@@ -137,8 +142,22 @@ export const visibilityFields = {
 
 export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers, riskScoresAction?: React.ReactNode) => {
   const findingData = props.data as FindingQuery['finding']
-  const showBadge =
+  const showPastDue =
     !props.isCreate && !props.isEditing && (findingData?.findingStatusName === 'Open' || findingData?.findingStatusName === 'Triaged' || findingData?.findingStatusName === 'In Progress')
+  const sourceBadge =
+    !props.isCreate && findingData?.source ? (
+      <Badge variant="blue" className="ml-2">
+        {findingData.source}
+      </Badge>
+    ) : null
+  const pastDueBadge = showPastDue ? <PastDueBadge severity={findingData?.securityLevel} createdAt={findingData?.createdAt} /> : null
+  const headerBadges =
+    sourceBadge || pastDueBadge ? (
+      <>
+        {sourceBadge}
+        {pastDueBadge}
+      </>
+    ) : undefined
   return (
     <div className="mr-6">
       <div className="mb-6">
@@ -149,9 +168,16 @@ export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOpt
           internalEditing={props.internalEditing}
           setInternalEditing={props.setInternalEditing}
           handleUpdateField={props.handleUpdateField}
-          badge={showBadge ? <PastDueBadge severity={findingData?.securityLevel} createdAt={findingData?.createdAt} /> : undefined}
+          badge={headerBadges}
         />
       </div>
+      <DescriptionField
+        key={props.isCreate ? 'create-description' : `${findingData?.id}-description`}
+        isEditing={props.isEditing}
+        isCreate={props.isCreate}
+        initialValue={props.isCreate ? '' : (findingData?.description ?? '')}
+        isFormInitialized={props.isFormInitialized}
+      />
       <AdditionalFields
         isEditing={props.isEditing}
         isEditAllowed={props.isEditAllowed}

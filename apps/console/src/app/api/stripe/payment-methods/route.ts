@@ -6,7 +6,9 @@ import { auth } from '@/lib/auth/auth'
 export async function GET(req: Request) {
   // ensure we have a valid session
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || !session.user?.accessToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   try {
     const { searchParams } = new URL(req.url)
@@ -39,6 +41,6 @@ export async function GET(req: Request) {
   } catch (err) {
     const error = err as Error
     console.error('❌ Error fetching payment methods:', error)
-    return NextResponse.json({ error: error.message ?? 'Internal Server Error' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch payment methods' }, { status: 500 })
   }
 }

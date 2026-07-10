@@ -3,7 +3,9 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type AssetsWithFilterQuery,
   type AssetsWithFilterQueryVariables,
+  type AssetBulkCreatePayload,
   type CreateAssetMutation,
+  type CreateAssetInput,
   type CreateAssetMutationVariables,
   type UpdateAssetMutation,
   type UpdateAssetMutationVariables,
@@ -21,7 +23,18 @@ import {
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_ASSETS, CREATE_ASSET, UPDATE_ASSET, DELETE_ASSET, ASSET, CREATE_CSV_BULK_ASSET, BULK_EDIT_ASSET, BULK_DELETE_ASSET, GET_ASSET_ASSOCIATIONS } from '@repo/codegen/query/asset'
+import {
+  GET_ALL_ASSETS,
+  CREATE_ASSET,
+  UPDATE_ASSET,
+  DELETE_ASSET,
+  ASSET,
+  CREATE_BULK_ASSET,
+  CREATE_CSV_BULK_ASSET,
+  BULK_EDIT_ASSET,
+  BULK_DELETE_ASSET,
+  GET_ASSET_ASSOCIATIONS,
+} from '@repo/codegen/query/asset'
 
 type GetAllAssetsArgs = {
   where?: AssetsWithFilterQueryVariables['where']
@@ -57,6 +70,25 @@ export const useCreateAsset = () => {
   const queryClient = useQueryClient()
   return useMutation<CreateAssetMutation, unknown, CreateAssetMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_ASSET, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['assets'] })
+    },
+  })
+}
+
+type CreateBulkAssetMutation = {
+  createBulkAsset: AssetBulkCreatePayload
+}
+
+type CreateBulkAssetMutationVariables = {
+  input?: CreateAssetInput[]
+}
+
+export const useCreateBulkAsset = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+  return useMutation<CreateBulkAssetMutation, unknown, CreateBulkAssetMutationVariables>({
+    mutationFn: async (variables) => client.request(CREATE_BULK_ASSET, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assets'] })
     },

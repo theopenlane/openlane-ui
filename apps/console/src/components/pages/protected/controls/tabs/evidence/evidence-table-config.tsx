@@ -3,11 +3,12 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { formatDateSince } from '@/utils/date'
 import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import type { FilterField } from '@/types'
-import type { ApiToken, EvidenceEvidenceStatus, User } from '@repo/codegen/src/schema.ts'
-import { Avatar } from '@/components/shared/avatar/avatar'
-import { KeyRound } from 'lucide-react'
+import type { EvidenceEvidenceStatus, User } from '@repo/codegen/src/schema.ts'
+import { type AuthorToken } from '@/lib/authors'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
+import InheritedBadge from '@/components/shared/inherited-badge/inherited-badge'
 
 export type EvidenceRow = {
   id: string
@@ -28,14 +29,22 @@ export const getEvidenceFilterFields = (): FilterField[] => [
   { key: 'externalUUIDContainsFold', label: 'External UUID', type: 'text', icon: FilterIcons.ID },
 ]
 
-export const getEvidenceColumns = (onOpenEvidence: (id: string) => void, userMap: Record<string, User>, tokenMap: Record<string, ApiToken>): ColumnDef<EvidenceRow>[] => [
+export const getEvidenceColumns = (
+  onOpenEvidence: (id: string) => void,
+  userMap: Record<string, User>,
+  tokenMap: Record<string, AuthorToken>,
+  inheritedFromMap?: Map<string, { refCode: string; href: string }[]>,
+): ColumnDef<EvidenceRow>[] => [
   {
     accessorKey: 'name',
     header: () => <span className="whitespace-nowrap">Name</span>,
     cell: ({ row }) => (
-      <button type="button" className="text-blue-500 hover:underline truncate whitespace-nowrap" onClick={() => onOpenEvidence(row.original.id)}>
-        {row.original.name}
-      </button>
+      <div className="flex flex-col gap-1">
+        <button type="button" className="text-blue-500 hover:underline truncate whitespace-nowrap text-left" onClick={() => onOpenEvidence(row.original.id)}>
+          {row.original.name}
+        </button>
+        {inheritedFromMap?.has(row.original.id) && <InheritedBadge sources={inheritedFromMap.get(row.original.id) ?? []} />}
+      </div>
     ),
     size: 220,
   },
@@ -69,22 +78,7 @@ export const getEvidenceColumns = (onOpenEvidence: (id: string) => void, userMap
   {
     accessorKey: 'updatedBy',
     header: () => <span className="whitespace-nowrap">Last Updated By</span>,
-    cell: ({ row }) => {
-      const updatedBy = row.original.updatedBy ?? ''
-      const user = userMap[updatedBy]
-      const token = tokenMap[updatedBy]
-
-      if (!user && !token) {
-        return <span className="text-muted-foreground italic">Deleted user</span>
-      }
-
-      return (
-        <div className="flex items-center gap-2 whitespace-nowrap">
-          {token ? <KeyRound size={16} /> : <Avatar entity={user} className="w-6 h-6" />}
-          <span>{token ? token.name : user?.displayName || '-'}</span>
-        </div>
-      )
-    },
+    cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} className="flex items-center gap-2 whitespace-nowrap" />,
     size: 200,
   },
 ]

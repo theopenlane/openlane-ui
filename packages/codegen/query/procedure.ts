@@ -272,6 +272,15 @@ export const GET_PROCEDURE_ASSOCIATIONS_BY_ID = gql`
   }
 `
 
+export const GET_PROCEDURE_BY_ID_MINIFIED = gql`
+  query GetProcedureByIdMinified($procedureId: ID!) {
+    procedure(id: $procedureId) {
+      id
+      name
+    }
+  }
+`
+
 export const GET_PROCEDURE_DETAILS_BY_ID = gql`
   query GetProcedureDetailsById($procedureId: ID!) {
     procedure(id: $procedureId) {
@@ -331,6 +340,7 @@ export const PROCEDURE_DISCUSSION_FIELDS_FRAGMENT = gql`
           id
           externalID
           createdAt
+          isResolved
           comments {
             edges {
               node {

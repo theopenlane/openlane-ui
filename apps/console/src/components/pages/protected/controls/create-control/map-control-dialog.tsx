@@ -76,6 +76,7 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
     },
     enabled: hasFilters && mode === 'controls',
     pagination,
+    includeVars: { includeDescription: true },
   })
 
   const {

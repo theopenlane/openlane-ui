@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { Download, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
+import { Download, LoaderCircle, RefreshCw, SearchIcon, Stamp, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@tanstack/react-table'
@@ -22,6 +22,8 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
+import { useSession } from 'next-auth/react'
+import { type Session } from 'next-auth'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -37,8 +39,12 @@ type TEvidenceTableToolbarProps = {
   }[]
   selectedEvidence: { id: string }[]
   setSelectedEvidence: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   permission: TPermissionData | undefined
+  isAuditor?: boolean
+  auditorActionPending?: boolean
+  onBulkApprove?: (ids: string[]) => void | Promise<void>
+  onBulkRequestChanges?: (ids: string[]) => void
 }
 
 const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
@@ -53,9 +59,14 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
   setSelectedEvidence,
   canEdit,
   permission,
+  isAuditor,
+  auditorActionPending,
+  onBulkApprove,
+  onBulkRequestChanges,
 }) => {
   const { mutateAsync: bulkDeleteEvidence } = useBulkDeleteEvidence()
   const { successNotification, errorNotification } = useNotification()
+  const { data: session } = useSession()
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const isSearching = useDebounce(searching, 200)
   const { currentOrgId } = useOrganization()
@@ -124,7 +135,30 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {selectedEvidence.length > 0 ? (
             <>
-              {canEdit(permission?.roles) && <BulkEditEvidenceDialog selectedEvidence={selectedEvidence} setSelectedEvidence={setSelectedEvidence}></BulkEditEvidenceDialog>}
+              {isAuditor && (
+                <>
+                  <Button
+                    type="button"
+                    className="p-2 h-8 w-8 justify-center"
+                    disabled={auditorActionPending}
+                    descriptiveTooltipText={`Approve (${selectedEvidence.length})`}
+                    onClick={() => onBulkApprove?.(selectedEvidence.map((evidence) => evidence.id))}
+                  >
+                    <Stamp size={16} />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    className="p-2 h-8 w-8 justify-center"
+                    disabled={auditorActionPending}
+                    descriptiveTooltipText={`Request Changes (${selectedEvidence.length})`}
+                    onClick={() => onBulkRequestChanges?.(selectedEvidence.map((evidence) => evidence.id))}
+                  >
+                    <RefreshCw size={16} />
+                  </Button>
+                </>
+              )}
+              {canEdit(permission?.roles, session) && <BulkEditEvidenceDialog selectedEvidence={selectedEvidence} setSelectedEvidence={setSelectedEvidence}></BulkEditEvidenceDialog>}
               <Button
                 type="button"
                 variant="secondary"
@@ -134,7 +168,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
               >
                 {selectedEvidence && selectedEvidence.length > 0 ? `Bulk Delete (${selectedEvidence.length})` : 'Bulk Delete'}
               </Button>
-              {canEdit(permission?.roles) && (
+              {canEdit(permission?.roles, session) && (
                 <>
                   <ConfirmationDialog
                     open={isBulkDeleteDialogOpen}

@@ -2,7 +2,7 @@ import { formatTimeSince } from '@/utils/date'
 import { cn } from '@repo/ui/lib/utils'
 import React from 'react'
 
-import { ShieldCheck, Fingerprint, AlertTriangle, FileCheck, NotebookPen, AlertCircleIcon, ListChecks, ScrollText, Download, CircleOff } from 'lucide-react'
+import { ShieldCheck, Fingerprint, AlertTriangle, FileCheck, NotebookPen, AlertCircleIcon, ListChecks, ScrollText, Download, CircleOff, CircleX } from 'lucide-react'
 import { type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { type GetExportsQueryNode } from '@/lib/graphql-hooks/export'
 
@@ -24,7 +24,7 @@ export const ExportRow = ({ notification, exportData, onRead }: ExportRowProps) 
   return (
     <div onClick={handleClick} className={cn('flex items-center gap-3 py-2 cursor-pointer transition-colors hover:bg-accent/50 px-1 rounded-md justify-center', isUnread && 'bg-accent/20')}>
       <div className="relative">
-        <NotificationIcon objectType={notification.objectType} />
+        <NotificationIcon objectType={notification.objectType} isFailed={notification.title?.includes('Failed')} />
       </div>
       <div className="min-w-0 flex-1">
         <div className={cn('truncate text-sm font-medium', isUnread && 'font-semibold')}>{notification.title}</div>
@@ -42,12 +42,12 @@ export const ExportRow = ({ notification, exportData, onRead }: ExportRowProps) 
             <Download className="w-4 h-4" />
             <span>Download</span>
           </a>
-        ) : (
+        ) : !notification.title?.includes('Failed') ? (
           <div className="hover:bg-table-row-bg-hover inline-flex items-center gap-2 text-sm bg-panel-bg rounded-md border px-2 py-1 font-bold hover:bg-panel-bg/80 transition">
             <CircleOff className="w-4 h-4" />
             <span className="text-muted-foreground text-sm">Expired</span>
           </div>
-        )}
+        ) : null}
       </div>
       {isUnread && <div className="h-1.5 w-1.5 rounded-full bg-primary" />}
     </div>
@@ -75,12 +75,14 @@ const getNotificationIconData = (objectType: string) => {
   }
 }
 
-const NotificationIcon = ({ objectType }: { objectType: string }) => {
-  const { icon: Icon, colorVar } = getNotificationIconData(objectType)
+const NotificationIcon = ({ objectType, isFailed }: { objectType: string; isFailed?: boolean }) => {
+  const { icon, colorVar } = getNotificationIconData(objectType)
+  const Icon = isFailed ? CircleX : icon
+  const color = isFailed ? 'var(--color-destructive)' : colorVar
 
   return (
-    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: `color-mix(in srgb, ${colorVar}, transparent 80%)` }}>
-      <Icon size={14} style={{ color: colorVar }} />
+    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: `color-mix(in srgb, ${color}, transparent 80%)` }}>
+      <Icon size={14} style={{ color }} />
     </div>
   )
 }

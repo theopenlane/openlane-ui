@@ -14,13 +14,22 @@ export const CREATE_INTERNAL_POLICY = gql`
 `
 
 export const UPDATE_INTERNAL_POLICY = gql`
-  mutation UpdateInternalPolicy($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
-    updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
+  mutation UpdateInternalPolicy($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!, $internalPolicyFile: Upload, $internalPolicyFileMetadata: FileMetadataInput) {
+    updateInternalPolicy(id: $updateInternalPolicyId, input: $input, internalPolicyFile: $internalPolicyFile, internalPolicyFileMetadata: $internalPolicyFileMetadata) {
       internalPolicy {
         id
         name
         internalPolicyKindName
         details
+        revision
+        managementMode
+        file {
+          id
+          presignedURL
+          providedFileName
+          providedFileExtension
+          detectedMimeType
+        }
       }
     }
   }
@@ -47,6 +56,7 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
           createdAt
           createdBy
           summary
+          managementMode
           approvalRequired
           approver {
             displayName
@@ -133,6 +143,7 @@ export const INTERNAL_POLICY_BY_ID = gql`
     tags
     revision
     status
+    managementMode
     displayID
     details
     reviewDue
@@ -141,6 +152,50 @@ export const INTERNAL_POLICY_BY_ID = gql`
     summary
     detailsJSON
     internalPolicyKindName
+    liveExternalContents
+    url
+    externalFileID
+    integrations {
+      edges {
+        node {
+          id
+          name
+          kind
+          integrationType
+          description
+          definitionID
+          definitionSlug
+          definitionVersion
+          family
+          environmentID
+          environmentName
+          scopeID
+          scopeName
+          platformID
+          status
+          primaryDirectory
+          campaignEmail
+          systemOwned
+          tags
+          config
+          metadata
+          providerMetadataSnapshot
+          webhookURLs
+          ownerID
+          createdAt
+          createdBy
+          updatedAt
+          updatedBy
+        }
+      }
+    }
+    file {
+      id
+      presignedURL
+      providedFileName
+      providedFileExtension
+      detectedMimeType
+    }
     approver {
       id
       displayName
@@ -158,6 +213,15 @@ export const INTERNAL_POLICY_BY_ID = gql`
       avatarFile {
         base64
       }
+    }
+  }
+`
+
+export const GET_INTERNAL_POLICY_BY_ID_MINIFIED = gql`
+  query GetInternalPolicyByIdMinified($internalPolicyId: ID!) {
+    internalPolicy(id: $internalPolicyId) {
+      id
+      name
     }
   }
 `
@@ -287,6 +351,8 @@ export const GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID = gql`
             id
             fullName
             displayID
+            identityHolderType
+            title
           }
         }
         totalCount
@@ -314,11 +380,12 @@ export const BULK_EDIT_INTERNAL_POLICY = gql`
 `
 
 export const CREATE_UPLOAD_POLICY = gql`
-  mutation CreateUploadInternalPolicy($internalPolicyFile: Upload!) {
-    createUploadInternalPolicy(internalPolicyFile: $internalPolicyFile) {
+  mutation CreateUploadInternalPolicy($internalPolicyFile: Upload!, $managementMode: InternalPolicyDocumentManagementMode) {
+    createUploadInternalPolicy(internalPolicyFile: $internalPolicyFile, managementMode: $managementMode) {
       internalPolicy {
         fileID
         id
+        managementMode
       }
     }
   }
@@ -420,6 +487,7 @@ export const POLICY_DISCUSSION_FIELDS_FRAGMENT = gql`
           id
           externalID
           createdAt
+          isResolved
           comments {
             edges {
               node {

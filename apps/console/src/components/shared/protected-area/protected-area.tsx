@@ -10,15 +10,17 @@ import { SUPPORT_URL } from '@/constants'
 import Link from 'next/link'
 import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useOrganization } from '@/hooks/useOrganization'
 
 const ProtectedArea: React.FC = () => {
+  const { currentOrgId } = useOrganization()
   const router = useRouter()
   const handleClick = () => {
     const filters: TFilterState = {
       role: [OrgMembershipRole.OWNER],
     }
 
-    saveFilters(TableKeyEnum.MEMBER, filters)
+    saveFilters(TableKeyEnum.MEMBER, filters, currentOrgId)
   }
 
   return (

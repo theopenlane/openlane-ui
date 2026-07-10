@@ -11,7 +11,7 @@ import { type VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { type AssessmentWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { BulkCSVCreateTemplateDialog } from '../dialog/bulk-csv-create-template-dialog'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { Button } from '@repo/ui/button'
@@ -25,6 +25,9 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { useTemplateSelect } from '@/lib/graphql-hooks/template'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
+import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
+import { type Session } from 'next-auth'
+import { useSession } from 'next-auth/react'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
@@ -42,7 +45,7 @@ type TQuestionnaireTableToolbarProps = {
   exportEnabled: boolean
   selectedQuestionnaires: { id: string }[]
   setSelectedQuestionnaires: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   handleClearSelectedQuestionnaires: () => void
 }
 
@@ -64,7 +67,8 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
 }) => {
   const isSearching = useDebounce(searching, 200)
   const { data: permission } = useOrganizationRoles()
-  const canEditQuestionnaires = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const canEditQuestionnaires = canEdit(permission?.roles, session)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteQuestionnaires } = useDeleteBulkAssessment()
@@ -76,8 +80,21 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
 
   const filterFields = useMemo(() => getQuestionnaireFilterFields(tagOptions, templateOptions), [tagOptions, templateOptions])
 
+  const quickFilters = useMemo<TQuickFilter[]>(
+    () => [
+      {
+        label: 'Hide System Owned',
+        key: 'systemOwned',
+        type: 'custom',
+        isActive: false,
+        getCondition: () => ({ systemOwned: false }),
+      },
+    ],
+    [],
+  )
+
   const createDropdown = () => {
-    if (includeQuestionnaireCreation === 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)) {
+    if (includeQuestionnaireCreation === 'true' && hasPermission(permission?.roles, AccessEnum.CanCreateTemplate, session)) {
       return <CreateDropdown />
     }
   }
@@ -187,7 +204,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.QUESTIONNAIRE} />
               )}
-              <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.QUESTIONNAIRE} />
+              <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.QUESTIONNAIRE} quickFilters={quickFilters} />
               {createDropdown()}
             </>
           )}

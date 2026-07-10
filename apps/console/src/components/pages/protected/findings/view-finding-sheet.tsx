@@ -9,6 +9,11 @@ import { ShieldCheck, ExternalLink } from 'lucide-react'
 import { TrackRemediationForm, TrackRemediationHeader } from '../remediations/track-remediation-inline'
 import { useSheetNavigation } from '@/providers/sheet-navigation-provider'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import { useRouter } from 'next/navigation'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useSession } from 'next-auth/react'
 
 type Props = {
   entityId: string | null
@@ -22,6 +27,10 @@ type RemediationButtonProps = {
 
 const FindingRemediationButton: React.FC<RemediationButtonProps> = ({ entityId, onTrack }) => {
   const sheetNav = useSheetNavigation()
+  const router = useRouter()
+  const { data: orgPermission } = useOrganizationRoles()
+  const { data: session } = useSession()
+  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
   const { data } = useGetFindingAssociations(entityId)
   const firstRemediationId = data?.finding?.remediations?.edges?.[0]?.node?.id
 
@@ -36,6 +45,14 @@ const FindingRemediationButton: React.FC<RemediationButtonProps> = ({ entityId, 
         onClick={() => sheetNav?.openSheet(firstRemediationId, ObjectAssociationNodeEnum.REMEDIATION)}
       >
         Open Remediation
+      </Button>
+    )
+  }
+
+  if (!canCreateRemediation) {
+    return (
+      <Button type="button" icon={<ExternalLink size={14} />} iconPosition="left" variant="outline" size="md" onClick={() => router.push('/exposure/remediations')}>
+        View Remediations
       </Button>
     )
   }

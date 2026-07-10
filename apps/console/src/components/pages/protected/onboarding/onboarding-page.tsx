@@ -30,14 +30,6 @@ const onboardingSchema = step1Schema.merge(step2Schema).merge(step3Schema)
 type OnboardingFormInput = z.input<typeof onboardingSchema>
 type OnboardingFormData = z.output<typeof onboardingSchema>
 
-const initialFormData: OnboardingFormInput = {
-  companyName: '',
-  domains: [],
-  companyDetails: {},
-  userDetails: {},
-  compliance: {},
-}
-
 export default function MultiStepForm() {
   const queryClient = useQueryClient()
   const stepper = useStepper()
@@ -47,11 +39,17 @@ export default function MultiStepForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const { successNotification, errorNotification } = useNotification()
 
-  const formDataRef = useRef<OnboardingFormInput>(initialFormData)
+  const formDataRef = useRef<OnboardingFormInput>({
+    companyName: '',
+    domains: [],
+    companyDetails: {},
+    userDetails: {},
+    compliance: {},
+  })
 
   const methods = useForm<OnboardingFormInput, undefined, OnboardingFormData>({
     resolver: zodResolver(onboardingSchema),
-    defaultValues: initialFormData,
+    defaultValues: formDataRef.current,
     mode: 'onChange',
   })
 
@@ -126,9 +124,9 @@ export default function MultiStepForm() {
   const handleNext = async () => {
     let isValid: boolean
 
-    if (stepper.state.current.data.id === '0') {
+    if (stepper.current.id === '0') {
       isValid = await methods.trigger(['companyName', 'domains'])
-    } else if (stepper.state.current.data.id === '1') {
+    } else if (stepper.current.id === '1') {
       isValid = await methods.trigger(['userDetails.role', 'userDetails.department'])
     } else {
       isValid = await methods.trigger(['compliance.existing_policies_procedures', 'compliance.completed_risk_assessment', 'compliance.completed_gap_analysis', 'compliance.existing_controls'])
@@ -138,22 +136,22 @@ export default function MultiStepForm() {
 
     formDataRef.current = { ...formDataRef.current, ...methods.getValues() }
 
-    if (!stepper.state.isLast) {
-      stepper.navigation.next()
+    if (!stepper.isLast) {
+      stepper.next()
     } else {
       methods.handleSubmit(() => onSubmit())()
     }
   }
 
   const handleBack = () => {
-    if (!stepper.state.isFirst) {
-      stepper.navigation.prev()
+    if (!stepper.isFirst) {
+      stepper.prev()
     }
   }
 
-  const currentIndex = stepper.state.all.findIndex((item) => item.id === stepper.state.current.data.id)
-  const isLastStep = stepper.state.isLast
-  const isFirstStep = stepper.state.isFirst
+  const currentIndex = stepper.all.findIndex((item) => item.id === stepper.current.id)
+  const isLastStep = stepper.isLast
+  const isFirstStep = stepper.isFirst
 
   return (
     <div className="flex justify-center flex-col items-center max-w-[545px] m-auto">
@@ -179,14 +177,14 @@ export default function MultiStepForm() {
 
       {!isLoading && (
         <FormProvider {...methods}>
-          <form className="w-full" onSubmit={(e) => methods.handleSubmit(onSubmit)(e)}>
+          <form className="w-full" onSubmit={methods.handleSubmit(onSubmit)}>
             <Card className="bg-transparent">
               <p className="text-center p-2">{`Let’s get you started (${currentIndex + 1}/${steps.length})`}</p>
               <div className="relative bg-progressbar h-1 w-full">
                 <div className={`absolute bg-brand h-1`} style={{ width: `${((currentIndex + 1) / steps.length) * 100}%` }}></div>
               </div>
               <div className="p-7 bg-secondary rounded-b-lg">
-                {stepper.flow.switch({
+                {stepper.switch({
                   0: () => <Step1 />,
                   1: () => <Step2 />,
                   2: () => <Step3 />,
@@ -204,7 +202,7 @@ export default function MultiStepForm() {
                   </Button>
                 </div>
                 {currentIndex === 1 && (
-                  <div className="border-t pt-5 mt-5 text-sm" onClick={(e) => methods.handleSubmit(onSubmit)(e)}>
+                  <div className="border-t pt-5 mt-5 text-sm" onClick={methods.handleSubmit(onSubmit)}>
                     <span className="text-blue-500 cursor-pointer">Exit the onboarding process</span> <span> and use general template for my account.</span>
                   </div>
                 )}

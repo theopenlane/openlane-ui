@@ -1,19 +1,22 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import React, { useState, useMemo, useEffect, use } from 'react'
-import { type Evidence, type EvidenceOrder, EvidenceOrderField, type EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type Evidence, EvidenceEvidenceStatus, type EvidenceOrder, EvidenceOrderField, type EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useGetEvidenceList } from '@/lib/graphql-hooks/evidence.ts'
+import { useBulkEditEvidence, useGetEvidenceList } from '@/lib/graphql-hooks/evidence.ts'
 import { useGetEvidenceColumns } from '@/components/pages/protected/evidence/table/columns.tsx'
+import EvidenceRequestChangesDialog from '@/components/pages/protected/evidence/evidence-request-changes-dialog'
+import { useIsAuditor } from '@/lib/graphql-hooks/member'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EVIDENCE_SORTABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
 import EvidenceTableToolbar from '@/components/pages/protected/evidence/table/evidence-table-toolbar.tsx'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
@@ -27,22 +30,25 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.EVIDENCE, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<EvidenceWhereInput>({})
   const { setCrumbs } = use(BreadcrumbContext)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.EVIDENCE)
   const { replace } = useSmartRouter()
-  const { errorNotification } = useNotification()
+  const { successNotification, errorNotification } = useNotification()
   const [selectedEvidence, setSelectedEvidence] = useState<{ id: string }[]>([])
   const { data: permission } = useOrganizationRoles()
+  const { isAuditor } = useIsAuditor()
+  const { mutateAsync: bulkEditEvidence } = useBulkEditEvidence()
+  const [auditorActionPending, setAuditorActionPending] = useState(false)
+  const [requestChangesTarget, setRequestChangesTarget] = useState<{ ids: string[]; name?: string } | null>(null)
 
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE, EvidenceOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.EVIDENCE, EvidenceOrderField, [
     {
       field: EvidenceOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<EvidenceOrder[] | undefined>(() => (Array.isArray(defaultSorting) ? defaultSorting : defaultSorting ? [defaultSorting] : undefined))
 
   const debouncedSearch = useDebounce(searchTerm, 300)
 
@@ -106,19 +112,48 @@ export const EvidenceTable = () => {
     return Array.from(ids)
   }, [evidences])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
+
+  const handleApprove = async (ids: string[]) => {
+    if (ids.length === 0) return
+    try {
+      setAuditorActionPending(true)
+      await bulkEditEvidence({ ids, input: { status: EvidenceEvidenceStatus.AUDITOR_APPROVED } })
+      successNotification({ title: ids.length > 1 ? `${ids.length} evidences approved` : 'Evidence approved', description: 'Marked as approved by auditor.' })
+      setSelectedEvidence([])
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    } finally {
+      setAuditorActionPending(false)
+    }
+  }
+
+  const handleConfirmRequestChanges = async (comment: string) => {
+    const ids = requestChangesTarget?.ids ?? []
+    if (ids.length === 0) return
+    try {
+      setAuditorActionPending(true)
+      await bulkEditEvidence({ ids, input: { status: EvidenceEvidenceStatus.REJECTED, addComment: { text: comment } } })
+      successNotification({ title: 'Changes requested', description: ids.length > 1 ? `Comment added to ${ids.length} evidences.` : 'Your comment was added to the evidence.' })
+      setRequestChangesTarget(null)
+      setSelectedEvidence([])
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    } finally {
+      setAuditorActionPending(false)
+    }
+  }
+
+  const { columns, mappedColumns } = useGetEvidenceColumns({
+    userMap,
+    tokenMap,
+    selectedEvidence,
+    setSelectedEvidence,
+    isAuditor,
+    onApprove: (evidence) => handleApprove([evidence.id]),
+    onRequestChanges: (evidence) => setRequestChangesTarget({ ids: [evidence.id], name: evidence.name }),
+    auditorActionPending,
   })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
-
-  const { columns, mappedColumns } = useGetEvidenceColumns({ userMap, selectedEvidence, setSelectedEvidence })
 
   useEffect(() => {
     setCrumbs([
@@ -158,18 +193,33 @@ export const EvidenceTable = () => {
         setSelectedEvidence={setSelectedEvidence}
         canEdit={canEdit}
         permission={permission}
+        isAuditor={isAuditor}
+        auditorActionPending={auditorActionPending}
+        onBulkApprove={handleApprove}
+        onBulkRequestChanges={(ids) => setRequestChangesTarget({ ids })}
+      />
+
+      <EvidenceRequestChangesDialog
+        open={!!requestChangesTarget}
+        onOpenChange={(open) => {
+          if (!open) setRequestChangesTarget(null)
+        }}
+        onConfirm={handleConfirmRequestChanges}
+        loading={auditorActionPending}
+        evidenceName={requestChangesTarget?.name}
+        count={requestChangesTarget?.ids.length}
       />
 
       <DataTable
         sortFields={EVIDENCE_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
-        defaultSorting={defaultSorting}
+        sorting={orderBy}
         columns={columns}
         data={evidences}
         onRowClick={handleRowClick}
         loading={fetching || fetchingUsers}
         pagination={pagination}
-        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+        onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}

@@ -7,6 +7,7 @@ import * as z from 'zod'
 import { Keyboard, Megaphone, Pencil, Loader2, Trash2 } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { Button } from '@repo/ui/button'
+import { Checkbox } from '@repo/ui/checkbox'
 import { Textarea } from '@repo/ui/textarea'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { useGetTrustCenter, useGetTrustCenterPosts, useUpdateTrustCenter, useUpdateTrustCenterPost } from '@/lib/graphql-hooks/trust-center'
@@ -22,10 +23,12 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 const formSchema = z.object({
   title: z.string().min(1, 'Title is required').max(280),
   text: z.string().min(1, 'Update text is required').max(280),
+  notifySubscribers: z.boolean().optional(),
 })
 
 type UpdateFormValues = z.infer<typeof formSchema>
@@ -39,7 +42,8 @@ export default function UpdatesSection() {
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
-  const canEditTc = canEdit(tcPermission?.roles)
+  const { data: session } = useSession()
+  const canEditTc = canEdit(tcPermission?.roles, session)
 
   const { data: postsData } = useGetTrustCenterPosts({ trustCenterId: trustCenterID })
   const posts = postsData?.trustCenter?.posts?.edges ?? []
@@ -49,7 +53,7 @@ export default function UpdatesSection() {
 
   const createForm = useForm<UpdateFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: { text: '', title: '' },
+    defaultValues: { text: '', title: '', notifySubscribers: false },
   })
 
   const editForm = useForm<UpdateFormValues>({
@@ -69,7 +73,7 @@ export default function UpdatesSection() {
     try {
       await updateTrustCenter({
         updateTrustCenterId: trustCenterID,
-        input: { addPost: { text: values.text, title: values.title } },
+        input: { addPost: { text: values.text, title: values.title, notifySubscribers: values.notifySubscribers } },
       })
       successNotification({ title: 'Update published', description: 'Your trust center update has been successfully posted.' })
       createForm.reset()
@@ -161,6 +165,21 @@ export default function UpdatesSection() {
                       <FormControl>
                         <Textarea placeholder="Write an update..." className="min-h-30 bg-background" {...field} />
                       </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={createForm.control}
+                  name="notifySubscribers"
+                  render={({ field }) => (
+                    <FormItem className="mt-6">
+                      <div className="flex items-center gap-2">
+                        <FormControl>
+                          <Checkbox checked={!!field.value} onCheckedChange={(checked) => field.onChange(checked === true)} />
+                        </FormControl>
+                        <FormLabel className="!mt-0 cursor-pointer">Email subscribers about this update</FormLabel>
+                      </div>
                     </FormItem>
                   )}
                 />

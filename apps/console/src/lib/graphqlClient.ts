@@ -5,22 +5,24 @@ import { csrfCookieName, csrfHeader } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
 import { fetchNewAccessToken, type Tokens } from './auth/utils/refresh-token'
 import { jwtDecode } from 'jwt-decode'
-import { useSession } from 'next-auth/react'
-import { type Session } from 'next-auth'
+import { getSession, useSession } from 'next-auth/react'
+import { useCallback, useEffect, useRef } from 'react'
 import { fetchCSRFToken } from './auth/utils/secure-fetch'
 import { buildLoginRedirect } from './auth/utils/redirect'
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
+
+const SESSION_REFRESH_LOCK = 'openlane-session-refresh'
 
 let isSessionInvalid = false
 let sessionExpiredModalOpen = false
 let refreshPromise: Promise<Tokens | null> | null = null
 let lastAccessToken = ''
 let refreshAllowedAfter = Number.POSITIVE_INFINITY
-let csrfPromise: Promise<string> | null = null
 
-export function useGetGraphQLClient() {
-  const { update, data: session } = useSession()
+export function useFetchWithRetry() {
+  const { data: session } = useSession()
+  const refreshSession = useSessionRefresh()
 
   const fetchWithRetry = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     if (isSessionInvalid) {
@@ -37,8 +39,9 @@ export function useGetGraphQLClient() {
     const requestUrl = typeof input === 'string' || input instanceof URL ? input.toString() : input
     const accessToken = session?.user?.accessToken
     const refreshToken = session?.user?.refreshToken
+    const isImpersonation = session?.user?.isImpersonation
 
-    if (!accessToken || !refreshToken) {
+    if (!accessToken || (!refreshToken && !isImpersonation)) {
       handleSessionExpired()
       throw new Error('Session expired')
     }
@@ -50,21 +53,10 @@ export function useGetGraphQLClient() {
     let csrfCookieValue = getCookie(csrfCookieName)
 
     if (!csrfCookieValue) {
-      if (!csrfPromise) {
-        console.log('⏳ Fetching new CSRF token...')
-        csrfPromise = fetchCSRFToken()
-      } else {
-        console.log('🕓 Waiting for existing CSRF promise...')
-        csrfPromise = fetchCSRFToken()
-      }
-
       try {
-        csrfCookieValue = await csrfPromise
-        console.log('✅ CSRF token fetched successfully.')
+        csrfCookieValue = await fetchCSRFToken()
       } catch (error) {
         console.log('❌ CSRF fetch failed:', error)
-      } finally {
-        csrfPromise = null
       }
     }
 
@@ -80,9 +72,9 @@ export function useGetGraphQLClient() {
     const accessTokenChanged = accessToken !== lastAccessToken
     if (accessTokenChanged) {
       try {
-        updateRefreshSchedule(accessToken, refreshToken)
+        updateRefreshSchedule(accessToken)
       } catch (e) {
-        console.error('❌ Failed to decode refresh token:', e)
+        console.error('❌ Failed to decode access token:', e)
         handleSessionExpired()
         throw new Error('Session expired', { cause: e })
       }
@@ -90,16 +82,11 @@ export function useGetGraphQLClient() {
 
     const refreshBeforeExpired = now >= refreshAllowedAfter
 
-    if (refreshBeforeExpired) {
+    if (refreshBeforeExpired && refreshToken) {
       console.log('⏰ Access token near expiry, refreshing now...')
 
       try {
-        await handleTokenRefresh({
-          refreshToken,
-          session,
-          update,
-          headers,
-        })
+        await refreshSession(refreshToken, headers)
       } catch (e) {
         console.error('❌ Token refresh failed:', e)
         handleSessionExpired()
@@ -118,12 +105,7 @@ export function useGetGraphQLClient() {
 
     if (response.status === 401 && refreshToken && !isSessionInvalid) {
       try {
-        await handleTokenRefresh({
-          refreshToken,
-          session,
-          update,
-          headers,
-        })
+        await refreshSession(refreshToken, headers)
         response = await makeRequest()
       } catch (e) {
         refreshPromise = null
@@ -134,6 +116,12 @@ export function useGetGraphQLClient() {
 
     return response
   }
+
+  return fetchWithRetry
+}
+
+export function useGetGraphQLClient() {
+  const fetchWithRetry = useFetchWithRetry()
 
   return new GraphQLClient(GRAPHQL_ENDPOINT, {
     fetch: fetchWithRetry,
@@ -160,61 +148,80 @@ function handleSessionExpired() {
   window.dispatchEvent(new Event('session-expired'))
 }
 
-function updateRefreshSchedule(accessToken: string, refreshToken: string) {
-  const decoded: { nbf?: number } = jwtDecode(refreshToken)
-  const nbf = decoded.nbf ? decoded.nbf * 1000 : 0
-  refreshAllowedAfter = nbf
+export function getIsSessionInvalid() {
+  return isSessionInvalid
+}
+
+function updateRefreshSchedule(accessToken: string) {
+  const decoded: { iat?: number; exp?: number } = jwtDecode(accessToken)
+  if (!decoded.exp) {
+    refreshAllowedAfter = Number.POSITIVE_INFINITY
+    return
+  }
+  const expMs = decoded.exp * 1000
+  const ttlMs = decoded.iat ? (decoded.exp - decoded.iat) * 1000 : 60_000
+  const bufferMs = Math.min(60_000, ttlMs * 0.05)
+  refreshAllowedAfter = expMs - bufferMs
   lastAccessToken = accessToken
 }
 
-async function handleTokenRefresh({
-  refreshToken,
-  session,
-  update,
-  headers,
-}: {
-  refreshToken: string
-  session: Session | null
-  update: ReturnType<typeof useSession>['update']
-  headers?: Headers
-}): Promise<{ accessToken: string; refreshToken: string } | null> {
-  if (!refreshPromise) {
-    refreshPromise = fetchNewAccessToken(refreshToken)
-  }
+export function useSessionRefresh() {
+  const { update } = useSession()
+  const updateRef = useRef(update)
+  useEffect(() => {
+    updateRef.current = update
+  }, [update])
 
-  try {
-    const newTokens = await refreshPromise
-    refreshPromise = null
+  return useCallback(async (refreshToken: string, headers?: Headers): Promise<{ accessToken: string; refreshToken: string } | null> => {
+    const doRefresh = async () => {
+      const latest = await getSession()
+      const cookieRefreshToken = latest?.user?.refreshToken
+      const cookieAccessToken = latest?.user?.accessToken
 
-    if (!newTokens?.accessToken) {
-      throw new Error('Token refresh failed')
+      if (cookieRefreshToken && cookieAccessToken && cookieRefreshToken !== refreshToken) {
+        await updateRef.current(latest)
+        if (headers) headers.set('Authorization', `Bearer ${cookieAccessToken}`)
+        updateRefreshSchedule(cookieAccessToken)
+        return { accessToken: cookieAccessToken, refreshToken: cookieRefreshToken }
+      }
+
+      if (!refreshPromise) {
+        refreshPromise = fetchNewAccessToken(cookieRefreshToken ?? refreshToken)
+      }
+
+      try {
+        const newTokens = await refreshPromise
+        refreshPromise = null
+
+        if (!newTokens?.accessToken) {
+          throw new Error('Token refresh failed')
+        }
+
+        if (headers) headers.set('Authorization', `Bearer ${newTokens.accessToken}`)
+
+        await updateRef.current({
+          ...latest,
+          user: {
+            accessToken: newTokens.accessToken,
+            refreshToken: newTokens.refreshToken,
+          },
+        })
+
+        updateRefreshSchedule(newTokens.accessToken)
+
+        return {
+          accessToken: newTokens.accessToken,
+          refreshToken: newTokens.refreshToken,
+        }
+      } catch (error) {
+        refreshPromise = null
+        throw error
+      }
     }
 
-    if (session) {
-      session.user.accessToken = newTokens.accessToken
-      session.user.refreshToken = newTokens.refreshToken
+    if (typeof navigator !== 'undefined' && 'locks' in navigator) {
+      return navigator.locks.request(SESSION_REFRESH_LOCK, { mode: 'exclusive' }, doRefresh)
     }
-
-    if (headers) {
-      headers.set('Authorization', `Bearer ${newTokens.accessToken}`)
-    }
-
-    await update({
-      ...session,
-      user: {
-        accessToken: newTokens.accessToken,
-        refreshToken: newTokens.refreshToken,
-      },
-    })
-
-    updateRefreshSchedule(newTokens.accessToken, newTokens.refreshToken)
-
-    return {
-      accessToken: newTokens.accessToken,
-      refreshToken: newTokens.refreshToken,
-    }
-  } catch (error) {
-    refreshPromise = null
-    throw error
-  }
+    return doRefresh()
+  }, [])
 }

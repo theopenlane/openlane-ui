@@ -7,7 +7,7 @@ import { SquarePlus, LoaderCircle, Search as SearchIcon, LayoutGrid } from 'luci
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { DataTable, getInitialPagination, getInitialSortConditions } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
@@ -19,13 +19,15 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useCustomTypeEnumsPaginated, useDeleteCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enum'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { type TPagination } from '@repo/ui/pagination-types'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { type VisibilityState } from '@tanstack/react-table'
-import { CustomTypeEnumOrderField, type GetCustomTypeEnumsPaginatedQueryVariables, OrderDirection, type User } from '@repo/codegen/src/schema'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
-
-type SelectedEnum = { id: string; name: string }
+import { CustomTypeEnumOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useSession } from 'next-auth/react'
 
 const DEFAULT_ENUM_COLUMN_VISIBILITY: VisibilityState = {
   objectType: false,
@@ -39,23 +41,25 @@ const DEFAULT_ENUM_COLUMN_VISIBILITY: VisibilityState = {
 const CustomEnumsTab: FC = () => {
   const { push } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
+  const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
+  const canCreateEnum = hasPermission(permission?.roles, AccessEnum.CanCreateCustomTypeEnum, session)
+  const canEditEnum = hasPermission(permission?.roles, AccessEnum.CanEditCustomTypeEnum, session)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.CUSTOM_ENUMS, DEFAULT_ENUM_COLUMN_VISIBILITY))
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.CUSTOM_ENUMS, CustomTypeEnumOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.CUSTOM_ENUMS, CustomTypeEnumOrderField, [
     {
       field: CustomTypeEnumOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<GetCustomTypeEnumsPaginatedQueryVariables['orderBy']>(defaultSorting)
 
   const [filter, setFilter] = useState<string>(ENUM_GROUPS[1])
   const [searchValue, setSearchValue] = useState('')
   const debouncedSearch = useDebounce(searchValue, 300)
 
-  const [selectedEnums, setSelectedEnums] = useState<SelectedEnum[]>([])
   const [enumToDelete, setEnumToDelete] = useState<{ id: string; name: string } | null>(null)
 
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.CUSTOM_ENUMS, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
 
   const whereFilter = useMemo(() => getEnumFilter(filter, debouncedSearch), [debouncedSearch, filter])
 
@@ -76,7 +80,7 @@ const CustomEnumsTab: FC = () => {
       page: 1,
       query: { ...prev.query, after: undefined, before: undefined },
     }))
-  }, [])
+  }, [setPagination])
 
   useEffect(() => {
     resetPagination()
@@ -104,28 +108,20 @@ const CustomEnumsTab: FC = () => {
     return Array.from(ids)
   }, [enums])
 
-  const { users } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, User> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap } = useAuthorMaps(userIds)
 
   const { columns, mappedColumns } = useGetCustomEnumColumns({
-    selectedEnums,
-    setSelectedEnums,
     onEdit: handleEditOpen,
     onDelete: (id) => {
       const item = enums.find((e) => e.id === id)
       if (item) setEnumToDelete({ id: item.id, name: item.name })
     },
     userMap,
+    tokenMap,
+    canEditEnum,
   })
+
+  const FilterIcon = ENUM_GROUP_MAP[filter]?.icon || LayoutGrid
 
   return (
     <>
@@ -136,10 +132,7 @@ const CustomEnumsTab: FC = () => {
               <SelectTrigger className="h-9 w-[300px] bg-card capitalize">
                 <SelectValue>
                   <div className="flex items-center gap-2">
-                    {(() => {
-                      const Icon = ENUM_GROUP_MAP[filter]?.icon || LayoutGrid
-                      return <Icon size={16} className="text-muted-foreground" />
-                    })()}
+                    <FilterIcon size={16} className="text-muted-foreground" />
                     <span>{filter.split('_').join(' ').toLowerCase()}</span>
                   </div>
                 </SelectValue>
@@ -172,9 +165,11 @@ const CustomEnumsTab: FC = () => {
               variant="searchTable"
             />
 
-            <Button className="gap-2" onClick={handleCreateOpen} icon={<SquarePlus />} iconPosition="left">
-              Create Enum
-            </Button>
+            {canCreateEnum && (
+              <Button className="gap-2" onClick={handleCreateOpen} icon={<SquarePlus />} iconPosition="left">
+                Create Enum
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -192,7 +187,7 @@ const CustomEnumsTab: FC = () => {
           setColumnVisibility={setColumnVisibility}
           sortFields={CUSTOM_ENUMS_SORT_FIELDS}
           onSortChange={setOrderBy}
-          defaultSorting={defaultSorting}
+          sorting={orderBy}
         />
       </div>
 

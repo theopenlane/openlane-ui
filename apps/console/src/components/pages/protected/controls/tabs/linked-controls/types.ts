@@ -5,4 +5,6 @@ export type LinkedControlDetails = {
   controlSource?: string | null
   category?: string | null
   subcategory?: string | null
+  linkedPolicies?: Array<{ id: string; name: string }>
+  evidenceRefs?: Array<{ id: string; name: string; status?: string | null }>
 }

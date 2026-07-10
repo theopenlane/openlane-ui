@@ -6,9 +6,9 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useNotification } from '@/hooks/useNotification'
 import { useDeleteNote } from '@/lib/graphql-hooks/control'
 import { useGetEvidenceComments, useUpdateEvidence, useUpdateEvidenceComment } from '@/lib/graphql-hooks/evidence'
-import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { toBase64DataUri } from '@/lib/image-utils'
+import { resolveAuthor } from '@/lib/authors'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { SheetTitle } from '@repo/ui/sheet'
 import { useQueryClient } from '@tanstack/react-query'
@@ -34,20 +34,7 @@ const EvidenceCommentSheet = () => {
     return Array.from(new Set(edges.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string')))
   }, [commentSource])
 
-  const { data: userData, isLoading: isUsersLoading } = useGetOrgMemberships({
-    where: {
-      hasUserWith: [{ idIn: userIds }],
-    },
-    enabled: userIds.length > 0,
-  })
-  const userMap = useMemo(() => {
-    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { base64?: string | null } | null; avatarRemoteURL?: string | null }> = {}
-    userData?.orgMemberships?.edges?.forEach((edge) => {
-      const user = edge?.node?.user
-      if (user) map[user.id] = user
-    })
-    return map
-  }, [userData])
+  const { userMap, tokenMap, isLoading: isAuthorsLoading } = useAuthorMaps(userIds)
 
   const comments = useMemo(() => {
     if (!commentSource?.edges?.length) return []
@@ -56,15 +43,11 @@ const EvidenceCommentSheet = () => {
       const commentNode = item?.node
       if (!commentNode) return []
 
-      const user = commentNode.createdBy ? userMap[commentNode.createdBy] : undefined
-      const avatarUrl = (user?.avatarFile?.base64 ? toBase64DataUri(user.avatarFile.base64) : null) || user?.avatarRemoteURL
-
       return [
         {
           comment: commentNode.text ?? '',
-          avatarUrl: avatarUrl ?? undefined,
           createdAt: String(commentNode.createdAt ?? ''),
-          userName: user?.displayName || 'Deleted user',
+          author: resolveAuthor(commentNode.createdBy, { userMap, tokenMap }),
           createdBy: commentNode.createdBy ?? '',
           id: commentNode.id,
         },
@@ -72,7 +55,7 @@ const EvidenceCommentSheet = () => {
     })
 
     return mapped.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
-  }, [commentSortIsAsc, commentSource, userMap])
+  }, [commentSortIsAsc, commentSource, tokenMap, userMap])
 
   const handleEditComment = useCallback(
     async (commentId: string, newValue: string) => {
@@ -132,7 +115,7 @@ const EvidenceCommentSheet = () => {
           <p className="text-sm">{!commentSortIsAsc ? 'Newest at top' : 'Newest at bottom'}</p>
         </div>
       </div>
-      {isUsersLoading && commentSource?.edges?.length ? (
+      {isAuthorsLoading && commentSource?.edges?.length ? (
         <div className="space-y-4">
           {commentSource.edges.map((_, index) => (
             <div key={index} className="w-full p-2 mb-2 rounded-lg">

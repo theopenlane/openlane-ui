@@ -1,0 +1,13 @@
+import IntegrationsPage from '@/components/pages/protected/integrations/integrations-page'
+import { type Metadata } from 'next'
+import React from 'react'
+
+export const metadata: Metadata = {
+  title: 'Integrations',
+}
+
+const Page = () => {
+  return <IntegrationsPage />
+}
+
+export default Page

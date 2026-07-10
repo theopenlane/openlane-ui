@@ -10,17 +10,24 @@ import { InternalPolicyDocumentStatus, ProcedureDocumentStatus, type InternalPol
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
+import type { EntityRef } from '@/lib/graphql-hooks/use-mapped-entity-refs'
 
 type DocumentationTabProps = {
   controlId?: string
   subcontrolIds: string[]
   canEdit: boolean
+  isSubcontrol?: boolean
+  mappedControlRefs?: EntityRef[]
+  mappedSubcontrolRefs?: EntityRef[]
 }
 
-const DocumentationTab: React.FC<DocumentationTabProps> = ({ controlId, subcontrolIds, canEdit }) => {
+const DocumentationTab: React.FC<DocumentationTabProps> = ({ controlId, subcontrolIds, canEdit, isSubcontrol = false, mappedControlRefs = [], mappedSubcontrolRefs = [] }) => {
   const hasAssociationTarget = Boolean(controlId) || subcontrolIds.length > 0
 
-  const associationFilter = useMemo(() => buildAssociationFilter(controlId, subcontrolIds), [controlId, subcontrolIds])
+  const associationFilter = useMemo(
+    () => buildAssociationFilter(controlId, subcontrolIds, isSubcontrol ? [] : mappedControlRefs, isSubcontrol ? [] : mappedSubcontrolRefs),
+    [controlId, subcontrolIds, isSubcontrol, mappedControlRefs, mappedSubcontrolRefs],
+  )
 
   const baselinePoliciesWhere = useMemo<InternalPolicyWhereInput>(
     () =>
@@ -73,8 +80,22 @@ const DocumentationTab: React.FC<DocumentationTabProps> = ({ controlId, subcontr
 
   return (
     <div className="space-y-6">
-      <ProceduresTable controlId={controlId} subcontrolIds={subcontrolIds} canEdit={canEdit} />
-      <PoliciesTable controlId={controlId} subcontrolIds={subcontrolIds} canEdit={canEdit} />
+      <ProceduresTable
+        controlId={controlId}
+        subcontrolIds={subcontrolIds}
+        canEdit={canEdit}
+        isSubcontrol={isSubcontrol}
+        mappedControlRefs={mappedControlRefs}
+        mappedSubcontrolRefs={mappedSubcontrolRefs}
+      />
+      <PoliciesTable
+        controlId={controlId}
+        subcontrolIds={subcontrolIds}
+        canEdit={canEdit}
+        isSubcontrol={isSubcontrol}
+        mappedControlRefs={mappedControlRefs}
+        mappedSubcontrolRefs={mappedSubcontrolRefs}
+      />
     </div>
   )
 }

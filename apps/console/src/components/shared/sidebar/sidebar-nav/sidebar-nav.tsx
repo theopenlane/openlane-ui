@@ -22,9 +22,9 @@ import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { Button } from '@repo/ui/button'
 import { DOCS_URL } from '@/constants/docs'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { hasNoModules } from '@/lib/auth/utils/modules'
+import { IMPERSONATION_BANNER_HEIGHT_VAR } from '@/constants/layout'
 
 const SidebarChildLink: React.FC<{ child: NavItem; pathname: string; secondaryExpanded: boolean; router: ReturnType<typeof useRouter> }> = ({ child, pathname, secondaryExpanded, router }) => {
   const isActive = pathname === child.href || pathname.startsWith(`${child.href}/`)
@@ -105,19 +105,19 @@ export default function SideNav({
 
   const sidebarItems = [...navItems, ...footerNavItems]
   const { data: orgPermission } = useOrganizationRoles()
-  const isCreateProgramAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateProgram)
-  const billingExpired = hasNoModules(session)
+  const isCreateProgramAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram, session)
+  const billingExpired = featureUtil.hasNoModules(session)
 
   useEffect(() => {
     if (!openPanel) {
       const firstItem = navItems
         .filter((item): item is NavItem => 'title' in item)
-        .filter((item) => !(featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item.plan)))
+        .filter((item) => !(featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item.plan, session)))
         .find((item) => item.children && item.children.length > 0)
 
       onToggleAction(firstItem?.title?.toLowerCase() as PanelKey)
     }
-  }, [featureEnabled, modules, navItems, onToggleAction, openPanel])
+  }, [featureEnabled, modules, navItems, onToggleAction, openPanel, session])
 
   const handleTogglePanel = (item: NavItem) => {
     const panelKey = item?.title?.toLowerCase() as PanelKey
@@ -128,8 +128,8 @@ export default function SideNav({
     }
 
     if (children.length > 0) {
-      const firstChild = children[0]
-      const hasActiveChild = children.some((child) => pathname === child.href || pathname.startsWith(`${child.href}/`))
+      const firstChild = children.find((child) => !child.hidden)
+      const hasActiveChild = children.some((child) => !child.hidden && (pathname === child.href || pathname.startsWith(`${child.href}/`)))
       if (!hasActiveChild && firstChild?.href) {
         router.push(firstChild.href)
       }
@@ -146,7 +146,7 @@ export default function SideNav({
         return item
       }
 
-      if (item.children?.some((child) => pathname === child.href || pathname.startsWith(`${child.href}/`))) {
+      if (item.children?.some((child) => !child.hidden && (pathname === child.href || pathname.startsWith(`${child.href}/`)))) {
         return item
       }
     }
@@ -176,7 +176,7 @@ export default function SideNav({
           <div key={idx} className="relative flex w-full items-center justify-center">
             <div className="w-2.5 h-full flex absolute left-0">{isActive && <span className="h-full w-0.5 bg-foreground dark:bg-primary absolute" />}</div>
 
-            {featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item?.plan) && <Lock className="absolute bottom-6 right-[5px] w-3 h-3 z-90 text-gray-400" />}
+            {featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item?.plan, session) && <Lock className="absolute bottom-6 right-[5px] w-3 h-3 z-90 text-gray-400" />}
 
             {isExpandable ? (
               <Button
@@ -289,8 +289,10 @@ export default function SideNav({
 
   return (
     <div
-      className="fixed top-0 left-0 z-40 h-screen flex"
+      className="fixed left-0 z-40 flex"
       style={{
+        top: `var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px)`,
+        height: `calc(100vh - var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px))`,
         width: (primaryExpanded ? PRIMARY_EXPANDED_WIDTH : PRIMARY_WIDTH) + (openPanel ? (secondaryExpanded ? SECONDARY_EXPANDED_WIDTH : SECONDARY_COLLAPSED_WIDTH) : 0),
       }}
     >

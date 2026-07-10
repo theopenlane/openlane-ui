@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useParams } from 'next/navigation'
 import { useDeleteControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
@@ -13,6 +14,7 @@ type ControlObjectivesProps = {
 }
 
 const ControlObjectives: React.FC<ControlObjectivesProps> = ({ edges }) => {
+  const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
   const [showCreateSheet, setShowCreateSheet] = useState(false)
   const [editData, setEditData] = useState<ControlObjectiveFieldsFragment | null>(null)
   const { successNotification, errorNotification } = useNotification()
@@ -20,10 +22,19 @@ const ControlObjectives: React.FC<ControlObjectivesProps> = ({ edges }) => {
   const { mutateAsync: updateObjective } = useUpdateControlObjective()
   const { mutateAsync: deleteObjective } = useDeleteControlObjective()
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (node: ControlObjectiveFieldsFragment) => {
+    const totalLinks = (node.controls?.edges?.length ?? 0) + (node.subcontrols?.edges?.length ?? 0)
+    const shouldUnlink = totalLinks > 1
+
     try {
-      await deleteObjective({ deleteControlObjectiveId: id })
-      successNotification({ title: 'Control Objective deleted' })
+      if (shouldUnlink) {
+        const input = subcontrolId ? { removeSubcontrolIDs: [subcontrolId] } : { removeControlIDs: [id] }
+        await updateObjective({ updateControlObjectiveId: node.id, input })
+        successNotification({ title: 'Control Objective unlinked' })
+      } else {
+        await deleteObjective({ deleteControlObjectiveId: node.id })
+        successNotification({ title: 'Control Objective deleted' })
+      }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({

@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { DownloadIcon, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
+import { DownloadIcon, FileText, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
+import { ExportExportFormat } from '@repo/codegen/src/schema'
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreatePolicyDialog from '@/components/pages/protected/policies/create/form/bulk-csv-create-policy-dialog.tsx'
-import { canCreate } from '@/lib/authz/utils.ts'
+import { hasPermission } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { type VisibilityState } from '@tanstack/react-table'
@@ -22,6 +23,8 @@ import { useBulkDeletePolicy } from '@/lib/graphql-hooks/internal-policy'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
+import { useSession } from 'next-auth/react'
+import { type Session } from 'next-auth'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -29,7 +32,7 @@ type TPoliciesTableToolbarProps = {
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   setFilters: (filters: Record<string, unknown>) => void
-  handleExport: () => void
+  handleExport: (format?: ExportExportFormat) => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   mappedColumns: {
@@ -40,7 +43,7 @@ type TPoliciesTableToolbarProps = {
   handleClearSelectedPolicies: () => void
   selectedPolicies: { id: string }[]
   setSelectedPolicies: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  canEdit: (accessRole: TAccessRole[] | undefined, session?: Session | null) => boolean
   permission: TPermissionData | undefined
 }
 
@@ -65,6 +68,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeletePolicies } = useBulkDeletePolicy()
+  const { data: session } = useSession()
 
   const handleBulkDelete = async () => {
     if (!selectedPolicies) {
@@ -117,7 +121,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {selectedPolicies.length > 0 ? (
             <>
-              {canEdit(permission?.roles) && <BulkEditPoliciesDialog selectedPolicies={selectedPolicies} setSelectedPolicies={setSelectedPolicies}></BulkEditPoliciesDialog>}
+              {canEdit(permission?.roles, session) && <BulkEditPoliciesDialog selectedPolicies={selectedPolicies} setSelectedPolicies={setSelectedPolicies}></BulkEditPoliciesDialog>}
               <Button
                 type="button"
                 variant="secondary"
@@ -127,7 +131,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
               >
                 {selectedPolicies && selectedPolicies.length > 0 ? `Bulk Delete (${selectedPolicies.length})` : 'Bulk Delete'}
               </Button>
-              {canEdit(permission?.roles) && (
+              {canEdit(permission?.roles, session) && (
                 <>
                   <ConfirmationDialog
                     open={isBulkDeleteDialogOpen}
@@ -153,7 +157,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 closeOnSelect={true}
                 content={(close) => (
                   <>
-                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                    {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
                       <CreatePolicyUploadDialog
                         trigger={
                           <div className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer">
@@ -163,7 +167,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                         }
                       />
                     )}
-                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                    {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
                       <BulkCSVCreatePolicyDialog
                         trigger={
                           <div className="flex items-center bg-transparent space-x-2 px-1">
@@ -176,12 +180,22 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                     <button
                       className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
                       onClick={() => {
-                        handleExport()
+                        handleExport(ExportExportFormat.CSV)
                         close()
                       }}
                     >
                       <DownloadIcon size={16} strokeWidth={2} />
-                      <span>Export</span>
+                      <span>Export to CSV</span>
+                    </button>
+                    <button
+                      className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                      onClick={() => {
+                        handleExport(ExportExportFormat.PDF)
+                        close()
+                      }}
+                    >
+                      <FileText size={16} strokeWidth={2} />
+                      <span>Export to PDF</span>
                     </button>
                   </>
                 )}
@@ -191,7 +205,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.INTERNAL_POLICY} />
               )}
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.INTERNAL_POLICY} />}
-              {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+              {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
                 <Link href="/policies/create">
                   <Button variant="primary" className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                     Create

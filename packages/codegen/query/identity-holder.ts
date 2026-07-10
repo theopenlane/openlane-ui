@@ -11,7 +11,19 @@ const DIRECTORY_MEMBERSHIP_CONNECTION_FIELDS = gql`
         removedAt
         createdAt
         directoryGroup {
+          id
           displayName
+          integration {
+            id
+            entities {
+              edges {
+                node {
+                  id
+                  name
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -81,6 +93,8 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
 export const IDENTITY_HOLDER = gql`
   query IdentityHolder($identityHolderId: ID!) {
     identityHolder(id: $identityHolderId) {
+      alternateEmail
+      avatarRemoteURL
       emailAliases
       createdAt
       createdBy
@@ -244,7 +258,16 @@ export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
             mfaState
             directoryName
             integration {
+              id
               definitionID
+              entities {
+                edges {
+                  node {
+                    id
+                    name
+                  }
+                }
+              }
             }
             memberships(first: 100, where: $membershipWhere, orderBy: [{ field: created_at, direction: DESC }]) {
               ...DirectoryMembershipConnectionFields
@@ -378,4 +401,90 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
     }
   }
   ${DIRECTORY_MEMBERSHIP_CONNECTION_FIELDS}
+`
+
+export const GET_IDENTITY_HOLDER_EDGES_FOR_MERGE = gql`
+  query GetIdentityHolderEdgesForMerge($identityHolderId: ID!) {
+    identityHolder(id: $identityHolderId) {
+      id
+      userID
+      directoryAccounts {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      assessmentResponses {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      assets {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      entities {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      campaigns {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      tasks {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      controls {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      internalPolicies {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      subcontrols {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      findings {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      files {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
 `

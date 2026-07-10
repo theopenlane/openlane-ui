@@ -4,20 +4,20 @@ import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 export async function POST(request: NextRequest) {
   try {
-    // Parse the OTP from the request body
-    const otp = await request.json()
-
-    // Ensure the OTP is provided
-    if (!otp) {
-      return NextResponse.json({ success: false, message: 'OTP is required' }, { status: 400 })
-    }
-
     // Retrieve the user's session and token
     const session = await auth()
     const token = session?.user?.accessToken
 
     if (!token) {
       return NextResponse.json({ success: false, message: 'Authentication token is missing' }, { status: 401 })
+    }
+
+    // Parse the OTP from the request body
+    const otp = await request.json()
+
+    // Ensure the OTP is provided
+    if (!otp) {
+      return NextResponse.json({ success: false, message: 'OTP is required' }, { status: 400 })
     }
 
     // Add the token to the headers

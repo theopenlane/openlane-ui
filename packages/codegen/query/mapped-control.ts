@@ -43,6 +43,7 @@ export const GET_ALL_MAPPED_CONTROLS = gql`
           confidence
           mappingType
           source
+          systemOwned
           fromSubcontrols {
             edges {
               node {

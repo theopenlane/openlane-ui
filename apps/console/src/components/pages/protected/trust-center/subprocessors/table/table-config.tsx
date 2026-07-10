@@ -6,13 +6,12 @@ import { type FilterField } from '@/types'
 import { SubprocessorsFilterIcons } from '@/components/shared/enum-mapper/subprocessors-enum'
 import { CountryFlag } from '@repo/ui/country-flag'
 import { formatDate, formatTimeSince } from '@/utils/date'
-import { Avatar } from '@/components/shared/avatar/avatar'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { type User } from '@repo/codegen/src/schema'
+import { type AuthorToken } from '@/lib/authors'
 import { TruncatedCell } from '@repo/ui/data-table'
-import { DeleteTrustCenterSubprocessorCell } from './delete-trust-center-subcontrol-cell'
-import { Button } from '@repo/ui/button'
-import { Pencil } from 'lucide-react'
-import Link from 'next/link'
+import { createRowActionsColumn } from '@/components/shared/crud-base/columns/row-actions-column'
+import { Pencil, Trash2 } from 'lucide-react'
 
 export type SubprocessorTableItem = {
   id: string
@@ -31,6 +30,10 @@ type Params = {
   selectedRows: { id: string }[]
   setSelectedRows: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   userMap: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
+  canEditSubprocessor: boolean
+  onEdit: (id: string) => void
+  onDelete: (id: string) => void
 }
 
 type ColumnConfig = {
@@ -38,7 +41,7 @@ type ColumnConfig = {
   mappedColumns: { accessorKey: string; header: string }[]
 }
 
-export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap }: Params): ColumnConfig => {
+export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap, tokenMap, canEditSubprocessor, onEdit, onDelete }: Params): ColumnConfig => {
   const toggleSelection = (row: { id: string }) => {
     setSelectedRows((prev) => {
       const exists = prev.some((r) => r.id === row.id)
@@ -158,18 +161,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       accessorKey: 'createdBy',
       maxSize: 200,
       size: 150,
-      cell: ({ row }) => {
-        const user = userMap[row.original.createdBy ?? '']
-
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
 
     {
@@ -183,36 +175,20 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       header: 'Updated By',
       accessorKey: 'updatedBy',
       size: 200,
-      cell: ({ row }) => {
-        const user = userMap[row.original.updatedBy ?? '']
-
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
-    },
-    {
-      id: 'actions',
-      header: '',
-      cell: ({ row }) => (
-        <div className="flex gap-1 justify-end">
-          <Link href={`/trust-center/subprocessors?id=${row.original.id}`}>
-            <Button variant="secondary">
-              <Pencil />
-            </Button>
-          </Link>
-          <DeleteTrustCenterSubprocessorCell subprocessorId={row.original.id} subprocessorName={row.original.name} />
-        </div>
-      ),
-      size: 100,
-      maxSize: 100,
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
   ]
+
+  if (canEditSubprocessor) {
+    columns.push(
+      createRowActionsColumn<SubprocessorTableItem>({
+        actions: [
+          { label: 'Edit', icon: <Pencil size={16} />, onClick: (row) => onEdit(row.id) },
+          { label: 'Delete', icon: <Trash2 size={16} />, onClick: (row) => onDelete(row.id) },
+        ],
+      }),
+    )
+  }
 
   const mappedColumns = columns
     .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')

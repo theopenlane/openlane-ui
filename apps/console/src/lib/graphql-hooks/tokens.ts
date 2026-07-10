@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
@@ -26,7 +27,6 @@ import {
   type GetPersonalAccessTokensQueryVariables,
   type GetApiTokensByIdsQuery,
   type GetApiTokensByIdsQueryVariables,
-  type ApiToken,
   type UpdatePersonalAccessTokenMutation,
   type UpdatePersonalAccessTokenMutationVariables,
   type UpdateApiTokenMutation,
@@ -43,7 +43,7 @@ type UseGetPersonalAccessTokensArgs = {
 
 export const useGetPersonalAccessTokens = ({ where, orderBy, pagination, enabled = true }: UseGetPersonalAccessTokensArgs) => {
   const { client } = useGraphQLClient()
-  return useQuery<GetPersonalAccessTokensQuery>({
+  const queryResult = useQuery<GetPersonalAccessTokensQuery>({
     queryKey: ['personalAccessTokens', where, orderBy, pagination?.pageSize, pagination?.page],
     queryFn: async () =>
       client.request(GET_PERSONAL_ACCESS_TOKENS, {
@@ -53,6 +53,11 @@ export const useGetPersonalAccessTokens = ({ where, orderBy, pagination, enabled
       }),
     enabled,
   })
+
+  return {
+    ...queryResult,
+    isLoading: queryResult.isPending,
+  }
 }
 
 export const useCreatePersonalAccessToken = () => {
@@ -94,7 +99,7 @@ type UseGetApiTokensArgs = {
 
 export const useGetApiTokens = ({ where, orderBy, pagination, enabled = true }: UseGetApiTokensArgs) => {
   const { client } = useGraphQLClient()
-  return useQuery<GetApiTokensQuery>({
+  const queryResult = useQuery<GetApiTokensQuery>({
     queryKey: ['apiTokens', where, orderBy, pagination?.pageSize, pagination?.page],
     queryFn: async () =>
       client.request(GET_API_TOKENS, {
@@ -104,6 +109,11 @@ export const useGetApiTokens = ({ where, orderBy, pagination, enabled = true }: 
       }),
     enabled,
   })
+
+  return {
+    ...queryResult,
+    isLoading: queryResult.isPending,
+  }
 }
 
 export const useCreateAPIToken = () => {
@@ -149,7 +159,7 @@ export const useGetApiTokensByIds = ({ where }: UseGetApiTokensArgs) => {
     enabled: idInNotEmpty,
   })
 
-  const tokens = (queryResult.data?.apiTokens?.edges ?? []).map((edge) => edge?.node) as ApiToken[]
+  const tokens = useMemo(() => (queryResult.data?.apiTokens?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [queryResult.data])
 
   return {
     ...queryResult,

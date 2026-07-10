@@ -27,6 +27,7 @@ import { SortableFaqCard } from './sortable-faq-card'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 export default function FaqsPage() {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -38,7 +39,8 @@ export default function FaqsPage() {
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
-  const canEditTc = canEdit(tcPermission?.roles)
+  const { data: session } = useSession()
+  const canEditTc = canEdit(tcPermission?.roles, session)
 
   const { trustCenterFaqsNodes } = useTrustCenterFaqsWithFilter({
     where: { hasTrustCenterWith: [{ id: trustCenterID }] },

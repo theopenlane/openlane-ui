@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth/auth'
 import { featureUtil } from '../plans'
 import { type FeatureEnum } from '@/lib/subscription-plan/feature-enum'
 import { type PlanEnum } from '@/lib/subscription-plan/plan-enum'
+import { isImpersonation } from '@/lib/authz/utils'
 
 export async function hasFeature(feature: FeatureEnum): Promise<boolean> {
   const session = await auth()
@@ -13,6 +14,10 @@ export async function hasFeature(feature: FeatureEnum): Promise<boolean> {
 
   if (!session) {
     return false
+  }
+
+  if (isImpersonation(session)) {
+    return true
   }
 
   const modules = session.user?.modules ?? []

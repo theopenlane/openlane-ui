@@ -50,16 +50,19 @@ import {
   Activity,
   NotebookPen,
   LayoutGrid,
+  Waypoints,
 } from 'lucide-react'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
-import { canEdit } from '@/lib/authz/utils'
+import { canEdit, isOwnerOrSuperAdmin } from '@/lib/authz/utils'
 import { type TPermissionData } from '@/types/authz'
 import type { Session } from 'next-auth'
-import { hasNoModules } from '@/lib/auth/utils/modules'
+import { OrgMembershipRole } from '@repo/codegen/src/schema'
+import { featureUtil } from '@/lib/subscription-plan/plans'
 
-export const topNavigationItems = (session: Session | null): (NavItem | Separator | NavHeading)[] => {
-  const billingExpired = hasNoModules(session)
+export const topNavigationItems = (session: Session | null, currentUserRole?: OrgMembershipRole): (NavItem | Separator | NavHeading)[] => {
+  const billingExpired = featureUtil.hasNoModules(session)
+  const isAuditor = currentUserRole === OrgMembershipRole.AUDITOR
   return [
     {
       type: 'separator',
@@ -155,7 +158,7 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
       href: '/trust-center',
       icon: Handshake,
       isChildren: true,
-      hidden: session?.user?.isOnboarding || billingExpired,
+      hidden: session?.user?.isOnboarding || billingExpired || isAuditor,
       children: [
         {
           title: 'Overview',
@@ -194,6 +197,7 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
         },
         { title: 'Subprocessors', href: '/trust-center/subprocessors', icon: Server },
         { title: 'Updates', href: '/trust-center/updates', icon: Megaphone },
+        { title: 'Subscribers', href: '/trust-center/subscribers', icon: Users },
         { title: 'Customer Logos', href: '/trust-center/customer-logos', icon: Component },
         { title: 'FAQs', href: '/trust-center/faqs', icon: CircleHelp },
         { title: 'Analytics', href: '/trust-center/analytics', icon: ChartLine },
@@ -248,7 +252,7 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
       href: '/automation',
       icon: Route,
       isChildren: true,
-      hidden: session?.user?.isOnboarding || billingExpired,
+      hidden: session?.user?.isOnboarding || billingExpired || isAuditor,
       children: [
         {
           title: 'Tasks',
@@ -256,10 +260,15 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           icon: ListChecks,
         },
         {
-          title: 'Assessments',
-          href: '/automation/assessments',
+          title: 'Questionnaires',
+          href: '/automation/questionnaires',
           icon: ClipboardPenLine,
           plan: PlanEnum.COMPLIANCE_MODULE,
+        },
+        {
+          title: 'Integrations',
+          href: '/automation/integrations',
+          icon: Waypoints,
         },
         {
           title: 'Workflow Definitions',
@@ -314,25 +323,27 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
   ]
 }
 
-export const bottomNavigationItems = (session: Session | null, orgPermission?: TPermissionData): (NavItem | Separator | NavHeading)[] => {
-  const billingExpired = hasNoModules(session)
+export const bottomNavigationItems = (session: Session | null, orgPermission?: TPermissionData, currentUserRole?: OrgMembershipRole): (NavItem | Separator | NavHeading)[] => {
+  const isImpersonation = session?.user?.isImpersonation
+  const billingExpired = featureUtil.hasNoModules(session)
+  const isAuditor = currentUserRole === OrgMembershipRole.AUDITOR
   return [
     {
       title: 'Organization settings',
       href: '/organization-settings',
-      hidden: session?.user?.isOnboarding,
+      hidden: session?.user?.isOnboarding || isAuditor,
       icon: Building2,
       children: [
         {
           title: 'General Settings',
           href: '/organization-settings/general-settings',
-          hidden: !canEdit(orgPermission?.roles),
+          hidden: !canEdit(orgPermission?.roles, session),
           icon: SettingsIcon,
         },
         {
           title: 'Authentication',
           href: '/organization-settings/authentication',
-          hidden: billingExpired,
+          hidden: billingExpired || !canEdit(orgPermission?.roles, session),
           icon: GlobeLock,
         },
         {
@@ -350,20 +361,14 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
         {
           title: 'Billing',
           href: '/organization-settings/billing',
-          hidden: !canEdit(orgPermission?.roles),
+          hidden: !isOwnerOrSuperAdmin(currentUserRole) && !isImpersonation,
           icon: DollarSign,
         },
         {
           title: 'Audit Logs',
           href: '/organization-settings/logs',
           icon: History,
-        },
-        {
-          title: 'Integrations',
-          href: '/organization-settings/integrations',
-          // hidden: !canEdit,
           hidden: true,
-          icon: Workflow,
         },
       ],
     },
@@ -371,7 +376,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
       title: 'User Management',
       href: '/user-management',
       icon: UserRoundPen,
-      hidden: session?.user?.isOnboarding || billingExpired,
+      hidden: session?.user?.isOnboarding || billingExpired || isAuditor,
       children: [
         {
           title: 'Members',
@@ -389,7 +394,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
       title: 'Developers',
       href: '/developers',
       icon: Bot,
-      hidden: session?.user?.isOnboarding || billingExpired,
+      hidden: session?.user?.isOnboarding || billingExpired || isAuditor || isImpersonation,
       children: [
         {
           title: 'API Tokens',
@@ -406,6 +411,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
     {
       title: 'User settings',
       href: '/user-settings',
+      hidden: isImpersonation,
       children: [
         {
           title: 'Profile',

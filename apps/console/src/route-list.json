@@ -1,27 +1,27 @@
 [
   {
-    "route": "/automation/assessments",
-    "name": "Assessments",
+    "route": "/automation/questionnaires",
+    "name": "Questionnaires",
     "keywords": ["questionnaires"]
   },
   {
-    "route": "/automation/assessments/questionnaire-editor",
+    "route": "/automation/questionnaires/questionnaire-editor",
     "name": "Questionnaire Editor"
   },
   {
-    "route": "/automation/assessments/questionnaire-viewer",
+    "route": "/automation/questionnaires/questionnaire-viewer",
     "name": "Questionnaire Viewer"
   },
   {
-    "route": "/automation/assessments/templates",
+    "route": "/automation/questionnaires/templates",
     "name": "Templates"
   },
   {
-    "route": "/automation/assessments/templates/template-editor",
+    "route": "/automation/questionnaires/templates/template-editor",
     "name": "Template Editor"
   },
   {
-    "route": "/automation/assessments/templates/template-viewer",
+    "route": "/automation/questionnaires/templates/template-viewer",
     "name": "Template Viewer"
   },
   {
@@ -178,14 +178,14 @@
     "name": "General Settings"
   },
   {
-    "route": "/organization-settings/integrations",
-    "name": "Integrations",
-    "hidden": true
+    "route": "/automation/integrations",
+    "name": "Integrations"
   },
   {
     "route": "/organization-settings/logs",
     "name": "Logs",
-    "keywords": ["audit logs", "activity", "history"]
+    "keywords": ["audit logs", "activity", "history"],
+    "hidden": true
   },
   {
     "route": "/organization-settings/subscribers",
@@ -324,6 +324,11 @@
   {
     "route": "/trust-center/subprocessors",
     "name": "Subprocessors",
+    "hidden": true
+  },
+  {
+    "route": "/trust-center/subscribers",
+    "name": "Subscribers",
     "hidden": true
   },
   {

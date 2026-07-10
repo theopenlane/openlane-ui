@@ -12,14 +12,16 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Button } from '@repo/ui/button'
 import { ViewPolicySheet } from '@/components/pages/protected/policies/view-policy-sheet'
+import { useOrganization } from '@/hooks/useOrganization'
 
 interface Props {
   onStatusClick: () => void
 }
 
-export default function StatusBreakdown({ onStatusClick }: Props) {
+const StatusBreakdown = ({ onStatusClick }: Props) => {
+  const { currentOrgId } = useOrganization()
   const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null)
-  const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY) || {}
+  const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY, undefined, currentOrgId) || {}
   const validated = isStringArray(saved?.approverIDIn) ? saved?.approverIDIn : []
   const { policies } = useInternalPoliciesDashboard({
     where: { ...wherePoliciesDashboard, approverIDIn: validated },
@@ -76,14 +78,14 @@ export default function StatusBreakdown({ onStatusClick }: Props) {
     { label: 'Pending', key: InternalPolicyDocumentStatus.PENDING, color: '#f2fa15', icon: Wrench },
   ]
 
-  function handleStatusClick(status: InternalPolicyDocumentStatus) {
+  const handleStatusClick = (status: InternalPolicyDocumentStatus) => {
     onStatusClick()
     const newState = {
       approverIDIn: saved.approverIDIn || undefined,
       status: [status],
     }
 
-    saveFilters(TableKeyEnum.INTERNAL_POLICY, newState)
+    saveFilters(TableKeyEnum.INTERNAL_POLICY, newState, currentOrgId)
   }
 
   return (
@@ -154,3 +156,5 @@ export default function StatusBreakdown({ onStatusClick }: Props) {
     </div>
   )
 }
+
+export default StatusBreakdown

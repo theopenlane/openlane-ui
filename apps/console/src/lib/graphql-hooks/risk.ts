@@ -124,6 +124,7 @@ export const useUpdateRisk = () => {
   return useMutation<UpdateRiskMutation, unknown, UpdateRiskMutationVariables>({
     mutationFn: (variables) => client.request(UPDATE_RISK, variables),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['risksDiscussion'] })
       queryClient.invalidateQueries({ queryKey: ['risks'] })
     },
   })
@@ -200,13 +201,11 @@ export const useGetRiskOpenAndIdentifiedCount = () => {
   }
 }
 
-export const RISK_DISCUSSION_QUERY_KEY = 'risksDiscussion'
-
 export const useGetRiskDiscussionById = (riskId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetRiskDiscussionByIdQuery, unknown>({
-    queryKey: [RISK_DISCUSSION_QUERY_KEY, riskId],
+    queryKey: ['risksDiscussion', riskId],
     queryFn: async () => client.request(GET_RISK_DISCUSSION_BY_ID, { riskId }),
     enabled: !!riskId,
   })

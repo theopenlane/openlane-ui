@@ -27,6 +27,7 @@ import {
   Pencil,
   ChevronDown,
   Plus,
+  Stamp,
 } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
 import { Input, InputRow } from '@repo/ui/input'
@@ -38,7 +39,7 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { formatDate } from '@/utils/date.ts'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { type Control, EvidenceEvidenceStatus, EvidenceFrequency, type Subcontrol } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { type EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
@@ -50,7 +51,9 @@ import { fileDownload } from '@/components/shared/lib/export.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { EvidenceRenewDialog } from '@/components/pages/protected/evidence/evidence-renew-dialog'
 import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
+import { useIsAuditor } from '@/lib/graphql-hooks/member'
+import EvidenceRequestChangesDialog from './evidence-request-changes-dialog'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import ObjectAssociation from '@/components/shared/object-association/object-association.tsx'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
@@ -90,6 +93,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectWorkflowPanel } from '@/components/workflows/object-workflow-panel'
+import { useSession } from 'next-auth/react'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -115,6 +119,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const objectAssociationRef = React.useRef<HTMLDivElement | null>(null)
   const [isEditing, setIsEditing] = useState(false)
 
+  const { data: session } = useSession()
+
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
 
@@ -129,6 +135,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
+  const { isAuditor } = useIsAuditor()
+  const [requestChangesOpen, setRequestChangesOpen] = useState(false)
+  const [auditorActionPending, setAuditorActionPending] = useState(false)
   const { wrapper, content } = statCardStyles({ color: 'green' })
 
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
@@ -159,24 +168,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { data: permission } = useAccountRoles(ObjectTypes.EVIDENCE, data?.evidence.id)
 
-  const editAllowed = canEdit(permission?.roles)
+  const editAllowed = canEdit(permission?.roles, session) || isAuditor
 
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope', isEditAllowed: editAllowed })
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment', isEditAllowed: editAllowed })
 
   const evidence = data?.evidence
 
-  const userIds = []
-  if (evidence?.updatedBy) {
-    userIds.push(evidence.updatedBy)
-  }
-  if (evidence?.createdBy) {
-    userIds.push(evidence.createdBy)
-  }
-
-  const { users } = useGetOrgUserList({ where: { hasUserWith: [{ idIn: userIds }] } })
-  const updatedByUser = users?.find((item) => item.id === evidence?.updatedBy)
-  const createdByUser = users?.find((item) => item.id === evidence?.createdBy)
+  const { userMap, tokenMap } = useAuthorMaps([evidence?.createdBy, evidence?.updatedBy])
 
   const evidenceName = evidence?.name
   const statusOptions = EvidenceStatusOptions
@@ -406,6 +405,40 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }
 
+  const handleApprove = async () => {
+    if (!config.id) return
+    try {
+      setAuditorActionPending(true)
+      await updateEvidence({
+        updateEvidenceId: config.id,
+        input: { status: EvidenceEvidenceStatus.AUDITOR_APPROVED },
+      })
+      successNotification({ title: 'Evidence approved', description: 'The evidence has been marked as approved by auditor.' })
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    } finally {
+      setAuditorActionPending(false)
+    }
+  }
+
+  const handleRequestChanges = async (comment: string) => {
+    if (!config.id) return
+    try {
+      setAuditorActionPending(true)
+      await updateEvidence({
+        updateEvidenceId: config.id,
+        input: { status: EvidenceEvidenceStatus.REJECTED, addComment: { text: comment } },
+      })
+      queryClient.invalidateQueries({ queryKey: ['evidenceComments', config.id] })
+      successNotification({ title: 'Changes requested', description: 'The evidence has been marked as changes requested and your comment was added.' })
+      setRequestChangesOpen(false)
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    } finally {
+      setAuditorActionPending(false)
+    }
+  }
+
   const handleDoubleClick = (field: EditableFields) => {
     if (isEditing || !editAllowed) return
     setEditField(field)
@@ -538,17 +571,44 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       <Button className="h-8 p-2" icon={<Copy />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
                         Copy link
                       </Button>
-                      {evidence && <EvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
+                      {evidence && !isAuditor && <EvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
+                      {isAuditor && evidence && (
+                        <>
+                          <Button
+                            type="button"
+                            className="h-8 p-2"
+                            icon={<Stamp size={16} />}
+                            iconPosition="left"
+                            onClick={handleApprove}
+                            loading={auditorActionPending}
+                            disabled={auditorActionPending || evidence.status === EvidenceEvidenceStatus.AUDITOR_APPROVED}
+                          >
+                            Approve
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            className="h-8 p-2"
+                            icon={<RefreshCw size={16} />}
+                            iconPosition="left"
+                            onClick={() => setRequestChangesOpen(true)}
+                            disabled={auditorActionPending}
+                          >
+                            Request Changes
+                          </Button>
+                        </>
+                      )}
                       {editAllowed && (
                         <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setIsEditing(true)} aria-label="Edit evidence">
                           <Pencil size={16} strokeWidth={2} />
                         </Button>
                       )}
+
+                      <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
+                        <Trash2 size={16} strokeWidth={2} />
+                      </Button>
                     </>
                   )}
-                  <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
-                    <Trash2 size={16} strokeWidth={2} />
-                  </Button>
                 </div>
                 <ConfirmationDialog
                   open={deleteDialogIsOpen}
@@ -560,6 +620,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       This action cannot be undone. This will permanently remove <b>{evidenceName} </b>from the control.
                     </>
                   }
+                />
+                <EvidenceRequestChangesDialog
+                  open={requestChangesOpen}
+                  onOpenChange={setRequestChangesOpen}
+                  onConfirm={handleRequestChanges}
+                  loading={auditorActionPending}
+                  evidenceName={evidenceName ?? undefined}
                 />
               </div>
             </div>
@@ -1120,10 +1187,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 Created By
                               </div>
                               <div className="text-sm cursor-not-allowed">
-                                <p className="text-sm justify-end flex items-center">
-                                  <Avatar entity={createdByUser} variant="small" />
-                                  <span>{createdByUser?.displayName}</span>
-                                </p>
+                                <AuthorCell id={evidence?.createdBy} userMap={userMap} tokenMap={tokenMap} className="text-sm justify-end flex items-center gap-2" />
                               </div>
                             </div>
 
@@ -1143,10 +1207,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 Updated By
                               </div>
                               <div className="text-sm cursor-not-allowed">
-                                <p className="text-sm justify-end flex items-center ">
-                                  <Avatar entity={updatedByUser} variant="small" />
-                                  <span>{updatedByUser?.displayName}</span>
-                                </p>
+                                <AuthorCell id={evidence?.updatedBy} userMap={userMap} tokenMap={tokenMap} className="text-sm justify-end flex items-center gap-2" />
                               </div>
                             </div>
                             {evidence?.url && (

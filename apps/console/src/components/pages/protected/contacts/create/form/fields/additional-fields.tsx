@@ -6,6 +6,7 @@ import { type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/sc
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { type EnumOptions } from '../../../table/types'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
+import VendorSuggestion from './vendor-suggestion'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -43,6 +44,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
             <TextField name="phoneNumber" label="Phone Number" tooltipContent="The phone number for this contact" {...sharedFieldProps} />
             <TextField name="address" label="Address" tooltipContent="The mailing address for this contact" {...sharedFieldProps} />
           </div>
+          {isCreate && <VendorSuggestion />}
         </CardContent>
       </Card>
 

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useParams } from 'next/navigation'
 import { useDeleteControlImplementation, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementation'
 import { type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/create-control-implementation-sheet'
@@ -13,6 +14,7 @@ type ControlImplementationsProps = {
 }
 
 const ControlImplementations: React.FC<ControlImplementationsProps> = ({ edges }) => {
+  const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
   const [showCreateSheet, setShowCreateSheet] = useState(false)
   const [editData, setEditData] = useState<ControlImplementationFieldsFragment | null>(null)
 
@@ -37,10 +39,19 @@ const ControlImplementations: React.FC<ControlImplementationsProps> = ({ edges }
     }
   }
 
-  const handleDelete = async (implementationId: string) => {
+  const handleDelete = async (node: ControlImplementationFieldsFragment) => {
+    const totalLinks = (node.controls?.edges?.length ?? 0) + (node.subcontrols?.edges?.length ?? 0)
+    const shouldUnlink = totalLinks > 1
+
     try {
-      await deleteImplementation({ deleteControlImplementationId: implementationId })
-      successNotification({ title: 'Control Implementation deleted' })
+      if (shouldUnlink) {
+        const input = subcontrolId ? { removeSubcontrolIDs: [subcontrolId] } : { removeControlIDs: [id] }
+        await updateImplementation({ updateControlImplementationId: node.id, input })
+        successNotification({ title: 'Control Implementation unlinked' })
+      } else {
+        await deleteImplementation({ deleteControlImplementationId: node.id })
+        successNotification({ title: 'Control Implementation deleted' })
+      }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({

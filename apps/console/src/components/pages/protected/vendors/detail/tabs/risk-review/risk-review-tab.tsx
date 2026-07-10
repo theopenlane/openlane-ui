@@ -30,6 +30,7 @@ interface RiskReviewTabProps {
 }
 
 const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField, canEdit, isEditing }) => {
+  const [now] = useState(() => Date.now())
   const [isCreateReviewOpen, setIsCreateReviewOpen] = useState(false)
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null)
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
@@ -45,7 +46,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
     where: { hasEntitiesWith: [{ id: vendor.id }], ...filterWhere, ...searchFields },
   })
 
-  const isOverdue = vendor.nextReviewAt && new Date(vendor.nextReviewAt) < new Date()
+  const isOverdue = vendor.nextReviewAt && Date.parse(vendor.nextReviewAt) < now
   const isHighRisk = isHighRiskTier(vendor.tier)
 
   const sharedFieldProps = {

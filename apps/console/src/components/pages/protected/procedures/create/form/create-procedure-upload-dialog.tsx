@@ -17,6 +17,7 @@ import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-proce
 import { Callout } from '@/components/shared/callout/callout'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
+import { wordAcceptedFileTypes } from '@/components/shared/file-upload/file-upload-config'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TCreateProcedureUploadDialogProps = {
@@ -200,19 +201,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
             </TabsTrigger>
           </TabsList>
           <UploadTab
-            acceptedFileTypes={[
-              'text/plain; charset=utf-8',
-              'text/plain',
-              'text/markdown',
-              'text/x-markdown',
-              'text/mdx',
-              '.mdx',
-              '.md',
-              '.doc',
-              '.docx',
-              'application/msword',
-              'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            ]}
+            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/x-markdown', 'text/mdx', '.mdx', '.md', ...wordAcceptedFileTypes]}
             acceptedFileTypesShort={['TXT', 'MD', 'MDX', 'DOC', 'DOCX']}
             uploadedFile={handleUploadedFile}
           />

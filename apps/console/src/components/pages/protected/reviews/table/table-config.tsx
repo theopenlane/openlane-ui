@@ -22,10 +22,11 @@ export const breadcrumbs = [
 
 export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
   {
-    key: 'stateContainsFold',
-    label: 'State',
-    type: 'text',
+    key: 'statusIn',
+    label: 'Status',
+    type: 'multiselect',
     icon: FilterIcons.Status,
+    options: enumOptions.statusOptions,
   },
   {
     key: 'categoryContainsFold',
@@ -83,7 +84,7 @@ export const REVIEWS_SORT_FIELDS = enumToSortFields(ReviewOrderField)
 export const visibilityFields = {
   id: false,
   title: true,
-  state: true,
+  status: true,
   category: true,
   classification: false,
   source: true,

@@ -159,6 +159,16 @@ export const CREATE_CSV_BULK_ASSET = gql`
   }
 `
 
+export const CREATE_BULK_ASSET = gql`
+  mutation CreateBulkAsset($input: [CreateAssetInput!]) {
+    createBulkAsset(input: $input) {
+      assets {
+        id
+      }
+    }
+  }
+`
+
 export const BULK_DELETE_ASSET = gql`
   mutation DeleteBulkAsset($ids: [ID!]!) {
     deleteBulkAsset(ids: $ids) {
@@ -197,6 +207,8 @@ export const GET_ASSET_ASSOCIATIONS = gql`
             id
             fullName
             displayID
+            identityHolderType
+            title
           }
         }
         totalCount

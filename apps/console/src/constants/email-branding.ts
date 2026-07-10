@@ -1,7 +1,4 @@
-import { EmailBrandingFont } from '@repo/codegen/src/schema'
-
 export const DEFAULT_EMAIL_BRANDING = {
-  fontFamily: EmailBrandingFont.HELVETICA,
   textColor: '#FFFFFF',
   backgroundColor: '#09151D',
   primaryColor: '#162431',

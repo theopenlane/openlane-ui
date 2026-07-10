@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { useCreateBulkCSVFinding, useBulkEditFinding, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -9,11 +9,12 @@ import { breadcrumbs, getFilterFields, visibilityFields } from './table-config'
 import { type FindingTablePageConfig, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
-import { type UpdateFindingInput, FindingSecurityLevel } from '@repo/codegen/src/schema'
+import { type UpdateFindingInput } from '@repo/codegen/src/schema'
 import { useFindingSheetConfig } from '../hooks/use-finding-sheet-config'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
 import ViewFindingSheet from '../view-finding-sheet'
-import { FindingSeverityChart } from '../../vulnerabilities/table/severity-chart'
+import { FindingSeverityChart } from '@/components/shared/severity-chart/severity-chart'
+import { useSlaQuickFilters } from '@/hooks/useSla'
 
 const DEFAULT_FILTER_VALUES = { open: true }
 
@@ -22,9 +23,10 @@ const FindingPage: React.FC = () => {
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
-  const [selectedSeverity, setSelectedSeverity] = useState<'critical' | 'high' | 'medium' | 'low' | null>(null)
 
   const { enumOpts, form, ...sheetConfig } = useFindingSheetConfig(null, isCreate)
+
+  const quickFilters = useSlaQuickFilters()
 
   const handleCloseViewSheet = () => {
     const newSearchParams = new URLSearchParams(searchParams.toString())
@@ -42,10 +44,6 @@ const FindingPage: React.FC = () => {
     mutateAsync: async (params: { input: File }) => baseBulkCreateMutation.mutateAsync({ input: params.input }),
   }
 
-  const severityWhereFilter = selectedSeverity
-    ? { securityLevelIn: [FindingSecurityLevel[selectedSeverity.toUpperCase() as keyof typeof FindingSecurityLevel]], findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }
-    : undefined
-
   const tableConfig: FindingTablePageConfig = {
     objectType,
     objectName,
@@ -55,6 +53,7 @@ const FindingPage: React.FC = () => {
     defaultSorting,
     defaultVisibility: visibilityFields,
     filterFields: getFilterFields(enumOpts),
+    quickFilters,
     searchFields: ['displayNameContainsFold', 'descriptionContainsFold', 'externalIDContainsFold', 'categoryContainsFold'],
     breadcrumbs,
     form,
@@ -73,11 +72,10 @@ const FindingPage: React.FC = () => {
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
-    additionalWhereFilter: severityWhereFilter,
     defaultFilterValues: DEFAULT_FILTER_VALUES,
     beforeTable: (
       <>
-        <FindingSeverityChart selectedSeverity={selectedSeverity} onSeveritySelect={setSelectedSeverity} />
+        <FindingSeverityChart tableKey={tableKey} />
       </>
     ),
   }

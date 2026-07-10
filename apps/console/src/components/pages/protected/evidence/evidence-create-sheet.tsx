@@ -42,6 +42,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { EvidenceEvidenceStatus, EvidenceFrequency } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { useIsAuditor } from '@/lib/graphql-hooks/member'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -63,6 +64,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   controlParam,
 }: TEvidenceCreateSheetProps) => {
   const { form } = useFormSchema()
+  const { isAuditor } = useIsAuditor()
   const { successNotification, errorNotification } = useNotification()
   const [tagValues, setTagValues] = useState<Option[]>([])
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
@@ -83,6 +85,12 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const { tagOptions } = useGetTags()
 
   const { convertToHtml } = usePlateEditor()
+
+  useEffect(() => {
+    if (open && isAuditor && !form.getValues('status')) {
+      form.setValue('status', EvidenceEvidenceStatus.REQUESTED)
+    }
+  }, [open, isAuditor, form])
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
     const collectionProcedure = data.collectionProcedure && typeof data.collectionProcedure !== 'string' ? await convertToHtml(data.collectionProcedure) : data.collectionProcedure
@@ -324,24 +332,26 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                   </InputRow>
 
                   {/* Collection Procedure */}
-                  <InputRow className="w-full">
-                    <FormField
-                      control={form.control}
-                      name="collectionProcedure"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <div className="flex items-center">
-                            <FormLabel>Collection Procedure</FormLabel>
-                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
-                          </div>
-                          <FormControl>
-                            <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
-                          </FormControl>
-                          {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
-                        </FormItem>
-                      )}
-                    />
-                  </InputRow>
+                  {!isAuditor && (
+                    <InputRow className="w-full">
+                      <FormField
+                        control={form.control}
+                        name="collectionProcedure"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <div className="flex items-center">
+                              <FormLabel>Collection Procedure</FormLabel>
+                              <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
+                            </div>
+                            <FormControl>
+                              <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
+                            </FormControl>
+                            {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
+                          </FormItem>
+                        )}
+                      />
+                    </InputRow>
+                  )}
 
                   {/* Source Field */}
                   <InputRow className="w-full">
@@ -647,7 +657,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                             <div className="flex items-center justify-between w-full">
                               <AccordionTrigger asChild>
                                 <button className="group flex items-center gap-2 text-sm font-medium bg-unset">
-                                  <ChevronDown size={22} className="text-brand transform rotate-90 transition-transform group-data-[state=open]:rotate-0" />
+                                  <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
                                   Associate more objects
                                 </button>
                               </AccordionTrigger>
@@ -668,8 +678,12 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                   </GridRow>
                 </div>
 
-                <p className="pt-5 pb-5">Provide supporting file(s)</p>
-                <EvidenceUploadForm evidenceFiles={handleUploadedFiles} resetEvidenceFiles={resetEvidenceFiles} setResetEvidenceFiles={handleResetEvidenceFiles} form={form} />
+                {!isAuditor && (
+                  <>
+                    <p className="pt-5 pb-5">Provide supporting file(s)</p>
+                    <EvidenceUploadForm evidenceFiles={handleUploadedFiles} resetEvidenceFiles={resetEvidenceFiles} setResetEvidenceFiles={handleResetEvidenceFiles} form={form} />
+                  </>
+                )}
               </Form>
             </GridCell>
           </GridRow>
@@ -677,7 +691,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
           <GridRow columns={1}>
             <GridCell>
               <Button onClick={form.handleSubmit(onSubmitHandler)} loading={isPending} disabled={isPending}>
-                {isPending ? 'Submitting...' : 'Submit for review'}
+                {isPending ? 'Submitting...' : isAuditor ? 'Submit Request' : 'Submit for review'}
               </Button>
             </GridCell>
           </GridRow>

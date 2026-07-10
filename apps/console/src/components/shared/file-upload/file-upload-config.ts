@@ -21,4 +21,7 @@ export const acceptedFileTypes = [
 
 export const acceptedFileTypesShort = ['PDF', 'DOC(X)', 'CSV', 'XLSX', 'TXT', 'PNG', 'JPG', 'ZIP', 'YAML']
 
+export const wordAcceptedFileTypes = ['.doc', '.docx', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+export const wordAcceptedFileTypesShort = ['DOC', 'DOCX']
+
 export const maxFileSizeInMb = 100

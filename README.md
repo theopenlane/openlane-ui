@@ -1,5 +1,10 @@
 # Openlane UI
 
+> [!IMPORTANT]
+> This repository contains Openlane-owned branding, logos, customer testimonials, legal policy links, and other proprietary assets that are not included under the open-source license for this repository.
+>
+> Public or external-facing deployments must remove or replace Openlane branding, customer testimonials, privacy policies, Terms of Service links, and other proprietary assets prior to use. Deployments may not imply affiliation with, endorsement by, or operation by theopenlane, Inc.
+
 Openlane UI monorepo which holds all the frontend assets for Openlane
 
 ## What's inside?
@@ -12,7 +17,6 @@ This monorepo is run on [Bun](https://bun.sh/) and built using
 #### Applications
 
 - `console`: [Openlane Console](https://console.theopenlane.io/)
-- `storybook`: [Storybook Components](https://storybook.theopenlane.io/)
 
 #### Packages
 
@@ -84,6 +88,9 @@ task build
    ```
    task dev:console
    ```
+
+   > [!NOTE]
+   > To disable module billing for local development, ensure `NEXT_PUBLIC_ENABLE_PLAN=false` is set in the environment variables
 
 ### API Backend
 

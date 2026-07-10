@@ -1,11 +1,11 @@
 'use client'
 
 import { DataTable } from '@repo/ui/data-table'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { type VulnerabilityWhereInput, type Vulnerability, type VulnerabilityOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/vulnerabilities/table/columns.tsx'
 import { type VulnerabilitiesNodeNonNull, useVulnerabilitiesWithFilter } from '@/lib/graphql-hooks/vulnerability'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useNotification } from '@/hooks/useNotification'
@@ -20,6 +20,10 @@ import { useSheetNavigation } from '@/providers/sheet-navigation-provider'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
 import { useQueryClient } from '@tanstack/react-query'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useSlaDaysByLevel } from '@/hooks/useSla'
 
 const TableComponent = ({
   onSortChange,
@@ -34,7 +38,6 @@ const TableComponent = ({
   setSelectedItems,
   canEdit,
   permission,
-  defaultSorting,
   rowHref,
 }: TTableProps<VulnerabilityWhereInput>) => {
   const { replace } = useSmartRouter()
@@ -44,6 +47,8 @@ const TableComponent = ({
   const { errorNotification } = useNotification()
   const [createTaskRow, setCreateTaskRow] = useState<VulnerabilitiesNodeNonNull | null>(null)
   const [trackRemediationRow, setTrackRemediationRow] = useState<VulnerabilitiesNodeNonNull | null>(null)
+  const { data: orgPermission } = useOrganizationRoles()
+  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -67,6 +72,8 @@ const TableComponent = ({
   })
 
   const { convertToReadOnly } = usePlateEditor()
+
+  const slaDaysByLevel = useSlaDaysByLevel()
 
   const userIds = useMemo(() => {
     if (!items) return []
@@ -92,10 +99,10 @@ const TableComponent = ({
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles),
+        select: canEdit(permission.roles, session),
       }))
     }
-  }, [permission?.roles, setColumnVisibility, canEdit])
+  }, [permission?.roles, setColumnVisibility, canEdit, session])
 
   useEffect(() => {
     if (isError) {
@@ -106,28 +113,21 @@ const TableComponent = ({
     }
   }, [isError, errorNotification])
 
-  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[0]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 
   const handleTrackRemediation = (row: VulnerabilitiesNodeNonNull) => {
     setTrackRemediationRow(row)
   }
 
-  const handleOpenRemediation = (row: VulnerabilitiesNodeNonNull) => {
-    const remediationId = row.remediations?.edges?.[0]?.node?.id
-    if (remediationId) {
-      sheetNav?.openSheet(remediationId, ObjectAssociationNodeEnum.REMEDIATION)
-    }
-  }
+  const handleOpenRemediation = useCallback(
+    (row: VulnerabilitiesNodeNonNull) => {
+      const remediationId = row.remediations?.edges?.[0]?.node?.id
+      if (remediationId) {
+        sheetNav?.openSheet(remediationId, ObjectAssociationNodeEnum.REMEDIATION)
+      }
+    },
+    [sheetNav],
+  )
 
   const handleCreateTask = (row: VulnerabilitiesNodeNonNull) => {
     setCreateTaskRow(row)
@@ -135,9 +135,18 @@ const TableComponent = ({
 
   const columns = useMemo(
     () =>
-      getColumns({ userMap, convertToReadOnly, selectedItems, setSelectedItems, onTrackRemediation: handleTrackRemediation, onOpenRemediation: handleOpenRemediation, onCreateTask: handleCreateTask }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [userMap, convertToReadOnly, selectedItems, setSelectedItems],
+      getColumns({
+        userMap,
+        tokenMap,
+        convertToReadOnly,
+        selectedItems,
+        setSelectedItems,
+        onTrackRemediation: canCreateRemediation ? handleTrackRemediation : undefined,
+        onOpenRemediation: handleOpenRemediation,
+        onCreateTask: handleCreateTask,
+        slaDaysByLevel,
+      }),
+    [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, canCreateRemediation, handleOpenRemediation, slaDaysByLevel],
   )
 
   const createTaskInitialValues = useMemo(() => {
@@ -164,7 +173,7 @@ const TableComponent = ({
         onSortChange={onSortChange}
         data={items}
         loading={fetching || fetchingUsers}
-        defaultSorting={defaultSorting}
+        sorting={orderBy}
         onRowClick={(item) => {
           replace({ id: item.id })
         }}

@@ -7,8 +7,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNavigationGuard } from 'next-navigation-guard'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetRiskById, useGetRiskAssociations, useUpdateRisk, useDeleteRisk } from '@/lib/graphql-hooks/risk'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
+import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canDelete, canEdit, hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useNotification } from '@/hooks/useNotification'
 import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -35,6 +36,7 @@ import RiskLabel from '../../risk-label'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
 import TaskDetailsSheet from '../../../tasks/create-task/sidebar/task-details-sheet'
+import { useSession } from 'next-auth/react'
 
 interface RiskDetailPageProps {
   riskId: string
@@ -53,6 +55,8 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   const { data, isLoading, isError } = useGetRiskById(riskId)
   const { data: associationsData } = useGetRiskAssociations(riskId)
   const { data: permission } = useAccountRoles(ObjectTypes.RISK, riskId)
+  const { data: orgPermission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const { mutateAsync: updateRisk } = useUpdateRisk()
   const { mutateAsync: deleteRisk } = useDeleteRisk()
 
@@ -73,7 +77,9 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   const isEditingRef = useRef(isEditing)
-  isEditingRef.current = isEditing
+  useEffect(() => {
+    isEditingRef.current = isEditing
+  }, [isEditing])
 
   useEffect(() => {
     setCrumbs([
@@ -200,6 +206,9 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
 
   const queryClient = useQueryClient()
 
+  // depending on the leaf fields instead of associationsData?.risk would satisfy the react-compiler
+  // advisory rule but trips exhaustive-deps, which treats the parent as the real dep here
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const memoizedSections = useMemo(() => {
     if (!associationsData?.risk) return {}
     return {
@@ -224,7 +233,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
       node: data.risk,
       type: ObjectAssociationNodeEnum.RISKS,
     }
-  }, [data?.risk])
+  }, [data])
 
   const handleRemoveAssociation = useAssociationRemoval({
     entityId: riskId,
@@ -238,7 +247,8 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   })
 
   const risk = data?.risk
-  const canEditRisk = canEdit(permission?.roles)
+  const canEditRisk = canEdit(permission?.roles, session) || hasPermission(orgPermission?.roles, AccessEnum.CanEditRisk, session)
+  const canDeleteRisk = canDelete(permission?.roles) || hasPermission(orgPermission?.roles, AccessEnum.CanDeleteRisk, session)
 
   const canInlineEdit = (field: InlineEditField) => !isEditing && canEditRisk && inlineEditField !== field
 
@@ -308,7 +318,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
         onEdit={handleEdit}
         onCancel={handleCancel}
         onDeleteClick={() => setIsDeleteDialogOpen(true)}
-        permissionRoles={permission?.roles}
+        canDeleteRisk={canDeleteRisk}
         handleUpdateField={handleUpdateField}
       />
 
@@ -342,7 +352,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
           })}
       </div>
 
-      <QuickActions riskId={riskId} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
+      <QuickActions riskId={riskId} handleUpdate={handleUpdateField} canEdit={canEditRisk} />
 
       <RiskDetailTabs risk={risk} associations={associationsData} isEditing={isEditing} canEdit={canEditRisk} handleUpdateField={handleUpdateField} />
     </div>

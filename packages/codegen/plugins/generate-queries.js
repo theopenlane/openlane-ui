@@ -31,6 +31,8 @@ const EXCLUDED_TYPES = [
   'OrganizationSetting',
   'GroupPermission',
   'DocumentData',
+  'ControlReport',
+  'PolicySummary',
 ]
 
 // Fields to exclude from all queries

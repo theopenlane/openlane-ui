@@ -3,6 +3,7 @@ import {
   ArrowUpFromDot,
   BinocularsIcon,
   BookMarked,
+  CaseSensitive,
   Circle,
   Clock,
   FileBadge2,
@@ -23,6 +24,7 @@ import { type ControlControlSource, ControlControlStatus, ControlImplementationD
 import { getEnumLabel } from './common-enum'
 
 export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> = {
+  [ControlControlStatus.DRAFT]: <FilePenLine height={16} width={16} className="text-draft" />,
   [ControlControlStatus.APPROVED]: <Stamp height={16} width={16} className="text-approved" />,
   [ControlControlStatus.NEEDS_APPROVAL]: <ScanEye height={16} width={16} className="text-needs-approval" />,
   [ControlControlStatus.CHANGES_REQUESTED]: <RefreshCw height={16} width={16} className="text-changes-requested" />,
@@ -33,6 +35,7 @@ export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> 
 }
 
 export const ControlIconMapper: Record<ControlControlStatus, React.ElementType> = {
+  [ControlControlStatus.DRAFT]: FilePenLine,
   [ControlControlStatus.NOT_IMPLEMENTED]: RouteOff,
   [ControlControlStatus.PREPARING]: Circle,
   [ControlControlStatus.NEEDS_APPROVAL]: ScanEye,
@@ -51,6 +54,22 @@ export const ControlImplementationIconMap: Record<ControlImplementationDocumentS
   [ControlImplementationDocumentStatus.PUBLISHED]: <Archive size={16} />,
 }
 
+export const ORG_COVERAGE_SEVERITY_ORDER: ControlControlStatus[] = [
+  ControlControlStatus.CHANGES_REQUESTED,
+  ControlControlStatus.NEEDS_APPROVAL,
+  ControlControlStatus.PREPARING,
+  ControlControlStatus.NOT_IMPLEMENTED,
+  ControlControlStatus.APPROVED,
+]
+
+export const CONTROL_STATUS_STYLES: Partial<Record<ControlControlStatus, { bg: string; color: string }>> = {
+  [ControlControlStatus.CHANGES_REQUESTED]: { bg: 'color-mix(in srgb, var(--color-changes-requested) 15%, transparent)', color: 'var(--color-changes-requested)' },
+  [ControlControlStatus.NEEDS_APPROVAL]: { bg: 'color-mix(in srgb, var(--color-needs-approval) 15%, transparent)', color: 'var(--color-needs-approval)' },
+  [ControlControlStatus.PREPARING]: { bg: 'color-mix(in srgb, var(--color-preparing) 15%, transparent)', color: 'var(--color-preparing)' },
+  [ControlControlStatus.NOT_IMPLEMENTED]: { bg: 'color-mix(in srgb, var(--color-not-implemented) 15%, transparent)', color: 'var(--color-not-implemented)' },
+  [ControlControlStatus.APPROVED]: { bg: 'color-mix(in srgb, var(--color-approved) 15%, transparent)', color: 'var(--color-approved)' },
+}
+
 export const ControlStatusOrder: ControlControlStatus[] = [
   ControlControlStatus.NOT_IMPLEMENTED,
   ControlControlStatus.PREPARING,
@@ -62,6 +81,7 @@ export const ControlStatusOrder: ControlControlStatus[] = [
 
 // Tooltip explanations for control statuses
 export const ControlStatusTooltips: Record<ControlControlStatus, string> = {
+  [ControlControlStatus.DRAFT]: 'Control is a draft and should be updated before it is ready for implementation and review.',
   [ControlControlStatus.NOT_IMPLEMENTED]:
     'Control has not been implemented yet. This is the initial state for new controls, controls are not considered as part of an audit program until they are implemented.',
   [ControlControlStatus.PREPARING]: 'Control is being prepared and documented. Implementation details are being worked on to prepare for review and approval.',
@@ -127,4 +147,5 @@ export const controlIconsMap: Record<string, React.ReactNode> = {
   Type: <Shapes size={16} className="text-brand" />,
   ID: <IdCard size={16} className="text-brand" />,
   Reference: <BookMarked size={16} className="text-brand" />,
+  Alias: <CaseSensitive size={16} className="text-brand" />,
 }

@@ -1,12 +1,15 @@
 'use client'
 
 import React, { useEffect, useImperativeHandle, useCallback, type Ref, useRef } from 'react'
+import { useTheme } from 'next-themes'
+import { ThemeAwareFontBackgroundColorPlugin, ThemeAwareFontColorPlugin } from '@repo/ui/components/editor/plugins/font-kit.tsx'
 import { type Value, type TElement, KEYS } from 'platejs'
 import { EditorKitVariant, type TPlateEditorVariants } from '@repo/ui/components/editor/use-create-editor.ts'
 import { Editor, EditorContainer, type TPlateEditorStyleVariant } from '@repo/ui/components/ui/editor.tsx'
 import { createPlateEditor, Plate, type PlatePlugin, usePlateEditor } from 'platejs/react'
 import { detectFormat } from './usePlateEditor'
 import { type CommentEntityType, discussionPlugin, type TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
+import { pdfExportPlugin } from '@repo/ui/components/editor/plugins/pdf-export-kit.tsx'
 import { parseCommentTextToChildren } from '@repo/ui/components/editor/plugins/mention-serialize.ts'
 import {
   type ControlDiscussionFieldsFragment,
@@ -31,6 +34,7 @@ export type TPlateEditorProps = {
   readonly?: boolean
   isCreate?: boolean
   toolbarClassName?: string
+  onExportPdf?: () => void
   ref?: Ref<PlateEditorRef>
 }
 
@@ -39,7 +43,22 @@ export interface PlateEditorRef {
   editor: ReturnType<typeof createPlateEditor>
 }
 
-const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder, entity, userData, readonly, isCreate, toolbarClassName, ref }: TPlateEditorProps) => {
+const PlateEditor = ({
+  onChange,
+  initialValue,
+  variant = 'basic',
+  styleVariant,
+  clearData,
+  onClear,
+  placeholder,
+  entity,
+  userData,
+  readonly,
+  isCreate,
+  toolbarClassName,
+  onExportPdf,
+  ref,
+}: TPlateEditorProps) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getFirstDefinedProperty = (obj: any, keys: string[], fallback: string): string => {
     for (const key of keys) {
@@ -57,7 +76,19 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
 
   const editor = usePlateEditor({
     plugins: getPlugins(),
+    value: Array.isArray(initialValue) ? initialValue : undefined,
   })
+
+  const { resolvedTheme } = useTheme()
+  useEffect(() => {
+    if (resolvedTheme !== 'light' && resolvedTheme !== 'dark') return
+    editor.setOption(ThemeAwareFontColorPlugin, 'theme', resolvedTheme)
+    editor.setOption(ThemeAwareFontBackgroundColorPlugin, 'theme', resolvedTheme)
+  }, [editor, resolvedTheme])
+
+  useEffect(() => {
+    editor.setOption(pdfExportPlugin, 'onExportPdf', onExportPdf ?? null)
+  }, [editor, onExportPdf])
 
   const plateEditor = React.useMemo(
     () =>
@@ -94,7 +125,7 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
                     },
                   ],
                   createdAt: new Date(c.createdAt ?? Date.now()),
-                  discussionId: d.id,
+                  discussionId: d.externalID,
                   isEdited: c.isEdited,
                   userId: c.createdBy ?? 'unknown',
                 } as TComment
@@ -105,7 +136,7 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
             id: d.externalID,
             systemId: d.id,
             createdAt: new Date(d.createdAt ?? Date.now()),
-            isResolved: false,
+            isResolved: d.isResolved ?? false,
             userId: comments[0]?.userId ?? 'unknown',
             comments,
           } as TDiscussion
@@ -167,19 +198,19 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
     if (plateEditor && !initialValueSetRef.current && initialValue) {
       initialValueSetRef.current = true
 
-      let slateNodes
       if (Array.isArray(initialValue)) {
-        slateNodes = initialValue
+        return
+      }
+
+      let slateNodes
+      const fmt = detectFormat(initialValue)
+      if (fmt === 'html') {
+        slateNodes = plateEditor.api.html.deserialize({
+          element: initialValue || '',
+        }) as Value
       } else {
-        const fmt = detectFormat(initialValue)
-        if (fmt === 'html') {
-          slateNodes = plateEditor.api.html.deserialize({
-            element: initialValue || '',
-          }) as Value
-        } else {
-          // @ts-expect-error fix bad typing from platejs
-          slateNodes = (plateEditor.api.markdown?.deserialize?.(initialValue || '') ?? []) as Value
-        }
+        // @ts-expect-error fix bad typing from platejs
+        slateNodes = (plateEditor.api.markdown?.deserialize?.(initialValue || '') ?? []) as Value
       }
 
       if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as TElement).text === 'string' && !(slateNodes[0] as TElement).type) {

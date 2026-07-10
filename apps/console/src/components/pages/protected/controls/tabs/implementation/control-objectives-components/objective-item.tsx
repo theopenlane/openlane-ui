@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Button } from '@repo/ui/button'
-import { Archive, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { Archive, Link2Off, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils'
 import { ControlObjectiveCard } from './control-objective-card'
@@ -10,17 +10,21 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import Menu from '@/components/shared/menu/menu'
 import { LinkControlsModal } from './link-controls-modal'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 type Props = {
   node: ControlObjectiveFieldsFragment
   onEdit: (node: ControlObjectiveFieldsFragment) => void
   onUnarchive: (node: ControlObjectiveFieldsFragment) => void
-  onDelete: (id: string) => void
+  onDelete: (node: ControlObjectiveFieldsFragment) => void
 }
 
 export const ObjectiveItem: React.FC<Props> = ({ node, onEdit, onUnarchive, onDelete }) => {
   const { data: permission, isLoading: permLoading } = useAccountRoles(ObjectTypes.CONTROL_OBJECTIVE, node.id)
-  const isEditAllowed = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const isEditAllowed = canEdit(permission?.roles, session)
+  const totalLinks = (node.controls?.edges?.length ?? 0) + (node.subcontrols?.edges?.length ?? 0)
+  const willUnlink = totalLinks > 1
   return (
     <div className="space-y-4">
       {isEditAllowed && !permLoading && (
@@ -64,12 +68,12 @@ export const ObjectiveItem: React.FC<Props> = ({ node, onEdit, onUnarchive, onDe
                   type="button"
                   className="flex items-center gap-2 text-destructive"
                   onClick={() => {
-                    onDelete(node.id)
+                    onDelete(node)
                     close()
                   }}
                 >
-                  <Trash2 size={16} />
-                  Delete
+                  {willUnlink ? <Link2Off size={16} /> : <Trash2 size={16} />}
+                  {willUnlink ? 'Unlink' : 'Delete'}
                 </button>
               </>
             )}

@@ -1,0 +1,53 @@
+import { type NextRequest, NextResponse } from 'next/server'
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
+
+interface SupportCallbackRequest {
+  code: string
+  state: string
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body: SupportCallbackRequest = await request.json()
+
+    if (!body.code || !body.state) {
+      return NextResponse.json({ success: false, message: 'code and state are required' }, { status: 400 })
+    }
+
+    const cookies = request.headers.get('cookie')
+    const headers: HeadersInit = {
+      ...(cookies ? { cookie: cookies } : {}),
+    }
+
+    const callbackData = await secureFetch(`${process.env.API_REST_URL}/v1/support/callback`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        code: body.code,
+        state: body.state,
+      }),
+    })
+
+    const callbackResponse = await callbackData.json()
+
+    if (callbackData.ok && callbackResponse.success) {
+      await setSessionCookie(callbackResponse.session)
+
+      const response = NextResponse.json({ success: true, ...callbackResponse }, { status: 200 })
+
+      return response
+    }
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: callbackResponse.error || 'Support callback failed',
+      },
+      { status: callbackData.status },
+    )
+  } catch (error) {
+    console.error('Support callback API error:', error)
+    return NextResponse.json({ success: false, message: 'Internal server error during support callback' }, { status: 500 })
+  }
+}

@@ -10,7 +10,7 @@ import { renderAnswer } from '../utils/render-answer'
 
 type ResponseNode = {
   id: string
-  email: string
+  email?: string | null
   completedAt?: string | null
   document?: { id: string; data: unknown } | null
 }

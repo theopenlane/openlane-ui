@@ -2,9 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import CampaignTableToolbar from '@/components/pages/protected/campaigns/table/campaigns-table-toolbar'
-import { CampaignOrderField, OrderDirection, type CampaignWhereInput, type CampaignsWithFilterQueryVariables } from '@repo/codegen/src/schema'
+import { CampaignOrderField, OrderDirection, type CampaignWhereInput } from '@repo/codegen/src/schema'
 import { getCampaignColumns } from '@/components/pages/protected/campaigns/table/columns'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { type VisibilityState } from '@tanstack/react-table'
 import CampaignsTable from '@/components/pages/protected/campaigns/table/campaigns-table'
@@ -15,7 +14,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -26,18 +25,16 @@ const CampaignsPage: React.FC = () => {
   const [isCreateSheetOpen, setIsCreateSheetOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.CAMPAIGN)
   const [filters, setFilters] = useState<CampaignWhereInput | null>(null)
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.CAMPAIGN, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
 
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.CAMPAIGN, CampaignOrderField, [
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.CAMPAIGN, CampaignOrderField, [
     {
       field: CampaignOrderField.due_date,
       direction: OrderDirection.ASC,
     },
   ])
-
-  const [orderBy, setOrderBy] = useState<CampaignsWithFilterQueryVariables['orderBy']>(defaultSorting)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() =>
     getInitialVisibility(TableKeyEnum.CAMPAIGN, {
       id: false,
@@ -141,7 +138,7 @@ const CampaignsPage: React.FC = () => {
         selectedCampaigns={selectedCampaigns}
         setSelectedCampaigns={setSelectedCampaigns}
         canEdit={canEdit}
-        defaultSorting={defaultSorting}
+        defaultSorting={orderBy}
         permission={permission}
       />
       <CreateCampaignSheet open={isCreateSheetOpen} onClose={() => setIsCreateSheetOpen(false)} />

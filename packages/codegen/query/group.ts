@@ -56,6 +56,20 @@ export const GET_ALL_GROUPS = gql`
   }
 `
 
+export const GET_GROUP_NAMES = gql`
+  query GetGroupNames($where: GroupWhereInput, $first: Int, $after: Cursor) {
+    groups(where: $where, first: $first, after: $after) {
+      edges {
+        node {
+          id
+          name
+          displayName
+        }
+      }
+    }
+  }
+`
+
 export const CREATE_GROUP_WITH_MEMBERS = gql`
   mutation CreateGroupWithMembers($groupInput: CreateGroupInput!, $members: [GroupMembersInput!]) {
     createGroupWithMembers(groupInput: $groupInput, members: $members) {
@@ -99,6 +113,7 @@ export const GET_GROUP_DETAILS = gql`
       }
       isManaged
       tags
+      additionalRoles
       members {
         edges {
           node {

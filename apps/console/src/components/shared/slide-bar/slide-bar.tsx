@@ -1,6 +1,7 @@
 import React, { useState, useRef, type ReactNode, useEffect } from 'react'
 import { PanelRight, PanelRightClose } from 'lucide-react'
 import { Button } from '@repo/ui/button'
+import { IMPERSONATION_BANNER_HEIGHT_VAR } from '@/constants/layout'
 
 type TSlideBarLayoutProps = {
   sidebarTitle?: string
@@ -108,7 +109,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
         {children}
       </div>
 
-      <div className="fixed flex items-center space-x-2 z-30" style={{ top: '5rem', right: `${FLOATING_MARGIN}px` }}>
+      <div className="fixed flex items-center space-x-2 z-30" style={{ top: `calc(5rem + var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px))`, right: `${FLOATING_MARGIN}px` }}>
         <Button
           type="button"
           descriptiveTooltipText={open ? 'Close slide bar' : 'Open slide bar'}
@@ -121,9 +122,10 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
         {menu}
       </div>
       <div
-        className="fixed right-0 mt-[4px] mb-[8px] rounded-md bottom-0 border-l shadow-xl transform transition-transform duration-300 z-20 bg-secondary"
+        className="fixed right-0 mb-[8px] rounded-md bottom-0 border-l shadow-xl transform transition-transform duration-300 z-20 bg-secondary"
         style={{
-          top: '4rem',
+          top: `calc(4rem + var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px))`,
+          marginTop: `max(0px, calc(4px - var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px)))`,
           width: open ? `${width}px` : 0,
           transform: open ? 'translateX(0)' : 'translateX(100%)',
           marginRight: open ? '8px' : '0',

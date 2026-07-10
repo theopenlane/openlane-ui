@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { TrustCenterNdaRequestTrustCenterNdaRequestStatus, type TrustCenterNdaRequestWhereInput } from '@repo/codegen/src/schema'
@@ -17,9 +17,10 @@ import { getBulkActionFailureDescription } from '@/components/shared/crud-base/b
 
 type NdaRequestsTableProps = {
   requireApproval: boolean
+  canRevoke: boolean
 }
 
-const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
+const NdaRequestsTable = ({ requireApproval, canRevoke }: NdaRequestsTableProps) => {
   const [activeTab, setActiveTab] = useState<'requested' | 'approved' | 'signed'>('requested')
   const [searchTerm, setSearchTerm] = useState('')
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
@@ -29,7 +30,7 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false)
   const [revokeLoading, setRevokeLoading] = useState(false)
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.TRUST_CENTER_NDA_REQUESTS, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<TrustCenterNdaRequestWhereInput | null>(null)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: updateNdaRequest } = useUpdateTrustCenterNdaRequest()
@@ -49,7 +50,7 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
       query: { first: prev.pageSize },
     }))
     setSelectedRows([])
-  }, [status])
+  }, [status, setPagination])
 
   const whereFilter = useMemo<TrustCenterNdaRequestWhereInput>(
     () => ({
@@ -91,7 +92,7 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
         showActions: requireApproval && activeTab === 'requested',
         showApprovedOn: requireApproval && activeTab === 'approved',
         showSignedOn: activeTab === 'signed',
-        showSelect: activeTab === 'signed',
+        showSelect: activeTab === 'signed' && canRevoke,
         selectedRows,
         setSelectedRows,
         onApprove: async (id) => {
@@ -141,7 +142,7 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
         actionLoadingId,
         actionLoadingType,
       }),
-    [activeTab, actionLoadingId, actionLoadingType, errorNotification, requireApproval, selectedRows, successNotification, updateNdaRequest],
+    [activeTab, actionLoadingId, actionLoadingType, canRevoke, errorNotification, requireApproval, selectedRows, successNotification, updateNdaRequest],
   )
 
   const handleSearchTermChange = (value: string) => {
@@ -153,14 +154,17 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
     }))
   }
 
-  const handleFilterChange = useCallback((newFilters: TrustCenterNdaRequestWhereInput) => {
-    setFilters(newFilters)
-    setPagination((prev) => ({
-      ...prev,
-      page: 1,
-      query: { first: prev.pageSize },
-    }))
-  }, [])
+  const handleFilterChange = useCallback(
+    (newFilters: TrustCenterNdaRequestWhereInput) => {
+      setFilters(newFilters)
+      setPagination((prev) => ({
+        ...prev,
+        page: 1,
+        query: { first: prev.pageSize },
+      }))
+    },
+    [setPagination],
+  )
 
   const handleApproveAll = useCallback(async () => {
     if (requests.length === 0) return

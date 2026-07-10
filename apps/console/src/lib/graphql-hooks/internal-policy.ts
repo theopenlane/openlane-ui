@@ -1,5 +1,7 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { useInfiniteQuery, useMutation, useQuery, type InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { useHistoryGraphQLClient } from '@/hooks/useHistoryGraphQLClient'
 import {
   GET_INTERNAL_POLICIES_LIST,
   GET_INTERNAL_POLICY_DETAILS_BY_ID,
@@ -18,6 +20,8 @@ import {
   UPDATE_POLICY_COMMENT,
   GET_POLICY_COMMENTS_BY_ID,
 } from '@repo/codegen/query/internal-policy'
+import { GET_INTERNAL_POLICY_HISTORIES } from '@repo/codegen/query-history/internal-policy'
+import { type GetInternalPolicyHistoriesQuery, type GetInternalPolicyHistoriesQueryVariables, InternalPolicyHistoryOrderField, OrderDirection } from '@repo/codegen/src/historyschema'
 import {
   type CreateBulkCsvInternalPolicyMutation,
   type CreateBulkCsvInternalPolicyMutationVariables,
@@ -51,6 +55,7 @@ import {
 import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { useSession } from 'next-auth/react'
+import { subDays } from 'date-fns'
 import { wherePoliciesDashboard } from '@/components/pages/protected/policies/policies-dashboard/dashboard-config.ts'
 
 type UseInternalPoliciesArgs = {
@@ -78,7 +83,7 @@ export const useInternalPoliciesCount = (pagination: TPagination) => {
   return {
     ...queryResult,
     totalCount: queryResult.data?.internalPolicies?.totalCount ?? 0,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 }
 
@@ -101,14 +106,14 @@ export const useInternalPolicies = ({ where, orderBy, pagination, enabled }: Use
   const paginationMeta = {
     totalCount: queryResult.data?.internalPolicies?.totalCount ?? 0,
     pageInfo: queryResult.data?.internalPolicies?.pageInfo,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 
   return {
     ...queryResult,
     policies,
     paginationMeta,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 }
 
@@ -146,7 +151,7 @@ export const useGetInternalPolicyAssociationsById = (internalPolicyId: string | 
   })
 }
 
-export const useCreateInternalPolicy = () => {
+export const useCreateInternalPolicy = ({ autoInvalidate = true }: { autoInvalidate?: boolean } = {}) => {
   const { client, queryClient } = useGraphQLClient()
 
   return useMutation<CreateInternalPolicyMutation, unknown, CreateInternalPolicyMutationVariables>({
@@ -154,17 +159,27 @@ export const useCreateInternalPolicy = () => {
       return client.request(CREATE_INTERNAL_POLICY, payload)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      if (autoInvalidate) {
+        queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      }
     },
   })
 }
 
 export const useUpdateInternalPolicy = () => {
-  const { client } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation<UpdateInternalPolicyMutation, unknown, UpdateInternalPolicyMutationVariables>({
     mutationFn: async (variables) => {
+      if (variables.internalPolicyFile instanceof File) {
+        return fetchGraphQLWithUpload({ query: UPDATE_INTERNAL_POLICY, variables })
+      }
       return client.request(UPDATE_INTERNAL_POLICY, variables)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['policyDiscussion'] })
+      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      queryClient.invalidateQueries({ queryKey: ['internalPolicyHistories'] })
     },
   })
 }
@@ -202,13 +217,15 @@ export const useCreateBulkCSVInternalPolicy = () => {
   })
 }
 
-export const useCreateUploadInternalPolicy = () => {
+export const useCreateUploadInternalPolicy = ({ autoInvalidate = true }: { autoInvalidate?: boolean } = {}) => {
   const { queryClient } = useGraphQLClient()
 
   return useMutation<CreateUploadInternalPolicyMutation, unknown, CreateUploadInternalPolicyMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_UPLOAD_POLICY, variables }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      if (autoInvalidate) {
+        queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      }
     },
   })
 }
@@ -244,19 +261,18 @@ export const usePolicySuggestedActions = () => {
   const { data: session } = useSession()
 
   const currentUserId = session?.user?.userId
-  const now = new Date()
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
-  const commentsSince = sevenDaysAgo
 
   return useQuery<PolicySuggestedActionsQuery>({
     queryKey: ['internalPolicies', 'suggested-actions', currentUserId],
-    queryFn: async () =>
-      client.request(GET_POLICY_SUGGESTED_ACTIONS, {
+    queryFn: async () => {
+      const sevenDaysAgo = subDays(new Date(), 7).toISOString()
+      return client.request(GET_POLICY_SUGGESTED_ACTIONS, {
         currentUserIdID: currentUserId,
         currentUserIdString: currentUserId,
         sevenDaysAgo,
-        commentsSince,
-      }),
+        commentsSince: sevenDaysAgo,
+      })
+    },
     enabled: !!currentUserId,
     refetchOnWindowFocus: false,
   })
@@ -273,13 +289,11 @@ export const useBulkDeletePolicy = () => {
   })
 }
 
-export const POLICY_DISCUSSION_QUERY_KEY = 'policyDiscussion'
-
 export const useGetPolicyDiscussionById = (policyId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetPolicyDiscussionByIdQuery, unknown>({
-    queryKey: [POLICY_DISCUSSION_QUERY_KEY, policyId],
+    queryKey: ['policyDiscussion', policyId],
     queryFn: async () => client.request(GET_POLICY_DISCUSSION_BY_ID, { policyId }),
     enabled: !!policyId,
   })
@@ -330,4 +344,60 @@ export const useGetPolicyCommentsById = (policyId: string | null | undefined) =>
     queryFn: async () => client.request(GET_POLICY_COMMENTS_BY_ID, { policyId }),
     enabled: !!policyId,
   })
+}
+
+const HISTORY_ORDER_BY = { field: InternalPolicyHistoryOrderField.history_time, direction: OrderDirection.DESC }
+const HISTORY_PAGE_SIZE = 20
+
+type HistoriesPage = GetInternalPolicyHistoriesQuery['internalPolicyHistories']
+type HistoryEdge = NonNullable<NonNullable<HistoriesPage['edges']>[number]>
+type HistoryNodeShape = NonNullable<HistoryEdge['node']>
+
+export const useGetInternalPolicyHistories = (policyId: string | null | undefined, enabled = true) => {
+  const { client } = useHistoryGraphQLClient()
+  const where = useMemo(() => ({ ref: policyId, revisionHasSuffix: '.0' }), [policyId])
+
+  const queryResult = useInfiniteQuery<GetInternalPolicyHistoriesQuery, Error, InfiniteData<GetInternalPolicyHistoriesQuery>, readonly unknown[], string | null>({
+    queryKey: ['internalPolicyHistories', policyId, where, HISTORY_ORDER_BY, HISTORY_PAGE_SIZE],
+    initialPageParam: null,
+    queryFn: ({ pageParam }) =>
+      client.request<GetInternalPolicyHistoriesQuery, GetInternalPolicyHistoriesQueryVariables>(GET_INTERNAL_POLICY_HISTORIES, {
+        where,
+        orderBy: HISTORY_ORDER_BY,
+        first: HISTORY_PAGE_SIZE,
+        after: pageParam ?? null,
+      }),
+    getNextPageParam: (last) => (last.internalPolicyHistories.pageInfo.hasNextPage ? (last.internalPolicyHistories.pageInfo.endCursor ?? null) : undefined),
+    enabled: !!policyId && enabled,
+  })
+
+  const rawHistoryNodes = useMemo<HistoryNodeShape[]>(() => {
+    const pages = queryResult.data?.pages ?? []
+    return pages.flatMap((p) => (p.internalPolicyHistories.edges ?? []).map((e) => e?.node).filter((n): n is HistoryNodeShape => n != null))
+  }, [queryResult.data])
+
+  const historyNodes = useMemo<HistoryNodeShape[]>(() => {
+    const byRevision = new Map<string, HistoryNodeShape>()
+    for (const node of rawHistoryNodes) {
+      if (!node.revision) continue
+      const existing = byRevision.get(node.revision)
+      if (!existing || (node.historyTime && existing.historyTime && node.historyTime < existing.historyTime)) {
+        byRevision.set(node.revision, node)
+      }
+    }
+    return Array.from(byRevision.values()).sort((a, b) => (b.historyTime ?? '').localeCompare(a.historyTime ?? ''))
+  }, [rawHistoryNodes])
+
+  const lastPage = queryResult.data?.pages.at(-1)
+  const paginationMeta = {
+    totalCount: lastPage?.internalPolicyHistories.totalCount ?? 0,
+    pageInfo: lastPage?.internalPolicyHistories.pageInfo,
+    isLoading: queryResult.isLoading || queryResult.isFetchingNextPage,
+  }
+
+  return {
+    ...queryResult,
+    historyNodes,
+    paginationMeta,
+  }
 }

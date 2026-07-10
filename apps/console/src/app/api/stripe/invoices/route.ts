@@ -5,7 +5,9 @@ import { NextResponse } from 'next/server'
 export async function POST(req: Request) {
   // ensure we have a valid session
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || !session.user?.accessToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   try {
     const { customerId } = (await req.json()) as { customerId?: string }
@@ -32,7 +34,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ invoices: formatted })
   } catch (err: unknown) {
     console.error('❌ Stripe invoices error:', err)
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 })
   }
 }

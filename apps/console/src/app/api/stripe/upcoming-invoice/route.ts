@@ -47,7 +47,7 @@ const resolveCouponsFromPhaseDiscounts = async (discounts: Stripe.SubscriptionSc
 
       if (discountRef.promotion_code) {
         const promo = typeof discountRef.promotion_code === 'string' ? await stripe.promotionCodes.retrieve(discountRef.promotion_code) : discountRef.promotion_code
-        return resolveCoupon(promo.promotion.coupon)
+        return resolveCoupon(promo.coupon)
       }
 
       if (discountRef.discount && typeof discountRef.discount !== 'string') {
@@ -70,7 +70,7 @@ const resolveCouponsFromSubscription = async (subscriptionId?: string | null): P
   const coupons = await Promise.all(
     subscription.discounts.map(async (discountRef) => {
       if (typeof discountRef === 'string') return null
-      return resolveCoupon(discountRef.source.coupon)
+      return resolveCoupon(discountRef.coupon)
     }),
   )
 
@@ -81,7 +81,7 @@ const resolveCouponsFromCustomer = async (customerId: string): Promise<Stripe.Co
   const customer = await stripe.customers.retrieve(customerId, { expand: ['discount'] })
   if (customer.deleted || !customer.discount) return []
 
-  const coupon = await resolveCoupon(customer.discount.source.coupon)
+  const coupon = await resolveCoupon(customer.discount.coupon)
   return coupon ? [coupon] : []
 }
 
@@ -180,7 +180,9 @@ const buildEstimatedUpcomingFromSchedule = async ({ customerId, scheduleId, subs
 export async function GET(req: Request) {
   // ensure we have a valid session
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || !session.user?.accessToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   const { searchParams } = new URL(req.url)
   const customerId = searchParams.get('customerId')
@@ -241,7 +243,6 @@ export async function GET(req: Request) {
     }
 
     console.error('❌ Stripe upcoming invoice error:', err)
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch upcoming invoice' }, { status: 500 })
   }
 }

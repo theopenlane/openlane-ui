@@ -11,11 +11,14 @@ import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { FINDING_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import type { Value } from 'platejs'
 
 export const useFindingSheetConfig = (entityId: string | null | undefined, isCreate = false, riskScoresAction?: React.ReactNode): Omit<FindingSheetConfig, 'onClose'> & { enumOpts: EnumOptions } => {
   const { form } = useFormSchema()
   const { data, isLoading } = useFinding(entityId || undefined)
   const { data: associationsData } = useGetFindingAssociations(entityId || undefined)
+  const plateEditorHelper = usePlateEditor()
 
   const extractAssociations = useCallback((assocData: GetFindingAssociationsQuery) => {
     const finding = assocData.finding
@@ -87,7 +90,9 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
         isCreate,
         initialAssociationsRef.current,
       )
-      return { ...rest, ...associationPayload }
+      const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
+      const cleaned = Object.fromEntries(Object.entries({ ...rest, description }).filter(([, v]) => v !== '' && v !== undefined))
+      return { ...cleaned, ...associationPayload }
     },
     getName,
     renderFields: (props: FindingFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers, riskScoresAction),

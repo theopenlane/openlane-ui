@@ -16,6 +16,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 export default function CustomerLogosPage() {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -27,7 +28,8 @@ export default function CustomerLogosPage() {
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
-  const canEditTc = canEdit(tcPermission?.roles)
+  const { data: session } = useSession()
+  const canEditTc = canEdit(tcPermission?.roles, session)
   const { entities } = useGetTrustCenterEntities({})
   const { mutateAsync: deleteEntity } = useDeleteTrustCenterEntity()
   const { mutateAsync: updateEntity } = useUpdateTrustCenterEntity()

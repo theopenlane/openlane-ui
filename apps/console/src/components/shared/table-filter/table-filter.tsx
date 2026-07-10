@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { type FilterField, type WhereCondition } from '@/types'
 import { Filter, ChevronDown, CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
@@ -12,12 +12,22 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { Separator as Hr } from '@repo/ui/separator'
-import { saveFilters, loadFilters, type TFilterState, type TFilterValue, saveQuickFilters, loadQuickFilter, clearQuickFilters } from '@/components/shared/table-filter/filter-storage.ts'
+import {
+  saveFilters,
+  loadFilters,
+  type TFilterState,
+  type TFilterValue,
+  saveQuickFilters,
+  loadQuickFilter,
+  clearQuickFilters,
+  getFiltersUpdatedEvent,
+} from '@/components/shared/table-filter/filter-storage.ts'
 import Slider from '../slider/slider'
 import { Checkbox } from '@repo/ui/checkbox'
 import { getActiveFilterCount, getQuickFiltersWhereCondition, getWhereCondition, type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { DropdownSearchField } from '../filter-components/dropdown-search-field'
 import { DropdownSearchMultiselect } from '../filter-components/dropdown-search-multiselect-field'
+import { useOrganization } from '@/hooks/useOrganization'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
@@ -38,6 +48,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
   additionalActiveFilterCount = 0,
   defaultFilterValues,
 }) => {
+  const { currentOrgId } = useOrganization()
   const [filterFields, setFilterFields] = useState(filterFieldsProp)
   useEffect(() => {
     setFilterFields((prev) => {
@@ -51,6 +62,8 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
   const [values, setValues] = useState<TFilterState>({})
   const [open, setOpen] = useState(false)
   const [activeQuickFilters, setActiveQuickFilters] = useState<TQuickFilter[]>(quickFilters)
+  const userEditedRef = useRef(false)
+  const initializedContextRef = useRef<string | null>(null)
   const activeFilterCount = useMemo(() => getActiveFilterCount(values, activeQuickFilters) + additionalActiveFilterCount, [values, activeQuickFilters, additionalActiveFilterCount])
   const storageEnabled = Boolean(pageKey)
 
@@ -68,8 +81,26 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
       return
     }
 
-    const savedQuickFilter = loadQuickFilter(pageKey, quickFilters)
-    const saved = loadFilters(pageKey, filterFields)
+    const contextKey = `${pageKey}:${currentOrgId ?? ''}`
+    if (initializedContextRef.current !== contextKey) {
+      initializedContextRef.current = contextKey
+      userEditedRef.current = false
+    }
+
+    if (userEditedRef.current) {
+      setActiveQuickFilters((prev) => {
+        const activeKey = prev.find((f) => f.isActive)?.key
+        const next = quickFilters.map((f) => ({ ...f, isActive: f.key === activeKey }))
+        return JSON.stringify(prev) === JSON.stringify(next) ? prev : next
+      })
+      return
+    }
+
+    setValues({})
+    setActiveQuickFilters(quickFilters)
+
+    const savedQuickFilter = loadQuickFilter(pageKey, quickFilters, currentOrgId)
+    const saved = loadFilters(pageKey, filterFields, currentOrgId)
 
     if (savedQuickFilter) {
       const updatedFilters = quickFilters.map((f) => ({
@@ -97,7 +128,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
     } else {
       onFilterChange?.({})
     }
-  }, [pageKey, filterFields, quickFilters, onFilterChange, buildWhereCondition, buildQuickFilterWhereCondition, storageEnabled, defaultFilterValues])
+  }, [pageKey, filterFields, quickFilters, onFilterChange, buildWhereCondition, buildQuickFilterWhereCondition, storageEnabled, defaultFilterValues, currentOrgId])
 
   useEffect(() => {
     if (!storageEnabled || !pageKey) return
@@ -113,10 +144,10 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
       onFilterChange?.(buildWhereCondition(cleaned, filterFields))
     }
 
-    // eslint-disable-next-line @eslint-react/web-api/no-leaked-event-listener
-    window.addEventListener(`filters-updated:${pageKey}`, listener as EventListener)
-    return () => window.removeEventListener(`filters-updated:${pageKey}`, listener as EventListener)
-  }, [pageKey, filterFields, onFilterChange, buildWhereCondition, storageEnabled])
+    const eventName = getFiltersUpdatedEvent(pageKey, currentOrgId)
+    window.addEventListener(eventName, listener as EventListener)
+    return () => window.removeEventListener(eventName, listener as EventListener)
+  }, [pageKey, filterFields, onFilterChange, buildWhereCondition, storageEnabled, currentOrgId])
 
   const getActiveQuickFilter = useCallback(() => activeQuickFilters.find((f) => f.isActive), [activeQuickFilters])
 
@@ -124,23 +155,24 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
     (clearStorage: boolean = true) => {
       setActiveQuickFilters((prev) => prev.map((qf) => ({ ...qf, isActive: false })))
       if (clearStorage && storageEnabled && pageKey) {
-        clearQuickFilters(pageKey)
+        clearQuickFilters(pageKey, currentOrgId)
       }
     },
-    [pageKey, storageEnabled],
+    [pageKey, storageEnabled, currentOrgId],
   )
 
   const resetRegularFilters = useCallback(
     (clearStorage: boolean = true) => {
       setValues({})
       if (clearStorage && storageEnabled && pageKey) {
-        saveFilters(pageKey, {})
+        saveFilters(pageKey, {}, currentOrgId)
       }
     },
-    [pageKey, storageEnabled],
+    [pageKey, storageEnabled, currentOrgId],
   )
 
   const resetFilters = useCallback(() => {
+    userEditedRef.current = true
     resetRegularFilters()
     resetQuickFilters()
     onFilterChange?.({})
@@ -150,17 +182,18 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
   const handleQuickFilterSave = useCallback(
     (quickFilter: TQuickFilter) => {
       if (storageEnabled && pageKey) {
-        saveQuickFilters(pageKey, quickFilter)
+        saveQuickFilters(pageKey, quickFilter, currentOrgId)
       }
       onFilterChange?.(buildQuickFilterWhereCondition(quickFilter))
-      resetRegularFilters()
+      resetRegularFilters(false)
       setOpen(false)
     },
-    [buildQuickFilterWhereCondition, onFilterChange, pageKey, resetRegularFilters, storageEnabled],
+    [buildQuickFilterWhereCondition, onFilterChange, pageKey, resetRegularFilters, storageEnabled, currentOrgId],
   )
 
   const toggleQuickFilter = useCallback(
     (qf: TQuickFilter) => {
+      userEditedRef.current = true
       resetRegularFilters(false)
       setActiveQuickFilters((prev) => prev.map((item) => (item.key === qf.key && item.label === qf.label ? { ...item, isActive: !item.isActive } : { ...item, isActive: false })))
 
@@ -176,6 +209,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
 
   const handleChange = useCallback(
     (key: string, value: TFilterValue) => {
+      userEditedRef.current = true
       resetQuickFilters(false)
       setValues((prev) => ({ ...prev, [key]: value }))
     },
@@ -188,13 +222,13 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
       handleQuickFilterSave(activeQuickFilter)
     } else {
       if (storageEnabled && pageKey) {
-        saveFilters(pageKey, values)
+        saveFilters(pageKey, values, currentOrgId)
       }
       onFilterChange?.(buildWhereCondition(values, filterFields))
       resetQuickFilters()
     }
     setOpen(false)
-  }, [getActiveQuickFilter, handleQuickFilterSave, pageKey, values, onFilterChange, buildWhereCondition, filterFields, resetQuickFilters, storageEnabled])
+  }, [getActiveQuickFilter, handleQuickFilterSave, pageKey, values, onFilterChange, buildWhereCondition, filterFields, resetQuickFilters, storageEnabled, currentOrgId])
 
   const activeFilterKeys = filterFields
     .map((field) => field.key)

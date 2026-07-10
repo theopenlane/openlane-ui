@@ -10,7 +10,7 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@repo/dally', '@repo/ui', '@repo/codegen', 'survey-core', 'survey-react-ui'],
   experimental: {
-    webpackMemoryOptimizations: false,
+    webpackMemoryOptimizations: true,
   },
   async redirects() {
     return [
@@ -27,6 +27,16 @@ const nextConfig = {
       {
         source: '/risks/:path*',
         destination: '/exposure/risks/:path*',
+        permanent: true,
+      },
+      {
+        source: '/organization-settings/integrations',
+        destination: '/automation/integrations',
+        permanent: true,
+      },
+      {
+        source: '/organization-settings/integrations/:path*',
+        destination: '/automation/integrations/:path*',
         permanent: true,
       },
     ]

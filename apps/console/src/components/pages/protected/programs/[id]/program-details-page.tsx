@@ -1,16 +1,16 @@
 'use client'
 
-import React, { useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import { PageHeading } from '@repo/ui/page-heading'
-import { useGetProgramBasicInfo } from '@/lib/graphql-hooks/program'
+import { useGetProgramBasicInfo, useUpdateProgram, useDeleteProgram } from '@/lib/graphql-hooks/program'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
 import BasicInformation from '@/components/pages/protected/programs/[id]/basic-info'
 import ProgramAuditor from '@/components/pages/protected/programs/[id]/program-auditor'
 import ProgramTaskTable from '@/components/pages/protected/programs/[id]/program-tasks-table/program-tasks-table'
 import { ControlsSummaryCard } from '@/components/pages/protected/programs/[id]/controls-summary-card'
-import { SquarePlus } from 'lucide-react'
-import { canCreate } from '@/lib/authz/utils.ts'
+import { Cog, FolderOpen, CirclePlus, Archive, ArchiveRestore, Trash2 } from 'lucide-react'
+import { hasPermission, canEdit, canDelete } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
 import TimelineReadiness from '@/components/pages/protected/programs/[id]/timeline-readiness'
@@ -18,24 +18,68 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import Link from 'next/link'
 import { Button } from '@repo/ui/button'
-import { ProgramSettingsIconBtn } from '@/components/shared/enum-mapper/program-enum'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useOrganizationRoles, useAccountRoles } from '@/lib/query-hooks/permissions'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { PROGRAMS_LIST_HREF } from '@/constants/programs'
 import { ProgramsPageSkeleton } from '../skeleton/programs-page-skeleton'
+import { useSession } from 'next-auth/react'
 
 const ProgramDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
 
+  const router = useRouter()
   const { data: basicInfoData, isLoading } = useGetProgramBasicInfo(id)
   const { data: permission } = useOrganizationRoles()
+  const { data: objectPermission } = useAccountRoles(ObjectTypes.PROGRAM, id)
+  const { data: session } = useSession()
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
+  const { successNotification, errorNotification } = useNotification()
+  const { mutateAsync: updateProgram, isPending: isUpdatingStatus } = useUpdateProgram()
+  const { mutateAsync: deleteProgram, isPending: isDeleting } = useDeleteProgram()
+
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+
+  const canCreateProgram = hasPermission(permission?.roles, AccessEnum.CanCreateProgram, session)
+  const editAllowed = canEdit(objectPermission?.roles, session)
+  const deleteAllowed = canDelete(objectPermission?.roles)
+  const isArchived = basicInfoData?.program?.status === ProgramProgramStatus.ARCHIVED
+  const programName = basicInfoData?.program?.name ?? ''
+
+  const handleToggleArchive = async () => {
+    try {
+      await updateProgram({ updateProgramId: id, input: { status: isArchived ? ProgramProgramStatus.IN_PROGRESS : ProgramProgramStatus.ARCHIVED } })
+      successNotification({ title: isArchived ? 'The program has been successfully unarchived.' : 'The program has been successfully archived.' })
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    } finally {
+      setStatusDialogOpen(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    try {
+      await deleteProgram({ deleteProgramId: id })
+      successNotification({ title: 'The program has been successfully deleted.' })
+      setDeleteOpen(false)
+      router.replace(PROGRAMS_LIST_HREF)
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+      setDeleteOpen(false)
+    }
+  }
 
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Compliance', href: '/programs' },
-      { label: 'Programs', href: '/programs' },
+      { label: 'Compliance', href: PROGRAMS_LIST_HREF },
+      { label: 'Programs', href: PROGRAMS_LIST_HREF },
       { label: basicInfoData?.program?.name, isLoading },
     ])
   }, [setCrumbs, basicInfoData, isLoading])
@@ -57,14 +101,57 @@ const ProgramDetailsPage: React.FC = () => {
               <h1>Overview</h1>
             </div>
             <div className="flex gap-2.5 items-center">
-              {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && (
-                <Link href="/programs/create" className="text-sm text-blue-500 flex items-center gap-1">
-                  <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
-                    Create Program
-                  </Button>
-                </Link>
-              )}
-              <Menu content={<ProgramSettingsIconBtn programId={id} />} />
+              <Link href={`/programs/${id}/settings`}>
+                <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<Cog />} iconPosition="left">
+                  Edit Settings
+                </Button>
+              </Link>
+              <Menu
+                closeOnSelect
+                content={(close) => (
+                  <>
+                    <Link href={PROGRAMS_LIST_HREF} onClick={close} className="flex w-full items-start gap-2 px-1 py-1 text-sm hover:text-brand">
+                      <FolderOpen size={16} strokeWidth={2} className="mt-0.5 shrink-0" />
+                      <span className="flex flex-col">
+                        <span>View All Programs</span>
+                        <span className="text-xs text-muted-foreground">Including archived programs</span>
+                      </span>
+                    </Link>
+                    {canCreateProgram && (
+                      <Link href="/programs/create" onClick={close} className="flex w-full items-center gap-2 px-1 py-1 text-sm hover:text-brand">
+                        <CirclePlus size={16} strokeWidth={2} className="shrink-0" />
+                        <span>Create Program</span>
+                      </Link>
+                    )}
+                    {editAllowed && (
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-2 px-1 py-1 text-sm hover:text-brand"
+                        onClick={() => {
+                          close()
+                          setStatusDialogOpen(true)
+                        }}
+                      >
+                        {isArchived ? <ArchiveRestore size={16} strokeWidth={2} className="shrink-0" /> : <Archive size={16} strokeWidth={2} className="shrink-0" />}
+                        <span>{isArchived ? 'Unarchive Program' : 'Archive Program'}</span>
+                      </button>
+                    )}
+                    {deleteAllowed && (
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-2 px-1 py-1 text-sm text-destructive hover:opacity-80"
+                        onClick={() => {
+                          close()
+                          setDeleteOpen(true)
+                        }}
+                      >
+                        <Trash2 size={16} strokeWidth={2} className="shrink-0" />
+                        <span>Delete Program</span>
+                      </button>
+                    )}
+                  </>
+                )}
+              />
             </div>
           </div>
         }
@@ -95,6 +182,33 @@ const ProgramDetailsPage: React.FC = () => {
         <ProgramTaskTable />
         <ControlsSummaryCard />
       </div>
+
+      <ConfirmationDialog
+        open={statusDialogOpen}
+        onOpenChange={setStatusDialogOpen}
+        onConfirm={handleToggleArchive}
+        title={`${isArchived ? 'Unarchive' : 'Archive'} Program ${programName}?`}
+        description={isArchived ? 'This restores the program to your active list' : 'Archiving moves this program out of your active list. You can unarchive it again at any time'}
+        confirmationText={isArchived ? 'Unarchive' : 'Archive'}
+        confirmationTextVariant="primary"
+        loading={isUpdatingStatus}
+      />
+
+      <ConfirmationDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={handleDelete}
+        title={`Delete Program ${programName}?`}
+        description={
+          <>
+            This action cannot be undone. This will permanently delete <b>{programName}</b>
+          </>
+        }
+        confirmationText="Delete"
+        confirmationTextVariant="destructive"
+        showInput
+        loading={isDeleting}
+      />
     </>
   )
 }

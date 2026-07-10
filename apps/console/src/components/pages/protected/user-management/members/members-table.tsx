@@ -1,36 +1,47 @@
 'use client'
 
-import {
-  OrderDirection,
-  type OrgMembership,
-  OrgMembershipOrderField,
-  type OrgMembershipRole,
-  type OrgMembershipsQueryVariables,
-  type OrgMembershipWhereInput,
-  type User,
-  UserAuthProvider,
-} from '@repo/codegen/src/schema'
+import { OrderDirection, type OrgMembership, OrgMembershipOrderField, OrgMembershipRole, type OrgMembershipWhereInput, type User, UserAuthProvider } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
-import React, { useEffect, useMemo, useState } from 'react'
-import { Copy, KeyRoundIcon } from 'lucide-react'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Copy, Info, KeyRoundIcon, Shield, ShieldOff } from 'lucide-react'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { type ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
 import { useCopyToClipboard, useDebounce } from '@uidotdev/usehooks'
 import { useSession } from 'next-auth/react'
 import { Badge } from '@repo/ui/badge'
+import { useSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { MemberActions } from './actions/member-actions'
+import { MembersBulkActions } from './actions/members-bulk-actions'
+import { AdditionalRolesCell } from '@/components/shared/organization-roles/additional-roles-cell'
 import { useNotification } from '@/hooks/useNotification'
+import { useOrganization } from '@/hooks/useOrganization'
+import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDateSince } from '@/utils/date'
 import { UserRoleIconMapper } from '@/components/shared/enum-mapper/user-role-enum'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 import MembersTableToolbar from '@/components/pages/protected/user-management/members/members-table-toolbar.tsx'
 import { MEMBERS_SORT_FIELDS } from './table/table-config'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { toHumanLabel } from '@/utils/strings'
+
+const SSO_EXEMPT_ROLES = [OrgMembershipRole.OWNER, OrgMembershipRole.AUDITOR]
+
+const getSsoExemptReason = (member: OrgMembership, exemptDomains: string[]): string | null => {
+  if (SSO_EXEMPT_ROLES.includes(member.role)) return 'Exempt due to Owner role'
+  const emailDomain = member.user?.email?.split('@')[1]?.toLowerCase()
+  if (emailDomain && exemptDomains.some((d) => d.toLowerCase() === emailDomain)) return `Exempt via domain (${emailDomain})`
+  if (member.ssoExempt) return member.ssoExemptReason || 'Manually marked as SSO exempt'
+  return null
+}
 
 export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
   providersIn?: UserAuthProvider[]
@@ -39,20 +50,24 @@ export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
 export const MembersTable = () => {
   const { nameRow, copyIcon } = pageStyles()
   const { data: sessionData } = useSession()
+  const { currentOrgId } = useOrganization()
+  const { data: orgSettingData } = useGetOrganizationSetting(currentOrgId || '')
+  const orgSetting = orgSettingData?.organization?.setting
+  const ssoEnforced = !!(orgSetting?.identityProvider && orgSetting.identityProvider !== 'NONE' && orgSetting.identityProviderLoginEnforced)
+  const exemptDomains = orgSetting?.ssoExemptDomains ?? []
   const [filters, setFilters] = useState<ExtendedOrgMembershipWhereInput | null>(null)
+  const [selectedIds, setSelectedIds] = useState<{ id: string }[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [, copyToClipboard] = useCopyToClipboard()
   const { successNotification, errorNotification } = useNotification()
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.MEMBER, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const [orderBy, setOrderBy] = useState<OrgMembershipsQueryVariables['orderBy']>(() =>
-    getInitialSortConditions(TableKeyEnum.MEMBER, OrgMembershipOrderField, [
-      {
-        field: OrgMembershipOrderField.created_at,
-        direction: OrderDirection.DESC,
-      },
-    ]),
-  )
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.MEMBER, OrgMembershipOrderField, [
+    {
+      field: OrgMembershipOrderField.created_at,
+      direction: OrderDirection.DESC,
+    },
+  ])
 
   const whereFilters: OrgMembershipWhereInput = useMemo(() => {
     const filtersWithSearch = {
@@ -85,7 +100,19 @@ export const MembersTable = () => {
 
   const { members, isError, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
 
+  const { data: orgRoles } = useOrganizationRoles()
+  const canEditMembers = canEdit(orgRoles?.roles, sessionData)
   const currentUserId = sessionData?.user?.userId
+
+  const isMemberSelectable = useCallback((member: OrgMembership) => !!currentUserId && member.user?.id !== currentUserId, [currentUserId])
+  const selectColumn = useSelectColumn<OrgMembership>(selectedIds, setSelectedIds, isMemberSelectable)
+
+  const selectedMembers = useMemo(() => members.filter((m) => selectedIds.some((s) => s.id === m.id)), [members, selectedIds])
+
+  useEffect(() => {
+    setSelectedIds([])
+  }, [pagination.page, pagination.pageSize, debouncedSearch, filters, orderBy])
+
   const sortedMembers = useMemo(() => {
     if (!currentUserId) return members
     return [...members].sort((a, b) => {
@@ -123,7 +150,39 @@ export const MembersTable = () => {
     }
   }
 
+  const ssoColumn: ColumnDef<OrgMembership> = {
+    id: 'sso',
+    header: 'SSO',
+    cell: ({ row }) => {
+      const reason = getSsoExemptReason(row.original, exemptDomains)
+      if (!reason) {
+        return (
+          <Badge variant="primary" className="gap-1 text-xs">
+            <Shield className="h-3 w-3" />
+            Enforced
+          </Badge>
+        )
+      }
+      return (
+        <SystemTooltip
+          icon={
+            <span className="cursor-default">
+              <Badge variant="select" className="gap-1 text-xs pointer-events-none">
+                <ShieldOff className="h-3 w-3" />
+                Exempt
+              </Badge>
+            </span>
+          }
+          content={reason}
+        />
+      )
+    },
+    size: 120,
+    maxSize: 120,
+  }
+
   const columns: ColumnDef<OrgMembership>[] = [
+    ...(canEditMembers ? [selectColumn] : []),
     {
       accessorKey: 'user.displayName',
       header: 'Name',
@@ -156,6 +215,18 @@ export const MembersTable = () => {
       minSize: 250,
     },
     {
+      id: 'additionalRoles',
+      header: () => (
+        <span className="flex items-center gap-1.5">
+          Additional Roles
+          <SystemTooltip icon={<Info size={14} />} content={<p>Functional roles layered on top of the base role to grant specific access (e.g. Policy Manager, Risk Manager).</p>} />
+        </span>
+      ),
+      cell: ({ row }) => <AdditionalRolesCell roles={row.original.additionalRoles} />,
+      size: 180,
+      minSize: 160,
+    },
+    {
       accessorKey: 'createdAt',
       header: 'Joined',
       cell: ({ cell }) => formatDateSince(cell.getValue() as string),
@@ -183,44 +254,59 @@ export const MembersTable = () => {
       header: 'Role',
       cell: ({ cell }) => {
         const role = cell.getValue() as OrgMembershipRole
-        const formattedRole = role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
         return (
           <div className="flex gap-2 items-center">
             {UserRoleIconMapper[role]}
-            {formattedRole}
+            {toHumanLabel(role)}
           </div>
         )
       },
-      size: 120,
-      maxSize: 150,
+      size: 150,
+      maxSize: 180,
     },
+    ...(ssoEnforced ? [ssoColumn] : []),
     {
       id: 'actions',
-      header: 'Action',
+      header: '',
       cell: ({ cell }) => {
-        return <MemberActions memberName={cell.row.original.user?.displayName} memberId={cell.row.original.id} memberUserId={cell.row.original.user?.id} memberRole={cell.row.original.role} />
+        return (
+          <MemberActions
+            memberName={cell.row.original.user?.displayName}
+            memberId={cell.row.original.id}
+            memberUserId={cell.row.original.user?.id}
+            memberRole={cell.row.original.role}
+            additionalRoles={cell.row.original.additionalRoles}
+            memberSSOExempt={cell.row.original.ssoExempt ?? false}
+          />
+        )
       },
-      size: 90,
-      maxSize: 90,
+      size: 80,
     },
   ]
 
   return (
     <div>
-      <MembersTableToolbar
-        searching={isLoading}
-        setFilters={setFilters}
-        searchTerm={searchTerm}
-        setSearchTerm={(inputVal) => {
-          setSearchTerm(inputVal)
-          setPagination(DEFAULT_PAGINATION)
-        }}
-      />
+      <div className="flex items-center gap-2">
+        <div className="grow">
+          <MembersTableToolbar
+            searching={isLoading}
+            setFilters={setFilters}
+            searchTerm={searchTerm}
+            setSearchTerm={(inputVal) => {
+              setSearchTerm(inputVal)
+              setPagination(DEFAULT_PAGINATION)
+            }}
+            hideFilter={canEditMembers && selectedMembers.length > 0}
+          />
+        </div>
+        {canEditMembers && selectedMembers.length > 0 && <MembersBulkActions selectedMembers={selectedMembers} onClear={() => setSelectedIds([])} />}
+      </div>
 
       <DataTable
         loading={isLoading}
         columns={columns}
         sortFields={MEMBERS_SORT_FIELDS}
+        sorting={orderBy}
         onSortChange={setOrderBy}
         data={sortedMembers}
         pagination={pagination}

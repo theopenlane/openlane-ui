@@ -283,6 +283,21 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
             icon={controlIconsMap.ID}
           />
         ) : null}
+        {data?.__typename === 'Control' && (isEditing || data.externalUUID) ? (
+          <ReferenceProperty
+            handleUpdate={handleUpdateAdapter}
+            name="externalUUID"
+            label="External ID"
+            tooltip="External ID when a control is sourced from an external system"
+            value={data.externalUUID}
+            isEditing={isEditing}
+            activeField={editingField}
+            setActiveField={setEditingField}
+            fieldId="externalUUID"
+            icon={controlIconsMap.ID}
+          />
+        ) : null}
+        {data?.__typename === 'Control' && data.aliases?.length ? <Property value={data.aliases.join(', ')} label="Alias" /> : null}
 
         <div className={`flex justify-between items-start ${isEditing || editingField === 'tags' ? 'flex-col items-start' : ''}`}>
           <div className="min-w-40">

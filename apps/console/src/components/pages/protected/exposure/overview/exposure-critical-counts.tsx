@@ -7,6 +7,7 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 import { useRouter } from 'next/navigation'
 import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { TableKeyEnum, type TableKeyValue } from '@repo/ui/table-key'
+import { useOrganization } from '@/hooks/useOrganization'
 
 type Counts = {
   vulns: { critical: number; high: number }
@@ -26,8 +27,8 @@ const TYPES = [
     icon: Bug,
     href: '/exposure/vulnerabilities',
     tableKey: TableKeyEnum.VULNERABILITY,
-    critFilter: { severityContainsFold: 'critical' } as TFilterState,
-    highFilter: { severityContainsFold: 'high' } as TFilterState,
+    critFilter: { securityLevelIn: ['CRITICAL'], open: true } as TFilterState,
+    highFilter: { securityLevelIn: ['HIGH'], open: true } as TFilterState,
   },
   {
     key: 'findings' as const,
@@ -35,8 +36,8 @@ const TYPES = [
     icon: FileSearch,
     href: '/exposure/findings',
     tableKey: TableKeyEnum.FINDING,
-    critFilter: { severityContainsFold: 'critical' } as TFilterState,
-    highFilter: { severityContainsFold: 'high' } as TFilterState,
+    critFilter: { securityLevelIn: ['CRITICAL'], open: true } as TFilterState,
+    highFilter: { securityLevelIn: ['HIGH'], open: true } as TFilterState,
   },
   {
     key: 'risks' as const,
@@ -44,16 +45,17 @@ const TYPES = [
     icon: AlertTriangle,
     href: '/exposure/risks',
     tableKey: TableKeyEnum.RISK,
-    critFilter: { impactIn: ['CRITICAL'] } as TFilterState,
-    highFilter: { impactIn: ['HIGH'] } as TFilterState,
+    critFilter: { impactIn: ['CRITICAL'], statusIn: ['OPEN', 'IDENTIFIED'] } as TFilterState,
+    highFilter: { impactIn: ['HIGH'], statusIn: ['OPEN', 'IDENTIFIED'] } as TFilterState,
   },
 ]
 
 const ExposureCriticalCounts = ({ counts, isLoading }: Props) => {
+  const { currentOrgId } = useOrganization()
   const router = useRouter()
 
   const handleClick = (tableKey: TableKeyValue, href: string, filter: TFilterState) => {
-    saveFilters(tableKey, filter)
+    saveFilters(tableKey, filter, currentOrgId)
     router.push(href)
   }
 

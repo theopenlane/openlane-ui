@@ -126,7 +126,7 @@ const GroupsMembersTable = () => {
         const user = row.original
         return (
           <Select value={user.role} onValueChange={(value) => handleRoleChange(user.id, value as GroupMembershipRole)}>
-            <SelectTrigger disabled={!!isManaged || !canEdit(permission?.roles) || user?.userId === session?.user?.userId} className="w-28">
+            <SelectTrigger disabled={!!isManaged || !canEdit(permission?.roles, session) || user?.userId === session?.user?.userId} className="w-28">
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
             <SelectContent>
@@ -148,10 +148,10 @@ const GroupsMembersTable = () => {
 
         return (
           <button
-            disabled={!!isManaged || !canEdit(permission?.roles) || isDeleting}
+            disabled={!!isManaged || !canEdit(permission?.roles, session) || isDeleting}
             type="button"
             onClick={() => handleDelete(user.id)}
-            className={`text-brand flex justify-end mt-2.5 ${isManaged || !canEdit(permission?.roles) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            className={`text-brand flex justify-end mt-2.5 ${isManaged || !canEdit(permission?.roles, session) ? 'cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <Trash2 className="h-5 w-5" />
           </button>

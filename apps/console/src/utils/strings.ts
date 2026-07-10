@@ -6,6 +6,21 @@ export function objectToSnakeCase(object: string | undefined): string {
     .toLowerCase()
 }
 
+export const toUpperSnakeCase = (input: string): string => {
+  if (!input) return ''
+  return input
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+    .replace(/([a-z\d])([A-Z])/g, '$1_$2')
+    .replace(/[\s-]+/g, '_')
+    .toUpperCase()
+}
+
+/**
+ * Words that should always be fully uppercased regardless of how they appear
+ * in the raw input (e.g. api_token → API Token, ssoAuthorization → SSO Authorization)
+ */
+const ACRONYMS = new Set(['api', 'sso', 'oauth', 'id', 'ids', 'url', 'uri', 'ui', 'ux', 'sdk', 'pat', 'nda', 'ip', 'mfa', 'totp'])
+
 export function toHumanLabel(input: string): string {
   if (!input) return ''
 
@@ -20,7 +35,16 @@ export function toHumanLabel(input: string): string {
     .replace(/\s+/g, ' ')
     .trim()
 
-  return label.replace(/\b\w/g, (char) => char.toUpperCase())
+  // Title-case each word, then fully uppercase known acronyms
+  return label.replace(/\b\w+\b/g, (word) => (ACRONYMS.has(word.toLowerCase()) ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()))
+}
+
+export const isValidDomain = (domain: string): boolean => /^([a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/.test(domain)
+
+export const getEmailDomain = (email?: string | null): string | null => {
+  if (!email) return null
+  const parts = email.trim().toLowerCase().split('@')
+  return parts.length === 2 && parts[1] ? parts[1] : null
 }
 
 export function formatPhoneNumber(value?: string | null): string {

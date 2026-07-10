@@ -1,7 +1,8 @@
 import { type ColumnDef, type Row } from '@tanstack/react-table'
-import { type Assessment, type User } from '@repo/codegen/src/schema'
+import { type Assessment, type User, TemplateTemplateKind } from '@repo/codegen/src/schema'
+import { type AuthorToken } from '@/lib/authors'
 import { formatDate, formatTimeSince } from '@/utils/date'
-import { Avatar } from '@/components/shared/avatar/avatar'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
@@ -9,9 +10,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreHorizontal, Send, Pencil, Eye, Trash2, FileText, Info } from 'lucide-react'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 type Params = {
   userMap?: Record<string, User>
+  tokenMap?: Record<string, AuthorToken>
   selectedQuestionnaires: { id: string }[]
   setSelectedQuestionnaires: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   onSend?: (assessment: Assessment) => void
@@ -19,13 +22,14 @@ type Params = {
   onPreview?: (assessment: Assessment) => void
   onViewDetails?: (assessment: Assessment) => void
   onDelete?: (assessment: Assessment) => void
-  canSend?: boolean
+  canSendMap?: Record<string, boolean>
   canEdit?: boolean
   canDelete?: boolean
 }
 
 export const getQuestionnaireColumns = (params?: Params) => {
   const userMap = params?.userMap || {}
+  const tokenMap = params?.tokenMap || {}
   const toggleSelection = (questionnaire: { id: string }) => {
     params?.setSelectedQuestionnaires((prev) => {
       const exists = prev.some((c) => c.id === questionnaire.id)
@@ -84,7 +88,33 @@ export const getQuestionnaireColumns = (params?: Params) => {
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
+      cell: ({ row, cell }) => (
+        <div className="flex items-center gap-2">
+          <span className="font-bold">{cell.getValue() as string}</span>
+          {row.original.systemOwned && (
+            <SystemTooltip
+              className="bg-border"
+              icon={
+                <Badge variant="select" className="shrink-0">
+                  Openlane Managed
+                </Badge>
+              }
+              content={<p>This questionnaire is managed by Openlane. To make changes you must duplicate it first.</p>}
+            />
+          )}
+          {row.original.template?.kind === TemplateTemplateKind.EXTERNAL_INTAKE && (
+            <SystemTooltip
+              className="bg-success/16"
+              icon={
+                <Badge variant="green" className="shrink-0">
+                  Object Creation
+                </Badge>
+              }
+              content={<p>Submitting this template automatically creates and updates records in your Openlane organization.</p>}
+            />
+          )}
+        </div>
+      ),
       size: 200,
       minSize: 150,
     },
@@ -162,18 +192,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => {
-        const userId = row.original.createdBy
-        const user = userMap?.[userId ?? '']
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.createdBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'createdAt',
@@ -185,18 +204,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => {
-        const userId = row.original.updatedBy
-        const user = userMap?.[userId ?? '']
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <AuthorCell id={row.original.updatedBy} userMap={userMap} tokenMap={tokenMap} />,
     },
     {
       accessorKey: 'updatedAt',
@@ -208,9 +216,10 @@ export const getQuestionnaireColumns = (params?: Params) => {
       id: 'actions',
       header: '',
       cell: ({ row }) => {
-        const canSend = !!params?.canSend
-        const canEditQuestionnaire = !!params?.canEdit
-        const canDeleteQuestionnaire = !!params?.canDelete
+        const isSystemOwned = row.original.systemOwned === true
+        const canSend = !!params?.canSendMap?.[row.original.id]
+        const canEditQuestionnaire = !!params?.canEdit && !isSystemOwned
+        const canDeleteQuestionnaire = !!params?.canDelete && !isSystemOwned
         const hasAnyAction = canSend || canEditQuestionnaire || canDeleteQuestionnaire || !!params?.onPreview || !!params?.onViewDetails
 
         if (!hasAnyAction) {

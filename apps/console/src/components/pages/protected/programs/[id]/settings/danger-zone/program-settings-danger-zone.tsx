@@ -11,11 +11,13 @@ import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 export const ProgramSettingsDangerZone = () => {
   const { id } = useParams<{ id: string }>()
   const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
-  const editAllowed = canEdit(permission?.roles)
+  const { data: session } = useSession()
+  const editAllowed = canEdit(permission?.roles, session)
   const deleteAllowed = canDelete(permission?.roles)
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const router = useRouter()
@@ -148,7 +150,7 @@ export const ProgramSettingsDangerZone = () => {
           </>
         }
         confirmationText="Unarchive"
-        confirmationTextVariant="filled"
+        confirmationTextVariant="primary"
       />
       {(editAllowed || deleteAllowed) && (
         <section className="flex gap-14 border-t pt-6">

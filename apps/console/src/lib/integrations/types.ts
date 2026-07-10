@@ -1,6 +1,6 @@
 import { type GetIntegrationsQuery } from '@repo/codegen/src/schema'
 
-export type IntegrationTab = 'All' | 'Coming Soon' | 'Installed'
+export type IntegrationStatusFilter = 'All' | 'Coming Soon' | 'Installed' | 'Not Installed'
 
 export type IntegrationMetadata = {
   externalName?: string
@@ -49,6 +49,7 @@ export type IntegrationSchemaProperty = IntegrationSchemaNode & {
   secret?: boolean
   readOnly?: boolean
   readonly?: boolean
+  generate?: boolean
   items?: IntegrationSchemaNode
   const?: unknown
 }
@@ -56,6 +57,8 @@ export type IntegrationSchemaProperty = IntegrationSchemaNode & {
 export type IntegrationOperationMetadata = {
   name: string
   description?: string
+  requiredPermissions?: string[]
+  disabledForAll: boolean
   configSchema?: IntegrationSchemaNode
 }
 
@@ -63,7 +66,13 @@ export type IntegrationCredentialEntry = {
   ref: string
   name?: string
   description?: string
+  recommended?: boolean
   schema?: IntegrationSchemaNode
+}
+
+export type IntegrationMetaEntry = {
+  Value: string
+  AllowCopy?: boolean
 }
 
 export type IntegrationConnectionEntry = {
@@ -73,6 +82,7 @@ export type IntegrationConnectionEntry = {
   credentialRefs?: string[]
   validationOperation?: string
   auth?: unknown
+  meta?: Record<string, IntegrationMetaEntry>
   disconnect?: {
     credentialRef?: string
     description?: string
@@ -108,6 +118,7 @@ export type AvailableIntegrationNode = {
   docsUrl: string
   installedCount: number
   provider: IntegrationProvider
+  supportsPrimaryDirectory?: boolean
 }
 
 export type RawDefinitionSpec = {
@@ -152,7 +163,7 @@ export type StartIntegrationResponse = {
 }
 
 export type IntegrationConfigurationResult = {
-  installationId?: string
+  integrationId?: string
   healthStatus?: string
   healthSummary?: string
   installationMetadata?: Record<string, unknown>

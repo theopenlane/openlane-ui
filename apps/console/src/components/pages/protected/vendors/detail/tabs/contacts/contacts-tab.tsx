@@ -2,14 +2,15 @@
 
 import React, { useState, useMemo } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
+import { useQueryClient } from '@tanstack/react-query'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { DownloadIcon, Plus, SearchIcon } from 'lucide-react'
+import { DownloadIcon, Plus, SearchIcon, Sparkles } from 'lucide-react'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
@@ -35,6 +36,7 @@ import type { FilterField, WhereCondition } from '@/types'
 import ContactCard, { StatusCell, type ContactNode } from './contact-card'
 import AddContactDialog from './add-contact-dialog'
 import ContactDetailSheet from './contact-detail-sheet'
+import { useSuggestedContacts } from './use-suggested-contacts'
 
 interface ContactsTabProps {
   vendorId: string
@@ -81,8 +83,9 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
     localStorage.setItem(VIEW_MODE_STORAGE_KEY, tab)
   }
   const [showAddDialog, setShowAddDialog] = useState(false)
+  const [linkSuggestions, setLinkSuggestions] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.VENDOR_CONTACTS, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_CONTACTS, {}))
   const [selectedContacts, setSelectedContacts] = useState<{ id: string }[]>([])
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
@@ -106,6 +109,24 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
 
   const existingContactIds = useMemo(() => contacts.map((c) => c.id), [contacts])
 
+  const { suggestedContacts } = useSuggestedContacts({ vendorId, enabled: canEditVendor })
+
+  const openAddDialog = () => {
+    setLinkSuggestions(false)
+    setShowAddDialog(true)
+  }
+
+  const openLinkSuggestions = () => {
+    setLinkSuggestions(true)
+    setShowAddDialog(true)
+  }
+
+  const closeAddDialog = () => {
+    setShowAddDialog(false)
+    setLinkSuggestions(false)
+  }
+
+  const queryClient = useQueryClient()
   const { mutateAsync: createBulkCSVContact } = useCreateBulkCSVContact()
   const { mutateAsync: bulkEditContacts } = useBulkEditContact()
   const { mutateAsync: updateEntity } = useUpdateEntity()
@@ -118,6 +139,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
       const newContactIds = result.createBulkCSVContact?.contacts?.map((c) => c.id) ?? []
       if (newContactIds.length > 0) {
         await updateEntity({ updateEntityId: vendorId, input: { addContactIDs: newContactIds } })
+        queryClient.invalidateQueries({ queryKey: ['contacts'] })
       }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -130,6 +152,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
     if (selectedContacts.length === 0) return
     try {
       await updateEntity({ updateEntityId: vendorId, input: { removeContactIDs: selectedContacts.map((c) => c.id) } })
+      queryClient.invalidateQueries({ queryKey: ['contacts'] })
       successNotification({ title: 'Selected contacts have been unlinked from this vendor.' })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -228,7 +251,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
               <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.VENDOR_CONTACTS} />
               <TableFilter filterFields={CONTACT_FILTER_FIELDS} onFilterChange={setFilterWhere} pageKey={TableKeyEnum.VENDOR_CONTACTS} />
               {canEditVendor && (
-                <Button icon={<Plus size={16} />} iconPosition="left" onClick={() => setShowAddDialog(true)}>
+                <Button icon={<Plus size={16} />} iconPosition="left" onClick={openAddDialog}>
                   Add Contact
                 </Button>
               )}
@@ -236,6 +259,20 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
           )}
         </div>
       </div>
+
+      {canEditVendor && suggestedContacts.length > 0 && (
+        <div className="mb-3 flex items-center justify-between gap-3 rounded-md border border-primary/40 bg-primary/5 p-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-sm">
+              We found {suggestedContacts.length} contact{suggestedContacts.length === 1 ? '' : 's'} not linked to this vendor.
+            </span>
+          </div>
+          <Button size="sm" variant="outline" onClick={openLinkSuggestions}>
+            Link now
+          </Button>
+        </div>
+      )}
 
       {viewMode === 'table' ? (
         <DataTable
@@ -267,7 +304,16 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
         </div>
       )}
 
-      {showAddDialog && <AddContactDialog vendorId={vendorId} onClose={() => setShowAddDialog(false)} vendorName={vendorName} existingContactIds={existingContactIds} />}
+      {showAddDialog && (
+        <AddContactDialog
+          vendorId={vendorId}
+          onClose={closeAddDialog}
+          vendorName={vendorName}
+          existingContactIds={existingContactIds}
+          initialMode={linkSuggestions ? 'link' : 'create'}
+          preselectSuggested={linkSuggestions}
+        />
+      )}
 
       {selectedContactId && <ContactDetailSheet contactId={selectedContactId} onClose={() => setSelectedContactId(null)} canEdit={canEditVendor} />}
     </div>

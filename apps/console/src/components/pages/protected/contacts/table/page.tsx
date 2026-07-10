@@ -13,13 +13,20 @@ import { getColumns } from './columns'
 import TableComponent from './table'
 import { ContactUserStatus, type CreateContactInput, type UpdateContactInput } from '@repo/codegen/src/schema'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { MergeHeaderButton } from '@/components/shared/merge-records/merge-menu-item'
+import { contactMergeConfig } from '@/components/shared/merge-records/configs/contact-merge-config'
+import { useCanEditObject } from '@/components/shared/crud-base/use-object-permission'
+import { useSession } from 'next-auth/react'
 
 const ContactPage: React.FC = () => {
   const { form } = useFormSchema()
+  const { data: session } = useSession()
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const { data, isLoading } = useContact(id || undefined)
+
+  const canEditContact = useCanEditObject(objectType, id, session)
 
   const getName = (data: ContactsNodeNonNull) => {
     return data?.fullName
@@ -87,6 +94,7 @@ const ContactPage: React.FC = () => {
     },
     getName,
     renderFields: (props: ContactFieldProps) => getFieldsToRender(props, enumOpts),
+    extraHeaderActions: id && canEditContact ? <MergeHeaderButton primaryId={id} config={contactMergeConfig} /> : undefined,
   }
 
   const tableConfig: ContactTablePageConfig = {

@@ -16,10 +16,13 @@ export const GET_INTEGRATIONS = gql`
           tags
           description
           metadata
+          primaryDirectory
           createdAt
           createdBy
           environmentName
           scopeName
+          credentials
+          config
         }
       }
     }

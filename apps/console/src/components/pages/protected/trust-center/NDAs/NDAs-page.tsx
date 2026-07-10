@@ -15,23 +15,34 @@ import { Label } from '@repo/ui/label'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useHandleUpdateSetting } from '../branding/helpers/useHandleUpdateSetting'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
+import { canEdit, hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import NdaRequestsTable from './table/nda-requests-table.tsx'
+import { NdaApprovalGroupCard } from './components/nda-approval-group-card'
 import { ObjectTypes } from '@repo/codegen/src/type-names.ts'
+import { type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
+import { useSession } from 'next-auth/react'
 
 const NDAsPage = () => {
   const { latestFile, isLoading, latestTemplate } = useGetTrustCenterNDAFiles()
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: trustCenterData } = useGetTrustCenter()
   const { updateTrustCenterSetting, isPending: isUpdatingSetting } = useHandleUpdateSetting()
+  const { data: session } = useSession()
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenter?.id)
-  const canEditTc = canEdit(tcPermission?.roles)
+  const canEditTc = canEdit(tcPermission?.roles, session)
+  const canEditNdaRequest = hasPermission(tcPermission?.roles, AccessEnum.CanEditTrustCenterNdaRequest, session)
   const trustCenterSetting = trustCenter?.setting
   const ndaApprovalRequired = !!trustCenterSetting?.ndaApprovalRequired
+
+  const handleUpdateApproverGroup = (input: UpdateTrustCenterSettingInput) => {
+    if (!trustCenterSetting?.id) return
+    updateTrustCenterSetting({ id: trustCenterSetting.id, input })
+  }
 
   useEffect(() => {
     setCrumbs([
@@ -186,12 +197,18 @@ const NDAsPage = () => {
             </CardContent>
           </Card>
         </div>
+        {ndaApprovalRequired && (
+          <div className="mt-4">
+            <h3 className="text-lg font-medium">Approval Notification Recipients</h3>
+            <NdaApprovalGroupCard selectedGroup={trustCenterSetting?.ndaApproverGroup} canEdit={canEditTc} disabled={isUpdatingSetting} onSelect={handleUpdateApproverGroup} />
+          </div>
+        )}
         <div className="mt-4">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-lg font-medium">NDA Requests</h3>
           </div>
 
-          <NdaRequestsTable requireApproval={ndaApprovalRequired} />
+          <NdaRequestsTable requireApproval={ndaApprovalRequired} canRevoke={canEditNdaRequest} />
         </div>
       </div>
     </div>

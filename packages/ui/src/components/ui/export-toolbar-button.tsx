@@ -4,13 +4,14 @@ import * as React from 'react'
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
 
-import { exportEditorToDocx, exportToDocx } from '@platejs/docx-io'
+import { exportEditorToDocx } from '@platejs/docx-io'
 import { MarkdownPlugin } from '@platejs/markdown'
 import { ArrowDownToLineIcon } from 'lucide-react'
 import { createSlateEditor } from 'platejs'
-import { useEditorRef } from 'platejs/react'
+import { useEditorRef, usePluginOption } from 'platejs/react'
 import { serializeHtml } from 'platejs/static'
 import { splitParagraphNewlinesForExport } from './export-docx-helper'
+import { pdfExportPlugin } from '../editor/plugins/pdf-export-kit.tsx'
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
@@ -19,6 +20,7 @@ import { EditorStatic } from './editor-static'
 import { ToolbarButton } from '../ui/toolbar'
 import { DocxExportKit } from '@repo/ui/components/editor/plugins/docx-export-kit.tsx'
 import { DocxKit } from '../editor/plugins/docx-kit'
+import { ThemeAwareFontBackgroundColorPlugin, ThemeAwareFontColorPlugin } from '../editor/plugins/font-kit'
 
 const siteUrl = 'https://platejs.org'
 
@@ -29,28 +31,46 @@ const getExportFilename = (title: string, ext: string) => {
 
 export function ExportToolbarButton({ title = 'document', ...props }: DropdownMenuProps & { title?: string }) {
   const editor = useEditorRef()
+  const onExportPdf = usePluginOption(pdfExportPlugin, 'onExportPdf') as (() => void) | null
   const [open, setOpen] = React.useState(false)
 
   const getCanvas = async () => {
     const { default: html2canvas } = await import('html2canvas-pro')
 
+    const previousFontColorTheme = editor.getOption(ThemeAwareFontColorPlugin, 'theme')
+    const previousFontBgTheme = editor.getOption(ThemeAwareFontBackgroundColorPlugin, 'theme')
+    editor.setOption(ThemeAwareFontColorPlugin, 'theme', 'light')
+    editor.setOption(ThemeAwareFontBackgroundColorPlugin, 'theme', 'light')
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+
     const style = document.createElement('style')
     document.head.append(style)
 
-    const canvas = await html2canvas(editor.api.toDOMNode(editor)!, {
-      onclone: (document: Document) => {
-        const editorElement = document.querySelector('[contenteditable="true"]')
-        if (editorElement) {
-          Array.from(editorElement.querySelectorAll('*')).forEach((element) => {
-            const existingStyle = element.getAttribute('style') || ''
-            element.setAttribute('style', `${existingStyle}; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important`)
-          })
-        }
-      },
-    })
-    style.remove()
+    try {
+      const canvas = await html2canvas(editor.api.toDOMNode(editor)!, {
+        backgroundColor: '#ffffff',
+        onclone: (clonedDoc: Document) => {
+          clonedDoc.documentElement.classList.remove('dark')
+          clonedDoc.documentElement.classList.add('light')
 
-    return canvas
+          const editorElement = clonedDoc.querySelector('[contenteditable="true"]') as HTMLElement | null
+          if (!editorElement) return
+
+          editorElement.style.backgroundColor = '#ffffff'
+          editorElement.style.color = '#000000'
+
+          editorElement.querySelectorAll<HTMLElement>('*').forEach((el) => {
+            const existingStyle = el.getAttribute('style') || ''
+            el.setAttribute('style', `${existingStyle}; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important`)
+          })
+        },
+      })
+      return canvas
+    } finally {
+      style.remove()
+      editor.setOption(ThemeAwareFontColorPlugin, 'theme', previousFontColorTheme)
+      editor.setOption(ThemeAwareFontBackgroundColorPlugin, 'theme', previousFontBgTheme)
+    }
   }
 
   const downloadFile = async (url: string, filename: string) => {
@@ -68,25 +88,6 @@ export function ExportToolbarButton({ title = 'document', ...props }: DropdownMe
 
     // Clean up the blob URL
     window.URL.revokeObjectURL(blobUrl)
-  }
-
-  const exportToPdf = async () => {
-    const canvas = await getCanvas()
-
-    const PDFLib = await import('pdf-lib')
-    const pdfDoc = await PDFLib.PDFDocument.create()
-    const page = pdfDoc.addPage([canvas.width, canvas.height])
-    const imageEmbed = await pdfDoc.embedPng(canvas.toDataURL('PNG'))
-    const { height, width } = imageEmbed.scale(1)
-    page.drawImage(imageEmbed, {
-      height,
-      width,
-      x: 0,
-      y: 0,
-    })
-    const pdfBase64 = await pdfDoc.saveAsBase64({ dataUri: true })
-
-    await downloadFile(pdfBase64, getExportFilename(title, 'pdf'))
   }
 
   const exportToImage = async () => {
@@ -168,7 +169,7 @@ export function ExportToolbarButton({ title = 'document', ...props }: DropdownMe
       <DropdownMenuContent align="start">
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={exportToHtml}>Export as HTML</DropdownMenuItem>
-          <DropdownMenuItem onSelect={exportToPdf}>Export as PDF</DropdownMenuItem>
+          {onExportPdf && <DropdownMenuItem onSelect={onExportPdf}>Export as PDF</DropdownMenuItem>}
           <DropdownMenuItem onSelect={exportToImage}>Export as Image</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToMarkdown}>Export as Markdown</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToWord}>Export as Word</DropdownMenuItem>

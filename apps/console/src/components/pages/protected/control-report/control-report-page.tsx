@@ -1,53 +1,61 @@
 'use client'
 
-import React, { use, useEffect, useMemo, useState } from 'react'
+import React, { use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
-import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/control'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ControlControlStatus, type ControlWhereInput } from '@repo/codegen/src/schema'
-import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown, ChevronsDownUp, List, SlidersHorizontal, SquarePlus, Upload } from 'lucide-react'
-import ControlChip from '../controls/map-controls/shared/control-chip'
+import { useProgramSelect } from '@/lib/graphql-hooks/program'
+import { type ControlReportItem, useControlReports, useGetAllControls } from '@/lib/graphql-hooks/control'
+import { ControlControlStatus, ProgramProgramStatus, type ControlWhereInput } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { ControlIconMapper, ControlStatusOrder, ControlStatusTooltips } from '@/components/shared/enum-mapper/control-enum'
-import Link from 'next/link'
-import { Button } from '@repo/ui/button'
-import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
-
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
-import { isStringArray, loadFilters, saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import Menu from '@/components/shared/menu/menu'
-import { BulkCSVCloneControlDialog } from '../controls/bulk-csv-clone-control-dialog'
-import { BulkCSVCreateControlDialog } from '../controls/bulk-csv-create-control-dialog'
-import { BulkCSVCreateMappedControlDialog } from '../controls/bulk-csv-create-map-control-dialog'
-import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
-import { Callout } from '@/components/shared/callout/callout'
-import { ControlsEmptyActions } from './control-empty'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Checkbox } from '@repo/ui/checkbox'
-import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
-import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { useGetAllGroups } from '@/lib/graphql-hooks/group'
+import ReportToolbar from './report-toolbar'
+import ReportBulkActionBar from './report-bulk-action-bar'
+import ReportVirtualList from './report-virtual-list'
+import ReportEmptyState from './report-empty-state'
+import { useReportSelection } from './use-report-selection'
+import { getOrgRelatedControls, getFrameworkRelatedControls } from './report-coverage'
+import { type ReportFilterId } from './report-filter-options'
+import { getOrganizationStorageItem, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
+import { useSession } from 'next-auth/react'
 
 type TControlReportPageProps = {
   active: 'dashboard' | 'table'
   setActive: (tab: 'dashboard' | 'table') => void
 }
 
+const REPORT_STANDARD_KEY = 'control_report_selected_standard'
+const REPORT_PROGRAMS_KEY = 'control_report_selected_programs'
+
+const readStoredPrograms = (organizationId?: string): string[] => {
+  try {
+    const raw = getOrganizationStorageItem(REPORT_PROGRAMS_KEY, organizationId)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []
+  } catch {
+    return []
+  }
+}
+
 const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActive }) => {
   const { currentOrgId } = useOrganization()
   const { setCrumbs } = use(BreadcrumbContext)
-  const [selectedStandards, setSelectedStandards] = useState<string[]>([])
+  const [selectedStandard, setSelectedStandard] = useState<string>(() => getOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId) ?? '')
+  const [selectedPrograms, setSelectedPrograms] = useState<string[]>(() => readStoredPrograms(currentOrgId))
   const [expandedItems, setExpandedItems] = useState<string[]>([])
+  const [hasAutoExpanded, setHasAutoExpanded] = useState(false)
+  const [expandedControls, setExpandedControls] = useState<Record<string, boolean>>({})
+  const [isSelectionMode, setIsSelectionMode] = useState(false)
+  const [reportFilters, setReportFilters] = useState<Set<ReportFilterId>>(() => new Set())
+  const userSelectedStandardRef = useRef(false)
 
   const { data: permission } = useOrganizationRoles()
-  const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateControl)
+  const { data: session } = useSession()
+  const createAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateControl, session)
 
   const { standardOptions, isSuccess: isSuccessStandards } = useStandardsSelect({
     where: {
@@ -61,33 +69,56 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     enabled: Boolean(currentOrgId),
   })
 
+  const { programOptions, isSuccess: isSuccessPrograms } = useProgramSelect({
+    where: { statusNEQ: ProgramProgramStatus.ARCHIVED },
+  })
+
+  const effectiveStandard = useMemo(() => {
+    const selectedStandardIsAvailable = selectedStandard === 'CUSTOM' || standardOptions.some((option) => option.value === selectedStandard)
+    if (selectedStandard && (!isSuccessStandards || selectedStandardIsAvailable)) return selectedStandard
+    const neverSet = typeof window !== 'undefined' && getOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId) === null
+    if (neverSet && isSuccessStandards && standardOptions.length > 0) return standardOptions[0].value
+    return ''
+  }, [selectedStandard, isSuccessStandards, standardOptions, currentOrgId])
+
+  const isCustomView = effectiveStandard === 'CUSTOM'
+
+  const organizationControlsWhere: ControlWhereInput = useMemo(
+    () => ({
+      ownerIDNEQ: '',
+    }),
+    [],
+  )
+
   const where: ControlWhereInput | undefined = useMemo(() => {
-    const hasCustom = selectedStandards.includes('CUSTOM')
-    const normalStandards = selectedStandards.filter((id) => id !== 'CUSTOM')
-
-    const where: ControlWhereInput = { ownerIDNEQ: '', statusNEQ: ControlControlStatus.ARCHIVED }
-
-    if (!hasCustom && normalStandards.length === 0) {
-      return where
+    const base: ControlWhereInput = {
+      ...organizationControlsWhere,
+      statusNotIn: [ControlControlStatus.ARCHIVED, ControlControlStatus.NOT_APPLICABLE],
     }
 
-    if (hasCustom && normalStandards.length > 0) {
-      where.or = [{ referenceFrameworkIsNil: true }, { standardIDIn: normalStandards }]
-      return where
+    if (selectedPrograms.length > 0) {
+      base.hasProgramsWith = [{ idIn: selectedPrograms }]
     }
 
-    if (hasCustom) {
-      where.referenceFrameworkIsNil = true
-      return where
+    if (!effectiveStandard) return base
+    if (effectiveStandard === 'CUSTOM') {
+      base.referenceFrameworkIsNil = true
+      return base
     }
 
-    where.standardIDIn = normalStandards
-    return where
-  }, [selectedStandards])
+    base.standardIDIn = [effectiveStandard]
+    return base
+  }, [effectiveStandard, organizationControlsWhere, selectedPrograms])
 
-  const { data, isLoading, isFetching } = useGetControlsGroupedByCategoryResolver({
+  const { data: organizationControlsData, isLoading: isLoadingOrganizationControls } = useGetAllControls({
+    where: organizationControlsWhere,
+    pagination: { page: 1, pageSize: 1, query: { first: 1 } },
+    enabled: Boolean(currentOrgId),
+  })
+
+  const { data, isLoading, isFetching } = useControlReports({
     where,
-    enabled: !!where && isSuccessStandards,
+    enabled: Boolean(currentOrgId),
   })
 
   const sortedData = useMemo(() => {
@@ -103,50 +134,177 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     })
   }, [data])
 
-  const hasNoControls = !sortedData || sortedData.length === 0 || sortedData.every((entry) => entry.controls.length === 0)
+  const hasNoOrganizationControls = organizationControlsData?.controls.totalCount === 0
+  const hasNoReportControls = !sortedData || sortedData.length === 0 || sortedData.every((entry) => entry.controls.length === 0)
 
-  const groupControlsByStatus = (controls: { id: string; refCode: string; status?: string | null }[]): Record<ControlControlStatus, { id: string; refCode: string; status?: string | null }[]> => {
-    return ControlStatusOrder.reduce(
-      (acc, status) => {
-        acc[status] = controls.filter((c) => c.status === status)
-        return acc
-      },
-      {} as Record<ControlControlStatus, typeof controls>,
-    )
-  }
+  const mappedControlIdsByControl = useMemo(() => {
+    const map = new Map<string, string[]>()
+    for (const entry of sortedData ?? []) {
+      for (const control of entry.controls) {
+        const related = isCustomView ? getFrameworkRelatedControls(control.relatedControls) : getOrgRelatedControls(control.relatedControls)
+        map.set(
+          control.id,
+          related.map((r) => r.id),
+        )
+      }
+    }
+    return map
+  }, [sortedData, isCustomView])
+
+  const filteredSortedData = useMemo(() => {
+    if (!sortedData || reportFilters.size === 0) return sortedData
+
+    return sortedData
+      .map((entry) => ({
+        ...entry,
+        controls: entry.controls.filter((control) => {
+          const evidenceTotal = control.evidenceStatus?.totalCount ?? 0
+          const evidenceApproved = control.evidenceStatus?.approvedCount ?? 0
+          const policyCount = control.linkedPolicies?.totalCount ?? 0
+          const orgRelatedCount = getOrgRelatedControls(control.relatedControls).length
+          const frameworkRelatedCount = getFrameworkRelatedControls(control.relatedControls).length
+
+          for (const filterId of reportFilters) {
+            if (filterId === 'NOT_APPROVED' && control.status === ControlControlStatus.APPROVED) return false
+            if (filterId === 'NO_OWNER' && control.controlOwner) return false
+            if (filterId === 'NO_EVIDENCE' && evidenceTotal !== 0) return false
+            if (filterId === 'EVIDENCE_NON_APPROVED' && !(evidenceTotal > 0 && evidenceApproved < evidenceTotal)) return false
+            if (filterId === 'NO_POLICIES' && policyCount !== 0) return false
+            if (filterId === 'NO_ORG_CONTROLS' && !isCustomView && orgRelatedCount !== 0) return false
+            if (filterId === 'NO_FRAMEWORK_CONTROLS' && isCustomView && frameworkRelatedCount !== 0) return false
+          }
+          return true
+        }),
+      }))
+      .filter((entry) => entry.controls.length > 0)
+  }, [sortedData, reportFilters, isCustomView])
+
+  useEffect(() => {
+    setSelectedStandard(getOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId) ?? '')
+    setSelectedPrograms(readStoredPrograms(currentOrgId))
+    setReportFilters(new Set())
+    userSelectedStandardRef.current = false
+  }, [currentOrgId])
+
+  useEffect(() => {
+    if (!isSuccessStandards || !selectedStandard || selectedStandard === 'CUSTOM') return
+    if (standardOptions.some((option) => option.value === selectedStandard)) return
+    // On an org switch this effect can fire with the previous org's standard still in
+    // state (the reset effect's update lands next render); only clean up once state
+    // reflects what is actually stored for the current org.
+    if (getOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId) !== selectedStandard) return
+
+    setSelectedStandard('')
+    // Remove rather than store '' so the auto-select effect can still pick a default
+    removeOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId)
+  }, [isSuccessStandards, selectedStandard, standardOptions, currentOrgId])
+
+  useEffect(() => {
+    if (!isSuccessPrograms || selectedPrograms.length === 0) return
+    const availableProgramIds = new Set(programOptions.map((option) => option.value))
+    const validPrograms = selectedPrograms.filter((id) => availableProgramIds.has(id))
+    if (validPrograms.length === selectedPrograms.length) return
+
+    setSelectedPrograms(validPrograms)
+    setOrganizationStorageItem(REPORT_PROGRAMS_KEY, JSON.stringify(validPrograms), currentOrgId)
+  }, [isSuccessPrograms, selectedPrograms, programOptions, currentOrgId])
+
+  useEffect(() => {
+    if (isSuccessStandards && standardOptions.length > 0 && getOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId) === null) {
+      const first = standardOptions[0].value
+      setSelectedStandard(first)
+      setOrganizationStorageItem(REPORT_STANDARD_KEY, first, currentOrgId)
+    }
+  }, [isSuccessStandards, standardOptions, currentOrgId])
+
+  useEffect(() => {
+    if (userSelectedStandardRef.current) return
+    if (effectiveStandard !== 'CUSTOM') return
+    if (isFetching || !data || !hasNoReportControls) return
+    if (!isSuccessStandards || standardOptions.length === 0) return
+
+    const preferred = standardOptions.find((opt) => opt.label.replace(/\s+/g, '').toLowerCase() === 'soc2') ?? standardOptions[0]
+    setSelectedStandard(preferred.value)
+  }, [effectiveStandard, isFetching, data, hasNoReportControls, isSuccessStandards, standardOptions])
+
+  useEffect(() => {
+    if (sortedData && !hasAutoExpanded && sortedData.length > 0) {
+      setExpandedItems(sortedData.map((item) => item.category))
+      setHasAutoExpanded(true)
+    }
+  }, [sortedData, hasAutoExpanded])
+
+  useEffect(() => {
+    setHasAutoExpanded(false)
+    setExpandedControls({})
+  }, [effectiveStandard])
+
+  const { data: groupsData } = useGetAllGroups({ where: {}, enabled: true })
+  const groups = useMemo(() => (groupsData?.groups?.edges ?? []).map((e) => e?.node).filter((g): g is NonNullable<typeof g> => !!g), [groupsData])
+
+  const { selectedControlIds, selectedSubcontrolIds, toggleControlSelection, toggleSubcontrolSelection, batchSelectSubcontrols, setSelectionForCategory, clearSelection, handleBulkAction } =
+    useReportSelection({ mappedControlIdsByControl })
+
+  const toggleReportFilter = useCallback((filterId: ReportFilterId) => {
+    setReportFilters((prev) => {
+      const next = new Set(prev)
+      if (next.has(filterId)) next.delete(filterId)
+      else next.add(filterId)
+      return next
+    })
+  }, [])
+
+  const toggleControl = useCallback((id: string) => {
+    setExpandedControls((prev) => ({ ...prev, [id]: !prev[id] }))
+  }, [])
+
+  const toggleCategoryOpen = useCallback((category: string) => {
+    setExpandedItems((prev) => (prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]))
+  }, [])
 
   const toggleAll = () => {
-    if (!sortedData) return
-
-    const allCategories = sortedData.map((item) => item.category)
+    const activeData = filteredSortedData ?? sortedData
+    if (!activeData) return
+    const allCategories = activeData.map((item) => item.category)
     const hasAllExpanded = allCategories.every((cat) => expandedItems.includes(cat))
-
     setExpandedItems(hasAllExpanded ? [] : allCategories)
   }
 
-  const handleRedirectWithFilter = (status: ControlControlStatus) => {
-    const filters: TFilterState = {
-      standardIDIn: selectedStandards,
-      status: [status],
-    }
+  const toggleCategorySubcontrols = useCallback(
+    (category: string, categoryControls: ControlReportItem[]) => {
+      const withSubs = categoryControls.filter((c) => (c.subcontrols?.length ?? 0) > 0)
+      const allExpanded = withSubs.every((c) => expandedControls[c.id])
+      setExpandedControls((prev) => {
+        const next = { ...prev }
+        withSubs.forEach((c) => {
+          next[c.id] = !allExpanded
+        })
+        return next
+      })
+      if (!allExpanded) {
+        setExpandedItems((prev) => (prev.includes(category) ? prev : [...prev, category]))
+      }
+    },
+    [expandedControls],
+  )
 
-    saveFilters(TableKeyEnum.CONTROL, filters)
-    setActive('table')
+  const selectFilter = (value: string) => {
+    userSelectedStandardRef.current = true
+    const next = value === effectiveStandard ? '' : value
+    setSelectedStandard(next)
+    setOrganizationStorageItem(REPORT_STANDARD_KEY, next, currentOrgId)
   }
 
-  const toggleFilter = (value: string) => {
-    const saved = loadFilters(TableKeyEnum.CONTROL) || {}
-    const current = (saved.standardIDIn as string[]) || []
-
-    const updated = current.includes(value) ? current.filter((v) => v !== value) : [...current, value]
-
-    setSelectedStandards(updated)
-
-    saveFilters(TableKeyEnum.CONTROL, {
-      ...saved,
-      standardIDIn: updated.length > 0 ? updated : undefined,
-    })
-  }
+  const toggleProgram = useCallback(
+    (id: string) => {
+      setSelectedPrograms((prev) => {
+        const next = prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
+        setOrganizationStorageItem(REPORT_PROGRAMS_KEY, JSON.stringify(next), currentOrgId)
+        return next
+      })
+    },
+    [currentOrgId],
+  )
 
   useEffect(() => {
     setCrumbs([
@@ -156,220 +314,81 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     ])
   }, [setCrumbs])
 
-  useEffect(() => {
-    const saved = loadFilters(TableKeyEnum.CONTROL)
-    const validated = isStringArray(saved?.standardIDIn) ? saved?.standardIDIn : []
-    setSelectedStandards(validated)
-
-    const handleUpdate = (e: CustomEvent) => {
-      const updated = (e.detail?.standardIDIn as string[]) || []
-      setSelectedStandards(updated)
-    }
-
-    // eslint-disable-next-line @eslint-react/web-api/no-leaked-event-listener
-    window.addEventListener(`filters-updated:${TableKeyEnum.CONTROL}`, handleUpdate as EventListener)
-    return () => window.removeEventListener(`filters-updated:${TableKeyEnum.CONTROL}`, handleUpdate as EventListener)
-  }, [])
-
-  if (isLoading || !data) {
+  if (isLoading || isLoadingOrganizationControls || !data || !organizationControlsData) {
     return <ControlReportPageSkeleton />
   }
 
+  const hasNoMatchingControls = !filteredSortedData || filteredSortedData.length === 0 || filteredSortedData.every((entry) => entry.controls.length === 0)
+  const showActions = !isLoading && !isFetching && !hasNoOrganizationControls
+  const visibleCategories = filteredSortedData ?? sortedData ?? []
+  const allExpanded = visibleCategories.length > 0 && visibleCategories.every((e) => expandedItems.includes(e.category))
+
   return (
     <div>
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
-          <TabSwitcher active={active} setActive={setActive} storageKey={TabSwitcherStorageKeys.CONTROL} />
-          {!isLoading && !isFetching && !hasNoControls ? (
-            <Button type="button" className="h-7.5 px-2!" variant="outline" onClick={toggleAll}>
-              <div className="flex">
-                <List size={16} />
-                <ChevronsDownUp size={16} />
-              </div>
-            </Button>
-          ) : null}
-        </div>
+      <ReportToolbar
+        active={active}
+        setActive={setActive}
+        showActions={showActions}
+        allExpanded={allExpanded}
+        onToggleExpandAll={toggleAll}
+        isSelectionMode={isSelectionMode}
+        onToggleSelectionMode={() => {
+          if (isSelectionMode) clearSelection()
+          setIsSelectionMode((prev) => !prev)
+        }}
+        effectiveStandard={effectiveStandard}
+        standardOptions={standardOptions}
+        onSelectFilter={selectFilter}
+        programOptions={programOptions}
+        selectedPrograms={selectedPrograms}
+        onToggleProgram={toggleProgram}
+        isCustomView={isCustomView}
+        reportFilters={reportFilters}
+        onToggleReportFilter={toggleReportFilter}
+        onClearReportFilters={() => setReportFilters(new Set())}
+        createAllowed={createAllowed}
+        hasNoControls={hasNoOrganizationControls}
+        hasVisibleControls={!hasNoMatchingControls}
+      />
 
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" icon={<SlidersHorizontal />} iconPosition="left" className={`h-7.5 px-2! pl-3! ${selectedStandards.length ? 'border border-primary' : ''}`}>
-                <span className="text-muted-foreground">Filter by:</span>
-                <span>Framework</span>
-              </Button>
-            </DropdownMenuTrigger>
+      {isSelectionMode && (selectedControlIds.size > 0 || selectedSubcontrolIds.size > 0) && (
+        <ReportBulkActionBar
+          selectedControlCount={selectedControlIds.size}
+          selectedSubcontrolCount={selectedSubcontrolIds.size}
+          isCustomView={isCustomView}
+          groups={groups}
+          onApply={handleBulkAction}
+          onClear={clearSelection}
+        />
+      )}
 
-            <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto min-w-56">
-              {/* Custom option */}
-              <DropdownMenuItem
-                className="flex items-center gap-2"
-                onSelect={(e) => {
-                  e.preventDefault()
-                  toggleFilter('CUSTOM')
-                }}
-              >
-                <Checkbox checked={selectedStandards.includes('CUSTOM')} />
-                <span>Custom</span>
-              </DropdownMenuItem>
-
-              {/* Standard options */}
-              {standardOptions.map((opt) => (
-                <DropdownMenuItem
-                  key={opt.value}
-                  className="flex items-center gap-2"
-                  onSelect={(e) => {
-                    e.preventDefault()
-                    toggleFilter(opt.value)
-                  }}
-                >
-                  <Checkbox checked={selectedStandards.includes(opt.value)} />
-                  <span className="truncate">{opt.label}</span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {!isLoading && !isFetching && !hasNoControls ? (
-            <Menu
-              closeOnSelect={true}
-              content={() => (
-                <>
-                  <BulkCSVCloneControlDialog
-                    trigger={
-                      <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
-                        <Upload size={16} strokeWidth={2} />
-                        <span>Upload From Standard</span>
-                      </Button>
-                    }
-                  />
-                  <BulkCSVCreateControlDialog
-                    trigger={
-                      <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
-                        <Upload size={16} strokeWidth={2} />
-                        <span>Upload Custom Controls</span>
-                      </Button>
-                    }
-                  />
-                  <BulkCSVCreateMappedControlDialog
-                    trigger={
-                      <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
-                        <Upload size={16} strokeWidth={2} />
-                        <span>Upload Control Mappings</span>
-                      </Button>
-                    }
-                  />
-                </>
-              )}
-            />
-          ) : null}
-          {createAllowed && !hasNoControls && (
-            <Link href="/controls/create-control" aria-label="Create Control">
-              <Button variant="primary" className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
-                Create
-              </Button>
-            </Link>
-          )}
-        </div>
-      </div>
       <div className="space-y-2">
         {isLoading || isFetching ? (
           <ControlReportPageSkeleton />
-        ) : hasNoControls ? (
-          <div className="max-w-6xl mx-auto">
-            <p className="mt-4 rounded-md border border-border/30 bg-muted/20 px-5 py-2.5 text-base text-muted-foreground shadow-sm">
-              No controls found. <span className="text-foreground font-medium">Create one now</span> using any option below.
-            </p>
-
-            <div className="mt-6 grid grid-cols-3">
-              <div className="col-span-2 grid">
-                <ControlsEmptyActions />
-              </div>
-
-              <div className="row-span-2 ml-4">
-                <Callout variant="info" title="What are Controls?" className="h-full self-stretch ">
-                  <br />
-                  Controls are the foundation of your compliance program in Openlane. Each control defines a specific security, privacy, or operational requirement that your organization follows to
-                  protect systems and data. <br />
-                  <br />
-                  Controls serve as the bridge between high-level compliance frameworks (like SOC 2 or ISO 27001) and the actual policies, procedures, and evidence your team manages day-to-day. By
-                  implementing and maintaining controls, you demonstrate how your organization meets key standards and reduces risk across your environment.
-                  <br />
-                  <br />
-                  <a
-                    href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/controls/overview`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ml-1 text-(--color-info) underline underline-offset-4 hover:opacity-80"
-                  >
-                    See docs to learn more.
-                  </a>
-                </Callout>
-              </div>
-            </div>
+        ) : hasNoOrganizationControls ? (
+          <ReportEmptyState />
+        ) : hasNoMatchingControls ? (
+          <div className="mt-4 rounded-md border border-border/30 bg-muted/20 px-5 py-2.5 text-base text-muted-foreground shadow-sm">
+            <p>No controls match your current filters.</p>
+            <p>Try adjusting or clearing your filters to see more controls.</p>
           </div>
         ) : (
-          <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems}>
-            {sortedData?.map(({ category, controls }) => {
-              const controlsByStatus = groupControlsByStatus(controls)
-              if (controls.length === 0) return null
-              return (
-                <AccordionItem className="mt-4" key={category} value={category}>
-                  <div className="flex justify-between items-center">
-                    <AccordionTrigger asChild className="bg-unset">
-                      <button className="size-fit group flex items-center gap-2">
-                        <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
-                        <span className="text-xl">{category}</span>
-                        <span className="p-1.5 border text-xs text-text-informational rounded-lg">
-                          {controlsByStatus.APPROVED.length}/{controls.length}
-                        </span>
-                      </button>
-                    </AccordionTrigger>
-                    <PercentageDonut value={controlsByStatus.APPROVED.length} total={controls.length} />
-                  </div>
-                  <AccordionContent className="pt-4">
-                    <Card className="p-4 space-y-4">
-                      {ControlStatusOrder.filter((status) => controlsByStatus[status]?.length > 0).map((status, index, arr) => {
-                        const isLast = index === arr.length - 1
-                        const Icon = ControlIconMapper[status]
-                        const controlsForStatus = controlsByStatus[status]
-
-                        return (
-                          <div key={status} className={`flex gap-4 ${!isLast ? 'border-b pb-4' : 'pb-0'}`}>
-                            <div className="flex gap-2 flex-col min-w-48">
-                              <div className="flex items-center gap-2 text-sm">
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <div className="flex items-center gap-2 cursor-help">
-                                        <Icon className="w-4 h-4" />
-                                        <span>{getEnumLabel(status)}</span>
-                                      </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent>{ControlStatusTooltips[status]}</TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
-                              <div className="text-xs">
-                                <span>Total:&nbsp;</span>
-                                <span onClick={() => handleRedirectWithFilter(status)} className="text-primary cursor-pointer">
-                                  {controlsForStatus.length} controls
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              {controlsForStatus.map((c) => (
-                                <ControlChip key={c.id} control={c} hideStandard />
-                              ))}
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </Card>
-                  </AccordionContent>
-                </AccordionItem>
-              )
-            })}
-          </Accordion>
+          <ReportVirtualList
+            categories={filteredSortedData ?? []}
+            expandedItems={expandedItems}
+            expandedControls={expandedControls}
+            isCustomView={isCustomView}
+            isSelectionMode={isSelectionMode}
+            selectedControlIds={selectedControlIds}
+            selectedSubcontrolIds={selectedSubcontrolIds}
+            onToggleCategoryOpen={toggleCategoryOpen}
+            onToggleControl={toggleControl}
+            onToggleCategorySubcontrols={toggleCategorySubcontrols}
+            onSelectControl={toggleControlSelection}
+            onSelectAllControls={(ids) => setSelectionForCategory(ids, ids.length > 0)}
+            onSelectSubcontrol={toggleSubcontrolSelection}
+            onSelectAllSubcontrols={batchSelectSubcontrols}
+          />
         )}
       </div>
     </div>

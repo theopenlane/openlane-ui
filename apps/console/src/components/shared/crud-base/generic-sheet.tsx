@@ -10,14 +10,14 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type UseFormReturn, type FieldValues } from 'react-hook-form'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
-import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit, canDelete } from '@/lib/authz/utils'
-import { getPermissionStrategy } from './utils'
+import { useObjectPermissionRoles } from './use-object-permission'
 import { GenericSheetHeader } from './header'
 import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
 import type { BulkDeletePayload } from './types'
 import { getBulkActionFailureDescription } from './bulk-action-feedback'
+import { useSession } from 'next-auth/react'
 
 export interface InternalEditingType {
   (field: string | null): void
@@ -127,19 +127,16 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   } = config
   const { reset } = form
   const queryClient = useQueryClient()
+  const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
 
   const searchParams = useSearchParams()
   const id = entityIdOverride !== undefined ? entityIdOverride : searchParams.get('id')
   const isCreate = isCreateMode !== undefined ? isCreateMode : searchParams.get('create') === 'true'
 
-  const permissionStrategy = getPermissionStrategy(objectType)
-  const useObjectPermissions = permissionStrategy === 'object'
-  const { data: objectPermission } = useAccountRoles(objectType, id, useObjectPermissions)
-  const { data: orgPermission } = useOrganizationRoles()
-  const permission = useObjectPermissions ? objectPermission : orgPermission
-  const isEditAllowed = !!updateMutation && canEdit(permission?.roles)
-  const isDeleteAllowed = !!deleteMutation && canDelete(permission?.roles)
+  const permissionRoles = useObjectPermissionRoles(objectType, id)
+  const isEditAllowed = !!updateMutation && canEdit(permissionRoles, session)
+  const isDeleteAllowed = !!deleteMutation && canDelete(permissionRoles)
 
   const objectTypeName = objectType.charAt(0).toUpperCase() + objectType.slice(1).toLowerCase()
   const createSuccessTitle = `${objectTypeName} Created`

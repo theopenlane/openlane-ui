@@ -11,22 +11,20 @@ import AddComment from '@/components/shared/comments/AddComment'
 import { type TComments } from '@/components/shared/comments/types/TComments'
 import { useUpdateTask, useUpdateTaskComment } from '@/lib/graphql-hooks/task'
 import { type TCommentData } from '@/components/shared/comments/types/TCommentData'
-import { useSearchParams } from 'next/navigation'
 import { type TaskQuery } from '@repo/codegen/src/schema'
-import { toBase64DataUri } from '@/lib/image-utils'
+import { resolveAuthor } from '@/lib/authors'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useDeleteNote } from '@/lib/graphql-hooks/control'
-import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 
 type ConversationProps = {
   isEditing: boolean
   taskData: TaskQuery['task'] | undefined
+  id: string | null
 }
 
-const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
-  const searchParams = useSearchParams()
-  const id = searchParams.get('id')
+const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData, id }) => {
   const [commentSortIsAsc, setCommentSortIsAsc] = useState(false)
 
   const queryClient = useQueryClient()
@@ -42,12 +40,7 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
     return Array.from(new Set(edges.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string')))
   }, [taskData])
 
-  const { data: userData, isLoading: isUsersLoading } = useGetOrgMemberships({
-    where: {
-      hasUserWith: [{ idIn: userIds }],
-    },
-    enabled: userIds.length > 0,
-  })
+  const { userMap, tokenMap, isLoading: isUsersLoading } = useAuthorMaps(userIds)
 
   const handleSendComment = useCallback(
     async (data: TComments) => {
@@ -103,33 +96,21 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
     setCommentSortIsAsc((prev) => !prev)
   }, [])
 
-  const userMap = useMemo(() => {
-    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { base64?: string | null } | null; avatarRemoteURL?: string | null }> = {}
-    userData?.orgMemberships?.edges?.forEach((edge) => {
-      const user = edge?.node?.user
-      if (user) map[user.id] = user
-    })
-    return map
-  }, [userData])
-
   const comments = useMemo(() => {
     if (!taskData?.comments?.edges?.length) return []
 
     const mapped = taskData.comments.edges.map((item) => {
-      const user = item?.node?.createdBy ? userMap[item.node.createdBy] : undefined
-      const avatarUrl = (user?.avatarFile?.base64 ? toBase64DataUri(user.avatarFile.base64) : null) || user?.avatarRemoteURL
       return {
         comment: item?.node?.text,
-        avatarUrl,
         createdAt: item?.node?.createdAt,
-        userName: user?.displayName || 'Deleted user',
+        author: resolveAuthor(item?.node?.createdBy, { userMap, tokenMap }),
         createdBy: item?.node?.createdBy,
         id: item?.node?.id || '',
       } as TCommentData
     })
 
     return mapped.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
-  }, [commentSortIsAsc, taskData, userMap])
+  }, [commentSortIsAsc, taskData, tokenMap, userMap])
 
   if (isEditing) return null
 

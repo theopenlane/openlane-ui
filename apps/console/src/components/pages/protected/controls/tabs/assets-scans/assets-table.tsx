@@ -6,11 +6,10 @@ import { type ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import type { AssetWhereInput } from '@repo/codegen/src/schema'
-import type { User } from '@repo/codegen/src/schema'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useAssetsWithFilter, type AssetsNodeNonNull } from '@/lib/graphql-hooks/asset'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { getColumns } from '@/components/pages/protected/assets/table/columns'
 import { SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
@@ -69,21 +68,15 @@ const AssetsTable: React.FC<AssetsTableProps> = ({ controlId }) => {
     enabled: Boolean(controlId),
   })
 
-  const memberIds = useMemo(() => [...new Set(assetsNodes.flatMap((a) => [a.createdBy, a.updatedBy]).filter((id): id is string => typeof id === 'string' && id.length > 0))], [assetsNodes])
+  const memberIds = useMemo(
+    () => [...new Set(assetsNodes.flatMap((a) => [a.createdBy, a.updatedBy, a.internalOwnerUser?.id]).filter((id): id is string => typeof id === 'string' && id.length > 0))],
+    [assetsNodes],
+  )
 
-  const userListWhere = useMemo(() => (memberIds.length > 0 ? { hasUserWith: [{ idIn: memberIds }] } : undefined), [memberIds])
-  const { users } = useGetOrgUserList({ where: userListWhere })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, User> = {}
-    users?.forEach((user) => {
-      map[user.id] = user
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap } = useAuthorMaps(memberIds)
 
   const columns = useMemo<ColumnDef<AssetsNodeNonNull>[]>(() => {
-    const allCols = getColumns({ userMap, selectedItems: [], setSelectedItems: () => {} })
+    const allCols = getColumns({ userMap, tokenMap, selectedItems: [], setSelectedItems: () => {} })
     return allCols
       .filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
       .map((col) => {
@@ -99,7 +92,7 @@ const AssetsTable: React.FC<AssetsTableProps> = ({ controlId }) => {
         }
         return col
       })
-  }, [userMap, replace])
+  }, [userMap, tokenMap, replace])
 
   const paginationMeta = useMemo(
     () => ({

@@ -8,7 +8,7 @@ import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
-import { EntityEntityStatus, EntityFrequency, EntityVendorTier, type EntityQuery, type UpdateEntityInput, type CreateEntityInput, type GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
+import { EntityEntityStatus, EntityFrequency, EntityVendorTier, type UpdateEntityInput, type CreateEntityInput, type GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import {
   useUpdateEntity,
@@ -31,7 +31,7 @@ import { buildAssociationPayload } from '@/components/shared/object-association/
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { ENTITY_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 
-const normalizeData = (data: EntityQuery['entity']) =>
+const normalizeData = (data: EntitiesNodeNonNull) =>
   normalizeEntityData(data, {
     internalOwner: { user: data?.internalOwnerUser, group: data?.internalOwnerGroup, stringValue: data?.internalOwner },
     reviewedBy: { user: data?.reviewedByUser, group: data?.reviewedByGroup, stringValue: data?.reviewedBy },

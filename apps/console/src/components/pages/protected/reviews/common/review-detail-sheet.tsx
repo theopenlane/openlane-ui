@@ -7,6 +7,7 @@ import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet
 import { getFieldsToRender } from '@/components/pages/protected/reviews/table/table-config'
 import { type ReviewSheetConfig, type ReviewFieldProps, objectType } from '@/components/pages/protected/reviews/table/types'
 import { type CreateReviewInput, type UpdateReviewInput } from '@repo/codegen/src/schema'
+import { ReviewStatusOptions } from '@/components/shared/enum-mapper/review-enum'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -58,7 +59,7 @@ const ReviewDetailSheet: React.FC<ReviewDetailSheetProps> = ({ reviewId, onClose
   const { enumOptions: scopeOptions } = useGetCustomTypeEnums({ where: { field: 'scope' } })
   const tagOptions = useGetTags()
 
-  const enumOpts = { environmentOptions, scopeOptions, tagOptions: tagOptions.tagOptions }
+  const enumOpts = { environmentOptions, scopeOptions, tagOptions: tagOptions.tagOptions, statusOptions: ReviewStatusOptions }
 
   const getName = (d: ReviewsNodeNonNull) => d?.title
 
@@ -84,7 +85,10 @@ const ReviewDetailSheet: React.FC<ReviewDetailSheetProps> = ({ reviewId, onClose
         riskIDs: _riskIDs,
         ...rest
       } = formData
-      return await buildPayload(rest as ReviewFormData, plateEditorHelper)
+      return await buildPayload(rest as ReviewFormData, plateEditorHelper, {
+        dirtyFields: form.formState.dirtyFields,
+        useClearFlags: true,
+      })
     },
     getName,
     renderFields: (props: ReviewFieldProps) =>

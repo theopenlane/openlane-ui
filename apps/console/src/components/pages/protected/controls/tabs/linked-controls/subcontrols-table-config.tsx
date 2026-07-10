@@ -1,10 +1,12 @@
 import React from 'react'
 import Link from 'next/link'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Folder, FolderTree, Layers, Tag } from 'lucide-react'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
+import { CircleDot, Folder, FolderTree, Layers, Tag } from 'lucide-react'
+import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { SubcontrolControlStatus } from '@repo/codegen/src/schema'
 import type { FilterField } from '@/types'
+import { TruncatedCell } from '@repo/ui/data-table'
+import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 
 export type SubcontrolRow = {
   id: string
@@ -17,7 +19,12 @@ export type SubcontrolRow = {
   subcategory?: string | null
 }
 
-export const getSubcontrolsColumns = (controlId: string, convertToReadOnly: (value: string, index: number) => React.ReactNode): ColumnDef<SubcontrolRow>[] => [
+type GetSubcontrolsColumnsParams = {
+  controlId: string
+  convertToReadOnly: (value: string, index: number) => React.ReactNode
+}
+
+export const getSubcontrolsColumns = ({ controlId, convertToReadOnly }: GetSubcontrolsColumnsParams): ColumnDef<SubcontrolRow>[] => [
   {
     accessorKey: 'refCode',
     header: () => <span className="whitespace-nowrap">Ref Code</span>,
@@ -32,7 +39,7 @@ export const getSubcontrolsColumns = (controlId: string, convertToReadOnly: (val
   {
     accessorKey: 'description',
     header: () => <span className="whitespace-nowrap">Description</span>,
-    cell: ({ row }) => <div className="line-clamp-2 text-justify">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</div>,
+    cell: ({ row }) => <TruncatedCell className="line-clamp-2 text-justify whitespace-normal">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</TruncatedCell>,
     size: 320,
   },
   {
@@ -65,6 +72,13 @@ export const getSubcontrolsFilterFields = (typeOptions: string[], sourceOptions:
     type: 'multiselect',
     icon: Layers,
     options: sourceOptions.map((value) => ({ value, label: getEnumLabel(value) })),
+  },
+  {
+    key: 'statusIn',
+    label: 'Status',
+    type: 'multiselect',
+    icon: CircleDot,
+    options: enumToOptions(SubcontrolControlStatus),
   },
   {
     key: 'categoryContainsFold',

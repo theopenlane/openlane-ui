@@ -12,6 +12,8 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { IdentityHolderUserStatus, type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
 import { PersonnelStatusBadge } from '@/components/shared/enum-mapper/personnel-enum'
+import { MergeMenuItem } from '@/components/shared/merge-records/merge-menu-item'
+import { personnelMergeConfig } from '@/components/shared/merge-records/configs/personnel-merge-config'
 
 interface PersonnelDetailHeaderProps {
   personnel: IdentityHolderQuery['identityHolder']
@@ -22,9 +24,20 @@ interface PersonnelDetailHeaderProps {
   onCancel: (e: React.MouseEvent<HTMLButtonElement>) => void
   onDeleteClick: () => void
   handleUpdateField: (input: UpdateIdentityHolderInput) => Promise<void>
+  onMergeComplete?: () => void
 }
 
-const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({ personnel, isEditing, canEditPersonnel, canDeletePersonnel, onEdit, onCancel, onDeleteClick, handleUpdateField }) => {
+const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({
+  personnel,
+  isEditing,
+  canEditPersonnel,
+  canDeletePersonnel,
+  onEdit,
+  onCancel,
+  onDeleteClick,
+  handleUpdateField,
+  onMergeComplete,
+}) => {
   const { register } = useFormContext()
   const [inlineEditing, setInlineEditing] = useState<'fullName' | null>(null)
   const [localValue, setLocalValue] = useState('')
@@ -59,7 +72,12 @@ const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({ personnel
     <div className="flex justify-between items-start gap-4">
       <div className="flex items-center gap-4">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden">
-          <User size={24} className="text-muted-foreground" />
+          {personnel.avatarRemoteURL ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={personnel.avatarRemoteURL} referrerPolicy="no-referrer" alt={personnel.fullName ?? 'Personnel photo'} className="h-full w-full object-contain p-1" />
+          ) : (
+            <User size={24} className="text-muted-foreground" />
+          )}
         </div>
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2 min-w-0">
@@ -128,7 +146,7 @@ const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({ personnel
                 Edit
               </Button>
             )}
-            {canDeletePersonnel && (
+            {(canEditPersonnel || canDeletePersonnel) && (
               <Menu
                 trigger={
                   <Button type="button" variant="secondary" className="h-8 px-2">
@@ -136,10 +154,15 @@ const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({ personnel
                   </Button>
                 }
                 content={
-                  <button onClick={onDeleteClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
-                    <Trash2 size={16} strokeWidth={2} />
-                    <span>Delete</span>
-                  </button>
+                  <>
+                    {canEditPersonnel && <MergeMenuItem primaryId={personnel.id} config={personnelMergeConfig} onMergeComplete={onMergeComplete} />}
+                    {canDeletePersonnel && (
+                      <button onClick={onDeleteClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
+                        <Trash2 size={16} strokeWidth={2} />
+                        <span>Delete</span>
+                      </button>
+                    )}
+                  </>
                 }
               />
             )}

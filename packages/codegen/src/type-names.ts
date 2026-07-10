@@ -1,14 +1,53 @@
 // This file is auto-generated. Do not edit manually.
 
-import { ActionPlan, Assessment, Asset, Campaign, Control, ControlImplementation, ControlObjective, EmailBranding, EmailTemplate, Entity, Evidence, Finding, Group, IdentityHolder, InternalPolicy, MappedControl, Narrative, PageInfo, Platform, Procedure, Program, Remediation, Review, Risk, Scan, SlaDefinition, Subcontrol, TrustCenter, TrustCenterCompliance, TrustCenterDoc, TrustCenterEntity, TrustCenterFaq, TrustCenterNdaRequest, TrustCenterSetting, TrustCenterSubprocessor, TrustCenterWatermarkConfig, Vulnerability, WorkflowDefinition } from './schema'
+import {
+  ActionPlan,
+  Assessment,
+  Asset,
+  Campaign,
+  CheckResult,
+  Control,
+  ControlImplementation,
+  ControlObjective,
+  EmailTemplate,
+  Entity,
+  Evidence,
+  Finding,
+  Group,
+  IdentityHolder,
+  InternalPolicy,
+  MappedControl,
+  Narrative,
+  PageInfo,
+  Platform,
+  Procedure,
+  Program,
+  Remediation,
+  Review,
+  Risk,
+  Scan,
+  SlaDefinition,
+  Subcontrol,
+  TrustCenter,
+  TrustCenterCompliance,
+  TrustCenterDoc,
+  TrustCenterEntity,
+  TrustCenterFaq,
+  TrustCenterNdaRequest,
+  TrustCenterSetting,
+  TrustCenterSubprocessor,
+  TrustCenterWatermarkConfig,
+  Vulnerability,
+  WorkflowDefinition,
+} from './schema'
 import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
 import { GET_ALL_ASSESSMENTS } from '@repo/codegen/query/assessment'
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
 import { GET_ALL_CAMPAIGNS } from '@repo/codegen/query/campaign'
+import { GET_ALL_CHECK_RESULTS } from '@repo/codegen/query/check-result'
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
 import { GET_ALL_CONTROL_IMPLEMENTATIONS } from '@repo/codegen/query/control-implementation'
 import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
-import { GET_ALL_EMAIL_BRANDINGS } from '@repo/codegen/query/email-branding'
 import { GET_ALL_EMAIL_TEMPLATES } from '@repo/codegen/query/email-template'
 import { GET_ALL_ENTITIES } from '@repo/codegen/query/entity'
 import { GET_ALL_FINDINGS } from '@repo/codegen/query/finding'
@@ -45,10 +84,12 @@ export enum ObjectTypes {
   ASSET = 'Asset',
   CAMPAIGN = 'Campaign',
   CAMPAIGN_TARGET = 'CampaignTarget',
+  CHECK_RESULT = 'CheckResult',
   CONTACT = 'Contact',
   CONTROL = 'Control',
   CONTROL_IMPLEMENTATION = 'ControlImplementation',
   CONTROL_OBJECTIVE = 'ControlObjective',
+  CONTROL_REPORT = 'ControlReport',
   CUSTOM_DOMAIN = 'CustomDomain',
   CUSTOM_TYPE_ENUM = 'CustomTypeEnum',
   DNS_VERIFICATION = 'DnsVerification',
@@ -58,7 +99,6 @@ export enum ObjectTypes {
   DIRECTORY_SYNC_RUN = 'DirectorySyncRun',
   DISCUSSION = 'Discussion',
   DOCUMENT_DATA = 'DocumentData',
-  EMAIL_BRANDING = 'EmailBranding',
   EMAIL_TEMPLATE = 'EmailTemplate',
   ENTITY = 'Entity',
   ENTITY_TYPE = 'EntityType',
@@ -96,6 +136,7 @@ export enum ObjectTypes {
   ORGANIZATION_SETTING = 'OrganizationSetting',
   PERSONAL_ACCESS_TOKEN = 'PersonalAccessToken',
   PLATFORM = 'Platform',
+  POLICY_SUMMARY = 'PolicySummary',
   PROCEDURE = 'Procedure',
   PROGRAM = 'Program',
   PROGRAM_MEMBERSHIP = 'ProgramMembership',
@@ -147,10 +188,12 @@ export enum ObjectNames {
   ASSET = 'Asset',
   CAMPAIGN = 'Campaign',
   CAMPAIGN_TARGET = 'Campaign Target',
+  CHECK_RESULT = 'Check Result',
   CONTACT = 'Contact',
   CONTROL = 'Control',
   CONTROL_IMPLEMENTATION = 'Control Implementation',
   CONTROL_OBJECTIVE = 'Control Objective',
+  CONTROL_REPORT = 'Control Report',
   CUSTOM_DOMAIN = 'Custom Domain',
   CUSTOM_TYPE_ENUM = 'Custom Type Enum',
   DNS_VERIFICATION = 'Dns Verification',
@@ -160,7 +203,6 @@ export enum ObjectNames {
   DIRECTORY_SYNC_RUN = 'Directory Sync Run',
   DISCUSSION = 'Discussion',
   DOCUMENT_DATA = 'Document Data',
-  EMAIL_BRANDING = 'Email Branding',
   EMAIL_TEMPLATE = 'Email Template',
   ENTITY = 'Entity',
   ENTITY_TYPE = 'Entity Type',
@@ -198,6 +240,7 @@ export enum ObjectNames {
   ORGANIZATION_SETTING = 'Organization Setting',
   PERSONAL_ACCESS_TOKEN = 'Personal Access Token',
   PLATFORM = 'Platform',
+  POLICY_SUMMARY = 'Policy Summary',
   PROCEDURE = 'Procedure',
   PROGRAM = 'Program',
   PROGRAM_MEMBERSHIP = 'Program Membership',
@@ -246,10 +289,10 @@ export enum TypesWithPermissions {
   ASSESSMENT = 'Assessment',
   ASSET = 'Asset',
   CAMPAIGN = 'Campaign',
+  CHECK_RESULT = 'CheckResult',
   CONTROL = 'Control',
   CONTROL_IMPLEMENTATION = 'ControlImplementation',
   CONTROL_OBJECTIVE = 'ControlObjective',
-  EMAIL_BRANDING = 'EmailBranding',
   EMAIL_TEMPLATE = 'EmailTemplate',
   ENTITY = 'Entity',
   FINDING = 'Finding',
@@ -299,6 +342,11 @@ export type PermissionsAllQueriesData = {
     pageInfo?: PageInfo
     totalCount?: number
   }
+  checkResults?: {
+    edges?: Array<{ node: CheckResult }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
   controls?: {
     edges?: Array<{ node: Control }>
     pageInfo?: PageInfo
@@ -311,11 +359,6 @@ export type PermissionsAllQueriesData = {
   }
   controlObjectives?: {
     edges?: Array<{ node: ControlObjective }>
-    pageInfo?: PageInfo
-    totalCount?: number
-  }
-  emailBrandings?: {
-    edges?: Array<{ node: EmailBranding }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -504,6 +547,16 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     excludeViewersInFilter: false,
     extraTableColumns: undefined,
   },
+  [TypesWithPermissions.CHECK_RESULT]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'checkResults',
+    queryDocument: GET_ALL_CHECK_RESULTS,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
   [TypesWithPermissions.CONTROL]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'controls',
@@ -513,14 +566,14 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     inputPlaceholder: 'ref code',
     excludeViewersInFilter: true,
     extraTableColumns: [
-        {
-          header: 'Reference Framework',
-          accessorKey: 'referenceFramework',
-          size: 100,
-          minSize: 100,
-          maxSize: 100,
-        },
-      ],
+      {
+        header: 'Reference Framework',
+        accessorKey: 'referenceFramework',
+        size: 100,
+        minSize: 100,
+        maxSize: 100,
+      },
+    ],
   },
   [TypesWithPermissions.CONTROL_IMPLEMENTATION]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
@@ -542,16 +595,6 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     excludeViewersInFilter: false,
     extraTableColumns: undefined,
   },
-  [TypesWithPermissions.EMAIL_BRANDING]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
-    responseObjectKey: 'emailBrandings',
-    queryDocument: GET_ALL_EMAIL_BRANDINGS,
-    objectName: 'name',
-    searchAttribute: 'nameContainsFold',
-    inputPlaceholder: 'name',
-    excludeViewersInFilter: false,
-    extraTableColumns: undefined,
-  },
   [TypesWithPermissions.EMAIL_TEMPLATE]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'emailTemplates',
@@ -563,23 +606,23 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     extraTableColumns: undefined,
   },
   [TypesWithPermissions.ENTITY]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
+    roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'entities',
     queryDocument: GET_ALL_ENTITIES,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
-    excludeViewersInFilter: false,
+    excludeViewersInFilter: true,
     extraTableColumns: undefined,
   },
   [TypesWithPermissions.FINDING]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
+    roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'findings',
     queryDocument: GET_ALL_FINDINGS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
-    excludeViewersInFilter: false,
+    excludeViewersInFilter: true,
     extraTableColumns: undefined,
   },
   [TypesWithPermissions.IDENTITY_HOLDER]: {
@@ -653,23 +696,23 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     extraTableColumns: undefined,
   },
   [TypesWithPermissions.REMEDIATION]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
+    roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'remediations',
     queryDocument: GET_ALL_REMEDIATIONS,
     objectName: 'title',
     searchAttribute: 'titleContainsFold',
     inputPlaceholder: 'title',
-    excludeViewersInFilter: false,
+    excludeViewersInFilter: true,
     extraTableColumns: undefined,
   },
   [TypesWithPermissions.REVIEW]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
+    roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'reviews',
     queryDocument: GET_ALL_REVIEWS,
     objectName: 'title',
     searchAttribute: 'titleContainsFold',
     inputPlaceholder: 'title',
-    excludeViewersInFilter: false,
+    excludeViewersInFilter: true,
     extraTableColumns: undefined,
   },
   [TypesWithPermissions.RISK]: {
@@ -683,23 +726,23 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     extraTableColumns: undefined,
   },
   [TypesWithPermissions.SLA_DEFINITION]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
+    roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'slaDefinitions',
     queryDocument: GET_ALL_SLA_DEFINITIONS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
-    excludeViewersInFilter: false,
+    excludeViewersInFilter: true,
     extraTableColumns: undefined,
   },
   [TypesWithPermissions.SCAN]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
+    roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'scans',
     queryDocument: GET_ALL_SCANS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
-    excludeViewersInFilter: false,
+    excludeViewersInFilter: true,
     extraTableColumns: undefined,
   },
   [TypesWithPermissions.TRUST_CENTER]: {
@@ -813,7 +856,6 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     extraTableColumns: undefined,
   },
 }
-
 
 export enum TaskObjectTypes {
   ACTION_PLAN = 'Action Plan',
@@ -1056,4 +1098,3 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     objectName: 'name',
   },
 }
-

@@ -28,7 +28,7 @@ export const GET_ALL_REVIEWS = gql`
           scopeID
           scopeName
           source
-          state
+          status
           summary
           systemOwned
           tags
@@ -92,7 +92,7 @@ export const REVIEW = gql`
       scopeID
       scopeName
       source
-      state
+      status
       summary
       systemOwned
       tags

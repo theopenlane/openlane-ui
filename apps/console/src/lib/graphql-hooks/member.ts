@@ -1,5 +1,8 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { useSession } from 'next-auth/react'
+import { OPENLANE_SUPPORT_USER_ID, supportUser } from '@/constants/support'
 
 import { UPDATE_USER_ROLE_IN_ORG, REMOVE_USER_FROM_ORG, GET_ORG_MEMBERSHIPS, GET_ORG_USER_LIST } from '@repo/codegen/query/member'
 
@@ -14,6 +17,7 @@ import {
   type OrgMembership,
   type User,
   type OrgMembershipsByIdsQuery,
+  OrgMembershipRole,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 
@@ -49,19 +53,42 @@ export const useGetOrgMemberships = ({ where, pagination, enabled, orderBy }: TU
     enabled,
   })
 
-  const members = (queryResult.data?.orgMemberships?.edges ?? []).map((edge) => edge?.node) as OrgMembership[]
+  const members = useMemo(() => (queryResult.data?.orgMemberships?.edges ?? []).map((edge) => edge?.node) as OrgMembership[], [queryResult.data])
 
   const paginationMeta = {
     totalCount: queryResult.data?.orgMemberships?.totalCount ?? 0,
     pageInfo: queryResult.data?.orgMemberships?.pageInfo,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 
   return {
     ...queryResult,
     members,
     paginationMeta,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
+  }
+}
+
+export const useCurrentUserRole = () => {
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user?.userId
+
+  const { members, isLoading } = useGetOrgMemberships({
+    where: { hasUserWith: [{ id: userId }] },
+    enabled: !!userId,
+  })
+
+  return {
+    role: members[0]?.role,
+    isLoading,
+  }
+}
+
+export const useIsAuditor = () => {
+  const { role, isLoading } = useCurrentUserRole()
+  return {
+    isAuditor: role === OrgMembershipRole.AUDITOR,
+    isLoading,
   }
 }
 
@@ -79,12 +106,15 @@ export const useGetOrgUserList = ({ where }: TUseGetOrgUserListProps) => {
     enabled: idInNotEmpty,
   })
 
-  const users = (queryResult.data?.orgMemberships?.edges ?? []).map((edge) => edge?.node?.user) as User[]
+  const users = useMemo(() => (queryResult.data?.orgMemberships?.edges ?? []).map((edge) => edge?.node?.user) as User[], [queryResult.data])
+
+  const requestedIds = where?.hasUserWith?.[0]?.idIn ?? []
+  const injectSupport = !!OPENLANE_SUPPORT_USER_ID && requestedIds.includes(OPENLANE_SUPPORT_USER_ID) && !users.some((u) => u?.id === OPENLANE_SUPPORT_USER_ID)
 
   return {
     ...queryResult,
-    users,
-    isLoading: queryResult.isLoading,
+    users: injectSupport ? [...users, supportUser()] : users,
+    isLoading: queryResult.isPending,
   }
 }
 
@@ -96,11 +126,14 @@ type UserSelectArgs = {
 export const useUserSelect = (args: UserSelectArgs) => {
   const { data, ...rest } = useGetOrgMemberships(args)
 
-  const userOptions =
-    data?.orgMemberships?.edges?.map((edge) => ({
-      label: edge?.node?.user.displayName || '',
-      value: edge?.node?.user.id || '',
-    })) ?? []
+  const userOptions = useMemo(
+    () =>
+      data?.orgMemberships?.edges?.map((edge) => ({
+        label: edge?.node?.user.displayName || '',
+        value: edge?.node?.user.id || '',
+      })) ?? [],
+    [data],
+  )
 
   return { userOptions, ...rest }
 }
@@ -108,11 +141,14 @@ export const useUserSelect = (args: UserSelectArgs) => {
 export const useUserSelectEmail = (args: UserSelectArgs) => {
   const { data, ...rest } = useGetOrgMemberships(args)
 
-  const userOptions =
-    data?.orgMemberships?.edges?.map((edge) => ({
-      label: edge?.node?.user.email || '',
-      value: edge?.node?.user.id || '',
-    })) ?? []
+  const userOptions = useMemo(
+    () =>
+      data?.orgMemberships?.edges?.map((edge) => ({
+        label: edge?.node?.user.email || '',
+        value: edge?.node?.user.id || '',
+      })) ?? [],
+    [data],
+  )
 
   return { userOptions, ...rest }
 }

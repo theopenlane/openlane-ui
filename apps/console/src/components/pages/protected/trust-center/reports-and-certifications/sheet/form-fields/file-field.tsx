@@ -13,6 +13,9 @@ interface Props {
   uploadedFile?: File | null
 }
 
+const acceptedFileTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+const acceptedFileTypesShort = ['pdf', 'docx', 'jpeg', 'png', 'webp']
+
 export const FileField = ({ onFileUpload, uploadedFile }: Props) => {
   const {
     formState: { errors },
@@ -49,7 +52,7 @@ export const FileField = ({ onFileUpload, uploadedFile }: Props) => {
           </Card>
         </>
       ) : (
-        <FileUpload onFileUpload={onFileUpload} maxFileSizeInMb={10} acceptedFileTypes={['application/pdf']} acceptedFileTypesShort={['PDF']} multipleFiles={false} />
+        <FileUpload onFileUpload={onFileUpload} maxFileSizeInMb={10} acceptedFileTypes={acceptedFileTypes} acceptedFileTypesShort={acceptedFileTypesShort} multipleFiles={false} />
       )}
 
       {errors.file && <p className="text-red-500 text-sm mt-1">{String(errors.file.message)}</p>}

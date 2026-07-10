@@ -2,11 +2,12 @@
 
 import { type LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
+import { UserAuthProvider } from '@repo/codegen/src/schema'
 import SimpleForm from '@repo/ui/simple-form'
 import { ArrowRightCircle, KeyRoundIcon } from 'lucide-react'
 import { signIn, type SignInResponse } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Separator } from '@repo/ui/separator'
 import { loginStyles } from './login.styles'
 import { GoogleIcon } from '@repo/ui/icons/google'
@@ -23,6 +24,17 @@ import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { cn } from '@repo/ui/lib/utils'
 import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 import Github from '@/assets/Github'
+import { recordLastLoginMethod, getLastLoginMethod } from '@/lib/auth/utils/last-login-method'
+import { LastUsedBadge } from './last-used-badge'
+
+type WebfingerResponse = {
+  success: boolean
+  enforced: boolean
+  provider: string
+  discovery_url?: string
+  organization_id?: string
+  is_org_owner?: boolean
+}
 
 export const LoginPage = () => {
   const { separator, buttons, form, input } = loginStyles()
@@ -32,73 +44,72 @@ export const LoginPage = () => {
   const [signInErrorMessage, setSignInErrorMessage] = useState('There was an error. Please try again.')
   const [signInLoading, setSignInLoading] = useState(false)
   const [email, setEmail] = useState('')
-  const [webfingerResponse, setWebfingerResponse] = useState<{
-    success: boolean
-    enforced: boolean
-    provider: string
-    discovery_url?: string
-    organization_id?: string
-    is_org_owner?: boolean
-  } | null>(null)
+  const [webfingerResponse, setWebfingerResponse] = useState<WebfingerResponse | null>(null)
   const [webfingerLoading, setWebfingerLoading] = useState(false)
-  const [usePasswordInsteadOfSSO, setUsePasswordInsteadOfSSO] = useState(false)
+  const [preferredMethod, setPreferredMethod] = useState<'sso' | 'password' | null>(null)
+  // the method the user most recently signed in with, remembered per-device
+  const [lastUsedProvider, setLastUsedProvider] = useState<UserAuthProvider | null>(null)
   const { errorNotification } = useNotification()
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
   const redirect = searchParams?.get('redirect')
+  const emailParam = searchParams?.get('email')
   const urlErrorMessage = searchParams.get('error')
   const showLoginError = !signInLoading && signInError
 
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  const shouldShowPasswordField = useCallback((): boolean => {
-    if (!webfingerResponse) {
-      return false
-    }
+  // the user's last login was SSO (remembered as a flag on this device)
+  const ssoLastUsed = lastUsedProvider === UserAuthProvider.OIDC
 
-    if (!webfingerResponse.success) {
-      return true
-    }
+  // webfinger confirmed the currently typed email resolves to a usable SSO org
+  const isSSOEmail = Boolean(webfingerResponse?.provider && webfingerResponse.provider !== 'NONE' && webfingerResponse.organization_id)
 
-    // if SSO is not enforced, always show password field
-    if (!webfingerResponse.enforced || webfingerResponse.provider === 'NONE') {
-      return true
-    }
+  // webfinger answered (non-null = real 200 body) but the email has no usable SSO — show password
+  const webfingerSaysNoSSO = webfingerResponse !== null && !isSSOEmail
 
-    // if SSO is enforced and the user is an org admin,
-    // show password field only if they chose to use password
-    if (webfingerResponse.enforced && webfingerResponse.is_org_owner) {
-      return usePasswordInsteadOfSSO
-    }
+  // the only case without a password fallback is an enforced SSO org where the user isn't an admin
+  const isSSOEnforcedForNonOwner = isSSOEmail && Boolean(webfingerResponse?.enforced) && !webfingerResponse?.is_org_owner
+  const isPasswordAvailable = !isSSOEnforcedForNonOwner
 
-    // if SSO is enforced and the user is not an org admin, don't show password field
-    return false
-  }, [webfingerResponse, usePasswordInsteadOfSSO])
+  // What follows decides which login control to render. It works in three layers:
+  //   1. availability  — is each method even an option for this email/device?
+  //   2. default       — with no user choice, which method leads?
+  //   3. preference     — the user can override the default via a "Switch to..." link.
+  // The final show* flags combine all three.
 
-  const shouldShowSSOButton = useCallback((): boolean => {
-    if (!webfingerResponse) {
-      return false
-    }
+  // --- Layer 1: availability ---
+  // SSO is offerable when webfinger didn't rule it out AND either the email resolves to an SSO org
+  // or this device last logged in with SSO (so we can surface the button before webfinger answers).
+  const ssoAvailable = !webfingerSaysNoSSO && (isSSOEmail || ssoLastUsed)
 
-    // only show SSO button when it is enforced
-    if (webfingerResponse.enforced && webfingerResponse.provider !== 'NONE' && webfingerResponse.organization_id) {
-      // but if the user is the org admin and chooses to use password, don't show SSO button
-      if (webfingerResponse.is_org_owner && usePasswordInsteadOfSSO) {
-        return false
-      }
-      return webfingerResponse.success
-    }
+  // --- Layer 2: which method leads by default ---
+  // SSO leads when the org enforces it, or when this device's last login was SSO.
+  const ssoIsDefault = (isSSOEmail && Boolean(webfingerResponse?.enforced)) || ssoLastUsed
 
-    // don't show SSO button when SSO is not enforced
-    return false
-  }, [webfingerResponse, usePasswordInsteadOfSSO])
+  // Password leads when the email has no SSO at all, or when it's an SSO org that only *offers*
+  // SSO (not enforced) — in that case we show password first and offer SSO as a switch.
+  const passwordIsDefault = webfingerSaysNoSSO || (isSSOEmail && !ssoIsDefault)
 
-  const shouldShowToggleOption = useCallback((): boolean => {
-    return Boolean(webfingerResponse?.enforced && webfingerResponse?.is_org_owner && webfingerResponse?.provider !== 'NONE' && webfingerResponse?.organization_id)
-  }, [webfingerResponse])
+  // --- Layer 3: honor the user's explicit "Switch to..." choice, but only if it's actually usable ---
+  // (e.g. ignore a stale 'password' preference once we learn SSO is enforced with no password fallback).
+  const preferenceIsAvailable = preferredMethod === 'sso' ? ssoAvailable : preferredMethod === 'password' ? isPasswordAvailable : true
+  const activePreference = preferenceIsAvailable ? preferredMethod : null
+
+  // --- Final visibility: show a method when it's available AND (the user picked it OR it's the default with no pick) ---
+  const showSSOButton = ssoAvailable && (activePreference === 'sso' || (activePreference === null && ssoIsDefault))
+
+  const showPasswordField = isPasswordAvailable && (activePreference === 'password' || (activePreference === null && passwordIsDefault))
+
+  // Offer a switch link only when the *other* method is available but currently hidden.
+  const showSwitchToPassword = !webfingerLoading && showSSOButton && isPasswordAvailable && !showPasswordField
+  const showSwitchToSSO = !webfingerLoading && showPasswordField && ssoAvailable && !showSSOButton
 
   const handleSSOLogin = useCallback(async () => {
-    if (!webfingerResponse?.organization_id) {
+    // the button stays enabled even when webfinger can't resolve the email — error here, don't use a stale org
+    if (!isSSOEmail || !webfingerResponse?.organization_id) {
+      setSignInError(true)
+      setSignInErrorMessage('Invalid email')
       return false
     }
 
@@ -116,6 +127,7 @@ export const LoginPage = () => {
       const data = await response.json()
 
       if (response.ok && data.success && data.redirect_uri) {
+        recordLastLoginMethod(UserAuthProvider.OIDC)
         window.location.href = data.redirect_uri
         return true
       }
@@ -135,7 +147,7 @@ export const LoginPage = () => {
       setSignInErrorMessage('An error occurred during SSO login.')
       return false
     }
-  }, [webfingerResponse, errorNotification])
+  }, [webfingerResponse, errorNotification, isSSOEmail])
 
   const checkLoginMethods = useCallback(async (email: string) => {
     if (!isValidEmail(email)) {
@@ -149,8 +161,13 @@ export const LoginPage = () => {
         headers: { 'Content-Type': 'application/json' },
       })
 
-      const data = await response.json()
-      setWebfingerResponse(data)
+      // webfinger couldn't resolve this email (e.g. a mistype) — leave unresolved so the SSO button stays and a click reports "Invalid email"
+      if (!response.ok) {
+        setWebfingerResponse(null)
+        return
+      }
+
+      setWebfingerResponse(await response.json())
     } catch (error) {
       console.error('Error fetching webfinger:', error)
       setWebfingerResponse(null)
@@ -169,12 +186,38 @@ export const LoginPage = () => {
     [checkLoginMethods],
   )
 
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setEmail(value)
+    setPreferredMethod(null)
+    // a prior "Invalid email" error no longer applies once the address changes
+    setSignInError(false)
+
+    // let webfinger drive on edit; hold webfingerLoading across the debounce so the button can't be clicked mid-check
+    if (value && isValidEmail(value)) {
+      setWebfingerLoading(true)
+      debouncedCheckLoginMethods(value)
+      return
+    }
+
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current)
+    }
+    setWebfingerLoading(false)
+    // no determination for an empty/partial email — the last-used SSO button (flag-driven) stays
+    setWebfingerResponse(null)
+  }
+
   useEffect(() => {
     return () => {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current)
       }
     }
+  }, [])
+
+  useEffect(() => {
+    setLastUsedProvider(getLastLoginMethod())
   }, [])
 
   const redirectUrl = useMemo(() => {
@@ -189,7 +232,8 @@ export const LoginPage = () => {
     setSignInError(false)
 
     try {
-      if (shouldShowSSOButton()) {
+      // only block credential submit when SSO is the only available method
+      if (showSSOButton && !showPasswordField) {
         return
       }
 
@@ -218,6 +262,7 @@ export const LoginPage = () => {
       })
 
       if (res.ok && !res.error) {
+        recordLastLoginMethod(UserAuthProvider.CREDENTIALS)
         router.push(redirectUrl)
       } else {
         let errMsg = 'There was an error. Please try again.'
@@ -252,6 +297,7 @@ export const LoginPage = () => {
 
   const github = async () => {
     setDirectOAuthCookie()
+    recordLastLoginMethod(UserAuthProvider.GITHUB)
 
     await signIn('github', {
       redirectTo: redirectUrl,
@@ -260,6 +306,7 @@ export const LoginPage = () => {
 
   const google = async () => {
     setDirectOAuthCookie()
+    recordLastLoginMethod(UserAuthProvider.GOOGLE)
 
     await signIn('google', {
       redirectTo: redirectUrl,
@@ -293,6 +340,7 @@ export const LoginPage = () => {
 
       if (verificationResult.success) {
         setDirectOAuthCookie()
+        recordLastLoginMethod(UserAuthProvider.WEBAUTHN)
         await signIn('passkey', {
           callbackUrl: redirectUrl,
           email: email || '',
@@ -330,11 +378,19 @@ export const LoginPage = () => {
     }
   }, [urlErrorMessage, router])
 
+  // prefill the email from an invite link and resolve sign-in methods on load
+  useEffect(() => {
+    if (emailParam && isValidEmail(emailParam)) {
+      setEmail(emailParam)
+      checkLoginMethods(emailParam)
+    }
+  }, [emailParam, checkLoginMethods])
+
   return (
     <>
       <div className="flex flex-col self-center text-center">
         <p className="text-3xl font-medium">Login to your account</p>
-        {!shouldShowSSOButton() && !shouldShowPasswordField() && (
+        {!showSSOButton && !showPasswordField && (
           <div className="mt-2 text-center">
             <span className="text-muted-foreground text-sm">Don’t have an account yet? </span>
             <Link href={`/signup${token ? `?token=${token}` : ''}`} className="text-sm hover:text-blue-500 hover:opacity-80 transition-color duration-500">
@@ -343,18 +399,27 @@ export const LoginPage = () => {
           </div>
         )}
 
-        <div className={cn(buttons(), 'flex justify-center mt-[32px]')}>
-          <Button variant="secondary" className="!py-1.5 !px-5" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
-            <p className="text-sm font-normal">Google</p>
-          </Button>
+        <div className={cn(buttons(), 'flex justify-center items-center mt-[32px]')}>
+          <div className="relative">
+            <LastUsedBadge provider={UserAuthProvider.GOOGLE} lastUsedProvider={lastUsedProvider} floating />
+            <Button variant="secondary" className="!py-1.5 !px-5 " size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
+              <p className="text-sm font-normal">Google</p>
+            </Button>
+          </div>
 
-          <Button variant="secondary" className="!py-1.5 !px-5" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
-            <p className="text-sm font-normal">GitHub</p>
-          </Button>
+          <div className="relative">
+            <LastUsedBadge provider={UserAuthProvider.GITHUB} lastUsedProvider={lastUsedProvider} floating />
+            <Button variant="secondary" className="!py-1.5 !px-5 " size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
+              <p className="text-sm font-normal">GitHub</p>
+            </Button>
+          </div>
 
-          <Button variant="secondary" className="!py-1.5 !px-5" icon={<KeyRoundIcon className="text-input-text" />} iconPosition="left" onClick={() => passKeySignIn()} disabled={signInLoading}>
-            <p className="text-sm font-normal">Passkey</p>
-          </Button>
+          <div className="relative">
+            <LastUsedBadge provider={UserAuthProvider.WEBAUTHN} lastUsedProvider={lastUsedProvider} floating />
+            <Button variant="secondary" className="!py-1.5 !px-5 " icon={<KeyRoundIcon className="text-input-text" />} iconPosition="left" onClick={() => passKeySignIn()} disabled={signInLoading}>
+              <p className="text-sm font-normal">Passkey</p>
+            </Button>
+          </div>
         </div>
 
         <Separator label="or" login className={cn(separator(), 'text-muted-foreground')} />
@@ -364,47 +429,52 @@ export const LoginPage = () => {
           onSubmit={(e: LoginUser) => {
             submit(e)
           }}
-          onChange={(e: { username: string; password?: string }) => {
-            if (e.username !== undefined && e.username !== email) {
-              setEmail(e.username)
-              // reset toggle when email address changes until next webfinger api check
-              setUsePasswordInsteadOfSSO(false)
-
-              if (e.username && isValidEmail(e.username)) {
-                debouncedCheckLoginMethods(e.username)
-                return
-              }
-
-              setWebfingerResponse(null)
-            }
-          }}
         >
           <div className={input()}>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between items-centeer">
               <p className="text-sm">Email</p>
-              {shouldShowSSOButton() && shouldShowToggleOption() && (
+              <LastUsedBadge provider={UserAuthProvider.CREDENTIALS} lastUsedProvider={lastUsedProvider} />
+              {showSwitchToPassword && (
                 <button
                   type="button"
-                  onClick={() => setUsePasswordInsteadOfSSO(true)}
+                  onClick={() => setPreferredMethod('password')}
                   className="text-xs bg-unset text-muted-foreground underline hover:text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition-colors duration-500"
                 >
-                  Login with password
+                  Switch to password
+                </button>
+              )}
+              {showSwitchToSSO && (
+                <button
+                  type="button"
+                  onClick={() => setPreferredMethod('sso')}
+                  className="text-xs bg-unset text-muted-foreground underline hover:text-blue-500 mt-1 mb-1 text-right hover:opacity-80 transition-colors duration-500"
+                >
+                  Sign in with SSO
                 </button>
               )}
             </div>
 
-            <Input type="email" variant="light" name="username" placeholder="Enter your email" className={`bg-transparent ${showLoginError ? 'border border-toast-error-icon' : ''}`} />
+            <Input
+              type="email"
+              variant="light"
+              name="username"
+              placeholder="Enter your email"
+              value={email}
+              onChange={handleEmailChange}
+              className={`bg-transparent ${showLoginError ? 'border border-toast-error-icon' : ''}`}
+            />
             {showLoginError && <span className="text-xs text-toast-error-icon text-left">{signInErrorMessage}</span>}
           </div>
 
-          {shouldShowSSOButton() && (
-            <div className="flex flex-col">
+          {showSSOButton && (
+            <div className="relative flex flex-col mt-[16px]">
+              <LastUsedBadge provider={UserAuthProvider.OIDC} lastUsedProvider={lastUsedProvider} floating />
               <Button
                 variant="primary"
-                className="mt-[16px] p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold"
+                className="p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold"
                 type="button"
                 onClick={handleSSOLogin}
-                disabled={signInLoading || webfingerLoading}
+                disabled={signInLoading || webfingerLoading || !isValidEmail(email)}
               >
                 <span>Continue with SSO</span>
                 <ArrowRightCircle size={16} className="ml-2" />
@@ -412,7 +482,7 @@ export const LoginPage = () => {
             </div>
           )}
 
-          {shouldShowPasswordField() && (
+          {showPasswordField && (
             <>
               <div className="flex flex-col">
                 {
@@ -426,9 +496,12 @@ export const LoginPage = () => {
                       </div>
                       <PasswordInput variant="light" name="password" placeholder="Enter your password" autoComplete="current-password" className="bg-transparent !text-text" />
                     </div>
-                    <Button variant="primary" className="mt-[16px] p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold" type="submit" disabled={signInLoading}>
-                      <span>Login</span>
-                    </Button>
+                    <div className="flex flex-col">
+                      <Button variant="primary" className="mt-[16px] p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold" type="submit" disabled={signInLoading}>
+                        {' '}
+                        <span>Login</span>
+                      </Button>
+                    </div>
                   </>
                 }
 

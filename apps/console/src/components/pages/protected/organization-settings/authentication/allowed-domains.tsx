@@ -1,20 +1,18 @@
 'use client'
 
 import React, { useEffect, useState, use } from 'react'
-import { Input } from '@repo/ui/input'
-import { Button } from '@repo/ui/button'
-import { PlusIcon, Trash2 } from 'lucide-react'
-import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationSetting, useUpdateOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { Switch } from '@repo/ui/switch'
+import { Badge } from '@repo/ui/badge'
+import { Button } from '@repo/ui/button'
 import { type UpdateOrganizationSettingInput } from '@repo/codegen/src/schema'
-
-const isValidDomain = (domain: string) => /^(?!:\/\/)([a-zA-Z0-9-_]+\.)+[a-zA-Z]{2,}$/.test(domain)
+import { isValidDomain } from '@/utils/strings'
+import { DomainListEditor } from '@/components/shared/domain-list-editor/domain-list-editor'
+import { Lock, UserCheck } from 'lucide-react'
 
 const AllowedDomains = () => {
   const { currentOrgId } = useOrganization()
@@ -28,6 +26,7 @@ const AllowedDomains = () => {
 
   const settingId = data?.organization?.setting?.id
   const domains = data?.organization?.setting?.allowedEmailDomains ?? []
+  const exemptDomains = data?.organization?.setting?.ssoExemptDomains ?? []
   const allowAutoJoin = !!data?.organization?.setting?.allowMatchingDomainsAutojoin
 
   const updateSetting = async (input: UpdateOrganizationSettingInput, successMsg = 'Settings saved successfully.') => {
@@ -58,6 +57,11 @@ const AllowedDomains = () => {
       return
     }
 
+    if (exemptDomains.includes(trimmed)) {
+      setInputError(`"${trimmed}" is an SSO-exempt domain, so it can't also be an allowed domain. Remove it from SSO-exempt domains first.`)
+      return
+    }
+
     await updateSetting({ allowedEmailDomains: [...domains, trimmed], allowMatchingDomainsAutojoin: true }, 'Allowed domains updated successfully.')
     setNewDomain('')
   }
@@ -84,48 +88,47 @@ const AllowedDomains = () => {
   const domainCount = domains.length
 
   return (
-    <>
-      <Panel>
-        <PanelHeader heading="Allowed domains" subheading="Restrict user logins to the organization by email domain" noBorder />
-
-        <div>
-          <div className="flex items-center gap-2">
-            <Input
-              type="text"
-              className="h-7 p-2.5"
-              placeholder="example.com"
-              value={newDomain}
-              onChange={(e) => {
-                setNewDomain(e.target.value)
-                if (inputError) setInputError(null)
-              }}
-            />
-
-            <Button type="button" className="h-8 p-2 " variant="secondary" onClick={saveChanges} disabled={isPending} icon={<PlusIcon />} iconPosition="left">
-              Add Domain
+    <div className="rounded-lg border bg-card p-6">
+      <div className="flex items-start gap-4">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+          <UserCheck className="h-5 w-5 text-muted-foreground" />
+        </div>
+        <div className="flex-1">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1.5">
+              <h3 className="font-semibold">Auto Join</h3>
+              <p className="text-sm text-muted-foreground">Automatically allow users with verified email addresses from approved domains to join this organization.</p>
+              <Badge variant={allowAutoJoin ? 'green' : 'secondary'}>{allowAutoJoin ? '● Enabled' : '● Disabled'}</Badge>
+            </div>
+            <Button variant={allowAutoJoin ? 'destructive' : 'secondary'} onClick={() => onSwitchChange(!allowAutoJoin)} disabled={domainCount === 0} className="shrink-0">
+              <Lock className="h-4 w-4 mr-2" />
+              {allowAutoJoin ? 'Disable Auto Join' : 'Enable Auto Join'}
             </Button>
           </div>
 
-          {inputError && <p className="mt-2 text-sm text-destructive">{inputError}</p>}
-
-          <div className="flex gap-3 mb-2 mt-6">
-            {domains.map((domain) => (
-              <div key={domain} className="flex items-center gap-1 bg-btn-secondary size-fit px-2 rounded-sm border border-muted">
-                {domain}
-                <button type="button" onClick={() => removeDomain(domain)} className="ml-1">
-                  <Trash2 size={14} className="text-muted-foreground" />
-                </button>
-              </div>
-            ))}
+          <div className="mt-6 border-t pt-4">
+            <div className="mb-3 space-y-0.5">
+              <h4 className="text-sm font-medium">Allowed domains</h4>
+              <p className="text-xs text-muted-foreground">Users with a verified email from these domains can automatically join</p>
+              {domainCount === 0 && <p className="text-xs text-muted-foreground">Add a domain below to enable auto-join.</p>}
+            </div>
+            <DomainListEditor
+              domains={domains}
+              newDomain={newDomain}
+              onNewDomainChange={(value) => {
+                setNewDomain(value)
+                if (inputError) setInputError(null)
+              }}
+              onAdd={saveChanges}
+              onRemove={removeDomain}
+              error={inputError}
+              isPending={isPending}
+              addLabel="Add Domain"
+            />
           </div>
         </div>
-      </Panel>
-
-      <Panel>
-        <PanelHeader heading="Auto-join organization" subheading="Allow users with verified email addresses that match allowed domains to automatically join the organization" noBorder />
-        <Switch checked={allowAutoJoin} onCheckedChange={onSwitchChange} disabled={domainCount === 0} />
-      </Panel>
-    </>
+      </div>
+    </div>
   )
 }
 

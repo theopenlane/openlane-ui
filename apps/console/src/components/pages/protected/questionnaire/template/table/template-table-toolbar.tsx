@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
@@ -9,13 +9,15 @@ import { CreateTemplateButton } from '@/components/pages/protected/questionnaire
 import Menu from '@/components/shared/menu/menu.tsx'
 import { type VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { type TemplateWhereInput } from '@repo/codegen/src/schema'
+import { type TemplateWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { BulkCSVCreateTemplateDialog } from '@/components/pages/protected/questionnaire/dialog/bulk-csv-create-template-dialog'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { Button } from '@repo/ui/button'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
+import { useSession } from 'next-auth/react'
 
 type TTemplateTableToolbarProps = {
   creating: boolean
@@ -47,10 +49,31 @@ const TemplateTableToolbar: React.FC<TTemplateTableToolbarProps> = ({
 }) => {
   const isSearching = useDebounce(searching, 200)
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const filterFields = useTemplateFilters()
 
+  const quickFilters = useMemo<TQuickFilter[]>(
+    () => [
+      {
+        label: 'Hide System Owned',
+        key: 'systemOwned',
+        type: 'custom',
+        isActive: false,
+        getCondition: () => ({ systemOwned: false }),
+      },
+      {
+        label: 'Hide Object Creation',
+        key: 'kindNEQ',
+        type: 'custom',
+        isActive: false,
+        getCondition: () => ({ kindNEQ: TemplateTemplateKind.EXTERNAL_INTAKE }),
+      },
+    ],
+    [],
+  )
+
   const createButton = () => {
-    if (includeQuestionnaireCreation === 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)) {
+    if (includeQuestionnaireCreation === 'true' && hasPermission(permission?.roles, AccessEnum.CanCreateTemplate, session)) {
       return <CreateTemplateButton />
     }
   }
@@ -90,7 +113,7 @@ const TemplateTableToolbar: React.FC<TTemplateTableToolbarProps> = ({
           {mappedColumns && columnVisibility && setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.TEMPLATE} />
           )}
-          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.TEMPLATE} />}
+          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.TEMPLATE} quickFilters={quickFilters} />}
           {createButton()}
         </div>
       </div>

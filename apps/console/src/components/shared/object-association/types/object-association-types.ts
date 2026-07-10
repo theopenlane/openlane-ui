@@ -10,6 +10,7 @@ export type TBaseAssociatedNode = {
   desiredOutcome?: string | null
   details?: string | null
   refCode?: string | null
+  identityHolderType?: string | null
   __typename?: string
 }
 
@@ -29,6 +30,10 @@ export type TCenterNode = {
   type: ObjectAssociationNodeEnum
   node: TBaseAssociatedNode
 }
+
+export const getObjectName = (node: TBaseAssociatedNode | undefined): string => node?.refCode ?? node?.fullName ?? node?.displayName ?? node?.name ?? node?.title ?? 'this object'
+
+export const getCenterNodeObjectName = (centerNode: TCenterNode): string => getObjectName(centerNode?.node)
 
 export enum ObjectAssociationNodeEnum {
   CONTROL = 'controls',

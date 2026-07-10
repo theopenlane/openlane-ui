@@ -29,7 +29,8 @@ export type BulkEditProceduresDialogProps = {
 
 export type BulkEditControlsDialogProps = {
   selectedControls: { id: string; refCode: string }[]
-  setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
+  setSelectedControls?: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
+  onClearSelectedControls?: () => void
 }
 
 export type BulkEditTasksDialogProps = {

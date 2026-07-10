@@ -111,6 +111,9 @@ const ControlDetailsPage: React.FC = () => {
   const { data: associationsData } = useGetControlAssociationsById(id)
   const hasScrollbar = useHasScrollbar([isEditing, data?.control, associationsData?.control])
 
+  // depending on the leaf fields instead of associationsData?.control/data would satisfy the react-compiler
+  // advisory rule but trips exhaustive-deps, which treats the parents as the real deps here
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const memoizedSections = useMemo(() => {
     if (!associationsData?.control || !data) return {}
     return {
@@ -327,7 +330,7 @@ const ControlDetailsPage: React.FC = () => {
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3 flex-wrap">
             <TitleField
-              isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+              isEditAllowed={!isSourceFramework && canEdit(permission?.roles, sessionData)}
               isEditing={isEditing}
               initialRefCode={initialValues.refCode}
               initialTitle={initialValues.title}
@@ -373,12 +376,12 @@ const ControlDetailsPage: React.FC = () => {
       <DescriptionField
         isEditing={isEditing}
         initialValue={initialValues.descriptionJSON ?? initialValues.description}
-        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+        isEditAllowed={!isSourceFramework && canEdit(permission?.roles, sessionData)}
         discussionData={discussionData?.control}
         systemCreated={!initialValues.descriptionJSON && !!initialValues.description}
       />
 
-      <div className="grid gap-4 sm:grid-cols-[160px_1fr]">
+      <div className="grid gap-4 sm:grid-cols-[160px_160px_1fr]">
         <div>
           <p className="text-sm text-muted-foreground mb-2">Framework</p>
           <StandardChip referenceFramework={control.referenceFramework ?? ''} />
@@ -389,9 +392,9 @@ const ControlDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      <QuickActions kind="control" controlId={id} control={control} canEdit={canEdit(permission?.roles)} />
+      <QuickActions kind="control" controlId={id} control={control} canEdit={canEdit(permission?.roles, sessionData)} />
 
-      <ControlTabs kind="control" control={control} isEditing={isEditing} data={control} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
+      <ControlTabs kind="control" control={control} isEditing={isEditing} data={control} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles, sessionData)} />
     </div>
   )
 
@@ -402,18 +405,17 @@ const ControlDetailsPage: React.FC = () => {
           controlId={data?.control.id}
           sections={memoizedSections}
           centerNode={memoizedCenterNode}
-          canEdit={canEdit(permission?.roles)}
+          canEdit={canEdit(permission?.roles, sessionData)}
           onRemoveAssociation={handleRemoveAssociation}
         />
       )}
 
-      <PropertiesCard data={control} isEditing={isEditing} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
+      <PropertiesCard data={control} isEditing={isEditing} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles, sessionData)} />
     </>
   )
 
   return (
     <>
-      <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Controls - ${data.control.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <SlideBarLayout

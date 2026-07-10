@@ -96,6 +96,9 @@ export const FINDING = gql`
       findingClass
       id
       impact
+      integrations {
+        totalCount
+      }
       metadata
       numericSeverity
       open
@@ -168,6 +171,16 @@ export const DELETE_FINDING = gql`
 export const CREATE_CSV_BULK_FINDING = gql`
   mutation CreateBulkCSVFinding($input: Upload!) {
     createBulkCSVFinding(input: $input) {
+      findings {
+        id
+      }
+    }
+  }
+`
+
+export const CREATE_BULK_FINDING = gql`
+  mutation CreateBulkFinding($input: [CreateFindingInput!]) {
+    createBulkFinding(input: $input) {
       findings {
         id
       }

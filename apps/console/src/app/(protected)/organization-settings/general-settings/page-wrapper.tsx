@@ -2,19 +2,20 @@
 import { PageHeading } from '@repo/ui/page-heading'
 import { OrganizationNameForm } from '@/components/pages/protected/organization-settings/general-settings/organization-name-form'
 import { pageStyles } from './page.styles'
-import { OrganizationDelete } from '@/components/pages/protected/organization-settings/general-settings/organization-delete'
+import { OrganizationManagement } from '@/components/pages/protected/organization-settings/general-settings/organization-management'
 import { useState } from 'react'
 import { LoaderCircle } from 'lucide-react'
 import { canEdit } from '@/lib/authz/utils.ts'
 import ProtectedArea from '@/components/shared/protected-area/protected-area'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { TransferOwnership } from '@/components/pages/protected/organization-settings/general-settings/transfer-ownership'
+import { useSession } from 'next-auth/react'
 
 export const PageWrapper: React.FC = () => {
   const { wrapper } = pageStyles()
   const [loading, setLoading] = useState(false)
   const { data: orgPermission } = useOrganizationRoles()
-
+  const { data: session } = useSession()
+  const canView = canEdit(orgPermission?.roles, session)
   return (
     <>
       {loading && (
@@ -22,14 +23,13 @@ export const PageWrapper: React.FC = () => {
           <LoaderCircle className="animate-spin" size={48} />
         </div>
       )}
-      {!loading && !canEdit(orgPermission?.roles) && <ProtectedArea />}
-      {!loading && canEdit(orgPermission?.roles) && (
+      {!loading && !canView && <ProtectedArea />}
+      {!loading && canView && (
         <>
           <PageHeading eyebrow="Organization settings" heading="General" />
           <div className={wrapper()}>
             <OrganizationNameForm />
-            <OrganizationDelete onLoadingChange={setLoading} />
-            <TransferOwnership />
+            <OrganizationManagement onLoadingChange={setLoading} />
           </div>
         </>
       )}

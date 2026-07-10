@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Copy, PanelRightClose, Pencil, Save, Trash2 } from 'lucide-react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
@@ -34,8 +34,9 @@ import { Callout } from '@/components/shared/callout/callout'
 import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-nda-request'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useSession } from 'next-auth/react'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -60,9 +61,10 @@ export const CreateDocumentSheet: React.FC = () => {
 
   const { data: permission } = useAccountRoles(ObjectTypes.TRUST_CENTER_DOC, documentId)
   const { data: orgPermission } = useOrganizationRoles()
+  const { data: session } = useSession()
 
-  const isEditAllowed = canEdit(permission?.roles)
-  const canCreateDoc = canCreate(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument)
+  const isEditAllowed = canEdit(permission?.roles, session)
+  const canCreateDoc = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument, session)
   const isDeleteAllowed = canDelete(permission?.roles)
 
   const [isEditing, setIsEditing] = useState(false)
@@ -98,8 +100,8 @@ export const CreateDocumentSheet: React.FC = () => {
     },
   })
 
-  const { handleSubmit, reset, formState } = formMethods
-  const visibilityValue = formMethods.watch('visibility')
+  const { handleSubmit, reset, formState, control } = formMethods
+  const visibilityValue = useWatch({ control, name: 'visibility' })
   const { isSubmitting } = formState
 
   const handleOpenChange = (isOpen: boolean) => {

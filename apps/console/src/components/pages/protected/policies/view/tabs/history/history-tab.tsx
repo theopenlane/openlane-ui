@@ -1,0 +1,177 @@
+'use client'
+
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useNotification } from '@/hooks/useNotification.tsx'
+import { useGetInternalPolicyHistories, useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
+import { useGetGroupNames } from '@/lib/graphql-hooks/group'
+import { type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode, InternalPolicyDocumentStatus, InternalPolicyFrequency, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
+import HistoryRow from './history-row'
+import VersionSlideout from './version-slideout'
+import RestoreDialog from './restore-dialog'
+import { stringToPlateValue } from '@/components/shared/plate/plate-utils'
+import { resolveAuthor } from '@/lib/authors'
+
+const hasStr = (s: string | null | undefined): s is string => typeof s === 'string' && s.length > 0
+const hasArr = (a: ReadonlyArray<unknown> | null | undefined): a is ReadonlyArray<unknown> => Array.isArray(a) && a.length > 0
+
+type HistoryTabProps = {
+  policyId: string
+  policy: InternalPolicyByIdFragment
+}
+
+const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
+  const { historyNodes: rawHistoryNodes, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useGetInternalPolicyHistories(policyId)
+  const { mutateAsync: updatePolicy, isPending: isRestoring } = useUpdateInternalPolicy()
+  const { successNotification, errorNotification } = useNotification()
+
+  const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null)
+  const [restoreTargetId, setRestoreTargetId] = useState<string | null>(null)
+
+  const historyNodes = useMemo(() => rawHistoryNodes.filter((n) => n.revision !== policy.revision), [rawHistoryNodes, policy.revision])
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el || !hasNextPage) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage()
+        }
+      },
+      { rootMargin: '200px' },
+    )
+    observer.observe(el)
+    return () => observer.unobserve(el)
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const authorIds = useMemo(() => {
+    const ids: Array<string | null | undefined> = [policy.updatedBy, policy.createdBy]
+    historyNodes.forEach((n) => {
+      ids.push(n.createdBy, n.updatedBy)
+    })
+    return ids
+  }, [policy.updatedBy, policy.createdBy, historyNodes])
+
+  const { userMap, tokenMap } = useAuthorMaps(authorIds)
+
+  const groupIds = useMemo(() => {
+    const ids = new Set<string>()
+    historyNodes.forEach((n) => {
+      if (n.approverID) ids.add(n.approverID)
+      if (n.delegateID) ids.add(n.delegateID)
+    })
+    return Array.from(ids)
+  }, [historyNodes])
+
+  const groupListWhere = useMemo(() => ({ idIn: groupIds }), [groupIds])
+  const canViewHistory = policy.managementMode !== InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
+  const { groups } = useGetGroupNames({ where: groupListWhere, enabled: canViewHistory && groupIds.length > 0 })
+
+  const groupNameMap = useMemo(() => {
+    const m = new Map<string, string>()
+    if (policy.approver?.id) m.set(policy.approver.id, policy.approver.displayName || policy.approver.id)
+    if (policy.delegate?.id) m.set(policy.delegate.id, policy.delegate.displayName || policy.delegate.id)
+    groups?.forEach((g) => g?.id && m.set(g.id, g.displayName || g.name || g.id))
+    return m
+  }, [groups, policy.approver, policy.delegate])
+
+  const restoreTarget = useMemo(() => historyNodes.find((n) => n.id === restoreTargetId) ?? null, [historyNodes, restoreTargetId])
+
+  const handleRestore = async (historyId: string) => {
+    const target = historyNodes.find((n) => n.id === historyId)
+    if (!target) return
+    const hasDetailsJSON = Array.isArray(target.detailsJSON) && target.detailsJSON.length > 0
+    const derivedDetailsJSON = hasDetailsJSON ? target.detailsJSON : stringToPlateValue(target.details)
+
+    const input: UpdateInternalPolicyInput = {
+      status: InternalPolicyDocumentStatus.NEEDS_APPROVAL,
+      ...(hasStr(target.name) && { name: target.name }),
+      ...(hasStr(target.details) && { details: target.details }),
+      ...(derivedDetailsJSON ? { detailsJSON: derivedDetailsJSON } : { clearDetailsJSON: true }),
+      ...(hasArr(target.tags) ? { tags: target.tags as string[] } : hasArr(policy.tags) ? { clearTags: true } : {}),
+      ...(target.approvalRequired != null ? { approvalRequired: target.approvalRequired } : policy.approvalRequired != null ? { clearApprovalRequired: true } : {}),
+      ...(target.reviewDue != null ? { reviewDue: target.reviewDue } : policy.reviewDue != null ? { clearReviewDue: true } : {}),
+      ...(target.reviewFrequency != null
+        ? { reviewFrequency: InternalPolicyFrequency[target.reviewFrequency as keyof typeof InternalPolicyFrequency] }
+        : policy.reviewFrequency != null
+          ? { clearReviewFrequency: true }
+          : {}),
+      ...(hasStr(target.approverID) ? { approverID: target.approverID } : policy.approver?.id ? { clearApprover: true } : {}),
+      ...(hasStr(target.delegateID) ? { delegateID: target.delegateID } : policy.delegate?.id ? { clearDelegate: true } : {}),
+      ...(hasStr(target.internalPolicyKindName) ? { internalPolicyKindName: target.internalPolicyKindName } : hasStr(policy.internalPolicyKindName) ? { clearInternalPolicyKindName: true } : {}),
+    }
+    try {
+      await updatePolicy({ updateInternalPolicyId: policyId, input })
+      successNotification({ title: 'Policy restored', description: `Restored ${target.revision ?? ''}`.trim() })
+      setRestoreTargetId(null)
+      setSelectedHistoryId(null)
+    } catch (e) {
+      errorNotification({ title: 'Restore failed', description: e instanceof Error ? e.message : 'Unknown error' })
+    }
+  }
+
+  const currentAuthor = resolveAuthor(policy.updatedBy, { userMap, tokenMap })
+  const isExternalReference = !canViewHistory
+  const isIntegration = policy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION
+  const handleView = isExternalReference ? undefined : (id: string) => setSelectedHistoryId(id)
+  const handleRestoreClick = isExternalReference || isIntegration ? undefined : (id: string) => setRestoreTargetId(id)
+
+  return (
+    <div className="mt-5 flex flex-col gap-3">
+      <p className="text-sm text-muted-foreground">Showing major and minor versions only · patch versions (e.g. v1.2.1) excluded</p>
+
+      <HistoryRow id={policyId} revision={policy.revision} occurredAt={policy.updatedAt} author={currentAuthor} isCurrent />
+
+      {isLoading && historyNodes.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Loading history…</p>
+      ) : historyNodes.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No prior major or minor versions.</p>
+      ) : (
+        <>
+          {historyNodes.map((node) => (
+            <HistoryRow
+              key={node.id}
+              id={node.id}
+              revision={node.revision}
+              occurredAt={node.historyTime}
+              author={resolveAuthor(node.createdBy ?? node.updatedBy, { userMap, tokenMap })}
+              onView={handleView}
+              onRestore={handleRestoreClick}
+            />
+          ))}
+          <div ref={sentinelRef} className="flex justify-center py-2 text-xs text-muted-foreground">
+            {isFetchingNextPage ? 'Loading more…' : !hasNextPage && historyNodes.length > 0 ? `${historyNodes.length} prior version${historyNodes.length === 1 ? '' : 's'}` : null}
+          </div>
+        </>
+      )}
+
+      {!isExternalReference && (
+        <VersionSlideout
+          historyId={selectedHistoryId}
+          histories={historyNodes}
+          currentPolicy={policy}
+          groupNameMap={groupNameMap}
+          canRestore={!isIntegration}
+          onClose={() => setSelectedHistoryId(null)}
+          onRestore={(id) => setRestoreTargetId(id)}
+        />
+      )}
+
+      {!isExternalReference && !isIntegration && (
+        <RestoreDialog
+          open={!!restoreTarget}
+          onOpenChange={(open) => {
+            if (!open) setRestoreTargetId(null)
+          }}
+          revision={restoreTarget?.revision ?? ''}
+          onConfirm={() => restoreTarget && handleRestore(restoreTarget.id)}
+          isPending={isRestoring}
+        />
+      )}
+    </div>
+  )
+}
+
+export default HistoryTab

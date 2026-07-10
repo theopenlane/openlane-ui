@@ -23,13 +23,12 @@ const publicPages = [
   '/login',
   '/login/sso',
   '/login/sso/enforce',
+  '/login/support',
+  '/login/support/callback',
   '/verify',
   '/resend-verify',
   '/invite',
-  '/subscriber-verify',
   '/tfa',
-  '/waitlist',
-  '/unsubscribe',
   '/forgot-password',
   '/password-reset',
   '/signup',
@@ -37,9 +36,9 @@ const publicPages = [
 ]
 
 const Providers = ({ children }: ProvidersProps) => {
-  const { status } = useSession()
+  const { status, data } = useSession()
   const pathname = usePathname()
-  const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/questionnaire/')
+  const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/questionnaire/') || /^\/orgs\/[^/]+\/sso$/.test(pathname)
 
   const queryClient = useMemo(
     () =>
@@ -63,7 +62,7 @@ const Providers = ({ children }: ProvidersProps) => {
     )
   }
 
-  if (status === 'loading') {
+  if (status === 'loading' && !data) {
     return <Loading />
   }
 

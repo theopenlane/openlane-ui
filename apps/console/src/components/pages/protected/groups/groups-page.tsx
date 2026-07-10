@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import GroupsTable from '@/components/pages/protected/groups/components/groups-table'
 import { PlusCircle, SearchIcon } from 'lucide-react'
@@ -10,7 +10,6 @@ import { Input } from '@repo/ui/input'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { useSession } from 'next-auth/react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import GroupInfiniteCards from '@/components/pages/protected/groups/components/group-infinite-cards.tsx'
 import { Button } from '@repo/ui/button'
@@ -19,14 +18,14 @@ import { getGroupTableColumns } from './table/columns'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { whereGenerator, whereContainsKey } from '@/components/shared/table-filter/where-generator'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { useGroupsFilters } from './table/table-config'
-import { getInitialPagination } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
 import Menu from '@/components/shared/menu/menu'
@@ -40,7 +39,7 @@ const GroupsPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const { data: session } = useSession()
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.GROUP, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const defaultVisibility: VisibilityState = {
     id: false,
     updatedAt: false,
@@ -89,18 +88,6 @@ const GroupsPage = () => {
     ]
   }, [session?.user?.userId])
 
-  const containsIsManaged = useCallback((cond: GroupWhereInput): boolean => {
-    const check = (c: GroupWhereInput): boolean => {
-      if (!c || typeof c !== 'object') return false
-      if ('isManaged' in c) return true
-      if (c.and?.some(check)) return true
-      if (c.or?.some(check)) return true
-      return false
-    }
-
-    return check(cond)
-  }, [])
-
   const whereFilter = useMemo(() => {
     const searchClause: GroupWhereInput[] = debouncedSearchQuery ? [{ or: [{ nameContainsFold: debouncedSearchQuery }, { displayNameContainsFold: debouncedSearchQuery }] }] : []
 
@@ -125,7 +112,7 @@ const GroupsPage = () => {
       .flatMap((x) => x.hasMembersWith ?? [])
       .map((m) => m.userID)
       .find((id) => id !== undefined)
-    const hasIsManagedFilter = containsIsManaged(baseWhere)
+    const hasIsManagedFilter = whereContainsKey(baseWhere, 'isManaged')
     if (includeSystemManaged) {
       if (extractedUserId) {
         return {
@@ -154,7 +141,7 @@ const GroupsPage = () => {
     }
 
     return conditions
-  }, [whereFilters, debouncedSearchQuery, containsIsManaged, session?.user?.userId])
+  }, [whereFilters, debouncedSearchQuery, session?.user?.userId])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
@@ -210,7 +197,7 @@ const GroupsPage = () => {
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.GROUP} />
           )}
           {filterFields && filterFields.length > 0 && <TableFilter filterFields={filterFields} onFilterChange={setWhereFilters} pageKey={TableKeyEnum.GROUP} quickFilters={quickFilters} />}
-          {canCreate(permissions?.roles, AccessEnum.CanCreateGroup) && (
+          {hasPermission(permissions?.roles, AccessEnum.CanCreateGroup, session) && (
             <CreateGroupDialog
               trigger={
                 <Button className="h-8 !px-2" icon={<PlusCircle />} iconPosition="left">
@@ -229,7 +216,7 @@ const GroupsPage = () => {
           whereFilter={whereFilter}
           orderByFilter={orderByFilter}
           pagination={pagination}
-          onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+          onPaginationChange={setPagination}
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
         />

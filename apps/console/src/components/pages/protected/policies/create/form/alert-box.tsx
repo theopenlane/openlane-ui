@@ -5,7 +5,10 @@ import { useNotification } from '@/hooks/useNotification'
 import { useAISuggestions } from '@/hooks/useGetAISuggestions'
 import { useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { Button } from '@repo/ui/button'
-import { BookOpenIcon, ChevronDown, FileTextIcon, InfoIcon, LoaderCircle, Sparkles, X } from 'lucide-react'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { INTEGRATIONS_DOCUMENT_FILTER_URL } from '@/constants'
+import Link from 'next/link'
+import { BookOpenIcon, ChevronDown, FileTextIcon, InfoIcon, LinkIcon, LoaderCircle, Sparkles, X } from 'lucide-react'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
@@ -168,7 +171,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
         {isHelperOpen && (
           <div className="ml-12 px-4 pb-6 space-y-3">
             {aiEnabled ? (
-              <p className="text-sm opacity-70">Let AI help you draft your policy, or explore our templates and documentation for guidance and best-practice examples.</p>
+              <p className="text-sm opacity-70">Draft a policy with AI, start from a template, or manage your policy through an integrated document platform such as Google Drive.</p>
             ) : (
               <p className="pb-2 text-sm opacity-70">Explore our templates for ideas and use the documentation to learn how to tailor policies to your organization.</p>
             )}
@@ -188,6 +191,17 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
               >
                 Browse Templates
               </Button>
+
+              <SystemTooltip
+                content="Manage this policy in a connected document platform. Changes remain in the source system and are automatically reflected in Openlane."
+                icon={
+                  <Link href={INTEGRATIONS_DOCUMENT_FILTER_URL} aria-label="Manage via Integration">
+                    <Button type="button" variant="secondary" className="h-8 px-2! pl-3!" icon={<LinkIcon />} iconPosition="left">
+                      Manage via Integration
+                    </Button>
+                  </Link>
+                }
+              />
 
               <a href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/policy-and-procedure-management/policies`} target="_blank" rel="noreferrer" aria-label="View Compliance Management Documentation">
                 <Button type="button" variant="secondary" className="h-8 px-2! pl-3!" icon={<BookOpenIcon />} iconPosition="left">

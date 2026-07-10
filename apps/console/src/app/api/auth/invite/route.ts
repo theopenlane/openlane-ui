@@ -5,21 +5,28 @@ import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 export async function GET(request: NextRequest) {
   const cookies = request.headers.get('cookie')
+
+  const searchParams = request.nextUrl.searchParams
+  const token = searchParams.get('token')
+
+  if (!token) {
+    return NextResponse.json({ error: 'Token is required' }, { status: 400 })
+  }
+
   const session = await auth()
   const accessToken = session?.user?.accessToken
 
-  const headers: HeadersInit = {
-    Authorization: `Bearer ${accessToken}`,
+  const headers: HeadersInit = {}
+
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`
   }
 
   if (cookies) {
     headers['cookie'] = cookies
   }
 
-  const searchParams = request.nextUrl.searchParams
-  const token = searchParams.get('token')
-
-  const fData = await secureFetch(`${process.env.API_REST_URL}/v1/invite?token=${token}`, {
+  const fData = await secureFetch(`${process.env.API_REST_URL}/v1/invite?token=${encodeURIComponent(token)}`, {
     method: 'GET',
     headers,
   })

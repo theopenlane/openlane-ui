@@ -28,6 +28,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { useSession } from 'next-auth/react'
 
 const formSchema = z
   .object({
@@ -59,9 +60,10 @@ type FormValues = z.infer<typeof formSchema>
 
 const TimelineReadiness = () => {
   const { id } = useParams<{ id: string }>()
+  const { data: session } = useSession()
 
   const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
-  const isEditAllowed = canEdit(permission?.roles)
+  const isEditAllowed = canEdit(permission?.roles, session)
 
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()

@@ -5,23 +5,21 @@ import {
   useGetPolicyDiscussionById,
   useUpdateInternalPolicy,
 } from '@/lib/graphql-hooks/internal-policy'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import useFormSchema, { type EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/policies/view/fields/title-field.tsx'
 import { Button } from '@repo/ui/button'
-import { LockOpen, PencilIcon, Trash2 } from 'lucide-react'
+import { ExternalLink, LockOpen, PencilIcon, Trash2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/policies/view/cards/properties-card.tsx'
-import { InternalPolicyDocumentStatus, InternalPolicyFrequency, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
+import { InternalPolicyDocumentManagementMode, InternalPolicyDocumentStatus, InternalPolicyFrequency, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import HistoricalCard from '@/components/pages/protected/policies/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/view/cards/tags-card.tsx'
-import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useRouter } from 'next/navigation'
@@ -41,20 +39,28 @@ import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { type Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { canonicalizeDetails } from '@/components/shared/plate/plate-utils'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import LinkedProcedures from './fields/linked-procedures'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import HistoryTab from './tabs/history/history-tab'
+import { VersionBump } from '@/lib/enums/revision-enum'
+import ExternalReferenceView from '@/components/pages/protected/policies/view/fields/external-reference-view'
+import IntegrationDocumentView from '@/components/pages/protected/policies/view/fields/integration-document-view'
+import { useSession } from 'next-auth/react'
 
 type TViewPolicyPage = {
   policyId: string
 }
 
+type TabValue = 'policy' | 'procedures' | 'history'
+
 const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
+  const { data: session } = useSession()
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const { data, isLoading } = useGetInternalPolicyDetailsById(policyId, !isDeleting)
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
-  const policyState = usePolicy()
   const policy = data?.internalPolicy
   const { form } = useFormSchema()
   const [isEditing, setIsEditing] = useState(false)
@@ -63,25 +69,37 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { successNotification, errorNotification } = useNotification()
   const { data: permission } = useAccountRoles(ObjectTypes.INTERNAL_POLICY, policyId)
   const deleteAllowed = canDelete(permission?.roles)
-  const editAllowed = canEdit(permission?.roles)
+  const editAllowed = canEdit(permission?.roles, session)
   const { mutateAsync: deletePolicy } = useDeleteInternalPolicy()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [pendingManagementMode, setPendingManagementMode] = useState<InternalPolicyDocumentManagementMode | null>(null)
   const router = useRouter()
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const [dataInitialized, setDataInitialized] = useState(false)
+  const initialDetailsCanonicalRef = useRef<string | null>(null)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
   const { data: assocData } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
   const { data: discussionData } = useGetPolicyDiscussionById(policyId)
   const plateEditorHelper = usePlateEditor()
-  const [activeTab, setActiveTab] = useState<'policy' | 'procedures'>('policy')
+  const [activeTab, setActiveTab] = useState<TabValue>('policy')
+  const isExternalReference = policy?.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
+  const isIntegration = policy?.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION
+  const hasFile = !!policy?.file
+  const showManagementModeAction = editAllowed && hasFile && !isExternalReference
+
+  const handleConfirmManagementModeChange = async () => {
+    if (!pendingManagementMode) return
+    await handleUpdateField({ managementMode: pendingManagementMode })
+    setPendingManagementMode(null)
+  }
 
   const procedureCount = assocData?.internalPolicy?.procedures?.totalCount ?? 0
   const procedures = assocData?.internalPolicy?.procedures?.edges ?? []
 
   const memoizedSections = useMemo(() => {
-    if (!assocData) return {}
+    if (!assocData?.internalPolicy) return {}
     return {
       procedures: assocData.internalPolicy.procedures,
       controls: assocData.internalPolicy.controls,
@@ -114,25 +132,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   }, [setCrumbs, policy, isLoading])
 
   useEffect(() => {
-    if (policy && assocData && !dataInitialized) {
-      const policyAssociations: TObjectAssociationMap = {
-        controlIDs: assocData.internalPolicy?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        procedureIDs: assocData.internalPolicy?.procedures?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        programIDs: assocData.internalPolicy?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        controlObjectiveIDs: assocData.internalPolicy?.controlObjectives?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        taskIDs: assocData.internalPolicy?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        riskIDs: assocData.internalPolicy?.risks?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-      }
-
-      const policyAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: assocData.internalPolicy?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => typeof id === 'string') || [],
-        procedureIDs: assocData.internalPolicy?.procedures?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-        programIDs: assocData.internalPolicy?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-        controlObjectiveIDs: assocData.internalPolicy?.controlObjectives?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-        taskIDs: assocData.internalPolicy?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-        riskIDs: assocData.internalPolicy?.risks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-      }
-
+    if (policy && !dataInitialized) {
       form.reset({
         name: policy.name,
         details: policy?.details ?? '',
@@ -148,16 +148,10 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         delegateID: policy.delegate?.id,
       })
 
-      policyState.setInitialAssociations(policyAssociations)
-      policyState.setAssociations(policyAssociations)
-      policyState.setAssociationRefCodes(policyAssociationsRefCodes)
+      initialDetailsCanonicalRef.current = policy.detailsJSON ? canonicalizeDetails(policy.detailsJSON) : null
       setDataInitialized(true)
     }
-  }, [policy, form, policyState, dataInitialized, assocData])
-
-  const initialData: TObjectAssociationMap = {
-    ...(policyId ? { internalPolicyIDs: [policyId] } : {}),
-  }
+  }, [policy, form, dataInitialized])
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -185,65 +179,78 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     }
   }
 
-  const onSubmitHandler = async (data: EditPolicyMetadataFormData) => {
-    if (!policy?.id) {
-      return
-    }
-
-    try {
-      const { revision, approverID, delegateID, details, detailsJSON, ...restData } = data
-      const input: UpdateInternalPolicyInput = {
-        ...restData,
-        tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+  const onSubmitHandler = useCallback(
+    async (data: EditPolicyMetadataFormData) => {
+      if (!policy?.id) {
+        return
       }
 
-      if (detailsJSON !== undefined) {
-        input.detailsJSON = detailsJSON
-        input.details = await plateEditorHelper.convertToHtml(detailsJSON as Value)
+      try {
+        const { revision, approverID, delegateID, details: _details, detailsJSON, ...restData } = data
+        const input: UpdateInternalPolicyInput = {
+          ...restData,
+          tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+        }
+
+        if (detailsJSON !== undefined && !isExternalReference && !isIntegration) {
+          input.detailsJSON = detailsJSON
+          input.details = await plateEditorHelper.convertToHtml(detailsJSON as Value)
+        }
+
+        if (approverID) {
+          input.approverID = approverID
+        } else if (policy.approver?.id) {
+          input.clearApprover = true
+        }
+
+        if (delegateID) {
+          input.delegateID = delegateID
+        } else if (policy.delegate?.id) {
+          input.clearDelegate = true
+        }
+
+        if (revision && revision !== (policy?.revision ?? '')) {
+          input.revision = revision
+        } else if (detailsJSON && initialDetailsCanonicalRef.current !== null && canonicalizeDetails(detailsJSON) !== initialDetailsCanonicalRef.current) {
+          input.RevisionBump = VersionBump.MINOR
+        }
+
+        const formData: {
+          updateInternalPolicyId: string
+          input: UpdateInternalPolicyInput
+        } = {
+          updateInternalPolicyId: policy?.id,
+          input,
+        }
+
+        await updatePolicy(formData)
+
+        successNotification({
+          title: 'Policy Updated',
+          description: 'Policy has been successfully updated',
+        })
+
+        setIsEditing(false)
+        await queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+        queryClient.invalidateQueries({ queryKey: ['policyDiscussion', policyId] })
+        setDataInitialized(false)
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
+        errorNotification({
+          title: 'Error',
+          description: errorMessage,
+        })
       }
+    },
+    [policy, plateEditorHelper, updatePolicy, successNotification, errorNotification, queryClient, policyId, initialDetailsCanonicalRef, isExternalReference, isIntegration],
+  )
 
-      if (approverID) {
-        input.approverID = approverID
-      } else if (policy.approver?.id) {
-        input.clearApprover = true
-      }
-
-      if (delegateID) {
-        input.delegateID = delegateID
-      } else if (policy.delegate?.id) {
-        input.clearDelegate = true
-      }
-
-      if (revision && revision !== (policy?.revision ?? '')) {
-        input.revision = revision
-      }
-
-      const formData: {
-        updateInternalPolicyId: string
-        input: UpdateInternalPolicyInput
-      } = {
-        updateInternalPolicyId: policy?.id,
-        input,
-      }
-
-      await updatePolicy(formData)
-
-      successNotification({
-        title: 'Policy Updated',
-        description: 'Policy has been successfully updated',
-      })
-
-      setIsEditing(false)
-      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
-      queryClient.invalidateQueries({ queryKey: ['policyDiscussion', policyId] })
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
+  const handleFormSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      void form.handleSubmit(onSubmitHandler)(e)
+    },
+    [form, onSubmitHandler],
+  )
 
   const handleCreateNewPolicy = async () => {
     router.push(`/policies/create`)
@@ -264,7 +271,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         description: 'Policy has been successfully updated',
       })
 
-      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      await queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      setDataInitialized(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -308,7 +316,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       ) : (
         <div className="flex gap-2 justify-end">
           <CreateItemsFromPolicyToolbar
-            initialData={initialData}
+            initialData={{ internalPolicyIDs: [policyId] }}
             handleCreateNewPolicy={handleCreateNewPolicy}
             handleCreateNewProcedure={handleCreateNewProcedure}
             objectAssociationsDisplayIDs={policy?.name ? [policy?.name] : []}
@@ -348,10 +356,32 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
                     <LockOpen size={16} strokeWidth={2} />
                     <span>Manage Permissions</span>
                   </Button>
+                  {showManagementModeAction && (
+                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setPendingManagementMode(InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE)}>
+                      <ExternalLink size={16} strokeWidth={2} />
+                      <span>Switch to externally managed</span>
+                    </Button>
+                  )}
                 </>
               }
             />
           )}
+          <ConfirmationDialog
+            open={!!pendingManagementMode}
+            onOpenChange={(open) => {
+              if (!open) setPendingManagementMode(null)
+            }}
+            onConfirm={handleConfirmManagementModeChange}
+            title="Change management mode"
+            confirmationText="Switch to externally managed"
+            confirmationTextVariant="primary"
+            description={
+              <>
+                The Policy view will switch to displaying the attached file and edits inside Openlane will be disabled. Any changes since the file was originally uploaded will not be reflected in the
+                attached file. The underlying details data stays in place — you can switch back at any time.
+              </>
+            }
+          />
         </div>
       )}
     </div>
@@ -361,7 +391,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     <div className="p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={policy.name} editAllowed={editAllowed} />
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'policy' | 'procedures')} variant="underline">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} variant="underline">
         <TabsList className="relative flex justify-start w-full">
           <div className="absolute -bottom-0.5 left-1 right-0 h-px bg-border" />
           <TabsTrigger className="relative max-w-26 text-start" value="policy">
@@ -371,14 +401,27 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
             Procedures
             {procedureCount > 0 && <span className="inline-flex items-center justify-center min-w-5 h-5 text-xs rounded-full bg-card bg-rounded">{procedureCount}</span>}
           </TabsTrigger>
+          <TabsTrigger value="history" className="relative max-w-26 text-start">
+            History
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="policy">
-          <DetailsField isEditing={isEditing} form={form} policy={policy} discussionData={discussionData?.internalPolicy} />
+          {policy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION ? (
+            <IntegrationDocumentView policy={policy} />
+          ) : isExternalReference && policy.file ? (
+            <ExternalReferenceView policy={policy} editAllowed={editAllowed} />
+          ) : (
+            <DetailsField isEditing={isEditing} form={form} policy={policy} discussionData={discussionData?.internalPolicy} />
+          )}
         </TabsContent>
 
         <TabsContent value="procedures">
           <LinkedProcedures procedures={procedures} />
+        </TabsContent>
+
+        <TabsContent value="history">
+          <HistoryTab policyId={policyId} policy={policy} />
         </TabsContent>
       </Tabs>
     </div>
@@ -411,7 +454,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     <>
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Internal Policies - ${policy.name}`}</title>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmitHandler)}>
+        <form onSubmit={handleFormSubmit}>
           <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing} minWidth={430}>
             {mainContent}
           </SlideBarLayout>

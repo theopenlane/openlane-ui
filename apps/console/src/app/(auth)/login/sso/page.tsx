@@ -85,7 +85,10 @@ const SSOCallbackPage: React.FC = () => {
 
           router.push(getRedirectUrl('sso_signin_failed'))
         } else {
-          router.push(getRedirectUrl('sso_callback_failed'))
+          // surface the server's explanation (e.g. authenticated successfully but not a member of the
+          // organization) instead of a generic failure code so the login page can guide the user
+          const reason = data?.message ? encodeURIComponent(data.message) : 'sso_callback_failed'
+          router.push(getRedirectUrl(reason))
         }
       } catch {
         router.push(getRedirectUrl('sso_callback_error'))

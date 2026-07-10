@@ -260,9 +260,9 @@
   --indicator: #e1e7ea;
   --color-svg-secondary: #09151d;
 
-  --color-active-filter-border: #09151d;
-  --color-active-filter-background: #09151d;
-  --color-active-filter-text: #ffffff;
+  --color-active-filter-border: #2dcdad;
+  --color-active-filter-background: #2dcdad1f;
+  --color-active-filter-text: #09151d;
 
   --color-switch-bg-active: #9af5dc;
   --color-switch-bg-inactive: #ced6da;
@@ -276,6 +276,26 @@
   --color-evidence-icon: #06b6d4;
   --color-homepage-action-icon: #2fd2b1;
   --color-homepage-docs: #eff4f580;
+
+  --editor-text-muted: #475569;
+  --editor-text-red: #b91c1c;
+  --editor-text-orange: #c2410c;
+  --editor-text-amber: #a16207;
+  --editor-text-green: #15803d;
+  --editor-text-teal: #0f766e;
+  --editor-text-blue: #1d4ed8;
+  --editor-text-purple: #6d28d9;
+  --editor-text-pink: #be185d;
+
+  --editor-bg-muted: #e2e8f0;
+  --editor-bg-red: #fecaca;
+  --editor-bg-orange: #fed7aa;
+  --editor-bg-amber: #fde68a;
+  --editor-bg-green: #bbf7d0;
+  --editor-bg-teal: #99f6e4;
+  --editor-bg-blue: #bfdbfe;
+  --editor-bg-purple: #ddd6fe;
+  --editor-bg-pink: #fce7f3;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -399,6 +419,26 @@
   --color-homepage-action-icon: #60e8c9;
   --color-homepage-docs: #162431;
   --highlight: oklch(0.852 0.199 91.936);
+
+  --editor-text-muted: #94a3b8;
+  --editor-text-red: #fca5a5;
+  --editor-text-orange: #fdba74;
+  --editor-text-amber: #fcd34d;
+  --editor-text-green: #86efac;
+  --editor-text-teal: #5eead4;
+  --editor-text-blue: #93c5fd;
+  --editor-text-purple: #c4b5fd;
+  --editor-text-pink: #f9a8d4;
+
+  --editor-bg-muted: #334155;
+  --editor-bg-red: #7f1d1d;
+  --editor-bg-orange: #7c2d12;
+  --editor-bg-amber: #78350f;
+  --editor-bg-green: #14532d;
+  --editor-bg-teal: #134e4a;
+  --editor-bg-blue: #1e3a8a;
+  --editor-bg-purple: #4c1d95;
+  --editor-bg-pink: #831843;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -475,6 +515,7 @@
   --color-success: #21c55d;
   --color-info: #6392ff;
   --color-warning: #ff842c;
+  --color-moderate: #ca8a04;
   --color-danger: #f45b50;
   --color-suggestion: #ff842c;
 }
@@ -749,7 +790,6 @@
   .rich-text ul,
   ul.rich-text {
     list-style-type: disc;
-    padding-left: 1.25rem;
     margin: 0.5rem 0;
   }
   .rich-text li {
@@ -760,6 +800,16 @@
     list-style-type: circle;
     @apply pl-6 mt-1;
   }
+}
+
+@utility coverage-bar-complete {
+  background-color: #639922;
+}
+@utility coverage-bar-partial {
+  background-color: #ef9f27;
+}
+@utility coverage-bar-empty {
+  background-color: #888780;
 }
 
 /* ─────────────────────────────────────────────────────────

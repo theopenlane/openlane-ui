@@ -21,6 +21,9 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { ASSET_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
+import { MergeHeaderButton } from '@/components/shared/merge-records/merge-menu-item'
+import { assetMergeConfig } from '@/components/shared/merge-records/configs/asset-merge-config'
+import { useCanEditObject } from '@/components/shared/crud-base/use-object-permission'
 
 const normalizeData = (data: AssetQuery['asset']) =>
   normalizeEntityData(data, {
@@ -34,6 +37,7 @@ const AssetPage: React.FC = () => {
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useAsset(id || undefined)
+  const canEditAsset = useCanEditObject(objectType, id)
   const { data: associationsData } = useGetAssetAssociations(id || undefined)
   const extractAssociations = useCallback((assocData: GetAssetAssociationsQuery) => {
     const asset = assocData.asset
@@ -50,7 +54,7 @@ const AssetPage: React.FC = () => {
 
   const plateEditorHelper = usePlateEditor()
 
-  function getName(data: AssetsNodeNonNull) {
+  const getName = (data: AssetsNodeNonNull) => {
     return data?.name
   }
 
@@ -195,6 +199,7 @@ const AssetPage: React.FC = () => {
     normalizeData,
     getName,
     renderFields: (props: AssetFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
+    extraHeaderActions: id && !isCreate && canEditAsset ? <MergeHeaderButton primaryId={id} config={assetMergeConfig} /> : undefined,
   }
 
   const tableConfig: AssetTablePageConfig = {

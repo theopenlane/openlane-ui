@@ -5,8 +5,8 @@ import { SquarePlus, LoaderCircle, Search as SearchIcon } from 'lucide-react'
 import { type FC, useEffect, useMemo, useState, useCallback } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { DataTable } from '@repo/ui/data-table'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -18,9 +18,10 @@ import { CreateTagSheet } from './create-tag-sheet'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { type VisibilityState } from '@tanstack/react-table'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canDelete, canEdit } from '@/lib/authz/utils'
+import { useSession } from 'next-auth/react'
 
 const DEFAULT_TAGS_COLUMN_VISIBILITY: VisibilityState = {
   type: false,
@@ -34,20 +35,18 @@ const CustomTagsTab: FC = () => {
   const { push } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.CUSTOM_TAGS, DEFAULT_TAGS_COLUMN_VISIBILITY))
 
   const [searchValue, setSearchValue] = useState('')
   const debouncedSearch = useDebounce(searchValue, 300)
-  const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [tagToDelete, setTagToDelete] = useState<{ id: string; name: string } | null>(null)
 
-  const [pagination, setPagination] = useState<TPagination>(() =>
-    getInitialPagination(TableKeyEnum.CUSTOM_TAGS, {
-      ...DEFAULT_PAGINATION,
-      pageSize: 10,
-      query: { first: 10 },
-    }),
-  )
+  const [pagination, setPagination] = useOrgTablePagination({
+    ...DEFAULT_PAGINATION,
+    pageSize: 10,
+    query: { first: 10 },
+  })
 
   const { tags, isLoading, isError, paginationMeta } = useTagsPaginated({
     pagination,
@@ -67,17 +66,7 @@ const CustomTagsTab: FC = () => {
     return Array.from(ids)
   }, [tags])
 
-  const { users } = useGetOrgUserList({
-    where: { hasUserWith: [{ idIn: userIds }] },
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, (typeof users)[number]> = {}
-    users?.forEach((u) => {
-      map[u.id] = u
-    })
-    return map
-  }, [users])
+  const { userMap, tokenMap } = useAuthorMaps(userIds)
 
   const resetPagination = useCallback(() => {
     setPagination((prev) => ({
@@ -86,10 +75,9 @@ const CustomTagsTab: FC = () => {
       page: 1,
       query: { ...prev.query, after: undefined, before: undefined, first: prev.pageSize },
     }))
-  }, [])
+  }, [setPagination])
 
   useEffect(() => {
-    setSelected({})
     resetPagination()
   }, [debouncedSearch, resetPagination])
 
@@ -108,19 +96,17 @@ const CustomTagsTab: FC = () => {
     }
   }
 
-  const canEditTags = canEdit(permission?.roles)
+  const canEditTags = canEdit(permission?.roles, session)
   const canDeleteTags = canDelete(permission?.roles)
 
   const { columns, mappedColumns } = useGetCustomTagColumns({
-    tags: tags,
-    selected,
-    setSelected,
     onEdit: handleEditOpen,
     onDelete: (id) => {
       const tag = tags.find((t) => t?.id === id)
       setTagToDelete(tag ? { id: tag.id, name: tag.name } : null)
     },
     userMap,
+    tokenMap,
     canEditTags,
     canDeleteTags,
   })
@@ -154,7 +140,7 @@ const CustomTagsTab: FC = () => {
           data={tags}
           loading={isLoading}
           pagination={pagination}
-          onPaginationChange={(p: TPagination) => setPagination(p)}
+          onPaginationChange={setPagination}
           paginationMeta={paginationMeta}
           tableKey={TableKeyEnum.CUSTOM_TAGS}
           columnVisibility={columnVisibility}

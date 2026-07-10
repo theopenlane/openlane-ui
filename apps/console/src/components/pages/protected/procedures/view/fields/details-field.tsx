@@ -3,11 +3,12 @@
 import React from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import { type ProcedureDiscussionFieldsFragment, type ProcedureByIdFragment } from '@repo/codegen/src/schema.ts'
+import { ExportExportFormat, ExportExportType, type ProcedureDiscussionFieldsFragment, type ProcedureByIdFragment } from '@repo/codegen/src/schema.ts'
 import { type EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import { type Value } from 'platejs'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import useFileExport from '@/components/shared/export/use-file-export.ts'
 
 type TDetailsFieldProps = {
   isEditing: boolean
@@ -20,6 +21,16 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
+  const { handleExport } = useFileExport()
+
+  const handleExportPdf = () => {
+    handleExport({
+      exportType: ExportExportType.PROCEDURE,
+      filters: JSON.stringify({ id: procedure.id }),
+      fields: null,
+      format: ExportExportFormat.PDF,
+    })
+  }
 
   return isEditing ? (
     <div className="w-full">
@@ -49,6 +60,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure
         entity={discussionData}
         readonly={true}
         variant="readonly"
+        onExportPdf={handleExportPdf}
       />
     </div>
   )

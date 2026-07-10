@@ -7,9 +7,13 @@ import { cn } from '../../lib/utils'
 interface TruncatedCellProps {
   children: ReactNode
   className?: string
+  tooltipClassName?: string
+  tooltipContent?: ReactNode
+  lineClamp?: number
+  portal?: boolean
 }
 
-export const TruncatedCell = ({ children, className }: TruncatedCellProps) => {
+export const TruncatedCell = ({ children, className, tooltipClassName, tooltipContent, lineClamp, portal }: TruncatedCellProps) => {
   const ref = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
 
@@ -25,16 +29,18 @@ export const TruncatedCell = ({ children, className }: TruncatedCellProps) => {
     setOpen(false)
   }, [])
 
+  const clampStyle = lineClamp ? { display: '-webkit-box', WebkitBoxOrient: 'vertical' as const, WebkitLineClamp: lineClamp } : undefined
+
   return (
     <Tooltip open={open} onOpenChange={setOpen}>
       <TooltipTrigger asChild>
-        <div ref={ref} className={cn('truncate', className)} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div ref={ref} className={cn(lineClamp ? 'overflow-hidden' : 'truncate', className)} style={clampStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           {children}
         </div>
       </TooltipTrigger>
       {open && (
-        <TooltipContent side="top" className="max-w-sm whitespace-normal wrap-break-word">
-          {ref.current?.textContent}
+        <TooltipContent side="top" portal={portal} className={cn('max-w-sm whitespace-normal wrap-break-word', tooltipClassName)}>
+          {tooltipContent ?? ref.current?.textContent}
         </TooltipContent>
       )}
     </Tooltip>

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, type SortCondition } from '@repo/ui/data-table'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { fileColumns, type TFile } from '@/components/shared/file-table/columns'
 import { FILE_SORT_FIELDS } from '@/components/shared/file-table/table-config'
@@ -13,7 +13,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import type { Row } from '@tanstack/react-table'
-import type { FileOrder } from '@repo/codegen/src/schema'
+import type { FileOrderField } from '@repo/codegen/src/schema'
 import type { TableKeyValue } from '@repo/ui/table-key'
 
 type DocumentsSectionProps = {
@@ -27,8 +27,8 @@ type DocumentsSectionProps = {
   totalCount?: number
   pagination: TPagination
   onPaginationChange: (pagination: TPagination) => void
-  defaultSorting: FileOrder[]
-  onSortChange: (orderBy: FileOrder[]) => void
+  defaultSorting: SortCondition<FileOrderField>[]
+  onSortChange: (next: SortCondition<FileOrderField>[]) => void
   onUpload: (files: File[]) => Promise<void>
   isUploading: boolean
   onRemoveFile: (fileId: string) => Promise<void>
@@ -75,7 +75,7 @@ const DocumentsSection: React.FC<DocumentsSectionProps> = ({
     return [
       {
         id: 'actions',
-        header: 'Action',
+        header: '',
         cell: ({ row }: { row: Row<TFile> }) => {
           return (
             <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">
@@ -130,7 +130,7 @@ const DocumentsSection: React.FC<DocumentsSectionProps> = ({
       <DataTable
         columns={columns}
         sortFields={FILE_SORT_FIELDS}
-        defaultSorting={defaultSorting}
+        sorting={defaultSorting}
         onSortChange={onSortChange}
         data={files.filter((f): f is TFile => !!f)}
         loading={isLoading}

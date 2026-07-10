@@ -1,8 +1,10 @@
+import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Card, CardDescription, CardTitle } from '@repo/ui/cardpanel'
-import { SquarePenIcon, UploadIcon } from 'lucide-react'
+import { LinkIcon, SquarePenIcon, UploadIcon } from 'lucide-react'
 import Link from 'next/link'
 import CreatePolicyUploadDialog from '../create/form/create-policy-upload-dialog'
+import { INTEGRATIONS_DOCUMENT_FILTER_URL } from '@/constants'
 
 export function PolicyEmptyActions() {
   const cards = [
@@ -11,36 +13,64 @@ export function PolicyEmptyActions() {
       title: 'Create Custom Policy',
       desc: 'Begin with an empty policy and customize everything — from the policy’s description to how it connects with your compliance program and other policies',
       Icon: SquarePenIcon,
+      iconClassName: 'text-[var(--color-success)]',
+      cardClassName: 'border-[var(--color-success)]/40 bg-[var(--color-success)]/5',
       action: {
         label: 'Create',
         href: 'policies/create',
       },
-      featured: true,
+      buttonVariant: 'primary' as const,
+      buttonClassName: '!bg-[var(--color-success)] hover:opacity-90',
+    },
+    {
+      id: 'managed-via-integration',
+      title: 'Managed via Integration',
+      badge: (
+        <Badge variant="outline" className="ml-2 border-purple-500/40 bg-purple-500/15 text-purple-300">
+          New
+        </Badge>
+      ),
+      desc: 'Manage your policy in an integrated platform like Google Drive. Changes stay in the source system and are automatically reflected in Openlane.',
+      Icon: LinkIcon,
+      iconClassName: 'text-purple-400',
+      cardClassName: 'border-purple-500/30 bg-purple-500/5',
+      action: {
+        label: 'Manage',
+        href: INTEGRATIONS_DOCUMENT_FILTER_URL,
+      },
+      buttonVariant: 'primary' as const,
+      buttonClassName: '!bg-purple-600 hover:!bg-purple-500 !text-white',
     },
     {
       id: 'import-custom',
       title: 'Import Existing Documents',
       desc: 'Already have policies written? Import your existing documents to get them organized in Openlane.',
       Icon: UploadIcon,
+      iconClassName: 'text-primary',
       dialog: <CreatePolicyUploadDialog trigger={<Button variant="primary">Upload</Button>} />,
     },
   ]
 
   return (
-    <section aria-label="Create policies" className="mx-auto max-w-5xl">
+    <section aria-label="Create policies" className="w-full">
       <div className="flex flex-col gap-4">
-        {cards.map(({ id, title, desc, Icon, action, dialog, featured }) => (
-          <Card key={id} className={`flex flex-col h-full p-5 ${featured ? 'border-[var(--color-success)]/40 bg-[var(--color-info)]/5' : ''}`}>
-            <div className="flex items-center gap-3 mb-3">
-              <Icon className={`h-6 w-6 ${featured ? 'text-[var(--color-success)]' : 'text-muted-foreground'}`} />
-              <CardTitle className="text-base font-semibold pl-0">{title}</CardTitle>
+        {cards.map(({ id, title, badge, desc, Icon, iconClassName, cardClassName, action, buttonVariant, buttonClassName, dialog }) => (
+          <Card key={id} className={`flex flex-col h-full p-6 ${cardClassName ?? ''}`}>
+            <div className="flex flex-1 items-start gap-3">
+              <Icon className={`h-6 w-6 shrink-0 ${iconClassName}`} />
+              <div className="flex-1">
+                <div className="flex items-center mb-2">
+                  <CardTitle className="text-base font-semibold p-0">{title}</CardTitle>
+                  {badge}
+                </div>
+                <CardDescription className="text-sm text-muted-foreground p-0">{desc}</CardDescription>
+              </div>
             </div>
-            <CardDescription className="text-sm text-muted-foreground flex-1 px-0">{desc}</CardDescription>
             <div className="flex justify-end mt-4">
               {dialog ? (
                 dialog
               ) : (
-                <Button variant={featured ? 'secondary' : 'primary'}>
+                <Button variant={buttonVariant} className={buttonClassName}>
                   <Link href={action.href}>{action.label}</Link>
                 </Button>
               )}

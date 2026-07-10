@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { type ColumnDef, type Row, type VisibilityState } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
@@ -17,7 +18,7 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { Badge } from '@repo/ui/badge'
 import { Check, ChevronDown, ChevronRight, X } from 'lucide-react'
-import { buildMembershipList, type MembershipList } from '@/lib/directory-memberships/group-memberships'
+import { buildMembershipList, resolveSingleEntityVendor, type MembershipList, type MembershipVendor } from '@/lib/directory-memberships/group-memberships'
 import { MembershipList as MembershipListTable } from '@/components/shared/directory-memberships/membership-list'
 import { DirectoryMembershipDirectoryMembershipRole, type DirectoryMembershipWhereInput } from '@repo/codegen/src/schema'
 import type { FilterField, WhereCondition } from '@/types'
@@ -34,6 +35,7 @@ type DirectoryAccountRow = {
   mfaState: string
   primarySource: boolean
   integrationDefinitionId: string | null
+  vendor: MembershipVendor | null
   memberships: MembershipList
 }
 
@@ -122,7 +124,18 @@ const DATA_COLUMNS: ColumnDef<DirectoryAccountRow>[] = [
     accessorKey: 'directory',
     header: 'Directory',
     size: 200,
-    cell: ({ row }) => <span className="block truncate">{row.original.directory || '-'}</span>,
+    cell: ({ row }) => {
+      const { directory, vendor } = row.original
+      const label = directory || '-'
+      if (vendor && directory) {
+        return (
+          <Link href={`/registry/vendors/${vendor.id}`} className="block truncate text-blue-500 hover:underline">
+            {label}
+          </Link>
+        )
+      }
+      return <span className="block truncate">{label}</span>
+    },
   },
   {
     accessorKey: 'accountType',
@@ -205,7 +218,7 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
             icon: <Settings size={16} />,
             onClick: (row) => {
               if (row.integrationDefinitionId) {
-                router.push(`/organization-settings/integrations/${row.integrationDefinitionId}`)
+                router.push(`/automation/integrations/${row.integrationDefinitionId}`)
               }
             },
             disabled: (row) => !row.integrationDefinitionId,
@@ -228,6 +241,7 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
         mfaState: account.mfaState,
         primarySource: account.primarySource,
         integrationDefinitionId: account.integration?.definitionID ?? null,
+        vendor: resolveSingleEntityVendor(account.integration?.entities),
         memberships: buildMembershipList(account.memberships),
       })),
     [directoryAccounts],

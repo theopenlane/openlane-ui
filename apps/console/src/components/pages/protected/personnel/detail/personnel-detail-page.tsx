@@ -29,6 +29,7 @@ import PersonnelDetailHeader from './personnel-detail-header'
 import PersonnelPropertiesSidebar from './personnel-properties-sidebar'
 import PersonnelDetailTabs from './tabs/personnel-detail-tabs'
 import type { EditPersonnelFormData } from '../hooks/use-form-schema'
+import { useSession } from 'next-auth/react'
 
 interface PersonnelDetailPageProps {
   personnelId: string
@@ -49,6 +50,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
   const { data, isLoading, isError } = useIdentityHolder(personnelId)
   const { data: associationsData } = useGetIdentityHolderAssociations(personnelId)
   const { data: permission } = useAccountRoles(ObjectTypes.IDENTITY_HOLDER, personnelId)
+  const { data: session } = useSession()
   const { mutateAsync: updateIdentityHolder } = useUpdateIdentityHolder()
   const { mutateAsync: deleteIdentityHolder } = useDeleteIdentityHolder()
 
@@ -184,6 +186,9 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
 
   const queryClient = useQueryClient()
 
+  // depending on the leaf fields instead of associationsData?.identityHolder would satisfy the
+  // react-compiler advisory rule but trips exhaustive-deps, which treats the parent as the real dep here
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const memoizedSections = useMemo(() => {
     if (!associationsData?.identityHolder) return {}
     return {
@@ -203,7 +208,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
       node: data.identityHolder,
       type: ObjectAssociationNodeEnum.IDENTITY_HOLDER,
     }
-  }, [data?.identityHolder])
+  }, [data])
 
   const handleRemoveAssociation = useAssociationRemoval({
     entityId: personnelId,
@@ -217,7 +222,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
   })
 
   const personnel = data?.identityHolder
-  const canEditPersonnel = canEdit(permission?.roles)
+  const canEditPersonnel = canEdit(permission?.roles, session)
   const canDeletePersonnel = canDelete(permission?.roles)
 
   if (isLoading) {
@@ -239,6 +244,10 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
         onCancel={handleCancel}
         onDeleteClick={() => setIsDeleteDialogOpen(true)}
         handleUpdateField={handleUpdateField}
+        onMergeComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ['identityHolders', personnelId] })
+          queryClient.invalidateQueries({ queryKey: ['identityHolders'] })
+        }}
       />
 
       <PersonnelDetailTabs personnel={personnel} isEditing={isEditing} canEdit={canEditPersonnel} handleUpdateField={handleUpdateField} />

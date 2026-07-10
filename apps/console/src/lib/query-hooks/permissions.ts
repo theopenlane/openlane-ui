@@ -1,38 +1,47 @@
 import { useNotification } from '@/hooks/useNotification'
-import { type TAccessRole, type TPermissionData } from '@/types/authz'
+import { type TAccessRole, type TPermissionData, type TScopesResponse } from '@/types/authz'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { objectToSnakeCase } from '../../utils/strings'
+import { useFetchWithRetry, getIsSessionInvalid } from '@/lib/graphqlClient'
+
+export const readPermissionResponse = async <T>(res: Response, fallbackError: string): Promise<T> => {
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error ?? fallbackError)
+  }
+  return res.json() as Promise<T>
+}
+
+export const shouldRetryPermission = (failureCount: number): boolean => !getIsSessionInvalid() && failureCount < 5
 
 export const useAccountRoles = (objectType: string, id?: string | number | null, enabled: boolean = true) => {
   const { errorNotification } = useNotification()
+  const fetchWithRetry = useFetchWithRetry()
+  const { data: session } = useSession()
+  const isImpersonation = !!session?.user?.isImpersonation
 
   const snakeCaseObjectType = objectToSnakeCase(objectType)
 
   const resp = useQuery<TPermissionData>({
     queryKey: ['accountRoles', snakeCaseObjectType, id],
-    enabled: !!snakeCaseObjectType && !!id && enabled,
+    enabled: !!snakeCaseObjectType && !!id && enabled && !isImpersonation,
+    retry: shouldRetryPermission,
     queryFn: async () => {
-      const res = await fetch('/api/permissions/account-roles', {
+      const res = await fetchWithRetry('/api/permissions/account-roles', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           object_type: snakeCaseObjectType,
           object_id: id,
         }),
       })
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err.error ?? 'Failed to fetch roles')
-      }
-
-      const data: TPermissionData = await res.json()
-      return data
+      const permission = await readPermissionResponse<TPermissionData>(res, 'Failed to fetch roles')
+      return permission
     },
   })
   useEffect(() => {
-    if (resp.isError) {
+    if (resp.isError && !getIsSessionInvalid()) {
       errorNotification({
         title: 'Error occurred while fetching account roles',
         description: 'Please refresh the page',
@@ -44,30 +53,55 @@ export const useAccountRoles = (objectType: string, id?: string | number | null,
 
 export const useOrganizationRoles = () => {
   const { errorNotification } = useNotification()
+  const fetchWithRetry = useFetchWithRetry()
+  const { data: session } = useSession()
+  const isImpersonation = !!session?.user?.isImpersonation
+
   const resp = useQuery<TPermissionData>({
     queryKey: ['organizationRole'],
+    enabled: !isImpersonation,
+    retry: shouldRetryPermission,
     queryFn: async () => {
-      const res = await fetch('/api/permissions/organization-roles', {
-        method: 'GET',
-      })
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => {})
-        throw new Error(err.error ?? 'Failed to fetch organization roles')
-      }
-
-      const data: TPermissionData = await res.json()
-      return data
+      const res = await fetchWithRetry('/api/permissions/organization-roles', { method: 'GET' })
+      return readPermissionResponse<TPermissionData>(res, 'Failed to fetch organization roles')
     },
   })
   useEffect(() => {
-    if (resp.isError) {
+    if (resp.isError && !getIsSessionInvalid()) {
       errorNotification({
         title: 'Error occurred while fetching organization roles',
         description: 'Please refresh the page',
       })
     }
   }, [resp.isError, errorNotification])
+  return resp
+}
+
+export const useScopes = () => {
+  const { errorNotification } = useNotification()
+  const fetchWithRetry = useFetchWithRetry()
+  const { data: session } = useSession()
+  const isImpersonation = !!session?.user?.isImpersonation
+
+  const resp = useQuery<TScopesResponse>({
+    queryKey: ['scopes'],
+    enabled: !isImpersonation,
+    retry: shouldRetryPermission,
+    queryFn: async () => {
+      const res = await fetchWithRetry('/api/permissions/scopes', { method: 'GET' })
+      return readPermissionResponse<TScopesResponse>(res, 'Failed to fetch scopes')
+    },
+  })
+
+  useEffect(() => {
+    if (resp.isError && !getIsSessionInvalid()) {
+      errorNotification({
+        title: 'Error occurred while fetching scopes',
+        description: 'Please refresh the page',
+      })
+    }
+  }, [resp.isError, errorNotification])
+
   return resp
 }
 
@@ -85,31 +119,28 @@ type UseAccountRolesManyParams = {
 
 export const useAccountRolesMany = ({ objectType, ids, enabled = true }: UseAccountRolesManyParams) => {
   const { errorNotification } = useNotification()
+  const fetchWithRetry = useFetchWithRetry()
+  const { data: session } = useSession()
+  const isImpersonation = !!session?.user?.isImpersonation
 
   const resp = useQuery<useAccountRolesManyResponse>({
     queryKey: ['accountRolesMany', objectType, ids.sort().join('')],
-    enabled: !!objectType && ids.length > 0 && enabled,
+    enabled: !!objectType && ids.length > 0 && enabled && !isImpersonation,
+    retry: shouldRetryPermission,
     queryFn: async () => {
-      const res = await fetch('/api/permissions/account-roles', {
+      const res = await fetchWithRetry('/api/permissions/account-roles', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           object_type: objectType,
           object_ids: ids,
         }),
       })
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err.error ?? 'Failed to fetch roles')
-      }
-
-      return res.json() as Promise<useAccountRolesManyResponse>
+      return readPermissionResponse<useAccountRolesManyResponse>(res, 'Failed to fetch roles')
     },
   })
 
   useEffect(() => {
-    if (resp.isError) {
+    if (resp.isError && !getIsSessionInvalid()) {
       errorNotification({
         title: 'Error occurred while fetching account roles',
         description: 'Please refresh the page',

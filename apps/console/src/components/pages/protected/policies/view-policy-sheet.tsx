@@ -14,16 +14,18 @@ import { type TCommentData } from '@/components/shared/comments/types/TCommentDa
 import { type TComments } from '@/components/shared/comments/types/TComments'
 import { useGetInternalPolicyDetailsById, useGetPolicyDiscussionById, useGetPolicyCommentsById, useInsertPolicyComment, useUpdatePolicyComment } from '@/lib/graphql-hooks/internal-policy'
 import { useDeleteNote } from '@/lib/graphql-hooks/control'
-import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
+import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useQueryClient } from '@tanstack/react-query'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { type Value } from 'platejs'
-import { type Group, type InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
-import { toBase64DataUri } from '@/lib/image-utils'
+import { type Group, type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
+import { resolveAuthor } from '@/lib/authors'
 import { GenericDetailsSheet, type RenderFieldsProps, type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
+import IntegrationDocumentView from '@/components/pages/protected/policies/view/fields/integration-document-view'
+import ExternalReferenceView from '@/components/pages/protected/policies/view/fields/external-reference-view'
 import { useForm } from 'react-hook-form'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -54,38 +56,23 @@ export const ViewPolicySheet: React.FC<Props> = ({ policyId, onClose }) => {
     return [...new Set(commentEdges.map((e) => e?.node?.createdBy).filter((id): id is string => typeof id === 'string'))]
   }, [commentEdges])
 
-  const { data: userData, isLoading: usersLoading } = useGetOrgMemberships({
-    where: { hasUserWith: [{ idIn: userIds }] },
-    enabled: userIds.length > 0,
-  })
-
-  const userMap = useMemo(() => {
-    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { base64?: string | null } | null; avatarRemoteURL?: string | null }> = {}
-    userData?.orgMemberships?.edges?.forEach((edge) => {
-      const user = edge?.node?.user
-      if (user) map[user.id] = user
-    })
-    return map
-  }, [userData])
+  const { userMap, tokenMap, isLoading: usersLoading } = useAuthorMaps(userIds)
 
   const comments: TCommentData[] = useMemo(() => {
     return commentEdges.flatMap((item) => {
       const node = item?.node
       if (!node) return []
-      const user = node.createdBy ? userMap[node.createdBy] : undefined
-      const avatarUrl = (user?.avatarFile?.base64 ? toBase64DataUri(user.avatarFile.base64) : null) || user?.avatarRemoteURL
       return [
         {
           id: node.id,
           comment: node.text ?? '',
-          avatarUrl: avatarUrl ?? undefined,
           createdAt: String(node.createdAt ?? ''),
-          userName: user?.displayName || 'Deleted user',
+          author: resolveAuthor(node.createdBy, { userMap, tokenMap }),
           createdBy: node.createdBy ?? '',
         },
       ]
     })
-  }, [commentEdges, userMap])
+  }, [commentEdges, tokenMap, userMap])
 
   const handleSendComment = useCallback(
     async (data: TComments) => {
@@ -179,16 +166,21 @@ export const ViewPolicySheet: React.FC<Props> = ({ policyId, onClose }) => {
               {detailsOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
               Details
             </button>
-            {detailsOpen && (
-              <PlateEditor
-                key={JSON.stringify(p.detailsJSON ?? p.details)}
-                initialValue={p.detailsJSON ? (p.detailsJSON as Value) : (p.details ?? undefined)}
-                entity={discussionData?.internalPolicy}
-                readonly={true}
-                variant="readonly"
-                toolbarClassName="hidden"
-              />
-            )}
+            {detailsOpen &&
+              (p.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION ? (
+                <IntegrationDocumentView policy={p} />
+              ) : p.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE && p.file ? (
+                <ExternalReferenceView policy={p} editAllowed={false} />
+              ) : (
+                <PlateEditor
+                  key={JSON.stringify(p.detailsJSON ?? p.details)}
+                  initialValue={p.detailsJSON ? (p.detailsJSON as Value) : (p.details ?? undefined)}
+                  entity={discussionData?.internalPolicy}
+                  readonly={true}
+                  variant="readonly"
+                  toolbarClassName="hidden"
+                />
+              ))}
           </div>
         </div>
       )
