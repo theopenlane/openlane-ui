@@ -36,8 +36,8 @@ import { Button } from '@repo/ui/button'
 import { Code } from 'lucide-react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { hasPermission } from '@/lib/authz/utils'
+import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import SubprocessorsModeToggle, { type SubprocessorMode } from './SubprocessorsModeToggle'
 import { useSession } from 'next-auth/react'
@@ -73,11 +73,12 @@ const SubprocessorsPage = () => {
   const { data: orgPermission } = useOrganizationRoles()
   const { data: session } = useSession()
   const canCreateSubprocessor = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterSubprocessor, session)
-  const canEditSubprocessor = hasPermission(orgPermission?.roles, AccessEnum.CanEditTrustCenterSubprocessor, session)
 
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterNode = trustCenterData?.trustCenters?.edges?.[0]?.node
   const trustCenterID = trustCenterNode?.id ?? ''
+  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
+  const canEditSubprocessor = canEdit(tcPermission?.roles, session)
   const slug = trustCenterNode?.slug ?? ''
   const savedSubprocessorURL = trustCenterNode?.subprocessorURL ?? ''
   const [subprocessorURL, setSubprocessorURL] = useState(savedSubprocessorURL)
