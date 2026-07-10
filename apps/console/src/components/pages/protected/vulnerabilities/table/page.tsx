@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
 import {
@@ -21,7 +21,7 @@ import { type VulnerabilitySheetConfig, type VulnerabilityTablePageConfig, type 
 import { getColumns } from './columns'
 import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type CreateVulnerabilityInput, type UpdateVulnerabilityInput, type GetVulnerabilityAssociationsQuery, VulnerabilitySecurityLevel } from '@repo/codegen/src/schema'
+import { type CreateVulnerabilityInput, type UpdateVulnerabilityInput, type GetVulnerabilityAssociationsQuery } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
@@ -29,13 +29,13 @@ import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { VULNERABILITY_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
 import ViewVulnerabilitySheet from '../view-vulnerability-sheet'
+import { useSlaQuickFilters } from '@/hooks/useSla'
 import type { Value } from 'platejs'
 
 const DEFAULT_FILTER_VALUES = { open: true }
 
 const VulnerabilityPage: React.FC = () => {
   const { form } = useFormSchema()
-  const [selectedSeverity, setSelectedSeverity] = useState<'critical' | 'high' | 'medium' | 'low' | null>(null)
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -46,6 +46,8 @@ const VulnerabilityPage: React.FC = () => {
   const { data: associationsData } = useGetVulnerabilityAssociations(id || undefined)
 
   const plateEditorHelper = usePlateEditor()
+
+  const quickFilters = useSlaQuickFilters()
 
   const extractAssociations = useCallback((assocData: GetVulnerabilityAssociationsQuery) => {
     const vulnerability = assocData.vulnerability
@@ -164,8 +166,6 @@ const VulnerabilityPage: React.FC = () => {
     renderFields: (props: VulnerabilityFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }
 
-  const severityWhereFilter = selectedSeverity ? { securityLevelIn: [VulnerabilitySecurityLevel[selectedSeverity.toUpperCase() as keyof typeof VulnerabilitySecurityLevel]], open: true } : undefined
-
   const tableConfig: VulnerabilityTablePageConfig = {
     objectType,
     objectName,
@@ -175,6 +175,7 @@ const VulnerabilityPage: React.FC = () => {
     defaultSorting,
     defaultVisibility: visibilityFields,
     filterFields: getFilterFields(enumOpts),
+    quickFilters,
     searchFields: ['displayNameContainsFold', 'descriptionContainsFold', 'cveIDContainsFold', 'externalIDContainsFold'],
     breadcrumbs,
     form,
@@ -193,7 +194,6 @@ const VulnerabilityPage: React.FC = () => {
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
-    additionalWhereFilter: severityWhereFilter,
     defaultFilterValues: DEFAULT_FILTER_VALUES,
     beforeTable: (
       <>
@@ -204,7 +204,7 @@ const VulnerabilityPage: React.FC = () => {
             <a href="/settings/integrations">Setup Integrations</a>
           </Button>
         </div> */}
-        <VulnerabilitySeverityChart selectedSeverity={selectedSeverity} onSeveritySelect={setSelectedSeverity} />
+        <VulnerabilitySeverityChart tableKey={tableKey} />
       </>
     ),
   }

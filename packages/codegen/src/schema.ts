@@ -9415,6 +9415,10 @@ export interface CreateFindingInput {
   /** identifier for the assessment that generated the finding */
   assessmentID?: InputMaybe<Scalars['String']['input']>
   assetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** who the finding is assigned to when no user or group is linked */
+  assignedTo?: InputMaybe<Scalars['String']['input']>
+  assignedToGroupID?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserID?: InputMaybe<Scalars['ID']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** true when the finding blocks production changes */
   blocksProduction?: InputMaybe<Scalars['Boolean']['input']>
@@ -9487,6 +9491,10 @@ export interface CreateFindingInput {
   /** resource identifier provided by the source system */
   resourceName?: InputMaybe<Scalars['String']['input']>
   reviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** who reviewed the finding when no user or group is linked */
+  reviewedBy?: InputMaybe<Scalars['String']['input']>
+  reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserID?: InputMaybe<Scalars['ID']['input']>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scopeID?: InputMaybe<Scalars['ID']['input']>
@@ -11676,6 +11684,8 @@ export interface CreateTrustCenterPreviewSettingInput {
 export interface CreateTrustCenterSettingInput {
   /** accent/brand color for the trust center */
   accentColor?: InputMaybe<Scalars['String']['input']>
+  /** whether the trust center accepts new subscriber registrations; when false, subscriber creation for the trust center is blocked */
+  allowSubscribers?: InputMaybe<Scalars['Boolean']['input']>
   /** background color for the trust center */
   backgroundColor?: InputMaybe<Scalars['String']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -11911,6 +11921,10 @@ export interface CreateVendorScoringConfigInput {
 export interface CreateVulnerabilityInput {
   actionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   assetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** who the vulnerability is assigned to when no user or group is linked */
+  assignedTo?: InputMaybe<Scalars['String']['input']>
+  assignedToGroupID?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserID?: InputMaybe<Scalars['ID']['input']>
   /** timestamp when the vulnerability was automatically dismissed by the source system */
   autoDismissedAt?: InputMaybe<Scalars['DateTime']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -11994,6 +12008,10 @@ export interface CreateVulnerabilityInput {
   /** remediation service level agreement in days */
   remediationSLA?: InputMaybe<Scalars['Int']['input']>
   reviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** who reviewed the vulnerability when no user or group is linked */
+  reviewedBy?: InputMaybe<Scalars['String']['input']>
+  reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserID?: InputMaybe<Scalars['ID']['input']>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scopeID?: InputMaybe<Scalars['ID']['input']>
@@ -20797,6 +20815,14 @@ export interface Finding extends Node {
   /** identifier for the assessment that generated the finding */
   assessmentID?: Maybe<Scalars['String']['output']>
   assets: AssetConnection
+  /** who the finding is assigned to when no user or group is linked */
+  assignedTo?: Maybe<Scalars['String']['output']>
+  assignedToGroup?: Maybe<Group>
+  /** the group id assigned to the finding */
+  assignedToGroupID?: Maybe<Scalars['ID']['output']>
+  assignedToUser?: Maybe<User>
+  /** the user id assigned to the finding */
+  assignedToUserID?: Maybe<Scalars['ID']['output']>
   blockedGroups: GroupConnection
   /** true when the finding blocks production changes */
   blocksProduction?: Maybe<Scalars['Boolean']['output']>
@@ -20880,6 +20906,14 @@ export interface Finding extends Node {
   reportedAt?: Maybe<Scalars['DateTime']['output']>
   /** resource identifier provided by the source system */
   resourceName?: Maybe<Scalars['String']['output']>
+  /** who reviewed the finding when no user or group is linked */
+  reviewedBy?: Maybe<Scalars['String']['output']>
+  reviewedByGroup?: Maybe<Group>
+  /** the group id that reviewed the finding */
+  reviewedByGroupID?: Maybe<Scalars['ID']['output']>
+  reviewedByUser?: Maybe<User>
+  /** the user id that reviewed the finding */
+  reviewedByUserID?: Maybe<Scalars['ID']['output']>
   reviews: ReviewConnection
   risks: RiskConnection
   scans: ScanConnection
@@ -21504,6 +21538,54 @@ export interface FindingWhereInput {
   assessmentIDNEQ?: InputMaybe<Scalars['String']['input']>
   assessmentIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   assessmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** assigned_to field predicates */
+  assignedTo?: InputMaybe<Scalars['String']['input']>
+  assignedToContains?: InputMaybe<Scalars['String']['input']>
+  assignedToContainsFold?: InputMaybe<Scalars['String']['input']>
+  assignedToEqualFold?: InputMaybe<Scalars['String']['input']>
+  assignedToGT?: InputMaybe<Scalars['String']['input']>
+  assignedToGTE?: InputMaybe<Scalars['String']['input']>
+  /** assigned_to_group_id field predicates */
+  assignedToGroupID?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assignedToGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assignedToGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assignedToGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  assignedToHasPrefix?: InputMaybe<Scalars['String']['input']>
+  assignedToHasSuffix?: InputMaybe<Scalars['String']['input']>
+  assignedToIn?: InputMaybe<Array<Scalars['String']['input']>>
+  assignedToIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assignedToLT?: InputMaybe<Scalars['String']['input']>
+  assignedToLTE?: InputMaybe<Scalars['String']['input']>
+  assignedToNEQ?: InputMaybe<Scalars['String']['input']>
+  assignedToNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  assignedToNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** assigned_to_user_id field predicates */
+  assignedToUserID?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assignedToUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assignedToUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assignedToUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** blocks_production field predicates */
   blocksProduction?: InputMaybe<Scalars['Boolean']['input']>
   blocksProductionIsNil?: InputMaybe<Scalars['Boolean']['input']>
@@ -21756,6 +21838,12 @@ export interface FindingWhereInput {
   /** assets edge predicates */
   hasAssets?: InputMaybe<Scalars['Boolean']['input']>
   hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
+  /** assigned_to_group edge predicates */
+  hasAssignedToGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssignedToGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** assigned_to_user edge predicates */
+  hasAssignedToUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssignedToUserWith?: InputMaybe<Array<UserWhereInput>>
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -21804,6 +21892,12 @@ export interface FindingWhereInput {
   /** remediations edge predicates */
   hasRemediations?: InputMaybe<Scalars['Boolean']['input']>
   hasRemediationsWith?: InputMaybe<Array<RemediationWhereInput>>
+  /** reviewed_by_group edge predicates */
+  hasReviewedByGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewedByGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** reviewed_by_user edge predicates */
+  hasReviewedByUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewedByUserWith?: InputMaybe<Array<UserWhereInput>>
   /** reviews edge predicates */
   hasReviews?: InputMaybe<Scalars['Boolean']['input']>
   hasReviewsWith?: InputMaybe<Array<ReviewWhereInput>>
@@ -21998,6 +22092,54 @@ export interface FindingWhereInput {
   resourceNameNEQ?: InputMaybe<Scalars['String']['input']>
   resourceNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   resourceNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reviewed_by field predicates */
+  reviewedBy?: InputMaybe<Scalars['String']['input']>
+  reviewedByContains?: InputMaybe<Scalars['String']['input']>
+  reviewedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  reviewedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  reviewedByGT?: InputMaybe<Scalars['String']['input']>
+  reviewedByGTE?: InputMaybe<Scalars['String']['input']>
+  /** reviewed_by_group_id field predicates */
+  reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  reviewedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  reviewedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  reviewedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByLT?: InputMaybe<Scalars['String']['input']>
+  reviewedByLTE?: InputMaybe<Scalars['String']['input']>
+  reviewedByNEQ?: InputMaybe<Scalars['String']['input']>
+  reviewedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  reviewedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reviewed_by_user_id field predicates */
+  reviewedByUserID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** scope_id field predicates */
   scopeID?: InputMaybe<Scalars['ID']['input']>
   scopeIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -55304,6 +55446,8 @@ export interface TrustCenterSetting extends Node {
   __typename?: 'TrustCenterSetting'
   /** accent/brand color for the trust center */
   accentColor?: Maybe<Scalars['String']['output']>
+  /** whether the trust center accepts new subscriber registrations; when false, subscriber creation for the trust center is blocked */
+  allowSubscribers?: Maybe<Scalars['Boolean']['output']>
   /** background color for the trust center */
   backgroundColor?: Maybe<Scalars['String']['output']>
   blockedGroups: GroupConnection
@@ -55484,6 +55628,11 @@ export interface TrustCenterSettingWhereInput {
   accentColorNEQ?: InputMaybe<Scalars['String']['input']>
   accentColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   accentColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** allow_subscribers field predicates */
+  allowSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  allowSubscribersIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  allowSubscribersNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  allowSubscribersNotNil?: InputMaybe<Scalars['Boolean']['input']>
   and?: InputMaybe<Array<TrustCenterSettingWhereInput>>
   /** background_color field predicates */
   backgroundColor?: InputMaybe<Scalars['String']['input']>
@@ -59108,6 +59257,10 @@ export interface UpdateFindingInput {
   appendTargets?: InputMaybe<Array<Scalars['String']['input']>>
   /** identifier for the assessment that generated the finding */
   assessmentID?: InputMaybe<Scalars['String']['input']>
+  /** who the finding is assigned to when no user or group is linked */
+  assignedTo?: InputMaybe<Scalars['String']['input']>
+  assignedToGroupID?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserID?: InputMaybe<Scalars['ID']['input']>
   /** true when the finding blocks production changes */
   blocksProduction?: InputMaybe<Scalars['Boolean']['input']>
   /** normalized categories for the finding */
@@ -59117,6 +59270,9 @@ export interface UpdateFindingInput {
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessmentID?: InputMaybe<Scalars['Boolean']['input']>
   clearAssets?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssignedTo?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssignedToGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssignedToUser?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearBlocksProduction?: InputMaybe<Scalars['Boolean']['input']>
   clearCategories?: InputMaybe<Scalars['Boolean']['input']>
@@ -59159,6 +59315,9 @@ export interface UpdateFindingInput {
   clearRemediations?: InputMaybe<Scalars['Boolean']['input']>
   clearReportedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearResourceName?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewedBy?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewedByGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewedByUser?: InputMaybe<Scalars['Boolean']['input']>
   clearReviews?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
@@ -59253,6 +59412,10 @@ export interface UpdateFindingInput {
   reportedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** resource identifier provided by the source system */
   resourceName?: InputMaybe<Scalars['String']['input']>
+  /** who reviewed the finding when no user or group is linked */
+  reviewedBy?: InputMaybe<Scalars['String']['input']>
+  reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserID?: InputMaybe<Scalars['ID']['input']>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the finding */
   scopeName?: InputMaybe<Scalars['String']['input']>
@@ -62890,9 +63053,12 @@ export interface UpdateTrustCenterSettingInput {
   accentColor?: InputMaybe<Scalars['String']['input']>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** whether the trust center accepts new subscriber registrations; when false, subscriber creation for the trust center is blocked */
+  allowSubscribers?: InputMaybe<Scalars['Boolean']['input']>
   /** background color for the trust center */
   backgroundColor?: InputMaybe<Scalars['String']['input']>
   clearAccentColor?: InputMaybe<Scalars['Boolean']['input']>
+  clearAllowSubscribers?: InputMaybe<Scalars['Boolean']['input']>
   clearBackgroundColor?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyDescription?: InputMaybe<Scalars['Boolean']['input']>
@@ -63262,6 +63428,10 @@ export interface UpdateVulnerabilityInput {
   appendImpacts?: InputMaybe<Array<Scalars['String']['input']>>
   appendReferences?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** who the vulnerability is assigned to when no user or group is linked */
+  assignedTo?: InputMaybe<Scalars['String']['input']>
+  assignedToGroupID?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserID?: InputMaybe<Scalars['ID']['input']>
   /** timestamp when the vulnerability was automatically dismissed by the source system */
   autoDismissedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** true when the vulnerability blocks production changes */
@@ -63270,6 +63440,9 @@ export interface UpdateVulnerabilityInput {
   category?: InputMaybe<Scalars['String']['input']>
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   clearAssets?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssignedTo?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssignedToGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssignedToUser?: InputMaybe<Scalars['Boolean']['input']>
   clearAutoDismissedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearBlocking?: InputMaybe<Scalars['Boolean']['input']>
@@ -63315,6 +63488,9 @@ export interface UpdateVulnerabilityInput {
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
   clearRemediationSLA?: InputMaybe<Scalars['Boolean']['input']>
   clearRemediations?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewedBy?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewedByGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewedByUser?: InputMaybe<Scalars['Boolean']['input']>
   clearReviews?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
@@ -63418,6 +63594,10 @@ export interface UpdateVulnerabilityInput {
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** who reviewed the vulnerability when no user or group is linked */
+  reviewedBy?: InputMaybe<Scalars['String']['input']>
+  reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserID?: InputMaybe<Scalars['ID']['input']>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the vulnerability */
   scopeName?: InputMaybe<Scalars['String']['input']>
@@ -65225,6 +65405,14 @@ export interface Vulnerability extends Node {
   __typename?: 'Vulnerability'
   actionPlans: ActionPlanConnection
   assets: AssetConnection
+  /** who the vulnerability is assigned to when no user or group is linked */
+  assignedTo?: Maybe<Scalars['String']['output']>
+  assignedToGroup?: Maybe<Group>
+  /** the group id assigned to the vulnerability */
+  assignedToGroupID?: Maybe<Scalars['ID']['output']>
+  assignedToUser?: Maybe<User>
+  /** the user id assigned to the vulnerability */
+  assignedToUserID?: Maybe<Scalars['ID']['output']>
   /** timestamp when the vulnerability was automatically dismissed by the source system */
   autoDismissedAt?: Maybe<Scalars['DateTime']['output']>
   blockedGroups: GroupConnection
@@ -65316,6 +65504,14 @@ export interface Vulnerability extends Node {
   /** remediation service level agreement in days */
   remediationSLA?: Maybe<Scalars['Int']['output']>
   remediations: RemediationConnection
+  /** who reviewed the vulnerability when no user or group is linked */
+  reviewedBy?: Maybe<Scalars['String']['output']>
+  reviewedByGroup?: Maybe<Group>
+  /** the group id that reviewed the vulnerability */
+  reviewedByGroupID?: Maybe<Scalars['ID']['output']>
+  reviewedByUser?: Maybe<User>
+  /** the user id that reviewed the vulnerability */
+  reviewedByUserID?: Maybe<Scalars['ID']['output']>
   reviews: ReviewConnection
   risks: RiskConnection
   scans: ScanConnection
@@ -65600,6 +65796,7 @@ export enum VulnerabilityOrderField {
   cve_id = 'cve_id',
   external_id = 'external_id',
   external_owner_id = 'external_owner_id',
+  score = 'score',
   security_level = 'security_level',
   severity = 'severity',
   updated_at = 'updated_at',
@@ -65658,6 +65855,54 @@ export interface VulnerabilityUpdatePayload {
  */
 export interface VulnerabilityWhereInput {
   and?: InputMaybe<Array<VulnerabilityWhereInput>>
+  /** assigned_to field predicates */
+  assignedTo?: InputMaybe<Scalars['String']['input']>
+  assignedToContains?: InputMaybe<Scalars['String']['input']>
+  assignedToContainsFold?: InputMaybe<Scalars['String']['input']>
+  assignedToEqualFold?: InputMaybe<Scalars['String']['input']>
+  assignedToGT?: InputMaybe<Scalars['String']['input']>
+  assignedToGTE?: InputMaybe<Scalars['String']['input']>
+  /** assigned_to_group_id field predicates */
+  assignedToGroupID?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assignedToGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assignedToGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  assignedToGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assignedToGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  assignedToHasPrefix?: InputMaybe<Scalars['String']['input']>
+  assignedToHasSuffix?: InputMaybe<Scalars['String']['input']>
+  assignedToIn?: InputMaybe<Array<Scalars['String']['input']>>
+  assignedToIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assignedToLT?: InputMaybe<Scalars['String']['input']>
+  assignedToLTE?: InputMaybe<Scalars['String']['input']>
+  assignedToNEQ?: InputMaybe<Scalars['String']['input']>
+  assignedToNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  assignedToNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** assigned_to_user_id field predicates */
+  assignedToUserID?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assignedToUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assignedToUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  assignedToUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assignedToUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** auto_dismissed_at field predicates */
   autoDismissedAt?: InputMaybe<Scalars['DateTime']['input']>
   autoDismissedAtGT?: InputMaybe<Scalars['DateTime']['input']>
@@ -65978,6 +66223,12 @@ export interface VulnerabilityWhereInput {
   /** assets edge predicates */
   hasAssets?: InputMaybe<Scalars['Boolean']['input']>
   hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
+  /** assigned_to_group edge predicates */
+  hasAssignedToGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssignedToGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** assigned_to_user edge predicates */
+  hasAssignedToUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssignedToUserWith?: InputMaybe<Array<UserWhereInput>>
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -66014,6 +66265,12 @@ export interface VulnerabilityWhereInput {
   /** remediations edge predicates */
   hasRemediations?: InputMaybe<Scalars['Boolean']['input']>
   hasRemediationsWith?: InputMaybe<Array<RemediationWhereInput>>
+  /** reviewed_by_group edge predicates */
+  hasReviewedByGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewedByGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** reviewed_by_user edge predicates */
+  hasReviewedByUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewedByUserWith?: InputMaybe<Array<UserWhereInput>>
   /** reviews edge predicates */
   hasReviews?: InputMaybe<Scalars['Boolean']['input']>
   hasReviewsWith?: InputMaybe<Array<ReviewWhereInput>>
@@ -66199,6 +66456,54 @@ export interface VulnerabilityWhereInput {
   remediationSLANEQ?: InputMaybe<Scalars['Int']['input']>
   remediationSLANotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   remediationSLANotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reviewed_by field predicates */
+  reviewedBy?: InputMaybe<Scalars['String']['input']>
+  reviewedByContains?: InputMaybe<Scalars['String']['input']>
+  reviewedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  reviewedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  reviewedByGT?: InputMaybe<Scalars['String']['input']>
+  reviewedByGTE?: InputMaybe<Scalars['String']['input']>
+  /** reviewed_by_group_id field predicates */
+  reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  reviewedByGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  reviewedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  reviewedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  reviewedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByLT?: InputMaybe<Scalars['String']['input']>
+  reviewedByLTE?: InputMaybe<Scalars['String']['input']>
+  reviewedByNEQ?: InputMaybe<Scalars['String']['input']>
+  reviewedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  reviewedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reviewed_by_user_id field predicates */
+  reviewedByUserID?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewedByUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  reviewedByUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** scope_id field predicates */
   scopeID?: InputMaybe<Scalars['ID']['input']>
   scopeIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -70315,6 +70620,10 @@ export type ContactQuery = {
     title?: string | null
     updatedAt?: any | null
     updatedBy?: string | null
+    entities: {
+      __typename?: 'EntityConnection'
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+    }
   }
 }
 
@@ -74106,6 +74415,17 @@ export type GetAllGroupsQuery = {
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
+}
+
+export type GetGroupNamesQueryVariables = Exact<{
+  where?: InputMaybe<GroupWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetGroupNamesQuery = {
+  __typename?: 'Query'
+  groups: { __typename?: 'GroupConnection'; edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; name: string; displayName: string } | null } | null> | null }
 }
 
 export type CreateGroupWithMembersMutationVariables = Exact<{
@@ -79507,7 +79827,7 @@ export type GetAllSubscribersQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'SubscriberEdge'
-      node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean; createdAt?: any | null } | null
+      node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean; unsubscribed: boolean; createdAt?: any | null } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   }
@@ -80778,6 +81098,8 @@ export type GetTrustCenterQuery = {
           logoRemoteURL?: string | null
           securityContact?: string | null
           ndaApprovalRequired?: boolean | null
+          notifySubscribersOnSubprocessorChange?: boolean | null
+          allowSubscribers?: boolean | null
           ndaApproverGroupID?: string | null
           logoFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; base64?: string | null } | null

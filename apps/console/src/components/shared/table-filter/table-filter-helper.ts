@@ -7,7 +7,7 @@ import { type Condition, type FilterField, type WhereCondition } from '@/types'
 export type TQuickFilter = {
   label: string
   key: string
-  getCondition?: () => TFilterState
+  getCondition?: () => TFilterState | Condition
   isActive: boolean
   type: 'custom' | 'boolean'
 }

@@ -1,5 +1,5 @@
 import { type TableKeyValue } from '@repo/ui/table-key'
-import { type FilterField } from '@/types'
+import { type Condition, type FilterField } from '@/types'
 import type { DateRange } from 'react-day-picker'
 import { isValid } from 'date-fns'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
@@ -8,7 +8,7 @@ import { getOrganizationStorageItem, getOrganizationStorageKey, removeOrganizati
 export type TNumberRange = { min: number; max: number }
 export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | TNumberRange | undefined
 export type TFilterState = Record<string, TFilterValue>
-export type TQuickFilterState = { key: string; condition: TFilterState } | Record<string, boolean>
+export type TQuickFilterState = { key: string; condition: TFilterState | Condition } | Record<string, boolean>
 
 const STORAGE_FILTER_PREFIX = 'filters:'
 const STORAGE_QUICK_FILTERS_PREFIX = 'quick-filters:'
@@ -67,7 +67,7 @@ export const loadQuickFilter = (pageKey: TableKeyValue, quickFilters: TQuickFilt
       return {
         ...matched,
         isActive: true,
-        getCondition: () => parsed.condition,
+        getCondition: matched.getCondition ?? (() => parsed.condition),
       }
     }
 

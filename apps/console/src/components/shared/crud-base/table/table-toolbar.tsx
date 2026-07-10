@@ -19,6 +19,7 @@ import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { TableFilter } from '../../table-filter/table-filter'
+import { type TQuickFilter } from '../../table-filter/table-filter-helper'
 import { type FilterField } from '@/types'
 import type { WhereCondition } from '@/types'
 import { type TFilterState } from '../../table-filter/filter-storage'
@@ -34,6 +35,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   displayName?: string
   handleExport: () => void
   filterFields?: FilterField[] | undefined
+  quickFilters?: TQuickFilter[]
   onFilterChange?: (filters: TWhereInput | null) => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
@@ -221,6 +223,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
               {props.filterFields && (
                 <TableFilter
                   filterFields={props.filterFields}
+                  quickFilters={props.quickFilters}
                   onFilterChange={props.onFilterChange as (whereCondition: WhereCondition) => void}
                   pageKey={props.storageKey}
                   additionalActiveFilterCount={props.additionalActiveFilterCount}
