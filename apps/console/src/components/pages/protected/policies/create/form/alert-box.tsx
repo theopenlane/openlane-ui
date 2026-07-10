@@ -9,7 +9,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { INTEGRATIONS_DOCUMENT_FILTER_URL } from '@/constants'
 import Link from 'next/link'
 import { BookOpenIcon, ChevronDown, FileTextIcon, InfoIcon, LinkIcon, LoaderCircle, Sparkles, X } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -133,14 +133,15 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
     }
   }
 
-  let parsedSuggestions = { text: '' }
-  if (!loading && suggestions) {
+  const parsedSuggestions = useMemo(() => {
+    if (loading || !suggestions) return { text: '' }
     try {
-      parsedSuggestions = JSON.parse(suggestions)
+      return JSON.parse(suggestions)
     } catch (e) {
       console.error('Failed to parse AI suggestions:', e)
+      return { text: '' }
     }
-  }
+  }, [loading, suggestions])
 
   return (
     <>

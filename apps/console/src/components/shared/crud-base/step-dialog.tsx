@@ -42,7 +42,7 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
   const objectTypeName = toHumanLabel(objectType)
   const queryKey = [pluralizeTypeName(objectType.toLowerCase())]
 
-  const currentStepConfig = steps.find((s) => s.id === stepper.current.id)
+  const currentStepConfig = steps.find((s) => s.id === stepper.state.current.data.id)
 
   const handleNext = async () => {
     if (!currentStepConfig) return
@@ -51,18 +51,18 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
     const isValid = await form.trigger(fieldsToValidate as Parameters<typeof form.trigger>[0])
     if (!isValid) return
 
-    if (stepper.isLast) {
+    if (stepper.state.isLast) {
       await handleSubmit()
     } else {
-      stepper.next()
+      stepper.navigation.next()
     }
   }
 
   const handleBack = () => {
-    if (stepper.isFirst) {
+    if (stepper.state.isFirst) {
       onClose()
     } else {
-      stepper.prev()
+      stepper.navigation.prev()
     }
   }
 
@@ -109,8 +109,8 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
         </FormProvider>
 
         <DialogFooter>
-          <CancelButton onClick={handleBack} title={stepper.isFirst ? 'Cancel' : 'Back'} />
-          {stepper.isLast ? (
+          <CancelButton onClick={handleBack} title={stepper.state.isFirst ? 'Cancel' : 'Back'} />
+          {stepper.state.isLast ? (
             <SaveButton onClick={handleNext} disabled={createMutation.isPending} isSaving={createMutation.isPending} title="Create" savingTitle="Creating..." />
           ) : (
             <Button type="button" onClick={handleNext}>

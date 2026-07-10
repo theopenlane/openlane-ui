@@ -1,17 +1,19 @@
 import type { Stepper, Step } from '@stepperize/react'
 
-type WizardStepNavProps<T extends Step[]> = {
+type LabeledStep = Step & { label: string }
+
+type WizardStepNavProps<T extends LabeledStep[]> = {
   stepper: Stepper<T>
   enabledMap: Record<string, boolean>
 }
 
-export const WizardStepNav = <T extends Step[]>({ stepper, enabledMap }: WizardStepNavProps<T>) => {
-  const steps = stepper.all
-  const currentIndex = steps.findIndex((step) => step.id === stepper.current.id)
+export const WizardStepNav = <T extends LabeledStep[]>({ stepper, enabledMap }: WizardStepNavProps<T>) => {
+  const steps = stepper.state.all
+  const currentIndex = steps.findIndex((step) => step.id === stepper.state.current.data.id)
 
   return (
     <div className="flex flex-wrap items-center gap-4 text-md text-muted-foreground mb-4">
-      {steps.map((step: Step, index: number) => {
+      {steps.map((step, index: number) => {
         const isCurrent: boolean = index === currentIndex
         const isComplete: boolean = index < currentIndex
         const isEnabled: boolean = enabledMap[step.id] ?? true
@@ -25,7 +27,7 @@ export const WizardStepNav = <T extends Step[]>({ stepper, enabledMap }: WizardS
           <div key={step.id} className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => canNavigate && stepper.goTo(step.id)}
+              onClick={() => canNavigate && stepper.navigation.goTo(step.id)}
               disabled={!canNavigate}
               className={`flex items-center gap-2 transition ${textClass} ${canNavigate ? 'hover:text-foreground' : 'cursor-not-allowed'}`}
             >

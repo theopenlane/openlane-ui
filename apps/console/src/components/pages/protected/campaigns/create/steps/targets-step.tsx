@@ -133,7 +133,7 @@ const ContactsSelector: React.FC<{
         .filter((c) => c.email)
         .map((c) => ({
           id: c.id,
-          email: c.email!,
+          email: c.email ?? '',
           name: c.fullName || '',
           source: 'contact' as const,
         })),
@@ -236,7 +236,7 @@ const PersonnelSelector: React.FC<{
   )
 }
 
-export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChange, uploadedFile, onFileUpload, activeTab, onActiveTabChange }) => {
+export const TargetsStep: React.FC<TargetsStepProps> = ({ onTargetsChange, uploadedFile, onFileUpload, activeTab, onActiveTabChange }) => {
   const [manualTargets, setManualTargets] = useState<CampaignTargetEntry[]>([])
   const [contactTargets, setContactTargets] = useState<CampaignTargetEntry[]>([])
   const [personnelTargets, setPersonnelTargets] = useState<CampaignTargetEntry[]>([])

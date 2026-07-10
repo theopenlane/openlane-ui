@@ -2,7 +2,7 @@
 
 import { Button } from '@repo/ui/button'
 import { FileTextIcon, X, Eye } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { GITHUB_API_BASE, POLICY_DIRECTORIES, POLICY_HUB_REPO_URL, POLICY_REPO } from '@/constants/templates'
@@ -35,13 +35,7 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyT
   const [previewContent, setPreviewContent] = useState<string>('')
   const [loadingPreview, setLoadingPreview] = useState(false)
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchAllTemplates()
-    }
-  }, [isOpen])
-
-  const fetchAllTemplates = async () => {
+  const fetchAllTemplates = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
@@ -68,7 +62,13 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyT
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchAllTemplates()
+    }
+  }, [isOpen, fetchAllTemplates])
 
   const handlePreview = async (item: GitHubItem, e: React.MouseEvent) => {
     e.stopPropagation()

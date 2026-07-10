@@ -21,7 +21,6 @@ import {
   type UpdateBulkContactMutationVariables,
   type DeleteBulkContactMutation,
   type DeleteBulkContactMutationVariables,
-  ContactUserStatus,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'

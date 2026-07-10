@@ -65,18 +65,15 @@ export function ProductCard({
 
     if (!monthly && !yearly) return null
 
+    const savingPct = monthly && yearly ? Math.round(((monthly.unit_amount * 12 - yearly.unit_amount) / (monthly.unit_amount * 12)) * 100) : 0
+
     return (
       <div className="flex flex-col text-text-paragraph">
         {monthly && <span>Monthly: ${monthly.unit_amount / 100}</span>}
         {yearly && (
           <span>
             Annual: ${yearly.unit_amount / 100}
-            {monthly &&
-              (() => {
-                const monthlyTotal = monthly.unit_amount * 12
-                const savingPct = Math.round(((monthlyTotal - yearly.unit_amount) / monthlyTotal) * 100)
-                return savingPct > 0 ? <span className="text-brand"> (save {savingPct}%)</span> : null
-              })()}
+            {savingPct > 0 && <span className="text-brand"> (save {savingPct}%)</span>}
           </span>
         )}
       </div>

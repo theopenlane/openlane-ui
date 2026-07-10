@@ -4,12 +4,18 @@ import useEscapeKey from '@/hooks/useEscapeKey'
 import { type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useRef, useState } from 'react'
-import { Controller, useFormContext } from 'react-hook-form'
+import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FolderIcon } from 'lucide-react'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { type Option } from '@repo/ui/multiple-selector'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
+
+const SelectedDisplay = ({ name, options }: { name: string; options: (Option & { color?: string; description?: string })[] }) => {
+  const val = useWatch({ name })
+  const option = options.find((o) => o.value === val)
+  return option ? <CustomTypeEnumOptionChip option={{ ...option, description: option.description ?? '' }} /> : <CustomTypeEnumValue value={val ?? ''} options={options} placeholder="-" />
+}
 
 export const EditableSelect = ({
   label,
@@ -139,20 +145,7 @@ export const EditableSelect = ({
         ) : (
           <HoverPencilWrapper showPencil={isEditAllowed} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} onPencilClick={isEditAllowed ? handleClick : undefined}>
             <div onDoubleClick={isEditAllowed ? handleClick : undefined} className="flex items-center min-h-6">
-              {(() => {
-                const val = getValues(name)
-                const option = options.find((o) => o.value === val)
-                return option ? (
-                  <CustomTypeEnumOptionChip
-                    option={{
-                      ...option,
-                      description: option.description ?? '',
-                    }}
-                  />
-                ) : (
-                  <CustomTypeEnumValue value={val ?? ''} options={options} placeholder={'-'} />
-                )
-              })()}
+              <SelectedDisplay name={name} options={options} />
             </div>
           </HoverPencilWrapper>
         )}
