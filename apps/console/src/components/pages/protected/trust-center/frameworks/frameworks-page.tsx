@@ -275,7 +275,7 @@ export default function FrameworksPage() {
 
           <div className="flex" onClick={(e) => e.stopPropagation()}>
             <div className="flex gap-3">
-              <Switch disabled={!canEditCompliance} checked={isAssociated} onCheckedChange={(checked) => handleToggle(standard.id, checked)} />
+              <Switch disabled={!canEditCompliance && !canEditTc} checked={isAssociated} onCheckedChange={(checked) => handleToggle(standard.id, checked)} />
             </div>
           </div>
         </CardContent>
