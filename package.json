@@ -47,7 +47,7 @@
     "core-js"
   ],
   "resolutions": {
-    "react": "19.2.6",
+    "react": "19.2.7",
     "node-fetch": "^3.3.2",
     "protobufjs": "^7.6.5",
     "shell-quote": "^1.9.0",
@@ -67,8 +67,8 @@
     "dompurify": "^3.4.11"
   },
   "peerDependencies": {
-    "react": "19.2.6",
-    "react-dom": "19.2.6"
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",

@@ -181,12 +181,12 @@
     "platejs": "^52.3.10",
     "prismjs": "^1.29.0",
     "radix-ui": "^1.4.3",
-    "react": "19.2.6",
+    "react": "19.2.7",
     "react-circle-flags": "^0.0.29",
     "react-day-picker": "^9.14.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
-    "react-dom": "19.2.6",
+    "react-dom": "19.2.7",
     "react-hook-form": "^7.71.1",
     "react-lite-youtube-embed": "^3.5.1",
     "react-player": "3.4.0",
@@ -211,7 +211,7 @@
     "@tailwindui/react": "latest",
     "@types/eslint": "latest",
     "@types/node": "^25.0.0",
-    "@types/react": "19.2.14",
+    "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "autoprefixer": "^10.4.21",
     "clsx": "^2.1.1",
@@ -223,7 +223,7 @@
     "typescript": "^6.0.3"
   },
   "overrides": {
-    "@types/react": "19.2.14",
+    "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3"
   }
 }
