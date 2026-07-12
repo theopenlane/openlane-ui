@@ -175,7 +175,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@graphql-tools/schema": "10.0.33",
-        "graphql": "16.13.2",
+        "graphql": "16.14.2",
         "graphql-codegen-typescript-validation-schema": "^0.18.0",
         "graphql-request": "7.4.0",
         "typescript": "^6.0.3",
@@ -2738,7 +2738,7 @@
 
     "graphlib": ["graphlib@2.1.8", "", { "dependencies": { "lodash": "^4.17.15" } }, "sha512-jcLLfkpoVGmH7/InMC/1hIvOPSUh38oJtGhvrOFGzioE1DZ+0YW16RgmOJhHiuWTvGiJQ9Z1Ik43JvkRPRvE+A=="],
 
-    "graphql": ["graphql@16.13.2", "", {}, "sha512-5bJ+nf/UCpAjHM8i06fl7eLyVC9iuNAjm9qzkiu2ZGhM0VscSvS6WDPfAwkdkBuoXGM9FJSbKl6wylMwP9Ktig=="],
+    "graphql": ["graphql@16.14.2", "", {}, "sha512-Chq1s4CY7jmh8gO2qvLIJyfCDIN+EHLFW/9iShnp1z8FjBQMoodWP1kDC36VAMXXIvAjj4ARa7ntfAV2BrjsbA=="],
 
     "graphql-codegen-typescript-validation-schema": ["graphql-codegen-typescript-validation-schema@0.18.1", "", { "dependencies": { "@graphql-codegen/plugin-helpers": "^6.0.0", "@graphql-codegen/schema-ast": "5.0.0", "@graphql-codegen/visitor-plugin-common": "^6.0.0", "@graphql-tools/utils": "^10.0.0", "graphlib": "^2.1.8", "graphql": "^16.6.0" }, "peerDependencies": { "zod": "^3.25.0 || ^4.0.0" } }, "sha512-c6e1Bm3NjUgCaDVQgOpa2mVzmqPjd1FHrmt0jgtQtctnU2mrIYn7TkLVA9qWBwduk2Vz8vqx0uUxStGCpAmEPw=="],
 
