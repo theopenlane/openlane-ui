@@ -1,14 +1,13 @@
 'use client'
 
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Check, Loader2 } from 'lucide-react'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
-import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
 import { fetchLogoAsFile } from '../../vendor-logo-dialog'
 import { cn } from '@repo/ui/lib/utils'
-import { toBase64DataUri } from '@/lib/image-utils'
+import { useSuggestedVendorLogos } from '../../hooks/use-suggested-vendor-logos'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
 
 interface StepVendorLogoProps {
@@ -18,53 +17,23 @@ interface StepVendorLogoProps {
 const StepVendorLogo: React.FC<StepVendorLogoProps> = ({ onLogoFileChange }) => {
   const form = useFormContext<EditVendorFormData>()
   const [preview, setPreview] = useState<string | null>(null)
-  const [selectedSubprocessorId, setSelectedSubprocessorId] = useState<string | null>(null)
+  const [selectedSuggestionId, setSelectedSuggestionId] = useState<string | null>(null)
   const [autoSelecting, setAutoSelecting] = useState(false)
   const hasAutoSelectedRef = useRef(false)
 
   const vendorName = form.watch('name') ?? ''
   const vendorDisplayName = form.watch('displayName')
+  const domains = form.watch('domains')
 
-  const searchTerms = useMemo(() => {
-    const terms = [vendorName]
-    if (vendorDisplayName && vendorDisplayName.toLowerCase() !== vendorName.toLowerCase()) {
-      terms.push(vendorDisplayName)
-    }
-    return terms
-  }, [vendorName, vendorDisplayName])
+  const suggestedLogos = useSuggestedVendorLogos({ vendorName, vendorDisplayName, domains })
 
-  const { subprocessors: nameResults } = useGetSubprocessors({
-    where: { nameContainsFold: searchTerms[0] },
-    enabled: !!searchTerms[0],
-  })
-
-  const { subprocessors: displayNameResults } = useGetSubprocessors({
-    where: searchTerms[1] ? { nameContainsFold: searchTerms[1] } : undefined,
-    enabled: !!searchTerms[1],
-  })
-
-  const suggestedLogos = useMemo(() => {
-    const seen = new Set<string>()
-    const results: Array<{ id: string; name: string; logoUrl: string }> = []
-
-    for (const sp of [...(nameResults ?? []), ...(displayNameResults ?? [])]) {
-      if (!sp || seen.has(sp.id)) continue
-      const logoUrl = (sp.logoFile?.base64 ? toBase64DataUri(sp.logoFile.base64) : null) || sp.logoRemoteURL
-      if (!logoUrl) continue
-      seen.add(sp.id)
-      results.push({ id: sp.id, name: sp.name, logoUrl })
-    }
-
-    return results
-  }, [nameResults, displayNameResults])
-
-  // Auto-select first matching logo
   useEffect(() => {
-    if (hasAutoSelectedRef.current || suggestedLogos.length === 0) return
+    if (hasAutoSelectedRef.current) return
+    const first = suggestedLogos.find((logo) => logo.source === 'subprocessor')
+    if (!first) return
     hasAutoSelectedRef.current = true
 
-    const first = suggestedLogos[0]
-    setSelectedSubprocessorId(first.id)
+    setSelectedSuggestionId(first.id)
     setPreview(first.logoUrl)
     setAutoSelecting(true)
 
@@ -73,7 +42,7 @@ const StepVendorLogo: React.FC<StepVendorLogoProps> = ({ onLogoFileChange }) => 
         onLogoFileChange(file)
       })
       .catch(() => {
-        setSelectedSubprocessorId(null)
+        setSelectedSuggestionId(null)
         setPreview(null)
       })
       .finally(() => {
@@ -86,12 +55,12 @@ const StepVendorLogo: React.FC<StepVendorLogoProps> = ({ onLogoFileChange }) => 
     if (file) {
       onLogoFileChange(file)
       setPreview(uploaded.url ?? null)
-      setSelectedSubprocessorId(null)
+      setSelectedSuggestionId(null)
     }
   }
 
-  const handleSubprocessorSelect = async (logo: { id: string; logoUrl: string }) => {
-    setSelectedSubprocessorId(logo.id)
+  const handleSuggestionSelect = async (logo: { id: string; logoUrl: string }) => {
+    setSelectedSuggestionId(logo.id)
     setPreview(logo.logoUrl)
     setAutoSelecting(true)
 
@@ -99,7 +68,7 @@ const StepVendorLogo: React.FC<StepVendorLogoProps> = ({ onLogoFileChange }) => 
       const file = await fetchLogoAsFile(logo.logoUrl)
       onLogoFileChange(file)
     } catch {
-      setSelectedSubprocessorId(null)
+      setSelectedSuggestionId(null)
       setPreview(null)
       onLogoFileChange(null)
     } finally {
@@ -127,13 +96,13 @@ const StepVendorLogo: React.FC<StepVendorLogoProps> = ({ onLogoFileChange }) => 
               <button
                 key={logo.id}
                 type="button"
-                onClick={() => handleSubprocessorSelect(logo)}
+                onClick={() => handleSuggestionSelect(logo)}
                 className={cn(
                   'relative flex flex-col items-center gap-1.5 rounded-lg border p-3 cursor-pointer transition-all bg-transparent hover:bg-muted/50',
-                  selectedSubprocessorId === logo.id ? 'border-primary ring-1 ring-primary/30' : 'border-border',
+                  selectedSuggestionId === logo.id ? 'border-primary ring-1 ring-primary/30' : 'border-border',
                 )}
               >
-                {selectedSubprocessorId === logo.id && (
+                {selectedSuggestionId === logo.id && (
                   <div className="absolute top-1 right-1">
                     <Check size={14} className="text-primary" />
                   </div>

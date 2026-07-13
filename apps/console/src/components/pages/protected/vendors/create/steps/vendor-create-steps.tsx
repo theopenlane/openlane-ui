@@ -17,6 +17,7 @@ export const createVendorSteps = (onStagedFilesChange: (files: File[]) => void, 
     schema: z.object({
       name: z.string().min(1, 'Name is required'),
       displayName: z.string().optional(),
+      domains: z.array(z.string()).optional(),
       description: z.custom().optional(),
       status: z.string().optional(),
       environmentName: z.string().optional(),

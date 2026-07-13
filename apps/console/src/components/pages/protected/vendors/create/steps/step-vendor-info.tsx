@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
@@ -11,12 +11,26 @@ import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { MultiStringField } from '@/components/shared/crud-base/form-fields/multi-text-field'
+import { deriveVendorNameFromDomain } from '../../hooks/use-suggested-vendor-logos'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
 
 const StepVendorInfo: React.FC = () => {
   const form = useFormContext<EditVendorFormData>()
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
+
+  const domains = form.watch('domains')
+  const hasAutoFilledNameRef = useRef(false)
+
+  useEffect(() => {
+    if (hasAutoFilledNameRef.current) return
+    const firstDomain = domains?.[0]
+    if (!firstDomain || form.getValues('name')?.trim()) return
+    const derivedName = deriveVendorNameFromDomain(firstDomain)
+    if (!derivedName) return
+    hasAutoFilledNameRef.current = true
+    form.setValue('name', derivedName, { shouldValidate: true, shouldDirty: true })
+  }, [domains, form])
 
   return (
     <div className="space-y-4">
@@ -51,6 +65,19 @@ const StepVendorInfo: React.FC = () => {
           )}
         />
       </div>
+
+      <MultiStringField
+        name="domains"
+        label="Domains"
+        type="link"
+        placeholder="example.com"
+        tooltipContent="Domains associated with the vendor. Adding one lets us suggest a logo and auto-fills the name when it is empty."
+        isEditing={false}
+        isEditAllowed
+        isCreate
+        internalEditing={null}
+        setInternalEditing={() => {}}
+      />
 
       <FormField
         control={form.control}

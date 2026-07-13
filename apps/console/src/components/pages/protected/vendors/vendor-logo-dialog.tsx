@@ -1,20 +1,21 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Check, Loader2 } from 'lucide-react'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
-import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
 import { cn } from '@repo/ui/lib/utils'
-import { toBase64DataUri } from '@/lib/image-utils'
+import { useNotification } from '@/hooks/useNotification'
+import { useSuggestedVendorLogos } from './hooks/use-suggested-vendor-logos'
 
 interface VendorLogoDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   vendorName: string
   vendorDisplayName?: string
+  domains?: string[]
   onLogoSelect: (file: File) => Promise<void>
   isLoading?: boolean
 }
@@ -38,77 +39,52 @@ export const fetchLogoAsFile = async (logoUrl: string): Promise<File> => {
   return new File([blob], `logo${extension}`, { type: blob.type })
 }
 
-export const VendorLogoDialog: React.FC<VendorLogoDialogProps> = ({ open, onOpenChange, vendorName, vendorDisplayName, onLogoSelect, isLoading }) => {
+export const VendorLogoDialog: React.FC<VendorLogoDialogProps> = ({ open, onOpenChange, vendorName, vendorDisplayName, domains, onLogoSelect, isLoading }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
-  const [selectedSubprocessorId, setSelectedSubprocessorId] = useState<string | null>(null)
-  const [selectedSubprocessorUrl, setSelectedSubprocessorUrl] = useState<string | null>(null)
+  const [selectedSuggestionId, setSelectedSuggestionId] = useState<string | null>(null)
+  const [selectedSuggestionUrl, setSelectedSuggestionUrl] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const { errorNotification } = useNotification()
 
-  const searchTerms = useMemo(() => {
-    const terms = [vendorName]
-    if (vendorDisplayName && vendorDisplayName.toLowerCase() !== vendorName.toLowerCase()) {
-      terms.push(vendorDisplayName)
-    }
-    return terms
-  }, [vendorName, vendorDisplayName])
-
-  const { subprocessors: nameResults } = useGetSubprocessors({
-    where: { nameContainsFold: searchTerms[0] },
-    enabled: open && !!searchTerms[0],
-  })
-
-  const { subprocessors: displayNameResults } = useGetSubprocessors({
-    where: searchTerms[1] ? { nameContainsFold: searchTerms[1] } : undefined,
-    enabled: open && !!searchTerms[1],
-  })
-
-  const suggestedLogos = useMemo(() => {
-    const seen = new Set<string>()
-    const results: Array<{ id: string; name: string; logoUrl: string }> = []
-
-    for (const sp of [...(nameResults ?? []), ...(displayNameResults ?? [])]) {
-      if (!sp || seen.has(sp.id)) continue
-      const logoUrl = (sp.logoFile?.base64 ? toBase64DataUri(sp.logoFile.base64) : null) || sp.logoRemoteURL
-      if (!logoUrl) continue
-      seen.add(sp.id)
-      results.push({ id: sp.id, name: sp.name, logoUrl })
-    }
-
-    return results
-  }, [nameResults, displayNameResults])
+  const suggestedLogos = useSuggestedVendorLogos({ vendorName, vendorDisplayName, domains, enabled: open })
 
   useEffect(() => {
     if (!open) {
       setSelectedFile(null)
       setPreview(null)
-      setSelectedSubprocessorId(null)
-      setSelectedSubprocessorUrl(null)
+      setSelectedSuggestionId(null)
+      setSelectedSuggestionUrl(null)
     }
   }, [open])
 
   const handleFileUpload = (uploaded: TUploadedFile) => {
     setSelectedFile(uploaded.file ?? null)
     setPreview(uploaded.url ?? null)
-    setSelectedSubprocessorId(null)
-    setSelectedSubprocessorUrl(null)
+    setSelectedSuggestionId(null)
+    setSelectedSuggestionUrl(null)
   }
 
-  const handleSubprocessorSelect = (logo: { id: string; logoUrl: string }) => {
-    setSelectedSubprocessorId(logo.id)
-    setSelectedSubprocessorUrl(logo.logoUrl)
+  const handleSuggestionSelect = (logo: { id: string; logoUrl: string }) => {
+    setSelectedSuggestionId(logo.id)
+    setSelectedSuggestionUrl(logo.logoUrl)
     setPreview(logo.logoUrl)
     setSelectedFile(null)
   }
 
-  const hasSelection = selectedFile !== null || selectedSubprocessorId !== null
+  const hasSelection = selectedFile !== null || selectedSuggestionId !== null
 
   const handleSave = async () => {
     setSaving(true)
     try {
       let file = selectedFile
-      if (!file && selectedSubprocessorUrl) {
-        file = await fetchLogoAsFile(selectedSubprocessorUrl)
+      if (!file && selectedSuggestionUrl) {
+        try {
+          file = await fetchLogoAsFile(selectedSuggestionUrl)
+        } catch {
+          errorNotification({ title: 'Failed to add logo', description: 'The selected logo could not be loaded. Please try another logo or upload a file.' })
+          return
+        }
       }
       if (file) {
         await onLogoSelect(file)
@@ -157,13 +133,13 @@ export const VendorLogoDialog: React.FC<VendorLogoDialogProps> = ({ open, onOpen
                   <button
                     key={logo.id}
                     type="button"
-                    onClick={() => handleSubprocessorSelect(logo)}
+                    onClick={() => handleSuggestionSelect(logo)}
                     className={cn(
                       'relative flex flex-col items-center gap-1.5 rounded-lg border p-3 cursor-pointer transition-all bg-transparent hover:bg-muted/50',
-                      selectedSubprocessorId === logo.id ? 'border-primary ring-1 ring-primary/30' : 'border-border',
+                      selectedSuggestionId === logo.id ? 'border-primary ring-1 ring-primary/30' : 'border-border',
                     )}
                   >
-                    {selectedSubprocessorId === logo.id && (
+                    {selectedSuggestionId === logo.id && (
                       <div className="absolute top-1 right-1">
                         <Check size={14} className="text-primary" />
                       </div>
