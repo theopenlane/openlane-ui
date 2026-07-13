@@ -13,13 +13,13 @@ const CommunicationsPage: React.FC = () => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Automation', href: '/automation/communications' },
-      { label: 'Communications', href: '/automation/communications' },
+      { label: 'Email Templates', href: '/automation/communications' },
     ])
   }, [setCrumbs])
 
   return (
     <>
-      <PageHeading heading="Communications" />
+      <PageHeading heading="Email Templates" />
       <div className="mt-6">
         <EmailTemplatesTab />
       </div>

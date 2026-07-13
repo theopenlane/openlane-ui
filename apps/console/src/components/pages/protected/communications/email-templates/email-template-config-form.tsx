@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react'
 import Form from '@rjsf/core'
 import type { IChangeEvent } from '@rjsf/core'
-import type { ArrayFieldItemTemplateProps, RJSFSchema, TemplatesType, UiSchema } from '@rjsf/utils'
+import type { ArrayFieldItemTemplateProps, ObjectFieldTemplateProps, RJSFSchema, TemplatesType, UiSchema } from '@rjsf/utils'
 import { customizeValidator } from '@rjsf/validator-ajv8'
 import Ajv2020 from 'ajv/dist/2020'
 import { ChevronDown, ChevronUp, Copy, Plus, Trash2, X } from 'lucide-react'
@@ -51,6 +51,48 @@ const CopyButton: React.FC<FormIconButtonProps> = (props) => renderIconButton(pr
 const ClearButton: React.FC<FormIconButtonProps> = (props) => renderIconButton(props, <X size={14} />, neutralIconButton, 'Clear')
 
 const buttonTemplates: Partial<TemplatesType['ButtonTemplates']> = { AddButton, RemoveButton, MoveUpButton, MoveDownButton, CopyButton, ClearButton }
+
+const emailBrandingGroups = [
+  { title: 'Email Content', fields: ['subject', 'preheader', 'title', 'intros', 'outros'] },
+  { title: 'Call to Action', fields: ['buttonText', 'buttonLink', 'buttonColor', 'buttonTextColor'] },
+  { title: 'Logos and Identity', fields: ['logoURL', 'headerLogoURL', 'companyName', 'tagline'] },
+  { title: 'Colors and Appearance', fields: ['primaryColor', 'textColor', 'bodyBackgroundColor', 'cardBackgroundColor', 'heroBackgroundColor', 'footerTextColor'] },
+  { title: 'Social Links', fields: ['social'] },
+  { title: 'Footer and Legal', fields: ['companyAddress', 'corporation', 'copyright', 'privacyURL', 'termsURL', 'unsubscribeURL'] },
+]
+
+type ObjectProperty = ObjectFieldTemplateProps['properties'][number]
+type ConfigSection = { title: string; items: ObjectProperty[] }
+
+const GroupedObjectFieldTemplate: React.FC<ObjectFieldTemplateProps> = ({ properties, fieldPathId }) => {
+  if (fieldPathId.$id !== 'root') {
+    return <div className="flex flex-col gap-4">{properties.map((prop) => prop.content)}</div>
+  }
+
+  const byName = new Map<string, ObjectProperty>(properties.map((prop) => [prop.name, prop]))
+  const used = new Set<string>()
+  const sections: ConfigSection[] = []
+
+  for (const group of emailBrandingGroups) {
+    const items = group.fields.map((field) => byName.get(field)).filter((prop): prop is ObjectProperty => !!prop)
+    items.forEach((item) => used.add(item.name))
+    if (items.length > 0) sections.push({ title: group.title, items })
+  }
+
+  const ungrouped = properties.filter((prop) => !used.has(prop.name))
+  if (ungrouped.length > 0) sections.push({ title: 'Other', items: ungrouped })
+
+  return (
+    <div className="flex flex-col gap-6">
+      {sections.map((section) => (
+        <div key={section.title} className="flex flex-col gap-4">
+          <p className="text-sm font-semibold text-foreground">{section.title}</p>
+          <div className="flex flex-col gap-4">{section.items.map((item) => item.content)}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 const ArrayFieldItemTemplate: React.FC<ArrayFieldItemTemplateProps> = ({ children, buttonsProps, hasToolbar }) => {
   const { hasMoveUp, hasMoveDown, hasCopy, hasRemove, disabled, readonly, onMoveUpItem, onMoveDownItem, onCopyItem, onRemoveItem } = buttonsProps
@@ -104,7 +146,7 @@ export const EmailTemplateConfigForm: React.FC<EmailTemplateConfigFormProps> = (
         uiSchema={mergedUiSchema}
         formData={formData}
         validator={validator}
-        templates={{ ButtonTemplates: buttonTemplates, ArrayFieldItemTemplate }}
+        templates={{ ButtonTemplates: buttonTemplates, ArrayFieldItemTemplate, ObjectFieldTemplate: GroupedObjectFieldTemplate }}
         readonly={readOnly}
         disabled={readOnly}
         liveValidate={!readOnly}

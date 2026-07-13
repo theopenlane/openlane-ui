@@ -23,6 +23,7 @@ import {
   type DeleteBulkEmailTemplateMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_EMAIL_TEMPLATES,
@@ -153,6 +154,17 @@ export const usePreviewEmailTemplate = ({ key, defaults, enabled = true }: UsePr
     enabled: enabled && !!key,
     placeholderData: (previous) => previous,
   })
+}
+
+type UsePreviewEmailTemplateHtmlArgs = UsePreviewEmailTemplateArgs & { fallbackHtml?: string | null }
+
+export const usePreviewEmailTemplateHtml = ({ fallbackHtml, ...args }: UsePreviewEmailTemplateHtmlArgs) => {
+  const { data, isFetching, error } = usePreviewEmailTemplate(args)
+  return {
+    previewHtml: data?.previewEmailTemplate ?? fallbackHtml ?? '',
+    isFetching,
+    errorMessage: error ? parseErrorMessage(error) : null,
+  }
 }
 
 export const useCreateBulkCSVEmailTemplate = () => {

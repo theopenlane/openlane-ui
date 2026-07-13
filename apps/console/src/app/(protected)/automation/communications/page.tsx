@@ -3,7 +3,7 @@ import CommunicationsPage from '@/components/pages/protected/communications/comm
 import { type Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Communications',
+  title: 'Email Templates',
 }
 
 const Page: React.FC = () => {
