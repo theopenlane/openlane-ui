@@ -4,6 +4,7 @@ import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
+import { NamesChipCell } from '@/components/shared/crud-base/columns/names-chip-cell'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type SystemDetailsNodeNonNull } from '@/lib/graphql-hooks/system-detail'
@@ -37,21 +38,15 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
     },
     {
       accessorKey: 'platforms',
-      header: 'Platform',
+      header: 'Platforms',
       size: 160,
-      cell: ({ row }) => {
-        const names = row.original.platforms?.edges?.map((edge) => edge?.node?.name).filter(Boolean)
-        return names?.length ? names.join(', ') : '-'
-      },
+      cell: ({ row }) => <NamesChipCell names={row.original.platforms?.edges?.map((edge) => edge?.node?.name)} />,
     },
     {
       accessorKey: 'programs',
-      header: 'Program',
+      header: 'Programs',
       size: 160,
-      cell: ({ row }) => {
-        const names = row.original.programs?.edges?.map((edge) => edge?.node?.name).filter(Boolean)
-        return names?.length ? names.join(', ') : '-'
-      },
+      cell: ({ row }) => <NamesChipCell names={row.original.programs?.edges?.map((edge) => edge?.node?.name)} />,
     },
     { accessorKey: 'authorizationBoundary', header: 'Authorization Boundary', size: 220, cell: ({ cell }) => <div className="line-clamp-2 text-sm">{(cell.getValue() as string) || '-'}</div> },
     { accessorKey: 'lastReviewed', header: 'Last Reviewed', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },

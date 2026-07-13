@@ -33,6 +33,7 @@ import {
   ShieldCheck,
   KeyRound,
   BookMarked,
+  Boxes,
 } from 'lucide-react'
 
 export enum FilterIconName {
@@ -73,6 +74,7 @@ export enum FilterIconName {
   Reference = 'Reference',
   Description = 'Description',
   IsAutomated = 'IsAutomated',
+  Platform = 'Platform',
 }
 
 export const FilterIcons: Record<FilterIconName, LucideIcon> = {
@@ -113,4 +115,5 @@ export const FilterIcons: Record<FilterIconName, LucideIcon> = {
   [FilterIconName.Reference]: BookMarked,
   [FilterIconName.Description]: FileText,
   [FilterIconName.IsAutomated]: Bot,
+  [FilterIconName.Platform]: Boxes,
 }

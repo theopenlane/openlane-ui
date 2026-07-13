@@ -25,6 +25,15 @@ import {
 } from '@/lib/graphql-hooks/system-detail'
 import { defaultSorting, exportType, objectName, objectType, orderFieldEnum, tableKey, type SystemDetailFieldProps, type SystemDetailSheetConfig, type SystemDetailTablePageConfig } from './types'
 
+type ConnectionLike = { edges?: Array<{ node?: { id: string } | null } | null> | null } | null | undefined
+
+const getEdgeIds = (connection: ConnectionLike): string[] => (connection?.edges ?? []).map((edge) => edge?.node?.id).filter((id): id is string => !!id)
+
+const diffIds = (selected: string[] = [], initial: string[] = []) => ({
+  add: selected.filter((id) => !initial.includes(id)),
+  remove: initial.filter((id) => !selected.includes(id)),
+})
+
 const normalizeData = (data: SystemDetailQuery['systemDetail']) => {
   if (!data) {
     return {}
@@ -36,15 +45,9 @@ const normalizeData = (data: SystemDetailQuery['systemDetail']) => {
   return {
     ...normalized,
     revisionHistory,
+    platformIDs: getEdgeIds(data.platforms),
+    programIDs: getEdgeIds(data.programs),
   }
-}
-
-const normalizeOptionalId = (value: string | null | undefined, emptyValue: null | undefined) => {
-  if (!value) {
-    return emptyValue
-  }
-
-  return value
 }
 
 const normalizeDateValue = (value: string | Date | null | undefined, emptyValue: null | undefined) => {
@@ -136,14 +139,32 @@ const SystemDetailPage: React.FC = () => {
       const description = formData.description ? await plateEditorHelper.convertToHtml(formData.description as Value) : emptyValue
       const revisionHistoryHtml = formData.revisionHistory ? await plateEditorHelper.convertToHtml(formData.revisionHistory as Value) : ''
       const revisionHistory = revisionHistoryHtml ? [revisionHistoryHtml] : emptyValue
+      const { platformIDs, programIDs, ...rest } = formData
 
-      return {
-        ...formData,
+      const base = {
+        ...rest,
         description,
         revisionHistory,
         lastReviewed: normalizeDateValue(formData.lastReviewed, emptyValue),
-        platformID: normalizeOptionalId(formData.platformID, emptyValue),
-        programID: normalizeOptionalId(formData.programID, emptyValue),
+      }
+
+      if (isCreate) {
+        return {
+          ...base,
+          platformIDs: platformIDs ?? [],
+          programIDs: programIDs ?? [],
+        }
+      }
+
+      const platformDiff = diffIds(platformIDs, getEdgeIds(data?.systemDetail?.platforms))
+      const programDiff = diffIds(programIDs, getEdgeIds(data?.systemDetail?.programs))
+
+      return {
+        ...base,
+        addPlatformIDs: platformDiff.add,
+        removePlatformIDs: platformDiff.remove,
+        addProgramIDs: programDiff.add,
+        removeProgramIDs: programDiff.remove,
       }
     },
     normalizeData,
