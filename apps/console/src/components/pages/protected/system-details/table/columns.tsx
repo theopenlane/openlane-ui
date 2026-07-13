@@ -35,8 +35,24 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
         return <div>{value ? getEnumLabel(value) : '-'}</div>
       },
     },
-    { accessorKey: 'platform', header: 'Platform', size: 160, cell: ({ row }) => row.original.platform?.name ?? '-' },
-    { accessorKey: 'program', header: 'Program', size: 160, cell: ({ row }) => row.original.program?.name ?? '-' },
+    {
+      accessorKey: 'platforms',
+      header: 'Platform',
+      size: 160,
+      cell: ({ row }) => {
+        const names = row.original.platforms?.edges?.map((edge) => edge?.node?.name).filter(Boolean)
+        return names?.length ? names.join(', ') : '-'
+      },
+    },
+    {
+      accessorKey: 'programs',
+      header: 'Program',
+      size: 160,
+      cell: ({ row }) => {
+        const names = row.original.programs?.edges?.map((edge) => edge?.node?.name).filter(Boolean)
+        return names?.length ? names.join(', ') : '-'
+      },
+    },
     { accessorKey: 'authorizationBoundary', header: 'Authorization Boundary', size: 220, cell: ({ cell }) => <div className="line-clamp-2 text-sm">{(cell.getValue() as string) || '-'}</div> },
     { accessorKey: 'lastReviewed', header: 'Last Reviewed', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     { accessorKey: 'tags', header: 'Tags', size: 180, cell: ({ row }) => <TagsCell tags={row.original.tags} /> },
