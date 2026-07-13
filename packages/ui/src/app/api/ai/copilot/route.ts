@@ -4,7 +4,7 @@ import { createOpenAI } from '@ai-sdk/openai'
 import { generateText } from 'ai'
 import { NextResponse } from 'next/server'
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<Response> {
   const { apiKey: key, model = 'gpt-4o-mini', prompt, system } = await req.json()
 
   const apiKey = key || process.env.OPENAI_API_KEY
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   try {
     const result = await generateText({
       abortSignal: req.signal,
-      maxTokens: 50,
+      maxOutputTokens: 50,
       model: openai(model),
       prompt: prompt,
       system,
