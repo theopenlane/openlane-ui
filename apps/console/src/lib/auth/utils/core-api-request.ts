@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { openlaneAPIUrl } from '@repo/dally/auth'
+import { cookies } from 'next/headers'
+import { csrfCookieName, openlaneAPIUrl } from '@repo/dally/auth'
 import { auth } from '../auth'
 import { secureFetch } from './secure-fetch'
 
@@ -38,13 +39,19 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
     route = '/' + route
   }
 
-  const response = await secureFetch(`${openlaneAPIUrl}${route}`, {
-    method,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
+  const csrfToken = (await cookies()).get(csrfCookieName)?.value
+
+  const response = await secureFetch(
+    `${openlaneAPIUrl}${route}`,
+    {
+      method,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      ...(payload !== undefined && { body: JSON.stringify(payload) }),
     },
-    ...(payload !== undefined && { body: JSON.stringify(payload) }),
-  })
+    { token: csrfToken },
+  )
 
   if (!response.ok) {
     return NextResponse.json({ error: errorMsg ?? 'Failed to fetch' }, { status: response.status })

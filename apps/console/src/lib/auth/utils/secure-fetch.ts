@@ -4,13 +4,17 @@ import { getCookie } from './getCookie'
 export const jsonContentType = 'application/json'
 
 // secureFetch is a utility function to perform authenticated requests with CSRF protection
-export const secureFetch = async (url: string | URL | globalThis.Request, options: RequestInit = {}) => {
+export interface SecureFetchCSRFOptions {
+  token?: string
+}
+
+export const secureFetch = async (url: string | URL | globalThis.Request, options: RequestInit = {}, csrfOptions: SecureFetchCSRFOptions = {}) => {
   const headers: Record<string, string> = {
     ...((options.headers as Record<string, string>) || {}),
     'Content-Type': jsonContentType,
   }
 
-  let csrfToken = getCookie(csrfCookieName)
+  let csrfToken = csrfOptions.token ?? getCookie(csrfCookieName)
   if (!csrfToken) {
     csrfToken = await fetchCSRFToken()
   }
@@ -54,6 +58,8 @@ let cachedCSRFToken: string | null = null
 let cachedCSRFTokenExpiresAt = 0
 let inFlightCSRFRequest: Promise<string> | null = null
 
+let csrfNetworkCallCount = 0
+
 export const fetchCSRFToken = async (): Promise<string> => {
   const canCache = typeof window !== 'undefined'
 
@@ -61,13 +67,14 @@ export const fetchCSRFToken = async (): Promise<string> => {
     return cachedCSRFToken
   }
 
-  // Dedupe concurrent callers onto a single in-flight request
   if (canCache && inFlightCSRFRequest) {
     return inFlightCSRFRequest
   }
 
   const request = (async () => {
     try {
+      csrfNetworkCallCount += 1
+      console.log(`[CSRF-COUNTER] /csrf network call #${csrfNetworkCallCount} (${typeof window === 'undefined' ? 'server' : 'client'})`)
       const res = await fetch(`${openlaneAPIUrl}/csrf`, { credentials: 'include' })
       const contentType = res.headers.get('content-type')
 
@@ -77,12 +84,12 @@ export const fetchCSRFToken = async (): Promise<string> => {
         throw new Error('Expected JSON but received HTML from CSRF endpoint')
       }
 
-      const data: CSRFResponse = await res.json()
-
       if (!res.ok) {
         console.error('[fetchCSRFToken] ❌ Failed response:', res.status, res.statusText)
         throw new Error(`Failed to fetch CSRF token: ${res.status} ${res.statusText}`)
       }
+
+      const data: CSRFResponse = await res.json()
 
       if (canCache) {
         cachedCSRFToken = data.csrf
