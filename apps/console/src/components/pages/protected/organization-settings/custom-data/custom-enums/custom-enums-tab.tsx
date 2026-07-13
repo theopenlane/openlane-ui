@@ -59,7 +59,7 @@ const CustomEnumsTab: FC = () => {
 
   const [enumToDelete, setEnumToDelete] = useState<{ id: string; name: string } | null>(null)
 
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.CUSTOM_ENUMS)
 
   const whereFilter = useMemo(() => getEnumFilter(filter, debouncedSearch), [debouncedSearch, filter])
 

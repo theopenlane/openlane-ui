@@ -41,11 +41,14 @@ export const ProgramSettingsUsers = () => {
 
   const editAllowed = canEdit(permission?.roles, session)
 
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      query: { first: 5 },
+    },
+    TableKeyEnum.PROGRAM_SETTINGS_USERS,
+  )
 
   const [selectedUser, setSelectedUser] = useState<MemberRow | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)

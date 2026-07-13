@@ -18,7 +18,7 @@ export const SubscribersTable = () => {
   const [filters, setFilters] = useState<SubscriberWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.SUBSCRIBER)
   const { errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.SUBSCRIBER, SubscriberOrderField, [
     {
@@ -61,7 +61,7 @@ export const SubscribersTable = () => {
         searchTerm={searchTerm}
         setSearchTerm={(inputVal) => {
           setSearchTerm(inputVal)
-          setPagination(DEFAULT_PAGINATION)
+          resetPagination()
         }}
         handleExport={handleExport}
       />

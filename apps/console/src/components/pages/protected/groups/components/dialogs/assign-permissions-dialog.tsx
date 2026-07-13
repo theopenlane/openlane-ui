@@ -47,7 +47,7 @@ const AssignPermissionsDialog = () => {
   const [roles, setRoles] = useState<Record<string, string>>({})
   const [searchValue, setSearchValue] = useState('')
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
-  const [pagination, setPagination] = useOrgTablePagination(defaultPagination)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(defaultPagination, TableKeyEnum.GROUP_ASSIGN_PERMISSION)
 
   const { mutateAsync: updateGroup } = useUpdateGroup()
 
@@ -240,13 +240,13 @@ const AssignPermissionsDialog = () => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchValue(searchValue)
-      setPagination(defaultPagination)
+      resetPagination()
     }, 300)
 
     return () => {
       clearTimeout(handler)
     }
-  }, [searchValue, setPagination])
+  }, [searchValue, resetPagination])
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -269,7 +269,7 @@ const AssignPermissionsDialog = () => {
                   onValueChange={(val: TypesWithPermissions) => {
                     setSelectedObject(val)
                     setSearchValue('')
-                    setPagination(defaultPagination)
+                    resetPagination()
                     setDebouncedSearchValue('')
                   }}
                 >

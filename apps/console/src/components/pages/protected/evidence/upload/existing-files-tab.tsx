@@ -19,12 +19,15 @@ type TProps = {
 }
 
 const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-    page: 1,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      page: 1,
+      query: { first: 5 },
+    },
+    TableKeyEnum.EVIDENCE_EXISTING_FILES,
+  )
 
   const { data, isLoading, paginationMeta } = useGetEvidenceFiles({ pagination })
 

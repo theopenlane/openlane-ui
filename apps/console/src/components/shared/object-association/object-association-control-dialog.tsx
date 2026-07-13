@@ -60,23 +60,21 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     wasOpenRef.current = open
   }, [open, evidenceControls, evidenceSubcontrols, form])
 
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    page: 1,
-    pageSize: 5,
-    query: { first: 5 },
-  })
-
-  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS, ControlOrderField, [{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }])
-
-  useEffect(() => {
-    setPagination({
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(
+    {
       ...DEFAULT_PAGINATION,
       page: 1,
       pageSize: 5,
       query: { first: 5 },
-    })
-  }, [selectedObject, setPagination])
+    },
+    TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS,
+  )
+
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS, ControlOrderField, [{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }])
+
+  useEffect(() => {
+    resetPagination()
+  }, [selectedObject, resetPagination])
 
   const controlsWhere = useMemo(() => {
     const baseWhere = { ownerIDNEQ: '' }

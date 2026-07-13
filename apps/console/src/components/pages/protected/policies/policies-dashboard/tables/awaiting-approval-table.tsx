@@ -58,10 +58,14 @@ const columns: ColumnDef<FormattedPolicy>[] = [
 ]
 
 export default function AwaitingApprovalTable() {
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      query: { first: 5 },
+    },
+    TableKeyEnum.POLICY_AWAITING_APPROVAL,
+  )
 
   const where: InternalPolicyWhereInput = {
     ...wherePoliciesDashboard,

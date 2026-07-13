@@ -30,7 +30,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.EVIDENCE)
   const [filters, setFilters] = useState<EvidenceWhereInput>({})
   const { setCrumbs } = use(BreadcrumbContext)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.EVIDENCE)
@@ -184,7 +184,7 @@ export const EvidenceTable = () => {
         searchTerm={searchTerm}
         setSearchTerm={(inputVal) => {
           setSearchTerm(inputVal)
-          setPagination(DEFAULT_PAGINATION)
+          resetPagination()
         }}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}

@@ -48,7 +48,7 @@ const StatusBadge: React.FC<{ status: AssessmentResponseAssessmentResponseStatus
 const SORT_FIELDS = [{ label: 'Created At', key: AssessmentResponseOrderField.created_at }]
 
 const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelEmail }) => {
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.ASSESSMENT_RESPONSE)
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.ASSESSMENT_RESPONSE, AssessmentResponseOrderField, [
     {
       field: AssessmentResponseOrderField.created_at,

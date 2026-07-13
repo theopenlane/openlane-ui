@@ -28,12 +28,15 @@ const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selected
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const { wrapper, content } = statCardStyles({ color: 'green' })
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    page: 1,
-    pageSize: 5,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      page: 1,
+      pageSize: 5,
+      query: { first: 5 },
+    },
+    TableKeyEnum.PROGRAM_SETTINGS_IMPORT_CONTROLS_PROGRAM,
+  )
 
   const where: ControlWhereInput = useMemo(() => {
     const initialWhereFilters: ControlWhereInput[] = [{ hasPrograms: true }]

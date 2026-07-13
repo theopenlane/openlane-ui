@@ -34,11 +34,14 @@ export const ProgramSettingsAssignGroupDialog = () => {
   const [searchValue, setSearchValue] = useState('')
   const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
   const [roleMap, setRoleMap] = useState<Record<string, 'View' | 'Edit'>>({})
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      query: { first: 5 },
+    },
+    TableKeyEnum.GROUP_PROGRAM_SETTINGS,
+  )
 
   const debouncedSearch = useDebounce(searchValue, 300)
 

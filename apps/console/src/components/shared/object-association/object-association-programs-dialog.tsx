@@ -27,12 +27,15 @@ export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({
   const [frameworks, setFrameworks] = useState<string[]>([])
   const { convertToReadOnly } = usePlateEditor()
 
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    page: 1,
-    pageSize: 5,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      page: 1,
+      pageSize: 5,
+      query: { first: 5 },
+    },
+    TableKeyEnum.OBJECT_ASSOCIATION_PROGRAMS,
+  )
 
   useEffect(() => {
     if (open) {

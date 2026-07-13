@@ -10,12 +10,13 @@ import { useSmartRouter } from '@/hooks/useSmartRouter'
 import EvidenceCreateSheet from '@/components/pages/protected/evidence/evidence-create-sheet'
 import { type CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { useGetEvidenceListLight } from '@/lib/graphql-hooks/evidence'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { SearchFilterBar, mergeWhere } from '@/components/shared/crud-base/tabs/shared'
 import { type EvidenceOrder, EvidenceOrderField, type EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import type { FilterField, WhereCondition } from '@/types'
-import type { TPagination } from '@repo/ui/pagination-types'
 import { getEvidenceColumns, getEvidenceFilterFields, type EvidenceRow } from './evidence-table-config'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -53,11 +54,14 @@ const EvidenceTable = ({ control, subcontrolIds, mappedControlRefs = [], mappedS
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const [filters, setFilters] = useState<WhereCondition>({})
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-  const handleFilterChange = useCallback((nextFilters: WhereCondition) => {
-    setFilters(nextFilters)
-    setPagination(DEFAULT_PAGINATION)
-  }, [])
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.CONTROL_EVIDENCE)
+  const handleFilterChange = useCallback(
+    (nextFilters: WhereCondition) => {
+      setFilters(nextFilters)
+      resetPagination()
+    },
+    [resetPagination],
+  )
 
   const controlAssociationFilter = useMemo(() => {
     if (control.subcontrolID) {
@@ -184,7 +188,7 @@ const EvidenceTable = ({ control, subcontrolIds, mappedControlRefs = [], mappedS
         searchValue={search}
         onSearchChange={(value) => {
           setSearch(value)
-          setPagination(DEFAULT_PAGINATION)
+          resetPagination()
         }}
         filterFields={filterFields}
         onFilterChange={handleFilterChange}

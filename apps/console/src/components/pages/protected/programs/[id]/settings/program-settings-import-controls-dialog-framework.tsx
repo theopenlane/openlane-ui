@@ -26,12 +26,15 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
   const { wrapper, content } = statCardStyles({ color: 'green' })
   const [customSelected, setCustomSelected] = useState(false)
 
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    page: 1,
-    pageSize: 5,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      page: 1,
+      pageSize: 5,
+      query: { first: 5 },
+    },
+    TableKeyEnum.PROGRAM_SETTINGS_IMPORT_CONTROLS,
+  )
 
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)

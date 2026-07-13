@@ -194,7 +194,7 @@ export function GenericTablePage<
 
   const [filters, setFilters] = useState<TWhereInput | null>(null)
   const [filtersInitialized, setFiltersInitialized] = useState(() => !(filterFields && filterFields.length > 0))
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, tableKey)
   const [orderBy, setOrderBy] = useOrgTableSort(tableKey, orderFieldEnum, defaultSorting)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(tableKey, defaultVisibility))
   const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])

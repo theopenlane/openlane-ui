@@ -60,7 +60,7 @@ export const MembersTable = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [, copyToClipboard] = useCopyToClipboard()
   const { successNotification, errorNotification } = useNotification()
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.MEMBER)
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.MEMBER, OrgMembershipOrderField, [
     {
@@ -294,7 +294,7 @@ export const MembersTable = () => {
             searchTerm={searchTerm}
             setSearchTerm={(inputVal) => {
               setSearchTerm(inputVal)
-              setPagination(DEFAULT_PAGINATION)
+              resetPagination()
             }}
             hideFilter={canEditMembers && selectedMembers.length > 0}
           />

@@ -34,10 +34,14 @@ type FormattedTask = {
 const ProgramTasksTable = () => {
   const { currentOrgId } = useOrganization()
   const { id } = useParams<{ id: string | undefined }>()
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      pageSize: 5,
+      query: { first: 5 },
+    },
+    TableKeyEnum.PROGRAM_TASKS,
+  )
 
   const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
     where: {

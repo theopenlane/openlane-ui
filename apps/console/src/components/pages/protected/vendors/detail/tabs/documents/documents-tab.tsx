@@ -37,7 +37,7 @@ interface DocumentsTabProps {
 const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFileId }) => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.ENTITY_FILES)
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.ENTITY_FILES, FileOrderField, [
     {
       field: FileOrderField.created_at,

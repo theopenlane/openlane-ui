@@ -25,7 +25,7 @@ const CampaignsPage: React.FC = () => {
   const [isCreateSheetOpen, setIsCreateSheetOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.CAMPAIGN)
   const [filters, setFilters] = useState<CampaignWhereInput | null>(null)
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.CAMPAIGN)
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
 
@@ -116,7 +116,7 @@ const CampaignsPage: React.FC = () => {
         searchTerm={searchQuery}
         setSearchTerm={(val) => {
           setSearchQuery(val)
-          setPagination(DEFAULT_PAGINATION)
+          resetPagination()
         }}
         searching={searching}
         exportEnabled={hasCampaigns}

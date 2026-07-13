@@ -21,7 +21,7 @@ type IdentityHolderDocumentsSectionProps = {
 }
 
 const IdentityHolderDocumentsSection: React.FC<IdentityHolderDocumentsSectionProps> = ({ identityHolderId, isEditAllowed, isCreate, onStagedFilesChange, onExistingFileIdsChange }) => {
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.IDENTITY_HOLDER_FILES)
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.IDENTITY_HOLDER_FILES, FileOrderField, [
     {
       field: FileOrderField.created_at,

@@ -42,11 +42,14 @@ const CustomTagsTab: FC = () => {
   const debouncedSearch = useDebounce(searchValue, 300)
   const [tagToDelete, setTagToDelete] = useState<{ id: string; name: string } | null>(null)
 
-  const [pagination, setPagination] = useOrgTablePagination({
-    ...DEFAULT_PAGINATION,
-    pageSize: 10,
-    query: { first: 10 },
-  })
+  const [pagination, setPagination] = useOrgTablePagination(
+    {
+      ...DEFAULT_PAGINATION,
+      pageSize: 10,
+      query: { first: 10 },
+    },
+    TableKeyEnum.CUSTOM_TAGS,
+  )
 
   const { tags, isLoading, isError, paginationMeta } = useTagsPaginated({
     pagination,

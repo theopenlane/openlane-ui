@@ -39,7 +39,7 @@ const GroupsPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const { data: session } = useSession()
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.GROUP)
   const defaultVisibility: VisibilityState = {
     id: false,
     updatedAt: false,
