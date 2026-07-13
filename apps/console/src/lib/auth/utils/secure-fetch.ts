@@ -58,8 +58,6 @@ let cachedCSRFToken: string | null = null
 let cachedCSRFTokenExpiresAt = 0
 let inFlightCSRFRequest: Promise<string> | null = null
 
-let csrfNetworkCallCount = 0
-
 export const fetchCSRFToken = async (): Promise<string> => {
   const canCache = typeof window !== 'undefined'
 
@@ -73,8 +71,6 @@ export const fetchCSRFToken = async (): Promise<string> => {
 
   const request = (async () => {
     try {
-      csrfNetworkCallCount += 1
-      console.log(`[CSRF-COUNTER] /csrf network call #${csrfNetworkCallCount} (${typeof window === 'undefined' ? 'server' : 'client'})`)
       const res = await fetch(`${openlaneAPIUrl}/csrf`, { credentials: 'include' })
       const contentType = res.headers.get('content-type')
 
