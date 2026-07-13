@@ -24,15 +24,8 @@ import {
   useUpdateSystemDetail,
 } from '@/lib/graphql-hooks/system-detail'
 import { defaultSorting, exportType, objectName, objectType, orderFieldEnum, tableKey, type SystemDetailFieldProps, type SystemDetailSheetConfig, type SystemDetailTablePageConfig } from './types'
-
-type ConnectionLike = { edges?: Array<{ node?: { id: string } | null } | null> | null } | null | undefined
-
-const getEdgeIds = (connection: ConnectionLike): string[] => (connection?.edges ?? []).map((edge) => edge?.node?.id).filter((id): id is string => !!id)
-
-const diffIds = (selected: string[] = [], initial: string[] = []) => ({
-  add: selected.filter((id) => !initial.includes(id)),
-  remove: initial.filter((id) => !selected.includes(id)),
-})
+import { getEdgeIds, buildAssociationPayload } from '@/components/shared/object-association/utils'
+import { SYSTEM_DETAIL_ASSOCIATION_KEYS } from '@/components/shared/object-association/association-configs'
 
 const normalizeData = (data: SystemDetailQuery['systemDetail']) => {
   if (!data) {
@@ -45,8 +38,8 @@ const normalizeData = (data: SystemDetailQuery['systemDetail']) => {
   return {
     ...normalized,
     revisionHistory,
-    platformIDs: getEdgeIds(data.platforms),
-    programIDs: getEdgeIds(data.programs),
+    platformIDs: getEdgeIds(data.platforms?.edges),
+    programIDs: getEdgeIds(data.programs?.edges),
   }
 }
 
@@ -141,30 +134,18 @@ const SystemDetailPage: React.FC = () => {
       const revisionHistory = revisionHistoryHtml ? [revisionHistoryHtml] : emptyValue
       const { platformIDs, programIDs, ...rest } = formData
 
-      const base = {
+      const initialAssociations = {
+        platformIDs: getEdgeIds(data?.systemDetail?.platforms?.edges),
+        programIDs: getEdgeIds(data?.systemDetail?.programs?.edges),
+      }
+      const associationPayload = buildAssociationPayload(SYSTEM_DETAIL_ASSOCIATION_KEYS, { platformIDs, programIDs }, isCreate, initialAssociations)
+
+      return {
         ...rest,
         description,
         revisionHistory,
         lastReviewed: normalizeDateValue(formData.lastReviewed, emptyValue),
-      }
-
-      if (isCreate) {
-        return {
-          ...base,
-          platformIDs: platformIDs ?? [],
-          programIDs: programIDs ?? [],
-        }
-      }
-
-      const platformDiff = diffIds(platformIDs, getEdgeIds(data?.systemDetail?.platforms))
-      const programDiff = diffIds(programIDs, getEdgeIds(data?.systemDetail?.programs))
-
-      return {
-        ...base,
-        addPlatformIDs: platformDiff.add,
-        removePlatformIDs: platformDiff.remove,
-        addProgramIDs: programDiff.add,
-        removeProgramIDs: programDiff.remove,
+        ...associationPayload,
       }
     },
     normalizeData,

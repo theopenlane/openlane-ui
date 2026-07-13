@@ -9,9 +9,7 @@ import { type InternalEditingType } from '@/components/shared/crud-base/generic-
 import { type SystemDetailQuery, type UpdateSystemDetailInput } from '@repo/codegen/src/schema'
 import { type EnumOptions } from '../../../table/types'
 import RichTextField from './rich-text-field'
-
-const getEdgeIds = (connection: { edges?: Array<{ node?: { id: string } | null } | null> | null } | null | undefined) =>
-  (connection?.edges ?? []).map((edge) => edge?.node?.id).filter((id): id is string => !!id)
+import { getEdgeIds } from '@/components/shared/object-association/utils'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -122,7 +120,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
               name="platformIDs"
               label="Platforms"
               options={enumOptions.platformOptions}
-              initialSelectedIds={getEdgeIds(data?.platforms)}
+              initialSelectedIds={getEdgeIds(data?.platforms?.edges)}
               buildUpdateInput={(selectedIds, initialIds) => ({
                 addPlatformIDs: selectedIds.filter((id) => !initialIds.includes(id)),
                 removePlatformIDs: initialIds.filter((id) => !selectedIds.includes(id)),
@@ -133,7 +131,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
               name="programIDs"
               label="Programs"
               options={enumOptions.programOptions}
-              initialSelectedIds={getEdgeIds(data?.programs)}
+              initialSelectedIds={getEdgeIds(data?.programs?.edges)}
               buildUpdateInput={(selectedIds, initialIds) => ({
                 addProgramIDs: selectedIds.filter((id) => !initialIds.includes(id)),
                 removeProgramIDs: initialIds.filter((id) => !selectedIds.includes(id)),
