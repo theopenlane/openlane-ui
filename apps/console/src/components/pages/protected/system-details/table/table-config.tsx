@@ -31,20 +31,6 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
     icon: FilterIcons.Tag,
     options: enumOptions.tagOptions,
   },
-  {
-    key: 'hasPlatformsWith',
-    label: 'Platforms',
-    type: 'multiselect',
-    icon: FilterIcons.Platform,
-    options: enumOptions.platformOptions,
-  },
-  {
-    key: 'hasProgramsWith',
-    label: 'Programs',
-    type: 'multiselect',
-    icon: FilterIcons.ProgramName,
-    options: enumOptions.programOptions,
-  },
 ]
 
 export const SYSTEM_DETAILS_SORT_FIELDS = enumToSortFields(SystemDetailOrderField)

@@ -14,7 +14,7 @@ export type TBaseAssociatedNode = {
   __typename?: string
 }
 
-export type TEdgeNode<T = TBaseAssociatedNode> = { node?: T | null } | null
+export type TEdgeNode = { node?: TBaseAssociatedNode | null } | null
 
 export type TConnectionLike = {
   edges?: TEdgeNode[] | null

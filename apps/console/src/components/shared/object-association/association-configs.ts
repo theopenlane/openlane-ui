@@ -680,7 +680,3 @@ export const RISK_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     relatedInvalidateQueryKeys: buildRelatedInvalidateKeys(riskInitialDataKeys),
   },
 })
-
-// System details use a simple multi-select card rather than the graph-based AssociationSection UI,
-// so only the association keys are needed here (no sectionMappings/dialogConfig)
-export const SYSTEM_DETAIL_ASSOCIATION_KEYS = ['platformIDs', 'programIDs'] as const

@@ -3,13 +3,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/cardpanel'
 import { DateField } from '@/components/shared/crud-base/form-fields/date-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
-import { MultiSelectField } from '@/components/shared/crud-base/form-fields/multi-select-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { type SystemDetailQuery, type UpdateSystemDetailInput } from '@repo/codegen/src/schema'
 import { type EnumOptions } from '../../../table/types'
 import RichTextField from './rich-text-field'
-import { getEdgeIds } from '@/components/shared/object-association/utils'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -116,28 +114,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <MultiSelectField<UpdateSystemDetailInput>
-              name="platformIDs"
-              label="Platforms"
-              options={enumOptions.platformOptions}
-              initialSelectedIds={getEdgeIds(data?.platforms?.edges)}
-              buildUpdateInput={(selectedIds, initialIds) => ({
-                addPlatformIDs: selectedIds.filter((id) => !initialIds.includes(id)),
-                removePlatformIDs: initialIds.filter((id) => !selectedIds.includes(id)),
-              })}
-              {...sharedFieldProps}
-            />
-            <MultiSelectField<UpdateSystemDetailInput>
-              name="programIDs"
-              label="Programs"
-              options={enumOptions.programOptions}
-              initialSelectedIds={getEdgeIds(data?.programs?.edges)}
-              buildUpdateInput={(selectedIds, initialIds) => ({
-                addProgramIDs: selectedIds.filter((id) => !initialIds.includes(id)),
-                removeProgramIDs: initialIds.filter((id) => !selectedIds.includes(id)),
-              })}
-              {...sharedFieldProps}
-            />
+            <SelectField name="platformID" label="Platform" options={enumOptions.platformOptions} useCustomDisplay={false} {...sharedFieldProps} />
+            <SelectField name="programID" label="Program" options={enumOptions.programOptions} useCustomDisplay={false} {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>

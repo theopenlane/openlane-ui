@@ -14,8 +14,8 @@ const formSchema = z.object({
   sensitivityLevel: z.nativeEnum(SystemDetailSystemSensitivityLevel).optional(),
   lastReviewed: z.union([z.string(), z.date()]).optional().nullable(),
   tags: z.array(z.string()).optional(),
-  platformIDs: z.array(z.string()).optional(),
-  programIDs: z.array(z.string()).optional(),
+  platformID: z.string().optional().nullable(),
+  programID: z.string().optional().nullable(),
 })
 
 export const bulkEditFieldSchema = z.object({
@@ -30,8 +30,6 @@ const useFormSchema = () => {
       resolver: zodResolver(formSchema) as Resolver<SystemDetailFormData>,
       defaultValues: {
         tags: [],
-        platformIDs: [],
-        programIDs: [],
       },
     }),
   }

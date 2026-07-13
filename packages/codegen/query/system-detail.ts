@@ -14,22 +14,16 @@ export const GET_ALL_SYSTEM_DETAILS = gql`
           id
           lastReviewed
           oscalMetadataJSON
-          platforms {
-            edges {
-              node {
-                id
-                name
-              }
-            }
+          platform {
+            id
+            name
           }
-          programs {
-            edges {
-              node {
-                id
-                name
-              }
-            }
+          platformID
+          program {
+            id
+            name
           }
+          programID
           revisionHistory
           sensitivityLevel
           systemName
@@ -60,22 +54,16 @@ export const SYSTEM_DETAIL = gql`
       id
       lastReviewed
       oscalMetadataJSON
-      platforms {
-        edges {
-          node {
-            id
-            name
-          }
-        }
+      platform {
+        id
+        name
       }
-      programs {
-        edges {
-          node {
-            id
-            name
-          }
-        }
+      platformID
+      program {
+        id
+        name
       }
+      programID
       revisionHistory
       sensitivityLevel
       systemName

@@ -24,8 +24,6 @@ import {
   useUpdateSystemDetail,
 } from '@/lib/graphql-hooks/system-detail'
 import { defaultSorting, exportType, objectName, objectType, orderFieldEnum, tableKey, type SystemDetailFieldProps, type SystemDetailSheetConfig, type SystemDetailTablePageConfig } from './types'
-import { getEdgeIds, buildAssociationPayload } from '@/components/shared/object-association/utils'
-import { SYSTEM_DETAIL_ASSOCIATION_KEYS } from '@/components/shared/object-association/association-configs'
 
 const normalizeData = (data: SystemDetailQuery['systemDetail']) => {
   if (!data) {
@@ -38,9 +36,15 @@ const normalizeData = (data: SystemDetailQuery['systemDetail']) => {
   return {
     ...normalized,
     revisionHistory,
-    platformIDs: getEdgeIds(data.platforms?.edges),
-    programIDs: getEdgeIds(data.programs?.edges),
   }
+}
+
+const normalizeOptionalId = (value: string | null | undefined, emptyValue: null | undefined) => {
+  if (!value) {
+    return emptyValue
+  }
+
+  return value
 }
 
 const normalizeDateValue = (value: string | Date | null | undefined, emptyValue: null | undefined) => {
@@ -132,20 +136,14 @@ const SystemDetailPage: React.FC = () => {
       const description = formData.description ? await plateEditorHelper.convertToHtml(formData.description as Value) : emptyValue
       const revisionHistoryHtml = formData.revisionHistory ? await plateEditorHelper.convertToHtml(formData.revisionHistory as Value) : ''
       const revisionHistory = revisionHistoryHtml ? [revisionHistoryHtml] : emptyValue
-      const { platformIDs, programIDs, ...rest } = formData
-
-      const initialAssociations = {
-        platformIDs: getEdgeIds(data?.systemDetail?.platforms?.edges),
-        programIDs: getEdgeIds(data?.systemDetail?.programs?.edges),
-      }
-      const associationPayload = buildAssociationPayload(SYSTEM_DETAIL_ASSOCIATION_KEYS, { platformIDs, programIDs }, isCreate, initialAssociations)
 
       return {
-        ...rest,
+        ...formData,
         description,
         revisionHistory,
         lastReviewed: normalizeDateValue(formData.lastReviewed, emptyValue),
-        ...associationPayload,
+        platformID: normalizeOptionalId(formData.platformID, emptyValue),
+        programID: normalizeOptionalId(formData.programID, emptyValue),
       }
     },
     normalizeData,

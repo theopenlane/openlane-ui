@@ -100,11 +100,7 @@ const getFiltersWhereCondition = (filterState: TFilterState, filterFields: Filte
       case 'multiselect': {
         const valuesArray = Array.isArray(val) ? val : [val]
         if (valuesArray.length === 0) break
-        if (key.endsWith('With')) {
-          andConditions.push({ [key]: [{ idIn: valuesArray }] } as Condition)
-        } else {
-          andConditions.push({ [key]: valuesArray } as Condition)
-        }
+        andConditions.push({ [key]: valuesArray } as Condition)
         break
       }
 
