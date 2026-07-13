@@ -1,4 +1,5 @@
 import type { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
+import { getEdgeIds, getEdgeNames, getEdgeDisplayIds } from '@/components/shared/object-association/utils'
 
 type EdgeNode = {
   id?: string | null
@@ -25,10 +26,6 @@ type SubcontrolLike = {
   refCode?: string | null
   controlObjectives?: ControlObjectiveEdges
 } | null
-
-const getEdgeIds = (edges?: Edge[] | null) => (edges?.map((edge) => edge?.node?.id).filter(Boolean) as string[]) ?? []
-const getEdgeNames = (edges?: Edge[] | null) => (edges?.map((edge) => edge?.node?.name).filter(Boolean) as string[]) ?? []
-const getEdgeDisplayIds = (edges?: Edge[] | null) => (edges?.map((edge) => edge?.node?.displayID).filter(Boolean) as string[]) ?? []
 
 export const buildEvidenceControlParam = (control?: ControlLike) => ({
   id: control?.id ?? '',

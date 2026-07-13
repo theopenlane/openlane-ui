@@ -1309,8 +1309,6 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'description', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'lastReviewed', kind: 'date', list: false, nonNull: false, listItemNonNull: false },
     { name: 'oscalMetadataJSON', kind: 'json', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'platformID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'programID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'revisionHistory', kind: 'json', list: true, nonNull: false, listItemNonNull: true },
     { name: 'sensitivityLevel', kind: 'enum', list: false, nonNull: false, listItemNonNull: false, enumName: 'SystemDetailSystemSensitivityLevel' },
     { name: 'systemName', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
