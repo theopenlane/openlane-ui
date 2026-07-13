@@ -1,19 +1,21 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import DOMPurify from 'dompurify'
+import { useDebounce, useCopyToClipboard } from '@uidotdev/usehooks'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
 import { Switch } from '@repo/ui/switch'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ChevronDown, SaveIcon, TriangleAlert, X } from 'lucide-react'
-import { useCreateEmailTemplate, useUpdateEmailTemplate, useEmailTemplate, useEmailTemplateCatalog } from '@/lib/graphql-hooks/email-template'
+import { Accordion } from '@radix-ui/react-accordion'
+import { SaveIcon, X } from 'lucide-react'
+import { useCreateEmailTemplate, useUpdateEmailTemplate, useEmailTemplate, useEmailTemplateCatalog, usePreviewEmailTemplate } from '@/lib/graphql-hooks/email-template'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EmailTemplateNotificationTemplateFormat, EmailTemplateTemplateContext } from '@repo/codegen/src/schema'
-import { EmailTemplateConfigForm } from './email-template-config-form'
+import { EmailTemplateSection } from './email-template-section'
+import { EmailTemplateBasicFields } from './email-template-basic-fields'
+import { EmailTemplateConfiguration } from './email-template-configuration'
+import { EmailTemplateVariables } from './email-template-variables'
+import { EmailTemplatePreview } from './email-template-preview'
 
 interface EmailTemplateSheetProps {
   open: boolean
@@ -38,15 +40,25 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
   const { mutateAsync: createEmailTemplate, isPending: isCreating } = useCreateEmailTemplate()
   const { mutateAsync: updateEmailTemplate, isPending: isUpdating } = useUpdateEmailTemplate()
   const { successNotification, errorNotification } = useNotification()
+  const [, copyToClipboard] = useCopyToClipboard()
 
   const isPending = isCreating || isUpdating
 
   const selectedEntry = useMemo(() => entries.find((e) => e.key === selectedKey), [entries, selectedKey])
 
-  const sanitizedPreview = useMemo(() => {
-    if (!selectedEntry?.htmlPreview) return ''
-    return DOMPurify.sanitize(selectedEntry.htmlPreview, { WHOLE_DOCUMENT: true })
-  }, [selectedEntry])
+  const debouncedConfigData = useDebounce(configData, 400)
+
+  const {
+    data: previewData,
+    isFetching: isPreviewFetching,
+    error: previewError,
+  } = usePreviewEmailTemplate({
+    key: selectedKey,
+    defaults: debouncedConfigData,
+    enabled: !!selectedEntry,
+  })
+
+  const previewHtml = previewData?.previewEmailTemplate ?? selectedEntry?.htmlPreview ?? ''
 
   const resetForm = () => {
     setActive(true)
@@ -76,11 +88,18 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
       setSelectedKey(t.key)
       setLocale(t.locale ?? 'en')
       setFormat(t.format ?? EmailTemplateNotificationTemplateFormat.HTML)
-      setConfigData((t.defaults as Record<string, unknown>) ?? {})
+      setConfigData(t.defaults ?? {})
 
       setInitialized(true)
     }
   }, [open, isEditMode, templateData, initialized])
+
+  useEffect(() => {
+    if (!open || isEditMode || selectedKey || entries.length !== 1) return
+    const only = entries[0]
+    setSelectedKey(only.key)
+    setConfigData(only.exampleValues ?? {})
+  }, [open, isEditMode, selectedKey, entries])
 
   const handleClose = () => {
     resetForm()
@@ -90,16 +109,24 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
 
   const handleKeyChange = (key: string) => {
     setSelectedKey(key)
-    if (!isEditMode) setConfigData({})
+    if (!isEditMode) {
+      const entry = entries.find((e) => e.key === key)
+      setConfigData(entry?.exampleValues ?? {})
+    }
+  }
+
+  const copyVariableToken = (variableName: string) => {
+    copyToClipboard(`{{ .${variableName} }}`)
+    successNotification({ title: `Copied {{ .${variableName} }}` })
   }
 
   const handleSave = async () => {
     if (!name.trim() || !selectedKey) return
 
     try {
-      if (isEditMode) {
+      if (templateId) {
         await updateEmailTemplate({
-          updateEmailTemplateId: templateId as string,
+          updateEmailTemplateId: templateId,
           input: {
             name: name.trim(),
             defaults: configData,
@@ -175,119 +202,50 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
             </div>
 
             <Accordion type="multiple" defaultValue={['basic', 'configuration', 'preview']} className="flex flex-col gap-6">
-              <AccordionItem value="basic" className="rounded-lg border border-border bg-card overflow-hidden">
-                <AccordionTrigger asChild>
-                  <div className="flex items-center justify-between w-full px-4 py-3 cursor-pointer group">
-                    <span className="text-sm font-semibold">Basic</span>
-                    <ChevronDown size={18} className="text-muted-foreground transform transition-transform group-data-[state=open]:rotate-180" />
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="border-t border-border px-4 py-4 flex flex-col gap-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium">
-                          Name<span className="text-destructive">*</span>
-                        </label>
-                        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Welcome Email" disabled={readOnly} />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium">
-                          Template<span className="text-destructive">*</span>
-                        </label>
-                        <Select value={selectedKey} onValueChange={handleKeyChange} disabled={readOnly || isEditMode}>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a template" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {entries.map((entry) => (
-                              <SelectItem key={entry.key} value={entry.key}>
-                                {entry.key}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {selectedEntry?.description && <p className="text-xs text-muted-foreground">{selectedEntry.description}</p>}
-                      </div>
-                    </div>
+              <EmailTemplateSection value="basic" title="Basic" contentClassName="flex flex-col gap-4">
+                <EmailTemplateBasicFields
+                  name={name}
+                  onNameChange={setName}
+                  selectedKey={selectedKey}
+                  onKeyChange={handleKeyChange}
+                  locale={locale}
+                  onLocaleChange={setLocale}
+                  format={format}
+                  onFormatChange={setFormat}
+                  entries={entries}
+                  selectedEntry={selectedEntry}
+                  readOnly={readOnly}
+                  isEditMode={isEditMode}
+                />
+              </EmailTemplateSection>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium">
-                          Locale<span className="text-destructive">*</span>
-                        </label>
-                        <Input value={locale} onChange={(e) => setLocale(e.target.value)} placeholder="en" disabled={readOnly} />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium">Format</label>
-                        <Select value={format} onValueChange={(val) => setFormat(val as EmailTemplateNotificationTemplateFormat)} disabled={readOnly || isEditMode}>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select format" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Object.values(EmailTemplateNotificationTemplateFormat).map((f) => (
-                              <SelectItem key={f} value={f}>
-                                {f}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+              <EmailTemplateSection value="configuration" title="Configuration">
+                <EmailTemplateConfiguration
+                  isCatalogLoading={isCatalogLoading}
+                  isCatalogDrift={isCatalogDrift}
+                  selectedKey={selectedKey}
+                  selectedEntry={selectedEntry}
+                  configData={configData}
+                  onConfigChange={setConfigData}
+                  readOnly={readOnly}
+                />
+              </EmailTemplateSection>
 
-              <AccordionItem value="configuration" className="rounded-lg border border-border bg-card overflow-hidden">
-                <AccordionTrigger asChild>
-                  <div className="flex items-center justify-between w-full px-4 py-3 cursor-pointer group">
-                    <span className="text-sm font-semibold">Configuration</span>
-                    <ChevronDown size={18} className="text-muted-foreground transform transition-transform group-data-[state=open]:rotate-180" />
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="border-t border-border px-4 py-4">
-                    {isCatalogLoading ? (
-                      <p className="text-sm text-muted-foreground">Loading configuration...</p>
-                    ) : isCatalogDrift ? (
-                      <div className="flex flex-col gap-3">
-                        <div className="flex items-start gap-2 rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-                          <TriangleAlert size={16} className="shrink-0 text-yellow-500" />
-                          <span>
-                            This template uses the catalog key <span className="font-mono">{selectedKey}</span>, which is no longer available. Showing its saved configuration as read-only JSON.
-                          </span>
-                        </div>
-                        <pre className="overflow-auto rounded-md border border-border bg-card p-3 text-xs">{JSON.stringify(configData, null, 2)}</pre>
-                      </div>
-                    ) : selectedEntry ? (
-                      <EmailTemplateConfigForm schema={selectedEntry.configSchema} data={configData} onChange={setConfigData} readOnly={readOnly} />
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Select a template to configure its fields.</p>
-                    )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+              {!!selectedEntry?.variables?.length && (
+                <EmailTemplateSection value="variables" title="Variables">
+                  <EmailTemplateVariables variables={selectedEntry.variables} onCopy={copyVariableToken} />
+                </EmailTemplateSection>
+              )}
 
-              <AccordionItem value="preview" className="rounded-lg border border-border bg-card overflow-hidden">
-                <AccordionTrigger asChild>
-                  <div className="flex items-center justify-between w-full px-4 py-3 cursor-pointer group">
-                    <span className="text-sm font-semibold">Preview</span>
-                    <ChevronDown size={18} className="text-muted-foreground transform transition-transform group-data-[state=open]:rotate-180" />
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="border-t border-border px-4 py-4">
-                    {sanitizedPreview ? (
-                      <>
-                        <iframe srcDoc={sanitizedPreview} title="Email template preview" sandbox="" className="w-full h-150 rounded-md border border-border bg-white" />
-                        <p className="mt-2 text-xs text-muted-foreground">Preview shows the template rendered with example values.</p>
-                      </>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Select a template to preview it.</p>
-                    )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+              <EmailTemplateSection value="preview" title="Preview">
+                <EmailTemplatePreview
+                  previewHtml={previewHtml}
+                  isFetching={isPreviewFetching}
+                  errorMessage={previewError ? parseErrorMessage(previewError) : null}
+                  isCatalogDrift={isCatalogDrift}
+                  selectedKey={selectedKey}
+                />
+              </EmailTemplateSection>
             </Accordion>
           </div>
         )}

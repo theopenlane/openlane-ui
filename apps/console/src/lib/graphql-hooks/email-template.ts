@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import type { JsonSchema } from '@jsonforms/core'
+import type { RJSFSchema, UiSchema } from '@rjsf/utils'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type EmailTemplatesWithFilterQuery,
@@ -12,7 +12,9 @@ import {
   type DeleteEmailTemplateMutationVariables,
   type EmailTemplateQuery,
   type EmailTemplateQueryVariables,
-  type EmailTemplateCatalogQuery,
+  type Query,
+  type QueryPreviewEmailTemplateArgs,
+  type EmailTemplateCatalogEntry,
   type CreateBulkCsvEmailTemplateMutation,
   type CreateBulkCsvEmailTemplateMutationVariables,
   type UpdateBulkEmailTemplateMutation,
@@ -32,7 +34,7 @@ import {
   BULK_EDIT_EMAIL_TEMPLATE,
   BULK_DELETE_EMAIL_TEMPLATE,
 } from '@repo/codegen/query/email-template'
-import { GET_EMAIL_TEMPLATE_CATALOG } from '@repo/codegen/query/email-template-catalog'
+import { GET_EMAIL_TEMPLATE_CATALOG, PREVIEW_EMAIL_TEMPLATE } from '@repo/codegen/query/email-template-catalog'
 
 type GetAllEmailTemplatesArgs = {
   where?: EmailTemplatesWithFilterQueryVariables['where']
@@ -108,23 +110,49 @@ export const useEmailTemplate = (emailTemplateId?: EmailTemplateQueryVariables['
   })
 }
 
-export type EmailTemplateCatalogEntryNode = Omit<EmailTemplateCatalogQuery['emailTemplateCatalog']['entries'][number], 'configSchema'> & {
-  configSchema: JsonSchema
+type EmailTemplateCatalogQueryResult = Pick<Query, 'emailTemplateCatalog'>
+type PreviewEmailTemplateResult = Pick<Query, 'previewEmailTemplate'>
+
+export type EmailTemplateCatalogEntryNode = Omit<EmailTemplateCatalogEntry, 'configSchema' | 'uiSchema' | 'exampleValues'> & {
+  configSchema: RJSFSchema
+  uiSchema: UiSchema
+  exampleValues?: Record<string, unknown> | null
 }
 
 export const useEmailTemplateCatalog = () => {
   const { client } = useGraphQLClient()
-  const queryResult = useQuery<EmailTemplateCatalogQuery, unknown>({
+  const queryResult = useQuery<EmailTemplateCatalogQueryResult, unknown>({
     queryKey: ['emailTemplateCatalog'],
-    queryFn: async (): Promise<EmailTemplateCatalogQuery> => {
-      const result = await client.request<EmailTemplateCatalogQuery>(GET_EMAIL_TEMPLATE_CATALOG)
+    queryFn: async (): Promise<EmailTemplateCatalogQueryResult> => {
+      const result = await client.request<EmailTemplateCatalogQueryResult>(GET_EMAIL_TEMPLATE_CATALOG)
       return result
     },
+    staleTime: Infinity,
   })
 
   const entries: EmailTemplateCatalogEntryNode[] = queryResult.data?.emailTemplateCatalog?.entries ?? []
 
   return { ...queryResult, entries }
+}
+
+type UsePreviewEmailTemplateArgs = {
+  key?: string
+  defaults: Record<string, unknown>
+  enabled?: boolean
+}
+
+export const usePreviewEmailTemplate = ({ key, defaults, enabled = true }: UsePreviewEmailTemplateArgs) => {
+  const { client } = useGraphQLClient()
+  return useQuery<PreviewEmailTemplateResult, unknown>({
+    queryKey: ['previewEmailTemplate', key, defaults],
+    queryFn: async (): Promise<PreviewEmailTemplateResult> => {
+      if (!key) throw new Error('previewEmailTemplate requires a template key')
+      const variables: QueryPreviewEmailTemplateArgs = { key, defaults }
+      return client.request<PreviewEmailTemplateResult>(PREVIEW_EMAIL_TEMPLATE, variables)
+    },
+    enabled: enabled && !!key,
+    placeholderData: (previous) => previous,
+  })
 }
 
 export const useCreateBulkCSVEmailTemplate = () => {

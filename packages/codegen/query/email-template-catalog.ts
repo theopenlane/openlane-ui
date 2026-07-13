@@ -7,8 +7,20 @@ export const GET_EMAIL_TEMPLATE_CATALOG = gql`
         key
         description
         configSchema
+        uiSchema
+        exampleValues
         htmlPreview
+        variables {
+          name
+          description
+        }
       }
     }
+  }
+`
+
+export const PREVIEW_EMAIL_TEMPLATE = gql`
+  query PreviewEmailTemplate($key: String!, $defaults: Map!) {
+    previewEmailTemplate(key: $key, defaults: $defaults)
   }
 `
