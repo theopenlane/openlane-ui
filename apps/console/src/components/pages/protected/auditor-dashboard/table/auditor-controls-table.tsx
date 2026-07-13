@@ -2,14 +2,14 @@
 
 import React, { useCallback, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { SearchIcon, LoaderCircle, Download, Upload } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { type ControlWhereInput } from '@repo/codegen/src/schema'
 import { useGetAuditorDashboardControls } from '@/lib/graphql-hooks/control'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -27,7 +27,7 @@ type AuditorControlsTableProps = {
 }
 
 export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ programId }) => {
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [startReviewControlId, setStartReviewControlId] = useState<string | null>(null)
