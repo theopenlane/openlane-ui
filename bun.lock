@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "openlane-ui",
@@ -244,7 +245,7 @@
         "@emoji-mart/data": "1.2.1",
         "@faker-js/faker": "^10.4.0",
         "@hookform/resolvers": "^5.2.2",
-        "@platejs/ai": "^52.3.22",
+        "@platejs/ai": "^53.0.0",
         "@platejs/autoformat": "^52.3.10",
         "@platejs/basic-nodes": "^52.3.10",
         "@platejs/basic-styles": "^52.3.10",
@@ -1243,7 +1244,7 @@
 
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
 
-    "@platejs/ai": ["@platejs/ai@52.3.22", "", { "dependencies": { "@platejs/markdown": "^52.3.22", "@platejs/selection": "^52.3.10", "@platejs/suggestion": "^52.3.10", "@platejs/table": "^52.3.20", "fastest-levenshtein": "1.0.16", "lodash": "^4.17.21", "react-compiler-runtime": "^1.0.0" }, "peerDependencies": { "platejs": ">=52.0.15", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-ELaOz3s9eXMXWZqG27s13uwMFse6AnJtQdiTyAWL4qDhs21LxBMqfa/YuAPBeiiOjyz2Mj6uN/yYmzdb4MJBjQ=="],
+    "@platejs/ai": ["@platejs/ai@53.3.0", "", { "dependencies": { "@platejs/markdown": "^53.2.2", "@platejs/selection": "^53.1.6", "@platejs/suggestion": "^53.2.3", "@platejs/table": "^53.0.9", "fastest-levenshtein": "1.0.16", "lodash": "^4.17.21", "react-compiler-runtime": "^1.0.0" }, "peerDependencies": { "@ai-sdk/react": "^4.0.0", "ai": "^7.0.0", "platejs": ">=53.0.7", "react": ">=18.0.0", "react-dom": ">=18.0.0" }, "optionalPeers": ["@ai-sdk/react", "ai"] }, "sha512-B4aaMRdTDhjQxSmDGU+vJ5Ns3m4vStGe8jxkVaH9jnBVo0HZtR/IihzihHiFJtDfsqcOv3c4BEzWzqtYwAy+3Q=="],
 
     "@platejs/autoformat": ["@platejs/autoformat@52.3.10", "", { "dependencies": { "lodash": "^4.17.21", "react-compiler-runtime": "^1.0.0" }, "peerDependencies": { "platejs": ">=52.3.4", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-HxZi9rhg8INMtZfvg7Rw9KqbCmkgyRqT9evqbcIpujZwosKwzSP7/cTCW68U9doAT9Xsdc4pNtfN0g85vMgQSA=="],
 
@@ -4519,6 +4520,14 @@
 
     "@oxc-resolver/binding-wasm32-wasi/@emnapi/runtime": ["@emnapi/runtime@1.11.2", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-kyOl3X0DuTiT1h2ft8r2fYO8JYtU9a9Xis/zBSiGArNaagCOWx90N1k2wxp18czFDH+OgcWGb5ZP/XMt3dcyPA=="],
 
+    "@platejs/ai/@platejs/markdown": ["@platejs/markdown@53.2.2", "", { "dependencies": { "@platejs/date": "53.0.0", "lodash": "^4.17.23", "marked": "^15.0.12", "mdast-util-math": "3.0.0", "mdast-util-mdx": "3.0.0", "react-compiler-runtime": "^1.0.0", "remark-mdx": "^3.1.0", "remark-parse": "^11.0.0", "remark-stringify": "^11.0.0", "ts-essentials": "10.1.0", "unified": "^11.0.5", "unist-util-visit": "5.0.0" }, "peerDependencies": { "platejs": ">=53.0.0", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-neDl7lHQN9iHMr8Hsx65HxgKnpT6HpiffaDTWtA1NPC9JeFlXLGQYOUIXIYRX94rr0g6rnfeKKjU7qx9fufTrA=="],
+
+    "@platejs/ai/@platejs/selection": ["@platejs/selection@53.1.6", "", { "dependencies": { "copy-to-clipboard": "^3.3.3", "react-compiler-runtime": "^1.0.0" }, "peerDependencies": { "platejs": ">=53.0.0", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-d3pJur7bkkDd2DUcJfYrpRi+5/WgQyYiD1/keG4OveNhc2SN/lE3RaFSNbGVTdHjwJ/20mslw0JNAgyjZrPGkg=="],
+
+    "@platejs/ai/@platejs/suggestion": ["@platejs/suggestion@53.2.3", "", { "dependencies": { "@platejs/diff": "^53.0.0", "lodash": "^4.17.21", "react-compiler-runtime": "^1.0.0" }, "peerDependencies": { "platejs": ">=53.0.3", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-SMBe0dU2KYfP2ri+BN49JaY4dz4xoGRKuNdF3YBB1pvbf3Ho58BsNuSHkhkr6QCzNDZUY4il4ACasOeSbeSjeA=="],
+
+    "@platejs/ai/@platejs/table": ["@platejs/table@53.0.9", "", { "dependencies": { "@platejs/resizable": "^53.0.0", "lodash": "^4.17.21", "react-compiler-runtime": "^1.0.0" }, "peerDependencies": { "platejs": ">=53.0.7", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-fie96c0AE8bShfog+SA767rbf/1i5YYAxZFndETCNkXxT+nzc0GKaVyEOkSaVBtwq9OBqHfD/t4ITpadbrTa0Q=="],
+
     "@platejs/core/zustand": ["zustand@5.0.12", "", { "peerDependencies": { "@types/react": ">=18.0.0", "immer": ">=9.0.6", "react": ">=18.0.0", "use-sync-external-store": ">=1.2.0" }, "optionalPeers": ["@types/react", "immer", "react", "use-sync-external-store"] }, "sha512-i77ae3aZq4dhMlRhJVCYgMLKuSiZAaUPAct2AksxQ+gOtimhGMdXljRT21P5BNpeT4kXlLIckvkPM029OljD7g=="],
 
     "@platejs/toggle/jotai": ["jotai@2.19.1", "", { "peerDependencies": { "@babel/core": ">=7.0.0", "@babel/template": ">=7.0.0", "@types/react": ">=17.0.0", "react": ">=17.0.0" }, "optionalPeers": ["@babel/core", "@babel/template", "@types/react", "react"] }, "sha512-sqm9lVZiqBHZH8aSRk32DSiZDHY3yUIlulXYn9GQj7/LvoUdYXSMti7ZPJGo+6zjzKFt5a25k/I6iBCi43PJcw=="],
@@ -5082,6 +5091,12 @@
     "@novu/notification-center/@tanstack/react-query/@tanstack/query-core": ["@tanstack/query-core@4.44.0", "", {}, "sha512-swSgb7OiPRR3UuIL7NuDrZNSMGmQD+wdtHxPD7j60SvBEnxbXurl5XOirtGEX2gm2hbK6mC8kMV1I+uO3l0UOw=="],
 
     "@oxc-resolver/binding-wasm32-wasi/@emnapi/core/@emnapi/wasi-threads": ["@emnapi/wasi-threads@1.2.2", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-c95qOXkHdydNKhscBTebqEC1CVAZpyqOfVfBzQ1qgzyl3gfeldUjIggDbIZgDKsHLgnsM+igH7TJ/eAasaVuMA=="],
+
+    "@platejs/ai/@platejs/markdown/@platejs/date": ["@platejs/date@53.0.0", "", { "dependencies": { "react-compiler-runtime": "^1.0.0" }, "peerDependencies": { "platejs": ">=53.0.0", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-XQ28bUElHwCYxHbVmwc0gMrl/PKA1KwlTQU/nksWKhOETqQm89biirXS+J3/038EimhsAEPyMLlYntm38Uo65Q=="],
+
+    "@platejs/ai/@platejs/suggestion/@platejs/diff": ["@platejs/diff@53.0.0", "", { "dependencies": { "diff-match-patch-ts": "^0.6.0", "lodash": "^4.17.21", "react-compiler-runtime": "^1.0.0" }, "peerDependencies": { "platejs": ">=53.0.0", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-OldWJ0SYMqy6GcTaqA/oHhdshwbcQue9bIPnRZMoCET+svo/COu3gXHdEfWJZ7ueHZwYA8zrHAiw5amRgZB6wg=="],
+
+    "@platejs/ai/@platejs/table/@platejs/resizable": ["@platejs/resizable@53.0.0", "", { "dependencies": { "react-compiler-runtime": "^1.0.0" }, "peerDependencies": { "platejs": ">=53.0.0", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-/Wl8DmjByOTib+wKAcEnE3S3PMcpKcrupCOJvUa+vnn/cqXV3cwWzapVZ3bojF6sFWttMsLprvIGhpS/gpl5FQ=="],
 
     "@repo/ui/@types/node/undici-types": ["undici-types@7.24.6", "", {}, "sha512-WRNW+sJgj5OBN4/0JpHFqtqzhpbnV0GuB+OozA9gCL7a993SmU+1JBZCzLNxYsbMfIeDL+lTsphD5jN5N+n0zg=="],
 

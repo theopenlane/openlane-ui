@@ -97,7 +97,7 @@
     "@emoji-mart/data": "1.2.1",
     "@faker-js/faker": "^10.4.0",
     "@hookform/resolvers": "^5.2.2",
-    "@platejs/ai": "^52.3.22",
+    "@platejs/ai": "^53.0.0",
     "@platejs/autoformat": "^52.3.10",
     "@platejs/basic-nodes": "^52.3.10",
     "@platejs/basic-styles": "^52.3.10",
