@@ -43,7 +43,7 @@ const VulnRow: React.FC<{ vuln: TriageVuln; isSelected: boolean; onSelect: (id: 
         <span className="block truncate text-sm font-medium">{getVulnerabilityName(vuln)}</span>
         <span className="block truncate text-xs text-muted-foreground">{getSubline(vuln)}</span>
       </span>
-      <PastDueBadge severity={vuln.securityLevel || vuln.severity} createdAt={vuln.createdAt} discoveredAt={vuln.discoveredAt} remediationSLA={vuln.remediationSLA} />
+      <PastDueBadge show={vuln.dueInfo.pastDue} />
     </button>
   )
 }

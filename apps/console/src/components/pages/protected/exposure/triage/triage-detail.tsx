@@ -1,6 +1,8 @@
 'use client'
 
 import React from 'react'
+import { ExternalLink } from 'lucide-react'
+import { Button } from '@repo/ui/button'
 import { useGetVulnerabilityAssociations } from '@/lib/graphql-hooks/vulnerability'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { getSeverityStyle } from '@/utils/severity'
@@ -48,15 +50,27 @@ const TriageDetail: React.FC<Props> = ({ vuln }) => {
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto p-6">
-      <div className="mb-6">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">{vuln.cveID || vuln.externalID || vuln.displayID}</p>
-        <div className="mt-1 flex flex-wrap items-center gap-2">
-          <h2 className="text-xl font-semibold">{getVulnerabilityName(vuln)}</h2>
-          <span className="rounded-full px-2 py-0.5 text-xs font-medium capitalize" style={severityStyle}>
-            {severityLabel}
-          </span>
-          <PastDueBadge show={pastDue} />
+      <div className="mb-6 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">{vuln.cveID || vuln.externalID || vuln.displayID}</p>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <h2 className="text-xl font-semibold">{getVulnerabilityName(vuln)}</h2>
+            <span className="rounded-full px-2 py-0.5 text-xs font-medium capitalize" style={severityStyle}>
+              {severityLabel}
+            </span>
+            <PastDueBadge show={pastDue} />
+          </div>
         </div>
+        <Button
+          variant="outline"
+          size="md"
+          icon={<ExternalLink size={14} />}
+          iconPosition="left"
+          className="shrink-0"
+          onClick={() => sheetNav?.openSheet(vuln.id, ObjectAssociationNodeEnum.VULNERABILITY)}
+        >
+          Open full details
+        </Button>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
