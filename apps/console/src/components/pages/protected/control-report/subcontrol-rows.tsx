@@ -62,7 +62,7 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
         )}
       </div>
 
-      <TruncatedCell lineClamp={2} className="text-xs text-muted-foreground leading-relaxed">
+      <TruncatedCell portal lineClamp={2} className="text-xs text-muted-foreground leading-relaxed">
         {descriptionNode}
       </TruncatedCell>
 
