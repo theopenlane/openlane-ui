@@ -13,7 +13,7 @@ import { serializeHtml } from 'platejs/static'
 import { splitParagraphNewlinesForExport } from './export-docx-helper'
 import { pdfExportPlugin } from '../editor/plugins/pdf-export-kit.tsx'
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
 import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
 
 import { EditorStatic } from './editor-static'

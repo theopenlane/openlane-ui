@@ -7,7 +7,7 @@ import { cva } from 'class-variance-authority'
 import { type SlateEditor, type TElement, NodeApi } from 'platejs'
 import { SlateElement } from 'platejs/static'
 
-import { Button } from '@repo/ui/button'
+import { Button } from '@repo/ui/components/ui/button.tsx'
 
 const headingItemVariants = cva(
   'block h-auto w-full cursor-pointer truncate rounded-none px-0.5 py-1.5 text-left font-medium text-muted-foreground underline decoration-[0.5px] underline-offset-4 hover:bg-accent hover:text-muted-foreground',
