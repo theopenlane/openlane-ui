@@ -19,15 +19,16 @@ type Props = {
   hasNext: boolean
   isBusy?: boolean
   canEdit: boolean
+  canCreateRemediation: boolean
 }
 
-const TriageQuickActions: React.FC<Props> = ({ vuln, onAssign, onRemediate, onAcceptRisk, onSnooze, onPrev, onNext, hasPrev, hasNext, isBusy, canEdit }) => {
+const TriageQuickActions: React.FC<Props> = ({ vuln, onAssign, onRemediate, onAcceptRisk, onSnooze, onPrev, onNext, hasPrev, hasNext, isBusy, canEdit, canCreateRemediation }) => {
   const mutationsDisabled = isBusy || !canEdit
   return (
     <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t bg-secondary px-6 py-3">
       <div className="flex flex-wrap items-center gap-2">
         <AssigneeSelect
-          value={vuln.externalOwnerID}
+          value={vuln.assignedToUserID}
           onAssign={onAssign}
           disabled={mutationsDisabled}
           className="h-9 w-auto min-w-[110px]"
@@ -38,7 +39,7 @@ const TriageQuickActions: React.FC<Props> = ({ vuln, onAssign, onRemediate, onAc
             </span>
           }
         />
-        <Button variant="outline" size="md" icon={<ShieldCheck size={14} />} iconPosition="left" onClick={onRemediate} disabled={isBusy}>
+        <Button variant="outline" size="md" icon={<ShieldCheck size={14} />} iconPosition="left" onClick={onRemediate} disabled={isBusy || !canCreateRemediation}>
           Remediate
         </Button>
         <Button variant="outline" size="md" icon={<ShieldOff size={14} />} iconPosition="left" onClick={onAcceptRisk} disabled={mutationsDisabled}>

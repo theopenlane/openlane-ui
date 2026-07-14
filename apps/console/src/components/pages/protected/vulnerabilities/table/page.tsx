@@ -16,7 +16,7 @@ import {
 import VulnerabilitySeverityChart from '@/components/shared/severity-chart/severity-chart'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
-import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
+import { breadcrumbs, DISMISSED_QUICK_FILTER, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
 import { type VulnerabilitySheetConfig, type VulnerabilityTablePageConfig, type VulnerabilityFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
@@ -47,7 +47,8 @@ const VulnerabilityPage: React.FC = () => {
 
   const plateEditorHelper = usePlateEditor()
 
-  const quickFilters = useSlaQuickFilters()
+  const slaQuickFilters = useSlaQuickFilters()
+  const quickFilters = React.useMemo(() => [...slaQuickFilters, DISMISSED_QUICK_FILTER], [slaQuickFilters])
 
   const extractAssociations = useCallback((assocData: GetVulnerabilityAssociationsQuery) => {
     const vulnerability = assocData.vulnerability

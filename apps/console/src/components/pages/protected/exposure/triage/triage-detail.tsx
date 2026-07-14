@@ -36,7 +36,7 @@ const TriageDetail: React.FC<Props> = ({ vuln }) => {
   const assets = (associations?.vulnerability?.assets?.edges ?? []).map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => Boolean(node))
   const remediationCount = associations?.vulnerability?.remediations?.totalCount ?? 0
 
-  const assigneeName = userOptions.find((option) => option.value === vuln.externalOwnerID)?.label
+  const assigneeName = userOptions.find((option) => option.value === vuln.assignedToUserID)?.label
 
   const { dueDate, pastDue, daysOverdue, daysUntilDue } = vuln.dueInfo
   const dueSubtitle = (() => {

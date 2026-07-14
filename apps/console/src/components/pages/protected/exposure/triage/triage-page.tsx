@@ -7,8 +7,10 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useVulnerabilitiesInfinite, useUpdateVulnerability, useVulnerabilitiesCount } from '@/lib/graphql-hooks/vulnerability'
 import { useSlaDefinitionsWithFilter } from '@/lib/graphql-hooks/sla-definition'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
+import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit, hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { useDebounce } from '@uidotdev/usehooks'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -19,6 +21,7 @@ import TriageListRail from './triage-list-rail'
 import TriageDetail from './triage-detail'
 import TriageQuickActions from './triage-quick-actions'
 import AcceptRiskDialog from './accept-risk-dialog'
+import { buildDismissVulnerabilityInput } from '../vulnerability-dismiss-reasons'
 
 const MS_PER_HOUR = 1000 * 60 * 60
 const PAGE_SIZE = 20
@@ -71,6 +74,9 @@ const TriagePage: React.FC = () => {
   const { count: pastDueCount } = useVulnerabilitiesCount(pastDueWhere, Boolean(pastDueWhere))
 
   const { mutateAsync: updateVulnerability, isPending: isUpdating } = useUpdateVulnerability()
+  const queryClient = useQueryClient()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
 
   const groups = useMemo(() => buildTriageGroups(vulnerabilitiesNodes, slaDefinitionsNodes), [vulnerabilitiesNodes, slaDefinitionsNodes])
   const displayGroups = useMemo<TriageGroups>(() => (facet === 'pastdue' ? { pastDue: groups.pastDue, open: [], ordered: groups.pastDue } : groups), [facet, groups])
@@ -114,25 +120,15 @@ const TriagePage: React.FC = () => {
   }
 
   const handleAssign = (userId: string | null) => {
-    runUpdate(userId ? { externalOwnerID: userId } : { clearExternalOwnerID: true }, userId ? 'Vulnerability assigned' : 'Assignee cleared')
+    runUpdate(userId ? { assignedToUserID: userId } : { clearAssignedToUser: true }, userId ? 'Vulnerability assigned' : 'Assignee cleared')
   }
 
   const handleAcceptRisk = (reason: string, comment: string) => {
     const neighborId = ordered[currentIndex + 1]?.id ?? ordered[currentIndex - 1]?.id ?? null
-    runUpdate(
-      {
-        dismissedAt: new Date().toISOString(),
-        dismissedReason: reason,
-        dismissedComment: comment || undefined,
-        open: false,
-        vulnerabilityStatusName: 'Dismissed',
-      },
-      'Risk accepted',
-      () => {
-        setAcceptRiskOpen(false)
-        setSelectedId(neighborId)
-      },
-    )
+    runUpdate(buildDismissVulnerabilityInput(reason, comment), 'Risk accepted', () => {
+      setAcceptRiskOpen(false)
+      setSelectedId(neighborId)
+    })
   }
 
   const handleSnooze = () => {
@@ -185,6 +181,7 @@ const TriagePage: React.FC = () => {
                 hasNext={currentIndex >= 0 && currentIndex < ordered.length - 1}
                 isBusy={isUpdating}
                 canEdit={canEditSelected}
+                canCreateRemediation={canCreateRemediation}
               />
             </>
           ) : (
@@ -208,7 +205,10 @@ const TriagePage: React.FC = () => {
         onClose={() => setRemediateVuln(null)}
         initialData={remediateVuln ? { vulnerabilityIDs: [remediateVuln.id] } : undefined}
         defaultTitle={remediateVuln ? `${remediateVuln.name} Remediation`.trim() : undefined}
-        onSuccess={() => setRemediateVuln(null)}
+        onSuccess={() => {
+          if (remediateVuln) queryClient.invalidateQueries({ queryKey: ['vulnerabilities', remediateVuln.id, 'associations'] })
+          setRemediateVuln(null)
+        }}
       />
     </>
   )
