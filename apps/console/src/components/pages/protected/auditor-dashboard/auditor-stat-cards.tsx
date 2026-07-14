@@ -3,7 +3,7 @@
 import React from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
-import { CalendarDays, ClipboardCheck, Building2, UserRoundCheck, ListChecks, FileCheck2, CircleCheckBig, Loader, Copy } from 'lucide-react'
+import { CalendarDays, Building2, UserRoundCheck, ListChecks, FileCheck2, CircleCheckBig, CircleDashed, Copy } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 import { useNotification } from '@/hooks/useNotification'
 import { type GetProgramBasicInfoQuery } from '@repo/codegen/src/schema'
@@ -42,7 +42,7 @@ const AuditorStatCard: React.FC<AuditorStatCardProps> = ({ icon, label, children
 
 type AuditorStatCardsProps = {
   program?: GetProgramBasicInfoQuery['program'] | null
-  evidenceStats?: { total: number; submitted: number }
+  evidenceStats?: { total: number; submitted: number; framework: number; organization: number }
   reviewStats?: { completed: number; inProgress: number }
 }
 
@@ -57,10 +57,6 @@ export const AuditorStatCards: React.FC<AuditorStatCardsProps> = ({ program, evi
         {auditPeriod}
       </AuditorStatCard>
 
-      <AuditorStatCard icon={<ClipboardCheck size={ICON_SIZE} />} label="Fieldwork">
-        <span className="text-muted-foreground font-normal">Not tracked yet</span>
-      </AuditorStatCard>
-
       <AuditorStatCard icon={<Building2 size={ICON_SIZE} />} label="Audit Firm">
         {program?.auditFirm || '—'}
       </AuditorStatCard>
@@ -73,7 +69,12 @@ export const AuditorStatCards: React.FC<AuditorStatCardsProps> = ({ program, evi
       </AuditorStatCard>
 
       <AuditorStatCard icon={<ListChecks size={ICON_SIZE} />} label="Controls in Scope">
-        {evidenceStats?.total ?? 0}
+        <div className="flex flex-col gap-1">
+          <span>{evidenceStats?.total ?? 0}</span>
+          <span className="text-xs text-muted-foreground font-normal">
+            {evidenceStats?.framework ?? 0} Framework · {evidenceStats?.organization ?? 0} Organization
+          </span>
+        </div>
       </AuditorStatCard>
 
       <AuditorStatCard icon={<FileCheck2 size={ICON_SIZE} />} label="Evidence Ready">
@@ -84,7 +85,7 @@ export const AuditorStatCards: React.FC<AuditorStatCardsProps> = ({ program, evi
         {reviewStats?.completed ?? 0}
       </AuditorStatCard>
 
-      <AuditorStatCard icon={<Loader size={ICON_SIZE} />} label="In Progress">
+      <AuditorStatCard icon={<CircleDashed size={ICON_SIZE} />} label="In Progress">
         {reviewStats?.inProgress ? (
           <Badge variant="gold" className="text-xs font-medium">
             {reviewStats.inProgress} in progress

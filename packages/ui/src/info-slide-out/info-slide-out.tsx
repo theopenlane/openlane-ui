@@ -12,22 +12,30 @@ type InfoSlideOutProps = {
   docsUrl?: string
   icon?: React.ReactNode
   width?: number
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export function InfoSlideOut({ title, subtitle, children, trigger, docsUrl, icon, width = 440 }: InfoSlideOutProps) {
-  const [open, setOpen] = React.useState(false)
+export function InfoSlideOut({ title, subtitle, children, trigger, docsUrl, icon, width = 440, open: controlledOpen, onOpenChange }: InfoSlideOutProps) {
+  const [internalOpen, setInternalOpen] = React.useState(false)
+  const isControlled = controlledOpen !== undefined
+  const open = isControlled ? controlledOpen : internalOpen
+  const setOpen = (next: boolean) => {
+    if (!isControlled) setInternalOpen(next)
+    onOpenChange?.(next)
+  }
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      {trigger ? (
-        trigger(handleOpen)
-      ) : (
-        <button type="button" onClick={handleOpen} className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors" aria-label={`Learn more about ${title}`}>
-          <InfoIcon size={14} />
-        </button>
-      )}
+      {trigger
+        ? trigger(handleOpen)
+        : !isControlled && (
+            <button type="button" onClick={handleOpen} className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors" aria-label={`Learn more about ${title}`}>
+              <InfoIcon size={14} />
+            </button>
+          )}
       <SheetContent
         initialWidth={width}
         minWidth={380}

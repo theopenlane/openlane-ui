@@ -2,6 +2,7 @@ import React from 'react'
 import { type ColumnDef } from '@tanstack/react-table'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Play, ArrowRight, Eye, MessageSquare } from 'lucide-react'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
@@ -30,6 +31,7 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
       accessorKey: 'refCode',
       header: 'Control',
       size: 220,
+      enableHiding: false,
       cell: ({ row }) => (
         <div className="flex flex-col">
           <span className="font-medium">{row.original.refCode}</span>
@@ -79,12 +81,14 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
     {
       id: 'actions',
       header: '',
-      size: 220,
+      size: 150,
+      maxSize: 150,
+      enableHiding: false,
       cell: ({ row }) => {
         const { review } = row.original
 
         return (
-          <div className="flex items-center justify-end gap-2" onClick={(event) => event.stopPropagation()}>
+          <div className="flex items-center justify-end gap-1.5" onClick={(event) => event.stopPropagation()}>
             {!review ? (
               canCreateReview && (
                 <Button variant="primary" className="h-8 px-2!" icon={<Play size={14} />} iconPosition="left" onClick={() => onStartReview(row.original.id)}>
@@ -100,12 +104,28 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
                 Continue
               </Button>
             )}
-            <Button variant="outline" className="h-8 px-2!" icon={<MessageSquare size={14} />} iconPosition="left" disabled title="Coming soon">
-              Request Info
-            </Button>
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" className="h-8 w-8 p-0!" aria-label="Request info" disabled>
+                    <MessageSquare size={14} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">Request info (coming soon)</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         )
       },
     },
   ]
 }
+
+export const getAuditorDashboardMappedColumns = (columns: ColumnDef<AuditorDashboardControlRow>[]): { accessorKey: string; header: string }[] =>
+  columns.flatMap((column) => {
+    const id = column.id ?? ('accessorKey' in column && typeof column.accessorKey === 'string' ? column.accessorKey : undefined)
+    if (!id || column.enableHiding === false || typeof column.header !== 'string' || column.header === '') {
+      return []
+    }
+    return [{ accessorKey: id, header: column.header }]
+  })

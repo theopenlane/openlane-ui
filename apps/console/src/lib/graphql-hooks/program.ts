@@ -145,19 +145,31 @@ type ProgramEvidenceStats = {
   rejected: number
 }
 
+type ProgramEvidenceScopeStats = ProgramEvidenceStats & {
+  framework: number
+  organization: number
+}
+
+type EvidenceScopeStatsResponse = GetEvidenceStatsQuery & {
+  frameworkControls: { totalCount: number }
+  organizationControls: { totalCount: number }
+}
+
 export const useProgramEvidenceStats = (programId: string | undefined) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<ProgramEvidenceStats>({
+  return useQuery<ProgramEvidenceScopeStats>({
     queryKey: ['program-evidence-stats', programId],
     queryFn: async () => {
-      const data = await client.request<GetEvidenceStatsQuery>(GET_EVIDENCE_STATS, { programId })
+      const data = await client.request<EvidenceScopeStatsResponse>(GET_EVIDENCE_STATS, { programId })
 
       return {
         total: data.totalControls.totalCount,
         submitted: data.submitted.totalCount,
         accepted: data.accepted.totalCount,
         rejected: data.rejected.totalCount,
+        framework: data.frameworkControls.totalCount,
+        organization: data.organizationControls.totalCount,
       }
     },
     enabled: !!programId,

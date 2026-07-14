@@ -45,6 +45,7 @@ import {
   Route,
   CircleHelp,
   ClipboardPenLine,
+  SquareActivity,
   IdCard,
   Sparkles,
   Inbox,
@@ -84,7 +85,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
         {
           title: 'Auditor Dashboard',
           href: '/auditor-dashboard',
-          icon: ClipboardPenLine,
+          icon: SquareActivity,
         },
         {
           title: 'Programs',
