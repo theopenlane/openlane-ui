@@ -23,9 +23,10 @@ type GetColumnsArgs = {
   canCreateReview: boolean
   onStartReview: (controlId: string) => void
   onOpenReview: (reviewId: string) => void
+  onRequestInfo: (control: { id: string; refCode: string }) => void
 }
 
-export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onOpenReview }: GetColumnsArgs): ColumnDef<AuditorDashboardControlRow>[] => {
+export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onOpenReview, onRequestInfo }: GetColumnsArgs): ColumnDef<AuditorDashboardControlRow>[] => {
   return [
     {
       accessorKey: 'refCode',
@@ -107,11 +108,11 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
             <TooltipProvider delayDuration={200}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" className="h-8 w-8 p-0!" aria-label="Request info" disabled>
+                  <Button variant="outline" className="h-8 w-8 p-0!" aria-label="Request info" onClick={() => onRequestInfo({ id: row.original.id, refCode: row.original.refCode })}>
                     <MessageSquare size={14} />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="top">Request info (coming soon)</TooltipContent>
+                <TooltipContent side="top">Request info</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>

@@ -22,6 +22,7 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import CreateControlReviewSheet from '@/components/pages/protected/controls/quick-actions/create-control-review-sheet'
 import ViewReviewSheet from '@/components/pages/protected/reviews/view-review-sheet'
+import RequestInfoSheet from './request-info-sheet'
 import { ExportEvidenceDialog } from '@/components/pages/protected/evidence/dialog/export-evidence-dialog'
 import { BulkCSVCreateEvidenceDialog } from '@/components/pages/protected/evidence/dialog/bulk-csv-create-evidence-dialog'
 import { getControlEvidenceStatus, getControlReview, getControlLastReviewed } from '../utils/control-status'
@@ -39,6 +40,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
   const [filters, setFilters] = useState<ControlWhereInput>({})
   const [startReviewControlId, setStartReviewControlId] = useState<string | null>(null)
   const [openReviewId, setOpenReviewId] = useState<string | null>(null)
+  const [requestInfoControl, setRequestInfoControl] = useState<{ id: string; refCode: string } | null>(null)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, {}))
 
   const queryClient = useQueryClient()
@@ -102,6 +104,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
         canCreateReview,
         onStartReview: setStartReviewControlId,
         onOpenReview: setOpenReviewId,
+        onRequestInfo: setRequestInfoControl,
       }),
     [canCreateReview],
   )
@@ -155,6 +158,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
 
       <CreateControlReviewSheet open={!!startReviewControlId} onOpenChange={(next) => !next && handleReviewSheetClose()} controlId={startReviewControlId ?? ''} />
       {openReviewId && <ViewReviewSheet entityId={openReviewId} onClose={handleReviewSheetClose} />}
+      <RequestInfoSheet controlId={requestInfoControl?.id ?? null} refCode={requestInfoControl?.refCode} onClose={() => setRequestInfoControl(null)} />
     </div>
   )
 }
