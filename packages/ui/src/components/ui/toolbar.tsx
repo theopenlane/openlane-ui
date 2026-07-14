@@ -7,8 +7,8 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import { type VariantProps, cva } from 'class-variance-authority'
 import { ChevronDown } from 'lucide-react'
 
-import { DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuSeparator } from '@repo/ui/dropdown-menu'
-import { Separator } from '@repo/ui/separator'
+import { DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuSeparator } from '@repo/ui/components/ui/dropdown-menu.tsx'
+import { Separator } from '@repo/ui/components/ui/separator.tsx'
 import { Tooltip, TooltipTrigger } from '@repo/ui/tooltip'
 import { cn } from '@repo/ui/lib/utils'
 
@@ -173,7 +173,7 @@ export function ToolbarGroup({ children, className }: React.ComponentProps<'div'
       <div className="flex items-center">{children}</div>
 
       <div className="group-last/toolbar-group:hidden! mx-1.5 py-0.5">
-        <Separator vertical={true} />
+        <Separator orientation="vertical" />
       </div>
     </div>
   )
