@@ -94,6 +94,7 @@ import {
   type ControlReportsByCategoryQueryVariables,
   type ControlReportsQuery,
   type ControlReportsQueryVariables,
+  type ControlControlStatus,
   ControlReportOrderField,
   OrderDirection,
 } from '@repo/codegen/src/schema'
@@ -649,11 +650,21 @@ export const useInsertControlPlateComment = () => {
   })
 }
 
-export const useGetExistingOrgControls = ({ refCodeIn, referenceFrameworkIn, enabled = true }: { refCodeIn: string[]; referenceFrameworkIn?: string[]; enabled?: boolean }) => {
+export const useGetExistingOrgControls = ({
+  refCodeIn,
+  referenceFrameworkIn,
+  statusIn,
+  enabled = true,
+}: {
+  refCodeIn: string[]
+  referenceFrameworkIn?: string[]
+  statusIn?: ControlControlStatus[]
+  enabled?: boolean
+}) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetExistingControlsForOrganizationQuery>({
-    queryKey: ['controls', 'existingOrg', refCodeIn, referenceFrameworkIn],
+    queryKey: ['controls', 'existingOrg', refCodeIn, referenceFrameworkIn, statusIn],
     queryFn: () =>
       client.request(GET_EXISTING_CONTROLS_FOR_ORGANIZATION, {
         where: {
@@ -661,6 +672,7 @@ export const useGetExistingOrgControls = ({ refCodeIn, referenceFrameworkIn, ena
           systemOwned: false,
           isTrustCenterControl: false,
           ...(referenceFrameworkIn?.length && { referenceFrameworkIn }),
+          ...(statusIn?.length && { statusIn }),
         },
       }),
     enabled: enabled && refCodeIn.length > 0,
