@@ -12,8 +12,8 @@ const CommunicationsPage: React.FC = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/communications' },
-      { label: 'Email Templates', href: '/automation/communications' },
+      { label: 'Automation', href: '/automation/email-templates' },
+      { label: 'Email Templates', href: '/automation/email-templates' },
     ])
   }, [setCrumbs])
 

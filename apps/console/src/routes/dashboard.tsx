@@ -313,7 +313,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
         },
         {
           title: 'Email Templates',
-          href: '/automation/communications',
+          href: '/automation/email-templates',
           icon: MailCheck,
         },
         {

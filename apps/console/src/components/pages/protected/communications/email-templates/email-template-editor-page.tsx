@@ -17,7 +17,7 @@ import { EmailTemplateConfiguration } from './email-template-configuration'
 import { EmailTemplateVariables } from './email-template-variables'
 import { EmailTemplatePreview } from './email-template-preview'
 
-const LIST_PATH = '/automation/communications'
+const LIST_PATH = '/automation/email-templates'
 
 const EditorCard: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="rounded-lg border border-border bg-card overflow-hidden">

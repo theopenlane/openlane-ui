@@ -19,7 +19,7 @@ import { formatDate } from '@/utils/date'
 import { EmailTemplateTemplateContext } from '@repo/codegen/src/schema'
 import { EmailTemplatePreviewSheet } from './email-template-preview-sheet'
 
-const EDITOR_PATH = '/automation/communications/editor'
+const EDITOR_PATH = '/automation/email-templates/editor'
 
 type StatusFilter = 'all' | 'active' | 'inactive'
 
