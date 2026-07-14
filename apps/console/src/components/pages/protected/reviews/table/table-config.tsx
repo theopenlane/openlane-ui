@@ -11,6 +11,7 @@ import { type ReviewFieldProps, type EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { ReviewAssociationSection } from '../create/form/fields/association-section'
 import { ReviewDocumentsSection } from '../create/form/fields/documents-section'
+import { ReviewCommentsSection } from '../create/form/fields/comments-section'
 
 export const formId = 'edit' + ObjectNames.REVIEW
 
@@ -158,6 +159,7 @@ export const getFieldsToRender = (props: ReviewFieldProps, enumOptions: EnumOpti
         onExistingFileIdsChange={onExistingFileIdsChange}
       />
       <ReviewAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
+      <ReviewCommentsSection data={props.data as ReviewQuery['review'] | undefined} isCreate={props.isCreate} />
     </div>
   )
 }

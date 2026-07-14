@@ -10091,6 +10091,7 @@ export interface CreateNoteInput {
   notifySubscribers?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureID?: InputMaybe<Scalars['ID']['input']>
+  reviewID?: InputMaybe<Scalars['ID']['input']>
   riskID?: InputMaybe<Scalars['ID']['input']>
   subcontrolID?: InputMaybe<Scalars['ID']['input']>
   taskID?: InputMaybe<Scalars['ID']['input']>
@@ -30669,6 +30670,8 @@ export interface Mutation {
   updateRemediation: RemediationUpdatePayload
   /** Update an existing review */
   updateReview: ReviewUpdatePayload
+  /** Update an existing review comment */
+  updateReviewComment: ReviewUpdatePayload
   /** Update an existing risk */
   updateRisk: RiskUpdatePayload
   /** Update an existing risk comment */
@@ -33255,6 +33258,13 @@ export interface MutationUpdateReviewArgs {
   reviewFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
 }
 
+export interface MutationUpdateReviewCommentArgs {
+  id: Scalars['ID']['input']
+  input: UpdateNoteInput
+  noteFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  noteFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
+}
+
 export interface MutationUpdateRiskArgs {
   id: Scalars['ID']['input']
   input: UpdateRiskInput
@@ -33933,6 +33943,7 @@ export interface Note extends Node {
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   procedure?: Maybe<Procedure>
+  review?: Maybe<Review>
   risk?: Maybe<Risk>
   subcontrol?: Maybe<Subcontrol>
   task?: Maybe<Task>
@@ -34095,6 +34106,9 @@ export interface NoteWhereInput {
   /** procedure edge predicates */
   hasProcedure?: InputMaybe<Scalars['Boolean']['input']>
   hasProcedureWith?: InputMaybe<Array<ProcedureWhereInput>>
+  /** review edge predicates */
+  hasReview?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewWith?: InputMaybe<Array<ReviewWhereInput>>
   /** risk edge predicates */
   hasRisk?: InputMaybe<Scalars['Boolean']['input']>
   hasRiskWith?: InputMaybe<Array<RiskWhereInput>>
@@ -60395,6 +60409,7 @@ export interface UpdateNoteInput {
   clearInternalPolicy?: InputMaybe<Scalars['Boolean']['input']>
   clearNoteRef?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedure?: InputMaybe<Scalars['Boolean']['input']>
+  clearReview?: InputMaybe<Scalars['Boolean']['input']>
   clearRisk?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrol?: InputMaybe<Scalars['Boolean']['input']>
   clearTask?: InputMaybe<Scalars['Boolean']['input']>
@@ -60413,6 +60428,7 @@ export interface UpdateNoteInput {
   procedureID?: InputMaybe<Scalars['ID']['input']>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterFaqIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewID?: InputMaybe<Scalars['ID']['input']>
   riskID?: InputMaybe<Scalars['ID']['input']>
   subcontrolID?: InputMaybe<Scalars['ID']['input']>
   taskID?: InputMaybe<Scalars['ID']['input']>
@@ -61848,6 +61864,7 @@ export interface UpdateReviewInput {
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addComment?: InputMaybe<CreateNoteInput>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -61913,6 +61930,7 @@ export interface UpdateReviewInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
+  deleteComment?: InputMaybe<Scalars['ID']['input']>
   /** detailed notes captured during the review */
   details?: InputMaybe<Scalars['String']['input']>
   environmentID?: InputMaybe<Scalars['ID']['input']>
@@ -78164,6 +78182,13 @@ export type ReviewQuery = {
     subcontrols: {
       __typename?: 'SubcontrolConnection'
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+    }
+    comments: {
+      __typename?: 'NoteConnection'
+      edges?: Array<{
+        __typename?: 'NoteEdge'
+        node?: { __typename?: 'Note'; id: string; displayID: string; text: string; createdAt?: any | null; createdBy?: string | null; updatedAt?: any | null; updatedBy?: string | null } | null
+      } | null> | null
     }
   }
 }
