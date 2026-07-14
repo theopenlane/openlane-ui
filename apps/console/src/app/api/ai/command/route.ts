@@ -12,7 +12,7 @@ import { z } from 'zod'
 import { getChooseToolPrompt, getCommentPrompt, getEditPrompt, getGeneratePrompt } from './prompts'
 import { auth } from '@/lib/auth/auth'
 
-const DEFAULT_MODEL = 'gemini-2.5-flash'
+const DEFAULT_MODEL = 'gemini-flash-latest'
 
 const google = createGoogleGenerativeAI({
   headers: { Referer: process.env.NEXT_PUBLIC_SITE_URL },
@@ -120,6 +120,10 @@ export async function POST(req: NextRequest) {
         })
 
         writer.merge(stream.toUIMessageStream({ sendFinish: false }))
+      },
+      onError: (error) => {
+        console.error('[ai/command] stream error:', error)
+        return error instanceof Error ? error.message : 'An error occurred.'
       },
     })
 

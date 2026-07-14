@@ -69,10 +69,16 @@ export function ProductCard({
 
     return (
       <div className="flex flex-col text-text-paragraph">
-        {monthly && <span>Monthly: ${monthly.unit_amount / 100}</span>}
+        {monthly && (
+          <span>
+            Monthly: {'$'}
+            {monthly.unit_amount / 100}
+          </span>
+        )}
         {yearly && (
           <span>
-            Annual: ${yearly.unit_amount / 100}
+            Annual: {'$'}
+            {yearly.unit_amount / 100}
             {savingPct > 0 && <span className="text-brand"> (save {savingPct}%)</span>}
           </span>
         )}
@@ -96,7 +102,8 @@ export function ProductCard({
               </div>
               <div className="flex gap-5 items-center">
                 <p>
-                  ${priceForCurrentInterval.unit_amount / 100} / {priceForCurrentInterval.interval}
+                  {'$'}
+                  {priceForCurrentInterval.unit_amount / 100} / {priceForCurrentInterval.interval}
                 </p>
 
                 {alreadySubscribed ? (

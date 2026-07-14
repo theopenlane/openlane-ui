@@ -89,6 +89,7 @@ export const nextJsConfig = [
       '@eslint-react/no-array-index-key': 'off',
       '@eslint-react/dom-no-dangerously-set-innerhtml': 'off',
       '@eslint-react/no-unnecessary-use-prefix': 'off',
+      '@eslint-react/static-components': 'off',
     },
   },
 ]
