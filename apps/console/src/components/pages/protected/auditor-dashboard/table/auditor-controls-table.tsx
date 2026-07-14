@@ -113,21 +113,19 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
+        <Input
+          value={searchTerm}
+          icon={isFetching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
+          placeholder="Search"
+          className="max-w-xs"
+          onChange={(event) => setSearchTerm(event.currentTarget.value)}
+        />
         <div className="flex items-center gap-2">
-          <Input
-            value={searchTerm}
-            icon={isFetching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
-            placeholder="Search"
-            className="max-w-xs"
-            onChange={(event) => setSearchTerm(event.currentTarget.value)}
-          />
           <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS} quickFilters={quickFilters} />
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS} />
-        </div>
-        <div className="flex items-center gap-2">
           <BulkCSVCreateEvidenceDialog
             trigger={
-              <Button variant="secondary" className="h-9" icon={<Upload size={16} />} iconPosition="left">
+              <Button variant="secondary" icon={<Upload size={16} />} iconPosition="left">
                 Bulk Evidence Request
               </Button>
             }
@@ -135,7 +133,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
           <ExportEvidenceDialog
             filters={exportFilters}
             trigger={
-              <Button variant="secondary" className="h-9" icon={<Download size={16} />} iconPosition="left">
+              <Button variant="secondary" icon={<Download size={16} />} iconPosition="left">
                 Bulk Download Evidence
               </Button>
             }
