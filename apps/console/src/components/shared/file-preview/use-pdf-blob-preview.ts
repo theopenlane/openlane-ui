@@ -34,10 +34,11 @@ export const usePdfBlobPreview = (url: string, enabled: boolean): TPdfPreviewSta
 
     let cancelled = false
     let createdBlobUrl: string | null = null
+    const controller = new AbortController()
 
     setState(LOADING)
 
-    fetch(url)
+    fetch(url, { signal: controller.signal })
       .then(async (res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         return res.blob()
@@ -65,6 +66,7 @@ export const usePdfBlobPreview = (url: string, enabled: boolean): TPdfPreviewSta
 
     return () => {
       cancelled = true
+      controller.abort()
       if (createdBlobUrl) URL.revokeObjectURL(createdBlobUrl)
     }
   }, [enabled, url])
