@@ -10,6 +10,7 @@ import { TrustCenterWatermarkConfigFontOptions } from '@/components/shared/enum-
 import { useFormContext } from 'react-hook-form'
 import { type BrandFormValues } from '../brand-schema'
 import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
+import { normalizeHexColor } from '@/utils/normalizeHexColor'
 
 interface BrandingThemeSectionProps {
   isReadOnly: boolean
@@ -17,15 +18,18 @@ interface BrandingThemeSectionProps {
   hasWarning?: boolean
 }
 
-const ReadOnlyColor = ({ label, value }: { label: string; value?: string | null }) => (
-  <div className="flex flex-col gap-1.5 py-1">
-    <p className="text-xs font-medium text-muted-foreground uppercase">{label}</p>
-    <div className="flex items-center gap-2">
-      <div className="h-4 w-4 rounded-full border border-border" style={{ backgroundColor: value || 'transparent' }} />
-      <p className="text-sm font-mono">{value || 'N/A'}</p>
+const ReadOnlyColor = ({ label, value }: { label: string; value?: string | null }) => {
+  const normalized = normalizeHexColor(value)
+  return (
+    <div className="flex flex-col gap-1.5 py-1">
+      <p className="text-xs font-medium text-muted-foreground uppercase">{label}</p>
+      <div className="flex items-center gap-2">
+        <div className="h-4 w-4 rounded-full border border-border" style={{ backgroundColor: normalized ?? 'transparent' }} />
+        <p className="text-sm font-mono">{normalized ?? value ?? 'N/A'}</p>
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting }: BrandingThemeSectionProps) => {
   const { watch, setValue } = useFormContext<BrandFormValues>()

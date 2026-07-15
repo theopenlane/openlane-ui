@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type Value } from 'platejs'
 
+export const DEFAULT_BRAND_COLOR = '#f0f0e0'
+
 export const brandSchema = z.object({
   title: z.string().min(1, 'Title is required').optional(),
   overview: z.custom<Value | string>().optional(),
@@ -36,12 +38,12 @@ export const useBrandForm = () => {
       overview: '',
       securityContact: '',
       statusPageURL: '',
-      primaryColor: '#f0f0e0',
-      foregroundColor: '#f0f0e0',
-      backgroundColor: '#f0f0e0',
-      secondaryForegroundColor: '#f0f0e0',
-      secondaryBackgroundColor: '#f0f0e0',
-      accentColor: '#f0f0e0',
+      primaryColor: DEFAULT_BRAND_COLOR,
+      foregroundColor: DEFAULT_BRAND_COLOR,
+      backgroundColor: DEFAULT_BRAND_COLOR,
+      secondaryForegroundColor: DEFAULT_BRAND_COLOR,
+      secondaryBackgroundColor: DEFAULT_BRAND_COLOR,
+      accentColor: DEFAULT_BRAND_COLOR,
       font: 'outfit',
       themeMode: TrustCenterSettingTrustCenterThemeMode.EASY,
       logoRemoteURL: '',

@@ -26,11 +26,6 @@ type ColumnsParams = {
   canEditEnum?: boolean
 }
 
-const normalizeColor = (color?: string | null) => {
-  if (!color) return '#64748B'
-  return color.startsWith('#') ? color : `#${color}`
-}
-
 const TypeBadge = ({ systemOwned }: { systemOwned?: boolean | null }) => (
   <Badge variant={systemOwned ? 'secondary' : 'outline'} className="capitalize">
     {systemOwned ? 'System' : 'Custom'}
@@ -122,7 +117,7 @@ export const useGetCustomEnumColumns = ({ onEdit, onDelete, userMap, tokenMap, c
         cell: ({ row }) => (
           <ColorCell
             id={row.original.id}
-            initialColor={normalizeColor(row.original.color)}
+            initialColor={row.original.color}
             disabled={!!row.original.systemOwned || !canEditEnum}
             onSave={async (id, color) => {
               await updateEnum({ id, input: { color } })

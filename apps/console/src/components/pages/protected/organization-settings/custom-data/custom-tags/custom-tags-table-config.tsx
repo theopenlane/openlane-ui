@@ -9,6 +9,8 @@ import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import ColorCell from '../shared/color-cell'
+import { FALLBACK_COLOR } from '../shared/constants'
+import { normalizeHexColor } from '@/utils/normalizeHexColor'
 import { useUpdateTag } from '@/lib/graphql-hooks/tag-definition'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { formatDate, formatDateSince } from '@/utils/date'
@@ -23,11 +25,6 @@ type ColumnsParams = {
   tokenMap?: Record<string, AuthorToken>
   canEditTags?: boolean
   canDeleteTags?: boolean
-}
-
-export const normalizeColor = (color?: string | null) => {
-  if (!color) return '#64748B'
-  return color.startsWith('#') ? color : `#${color}`
 }
 
 export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, tokenMap, canEditTags = true, canDeleteTags = true }: ColumnsParams) => {
@@ -69,7 +66,7 @@ export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, tokenMap, ca
         header: 'Tag',
         cell: ({ row }) => (
           <Badge variant="outline" className="flex items-center gap-1 w-fit">
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: normalizeColor(row.original.color) }} />
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: normalizeHexColor(row.original.color) ?? FALLBACK_COLOR }} />
             <span>{row.original.name}</span>
           </Badge>
         ),
@@ -97,7 +94,7 @@ export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, tokenMap, ca
         cell: ({ row }) => (
           <ColorCell
             id={row.original.id}
-            initialColor={normalizeColor(row.original.color)}
+            initialColor={row.original.color}
             disabled={!!row.original.systemOwned || !canEditTags}
             onSave={async (id, color) => {
               await updateTag({
