@@ -5,10 +5,9 @@ import { Button } from '@repo/ui/button'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Badge } from '@repo/ui/badge'
-import { Checkbox } from '@repo/ui/checkbox'
 import { Input } from '@repo/ui/input'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ChevronDown, ChevronRight, ChevronsDownUp, List, Minus, Plus, SearchIcon, ShieldCheck, SquarePlay, SquarePlus, Star } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronsDownUp, List, Minus, Plus, RotateCcw, SearchIcon, ShieldCheck, SquarePlay, SquarePlus, Star } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@repo/ui/dialog'
@@ -394,47 +393,47 @@ export default function ControlsPage() {
                   {controls.map((control) => {
                     const effectiveState = getEffectiveState(control)
                     const isAdded = effectiveState === 'added'
-                    const hasDraft = drafts.has(control.id)
+                    const draftAction = drafts.get(control.id)
+                    const hasDraft = !!draftAction
 
                     const recommended = isRecommended(control)
 
                     return (
-                      <div key={control.id} className={`flex items-start justify-between p-4 rounded-lg border bg-card ${hasDraft ? 'border-brand bg-brand/5' : 'border-border'}`}>
-                        <div className="flex items-center gap-3 flex-1 min-w-0 mr-4">
-                          {canEditTc && <Checkbox checked={isAdded} onCheckedChange={() => handleToggle(control)} aria-label={`Toggle ${control.title || control.refCode}`} />}
-                          <div className="flex flex-col gap-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm text-muted-foreground line-clamp-2">{control.description || 'No description provided'}</p>
-                              {recommended && (
-                                <Badge variant="green" className="shrink-0">
-                                  <Star size={12} className="mr-1" />
-                                  Recommended
+                      <div key={control.id} className={`grid grid-cols-[1fr_9rem_auto] items-center gap-4 p-4 rounded-lg border border-border bg-card ${hasDraft ? 'border-l-4 border-l-info' : ''}`}>
+                        <div className="flex flex-col gap-1 min-w-0">
+                          <p className="text-sm text-muted-foreground line-clamp-2">{control.description || 'No description provided'}</p>
+                          {control.tags && control.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mt-1">
+                              {control.tags.map((tag) => (
+                                <Badge key={tag} variant="document">
+                                  {tag}
                                 </Badge>
-                              )}
-                              {hasDraft && <Badge variant="blue">{drafts.get(control.id) === 'add' ? 'Pending Add' : 'Pending Remove'}</Badge>}
+                              ))}
                             </div>
-                            {control.tags && control.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5 mt-1">
-                                {control.tags.map((tag) => (
-                                  <Badge key={tag} variant="document">
-                                    {tag}
-                                  </Badge>
-                                ))}
-                              </div>
-                            )}
-                          </div>
+                          )}
+                        </div>
+                        <div className="flex justify-end">
+                          {recommended && (
+                            <Badge variant="green" className="shrink-0 whitespace-nowrap">
+                              <Star size={12} className="mr-1" />
+                              Recommended
+                            </Badge>
+                          )}
                         </div>
                         {canEditTc && (
-                          <Button
-                            variant={isAdded ? 'secondary' : 'primary'}
-                            size="sm"
-                            icon={isAdded ? <Minus size={14} /> : <Plus size={14} />}
-                            iconPosition="left"
-                            onClick={() => handleToggle(control)}
-                            className="shrink-0 py-1"
-                          >
-                            {isAdded ? 'Remove' : 'Add'}
-                          </Button>
+                          <div className="w-24 flex justify-end">
+                            <Button
+                              variant={hasDraft || isAdded ? 'secondary' : 'primary'}
+                              icon={hasDraft ? <RotateCcw /> : isAdded ? <Minus /> : <Plus />}
+                              iconPosition="left"
+                              onClick={() => handleToggle(control)}
+                              className="shrink-0 py-1"
+                              descriptiveTooltipText={hasDraft ? `Pending ${draftAction === 'add' ? 'add' : 'remove'}, click to undo` : undefined}
+                              aria-label={`${isAdded ? 'Remove' : 'Add'} ${control.title || control.refCode}`}
+                            >
+                              {hasDraft ? 'Pending' : isAdded ? 'Remove' : 'Add'}
+                            </Button>
+                          </div>
                         )}
                       </div>
                     )
