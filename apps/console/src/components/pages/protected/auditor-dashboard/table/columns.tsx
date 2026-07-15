@@ -1,6 +1,6 @@
 import React from 'react'
+import Link from 'next/link'
 import { type ColumnDef } from '@tanstack/react-table'
-import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Play, ArrowRight, Eye, MessageSquare } from 'lucide-react'
@@ -8,13 +8,15 @@ import { TruncatedCell } from '@repo/ui/data-table'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { EvidenceBadgeMapper } from '@/components/shared/enum-mapper/evidence-enum'
-import { ReviewReviewStatus, type User, type EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
-import { type AuditorDashboardControlNode } from '@/lib/graphql-hooks/control'
+import { ReviewReviewStatus, type User } from '@repo/codegen/src/schema'
+import { type AuditorDashboardControlNode, type AuditorDashboardEvidenceItem, type AuditorDashboardPolicyItem } from '@/lib/graphql-hooks/control'
+import { OverflowBadgesCell } from '@/components/shared/crud-base/columns/overflow-badges-cell'
 import { type ControlReviewSummary } from '../utils/control-status'
+import { EvidenceStatusCell } from './evidence-status-cell'
 
 export type AuditorDashboardControlRow = NonNullable<AuditorDashboardControlNode> & {
-  evidenceStatus: EvidenceEvidenceStatus | null
+  evidenceItems: AuditorDashboardEvidenceItem[]
+  linkedPolicies: AuditorDashboardPolicyItem[]
   review: ControlReviewSummary | null
   lastReviewed: string | null
 }
@@ -35,7 +37,15 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
       enableHiding: false,
       cell: ({ row }) => (
         <div className="flex flex-col">
-          <span className="font-medium">{row.original.refCode}</span>
+          <Link
+            href={`/controls/${row.original.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-blue-500 hover:underline w-fit"
+            onClick={(event) => event.stopPropagation()}
+          >
+            {row.original.refCode}
+          </Link>
           {row.original.title && <TruncatedCell className="text-muted-foreground text-xs">{row.original.title}</TruncatedCell>}
         </div>
       ),
@@ -43,14 +53,8 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
     {
       id: 'evidenceStatus',
       header: 'Evidence Status',
-      size: 150,
-      cell: ({ row }) => {
-        const status = row.original.evidenceStatus
-        if (!status) {
-          return <Badge variant="destructive">Missing</Badge>
-        }
-        return EvidenceBadgeMapper[status]
-      },
+      size: 170,
+      cell: ({ row }) => <EvidenceStatusCell items={row.original.evidenceItems} />,
     },
     {
       id: 'reviewStatus',
@@ -66,9 +70,15 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
     },
     {
       id: 'owner',
-      header: 'Owner',
+      header: 'Control Owner',
       size: 180,
       cell: ({ row }) => <UserCell user={(row.original.controlOwner as User) ?? undefined} fallback="—" />,
+    },
+    {
+      id: 'linkedPolicies',
+      header: 'Linked Policies',
+      size: 220,
+      cell: ({ row }) => <OverflowBadgesCell values={row.original.linkedPolicies.map((policy) => policy.name)} />,
     },
     {
       id: 'lastReviewed',
@@ -84,6 +94,7 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
       header: '',
       size: 150,
       maxSize: 150,
+      minSize: 150,
       enableHiding: false,
       cell: ({ row }) => {
         const { review } = row.original

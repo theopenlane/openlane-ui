@@ -105,6 +105,7 @@ import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { useEffect, useMemo } from 'react'
 
 export type ControlByIdNode = GetControlByIdQuery['control']
+export type ControlEvidenceItem = NonNullable<NonNullable<NonNullable<NonNullable<NonNullable<ControlByIdNode>['evidence']>['edges']>[number]>['node']>
 export type ControlsByRefcodeEdge = NonNullable<NonNullable<NonNullable<GetControlsByRefCodeQuery['controls']>['edges']>[number]>
 export type ControlsByRefcodeNode = NonNullable<ControlsByRefcodeEdge['node']>
 
@@ -148,6 +149,9 @@ export const useGetAllControls = ({ where, pagination, orderBy, enabled = true, 
 }
 
 export type AuditorDashboardControlNode = NonNullable<NonNullable<NonNullable<GetAuditorDashboardControlsQuery['controls']>['edges']>[number]>['node']
+
+export type AuditorDashboardEvidenceItem = NonNullable<NonNullable<NonNullable<NonNullable<AuditorDashboardControlNode>['evidence']['edges']>[number]>['node']>
+export type AuditorDashboardPolicyItem = NonNullable<NonNullable<NonNullable<NonNullable<AuditorDashboardControlNode>['internalPolicies']['edges']>[number]>['node']>
 
 type UseGetAuditorDashboardControlsArgs = {
   programId: string

@@ -86,6 +86,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           title: 'Auditor Dashboard',
           href: '/auditor-dashboard',
           icon: SquareActivity,
+          hidden: !isAuditor,
         },
         {
           title: 'Programs',

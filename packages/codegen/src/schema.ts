@@ -27,6 +27,8 @@ export interface Scalars {
   AssessmentMethod: { input: any; output: any }
   /** The `AssessmentObjective` scalar type represents objectives that are validated during the audit to ensure the control is implemented */
   AssessmentObjective: { input: any; output: any }
+  /** AssignmentOutcome captures consolidated terminal outcome metadata for a workflow assignment, discriminated by decision. */
+  AssignmentOutcome: { input: any; output: any }
   /**
    * Change is a difference between two updates to an object used by
    * the audit history resolvers
@@ -101,6 +103,8 @@ export interface Scalars {
   WorkflowEventPayload: { input: any; output: any }
   /** WorkflowInstanceContext contains runtime context for a workflow instance including assignments and object info. */
   WorkflowInstanceContext: { input: any; output: any }
+  /** WorkflowProposedChanges captures staged field updates as opaque JSON for workflow proposals. */
+  WorkflowProposedChanges: { input: any; output: any }
 }
 
 export interface ApiToken extends Node {
@@ -1351,6 +1355,8 @@ export interface AddProgramMembershipInput {
 export interface Assessment extends Node {
   __typename?: 'Assessment'
   accessURL?: Maybe<Scalars['String']['output']>
+  /** Returns active workflow instances for this assessment (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
   assessmentResponses: AssessmentResponseConnection
   assessmentType: AssessmentAssessmentType
   blockedGroups: GroupConnection
@@ -1358,6 +1364,10 @@ export interface Assessment extends Node {
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   editors: GroupConnection
+  /** Indicates if this assessment has pending changes awaiting workflow approval */
+  hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this assessment has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   identityHolders: IdentityHolderConnection
   /** internal notes about the object creation, this field is only available to system admins */
@@ -1388,6 +1398,11 @@ export interface Assessment extends Node {
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
+  workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this assessment across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
 }
 
 export interface AssessmentAssessmentResponsesArgs {
@@ -1451,6 +1466,25 @@ export interface AssessmentViewersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface AssessmentWorkflowObjectRefsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
+  where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface AssessmentWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
 }
 
 /** AssessmentAssessmentType is enum for the field assessment_type */
@@ -1523,6 +1557,8 @@ export enum AssessmentOrderField {
 
 export interface AssessmentResponse extends Node {
   __typename?: 'AssessmentResponse'
+  /** Returns active workflow instances for this assessmentResponse (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
   assessment: Assessment
   /** the assessment this response is for */
   assessmentID: Scalars['ID']['output']
@@ -1559,6 +1595,10 @@ export interface AssessmentResponse extends Node {
   entity?: Maybe<Entity>
   /** the entity associated with this assessment response */
   entityID?: Maybe<Scalars['ID']['output']>
+  /** Indicates if this assessmentResponse has pending changes awaiting workflow approval */
+  hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this assessmentResponse has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   identityHolder?: Maybe<IdentityHolder>
   /** the identity holder record for the recipient */
@@ -1584,6 +1624,11 @@ export interface AssessmentResponse extends Node {
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
   vendorRiskScores: VendorRiskScoreConnection
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
+  workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this assessmentResponse across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
 }
 
 export interface AssessmentResponseVendorRiskScoresArgs {
@@ -1593,6 +1638,25 @@ export interface AssessmentResponseVendorRiskScoresArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<VendorRiskScoreOrder>>
   where?: InputMaybe<VendorRiskScoreWhereInput>
+}
+
+export interface AssessmentResponseWorkflowObjectRefsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
+  where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface AssessmentResponseWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
 }
 
 /** AssessmentResponseAssessmentResponseStatus is enum for the field status */
@@ -1885,6 +1949,9 @@ export interface AssessmentResponseWhereInput {
   /** vendor_risk_scores edge predicates */
   hasVendorRiskScores?: InputMaybe<Scalars['Boolean']['input']>
   hasVendorRiskScoresWith?: InputMaybe<Array<VendorRiskScoreWhereInput>>
+  /** workflow_object_refs edge predicates */
+  hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -2013,6 +2080,11 @@ export interface AssessmentResponseWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** workflow_eligible_marker field predicates */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /** Return response for updateAssessment mutation */
@@ -2087,6 +2159,9 @@ export interface AssessmentWhereInput {
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
+  /** workflow_object_refs edge predicates */
+  hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -2239,6 +2314,11 @@ export interface AssessmentWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** workflow_eligible_marker field predicates */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export interface Asset extends Node {
@@ -8182,6 +8262,9 @@ export interface CreateAssessmentInput {
   /** the uischema for the template to render in the UI. If not provided, it will be inherited from the template */
   uischema?: InputMaybe<Scalars['Map']['input']>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -8216,6 +8299,9 @@ export interface CreateAssessmentResponseInput {
   lastEmailEventAt?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   vendorRiskScoreIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -9542,6 +9628,8 @@ export interface CreateFindingInput {
   /** attack vector string such as a CVSS vector */
   vector?: InputMaybe<Scalars['String']['input']>
   vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
@@ -10882,6 +10970,9 @@ export interface CreateRemediationInput {
   /** title or short description of the remediation effort */
   title?: InputMaybe<Scalars['String']['input']>
   vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -11043,6 +11134,9 @@ export interface CreateRiskInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -11072,6 +11166,8 @@ export interface CreateScanInput {
   assignedToUserID?: InputMaybe<Scalars['ID']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** identifiers of vulnerabilities discovered during the scan */
+  discoveredVulnerabilityIds?: InputMaybe<Array<Scalars['String']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   environmentID?: InputMaybe<Scalars['ID']['input']>
@@ -11114,8 +11210,6 @@ export interface CreateScanInput {
   target: Scalars['String']['input']
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** identifiers of vulnerabilities discovered during the scan */
-  vulnerabilityIds?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 /**
@@ -11462,6 +11556,8 @@ export interface CreateTaskInput {
   /** the title of the task */
   title: Scalars['String']['input']
   vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
@@ -12062,6 +12158,9 @@ export interface CreateVulnerabilityInput {
   vulnerabilityStatusName?: InputMaybe<Scalars['String']['input']>
   /** version range affected by the vulnerability */
   vulnerableVersionRange?: InputMaybe<Scalars['String']['input']>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -20845,6 +20944,8 @@ export interface FileWhereInput {
 export interface Finding extends Node {
   __typename?: 'Finding'
   actionPlans: ActionPlanConnection
+  /** Returns active workflow instances for this finding (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
   /** identifier for the assessment that generated the finding */
   assessmentID?: Maybe<Scalars['String']['output']>
   assets: AssetConnection
@@ -20901,6 +21002,10 @@ export interface Finding extends Node {
   findingStatusID?: Maybe<Scalars['ID']['output']>
   /** the status of the finding */
   findingStatusName?: Maybe<Scalars['String']['output']>
+  /** Indicates if this finding has pending changes awaiting workflow approval */
+  hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this finding has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   identityHolders: IdentityHolderConnection
   /** impact score or rating for the finding */
@@ -20990,7 +21095,11 @@ export interface Finding extends Node {
   /** attack vector string such as a CVSS vector */
   vector?: Maybe<Scalars['String']['output']>
   vulnerabilities: VulnerabilityConnection
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this finding across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
 }
 
 export interface FindingActionPlansArgs {
@@ -21189,6 +21298,16 @@ export interface FindingWorkflowObjectRefsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
   where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface FindingWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
 }
 
 /** Return response for createBulkFinding mutation */
@@ -22373,6 +22492,11 @@ export interface FindingWhereInput {
   vectorNEQ?: InputMaybe<Scalars['String']['input']>
   vectorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   vectorNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** workflow_eligible_marker field predicates */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export interface Group extends Node {
@@ -44672,6 +44796,8 @@ export interface RelatedSubcontrolEdge {
 export interface Remediation extends Node {
   __typename?: 'Remediation'
   actionPlans: ActionPlanConnection
+  /** Returns active workflow instances for this remediation (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
   assets: AssetConnection
   blockedGroups: GroupConnection
   comments: NoteConnection
@@ -44703,6 +44829,10 @@ export interface Remediation extends Node {
   externalURI?: Maybe<Scalars['String']['output']>
   files: FileConnection
   findings: FindingConnection
+  /** Indicates if this remediation has pending changes awaiting workflow approval */
+  hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this remediation has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   /** specific instructions or steps to implement the remediation */
   instructions?: Maybe<Scalars['String']['output']>
@@ -44758,6 +44888,11 @@ export interface Remediation extends Node {
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
   vulnerabilities: VulnerabilityConnection
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
+  workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this remediation across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
 }
 
 export interface RemediationActionPlansArgs {
@@ -44911,6 +45046,25 @@ export interface RemediationVulnerabilitiesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<VulnerabilityOrder>>
   where?: InputMaybe<VulnerabilityWhereInput>
+}
+
+export interface RemediationWorkflowObjectRefsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
+  where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface RemediationWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
 }
 
 /** Return response for createBulkRemediation mutation */
@@ -45250,6 +45404,9 @@ export interface RemediationWhereInput {
   /** vulnerabilities edge predicates */
   hasVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   hasVulnerabilitiesWith?: InputMaybe<Array<VulnerabilityWhereInput>>
+  /** workflow_object_refs edge predicates */
+  hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -45571,6 +45728,11 @@ export interface RemediationWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** workflow_eligible_marker field predicates */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /** Input for resendCampaignIncompleteTargets mutation */
@@ -46447,6 +46609,8 @@ export interface ReviewWhereInput {
 export interface Risk extends Node {
   __typename?: 'Risk'
   actionPlans: ActionPlanConnection
+  /** Returns active workflow instances for this risk (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
   assets: AssetConnection
   blockedGroups: GroupConnection
   /** business costs associated with the risk */
@@ -46481,6 +46645,10 @@ export interface Risk extends Node {
   externalID?: Maybe<Scalars['String']['output']>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: Maybe<Scalars['String']['output']>
+  /** Indicates if this risk has pending changes awaiting workflow approval */
+  hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this risk has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   /** impact of the risk -critical, high, medium, low */
   impact?: Maybe<RiskRiskImpact>
@@ -46551,6 +46719,11 @@ export interface Risk extends Node {
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
+  workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this risk across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
 }
 
 export interface RiskActionPlansArgs {
@@ -46713,6 +46886,25 @@ export interface RiskViewersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface RiskWorkflowObjectRefsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
+  where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface RiskWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
 }
 
 /** Return response for createBulkRisk mutation */
@@ -47106,6 +47298,9 @@ export interface RiskWhereInput {
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
+  /** workflow_object_refs edge predicates */
+  hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -47444,6 +47639,11 @@ export interface RiskWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** workflow_eligible_marker field predicates */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export interface SlaDefinition extends Node {
@@ -47743,6 +47943,8 @@ export interface Scan extends Node {
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** identifiers of vulnerabilities discovered during the scan */
+  discoveredVulnerabilityIds?: Maybe<Array<Scalars['String']['output']>>
   editors: GroupConnection
   entities: EntityConnection
   environment?: Maybe<CustomTypeEnum>
@@ -47806,8 +48008,6 @@ export interface Scan extends Node {
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
   vulnerabilities: VulnerabilityConnection
-  /** identifiers of vulnerabilities discovered during the scan */
-  vulnerabilityIds?: Maybe<Array<Scalars['String']['output']>>
 }
 
 export interface ScanActionPlansArgs {
@@ -48119,6 +48319,8 @@ export interface ScanWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for discoveredVulnerabilityIdsHas to contain a specific value */
+  discoveredVulnerabilityIdsHas?: InputMaybe<Scalars['String']['input']>
   /** environment_id field predicates */
   environmentID?: InputMaybe<Scalars['ID']['input']>
   environmentIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -48487,8 +48689,6 @@ export interface ScanWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** Filter for vulnerabilityIdsHas to contain a specific value */
-  vulnerabilityIdsHas?: InputMaybe<Scalars['String']['input']>
 }
 
 export interface ScheduledJob extends Node {
@@ -52262,6 +52462,8 @@ export interface TagDefinitionWhereInput {
 export interface Task extends Node {
   __typename?: 'Task'
   actionPlans: ActionPlanConnection
+  /** Returns active workflow instances for this task (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
   assignee?: Maybe<User>
   /** the id of the user who was assigned the task */
   assigneeID?: Maybe<Scalars['ID']['output']>
@@ -52296,6 +52498,10 @@ export interface Task extends Node {
   externalUUID?: Maybe<Scalars['String']['output']>
   findings: FindingConnection
   groups: GroupConnection
+  /** Indicates if this task has pending changes awaiting workflow approval */
+  hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this task has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   /** key to prevent duplicates for auto-generated task based on rules */
   idempotencyKey?: Maybe<Scalars['String']['output']>
@@ -52339,7 +52545,11 @@ export interface Task extends Node {
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
   vulnerabilities: VulnerabilityConnection
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this task across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
 }
 
 export interface TaskActionPlansArgs {
@@ -52502,6 +52712,16 @@ export interface TaskWorkflowObjectRefsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
   where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface TaskWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
 }
 
 /** Return response for createBulkTask mutation */
@@ -53040,6 +53260,11 @@ export interface TaskWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** workflow_eligible_marker field predicates */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export interface Template extends Node {
@@ -57356,6 +57581,7 @@ export interface UpdateAssessmentInput {
   addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
@@ -57371,6 +57597,8 @@ export interface UpdateAssessmentInput {
   clearTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   /** the jsonschema object of the questionnaire. If not provided it will be inherited from the template. */
@@ -57384,6 +57612,7 @@ export interface UpdateAssessmentInput {
   removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
   responseDueDuration?: InputMaybe<Scalars['Int']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -57393,6 +57622,8 @@ export interface UpdateAssessmentInput {
   templateID?: InputMaybe<Scalars['ID']['input']>
   /** the uischema for the template to render in the UI. If not provided, it will be inherited from the template */
   uischema?: InputMaybe<Scalars['Map']['input']>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /**
@@ -59427,6 +59658,7 @@ export interface UpdateFindingInput {
   clearValidated?: InputMaybe<Scalars['Boolean']['input']>
   clearVector?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   /** long form description of the finding */
   description?: InputMaybe<Scalars['String']['input']>
@@ -59532,6 +59764,8 @@ export interface UpdateFindingInput {
   validated?: InputMaybe<Scalars['Boolean']['input']>
   /** attack vector string such as a CVSS vector */
   vector?: InputMaybe<Scalars['String']['input']>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /**
@@ -61740,6 +61974,7 @@ export interface UpdateRemediationInput {
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   clearAssets?: InputMaybe<Scalars['Boolean']['input']>
@@ -61785,6 +62020,8 @@ export interface UpdateRemediationInput {
   clearTicketReference?: InputMaybe<Scalars['Boolean']['input']>
   clearTitle?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   /** timestamp when the remediation was completed */
   completedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** timestamp when the remediation is due */
@@ -61833,6 +62070,7 @@ export interface UpdateRemediationInput {
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** source code repository URI associated with the remediation */
   repositoryURI?: InputMaybe<Scalars['String']['input']>
   scopeID?: InputMaybe<Scalars['ID']['input']>
@@ -61854,6 +62092,8 @@ export interface UpdateRemediationInput {
   ticketReference?: InputMaybe<Scalars['String']['input']>
   /** title or short description of the remediation effort */
   title?: InputMaybe<Scalars['String']['input']>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /**
@@ -62016,6 +62256,7 @@ export interface UpdateRiskInput {
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendBusinessCostsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   appendDetailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   appendMitigationJSON?: InputMaybe<Array<Scalars['Any']['input']>>
@@ -62075,6 +62316,8 @@ export interface UpdateRiskInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   delegateID?: InputMaybe<Scalars['ID']['input']>
   deleteComment?: InputMaybe<Scalars['ID']['input']>
   deleteDiscussion?: InputMaybe<Scalars['ID']['input']>
@@ -62129,6 +62372,7 @@ export interface UpdateRiskInput {
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** score of the residual risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   residualScore?: InputMaybe<Scalars['Int']['input']>
   reviewFrequency?: InputMaybe<RiskFrequency>
@@ -62153,6 +62397,8 @@ export interface UpdateRiskInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   updateDiscussion?: InputMaybe<UpdateDiscussionsInput>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /**
@@ -62195,8 +62441,8 @@ export interface UpdateScanInput {
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendDiscoveredVulnerabilityIds?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
-  appendVulnerabilityIds?: InputMaybe<Array<Scalars['String']['input']>>
   /** who the scan is assigned to when no user or group is linked */
   assignedTo?: InputMaybe<Scalars['String']['input']>
   assignedToGroupID?: InputMaybe<Scalars['ID']['input']>
@@ -62208,6 +62454,7 @@ export interface UpdateScanInput {
   clearAssignedToUser?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
+  clearDiscoveredVulnerabilityIds?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
@@ -62234,7 +62481,8 @@ export interface UpdateScanInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
-  clearVulnerabilityIds?: InputMaybe<Scalars['Boolean']['input']>
+  /** identifiers of vulnerabilities discovered during the scan */
+  discoveredVulnerabilityIds?: InputMaybe<Array<Scalars['String']['input']>>
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the scan */
   environmentName?: InputMaybe<Scalars['String']['input']>
@@ -62280,8 +62528,6 @@ export interface UpdateScanInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the target of the scan, e.g., a domain name or IP address, codebase */
   target?: InputMaybe<Scalars['String']['input']>
-  /** identifiers of vulnerabilities discovered during the scan */
-  vulnerabilityIds?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 /**
@@ -62799,6 +63045,7 @@ export interface UpdateTaskInput {
   clearTaskKindName?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   /** the completion date of the task */
   completed?: InputMaybe<Scalars['DateTime']['input']>
@@ -62852,6 +63099,8 @@ export interface UpdateTaskInput {
   taskKindName?: InputMaybe<Scalars['String']['input']>
   /** the title of the task */
   title?: InputMaybe<Scalars['String']['input']>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /**
@@ -63530,6 +63779,7 @@ export interface UpdateVulnerabilityInput {
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendCweIds?: InputMaybe<Array<Scalars['String']['input']>>
   appendImpacts?: InputMaybe<Array<Scalars['String']['input']>>
   appendReferences?: InputMaybe<Array<Scalars['String']['input']>>
@@ -63617,6 +63867,8 @@ export interface UpdateVulnerabilityInput {
   clearVulnerabilityStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilityStatusName?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerableVersionRange?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   /** CVE identifier for the vulnerability when applicable */
   cveID?: InputMaybe<Scalars['String']['input']>
   /** CWE identifiers associated with the vulnerability */
@@ -63700,6 +63952,7 @@ export interface UpdateVulnerabilityInput {
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** who reviewed the vulnerability when no user or group is linked */
   reviewedBy?: InputMaybe<Scalars['String']['input']>
   reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
@@ -63730,6 +63983,8 @@ export interface UpdateVulnerabilityInput {
   vulnerabilityStatusName?: InputMaybe<Scalars['String']['input']>
   /** version range affected by the vulnerability */
   vulnerableVersionRange?: InputMaybe<Scalars['String']['input']>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /**
@@ -65510,6 +65765,8 @@ export interface VendorScoringConfigWhereInput {
 export interface Vulnerability extends Node {
   __typename?: 'Vulnerability'
   actionPlans: ActionPlanConnection
+  /** Returns active workflow instances for this vulnerability (RUNNING or PAUSED) */
+  activeWorkflowInstances: Array<WorkflowInstance>
   assets: AssetConnection
   /** who the vulnerability is assigned to when no user or group is linked */
   assignedTo?: Maybe<Scalars['String']['output']>
@@ -65573,6 +65830,10 @@ export interface Vulnerability extends Node {
   fixAvailable?: Maybe<Scalars['Boolean']['output']>
   /** timestamp when the vulnerability was marked as fixed */
   fixedAt?: Maybe<Scalars['DateTime']['output']>
+  /** Indicates if this vulnerability has pending changes awaiting workflow approval */
+  hasPendingWorkflow: Scalars['Boolean']['output']
+  /** Indicates if this vulnerability has any workflow history (completed or failed instances) */
+  hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   /** impact score or rating for the vulnerability */
   impact?: Maybe<Scalars['Float']['output']>
@@ -65662,6 +65923,11 @@ export interface Vulnerability extends Node {
   vulnerabilityStatusName?: Maybe<Scalars['String']['output']>
   /** version range affected by the vulnerability */
   vulnerableVersionRange?: Maybe<Scalars['String']['output']>
+  /** internal marker field for workflow eligibility, not exposed in API */
+  workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
+  workflowObjectRefs: WorkflowObjectRefConnection
+  /** Returns the workflow event timeline for this vulnerability across all workflow instances */
+  workflowTimeline: WorkflowEventConnection
 }
 
 export interface VulnerabilityActionPlansArgs {
@@ -65824,6 +66090,25 @@ export interface VulnerabilityViewersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface VulnerabilityWorkflowObjectRefsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
+  where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface VulnerabilityWorkflowTimelineArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  includeEmitFailures?: InputMaybe<Scalars['Boolean']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder>>
+  where?: InputMaybe<WorkflowEventWhereInput>
 }
 
 /** Return response for createBulkVulnerability mutation */
@@ -66401,6 +66686,9 @@ export interface VulnerabilityWhereInput {
   /** vulnerability_status edge predicates */
   hasVulnerabilityStatus?: InputMaybe<Scalars['Boolean']['input']>
   hasVulnerabilityStatusWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** workflow_object_refs edge predicates */
+  hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -66854,6 +67142,11 @@ export interface VulnerabilityWhereInput {
   vulnerableVersionRangeNEQ?: InputMaybe<Scalars['String']['input']>
   vulnerableVersionRangeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   vulnerableVersionRangeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** workflow_eligible_marker field predicates */
+  workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export interface Webauthn extends Node {
@@ -67024,6 +67317,8 @@ export interface WorkflowAssignment extends Node {
   metadata?: Maybe<Scalars['Map']['output']>
   /** Optional notes about the assignment */
   notes?: Maybe<Scalars['String']['output']>
+  /** consolidated terminal outcome metadata discriminated by decision (supersedes approval/rejection/invalidation metadata) */
+  outcomeMetadata?: Maybe<Scalars['AssignmentOutcome']['output']>
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -68408,6 +68703,14 @@ export interface WorkflowInstance extends Node {
   actionPlan?: Maybe<ActionPlan>
   /** ID of the actionplan this workflow instance is associated with */
   actionPlanID?: Maybe<Scalars['ID']['output']>
+  /** Assessment this workflow instance is associated with */
+  assessment?: Maybe<Assessment>
+  /** ID of the assessment this workflow instance is associated with */
+  assessmentID?: Maybe<Scalars['ID']['output']>
+  /** Assessment response this workflow instance is associated with */
+  assessmentResponse?: Maybe<AssessmentResponse>
+  /** ID of the assessment response this workflow instance is associated with */
+  assessmentResponseID?: Maybe<Scalars['ID']['output']>
   /** Campaign this workflow instance is associated with */
   campaign?: Maybe<Campaign>
   /** ID of the campaign this workflow instance is associated with */
@@ -68435,11 +68738,19 @@ export interface WorkflowInstance extends Node {
   evidence?: Maybe<Evidence>
   /** ID of the evidence this workflow instance is associated with */
   evidenceID?: Maybe<Scalars['ID']['output']>
+  /** Finding this workflow instance is associated with */
+  finding?: Maybe<Finding>
+  /** ID of the finding this workflow instance is associated with */
+  findingID?: Maybe<Scalars['ID']['output']>
   id: Scalars['ID']['output']
   /** Identity holder this workflow instance is associated with */
   identityHolder?: Maybe<IdentityHolder>
   /** ID of the identity holder this workflow instance is associated with */
   identityHolderID?: Maybe<Scalars['ID']['output']>
+  /** Integration this workflow instance is associated with */
+  integration?: Maybe<Integration>
+  /** ID of the integration this workflow instance is associated with */
+  integrationID?: Maybe<Scalars['ID']['output']>
   /** Internal policy this workflow instance is associated with */
   internalPolicy?: Maybe<InternalPolicy>
   /** ID of the internal policy this workflow instance is associated with */
@@ -68462,6 +68773,14 @@ export interface WorkflowInstance extends Node {
    * Only available to editors/owners of the target object.
    */
   proposalPreview?: Maybe<WorkflowProposalPreview>
+  /** Remediation this workflow instance is associated with */
+  remediation?: Maybe<Remediation>
+  /** ID of the remediation this workflow instance is associated with */
+  remediationID?: Maybe<Scalars['ID']['output']>
+  /** Risk this workflow instance is associated with */
+  risk?: Maybe<Risk>
+  /** ID of the risk this workflow instance is associated with */
+  riskID?: Maybe<Scalars['ID']['output']>
   /** Current state of the workflow instance */
   state: WorkflowInstanceWorkflowInstanceState
   /** Subcontrol this workflow instance is associated with */
@@ -68470,10 +68789,18 @@ export interface WorkflowInstance extends Node {
   subcontrolID?: Maybe<Scalars['ID']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
+  /** Task this workflow instance is associated with */
+  task?: Maybe<Task>
+  /** ID of the task this workflow instance is associated with */
+  taskID?: Maybe<Scalars['ID']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
+  /** Vulnerability this workflow instance is associated with */
+  vulnerability?: Maybe<Vulnerability>
+  /** ID of the vulnerability this workflow instance is associated with */
+  vulnerabilityID?: Maybe<Scalars['ID']['output']>
   workflowAssignments: WorkflowAssignmentConnection
   /** Definition driving this instance */
   workflowDefinition: WorkflowDefinition
@@ -68591,6 +68918,38 @@ export interface WorkflowInstanceWhereInput {
   actionPlanIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   actionPlanIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   and?: InputMaybe<Array<WorkflowInstanceWhereInput>>
+  /** assessment_id field predicates */
+  assessmentID?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assessmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assessmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assessmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** assessment_response_id field predicates */
+  assessmentResponseID?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDContains?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDGT?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDGTE?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assessmentResponseIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assessmentResponseIDLT?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDLTE?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assessmentResponseIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** campaign_id field predicates */
   campaignID?: InputMaybe<Scalars['ID']['input']>
   campaignIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -68705,9 +69064,31 @@ export interface WorkflowInstanceWhereInput {
   evidenceIDNEQ?: InputMaybe<Scalars['ID']['input']>
   evidenceIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   evidenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** finding_id field predicates */
+  findingID?: InputMaybe<Scalars['ID']['input']>
+  findingIDContains?: InputMaybe<Scalars['ID']['input']>
+  findingIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  findingIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  findingIDGT?: InputMaybe<Scalars['ID']['input']>
+  findingIDGTE?: InputMaybe<Scalars['ID']['input']>
+  findingIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  findingIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  findingIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  findingIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  findingIDLT?: InputMaybe<Scalars['ID']['input']>
+  findingIDLTE?: InputMaybe<Scalars['ID']['input']>
+  findingIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  findingIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  findingIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** action_plan edge predicates */
   hasActionPlan?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlanWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** assessment edge predicates */
+  hasAssessment?: InputMaybe<Scalars['Boolean']['input']>
+  /** assessment_response edge predicates */
+  hasAssessmentResponse?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssessmentResponseWith?: InputMaybe<Array<AssessmentResponseWhereInput>>
+  hasAssessmentWith?: InputMaybe<Array<AssessmentWhereInput>>
   /** campaign edge predicates */
   hasCampaign?: InputMaybe<Scalars['Boolean']['input']>
   /** campaign_target edge predicates */
@@ -68723,9 +69104,15 @@ export interface WorkflowInstanceWhereInput {
   /** evidence edge predicates */
   hasEvidence?: InputMaybe<Scalars['Boolean']['input']>
   hasEvidenceWith?: InputMaybe<Array<EvidenceWhereInput>>
+  /** finding edge predicates */
+  hasFinding?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingWith?: InputMaybe<Array<FindingWhereInput>>
   /** identity_holder edge predicates */
   hasIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
   hasIdentityHolderWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** integration edge predicates */
+  hasIntegration?: InputMaybe<Scalars['Boolean']['input']>
+  hasIntegrationWith?: InputMaybe<Array<IntegrationWhereInput>>
   /** internal_policy edge predicates */
   hasInternalPolicy?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPolicyWith?: InputMaybe<Array<InternalPolicyWhereInput>>
@@ -68738,9 +69125,21 @@ export interface WorkflowInstanceWhereInput {
   /** procedure edge predicates */
   hasProcedure?: InputMaybe<Scalars['Boolean']['input']>
   hasProcedureWith?: InputMaybe<Array<ProcedureWhereInput>>
+  /** remediation edge predicates */
+  hasRemediation?: InputMaybe<Scalars['Boolean']['input']>
+  hasRemediationWith?: InputMaybe<Array<RemediationWhereInput>>
+  /** risk edge predicates */
+  hasRisk?: InputMaybe<Scalars['Boolean']['input']>
+  hasRiskWith?: InputMaybe<Array<RiskWhereInput>>
   /** subcontrol edge predicates */
   hasSubcontrol?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** task edge predicates */
+  hasTask?: InputMaybe<Scalars['Boolean']['input']>
+  hasTaskWith?: InputMaybe<Array<TaskWhereInput>>
+  /** vulnerability edge predicates */
+  hasVulnerability?: InputMaybe<Scalars['Boolean']['input']>
+  hasVulnerabilityWith?: InputMaybe<Array<VulnerabilityWhereInput>>
   /** workflow_assignments edge predicates */
   hasWorkflowAssignments?: InputMaybe<Scalars['Boolean']['input']>
   hasWorkflowAssignmentsWith?: InputMaybe<Array<WorkflowAssignmentWhereInput>>
@@ -68780,6 +69179,22 @@ export interface WorkflowInstanceWhereInput {
   identityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
   identityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** integration_id field predicates */
+  integrationID?: InputMaybe<Scalars['ID']['input']>
+  integrationIDContains?: InputMaybe<Scalars['ID']['input']>
+  integrationIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  integrationIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  integrationIDGT?: InputMaybe<Scalars['ID']['input']>
+  integrationIDGTE?: InputMaybe<Scalars['ID']['input']>
+  integrationIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  integrationIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  integrationIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  integrationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  integrationIDLT?: InputMaybe<Scalars['ID']['input']>
+  integrationIDLTE?: InputMaybe<Scalars['ID']['input']>
+  integrationIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  integrationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  integrationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** internal_policy_id field predicates */
   internalPolicyID?: InputMaybe<Scalars['ID']['input']>
   internalPolicyIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -68857,6 +69272,38 @@ export interface WorkflowInstanceWhereInput {
   procedureIDNEQ?: InputMaybe<Scalars['ID']['input']>
   procedureIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   procedureIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** remediation_id field predicates */
+  remediationID?: InputMaybe<Scalars['ID']['input']>
+  remediationIDContains?: InputMaybe<Scalars['ID']['input']>
+  remediationIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  remediationIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  remediationIDGT?: InputMaybe<Scalars['ID']['input']>
+  remediationIDGTE?: InputMaybe<Scalars['ID']['input']>
+  remediationIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  remediationIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  remediationIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  remediationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  remediationIDLT?: InputMaybe<Scalars['ID']['input']>
+  remediationIDLTE?: InputMaybe<Scalars['ID']['input']>
+  remediationIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  remediationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  remediationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** risk_id field predicates */
+  riskID?: InputMaybe<Scalars['ID']['input']>
+  riskIDContains?: InputMaybe<Scalars['ID']['input']>
+  riskIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  riskIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  riskIDGT?: InputMaybe<Scalars['ID']['input']>
+  riskIDGTE?: InputMaybe<Scalars['ID']['input']>
+  riskIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  riskIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  riskIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  riskIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  riskIDLT?: InputMaybe<Scalars['ID']['input']>
+  riskIDLTE?: InputMaybe<Scalars['ID']['input']>
+  riskIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  riskIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  riskIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** state field predicates */
   state?: InputMaybe<WorkflowInstanceWorkflowInstanceState>
   stateIn?: InputMaybe<Array<WorkflowInstanceWorkflowInstanceState>>
@@ -68880,6 +69327,22 @@ export interface WorkflowInstanceWhereInput {
   subcontrolIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** Filter for tagsHas to contain a specific value */
   tagsHas?: InputMaybe<Scalars['String']['input']>
+  /** task_id field predicates */
+  taskID?: InputMaybe<Scalars['ID']['input']>
+  taskIDContains?: InputMaybe<Scalars['ID']['input']>
+  taskIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  taskIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  taskIDGT?: InputMaybe<Scalars['ID']['input']>
+  taskIDGTE?: InputMaybe<Scalars['ID']['input']>
+  taskIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  taskIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  taskIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  taskIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  taskIDLT?: InputMaybe<Scalars['ID']['input']>
+  taskIDLTE?: InputMaybe<Scalars['ID']['input']>
+  taskIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  taskIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  taskIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -68923,6 +69386,22 @@ export interface WorkflowInstanceWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** vulnerability_id field predicates */
+  vulnerabilityID?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDContains?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDGT?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDGTE?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  vulnerabilityIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  vulnerabilityIDLT?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDLTE?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  vulnerabilityIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** workflow_definition_id field predicates */
   workflowDefinitionID?: InputMaybe<Scalars['ID']['input']>
   workflowDefinitionIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -68978,6 +69457,14 @@ export interface WorkflowObjectRef extends Node {
   actionPlan?: Maybe<ActionPlan>
   /** ActionPlan referenced by this workflow instance */
   actionPlanID?: Maybe<Scalars['ID']['output']>
+  /** Assessment referenced by this workflow instance */
+  assessment?: Maybe<Assessment>
+  /** Assessment referenced by this workflow instance */
+  assessmentID?: Maybe<Scalars['ID']['output']>
+  /** Assessment response referenced by this workflow instance */
+  assessmentResponse?: Maybe<AssessmentResponse>
+  /** Assessment response referenced by this workflow instance */
+  assessmentResponseID?: Maybe<Scalars['ID']['output']>
   /** Campaign referenced by this workflow instance */
   campaign?: Maybe<Campaign>
   /** Campaign referenced by this workflow instance */
@@ -69034,6 +69521,14 @@ export interface WorkflowObjectRef extends Node {
   procedure?: Maybe<Procedure>
   /** Procedure referenced by this workflow instance */
   procedureID?: Maybe<Scalars['ID']['output']>
+  /** Remediation referenced by this workflow instance */
+  remediation?: Maybe<Remediation>
+  /** Remediation referenced by this workflow instance */
+  remediationID?: Maybe<Scalars['ID']['output']>
+  /** Risk referenced by this workflow instance */
+  risk?: Maybe<Risk>
+  /** Risk referenced by this workflow instance */
+  riskID?: Maybe<Scalars['ID']['output']>
   /** Subcontrol referenced by this workflow instance */
   subcontrol?: Maybe<Subcontrol>
   /** Subcontrol referenced by this workflow instance */
@@ -69046,6 +69541,10 @@ export interface WorkflowObjectRef extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
+  /** Vulnerability referenced by this workflow instance */
+  vulnerability?: Maybe<Vulnerability>
+  /** Vulnerability referenced by this workflow instance */
+  vulnerabilityID?: Maybe<Scalars['ID']['output']>
   /** Workflow instance this object is associated with */
   workflowInstance: WorkflowInstance
   /** Workflow instance this object is associated with */
@@ -69108,6 +69607,38 @@ export interface WorkflowObjectRefWhereInput {
   actionPlanIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   actionPlanIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   and?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
+  /** assessment_id field predicates */
+  assessmentID?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDContains?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDGT?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDGTE?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assessmentIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assessmentIDLT?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDLTE?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  assessmentIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assessmentIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** assessment_response_id field predicates */
+  assessmentResponseID?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDContains?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDGT?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDGTE?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assessmentResponseIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  assessmentResponseIDLT?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDLTE?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  assessmentResponseIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assessmentResponseIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** campaign_id field predicates */
   campaignID?: InputMaybe<Scalars['ID']['input']>
   campaignIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -69280,6 +69811,12 @@ export interface WorkflowObjectRefWhereInput {
   /** action_plan edge predicates */
   hasActionPlan?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlanWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** assessment edge predicates */
+  hasAssessment?: InputMaybe<Scalars['Boolean']['input']>
+  /** assessment_response edge predicates */
+  hasAssessmentResponse?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssessmentResponseWith?: InputMaybe<Array<AssessmentResponseWhereInput>>
+  hasAssessmentWith?: InputMaybe<Array<AssessmentWhereInput>>
   /** campaign edge predicates */
   hasCampaign?: InputMaybe<Scalars['Boolean']['input']>
   /** campaign_target edge predicates */
@@ -69319,12 +69856,21 @@ export interface WorkflowObjectRefWhereInput {
   /** procedure edge predicates */
   hasProcedure?: InputMaybe<Scalars['Boolean']['input']>
   hasProcedureWith?: InputMaybe<Array<ProcedureWhereInput>>
+  /** remediation edge predicates */
+  hasRemediation?: InputMaybe<Scalars['Boolean']['input']>
+  hasRemediationWith?: InputMaybe<Array<RemediationWhereInput>>
+  /** risk edge predicates */
+  hasRisk?: InputMaybe<Scalars['Boolean']['input']>
+  hasRiskWith?: InputMaybe<Array<RiskWhereInput>>
   /** subcontrol edge predicates */
   hasSubcontrol?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolWith?: InputMaybe<Array<SubcontrolWhereInput>>
   /** task edge predicates */
   hasTask?: InputMaybe<Scalars['Boolean']['input']>
   hasTaskWith?: InputMaybe<Array<TaskWhereInput>>
+  /** vulnerability edge predicates */
+  hasVulnerability?: InputMaybe<Scalars['Boolean']['input']>
+  hasVulnerabilityWith?: InputMaybe<Array<VulnerabilityWhereInput>>
   /** workflow_instance edge predicates */
   hasWorkflowInstance?: InputMaybe<Scalars['Boolean']['input']>
   hasWorkflowInstanceWith?: InputMaybe<Array<WorkflowInstanceWhereInput>>
@@ -69421,6 +69967,38 @@ export interface WorkflowObjectRefWhereInput {
   procedureIDNEQ?: InputMaybe<Scalars['ID']['input']>
   procedureIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   procedureIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** remediation_id field predicates */
+  remediationID?: InputMaybe<Scalars['ID']['input']>
+  remediationIDContains?: InputMaybe<Scalars['ID']['input']>
+  remediationIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  remediationIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  remediationIDGT?: InputMaybe<Scalars['ID']['input']>
+  remediationIDGTE?: InputMaybe<Scalars['ID']['input']>
+  remediationIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  remediationIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  remediationIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  remediationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  remediationIDLT?: InputMaybe<Scalars['ID']['input']>
+  remediationIDLTE?: InputMaybe<Scalars['ID']['input']>
+  remediationIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  remediationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  remediationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** risk_id field predicates */
+  riskID?: InputMaybe<Scalars['ID']['input']>
+  riskIDContains?: InputMaybe<Scalars['ID']['input']>
+  riskIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  riskIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  riskIDGT?: InputMaybe<Scalars['ID']['input']>
+  riskIDGTE?: InputMaybe<Scalars['ID']['input']>
+  riskIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  riskIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  riskIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  riskIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  riskIDLT?: InputMaybe<Scalars['ID']['input']>
+  riskIDLTE?: InputMaybe<Scalars['ID']['input']>
+  riskIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  riskIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  riskIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** subcontrol_id field predicates */
   subcontrolID?: InputMaybe<Scalars['ID']['input']>
   subcontrolIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -69496,6 +70074,22 @@ export interface WorkflowObjectRefWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** vulnerability_id field predicates */
+  vulnerabilityID?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDContains?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDGT?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDGTE?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  vulnerabilityIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  vulnerabilityIDLT?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDLTE?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  vulnerabilityIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  vulnerabilityIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** workflow_instance_id field predicates */
   workflowInstanceID?: InputMaybe<Scalars['ID']['input']>
   workflowInstanceIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -69548,6 +70142,8 @@ export interface WorkflowProposal extends Node {
    * Only available to editors/owners of the target object.
    */
   preview?: Maybe<WorkflowProposalPreview>
+  /** Staged field updates as opaque JSON; preferred over changes field */
+  proposedChanges?: Maybe<Scalars['WorkflowProposedChanges']['output']>
   /** Hash of the current proposed changes for approval verification */
   proposedHash?: Maybe<Scalars['String']['output']>
   /** Monotonic revision counter; incremented on edits */
@@ -71144,7 +71740,18 @@ export type ControlDetailsFieldsFragment = {
     __typename?: 'EvidenceConnection'
     edges?: Array<{
       __typename?: 'EvidenceEdge'
-      node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: string; description?: string | null } | null
+      node?: {
+        __typename?: 'Evidence'
+        id: string
+        displayID: string
+        name: string
+        creationDate: string
+        description?: string | null
+        files: {
+          __typename?: 'FileConnection'
+          edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null } | null } | null> | null
+        }
+      } | null
     } | null> | null
   }
   subcontrols: {
@@ -71352,7 +71959,18 @@ export type GetControlByIdQuery = {
       __typename?: 'EvidenceConnection'
       edges?: Array<{
         __typename?: 'EvidenceEdge'
-        node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: string; description?: string | null } | null
+        node?: {
+          __typename?: 'Evidence'
+          id: string
+          displayID: string
+          name: string
+          creationDate: string
+          description?: string | null
+          files: {
+            __typename?: 'FileConnection'
+            edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null } | null } | null> | null
+          }
+        } | null
       } | null> | null
     }
     subcontrols: {
@@ -71641,7 +72259,16 @@ export type GetAuditorDashboardControlsQuery = {
           logoURL?: string | null
           avatarFile?: { __typename?: 'File'; base64?: string | null } | null
         } | null
-        evidence: { __typename?: 'EvidenceConnection'; edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; status?: EvidenceEvidenceStatus | null } | null } | null> | null }
+        internalPolicies: {
+          __typename?: 'InternalPolicyConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+        }
+        evidence: {
+          __typename?: 'EvidenceConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null } | null } | null> | null
+        }
         reviews: {
           __typename?: 'ReviewConnection'
           edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; status?: ReviewReviewStatus | null; reviewedAt?: string | null } | null } | null> | null
@@ -77913,6 +78540,8 @@ export type GetEvidenceStatsQueryVariables = Exact<{
 export type GetEvidenceStatsQuery = {
   __typename?: 'Query'
   totalControls: { __typename?: 'ControlConnection'; totalCount: number }
+  frameworkControls: { __typename?: 'ControlConnection'; totalCount: number }
+  organizationControls: { __typename?: 'ControlConnection'; totalCount: number }
   submitted: { __typename?: 'ControlConnection'; totalCount: number }
   accepted: { __typename?: 'ControlConnection'; totalCount: number }
   rejected: { __typename?: 'ControlConnection'; totalCount: number }

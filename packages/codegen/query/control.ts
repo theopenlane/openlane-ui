@@ -208,6 +208,15 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           creationDate
           displayID
           description
+          files {
+            edges {
+              node {
+                id
+                providedFileName
+                presignedURL
+              }
+            }
+          }
         }
       }
     }
@@ -662,9 +671,21 @@ export const GET_AUDITOR_DASHBOARD_CONTROLS = gql`
               base64
             }
           }
-          evidence(where: { hasProgramsWith: [{ id: $programId }] }) {
+          internalPolicies {
+            totalCount
             edges {
               node {
+                id
+                name
+              }
+            }
+          }
+          evidence(where: { hasProgramsWith: [{ id: $programId }] }) {
+            totalCount
+            edges {
+              node {
+                id
+                name
                 status
               }
             }

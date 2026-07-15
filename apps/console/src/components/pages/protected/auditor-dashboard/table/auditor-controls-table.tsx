@@ -22,10 +22,11 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import CreateControlReviewSheet from '@/components/pages/protected/controls/quick-actions/create-control-review-sheet'
 import ViewReviewSheet from '@/components/pages/protected/reviews/view-review-sheet'
+import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import RequestInfoSheet from './request-info-sheet'
 import { ExportEvidenceDialog } from '@/components/pages/protected/evidence/dialog/export-evidence-dialog'
 import { BulkCSVCreateEvidenceDialog } from '@/components/pages/protected/evidence/dialog/bulk-csv-create-evidence-dialog'
-import { getControlEvidenceStatus, getControlReview, getControlLastReviewed } from '../utils/control-status'
+import { getControlReview, getControlLastReviewed } from '../utils/control-status'
 import { getAuditorDashboardColumns, getAuditorDashboardMappedColumns, type AuditorDashboardControlRow } from './columns'
 import { getAuditorDashboardFilterFields, getAuditorDashboardQuickFilters } from './table-config'
 
@@ -41,7 +42,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
   const [startReviewControlId, setStartReviewControlId] = useState<string | null>(null)
   const [openReviewId, setOpenReviewId] = useState<string | null>(null)
   const [requestInfoControl, setRequestInfoControl] = useState<{ id: string; refCode: string } | null>(null)
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, {}))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, { linkedPolicies: false }))
 
   const queryClient = useQueryClient()
   const { data: permission } = useOrganizationRoles()
@@ -87,10 +88,12 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
     () =>
       controls.map((control) => {
         const reviews = (control.reviews?.edges ?? []).flatMap((edge) => (edge?.node ? [{ id: edge.node.id, status: edge.node.status, reviewedAt: edge.node.reviewedAt }] : []))
-        const evidenceStatuses = (control.evidence?.edges ?? []).map((edge) => edge?.node?.status)
+        const evidenceItems = (control.evidence?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
+        const linkedPolicies = (control.internalPolicies?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
         return {
           ...control,
-          evidenceStatus: getControlEvidenceStatus(evidenceStatuses),
+          evidenceItems,
+          linkedPolicies,
           review: getControlReview(reviews),
           lastReviewed: getControlLastReviewed(reviews),
         }
@@ -156,9 +159,10 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
         tableKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS}
       />
 
-      <CreateControlReviewSheet open={!!startReviewControlId} onOpenChange={(next) => !next && handleReviewSheetClose()} controlId={startReviewControlId ?? ''} />
+      <CreateControlReviewSheet open={!!startReviewControlId} onOpenChange={(next) => !next && handleReviewSheetClose()} controlId={startReviewControlId ?? ''} programId={programId} />
       {openReviewId && <ViewReviewSheet entityId={openReviewId} onClose={handleReviewSheetClose} />}
       <RequestInfoSheet controlId={requestInfoControl?.id ?? null} refCode={requestInfoControl?.refCode} onClose={() => setRequestInfoControl(null)} />
+      <EvidenceDetailsSheet />
     </div>
   )
 }
