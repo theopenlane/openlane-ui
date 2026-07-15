@@ -78183,6 +78183,13 @@ export type ReviewQuery = {
       __typename?: 'SubcontrolConnection'
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
     }
+    comments: {
+      __typename?: 'NoteConnection'
+      edges?: Array<{
+        __typename?: 'NoteEdge'
+        node?: { __typename?: 'Note'; id: string; displayID: string; text: string; createdAt?: any | null; createdBy?: string | null; updatedAt?: any | null; updatedBy?: string | null } | null
+      } | null> | null
+    }
   }
 }
 
