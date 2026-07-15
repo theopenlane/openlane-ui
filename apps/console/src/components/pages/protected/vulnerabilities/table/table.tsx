@@ -4,7 +4,7 @@ import { DataTable } from '@repo/ui/data-table'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { type VulnerabilityWhereInput, type Vulnerability, type VulnerabilityOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/vulnerabilities/table/columns.tsx'
-import { type VulnerabilitiesNodeNonNull, useVulnerabilitiesWithFilter } from '@/lib/graphql-hooks/vulnerability'
+import { type VulnerabilitiesNodeNonNull, useVulnerabilitiesWithFilter, useUpdateVulnerability } from '@/lib/graphql-hooks/vulnerability'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -19,6 +19,9 @@ import { ObjectTypeObjects } from '@/components/shared/object-association/object
 import { useSheetNavigation } from '@/providers/sheet-navigation-provider'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
+import AcceptRiskDialog from '@/components/pages/protected/exposure/triage/accept-risk-dialog'
+import { buildDismissVulnerabilityInput } from '@/components/pages/protected/exposure/vulnerability-dismiss-reasons'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useQueryClient } from '@tanstack/react-query'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
@@ -44,11 +47,14 @@ const TableComponent = ({
   const sheetNav = useSheetNavigation()
   const queryClient = useQueryClient()
   const { data: session } = useSession()
-  const { errorNotification } = useNotification()
+  const { successNotification, errorNotification } = useNotification()
   const [createTaskRow, setCreateTaskRow] = useState<VulnerabilitiesNodeNonNull | null>(null)
   const [trackRemediationRow, setTrackRemediationRow] = useState<VulnerabilitiesNodeNonNull | null>(null)
+  const [dismissRow, setDismissRow] = useState<VulnerabilitiesNodeNonNull | null>(null)
   const { data: orgPermission } = useOrganizationRoles()
   const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
+  const canEditVulnerability = canEdit(permission?.roles, session)
+  const { mutateAsync: updateVulnerability, isPending: isDismissing } = useUpdateVulnerability()
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -133,6 +139,21 @@ const TableComponent = ({
     setCreateTaskRow(row)
   }
 
+  const handleDismiss = (row: VulnerabilitiesNodeNonNull) => {
+    setDismissRow(row)
+  }
+
+  const handleConfirmDismiss = async (reason: string, comment: string) => {
+    if (!dismissRow) return
+    try {
+      await updateVulnerability({ updateVulnerabilityId: dismissRow.id, input: buildDismissVulnerabilityInput(reason, comment) })
+      successNotification({ title: 'Vulnerability Updated', description: 'Risk accepted' })
+      setDismissRow(null)
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    }
+  }
+
   const columns = useMemo(
     () =>
       getColumns({
@@ -144,9 +165,10 @@ const TableComponent = ({
         onTrackRemediation: canCreateRemediation ? handleTrackRemediation : undefined,
         onOpenRemediation: handleOpenRemediation,
         onCreateTask: handleCreateTask,
+        onDismiss: canEditVulnerability ? handleDismiss : undefined,
         slaDaysByLevel,
       }),
-    [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, canCreateRemediation, handleOpenRemediation, slaDaysByLevel],
+    [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, canCreateRemediation, canEditVulnerability, handleOpenRemediation, slaDaysByLevel],
   )
 
   const createTaskInitialValues = useMemo(() => {
@@ -208,6 +230,13 @@ const TableComponent = ({
         initialData={trackRemediationRow ? { vulnerabilityIDs: [trackRemediationRow.id] } : undefined}
         defaultTitle={trackRemediationRow ? `${trackRemediationRow.displayName ?? trackRemediationRow.displayID ?? trackRemediationRow.externalID ?? ''} Remediation`.trim() : undefined}
         onSuccess={() => queryClient.invalidateQueries({ queryKey: ['vulnerabilities'] })}
+      />
+      <AcceptRiskDialog
+        isOpen={!!dismissRow}
+        vulnerabilityName={dismissRow ? (dismissRow.displayName ?? dismissRow.displayID ?? dismissRow.externalID ?? '') : ''}
+        isSubmitting={isDismissing}
+        onClose={() => setDismissRow(null)}
+        onConfirm={handleConfirmDismiss}
       />
     </>
   )

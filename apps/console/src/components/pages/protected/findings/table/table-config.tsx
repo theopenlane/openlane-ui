@@ -150,7 +150,7 @@ export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOpt
         {findingData.source}
       </Badge>
     ) : null
-  const pastDueBadge = showPastDue ? <PastDueBadge severity={findingData?.securityLevel} createdAt={findingData?.createdAt} /> : null
+  const pastDueBadge = showPastDue ? <PastDueBadge severity={findingData?.securityLevel} createdAt={findingData?.createdAt} remediationSLA={findingData?.remediationSLA} /> : null
   const headerBadges =
     sourceBadge || pastDueBadge ? (
       <>

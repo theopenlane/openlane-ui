@@ -1,5 +1,20 @@
 [
   {
+    "route": "/automation/campaigns",
+    "name": "Campaigns",
+    "hidden": true
+  },
+  {
+    "route": "/automation/communications",
+    "name": "Communications",
+    "hidden": true
+  },
+  {
+    "route": "/automation/exposure",
+    "name": "Exposure",
+    "hidden": true
+  },
+  {
     "route": "/automation/questionnaires",
     "name": "Questionnaires",
     "keywords": ["questionnaires"]
@@ -23,21 +38,6 @@
   {
     "route": "/automation/questionnaires/templates/template-viewer",
     "name": "Template Viewer"
-  },
-  {
-    "route": "/automation/campaigns",
-    "name": "Campaigns",
-    "hidden": true
-  },
-  {
-    "route": "/automation/communications",
-    "name": "Communications",
-    "hidden": true
-  },
-  {
-    "route": "/automation/exposure",
-    "name": "Exposure",
-    "hidden": true
   },
   {
     "route": "/automation/tasks",
@@ -137,6 +137,14 @@
   {
     "route": "/exposure/scans",
     "name": "Scans"
+  },
+  {
+    "route": "/exposure/scans/domain-scan",
+    "name": "Domain Scan"
+  },
+  {
+    "route": "/exposure/triage",
+    "name": "Triage"
   },
   {
     "route": "/exposure/vulnerabilities",

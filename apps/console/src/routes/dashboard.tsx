@@ -14,6 +14,7 @@ import {
   House,
   KeyRoundIcon,
   ListChecks,
+  ListOrdered,
   MailCheck,
   MessageSquareText,
   ScanLine,
@@ -214,6 +215,11 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           title: 'Overview',
           href: '/exposure/overview',
           icon: LayoutDashboard,
+        },
+        {
+          title: 'Triage Queue',
+          href: '/exposure/triage',
+          icon: ListOrdered,
         },
         {
           title: 'Risks',
