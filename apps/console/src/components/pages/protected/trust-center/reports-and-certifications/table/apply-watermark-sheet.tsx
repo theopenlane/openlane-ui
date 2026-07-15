@@ -11,6 +11,7 @@ import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ColorInput } from '@/components/shared/color-input/color-input'
+import { normalizeHexColor } from '@/utils/normalizeHexColor'
 import { useUpdateTrustCenterWatermarkConfig } from '@/lib/graphql-hooks/trust-center'
 import { TrustCenterWatermarkConfigFont } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -40,6 +41,8 @@ type ApplyWatermarkSheetProps = {
   watermarkConfig: WatermarkConfigUI
 }
 
+const DEFAULT_WATERMARK_COLOR = '#000000'
+
 const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
   const { id, text, fontSize, color, opacity, rotation } = watermarkConfig ?? {}
 
@@ -48,7 +51,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
   const [wmText, setWmText] = useState(text ?? '')
   const [wmFontSize, setWmFontSize] = useState(fontSize ?? 24)
 
-  const [wmColor, setWmColor] = useState(color ?? '#000000')
+  const [wmColor, setWmColor] = useState(() => normalizeHexColor(color) ?? DEFAULT_WATERMARK_COLOR)
 
   const [wmOpacity, setWmOpacity] = useState(opacity ?? 0.2)
   const [wmRotation, setWmRotation] = useState(rotation ?? -45)
@@ -64,7 +67,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
       setUploadedFile(null)
       setWmText('')
       setWmFontSize(24)
-      setWmColor('#000000')
+      setWmColor(DEFAULT_WATERMARK_COLOR)
       setWmOpacity(0.2)
       setWmRotation(-45)
       return
@@ -72,7 +75,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
     const { text, fontSize, color, opacity, rotation } = watermarkConfig
     setWmText(text ?? '')
     setWmFontSize(fontSize ?? 24)
-    setWmColor(color ?? '#000000')
+    setWmColor(normalizeHexColor(color) ?? DEFAULT_WATERMARK_COLOR)
     setWmOpacity(opacity ?? 0.2)
     setWmRotation(rotation ?? -45)
   }, [watermarkConfig])
@@ -91,6 +94,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
   }
 
   const handleApplyWatermark = async () => {
+    const normalizedColor = normalizeHexColor(wmColor)
     try {
       await updateWatermark({
         updateTrustCenterWatermarkConfigId: id ?? '',
@@ -101,7 +105,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
           : {
               ...(wmText ? { text: wmText } : { clearText: true }),
               ...(wmFontSize ? { fontSize: wmFontSize } : { clearFontSize: true }),
-              ...(wmColor ? { color: wmColor } : { clearColor: true }),
+              ...(normalizedColor ? { color: normalizedColor } : { clearColor: true }),
               ...(wmRotation ? { rotation: wmRotation } : { clearRotation: true }),
               ...(selectedFont ? { font: selectedFont } : { clearFont: true }),
               isEnabled: true,

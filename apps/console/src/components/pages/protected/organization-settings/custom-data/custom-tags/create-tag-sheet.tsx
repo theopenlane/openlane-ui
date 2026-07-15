@@ -14,6 +14,7 @@ import { Textarea } from '@repo/ui/textarea'
 import { Label } from '@repo/ui/label'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ColorInput } from '@/components/shared/color-input/color-input'
+import { normalizeHexColor } from '@/utils/normalizeHexColor'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -32,6 +33,8 @@ const schema = z.object({
 })
 
 type FormData = z.infer<typeof schema>
+
+const DEFAULT_TAG_COLOR = '#6366f1'
 
 export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => void }) => {
   const params = useSearchParams()
@@ -59,7 +62,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
       name: '',
       aliases: '',
       description: '',
-      color: '#6366f1',
+      color: DEFAULT_TAG_COLOR,
     },
   })
 
@@ -72,7 +75,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
       setValue('name', t.name ?? '')
       setValue('aliases', Array.isArray(t.aliases) ? t.aliases.join(', ') : (t.aliases ?? ''))
       setValue('description', t.description ?? '')
-      setValue('color', t.color?.startsWith('#') ? t.color : `#${t.color || '6366f1'}`)
+      setValue('color', normalizeHexColor(t.color) ?? DEFAULT_TAG_COLOR)
     }
   }, [tagData, setValue])
 
@@ -88,7 +91,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
     if (!val) {
       replace({ id: null, create: null })
       setTimeout(() => {
-        reset({ name: '', aliases: '', description: '', color: '#6366f1' })
+        reset({ name: '', aliases: '', description: '', color: DEFAULT_TAG_COLOR })
       }, 300)
     }
   }

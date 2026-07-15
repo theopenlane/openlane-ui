@@ -15,16 +15,19 @@ import { BrandingTextSection } from './sections/branding-text-section'
 import { BrandingThemeSection } from './sections/branding-theme-section'
 import { BrandingAssetsSection } from './sections/branding-assets-section'
 import { FormProvider } from 'react-hook-form'
-import { type BrandFormValues, useBrandForm } from './brand-schema'
+import { type BrandFormValues, DEFAULT_BRAND_COLOR, useBrandForm } from './brand-schema'
 import { TrustCenterSkeleton } from '../skeleton/trust-center-skeleton'
 import { BrandingCompanyInfoSection } from './sections/branding-company-info-section'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { normalizeHexColor } from '@/utils/normalizeHexColor'
 import { type Value } from 'platejs'
 
 export enum InputTypeEnum {
   URL = 'url',
   FILE = 'file',
 }
+
+const brandColor = (value?: string | null) => normalizeHexColor(value) ?? DEFAULT_BRAND_COLOR
 
 const BrandPage: React.FC = () => {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -58,12 +61,12 @@ const BrandPage: React.FC = () => {
         overview: previewSetting.overview ?? '',
         securityContact: previewSetting.securityContact ?? '',
         statusPageURL: previewSetting.statusPageURL ?? '',
-        primaryColor: previewSetting.primaryColor ?? '#f0f0e0',
-        foregroundColor: previewSetting.foregroundColor ?? '#f0f0e0',
-        backgroundColor: previewSetting.backgroundColor ?? '#f0f0e0',
-        secondaryForegroundColor: previewSetting.secondaryForegroundColor ?? '#f0f0e0',
-        secondaryBackgroundColor: previewSetting.secondaryBackgroundColor ?? '#f0f0e0',
-        accentColor: previewSetting.accentColor ?? '#f0f0e0',
+        primaryColor: brandColor(previewSetting.primaryColor),
+        foregroundColor: brandColor(previewSetting.foregroundColor),
+        backgroundColor: brandColor(previewSetting.backgroundColor),
+        secondaryForegroundColor: brandColor(previewSetting.secondaryForegroundColor),
+        secondaryBackgroundColor: brandColor(previewSetting.secondaryBackgroundColor),
+        accentColor: brandColor(previewSetting.accentColor),
         font: previewSetting.font ?? 'outfit',
         themeMode: (previewSetting.themeMode as TrustCenterSettingTrustCenterThemeMode) ?? TrustCenterSettingTrustCenterThemeMode.EASY,
         logoRemoteURL: previewSetting.logoRemoteURL ?? '',
@@ -99,12 +102,16 @@ const BrandPage: React.FC = () => {
       setting.companyDomain !== previewSetting.companyDomain ||
       setting.statusPageURL !== previewSetting.statusPageURL
     const textDiff = setting.title !== previewSetting.title || setting.overview !== previewSetting.overview || setting.securityContact !== previewSetting.securityContact
-    const themeDiff = setting.themeMode !== previewSetting.themeMode || setting.font !== previewSetting.font || setting.primaryColor !== previewSetting.primaryColor
+    const themeDiff =
+      setting.themeMode !== previewSetting.themeMode || setting.font !== previewSetting.font || normalizeHexColor(setting.primaryColor) !== normalizeHexColor(previewSetting.primaryColor)
     const assetDiff = setting.logoFile?.id !== previewSetting.logoFile?.id || setting.logoRemoteURL !== previewSetting.logoRemoteURL
     return { companyInfo: companyInfoDiff, text: textDiff, theme: themeDiff, assets: assetDiff, any: textDiff || themeDiff || assetDiff || companyInfoDiff }
   }, [setting, previewSetting])
 
-  const setColorOrClear = (value: string | null | undefined, colorKey: string, clearKey: string) => (value ? { [colorKey]: value } : { [clearKey]: true })
+  const setColorOrClear = (value: string | null | undefined, colorKey: string, clearKey: string) => {
+    const normalized = normalizeHexColor(value)
+    return normalized ? { [colorKey]: normalized } : { [clearKey]: true }
+  }
 
   const onSubmit = async (values: BrandFormValues, action: 'preview' | 'publish') => {
     const targetSettingId = action === 'preview' ? previewSetting?.id : setting?.id
