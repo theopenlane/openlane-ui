@@ -42,7 +42,7 @@ export default auth(async (req) => {
   const isOnboarding = session?.user?.isOnboarding
 
   const noModules = featureUtil.hasNoModules(session)
-  const noModulesAllowedPages = ['/organization-settings/billing', '/organization-settings/general-settings', '/user-settings/profile']
+  const noModulesAllowedPages = ['/organization', '/organization-settings/billing', '/organization-settings/general-settings', '/user-settings/profile']
 
   if (!isLoggedIn) {
     if (isPublicPage) {
