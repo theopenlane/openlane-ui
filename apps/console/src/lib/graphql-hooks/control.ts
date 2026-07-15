@@ -94,7 +94,6 @@ import {
   type ControlReportsByCategoryQueryVariables,
   type ControlReportsQuery,
   type ControlReportsQueryVariables,
-  type ControlControlStatus,
   ControlReportOrderField,
   OrderDirection,
 } from '@repo/codegen/src/schema'
@@ -378,15 +377,21 @@ export function useAllControlsGrouped({ where, enabled = true }: { where?: Contr
   }
 }
 
-export function useFetchAllControlsWithListFields(where?: ControlWhereInput, enabled = true) {
+export function useFetchAllControlsWithListFields(where?: ControlWhereInput, enabled = true, includeRelatedControls = false) {
   const { client } = useGraphQLClient()
 
-  return useInfiniteQuery<GetControlsPaginatedWithListFieldsQuery['controls'], Error, InfiniteData<GetControlsPaginatedWithListFieldsQuery['controls']>, ['controls', 'infinite', ControlWhereInput?]>({
-    queryKey: ['controls', 'infinite', where],
+  return useInfiniteQuery<
+    GetControlsPaginatedWithListFieldsQuery['controls'],
+    Error,
+    InfiniteData<GetControlsPaginatedWithListFieldsQuery['controls']>,
+    ['controls', 'infinite', ControlWhereInput | undefined, boolean]
+  >({
+    queryKey: ['controls', 'infinite', where, includeRelatedControls],
     queryFn: async ({ pageParam }) => {
       const { controls } = await client.request<GetControlsPaginatedWithListFieldsQuery, GetControlsPaginatedWithListFieldsQueryVariables>(GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS, {
         where,
         after: pageParam,
+        includeRelatedControls,
       })
       return controls
     },
@@ -396,8 +401,8 @@ export function useFetchAllControlsWithListFields(where?: ControlWhereInput, ena
   })
 }
 
-export function useAllControlsGroupedWithListFields({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) {
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isFetching, ...rest } = useFetchAllControlsWithListFields(where, enabled)
+export function useAllControlsGroupedWithListFields({ where, enabled = true, includeRelatedControls = false }: { where?: ControlWhereInput; enabled?: boolean; includeRelatedControls?: boolean }) {
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isFetching, ...rest } = useFetchAllControlsWithListFields(where, enabled, includeRelatedControls)
 
   useEffect(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -650,21 +655,11 @@ export const useInsertControlPlateComment = () => {
   })
 }
 
-export const useGetExistingOrgControls = ({
-  refCodeIn,
-  referenceFrameworkIn,
-  statusIn,
-  enabled = true,
-}: {
-  refCodeIn: string[]
-  referenceFrameworkIn?: string[]
-  statusIn?: ControlControlStatus[]
-  enabled?: boolean
-}) => {
+export const useGetExistingOrgControls = ({ refCodeIn, referenceFrameworkIn, enabled = true }: { refCodeIn: string[]; referenceFrameworkIn?: string[]; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetExistingControlsForOrganizationQuery>({
-    queryKey: ['controls', 'existingOrg', refCodeIn, referenceFrameworkIn, statusIn],
+    queryKey: ['controls', 'existingOrg', refCodeIn, referenceFrameworkIn],
     queryFn: () =>
       client.request(GET_EXISTING_CONTROLS_FOR_ORGANIZATION, {
         where: {
@@ -672,7 +667,6 @@ export const useGetExistingOrgControls = ({
           systemOwned: false,
           isTrustCenterControl: false,
           ...(referenceFrameworkIn?.length && { referenceFrameworkIn }),
-          ...(statusIn?.length && { statusIn }),
         },
       }),
     enabled: enabled && refCodeIn.length > 0,
