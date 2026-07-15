@@ -72804,6 +72804,13 @@ export type GetDocumentationRisksQuery = {
   }
 }
 
+export type EmailTemplateCatalogQueryVariables = Exact<{ [key: string]: never }>
+
+export type EmailTemplateCatalogQuery = {
+  __typename?: 'Query'
+  emailTemplateCatalog: { __typename?: 'EmailTemplateCatalog'; entries: Array<{ __typename?: 'EmailTemplateCatalogEntry'; key: string; description: string; configSchema: any; htmlPreview: string }> }
+}
+
 export type EmailTemplatesWithFilterQueryVariables = Exact<{
   where?: InputMaybe<EmailTemplateWhereInput>
   orderBy?: InputMaybe<Array<EmailTemplateOrder> | EmailTemplateOrder>
@@ -72825,6 +72832,7 @@ export type EmailTemplatesWithFilterQuery = {
         active: boolean
         createdAt?: any | null
         createdBy?: string | null
+        defaults?: any | null
         description?: string | null
         format?: EmailTemplateNotificationTemplateFormat | null
         id: string
@@ -72857,6 +72865,7 @@ export type EmailTemplateQuery = {
     active: boolean
     createdAt?: any | null
     createdBy?: string | null
+    defaults?: any | null
     description?: string | null
     format?: EmailTemplateNotificationTemplateFormat | null
     id: string

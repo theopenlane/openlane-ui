@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Check, CircleCheckBig, CopyPlus, Eye, FilePen, LoaderCircle, Mail, MoreHorizontal, Pencil, SearchIcon, SquarePlus, Trash2 } from 'lucide-react'
 import { Input } from '@repo/ui/input'
@@ -16,16 +17,17 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { formatDate } from '@/utils/date'
 import { EmailTemplateTemplateContext } from '@repo/codegen/src/schema'
-import { EmailTemplateSheet } from './email-template-sheet'
+import { EmailTemplatePreviewSheet } from './email-template-preview-sheet'
+
+const EDITOR_PATH = '/automation/email-templates/editor'
 
 type StatusFilter = 'all' | 'active' | 'inactive'
 
 export const EmailTemplatesTab: React.FC = () => {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
-  const [sheetOpen, setSheetOpen] = useState(false)
-  const [sheetTemplateId, setSheetTemplateId] = useState<string | undefined>()
-  const [sheetReadOnly, setSheetReadOnly] = useState(false)
+  const [previewId, setPreviewId] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
 
@@ -56,21 +58,10 @@ export const EmailTemplatesTab: React.FC = () => {
 
   const { userMap, tokenMap } = useAuthorMaps(userIds)
 
-  const openSheet = (templateId: string | undefined, readOnly: boolean) => {
-    setSheetTemplateId(templateId)
-    setSheetReadOnly(readOnly)
-    setSheetOpen(true)
-  }
+  const previewTemplate = useMemo(() => emailTemplatesNodes.find((t) => t.id === previewId), [emailTemplatesNodes, previewId])
 
-  const handleCreate = () => openSheet(undefined, false)
-  const handleEdit = (id: string) => openSheet(id, false)
-  const handlePreview = (id: string) => openSheet(id, true)
-
-  const handleSheetClose = () => {
-    setSheetOpen(false)
-    setSheetTemplateId(undefined)
-    setSheetReadOnly(false)
-  }
+  const handleCreate = () => router.push(EDITOR_PATH)
+  const handleEdit = (id: string) => router.push(`${EDITOR_PATH}?id=${id}`)
 
   const handleToggleActive = async (id: string, currentActive: boolean) => {
     try {
@@ -83,12 +74,11 @@ export const EmailTemplatesTab: React.FC = () => {
 
   const handleDuplicate = async (template: (typeof emailTemplatesNodes)[number]) => {
     try {
-      const baseKey = template.key ?? template.name.toLowerCase().replace(/\s+/g, '-')
       await createTemplate({
         input: {
           name: `${template.name} (Copy)`,
-          key: `${baseKey}-copy-${Date.now()}`,
-          description: template.description ?? undefined,
+          key: template.key,
+          defaults: template.defaults ?? undefined,
           locale: template.locale ?? 'en',
           format: template.format,
           active: false,
@@ -159,7 +149,6 @@ export const EmailTemplatesTab: React.FC = () => {
         <div className="flex flex-col gap-2">
           {emailTemplatesNodes.map((template) => {
             const authorName = template.createdBy ? resolveAuthorName(template.createdBy, { userMap, tokenMap }) : '—'
-            const campaignsCount = template.campaigns?.totalCount ?? 0
             return (
               <div key={template.id} className="flex items-start gap-4 rounded-lg border border-border bg-card p-4 transition-colors">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-avatar-transparent">
@@ -186,10 +175,6 @@ export const EmailTemplatesTab: React.FC = () => {
                     <span>Updated {formatDate(template.updatedAt)}</span>
                     <span>·</span>
                     <span>By {authorName}</span>
-                    <span>·</span>
-                    <span className="text-primary">
-                      Used in {campaignsCount} {campaignsCount === 1 ? 'campaign' : 'campaigns'}
-                    </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
@@ -211,7 +196,7 @@ export const EmailTemplatesTab: React.FC = () => {
                         <CopyPlus className="h-4 w-4" />
                         Duplicate
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handlePreview(template.id)}>
+                      <DropdownMenuItem onClick={() => setPreviewId(template.id)}>
                         <Eye className="h-4 w-4" />
                         Preview
                       </DropdownMenuItem>
@@ -234,7 +219,13 @@ export const EmailTemplatesTab: React.FC = () => {
         </div>
       )}
 
-      <EmailTemplateSheet open={sheetOpen} templateId={sheetTemplateId} onClose={handleSheetClose} readOnly={sheetReadOnly} />
+      <EmailTemplatePreviewSheet
+        open={!!previewTemplate}
+        templateKey={previewTemplate?.key}
+        templateName={previewTemplate?.name}
+        defaults={previewTemplate?.defaults ?? {}}
+        onClose={() => setPreviewId(null)}
+      />
 
       <ConfirmationDialog
         open={deleteDialogOpen}
