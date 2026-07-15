@@ -9,17 +9,19 @@ import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
-import { MoreHorizontal, ShieldCheck, ListTodo } from 'lucide-react'
+import { MoreHorizontal, ShieldCheck, ShieldOff, ListTodo } from 'lucide-react'
 import { getSeverityStyle } from '@/utils/severity'
 import { type SlaDaysByLevel } from '@/lib/sla'
 import { SlaDueDateCell } from '@/components/shared/crud-base/columns/sla-due-date-cell'
 import React from 'react'
 import { TruncatedCell } from '@repo/ui/data-table'
+import { getDismissReasonLabel } from '@/components/pages/protected/exposure/vulnerability-dismiss-reasons'
 
 type VulnColumnOptions = ColumnOptions & {
   onTrackRemediation?: (row: VulnerabilitiesNodeNonNull) => void
   onOpenRemediation?: (row: VulnerabilitiesNodeNonNull) => void
   onCreateTask?: (row: VulnerabilitiesNodeNonNull) => void
+  onDismiss?: (row: VulnerabilitiesNodeNonNull) => void
   slaDaysByLevel?: SlaDaysByLevel
 }
 
@@ -32,6 +34,7 @@ export const getColumns = ({
   onTrackRemediation,
   onOpenRemediation,
   onCreateTask,
+  onDismiss,
   slaDaysByLevel,
 }: VulnColumnOptions): ColumnDef<VulnerabilitiesNodeNonNull>[] => {
   const columns: ColumnDef<VulnerabilitiesNodeNonNull>[] = [
@@ -81,6 +84,13 @@ export const getColumns = ({
       cell: ({ row }) => <SlaDueDateCell createdAt={row.original.createdAt} securityLevel={row.original.securityLevel} open={row.original.open} slaDaysByLevel={slaDaysByLevel ?? {}} />,
     },
     { accessorKey: 'open', header: 'Open', size: 80, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
+    {
+      accessorKey: 'dismissedReason',
+      header: 'Dismissed Reason',
+      size: 170,
+      cell: ({ cell }) => getDismissReasonLabel(cell.getValue() as string | null | undefined),
+    },
+    { accessorKey: 'dismissedAt', header: 'Dismissed At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string | null | undefined} /> },
     { accessorKey: 'blocking', header: 'Blocking', size: 90, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     { accessorKey: 'production', header: 'Production', size: 100, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     { accessorKey: 'validated', header: 'Validated', size: 100, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
@@ -116,7 +126,7 @@ export const getColumns = ({
     },
   ]
 
-  if (onTrackRemediation || onOpenRemediation || onCreateTask) {
+  if (onTrackRemediation || onOpenRemediation || onCreateTask || onDismiss) {
     columns.push({
       id: 'actions',
       header: '',
@@ -147,6 +157,12 @@ export const getColumns = ({
                 <DropdownMenuItem onClick={() => onCreateTask(row.original)}>
                   <ListTodo className="h-4 w-4" />
                   Create Task
+                </DropdownMenuItem>
+              )}
+              {onDismiss && !row.original.dismissedAt && (
+                <DropdownMenuItem onClick={() => onDismiss(row.original)}>
+                  <ShieldOff className="h-4 w-4" />
+                  Accept Risk
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>

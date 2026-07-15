@@ -9,8 +9,8 @@ import { type PlateElementProps, type PlateLeafProps, PlateElement, PlateLeaf } 
 import { useEditorRef, useElement, useReadOnly } from 'platejs/react'
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { Button } from '@repo/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
+import { Button } from '@repo/ui/components/ui/button.tsx'
+import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/components/ui/popover.tsx'
 import { cn } from '@repo/ui/lib/utils'
 
 export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {

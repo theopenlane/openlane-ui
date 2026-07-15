@@ -9,6 +9,7 @@ export const GET_ALL_EMAIL_TEMPLATES = gql`
           active
           createdAt
           createdBy
+          defaults
           description
           format
           id
@@ -23,9 +24,6 @@ export const GET_ALL_EMAIL_TEMPLATES = gql`
           version
           workflowDefinitionID
           workflowInstanceID
-          campaigns {
-            totalCount
-          }
         }
       }
       pageInfo {
@@ -44,6 +42,7 @@ export const EMAIL_TEMPLATE = gql`
       active
       createdAt
       createdBy
+      defaults
       description
       format
       id

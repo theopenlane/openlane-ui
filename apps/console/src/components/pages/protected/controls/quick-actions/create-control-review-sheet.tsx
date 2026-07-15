@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { z } from 'zod'
+import { type Value } from 'platejs'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSession } from 'next-auth/react'
@@ -19,16 +20,19 @@ import { ChevronDown, InfoIcon, X } from 'lucide-react'
 import { type CreateFindingInput, type CreateReviewInput, FindingSecurityLevel, ProgramProgramStatus, ReviewReviewStatus } from '@repo/codegen/src/schema'
 import { useGetControlById, useGetControlRelatedControls } from '@/lib/graphql-hooks/control'
 import { useGetAllPrograms } from '@/lib/graphql-hooks/program'
-import { useCreateReview } from '@/lib/graphql-hooks/review'
+import { useCreateReview, useUpdateReview } from '@/lib/graphql-hooks/review'
 import { useCreateFinding } from '@/lib/graphql-hooks/finding'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
+import PlateEditor from '@/components/shared/plate/plate-editor'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils'
 
 const controlReviewSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   testApplied: z.string().optional(),
-  auditorNotes: z.string().optional(),
+  auditorNotes: z.custom<Value | string>().optional(),
   externalID: z.string().optional(),
   programID: z.string().optional(),
   linkedControlIDs: z.array(z.string()),
@@ -69,8 +73,11 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
   const { data: programsData } = useGetAllPrograms({ where: { hasControlsWith: [{ id: controlId }] } })
 
   const { mutateAsync: createReview } = useCreateReview()
+  const { mutateAsync: updateReview } = useUpdateReview()
   const { mutateAsync: createFinding } = useCreateFinding()
+  const plateEditorHelper = usePlateEditor()
 
+  const [clearAuditorNotes, setClearAuditorNotes] = useState(false)
   const [showFinding, setShowFinding] = useState(false)
   const [showRelated, setShowRelated] = useState(false)
   const [pendingAction, setPendingAction] = useState<ReviewReviewStatus | null>(null)
@@ -137,6 +144,7 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
   const resetAndClose = () => {
     createdReviewIdRef.current = null
     form.reset({ title: '', linkedControlIDs: [], linkedSubcontrolIDs: [] })
+    setClearAuditorNotes(true)
     setShowFinding(false)
     onOpenChange(false)
   }
@@ -163,8 +171,6 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
           reviewerID: session?.user?.userId ?? undefined,
           reportedAt: new Date().toISOString(),
           ...(data.testApplied ? { details: data.testApplied } : {}),
-          //NOTE: we need a way to store comments, something like addComment on create, for now I am using summary
-          ...(data.auditorNotes?.trim() ? { summary: data.auditorNotes.trim() } : {}),
           ...(data.externalID ? { externalID: data.externalID } : {}),
           controlIDs,
           subcontrolIDs,
@@ -174,6 +180,11 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
         const res = await createReview({ input })
         reviewId = res.createReview.review.id
         createdReviewIdRef.current = reviewId
+
+        if (!isPlateValueEmpty(data.auditorNotes)) {
+          const text = typeof data.auditorNotes === 'string' ? data.auditorNotes : await plateEditorHelper.convertToHtml(data.auditorNotes as Value)
+          await updateReview({ updateReviewId: reviewId, input: { addComment: { text } } })
+        }
       }
 
       const hasFinding = !!(data.findingTitle?.trim() || data.findingDescription?.trim() || data.findingSeverity)
@@ -365,7 +376,7 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
                   <FormItem>
                     <FormLabel>Auditor Notes</FormLabel>
                     <FormControl>
-                      <Textarea {...field} value={field.value ?? ''} rows={3} placeholder="Add notes about this review..." />
+                      <PlateEditor onChange={field.onChange} initialValue="" clearData={clearAuditorNotes} onClear={() => setClearAuditorNotes(false)} placeholder="Add notes about this review..." />
                     </FormControl>
                   </FormItem>
                 )}

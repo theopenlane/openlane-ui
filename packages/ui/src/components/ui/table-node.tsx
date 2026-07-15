@@ -41,9 +41,9 @@ import {
 } from 'platejs/react'
 import { useElementSelector } from 'platejs/react'
 
-import { Button } from '@repo/ui/button'
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuPortal, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Popover, PopoverAnchor, PopoverContent } from '@repo/ui/popover'
+import { Button } from '@repo/ui/components/ui/button.tsx'
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuPortal, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
+import { Popover, PopoverAnchor, PopoverContent } from '@repo/ui/components/ui/popover.tsx'
 import { cn } from '@repo/ui/lib/utils'
 
 import { blockSelectionVariants } from './block-selection'

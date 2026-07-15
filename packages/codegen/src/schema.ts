@@ -10091,6 +10091,7 @@ export interface CreateNoteInput {
   notifySubscribers?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureID?: InputMaybe<Scalars['ID']['input']>
+  reviewID?: InputMaybe<Scalars['ID']['input']>
   riskID?: InputMaybe<Scalars['ID']['input']>
   subcontrolID?: InputMaybe<Scalars['ID']['input']>
   taskID?: InputMaybe<Scalars['ID']['input']>
@@ -30669,6 +30670,8 @@ export interface Mutation {
   updateRemediation: RemediationUpdatePayload
   /** Update an existing review */
   updateReview: ReviewUpdatePayload
+  /** Update an existing review comment */
+  updateReviewComment: ReviewUpdatePayload
   /** Update an existing risk */
   updateRisk: RiskUpdatePayload
   /** Update an existing risk comment */
@@ -33255,6 +33258,13 @@ export interface MutationUpdateReviewArgs {
   reviewFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
 }
 
+export interface MutationUpdateReviewCommentArgs {
+  id: Scalars['ID']['input']
+  input: UpdateNoteInput
+  noteFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
+  noteFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
+}
+
 export interface MutationUpdateRiskArgs {
   id: Scalars['ID']['input']
   input: UpdateRiskInput
@@ -33933,6 +33943,7 @@ export interface Note extends Node {
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   procedure?: Maybe<Procedure>
+  review?: Maybe<Review>
   risk?: Maybe<Risk>
   subcontrol?: Maybe<Subcontrol>
   task?: Maybe<Task>
@@ -34095,6 +34106,9 @@ export interface NoteWhereInput {
   /** procedure edge predicates */
   hasProcedure?: InputMaybe<Scalars['Boolean']['input']>
   hasProcedureWith?: InputMaybe<Array<ProcedureWhereInput>>
+  /** review edge predicates */
+  hasReview?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewWith?: InputMaybe<Array<ReviewWhereInput>>
   /** risk edge predicates */
   hasRisk?: InputMaybe<Scalars['Boolean']['input']>
   hasRiskWith?: InputMaybe<Array<RiskWhereInput>>
@@ -60395,6 +60409,7 @@ export interface UpdateNoteInput {
   clearInternalPolicy?: InputMaybe<Scalars['Boolean']['input']>
   clearNoteRef?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedure?: InputMaybe<Scalars['Boolean']['input']>
+  clearReview?: InputMaybe<Scalars['Boolean']['input']>
   clearRisk?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrol?: InputMaybe<Scalars['Boolean']['input']>
   clearTask?: InputMaybe<Scalars['Boolean']['input']>
@@ -60413,6 +60428,7 @@ export interface UpdateNoteInput {
   procedureID?: InputMaybe<Scalars['ID']['input']>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterFaqIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewID?: InputMaybe<Scalars['ID']['input']>
   riskID?: InputMaybe<Scalars['ID']['input']>
   subcontrolID?: InputMaybe<Scalars['ID']['input']>
   taskID?: InputMaybe<Scalars['ID']['input']>
@@ -61848,6 +61864,7 @@ export interface UpdateReviewInput {
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addComment?: InputMaybe<CreateNoteInput>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -61913,6 +61930,7 @@ export interface UpdateReviewInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
+  deleteComment?: InputMaybe<Scalars['ID']['input']>
   /** detailed notes captured during the review */
   details?: InputMaybe<Scalars['String']['input']>
   environmentID?: InputMaybe<Scalars['ID']['input']>
@@ -72789,6 +72807,13 @@ export type GetDocumentationRisksQuery = {
   }
 }
 
+export type EmailTemplateCatalogQueryVariables = Exact<{ [key: string]: never }>
+
+export type EmailTemplateCatalogQuery = {
+  __typename?: 'Query'
+  emailTemplateCatalog: { __typename?: 'EmailTemplateCatalog'; entries: Array<{ __typename?: 'EmailTemplateCatalogEntry'; key: string; description: string; configSchema: any; htmlPreview: string }> }
+}
+
 export type EmailTemplatesWithFilterQueryVariables = Exact<{
   where?: InputMaybe<EmailTemplateWhereInput>
   orderBy?: InputMaybe<Array<EmailTemplateOrder> | EmailTemplateOrder>
@@ -72810,6 +72835,7 @@ export type EmailTemplatesWithFilterQuery = {
         active: boolean
         createdAt?: any | null
         createdBy?: string | null
+        defaults?: any | null
         description?: string | null
         format?: EmailTemplateNotificationTemplateFormat | null
         id: string
@@ -72842,6 +72868,7 @@ export type EmailTemplateQuery = {
     active: boolean
     createdAt?: any | null
     createdBy?: string | null
+    defaults?: any | null
     description?: string | null
     format?: EmailTemplateNotificationTemplateFormat | null
     id: string
@@ -78168,6 +78195,13 @@ export type ReviewQuery = {
       __typename?: 'SubcontrolConnection'
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
     }
+    comments: {
+      __typename?: 'NoteConnection'
+      edges?: Array<{
+        __typename?: 'NoteEdge'
+        node?: { __typename?: 'Note'; id: string; displayID: string; text: string; createdAt?: any | null; createdBy?: string | null; updatedAt?: any | null; updatedBy?: string | null } | null
+      } | null> | null
+    }
   }
 }
 
@@ -81672,6 +81706,12 @@ export type UpdateBulkVendorScoringConfigMutation = {
   updateBulkVendorScoringConfig: { __typename?: 'VendorScoringConfigBulkUpdatePayload'; updatedIDs?: Array<string> | null }
 }
 
+export type VulnerabilitiesCountQueryVariables = Exact<{
+  where?: InputMaybe<VulnerabilityWhereInput>
+}>
+
+export type VulnerabilitiesCountQuery = { __typename?: 'Query'; vulnerabilities: { __typename?: 'VulnerabilityConnection'; totalCount: number } }
+
 export type VulnerabilitiesWithFilterQueryVariables = Exact<{
   where?: InputMaybe<VulnerabilityWhereInput>
   orderBy?: InputMaybe<Array<VulnerabilityOrder> | VulnerabilityOrder>
@@ -81690,6 +81730,7 @@ export type VulnerabilitiesWithFilterQuery = {
       __typename?: 'VulnerabilityEdge'
       node?: {
         __typename?: 'Vulnerability'
+        assignedToUserID?: string | null
         blocking?: boolean | null
         category?: string | null
         createdAt?: any | null
@@ -81697,6 +81738,8 @@ export type VulnerabilitiesWithFilterQuery = {
         cveID?: string | null
         description?: string | null
         discoveredAt?: string | null
+        dismissedAt?: string | null
+        dismissedReason?: string | null
         displayID: string
         displayName?: string | null
         environmentID?: string | null
@@ -81762,6 +81805,9 @@ export type VulnerabilityQuery = {
     cveID?: string | null
     description?: string | null
     discoveredAt?: string | null
+    dismissedAt?: string | null
+    dismissedComment?: string | null
+    dismissedReason?: string | null
     displayID: string
     displayName?: string | null
     environmentID?: string | null

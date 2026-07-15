@@ -13,6 +13,7 @@ import { getSeverityStyle } from '@/utils/severity'
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 import { TruncatedCell } from '@repo/ui/data-table'
+import { getDismissReasonLabel } from '@/components/pages/protected/exposure/vulnerability-dismiss-reasons'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -121,6 +122,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
   }
 
   const hasPackageDetails = Boolean(data?.packageName || data?.vulnerableVersionRange || data?.firstPatchedVersion || data?.packageEcosystem)
+  const isDismissed = !isCreate && Boolean(data?.dismissedAt || data?.dismissedReason)
   const isExternalRefLocked = (data?.integrations?.totalCount ?? 0) > 0
   const externalRefLockedTooltip = 'This field is managed by the source integration and cannot be edited.'
   const externalRefLockProps = isExternalRefLocked
@@ -259,6 +261,32 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           </div>
         </CardContent>
       </Card>
+
+      {isDismissed && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-md p-0">Dismissal</CardTitle>
+            <CardDescription className="p-0">Why this vulnerability was dismissed</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+              <TextField
+                name="dismissedReason"
+                label="Reason"
+                {...sharedFieldProps}
+                isEditing={false}
+                isEditAllowed={false}
+                handleUpdate={undefined}
+                formatDisplayValue={(v) => getDismissReasonLabel(v)}
+              />
+              <TextField name="dismissedAt" label="Dismissed At" type="date" {...sharedFieldProps} isEditing={false} isEditAllowed={false} handleUpdate={undefined} />
+            </div>
+            <div className="grid grid-cols-1 gap-2">
+              <TextField name="dismissedComment" label="Comment" multiline {...sharedFieldProps} isEditing={false} isEditAllowed={false} handleUpdate={undefined} />
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

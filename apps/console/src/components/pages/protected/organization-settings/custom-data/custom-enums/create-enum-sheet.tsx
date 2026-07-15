@@ -15,6 +15,7 @@ import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ColorInput } from '@/components/shared/color-input/color-input'
+import { normalizeHexColor } from '@/utils/normalizeHexColor'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -186,7 +187,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
       reset({
         name: name ?? '',
         description: description ?? '',
-        color: color ?? getRandomColor(),
+        color: normalizeHexColor(color) ?? getRandomColor(),
         objectType: objectType ?? '',
         field: field ?? '',
       })

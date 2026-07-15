@@ -70,7 +70,7 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
         )}
       </div>
 
-      <TruncatedCell lineClamp={2} className="text-sm leading-relaxed text-foreground">
+      <TruncatedCell portal lineClamp={2} className="text-sm leading-relaxed text-foreground">
         {descriptionNode}
       </TruncatedCell>
 

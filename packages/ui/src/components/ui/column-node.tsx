@@ -15,9 +15,9 @@ import { GripHorizontal } from 'lucide-react'
 import { PathApi } from 'platejs'
 import { PlateElement, useEditorRef, useEditorSelector, useElement, useFocusedLast, usePluginOption, useReadOnly, useRemoveNodeButton, useSelected, withHOC } from 'platejs/react'
 
-import { Button } from '@repo/ui/button'
-import { Popover, PopoverAnchor, PopoverContent } from '@repo/ui/popover'
-import { Separator } from '@repo/ui/separator'
+import { Button } from '@repo/ui/components/ui/button.tsx'
+import { Popover, PopoverAnchor, PopoverContent } from '@repo/ui/components/ui/popover.tsx'
+import { Separator } from '@repo/ui/components/ui/separator.tsx'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { cn } from '@repo/ui/lib/utils'
 

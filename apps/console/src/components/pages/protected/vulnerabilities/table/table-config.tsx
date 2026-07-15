@@ -13,8 +13,11 @@ import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { VulnerabilityAssociationSection } from '../create/form/fields/association-section'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 import { Badge } from '@repo/ui/badge'
+import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 
 export const formId = 'edit' + ObjectNames.VULNERABILITY
+
+export const DISMISSED_QUICK_FILTER: TQuickFilter = { label: 'Dismissed', key: 'dismissedAtNotNil', type: 'boolean', isActive: false }
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
@@ -149,6 +152,8 @@ export const visibilityFields = {
   vector: false,
   remediationSLA: false,
   open: true,
+  dismissedReason: false,
+  dismissedAt: false,
   blocking: false,
   production: false,
   validated: false,
@@ -179,7 +184,9 @@ export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: E
         {vulnData.source}
       </Badge>
     ) : null
-  const pastDueBadge = showPastDue ? <PastDueBadge severity={vulnData?.securityLevel} createdAt={vulnData?.createdAt} /> : null
+  const pastDueBadge = showPastDue ? (
+    <PastDueBadge severity={vulnData?.securityLevel} createdAt={vulnData?.createdAt} discoveredAt={vulnData?.discoveredAt} remediationSLA={vulnData?.remediationSLA} />
+  ) : null
   const headerBadges =
     sourceBadge || pastDueBadge ? (
       <>

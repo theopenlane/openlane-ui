@@ -119,6 +119,19 @@ export const REVIEW = gql`
           }
         }
       }
+      comments {
+        edges {
+          node {
+            id
+            displayID
+            text
+            createdAt
+            createdBy
+            updatedAt
+            updatedBy
+          }
+        }
+      }
     }
   }
 `
