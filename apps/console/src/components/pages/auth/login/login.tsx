@@ -45,6 +45,7 @@ export const LoginPage = () => {
   const [signInLoading, setSignInLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [webfingerResponse, setWebfingerResponse] = useState<WebfingerResponse | null>(null)
+  const [webfingerFailed, setWebfingerFailed] = useState(false)
   const [webfingerLoading, setWebfingerLoading] = useState(false)
   const [preferredMethod, setPreferredMethod] = useState<'sso' | 'password' | null>(null)
   // the method the user most recently signed in with, remembered per-device
@@ -58,6 +59,7 @@ export const LoginPage = () => {
   const showLoginError = !signInLoading && signInError
 
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const webfingerRequestIdRef = useRef(0)
 
   // the user's last login was SSO (remembered as a flag on this device)
   const ssoLastUsed = lastUsedProvider === UserAuthProvider.OIDC
@@ -65,8 +67,8 @@ export const LoginPage = () => {
   // webfinger confirmed the currently typed email resolves to a usable SSO org
   const isSSOEmail = Boolean(webfingerResponse?.provider && webfingerResponse.provider !== 'NONE' && webfingerResponse.organization_id)
 
-  // webfinger answered (non-null = real 200 body) but the email has no usable SSO — show password
-  const webfingerSaysNoSSO = webfingerResponse !== null && !isSSOEmail
+  // webfinger answered with no usable SSO — or it failed to resolve entirely — so fall back to password
+  const webfingerSaysNoSSO = webfingerFailed || (webfingerResponse !== null && !isSSOEmail)
 
   // the only case without a password fallback is an enforced SSO org where the user isn't an admin
   const isSSOEnforcedForNonOwner = isSSOEmail && Boolean(webfingerResponse?.enforced) && !webfingerResponse?.is_org_owner
@@ -154,25 +156,39 @@ export const LoginPage = () => {
       return
     }
 
+    const requestId = ++webfingerRequestIdRef.current
+
     try {
       setWebfingerLoading(true)
+      setWebfingerFailed(false)
       const response = await fetch(`/api/auth/webfinger?email=${encodeURIComponent(email)}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       })
 
-      // webfinger couldn't resolve this email (e.g. a mistype) — leave unresolved so the SSO button stays and a click reports "Invalid email"
+      if (webfingerRequestIdRef.current !== requestId) {
+        return
+      }
+
+      // webfinger couldn't resolve this email — fall back to password so the user can still sign in
       if (!response.ok) {
         setWebfingerResponse(null)
+        setWebfingerFailed(true)
         return
       }
 
       setWebfingerResponse(await response.json())
     } catch (error) {
+      if (webfingerRequestIdRef.current !== requestId) {
+        return
+      }
       console.error('Error fetching webfinger:', error)
       setWebfingerResponse(null)
+      setWebfingerFailed(true)
     } finally {
-      setWebfingerLoading(false)
+      if (webfingerRequestIdRef.current === requestId) {
+        setWebfingerLoading(false)
+      }
     }
   }, [])
 
@@ -188,10 +204,12 @@ export const LoginPage = () => {
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
+    webfingerRequestIdRef.current += 1
     setEmail(value)
     setPreferredMethod(null)
     // a prior "Invalid email" error no longer applies once the address changes
     setSignInError(false)
+    setWebfingerFailed(false)
 
     // let webfinger drive on edit; hold webfingerLoading across the debounce so the button can't be clicked mid-check
     if (value && isValidEmail(value)) {
