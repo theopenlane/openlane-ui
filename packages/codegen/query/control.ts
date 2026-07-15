@@ -208,6 +208,15 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           creationDate
           displayID
           description
+          files {
+            edges {
+              node {
+                id
+                providedFileName
+                presignedURL
+              }
+            }
+          }
         }
       }
     }
@@ -640,6 +649,63 @@ export const GET_CONTROLS_PAGINATED = gql`
       pageInfo {
         hasNextPage
         endCursor
+      }
+    }
+  }
+`
+
+export const GET_AUDITOR_DASHBOARD_CONTROLS = gql`
+  query GetAuditorDashboardControls($where: ControlWhereInput, $programId: ID!, $orderBy: [ControlOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    controls(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
+      totalCount
+      edges {
+        node {
+          id
+          refCode
+          title
+          controlOwner {
+            displayName
+            gravatarLogoURL
+            logoURL
+            avatarFile {
+              base64
+            }
+          }
+          internalPolicies {
+            totalCount
+            edges {
+              node {
+                id
+                name
+              }
+            }
+          }
+          evidence(where: { hasProgramsWith: [{ id: $programId }] }) {
+            totalCount
+            edges {
+              node {
+                id
+                name
+                status
+              }
+            }
+          }
+          reviews(where: { hasProgramsWith: [{ id: $programId }] }) {
+            edges {
+              node {
+                id
+                status
+                reviewedAt
+              }
+            }
+          }
+        }
+      }
+      pageInfo {
+        startCursor
+        endCursor
+        hasNextPage
+        hasPreviousPage
       }
     }
   }

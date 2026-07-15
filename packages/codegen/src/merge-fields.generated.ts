@@ -172,6 +172,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'templateID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'uischema', kind: 'json', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'workflowEligibleMarker', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
   ],
   Asset: [
     { name: 'accessModelID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
@@ -688,6 +689,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'targets', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'validated', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'vector', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'workflowEligibleMarker', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
   ],
   FindingControl: [
     { name: 'discoveredAt', kind: 'date', list: false, nonNull: false, listItemNonNull: false },
@@ -1119,6 +1121,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'ticketReference', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'title', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'workflowEligibleMarker', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
   ],
   Review: [
     { name: 'approved', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
@@ -1183,6 +1186,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'stakeholderID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'status', kind: 'enum', list: false, nonNull: false, listItemNonNull: false, enumName: 'RiskRiskStatus' },
     { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
+    { name: 'workflowEligibleMarker', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
   ],
   SLADefinition: [
     { name: 'ownerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
@@ -1193,6 +1197,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'assignedTo', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'assignedToGroupID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'assignedToUserID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'discoveredVulnerabilityIds', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'environmentID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'environmentName', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'generatedByPlatformID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
@@ -1212,7 +1217,6 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'status', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'ScanScanStatus' },
     { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'target', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
-    { name: 'vulnerabilityIds', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
   ],
   ScheduledJob: [
     { name: 'active', kind: 'boolean', list: false, nonNull: true, listItemNonNull: false },
@@ -1347,6 +1351,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'taskKindID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'taskKindName', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'title', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
+    { name: 'workflowEligibleMarker', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
   ],
   Template: [
     { name: 'description', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
@@ -1564,6 +1569,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'vulnerabilityStatusID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'vulnerabilityStatusName', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'vulnerableVersionRange', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'workflowEligibleMarker', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
   ],
   WorkflowDefinition: [
     { name: 'active', kind: 'boolean', list: false, nonNull: true, listItemNonNull: false },

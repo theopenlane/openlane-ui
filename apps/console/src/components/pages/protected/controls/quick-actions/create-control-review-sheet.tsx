@@ -15,11 +15,10 @@ import { Button } from '@repo/ui/button'
 import { Panel } from '@repo/ui/panel'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { ChevronDown, InfoIcon, X } from 'lucide-react'
-import { type CreateFindingInput, type CreateReviewInput, FindingSecurityLevel, ProgramProgramStatus, ReviewReviewStatus } from '@repo/codegen/src/schema'
+import { type CreateFindingInput, type CreateReviewInput, FindingSecurityLevel, ReviewReviewStatus, type Group } from '@repo/codegen/src/schema'
+import { Avatar } from '@/components/shared/avatar/avatar'
 import { useGetControlById, useGetControlRelatedControls } from '@/lib/graphql-hooks/control'
-import { useGetAllPrograms } from '@/lib/graphql-hooks/program'
 import { useCreateReview, useUpdateReview } from '@/lib/graphql-hooks/review'
 import { useCreateFinding } from '@/lib/graphql-hooks/finding'
 import { useNotification } from '@/hooks/useNotification'
@@ -28,13 +27,14 @@ import StandardChip from '@/components/pages/protected/standards/shared/standard
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
+import { UploadedEvidenceSection } from './uploaded-evidence-section'
 
 const controlReviewSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   testApplied: z.string().optional(),
   auditorNotes: z.custom<Value | string>().optional(),
   externalID: z.string().optional(),
-  programID: z.string().optional(),
   linkedControlIDs: z.array(z.string()),
   linkedSubcontrolIDs: z.array(z.string()),
   findingTitle: z.string().optional(),
@@ -45,8 +45,6 @@ const controlReviewSchema = z.object({
 type ControlReviewFormData = z.infer<typeof controlReviewSchema>
 
 type TRelatedItem = { id: string; refCode: string; field: 'linkedControlIDs' | 'linkedSubcontrolIDs' }
-
-const INACTIVE_PROGRAM_STATUSES = new Set<ProgramProgramStatus>([ProgramProgramStatus.COMPLETED, ProgramProgramStatus.ARCHIVED])
 
 const SEVERITY_OPTIONS = [FindingSecurityLevel.CRITICAL, FindingSecurityLevel.HIGH, FindingSecurityLevel.MEDIUM, FindingSecurityLevel.LOW, FindingSecurityLevel.NONE]
 
@@ -61,16 +59,16 @@ type TCreateControlReviewSheetProps = {
   onOpenChange: (open: boolean) => void
   controlId: string
   subcontrolId?: string
+  programId?: string
 }
 
-const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ open, onOpenChange, controlId, subcontrolId }) => {
+const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ open, onOpenChange, controlId, subcontrolId, programId }) => {
   const { data: session } = useSession()
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
 
   const { data: controlData } = useGetControlById(open ? controlId : null)
   const { data: relatedData } = useGetControlRelatedControls(open ? controlId : null)
-  const { data: programsData } = useGetAllPrograms({ where: { hasControlsWith: [{ id: controlId }] } })
 
   const { mutateAsync: createReview } = useCreateReview()
   const { mutateAsync: updateReview } = useUpdateReview()
@@ -83,14 +81,14 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
   const [pendingAction, setPendingAction] = useState<ReviewReviewStatus | null>(null)
   const createdReviewIdRef = useRef<string | null>(null)
 
+  const { push } = useSmartRouter()
+
   const control = controlData?.control
   const relatedControls = useMemo(() => relatedData?.control?.relatedControls ?? [], [relatedData])
   const subcontrols = useMemo(() => (control?.subcontrols?.edges ?? []).map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => !!node), [control])
+  const evidenceItems = useMemo(() => (control?.evidence?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [control])
 
-  const activePrograms = useMemo(() => {
-    const nodes = (programsData?.programs?.edges ?? []).map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => !!node)
-    return nodes.filter((program) => !INACTIVE_PROGRAM_STATUSES.has(program.status))
-  }, [programsData])
+  const openEvidenceSheet = (evidenceId: string) => push({ id: evidenceId })
 
   const relatedGroups = useMemo(() => {
     const groups = new Map<string, { label: string; framework?: string; isSubcontrols: boolean; items: TRelatedItem[] }>()
@@ -102,15 +100,17 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
         groups.set(key, { label, framework, isSubcontrols, items: [item] })
       }
     }
-    relatedControls.forEach((related) => {
-      const framework = related.referenceFramework ?? undefined
-      add(framework ?? 'custom', framework ?? 'CUSTOM', framework, false, {
-        id: related.id,
-        refCode: related.refCode,
-        field: related.isSubcontrol ? 'linkedSubcontrolIDs' : 'linkedControlIDs',
-      })
-    })
     subcontrols.forEach((sub) => add('subcontrols', 'Subcontrols', undefined, true, { id: sub.id, refCode: sub.refCode, field: 'linkedSubcontrolIDs' }))
+    relatedControls
+      .filter((related) => related.referenceFramework !== 'OTS')
+      .forEach((related) => {
+        const framework = related.referenceFramework ?? undefined
+        add(framework ?? 'custom', framework ?? 'CUSTOM', framework, false, {
+          id: related.id,
+          refCode: related.refCode,
+          field: related.isSubcontrol ? 'linkedSubcontrolIDs' : 'linkedControlIDs',
+        })
+      })
     return Array.from(groups.values())
   }, [relatedControls, subcontrols])
 
@@ -126,20 +126,6 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
       form.setValue('title', `${control.refCode} Review - ${new Date().getFullYear()}`)
     }
   }, [open, control?.refCode, form])
-
-  useEffect(() => {
-    if (!open || form.getValues('programID') || activePrograms.length === 0) return
-    const now = Date.now()
-    const current = activePrograms.find((program) => {
-      const start = program.startDate ? new Date(program.startDate).getTime() : undefined
-      const end = program.endDate ? new Date(program.endDate).getTime() : undefined
-      return start !== undefined && end !== undefined && start <= now && now <= end
-    })
-    const defaultProgram = current ?? (activePrograms.length === 1 ? activePrograms[0] : undefined)
-    if (defaultProgram) {
-      form.setValue('programID', defaultProgram.id)
-    }
-  }, [open, activePrograms, form])
 
   const resetAndClose = () => {
     createdReviewIdRef.current = null
@@ -174,7 +160,7 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
           ...(data.externalID ? { externalID: data.externalID } : {}),
           controlIDs,
           subcontrolIDs,
-          ...(data.programID ? { programIDs: [data.programID] } : {}),
+          ...(programId ? { programIDs: [programId] } : {}),
         }
 
         const res = await createReview({ input })
@@ -257,53 +243,26 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
             <Panel className="p-4 flex flex-col gap-3">
               <p className="text-lg font-medium">Control Context</p>
               <div className="flex items-center gap-2 flex-wrap">
-                <TooltipProvider delayDuration={200}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="font-medium cursor-default">
-                        {control?.refCode ?? '—'}
-                        {control?.category ? <span className="text-muted-foreground font-normal"> · {control.category}</span> : null}
-                      </span>
-                    </TooltipTrigger>
-                    {control?.description ? (
-                      <TooltipContent side="bottom" className="max-w-sm">
-                        {control.description}
-                      </TooltipContent>
-                    ) : null}
-                  </Tooltip>
-                </TooltipProvider>
+                <span className="font-medium">{control?.refCode ?? '—'}</span>
+                {control?.title ? <span className="text-muted-foreground">{control.title}</span> : null}
                 {control?.auditorReferenceID ? <span className="text-xs text-muted-foreground">({control.auditorReferenceID})</span> : null}
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Framework</span>
-                <StandardChip referenceFramework={control?.referenceFramework ?? undefined} />
+              {control?.description ? <p className="text-sm text-muted-foreground">{control.description}</p> : null}
+              <div className="flex items-center gap-6 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Framework</span>
+                  <StandardChip referenceFramework={control?.referenceFramework ?? undefined} />
+                </div>
+                {control?.controlOwner ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Control Owner</span>
+                    <div className="flex items-center gap-2">
+                      <Avatar entity={control.controlOwner as Group} className="h-6 w-6" />
+                      <span>{control.controlOwner.displayName || '-'}</span>
+                    </div>
+                  </div>
+                ) : null}
               </div>
-
-              {activePrograms.length > 0 && (
-                <FormField
-                  control={form.control}
-                  name="programID"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Program</FormLabel>
-                      <FormControl>
-                        <Select value={field.value ?? undefined} onValueChange={field.onChange}>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a program..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {activePrograms.map((program) => (
-                              <SelectItem key={program.id} value={program.id}>
-                                {program.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              )}
 
               {totalRelatedCount > 0 && (
                 <div className="flex flex-col gap-2">
@@ -339,6 +298,8 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
                 </div>
               )}
             </Panel>
+
+            <UploadedEvidenceSection items={evidenceItems} controlId={controlId} programId={programId} onView={openEvidenceSheet} />
 
             <Panel className="p-4 flex flex-col gap-3">
               <p className="text-lg font-medium">Review</p>

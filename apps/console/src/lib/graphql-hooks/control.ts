@@ -33,6 +33,7 @@ import {
   GET_CONTROL_DISCUSSION_BY_ID,
   UPDATE_CSV_BULK_CONTROL,
   GET_EXISTING_CONTROLS_FOR_ORGANIZATION,
+  GET_AUDITOR_DASHBOARD_CONTROLS,
 } from '@repo/codegen/query/control'
 
 import {
@@ -94,6 +95,8 @@ import {
   type ControlReportsByCategoryQueryVariables,
   type ControlReportsQuery,
   type ControlReportsQueryVariables,
+  type GetAuditorDashboardControlsQuery,
+  type GetAuditorDashboardControlsQueryVariables,
   ControlReportOrderField,
   OrderDirection,
 } from '@repo/codegen/src/schema'
@@ -102,6 +105,7 @@ import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { useEffect, useMemo } from 'react'
 
 export type ControlByIdNode = GetControlByIdQuery['control']
+export type ControlEvidenceItem = NonNullable<NonNullable<NonNullable<NonNullable<NonNullable<ControlByIdNode>['evidence']>['edges']>[number]>['node']>
 export type ControlsByRefcodeEdge = NonNullable<NonNullable<NonNullable<GetControlsByRefCodeQuery['controls']>['edges']>[number]>
 export type ControlsByRefcodeNode = NonNullable<ControlsByRefcodeEdge['node']>
 
@@ -130,6 +134,44 @@ export const useGetAllControls = ({ where, pagination, orderBy, enabled = true, 
 
   const edges = queryResult.data?.controls?.edges ?? []
   const controls = edges.map((edge) => edge?.node) as Control[]
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.controls?.totalCount ?? 0,
+    pageInfo: queryResult.data?.controls?.pageInfo,
+    isLoading: queryResult.isLoading,
+  }
+
+  return {
+    ...queryResult,
+    controls,
+    paginationMeta,
+  }
+}
+
+export type AuditorDashboardControlNode = NonNullable<NonNullable<NonNullable<GetAuditorDashboardControlsQuery['controls']>['edges']>[number]>['node']
+
+export type AuditorDashboardEvidenceItem = NonNullable<NonNullable<NonNullable<NonNullable<AuditorDashboardControlNode>['evidence']['edges']>[number]>['node']>
+export type AuditorDashboardPolicyItem = NonNullable<NonNullable<NonNullable<NonNullable<AuditorDashboardControlNode>['internalPolicies']['edges']>[number]>['node']>
+
+type UseGetAuditorDashboardControlsArgs = {
+  programId: string
+  where?: GetAuditorDashboardControlsQueryVariables['where']
+  orderBy?: GetAuditorDashboardControlsQueryVariables['orderBy']
+  pagination?: TPagination | null
+  enabled?: boolean
+}
+
+export const useGetAuditorDashboardControls = ({ programId, where, orderBy, pagination, enabled = true }: UseGetAuditorDashboardControlsArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetAuditorDashboardControlsQuery, GetAuditorDashboardControlsQueryVariables>({
+    queryKey: ['auditor-dashboard-controls', programId, where, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: () => client.request(GET_AUDITOR_DASHBOARD_CONTROLS, { programId, where, orderBy, ...pagination?.query }),
+    enabled: enabled && !!programId,
+  })
+
+  const edges = queryResult.data?.controls?.edges ?? []
+  const controls = edges.map((edge) => edge?.node).filter(Boolean) as NonNullable<AuditorDashboardControlNode>[]
 
   const paginationMeta = {
     totalCount: queryResult.data?.controls?.totalCount ?? 0,

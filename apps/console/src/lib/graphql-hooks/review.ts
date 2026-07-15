@@ -15,6 +15,7 @@ import {
   type ReviewQueryVariables,
   type GetReviewAssociationsQuery,
   type GetReviewFilesPaginatedQuery,
+  type GetProgramReviewStatsQuery,
   type FileOrder,
   type InputMaybe,
 } from '@repo/codegen/src/schema'
@@ -31,6 +32,7 @@ import {
   BULK_EDIT_REVIEW,
   GET_REVIEW_ASSOCIATIONS,
   GET_REVIEW_FILES_PAGINATED,
+  GET_PROGRAM_REVIEW_STATS,
 } from '@repo/codegen/query/review'
 
 type GetAllReviewsArgs = {
@@ -60,6 +62,28 @@ export const useReviewsWithFilter = ({ where, orderBy, pagination, enabled = tru
   const reviewsNodes: ReviewsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as ReviewsNodeNonNull)
 
   return { ...queryResult, reviewsNodes }
+}
+
+type ProgramReviewStats = {
+  completed: number
+  inProgress: number
+}
+
+export const useProgramReviewStats = (programId: string | undefined) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<ProgramReviewStats>({
+    queryKey: ['reviews', 'program-stats', programId],
+    queryFn: async () => {
+      const data = await client.request<GetProgramReviewStatsQuery>(GET_PROGRAM_REVIEW_STATS, { programId })
+
+      return {
+        completed: data.completed.totalCount,
+        inProgress: data.inProgress.totalCount,
+      }
+    },
+    enabled: !!programId,
+  })
 }
 
 export const useCreateReview = () => {

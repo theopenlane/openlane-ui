@@ -39,6 +39,7 @@ import {
   TrustCenterWatermarkConfig,
   Vulnerability,
   WorkflowDefinition,
+  WorkflowEvent,
 } from './schema'
 import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
 import { GET_ALL_ASSESSMENTS } from '@repo/codegen/query/assessment'
@@ -75,6 +76,7 @@ import { GET_ALL_WORKFLOW_DEFINITIONS } from '@repo/codegen/query/workflow-defin
 import { GET_ALL_EVIDENCES } from '@repo/codegen/query/evidence'
 import { GET_ALL_GROUPS } from '@repo/codegen/query/group'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
+import { GET_ALL_WORKFLOW_EVENTS } from '@repo/codegen/query/workflow-event'
 
 export enum ObjectTypes {
   API_TOKEN = 'ApiToken',
@@ -874,6 +876,7 @@ export enum TaskObjectTypes {
   SCAN = 'Scan',
   SUBCONTROL = 'Subcontrol',
   VULNERABILITY = 'Vulnerability',
+  WORKFLOW_EVENT = 'Workflow Event',
 }
 
 export type TaskAllQueriesData = {
@@ -954,6 +957,11 @@ export type TaskAllQueriesData = {
   }
   vulnerabilities?: {
     edges?: Array<{ node: Vulnerability }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  workflowTimeline?: {
+    edges?: Array<{ node: WorkflowEvent }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -1094,6 +1102,14 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     inputName: 'vulnerabilityIDs',
     placeholder: 'vulnerability',
     queryDocument: GET_ALL_VULNERABILITIES,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.WORKFLOW_EVENT]: {
+    responseObjectKey: 'workflowEvents',
+    inputName: 'workflowEventIDs',
+    placeholder: 'workflow event',
+    queryDocument: GET_ALL_WORKFLOW_EVENTS,
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },

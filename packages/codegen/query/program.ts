@@ -359,6 +359,14 @@ export const GET_EVIDENCE_STATS = gql`
       totalCount
     }
 
+    frameworkControls: controls(where: { systemOwned: false, referenceFrameworkNotNil: true, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+
+    organizationControls: controls(where: { systemOwned: false, referenceFrameworkIsNil: true, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+
     submitted: controls(where: { hasEvidenceWith: [{ statusIn: [READY_FOR_AUDITOR], hasProgramsWith: [{ id: $programId }] }] }) {
       totalCount
     }

@@ -325,3 +325,15 @@ export const GET_REVIEW_FILES_PAGINATED = gql`
     }
   }
 `
+
+export const GET_PROGRAM_REVIEW_STATS = gql`
+  query GetProgramReviewStats($programId: ID!) {
+    completed: reviews(where: { status: COMPLETED, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+
+    inProgress: reviews(where: { status: IN_PROGRESS, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+  }
+`
