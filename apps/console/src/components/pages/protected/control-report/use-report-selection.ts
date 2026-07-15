@@ -8,8 +8,8 @@ type UseReportSelectionArgs = {
   mappedControlIdsByControl: Map<string, string[]>
 }
 
-type BulkActionInput = { controlOwnerID?: string; status?: ControlControlStatus }
-type BulkActionOptions = { subcontrols: boolean; mappedControls: boolean }
+export type BulkActionInput = { controlOwnerID?: string; status?: ControlControlStatus; addProgramIDs?: string[] }
+export type BulkActionOptions = { subcontrols: boolean; mappedControls: boolean }
 
 export const useReportSelection = ({ mappedControlIdsByControl }: UseReportSelectionArgs) => {
   const [selectedControlIds, setSelectedControlIds] = useState<Set<string>>(() => new Set())
@@ -63,39 +63,36 @@ export const useReportSelection = ({ mappedControlIdsByControl }: UseReportSelec
       const ids = [...selectedControlIds]
       const subIds = [...selectedSubcontrolIds]
       if (ids.length === 0 && subIds.length === 0) return
+
+      const subcontrolInput = {
+        ...(input.controlOwnerID ? { controlOwnerID: input.controlOwnerID } : {}),
+        ...(input.status ? { status: SubcontrolControlStatus[input.status] } : {}),
+      }
+      const hasSubcontrolChanges = Object.keys(subcontrolInput).length > 0
+
       try {
-        if (ids.length > 0) {
-          await bulkEditControl({ ids, input })
-        }
+        const mappedControlIds = options.mappedControls && ids.length > 0 ? [...new Set(ids.flatMap((id) => mappedControlIdsByControl.get(id) ?? []))] : []
+        const parentIds = options.subcontrols && hasSubcontrolChanges ? [...new Set([...ids, ...mappedControlIds])] : []
 
-        const subcontrolInput = {
-          ...(input.controlOwnerID ? { controlOwnerID: input.controlOwnerID } : {}),
-          ...(input.status ? { status: SubcontrolControlStatus[input.status] } : {}),
-        }
+        const [, , cascadeSubIds] = await Promise.all([
+          ids.length > 0 ? bulkEditControl({ ids, input }) : Promise.resolve(),
+          mappedControlIds.length > 0 ? bulkEditControl({ ids: mappedControlIds, input }) : Promise.resolve(),
+          parentIds.length > 0 ? fetchSubcontrolIds(parentIds) : Promise.resolve<string[]>([]),
+        ])
 
-        let mappedControlIds: string[] = []
-        if (options.mappedControls && ids.length > 0) {
-          mappedControlIds = [...new Set(ids.flatMap((id) => mappedControlIdsByControl.get(id) ?? []))]
-          if (mappedControlIds.length > 0) {
-            await bulkEditControl({ ids: mappedControlIds, input })
-          }
-        }
-
-        if (options.subcontrols) {
-          const parentIds = [...new Set([...ids, ...mappedControlIds])]
-          const cascadeSubIds = parentIds.length > 0 ? await fetchSubcontrolIds(parentIds) : []
+        if (hasSubcontrolChanges) {
           const allSubIds = [...new Set([...cascadeSubIds, ...subIds])]
           if (allSubIds.length > 0) {
             await bulkEditSubcontrol({ ids: allSubIds, input: subcontrolInput })
           }
-        } else if (subIds.length > 0) {
-          await bulkEditSubcontrol({ ids: subIds, input: subcontrolInput })
         }
 
         const parts = []
         if (ids.length > 0) parts.push(`${ids.length} control${ids.length > 1 ? 's' : ''}`)
-        if (subIds.length > 0) parts.push(`${subIds.length} subcontrol${subIds.length > 1 ? 's' : ''}`)
-        successNotification({ title: 'Updated', description: `${parts.join(' and ')} updated` })
+        if (subIds.length > 0 && hasSubcontrolChanges) parts.push(`${subIds.length} subcontrol${subIds.length > 1 ? 's' : ''}`)
+        if (parts.length > 0) {
+          successNotification({ title: 'Updated', description: `${parts.join(' and ')} updated` })
+        }
         clearSelection()
       } catch {
         errorNotification({ title: 'Error', description: 'Failed to apply bulk update' })
