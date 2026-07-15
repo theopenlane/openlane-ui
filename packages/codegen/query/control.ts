@@ -146,6 +146,10 @@ export const CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT = gql`
         }
       }
     }
+    relatedControls @include(if: $includeRelatedControls) {
+      id
+      status
+    }
     trustCenterVisibility
   }
 `
@@ -728,7 +732,7 @@ export const GET_CONTROL_BY_ID_MINIFIED = gql`
 
 export const GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS = gql`
   ${CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT}
-  query GetControlsPaginatedWithListFields($where: ControlWhereInput, $after: Cursor) {
+  query GetControlsPaginatedWithListFields($where: ControlWhereInput, $after: Cursor, $includeRelatedControls: Boolean = false) {
     controls(where: $where, after: $after) {
       totalCount
       edges {

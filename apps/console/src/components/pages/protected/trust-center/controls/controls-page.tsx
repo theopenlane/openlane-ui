@@ -5,10 +5,9 @@ import { Button } from '@repo/ui/button'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Badge } from '@repo/ui/badge'
-import { Checkbox } from '@repo/ui/checkbox'
 import { Input } from '@repo/ui/input'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ChevronDown, ChevronRight, ChevronsDownUp, List, Minus, Plus, SearchIcon, ShieldCheck, SquarePlay, SquarePlus, Star } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronsDownUp, List, Minus, Plus, RotateCcw, SearchIcon, ShieldCheck, SquarePlay, SquarePlus, Star } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@repo/ui/dialog'
@@ -20,7 +19,6 @@ import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useAllControlsGroupedWithListFields, useBulkEditControl } from '@/lib/graphql-hooks/control'
-import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useGetStandards, useCloneControls } from '@/lib/graphql-hooks/standard'
@@ -64,36 +62,15 @@ export default function ControlsPage() {
   const otsStandardID = otsStandardData?.standards?.edges?.[0]?.node?.id
   const { mutateAsync: cloneControls, isPending: isCloning } = useCloneControls()
 
-  const { data: recommendedMappedControls } = useGetMappedControls({
-    where: {
-      hasFromControlsWith: [{ referenceFramework: 'OTS' }],
-      hasToControlsWith: [{ status: ControlControlStatus.APPROVED }],
-    },
-  })
-
-  const recommendedRefCodes = useMemo(() => {
-    const refCodes = new Set<string>()
-    const edges = recommendedMappedControls?.mappedControls?.edges
-    if (!edges) return refCodes
-    for (const edge of edges) {
-      const fromControls = edge?.node?.fromControls?.edges
-      if (!fromControls) continue
-      for (const fromEdge of fromControls) {
-        if (fromEdge?.node?.refCode) {
-          refCodes.add(fromEdge.node.refCode)
-        }
-      }
-    }
-    return refCodes
-  }, [recommendedMappedControls])
-
   const filterWhere = useMemo((): ControlWhereInput => {
     return {
       isTrustCenterControl: true,
     }
   }, [])
 
-  const { allControls, isLoading: isLoadingAll, groupedControls } = useAllControlsGroupedWithListFields({ where: filterWhere })
+  const { allControls, isLoading: isLoadingAll, groupedControls } = useAllControlsGroupedWithListFields({ where: filterWhere, includeRelatedControls: true })
+
+  const isRecommended = useCallback((control: ControlListStandardFieldsFragment): boolean => !!control.relatedControls?.some((related) => related.status === ControlControlStatus.APPROVED), [])
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
 
   useEffect(() => {
@@ -117,9 +94,9 @@ export default function ControlsPage() {
   const tabCounts = useMemo(() => {
     const added = allControls.filter((c) => getEffectiveState(c) === 'added').length
     const notAdded = allControls.length - added
-    const recommended = allControls.filter((c) => recommendedRefCodes.has(c.refCode)).length
+    const recommended = allControls.filter(isRecommended).length
     return { all: allControls.length, added, 'not-added': notAdded, recommended }
-  }, [allControls, getEffectiveState, recommendedRefCodes])
+  }, [allControls, getEffectiveState, isRecommended])
 
   const filteredGroupedControls = useMemo(() => {
     const search = debouncedSearch.toLowerCase()
@@ -140,7 +117,7 @@ export default function ControlsPage() {
         case 'not-added':
           return getEffectiveState(control) === 'not-added'
         case 'recommended':
-          return recommendedRefCodes.has(control.refCode)
+          return isRecommended(control)
         default:
           return true
       }
@@ -152,7 +129,7 @@ export default function ControlsPage() {
       if (matching.length > 0) filtered[category] = matching
     }
     return filtered
-  }, [activeTab, debouncedSearch, groupedControls, getEffectiveState, recommendedRefCodes])
+  }, [activeTab, debouncedSearch, groupedControls, getEffectiveState, isRecommended])
 
   const isDirty = useMemo(() => drafts.size > 0, [drafts])
   const publishDisabled = !isDirty || isBulkEditing
@@ -416,47 +393,47 @@ export default function ControlsPage() {
                   {controls.map((control) => {
                     const effectiveState = getEffectiveState(control)
                     const isAdded = effectiveState === 'added'
-                    const hasDraft = drafts.has(control.id)
+                    const draftAction = drafts.get(control.id)
+                    const hasDraft = !!draftAction
 
-                    const isRecommended = recommendedRefCodes.has(control.refCode)
+                    const recommended = isRecommended(control)
 
                     return (
-                      <div key={control.id} className={`flex items-start justify-between p-4 rounded-lg border bg-card ${hasDraft ? 'border-brand bg-brand/5' : 'border-border'}`}>
-                        <div className="flex items-center gap-3 flex-1 min-w-0 mr-4">
-                          {canEditTc && <Checkbox checked={isAdded} onCheckedChange={() => handleToggle(control)} aria-label={`Toggle ${control.title || control.refCode}`} />}
-                          <div className="flex flex-col gap-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm text-muted-foreground line-clamp-2">{control.description || 'No description provided'}</p>
-                              {isRecommended && (
-                                <Badge variant="green" className="shrink-0">
-                                  <Star size={12} className="mr-1" />
-                                  Recommended
+                      <div key={control.id} className={`grid grid-cols-[1fr_9rem_auto] items-center gap-4 p-4 rounded-lg border border-border bg-card ${hasDraft ? 'border-l-4 border-l-info' : ''}`}>
+                        <div className="flex flex-col gap-1 min-w-0">
+                          <p className="text-sm text-muted-foreground line-clamp-2">{control.description || 'No description provided'}</p>
+                          {control.tags && control.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mt-1">
+                              {control.tags.map((tag) => (
+                                <Badge key={tag} variant="document">
+                                  {tag}
                                 </Badge>
-                              )}
-                              {hasDraft && <Badge variant="blue">{drafts.get(control.id) === 'add' ? 'Pending Add' : 'Pending Remove'}</Badge>}
+                              ))}
                             </div>
-                            {control.tags && control.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5 mt-1">
-                                {control.tags.map((tag) => (
-                                  <Badge key={tag} variant="document">
-                                    {tag}
-                                  </Badge>
-                                ))}
-                              </div>
-                            )}
-                          </div>
+                          )}
+                        </div>
+                        <div className="flex justify-end">
+                          {recommended && (
+                            <Badge variant="green" className="shrink-0 whitespace-nowrap">
+                              <Star size={12} className="mr-1" />
+                              Recommended
+                            </Badge>
+                          )}
                         </div>
                         {canEditTc && (
-                          <Button
-                            variant={isAdded ? 'secondary' : 'primary'}
-                            size="sm"
-                            icon={isAdded ? <Minus size={14} /> : <Plus size={14} />}
-                            iconPosition="left"
-                            onClick={() => handleToggle(control)}
-                            className="shrink-0 py-1"
-                          >
-                            {isAdded ? 'Remove' : 'Add'}
-                          </Button>
+                          <div className="w-24 flex justify-end">
+                            <Button
+                              variant={hasDraft || isAdded ? 'secondary' : 'primary'}
+                              icon={hasDraft ? <RotateCcw /> : isAdded ? <Minus /> : <Plus />}
+                              iconPosition="left"
+                              onClick={() => handleToggle(control)}
+                              className="shrink-0 py-1"
+                              descriptiveTooltipText={hasDraft ? `Pending ${draftAction === 'add' ? 'add' : 'remove'}, click to undo` : undefined}
+                              aria-label={`${isAdded ? 'Remove' : 'Add'} ${control.title || control.refCode}`}
+                            >
+                              {hasDraft ? 'Pending' : isAdded ? 'Remove' : 'Add'}
+                            </Button>
+                          </div>
                         )}
                       </div>
                     )

@@ -419,15 +419,21 @@ export function useAllControlsGrouped({ where, enabled = true }: { where?: Contr
   }
 }
 
-export function useFetchAllControlsWithListFields(where?: ControlWhereInput, enabled = true) {
+export function useFetchAllControlsWithListFields(where?: ControlWhereInput, enabled = true, includeRelatedControls = false) {
   const { client } = useGraphQLClient()
 
-  return useInfiniteQuery<GetControlsPaginatedWithListFieldsQuery['controls'], Error, InfiniteData<GetControlsPaginatedWithListFieldsQuery['controls']>, ['controls', 'infinite', ControlWhereInput?]>({
-    queryKey: ['controls', 'infinite', where],
+  return useInfiniteQuery<
+    GetControlsPaginatedWithListFieldsQuery['controls'],
+    Error,
+    InfiniteData<GetControlsPaginatedWithListFieldsQuery['controls']>,
+    ['controls', 'infinite', ControlWhereInput | undefined, boolean]
+  >({
+    queryKey: ['controls', 'infinite', where, includeRelatedControls],
     queryFn: async ({ pageParam }) => {
       const { controls } = await client.request<GetControlsPaginatedWithListFieldsQuery, GetControlsPaginatedWithListFieldsQueryVariables>(GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS, {
         where,
         after: pageParam,
+        includeRelatedControls,
       })
       return controls
     },
@@ -437,8 +443,8 @@ export function useFetchAllControlsWithListFields(where?: ControlWhereInput, ena
   })
 }
 
-export function useAllControlsGroupedWithListFields({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) {
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isFetching, ...rest } = useFetchAllControlsWithListFields(where, enabled)
+export function useAllControlsGroupedWithListFields({ where, enabled = true, includeRelatedControls = false }: { where?: ControlWhereInput; enabled?: boolean; includeRelatedControls?: boolean }) {
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isFetching, ...rest } = useFetchAllControlsWithListFields(where, enabled, includeRelatedControls)
 
   useEffect(() => {
     if (hasNextPage && !isFetchingNextPage) {

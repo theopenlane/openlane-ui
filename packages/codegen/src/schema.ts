@@ -71690,6 +71690,7 @@ export type ControlListStandardFieldsFragment = {
     __typename?: 'ControlImplementationConnection'
     edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
   }
+  relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; status?: ControlControlStatus | null }> | null
 }
 
 export type ControlDetailsFieldsFragment = {
@@ -72301,6 +72302,7 @@ export type GetControlByIdMinifiedQuery = {
 export type GetControlsPaginatedWithListFieldsQueryVariables = Exact<{
   where?: InputMaybe<ControlWhereInput>
   after?: InputMaybe<Scalars['Cursor']['input']>
+  includeRelatedControls?: InputMaybe<Scalars['Boolean']['input']>
 }>
 
 export type GetControlsPaginatedWithListFieldsQuery = {
@@ -72332,6 +72334,7 @@ export type GetControlsPaginatedWithListFieldsQuery = {
           __typename?: 'ControlImplementationConnection'
           edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
         }
+        relatedControls?: Array<{ __typename?: 'ControlInfo'; id: string; status?: ControlControlStatus | null }> | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
