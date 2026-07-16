@@ -7,6 +7,16 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon, ExternalLink } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 
+const isValidLink = (value: string): boolean => {
+  const candidate = /^https?:\/\//i.test(value) ? value : `https://${value}`
+  try {
+    const { hostname } = new URL(candidate)
+    return /^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/i.test(hostname)
+  } catch {
+    return false
+  }
+}
+
 interface MultiStringFieldProps {
   name: string
   label: string
@@ -20,6 +30,7 @@ interface MultiStringFieldProps {
   className?: string
   error?: string
   tooltipContent?: React.ReactNode
+  description?: React.ReactNode
   type?: string
 }
 
@@ -36,12 +47,14 @@ export const MultiStringField: React.FC<MultiStringFieldProps> = ({
   className,
   error,
   tooltipContent,
+  description,
   type,
 }) => {
   const { control, formState } = useFormContext()
   const isFieldEditing = isCreate || isEditing || internalEditing === name
 
   const [input, setInput] = useState('')
+  const [validationError, setValidationError] = useState<string | null>(null)
 
   const handleClick = () => {
     if (!isEditing && isEditAllowed) {
@@ -58,11 +71,20 @@ export const MultiStringField: React.FC<MultiStringFieldProps> = ({
 
         const handleAdd = () => {
           const trimmed = input.trim()
-          if (!trimmed || values.includes(trimmed)) return
+          if (!trimmed) return
+          if (type === 'link' && !isValidLink(trimmed)) {
+            setValidationError('Enter a valid domain or URL')
+            return
+          }
+          if (values.includes(trimmed)) {
+            setInput('')
+            return
+          }
           const newValues = [...values, trimmed]
           field.onChange(newValues)
           if (!isEditing && !isCreate && handleUpdate) handleUpdate({ [name]: newValues })
           setInput('')
+          setValidationError(null)
         }
 
         const handleRemove = (value: string) => {
@@ -77,6 +99,7 @@ export const MultiStringField: React.FC<MultiStringFieldProps> = ({
               <FormLabel>{label}</FormLabel>
               {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1" />} content={tooltipContent} />}
             </div>
+            {description && <p className="text-sm text-muted-foreground">{description}</p>}
             <FormControl>
               <div>
                 <div className="flex flex-wrap gap-2 rounded-md bg-transparent">
@@ -100,13 +123,17 @@ export const MultiStringField: React.FC<MultiStringFieldProps> = ({
                       type="text"
                       value={input}
                       prefix={type === 'link' ? 'https://' : undefined}
-                      onChange={(e) => setInput(e.target.value)}
+                      onChange={(e) => {
+                        setInput(e.target.value)
+                        if (validationError) setValidationError(null)
+                      }}
                       onKeyDown={(e) => {
                         if ((e.key === 'Enter' || e.key === 'Tab') && input) {
                           e.preventDefault()
                           handleAdd()
                         }
                       }}
+                      onBlur={handleAdd}
                       placeholder={placeholder}
                       className="bg-transparent outline-none"
                       autoFocus={internalEditing === name}
@@ -140,8 +167,8 @@ export const MultiStringField: React.FC<MultiStringFieldProps> = ({
                 )}
               </div>
             </FormControl>
-            {(error || typeof formState.errors[name]?.message === 'string') && (
-              <p className="text-red-500 text-sm">{error || (typeof formState.errors[name]?.message === 'string' ? formState.errors[name]?.message : '')}</p>
+            {(error || validationError || typeof formState.errors[name]?.message === 'string') && (
+              <p className="text-red-500 text-sm">{error || validationError || (typeof formState.errors[name]?.message === 'string' ? formState.errors[name]?.message : '')}</p>
             )}
           </FormItem>
         )
