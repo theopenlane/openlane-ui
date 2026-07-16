@@ -45,7 +45,7 @@ const CompanySection: React.FC<Props> = ({ metadata }) => {
             <div className="flex items-center gap-3 shrink-0">
               {company.socialLinks.map((link) => (
                 <a key={link.platform} href={link.url} target="_blank" rel="noreferrer" title={link.platform} className="text-muted-foreground hover:text-foreground transition-colors">
-                  {SOCIAL_ICONS[link.platform] ?? <LinkIcon size={16} />}
+                  {SOCIAL_ICONS[link.platform.toLowerCase()] ?? <LinkIcon size={16} />}
                 </a>
               ))}
             </div>

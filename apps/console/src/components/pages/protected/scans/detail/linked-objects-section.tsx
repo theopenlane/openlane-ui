@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { Bug, ListChecks, Laptop, Building2, FileSearch } from 'lucide-react'
+import { Bug, ListChecks, Laptop, Building2, FileSearch, Settings2 } from 'lucide-react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { useGetScanAssociations } from '@/lib/graphql-hooks/scan'
@@ -17,6 +17,7 @@ const LINKED_TYPES = [
   { key: 'tasks' as const, label: 'Tasks', icon: ListChecks, href: '/automation/tasks' },
   { key: 'assets' as const, label: 'Assets', icon: Laptop, href: '/registry/assets' },
   { key: 'entities' as const, label: 'Vendors', icon: Building2, href: '/registry/vendors' },
+  { key: 'controls' as const, label: 'Controls', icon: Settings2, href: '/controls' },
 ]
 
 const LinkedObjectsSection: React.FC<Props> = ({ scanId }) => {
@@ -29,6 +30,7 @@ const LinkedObjectsSection: React.FC<Props> = ({ scanId }) => {
     tasks: data?.scan?.tasks?.totalCount ?? 0,
     assets: data?.scan?.assets?.totalCount ?? 0,
     entities: data?.scan?.entities?.totalCount ?? 0,
+    controls: data?.scan?.controls?.totalCount ?? 0,
   }
 
   const visibleTypes = LINKED_TYPES.filter(({ key }) => counts[key] > 0)

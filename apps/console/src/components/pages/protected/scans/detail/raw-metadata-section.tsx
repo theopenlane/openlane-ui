@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { CodeBlock } from '@repo/ui/code-block'
@@ -12,7 +12,7 @@ type Props = {
 
 const RawMetadataSection: React.FC<Props> = ({ metadata }) => {
   const [isExpanded, setIsExpanded] = useState(false)
-  const json = JSON.stringify(metadata, null, 2)
+  const json = useMemo(() => JSON.stringify(metadata, null, 2), [metadata])
 
   return (
     <Card>
