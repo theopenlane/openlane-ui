@@ -357,6 +357,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
           selectedSubcontrolCount={selectedSubcontrolIds.size}
           isCustomView={isCustomView}
           groups={groups}
+          programOptions={programOptions}
           onApply={handleBulkAction}
           onClear={clearSelection}
         />

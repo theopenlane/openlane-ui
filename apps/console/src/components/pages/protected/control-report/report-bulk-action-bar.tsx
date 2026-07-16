@@ -5,32 +5,35 @@ import { Button } from '@repo/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Checkbox } from '@repo/ui/checkbox'
-import { UserCog, Tag, X } from 'lucide-react'
+import { UserCog, Tag, X, FolderPlus } from 'lucide-react'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
+import { type BulkActionInput, type BulkActionOptions } from './use-report-selection'
 
 const BULK_STATUS_OPTIONS = ControlStatusOptions.filter((opt) => opt.value !== ControlControlStatus.ARCHIVED && opt.value !== ControlControlStatus.NOT_APPLICABLE)
 
 type BulkEditGroup = { id: string; displayName?: string | null }
-
-type BulkActionOptions = { subcontrols: boolean; mappedControls: boolean }
 
 type ReportBulkActionBarProps = {
   selectedControlCount: number
   selectedSubcontrolCount: number
   isCustomView: boolean
   groups: BulkEditGroup[]
-  onApply: (input: { controlOwnerID?: string; status?: ControlControlStatus }, options: BulkActionOptions) => void
+  programOptions: { value: string; label: string }[]
+  onApply: (input: BulkActionInput, options: BulkActionOptions) => void
   onClear: () => void
 }
 
-const ReportBulkActionBar: React.FC<ReportBulkActionBarProps> = ({ selectedControlCount, selectedSubcontrolCount, isCustomView, groups, onApply, onClear }) => {
+const ReportBulkActionBar: React.FC<ReportBulkActionBarProps> = ({ selectedControlCount, selectedSubcontrolCount, isCustomView, groups, programOptions, onApply, onClear }) => {
   const [ownerPopoverOpen, setOwnerPopoverOpen] = useState(false)
   const [statusPopoverOpen, setStatusPopoverOpen] = useState(false)
+  const [programPopoverOpen, setProgramPopoverOpen] = useState(false)
   const [pendingOwnerId, setPendingOwnerId] = useState('')
   const [pendingStatus, setPendingStatus] = useState<ControlControlStatus | ''>('')
+  const [pendingProgramId, setPendingProgramId] = useState('')
   const [ownerCascade, setOwnerCascade] = useState({ sub: false, mapped: false })
   const [statusCascade, setStatusCascade] = useState({ sub: false, mapped: false })
+  const [programMappedCascade, setProgramMappedCascade] = useState(false)
 
   const selectionLabel = [
     selectedControlCount > 0 ? `${selectedControlCount} control${selectedControlCount > 1 ? 's' : ''}` : '',
@@ -132,6 +135,54 @@ const ReportBulkActionBar: React.FC<ReportBulkActionBarProps> = ({ selectedContr
           >
             Apply
           </Button>
+        </PopoverContent>
+      </Popover>
+
+      <Popover open={programPopoverOpen} onOpenChange={setProgramPopoverOpen}>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="h-7.5 px-3 gap-1.5" icon={<FolderPlus size={14} />} iconPosition="left">
+            Assign to Program
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-72 space-y-3 p-4">
+          <p className="text-sm font-medium">Assign to Program</p>
+          {selectedControlCount === 0 ? (
+            <p className="text-xs text-muted-foreground">Select at least one control to assign to a program. Subcontrols cannot be assigned directly.</p>
+          ) : (
+            <>
+              <Select value={pendingProgramId} onValueChange={setPendingProgramId}>
+                <SelectTrigger className="h-8">
+                  <SelectValue placeholder="Select program…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {programOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {!isCustomView && (
+                <label className="flex items-center gap-2 text-xs cursor-pointer">
+                  <Checkbox checked={programMappedCascade} onCheckedChange={(v) => setProgramMappedCascade(!!v)} />
+                  Apply to mapped org controls
+                </label>
+              )}
+              <Button
+                variant="primary"
+                className="w-full h-8"
+                disabled={!pendingProgramId}
+                onClick={() => {
+                  onApply({ addProgramIDs: [pendingProgramId] }, { subcontrols: false, mappedControls: programMappedCascade })
+                  setProgramPopoverOpen(false)
+                  setPendingProgramId('')
+                  setProgramMappedCascade(false)
+                }}
+              >
+                Apply
+              </Button>
+            </>
+          )}
         </PopoverContent>
       </Popover>
 
