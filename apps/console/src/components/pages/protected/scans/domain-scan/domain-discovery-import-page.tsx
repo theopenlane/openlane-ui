@@ -73,12 +73,12 @@ type DomainScanNotificationData = {
   }
 }
 
-const { useStepper } = defineStepper(
+const { useStepper } = defineStepper([
   { id: 'vendors', label: 'Review vendors' },
   { id: 'assets', label: 'Review assets' },
   { id: 'findings', label: 'Review findings' },
   { id: 'confirm', label: 'Confirm import' },
-)
+])
 
 const unknownDomain = 'Unknown domain'
 
@@ -612,8 +612,8 @@ export default function DomainDiscoveryImportPage() {
   }
 
   const handleNextButton = () => {
-    if (!stepper.state.isLast) {
-      stepper.navigation.next()
+    if (!stepper.isLast) {
+      stepper.next()
       return
     }
 
@@ -621,11 +621,11 @@ export default function DomainDiscoveryImportPage() {
   }
 
   const handleBack = () => {
-    if (stepper.state.isFirst) {
+    if (stepper.isFirst) {
       return
     }
 
-    stepper.navigation.prev()
+    stepper.prev()
   }
 
   return (
@@ -638,7 +638,7 @@ export default function DomainDiscoveryImportPage() {
         <Separator separatorClass="bg-card" />
 
         <div className="py-4">
-          {stepper.flow.switch({
+          {stepper.match({
             vendors: () => <VendorsStep vendors={vendors} selected={selectedVendorIds} setSelected={setSelectedVendorIds} existingIds={existingVendorIds} />,
             assets: () => <AssetsStep owned={domains.owned} external={domains.external} selected={selectedDomainIds} setSelected={setSelectedDomainIds} existingIds={existingAssetIds} />,
             findings: () => <FindingsStep findings={findings} selected={selectedFindingIds} setSelected={setSelectedFindingIds} />,
@@ -652,13 +652,13 @@ export default function DomainDiscoveryImportPage() {
           </Button>
 
           <div className="flex items-center gap-3">
-            {!stepper.state.isFirst ? (
+            {!stepper.isFirst ? (
               <Button variant="secondary" onClick={handleBack}>
                 Back
               </Button>
             ) : null}
-            <Button variant="primary" onClick={handleNextButton} loading={isImporting} disabled={isImporting || (stepper.state.isLast && !hasImportableSelections)}>
-              {stepper.state.isLast ? 'Import' : 'Continue'}
+            <Button variant="primary" onClick={handleNextButton} loading={isImporting} disabled={isImporting || (stepper.isLast && !hasImportableSelections)}>
+              {stepper.isLast ? 'Import' : 'Continue'}
             </Button>
           </div>
         </div>

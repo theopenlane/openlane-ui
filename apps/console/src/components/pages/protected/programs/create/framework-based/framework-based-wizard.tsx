@@ -30,12 +30,12 @@ export default function FrameworkBasedWizard() {
   const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
 
-  const { useStepper } = defineStepper(
+  const { useStepper } = defineStepper([
     { id: '0', label: 'Select Framework', schema: wizardSchema.pick({ framework: true, standardID: true, name: true }) },
     { id: '1', label: 'Select Categories', schema: wizardSchema.pick({ categories: true }) },
     { id: '2', label: 'Team Setup', schema: wizardSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) },
     { id: '3', label: 'Program Type', schema: wizardSchema.pick({ programKindName: true }) },
-  )
+  ])
 
   const stepper = useStepper()
 
@@ -52,11 +52,11 @@ export default function FrameworkBasedWizard() {
 
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
-    if (!stepper.state.isLast) {
+    if (!stepper.isLast) {
       let isValid: boolean
-      if (stepper.state.current.data.id === '0') {
+      if (stepper.current.id === '0') {
         isValid = await methods.trigger(['framework', 'standardID', 'name'])
-      } else if (stepper.state.current.data.id === '1') {
+      } else if (stepper.current.id === '1') {
         isValid = await methods.trigger('categories')
       } else {
         isValid = await methods.trigger(['programAdmins', 'programMembers', 'viewerIDs', 'editorIDs'])
@@ -64,13 +64,13 @@ export default function FrameworkBasedWizard() {
 
       if (!isValid) return
 
-      let nextStepIndex = stepper.state.all.findIndex((s) => s.id === stepper.state.current.data.id) + 1
-      while (disabledIDs.includes(stepper.state.all[nextStepIndex]?.id)) {
+      let nextStepIndex = stepper.steps.findIndex((s) => s.id === stepper.current.id) + 1
+      while (disabledIDs.includes(stepper.steps[nextStepIndex]?.id)) {
         nextStepIndex++
       }
 
-      const nextStep = stepper.state.all[nextStepIndex]
-      if (nextStep) stepper.navigation.goTo(nextStep.id)
+      const nextStep = stepper.steps[nextStepIndex]
+      if (nextStep) stepper.goTo(nextStep.id)
     } else {
       const validAll = await validateFullAndNotify(methods, errorNotification)
       if (!validAll) return
@@ -79,16 +79,16 @@ export default function FrameworkBasedWizard() {
   }
 
   const handleBack = () => {
-    if (stepper.state.isFirst) {
+    if (stepper.isFirst) {
       setShowExitConfirm(true)
     } else {
-      let prevStepIndex = stepper.state.all.findIndex((s) => s.id === stepper.state.current.data.id) - 1
-      while (disabledIDs.includes(stepper.state.all[prevStepIndex]?.id)) {
+      let prevStepIndex = stepper.steps.findIndex((s) => s.id === stepper.current.id) - 1
+      while (disabledIDs.includes(stepper.steps[prevStepIndex]?.id)) {
         prevStepIndex--
       }
 
-      const prevStep = stepper.state.all[prevStepIndex]
-      if (prevStep) stepper.navigation.goTo(prevStep.id)
+      const prevStep = stepper.steps[prevStepIndex]
+      if (prevStep) stepper.goTo(prevStep.id)
     }
   }
 
@@ -146,7 +146,7 @@ export default function FrameworkBasedWizard() {
         <FormProvider {...methods}>
           <form onSubmit={handleNext}>
             <div className="py-6">
-              {stepper.flow.switch({
+              {stepper.match({
                 0: () => <SelectFrameworkStep required />,
                 1: () => <SelectCategoryStep />,
                 2: () => <TeamSetupStep />,
@@ -157,7 +157,7 @@ export default function FrameworkBasedWizard() {
                   Back
                 </Button>
                 <Button variant="primary" type="button" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
-                  {stepper.state.isLast ? 'Create' : 'Continue'}
+                  {stepper.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>
             </div>

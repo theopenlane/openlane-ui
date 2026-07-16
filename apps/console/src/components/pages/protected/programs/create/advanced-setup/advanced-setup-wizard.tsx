@@ -47,14 +47,14 @@ export default function AdvancedSetupWizard() {
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [isMemberSheetOpen, setIsMemberSheetOpen] = useState(false)
 
-  const { useStepper } = defineStepper(
+  const { useStepper } = defineStepper([
     { id: '0', label: 'Select a Program Type', schema: step1Schema },
     { id: '1', label: 'General Information', schema: step2Schema },
     { id: '2', label: 'Select SOC 2 Categories', schema: categoriesStepSchema },
     { id: '3', label: 'Auditors', schema: step3Schema },
     { id: '4', label: 'Add Team Members', schema: step4Schema },
     { id: '5', label: 'Associate Existing Objects', schema: step5Schema },
-  )
+  ])
 
   const stepper = useStepper()
 
@@ -85,18 +85,18 @@ export default function AdvancedSetupWizard() {
   const disabledIDs = framework === 'SOC 2' ? [] : ['2']
 
   const handleNext = async () => {
-    if (!stepper.state.isLast) {
-      const valid = await validateStepAndNotify(form, stepper.state.current.data.id, errorNotification)
+    if (!stepper.isLast) {
+      const valid = await validateStepAndNotify(form, stepper.current.id, errorNotification)
       if (!valid) return
 
-      let nextStepIndex = stepper.state.all.findIndex((s) => s.id === stepper.state.current.data.id) + 1
-      while (disabledIDs.includes(stepper.state.all[nextStepIndex]?.id)) {
+      let nextStepIndex = stepper.steps.findIndex((s) => s.id === stepper.current.id) + 1
+      while (disabledIDs.includes(stepper.steps[nextStepIndex]?.id)) {
         nextStepIndex++
       }
 
-      const nextStep = stepper.state.all[nextStepIndex]
+      const nextStep = stepper.steps[nextStepIndex]
       if (nextStep) {
-        stepper.navigation.goTo(nextStep.id)
+        stepper.goTo(nextStep.id)
       }
     } else {
       const validAll = await validateFullAndNotify(form, errorNotification)
@@ -106,20 +106,20 @@ export default function AdvancedSetupWizard() {
   }
 
   const handleBack = () => {
-    if (stepper.state.isFirst) {
+    if (stepper.isFirst) {
       setShowExitConfirm(true)
     } else {
-      stepper.navigation.prev()
+      stepper.prev()
     }
 
-    let prevStepIndex = stepper.state.all.findIndex((s) => s.id === stepper.state.current.data.id) - 1
-    while (disabledIDs.includes(stepper.state.all[prevStepIndex]?.id)) {
+    let prevStepIndex = stepper.steps.findIndex((s) => s.id === stepper.current.id) - 1
+    while (disabledIDs.includes(stepper.steps[prevStepIndex]?.id)) {
       prevStepIndex--
     }
 
-    const prevStep = stepper.state.all[prevStepIndex]
+    const prevStep = stepper.steps[prevStepIndex]
     if (prevStep) {
-      stepper.navigation.goTo(prevStep.id)
+      stepper.goTo(prevStep.id)
     }
   }
 
@@ -189,7 +189,7 @@ export default function AdvancedSetupWizard() {
     }
   }
 
-  const currentIndex = stepper.state.all.findIndex((item: Step) => item.id === stepper.state.current.data.id)
+  const currentIndex = stepper.steps.findIndex((item: Step) => item.id === stepper.current.id)
 
   useEffect(() => {
     setSummaryData(form.getValues() as WizardValues)
@@ -210,10 +210,10 @@ export default function AdvancedSetupWizard() {
       <div className="max-w-6xl mx-auto px-6 py-2">
         <StepHeader stepper={stepper} disabledIDs={disabledIDs} className="mb-6" />
         <Separator separatorClass="bg-card" />
-        <FormProvider key={stepper.state.current.data.id} {...form}>
+        <FormProvider key={stepper.current.id} {...form}>
           <div className="py-6 flex gap-16">
             <div className="flex flex-col flex-1">
-              {stepper.flow.switch({
+              {stepper.match({
                 0: () => <AdvancedSetupStep1 />,
                 1: () => <AdvancedSetupStep2 />,
                 2: () => <SelectCategoryStep />,
@@ -227,12 +227,12 @@ export default function AdvancedSetupWizard() {
                   Back
                 </Button>
                 <Button variant="primary" onClick={handleNext} disabled={isPending} loading={isPending}>
-                  {stepper.state.isLast ? 'Create' : 'Continue'}
+                  {stepper.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>
             </div>
             <div className="flex flex-col items-center">
-              {stepper.state.current.data.id === '4' && (
+              {stepper.current.id === '4' && (
                 <div className="w-full flex justify-end">
                   <Button variant="secondary" type="button" onClick={() => setIsMemberSheetOpen(true)} iconPosition="left">
                     Invite member

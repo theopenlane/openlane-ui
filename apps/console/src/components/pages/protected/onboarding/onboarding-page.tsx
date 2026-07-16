@@ -19,11 +19,11 @@ import { useQueryClient } from '@tanstack/react-query'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type z } from 'zod'
 
-const { useStepper, steps } = defineStepper(
+const { useStepper, steps } = defineStepper([
   { id: '0', label: `Company Info`, schema: step1Schema },
   { id: '1', label: `User Info`, schema: step2Schema },
   { id: '2', label: `Compliance Info`, schema: step3Schema },
-)
+])
 
 const onboardingSchema = step1Schema.merge(step2Schema).merge(step3Schema)
 type OnboardingFormInput = z.input<typeof onboardingSchema>
@@ -129,9 +129,9 @@ export default function MultiStepForm() {
   const handleNext = async () => {
     let isValid: boolean
 
-    if (stepper.state.current.data.id === '0') {
+    if (stepper.current.id === '0') {
       isValid = await methods.trigger(['companyName', 'domains'])
-    } else if (stepper.state.current.data.id === '1') {
+    } else if (stepper.current.id === '1') {
       isValid = await methods.trigger(['userDetails.role', 'userDetails.department'])
     } else {
       isValid = await methods.trigger(['compliance.existing_policies_procedures', 'compliance.completed_risk_assessment', 'compliance.completed_gap_analysis', 'compliance.existing_controls'])
@@ -139,22 +139,22 @@ export default function MultiStepForm() {
 
     if (!isValid) return
 
-    if (!stepper.state.isLast) {
-      stepper.navigation.next()
+    if (!stepper.isLast) {
+      stepper.next()
     } else {
       methods.handleSubmit(() => onSubmit())()
     }
   }
 
   const handleBack = () => {
-    if (!stepper.state.isFirst) {
-      stepper.navigation.prev()
+    if (!stepper.isFirst) {
+      stepper.prev()
     }
   }
 
-  const currentIndex = stepper.state.all.findIndex((item) => item.id === stepper.state.current.data.id)
-  const isLastStep = stepper.state.isLast
-  const isFirstStep = stepper.state.isFirst
+  const currentIndex = stepper.steps.findIndex((item) => item.id === stepper.current.id)
+  const isLastStep = stepper.isLast
+  const isFirstStep = stepper.isFirst
 
   return (
     <div className="flex justify-center flex-col items-center max-w-[545px] m-auto">
@@ -187,7 +187,7 @@ export default function MultiStepForm() {
                 <div className={`absolute bg-brand h-1`} style={{ width: `${((currentIndex + 1) / steps.length) * 100}%` }}></div>
               </div>
               <div className="p-7 bg-secondary rounded-b-lg">
-                {stepper.flow.switch({
+                {stepper.match({
                   0: () => <Step1 />,
                   1: () => <Step2 />,
                   2: () => <Step3 />,
