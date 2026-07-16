@@ -34,6 +34,20 @@ const StepVendorInfo: React.FC = () => {
 
   return (
     <div className="space-y-4">
+      <MultiStringField
+        name="domains"
+        label="Vendor domain"
+        type="link"
+        placeholder="example.com"
+        description="We'll use this to find vendor details and prefill what we can."
+        tooltipContent="Domains associated with the vendor. Adding one lets us suggest a logo and auto-fills the name when it is empty."
+        isEditing={false}
+        isEditAllowed
+        isCreate
+        internalEditing={null}
+        setInternalEditing={() => {}}
+      />
+
       <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}
@@ -65,19 +79,6 @@ const StepVendorInfo: React.FC = () => {
           )}
         />
       </div>
-
-      <MultiStringField
-        name="domains"
-        label="Domains"
-        type="link"
-        placeholder="example.com"
-        tooltipContent="Domains associated with the vendor. Adding one lets us suggest a logo and auto-fills the name when it is empty."
-        isEditing={false}
-        isEditAllowed
-        isCreate
-        internalEditing={null}
-        setInternalEditing={() => {}}
-      />
 
       <FormField
         control={form.control}
