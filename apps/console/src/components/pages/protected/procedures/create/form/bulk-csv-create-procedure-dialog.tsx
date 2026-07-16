@@ -6,6 +6,7 @@ import React, { cloneElement, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
+import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { useCreateBulkCSVProcedure } from '@/lib/graphql-hooks/procedure'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
@@ -22,14 +23,16 @@ type TBulkCSVCreateProcedureDialogProps = {
       loading: boolean
     }>
   >
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 const handleCSVExport = async () => {
   await exportCSV({ filename: 'procedure' })
 }
 
-const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps> = ({ trigger }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps> = ({ trigger, open: openProp, onOpenChange }) => {
+  const [isOpen, setIsOpen, isControlled] = useControllableOpen({ open: openProp, onOpenChange })
   const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createBulkProcedure, isPending: isSubmitting } = useCreateBulkCSVProcedure()
@@ -68,13 +71,13 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
             disabled: isSubmitting,
           })}
         </DialogTrigger>
-      ) : (
+      ) : !isControlled ? (
         <DialogTrigger asChild>
           <Button icon={<Import />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
             Import existing document
           </Button>
         </DialogTrigger>
-      )}
+      ) : null}
       <DialogContent className="sm:max-w-[640px] bg-secondary">
         <DialogHeader>
           <DialogTitle>Bulk upload</DialogTitle>

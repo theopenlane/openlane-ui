@@ -69,6 +69,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
   const { programOptions, isSuccess: isProgramsSuccess } = useProgramSelect({})
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteRisks } = useBulkDeleteRisks()
 
@@ -183,14 +184,17 @@ const RisksTableToolbar: React.FC<TProps> = ({
               content={(close) => (
                 <>
                   {hasPermission(permission?.roles, AccessEnum.CanCreateRisk, session) && (
-                    <BulkCSVCreateRiskDialog
-                      trigger={
-                        <div className="flex items-center space-x-2 px-1">
-                          <Upload size={16} strokeWidth={2} />
-                          <span>Bulk Upload</span>
-                        </div>
-                      }
-                    />
+                    <button
+                      type="button"
+                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                      onClick={() => {
+                        setIsBulkUploadOpen(true)
+                        close()
+                      }}
+                    >
+                      <Upload size={16} strokeWidth={2} />
+                      <span>Bulk Upload</span>
+                    </button>
                   )}
                   <button
                     className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
@@ -205,6 +209,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
                 </>
               )}
             />
+            {hasPermission(permission?.roles, AccessEnum.CanCreateRisk, session) && <BulkCSVCreateRiskDialog open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen} />}
             {mappedColumns && columnVisibility && setColumnVisibility && (
               <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.RISK} />
             )}

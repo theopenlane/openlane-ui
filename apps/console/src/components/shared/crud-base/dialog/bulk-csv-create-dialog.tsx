@@ -6,6 +6,7 @@ import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
+import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { exportCSV } from '@/lib/export'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
@@ -19,10 +20,12 @@ type GenericBulkCsvCreateDialogProps = {
   entityType: ObjectTypes
   displayName?: string
   onBulkCreate: (file: File) => Promise<void>
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-const GenericBulkCSVCreateDialog: React.FC<GenericBulkCsvCreateDialogProps> = ({ entityType, displayName, onBulkCreate }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+const GenericBulkCSVCreateDialog: React.FC<GenericBulkCsvCreateDialogProps> = ({ entityType, displayName, onBulkCreate, open: openProp, onOpenChange }) => {
+  const [isOpen, setIsOpen, isControlled] = useControllableOpen({ open: openProp, onOpenChange })
   const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
   const { successNotification, errorNotification } = useNotification()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -64,21 +67,23 @@ const GenericBulkCSVCreateDialog: React.FC<GenericBulkCsvCreateDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button
-          size="sm"
-          variant="transparent"
-          className={`px-1 w-full flex !justify-start space-x-2 cursor-pointer`}
-          onClick={() => {
-            setIsOpen(true)
-          }}
-          disabled={isSubmitting}
-          loading={isSubmitting}
-        >
-          <Upload size={16} strokeWidth={2} />
-          <span>Bulk Upload</span>
-        </Button>
-      </DialogTrigger>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          <Button
+            size="sm"
+            variant="transparent"
+            className={`px-1 w-full flex !justify-start space-x-2 cursor-pointer`}
+            onClick={() => {
+              setIsOpen(true)
+            }}
+            disabled={isSubmitting}
+            loading={isSubmitting}
+          >
+            <Upload size={16} strokeWidth={2} />
+            <span>Bulk Upload</span>
+          </Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent className="sm:max-w-[640px] bg-secondary">
         <DialogHeader>

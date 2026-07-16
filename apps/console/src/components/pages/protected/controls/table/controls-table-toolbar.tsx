@@ -99,6 +99,10 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   }, [session?.user?.userId])
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
+  const [isCloneOpen, setIsCloneOpen] = useState(false)
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isMapOpen, setIsMapOpen] = useState(false)
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false)
   const { currentOrgId } = useOrganization()
 
   const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({
@@ -225,38 +229,50 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                 closeOnSelect={true}
                 content={(close) => (
                   <>
-                    <BulkCSVCloneControlDialog
-                      trigger={
-                        <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
-                          <Upload size={16} strokeWidth={2} />
-                          <span>Upload From Standard</span>
-                        </Button>
-                      }
-                    />
-                    <BulkCSVCreateControlDialog
-                      trigger={
-                        <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
-                          <Upload size={16} strokeWidth={2} />
-                          <span>Upload Custom Controls</span>
-                        </Button>
-                      }
-                    />
-                    <BulkCSVCreateMappedControlDialog
-                      trigger={
-                        <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
-                          <Upload size={16} strokeWidth={2} />
-                          <span>Upload Control Mappings</span>
-                        </Button>
-                      }
-                    />
-                    <BulkCSVUpdateControlDialog
-                      trigger={
-                        <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
-                          <Upload size={16} strokeWidth={2} />
-                          <span>Update Existing Controls</span>
-                        </Button>
-                      }
-                    />
+                    <button
+                      type="button"
+                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                      onClick={() => {
+                        setIsCloneOpen(true)
+                        close()
+                      }}
+                    >
+                      <Upload size={16} strokeWidth={2} />
+                      <span>Upload From Standard</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                      onClick={() => {
+                        setIsCreateOpen(true)
+                        close()
+                      }}
+                    >
+                      <Upload size={16} strokeWidth={2} />
+                      <span>Upload Custom Controls</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                      onClick={() => {
+                        setIsMapOpen(true)
+                        close()
+                      }}
+                    >
+                      <Upload size={16} strokeWidth={2} />
+                      <span>Upload Control Mappings</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                      onClick={() => {
+                        setIsUpdateOpen(true)
+                        close()
+                      }}
+                    >
+                      <Upload size={16} strokeWidth={2} />
+                      <span>Update Existing Controls</span>
+                    </button>
                     <Button
                       size="sm"
                       variant="transparent"
@@ -272,6 +288,10 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                   </>
                 )}
               />
+              <BulkCSVCloneControlDialog open={isCloneOpen} onOpenChange={setIsCloneOpen} />
+              <BulkCSVCreateControlDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+              <BulkCSVCreateMappedControlDialog open={isMapOpen} onOpenChange={setIsMapOpen} />
+              <BulkCSVUpdateControlDialog open={isUpdateOpen} onOpenChange={setIsUpdateOpen} />
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.CONTROL} />
               )}

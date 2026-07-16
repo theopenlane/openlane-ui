@@ -6,6 +6,7 @@ import React, { cloneElement, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
+import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { exportCSV } from '@/lib/export'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EVIDENCE_DOCS_URL } from '@/constants/docs'
@@ -23,10 +24,12 @@ type BulkCSVCreateEvidenceDialogProps = {
       loading: boolean
     }>
   >
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-const BulkCSVCreateEvidenceDialog: React.FC<BulkCSVCreateEvidenceDialogProps> = ({ trigger }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+const BulkCSVCreateEvidenceDialog: React.FC<BulkCSVCreateEvidenceDialogProps> = ({ trigger, open: openProp, onOpenChange }) => {
+  const [isOpen, setIsOpen, isControlled] = useControllableOpen({ open: openProp, onOpenChange })
   const [isInfoOpen, setIsInfoOpen] = useState<boolean>(false)
   const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
   const { successNotification, errorNotification } = useNotification()
@@ -77,13 +80,13 @@ const BulkCSVCreateEvidenceDialog: React.FC<BulkCSVCreateEvidenceDialogProps> = 
               disabled: isSubmitting,
             })}
           </DialogTrigger>
-        ) : (
+        ) : !isControlled ? (
           <DialogTrigger asChild>
             <Button variant="transparent" icon={<Upload />} className="h-8 px-2!" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
               Bulk Upload
             </Button>
           </DialogTrigger>
-        )}
+        ) : null}
 
         <DialogContent className="sm:max-w-[640px] bg-secondary">
           <DialogHeader>

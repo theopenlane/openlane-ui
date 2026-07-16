@@ -10,7 +10,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { DownloadIcon, Plus, SearchIcon, Sparkles } from 'lucide-react'
+import { DownloadIcon, Plus, SearchIcon, Sparkles, Upload } from 'lucide-react'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
@@ -90,6 +90,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
   const [selectedContacts, setSelectedContacts] = useState<{ id: string }[]>([])
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isBulkEditDialogOpen, setIsBulkEditDialogOpen] = useState(false)
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null)
   const [filterWhere, setFilterWhere] = useState<WhereCondition>({})
   const { successNotification, errorNotification } = useNotification()
@@ -232,7 +233,19 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
                 closeOnSelect={true}
                 content={(close) => (
                   <>
-                    {canEditVendor && <GenericBulkCSVCreateDialog entityType={ObjectTypes.CONTACT} onBulkCreate={handleBulkCreate} />}
+                    {canEditVendor && (
+                      <button
+                        type="button"
+                        className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                        onClick={() => {
+                          setIsBulkUploadOpen(true)
+                          close()
+                        }}
+                      >
+                        <Upload size={16} strokeWidth={2} />
+                        <span>Bulk Upload</span>
+                      </button>
+                    )}
                     <Button
                       size="sm"
                       variant="transparent"
@@ -248,6 +261,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
                   </>
                 )}
               />
+              {canEditVendor && <GenericBulkCSVCreateDialog entityType={ObjectTypes.CONTACT} onBulkCreate={handleBulkCreate} open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen} />}
               <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.VENDOR_CONTACTS} />
               <TableFilter filterFields={CONTACT_FILTER_FIELDS} onFilterChange={setFilterWhere} pageKey={TableKeyEnum.VENDOR_CONTACTS} />
               {canEditVendor && (

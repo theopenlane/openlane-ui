@@ -6,6 +6,7 @@ import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateInternalPolicy, useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useRouter } from 'next/navigation'
@@ -35,11 +36,13 @@ type TCreatePolicyUploadDialogProps = {
       loading: boolean
     }>
   >
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ trigger }) => {
+const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ trigger, open: openProp, onOpenChange }) => {
   const router = useRouter()
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [isOpen, setIsOpen, isControlled] = useControllableOpen({ open: openProp, onOpenChange })
   const [uploadedFiles, setUploadedFiles] = useState<TUploadedFile[]>([])
   const { successNotification, errorNotification } = useNotification()
   const { queryClient } = useGraphQLClient()
@@ -207,13 +210,13 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
             disabled: isSubmitting,
           })}
         </DialogTrigger>
-      ) : (
+      ) : !isControlled ? (
         <DialogTrigger asChild>
           <Button icon={<Import />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
             Import Existing Policy(s)
           </Button>
         </DialogTrigger>
-      )}
+      ) : null}
       <DialogContent className="sm:max-w-[640px] bg-secondary">
         <DialogHeader>
           <DialogTitle>Import Existing Policy(s)</DialogTitle>

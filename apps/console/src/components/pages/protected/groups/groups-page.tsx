@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import GroupsTable from '@/components/pages/protected/groups/components/groups-table'
-import { PlusCircle, SearchIcon } from 'lucide-react'
+import { PlusCircle, SearchIcon, Upload } from 'lucide-react'
 import { type GetAllGroupsQueryVariables, type GroupSettingVisibility, type GroupWhereInput } from '@repo/codegen/src/schema'
 import CreateGroupDialog from './components/dialogs/create-group-dialog'
 import GroupDetailsSheet from './components/group-details-sheet'
@@ -37,6 +37,7 @@ const GroupsPage = () => {
   const [whereFilters, setWhereFilters] = useState<GroupWhereInput | null>(null)
   const [orderBy, setOrderBy] = useState<GetAllGroupsQueryVariables['orderBy']>()
   const [searchQuery, setSearchQuery] = useState('')
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
   const { data: session } = useSession()
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.GROUP)
@@ -181,17 +182,30 @@ const GroupsPage = () => {
         <div className="grow flex flex-row items-center gap-2 justify-end">
           <Menu
             closeOnSelect={true}
-            content={() => (
+            content={(close) => (
               <>
-                <GenericBulkCSVCreateDialog
-                  entityType={ObjectTypes.GROUP}
-                  displayName="Group"
-                  onBulkCreate={async (file: File) => {
-                    await bulkCreateMutation.mutateAsync({ input: file })
+                <button
+                  type="button"
+                  className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                  onClick={() => {
+                    setIsBulkUploadOpen(true)
+                    close()
                   }}
-                />
+                >
+                  <Upload size={16} strokeWidth={2} />
+                  <span>Bulk Upload</span>
+                </button>
               </>
             )}
+          />
+          <GenericBulkCSVCreateDialog
+            entityType={ObjectTypes.GROUP}
+            displayName="Group"
+            onBulkCreate={async (file: File) => {
+              await bulkCreateMutation.mutateAsync({ input: file })
+            }}
+            open={isBulkUploadOpen}
+            onOpenChange={setIsBulkUploadOpen}
           />
           {mappedColumns && columnVisibility && setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.GROUP} />
