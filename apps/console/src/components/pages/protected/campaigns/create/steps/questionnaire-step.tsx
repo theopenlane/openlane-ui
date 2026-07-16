@@ -1,11 +1,12 @@
 'use client'
 
 import React, { useCallback } from 'react'
-import { type UseFormReturn, useWatch } from 'react-hook-form'
+import { type UseFormReturn } from 'react-hook-form'
 import { X } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
+import { Textarea } from '@repo/ui/textarea'
 import { useTemplateSelect } from '@/lib/graphql-hooks/template'
 import { TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { type CampaignFormData } from '../hooks/use-campaign-form-schema'
@@ -16,18 +17,17 @@ interface QuestionnaireStepProps {
 
 export const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({ form }) => {
   const { templateOptions, templates, isLoading } = useTemplateSelect({ where: { kind: TemplateTemplateKind.QUESTIONNAIRE } })
-  const questionnaireId = useWatch({ control: form.control, name: 'questionnaireTemplateID' })
-  const hasQuestionnaire = !!questionnaireId
 
-  const populateFromQuestionnaire = useCallback(
-    (val: string) => {
-      const template = templates?.find((t) => t.id === val)
-      if (template) {
-        form.setValue('name', template.name, { shouldDirty: true })
+  const applyQuestionnaireDefaults = useCallback(
+    (templateId: string) => {
+      const template = templates?.find((t) => t.id === templateId)
+      if (!template) return
+
+      if (!form.getValues('name')?.trim()) {
+        form.setValue('name', template.name, { shouldDirty: true, shouldValidate: true })
+      }
+      if (!form.getValues('description')?.trim()) {
         form.setValue('description', template.description ?? '', { shouldDirty: true })
-      } else {
-        form.setValue('name', '', { shouldDirty: true })
-        form.setValue('description', '', { shouldDirty: true })
       }
     },
     [form, templates],
@@ -38,9 +38,8 @@ export const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({ form }) =>
       e.preventDefault()
       e.stopPropagation()
       form.setValue('questionnaireTemplateID', '', { shouldDirty: true })
-      populateFromQuestionnaire('')
     },
-    [form, populateFromQuestionnaire],
+    [form],
   )
 
   return (
@@ -50,9 +49,24 @@ export const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({ form }) =>
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="pb-1 block">Campaign Name</FormLabel>
+            <FormLabel className="pb-1 block">
+              Campaign Name<span className="text-destructive">*</span>
+            </FormLabel>
             <FormControl>
-              <Input {...field} value={field.value ?? ''} disabled={hasQuestionnaire} placeholder={hasQuestionnaire ? 'Using questionnaire name' : 'Enter a campaign name'} />
+              <Input {...field} value={field.value ?? ''} placeholder="Enter a campaign name" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="description"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="pb-1 block">Description</FormLabel>
+            <FormControl>
+              <Textarea {...field} value={field.value ?? ''} placeholder="Describe the purpose of this campaign..." rows={3} />
             </FormControl>
           </FormItem>
         )}
@@ -68,7 +82,7 @@ export const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({ form }) =>
               value={field.value || undefined}
               onValueChange={(val) => {
                 field.onChange(val)
-                populateFromQuestionnaire(val)
+                applyQuestionnaireDefaults(val)
               }}
             >
               <FormControl>

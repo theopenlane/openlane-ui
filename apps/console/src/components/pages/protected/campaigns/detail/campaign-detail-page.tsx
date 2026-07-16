@@ -8,6 +8,7 @@ import { Button } from '@repo/ui/button'
 import { Calendar, CheckCircle, FileText, Play, Trash2 } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useCampaign, useUpdateCampaign } from '@/lib/graphql-hooks/campaign'
+import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
 import { useCampaignTargetStats } from '@/lib/graphql-hooks/campaign-target'
 import { type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
 import { useNotification } from '@/hooks/useNotification'
@@ -33,6 +34,7 @@ type CampaignFormData = {
   campaignType: CampaignCampaignType | undefined
   status: CampaignCampaignStatus | undefined
   dueDate: string | undefined
+  emailTemplateID: string | undefined
 }
 
 const statusOptions = enumToOptions(CampaignCampaignStatus)
@@ -43,6 +45,7 @@ const CampaignDetailPage: React.FC = () => {
   const campaignId = params.id
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { data, isLoading } = useCampaign(campaignId)
+  const { emailTemplateOptions } = useCampaignEmailTemplateSelect({ ensureId: data?.campaign?.emailTemplateID })
   const { mutateAsync: updateCampaign, isPending: isUpdating } = useUpdateCampaign()
   const { mutateAsync: deleteCampaign } = useDeleteCampaign()
   const { successNotification, errorNotification } = useNotification()
@@ -65,6 +68,7 @@ const CampaignDetailPage: React.FC = () => {
       campaignType: undefined,
       status: undefined,
       dueDate: undefined,
+      emailTemplateID: undefined,
     },
   })
 
@@ -76,6 +80,7 @@ const CampaignDetailPage: React.FC = () => {
         campaignType: campaign.campaignType ?? undefined,
         status: campaign.status ?? undefined,
         dueDate: campaign.dueDate ?? undefined,
+        emailTemplateID: campaign.emailTemplateID ?? undefined,
       })
     }
   }, [campaign, form])
@@ -214,6 +219,7 @@ const CampaignDetailPage: React.FC = () => {
         <div className="flex flex-col gap-3">
           <SelectField name="status" label="Status" options={statusOptions} {...sharedFieldProps} />
           <SelectField name="campaignType" label="Type" options={typeOptions} {...sharedFieldProps} />
+          <SelectField name="emailTemplateID" label="Email Template" options={emailTemplateOptions} useCustomDisplay={false} {...sharedFieldProps} />
           <DateField name="dueDate" label="Due Date" {...sharedFieldProps} />
           {campaign.tags && campaign.tags.length > 0 && (
             <div>

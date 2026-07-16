@@ -1,12 +1,14 @@
 'use client'
 
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { Form } from '@repo/ui/form'
 import { StepperSheet, type StepperStep } from '@/components/shared/stepper-sheet/stepper-sheet'
 import { QuestionnaireStep } from './steps/questionnaire-step'
-import { TargetsStep, type CampaignTargetEntry, type TargetTab } from './steps/targets-step'
+import { TargetsStep } from './steps/targets-step'
+import { EmailTemplateStep } from './steps/email-template-step'
 import { ScheduleStep } from './steps/schedule-step'
 import { CreateTemplateSheet } from './create-template-sheet'
+import { type CampaignTargetEntry, type TargetTab } from './steps/targets/target-entry'
 import { useCreateCampaign } from '@/lib/graphql-hooks/campaign'
 import { useCreateBulkCampaignTarget } from '@/lib/graphql-hooks/campaign-target'
 import { useNotification } from '@/hooks/useNotification'
@@ -19,25 +21,29 @@ interface CreateCampaignSheetProps {
   onClose: () => void
 }
 
+const QUESTIONNAIRE_STEP = 0
+
 export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, onClose }) => {
   const { form } = useCampaignFormSchema()
-  const [currentStep, setCurrentStep] = useState(0)
+  const [currentStep, setCurrentStep] = useState(QUESTIONNAIRE_STEP)
   const [showCreateTemplate, setShowCreateTemplate] = useState(false)
+  const createdCampaignIdRef = useRef<string | null>(null)
 
   const [targets, setTargets] = useState<CampaignTargetEntry[]>([])
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  const [activeTargetTab, setActiveTargetTab] = useState<TargetTab>('csv')
+  const [activeTargetTab, setActiveTargetTab] = useState<TargetTab>('personnel')
 
   const { mutateAsync: createCampaign, isPending: isCreating } = useCreateCampaign()
   const { mutateAsync: createBulkTarget } = useCreateBulkCampaignTarget()
   const { successNotification, errorNotification } = useNotification()
 
   const resetAll = useCallback(() => {
-    setCurrentStep(0)
+    setCurrentStep(QUESTIONNAIRE_STEP)
     setTargets([])
     setUploadedFile(null)
-    setActiveTargetTab('csv')
+    setActiveTargetTab('personnel')
     setShowCreateTemplate(false)
+    createdCampaignIdRef.current = null
     form.reset()
   }, [form])
 
@@ -48,7 +54,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
 
   const createTargetsForCampaign = useCallback(
     async (campaignId: string) => {
-      const validTargets = targets.filter((t) => t.email.trim())
+      const validTargets = targets.filter((target) => target.email.trim())
       if (validTargets.length === 0) return
 
       await createBulkTarget({
@@ -57,7 +63,6 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
           email: target.email.trim(),
           fullName: target.fullName.trim() || undefined,
           contactID: target.contactID || undefined,
-          userID: target.userID || undefined,
         })),
       })
     },
@@ -70,21 +75,24 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
         const isLaunching = status === CampaignCampaignStatus.ACTIVE
         const now = new Date().toISOString()
 
-        const result = await createCampaign({
-          input: {
-            name: data.name ?? '',
-            description: data.description || undefined,
-            campaignType: data.campaignType || undefined,
-            status,
-            templateID: data.questionnaireTemplateID || undefined,
-            emailTemplateID: data.templateID || undefined,
-            dueDate: data.sendImmediately ? undefined : data.dueDate || undefined,
-            scheduledAt: data.sendImmediately && isLaunching ? now : data.scheduledAt || undefined,
-            launchedAt: data.sendImmediately && isLaunching ? now : undefined,
-          },
-        })
+        if (!createdCampaignIdRef.current) {
+          const result = await createCampaign({
+            input: {
+              name: data.name.trim(),
+              description: data.description || undefined,
+              campaignType: data.campaignType || undefined,
+              status,
+              templateID: data.questionnaireTemplateID || undefined,
+              emailTemplateID: data.emailTemplateID || undefined,
+              dueDate: data.sendImmediately ? undefined : data.dueDate || undefined,
+              scheduledAt: data.sendImmediately && isLaunching ? now : data.scheduledAt || undefined,
+              launchedAt: data.sendImmediately && isLaunching ? now : undefined,
+            },
+          })
+          createdCampaignIdRef.current = result?.createCampaign?.campaign?.id ?? null
+        }
 
-        const campaignId = result?.createCampaign?.campaign?.id
+        const campaignId = createdCampaignIdRef.current
         if (campaignId) {
           await createTargetsForCampaign(campaignId)
           successNotification({
@@ -99,28 +107,22 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
     [createCampaign, createTargetsForCampaign, successNotification, errorNotification, handleCancel],
   )
 
-  const handleSaveDraft = useCallback(async () => {
-    const isNameValid = await form.trigger('name')
-    if (!isNameValid) {
-      setCurrentStep(0)
-      return
-    }
-    const data = form.getValues()
-    await submitCampaign(data, CampaignCampaignStatus.DRAFT)
-  }, [form, submitCampaign])
+  const submitWithStatus = useCallback(
+    (status: CampaignCampaignStatus) =>
+      form.handleSubmit(
+        (data) => submitCampaign(data, status),
+        () => setCurrentStep(QUESTIONNAIRE_STEP),
+      )(),
+    [form, submitCampaign],
+  )
 
-  const handleLaunch = useCallback(async () => {
-    const data = form.getValues()
+  const handleSaveDraft = useCallback(() => submitWithStatus(CampaignCampaignStatus.DRAFT), [submitWithStatus])
 
-    await submitCampaign(data, CampaignCampaignStatus.ACTIVE)
-  }, [form, submitCampaign])
+  const handleLaunch = useCallback(() => submitWithStatus(CampaignCampaignStatus.ACTIVE), [submitWithStatus])
 
   const handleTemplateSave = useCallback(
-    (templateId: string, templateName: string) => {
-      form.setValue('templateID', templateId, { shouldDirty: true, shouldValidate: true })
-      if (!form.getValues('name')?.trim()) {
-        form.setValue('name', templateName, { shouldDirty: true })
-      }
+    (templateId: string) => {
+      form.setValue('emailTemplateID', templateId, { shouldDirty: true, shouldValidate: true })
       setShowCreateTemplate(false)
     },
     [form],
@@ -139,6 +141,11 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
         content: (
           <TargetsStep targets={targets} onTargetsChange={setTargets} uploadedFile={uploadedFile} onFileUpload={setUploadedFile} activeTab={activeTargetTab} onActiveTabChange={setActiveTargetTab} />
         ),
+      },
+      {
+        title: 'Email Template',
+        description: 'Choose the email template used to contact recipients',
+        content: <EmailTemplateStep form={form} onCreateTemplate={() => setShowCreateTemplate(true)} />,
       },
       {
         title: 'Schedule',

@@ -90,6 +90,22 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
   }
 `
 
+export const GET_IDENTITY_HOLDER_OPTIONS = gql`
+  query GetIdentityHolderOptions($where: IdentityHolderWhereInput, $first: Int) {
+    identityHolders(where: $where, first: $first) {
+      totalCount
+      edges {
+        node {
+          id
+          email
+          fullName
+          identityHolderType
+        }
+      }
+    }
+  }
+`
+
 export const IDENTITY_HOLDER = gql`
   query IdentityHolder($identityHolderId: ID!) {
     identityHolder(id: $identityHolderId) {
