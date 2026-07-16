@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
 import { toBase64DataUri } from '@/lib/image-utils'
-import { VENDOR_LOGO_DOMAIN_REGEX, VENDOR_LOGO_SIZE } from '@/lib/vendor-logo'
+import { buildVendorLogoProxyUrl, toVendorLogoHost } from '@/lib/vendor-logo'
 
 export type SuggestedLogoSource = 'subprocessor' | 'favicon'
 
@@ -12,21 +12,8 @@ export interface SuggestedLogo {
   source: SuggestedLogoSource
 }
 
-export const buildVendorLogoProxyUrl = (host: string): string => `/api/vendor-logo?domain=${encodeURIComponent(host)}&sz=${VENDOR_LOGO_SIZE.default}`
-
-const toHost = (domain: string): string | null => {
-  const trimmed = domain.trim().toLowerCase()
-  if (!trimmed) return null
-  try {
-    const { hostname } = new URL(trimmed.includes('://') ? trimmed : `https://${trimmed}`)
-    return VENDOR_LOGO_DOMAIN_REGEX.test(hostname) ? hostname : null
-  } catch {
-    return null
-  }
-}
-
 export const deriveVendorNameFromDomain = (domain: string): string | null => {
-  const host = toHost(domain)
+  const host = toVendorLogoHost(domain)
   if (!host) return null
   const label = host.replace(/^www\./, '').split('.')[0]
   if (!label) return null
@@ -72,7 +59,7 @@ export const useSuggestedVendorLogos = ({ vendorName, vendorDisplayName, domains
     }
 
     for (const domain of domains ?? []) {
-      const host = toHost(domain)
+      const host = toVendorLogoHost(domain)
       if (!host || seen.has(host)) continue
       seen.add(host)
       results.push({ id: `favicon:${host}`, name: host, logoUrl: buildVendorLogoProxyUrl(host), source: 'favicon' })

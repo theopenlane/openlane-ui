@@ -80343,6 +80343,7 @@ export type ScanQuery = {
     scopeID?: string | null
     scopeName?: string | null
     status: ScanScanStatus
+    tags?: Array<string> | null
     target: string
     updatedAt?: any | null
     updatedBy?: string | null
@@ -80420,6 +80421,12 @@ export type GetScanAssociationsQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
     }
+    entities: {
+      __typename?: 'EntityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+    }
+    findings: { __typename?: 'FindingConnection'; totalCount: number; edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string } | null } | null> | null }
     remediations: {
       __typename?: 'RemediationConnection'
       totalCount: number
