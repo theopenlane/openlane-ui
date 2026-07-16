@@ -91,8 +91,8 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
 `
 
 export const GET_IDENTITY_HOLDER_OPTIONS = gql`
-  query GetIdentityHolderOptions($where: IdentityHolderWhereInput, $first: Int) {
-    identityHolders(where: $where, first: $first) {
+  query GetIdentityHolderOptions($where: IdentityHolderWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    identityHolders(where: $where, first: $first, after: $after, last: $last, before: $before) {
       totalCount
       edges {
         node {
@@ -101,6 +101,12 @@ export const GET_IDENTITY_HOLDER_OPTIONS = gql`
           fullName
           identityHolderType
         }
+      }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
       }
     }
   }

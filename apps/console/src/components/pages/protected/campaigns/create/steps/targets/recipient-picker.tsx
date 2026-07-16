@@ -1,13 +1,15 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { LoaderCircle, SearchIcon, UserPlus } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { SearchIcon } from 'lucide-react'
+import { type ColumnDef } from '@tanstack/react-table'
+import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'
 import { normalizeEmail } from '@/lib/validators'
-import { BULK_ADD_LIMIT, type CampaignTargetEntry } from './target-entry'
+import { type CampaignTargetEntry } from './target-entry'
 
 export interface RecipientOption {
   id: string
@@ -26,11 +28,12 @@ interface RecipientPickerProps {
   searchPlaceholder: string
   options: RecipientOption[]
   isLoading: boolean
-  totalCount: number
+  pagination: TPagination
+  onPaginationChange: (pagination: TPagination) => void
+  paginationMeta: TPaginationMeta
   targets: CampaignTargetEntry[]
   onToggle: (option: RecipientOption) => void
-  onAddAll: () => void
-  isAddingAll: boolean
+  onToggleAll: (options: RecipientOption[], nextChecked: boolean) => void
   emptyLabel: string
 }
 
@@ -44,21 +47,48 @@ export const RecipientPicker: React.FC<RecipientPickerProps> = ({
   searchPlaceholder,
   options,
   isLoading,
-  totalCount,
+  pagination,
+  onPaginationChange,
+  paginationMeta,
   targets,
   onToggle,
-  onAddAll,
-  isAddingAll,
+  onToggleAll,
   emptyLabel,
 }) => {
   const selectedEmails = useMemo(() => new Set(targets.map((target) => normalizeEmail(target.email))), [targets])
+  const allOnPageSelected = options.length > 0 && options.every((option) => selectedEmails.has(normalizeEmail(option.email)))
 
-  const addAllCount = Math.min(totalCount, BULK_ADD_LIMIT)
-  const addAllLabel = totalCount > BULK_ADD_LIMIT ? `Add first ${addAllCount} of ${totalCount}` : `Add all ${totalCount}`
+  const columns = useMemo<ColumnDef<RecipientOption>[]>(
+    () => [
+      {
+        id: 'select',
+        header: () => <Checkbox checked={allOnPageSelected} onCheckedChange={() => onToggleAll(options, !allOnPageSelected)} />,
+        cell: ({ row }) => <Checkbox checked={selectedEmails.has(normalizeEmail(row.original.email))} onCheckedChange={() => onToggle(row.original)} />,
+        size: 40,
+      },
+      {
+        accessorKey: 'name',
+        header: 'Name',
+        cell: ({ row }) => (
+          <div className="flex min-w-0 flex-col">
+            <span className="truncate text-sm">{row.original.name || row.original.email}</span>
+            <span className="truncate text-xs text-muted-foreground">{row.original.email}</span>
+          </div>
+        ),
+      },
+      {
+        accessorKey: 'meta',
+        header: 'Meta',
+        cell: ({ row }) => (row.original.meta ? <span className="text-xs text-muted-foreground">{row.original.meta}</span> : null),
+        size: 140,
+      },
+    ],
+    [options, allOnPageSelected, selectedEmails, onToggle, onToggleAll],
+  )
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-end gap-2">
+      <div className="flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium">{scopeLabel}</label>
           <Select value={scopeValue} onValueChange={onScopeChange}>
@@ -74,58 +104,19 @@ export const RecipientPicker: React.FC<RecipientPickerProps> = ({
             </SelectContent>
           </Select>
         </div>
-        <Input
-          className="w-64 bg-transparent"
-          icon={<SearchIcon size={16} />}
-          iconPosition="left"
-          variant="searchTable"
-          placeholder={searchPlaceholder}
-          value={searchText}
-          onChange={(e) => onSearchChange(e.currentTarget.value)}
-        />
-        <Button
-          variant="secondary"
-          type="button"
-          className="ml-auto"
-          icon={isAddingAll ? <LoaderCircle size={16} className="animate-spin" /> : <UserPlus size={16} />}
-          iconPosition="left"
-          onClick={onAddAll}
-          disabled={isAddingAll || isLoading || totalCount === 0}
-        >
-          {isAddingAll ? 'Adding...' : addAllLabel}
-        </Button>
+        <Input className="w-64" icon={<SearchIcon size={16} />} iconPosition="left" placeholder={searchPlaceholder} value={searchText} onChange={(e) => onSearchChange(e.currentTarget.value)} />
       </div>
 
-      <div className="h-80 overflow-y-auto rounded-md border border-border">
-        {isLoading ? (
-          <div className="flex h-full items-center justify-center">
-            <LoaderCircle className="animate-spin text-muted-foreground" size={20} />
-          </div>
-        ) : options.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">{emptyLabel}</div>
-        ) : (
-          <ul>
-            {options.map((option) => (
-              <li key={option.id}>
-                <button
-                  type="button"
-                  role="checkbox"
-                  aria-checked={selectedEmails.has(normalizeEmail(option.email))}
-                  onClick={() => onToggle(option)}
-                  className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-muted"
-                >
-                  <Checkbox checked={selectedEmails.has(normalizeEmail(option.email))} className="pointer-events-none shrink-0" tabIndex={-1} aria-hidden />
-                  <span className="flex min-w-0 flex-col">
-                    <span className="truncate text-sm">{option.name || option.email}</span>
-                    <span className="truncate text-xs text-muted-foreground">{option.email}</span>
-                  </span>
-                  {option.meta && <span className="ml-auto shrink-0 text-xs text-muted-foreground">{option.meta}</span>}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <DataTable
+        columns={columns}
+        data={options}
+        tableKey={undefined}
+        loading={isLoading}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        paginationMeta={paginationMeta}
+        noResultsText={emptyLabel}
+      />
     </div>
   )
 }

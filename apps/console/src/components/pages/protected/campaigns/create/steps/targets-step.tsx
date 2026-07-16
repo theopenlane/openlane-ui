@@ -10,8 +10,7 @@ import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { isValidEmail } from '@/lib/validators'
 import { PersonnelSelector } from './targets/personnel-selector'
 import { ContactsSelector } from './targets/contacts-selector'
-import { SelectedTargetsPreview } from './targets/selected-targets-preview'
-import { mergeTargets, removeTarget, type CampaignTargetEntry, type TargetTab } from './targets/target-entry'
+import { mergeTargets, type CampaignTargetEntry, type TargetTab } from './targets/target-entry'
 
 interface TargetsStepProps {
   targets: CampaignTargetEntry[]
@@ -39,8 +38,6 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
     },
     [targets, onTargetsChange],
   )
-
-  const handleRemove = useCallback((email: string) => onTargetsChange(removeTarget(targets, email)), [targets, onTargetsChange])
 
   return (
     <div className="flex flex-col gap-4">
@@ -102,8 +99,6 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
           </div>
         </TabsContent>
       </Tabs>
-
-      <SelectedTargetsPreview targets={targets} onRemove={handleRemove} onClearAll={() => onTargetsChange([])} />
     </div>
   )
 }
