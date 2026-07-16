@@ -90,7 +90,7 @@ export const CreateTemplateSheet: React.FC<CreateTemplateSheetProps> = ({ open, 
             <SheetTitle className="sr-only">Create Template</SheetTitle>
             <div className="flex flex-col gap-4">
               <div className="text-sm text-muted-foreground">
-                Campaign Template / <span className="font-semibold text-foreground">Create Template</span>
+                Email Template / <span className="font-semibold text-foreground">Create Template</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

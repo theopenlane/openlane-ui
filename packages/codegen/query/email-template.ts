@@ -24,6 +24,9 @@ export const GET_ALL_EMAIL_TEMPLATES = gql`
           version
           workflowDefinitionID
           workflowInstanceID
+          campaigns {
+            totalCount
+          }
         }
       }
       pageInfo {

@@ -18,6 +18,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { formatDate } from '@/utils/date'
 import { EmailTemplateTemplateContext } from '@repo/codegen/src/schema'
 import { EmailTemplatePreviewSheet } from './email-template-preview-sheet'
+import { LinkedCampaignsSheet } from './linked-campaigns-sheet'
 
 const EDITOR_PATH = '/automation/email-templates/editor'
 
@@ -30,6 +31,7 @@ export const EmailTemplatesTab: React.FC = () => {
   const [previewId, setPreviewId] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
+  const [linkedCampaignsTemplate, setLinkedCampaignsTemplate] = useState<{ id: string; name: string } | null>(null)
 
   const debouncedSearch = useDebounce(searchQuery, 300)
   const searching = searchQuery !== debouncedSearch
@@ -149,6 +151,7 @@ export const EmailTemplatesTab: React.FC = () => {
         <div className="flex flex-col gap-2">
           {emailTemplatesNodes.map((template) => {
             const authorName = template.createdBy ? resolveAuthorName(template.createdBy, { userMap, tokenMap }) : '—'
+            const campaignsCount = template.campaigns?.totalCount ?? 0
             return (
               <div key={template.id} className="flex items-start gap-4 rounded-lg border border-border bg-card p-4 transition-colors">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-avatar-transparent">
@@ -175,6 +178,14 @@ export const EmailTemplatesTab: React.FC = () => {
                     <span>Updated {formatDate(template.updatedAt)}</span>
                     <span>·</span>
                     <span>By {authorName}</span>
+                    <span>·</span>
+                    <button
+                      type="button"
+                      className="cursor-pointer text-primary underline-offset-2 hover:underline"
+                      onClick={() => setLinkedCampaignsTemplate({ id: template.id, name: template.name })}
+                    >
+                      Used in {campaignsCount} {campaignsCount === 1 ? 'campaign' : 'campaigns'}
+                    </button>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
@@ -226,6 +237,8 @@ export const EmailTemplatesTab: React.FC = () => {
         defaults={previewTemplate?.defaults ?? {}}
         onClose={() => setPreviewId(null)}
       />
+
+      {linkedCampaignsTemplate && <LinkedCampaignsSheet templateId={linkedCampaignsTemplate.id} templateName={linkedCampaignsTemplate.name} onClose={() => setLinkedCampaignsTemplate(null)} />}
 
       <ConfirmationDialog
         open={deleteDialogOpen}

@@ -1,9 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { RJSFSchema, UiSchema } from '@rjsf/utils'
+import { useMemo } from 'react'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type EmailTemplatesWithFilterQuery,
   type EmailTemplatesWithFilterQueryVariables,
+  type EmailTemplateWhereInput,
+  EmailTemplateTemplateContext,
   type CreateEmailTemplateMutation,
   type CreateEmailTemplateMutationVariables,
   type UpdateEmailTemplateMutation,
@@ -64,6 +67,26 @@ export const useEmailTemplatesWithFilter = ({ where, orderBy, pagination, enable
   const emailTemplatesNodes: EmailTemplatesNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as EmailTemplatesNodeNonNull)
 
   return { ...queryResult, emailTemplatesNodes }
+}
+
+const selectPagination: TPagination = { page: 1, pageSize: 100, query: { first: 100 } }
+
+const campaignRecipientWhere: EmailTemplateWhereInput = { templateContext: EmailTemplateTemplateContext.CAMPAIGN_RECIPIENT, active: true }
+
+export const useCampaignEmailTemplateSelect = ({ ensureId }: { ensureId?: string | null } = {}) => {
+  const { emailTemplatesNodes, ...rest } = useEmailTemplatesWithFilter({ where: campaignRecipientWhere, pagination: selectPagination })
+  const { data: ensured } = useEmailTemplate(emailTemplatesNodes.some((template) => template.id === ensureId) ? undefined : (ensureId ?? undefined))
+
+  const emailTemplateOptions = useMemo(() => {
+    const options = emailTemplatesNodes.map((template) => ({ label: template.name, value: template.id }))
+    const ensuredTemplate = ensured?.emailTemplate
+    if (ensuredTemplate && !options.some((option) => option.value === ensuredTemplate.id)) {
+      options.push({ label: ensuredTemplate.name, value: ensuredTemplate.id })
+    }
+    return options
+  }, [emailTemplatesNodes, ensured])
+
+  return { ...rest, emailTemplateOptions }
 }
 
 export const useCreateEmailTemplate = () => {

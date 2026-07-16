@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
@@ -85,6 +85,23 @@ export const useContactsWithFilter = ({ where, orderBy, pagination, enabled = tr
   const totalCount = queryResult.data?.contacts?.totalCount ?? 0
 
   return { ...queryResult, contactsNodes, pageInfo, totalCount }
+}
+
+export const useFetchContacts = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+
+  return useCallback(
+    async (where: ContactsWithFilterQueryVariables['where'], first: number) => {
+      const data = await queryClient.fetchQuery<ContactsWithFilterQuery>({
+        queryKey: ['contacts', 'fetch-all', where, first],
+        queryFn: () => client.request<ContactsWithFilterQuery>(GET_ALL_CONTACTS, { where, first }),
+      })
+      const nodes = (data.contacts?.edges ?? []).map((edge) => edge?.node).filter((node): node is ContactsNodeNonNull => !!node)
+      return { nodes, totalCount: data.contacts?.totalCount ?? nodes.length }
+    },
+    [client, queryClient],
+  )
 }
 
 export const useCreateContact = () => {

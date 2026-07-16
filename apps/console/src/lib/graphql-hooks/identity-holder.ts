@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useCallback } from 'react'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
+  type IdentityHolder,
   type IdentityHoldersWithFilterQuery,
   type IdentityHoldersWithFilterQueryVariables,
   type CreateIdentityHolderMutation,
@@ -17,6 +19,7 @@ import {
   type UpdateBulkIdentityHolderMutationVariables,
   type DeleteBulkIdentityHolderMutation,
   type DeleteBulkIdentityHolderMutationVariables,
+  type IdentityHolderWhereInput,
   type DirectoryAccountWhereInput,
   type DirectoryMembershipWhereInput,
   type GetIdentityHolderAssociationsQuery,
@@ -35,6 +38,7 @@ import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_IDENTITY_HOLDERS,
+  GET_IDENTITY_HOLDER_OPTIONS,
   CREATE_IDENTITY_HOLDER,
   UPDATE_IDENTITY_HOLDER,
   DELETE_IDENTITY_HOLDER,
@@ -77,6 +81,53 @@ export const useIdentityHoldersWithFilter = ({ where, orderBy, pagination, enabl
   const identityHoldersNodes: IdentityHoldersNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as IdentityHoldersNodeNonNull)
 
   return { ...queryResult, identityHoldersNodes }
+}
+
+export type IdentityHolderOption = Pick<IdentityHolder, 'id' | 'email' | 'fullName' | 'identityHolderType'>
+
+interface IdentityHolderOptionsResult {
+  identityHolders?: {
+    totalCount: number
+    edges?: Array<{ node?: IdentityHolderOption | null } | null> | null
+  } | null
+}
+
+const unwrapIdentityHolderOptions = (data: IdentityHolderOptionsResult) => {
+  const nodes = (data.identityHolders?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
+  return { nodes, totalCount: data.identityHolders?.totalCount ?? nodes.length }
+}
+
+type IdentityHolderOptionsArgs = {
+  where?: IdentityHolderWhereInput
+  first?: number
+  enabled?: boolean
+}
+
+export const useIdentityHolderOptions = ({ where, first = 100, enabled = true }: IdentityHolderOptionsArgs = {}) => {
+  const { client } = useGraphQLClient()
+  const queryResult = useQuery<IdentityHolderOptionsResult, unknown>({
+    queryKey: ['identityHolders', 'options', where, first],
+    queryFn: () => client.request<IdentityHolderOptionsResult>(GET_IDENTITY_HOLDER_OPTIONS, { where, first }),
+    enabled,
+  })
+
+  return { ...queryResult, ...unwrapIdentityHolderOptions(queryResult.data ?? {}) }
+}
+
+export const useFetchIdentityHolderOptions = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+
+  return useCallback(
+    async (where: IdentityHolderWhereInput | undefined, first: number) => {
+      const data = await queryClient.fetchQuery<IdentityHolderOptionsResult>({
+        queryKey: ['identityHolders', 'options', 'fetch-all', where, first],
+        queryFn: () => client.request<IdentityHolderOptionsResult>(GET_IDENTITY_HOLDER_OPTIONS, { where, first }),
+      })
+      return unwrapIdentityHolderOptions(data)
+    },
+    [client, queryClient],
+  )
 }
 
 export const useCreateIdentityHolder = () => {
