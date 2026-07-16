@@ -7,13 +7,15 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "build": "turbo build",
+    "build": "bun run check:react-versions && turbo build",
+    "check:react-versions": "node scripts/check-react-versions.mjs",
     "dev": "turbo dev --parallel",
     "debug": "turbo debug",
     "type-check": "turbo type-check",
     "clean": "rm -rf node_modules/** && rm -rf ./apps/console/.next && rm -rf ./apps/console/node_modules && rm -rf ./apps/storybook/.next && rm -rf ./apps/storybook/node_modules &&  rm -rf ./packages/*/node_modules",
     "turbo-clean": "turbo clean",
     "lint": "turbo run lint",
+    "test:react-versions": "node --test scripts/check-react-versions.test.mjs",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "prepare": "husky"
   },
@@ -48,6 +50,7 @@
   ],
   "resolutions": {
     "react": "19.2.7",
+    "react-dom": "19.2.7",
     "node-fetch": "^3.3.2",
     "protobufjs": "^7.6.5",
     "shell-quote": "^1.9.0",
