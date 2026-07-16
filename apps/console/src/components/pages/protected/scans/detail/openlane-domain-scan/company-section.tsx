@@ -6,6 +6,9 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import Github from '@/assets/Github'
 import Linkedin from '@/assets/Linkedin'
 import Discord from '@/assets/Discord'
+import Twitter from '@/assets/Twitter'
+import Instagram from '@/assets/Instagram'
+import Youtube from '@/assets/Youtube'
 import { getCompanyInfo, type ScanMetadata } from './scan-metadata'
 
 type Props = {
@@ -16,6 +19,10 @@ const SOCIAL_ICONS: Record<string, React.ReactNode> = {
   github: <Github size={16} />,
   linkedin: <Linkedin size={16} />,
   discord: <Discord size={16} />,
+  twitter: <Twitter size={16} />,
+  x: <Twitter size={16} />,
+  instagram: <Instagram size={16} />,
+  youtube: <Youtube size={16} />,
 }
 
 const CompanySection: React.FC<Props> = ({ metadata }) => {
