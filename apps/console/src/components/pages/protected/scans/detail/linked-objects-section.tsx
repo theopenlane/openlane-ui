@@ -17,7 +17,7 @@ const LINKED_TYPES = [
   { key: 'tasks' as const, label: 'Tasks', icon: ListChecks, href: '/automation/tasks' },
   { key: 'assets' as const, label: 'Assets', icon: Laptop, href: '/registry/assets' },
   { key: 'entities' as const, label: 'Vendors', icon: Building2, href: '/registry/vendors' },
-  { key: 'controls' as const, label: 'Controls', icon: Settings2, href: '/controls' },
+  { key: 'controls' as const, label: 'Controls', icon: Settings2, href: '/controls?tab=table' },
 ]
 
 const LinkedObjectsSection: React.FC<Props> = ({ scanId }) => {
@@ -56,7 +56,7 @@ const LinkedObjectsSection: React.FC<Props> = ({ scanId }) => {
               <button
                 key={key}
                 type="button"
-                onClick={() => router.push(`${href}?scanId=${scanId}`)}
+                onClick={() => router.push(`${href}${href.includes('?') ? '&' : '?'}scanId=${scanId}`)}
                 className="flex items-center justify-between gap-3 rounded-lg border p-4 hover:bg-secondary transition-colors text-left"
               >
                 <div className="flex items-center gap-2 min-w-0">
