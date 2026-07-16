@@ -6,6 +6,7 @@ import React, { cloneElement, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
+import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { useCreateBulkCSVInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -22,14 +23,16 @@ type TBulkCSVCreatePolicyDialogProps = {
       loading: boolean
     }>
   >
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 const handleCSVExport = async () => {
   await exportCSV({ filename: 'internalpolicy' })
 }
 
-const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ trigger }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ trigger, open: openProp, onOpenChange }) => {
+  const [isOpen, setIsOpen, isControlled] = useControllableOpen({ open: openProp, onOpenChange })
   const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createBulkInternalPolicy, isPending: isSubmitting } = useCreateBulkCSVInternalPolicy()
@@ -68,13 +71,13 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
             disabled: isSubmitting,
           })}
         </DialogTrigger>
-      ) : (
+      ) : !isControlled ? (
         <DialogTrigger asChild>
           <Button icon={<Import />} className="h-8 px-2! bg-transparent" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
             Import existing document
           </Button>
         </DialogTrigger>
-      )}
+      ) : null}
 
       <DialogContent className="sm:max-w-[640px] bg-secondary">
         <DialogHeader>

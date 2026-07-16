@@ -6,6 +6,7 @@ import React, { cloneElement, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
+import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { useCloneBulkCSVControl } from '@/lib/graphql-hooks/control'
 import { type TUploadedFile } from '../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -21,10 +22,12 @@ type BulkCsvCreateControlDialogProps = {
       loading: boolean
     }>
   >
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-const BulkCSVCloneControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({ trigger }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+const BulkCSVCloneControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({ trigger, open: openProp, onOpenChange }) => {
+  const [isOpen, setIsOpen, isControlled] = useControllableOpen({ open: openProp, onOpenChange })
   const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: cloneBulkControl, isPending: isSubmitting } = useCloneBulkCSVControl()
@@ -71,13 +74,13 @@ const BulkCSVCloneControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({ 
             disabled: isSubmitting,
           })}
         </DialogTrigger>
-      ) : (
+      ) : !isControlled ? (
         <DialogTrigger asChild>
           <Button icon={<Upload />} className="h-8 px-2! bg-transparent" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
             Bulk Upload From Standards
           </Button>
         </DialogTrigger>
-      )}
+      ) : null}
 
       <DialogContent className="sm:max-w-[640px] bg-secondary">
         <DialogHeader>

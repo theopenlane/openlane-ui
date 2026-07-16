@@ -62,6 +62,9 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
 }) => {
   const [reportPopoverOpen, setReportPopoverOpen] = useState(false)
   const [programPopoverOpen, setProgramPopoverOpen] = useState(false)
+  const [isCloneOpen, setIsCloneOpen] = useState(false)
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isMapOpen, setIsMapOpen] = useState(false)
 
   return (
     <div className="flex justify-between items-center gap-2 flex-wrap">
@@ -170,37 +173,51 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
           </Popover>
         )}
         {showActions ? (
-          <Menu
-            closeOnSelect={true}
-            content={() => (
-              <>
-                <BulkCSVCloneControlDialog
-                  trigger={
-                    <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Upload From Standard</span>
-                    </Button>
-                  }
-                />
-                <BulkCSVCreateControlDialog
-                  trigger={
-                    <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Upload Custom Controls</span>
-                    </Button>
-                  }
-                />
-                <BulkCSVCreateMappedControlDialog
-                  trigger={
-                    <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Upload Control Mappings</span>
-                    </Button>
-                  }
-                />
-              </>
-            )}
-          />
+          <>
+            <Menu
+              closeOnSelect={true}
+              content={(close) => (
+                <>
+                  <button
+                    type="button"
+                    className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                    onClick={() => {
+                      setIsCloneOpen(true)
+                      close()
+                    }}
+                  >
+                    <Upload size={16} strokeWidth={2} />
+                    <span>Upload From Standard</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                    onClick={() => {
+                      setIsCreateOpen(true)
+                      close()
+                    }}
+                  >
+                    <Upload size={16} strokeWidth={2} />
+                    <span>Upload Custom Controls</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                    onClick={() => {
+                      setIsMapOpen(true)
+                      close()
+                    }}
+                  >
+                    <Upload size={16} strokeWidth={2} />
+                    <span>Upload Control Mappings</span>
+                  </button>
+                </>
+              )}
+            />
+            <BulkCSVCloneControlDialog open={isCloneOpen} onOpenChange={setIsCloneOpen} />
+            <BulkCSVCreateControlDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+            <BulkCSVCreateMappedControlDialog open={isMapOpen} onOpenChange={setIsMapOpen} />
+          </>
         ) : null}
         {createAllowed && !hasNoControls && (
           <Link href="/controls/create-control" aria-label="Create Control">

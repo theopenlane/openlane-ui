@@ -70,6 +70,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
   const { data: session } = useSession()
   const canEditQuestionnaires = canEdit(permission?.roles, session)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteQuestionnaires } = useDeleteBulkAssessment()
 
@@ -184,23 +185,27 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
           ) : (
             <>
               <Menu
-                content={
+                content={(close) => (
                   <>
-                    <BulkCSVCreateTemplateDialog
-                      trigger={
-                        <Button size="sm" variant="transparent" className="px-1 flex items-center justify-start space-x-2">
-                          <Upload size={16} strokeWidth={2} />
-                          <span>Bulk Upload</span>
-                        </Button>
-                      }
-                    />
+                    <button
+                      type="button"
+                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                      onClick={() => {
+                        setIsBulkUploadOpen(true)
+                        close()
+                      }}
+                    >
+                      <Upload size={16} strokeWidth={2} />
+                      <span>Bulk Upload</span>
+                    </button>
                     <Button size="sm" variant="transparent" className={`px-1 flex items-center justify-start space-x-2`} onClick={handleExport} disabled={!exportEnabled}>
                       <DownloadIcon size={16} strokeWidth={2} />
                       <span>Export</span>
                     </Button>
                   </>
-                }
+                )}
               />
+              <BulkCSVCreateTemplateDialog open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen} />
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.QUESTIONNAIRE} />
               )}

@@ -1,7 +1,7 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import React from 'react'
+import React, { useState } from 'react'
 import { SUBSCRIBERS_FILTER_FIELDS } from '@/components/pages/protected/organization-settings/subscribers/table/table-config.ts'
-import { DownloadIcon, LoaderCircle, SearchIcon } from 'lucide-react'
+import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import Menu from '@/components/shared/menu/menu.tsx'
 import BulkCSVCreateSubscriberDialog from '@/components/pages/protected/organization-settings/subscribers/bulk-csv-create-subscriber-dialog.tsx'
@@ -18,6 +18,8 @@ type TProps = {
 }
 
 const SubscribersTableToolbar: React.FC<TProps> = ({ searching, searchTerm, onFilterChange, setSearchTerm, handleExport }) => {
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
+
   return (
     <>
       <div className="flex items-center gap-2 my-2">
@@ -31,16 +33,28 @@ const SubscribersTableToolbar: React.FC<TProps> = ({ searching, searchTerm, onFi
           />
         </div>
         <Menu
-          content={
+          closeOnSelect={true}
+          content={(close) => (
             <>
               <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1 justify-start" onClick={handleExport}>
                 <DownloadIcon size={16} strokeWidth={2} />
                 <span>Export</span>
               </Button>
-              <BulkCSVCreateSubscriberDialog />
+              <button
+                type="button"
+                className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                onClick={() => {
+                  setIsBulkUploadOpen(true)
+                  close()
+                }}
+              >
+                <Upload size={16} strokeWidth={2} />
+                <span>Bulk Upload</span>
+              </button>
             </>
-          }
+          )}
         />
+        <BulkCSVCreateSubscriberDialog open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen} />
         <TableFilter filterFields={SUBSCRIBERS_FILTER_FIELDS} onFilterChange={onFilterChange} pageKey={TableKeyEnum.SUBSCRIBER} />
       </div>
     </>

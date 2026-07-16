@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { type ZodObject, type ZodRawShape } from 'zod'
-import { DownloadIcon, LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
+import { DownloadIcon, LoaderCircle, PlusCircle, SearchIcon, Upload } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
 import { type VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
@@ -69,6 +69,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
 function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput>(props: GenericTableToolbarProps<T, TWhereInput, TUpdateInput>) {
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isBulkEditDialogOpen, setIsBulkEditDialogOpen] = useState(false)
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
   const { data: session } = useSession()
 
   const { successNotification, errorNotification } = useNotification()
@@ -200,7 +201,19 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                 closeOnSelect={true}
                 content={(close) => (
                   <>
-                    {props.onBulkCreate && <GenericBulkCSVCreateDialog entityType={props.entityType} displayName={props.displayName} onBulkCreate={props.onBulkCreate} />}
+                    {props.onBulkCreate && (
+                      <button
+                        type="button"
+                        className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                        onClick={() => {
+                          setIsBulkUploadOpen(true)
+                          close()
+                        }}
+                      >
+                        <Upload size={16} strokeWidth={2} />
+                        <span>Bulk Upload</span>
+                      </button>
+                    )}
                     <Button
                       size="sm"
                       variant="transparent"
@@ -216,6 +229,16 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                   </>
                 )}
               />
+
+              {props.onBulkCreate && (
+                <GenericBulkCSVCreateDialog
+                  entityType={props.entityType}
+                  displayName={props.displayName}
+                  onBulkCreate={props.onBulkCreate}
+                  open={isBulkUploadOpen}
+                  onOpenChange={setIsBulkUploadOpen}
+                />
+              )}
 
               {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={props.storageKey} />

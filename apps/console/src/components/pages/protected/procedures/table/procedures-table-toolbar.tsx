@@ -67,6 +67,8 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
   const isSearching = useDebounce(searching, 200)
   const filters = useProceduresFilters()
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteProcedures } = useBulkDeleteProcedures()
   const { data: session } = useSession()
@@ -161,24 +163,30 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                 content={(close) => (
                   <>
                     {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
-                      <CreateProcedureUploadDialog
-                        trigger={
-                          <div className="flex items-center bg-transparent space-x-2 px-1">
-                            <Import size={16} strokeWidth={2} />
-                            <span>Import existing document</span>
-                          </div>
-                        }
-                      />
-                    )}
-                    {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
-                      <BulkCSVCreateProcedureDialog
-                        trigger={
-                          <div className="flex items-center bg-transparent space-x-2 px-1">
-                            <Import size={16} strokeWidth={2} />
-                            <span>Bulk upload</span>
-                          </div>
-                        }
-                      />
+                      <>
+                        <button
+                          type="button"
+                          className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                          onClick={() => {
+                            setIsImportDialogOpen(true)
+                            close()
+                          }}
+                        >
+                          <Import size={16} strokeWidth={2} />
+                          <span>Import existing document</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                          onClick={() => {
+                            setIsBulkUploadDialogOpen(true)
+                            close()
+                          }}
+                        >
+                          <Import size={16} strokeWidth={2} />
+                          <span>Bulk upload</span>
+                        </button>
+                      </>
                     )}
                     <div
                       className={`flex items-center space-x-2 px-1 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
@@ -203,6 +211,12 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                   </>
                 )}
               />
+              {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
+                <>
+                  <CreateProcedureUploadDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} />
+                  <BulkCSVCreateProcedureDialog open={isBulkUploadDialogOpen} onOpenChange={setIsBulkUploadDialogOpen} />
+                </>
+              )}
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.PROCEDURE} />
               )}

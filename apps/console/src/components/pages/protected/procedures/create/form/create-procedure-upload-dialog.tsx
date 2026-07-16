@@ -5,6 +5,7 @@ import { Import, Trash2 } from 'lucide-react'
 import React, { cloneElement, useState, useEffect } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
+import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { useCreateProcedure, useCreateUploadProcedure } from '@/lib/graphql-hooks/procedure'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -28,11 +29,13 @@ type TCreateProcedureUploadDialogProps = {
       loading: boolean
     }>
   >
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> = ({ trigger }) => {
+const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> = ({ trigger, open: openProp, onOpenChange }) => {
   const router = useRouter()
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [isOpen, setIsOpen, isControlled] = useControllableOpen({ open: openProp, onOpenChange })
   const [uploadedFiles, setUploadedFiles] = useState<TUploadedFile[]>([])
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createUploadProcedure, isPending: isSubmitting } = useCreateUploadProcedure()
@@ -172,13 +175,13 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
             disabled: isSubmitting,
           })}
         </DialogTrigger>
-      ) : (
+      ) : !isControlled ? (
         <DialogTrigger asChild>
           <Button icon={<Import />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
             Import Existing Procedure(s)
           </Button>
         </DialogTrigger>
-      )}
+      ) : null}
       <DialogContent className="sm:max-w-[640px] bg-secondary">
         <DialogHeader>
           <DialogTitle>Import Existing Procedure(s)</DialogTitle>

@@ -66,6 +66,8 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   const isSearching = useDebounce(searching, 200)
   const filterFields = usePoliciesFilters()
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeletePolicies } = useBulkDeletePolicy()
   const { data: session } = useSession()
@@ -158,24 +160,30 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 content={(close) => (
                   <>
                     {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
-                      <CreatePolicyUploadDialog
-                        trigger={
-                          <div className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer">
-                            <Import size={16} strokeWidth={2} />
-                            <span>Import existing document</span>
-                          </div>
-                        }
-                      />
-                    )}
-                    {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
-                      <BulkCSVCreatePolicyDialog
-                        trigger={
-                          <div className="flex items-center bg-transparent space-x-2 px-1">
-                            <Import size={16} strokeWidth={2} />
-                            <span>Bulk upload</span>
-                          </div>
-                        }
-                      />
+                      <>
+                        <button
+                          type="button"
+                          className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                          onClick={() => {
+                            setIsImportDialogOpen(true)
+                            close()
+                          }}
+                        >
+                          <Import size={16} strokeWidth={2} />
+                          <span>Import existing document</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                          onClick={() => {
+                            setIsBulkUploadDialogOpen(true)
+                            close()
+                          }}
+                        >
+                          <Import size={16} strokeWidth={2} />
+                          <span>Bulk upload</span>
+                        </button>
+                      </>
                     )}
                     <button
                       className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
@@ -200,6 +208,13 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                   </>
                 )}
               />
+
+              {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
+                <>
+                  <CreatePolicyUploadDialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} />
+                  <BulkCSVCreatePolicyDialog open={isBulkUploadDialogOpen} onOpenChange={setIsBulkUploadDialogOpen} />
+                </>
+              )}
 
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.INTERNAL_POLICY} />
