@@ -12,11 +12,9 @@ export interface CampaignTargetEntry {
   contactID?: string
 }
 
-export const BULK_ADD_LIMIT = 500
-
 export const ALL_SCOPE = 'ALL'
 
-export const PICKER_PAGE_SIZE = 100
+export const PICKER_PAGE_SIZE = 5
 
 export const PICKER_PAGINATION: TPagination = { page: 1, pageSize: PICKER_PAGE_SIZE, query: { first: PICKER_PAGE_SIZE } }
 

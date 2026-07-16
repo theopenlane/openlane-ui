@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useCallback } from 'react'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type IdentityHolder,
@@ -35,7 +34,7 @@ import {
   type InputMaybe,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination, type TPageInfo, type TPaginationMeta } from '@repo/ui/pagination-types'
 import {
   GET_ALL_IDENTITY_HOLDERS,
   GET_IDENTITY_HOLDER_OPTIONS,
@@ -89,45 +88,30 @@ interface IdentityHolderOptionsResult {
   identityHolders?: {
     totalCount: number
     edges?: Array<{ node?: IdentityHolderOption | null } | null> | null
+    pageInfo?: TPageInfo
   } | null
-}
-
-const unwrapIdentityHolderOptions = (data: IdentityHolderOptionsResult) => {
-  const nodes = (data.identityHolders?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
-  return { nodes, totalCount: data.identityHolders?.totalCount ?? nodes.length }
 }
 
 type IdentityHolderOptionsArgs = {
   where?: IdentityHolderWhereInput
-  first?: number
+  pagination?: TPagination
   enabled?: boolean
 }
 
-export const useIdentityHolderOptions = ({ where, first = 100, enabled = true }: IdentityHolderOptionsArgs = {}) => {
+export const useIdentityHolderOptions = ({ where, pagination, enabled = true }: IdentityHolderOptionsArgs = {}) => {
   const { client } = useGraphQLClient()
   const queryResult = useQuery<IdentityHolderOptionsResult, unknown>({
-    queryKey: ['identityHolders', 'options', where, first],
-    queryFn: () => client.request<IdentityHolderOptionsResult>(GET_IDENTITY_HOLDER_OPTIONS, { where, first }),
+    queryKey: ['identityHolders', 'options', where, pagination?.page, pagination?.pageSize, pagination?.query],
+    queryFn: () => client.request<IdentityHolderOptionsResult>(GET_IDENTITY_HOLDER_OPTIONS, { where, ...pagination?.query }),
     enabled,
   })
 
-  return { ...queryResult, ...unwrapIdentityHolderOptions(queryResult.data ?? {}) }
-}
+  const nodes = (queryResult.data?.identityHolders?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
+  const totalCount = queryResult.data?.identityHolders?.totalCount ?? nodes.length
+  const pageInfo = queryResult.data?.identityHolders?.pageInfo
+  const paginationMeta: TPaginationMeta = { totalCount, pageInfo, isLoading: queryResult.isFetching }
 
-export const useFetchIdentityHolderOptions = () => {
-  const { client } = useGraphQLClient()
-  const queryClient = useQueryClient()
-
-  return useCallback(
-    async (where: IdentityHolderWhereInput | undefined, first: number) => {
-      const data = await queryClient.fetchQuery<IdentityHolderOptionsResult>({
-        queryKey: ['identityHolders', 'options', 'fetch-all', where, first],
-        queryFn: () => client.request<IdentityHolderOptionsResult>(GET_IDENTITY_HOLDER_OPTIONS, { where, first }),
-      })
-      return unwrapIdentityHolderOptions(data)
-    },
-    [client, queryClient],
-  )
+  return { ...queryResult, nodes, totalCount, paginationMeta }
 }
 
 export const useCreateIdentityHolder = () => {

@@ -7,15 +7,18 @@ import { normalizeEmail } from '@/lib/validators'
 import { type CampaignTargetEntry } from './target-entry'
 
 interface SelectedTargetsPreviewProps {
+  title: string
   targets: CampaignTargetEntry[]
   onRemove: (email: string) => void
   onClearAll: () => void
 }
 
-export const SelectedTargetsPreview: React.FC<SelectedTargetsPreviewProps> = ({ targets, onRemove, onClearAll }) => (
+export const SelectedTargetsPreview: React.FC<SelectedTargetsPreviewProps> = ({ title, targets, onRemove, onClearAll }) => (
   <div className="flex flex-col gap-2 rounded-md border border-border p-3">
     <div className="flex items-center justify-between">
-      <span className="text-sm font-medium">Selected targets ({targets.length})</span>
+      <span className="text-sm font-medium">
+        {title} ({targets.length})
+      </span>
       {targets.length > 0 && (
         <Button variant="secondary" size="sm" type="button" onClick={onClearAll}>
           Clear all
@@ -24,7 +27,7 @@ export const SelectedTargetsPreview: React.FC<SelectedTargetsPreviewProps> = ({ 
     </div>
 
     {targets.length === 0 ? (
-      <p className="py-4 text-center text-sm text-muted-foreground">No targets selected yet. Add recipients from any of the tabs above.</p>
+      <p className="py-4 text-center text-sm text-muted-foreground">No recipients selected yet. Check the boxes above to add them.</p>
     ) : (
       <ul className="max-h-56 overflow-y-auto">
         {targets.map((target) => (
