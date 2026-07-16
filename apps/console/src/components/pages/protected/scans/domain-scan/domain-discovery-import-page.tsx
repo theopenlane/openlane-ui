@@ -22,7 +22,7 @@ import { useDomainScanSelection } from './hooks/use-domain-scan-selection'
 import { domainScanProgressStorageKey } from './progress-storage'
 import type { EditableStepId, LinkableItem } from './types'
 
-const { useStepper } = defineStepper(
+const { useStepper } = defineStepper([
   { id: 'platform', label: 'Platform' },
   { id: 'systems', label: 'System Details' },
   { id: 'assets', label: 'Assets' },
@@ -30,7 +30,7 @@ const { useStepper } = defineStepper(
   { id: 'link', label: 'Link' },
   { id: 'findings', label: 'Findings' },
   { id: 'confirm', label: 'Confirm' },
-)
+])
 
 const DomainDiscoveryImportPage = () => {
   const router = useRouter()
@@ -44,8 +44,8 @@ const DomainDiscoveryImportPage = () => {
   const selection = useDomainScanSelection({
     report,
     storageKey,
-    currentStepId: stepper.state.current.data.id,
-    goToStep: (stepId) => stepper.navigation.goTo(stepId),
+    currentStepId: stepper.current.id,
+    goToStep: (stepId) => stepper.goTo(stepId),
   })
 
   const { handleImport, isImporting, canImport } = useDomainScanImport({ report, selection, storageKey })
@@ -72,7 +72,7 @@ const DomainDiscoveryImportPage = () => {
   )
   const confirmSystemVendorLinks = isSingleMode ? selection.systemVendorLinks : selection.platformVendorLinks
 
-  const goToStep = (stepId: EditableStepId) => stepper.navigation.goTo(stepId)
+  const goToStep = (stepId: EditableStepId) => stepper.goTo(stepId)
 
   const handleFinishLater = () => {
     selection.persistProgress()
@@ -80,8 +80,8 @@ const DomainDiscoveryImportPage = () => {
   }
 
   const handleNextButton = () => {
-    if (!stepper.state.isLast) {
-      stepper.navigation.next()
+    if (!stepper.isLast) {
+      stepper.next()
       return
     }
 
@@ -137,8 +137,8 @@ const DomainDiscoveryImportPage = () => {
     )
   }
 
-  const currentStepIndex = stepper.state.all.findIndex((step) => step.id === stepper.state.current.data.id)
-  const isConfirmStep = stepper.state.current.data.id === 'confirm'
+  const currentStepIndex = stepper.steps.findIndex((step) => step.id === stepper.current.id)
+  const isConfirmStep = stepper.current.id === 'confirm'
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-4">
@@ -151,10 +151,10 @@ const DomainDiscoveryImportPage = () => {
         <div className="min-w-0">
           <div className="mb-6 flex flex-col gap-3">
             <Badge variant="primary" className="w-fit uppercase tracking-wide border-primary/24">
-              Step {currentStepIndex + 1} of {stepper.state.all.length} - {stepper.state.current.data.label}
+              Step {currentStepIndex + 1} of {stepper.steps.length} - {stepper.current.label}
             </Badge>
             <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-border">
-              <div className="absolute inset-y-0 left-0 rounded-full bg-primary transition-all" style={{ width: `${((currentStepIndex + 1) / stepper.state.all.length) * 100}%` }} />
+              <div className="absolute inset-y-0 left-0 rounded-full bg-primary transition-all" style={{ width: `${((currentStepIndex + 1) / stepper.steps.length) * 100}%` }} />
             </div>
           </div>
 
@@ -164,18 +164,18 @@ const DomainDiscoveryImportPage = () => {
             </Button>
 
             <div className="flex items-center gap-3">
-              {!stepper.state.isFirst ? (
-                <Button variant="secondary" onClick={() => stepper.navigation.prev()}>
+              {!stepper.isFirst ? (
+                <Button variant="secondary" onClick={() => stepper.prev()}>
                   Back
                 </Button>
               ) : null}
-              <Button variant="primary" onClick={handleNextButton} loading={isImporting} disabled={isImporting || (stepper.state.isLast && !canImport)}>
-                {stepper.state.isLast ? 'Import' : 'Save and continue'}
+              <Button variant="primary" onClick={handleNextButton} loading={isImporting} disabled={isImporting || (stepper.isLast && !canImport)}>
+                {stepper.isLast ? 'Import' : 'Save and continue'}
               </Button>
             </div>
           </div>
 
-          {stepper.flow.switch({
+          {stepper.match({
             platform: () => (
               <PlatformStep
                 mode={selection.platformMode}
