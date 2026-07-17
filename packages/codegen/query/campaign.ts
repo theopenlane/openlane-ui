@@ -125,6 +125,16 @@ export const CREATE_CAMPAIGN = gql`
   }
 `
 
+export const CREATE_CAMPAIGN_WITH_TARGETS = gql`
+  mutation CreateCampaignWithTargets($input: CreateCampaignWithTargetsInput!) {
+    createCampaignWithTargets(input: $input) {
+      campaign {
+        id
+      }
+    }
+  }
+`
+
 export const UPDATE_CAMPAIGN = gql`
   mutation UpdateCampaign($updateCampaignId: ID!, $input: UpdateCampaignInput!) {
     updateCampaign(id: $updateCampaignId, input: $input) {
@@ -139,6 +149,24 @@ export const DELETE_CAMPAIGN = gql`
   mutation DeleteCampaign($deleteCampaignId: ID!) {
     deleteCampaign(id: $deleteCampaignId) {
       deletedID
+    }
+  }
+`
+
+export const SEND_CAMPAIGN_TEST_EMAIL = gql`
+  mutation SendCampaignTestEmail($input: SendCampaignTestEmailInput!) {
+    sendCampaignTestEmail(input: $input) {
+      queuedCount
+      skippedCount
+    }
+  }
+`
+
+export const RESEND_CAMPAIGN_INCOMPLETE_TARGETS = gql`
+  mutation ResendCampaignIncompleteTargets($input: ResendCampaignIncompleteInput!) {
+    resendCampaignIncompleteTargets(input: $input) {
+      queuedCount
+      skippedCount
     }
   }
 `

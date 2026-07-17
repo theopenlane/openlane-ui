@@ -96,6 +96,7 @@ export const useCreateBulkCampaignTarget = () => {
     mutationFn: async (variables) => client.request(CREATE_BULK_CAMPAIGN_TARGET, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
+      queryClient.invalidateQueries({ queryKey: ['campaignTargetStats'] })
     },
   })
 }

@@ -33,7 +33,7 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
   const handleManualChange = useCallback(
     (options: Option[]) => {
       const keptTargets = targets.filter((target) => target.source !== 'manual')
-      const manualTargets: CampaignTargetEntry[] = options.map((option) => ({ email: option.value, fullName: '', source: 'manual' }))
+      const manualTargets: CampaignTargetEntry[] = options.filter((option) => isValidEmail(option.value.trim())).map((option) => ({ email: option.value.trim(), fullName: '', source: 'manual' }))
       onTargetsChange(mergeTargets(keptTargets, manualTargets))
     },
     [targets, onTargetsChange],

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
+import React, { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { IdentityHolderIdentityHolderType, type IdentityHolderWhereInput } from '@repo/codegen/src/schema'
 import { useIdentityHolderOptions } from '@/lib/graphql-hooks/identity-holder'
@@ -26,9 +26,15 @@ export const PersonnelSelector: React.FC<PersonnelSelectorProps> = ({ targets, o
 
   const debouncedSearch = useDebounce(searchText, 300)
 
-  useEffect(() => {
+  const handleScopeChange = (value: string) => {
+    setScope(value)
     setPagination(PICKER_PAGINATION)
-  }, [scope, debouncedSearch])
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearchText(value)
+    setPagination(PICKER_PAGINATION)
+  }
 
   const where = useMemo<IdentityHolderWhereInput>(
     () => ({
@@ -72,9 +78,9 @@ export const PersonnelSelector: React.FC<PersonnelSelectorProps> = ({ targets, o
         scopeLabel="Personnel type"
         scopeValue={scope}
         scopeOptions={scopeOptions}
-        onScopeChange={setScope}
+        onScopeChange={handleScopeChange}
         searchText={searchText}
-        onSearchChange={setSearchText}
+        onSearchChange={handleSearchChange}
         searchPlaceholder="Search by name or email..."
         options={options}
         isLoading={isFetching}

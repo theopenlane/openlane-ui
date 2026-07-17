@@ -57,12 +57,13 @@ export const RecipientPicker: React.FC<RecipientPickerProps> = ({
 }) => {
   const selectedEmails = useMemo(() => new Set(targets.map((target) => normalizeEmail(target.email))), [targets])
   const allOnPageSelected = options.length > 0 && options.every((option) => selectedEmails.has(normalizeEmail(option.email)))
+  const someOnPageSelected = options.some((option) => selectedEmails.has(normalizeEmail(option.email)))
 
   const columns = useMemo<ColumnDef<RecipientOption>[]>(
     () => [
       {
         id: 'select',
-        header: () => <Checkbox checked={allOnPageSelected} onCheckedChange={() => onToggleAll(options, !allOnPageSelected)} />,
+        header: () => <Checkbox checked={allOnPageSelected ? true : someOnPageSelected ? 'indeterminate' : false} onCheckedChange={() => onToggleAll(options, !allOnPageSelected)} />,
         cell: ({ row }) => <Checkbox checked={selectedEmails.has(normalizeEmail(row.original.email))} onCheckedChange={() => onToggle(row.original)} />,
         size: 40,
       },
@@ -83,7 +84,7 @@ export const RecipientPicker: React.FC<RecipientPickerProps> = ({
         size: 140,
       },
     ],
-    [options, allOnPageSelected, selectedEmails, onToggle, onToggleAll],
+    [options, allOnPageSelected, someOnPageSelected, selectedEmails, onToggle, onToggleAll],
   )
 
   return (

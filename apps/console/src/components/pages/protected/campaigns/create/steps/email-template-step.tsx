@@ -9,12 +9,13 @@ import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
 import { type CampaignFormData } from '../hooks/use-campaign-form-schema'
 
+const EDITOR_PATH = '/automation/email-templates/editor'
+
 interface EmailTemplateStepProps {
   form: UseFormReturn<CampaignFormData>
-  onCreateTemplate: () => void
 }
 
-export const EmailTemplateStep: React.FC<EmailTemplateStepProps> = ({ form, onCreateTemplate }) => {
+export const EmailTemplateStep: React.FC<EmailTemplateStepProps> = ({ form }) => {
   const { emailTemplateOptions, isLoading } = useCampaignEmailTemplateSelect({ ensureId: form.watch('emailTemplateID') })
 
   return (
@@ -65,7 +66,7 @@ export const EmailTemplateStep: React.FC<EmailTemplateStepProps> = ({ form, onCr
 
       <div className="flex items-center justify-between rounded-md border border-border p-3">
         <span className="text-sm text-muted-foreground">Don&apos;t see a template?</span>
-        <Button variant="secondary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={onCreateTemplate} type="button">
+        <Button variant="secondary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={() => window.open(EDITOR_PATH, '_blank', 'noopener,noreferrer')} type="button">
           Create an email template
         </Button>
       </div>
