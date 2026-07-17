@@ -18,7 +18,7 @@
     "./ai": "./src/lib/ai.ts"
   },
   "peerDependencies": {
-    "react": "latest"
+    "react": "^19.0.0"
   },
   "devDependencies": {
     "swr": "latest",
@@ -27,7 +27,7 @@
     "@types/node": "latest",
     "@types/eslint": "latest",
     "eslint": "^10.0.0",
-    "react": "latest",
+    "react": "19.2.7",
     "tsup": "latest",
     "typescript": "^6.0.3"
   }

@@ -206,13 +206,13 @@
         "@types/node": "latest",
         "dotenv": "latest",
         "eslint": "^10.0.0",
-        "react": "latest",
+        "react": "19.2.7",
         "swr": "latest",
         "tsup": "latest",
         "typescript": "^6.0.3",
       },
       "peerDependencies": {
-        "react": "latest",
+        "react": "^19.0.0",
       },
     },
     "packages/eslint-config": {
@@ -374,7 +374,8 @@
         "typescript": "^6.0.3",
       },
       "peerDependencies": {
-        "react": "latest",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
       },
     },
   },
@@ -393,6 +394,7 @@
     "postcss": "^8.5.16",
     "protobufjs": "^7.6.5",
     "react": "19.2.7",
+    "react-dom": "19.2.7",
     "shell-quote": "^1.9.0",
     "undici": "^6.27.0",
     "vite": "^8.1.4",
