@@ -37,7 +37,7 @@ const CampaignsPage: React.FC = () => {
   ])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() =>
     getInitialVisibility(TableKeyEnum.CAMPAIGN, {
-      id: false,
+      displayID: false,
       createdAt: false,
       createdBy: false,
       updatedAt: false,

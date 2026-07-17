@@ -126,7 +126,7 @@ export function StepperSheet({
                     </Button>
                   )}
                   <Button variant="primary" onClick={handleNext} disabled={!canProceed || isSaving || isCompleting}>
-                    {isLastStep ? (isCompleting ? 'Launching...' : completeLabel) : 'Next'}
+                    {isLastStep ? (isCompleting ? 'Saving...' : completeLabel) : 'Next'}
                   </Button>
                 </div>
               </div>

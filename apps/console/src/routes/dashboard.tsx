@@ -279,6 +279,17 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           plan: PlanEnum.COMPLIANCE_MODULE,
         },
         {
+          title: 'Campaigns',
+          href: '/automation/campaigns',
+          icon: Megaphone,
+          plan: PlanEnum.COMPLIANCE_MODULE,
+        },
+        {
+          title: 'Email Templates',
+          href: '/automation/email-templates',
+          icon: MailCheck,
+        },
+        {
           title: 'Integrations',
           href: '/automation/integrations',
           icon: Waypoints,
@@ -315,18 +326,6 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           title: 'Workflow Wizard',
           href: '/automation/workflows/wizard',
           icon: Sparkles,
-          plan: PlanEnum.COMPLIANCE_MODULE,
-          hidden: true,
-        },
-        {
-          title: 'Email Templates',
-          href: '/automation/email-templates',
-          icon: MailCheck,
-        },
-        {
-          title: 'Campaigns',
-          href: '/automation/campaigns',
-          icon: Megaphone,
           plan: PlanEnum.COMPLIANCE_MODULE,
           hidden: true,
         },

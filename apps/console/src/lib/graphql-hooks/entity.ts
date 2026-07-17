@@ -80,13 +80,9 @@ export const useEntitiesWithFilter = ({ where, orderBy, pagination, enabled = tr
   return { ...queryResult, entitiesNodes }
 }
 
-export const useVendorsWithFilter = ({ where, orderBy, pagination, enabled }: GetAllEntitiesArgs = {}) => {
-  const vendorWhere = { ...where, ...VENDOR_ENTITY_TYPE_WHERE }
-  const { entitiesNodes, ...rest } = useEntitiesWithFilter({ where: vendorWhere, orderBy, pagination, enabled })
-  return { ...rest, vendorNodes: entitiesNodes }
-}
-
 export const VENDOR_ENTITY_TYPE_WHERE = { hasEntityTypeWith: [{ name: 'vendor' }] }
+
+const VENDOR_WITH_CONTACTS_WHERE = { ...VENDOR_ENTITY_TYPE_WHERE, hasContacts: true }
 
 export type EntityOption = Pick<Entity, 'id' | 'name' | 'displayName'>
 
@@ -96,12 +92,18 @@ interface EntityOptionsResult {
   } | null
 }
 
+export const useVendorsWithFilter = ({ where, orderBy, pagination, enabled }: GetAllEntitiesArgs = {}) => {
+  const vendorWhere = { ...where, ...VENDOR_ENTITY_TYPE_WHERE }
+  const { entitiesNodes, ...rest } = useEntitiesWithFilter({ where: vendorWhere, orderBy, pagination, enabled })
+  return { ...rest, vendorNodes: entitiesNodes }
+}
+
 export const useVendorOptions = ({ first = 100, enabled = true }: { first?: number; enabled?: boolean } = {}) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<EntityOptionsResult, unknown>({
-    queryKey: ['entities', 'options', VENDOR_ENTITY_TYPE_WHERE, first],
-    queryFn: () => client.request<EntityOptionsResult>(GET_ENTITY_OPTIONS, { where: VENDOR_ENTITY_TYPE_WHERE, first }),
+    queryKey: ['entities', 'options', VENDOR_WITH_CONTACTS_WHERE, first],
+    queryFn: () => client.request<EntityOptionsResult>(GET_ENTITY_OPTIONS, { where: VENDOR_WITH_CONTACTS_WHERE, first }),
     enabled,
   })
 

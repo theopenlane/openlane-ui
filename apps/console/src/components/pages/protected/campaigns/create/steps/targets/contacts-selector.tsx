@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
+import React, { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type ContactWhereInput } from '@repo/codegen/src/schema'
 import { useContactsWithFilter } from '@/lib/graphql-hooks/contact'
@@ -35,9 +35,15 @@ export const ContactsSelector: React.FC<ContactsSelectorProps> = ({ targets, onT
 
   const scopeOptions = useMemo(() => [{ label: 'All contacts', value: ALL_SCOPE }, { label: 'All vendor contacts', value: ANY_VENDOR }, ...vendorOptions], [vendorOptions])
 
-  useEffect(() => {
+  const handleScopeChange = (value: string) => {
+    setScope(value)
     setPagination(PICKER_PAGINATION)
-  }, [scope, debouncedSearch])
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearchText(value)
+    setPagination(PICKER_PAGINATION)
+  }
 
   const where = useMemo<ContactWhereInput>(
     () => ({
@@ -84,9 +90,9 @@ export const ContactsSelector: React.FC<ContactsSelectorProps> = ({ targets, onT
         scopeLabel="Vendor"
         scopeValue={scope}
         scopeOptions={scopeOptions}
-        onScopeChange={setScope}
+        onScopeChange={handleScopeChange}
         searchText={searchText}
-        onSearchChange={setSearchText}
+        onSearchChange={handleSearchChange}
         searchPlaceholder="Search by name or email..."
         options={options}
         isLoading={isFetching}

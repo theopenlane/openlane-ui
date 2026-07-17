@@ -9,7 +9,7 @@ import { Link2, LoaderCircle, Megaphone, Unlink, X } from 'lucide-react'
 import { useCampaignsWithFilter, useUpdateCampaign } from '@/lib/graphql-hooks/campaign'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { CampaignOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { CampaignCampaignStatus, CampaignOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatDate } from '@/utils/date'
 
@@ -40,7 +40,7 @@ export const LinkedCampaignsSheet: React.FC<LinkedCampaignsSheetProps> = ({ temp
   })
 
   const { CampaignsNodes: linkableCampaigns, isFetching: isLoadingLinkable } = useCampaignsWithFilter({
-    where: { not: { hasEmailTemplateWith: [{ id: templateId }] } },
+    where: { status: CampaignCampaignStatus.DRAFT, not: { hasEmailTemplateWith: [{ id: templateId }] } },
     orderBy: listOrderBy,
     pagination: listPagination,
   })
@@ -148,18 +148,22 @@ export const LinkedCampaignsSheet: React.FC<LinkedCampaignsSheetProps> = ({ temp
                     <Badge variant="outline" className="shrink-0 text-xs">
                       {getEnumLabel(campaign.status)}
                     </Badge>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      type="button"
-                      className="ml-auto shrink-0"
-                      icon={<Unlink size={14} />}
-                      iconPosition="left"
-                      onClick={() => handleUnlink(campaign.id)}
-                      disabled={isPending}
-                    >
-                      Unlink
-                    </Button>
+                    {campaign.status === CampaignCampaignStatus.DRAFT ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        type="button"
+                        className="ml-auto shrink-0"
+                        icon={<Unlink size={14} />}
+                        iconPosition="left"
+                        onClick={() => handleUnlink(campaign.id)}
+                        disabled={isPending}
+                      >
+                        Unlink
+                      </Button>
+                    ) : (
+                      <span className="ml-auto shrink-0 text-xs text-muted-foreground">Locked after launch</span>
+                    )}
                   </li>
                 ))}
               </ul>
