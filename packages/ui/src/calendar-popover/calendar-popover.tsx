@@ -7,6 +7,7 @@ import { FieldValues, Path, ControllerRenderProps } from 'react-hook-form'
 import { Button } from '../button/button'
 import { calendarPopoverStyles } from '../calendar-popover/calendar-popover.styles'
 import { Calendar } from '../calendar/calendar'
+import { cn } from '../../lib/utils'
 
 export type CalendarPopoverProps<T extends FieldValues> = {
   field?: ControllerRenderProps<T, Path<T>>
@@ -15,6 +16,7 @@ export type CalendarPopoverProps<T extends FieldValues> = {
   defaultValue?: Date | null
   required?: boolean
   buttonClassName?: string
+  inputClassName?: string
   disabledFrom?: Date
   disableFuture?: boolean
   onChange?: (val: Date | null) => void
@@ -31,6 +33,7 @@ const CalendarPopover = <T extends FieldValues>({
   defaultAddDays,
   defaultValue,
   buttonClassName,
+  inputClassName,
   disabledFrom,
   disableFuture,
   onChange,
@@ -101,7 +104,7 @@ const CalendarPopover = <T extends FieldValues>({
           variant="outlineInput"
           childFull
         >
-          <div className={calendarInput()}>
+          <div className={cn(calendarInput(), inputClassName)}>
             <span>{value ? format(value, 'PPP') : 'Select a date:'}</span>
             <div className="flex items-center gap-x-2">
               {showNowButton && (

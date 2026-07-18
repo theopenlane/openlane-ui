@@ -6,12 +6,12 @@ import { type Value } from 'platejs'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
+import { breadcrumbs, bulkEditFieldLabels, getFieldsToRender, getFilterFields, getPlatformQuickFilters, visibilityFields } from './table-config'
 import { getColumns } from './columns'
 import TableComponent from './table'
-import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
+import useFormSchema, { bulkEditFieldSchema, type SystemDetailBulkEditAssociations } from '../hooks/use-form-schema'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
-import { usePlatformsWithFilter } from '@/lib/graphql-hooks/platform'
+import { usePlatformSelect } from '@/lib/graphql-hooks/platform'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { SystemDetailSystemSensitivityLevel, type CreateSystemDetailInput, type SystemDetailQuery, type UpdateSystemDetailInput } from '@repo/codegen/src/schema'
 import {
@@ -24,7 +24,7 @@ import {
   useUpdateSystemDetail,
 } from '@/lib/graphql-hooks/system-detail'
 import { defaultSorting, exportType, objectName, objectType, orderFieldEnum, tableKey, type SystemDetailFieldProps, type SystemDetailSheetConfig, type SystemDetailTablePageConfig } from './types'
-import { getEdgeIds, buildAssociationPayload } from '@/components/shared/object-association/utils'
+import { getEdgeIds, buildAssociationPayload, getAssociationInput } from '@/components/shared/object-association/utils'
 import { SYSTEM_DETAIL_ASSOCIATION_KEYS } from '@/components/shared/object-association/association-configs'
 
 const normalizeData = (data: SystemDetailQuery['systemDetail']) => {
@@ -102,12 +102,7 @@ const SystemDetailPage: React.FC = () => {
     },
   }
 
-  const { platformsNodes } = usePlatformsWithFilter({})
-  const platformOptions = platformsNodes.map((platform) => ({
-    value: platform.id,
-    label: platform.name,
-  }))
-
+  const { platformOptions } = usePlatformSelect({})
   const { programOptions } = useProgramSelect({})
   const sensitivityLevelOptions = enumToOptions(SystemDetailSystemSensitivityLevel)
   const { tagOptions } = useGetTags()
@@ -115,9 +110,11 @@ const SystemDetailPage: React.FC = () => {
   const enumOpts = {
     sensitivityLevelOptions,
     tagOptions,
-    platformOptions,
-    programOptions,
+    platformIDsOptions: platformOptions,
+    programIDsOptions: programOptions,
   }
+
+  const quickFilters = React.useMemo(() => getPlatformQuickFilters(platformOptions), [platformOptions])
 
   const sheetConfig: SystemDetailSheetConfig = {
     objectType,
@@ -174,10 +171,14 @@ const SystemDetailPage: React.FC = () => {
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
-    onBulkEdit: async (ids: string[], input: UpdateSystemDetailInput) => {
-      await baseBulkEditMutation.mutateAsync({ ids, input })
+    onBulkEdit: async (ids: string[], input: UpdateSystemDetailInput & SystemDetailBulkEditAssociations) => {
+      const { platformIDs, programIDs, ...rest } = input
+      const payload: UpdateSystemDetailInput = { ...rest, ...getAssociationInput({}, { platformIDs, programIDs }) }
+      await baseBulkEditMutation.mutateAsync({ ids, input: payload })
     },
     bulkEditFormSchema: bulkEditFieldSchema,
+    bulkEditFieldLabels,
+    quickFilters,
     enumOpts,
   }
 

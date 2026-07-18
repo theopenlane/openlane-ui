@@ -18,11 +18,20 @@ const formSchema = z.object({
   programIDs: z.array(z.string()).optional(),
 })
 
-export const bulkEditFieldSchema = z.object({
-  sensitivityLevel: z.nativeEnum(SystemDetailSystemSensitivityLevel).optional(),
+const bulkEditAssociationSchema = z.object({
+  platformIDs: z.array(z.string()).optional(),
+  programIDs: z.array(z.string()).optional(),
 })
 
+export const bulkEditFieldSchema = z
+  .object({
+    sensitivityLevel: z.nativeEnum(SystemDetailSystemSensitivityLevel).optional(),
+  })
+  .merge(bulkEditAssociationSchema)
+
 export type SystemDetailFormData = z.infer<typeof formSchema>
+
+export type SystemDetailBulkEditAssociations = z.infer<typeof bulkEditAssociationSchema>
 
 const useFormSchema = () => {
   return {

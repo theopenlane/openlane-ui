@@ -278,7 +278,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                         render={({ field }) => (
                           <Select value={field.value === undefined ? undefined : String(field.value)} onValueChange={field.onChange}>
                             <SelectTrigger className="w-60">
-                              <SelectValue placeholder={selectOptions[0]?.label} />
+                              <SelectValue placeholder={`Select ${getFieldLabel(fieldKey).toLowerCase()}...`} />
                             </SelectTrigger>
                             <SelectContent>
                               {selectOptions.map((option) => (

@@ -104,7 +104,14 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <SelectField name="sensitivityLevel" label="Sensitivity Level" options={enumOptions.sensitivityLevelOptions} useCustomDisplay={false} {...sharedFieldProps} />
-            <DateField name="lastReviewed" label="Last Reviewed" disableFuture {...sharedFieldProps} />
+            <DateField
+              name="lastReviewed"
+              label="Last Reviewed"
+              disableFuture
+              calendarButtonClassName="w-full flex justify-between items-center h-10"
+              calendarInputClassName="h-10"
+              {...sharedFieldProps}
+            />
           </div>
         </CardContent>
       </Card>
@@ -119,7 +126,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
             <MultiSelectField<UpdateSystemDetailInput>
               name="platformIDs"
               label="Platforms"
-              options={enumOptions.platformOptions}
+              options={enumOptions.platformIDsOptions}
               initialSelectedIds={getEdgeIds(data?.platforms?.edges)}
               buildUpdateInput={(selectedIds, initialIds) => ({
                 addPlatformIDs: selectedIds.filter((id) => !initialIds.includes(id)),
@@ -130,7 +137,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
             <MultiSelectField<UpdateSystemDetailInput>
               name="programIDs"
               label="Programs"
-              options={enumOptions.programOptions}
+              options={enumOptions.programIDsOptions}
               initialSelectedIds={getEdgeIds(data?.programs?.edges)}
               buildUpdateInput={(selectedIds, initialIds) => ({
                 addProgramIDs: selectedIds.filter((id) => !initialIds.includes(id)),
