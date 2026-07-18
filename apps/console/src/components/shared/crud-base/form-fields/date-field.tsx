@@ -25,6 +25,8 @@ interface DateFieldProps<TUpdateInput> {
   icon?: React.ReactNode
   layout?: 'vertical' | 'horizontal'
   labelClassName?: string
+  calendarButtonClassName?: string
+  calendarInputClassName?: string
 }
 
 export const DateField = <TUpdateInput,>({
@@ -43,6 +45,8 @@ export const DateField = <TUpdateInput,>({
   icon,
   layout = 'vertical',
   labelClassName,
+  calendarButtonClassName,
+  calendarInputClassName,
 }: DateFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
 
@@ -71,6 +75,8 @@ export const DateField = <TUpdateInput,>({
               <CalendarPopover
                 field={field}
                 disableFuture={disableFuture}
+                buttonClassName={calendarButtonClassName}
+                inputClassName={calendarInputClassName}
                 onChange={(date) => {
                   if (!isEditing && handleUpdate) {
                     handleUpdate({ [name]: date } as unknown as TUpdateInput)

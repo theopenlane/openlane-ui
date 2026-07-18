@@ -1,5 +1,7 @@
 import { type FilterField } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
+import { type CustomEnumOption } from '@/components/shared/crud-base/page'
+import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import { type SystemDetailQuery, SystemDetailOrderField, type UpdateSystemDetailInput } from '@repo/codegen/src/schema'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
@@ -36,16 +38,27 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
     label: 'Platforms',
     type: 'multiselect',
     icon: FilterIcons.Platform,
-    options: enumOptions.platformOptions,
+    options: enumOptions.platformIDsOptions,
   },
   {
     key: 'hasProgramsWith',
     label: 'Programs',
     type: 'multiselect',
     icon: FilterIcons.ProgramName,
-    options: enumOptions.programOptions,
+    options: enumOptions.programIDsOptions,
   },
 ]
+
+export const getPlatformQuickFilters = (platformOptions: CustomEnumOption[]): TQuickFilter[] =>
+  platformOptions.map(({ value, label }) => ({
+    label,
+    key: `platform-${value}`,
+    type: 'custom',
+    getCondition: () => ({ hasPlatformsWith: [{ id: value }] }),
+    isActive: false,
+  }))
+
+export const bulkEditFieldLabels = { platformIDs: 'Platforms', programIDs: 'Programs' }
 
 export const SYSTEM_DETAILS_SORT_FIELDS = enumToSortFields(SystemDetailOrderField)
 
@@ -55,7 +68,6 @@ export const visibilityFields = {
   version: false,
   authorizationBoundary: false,
   revisionHistory: false,
-  program: false,
   tags: false,
   lastReviewed: false,
   createdAt: false,

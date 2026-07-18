@@ -31,7 +31,7 @@ export const exportType = ExportExportType.SYSTEM_DETAIL
 export const orderFieldEnum = SystemDetailOrderField
 export const defaultSorting = [{ field: SystemDetailOrderField.system_name, direction: OrderDirection.ASC }]
 
-type SystemDetailEnumKeys = 'sensitivityLevelOptions' | 'tagOptions' | 'platformOptions' | 'programOptions'
+type SystemDetailEnumKeys = 'sensitivityLevelOptions' | 'tagOptions' | 'platformIDsOptions' | 'programIDsOptions'
 
 export type EnumOptions = EnumOptionsGeneric<SystemDetailEnumKeys>
 

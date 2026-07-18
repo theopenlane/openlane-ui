@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
@@ -58,6 +59,14 @@ export const usePlatformsWithFilter = ({ where, orderBy, pagination, enabled = t
   const platformsNodes: PlatformsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as PlatformsNodeNonNull)
 
   return { ...queryResult, platformsNodes }
+}
+
+export const usePlatformSelect = ({ where }: { where?: PlatformsWithFilterQueryVariables['where'] }) => {
+  const { data, ...rest } = usePlatformsWithFilter({ where })
+
+  const platformOptions = useMemo(() => data?.platforms?.edges?.flatMap((edge) => (edge?.node ? [{ label: edge.node.name, value: edge.node.id }] : [])) ?? [], [data])
+
+  return { platformOptions, ...rest }
 }
 
 export const useCreatePlatform = () => {
