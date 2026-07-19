@@ -1,5 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { invalidateControlQueries } from '@/lib/graphql-hooks/control'
 import {
   type FindingControlsWithFilterQuery,
   type FindingControlsWithFilterQueryVariables,
@@ -17,6 +18,12 @@ import {
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_FINDING_CONTROLS, CREATE_FINDING_CONTROL, UPDATE_FINDING_CONTROL, DELETE_FINDING_CONTROL, FINDING_CONTROL, CREATE_CSV_BULK_FINDING_CONTROL } from '@repo/codegen/query/finding-control'
+
+const invalidateFindingControlQueries = (queryClient: QueryClient) => {
+  queryClient.invalidateQueries({ queryKey: ['findingControls'] })
+  queryClient.invalidateQueries({ queryKey: ['findings'] })
+  invalidateControlQueries(queryClient)
+}
 
 type GetAllFindingControlsArgs = {
   where?: FindingControlsWithFilterQueryVariables['where']
@@ -53,7 +60,7 @@ export const useCreateFindingControl = () => {
   return useMutation<CreateFindingControlMutation, unknown, CreateFindingControlMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_FINDING_CONTROL, variables),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['findingControls'] })
+      invalidateFindingControlQueries(queryClient)
     },
   })
 }
@@ -64,7 +71,7 @@ export const useUpdateFindingControl = () => {
   return useMutation<UpdateFindingControlMutation, unknown, UpdateFindingControlMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_FINDING_CONTROL, variables),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['findingControls'] })
+      invalidateFindingControlQueries(queryClient)
     },
   })
 }
@@ -75,7 +82,7 @@ export const useDeleteFindingControl = () => {
   return useMutation<DeleteFindingControlMutation, unknown, DeleteFindingControlMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_FINDING_CONTROL, variables),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['findingControls'] })
+      invalidateFindingControlQueries(queryClient)
     },
   })
 }
@@ -97,7 +104,7 @@ export const useCreateBulkCSVFindingControl = () => {
   return useMutation<CreateBulkCsvFindingControlMutation, unknown, CreateBulkCsvFindingControlMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_FINDING_CONTROL, variables }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['findingControls'] })
+      invalidateFindingControlQueries(queryClient)
     },
   })
 }

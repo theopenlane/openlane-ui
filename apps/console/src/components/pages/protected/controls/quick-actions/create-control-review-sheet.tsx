@@ -21,6 +21,7 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { useGetControlById, useGetControlRelatedControls } from '@/lib/graphql-hooks/control'
 import { useCreateReview, useUpdateReview } from '@/lib/graphql-hooks/review'
 import { useCreateFinding } from '@/lib/graphql-hooks/finding'
+import { useCreateFindingControl } from '@/lib/graphql-hooks/finding-control'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
@@ -73,6 +74,7 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
   const { mutateAsync: createReview } = useCreateReview()
   const { mutateAsync: updateReview } = useUpdateReview()
   const { mutateAsync: createFinding } = useCreateFinding()
+  const { mutateAsync: createFindingControl } = useCreateFindingControl()
   const plateEditorHelper = usePlateEditor()
 
   const [clearAuditorNotes, setClearAuditorNotes] = useState(false)
@@ -80,6 +82,7 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
   const [showRelated, setShowRelated] = useState(false)
   const [pendingAction, setPendingAction] = useState<ReviewReviewStatus | null>(null)
   const createdReviewIdRef = useRef<string | null>(null)
+  const createdFindingIdRef = useRef<string | null>(null)
 
   const { push } = useSmartRouter()
 
@@ -129,6 +132,7 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
 
   const resetAndClose = () => {
     createdReviewIdRef.current = null
+    createdFindingIdRef.current = null
     form.reset({ title: '', linkedControlIDs: [], linkedSubcontrolIDs: [] })
     setClearAuditorNotes(true)
     setShowFinding(false)
@@ -175,17 +179,25 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
 
       const hasFinding = !!(data.findingTitle?.trim() || data.findingDescription?.trim() || data.findingSeverity)
       if (hasFinding) {
-        const findingInput: CreateFindingInput = {
-          findingStatusName: 'Open',
-          open: true,
-          reviewIDs: [reviewId],
-          controlIDs: subcontrolId ? [] : [controlId],
-          ...(subcontrolId ? { subcontrolIDs: [subcontrolId] } : {}),
-          ...(data.findingTitle?.trim() ? { displayName: data.findingTitle.trim() } : {}),
-          ...(data.findingDescription?.trim() ? { description: data.findingDescription.trim() } : {}),
-          ...(data.findingSeverity ? { severity: data.findingSeverity } : {}),
+        let findingId = createdFindingIdRef.current
+        if (!findingId) {
+          const findingInput: CreateFindingInput = {
+            findingStatusName: 'Open',
+            open: true,
+            reviewIDs: [reviewId],
+            ...(subcontrolId ? { subcontrolIDs: [subcontrolId] } : {}),
+            ...(data.findingTitle?.trim() ? { displayName: data.findingTitle.trim() } : {}),
+            ...(data.findingDescription?.trim() ? { description: data.findingDescription.trim() } : {}),
+            ...(data.findingSeverity ? { severity: data.findingSeverity } : {}),
+          }
+          const createdFinding = await createFinding({ input: findingInput })
+          findingId = createdFinding.createFinding.finding.id
+          createdFindingIdRef.current = findingId
         }
-        await createFinding({ input: findingInput })
+
+        if (!subcontrolId) {
+          await createFindingControl({ input: { findingID: findingId, controlID: controlId } })
+        }
       }
 
       queryClient.invalidateQueries({ queryKey: ['reviews'] })

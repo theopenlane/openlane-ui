@@ -9,6 +9,7 @@ import { type ObjectTypeObjects } from '@/components/shared/object-association/o
 import { useGetControlAssociationsById, useUpdateControl } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolAssociationsById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 import { asAssociationsData } from '@/components/shared/object-association/utils'
+import { useUpdateControlWithFindingLinks } from '@/components/shared/object-association/finding-control-links'
 
 type SharedDialogProps = {
   trigger?: ReactNode
@@ -35,12 +36,13 @@ const ControlAssociationDialog = ({
   const { data } = useGetControlAssociationsById(controlId)
   const { mutateAsync: updateControl } = useUpdateControl()
 
-  const handleUpdate = useCallback(
-    async (input: Partial<UpdateControlInput>) => {
-      await updateControl({ updateControlId: controlId, input })
-    },
-    [updateControl, controlId],
-  )
+  const updateControlEntity = useCallback(async (input: object) => updateControl({ updateControlId: controlId, input: input as UpdateControlInput }), [updateControl, controlId])
+
+  const handleUpdate = useUpdateControlWithFindingLinks({
+    controlID: controlId,
+    mappingConnection: data?.control?.controlMappings,
+    updateControl: updateControlEntity,
+  })
 
   return (
     <SetAssociationDialog

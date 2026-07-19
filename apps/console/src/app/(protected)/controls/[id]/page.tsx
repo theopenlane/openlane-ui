@@ -26,6 +26,8 @@ import ObjectAssociationSwitch from '@/components/shared/object-association/obje
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
+import { splitJoinTableInput } from '@/components/shared/object-association/join-table-links'
+import { FINDING_CONTROL_JOIN_KEY_ON_CONTROL, useFindingLinksForControl } from '@/components/shared/object-association/finding-control-links'
 import Loading from './loading.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
@@ -109,6 +111,7 @@ const ControlDetailsPage: React.FC = () => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const { data: associationsData } = useGetControlAssociationsById(id)
+  const syncFindingLinks = useFindingLinksForControl(associationsData?.control?.controlMappings)
   const hasScrollbar = useHasScrollbar([isEditing, data?.control, associationsData?.control])
 
   // depending on the leaf fields instead of associationsData?.control/data would satisfy the react-compiler
@@ -238,7 +241,10 @@ const ControlDetailsPage: React.FC = () => {
 
   const handleUpdateField = async (input: UpdateControlInput, options?: { throwOnError?: boolean }) => {
     try {
-      await updateControl({ updateControlId: id, input })
+      const { entityInput, links } = splitJoinTableInput(input, FINDING_CONTROL_JOIN_KEY_ON_CONTROL)
+
+      await Promise.all([Object.keys(entityInput).length > 0 ? updateControl({ updateControlId: id, input: entityInput }) : Promise.resolve(), syncFindingLinks(id, links)])
+
       successNotification({
         title: 'Control updated',
         description: 'The control was successfully updated.',

@@ -8,9 +8,9 @@ import { getFieldsToRender } from '../table/table-config'
 import { type FindingSheetConfig, type FindingFieldProps, type EnumOptions, objectType } from '../table/types'
 import { type CreateFindingInput, type UpdateFindingInput, type GetFindingAssociationsQuery } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
-import { buildAssociationPayload } from '@/components/shared/object-association/utils'
+import { useControlLinksForFinding } from '@/components/shared/object-association/finding-control-links'
+import { omitAssociationKeys, useFindingAssociationSplit } from './use-finding-association-split'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
-import { FINDING_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import type { Value } from 'platejs'
 
@@ -37,6 +37,9 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
   }, [])
 
   const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, entityId ?? null)
+
+  const syncControlLinks = useControlLinksForFinding(associationsData?.finding?.controlMappings)
+  const { splitAssociations, commitBaseline } = useFindingAssociationSplit({ isCreate, initialAssociationsRef })
 
   const baseUpdateMutation = useUpdateFinding()
   const baseCreateMutation = useCreateFinding()
@@ -83,16 +86,18 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
     createMutation,
     deleteMutation,
     buildPayload: async (formData) => {
-      const { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, vulnerabilityIDs, ...rest } = formData
-      const associationPayload = buildAssociationPayload(
-        FINDING_ASSOCIATION_CONFIG.associationKeys,
-        { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, vulnerabilityIDs },
-        isCreate,
-        initialAssociationsRef.current,
-      )
+      const rest = omitAssociationKeys(formData)
+      const { entityInput: edgeAssociationPayload } = splitAssociations(formData)
+
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
       const cleaned = Object.fromEntries(Object.entries({ ...rest, description }).filter(([, v]) => v !== '' && v !== undefined))
-      return { ...cleaned, ...associationPayload }
+      return { ...cleaned, ...edgeAssociationPayload }
+    },
+    onSaved: async ({ formData, created, entityId: savedId }) => {
+      const findingID = savedId ?? created?.createFinding?.finding?.id
+      if (!findingID) return
+      await syncControlLinks(findingID, splitAssociations(formData).links)
+      commitBaseline(formData)
     },
     getName,
     renderFields: (props: FindingFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers, riskScoresAction),

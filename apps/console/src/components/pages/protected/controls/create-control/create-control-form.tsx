@@ -38,6 +38,8 @@ import { BreadcrumbContext, type Crumb } from '@/providers/BreadcrumbContext.tsx
 import { useCreateControlImplementation } from '@/lib/graphql-hooks/control-implementation'
 import { useCreateControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
+import { splitJoinTableInput } from '@/components/shared/object-association/join-table-links'
+import { FINDING_CONTROL_JOIN_KEY_ON_CONTROL, useFindingLinksForControl } from '@/components/shared/object-association/finding-control-links'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import ProtectedArea from '@/components/shared/protected-area/protected-area'
@@ -81,6 +83,8 @@ export default function CreateControlForm() {
   const { mutateAsync: createControlImplementation } = useCreateControlImplementation()
   const { mutateAsync: createControlObjective } = useCreateControlObjective()
   const { mutateAsync: createMappedControl } = useCreateMappedControl()
+  const syncFindingLinks = useFindingLinksForControl(undefined)
+  const [pendingCreatedControlId, setPendingCreatedControlId] = useState<string | null>(null)
   const { data: discussionData } = useGetControlDiscussionById(id ?? null)
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
@@ -135,9 +139,12 @@ export default function CreateControlForm() {
       let newId: string | undefined
 
       const allAssociationKeys = new Set<string>([...CONTROL_ASSOCIATION_CONFIG.associationKeys, ...SUBCONTROL_ASSOCIATION_CONFIG.associationKeys])
-      const associationInputs = isCreateSubcontrol
-        ? buildAssociationPayload(SUBCONTROL_ASSOCIATION_CONFIG.associationKeys, data, true, {})
-        : buildAssociationPayload(CONTROL_ASSOCIATION_CONFIG.associationKeys, data, true, {})
+      const { entityInput: associationInputs, links: findingLinks } = splitJoinTableInput(
+        isCreateSubcontrol
+          ? buildAssociationPayload(SUBCONTROL_ASSOCIATION_CONFIG.associationKeys, data, true, {})
+          : buildAssociationPayload(CONTROL_ASSOCIATION_CONFIG.associationKeys, data, true, {}),
+        FINDING_CONTROL_JOIN_KEY_ON_CONTROL,
+      )
       const nonAssociationData = Object.fromEntries(Object.entries(data).filter(([key]) => !allAssociationKeys.has(key)))
 
       const commonInput = {
@@ -153,8 +160,17 @@ export default function CreateControlForm() {
         const response = await createSubcontrol({ input: commonInput as CreateSubcontrolInput })
         newId = response?.createSubcontrol?.subcontrol?.id
       } else {
-        const response = await createControl({ input: commonInput as CreateControlInput })
-        newId = response?.createControl?.control?.id
+        newId = pendingCreatedControlId ?? undefined
+
+        if (!newId) {
+          const response = await createControl({ input: commonInput as CreateControlInput })
+          newId = response?.createControl?.control?.id
+          setPendingCreatedControlId(newId ?? null)
+        }
+
+        if (newId) {
+          await syncFindingLinks(newId, findingLinks)
+        }
       }
 
       if (newId && (mappedControls.controls.length > 0 || mappedControls.subcontrols.length > 0)) {
@@ -194,6 +210,8 @@ export default function CreateControlForm() {
         }
         await createControlImplementation(payload)
       }
+
+      setPendingCreatedControlId(null)
 
       if (createMultiple) {
         resetAllExcept(['controlOwnerID', 'delegateID', 'category', 'subcategory', 'controlKindName', 'source', 'subcontrolKindName'])
