@@ -388,6 +388,7 @@
     "fast-xml-builder": "^1.2.1",
     "fast-xml-parser": "^5.9.3",
     "form-data": "^4.0.6",
+    "graphql": "16.14.2",
     "next": "16.2.10",
     "node-fetch": "^3.3.2",
     "postcss": "^8.5.16",
