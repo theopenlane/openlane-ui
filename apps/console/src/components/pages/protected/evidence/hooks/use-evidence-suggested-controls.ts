@@ -5,7 +5,7 @@ import { useGetExistingOrgSubcontrols } from '@/lib/graphql-hooks/subcontrol'
 import { buildWhere, type CustomEvidenceControl, flattenAndFilterControls } from '../evidence-sheet-config'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
-type SuggestedControl = {
+export type SuggestedControl = {
   id: string
   refCode: string
   referenceFramework: string | null
