@@ -72134,7 +72134,7 @@ export type GetControlCountsByStatusQueryVariables = Exact<{
 
 export type GetControlCountsByStatusQuery = {
   __typename?: 'Query'
-  preparing: { __typename?: 'ControlConnection'; totalCount: number }
+  created: { __typename?: 'ControlConnection'; totalCount: number }
   needsApproval: { __typename?: 'ControlConnection'; totalCount: number }
   changesRequested: { __typename?: 'ControlConnection'; totalCount: number }
   approved: { __typename?: 'ControlConnection'; totalCount: number }

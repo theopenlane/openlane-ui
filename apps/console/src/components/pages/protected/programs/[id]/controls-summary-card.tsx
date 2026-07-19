@@ -18,14 +18,14 @@ export const ControlsSummaryCard = () => {
 
   const { data, isLoading } = useGetControlCountsByStatus(id)
 
-  const preparingCount = data?.preparing?.totalCount ?? 0
+  const createdCount = data?.created?.totalCount ?? 0
   const changesRequestedCount = data?.changesRequested?.totalCount ?? 0
   const needsApprovalCount = data?.needsApproval?.totalCount ?? 0
   const approvedCount = data?.approved?.totalCount ?? 0
   const outstandingCount = changesRequestedCount + needsApprovalCount
 
   const chartData = [
-    { name: 'Created', value: preparingCount },
+    { name: 'Created', value: createdCount },
     { name: 'Outstanding', value: outstandingCount },
     { name: 'Changes requested', value: changesRequestedCount },
     { name: 'Completed pending review', value: needsApprovalCount },
