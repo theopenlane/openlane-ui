@@ -49,7 +49,7 @@
   "resolutions": {
     "react": "19.2.7",
     "node-fetch": "^3.3.2",
-    "protobufjs": "^7.6.5",
+    "protobufjs": "^8.0.0",
     "shell-quote": "^1.9.0",
     "@grpc/grpc-js": "^1.14.4",
     "@xmldom/xmldom": "^0.9.0",
