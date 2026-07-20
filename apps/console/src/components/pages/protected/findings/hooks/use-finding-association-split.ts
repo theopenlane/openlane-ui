@@ -27,7 +27,12 @@ export const useFindingAssociationSplit = ({ isCreate, initialAssociationsRef }:
     [isCreate, initialAssociationsRef],
   )
 
-  const commitBaseline = useCallback((formData: Record<string, unknown>) => (initialAssociationsRef.current = pickAssociations(formData)), [initialAssociationsRef])
+  const commitBaseline = useCallback(
+    (formData: Record<string, unknown>) => {
+      initialAssociationsRef.current = pickAssociations(formData)
+    },
+    [initialAssociationsRef],
+  )
 
   return { splitAssociations, commitBaseline }
 }

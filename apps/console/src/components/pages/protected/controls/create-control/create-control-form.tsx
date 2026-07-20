@@ -19,12 +19,14 @@ import {
   type CreateControlObjectiveInput,
   type CreateMappedControlInput,
   type CreateSubcontrolInput,
+  type UpdateControlInput,
+  type UpdateSubcontrolInput,
   MappedControlMappingSource,
   MappedControlMappingType,
   type Subcontrol,
 } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { useControlSelect, useCreateControl, useGetControlById, useGetControlDiscussionById, useGetControlMinifiedById } from '@/lib/graphql-hooks/control'
+import { useControlSelect, useCreateControl, useUpdateControl, useGetControlById, useGetControlDiscussionById, useGetControlMinifiedById } from '@/lib/graphql-hooks/control'
 import { useNotification } from '@/hooks/useNotification'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Popover, PopoverContent } from '@repo/ui/popover'
@@ -32,7 +34,7 @@ import { Command, CommandItem, CommandList, CommandEmpty } from '@repo/ui/comman
 import { PopoverTrigger } from '@radix-ui/react-popover'
 import useClickOutside from '@/hooks/useClickOutside'
 import { type Option } from '@repo/ui/multiple-selector'
-import { useCreateSubcontrol, useGetSubcontrolMinifiedById } from '@/lib/graphql-hooks/subcontrol'
+import { useCreateSubcontrol, useUpdateSubcontrol, useGetSubcontrolMinifiedById } from '@/lib/graphql-hooks/subcontrol'
 import { Check } from 'lucide-react'
 import { BreadcrumbContext, type Crumb } from '@/providers/BreadcrumbContext.tsx'
 import { useCreateControlImplementation } from '@/lib/graphql-hooks/control-implementation'
@@ -84,7 +86,9 @@ export default function CreateControlForm() {
   const { mutateAsync: createControlObjective } = useCreateControlObjective()
   const { mutateAsync: createMappedControl } = useCreateMappedControl()
   const syncFindingLinks = useFindingLinksForControl(undefined)
-  const [pendingCreatedControlId, setPendingCreatedControlId] = useState<string | null>(null)
+  const createdEntityIdRef = useRef<string | null>(null)
+  const completedStepsRef = useRef(new Set<string>())
+  const linkedFindingIdsRef = useRef(new Set<string>())
   const { data: discussionData } = useGetControlDiscussionById(id ?? null)
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
@@ -119,6 +123,14 @@ export default function CreateControlForm() {
 
   const { mutateAsync: createControl } = useCreateControl()
   const { mutateAsync: createSubcontrol } = useCreateSubcontrol()
+  const { mutateAsync: updateControl } = useUpdateControl()
+  const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
+
+  const runOnce = async (stepKey: string, step: () => Promise<void>) => {
+    if (completedStepsRef.current.has(stepKey)) return
+    await step()
+    completedStepsRef.current.add(stepKey)
+  }
 
   const { convertToHtml } = usePlateEditor()
 
@@ -147,29 +159,39 @@ export default function CreateControlForm() {
       )
       const nonAssociationData = Object.fromEntries(Object.entries(data).filter(([key]) => !allAssociationKeys.has(key)))
 
-      const commonInput = {
+      const entityInput = {
         ...nonAssociationData,
-        ...associationInputs,
         description: await convertToHtml(data.descriptionJSON as Value),
         descriptionJSON: data.descriptionJSON,
         referenceID: data.referenceID || undefined,
         auditorReferenceID: data.auditorReferenceID || undefined,
       }
 
-      if (isCreateSubcontrol) {
-        const response = await createSubcontrol({ input: commonInput as CreateSubcontrolInput })
-        newId = response?.createSubcontrol?.subcontrol?.id
-      } else {
-        newId = pendingCreatedControlId ?? undefined
+      const commonInput = { ...entityInput, ...associationInputs }
 
-        if (!newId) {
+      newId = createdEntityIdRef.current ?? undefined
+
+      if (!newId) {
+        if (isCreateSubcontrol) {
+          const response = await createSubcontrol({ input: commonInput as CreateSubcontrolInput })
+          newId = response?.createSubcontrol?.subcontrol?.id
+        } else {
           const response = await createControl({ input: commonInput as CreateControlInput })
           newId = response?.createControl?.control?.id
-          setPendingCreatedControlId(newId ?? null)
         }
+        createdEntityIdRef.current = newId ?? null
+      } else if (isCreateSubcontrol) {
+        await updateSubcontrol({ updateSubcontrolId: newId, input: entityInput as UpdateSubcontrolInput })
+      } else {
+        await updateControl({ updateControlId: newId, input: entityInput as UpdateControlInput })
+      }
 
-        if (newId) {
-          await syncFindingLinks(newId, findingLinks)
+      if (newId && !isCreateSubcontrol) {
+        const pendingAdds = findingLinks.add.filter((findingId) => !linkedFindingIdsRef.current.has(findingId))
+
+        if (pendingAdds.length > 0 || findingLinks.remove.length > 0) {
+          await syncFindingLinks(newId, { add: pendingAdds, remove: findingLinks.remove })
+          pendingAdds.forEach((findingId) => linkedFindingIdsRef.current.add(findingId))
         }
       }
 
@@ -185,7 +207,9 @@ export default function CreateControlForm() {
           relation: 'Mapping auto-created based on creation of control from framework',
         }
 
-        await createMappedControl({ input })
+        await runOnce('mappedControl', async () => {
+          await createMappedControl({ input })
+        })
       }
 
       if (desiredOutcome && createObjective) {
@@ -198,7 +222,9 @@ export default function CreateControlForm() {
           category: data.category,
         }
 
-        await createControlObjective(payload)
+        await runOnce('controlObjective', async () => {
+          await createControlObjective(payload)
+        })
       }
 
       if (details && createImplementation) {
@@ -208,10 +234,14 @@ export default function CreateControlForm() {
           implementationDate: new Date().toISOString(),
           ...(isCreateSubcontrol ? { subcontrolIDs: [newId] } : { controlIDs: [newId] }),
         }
-        await createControlImplementation(payload)
+        await runOnce('controlImplementation', async () => {
+          await createControlImplementation(payload)
+        })
       }
 
-      setPendingCreatedControlId(null)
+      createdEntityIdRef.current = null
+      completedStepsRef.current.clear()
+      linkedFindingIdsRef.current.clear()
 
       if (createMultiple) {
         resetAllExcept(['controlOwnerID', 'delegateID', 'category', 'subcategory', 'controlKindName', 'source', 'subcontrolKindName'])
@@ -331,7 +361,7 @@ export default function CreateControlForm() {
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={(event) => handleSubmit(onSubmit)(event)} className="space-y-6">
         <div className="text-2xl font-semibold">{isCreateSubcontrol ? 'Create Subcontrol' : 'Create Control'}</div>
 
         <div className="flex gap-12">

@@ -212,13 +212,14 @@ export const GET_FINDING_ASSOCIATIONS = gql`
         }
         totalCount
       }
-      controlMappings {
+      controlMappings(first: 200) {
         edges {
           node {
             id
             controlID
           }
         }
+        totalCount
       }
       subcontrols {
         edges {

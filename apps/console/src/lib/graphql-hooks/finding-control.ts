@@ -6,10 +6,12 @@ import {
   type FindingControlsWithFilterQueryVariables,
   type CreateFindingControlMutation,
   type CreateFindingControlMutationVariables,
+  type CreateBulkFindingControlMutation,
+  type CreateBulkFindingControlMutationVariables,
   type UpdateFindingControlMutation,
   type UpdateFindingControlMutationVariables,
-  type DeleteFindingControlMutation,
-  type DeleteFindingControlMutationVariables,
+  type DeleteBulkFindingControlMutation,
+  type DeleteBulkFindingControlMutationVariables,
   type FindingControlQuery,
   type FindingControlQueryVariables,
   type CreateBulkCsvFindingControlMutation,
@@ -17,9 +19,17 @@ import {
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_FINDING_CONTROLS, CREATE_FINDING_CONTROL, UPDATE_FINDING_CONTROL, DELETE_FINDING_CONTROL, FINDING_CONTROL, CREATE_CSV_BULK_FINDING_CONTROL } from '@repo/codegen/query/finding-control'
+import {
+  GET_ALL_FINDING_CONTROLS,
+  CREATE_FINDING_CONTROL,
+  CREATE_BULK_FINDING_CONTROL,
+  UPDATE_FINDING_CONTROL,
+  BULK_DELETE_FINDING_CONTROL,
+  FINDING_CONTROL,
+  CREATE_CSV_BULK_FINDING_CONTROL,
+} from '@repo/codegen/query/finding-control'
 
-const invalidateFindingControlQueries = (queryClient: QueryClient) => {
+export const invalidateFindingControlQueries = (queryClient: QueryClient) => {
   queryClient.invalidateQueries({ queryKey: ['findingControls'] })
   queryClient.invalidateQueries({ queryKey: ['findings'] })
   invalidateControlQueries(queryClient)
@@ -65,22 +75,25 @@ export const useCreateFindingControl = () => {
   })
 }
 
+export const useCreateBulkFindingControl = () => {
+  const { client } = useGraphQLClient()
+  return useMutation<CreateBulkFindingControlMutation, unknown, CreateBulkFindingControlMutationVariables>({
+    mutationFn: async (variables) => client.request(CREATE_BULK_FINDING_CONTROL, variables),
+  })
+}
+
+export const useBulkDeleteFindingControl = () => {
+  const { client } = useGraphQLClient()
+  return useMutation<DeleteBulkFindingControlMutation, unknown, DeleteBulkFindingControlMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_DELETE_FINDING_CONTROL, variables),
+  })
+}
+
 export const useUpdateFindingControl = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
   return useMutation<UpdateFindingControlMutation, unknown, UpdateFindingControlMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_FINDING_CONTROL, variables),
-    onSuccess: () => {
-      invalidateFindingControlQueries(queryClient)
-    },
-  })
-}
-
-export const useDeleteFindingControl = () => {
-  const { client } = useGraphQLClient()
-  const queryClient = useQueryClient()
-  return useMutation<DeleteFindingControlMutation, unknown, DeleteFindingControlMutationVariables>({
-    mutationFn: async (variables) => client.request(DELETE_FINDING_CONTROL, variables),
     onSuccess: () => {
       invalidateFindingControlQueries(queryClient)
     },

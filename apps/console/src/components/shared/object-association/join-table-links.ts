@@ -3,7 +3,9 @@ export type TJoinLinkDiff = {
   remove: readonly string[]
 }
 
-export type TJoinKeyFamily<TKey extends string> = TKey | `add${Capitalize<TKey>}` | `remove${Capitalize<TKey>}` | `clear${Capitalize<TKey>}`
+export type TJoinKeyFamily<TKey extends string> = TKey | `add${Capitalize<TKey>}` | `remove${Capitalize<TKey>}`
+
+export type TJoinLinkInput<TKey extends string> = Partial<Record<TJoinKeyFamily<TKey>, string[]>>
 
 const asIdArray = (value: unknown): string[] => (Array.isArray(value) ? value.filter((id): id is string => typeof id === 'string') : [])
 
@@ -11,7 +13,6 @@ export const splitJoinTableInput = <TKey extends string, TInput extends object>(
   const capitalized = `${joinFieldKey.charAt(0).toUpperCase()}${joinFieldKey.slice(1)}`
   const addKey = `add${capitalized}`
   const removeKey = `remove${capitalized}`
-  const clearKey = `clear${capitalized}`
 
   const entityInput: Record<string, unknown> = {}
   const add: string[] = []
@@ -20,11 +21,13 @@ export const splitJoinTableInput = <TKey extends string, TInput extends object>(
   for (const [key, value] of Object.entries(input)) {
     if (key === joinFieldKey || key === addKey) add.push(...asIdArray(value))
     else if (key === removeKey) remove.push(...asIdArray(value))
-    else if (key !== clearKey) entityInput[key] = value
+    else entityInput[key] = value
   }
+
+  const addIds = new Set(add)
 
   return {
     entityInput: entityInput as Omit<TInput, TJoinKeyFamily<TKey>>,
-    links: { add: [...new Set(add)], remove: [...new Set(remove)] },
+    links: { add: [...addIds], remove: [...new Set(remove)].filter((id) => !addIds.has(id)) },
   }
 }

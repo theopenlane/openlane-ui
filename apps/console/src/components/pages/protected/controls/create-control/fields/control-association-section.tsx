@@ -11,7 +11,13 @@ export const ControlAssociationSection = (props: BaseAssociationSectionProps) =>
   const { data: associationsData } = useGetControlAssociationsById(controlId)
   const { mutateAsync: updateControl } = useUpdateControl()
 
-  const updateControlEntity = useCallback(async (input: object) => updateControl({ updateControlId: controlId as string, input: input as UpdateControlInput }), [updateControl, controlId])
+  const updateControlEntity = useCallback(
+    async (input: UpdateControlInput) => {
+      if (!controlId) return
+      return updateControl({ updateControlId: controlId, input })
+    },
+    [updateControl, controlId],
+  )
 
   const handleUpdateControl = useUpdateControlWithFindingLinks({
     controlID: controlId,

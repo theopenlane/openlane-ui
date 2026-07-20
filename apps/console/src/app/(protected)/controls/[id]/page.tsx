@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useParams, useRouter } from 'next/navigation'
 import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl, type ControlByIdNode } from '@/lib/graphql-hooks/control'
@@ -26,8 +26,7 @@ import ObjectAssociationSwitch from '@/components/shared/object-association/obje
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
-import { splitJoinTableInput } from '@/components/shared/object-association/join-table-links'
-import { FINDING_CONTROL_JOIN_KEY_ON_CONTROL, useFindingLinksForControl } from '@/components/shared/object-association/finding-control-links'
+import { useUpdateControlWithFindingLinks } from '@/components/shared/object-association/finding-control-links'
 import Loading from './loading.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
@@ -111,7 +110,12 @@ const ControlDetailsPage: React.FC = () => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const { data: associationsData } = useGetControlAssociationsById(id)
-  const syncFindingLinks = useFindingLinksForControl(associationsData?.control?.controlMappings)
+  const updateControlEntity = useCallback(async (input: UpdateControlInput) => updateControl({ updateControlId: id, input }), [updateControl, id])
+  const applyControlUpdate = useUpdateControlWithFindingLinks({
+    controlID: id,
+    mappingConnection: associationsData?.control?.controlMappings,
+    updateControl: updateControlEntity,
+  })
   const hasScrollbar = useHasScrollbar([isEditing, data?.control, associationsData?.control])
 
   // depending on the leaf fields instead of associationsData?.control/data would satisfy the react-compiler
@@ -241,9 +245,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const handleUpdateField = async (input: UpdateControlInput, options?: { throwOnError?: boolean }) => {
     try {
-      const { entityInput, links } = splitJoinTableInput(input, FINDING_CONTROL_JOIN_KEY_ON_CONTROL)
-
-      await Promise.all([Object.keys(entityInput).length > 0 ? updateControl({ updateControlId: id, input: entityInput }) : Promise.resolve(), syncFindingLinks(id, links)])
+      await applyControlUpdate(input)
 
       successNotification({
         title: 'Control updated',
@@ -252,6 +254,7 @@ const ControlDetailsPage: React.FC = () => {
     } catch (error) {
       errorNotification({
         title: 'Failed to update control',
+        description: parseErrorMessage(error),
       })
 
       if (options?.throwOnError) {

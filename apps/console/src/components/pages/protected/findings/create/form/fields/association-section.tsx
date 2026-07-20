@@ -13,7 +13,13 @@ export const FindingAssociationSection = (props: BaseAssociationSectionProps) =>
   const { data: associationsData } = useGetFindingAssociations(entityId)
   const { mutateAsync: updateFinding } = useUpdateFinding()
 
-  const updateFindingEntity = useCallback(async (input: object) => updateFinding({ updateFindingId: entityId as string, input: input as UpdateFindingInput }), [updateFinding, entityId])
+  const updateFindingEntity = useCallback(
+    async (input: UpdateFindingInput) => {
+      if (!entityId) return
+      return updateFinding({ updateFindingId: entityId, input })
+    },
+    [updateFinding, entityId],
+  )
 
   const handleUpdateEntity = useUpdateFindingWithControlLinks({
     findingID: entityId,

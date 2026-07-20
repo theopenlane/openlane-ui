@@ -83,6 +83,8 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
   const [pendingAction, setPendingAction] = useState<ReviewReviewStatus | null>(null)
   const createdReviewIdRef = useRef<string | null>(null)
   const createdFindingIdRef = useRef<string | null>(null)
+  const commentSavedRef = useRef(false)
+  const findingLinkedRef = useRef(false)
 
   const { push } = useSmartRouter()
 
@@ -133,6 +135,8 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
   const resetAndClose = () => {
     createdReviewIdRef.current = null
     createdFindingIdRef.current = null
+    commentSavedRef.current = false
+    findingLinkedRef.current = false
     form.reset({ title: '', linkedControlIDs: [], linkedSubcontrolIDs: [] })
     setClearAuditorNotes(true)
     setShowFinding(false)
@@ -170,11 +174,12 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
         const res = await createReview({ input })
         reviewId = res.createReview.review.id
         createdReviewIdRef.current = reviewId
+      }
 
-        if (!isPlateValueEmpty(data.auditorNotes)) {
-          const text = typeof data.auditorNotes === 'string' ? data.auditorNotes : await plateEditorHelper.convertToHtml(data.auditorNotes as Value)
-          await updateReview({ updateReviewId: reviewId, input: { addComment: { text } } })
-        }
+      if (!isPlateValueEmpty(data.auditorNotes) && !commentSavedRef.current) {
+        const text = typeof data.auditorNotes === 'string' ? data.auditorNotes : await plateEditorHelper.convertToHtml(data.auditorNotes as Value)
+        await updateReview({ updateReviewId: reviewId, input: { addComment: { text } } })
+        commentSavedRef.current = true
       }
 
       const hasFinding = !!(data.findingTitle?.trim() || data.findingDescription?.trim() || data.findingSeverity)
@@ -191,12 +196,17 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
             ...(data.findingSeverity ? { severity: data.findingSeverity } : {}),
           }
           const createdFinding = await createFinding({ input: findingInput })
-          findingId = createdFinding.createFinding.finding.id
+          findingId = createdFinding?.createFinding?.finding?.id ?? null
           createdFindingIdRef.current = findingId
         }
 
-        if (!subcontrolId) {
+        if (!findingId) {
+          throw new Error('Finding could not be created')
+        }
+
+        if (!subcontrolId && !findingLinkedRef.current) {
           await createFindingControl({ input: { findingID: findingId, controlID: controlId } })
+          findingLinkedRef.current = true
         }
       }
 

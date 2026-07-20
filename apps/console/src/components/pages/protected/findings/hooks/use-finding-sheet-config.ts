@@ -70,9 +70,7 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
   const enumOpts = { environmentOptions, scopeOptions, findingStatusOptions }
   const enumCreateHandlers = { environmentName: createEnvironment, scopeName: createScope, findingStatusName: createFindingStatus }
 
-  function getName(d: FindingsNodeNonNull) {
-    return d?.displayName || d?.displayID || d?.externalID
-  }
+  const getName = (d: FindingsNodeNonNull) => d?.displayName || d?.displayID || d?.externalID
 
   return {
     enumOpts,

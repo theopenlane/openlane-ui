@@ -36,7 +36,7 @@ const ControlAssociationDialog = ({
   const { data } = useGetControlAssociationsById(controlId)
   const { mutateAsync: updateControl } = useUpdateControl()
 
-  const updateControlEntity = useCallback(async (input: object) => updateControl({ updateControlId: controlId, input: input as UpdateControlInput }), [updateControl, controlId])
+  const updateControlEntity = useCallback(async (input: UpdateControlInput) => updateControl({ updateControlId: controlId, input }), [updateControl, controlId])
 
   const handleUpdate = useUpdateControlWithFindingLinks({
     controlID: controlId,

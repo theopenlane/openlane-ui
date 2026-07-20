@@ -212,7 +212,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     } catch (error) {
       errorNotification({
         title: `${objectTypeName} saved with errors`,
-        description: `The ${objectTypeName.toLowerCase()} was saved, but its associations could not be updated: ${parseErrorMessage(error)}`,
+        description: `The ${objectTypeName.toLowerCase()} was saved, but some associations could not be updated: ${parseErrorMessage(error)}`,
       })
       return false
     }
