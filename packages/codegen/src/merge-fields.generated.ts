@@ -252,7 +252,6 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'workflowEligibleMarker', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
   ],
   CampaignTarget: [
-    { name: 'campaignID', kind: 'id', list: false, nonNull: true, listItemNonNull: false },
     { name: 'completedAt', kind: 'date', list: false, nonNull: false, listItemNonNull: false },
     { name: 'contactID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'email', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
@@ -513,6 +512,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'workflowInstanceID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
   ],
   Entity: [
+    { name: 'aliases', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'annualSpend', kind: 'number', list: false, nonNull: false, listItemNonNull: false },
     { name: 'approvedForUse', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'autoRenews', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
