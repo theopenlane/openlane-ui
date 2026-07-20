@@ -29,18 +29,7 @@ export interface FilterField {
   label: string
   icon: LucideIcon
   type:
-    | 'text'
-    | 'select'
-    | 'date'
-    | 'boolean'
-    | 'dateRange'
-    | 'sliderNumber'
-    | 'sliderRange'
-    | 'multiselect'
-    | 'dropdownUserSearch'
-    | 'radio'
-    | 'dropdownSearchMultiselect'
-    | 'dropdownSearchSingleSelect'
+    'text' | 'select' | 'date' | 'boolean' | 'dateRange' | 'sliderNumber' | 'sliderRange' | 'multiselect' | 'dropdownUserSearch' | 'radio' | 'dropdownSearchMultiselect' | 'dropdownSearchSingleSelect'
   options?: { value: string; label: string }[] //for select and multiselect types
   min?: number // for sliderNumber type
   max?: number // for sliderNumber type

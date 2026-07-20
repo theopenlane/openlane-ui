@@ -68,10 +68,7 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
 
   const testingProcedures = useMemo(() => {
     const raw = (isSubcontrol ? subcontrol?.testingProcedures : control?.testingProcedures) as
-      | { referenceId: string; procedures: string[] }
-      | { referenceId: string; procedures: string[] }[]
-      | null
-      | undefined
+      { referenceId: string; procedures: string[] } | { referenceId: string; procedures: string[] }[] | null | undefined
     if (!raw) return null
     if (Array.isArray(raw)) return raw
     return [raw]

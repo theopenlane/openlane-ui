@@ -100,19 +100,7 @@ type TEvidenceDetailsSheet = {
 }
 
 type EditableFields =
-  | 'name'
-  | 'description'
-  | 'collectionProcedure'
-  | 'source'
-  | 'url'
-  | 'status'
-  | 'reviewFrequency'
-  | 'creationDate'
-  | 'renewalDate'
-  | 'tags'
-  | 'externalUUID'
-  | 'scopeName'
-  | 'environmentName'
+  'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'reviewFrequency' | 'creationDate' | 'renewalDate' | 'tags' | 'externalUUID' | 'scopeName' | 'environmentName'
 
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
   const { convertToHtml, convertToReadOnly } = usePlateEditor()
