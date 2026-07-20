@@ -21526,17 +21526,6 @@ export interface FindingControlBulkCreatePayload {
   findingControls?: Maybe<Array<FindingControl>>
 }
 
-/** Return response for deleteBulkFindingControl mutation */
-export interface FindingControlBulkDeletePayload {
-  __typename?: 'FindingControlBulkDeletePayload'
-  /** Deleted findingControl IDs */
-  deletedIDs: Array<Scalars['ID']['output']>
-  /** Error message when the bulk delete did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs that were not deleted */
-  notDeletedIDs: Array<Scalars['ID']['output']>
-}
-
 /** A connection to a list of items. */
 export interface FindingControlConnection {
   __typename?: 'FindingControlConnection'
@@ -30342,8 +30331,6 @@ export interface Mutation {
   deleteBulkExport: ExportBulkDeletePayload
   /** Delete multiple findings */
   deleteBulkFinding: FindingBulkDeletePayload
-  /** Delete multiple findingControls */
-  deleteBulkFindingControl: FindingControlBulkDeletePayload
   /** Delete multiple groups */
   deleteBulkGroup: GroupBulkDeletePayload
   /** Delete multiple groupMemberships */
@@ -32174,10 +32161,6 @@ export interface MutationDeleteBulkExportArgs {
 }
 
 export interface MutationDeleteBulkFindingArgs {
-  ids: Array<Scalars['ID']['input']>
-}
-
-export interface MutationDeleteBulkFindingControlArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
@@ -71181,6 +71164,22 @@ export type GetAssetAssociationsQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
     }
+    findings: {
+      __typename?: 'FindingConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    vulnerabilities: {
+      __typename?: 'VulnerabilityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    reviews: { __typename?: 'ReviewConnection'; totalCount: number; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
+    remediations: {
+      __typename?: 'RemediationConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
+    }
   }
 }
 
@@ -72423,9 +72422,13 @@ export type GetControlAssociationsByIdQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
     }
+    vulnerabilities: {
+      __typename?: 'VulnerabilityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
     controlMappings: {
       __typename?: 'FindingControlConnection'
-      totalCount: number
       edges?: Array<{ __typename?: 'FindingControlEdge'; node?: { __typename?: 'FindingControl'; id: string; findingID: string } | null } | null> | null
     }
   }
@@ -74352,6 +74355,22 @@ export type GetEntityAssociationsQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
     }
+    findings: {
+      __typename?: 'FindingConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    vulnerabilities: {
+      __typename?: 'VulnerabilityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    reviews: { __typename?: 'ReviewConnection'; totalCount: number; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
+    remediations: {
+      __typename?: 'RemediationConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
+    }
   }
 }
 
@@ -75058,15 +75077,6 @@ export type CreateFindingControlMutation = {
   createFindingControl: { __typename?: 'FindingControlCreatePayload'; findingControl: { __typename?: 'FindingControl'; id: string } }
 }
 
-export type CreateBulkFindingControlMutationVariables = Exact<{
-  input?: InputMaybe<Array<CreateFindingControlInput> | CreateFindingControlInput>
-}>
-
-export type CreateBulkFindingControlMutation = {
-  __typename?: 'Mutation'
-  createBulkFindingControl: { __typename?: 'FindingControlBulkCreatePayload'; findingControls?: Array<{ __typename?: 'FindingControl'; id: string }> | null }
-}
-
 export type UpdateFindingControlMutationVariables = Exact<{
   updateFindingControlId: Scalars['ID']['input']
   input: UpdateFindingControlInput
@@ -75082,15 +75092,6 @@ export type DeleteFindingControlMutationVariables = Exact<{
 }>
 
 export type DeleteFindingControlMutation = { __typename?: 'Mutation'; deleteFindingControl: { __typename?: 'FindingControlDeletePayload'; deletedID: string } }
-
-export type DeleteBulkFindingControlMutationVariables = Exact<{
-  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
-}>
-
-export type DeleteBulkFindingControlMutation = {
-  __typename?: 'Mutation'
-  deleteBulkFindingControl: { __typename?: 'FindingControlBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
-}
 
 export type CreateBulkCsvFindingControlMutationVariables = Exact<{
   input: Scalars['Upload']['input']
@@ -75301,7 +75302,6 @@ export type GetFindingAssociationsQuery = {
     }
     controlMappings: {
       __typename?: 'FindingControlConnection'
-      totalCount: number
       edges?: Array<{ __typename?: 'FindingControlEdge'; node?: { __typename?: 'FindingControl'; id: string; controlID: string } | null } | null> | null
     }
     subcontrols: {
@@ -79805,6 +79805,7 @@ export type GetRiskAssociationsQuery = {
     }
     procedures: {
       __typename?: 'ProcedureConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; createdAt?: any | null } | null } | null> | null
     }
     assets: {
@@ -79818,14 +79819,26 @@ export type GetRiskAssociationsQuery = {
       edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
     }
     scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
-    reviews: { __typename?: 'ReviewConnection'; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
+    reviews: { __typename?: 'ReviewConnection'; totalCount: number; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
     actionPlans: {
       __typename?: 'ActionPlanConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'ActionPlanEdge'; node?: { __typename?: 'ActionPlan'; id: string; name: string; status?: ActionPlanDocumentStatus | null } | null } | null> | null
     }
     remediations: {
       __typename?: 'RemediationConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
+    }
+    vulnerabilities: {
+      __typename?: 'VulnerabilityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    findings: {
+      __typename?: 'FindingConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
     }
   }
 }
@@ -80594,6 +80607,16 @@ export type GetSubcontrolAssociationsByIdQuery = {
         __typename?: 'IdentityHolderEdge'
         node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string; identityHolderType: IdentityHolderIdentityHolderType; title?: string | null } | null
       } | null> | null
+    }
+    vulnerabilities: {
+      __typename?: 'VulnerabilityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    findings: {
+      __typename?: 'FindingConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
     }
   }
 }

@@ -511,6 +511,16 @@ export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
         }
         totalCount
       }
+      vulnerabilities {
+        edges {
+          node {
+            id
+            displayName
+            displayID
+          }
+        }
+        totalCount
+      }
       controlMappings(first: 200) {
         edges {
           node {

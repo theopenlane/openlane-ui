@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
@@ -24,7 +24,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
-import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
+import { ASSOCIATION_REMOVAL_CONFIG, ENTITY_ASSOCIATION_SECTIONS, buildAssociationSections } from '@/components/shared/object-association/object-association-config'
 import AssetDetailsSheet from '@/components/pages/protected/controls/tabs/assets-scans/asset-details-sheet'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import VendorDetailHeader from './vendor-detail-header'
@@ -206,24 +206,10 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
 
   const queryClient = useQueryClient()
 
-  const memoizedSections = associationsData?.entity
-    ? {
-        assets: associationsData.entity.assets,
-        scans: associationsData.entity.scans,
-        campaigns: associationsData.entity.campaigns,
-        identityHolders: associationsData.entity.identityHolders,
-        controls: associationsData.entity.controls,
-        subcontrols: associationsData.entity.subcontrols,
-        policies: associationsData.entity.internalPolicies,
-      }
-    : {}
+  const memoizedSections = useMemo(() => buildAssociationSections(ENTITY_ASSOCIATION_SECTIONS, associationsData?.entity), [associationsData?.entity])
 
-  const memoizedCenterNode = data?.entity
-    ? {
-        node: data.entity,
-        type: ObjectAssociationNodeEnum.ENTITY,
-      }
-    : null
+  const entity = data?.entity
+  const memoizedCenterNode = useMemo(() => (entity ? { node: entity, type: ObjectAssociationNodeEnum.ENTITY } : null), [entity])
 
   const handleRemoveAssociation = useAssociationRemoval({
     entityId: vendorId,

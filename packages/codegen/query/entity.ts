@@ -399,6 +399,45 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
         }
         totalCount
       }
+      findings {
+        edges {
+          node {
+            id
+            displayName
+            displayID
+          }
+        }
+        totalCount
+      }
+      vulnerabilities {
+        edges {
+          node {
+            id
+            displayName
+            displayID
+          }
+        }
+        totalCount
+      }
+      reviews {
+        edges {
+          node {
+            id
+            title
+          }
+        }
+        totalCount
+      }
+      remediations {
+        edges {
+          node {
+            id
+            title
+            displayID
+          }
+        }
+        totalCount
+      }
     }
   }
 `

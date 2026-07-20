@@ -432,6 +432,7 @@ export const GET_RISK_ASSOCIATIONS = gql`
             createdAt
           }
         }
+        totalCount
       }
       assets {
         totalCount
@@ -469,6 +470,7 @@ export const GET_RISK_ASSOCIATIONS = gql`
             title
           }
         }
+        totalCount
       }
       actionPlans {
         edges {
@@ -478,6 +480,7 @@ export const GET_RISK_ASSOCIATIONS = gql`
             status
           }
         }
+        totalCount
       }
       remediations {
         edges {
@@ -487,6 +490,27 @@ export const GET_RISK_ASSOCIATIONS = gql`
             displayID
           }
         }
+        totalCount
+      }
+      vulnerabilities {
+        edges {
+          node {
+            id
+            displayName
+            displayID
+          }
+        }
+        totalCount
+      }
+      findings {
+        edges {
+          node {
+            id
+            displayName
+            displayID
+          }
+        }
+        totalCount
       }
     }
   }

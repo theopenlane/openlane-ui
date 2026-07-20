@@ -33,7 +33,7 @@ import { ObjectAssociationNodeEnum } from '@/components/shared/object-associatio
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
-import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
+import { ASSOCIATION_REMOVAL_CONFIG, POLICY_ASSOCIATION_SECTIONS, buildAssociationSections } from '@/components/shared/object-association/object-association-config'
 import Loading from '@/app/(protected)/policies/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -99,20 +99,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const procedures = assocData?.internalPolicy?.procedures?.edges ?? []
 
   const memoizedSections = useMemo(() => {
-    if (!assocData?.internalPolicy) return {}
-    return {
-      procedures: assocData.internalPolicy.procedures,
-      controls: assocData.internalPolicy.controls,
-      subcontrols: assocData.internalPolicy.subcontrols,
-      controlObjectives: assocData.internalPolicy.controlObjectives,
-      tasks: assocData.internalPolicy.tasks,
-      programs: assocData.internalPolicy.programs,
-      risks: assocData.internalPolicy.risks,
-      assets: assocData.internalPolicy.assets,
-      entities: assocData.internalPolicy.entities,
-      identityHolders: assocData.internalPolicy.identityHolders,
-    }
-  }, [assocData])
+    return buildAssociationSections(POLICY_ASSOCIATION_SECTIONS, assocData?.internalPolicy)
+  }, [assocData?.internalPolicy])
 
   const memoizedCenterNode = useMemo(() => {
     if (!policy) return null

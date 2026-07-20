@@ -1,8 +1,52 @@
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import type { AssociationEntityConfig } from '@/components/shared/object-association/association-section'
+import type { AssociationEntityConfig, AssociationNode } from '@/components/shared/object-association/association-section'
+import type { TBaseAssociatedNode } from '@/components/shared/object-association/types/object-association-types'
 import { buildRelatedInvalidateKeys } from '@/components/shared/object-association/utils'
 
 const buildAssociationEntityConfig = <const TConfig extends AssociationEntityConfig>(config: TConfig): TConfig => config
+
+type ExtraFieldsExtractor = (node: AssociationNode) => Partial<TBaseAssociatedNode>
+
+const SECTION_MAPPINGS = {
+  actionPlans: { key: 'actionPlans', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: () => '' },
+  assets: { key: 'assets', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayName ?? '' },
+  campaigns: { key: 'campaigns', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+  controlObjectives: { key: 'controlObjectives', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+  controls: {
+    key: 'controls',
+    nameExtractor: (n: AssociationNode) => n.refCode ?? '',
+    displayIdExtractor: (n: AssociationNode) => n.displayID ?? '',
+    extraFields: (n: AssociationNode) => ({ description: n.description }),
+  },
+  entities: { key: 'entities', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayName ?? '' },
+  findings: { key: 'findings', nameExtractor: (n: AssociationNode) => n.displayName ?? n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+  identityHolders: { key: 'identityHolders', nameExtractor: (n: AssociationNode) => n.fullName ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+  internalPolicies: { key: 'internalPolicies', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+  procedures: { key: 'procedures', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+  programs: { key: 'programs', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+  remediations: { key: 'remediations', nameExtractor: (n: AssociationNode) => n.title ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+  reviews: { key: 'reviews', nameExtractor: (n: AssociationNode) => n.title ?? '', displayIdExtractor: () => '' },
+  risks: { key: 'risks', nameExtractor: (n: AssociationNode) => n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+  scans: { key: 'scans', nameExtractor: (n: AssociationNode) => n.target ?? '', displayIdExtractor: () => '' },
+  subcontrols: {
+    key: 'subcontrols',
+    nameExtractor: (n: AssociationNode) => n.refCode ?? '',
+    displayIdExtractor: (n: AssociationNode) => n.displayID ?? '',
+    extraFields: (n: AssociationNode) => ({ description: n.description }),
+  },
+  tasks: {
+    key: 'tasks',
+    nameExtractor: (n: AssociationNode) => n.title ?? '',
+    displayIdExtractor: (n: AssociationNode) => n.displayID ?? '',
+    extraFields: (n: AssociationNode) => ({ title: n.title }),
+  },
+  vulnerabilities: { key: 'vulnerabilities', nameExtractor: (n: AssociationNode) => n.displayName ?? n.name ?? '', displayIdExtractor: (n: AssociationNode) => n.displayID ?? '' },
+} as const
+
+const withExtras = <TMapping extends { key: string; extraFields?: ExtraFieldsExtractor }>(mapping: TMapping, extraFields: ExtraFieldsExtractor) => ({
+  ...mapping,
+  extraFields: (node: AssociationNode) => ({ ...mapping.extraFields?.(node), ...extraFields(node) }),
+})
 
 const assetAllowedObjectTypes = [
   ObjectTypeObjects.CONTROL,
@@ -11,6 +55,10 @@ const assetAllowedObjectTypes = [
   ObjectTypeObjects.INTERNAL_POLICY,
   ObjectTypeObjects.SCAN,
   ObjectTypeObjects.ENTITY,
+  ObjectTypeObjects.FINDING,
+  ObjectTypeObjects.VULNERABILITY,
+  ObjectTypeObjects.REVIEW,
+  ObjectTypeObjects.REMEDIATION,
 ]
 const assetInitialDataKeys = {
   scanIDs: 'scans',
@@ -19,8 +67,23 @@ const assetInitialDataKeys = {
   controlIDs: 'controls',
   subcontrolIDs: 'subcontrols',
   internalPolicyIDs: 'internalPolicies',
+  findingIDs: 'findings',
+  vulnerabilityIDs: 'vulnerabilities',
+  reviewIDs: 'reviews',
+  remediationIDs: 'remediations',
 }
-const assetAssociationKeys = ['controlIDs', 'subcontrolIDs', 'internalPolicyIDs', 'scanIDs', 'entityIDs', 'identityHolderIDs'] as const satisfies readonly (keyof typeof assetInitialDataKeys)[]
+const assetAssociationKeys = [
+  'controlIDs',
+  'subcontrolIDs',
+  'internalPolicyIDs',
+  'scanIDs',
+  'entityIDs',
+  'identityHolderIDs',
+  'findingIDs',
+  'vulnerabilityIDs',
+  'reviewIDs',
+  'remediationIDs',
+] as const satisfies readonly (keyof typeof assetInitialDataKeys)[]
 
 export const ASSET_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'asset',
@@ -30,17 +93,16 @@ export const ASSET_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   initialDataKeys: assetInitialDataKeys,
   associationKeys: assetAssociationKeys,
   sectionMappings: [
-    { key: 'scans', nameExtractor: (n) => n.target ?? '', displayIdExtractor: () => '' },
-    { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'identityHolders', nameExtractor: (n) => n.fullName ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    {
-      key: 'controls',
-      nameExtractor: (n) => n.refCode ?? '',
-      displayIdExtractor: (n) => n.displayID ?? '',
-      extraFields: (n) => ({ description: n.description }),
-    },
-    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    SECTION_MAPPINGS.scans,
+    SECTION_MAPPINGS.entities,
+    SECTION_MAPPINGS.identityHolders,
+    SECTION_MAPPINGS.controls,
+    SECTION_MAPPINGS.subcontrols,
+    SECTION_MAPPINGS.internalPolicies,
+    SECTION_MAPPINGS.findings,
+    SECTION_MAPPINGS.vulnerabilities,
+    SECTION_MAPPINGS.reviews,
+    SECTION_MAPPINGS.remediations,
   ],
   dialogConfig: {
     dataRootField: 'asset',
@@ -58,6 +120,10 @@ const entityAllowedObjectTypes = [
   ObjectTypeObjects.INTERNAL_POLICY,
   ObjectTypeObjects.SCAN,
   ObjectTypeObjects.SUB_CONTROL,
+  ObjectTypeObjects.FINDING,
+  ObjectTypeObjects.VULNERABILITY,
+  ObjectTypeObjects.REVIEW,
+  ObjectTypeObjects.REMEDIATION,
 ]
 const entityInitialDataKeys = {
   assetIDs: 'assets',
@@ -66,8 +132,23 @@ const entityInitialDataKeys = {
   identityHolderIDs: 'identityHolders',
   internalPolicyIDs: 'internalPolicies',
   subcontrolIDs: 'subcontrols',
+  findingIDs: 'findings',
+  vulnerabilityIDs: 'vulnerabilities',
+  reviewIDs: 'reviews',
+  remediationIDs: 'remediations',
 }
-const entityAssociationKeys = ['assetIDs', 'internalPolicyIDs', 'subcontrolIDs', 'scanIDs', 'campaignIDs', 'identityHolderIDs'] as const satisfies readonly (keyof typeof entityInitialDataKeys)[]
+const entityAssociationKeys = [
+  'assetIDs',
+  'internalPolicyIDs',
+  'subcontrolIDs',
+  'scanIDs',
+  'campaignIDs',
+  'identityHolderIDs',
+  'findingIDs',
+  'vulnerabilityIDs',
+  'reviewIDs',
+  'remediationIDs',
+] as const satisfies readonly (keyof typeof entityInitialDataKeys)[]
 
 export const ENTITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'entity',
@@ -77,12 +158,16 @@ export const ENTITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   initialDataKeys: entityInitialDataKeys,
   associationKeys: entityAssociationKeys,
   sectionMappings: [
-    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'scans', nameExtractor: (n) => n.target ?? '', displayIdExtractor: () => '' },
-    { key: 'campaigns', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'identityHolders', nameExtractor: (n) => n.fullName ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
+    SECTION_MAPPINGS.assets,
+    SECTION_MAPPINGS.scans,
+    SECTION_MAPPINGS.campaigns,
+    SECTION_MAPPINGS.identityHolders,
+    SECTION_MAPPINGS.internalPolicies,
+    SECTION_MAPPINGS.subcontrols,
+    SECTION_MAPPINGS.findings,
+    SECTION_MAPPINGS.vulnerabilities,
+    SECTION_MAPPINGS.reviews,
+    SECTION_MAPPINGS.remediations,
   ],
   dialogConfig: {
     dataRootField: 'entity',
@@ -130,18 +215,13 @@ export const IDENTITY_HOLDER_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   initialDataKeys: identityHolderInitialDataKeys,
   associationKeys: identityHolderAssociationKeys,
   sectionMappings: [
-    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    {
-      key: 'controls',
-      nameExtractor: (n) => n.refCode ?? '',
-      displayIdExtractor: (n) => n.displayID ?? '',
-      extraFields: (n) => ({ description: n.description }),
-    },
-    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'campaigns', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title }) },
+    SECTION_MAPPINGS.assets,
+    SECTION_MAPPINGS.controls,
+    SECTION_MAPPINGS.subcontrols,
+    SECTION_MAPPINGS.entities,
+    SECTION_MAPPINGS.campaigns,
+    SECTION_MAPPINGS.internalPolicies,
+    SECTION_MAPPINGS.tasks,
   ],
   dialogConfig: {
     dataRootField: 'identityHolder',
@@ -198,21 +278,16 @@ export const FINDING_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   initialDataKeys: findingInitialDataKeys,
   associationKeys: findingAssociationKeys,
   sectionMappings: [
-    {
-      key: 'controls',
-      nameExtractor: (n) => n.refCode ?? '',
-      displayIdExtractor: (n) => n.displayID ?? '',
-      extraFields: (n) => ({ description: n.description }),
-    },
-    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'risks', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'programs', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title }) },
-    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'scans', nameExtractor: (n) => n.target ?? '', displayIdExtractor: () => '' },
-    { key: 'remediations', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'reviews', nameExtractor: (n) => n.title ?? '', displayIdExtractor: () => '' },
-    { key: 'vulnerabilities', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    SECTION_MAPPINGS.controls,
+    SECTION_MAPPINGS.subcontrols,
+    SECTION_MAPPINGS.risks,
+    SECTION_MAPPINGS.programs,
+    SECTION_MAPPINGS.tasks,
+    SECTION_MAPPINGS.assets,
+    SECTION_MAPPINGS.scans,
+    SECTION_MAPPINGS.remediations,
+    SECTION_MAPPINGS.reviews,
+    SECTION_MAPPINGS.vulnerabilities,
   ],
   dialogConfig: {
     dataRootField: 'finding',
@@ -239,12 +314,7 @@ export const REMEDIATION_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   allowedObjectTypes: remediationAllowedObjectTypes,
   initialDataKeys: remediationInitialDataKeys,
   associationKeys: remediationAssociationKeys,
-  sectionMappings: [
-    { key: 'controls', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'findings', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'vulnerabilities', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-  ],
+  sectionMappings: [SECTION_MAPPINGS.controls, SECTION_MAPPINGS.subcontrols, SECTION_MAPPINGS.findings, SECTION_MAPPINGS.vulnerabilities],
   dialogConfig: {
     dataRootField: 'remediation',
     invalidateQueryKey: 'remediations',
@@ -290,13 +360,13 @@ export const VULNERABILITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   initialDataKeys: vulnerabilityInitialDataKeys,
   associationKeys: vulnerabilityAssociationKeys,
   sectionMappings: [
-    { key: 'controls', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'findings', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'remediations', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'reviews', nameExtractor: (n) => n.title ?? '', displayIdExtractor: () => '' },
-    { key: 'assets', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title }) },
+    SECTION_MAPPINGS.controls,
+    SECTION_MAPPINGS.subcontrols,
+    SECTION_MAPPINGS.findings,
+    SECTION_MAPPINGS.remediations,
+    SECTION_MAPPINGS.reviews,
+    SECTION_MAPPINGS.assets,
+    SECTION_MAPPINGS.tasks,
   ],
   dialogConfig: {
     dataRootField: 'vulnerability',
@@ -346,24 +416,14 @@ export const REVIEW_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   initialDataKeys: reviewInitialDataKeys,
   associationKeys: reviewAssociationKeys,
   sectionMappings: [
-    {
-      key: 'controls',
-      nameExtractor: (n) => n.refCode ?? '',
-      displayIdExtractor: (n) => n.displayID ?? '',
-      extraFields: (n) => ({ description: n.description }),
-    },
-    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'remediations', nameExtractor: (n) => n.displayID ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title }) },
-    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'programs', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    {
-      key: 'risks',
-      nameExtractor: (n) => n.name ?? '',
-      displayIdExtractor: (n) => n.displayID ?? '',
-      extraFields: (n) => ({ description: n.description }),
-    },
+    SECTION_MAPPINGS.controls,
+    SECTION_MAPPINGS.subcontrols,
+    SECTION_MAPPINGS.remediations,
+    SECTION_MAPPINGS.entities,
+    SECTION_MAPPINGS.tasks,
+    SECTION_MAPPINGS.assets,
+    SECTION_MAPPINGS.programs,
+    withExtras(SECTION_MAPPINGS.risks, (n) => ({ description: n.description })),
   ],
   dialogConfig: {
     dataRootField: 'review',
@@ -388,6 +448,7 @@ const controlAllowedObjectTypes = [
   ObjectTypeObjects.RISK,
   ObjectTypeObjects.SCAN,
   ObjectTypeObjects.TASK,
+  ObjectTypeObjects.VULNERABILITY,
 ]
 const controlInitialDataKeys = {
   internalPolicyIDs: 'internalPolicies',
@@ -403,6 +464,7 @@ const controlInitialDataKeys = {
   remediationIDs: 'remediations',
   reviewIDs: 'reviews',
   findingIDs: 'findings',
+  vulnerabilityIDs: 'vulnerabilities',
 }
 const controlAssociationKeys = [
   'internalPolicyIDs',
@@ -418,6 +480,7 @@ const controlAssociationKeys = [
   'remediationIDs',
   'reviewIDs',
   'findingIDs',
+  'vulnerabilityIDs',
 ] as const satisfies readonly (keyof typeof controlInitialDataKeys)[]
 
 export const CONTROL_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
@@ -428,19 +491,20 @@ export const CONTROL_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   initialDataKeys: controlInitialDataKeys,
   associationKeys: controlAssociationKeys,
   sectionMappings: [
-    { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ summary: n.summary }) },
-    { key: 'procedures', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ summary: n.summary }) },
-    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title, details: n.details }) },
-    { key: 'programs', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'risks', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ details: n.details }) },
-    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'scans', nameExtractor: (n) => n.target ?? '', displayIdExtractor: () => '' },
-    { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'identityHolders', nameExtractor: (n) => n.fullName ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'campaigns', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'remediations', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'reviews', nameExtractor: (n) => n.title ?? '', displayIdExtractor: () => '' },
-    { key: 'findings', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    withExtras(SECTION_MAPPINGS.internalPolicies, (n) => ({ summary: n.summary })),
+    withExtras(SECTION_MAPPINGS.procedures, (n) => ({ summary: n.summary })),
+    withExtras(SECTION_MAPPINGS.tasks, (n) => ({ details: n.details })),
+    withExtras(SECTION_MAPPINGS.programs, (n) => ({ description: n.description })),
+    withExtras(SECTION_MAPPINGS.risks, (n) => ({ details: n.details })),
+    SECTION_MAPPINGS.assets,
+    SECTION_MAPPINGS.scans,
+    SECTION_MAPPINGS.entities,
+    SECTION_MAPPINGS.identityHolders,
+    SECTION_MAPPINGS.campaigns,
+    SECTION_MAPPINGS.remediations,
+    SECTION_MAPPINGS.reviews,
+    SECTION_MAPPINGS.findings,
+    SECTION_MAPPINGS.vulnerabilities,
   ],
   dialogConfig: {
     dataRootField: 'control',
@@ -460,6 +524,8 @@ const subcontrolAllowedObjectTypes = [
   ObjectTypeObjects.PROCEDURE,
   ObjectTypeObjects.RISK,
   ObjectTypeObjects.TASK,
+  ObjectTypeObjects.VULNERABILITY,
+  ObjectTypeObjects.FINDING,
 ]
 const subcontrolInitialDataKeys = {
   internalPolicyIDs: 'internalPolicies',
@@ -469,6 +535,8 @@ const subcontrolInitialDataKeys = {
   assetIDs: 'assets',
   entityIDs: 'entities',
   identityHolderIDs: 'identityHolders',
+  vulnerabilityIDs: 'vulnerabilities',
+  findingIDs: 'findings',
 }
 const subcontrolAssociationKeys = [
   'internalPolicyIDs',
@@ -478,6 +546,8 @@ const subcontrolAssociationKeys = [
   'assetIDs',
   'entityIDs',
   'identityHolderIDs',
+  'vulnerabilityIDs',
+  'findingIDs',
 ] as const satisfies readonly (keyof typeof subcontrolInitialDataKeys)[]
 
 export const SUBCONTROL_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
@@ -488,13 +558,15 @@ export const SUBCONTROL_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   initialDataKeys: subcontrolInitialDataKeys,
   associationKeys: subcontrolAssociationKeys,
   sectionMappings: [
-    { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'procedures', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title, details: n.details }) },
-    { key: 'risks', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ details: n.details }) },
-    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'identityHolders', nameExtractor: (n) => n.fullName ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    SECTION_MAPPINGS.internalPolicies,
+    SECTION_MAPPINGS.procedures,
+    withExtras(SECTION_MAPPINGS.tasks, (n) => ({ details: n.details })),
+    withExtras(SECTION_MAPPINGS.risks, (n) => ({ details: n.details })),
+    SECTION_MAPPINGS.assets,
+    SECTION_MAPPINGS.entities,
+    SECTION_MAPPINGS.identityHolders,
+    SECTION_MAPPINGS.vulnerabilities,
+    SECTION_MAPPINGS.findings,
   ],
   dialogConfig: {
     dataRootField: 'subcontrol',
@@ -551,16 +623,16 @@ export const POLICY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   initialDataKeys: policyInitialDataKeys,
   associationKeys: policyAssociationKeys,
   sectionMappings: [
-    { key: 'procedures', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ summary: n.summary }) },
-    { key: 'controls', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'programs', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title, details: n.details }) },
-    { key: 'controlObjectives', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'risks', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'identityHolders', nameExtractor: (n) => n.fullName ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    withExtras(SECTION_MAPPINGS.procedures, (n) => ({ summary: n.summary })),
+    SECTION_MAPPINGS.controls,
+    SECTION_MAPPINGS.subcontrols,
+    withExtras(SECTION_MAPPINGS.programs, (n) => ({ description: n.description })),
+    withExtras(SECTION_MAPPINGS.tasks, (n) => ({ details: n.details })),
+    SECTION_MAPPINGS.controlObjectives,
+    SECTION_MAPPINGS.risks,
+    SECTION_MAPPINGS.assets,
+    SECTION_MAPPINGS.entities,
+    SECTION_MAPPINGS.identityHolders,
   ],
   dialogConfig: {
     dataRootField: 'internalPolicy',
@@ -598,12 +670,12 @@ export const PROCEDURE_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   initialDataKeys: procedureInitialDataKeys,
   associationKeys: procedureAssociationKeys,
   sectionMappings: [
-    { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ summary: n.summary }) },
-    { key: 'controls', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'programs', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title, details: n.details }) },
-    { key: 'risks', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ details: n.details }) },
+    withExtras(SECTION_MAPPINGS.internalPolicies, (n) => ({ summary: n.summary })),
+    SECTION_MAPPINGS.controls,
+    SECTION_MAPPINGS.subcontrols,
+    withExtras(SECTION_MAPPINGS.programs, (n) => ({ description: n.description })),
+    withExtras(SECTION_MAPPINGS.tasks, (n) => ({ details: n.details })),
+    withExtras(SECTION_MAPPINGS.risks, (n) => ({ details: n.details })),
   ],
   dialogConfig: {
     dataRootField: 'procedure',
@@ -626,6 +698,8 @@ const riskAllowedObjectTypes = [
   ObjectTypeObjects.SCAN,
   ObjectTypeObjects.SUB_CONTROL,
   ObjectTypeObjects.TASK,
+  ObjectTypeObjects.VULNERABILITY,
+  ObjectTypeObjects.FINDING,
 ]
 const riskInitialDataKeys = {
   controlIDs: 'controls',
@@ -638,6 +712,8 @@ const riskInitialDataKeys = {
   entityIDs: 'entities',
   scanIDs: 'scans',
   actionPlanIDs: 'actionPlans',
+  vulnerabilityIDs: 'vulnerabilities',
+  findingIDs: 'findings',
 }
 const riskAssociationKeys = [
   'controlIDs',
@@ -650,6 +726,8 @@ const riskAssociationKeys = [
   'entityIDs',
   'scanIDs',
   'actionPlanIDs',
+  'vulnerabilityIDs',
+  'findingIDs',
 ] as const satisfies readonly (keyof typeof riskInitialDataKeys)[]
 
 export const RISK_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
@@ -660,16 +738,18 @@ export const RISK_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   initialDataKeys: riskInitialDataKeys,
   associationKeys: riskAssociationKeys,
   sectionMappings: [
-    { key: 'controls', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'programs', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
-    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title, details: n.details }) },
-    { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'procedures', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
-    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
-    { key: 'scans', nameExtractor: (n) => n.target ?? '', displayIdExtractor: () => '' },
-    { key: 'actionPlans', nameExtractor: (n) => n.name ?? '', displayIdExtractor: () => '' },
+    SECTION_MAPPINGS.controls,
+    SECTION_MAPPINGS.subcontrols,
+    withExtras(SECTION_MAPPINGS.programs, (n) => ({ description: n.description })),
+    withExtras(SECTION_MAPPINGS.tasks, (n) => ({ details: n.details })),
+    SECTION_MAPPINGS.internalPolicies,
+    SECTION_MAPPINGS.procedures,
+    SECTION_MAPPINGS.assets,
+    SECTION_MAPPINGS.entities,
+    SECTION_MAPPINGS.scans,
+    SECTION_MAPPINGS.actionPlans,
+    SECTION_MAPPINGS.vulnerabilities,
+    SECTION_MAPPINGS.findings,
   ],
   dialogConfig: {
     dataRootField: 'risk',
