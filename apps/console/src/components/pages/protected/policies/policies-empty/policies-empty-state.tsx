@@ -1,7 +1,7 @@
 import React from 'react'
 import { PolicyEmptyActions } from '@/components/pages/protected/policies/policies-empty/policy-empty.tsx'
 import { Callout } from '@/components/shared/callout/callout.tsx'
-import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs.ts'
+import { POLICY_MANAGEMENT_DOCS_URL } from '@/constants/docs.ts'
 
 const PoliciesEmptyState = () => {
   return (
@@ -44,12 +44,7 @@ const PoliciesEmptyState = () => {
                 </li>
               </ul>
 
-              <a
-                href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/policy-and-procedure-management/policies`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[var(--color-info)] underline underline-offset-4 hover:opacity-80"
-              >
+              <a href={`${POLICY_MANAGEMENT_DOCS_URL}/policies`} target="_blank" rel="noopener noreferrer" className="text-[var(--color-info)] underline underline-offset-4 hover:opacity-80">
                 See docs to learn more.
               </a>
             </Callout>

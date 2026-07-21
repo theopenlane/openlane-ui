@@ -8,7 +8,6 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { useCreateBulkCSVProcedure } from '@/lib/graphql-hooks/procedure'
-import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Callout } from '@/components/shared/callout/callout'
@@ -85,14 +84,10 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
         <Callout title="CSV Format">
           <p className="text-sm">
             You can upload a csv containing procedures. Please refer to our{' '}
-            <a href={`${GRAPHQL_OBJECT_DOCS}#procedures`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
-              documentation
-            </a>{' '}
-            for column format. We also provide a{' '}
             <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
               template csv file
             </a>{' '}
-            for you to fill out.
+            for available fields and format.
           </p>
         </Callout>
         <FileUpload

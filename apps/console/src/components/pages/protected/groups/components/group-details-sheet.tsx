@@ -32,7 +32,7 @@ import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { PLATFORM_DOCS_URL } from '@/constants/docs'
+import { GROUP_PERMISSIONS_DOCS_URL } from '@/constants/docs'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -257,7 +257,7 @@ const GroupDetailsSheet = () => {
                     <p className="font-semibold">Did you know?</p>
                     <p className="text-sm">
                       Groups can be used to assign specific access to objects within the system. Please refer to our{' '}
-                      <a href={`${PLATFORM_DOCS_URL}/basics/groups/permissions`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
+                      <a href={`${GROUP_PERMISSIONS_DOCS_URL}`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
                         documentation
                       </a>
                       .

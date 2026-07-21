@@ -9,7 +9,6 @@ import { useNotification } from '@/hooks/useNotification'
 import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { exportCSV } from '@/lib/export'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
@@ -92,14 +91,10 @@ const GenericBulkCSVCreateDialog: React.FC<GenericBulkCsvCreateDialogProps> = ({
         <Callout title="CSV Format">
           <p className="text-sm">
             You can upload a csv containing {entityLabelPlural}. Please refer to our{' '}
-            <a href={`${GRAPHQL_OBJECT_DOCS}#${entityType.toLowerCase()}`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
-              documentation
-            </a>{' '}
-            for column format. We also provide a{' '}
             <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
               template csv file
             </a>{' '}
-            for you to fill out.
+            for available fields and format.
           </p>
         </Callout>
         <FileUpload

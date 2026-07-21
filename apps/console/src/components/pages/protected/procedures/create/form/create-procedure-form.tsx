@@ -23,7 +23,7 @@ import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/internal-po
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization.ts'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher.ts'
-import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { POLICY_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { Switch } from '@repo/ui/switch'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
@@ -237,7 +237,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
                 <AlertDescription>
                   <p>
                     For template library and help docs, please refer to our{' '}
-                    <a className="text-blue-600" href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/policy-and-procedure-management/policies`} target="_blank" rel="noreferrer">
+                    <a className="text-blue-600" href={`${POLICY_MANAGEMENT_DOCS_URL}/policies`} target="_blank" rel="noreferrer">
                       documentation
                     </a>
                     .

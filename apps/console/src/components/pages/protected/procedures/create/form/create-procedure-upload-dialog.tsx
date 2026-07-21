@@ -16,7 +16,7 @@ import { type CreateProcedureInput } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
 import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-procedure-shared-tabs/direct-link-create-policy-procedure-tab'
 import { Callout } from '@/components/shared/callout/callout'
-import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { POLICY_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
 import { wordAcceptedFileTypes } from '@/components/shared/file-upload/file-upload-config'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -189,7 +189,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
         <Callout title="File Format">
           You can upload one or multiple files at once, or pull documents directly from a URL (for example, if your policies are stored in GitHub as Markdown). Each uploaded file will be imported
           separately and create its own procedure. For more details on supported file types and formatting, please refer to our{' '}
-          <a href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/onboarding/policies`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+          <a href={`${POLICY_MANAGEMENT_DOCS_URL}/import`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
             documentation
           </a>
           .
