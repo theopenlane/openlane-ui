@@ -9578,6 +9578,7 @@ export interface CreateFindingControlInput {
   findingID: Scalars['ID']['input']
   /** additional metadata about the control mapping from the source system */
   metadata?: InputMaybe<Scalars['Map']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the integration source that provided the mapping */
   source?: InputMaybe<Scalars['String']['input']>
   standardID?: InputMaybe<Scalars['ID']['input']>
@@ -21512,6 +21513,9 @@ export interface FindingControl extends Node {
   id: Scalars['ID']['output']
   /** additional metadata about the control mapping from the source system */
   metadata?: Maybe<Scalars['Map']['output']>
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
   /** the integration source that provided the mapping */
   source?: Maybe<Scalars['String']['output']>
   standard?: Maybe<Standard>
@@ -36537,6 +36541,7 @@ export interface Organization extends Node {
   fileCreators: GroupConnection
   files: FileConnection
   findingControlCreators: GroupConnection
+  findingControls: FindingControlConnection
   findingCreators: GroupConnection
   findings: FindingConnection
   groupCreators: GroupConnection
@@ -37153,6 +37158,15 @@ export interface OrganizationFindingControlCreatorsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationFindingControlsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FindingControlOrder>>
+  where?: InputMaybe<FindingControlWhereInput>
 }
 
 export interface OrganizationFindingCreatorsArgs {
@@ -38984,6 +38998,9 @@ export interface OrganizationWhereInput {
   /** finding_control_creators edge predicates */
   hasFindingControlCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingControlCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** finding_controls edge predicates */
+  hasFindingControls?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingControlsWith?: InputMaybe<Array<FindingControlWhereInput>>
   /** finding_creators edge predicates */
   hasFindingCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -59974,6 +59991,7 @@ export interface UpdateFindingControlInput {
   clearExternalStandard?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalStandardVersion?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   /** timestamp when the mapping was first observed */
   discoveredAt?: InputMaybe<Scalars['DateTime']['input']>
@@ -59985,6 +60003,7 @@ export interface UpdateFindingControlInput {
   externalStandardVersion?: InputMaybe<Scalars['String']['input']>
   /** additional metadata about the control mapping from the source system */
   metadata?: InputMaybe<Scalars['Map']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the integration source that provided the mapping */
   source?: InputMaybe<Scalars['String']['input']>
 }

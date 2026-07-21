@@ -75,6 +75,7 @@ export const vendorsFromNotification = (data?: DomainScanNotificationData): Vend
       mapByName.set(key, {
         id: makeRef('vendor', canonicalizeEntityName(name || validUrl || 'vendor')),
         name,
+        legalName: vendor.legal_name?.trim() || undefined,
         providedServices: vendor.categories?.length ? vendor.categories : [],
         url: validUrl,
         domain,
@@ -84,6 +85,7 @@ export const vendorsFromNotification = (data?: DomainScanNotificationData): Vend
     }
 
     existingVendor.providedServices = Array.from(new Set([...existingVendor.providedServices, ...(vendor.categories || [])]))
+    existingVendor.legalName = existingVendor.legalName || vendor.legal_name?.trim() || undefined
     existingVendor.url = existingVendor.url || validUrl
     existingVendor.domain = existingVendor.domain || domain
     existingVendor.logoUrl = existingVendor.logoUrl || resolveVendorLogoUrl(domain)

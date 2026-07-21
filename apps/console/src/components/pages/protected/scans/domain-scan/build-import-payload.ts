@@ -158,6 +158,7 @@ export const buildImportDomainScanReviewInput = ({
     return {
       ref: vendor.id,
       name: resolved.name,
+      legalName: vendor.legalName && vendor.legalName !== resolved.name ? vendor.legalName : undefined,
       domain: resolved.domain,
       categories: vendor.providedServices.length > 0 ? vendor.providedServices : undefined,
     }

@@ -1,6 +1,7 @@
 export type Vendor = {
   id: string
   name: string
+  legalName?: string
   providedServices: string[]
   url?: string
   domain?: string
@@ -63,6 +64,7 @@ export type EditableStepId = Extract<StepId, 'platform' | 'systems' | 'assets' |
 
 export type DomainScanVendorPayload = {
   name?: string
+  legal_name?: string
   url?: string
   categories?: string[]
 }

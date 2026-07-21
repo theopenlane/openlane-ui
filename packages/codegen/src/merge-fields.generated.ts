@@ -697,6 +697,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'externalStandard', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'externalStandardVersion', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'metadata', kind: 'json', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'ownerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'source', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
   ],
   Group: [
