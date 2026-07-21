@@ -14,6 +14,7 @@ import ViewReviewSheet from '@/components/pages/protected/reviews/view-review-sh
 import ViewRiskSheet from '@/components/pages/protected/risks/view-risk-sheet'
 import { searchTypeIcons } from '@/components/shared/search/search-config'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { toHumanLabel } from '@/utils/strings'
 
 type ActivityItem = {
   id: string
@@ -24,12 +25,29 @@ type ActivityItem = {
   source?: string | null
 }
 
+// most activity types are things a scan/tool "detected"; these are things a person creates instead
+const CREATED_ACTIVITY_TYPES = new Set<string>([ObjectTypes.INTERNAL_POLICY, ObjectTypes.CONTROL])
+
+const activitySubtitle = (item: ActivityItem) => {
+  if (item.type === 'Mention') {
+    return 'You were mentioned'
+  }
+
+  const verb = CREATED_ACTIVITY_TYPES.has(item.type) ? 'created' : 'detected'
+  // a grouped row's label already says "N Vulnerabilities"/"N Controls" -- repeating the
+  // (singular) type name here would read oddly, so it's dropped for those rows
+  const label = item.id.startsWith('group-') ? undefined : toHumanLabel(item.type)
+  const prefix = label ? `${label} ${verb}` : verb.charAt(0).toUpperCase() + verb.slice(1)
+  return item.source ? `${prefix} by ${item.source}` : prefix
+}
+
 const ActivityRow = ({ item, onLabelClick }: { item: ActivityItem; onLabelClick?: (item: ActivityItem) => void }) => {
   const Icon = searchTypeIcons[item.type] ?? Shield
   const hasSheet =
     (item.type === ObjectTypes.VULNERABILITY || item.type === ObjectTypes.FINDING || item.type === ObjectTypes.SCAN || item.type === ObjectTypes.REVIEW || item.type === ObjectTypes.RISK) &&
-    !!onLabelClick
-  const subtitle = item.source ? `${item.type} detected by ${item.source}` : `${item.type} detected`
+    !!onLabelClick &&
+    !item.id.startsWith('group-')
+  const subtitle = activitySubtitle(item)
 
   const labelEl = hasSheet ? (
     <button className="text-sm font-medium truncate block w-full text-left hover:underline cursor-pointer" onClick={() => onLabelClick?.(item)}>
@@ -59,9 +77,11 @@ const ActivityRow = ({ item, onLabelClick }: { item: ActivityItem; onLabelClick?
 
 type Props = {
   activityItems: ActivityItem[]
+  allActivityItems?: ActivityItem[]
+  title?: string
 }
 
-const ExposureActivityFeed = ({ activityItems }: Props) => {
+const ExposureActivityFeed = ({ activityItems, allActivityItems = activityItems, title = 'Recent Activity' }: Props) => {
   const [viewItem, setViewItem] = useState<ActivityItem | null>(null)
   const preview = activityItems.slice(0, 5)
 
@@ -69,7 +89,7 @@ const ExposureActivityFeed = ({ activityItems }: Props) => {
     <Card className="h-full">
       <CardContent className="pt-6 flex flex-col h-full">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-xl font-medium leading-7">Recent Activity</p>
+          <p className="text-xl font-medium leading-7">{title}</p>
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="transparent" size="sm" className="text-xs">
@@ -78,13 +98,13 @@ const ExposureActivityFeed = ({ activityItems }: Props) => {
             </SheetTrigger>
             <SheetContent side="right" className="w-120 sm:max-w-120">
               <SheetHeader>
-                <SheetTitle>All Recent Activity (30 days)</SheetTitle>
+                <SheetTitle>All {title} (30 days)</SheetTitle>
               </SheetHeader>
               <div className="mt-4 overflow-y-auto flex-1">
-                {activityItems.length === 0 ? (
+                {allActivityItems.length === 0 ? (
                   <p className="text-sm text-muted-foreground">No recent activity in the last 30 days.</p>
                 ) : (
-                  activityItems.map((item) => <ActivityRow key={`${item.type}-${item.id}`} item={item} onLabelClick={setViewItem} />)
+                  allActivityItems.map((item) => <ActivityRow key={`${item.type}-${item.id}`} item={item} onLabelClick={setViewItem} />)
                 )}
               </div>
             </SheetContent>

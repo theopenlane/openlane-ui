@@ -654,6 +654,8 @@ export const GET_CONTROLS_PAGINATED = gql`
           __typename
           id
           refCode
+          title
+          description
           category
           subcategory
           referenceFramework
@@ -894,6 +896,19 @@ export const GET_CONTROLS_BY_REFCODE = gql`
               }
             }
           }
+        }
+      }
+    }
+  }
+`
+
+export const GET_PROGRAM_CONTROLS_BY_REFCODE = gql`
+  query GetProgramControlsByRefCode($refCodeIn: [String!], $programId: ID!) {
+    controls(where: { refCodeIn: $refCodeIn, hasProgramsWith: [{ id: $programId }] }) {
+      edges {
+        node {
+          id
+          refCode
         }
       }
     }

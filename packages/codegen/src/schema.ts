@@ -11258,6 +11258,8 @@ export interface CreateScanInput {
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   generatedByPlatformID?: InputMaybe<Scalars['ID']['input']>
+  /** internal notes about the object creation, this field is only available to system admins */
+  internalNotes?: InputMaybe<Scalars['String']['input']>
   /** additional metadata for the scan, e.g., scan configuration, options, etc */
   metadata?: InputMaybe<Scalars['Map']['input']>
   /** when the scan is scheduled to run next */
@@ -11285,6 +11287,8 @@ export interface CreateScanInput {
   /** the status of the scan, e.g., processing, completed, failed */
   status?: InputMaybe<ScanScanStatus>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** an internal identifier for the mapping, this field is only available to system admins */
+  systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the target of the scan, e.g., a domain name or IP address, codebase */
@@ -25637,6 +25641,108 @@ export interface IdentityHolderWhereInput {
   workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/**
+ * An asset accepted from a domain scan review, keyed by a client-assigned ref so it can be
+ * referenced from ImportDomainScanReviewPlatformInput/ImportDomainScanReviewSystemInput before it
+ * has a real id
+ */
+export interface ImportDomainScanReviewAssetInput {
+  /** the asset's detected categories */
+  categories?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the asset's domain, IP, or other unique identifier */
+  identifier?: InputMaybe<Scalars['String']['input']>
+  /** the asset's display name */
+  name: Scalars['String']['input']
+  /** client-assigned identifier for this asset, referenced by assetRefs elsewhere in the input */
+  ref: Scalars['String']['input']
+  /** the asset's URL, if known */
+  website?: InputMaybe<Scalars['String']['input']>
+}
+
+/** One accepted finding */
+export interface ImportDomainScanReviewFindingInput {
+  /** the finding's category */
+  category?: InputMaybe<Scalars['String']['input']>
+  /** the finding's description */
+  description?: InputMaybe<Scalars['String']['input']>
+  /** the finding's severity */
+  severity?: InputMaybe<Scalars['String']['input']>
+}
+
+/** Input for importDomainScanReview mutation */
+export interface ImportDomainScanReviewInput {
+  /** the accepted assets */
+  assets: Array<ImportDomainScanReviewAssetInput>
+  /** the accepted findings */
+  findings?: InputMaybe<Array<ImportDomainScanReviewFindingInput>>
+  /** the accepted platforms, if any */
+  platforms?: InputMaybe<Array<ImportDomainScanReviewPlatformInput>>
+  /** the Scan records the created records should link back to */
+  scanIDs: Array<Scalars['ID']['input']>
+  /** the accepted system details */
+  systems?: InputMaybe<Array<ImportDomainScanReviewSystemInput>>
+  /** the accepted vendors */
+  vendors: Array<ImportDomainScanReviewVendorInput>
+}
+
+/**
+ * Return response for importDomainScanReview mutation. Creation happens asynchronously, so this
+ * only confirms the review was accepted - the created objects surface via a follow-up Notification
+ * once the import finishes
+ */
+export interface ImportDomainScanReviewPayload {
+  __typename?: 'ImportDomainScanReviewPayload'
+  /** whether the review was accepted for import */
+  accepted: Scalars['Boolean']['output']
+}
+
+/**
+ * An accepted platform, linked to a subset of the accepted vendors/assets, and keyed by a
+ * client-assigned ref so it can be referenced from ImportDomainScanReviewSystemInput
+ */
+export interface ImportDomainScanReviewPlatformInput {
+  /** refs of accepted assets linked to this platform */
+  assetRefs?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the platform's description */
+  description?: InputMaybe<Scalars['String']['input']>
+  /** refs of accepted vendors linked to this platform */
+  entityRefs?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the platform's name */
+  name: Scalars['String']['input']
+  /** client-assigned identifier for this platform, referenced by platformRefs elsewhere in the input */
+  ref: Scalars['String']['input']
+}
+
+/** One accepted system detail, linked to its own subset of the accepted vendors/assets/platforms */
+export interface ImportDomainScanReviewSystemInput {
+  /** refs of accepted assets linked to this system */
+  assetRefs?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the system's description */
+  description?: InputMaybe<Scalars['String']['input']>
+  /** refs of accepted vendors linked to this system */
+  entityRefs?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the system's name */
+  name: Scalars['String']['input']
+  /** refs of accepted platforms this system belongs to */
+  platformRefs?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
+ * A vendor accepted from a domain scan review, keyed by a client-assigned ref so it can be
+ * referenced from ImportDomainScanReviewPlatformInput/ImportDomainScanReviewSystemInput before it
+ * has a real id
+ */
+export interface ImportDomainScanReviewVendorInput {
+  /** the vendor's detected categories */
+  categories?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the vendor's domain, if known */
+  domain?: InputMaybe<Scalars['String']['input']>
+  /** the vendor's name */
+  name: Scalars['String']['input']
+  /** client-assigned identifier for this vendor, referenced by entityRefs elsewhere in the input */
+  ref: Scalars['String']['input']
+}
+
 export interface Integration extends Node {
   __typename?: 'Integration'
   actionPlans: ActionPlanConnection
@@ -30588,6 +30694,11 @@ export interface Mutation {
   denyNDARequests: BulkUpdateStatusPayload
   /** Force-complete a workflow instance (optionally applying proposal changes) */
   forceCompleteWorkflowInstance: WorkflowInstanceAdminPayload
+  /**
+   * Accept a domain scan review and asynchronously create the corresponding platform, system
+   * details, vendors, assets, and findings
+   */
+  importDomainScanReview: ImportDomainScanReviewPayload
   /** Launch a campaign and send emails to its targets */
   launchCampaign: CampaignLaunchPayload
   /** Update multiple existing notifications */
@@ -32671,6 +32782,10 @@ export interface MutationForceCompleteWorkflowInstanceArgs {
   id: Scalars['ID']['input']
 }
 
+export interface MutationImportDomainScanReviewArgs {
+  input: ImportDomainScanReviewInput
+}
+
 export interface MutationLaunchCampaignArgs {
   input: LaunchCampaignInput
 }
@@ -34631,6 +34746,7 @@ export enum NotificationNotificationTopic {
   MENTION = 'MENTION',
   STANDARD_UPDATE = 'STANDARD_UPDATE',
   TASK_ASSIGNMENT = 'TASK_ASSIGNMENT',
+  IMPORT_COMPLETE = 'IMPORT_COMPLETE',
 }
 
 /** NotificationNotificationType is enum for the field notification_type */
@@ -48193,6 +48309,8 @@ export interface Scan extends Node {
   /** the platform that generated the scan */
   generatedByPlatformID?: Maybe<Scalars['ID']['output']>
   id: Scalars['ID']['output']
+  /** internal notes about the object creation, this field is only available to system admins */
+  internalNotes?: Maybe<Scalars['String']['output']>
   /** additional metadata for the scan, e.g., scan configuration, options, etc */
   metadata?: Maybe<Scalars['Map']['output']>
   /** when the scan is scheduled to run next */
@@ -48232,6 +48350,10 @@ export interface Scan extends Node {
   /** the status of the scan, e.g., processing, completed, failed */
   status: ScanScanStatus
   subcontrols: SubcontrolConnection
+  /** an internal identifier for the mapping, this field is only available to system admins */
+  systemInternalID?: Maybe<Scalars['String']['output']>
+  /** indicates if the record is owned by the the openlane system and not by an organization */
+  systemOwned?: Maybe<Scalars['Boolean']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the target of the scan, e.g., a domain name or IP address, codebase */
@@ -48686,6 +48808,22 @@ export interface ScanWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal_notes field predicates */
+  internalNotes?: InputMaybe<Scalars['String']['input']>
+  internalNotesContains?: InputMaybe<Scalars['String']['input']>
+  internalNotesContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalNotesEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalNotesGT?: InputMaybe<Scalars['String']['input']>
+  internalNotesGTE?: InputMaybe<Scalars['String']['input']>
+  internalNotesHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalNotesHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalNotesIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalNotesIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalNotesLT?: InputMaybe<Scalars['String']['input']>
+  internalNotesLTE?: InputMaybe<Scalars['String']['input']>
+  internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
+  internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** next_scan_run_at field predicates */
   nextScanRunAt?: InputMaybe<Scalars['DateTime']['input']>
   nextScanRunAtGT?: InputMaybe<Scalars['DateTime']['input']>
@@ -48864,6 +49002,27 @@ export interface ScanWhereInput {
   statusIn?: InputMaybe<Array<ScanScanStatus>>
   statusNEQ?: InputMaybe<ScanScanStatus>
   statusNotIn?: InputMaybe<Array<ScanScanStatus>>
+  /** system_internal_id field predicates */
+  systemInternalID?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDContains?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDGT?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDGTE?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  systemInternalIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  systemInternalIDLT?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDLTE?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDNEQ?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  systemInternalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** system_owned field predicates */
+  systemOwned?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** Filter for tagsHas to contain a specific value */
   tagsHas?: InputMaybe<Scalars['String']['input']>
   /** target field predicates */
@@ -62762,6 +62921,7 @@ export interface UpdateScanInput {
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearGeneratedByPlatform?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearNextScanRunAt?: InputMaybe<Scalars['Boolean']['input']>
   clearPerformedBy?: InputMaybe<Scalars['Boolean']['input']>
@@ -62777,6 +62937,7 @@ export interface UpdateScanInput {
   clearScope?: InputMaybe<Scalars['Boolean']['input']>
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
@@ -62786,6 +62947,8 @@ export interface UpdateScanInput {
   /** the environment of the scan */
   environmentName?: InputMaybe<Scalars['String']['input']>
   generatedByPlatformID?: InputMaybe<Scalars['ID']['input']>
+  /** internal notes about the object creation, this field is only available to system admins */
+  internalNotes?: InputMaybe<Scalars['String']['input']>
   /** additional metadata for the scan, e.g., scan configuration, options, etc */
   metadata?: InputMaybe<Scalars['Map']['input']>
   /** when the scan is scheduled to run next */
@@ -62823,6 +62986,8 @@ export interface UpdateScanInput {
   scopeName?: InputMaybe<Scalars['String']['input']>
   /** the status of the scan, e.g., processing, completed, failed */
   status?: InputMaybe<ScanScanStatus>
+  /** an internal identifier for the mapping, this field is only available to system admins */
+  systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the target of the scan, e.g., a domain name or IP address, codebase */
@@ -72535,7 +72700,16 @@ export type GetControlsPaginatedQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'ControlEdge'
-      node?: { __typename: 'Control'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+      node?: {
+        __typename: 'Control'
+        id: string
+        refCode: string
+        title?: string | null
+        description?: string | null
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+      } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
   }
@@ -72861,6 +73035,16 @@ export type GetControlsByRefCodeQuery = {
       } | null
     } | null> | null
   }
+}
+
+export type GetProgramControlsByRefCodeQueryVariables = Exact<{
+  refCodeIn?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
+  programId: Scalars['ID']['input']
+}>
+
+export type GetProgramControlsByRefCodeQuery = {
+  __typename?: 'Query'
+  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
 }
 
 export type GetControlRelatedControlsQueryVariables = Exact<{
@@ -77129,12 +77313,15 @@ export type MappedControlsFragmentFragment = { __typename: 'Control'; id: string
 
 export type GetAllMappedControlsQueryVariables = Exact<{
   where?: InputMaybe<MappedControlWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllMappedControlsQuery = {
   __typename?: 'Query'
   mappedControls: {
     __typename?: 'MappedControlConnection'
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
     edges?: Array<{
       __typename?: 'MappedControlEdge'
       node?: {
@@ -78158,6 +78345,15 @@ export type DeletePlatformMutationVariables = Exact<{
 }>
 
 export type DeletePlatformMutation = { __typename?: 'Mutation'; deletePlatform: { __typename?: 'PlatformDeletePayload'; deletedID: string } }
+
+export type CreateBulkPlatformMutationVariables = Exact<{
+  input?: InputMaybe<Array<CreatePlatformInput> | CreatePlatformInput>
+}>
+
+export type CreateBulkPlatformMutation = {
+  __typename?: 'Mutation'
+  createBulkPlatform: { __typename?: 'PlatformBulkCreatePayload'; platforms?: Array<{ __typename?: 'Platform'; id: string }> | null }
+}
 
 export type CreateProcedureMutationVariables = Exact<{
   input: CreateProcedureInput
@@ -79923,6 +80119,12 @@ export type CreateScanMutationVariables = Exact<{
 
 export type CreateScanMutation = { __typename?: 'Mutation'; createScan: { __typename?: 'ScanCreatePayload'; scan: { __typename?: 'Scan'; id: string } } }
 
+export type ImportDomainScanReviewMutationVariables = Exact<{
+  input: ImportDomainScanReviewInput
+}>
+
+export type ImportDomainScanReviewMutation = { __typename?: 'Mutation'; importDomainScanReview: { __typename?: 'ImportDomainScanReviewPayload'; accepted: boolean } }
+
 export type UpdateScanMutationVariables = Exact<{
   updateScanId: Scalars['ID']['input']
   input: UpdateScanInput
@@ -81097,6 +81299,15 @@ export type DeleteSystemDetailMutationVariables = Exact<{
 }>
 
 export type DeleteSystemDetailMutation = { __typename?: 'Mutation'; deleteSystemDetail: { __typename?: 'SystemDetailDeletePayload'; deletedID: string } }
+
+export type CreateBulkSystemDetailMutationVariables = Exact<{
+  input?: InputMaybe<Array<CreateSystemDetailInput> | CreateSystemDetailInput>
+}>
+
+export type CreateBulkSystemDetailMutation = {
+  __typename?: 'Mutation'
+  createBulkSystemDetail: { __typename?: 'SystemDetailBulkCreatePayload'; systemDetails?: Array<{ __typename?: 'SystemDetail'; id: string }> | null }
+}
 
 export type CreateBulkCsvSystemDetailMutationVariables = Exact<{
   input: Scalars['Upload']['input']

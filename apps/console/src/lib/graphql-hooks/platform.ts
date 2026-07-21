@@ -6,6 +6,8 @@ import {
   type PlatformsWithFilterQueryVariables,
   type CreatePlatformMutation,
   type CreatePlatformMutationVariables,
+  type CreateBulkPlatformMutation,
+  type CreateBulkPlatformMutationVariables,
   type UpdatePlatformMutation,
   type UpdatePlatformMutationVariables,
   type DeletePlatformMutation,
@@ -16,7 +18,7 @@ import {
 } from '@repo/codegen/src/schema'
 
 import { type TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_PLATFORMS, CREATE_PLATFORM, UPDATE_PLATFORM, DELETE_PLATFORM, PLATFORM } from '@repo/codegen/query/platform'
+import { GET_ALL_PLATFORMS, CREATE_PLATFORM, CREATE_BULK_PLATFORM, UPDATE_PLATFORM, DELETE_PLATFORM, PLATFORM } from '@repo/codegen/query/platform'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import type { DiagramType } from '@/components/pages/protected/platforms/detail/platform-diagrams-section'
 
@@ -74,6 +76,17 @@ export const useCreatePlatform = () => {
   const queryClient = useQueryClient()
   return useMutation<CreatePlatformMutation, unknown, CreatePlatformMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_PLATFORM, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['platforms'] })
+    },
+  })
+}
+
+export const useCreateBulkPlatform = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+  return useMutation<CreateBulkPlatformMutation, unknown, CreateBulkPlatformMutationVariables>({
+    mutationFn: async (variables) => client.request(CREATE_BULK_PLATFORM, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['platforms'] })
     },

@@ -8,7 +8,9 @@ interface NotificationRedirectRouter {
 export const getNotificationRedirectUrl = (notification: Notification) => {
   const isDomainScan = notification.topic === NotificationNotificationTopic.DOMAIN_SCAN || notification.objectType === 'DOMAIN_SCAN'
   if (isDomainScan) {
-    return `/exposure/scans/domain-scan?id=${encodeURIComponent(notification.id)}`
+    const scans = notification.data?.scans as { internal_scan_id?: string }[] | undefined
+    const singleScanId = scans?.length === 1 ? scans[0]?.internal_scan_id : undefined
+    return `/exposure/scans/domain-scan?scanId=${encodeURIComponent(singleScanId || notification.id)}`
   }
 
   const url = notification.data?.url

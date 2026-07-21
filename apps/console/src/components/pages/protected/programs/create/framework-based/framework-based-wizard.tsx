@@ -1,39 +1,55 @@
 'use client'
 import { defineStepper } from '@stepperize/react'
-import { useForm, FormProvider } from 'react-hook-form'
+import { useForm, FormProvider, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@repo/ui/button'
 import React, { use, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
 import TeamSetupStep from '../shared/steps/team-setup-step'
 import StartTypeStep from '../shared/steps/start-type-step'
 import SelectFrameworkStep from '../shared/steps/select-framework-step'
-import { validateFullAndNotify, wizardSchema, type WizardValues } from './framework-based-wizard-config'
+import { suggestedControlsStepSchema, validateFullAndNotify, wizardSchema, type WizardValues } from './framework-based-wizard-config'
 import { ProgramMembershipRole, type CreateProgramWithMembersInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
+import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
+import { recreateSeededControlMappings } from '@/lib/graphql-hooks/suggested-control-mappings'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import SelectCategoryStep from '../shared/steps/select-category-step'
+import SuggestedControlsStep from '../soc2/suggested-controls-step'
+import { useCloneControls } from '@/lib/graphql-hooks/standard'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
 
 export default function FrameworkBasedWizard() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const defaultFramework = searchParams.get('framework') ?? undefined
+  const includeSuggestedControls = searchParams.get('suggestedControls') === 'true'
+  const isOnboardingFlow = searchParams.get('onboarding') === 'true'
+  const auditorName = searchParams.get('auditorName') ?? undefined
+  const auditorEmail = searchParams.get('auditorEmail') ?? undefined
   const { successNotification, errorNotification } = useNotification()
+  const { client } = useGraphQLClient()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
+  const { mutateAsync: cloneControls, isPending: isControlBeingCloned } = useCloneControls()
+  const { mutateAsync: createMappedControl } = useCreateMappedControl()
   const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
 
   const { useStepper } = defineStepper(
     { id: '0', label: 'Select Framework', schema: wizardSchema.pick({ framework: true, standardID: true, name: true }) },
-    { id: '1', label: 'Select Categories', schema: wizardSchema.pick({ categories: true }) },
-    { id: '2', label: 'Team Setup', schema: wizardSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) },
+    ...(includeSuggestedControls
+      ? [{ id: '1', label: 'Import Controls', schema: suggestedControlsStepSchema }]
+      : [{ id: '1', label: 'Select Categories', schema: wizardSchema.pick({ categories: true }) }]),
+    ...(!isOnboardingFlow ? [{ id: '2', label: 'Team Setup', schema: wizardSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) }] : []),
     { id: '3', label: 'Program Type', schema: wizardSchema.pick({ programKindName: true }) },
   )
 
@@ -43,12 +59,14 @@ export default function FrameworkBasedWizard() {
     resolver: zodResolver(wizardSchema),
     mode: 'onChange',
     defaultValues: {
-      categories: ['Security'],
+      categories: includeSuggestedControls ? [] : ['Security'],
+      suggestedControlIDs: [],
+      suggestedControlCategories: [],
     },
   })
 
-  const framework = methods.watch('framework')
-  const disabledIDs = framework === 'SOC 2' ? [] : ['1']
+  const framework = useWatch({ control: methods.control, name: 'framework' })
+  const disabledIDs = includeSuggestedControls || framework === 'SOC 2' ? [] : ['1']
 
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
@@ -57,7 +75,7 @@ export default function FrameworkBasedWizard() {
       if (stepper.state.current.data.id === '0') {
         isValid = await methods.trigger(['framework', 'standardID', 'name'])
       } else if (stepper.state.current.data.id === '1') {
-        isValid = await methods.trigger('categories')
+        isValid = includeSuggestedControls ? await methods.trigger(['suggestedControlIDs', 'categories']) : await methods.trigger('categories')
       } else {
         isValid = await methods.trigger(['programAdmins', 'programMembers', 'viewerIDs', 'editorIDs'])
       }
@@ -107,6 +125,8 @@ export default function FrameworkBasedWizard() {
         endDate: oneYearFromToday,
         viewerIDs: values.viewerIDs,
         editorIDs: values.editorIDs,
+        auditor: auditorName,
+        auditorEmail: auditorEmail,
       },
       categories: framework === 'SOC 2' ? values.categories : undefined,
       standardID: values.standardID,
@@ -115,11 +135,33 @@ export default function FrameworkBasedWizard() {
 
     try {
       const resp = await createProgram({ input })
+      const programID = resp.createProgramWithMembers.program.id
+
+      if (includeSuggestedControls && values.suggestedControlIDs?.length) {
+        await cloneControls({
+          input: {
+            programID,
+            controlIDs: values.suggestedControlIDs,
+          },
+        })
+      }
+
+      try {
+        await recreateSeededControlMappings({
+          client,
+          programID,
+          mappingGroups: values.suggestedControlMappings,
+          createMappedControl,
+        })
+      } catch (mappingError) {
+        console.error('Failed to recreate control mappings', mappingError)
+      }
+
       successNotification({
         title: 'Program Created',
         description: `Your program, ${input.program.name}, has been successfully created`,
       })
-      router.push(`/programs/${resp.createProgramWithMembers.program.id}`)
+      router.push(`/programs/${programID}`)
     } catch (e) {
       errorNotification({
         title: 'Error',
@@ -140,15 +182,15 @@ export default function FrameworkBasedWizard() {
 
   return (
     <>
-      <div className="max-w-3xl mx-auto px-6 py-2">
+      <div className="max-w-6xl mx-auto px-6 py-2">
         <StepHeader stepper={stepper} disabledIDs={disabledIDs} className="mb-6" />
         <Separator className="" separatorClass="bg-card" />
         <FormProvider {...methods}>
           <form onSubmit={handleNext}>
             <div className="py-6">
               {stepper.flow.switch({
-                0: () => <SelectFrameworkStep required />,
-                1: () => <SelectCategoryStep />,
+                0: () => <SelectFrameworkStep required defaultFramework={defaultFramework} />,
+                1: () => (includeSuggestedControls ? <SuggestedControlsStep frameworkName={framework} /> : <SelectCategoryStep />),
                 2: () => <TeamSetupStep />,
                 3: () => <StartTypeStep />,
               })}
@@ -156,7 +198,7 @@ export default function FrameworkBasedWizard() {
                 <Button type="button" variant="secondary" onClick={handleBack} iconPosition="left">
                   Back
                 </Button>
-                <Button variant="primary" type="button" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
+                <Button variant="primary" type="button" onClick={() => handleNext()} disabled={isPending || isControlBeingCloned} loading={isPending || isControlBeingCloned}>
                   {stepper.state.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>

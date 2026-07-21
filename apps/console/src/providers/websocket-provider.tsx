@@ -10,6 +10,7 @@ interface WebSocketContextType {
   isConnected: boolean
   error: unknown | null
   resetConnection: () => void
+  setPendingToken: (token: string) => void
 }
 
 const WebSocketContext = createContext<WebSocketContextType>({
@@ -17,6 +18,7 @@ const WebSocketContext = createContext<WebSocketContextType>({
   isConnected: false,
   error: null,
   resetConnection: () => {},
+  setPendingToken: () => {},
 })
 
 export function useWebSocketClient() {
@@ -29,7 +31,33 @@ interface WebSocketProviderProps {
 
 export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const { data: session, status } = useSession()
-  const token = session?.user?.accessToken
+  const sessionToken = session?.user?.accessToken
+  // No real org exists yet while onboarding, so there's nothing meaningful to subscribe to --
+  // connecting anyway just churns the socket through the org-switch token change at the end
+  const isOnboarding = session?.user?.isOnboarding === true
+
+  // Set explicitly (e.g. right after an org switch) so the socket can reconnect with the new
+  // org's token immediately, instead of waiting for useSession() to re-render with it -- that
+  // propagation isn't instant, and a notification published in the gap would otherwise be
+  // delivered to a socket still authenticated under the old org and never received
+  const [pendingToken, setPendingToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Only drop the override once useSession() has fully settled to "authenticated" with the
+    // matching token -- clearing it while status is still transiently "loading" would re-expose
+    // the connection effect to the status gate below and cause a spurious dispose/reconnect
+    if (pendingToken && status === 'authenticated' && sessionToken === pendingToken) {
+      setPendingToken(null)
+    }
+  }, [pendingToken, sessionToken, status])
+
+  // Folded into one value so the connection effect below only depends on THIS, not on status/
+  // isOnboarding/sessionToken separately -- useEffect re-runs (tearing down and recreating the
+  // whole client, killing any live subscription) on ANY dependency change, even ones that don't
+  // actually affect which token we'd connect with. useSession() flips status to "loading" and
+  // back periodically on its own (window focus, revalidation, etc.), completely unrelated to
+  // onboarding, so without this the socket was churning during ordinary steady-state use too
+  const effectiveToken = status === 'unauthenticated' ? null : (pendingToken ?? (isOnboarding ? null : sessionToken))
 
   const [client, setClient] = useState<Client | null>(null)
   const [isConnected, setIsConnected] = useState(false)
@@ -60,12 +88,11 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   }, [disposeClient])
 
   useEffect(() => {
-    const tokenChanged = lastTokenRef.current !== null && lastTokenRef.current !== token
+    const tokenChanged = lastTokenRef.current !== null && lastTokenRef.current !== effectiveToken
 
-    if (status !== 'authenticated' || !token || !websocketGQLUrl || (hasFatalError && !tokenChanged)) {
+    if (!effectiveToken || !websocketGQLUrl || (hasFatalError && !tokenChanged)) {
       console.log('[WS] skip init', {
-        status,
-        hasToken: Boolean(token),
+        hasToken: Boolean(effectiveToken),
         hasFatalError,
       })
       disposeClient()
@@ -77,22 +104,26 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       setError(null)
     }
 
-    if (lastTokenRef.current === token && clientRef.current) {
+    if (lastTokenRef.current === effectiveToken && clientRef.current) {
       console.log('[WS] reuse existing client')
       return
     }
 
-    lastTokenRef.current = token
+    lastTokenRef.current = effectiveToken
 
-    console.log('[WS] create client (lazy)')
+    console.log('[WS] create client (eager)')
 
+    // lazy:false connects immediately when a token becomes available (or changes, e.g. after
+    // switching orgs mid-onboarding) instead of waiting for the first subscribe() call -- with
+    // lazy:true there's a window where a server-side event (like a domain scan finishing) can
+    // be published before the socket has even started connecting, and is lost with no replay
     const wsClient = createClient({
       url: websocketGQLUrl,
-      lazy: true,
+      lazy: false,
       retryAttempts: 10,
       keepAlive: 20_000,
       connectionParams: async () => ({
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${effectiveToken}`,
       }),
     })
 
@@ -130,7 +161,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       unsubError()
       disposeClient()
     }
-  }, [connectionResetKey, token, status, hasFatalError, disposeClient])
+  }, [connectionResetKey, effectiveToken, hasFatalError, disposeClient])
 
   useEffect(() => {
     if (status !== 'authenticated') {
@@ -165,6 +196,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
         isConnected,
         error,
         resetConnection,
+        setPendingToken,
       }}
     >
       {children}

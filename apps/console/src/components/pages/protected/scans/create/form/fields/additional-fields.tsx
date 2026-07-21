@@ -2,6 +2,7 @@
 
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
+import { DateField } from '@/components/shared/crud-base/form-fields/date-field'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { type UpdateScanInput, type ScanScanStatus } from '@repo/codegen/src/schema'
 import { type FieldValues } from 'react-hook-form'
@@ -81,6 +82,10 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
               )}
               {...sharedFieldProps}
             />
+          </div>
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <DateField name="scanDate" label="Scan Date" {...sharedFieldProps} />
+            <DateField name="nextScanRunAt" label="Next Date" {...sharedFieldProps} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="scanSchedule" label="Schedule (cron)" {...sharedFieldProps} />

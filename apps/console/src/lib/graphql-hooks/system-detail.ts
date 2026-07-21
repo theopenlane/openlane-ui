@@ -5,6 +5,8 @@ import {
   type SystemDetailsWithFilterQueryVariables,
   type CreateSystemDetailMutation,
   type CreateSystemDetailMutationVariables,
+  type CreateBulkSystemDetailMutation,
+  type CreateBulkSystemDetailMutationVariables,
   type UpdateSystemDetailMutation,
   type UpdateSystemDetailMutationVariables,
   type DeleteSystemDetailMutation,
@@ -23,6 +25,7 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_SYSTEM_DETAILS,
   CREATE_SYSTEM_DETAIL,
+  CREATE_BULK_SYSTEM_DETAIL,
   UPDATE_SYSTEM_DETAIL,
   DELETE_SYSTEM_DETAIL,
   SYSTEM_DETAIL,
@@ -65,6 +68,17 @@ export const useCreateSystemDetail = () => {
   const queryClient = useQueryClient()
   return useMutation<CreateSystemDetailMutation, unknown, CreateSystemDetailMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_SYSTEM_DETAIL, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['systemDetails'] })
+    },
+  })
+}
+
+export const useCreateBulkSystemDetail = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+  return useMutation<CreateBulkSystemDetailMutation, unknown, CreateBulkSystemDetailMutationVariables>({
+    mutationFn: async (variables) => client.request(CREATE_BULK_SYSTEM_DETAIL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['systemDetails'] })
     },

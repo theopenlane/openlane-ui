@@ -123,6 +123,14 @@ export const CREATE_SCAN = gql`
   }
 `
 
+export const IMPORT_DOMAIN_SCAN_REVIEW = gql`
+  mutation ImportDomainScanReview($input: ImportDomainScanReviewInput!) {
+    importDomainScanReview(input: $input) {
+      accepted
+    }
+  }
+`
+
 export const UPDATE_SCAN = gql`
   mutation UpdateScan($updateScanId: ID!, $input: UpdateScanInput!) {
     updateScan(id: $updateScanId, input: $input) {

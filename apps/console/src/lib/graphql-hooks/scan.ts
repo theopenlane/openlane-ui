@@ -18,10 +18,23 @@ import {
   type DeleteBulkScanMutation,
   type DeleteBulkScanMutationVariables,
   type GetScanAssociationsQuery,
+  type ImportDomainScanReviewMutation,
+  type ImportDomainScanReviewMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_SCANS, CREATE_SCAN, UPDATE_SCAN, DELETE_SCAN, SCAN, CREATE_CSV_BULK_SCAN, BULK_EDIT_SCAN, BULK_DELETE_SCAN, GET_SCAN_ASSOCIATIONS } from '@repo/codegen/query/scan'
+import {
+  GET_ALL_SCANS,
+  CREATE_SCAN,
+  UPDATE_SCAN,
+  DELETE_SCAN,
+  SCAN,
+  CREATE_CSV_BULK_SCAN,
+  BULK_EDIT_SCAN,
+  BULK_DELETE_SCAN,
+  GET_SCAN_ASSOCIATIONS,
+  IMPORT_DOMAIN_SCAN_REVIEW,
+} from '@repo/codegen/query/scan'
 
 type GetAllScansArgs = {
   where?: ScansWithFilterQueryVariables['where']
@@ -71,6 +84,13 @@ export const useUpdateScan = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scans'] })
     },
+  })
+}
+
+export const useImportDomainScanReview = () => {
+  const { client } = useGraphQLClient()
+  return useMutation<ImportDomainScanReviewMutation, unknown, ImportDomainScanReviewMutationVariables>({
+    mutationFn: async (variables) => client.request(IMPORT_DOMAIN_SCAN_REVIEW, variables),
   })
 }
 

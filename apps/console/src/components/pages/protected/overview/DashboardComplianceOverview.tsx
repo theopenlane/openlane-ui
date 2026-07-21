@@ -61,137 +61,86 @@ const DashboardComplianceOverview = () => {
     router.push('/exposure/risks')
   }
 
+  const stats = [
+    {
+      key: 'controls',
+      label: 'Controls',
+      subtitle: 'Not Implemented',
+      count: controlNotImplementedCount,
+      Icon: SlidersHorizontal,
+      colorClass: 'text-success',
+      chipClass: 'bg-success/12',
+      onClick: handleOpenControlDashboard,
+    },
+    {
+      key: 'evidence',
+      label: 'Evidence',
+      subtitle: 'Items Missing',
+      count: evidenceMissingArtifactCount,
+      Icon: Fingerprint,
+      colorClass: 'text-evidence-icon',
+      chipClass: 'bg-evidence-icon/12',
+      onClick: handleOpenEvidenceDashboard,
+    },
+    {
+      key: 'tasks',
+      label: 'Tasks',
+      subtitle: 'Overdue',
+      count: taskOverdueCount,
+      Icon: ListChecks,
+      colorClass: 'text-info',
+      chipClass: 'bg-info/12',
+      onClick: handleOpenTaskDashboard,
+    },
+    {
+      key: 'risks',
+      label: 'Risks',
+      subtitle: 'Pending Review',
+      count: riskOpenAndIdentifiedCount,
+      Icon: TriangleAlert,
+      colorClass: 'text-warning',
+      chipClass: 'bg-warning/12',
+      onClick: handleOpenRiskDashboard,
+    },
+  ]
+
   return (
     <Card className="bg-homepage-card border-homepage-card-border homepage-card-border">
-      <CardTitle className="px-6 pt-6 pb-0 text-lg font-semibold flex justify-between">
+      <CardTitle className="px-6 pt-6 pb-0 text-lg font-semibold">
         <span>Compliance Overview</span>
-        <div className="flex flex-col items-end gap-1">
-          <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium">
-            <span
-              className={`
-        inline-flex h-1.5 w-1.5 rounded-full animate-pulse
+        <div className="flex items-center gap-2 pt-1">
+          <span
+            className={`
+        inline-flex h-1.5 w-1.5 shrink-0 rounded-full animate-pulse
         ${requiredAttentionCount === 0 ? 'bg-success' : 'bg-warning'}
       `}
-            />
-            <span className="text-muted-foreground text-sm leading-5 font-normal">
-              {requiredAttentionCount === 0 ? 'No Items Require Attention' : `${requiredAttentionCount} Items Require Attention`}
-            </span>
+          />
+          <span className="text-muted-foreground text-xs font-normal leading-5">
+            {requiredAttentionCount === 0 ? 'No Items Require Attention' : `${requiredAttentionCount} Items Require Attention`}
           </span>
         </div>
       </CardTitle>
 
-      <CardContent className="px-6 pb-6 pt-4 grid grid-cols-2 gap-4">
-        <div className="rounded-lg bg-homepage-card-item-transparent p-4 border border-homepage-card-border">
-          <h3 className="text-sm font-medium flex items-center gap-2">Controls & Evidence</h3>
-
-          <div className="grid grid-cols-2 mt-4 relative">
-            <div className="pr-4">
-              <p className="text-xs pb-2">
-                <span className="pr-1">Controls</span>
-                <span className="text-muted-foreground pl-1">
-                  <span className="pr-1"> • </span>Not Implemented
-                </span>
-              </p>
-
-              <div
-                className="inline-flex items-center gap-2 text-2xl font-medium cursor-pointer
-             transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 hover:rotate-1
-             relative group"
-                onClick={handleOpenControlDashboard}
-              >
-                <span
-                  className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100
-                   blur-lg bg-success/20 transition-all duration-500"
-                ></span>
-
-                <SlidersHorizontal size={20} className="text-success relative z-10" />
-                <span className="relative z-10">{controlNotImplementedCount}</span>
-              </div>
+      <CardContent className="grid grid-cols-2 gap-3 px-6 pb-6 pt-4 lg:grid-cols-4">
+        {stats.map(({ key, label, subtitle, count, Icon, colorClass, chipClass, onClick }) => (
+          <div
+            key={key}
+            className="flex items-center justify-between gap-2 rounded-lg bg-homepage-card-item-transparent p-3 border border-homepage-card-border cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+            onClick={onClick}
+          >
+            <div>
+              <p className="text-sm font-medium">{label}</p>
+              <p className="text-xs text-muted-foreground">{subtitle}</p>
             </div>
 
-            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-muted" />
-
-            <div className="pl-4">
-              <p className="text-xs pb-2">
-                <span className="pr-1">Evidence</span>
-                <span className="text-muted-foreground pl-1">
-                  <span className="pr-1"> • </span>Items Missing
-                </span>
-              </p>
-
-              <div
-                className="inline-flex items-center gap-2 text-2xl font-medium cursor-pointer
-             transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 hover:rotate-1
-             relative group"
-                onClick={handleOpenEvidenceDashboard}
-              >
-                <span
-                  className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100
-                   blur-lg bg-evidence-icon/20 transition-all duration-500"
-                ></span>
-
-                <Fingerprint size={20} className="text-evidence-icon relative z-10" />
-                <span className="relative z-10">{evidenceMissingArtifactCount}</span>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xl font-semibold">{count}</span>
+              <div className={`p-2 rounded-md inline-flex items-center justify-center ${chipClass}`}>
+                <Icon size={18} className={colorClass} />
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="rounded-lg bg-homepage-card-item-transparent p-4 border border-homepage-card-border">
-          <h3 className="text-sm font-medium flex items-center gap-2">Risks & Tasks</h3>
-
-          <div className="grid grid-cols-2 mt-4 relative">
-            <div className="pr-4">
-              <p className="text-xs pb-2">
-                <span className="pr-1">Tasks</span>
-                <span className="text-muted-foreground pl-1">
-                  <span className="pr-1"> • </span>Overdue
-                </span>
-              </p>
-
-              <div
-                className="inline-flex items-center gap-2 text-2xl font-medium cursor-pointer
-             transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 hover:rotate-1
-             relative group"
-                onClick={handleOpenTaskDashboard}
-              >
-                <span
-                  className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100
-                   blur-lg bg-info/40 transition-all duration-500"
-                ></span>
-
-                <ListChecks size={20} className="text-info relative z-10" />
-                <span className="relative z-10">{taskOverdueCount}</span>
-              </div>
-            </div>
-
-            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-muted" />
-
-            <div className="pl-4">
-              <p className="text-xs pb-2">
-                <span className="pr-1">Risks</span>
-                <span className="text-muted-foreground pl-1">
-                  <span className="pr-1"> • </span>Pending Review
-                </span>
-              </p>
-
-              <div
-                className="inline-flex items-center gap-2 text-2xl font-medium cursor-pointer
-             transition-all duration-300 hover:scale-[1.05] hover:-translate-y-0.5 hover:rotate-1
-             relative group"
-                onClick={handleOpenRiskDashboard}
-              >
-                <span
-                  className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100
-                   blur-lg bg-warning/20 transition-all duration-500"
-                ></span>
-
-                <TriangleAlert size={20} className="text-warning relative z-10" />
-                <span className="relative z-10">{riskOpenAndIdentifiedCount}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        ))}
       </CardContent>
     </Card>
   )

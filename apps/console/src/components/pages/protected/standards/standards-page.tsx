@@ -1,9 +1,10 @@
 'use client'
 
-import React, { use, useEffect, useMemo, useState } from 'react'
+import React, { use, useCallback, useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Card } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
+import { Badge } from '@repo/ui/badge'
 import { CheckCircleIcon, SearchIcon, Settings2, SettingsIcon } from 'lucide-react'
 import { useGetStandards } from '@/lib/graphql-hooks/standard'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
@@ -19,6 +20,8 @@ import { StandardsPageSkeleton } from '@/components/pages/protected/standards/sk
 import { getTasksFilterFields } from './table/table-config'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useOrganization } from '@/hooks/useOrganization'
+import { getOnboardingFrameworks } from '@/lib/storage/onboarding-frameworks'
 
 const filterFields = getTasksFilterFields()
 const StandardsPage = () => {
@@ -26,6 +29,12 @@ const StandardsPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<StandardWhereInput | null>(null)
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
+  const { currentOrgId } = useOrganization()
+  const [recommendedFrameworks, setRecommendedFrameworks] = useState<string[]>(() => getOnboardingFrameworks(currentOrgId))
+
+  useEffect(() => {
+    setRecommendedFrameworks(getOnboardingFrameworks(currentOrgId))
+  }, [currentOrgId])
 
   useEffect(() => {
     setCrumbs([
@@ -46,6 +55,17 @@ const StandardsPage = () => {
   }, [debouncedSearchQuery, filters])
 
   const { data, isLoading, isError } = useGetStandards({ where: whereFilter, enabled: !!filters })
+
+  const isRecommended = useCallback((shortName?: string | null) => !!shortName && recommendedFrameworks.includes(shortName), [recommendedFrameworks])
+
+  // Array.prototype.sort is stable, so standards within the same recommended/non-recommended
+  // group keep the order the API returned them in
+  const sortedStandardEdges = useMemo(() => {
+    const edges = data?.standards?.edges ?? []
+    if (!recommendedFrameworks.length) return edges
+
+    return [...edges].sort((a, b) => Number(isRecommended(b?.node?.shortName)) - Number(isRecommended(a?.node?.shortName)))
+  }, [data, recommendedFrameworks, isRecommended])
 
   return (
     <>
@@ -71,13 +91,16 @@ const StandardsPage = () => {
         <StandardsPageSkeleton />
       ) : (
         <div className="my-2 grid gap-7 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
-          {data?.standards?.edges?.map((standard) => (
+          {sortedStandardEdges?.map((standard) => (
             <Card key={standard?.node?.id} className="bg-card p-4 rounded-lg shadow flex flex-col h-full">
               <div className="flex flex-row justify-between mb-3">
                 <div className="flex flex-col">
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <h3 className="font-semibold text-base">{standard?.node?.shortName}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-base">{standard?.node?.shortName}</h3>
+                        {isRecommended(standard?.node?.shortName) && <Badge variant="green">Recommended</Badge>}
+                      </div>
                       <span className="text-xs">version: {standard?.node?.version}</span>
                     </div>
                   </div>

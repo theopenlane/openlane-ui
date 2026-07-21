@@ -11,6 +11,8 @@ import { ScanScanStatus, ScanScanType, type ScanQuery, type CreateScanInput, typ
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { Button } from '@repo/ui/button'
+import { FileText } from 'lucide-react'
 
 type ScanDetailsSheetProps = {
   queryParamKey: string
@@ -64,6 +66,8 @@ const ScanDetailsSheet: React.FC<ScanDetailsSheetProps> = ({ queryParamKey }) =>
     router.replace(`${window.location.pathname}?${params.toString()}`)
   }
 
+  const isCompletedDomainScan = data?.scan?.scanType === ScanScanType.DOMAIN && data?.scan?.status === ScanScanStatus.COMPLETED
+
   const sheetConfig: ScanSheetConfig = {
     objectType,
     form,
@@ -73,10 +77,18 @@ const ScanDetailsSheet: React.FC<ScanDetailsSheetProps> = ({ queryParamKey }) =>
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    extraHeaderActions:
+      entityId && isCompletedDomainScan ? (
+        <Button icon={<FileText />} iconPosition="left" variant="secondary" onClick={() => router.push(`/exposure/scans/domain-scan?scanId=${encodeURIComponent(entityId)}`)}>
+          View Report
+        </Button>
+      ) : undefined,
     buildPayload: async (formData) => {
-      const { assignedTo, performedBy, reviewedBy, ...rest } = formData
+      const { assignedTo, performedBy, reviewedBy, scanDate, nextScanRunAt, ...rest } = formData
       return {
         ...rest,
+        scanDate: scanDate instanceof Date ? scanDate.toISOString() : scanDate,
+        nextScanRunAt: nextScanRunAt instanceof Date ? nextScanRunAt.toISOString() : nextScanRunAt,
         ...buildResponsibilityPayload('assignedTo', assignedTo, { mode: 'update' }),
         ...buildResponsibilityPayload('performedBy', performedBy, { mode: 'update' }),
         ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: 'update' }),

@@ -35,7 +35,11 @@ export const NotificationsProvider = ({ children }: { children: React.ReactNode 
     liveNotifications.forEach((notification) => {
       if (!seenIdsRef.current.has(notification.id)) {
         seenIdsRef.current.add(notification.id)
-        const isNew = subscriptionStartedAt !== null && notification.createdAt != null && new Date(notification.createdAt).getTime() >= subscriptionStartedAt
+        // Unread notifications are always surfaced, even if their createdAt lands before
+        // subscriptionStartedAt -- that gap is expected around reconnects (e.g. the websocket
+        // re-subscribing under a new org during onboarding), and an unread notification is by
+        // definition something the user hasn't seen yet, so it shouldn't be silently dropped
+        const isNew = !notification.readAt || (subscriptionStartedAt !== null && notification.createdAt != null && new Date(notification.createdAt).getTime() >= subscriptionStartedAt)
         if (isNew) {
           listenersRef.current.forEach((listener) => listener(notification))
         }

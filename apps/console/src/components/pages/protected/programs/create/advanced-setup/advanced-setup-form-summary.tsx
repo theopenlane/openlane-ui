@@ -55,6 +55,7 @@ export const AdvancedSetupFormSummary: React.FC<Props> = ({ summaryData }) => {
       field: 'kind',
     },
   })
+
   const displaySelection = (items?: { label: string; value: string }[]) => {
     if (!items || items.length === 0) return <span className="text-sm text-inverted-muted-foreground">Empty</span>
     if (items.length === 1) return <span className="text-sm">{items[0].label}</span>
@@ -79,6 +80,10 @@ export const AdvancedSetupFormSummary: React.FC<Props> = ({ summaryData }) => {
               Program Name <span className="text-destructive">*</span>
             </span>
             <span className="text-sm text-inverted-muted-foreground">{summaryData.name || 'Empty'}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm text-muted-foreground">Framework</span>
+            {summaryData.frameworks?.length ? displaySelection(summaryData.frameworks) : <span className="text-sm text-inverted-muted-foreground">{summaryData.framework || 'Empty'}</span>}
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Start Date</span>

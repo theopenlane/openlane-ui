@@ -6,9 +6,8 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { useVulnerabilitiesWithFilter } from '@/lib/graphql-hooks/vulnerability'
 import { useFindingsWithFilter } from '@/lib/graphql-hooks/finding'
 import { useRisks } from '@/lib/graphql-hooks/risk'
-import { useScansWithFilter } from '@/lib/graphql-hooks/scan'
-import { useReviewsWithFilter } from '@/lib/graphql-hooks/review'
-import { OrderDirection, RiskRiskImpact, RiskRiskStatus, VulnerabilityOrderField, FindingOrderField, RiskOrderField, ScanOrderField, ReviewOrderField } from '@repo/codegen/src/schema'
+import { OrderDirection, RiskRiskImpact, RiskRiskStatus, VulnerabilityOrderField, FindingOrderField, RiskOrderField } from '@repo/codegen/src/schema'
+import { useRecentActivityItems } from './use-recent-activity-items'
 import { Button } from '@repo/ui/button'
 import { Settings } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
@@ -24,8 +23,6 @@ import ItemsRequiringAttention from './items-requiring-attention'
 import ConfigureSlaSheet from './configure-sla-sheet'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useSession } from 'next-auth/react'
-
-const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
 const CRIT_WHERE = { or: [{ severityContainsFold: 'critical' }, { severityIn: ['CRITICAL', 'Critical'] }] }
 const HIGH_WHERE = { or: [{ severityContainsFold: 'high' }, { severityIn: ['HIGH', 'High'] }] }
@@ -130,58 +127,7 @@ const ExposureOverviewPage = () => {
     [severityData],
   )
 
-  const { scansNodes: recentScans } = useScansWithFilter({
-    where: { createdAtGTE: thirtyDaysAgo },
-    orderBy: [{ field: ScanOrderField.created_at, direction: OrderDirection.DESC }],
-    pagination: DEFAULT_PAGINATION,
-  })
-
-  const { reviewsNodes: recentReviews } = useReviewsWithFilter({
-    where: { createdAtGTE: thirtyDaysAgo },
-    orderBy: [{ field: ReviewOrderField.created_at, direction: OrderDirection.DESC }],
-    pagination: DEFAULT_PAGINATION,
-  })
-
-  const { vulnerabilitiesNodes: recentVulns } = useVulnerabilitiesWithFilter({
-    where: { open: true, createdAtGTE: thirtyDaysAgo },
-    orderBy: [{ field: VulnerabilityOrderField.created_at, direction: OrderDirection.DESC }],
-    pagination: DEFAULT_PAGINATION,
-  })
-
-  const { findingsNodes: recentFindings } = useFindingsWithFilter({
-    where: { open: true, createdAtGTE: thirtyDaysAgo },
-    orderBy: [{ field: FindingOrderField.created_at, direction: OrderDirection.DESC }],
-    pagination: DEFAULT_PAGINATION,
-  })
-
-  const { risks: recentRisks } = useRisks({
-    where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], createdAtGTE: thirtyDaysAgo },
-    orderBy: [{ field: RiskOrderField.created_at, direction: OrderDirection.DESC }],
-    pagination: DEFAULT_PAGINATION,
-  })
-
-  const activityItems = useMemo(() => {
-    const items: { id: string; label: string; type: string; createdAt: string; href?: string; source?: string | null }[] = []
-
-    recentVulns?.forEach((v) =>
-      items.push({
-        id: v.id,
-        label: v.displayName ?? v.displayID ?? ObjectTypes.VULNERABILITY,
-        type: ObjectTypes.VULNERABILITY,
-        createdAt: v.createdAt,
-        href: `/exposure/vulnerabilities?id=${v.id}`,
-        source: v.source ?? null,
-      }),
-    )
-    recentFindings?.forEach((f) =>
-      items.push({ id: f.id, label: f.displayName ?? ObjectTypes.FINDING, type: ObjectTypes.FINDING, createdAt: f.createdAt, href: `/exposure/findings?id=${f.id}`, source: f.source ?? null }),
-    )
-    recentRisks?.forEach((r) => items.push({ id: r.id, label: r.name ?? ObjectTypes.RISK, type: ObjectTypes.RISK, createdAt: r.createdAt }))
-    recentScans?.forEach((s) => items.push({ id: s.id, label: s.target ?? ObjectTypes.SCAN, type: ObjectTypes.SCAN, createdAt: s.createdAt }))
-    recentReviews?.forEach((r) => items.push({ id: r.id, label: r.title ?? ObjectTypes.REVIEW, type: ObjectTypes.REVIEW, createdAt: r.createdAt }))
-
-    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  }, [recentVulns, recentFindings, recentRisks, recentScans, recentReviews])
+  const { activityItems } = useRecentActivityItems({ includeNonExposureActivity: false })
 
   const { vulnerabilitiesNodes: critVulns, isLoading: loadingCritVulns } = useVulnerabilitiesWithFilter({
     where: { open: true },

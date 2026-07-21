@@ -1,6 +1,5 @@
-import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import React from 'react'
-import { BookOpenCheck, ListChecks, ShieldAlert, SlidersHorizontal, SquarePlus } from 'lucide-react'
+import { BookOpenCheck, Fingerprint, ListChecks, ShieldAlert, SquarePlus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
@@ -13,67 +12,46 @@ const DashboardActions = () => {
   const { data: session } = useSession()
   const canCreateRisk = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRisk, session)
 
-  const handleViewControls = () => {
-    router.push('/controls')
-  }
+  const actions = [
+    {
+      key: 'tasks',
+      label: 'View my tasks',
+      icon: <ListChecks size={14} className="text-info" />,
+      onClick: () => router.push('/automation/tasks?showMyTasks=true'),
+    },
+    {
+      key: 'policies',
+      label: 'Review policies',
+      icon: <BookOpenCheck size={14} className="text-warning" />,
+      onClick: () => router.push('/policies'),
+    },
+    {
+      key: 'evidence',
+      label: 'Add evidence',
+      icon: <Fingerprint size={14} className="text-success" />,
+      onClick: () => router.push('/evidence'),
+    },
 
-  const handleViewMyTasks = () => {
-    router.push('/automation/tasks?showMyTasks=true')
-  }
-
-  const handleRiskAction = () => {
-    router.push(canCreateRisk ? '/exposure/risks/create' : '/exposure')
-  }
-
-  const handleViewPolicies = () => {
-    router.push('/policies')
-  }
+    {
+      key: 'risk',
+      label: canCreateRisk ? 'Log new risk' : 'View exposure',
+      icon: canCreateRisk ? <SquarePlus size={14} className="text-danger" /> : <ShieldAlert size={14} className="text-danger" />,
+      onClick: () => router.push(canCreateRisk ? '/exposure/risks/create' : '/exposure'),
+    },
+  ]
 
   return (
-    <div className="grid grid-cols-4 gap-4">
-      <Card onClick={handleViewControls} className="bg-homepage-card border-homepage-card-border transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1 cursor-pointer">
-        <CardTitle className="p-[24px] pb-0">
-          <div className="p-2 rounded-md bg-success/12 inline-flex items-center justify-center">
-            <SlidersHorizontal size={20} className="text-success" />
-          </div>
-        </CardTitle>
-        <CardContent className="pt-[12px]">
-          <p className="leading-6 text-base font-medium">View All Controls</p>
-        </CardContent>
-      </Card>
-
-      <Card onClick={handleRiskAction} className="bg-homepage-card border-homepage-card-border transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1 cursor-pointer">
-        <CardTitle className="p-[24px] pb-0">
-          <div className="p-2 rounded-md bg-danger/12 inline-flex items-center justify-center">
-            {canCreateRisk ? <SquarePlus size={20} className="text-danger" /> : <ShieldAlert size={20} className="text-danger" />}
-          </div>
-        </CardTitle>
-        <CardContent className="pt-[12px]">
-          <p className="leading-6 text-base font-medium">{canCreateRisk ? 'Create New Risk' : 'View Exposure'}</p>
-        </CardContent>
-      </Card>
-
-      <Card onClick={handleViewMyTasks} className="bg-homepage-card border-homepage-card-border transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1 cursor-pointer">
-        <CardTitle className="p-[24px] pb-0">
-          <div className="p-2 rounded-md bg-info/12 inline-flex items-center justify-center">
-            <ListChecks size={20} className="text-info" />
-          </div>
-        </CardTitle>
-        <CardContent className="pt-[12px]">
-          <p className="leading-6 text-base font-medium">View My Tasks</p>
-        </CardContent>
-      </Card>
-
-      <Card onClick={handleViewPolicies} className="bg-homepage-card border-homepage-card-border transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1 cursor-pointer">
-        <CardTitle className="p-[24px] pb-0">
-          <div className="p-2 rounded-md bg-warning/12 inline-flex items-center justify-center">
-            <BookOpenCheck size={20} className="text-warning" />
-          </div>
-        </CardTitle>
-        <CardContent className="pt-[12px]">
-          <p className="leading-6 text-base font-medium">Review / Edit Policies</p>
-        </CardContent>
-      </Card>
+    <div className="flex flex-wrap items-center gap-3 text-sm">
+      <span className="text-muted-foreground">Quick actions</span>
+      {actions.map((action) => (
+        <React.Fragment key={action.key}>
+          <span className="text-border">|</span>
+          <button type="button" onClick={action.onClick} className="flex items-center gap-1.5 text-text-paragraph hover:text-muted-foreground transition-colors">
+            {action.icon}
+            {action.label}
+          </button>
+        </React.Fragment>
+      ))}
     </div>
   )
 }

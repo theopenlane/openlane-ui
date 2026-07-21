@@ -1,4 +1,4 @@
-import { createSlateEditor, type Value } from 'platejs'
+import { createSlateEditor, NodeApi, type Value } from 'platejs'
 import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
 import { detectFormat } from './usePlateEditor'
 
@@ -50,6 +50,13 @@ export const canonicalizeDetails = (nodes: Value): string => {
       )
   }
   return JSON.stringify(normalize(nodes))
+}
+
+// Detects unresolved template placeholders (e.g. "{{ Define ... }}") left in a description
+export const hasPlaceholderText = (value: Value | string | undefined | null): boolean => {
+  if (!value) return false
+  const text = typeof value === 'string' ? value : Array.isArray(value) ? value.map((node) => NodeApi.string(node)).join('') : ''
+  return /\{\{.*?\}\}/.test(text)
 }
 
 export const stringToPlateValue = (input: string | null | undefined): Value | null => {
