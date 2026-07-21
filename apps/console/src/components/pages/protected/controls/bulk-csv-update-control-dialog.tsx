@@ -11,7 +11,7 @@ import { exportCSV } from '@/lib/export'
 import { useUpdateBulkCSVControl } from '@/lib/graphql-hooks/control'
 import { type TUploadedFile } from '../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
+import { IMPORT_CONTROL_DOCS_URL } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
@@ -86,7 +86,7 @@ const BulkCSVUpdateControlDialog: React.FC<BulkCSVUpdateControlDialogProps> = ({
         </DialogHeader>
         <Callout title="CSV Format">
           You can upload a csv containing controls, ensure you include the `ID` column. Please refer to our{' '}
-          <a href={`${GRAPHQL_OBJECT_DOCS}#control`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+          <a href={`${IMPORT_CONTROL_DOCS_URL}`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
             documentation
           </a>{' '}
           for column format. We also provide a{' '}

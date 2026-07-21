@@ -11,7 +11,6 @@ import { exportCSV } from '@/lib/export'
 import { useCreateBulkCSVSubscriber } from '@/lib/graphql-hooks/subscriber'
 import { type TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
@@ -86,14 +85,9 @@ const BulkCSVCreateSubscriberDialog: React.FC<BulkCsvCreateSubscriberDialogProps
         </DialogHeader>
         <Callout title="CSV Format">
           You can upload a csv containing subscribers. Please refer to our{' '}
-          <a href={`${GRAPHQL_OBJECT_DOCS}#subscriber`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
-            documentation
-          </a>{' '}
-          for column format. We also provide a{' '}
           <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
-            template csv file
+            template csv file for available fields and format.
           </a>{' '}
-          for you to fill out.
         </Callout>
         <FileUpload
           acceptedFileTypes={['text/csv']}

@@ -10,7 +10,6 @@ import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { useCreateBulkCSVInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import { exportCSV } from '@/lib/export'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -86,14 +85,9 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
         <Callout title="CSV Format">
           <p className="text-sm">
             You can upload a csv containing policies. Please refer to our{' '}
-            <a href={`${GRAPHQL_OBJECT_DOCS}#internalpolicy`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
-              documentation
-            </a>{' '}
-            for column format. We also provide a{' '}
             <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
-              template csv file
+              template csv file for available fields and format.
             </a>{' '}
-            for you to fill out.
           </p>
         </Callout>
         <FileUpload

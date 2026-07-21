@@ -8,7 +8,6 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { exportCSV } from '@/lib/export'
-import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { useCreateBulkCSVTemplate } from '@/lib/graphql-hooks/template'
 import { type TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -87,14 +86,9 @@ const BulkCSVCreateTemplateDialog: React.FC<BulkCsvCreateTemplateDialogProps> = 
         <Callout title="CSV Format">
           <p className="text-sm">
             You can upload a csv containing templates. Please refer to our{' '}
-            <a href={`${GRAPHQL_OBJECT_DOCS}#template`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
-              documentation
-            </a>{' '}
-            for column format. We also provide a{' '}
             <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
-              template csv file
+              template csv file for available fields and format.
             </a>{' '}
-            for you to fill out.
           </p>
         </Callout>
         <FileUpload
