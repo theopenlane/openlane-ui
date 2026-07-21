@@ -9578,6 +9578,7 @@ export interface CreateFindingControlInput {
   findingID: Scalars['ID']['input']
   /** additional metadata about the control mapping from the source system */
   metadata?: InputMaybe<Scalars['Map']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the integration source that provided the mapping */
   source?: InputMaybe<Scalars['String']['input']>
   standardID?: InputMaybe<Scalars['ID']['input']>
@@ -21508,6 +21509,9 @@ export interface FindingControl extends Node {
   id: Scalars['ID']['output']
   /** additional metadata about the control mapping from the source system */
   metadata?: Maybe<Scalars['Map']['output']>
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
   /** the integration source that provided the mapping */
   source?: Maybe<Scalars['String']['output']>
   standard?: Maybe<Standard>
@@ -21524,6 +21528,17 @@ export interface FindingControlBulkCreatePayload {
   __typename?: 'FindingControlBulkCreatePayload'
   /** Created findingControls */
   findingControls?: Maybe<Array<FindingControl>>
+}
+
+/** Return response for deleteBulkFindingControl mutation */
+export interface FindingControlBulkDeletePayload {
+  __typename?: 'FindingControlBulkDeletePayload'
+  /** Deleted findingControl IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -30331,6 +30346,8 @@ export interface Mutation {
   deleteBulkExport: ExportBulkDeletePayload
   /** Delete multiple findings */
   deleteBulkFinding: FindingBulkDeletePayload
+  /** Delete multiple findingControls */
+  deleteBulkFindingControl: FindingControlBulkDeletePayload
   /** Delete multiple groups */
   deleteBulkGroup: GroupBulkDeletePayload
   /** Delete multiple groupMemberships */
@@ -32161,6 +32178,10 @@ export interface MutationDeleteBulkExportArgs {
 }
 
 export interface MutationDeleteBulkFindingArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkFindingControlArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
@@ -36402,6 +36423,7 @@ export interface Organization extends Node {
   fileCreators: GroupConnection
   files: FileConnection
   findingControlCreators: GroupConnection
+  findingControls: FindingControlConnection
   findingCreators: GroupConnection
   findings: FindingConnection
   groupCreators: GroupConnection
@@ -37018,6 +37040,15 @@ export interface OrganizationFindingControlCreatorsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationFindingControlsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FindingControlOrder>>
+  where?: InputMaybe<FindingControlWhereInput>
 }
 
 export interface OrganizationFindingCreatorsArgs {
@@ -38849,6 +38880,9 @@ export interface OrganizationWhereInput {
   /** finding_control_creators edge predicates */
   hasFindingControlCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingControlCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** finding_controls edge predicates */
+  hasFindingControls?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingControlsWith?: InputMaybe<Array<FindingControlWhereInput>>
   /** finding_creators edge predicates */
   hasFindingCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -59796,6 +59830,7 @@ export interface UpdateFindingControlInput {
   clearExternalStandard?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalStandardVersion?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   /** timestamp when the mapping was first observed */
   discoveredAt?: InputMaybe<Scalars['DateTime']['input']>
@@ -59807,6 +59842,7 @@ export interface UpdateFindingControlInput {
   externalStandardVersion?: InputMaybe<Scalars['String']['input']>
   /** additional metadata about the control mapping from the source system */
   metadata?: InputMaybe<Scalars['Map']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the integration source that provided the mapping */
   source?: InputMaybe<Scalars['String']['input']>
 }
@@ -72429,6 +72465,7 @@ export type GetControlAssociationsByIdQuery = {
     }
     controlMappings: {
       __typename?: 'FindingControlConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'FindingControlEdge'; node?: { __typename?: 'FindingControl'; id: string; findingID: string } | null } | null> | null
     }
   }
@@ -75077,6 +75114,15 @@ export type CreateFindingControlMutation = {
   createFindingControl: { __typename?: 'FindingControlCreatePayload'; findingControl: { __typename?: 'FindingControl'; id: string } }
 }
 
+export type CreateBulkFindingControlMutationVariables = Exact<{
+  input?: InputMaybe<Array<CreateFindingControlInput> | CreateFindingControlInput>
+}>
+
+export type CreateBulkFindingControlMutation = {
+  __typename?: 'Mutation'
+  createBulkFindingControl: { __typename?: 'FindingControlBulkCreatePayload'; findingControls?: Array<{ __typename?: 'FindingControl'; id: string }> | null }
+}
+
 export type UpdateFindingControlMutationVariables = Exact<{
   updateFindingControlId: Scalars['ID']['input']
   input: UpdateFindingControlInput
@@ -75092,6 +75138,15 @@ export type DeleteFindingControlMutationVariables = Exact<{
 }>
 
 export type DeleteFindingControlMutation = { __typename?: 'Mutation'; deleteFindingControl: { __typename?: 'FindingControlDeletePayload'; deletedID: string } }
+
+export type DeleteBulkFindingControlMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkFindingControlMutation = {
+  __typename?: 'Mutation'
+  deleteBulkFindingControl: { __typename?: 'FindingControlBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type CreateBulkCsvFindingControlMutationVariables = Exact<{
   input: Scalars['Upload']['input']
@@ -75302,6 +75357,7 @@ export type GetFindingAssociationsQuery = {
     }
     controlMappings: {
       __typename?: 'FindingControlConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'FindingControlEdge'; node?: { __typename?: 'FindingControl'; id: string; controlID: string } | null } | null> | null
     }
     subcontrols: {
