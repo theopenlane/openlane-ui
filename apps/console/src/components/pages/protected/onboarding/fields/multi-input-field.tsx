@@ -70,7 +70,7 @@ export const MultiInputField: React.FC<{ question: OnboardingQuestion }> = ({ qu
             }
           }}
           onBlur={addItem}
-          className="h-auto flex-1 min-w-[180px] border-none p-0 shadow-none focus-visible:ring-0"
+          className="h-auto flex-1 min-w-[180px] border-none !px-1 !py-0 shadow-none focus-visible:ring-0"
         />
       </div>
       {invalidDraft && <p className="text-red-500 text-sm">Invalid domain format. Example: acme.com</p>}
