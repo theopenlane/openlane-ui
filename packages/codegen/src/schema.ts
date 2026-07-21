@@ -11284,7 +11284,7 @@ export interface CreateScanInput {
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the scan */
   scopeName?: InputMaybe<Scalars['String']['input']>
-  /** the status of the scan, e.g., processing, completed, failed */
+  /** the status of the scan, e.g., pending, processing, completed, failed */
   status?: InputMaybe<ScanScanStatus>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -25737,6 +25737,8 @@ export interface ImportDomainScanReviewVendorInput {
   categories?: InputMaybe<Array<Scalars['String']['input']>>
   /** the vendor's domain, if known */
   domain?: InputMaybe<Scalars['String']['input']>
+  /** the vendor's raw legal entity name, if known and different from name */
+  legalName?: InputMaybe<Scalars['String']['input']>
   /** the vendor's name */
   name: Scalars['String']['input']
   /** client-assigned identifier for this vendor, referenced by entityRefs elsewhere in the input */
@@ -34743,10 +34745,10 @@ export enum NotificationNotificationTopic {
   APPROVAL = 'APPROVAL',
   DOMAIN_SCAN = 'DOMAIN_SCAN',
   EXPORT = 'EXPORT',
+  IMPORT_COMPLETE = 'IMPORT_COMPLETE',
   MENTION = 'MENTION',
   STANDARD_UPDATE = 'STANDARD_UPDATE',
   TASK_ASSIGNMENT = 'TASK_ASSIGNMENT',
-  IMPORT_COMPLETE = 'IMPORT_COMPLETE',
 }
 
 /** NotificationNotificationType is enum for the field notification_type */
@@ -48347,7 +48349,7 @@ export interface Scan extends Node {
   scopeID?: Maybe<Scalars['ID']['output']>
   /** the scope of the scan */
   scopeName?: Maybe<Scalars['String']['output']>
-  /** the status of the scan, e.g., processing, completed, failed */
+  /** the status of the scan, e.g., pending, processing, completed, failed */
   status: ScanScanStatus
   subcontrols: SubcontrolConnection
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -62984,7 +62986,7 @@ export interface UpdateScanInput {
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the scan */
   scopeName?: InputMaybe<Scalars['String']['input']>
-  /** the status of the scan, e.g., processing, completed, failed */
+  /** the status of the scan, e.g., pending, processing, completed, failed */
   status?: InputMaybe<ScanScanStatus>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
