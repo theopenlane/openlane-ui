@@ -19,7 +19,7 @@ import { Tabs } from '@repo/ui/tabs'
 import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
 import { Label } from '@repo/ui/label'
 import UploadTab from '../../../evidence/upload/upload-tab'
-import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { POLICY_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
 import { wordAcceptedFileTypes } from '@/components/shared/file-upload/file-upload-config'
@@ -228,7 +228,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
             Google Drive integration
           </Link>{' '}
           instead. For more details on supported file types and formatting, please refer to our{' '}
-          <a href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/onboarding/policies`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+          <a href={`${POLICY_MANAGEMENT_DOCS_URL}/import`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
             documentation
           </a>
           .

@@ -11,7 +11,7 @@ import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { exportCSV } from '@/lib/export'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { TASK_IMPORT_EXAMPLES } from '@/constants/docs'
+import { TASK_IMPORT_EXAMPLES_DOCS_URL } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
@@ -87,7 +87,7 @@ const BulkCSVCreateTaskDialog: React.FC<BulkCsvCreateTaskDialogProps> = ({ trigg
         <Callout title="CSV Format">
           <p className="text-sm">
             You can upload a csv containing tasks. Please refer to our{' '}
-            <a href={`${TASK_IMPORT_EXAMPLES}`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+            <a href={`${TASK_IMPORT_EXAMPLES_DOCS_URL}`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
               documentation
             </a>{' '}
             for column format. We also provide a{' '}

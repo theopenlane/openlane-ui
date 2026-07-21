@@ -92,8 +92,9 @@ const GenericBulkCSVCreateDialog: React.FC<GenericBulkCsvCreateDialogProps> = ({
           <p className="text-sm">
             You can upload a csv containing {entityLabelPlural}. Please refer to our{' '}
             <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
-              template csv file for available fields and format.
+              template csv file
             </a>{' '}
+            for available fields and format.
           </p>
         </Callout>
         <FileUpload

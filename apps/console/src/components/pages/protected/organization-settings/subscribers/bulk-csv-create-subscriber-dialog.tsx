@@ -86,8 +86,9 @@ const BulkCSVCreateSubscriberDialog: React.FC<BulkCsvCreateSubscriberDialogProps
         <Callout title="CSV Format">
           You can upload a csv containing subscribers. Please refer to our{' '}
           <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
-            template csv file for available fields and format.
+            template csv file
           </a>{' '}
+          for available fields and format.
         </Callout>
         <FileUpload
           acceptedFileTypes={['text/csv']}

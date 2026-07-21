@@ -1,6 +1,6 @@
 import { AIAssistButton } from '@/components/shared/ai-suggetions/button'
 import { AISuggestionsPanel } from '@/components/shared/ai-suggetions/panel'
-import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { POLICY_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { useNotification } from '@/hooks/useNotification'
 import { useAISuggestions } from '@/hooks/useGetAISuggestions'
 import { useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
@@ -204,7 +204,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
                 }
               />
 
-              <a href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/policy-and-procedure-management/policies`} target="_blank" rel="noreferrer" aria-label="View Compliance Management Documentation">
+              <a href={`${POLICY_MANAGEMENT_DOCS_URL}/policies`} target="_blank" rel="noreferrer" aria-label="View Compliance Management Documentation">
                 <Button type="button" variant="secondary" className="h-8 px-2! pl-3!" icon={<BookOpenIcon />} iconPosition="left">
                   View Docs
                 </Button>
