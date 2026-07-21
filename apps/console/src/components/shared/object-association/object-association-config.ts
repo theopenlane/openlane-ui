@@ -1,3 +1,4 @@
+import { type Section, type TConnectionLike } from '@/components/shared/object-association/types/object-association-types'
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
 import { GET_ALL_CAMPAIGNS } from '@repo/codegen/query/campaign'
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
@@ -909,6 +910,15 @@ export const ASSOCIATION_SECTION_CONFIG = {
 
 export type AssociationSectionKey = keyof typeof ASSOCIATION_SECTION_CONFIG
 
+type TAssociationRoot = Partial<Record<(typeof ASSOCIATION_SECTION_CONFIG)[AssociationSectionKey]['dataField'], TConnectionLike | null>>
+
+export const buildAssociationSections = (sectionKeys: readonly AssociationSectionKey[], root: TAssociationRoot | undefined): Section =>
+  sectionKeys.reduce<Section>((sections, key) => {
+    const connection = root?.[ASSOCIATION_SECTION_CONFIG[key].dataField]
+    if (connection) sections[key] = connection
+    return sections
+  }, {})
+
 const SECTION_DISPLAY_NAMES_OVERRIDES: Partial<Record<AssociationSectionKey, string>> = {
   actionPlans: 'Action Plans',
   controlImplementations: 'Control Implementations',
@@ -977,7 +987,7 @@ const createAssociationRemovalConfig =
     }
   }
 
-const CONTROL_ASSOCIATION_SECTIONS = [
+export const CONTROL_ASSOCIATION_SECTIONS = [
   'policies',
   'procedures',
   'tasks',
@@ -992,14 +1002,30 @@ const CONTROL_ASSOCIATION_SECTIONS = [
   'campaigns',
   'remediations',
   'reviews',
+  'vulnerabilities',
 ] as const
-const SUBCONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'risks', 'assets', 'entities', 'identityHolders'] as const
-const POLICY_ASSOCIATION_SECTIONS = ['procedures', 'controls', 'subcontrols', 'controlObjectives', 'tasks', 'programs', 'risks', 'assets', 'entities', 'identityHolders'] as const
-const PROCEDURE_ASSOCIATION_SECTIONS = ['policies', 'controls', 'subcontrols', 'risks', 'tasks', 'programs'] as const
-const RISK_ASSOCIATION_SECTIONS = ['controls', 'procedures', 'subcontrols', 'programs', 'tasks', 'policies', 'assets', 'entities', 'scans', 'remediations', 'reviews', 'actionPlans'] as const
-const ASSET_ASSOCIATION_SECTIONS = ['scans', 'entities', 'identityHolders', 'controls', 'subcontrols', 'policies'] as const
-const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'identityHolders', 'controls', 'subcontrols', 'policies'] as const
-const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'controls', 'subcontrols', 'entities', 'campaigns', 'policies', 'tasks'] as const
+export const SUBCONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'risks', 'assets', 'entities', 'identityHolders', 'vulnerabilities', 'findings'] as const
+export const POLICY_ASSOCIATION_SECTIONS = ['procedures', 'controls', 'subcontrols', 'controlObjectives', 'tasks', 'programs', 'risks', 'assets', 'entities', 'identityHolders'] as const
+export const PROCEDURE_ASSOCIATION_SECTIONS = ['policies', 'controls', 'subcontrols', 'risks', 'tasks', 'programs'] as const
+export const RISK_ASSOCIATION_SECTIONS = [
+  'controls',
+  'procedures',
+  'subcontrols',
+  'programs',
+  'tasks',
+  'policies',
+  'assets',
+  'entities',
+  'scans',
+  'remediations',
+  'reviews',
+  'actionPlans',
+  'vulnerabilities',
+  'findings',
+] as const
+const ASSET_ASSOCIATION_SECTIONS = ['scans', 'entities', 'identityHolders', 'controls', 'subcontrols', 'policies', 'findings', 'vulnerabilities', 'reviews', 'remediations'] as const
+export const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'identityHolders', 'controls', 'subcontrols', 'policies', 'findings', 'vulnerabilities', 'reviews', 'remediations'] as const
+export const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'controls', 'subcontrols', 'entities', 'campaigns', 'policies', 'tasks'] as const
 const FINDING_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'risks', 'programs', 'tasks', 'assets', 'scans', 'remediations', 'reviews'] as const
 const REVIEW_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'remediations', 'entities', 'tasks', 'assets', 'programs', 'risks'] as const
 const REMEDIATION_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'findings', 'vulnerabilities'] as const

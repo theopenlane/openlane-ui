@@ -30,7 +30,7 @@ import { ObjectAssociationNodeEnum } from '@/components/shared/object-associatio
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
-import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
+import { ASSOCIATION_REMOVAL_CONFIG, PROCEDURE_ASSOCIATION_SECTIONS, buildAssociationSections } from '@/components/shared/object-association/object-association-config'
 import Loading from '@/app/(protected)/procedures/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -71,16 +71,8 @@ const ViewProcedurePage: React.FC = () => {
   const { data: assocData } = useGetProcedureAssociationsById(procedureId, !isDeleting)
 
   const memoizedSections = useMemo(() => {
-    if (!assocData?.procedure) return {}
-    return {
-      policies: assocData.procedure.internalPolicies,
-      controls: assocData.procedure.controls,
-      subcontrols: assocData.procedure.subcontrols,
-      risks: assocData.procedure.risks,
-      tasks: assocData.procedure.tasks,
-      programs: assocData.procedure.programs,
-    }
-  }, [assocData])
+    return buildAssociationSections(PROCEDURE_ASSOCIATION_SECTIONS, assocData?.procedure)
+  }, [assocData?.procedure])
 
   const memoizedCenterNode = useMemo(() => {
     if (!procedure) return null

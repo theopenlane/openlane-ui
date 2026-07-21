@@ -9578,6 +9578,7 @@ export interface CreateFindingControlInput {
   findingID: Scalars['ID']['input']
   /** additional metadata about the control mapping from the source system */
   metadata?: InputMaybe<Scalars['Map']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the integration source that provided the mapping */
   source?: InputMaybe<Scalars['String']['input']>
   standardID?: InputMaybe<Scalars['ID']['input']>
@@ -21508,6 +21509,9 @@ export interface FindingControl extends Node {
   id: Scalars['ID']['output']
   /** additional metadata about the control mapping from the source system */
   metadata?: Maybe<Scalars['Map']['output']>
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
   /** the integration source that provided the mapping */
   source?: Maybe<Scalars['String']['output']>
   standard?: Maybe<Standard>
@@ -36419,6 +36423,7 @@ export interface Organization extends Node {
   fileCreators: GroupConnection
   files: FileConnection
   findingControlCreators: GroupConnection
+  findingControls: FindingControlConnection
   findingCreators: GroupConnection
   findings: FindingConnection
   groupCreators: GroupConnection
@@ -37035,6 +37040,15 @@ export interface OrganizationFindingControlCreatorsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationFindingControlsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FindingControlOrder>>
+  where?: InputMaybe<FindingControlWhereInput>
 }
 
 export interface OrganizationFindingCreatorsArgs {
@@ -38866,6 +38880,9 @@ export interface OrganizationWhereInput {
   /** finding_control_creators edge predicates */
   hasFindingControlCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingControlCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** finding_controls edge predicates */
+  hasFindingControls?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingControlsWith?: InputMaybe<Array<FindingControlWhereInput>>
   /** finding_creators edge predicates */
   hasFindingCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -59813,6 +59830,7 @@ export interface UpdateFindingControlInput {
   clearExternalStandard?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalStandardVersion?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   /** timestamp when the mapping was first observed */
   discoveredAt?: InputMaybe<Scalars['DateTime']['input']>
@@ -59824,6 +59842,7 @@ export interface UpdateFindingControlInput {
   externalStandardVersion?: InputMaybe<Scalars['String']['input']>
   /** additional metadata about the control mapping from the source system */
   metadata?: InputMaybe<Scalars['Map']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the integration source that provided the mapping */
   source?: InputMaybe<Scalars['String']['input']>
 }
@@ -71181,6 +71200,22 @@ export type GetAssetAssociationsQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
     }
+    findings: {
+      __typename?: 'FindingConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    vulnerabilities: {
+      __typename?: 'VulnerabilityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    reviews: { __typename?: 'ReviewConnection'; totalCount: number; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
+    remediations: {
+      __typename?: 'RemediationConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
+    }
   }
 }
 
@@ -72422,6 +72457,11 @@ export type GetControlAssociationsByIdQuery = {
       __typename?: 'FindingConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    vulnerabilities: {
+      __typename?: 'VulnerabilityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
     }
     controlMappings: {
       __typename?: 'FindingControlConnection'
@@ -74351,6 +74391,22 @@ export type GetEntityAssociationsQuery = {
       __typename?: 'SubcontrolConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
+    }
+    findings: {
+      __typename?: 'FindingConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    vulnerabilities: {
+      __typename?: 'VulnerabilityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    reviews: { __typename?: 'ReviewConnection'; totalCount: number; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
+    remediations: {
+      __typename?: 'RemediationConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
     }
   }
 }
@@ -79805,6 +79861,7 @@ export type GetRiskAssociationsQuery = {
     }
     procedures: {
       __typename?: 'ProcedureConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; createdAt?: any | null } | null } | null> | null
     }
     assets: {
@@ -79818,14 +79875,26 @@ export type GetRiskAssociationsQuery = {
       edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
     }
     scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
-    reviews: { __typename?: 'ReviewConnection'; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
+    reviews: { __typename?: 'ReviewConnection'; totalCount: number; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
     actionPlans: {
       __typename?: 'ActionPlanConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'ActionPlanEdge'; node?: { __typename?: 'ActionPlan'; id: string; name: string; status?: ActionPlanDocumentStatus | null } | null } | null> | null
     }
     remediations: {
       __typename?: 'RemediationConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
+    }
+    vulnerabilities: {
+      __typename?: 'VulnerabilityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    findings: {
+      __typename?: 'FindingConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
     }
   }
 }
@@ -80594,6 +80663,16 @@ export type GetSubcontrolAssociationsByIdQuery = {
         __typename?: 'IdentityHolderEdge'
         node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string; identityHolderType: IdentityHolderIdentityHolderType; title?: string | null } | null
       } | null> | null
+    }
+    vulnerabilities: {
+      __typename?: 'VulnerabilityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    findings: {
+      __typename?: 'FindingConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
     }
   }
 }
