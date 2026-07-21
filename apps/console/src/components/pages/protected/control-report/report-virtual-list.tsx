@@ -8,7 +8,6 @@ import ControlRow from './control-row'
 import ControlTableHeader from './control-table-header'
 import { SubcontrolRow, SubcontrolGroupHeader } from './subcontrol-rows'
 import ReportCategoryHeader from './report-category-header'
-import { getGridMinWidth } from './control-report-grid'
 
 type ReportCategoryData = {
   category: string
@@ -110,8 +109,6 @@ const ReportVirtualList: React.FC<ReportVirtualListProps> = ({
     scrollMargin,
   })
 
-  const minWidth = getGridMinWidth(isCustomView, isSelectionMode)
-
   const contentWrapperClass = (lastInCategory: boolean, extra = ''): string =>
     `border-x border-border border-l-4 ${extra} ${lastInCategory ? 'border-b border-border rounded-b-md overflow-hidden' : ''}`.trim()
 
@@ -180,7 +177,7 @@ const ReportVirtualList: React.FC<ReportVirtualListProps> = ({
   }
 
   return (
-    <div ref={listRef} style={{ minWidth: `${minWidth}px` }}>
+    <div ref={listRef}>
       <div style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative', width: '100%' }}>
         {virtualizer.getVirtualItems().map((virtualRow) => (
           <div

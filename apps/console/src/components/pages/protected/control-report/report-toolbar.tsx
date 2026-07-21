@@ -18,7 +18,6 @@ import { REPORT_FILTER_OPTIONS, type ReportFilterId } from './report-filter-opti
 type ReportToolbarProps = {
   active: 'dashboard' | 'table'
   setActive: (tab: 'dashboard' | 'table') => void
-  showActions: boolean
   allExpanded: boolean
   onToggleExpandAll: () => void
   isSelectionMode: boolean
@@ -36,12 +35,12 @@ type ReportToolbarProps = {
   createAllowed: boolean
   hasNoControls: boolean
   hasVisibleControls: boolean
+  canSelect: boolean
 }
 
 const ReportToolbar: React.FC<ReportToolbarProps> = ({
   active,
   setActive,
-  showActions,
   allExpanded,
   onToggleExpandAll,
   isSelectionMode,
@@ -59,7 +58,10 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
   createAllowed,
   hasNoControls,
   hasVisibleControls,
+  canSelect,
 }) => {
+  const showActions = !hasNoControls
+
   const [reportPopoverOpen, setReportPopoverOpen] = useState(false)
   const [programPopoverOpen, setProgramPopoverOpen] = useState(false)
   const [isCloneOpen, setIsCloneOpen] = useState(false)
@@ -79,7 +81,7 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
                 {allExpanded ? 'Collapse all' : 'Expand all'}
               </Button>
             )}
-            {(hasVisibleControls || isSelectionMode) && (
+            {canSelect && (hasVisibleControls || isSelectionMode) && (
               <Button type="button" className={`h-7.5 px-3 gap-1.5 ${isSelectionMode ? 'border border-primary' : ''}`} variant="outline" onClick={onToggleSelectionMode}>
                 <ListChecks size={15} />
                 Select
@@ -89,7 +91,7 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 ml-auto">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" icon={<SlidersHorizontal />} iconPosition="left" className={`h-7.5 px-2! pl-3! ${effectiveStandard ? 'border border-primary' : ''}`}>
@@ -219,7 +221,7 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
             <BulkCSVCreateMappedControlDialog open={isMapOpen} onOpenChange={setIsMapOpen} />
           </>
         ) : null}
-        {createAllowed && !hasNoControls && (
+        {createAllowed && showActions && (
           <Link href="/controls/create-control" aria-label="Create Control">
             <Button variant="primary" className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
               Create

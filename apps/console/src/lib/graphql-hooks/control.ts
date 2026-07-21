@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery, type InfiniteData, type QueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { compareNatural } from '@/lib/sort'
 import {
   CREATE_CONTROL,
   CREATE_CSV_BULK_CONTROL,
@@ -14,7 +15,6 @@ import {
   GET_CONTROLS_PAGINATED,
   UPDATE_CONTROL,
   GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS,
-  CONTROL_REPORTS_BY_CATEGORY,
   CONTROL_REPORTS,
   BULK_EDIT_CONTROL,
   GET_SUBCONTROL_IDS_BY_CONTROL,
@@ -91,8 +91,6 @@ import {
   type InsertControlPlateCommentMutationVariables,
   type GetControlDiscussionByIdQuery,
   type GetExistingControlsForOrganizationQuery,
-  type ControlReportsByCategoryQuery,
-  type ControlReportsByCategoryQueryVariables,
   type ControlReportsQuery,
   type ControlReportsQueryVariables,
   type GetAuditorDashboardControlsQuery,
@@ -208,7 +206,6 @@ export const useGetControlAssociationsById = (controlId?: string | null) => {
 
 export const invalidateControlQueries = (queryClient: QueryClient) => {
   queryClient.invalidateQueries({ queryKey: ['controls'] })
-  queryClient.invalidateQueries({ queryKey: ['controlReports'] })
   queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
   queryClient.invalidateQueries({ queryKey: ['standards'] })
 }
@@ -466,14 +463,10 @@ export function useAllControlsGroupedWithListFields({ where, enabled = true, inc
     }, {})
 
     for (const controls of Object.values(groups)) {
-      controls.sort((a, b) => a.refCode.localeCompare(b.refCode, undefined, { numeric: true }))
+      controls.sort((a, b) => compareNatural(a.refCode, b.refCode))
     }
 
-    const sortedEntries = Object.entries(groups).sort(([, controlsA], [, controlsB]) => {
-      const minA = controlsA[0]?.refCode ?? ''
-      const minB = controlsB[0]?.refCode ?? ''
-      return minA.localeCompare(minB, undefined, { numeric: true })
-    })
+    const sortedEntries = Object.entries(groups).sort(([, controlsA], [, controlsB]) => compareNatural(controlsA[0]?.refCode ?? '', controlsB[0]?.refCode ?? ''))
 
     return Object.fromEntries(sortedEntries)
   }, [allControls])
@@ -505,27 +498,15 @@ export function useGetControlMinifiedById(controlId?: string, enabled = true) {
 
 export type ControlReportItem = NonNullable<NonNullable<NonNullable<ControlReportsQuery['controlReports']['edges']>[number]>['node']>
 export type ControlReportSubcontrolItem = NonNullable<ControlReportItem['subcontrols']>[number]
-export type ControlReportCategoryItem = { category: string; totalCount: number; controls: ControlReportItem[] }
-
-export const useControlReportsByCategory = ({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) => {
-  const { client } = useGraphQLClient()
-
-  return useQuery<ControlReportCategoryItem[], Error>({
-    queryKey: ['controls', 'reportsByCategory', where],
-    enabled,
-    queryFn: async () => {
-      const data = await client.request<ControlReportsByCategoryQuery, ControlReportsByCategoryQueryVariables>(CONTROL_REPORTS_BY_CATEGORY, { where })
-      return data.controlReportsByCategory
-    },
-  })
-}
+export type ControlReportCategoryItem = { category: string; controls: ControlReportItem[] }
 
 const CONTROL_REPORTS_PAGE_SIZE = 100
+const CONTROL_REPORTS_STALE_TIME = 5 * 60 * 1000
 
 export const useControlReports = ({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
-  const { data, isLoading, isFetching, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteQuery<
+  const { data, isLoading, isFetchingNextPage, isRefetching, hasNextPage, fetchNextPage } = useInfiniteQuery<
     ControlReportsQuery['controlReports'],
     Error,
     InfiniteData<ControlReportsQuery['controlReports']>,
@@ -545,6 +526,8 @@ export const useControlReports = ({ where, enabled = true }: { where?: ControlWh
     initialPageParam: null,
     getNextPageParam: (last) => (last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined),
     enabled,
+    placeholderData: undefined,
+    staleTime: CONTROL_REPORTS_STALE_TIME,
   })
 
   useEffect(() => {
@@ -566,15 +549,18 @@ export const useControlReports = ({ where, enabled = true }: { where?: ControlWh
       if (bucket) bucket.push(report)
       else map.set(category, [report])
     }
-    return Array.from(map.entries()).map(([category, controls]) => ({ category, totalCount: controls.length, controls }))
+    return Array.from(map.entries()).map(([category, controls]) => ({ category, controls }))
   }, [reports])
 
-  const isLoadingAll = isLoading || isFetchingNextPage || hasNextPage
+  const isStreamingPages = isFetchingNextPage || hasNextPage
 
   return {
-    data: isLoadingAll ? undefined : grouped,
-    isLoading: isLoadingAll,
-    isFetching,
+    data: data ? grouped : undefined,
+    loadedCount: reports.length,
+    totalCount: data?.pages[0]?.totalCount ?? 0,
+    isLoading,
+    isLoadingMore: isStreamingPages,
+    isRefetching: isRefetching && !isStreamingPages,
   }
 }
 

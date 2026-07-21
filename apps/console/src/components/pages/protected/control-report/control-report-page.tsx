@@ -16,10 +16,14 @@ import ReportToolbar from './report-toolbar'
 import ReportBulkActionBar from './report-bulk-action-bar'
 import ReportVirtualList from './report-virtual-list'
 import ReportEmptyState from './report-empty-state'
+import ReportNoFilterMatches from './report-no-filter-matches'
+import ReportLoadingIndicator from './report-loading-indicator'
+import { getGridMinWidth } from './control-report-grid'
 import { useReportSelection } from './use-report-selection'
 import { getOrgRelatedControls, getFrameworkRelatedControls } from './report-coverage'
 import { type ReportFilterId } from './report-filter-options'
 import { getOrganizationStorageItem, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
+import { compareNatural } from '@/lib/sort'
 import { useSession } from 'next-auth/react'
 
 type TControlReportPageProps = {
@@ -47,11 +51,12 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   const [selectedStandard, setSelectedStandard] = useState<string>(() => getOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId) ?? '')
   const [selectedPrograms, setSelectedPrograms] = useState<string[]>(() => readStoredPrograms(currentOrgId))
   const [expandedItems, setExpandedItems] = useState<string[]>([])
-  const [hasAutoExpanded, setHasAutoExpanded] = useState(false)
   const [expandedControls, setExpandedControls] = useState<Record<string, boolean>>({})
   const [isSelectionMode, setIsSelectionMode] = useState(false)
   const [reportFilters, setReportFilters] = useState<Set<ReportFilterId>>(() => new Set())
   const userSelectedStandardRef = useRef(false)
+  const userTouchedExpansionRef = useRef(false)
+  const expansionScopeRef = useRef<ControlWhereInput | undefined>(undefined)
 
   const { data: permission } = useOrganizationRoles()
   const { data: session } = useSession()
@@ -116,22 +121,18 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     enabled: Boolean(currentOrgId),
   })
 
-  const { data, isLoading, isFetching } = useControlReports({
+  const { data, loadedCount, totalCount, isLoading, isLoadingMore, isRefetching } = useControlReports({
     where,
-    enabled: Boolean(currentOrgId),
+    enabled: Boolean(currentOrgId) && (Boolean(effectiveStandard) || isSuccessStandards),
   })
 
   const sortedData = useMemo(() => {
     if (!data) return data
     const sorted = data.map((entry) => ({
       ...entry,
-      controls: [...entry.controls].sort((a, b) => a.refCode.localeCompare(b.refCode, undefined, { numeric: true })),
+      controls: [...entry.controls].sort((a, b) => compareNatural(a.refCode, b.refCode)),
     }))
-    return sorted.sort((a, b) => {
-      const minA = a.controls[0]?.refCode ?? ''
-      const minB = b.controls[0]?.refCode ?? ''
-      return minA.localeCompare(minB, undefined, { numeric: true })
-    })
+    return sorted.sort((a, b) => compareNatural(a.controls[0]?.refCode ?? '', b.controls[0]?.refCode ?? ''))
   }, [data])
 
   const hasNoOrganizationControls = organizationControlsData?.controls.totalCount === 0
@@ -220,30 +221,43 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   useEffect(() => {
     if (userSelectedStandardRef.current) return
     if (effectiveStandard !== 'CUSTOM') return
-    if (isFetching || !data || !hasNoReportControls) return
+    if (isLoading || isLoadingMore || !data || !hasNoReportControls) return
     if (!isSuccessStandards || standardOptions.length === 0) return
 
     const preferred = standardOptions.find((opt) => opt.label.replace(/\s+/g, '').toLowerCase() === 'soc2') ?? standardOptions[0]
     setSelectedStandard(preferred.value)
-  }, [effectiveStandard, isFetching, data, hasNoReportControls, isSuccessStandards, standardOptions])
+  }, [effectiveStandard, isLoading, isLoadingMore, data, hasNoReportControls, isSuccessStandards, standardOptions])
 
   useEffect(() => {
-    if (sortedData && !hasAutoExpanded && sortedData.length > 0) {
-      setExpandedItems(sortedData.map((item) => item.category))
-      setHasAutoExpanded(true)
+    if (!sortedData) return
+    const categories = sortedData.map((item) => item.category)
+
+    if (expansionScopeRef.current !== where) {
+      expansionScopeRef.current = where
+      userTouchedExpansionRef.current = false
+      setExpandedControls({})
+      setExpandedItems(categories)
+      return
     }
-  }, [sortedData, hasAutoExpanded])
 
-  useEffect(() => {
-    setHasAutoExpanded(false)
-    setExpandedControls({})
-  }, [effectiveStandard])
+    if (userTouchedExpansionRef.current) return
+    setExpandedItems((prev) => {
+      const unseen = categories.filter((category) => !prev.includes(category))
+      return unseen.length === 0 ? prev : [...prev, ...unseen]
+    })
+  }, [sortedData, where])
 
   const { data: groupsData } = useGetAllGroups({ where: {}, enabled: true })
   const groups = useMemo(() => (groupsData?.groups?.edges ?? []).map((e) => e?.node).filter((g): g is NonNullable<typeof g> => !!g), [groupsData])
 
   const { selectedControlIds, selectedSubcontrolIds, toggleControlSelection, toggleSubcontrolSelection, batchSelectSubcontrols, setSelectionForCategory, clearSelection, handleBulkAction } =
     useReportSelection({ mappedControlIdsByControl })
+
+  useEffect(() => {
+    if (!isLoadingMore || !isSelectionMode) return
+    clearSelection()
+    setIsSelectionMode(false)
+  }, [isLoadingMore, isSelectionMode, clearSelection])
 
   const toggleReportFilter = useCallback((filterId: ReportFilterId) => {
     setReportFilters((prev) => {
@@ -259,6 +273,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   }, [])
 
   const toggleCategoryOpen = useCallback((category: string) => {
+    userTouchedExpansionRef.current = true
     setExpandedItems((prev) => (prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]))
   }, [])
 
@@ -267,6 +282,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     if (!activeData) return
     const allCategories = activeData.map((item) => item.category)
     const hasAllExpanded = allCategories.every((cat) => expandedItems.includes(cat))
+    userTouchedExpansionRef.current = hasAllExpanded
     setExpandedItems(hasAllExpanded ? [] : allCategories)
   }
 
@@ -289,10 +305,10 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   )
 
   const selectFilter = (value: string) => {
+    if (!value || value === effectiveStandard) return
     userSelectedStandardRef.current = true
-    const next = value === effectiveStandard ? '' : value
-    setSelectedStandard(next)
-    setOrganizationStorageItem(REPORT_STANDARD_KEY, next, currentOrgId)
+    setSelectedStandard(value)
+    setOrganizationStorageItem(REPORT_STANDARD_KEY, value, currentOrgId)
   }
 
   const toggleProgram = useCallback(
@@ -314,21 +330,20 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     ])
   }, [setCrumbs])
 
-  if (isLoading || isLoadingOrganizationControls || !data || !organizationControlsData) {
+  if (isLoadingOrganizationControls || !organizationControlsData) {
     return <ControlReportPageSkeleton />
   }
 
   const hasNoMatchingControls = !filteredSortedData || filteredSortedData.length === 0 || filteredSortedData.every((entry) => entry.controls.length === 0)
-  const showActions = !isLoading && !isFetching && !hasNoOrganizationControls
   const visibleCategories = filteredSortedData ?? sortedData ?? []
   const allExpanded = visibleCategories.length > 0 && visibleCategories.every((e) => expandedItems.includes(e.category))
+  const showList = !hasNoOrganizationControls && !hasNoMatchingControls
 
   return (
-    <div>
+    <div style={hasNoOrganizationControls ? undefined : { minWidth: `${getGridMinWidth(isCustomView, isSelectionMode)}px` }}>
       <ReportToolbar
         active={active}
         setActive={setActive}
-        showActions={showActions}
         allExpanded={allExpanded}
         onToggleExpandAll={toggleAll}
         isSelectionMode={isSelectionMode}
@@ -349,6 +364,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
         createAllowed={createAllowed}
         hasNoControls={hasNoOrganizationControls}
         hasVisibleControls={!hasNoMatchingControls}
+        canSelect={!isLoadingMore}
       />
 
       {isSelectionMode && (selectedControlIds.size > 0 || selectedSubcontrolIds.size > 0) && (
@@ -364,16 +380,11 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
       )}
 
       <div className="space-y-2">
-        {isLoading || isFetching ? (
-          <ControlReportPageSkeleton />
-        ) : hasNoOrganizationControls ? (
+        {hasNoOrganizationControls ? (
           <ReportEmptyState />
-        ) : hasNoMatchingControls ? (
-          <div className="mt-4 rounded-md border border-border/30 bg-muted/20 px-5 py-2.5 text-base text-muted-foreground shadow-sm">
-            <p>No controls match your current filters.</p>
-            <p>Try adjusting or clearing your filters to see more controls.</p>
-          </div>
-        ) : (
+        ) : !data ? (
+          <ControlReportPageSkeleton />
+        ) : showList ? (
           <ReportVirtualList
             categories={filteredSortedData ?? []}
             expandedItems={expandedItems}
@@ -390,7 +401,12 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
             onSelectSubcontrol={toggleSubcontrolSelection}
             onSelectAllSubcontrols={batchSelectSubcontrols}
           />
+        ) : isLoadingMore ? (
+          <ControlReportPageSkeleton />
+        ) : (
+          <ReportNoFilterMatches />
         )}
+        {(isLoadingMore || isRefetching) && showList && <ReportLoadingIndicator loadedCount={loadedCount} totalCount={totalCount} isRefetching={isRefetching} />}
       </div>
     </div>
   )
