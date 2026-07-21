@@ -4,8 +4,12 @@ import { type TAssociationMutationKey, type TAssociationUpdateInput, type TObjec
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import type { AssociationsData, AssociationsRoot } from '@/components/shared/object-association/association-section'
 
+export const getEdgeNodes = <T>(edges: TEdgeNode<T>[] | null | undefined): T[] => (edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
+
 export const getEdgeValues = <T extends Record<string, unknown>, K extends keyof T>(edges: TEdgeNode<T>[] | null | undefined, key: K): Array<NonNullable<T[K]>> =>
-  (edges ?? []).map((edge) => edge?.node?.[key]).filter((value): value is NonNullable<T[K]> => value !== null && value !== undefined)
+  getEdgeNodes(edges)
+    .map((node) => node[key])
+    .filter((value): value is NonNullable<T[K]> => value !== null && value !== undefined)
 
 export const getEdgeIds = (edges: TEdgeNode<{ id?: string | null }>[] | null | undefined): string[] => getEdgeValues(edges, 'id') as string[]
 export const getEdgeNames = (edges: TEdgeNode<{ name?: string | null }>[] | null | undefined): string[] => getEdgeValues(edges, 'name') as string[]

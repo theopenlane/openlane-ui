@@ -206,7 +206,7 @@ export const useGetControlAssociationsById = (controlId?: string | null) => {
   })
 }
 
-const invalidateControlQueries = (queryClient: QueryClient) => {
+export const invalidateControlQueries = (queryClient: QueryClient) => {
   queryClient.invalidateQueries({ queryKey: ['controls'] })
   queryClient.invalidateQueries({ queryKey: ['controlReports'] })
   queryClient.invalidateQueries({ queryKey: ['mappedControls'] })

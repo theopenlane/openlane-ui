@@ -2376,6 +2376,7 @@ export interface Asset extends Node {
   environmentName?: Maybe<Scalars['String']['output']>
   /** estimated monthly cost for the asset */
   estimatedMonthlyCost?: Maybe<Scalars['Float']['output']>
+  findings: FindingConnection
   id: Scalars['ID']['output']
   /** unique identifier like domain, device id, etc */
   identifier?: Maybe<Scalars['String']['output']>
@@ -2410,6 +2411,8 @@ export interface Asset extends Node {
   purchaseDate?: Maybe<Scalars['DateTime']['output']>
   /** the region where the asset operates or is hosted */
   region?: Maybe<Scalars['String']['output']>
+  remediations: RemediationConnection
+  reviews: ReviewConnection
   scans: ScanConnection
   scope?: Maybe<CustomTypeEnum>
   /** the scope of the asset */
@@ -2441,6 +2444,7 @@ export interface Asset extends Node {
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
+  vulnerabilities: VulnerabilityConnection
   /** the website of the asset, if applicable */
   website?: Maybe<Scalars['String']['output']>
 }
@@ -2499,6 +2503,15 @@ export interface AssetEntitiesArgs {
   where?: InputMaybe<EntityWhereInput>
 }
 
+export interface AssetFindingsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FindingOrder>>
+  where?: InputMaybe<FindingWhereInput>
+}
+
 export interface AssetIdentityHoldersArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -2535,6 +2548,24 @@ export interface AssetPlatformsArgs {
   where?: InputMaybe<PlatformWhereInput>
 }
 
+export interface AssetRemediationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RemediationOrder>>
+  where?: InputMaybe<RemediationWhereInput>
+}
+
+export interface AssetReviewsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ReviewOrder>>
+  where?: InputMaybe<ReviewWhereInput>
+}
+
 export interface AssetScansArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -2569,6 +2600,15 @@ export interface AssetViewersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface AssetVulnerabilitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<VulnerabilityOrder>>
+  where?: InputMaybe<VulnerabilityWhereInput>
 }
 
 /** AssetAssetType is enum for the field asset_type */
@@ -3015,6 +3055,9 @@ export interface AssetWhereInput {
   /** environment edge predicates */
   hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** findings edge predicates */
+  hasFindings?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingsWith?: InputMaybe<Array<FindingWhereInput>>
   /** identity_holders edge predicates */
   hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
@@ -3039,6 +3082,12 @@ export interface AssetWhereInput {
   /** platforms edge predicates */
   hasPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   hasPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
+  /** remediations edge predicates */
+  hasRemediations?: InputMaybe<Scalars['Boolean']['input']>
+  hasRemediationsWith?: InputMaybe<Array<RemediationWhereInput>>
+  /** reviews edge predicates */
+  hasReviews?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewsWith?: InputMaybe<Array<ReviewWhereInput>>
   /** scans edge predicates */
   hasScans?: InputMaybe<Scalars['Boolean']['input']>
   hasScansWith?: InputMaybe<Array<ScanWhereInput>>
@@ -3060,6 +3109,9 @@ export interface AssetWhereInput {
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
+  /** vulnerabilities edge predicates */
+  hasVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
+  hasVulnerabilitiesWith?: InputMaybe<Array<VulnerabilityWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -5796,6 +5848,7 @@ export interface Control extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
+  vulnerabilities: VulnerabilityConnection
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
@@ -6044,6 +6097,15 @@ export interface ControlTasksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TaskOrder>>
   where?: InputMaybe<TaskWhereInput>
+}
+
+export interface ControlVulnerabilitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<VulnerabilityOrder>>
+  where?: InputMaybe<VulnerabilityWhereInput>
 }
 
 export interface ControlWorkflowObjectRefsArgs {
@@ -7753,6 +7815,9 @@ export interface ControlWhereInput {
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
+  /** vulnerabilities edge predicates */
+  hasVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
+  hasVulnerabilitiesWith?: InputMaybe<Array<VulnerabilityWhereInput>>
   /** workflow_object_refs edge predicates */
   hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
@@ -8350,6 +8415,7 @@ export interface CreateAssetInput {
   environmentName?: InputMaybe<Scalars['String']['input']>
   /** estimated monthly cost for the asset */
   estimatedMonthlyCost?: InputMaybe<Scalars['Float']['input']>
+  findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** unique identifier like domain, device id, etc */
   identifier?: InputMaybe<Scalars['String']['input']>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -8374,6 +8440,8 @@ export interface CreateAssetInput {
   purchaseDate?: InputMaybe<Scalars['DateTime']['input']>
   /** the region where the asset operates or is hosted */
   region?: InputMaybe<Scalars['String']['input']>
+  remediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the asset */
@@ -8393,6 +8461,7 @@ export interface CreateAssetInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the website of the asset, if applicable */
   website?: InputMaybe<Scalars['String']['input']>
 }
@@ -8653,7 +8722,6 @@ export interface CreateControlInput {
   exampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
-  findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** narrative describing current implementation state for OSCAL export */
   implementationDescription?: InputMaybe<Scalars['String']['input']>
@@ -8713,6 +8781,7 @@ export interface CreateControlInput {
   title?: InputMaybe<Scalars['String']['input']>
   /** visibility of the control on the trust center, controls the publishing state for trust center display */
   trustCenterVisibility?: InputMaybe<ControlTrustCenterControlVisibility>
+  vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -8889,7 +8958,6 @@ export interface CreateDirectoryAccountInput {
   firstSeenAt?: InputMaybe<Scalars['Time']['input']>
   /** first name reported by the provider */
   givenName?: InputMaybe<Scalars['String']['input']>
-  groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderID?: InputMaybe<Scalars['ID']['input']>
   integrationID?: InputMaybe<Scalars['ID']['input']>
   /** title captured at sync time */
@@ -9222,6 +9290,7 @@ export interface CreateEntityInput {
   /** stable identifier assigned by the source system, used for integration ingest deduplication */
   externalID?: InputMaybe<Scalars['String']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** whether the entity has an active SOC 2 report */
   hasSoc2?: InputMaybe<Scalars['Boolean']['input']>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9259,10 +9328,12 @@ export interface CreateEntityInput {
   platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** services provided by the entity */
   providedServices?: InputMaybe<Array<Scalars['String']['input']>>
+  remediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** renewal risk rating for the entity */
   renewalRisk?: InputMaybe<Scalars['String']['input']>
   /** the cadence for reviewing the entity */
   reviewFrequency?: InputMaybe<EntityFrequency>
+  reviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** who reviewed the entity when no user or group is linked */
   reviewedBy?: InputMaybe<Scalars['String']['input']>
   reviewedByGroupID?: InputMaybe<Scalars['ID']['input']>
@@ -9300,6 +9371,7 @@ export interface CreateEntityInput {
   /** vendor metadata such as additional enrichment info, company size, public, etc. */
   vendorMetadata?: InputMaybe<Scalars['Map']['input']>
   vendorRiskScoreIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -9533,7 +9605,6 @@ export interface CreateFindingInput {
   category?: InputMaybe<Scalars['String']['input']>
   checkResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** long form description of the finding */
   description?: InputMaybe<Scalars['String']['input']>
   directoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -10848,6 +10919,7 @@ export interface CreateProgramInput {
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the short name of the compliance standard the program is based on, only used for framework type programs */
   frameworkName?: InputMaybe<Scalars['String']['input']>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -10861,6 +10933,8 @@ export interface CreateProgramInput {
   /** the kind of the program */
   programKindName?: InputMaybe<Scalars['String']['input']>
   programOwnerID?: InputMaybe<Scalars['ID']['input']>
+  remediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the start date of the period */
   startDate?: InputMaybe<Scalars['Time']['input']>
@@ -10872,6 +10946,7 @@ export interface CreateProgramInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -11084,6 +11159,7 @@ export interface CreateRiskInput {
   externalID?: InputMaybe<Scalars['String']['input']>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
+  findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** impact of the risk -critical, high, medium, low */
   impact?: InputMaybe<RiskRiskImpact>
   /** integration that surfaced this risk, when sourced via integration ingest */
@@ -11138,6 +11214,7 @@ export interface CreateRiskInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -11343,6 +11420,7 @@ export interface CreateSubcontrolInput {
   exampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
+  findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** narrative describing current implementation state for OSCAL export */
   implementationDescription?: InputMaybe<Scalars['String']['input']>
@@ -11396,6 +11474,7 @@ export interface CreateSubcontrolInput {
   testingProcedures?: InputMaybe<Array<Scalars['TestingProcedures']['input']>>
   /** human readable title of the control for quick identification */
   title?: InputMaybe<Scalars['String']['input']>
+  vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -17198,6 +17277,7 @@ export interface Entity extends Node {
   /** stable identifier assigned by the source system, used for integration ingest deduplication */
   externalID?: Maybe<Scalars['String']['output']>
   files: FileConnection
+  findings: FindingConnection
   /** whether the entity has an active SOC 2 report */
   hasSoc2?: Maybe<Scalars['Boolean']['output']>
   id: Scalars['ID']['output']
@@ -17243,6 +17323,7 @@ export interface Entity extends Node {
   platforms: PlatformConnection
   /** services provided by the entity */
   providedServices?: Maybe<Array<Scalars['String']['output']>>
+  remediations: RemediationConnection
   /** renewal risk rating for the entity */
   renewalRisk?: Maybe<Scalars['String']['output']>
   /** the cadence for reviewing the entity */
@@ -17255,6 +17336,7 @@ export interface Entity extends Node {
   reviewedByUser?: Maybe<User>
   /** the user id that reviewed the entity */
   reviewedByUserID?: Maybe<Scalars['ID']['output']>
+  reviews: ReviewConnection
   /** the risk rating label for the entity */
   riskRating?: Maybe<Scalars['String']['output']>
   /** the risk score for the entity */
@@ -17298,6 +17380,7 @@ export interface Entity extends Node {
   /** vendor metadata such as additional enrichment info, company size, public, etc. */
   vendorMetadata?: Maybe<Scalars['Map']['output']>
   vendorRiskScores: VendorRiskScoreConnection
+  vulnerabilities: VulnerabilityConnection
 }
 
 export interface EntityAssessmentResponsesArgs {
@@ -17399,6 +17482,15 @@ export interface EntityFilesArgs {
   where?: InputMaybe<FileWhereInput>
 }
 
+export interface EntityFindingsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FindingOrder>>
+  where?: InputMaybe<FindingWhereInput>
+}
+
 export interface EntityIdentityHoldersArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -17453,6 +17545,24 @@ export interface EntityPlatformsArgs {
   where?: InputMaybe<PlatformWhereInput>
 }
 
+export interface EntityRemediationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RemediationOrder>>
+  where?: InputMaybe<RemediationWhereInput>
+}
+
+export interface EntityReviewsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ReviewOrder>>
+  where?: InputMaybe<ReviewWhereInput>
+}
+
 export interface EntityScansArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -17505,6 +17615,15 @@ export interface EntityVendorRiskScoresArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<VendorRiskScoreOrder>>
   where?: InputMaybe<VendorRiskScoreWhereInput>
+}
+
+export interface EntityVulnerabilitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<VulnerabilityOrder>>
+  where?: InputMaybe<VulnerabilityWhereInput>
 }
 
 /** Return response for createBulkEntity mutation */
@@ -18281,6 +18400,9 @@ export interface EntityWhereInput {
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
+  /** findings edge predicates */
+  hasFindings?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingsWith?: InputMaybe<Array<FindingWhereInput>>
   /** identity_holders edge predicates */
   hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
@@ -18311,12 +18433,18 @@ export interface EntityWhereInput {
   /** platforms edge predicates */
   hasPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   hasPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
+  /** remediations edge predicates */
+  hasRemediations?: InputMaybe<Scalars['Boolean']['input']>
+  hasRemediationsWith?: InputMaybe<Array<RemediationWhereInput>>
   /** reviewed_by_group edge predicates */
   hasReviewedByGroup?: InputMaybe<Scalars['Boolean']['input']>
   hasReviewedByGroupWith?: InputMaybe<Array<GroupWhereInput>>
   /** reviewed_by_user edge predicates */
   hasReviewedByUser?: InputMaybe<Scalars['Boolean']['input']>
   hasReviewedByUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** reviews edge predicates */
+  hasReviews?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewsWith?: InputMaybe<Array<ReviewWhereInput>>
   /** scans edge predicates */
   hasScans?: InputMaybe<Scalars['Boolean']['input']>
   hasScansWith?: InputMaybe<Array<ScanWhereInput>>
@@ -18343,6 +18471,9 @@ export interface EntityWhereInput {
   /** vendor_risk_scores edge predicates */
   hasVendorRiskScores?: InputMaybe<Scalars['Boolean']['input']>
   hasVendorRiskScoresWith?: InputMaybe<Array<VendorRiskScoreWhereInput>>
+  /** vulnerabilities edge predicates */
+  hasVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
+  hasVulnerabilitiesWith?: InputMaybe<Array<VulnerabilityWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -21393,6 +21524,17 @@ export interface FindingControlBulkCreatePayload {
   __typename?: 'FindingControlBulkCreatePayload'
   /** Created findingControls */
   findingControls?: Maybe<Array<FindingControl>>
+}
+
+/** Return response for deleteBulkFindingControl mutation */
+export interface FindingControlBulkDeletePayload {
+  __typename?: 'FindingControlBulkDeletePayload'
+  /** Deleted findingControl IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -30200,6 +30342,8 @@ export interface Mutation {
   deleteBulkExport: ExportBulkDeletePayload
   /** Delete multiple findings */
   deleteBulkFinding: FindingBulkDeletePayload
+  /** Delete multiple findingControls */
+  deleteBulkFindingControl: FindingControlBulkDeletePayload
   /** Delete multiple groups */
   deleteBulkGroup: GroupBulkDeletePayload
   /** Delete multiple groupMemberships */
@@ -32030,6 +32174,10 @@ export interface MutationDeleteBulkExportArgs {
 }
 
 export interface MutationDeleteBulkFindingArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkFindingControlArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
@@ -41804,6 +41952,7 @@ export interface Program extends Node {
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: Maybe<Scalars['String']['output']>
   files: FileConnection
+  findings: FindingConnection
   /** the short name of the compliance standard the program is based on, only used for framework type programs */
   frameworkName?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
@@ -41825,6 +41974,8 @@ export interface Program extends Node {
   programOwner?: Maybe<User>
   /** the id of the user who is responsible for this program */
   programOwnerID?: Maybe<Scalars['ID']['output']>
+  remediations: RemediationConnection
+  reviews: ReviewConnection
   risks: RiskConnection
   /** the start date of the period */
   startDate?: Maybe<Scalars['Time']['output']>
@@ -41841,6 +41992,7 @@ export interface Program extends Node {
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
   users: UserConnection
   viewers: GroupConnection
+  vulnerabilities: VulnerabilityConnection
 }
 
 export interface ProgramActionPlansArgs {
@@ -41906,6 +42058,15 @@ export interface ProgramFilesArgs {
   where?: InputMaybe<FileWhereInput>
 }
 
+export interface ProgramFindingsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FindingOrder>>
+  where?: InputMaybe<FindingWhereInput>
+}
+
 export interface ProgramInternalPoliciesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -41949,6 +42110,24 @@ export interface ProgramProceduresArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ProcedureOrder>>
   where?: InputMaybe<ProcedureWhereInput>
+}
+
+export interface ProgramRemediationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RemediationOrder>>
+  where?: InputMaybe<RemediationWhereInput>
+}
+
+export interface ProgramReviewsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ReviewOrder>>
+  where?: InputMaybe<ReviewWhereInput>
 }
 
 export interface ProgramRisksArgs {
@@ -42003,6 +42182,15 @@ export interface ProgramViewersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface ProgramVulnerabilitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<VulnerabilityOrder>>
+  where?: InputMaybe<VulnerabilityWhereInput>
 }
 
 /** Return response for createBulkProgram mutation */
@@ -42490,6 +42678,9 @@ export interface ProgramWhereInput {
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
+  /** findings edge predicates */
+  hasFindings?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingsWith?: InputMaybe<Array<FindingWhereInput>>
   /** internal_policies edge predicates */
   hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
@@ -42514,6 +42705,12 @@ export interface ProgramWhereInput {
   /** program_owner edge predicates */
   hasProgramOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramOwnerWith?: InputMaybe<Array<UserWhereInput>>
+  /** remediations edge predicates */
+  hasRemediations?: InputMaybe<Scalars['Boolean']['input']>
+  hasRemediationsWith?: InputMaybe<Array<RemediationWhereInput>>
+  /** reviews edge predicates */
+  hasReviews?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewsWith?: InputMaybe<Array<ReviewWhereInput>>
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
@@ -42532,6 +42729,9 @@ export interface ProgramWhereInput {
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
+  /** vulnerabilities edge predicates */
+  hasVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
+  hasVulnerabilitiesWith?: InputMaybe<Array<VulnerabilityWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -46653,6 +46853,7 @@ export interface Risk extends Node {
   externalID?: Maybe<Scalars['String']['output']>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: Maybe<Scalars['String']['output']>
+  findings: FindingConnection
   /** Indicates if this risk has pending changes awaiting workflow approval */
   hasPendingWorkflow: Scalars['Boolean']['output']
   /** Indicates if this risk has any workflow history (completed or failed instances) */
@@ -46727,6 +46928,7 @@ export interface Risk extends Node {
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
   viewers: GroupConnection
+  vulnerabilities: VulnerabilityConnection
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
@@ -46804,6 +47006,15 @@ export interface RiskEntitiesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<EntityOrder>>
   where?: InputMaybe<EntityWhereInput>
+}
+
+export interface RiskFindingsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FindingOrder>>
+  where?: InputMaybe<FindingWhereInput>
 }
 
 export interface RiskInternalPoliciesArgs {
@@ -46894,6 +47105,15 @@ export interface RiskViewersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface RiskVulnerabilitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<VulnerabilityOrder>>
+  where?: InputMaybe<VulnerabilityWhereInput>
 }
 
 export interface RiskWorkflowObjectRefsArgs {
@@ -47261,6 +47481,9 @@ export interface RiskWhereInput {
   /** environment edge predicates */
   hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** findings edge predicates */
+  hasFindings?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingsWith?: InputMaybe<Array<FindingWhereInput>>
   /** internal_policies edge predicates */
   hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
@@ -47306,6 +47529,9 @@ export interface RiskWhereInput {
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
+  /** vulnerabilities edge predicates */
+  hasVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
+  hasVulnerabilitiesWith?: InputMaybe<Array<VulnerabilityWhereInput>>
   /** workflow_object_refs edge predicates */
   hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
@@ -49920,6 +50146,7 @@ export interface Subcontrol extends Node {
   exampleEvidence?: Maybe<Array<Scalars['ExampleEvidence']['output']>>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: Maybe<Scalars['String']['output']>
+  findings: FindingConnection
   /** Indicates if this subcontrol has pending changes awaiting workflow approval */
   hasPendingWorkflow: Scalars['Boolean']['output']
   /** Indicates if this subcontrol has any workflow history (completed or failed instances) */
@@ -49993,6 +50220,7 @@ export interface Subcontrol extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
+  vulnerabilities: VulnerabilityConnection
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: Maybe<Scalars['Boolean']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
@@ -50070,6 +50298,15 @@ export interface SubcontrolEvidenceArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<EvidenceOrder>>
   where?: InputMaybe<EvidenceWhereInput>
+}
+
+export interface SubcontrolFindingsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FindingOrder>>
+  where?: InputMaybe<FindingWhereInput>
 }
 
 export interface SubcontrolIdentityHoldersArgs {
@@ -50160,6 +50397,15 @@ export interface SubcontrolTasksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TaskOrder>>
   where?: InputMaybe<TaskWhereInput>
+}
+
+export interface SubcontrolVulnerabilitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<VulnerabilityOrder>>
+  where?: InputMaybe<VulnerabilityWhereInput>
 }
 
 export interface SubcontrolWorkflowObjectRefsArgs {
@@ -50512,6 +50758,9 @@ export interface SubcontrolWhereInput {
   /** evidence edge predicates */
   hasEvidence?: InputMaybe<Scalars['Boolean']['input']>
   hasEvidenceWith?: InputMaybe<Array<EvidenceWhereInput>>
+  /** findings edge predicates */
+  hasFindings?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingsWith?: InputMaybe<Array<FindingWhereInput>>
   /** identity_holders edge predicates */
   hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
@@ -50551,6 +50800,9 @@ export interface SubcontrolWhereInput {
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
+  /** vulnerabilities edge predicates */
+  hasVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
+  hasVulnerabilitiesWith?: InputMaybe<Array<VulnerabilityWhereInput>>
   /** workflow_object_refs edge predicates */
   hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
@@ -57648,14 +57900,18 @@ export interface UpdateAssetInput {
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOutOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSystemDetailIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendCategories?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   assetDataClassificationID?: InputMaybe<Scalars['ID']['input']>
@@ -57693,6 +57949,7 @@ export interface UpdateAssetInput {
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearEstimatedMonthlyCost?: InputMaybe<Scalars['Boolean']['input']>
+  clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentifier?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -57706,6 +57963,8 @@ export interface UpdateAssetInput {
   clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearPurchaseDate?: InputMaybe<Scalars['Boolean']['input']>
   clearRegion?: InputMaybe<Scalars['Boolean']['input']>
+  clearRemediations?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviews?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearScope?: InputMaybe<Scalars['Boolean']['input']>
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
@@ -57718,6 +57977,7 @@ export interface UpdateAssetInput {
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   clearWebsite?: InputMaybe<Scalars['Boolean']['input']>
   /** whether the asset stores or processes PII */
   containsPii?: InputMaybe<Scalars['Boolean']['input']>
@@ -57763,14 +58023,18 @@ export interface UpdateAssetInput {
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOutOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSystemDetailIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the asset */
   scopeName?: InputMaybe<Scalars['String']['input']>
@@ -58126,7 +58390,6 @@ export interface UpdateControlInput {
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -58140,6 +58403,7 @@ export interface UpdateControlInput {
   addScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** additional names (ref_codes) for the control */
   aliases?: InputMaybe<Array<Scalars['String']['input']>>
@@ -58195,7 +58459,6 @@ export interface UpdateControlInput {
   clearEvidenceRequests?: InputMaybe<Scalars['Boolean']['input']>
   clearExampleEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
-  clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationGuidance?: InputMaybe<Scalars['Boolean']['input']>
@@ -58231,6 +58494,7 @@ export interface UpdateControlInput {
   clearTestingProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearTitle?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterVisibility?: InputMaybe<Scalars['Boolean']['input']>
+  clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   controlKindID?: InputMaybe<Scalars['ID']['input']>
@@ -58287,7 +58551,6 @@ export interface UpdateControlInput {
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -58301,6 +58564,7 @@ export interface UpdateControlInput {
   removeScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   responsiblePartyID?: InputMaybe<Scalars['ID']['input']>
   scopeID?: InputMaybe<Scalars['ID']['input']>
@@ -58533,7 +58797,6 @@ export interface UpdateDirectoryAccountInput {
   /** type of principal represented in the directory */
   accountType?: InputMaybe<DirectoryAccountDirectoryAccountType>
   addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** provider-reported time the account was added or provisioned in the source directory */
   addedAt?: InputMaybe<Scalars['Time']['input']>
@@ -58563,7 +58826,6 @@ export interface UpdateDirectoryAccountInput {
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearFirstSeenAt?: InputMaybe<Scalars['Boolean']['input']>
   clearGivenName?: InputMaybe<Scalars['Boolean']['input']>
-  clearGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
   clearJobTitle?: InputMaybe<Scalars['Boolean']['input']>
   clearLastLoginAt?: InputMaybe<Scalars['Boolean']['input']>
@@ -58623,7 +58885,6 @@ export interface UpdateDirectoryAccountInput {
   /** hash of the normalized profile payload for change detection */
   profileHash?: InputMaybe<Scalars['String']['input']>
   removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** provider-reported or locally-recorded time the account was removed from the source directory */
   removedAt?: InputMaybe<Scalars['Time']['input']>
@@ -58986,18 +59247,22 @@ export interface UpdateEntityInput {
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEmployerIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOutOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSourcePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSystemDetailIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVendorRiskScoreIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** common matching names that should match with the entity */
   aliases?: InputMaybe<Array<Scalars['String']['input']>>
   /** annual spend associated with the entity */
@@ -59046,6 +59311,7 @@ export interface UpdateEntityInput {
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearHasSoc2?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
@@ -59068,11 +59334,13 @@ export interface UpdateEntityInput {
   clearOutOfScopePlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearProvidedServices?: InputMaybe<Scalars['Boolean']['input']>
+  clearRemediations?: InputMaybe<Scalars['Boolean']['input']>
   clearRenewalRisk?: InputMaybe<Scalars['Boolean']['input']>
   clearReviewFrequency?: InputMaybe<Scalars['Boolean']['input']>
   clearReviewedBy?: InputMaybe<Scalars['Boolean']['input']>
   clearReviewedByGroup?: InputMaybe<Scalars['Boolean']['input']>
   clearReviewedByUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviews?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskRating?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskScore?: InputMaybe<Scalars['Boolean']['input']>
   clearSSOEnforced?: InputMaybe<Scalars['Boolean']['input']>
@@ -59093,6 +59361,7 @@ export interface UpdateEntityInput {
   clearTier?: InputMaybe<Scalars['Boolean']['input']>
   clearVendorMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearVendorRiskScores?: InputMaybe<Scalars['Boolean']['input']>
+  clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   /** end date for the entity contract */
   contractEndDate?: InputMaybe<Scalars['DateTime']['input']>
   /** when the entity contract is up for renewal */
@@ -59161,18 +59430,22 @@ export interface UpdateEntityInput {
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEmployerIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOutOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSourcePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSystemDetailIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVendorRiskScoreIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** renewal risk rating for the entity */
   renewalRisk?: InputMaybe<Scalars['String']['input']>
   /** the cadence for reviewing the entity */
@@ -59565,7 +59838,6 @@ export interface UpdateFindingInput {
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCheckResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -59610,7 +59882,6 @@ export interface UpdateFindingInput {
   clearCategory?: InputMaybe<Scalars['Boolean']['input']>
   clearCheckResults?: InputMaybe<Scalars['Boolean']['input']>
   clearComments?: InputMaybe<Scalars['Boolean']['input']>
-  clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
   clearDisplayName?: InputMaybe<Scalars['Boolean']['input']>
@@ -59724,7 +59995,6 @@ export interface UpdateFindingInput {
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCheckResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -61863,16 +62133,20 @@ export interface UpdateProgramInput {
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramMembers?: InputMaybe<Array<AddProgramMembershipInput>>
+  addRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSystemDetailIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the name of the audit firm conducting the audit */
   auditFirm?: InputMaybe<Scalars['String']['input']>
@@ -61899,6 +62173,7 @@ export interface UpdateProgramInput {
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearFrameworkName?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
@@ -61908,6 +62183,8 @@ export interface UpdateProgramInput {
   clearProgramKind?: InputMaybe<Scalars['Boolean']['input']>
   clearProgramKindName?: InputMaybe<Scalars['Boolean']['input']>
   clearProgramOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearRemediations?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviews?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearStartDate?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
@@ -61915,6 +62192,7 @@ export interface UpdateProgramInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   /** the description of the program */
   description?: InputMaybe<Scalars['String']['input']>
   /** the end date of the period */
@@ -61937,16 +62215,20 @@ export interface UpdateProgramInput {
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramMembers?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSystemDetailIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the start date of the period */
   startDate?: InputMaybe<Scalars['Time']['input']>
   /** the status of the program */
@@ -62257,6 +62539,7 @@ export interface UpdateRiskInput {
   addDiscussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -62267,6 +62550,7 @@ export interface UpdateRiskInput {
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendBusinessCostsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   appendDetailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
@@ -62294,6 +62578,7 @@ export interface UpdateRiskInput {
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
+  clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearImpact?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrationID?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
@@ -62327,6 +62612,7 @@ export interface UpdateRiskInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   delegateID?: InputMaybe<Scalars['ID']['input']>
@@ -62373,6 +62659,7 @@ export interface UpdateRiskInput {
   removeDiscussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -62383,6 +62670,7 @@ export interface UpdateRiskInput {
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** score of the residual risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   residualScore?: InputMaybe<Scalars['Int']['input']>
@@ -62673,6 +62961,7 @@ export interface UpdateSubcontrolInput {
   addDiscussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -62683,6 +62972,7 @@ export interface UpdateSubcontrolInput {
   addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** additional names (ref_codes) for the control */
   aliases?: InputMaybe<Array<Scalars['String']['input']>>
@@ -62730,6 +63020,7 @@ export interface UpdateSubcontrolInput {
   clearEvidenceRequests?: InputMaybe<Scalars['Boolean']['input']>
   clearExampleEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
+  clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationGuidance?: InputMaybe<Scalars['Boolean']['input']>
@@ -62760,6 +63051,7 @@ export interface UpdateSubcontrolInput {
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearTestingProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearTitle?: InputMaybe<Scalars['Boolean']['input']>
+  clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   controlID?: InputMaybe<Scalars['ID']['input']>
@@ -62807,6 +63099,7 @@ export interface UpdateSubcontrolInput {
   removeDiscussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -62817,6 +63110,7 @@ export interface UpdateSubcontrolInput {
   removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   responsiblePartyID?: InputMaybe<Scalars['ID']['input']>
   /** source of the control, e.g. framework, template, custom, etc. */
@@ -72129,6 +72423,11 @@ export type GetControlAssociationsByIdQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
     }
+    controlMappings: {
+      __typename?: 'FindingControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingControlEdge'; node?: { __typename?: 'FindingControl'; id: string; findingID: string } | null } | null> | null
+    }
   }
 }
 
@@ -74759,6 +75058,15 @@ export type CreateFindingControlMutation = {
   createFindingControl: { __typename?: 'FindingControlCreatePayload'; findingControl: { __typename?: 'FindingControl'; id: string } }
 }
 
+export type CreateBulkFindingControlMutationVariables = Exact<{
+  input?: InputMaybe<Array<CreateFindingControlInput> | CreateFindingControlInput>
+}>
+
+export type CreateBulkFindingControlMutation = {
+  __typename?: 'Mutation'
+  createBulkFindingControl: { __typename?: 'FindingControlBulkCreatePayload'; findingControls?: Array<{ __typename?: 'FindingControl'; id: string }> | null }
+}
+
 export type UpdateFindingControlMutationVariables = Exact<{
   updateFindingControlId: Scalars['ID']['input']
   input: UpdateFindingControlInput
@@ -74774,6 +75082,15 @@ export type DeleteFindingControlMutationVariables = Exact<{
 }>
 
 export type DeleteFindingControlMutation = { __typename?: 'Mutation'; deleteFindingControl: { __typename?: 'FindingControlDeletePayload'; deletedID: string } }
+
+export type DeleteBulkFindingControlMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkFindingControlMutation = {
+  __typename?: 'Mutation'
+  deleteBulkFindingControl: { __typename?: 'FindingControlBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type CreateBulkCsvFindingControlMutationVariables = Exact<{
   input: Scalars['Upload']['input']
@@ -74981,6 +75298,11 @@ export type GetFindingAssociationsQuery = {
       __typename?: 'ControlConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
+    }
+    controlMappings: {
+      __typename?: 'FindingControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingControlEdge'; node?: { __typename?: 'FindingControl'; id: string; controlID: string } | null } | null> | null
     }
     subcontrols: {
       __typename?: 'SubcontrolConnection'

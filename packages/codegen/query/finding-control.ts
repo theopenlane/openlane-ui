@@ -63,6 +63,16 @@ export const CREATE_FINDING_CONTROL = gql`
   }
 `
 
+export const CREATE_BULK_FINDING_CONTROL = gql`
+  mutation CreateBulkFindingControl($input: [CreateFindingControlInput!]) {
+    createBulkFindingControl(input: $input) {
+      findingControls {
+        id
+      }
+    }
+  }
+`
+
 export const UPDATE_FINDING_CONTROL = gql`
   mutation UpdateFindingControl($updateFindingControlId: ID!, $input: UpdateFindingControlInput!) {
     updateFindingControl(id: $updateFindingControlId, input: $input) {
@@ -77,6 +87,16 @@ export const DELETE_FINDING_CONTROL = gql`
   mutation DeleteFindingControl($deleteFindingControlId: ID!) {
     deleteFindingControl(id: $deleteFindingControlId) {
       deletedID
+    }
+  }
+`
+
+export const BULK_DELETE_FINDING_CONTROL = gql`
+  mutation DeleteBulkFindingControl($ids: [ID!]!) {
+    deleteBulkFindingControl(ids: $ids) {
+      deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

@@ -77,6 +77,7 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   formId?: string
 
   buildPayload?: (data: TFormData) => Promise<TUpdateInput | TCreateInput>
+  onSaved?: (params: { formData: TFormData; created: TCreateData | null; entityId: string | null }) => Promise<void>
   normalizeData?: (data: TData) => Partial<TFormData>
   getName?: (data: TData) => string | null | undefined
 
@@ -109,6 +110,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     data,
     isFetching,
     buildPayload,
+    onSaved,
     normalizeData,
     getName,
     formId = 'editForm',
@@ -202,29 +204,51 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     }
   }
 
+  const runPostSave = async (params: { formData: TFormData; created: TCreateData | null; entityId: string | null }): Promise<boolean> => {
+    if (!onSaved) return true
+    try {
+      await onSaved(params)
+      return true
+    } catch (error) {
+      errorNotification({
+        title: `${objectTypeName} saved with errors`,
+        description: `The ${objectTypeName.toLowerCase()} was saved, but some associations could not be updated: ${parseErrorMessage(error)}`,
+      })
+      return false
+    }
+  }
+
   const onSubmit = async (formData: TFormData) => {
     if (!buildPayload) return
     try {
       const payload = await buildPayload(formData)
 
       if (isCreate && createMutation) {
-        await createMutation.mutateAsync(payload as TCreateInput)
+        const created = await createMutation.mutateAsync(payload as TCreateInput)
+
+        const postSaveSucceeded = await runPostSave({ formData, created, entityId: null })
 
         queryClient.invalidateQueries({ queryKey })
-        successNotification({
-          title: createSuccessTitle,
-          description: createSuccessDescription,
-        })
+        if (postSaveSucceeded) {
+          successNotification({
+            title: createSuccessTitle,
+            description: createSuccessDescription,
+          })
+        }
 
         onClose?.()
       } else if (id && updateMutation) {
         await updateMutation.mutateAsync({ id, input: payload as TUpdateInput })
 
+        const postSaveSucceeded = await runPostSave({ formData, created: null, entityId: id })
+
         queryClient.invalidateQueries({ queryKey })
-        successNotification({
-          title: updateSuccessTitle,
-          description: updateSuccessDescription,
-        })
+        if (postSaveSucceeded) {
+          successNotification({
+            title: updateSuccessTitle,
+            description: updateSuccessDescription,
+          })
+        }
 
         setIsEditing(false)
       }

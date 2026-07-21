@@ -21,6 +21,7 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { useGetControlById, useGetControlRelatedControls } from '@/lib/graphql-hooks/control'
 import { useCreateReview, useUpdateReview } from '@/lib/graphql-hooks/review'
 import { useCreateFinding } from '@/lib/graphql-hooks/finding'
+import { useCreateFindingControl } from '@/lib/graphql-hooks/finding-control'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
@@ -73,6 +74,7 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
   const { mutateAsync: createReview } = useCreateReview()
   const { mutateAsync: updateReview } = useUpdateReview()
   const { mutateAsync: createFinding } = useCreateFinding()
+  const { mutateAsync: createFindingControl } = useCreateFindingControl()
   const plateEditorHelper = usePlateEditor()
 
   const [clearAuditorNotes, setClearAuditorNotes] = useState(false)
@@ -80,6 +82,9 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
   const [showRelated, setShowRelated] = useState(false)
   const [pendingAction, setPendingAction] = useState<ReviewReviewStatus | null>(null)
   const createdReviewIdRef = useRef<string | null>(null)
+  const createdFindingIdRef = useRef<string | null>(null)
+  const commentSavedRef = useRef(false)
+  const findingLinkedRef = useRef(false)
 
   const { push } = useSmartRouter()
 
@@ -129,6 +134,9 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
 
   const resetAndClose = () => {
     createdReviewIdRef.current = null
+    createdFindingIdRef.current = null
+    commentSavedRef.current = false
+    findingLinkedRef.current = false
     form.reset({ title: '', linkedControlIDs: [], linkedSubcontrolIDs: [] })
     setClearAuditorNotes(true)
     setShowFinding(false)
@@ -166,26 +174,40 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
         const res = await createReview({ input })
         reviewId = res.createReview.review.id
         createdReviewIdRef.current = reviewId
+      }
 
-        if (!isPlateValueEmpty(data.auditorNotes)) {
-          const text = typeof data.auditorNotes === 'string' ? data.auditorNotes : await plateEditorHelper.convertToHtml(data.auditorNotes as Value)
-          await updateReview({ updateReviewId: reviewId, input: { addComment: { text } } })
-        }
+      if (!isPlateValueEmpty(data.auditorNotes) && !commentSavedRef.current) {
+        const text = typeof data.auditorNotes === 'string' ? data.auditorNotes : await plateEditorHelper.convertToHtml(data.auditorNotes as Value)
+        await updateReview({ updateReviewId: reviewId, input: { addComment: { text } } })
+        commentSavedRef.current = true
       }
 
       const hasFinding = !!(data.findingTitle?.trim() || data.findingDescription?.trim() || data.findingSeverity)
       if (hasFinding) {
-        const findingInput: CreateFindingInput = {
-          findingStatusName: 'Open',
-          open: true,
-          reviewIDs: [reviewId],
-          controlIDs: subcontrolId ? [] : [controlId],
-          ...(subcontrolId ? { subcontrolIDs: [subcontrolId] } : {}),
-          ...(data.findingTitle?.trim() ? { displayName: data.findingTitle.trim() } : {}),
-          ...(data.findingDescription?.trim() ? { description: data.findingDescription.trim() } : {}),
-          ...(data.findingSeverity ? { severity: data.findingSeverity } : {}),
+        let findingId = createdFindingIdRef.current
+        if (!findingId) {
+          const findingInput: CreateFindingInput = {
+            findingStatusName: 'Open',
+            open: true,
+            reviewIDs: [reviewId],
+            ...(subcontrolId ? { subcontrolIDs: [subcontrolId] } : {}),
+            ...(data.findingTitle?.trim() ? { displayName: data.findingTitle.trim() } : {}),
+            ...(data.findingDescription?.trim() ? { description: data.findingDescription.trim() } : {}),
+            ...(data.findingSeverity ? { severity: data.findingSeverity } : {}),
+          }
+          const createdFinding = await createFinding({ input: findingInput })
+          findingId = createdFinding?.createFinding?.finding?.id ?? null
+          createdFindingIdRef.current = findingId
         }
-        await createFinding({ input: findingInput })
+
+        if (!findingId) {
+          throw new Error('Finding could not be created')
+        }
+
+        if (!subcontrolId && !findingLinkedRef.current) {
+          await createFindingControl({ input: { findingID: findingId, controlID: controlId } })
+          findingLinkedRef.current = true
+        }
       }
 
       queryClient.invalidateQueries({ queryKey: ['reviews'] })
