@@ -903,8 +903,12 @@ export const GET_CONTROLS_BY_REFCODE = gql`
 `
 
 export const GET_PROGRAM_CONTROLS_BY_REFCODE = gql`
-  query GetProgramControlsByRefCode($refCodeIn: [String!], $programId: ID!) {
-    controls(where: { refCodeIn: $refCodeIn, hasProgramsWith: [{ id: $programId }] }) {
+  query GetProgramControlsByRefCode($refCodeIn: [String!], $programId: ID!, $first: Int, $after: Cursor) {
+    controls(where: { refCodeIn: $refCodeIn, hasProgramsWith: [{ id: $programId }] }, first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
       edges {
         node {
           id

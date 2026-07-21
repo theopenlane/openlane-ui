@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Ellipsis } from 'lucide-react'
 import { Button } from '@repo/ui/button'
@@ -12,19 +12,10 @@ interface MenuProps {
   side?: 'top' | 'right' | 'bottom' | 'left'
   closeOnSelect?: boolean
   className?: string
-  defaultOpen?: boolean
 }
 
-const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, side, closeOnSelect, className, defaultOpen }) => {
-  const [open, setOpen] = useState(!!defaultOpen)
-
-  // defaultOpen can flip true after mount (e.g. once an async condition resolves),
-  // so keep it in sync instead of only reading it as an initial value
-  useEffect(() => {
-    if (defaultOpen) {
-      setOpen(true)
-    }
-  }, [defaultOpen])
+const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align, side, closeOnSelect, className }) => {
+  const [open, setOpen] = useState(false)
 
   const handleClose = () => {
     if (closeOnSelect) {

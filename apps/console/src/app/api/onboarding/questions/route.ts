@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth/auth'
 import { mockOnboardingQuestionsResponse } from '@/lib/onboarding-questions/mock-data'
 
-// Stands in for the backend's `v1/onboarding/questions` endpoint
-export async function GET() {
+export const GET = async () => {
   const session = await auth()
 
   if (!session || !session.user?.accessToken) {

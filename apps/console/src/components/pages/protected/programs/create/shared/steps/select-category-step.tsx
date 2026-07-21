@@ -4,8 +4,9 @@ import { useFormContext } from 'react-hook-form'
 import { useSearchParams } from 'next/navigation'
 import { Badge } from '@repo/ui/badge'
 import { cn } from '@repo/ui/lib/utils'
-import { AlertCircle, BookLock, Check, Cloud, GlobeLock, Shield, SlidersHorizontal } from 'lucide-react'
+import { AlertCircle, BookLock, Cloud, GlobeLock, Shield, SlidersHorizontal } from 'lucide-react'
 import { Callout } from '@/components/shared/callout/callout'
+import { Checkbox } from '@repo/ui/checkbox'
 
 const CATEGORY_OPTIONS = [
   { name: 'Security', icon: Shield },
@@ -15,7 +16,7 @@ const CATEGORY_OPTIONS = [
   { name: 'Privacy', icon: GlobeLock },
 ]
 
-export default function SelectCategoryStep() {
+const SelectCategoryStep = () => {
   const { watch, setValue } = useFormContext<{ categories: string[] }>()
   const searchParams = useSearchParams()
   const isOnboardingFlow = searchParams.get('onboarding') === 'true'
@@ -52,36 +53,20 @@ export default function SelectCategoryStep() {
       <div className="flex flex-col gap-3 mt-3">
         {CATEGORY_OPTIONS.map(({ name, icon: Icon }) => {
           const isSelected = selected.includes(name)
+          const checkboxId = `trust-service-category-${name.replace(/\s+/g, '-').toLowerCase()}`
 
           return (
-            <div
-              key={name}
-              role="button"
-              tabIndex={0}
-              onClick={() => toggleCategory(name)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  toggleCategory(name)
-                }
-              }}
-              className={`flex items-center gap-3 p-4 rounded-md border cursor-pointer transition-all ${isSelected ? 'border-primary bg-primary/10' : 'border-border'}`}
-            >
-              <div
-                className={cn(
-                  'flex h-5 w-5 shrink-0 items-center justify-center rounded-md border',
-                  isSelected ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-btn-secondary',
-                )}
-              >
-                {isSelected && <Check className="h-4 w-4" strokeWidth={3} />}
-              </div>
+            <div key={name} className={cn('flex items-center gap-3 p-4 rounded-md border transition-all', isSelected ? 'border-primary bg-primary/10' : 'border-border')}>
+              <Checkbox id={checkboxId} checked={isSelected} onCheckedChange={() => toggleCategory(name)} />
               <Icon className="h-5 w-5 text-muted-foreground" />
-              <span className="font-semibold">{name}</span>
-              {name === 'Security' && (
-                <Badge variant="outline" className="border-primary/40 bg-primary/15 text-primary">
-                  Required for SOC 2
-                </Badge>
-              )}
+              <label htmlFor={checkboxId} className="flex flex-1 items-center gap-3 cursor-pointer font-semibold">
+                {name}
+                {name === 'Security' && (
+                  <Badge variant="outline" className="border-primary/40 bg-primary/15 text-primary">
+                    Required for SOC 2
+                  </Badge>
+                )}
+              </label>
             </div>
           )
         })}
@@ -96,3 +81,5 @@ export default function SelectCategoryStep() {
     </>
   )
 }
+
+export default SelectCategoryStep

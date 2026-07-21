@@ -3,7 +3,8 @@
 import React from 'react'
 import { Check } from 'lucide-react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { DynamicQuestionField, HelpTooltip } from '@/components/pages/protected/onboarding/dynamic-field'
+import { DynamicQuestionField } from '@/components/pages/protected/onboarding/dynamic-field'
+import { HelpTooltip } from '@/components/pages/protected/onboarding/question-label'
 import { isQuestionVisible } from '@/lib/onboarding-questions/build-schema'
 import { type OnboardingStep } from '@/lib/onboarding-questions/types'
 

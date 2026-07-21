@@ -7,20 +7,6 @@ export const step1Schema = z.object({
   standardID: z.string().optional(),
 })
 
-export const suggestedControlMappingSchema = z.object({
-  fromRefCodes: z.array(z.string()),
-  toRefCodes: z.array(z.string()),
-  mappingType: z.string(),
-  confidence: z.number().nullable().optional(),
-  relation: z.string().nullable().optional(),
-})
-
-export const suggestedControlsStepSchema = z.object({
-  suggestedControlIDs: z.array(z.string()).optional(),
-  suggestedControlCategories: z.array(z.string()).optional(),
-  suggestedControlMappings: z.array(suggestedControlMappingSchema).optional(),
-})
-
 export const programInviteSchema = z.object({
   programAdmins: z.array(z.string()).optional(),
   programMembers: z.array(z.string()).optional(),
@@ -39,10 +25,10 @@ export const step3Schema = z.object({
   }),
 })
 
-export const fullSchema = step1Schema.merge(suggestedControlsStepSchema).merge(programInviteSchema).merge(step3Schema)
+export const fullSchema = step1Schema.merge(programInviteSchema).merge(step3Schema)
 export type WizardValues = z.infer<typeof fullSchema>
 
-export async function validateFullAndNotify(methods: UseFormReturn<WizardValues>, notify: (props: TErrorProps) => void): Promise<boolean> {
+export const validateFullAndNotify = async (methods: UseFormReturn<WizardValues>, notify: (props: TErrorProps) => void): Promise<boolean> => {
   const values = methods.getValues()
   const result = fullSchema.safeParse(values)
 

@@ -24,20 +24,26 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { toHumanLabel } from '@/utils/strings'
 
-const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+const ACTIVITY_WINDOW_MS = 30 * 24 * 60 * 60 * 1000
+const ACTIVITY_WINDOW_BUCKET_MS = 60 * 60 * 1000
 
-// policies/controls are grouped for the compact preview, so this needs enough of them fetched
-// for both that group count and the ungrouped "see all" list to be accurate
+const ACTIVITY_WINDOW_START = new Date(Math.floor(Date.now() / ACTIVITY_WINDOW_BUCKET_MS) * ACTIVITY_WINDOW_BUCKET_MS - ACTIVITY_WINDOW_MS).toISOString()
+
 const CREATED_ACTIVITY_PAGINATION = { page: 1, pageSize: 50, query: { first: 50 } }
 
 export type ActivityItem = {
   id: string
   label: string
   type: string
-  createdAt: string
+  createdAt: string | null
   href?: string
   source?: string | null
+  isGrouped?: boolean
 }
+
+const activityTimestamp = (createdAt: string | null | undefined): number => (createdAt ? new Date(createdAt).getTime() : 0)
+
+const byNewestFirst = (a: ActivityItem, b: ActivityItem) => activityTimestamp(b.createdAt) - activityTimestamp(a.createdAt)
 
 const pluralizeLabel = (label: string): string => {
   if (/[bcdfghjklmnpqrstvwxyz]y$/i.test(label)) return `${label.slice(0, -1)}ies`
@@ -45,8 +51,6 @@ const pluralizeLabel = (label: string): string => {
   return `${label}s`
 }
 
-// a single created-by-a-person record shows its own name; a pile of them (e.g. a bulk import)
-// collapses into one "N Controls created" row instead of flooding the feed with every record
 const pushCreatedActivity = <T extends { id: string; createdAt?: string | null }>(
   items: ActivityItem[],
   records: T[] | undefined,
@@ -59,12 +63,19 @@ const pushCreatedActivity = <T extends { id: string; createdAt?: string | null }
 
   if (records.length === 1) {
     const record = records[0]
-    items.push({ id: record.id, label: labelFor(record), type, createdAt: record.createdAt as string, href: hrefFor(record) })
+    items.push({ id: record.id, label: labelFor(record), type, createdAt: record.createdAt ?? null, href: hrefFor(record) })
     return
   }
 
-  const mostRecent = records.reduce((latest, record) => ((record.createdAt ?? '') > (latest.createdAt ?? '') ? record : latest))
-  items.push({ id: `group-${type}`, label: `${records.length} ${pluralizeLabel(toHumanLabel(type))}`, type, createdAt: mostRecent.createdAt as string, href: listHref })
+  const mostRecent = records.reduce((latest, record) => (activityTimestamp(record.createdAt) > activityTimestamp(latest.createdAt) ? record : latest))
+  items.push({
+    id: `group-${type}`,
+    label: `${records.length} ${pluralizeLabel(toHumanLabel(type))}`,
+    type,
+    createdAt: mostRecent.createdAt ?? null,
+    href: listHref,
+    isGrouped: true,
+  })
 }
 
 type VulnNode = { id: string; displayName?: string | null; displayID?: string | null; createdAt?: string | null; source?: string | null }
@@ -73,7 +84,7 @@ const vulnActivityItem = (v: VulnNode): ActivityItem => ({
   id: v.id,
   label: v.displayName ?? v.displayID ?? ObjectTypes.VULNERABILITY,
   type: ObjectTypes.VULNERABILITY,
-  createdAt: v.createdAt as string,
+  createdAt: v.createdAt ?? null,
   href: `/exposure/vulnerabilities?id=${v.id}`,
   source: v.source ?? null,
 })
@@ -98,14 +109,15 @@ const pushVulnerabilityActivity = (items: ActivityItem[], vulns: VulnNode[] | un
       return
     }
 
-    const mostRecent = group.reduce((latest, v) => ((v.createdAt ?? '') > (latest.createdAt ?? '') ? v : latest))
+    const mostRecent = group.reduce((latest, v) => (activityTimestamp(v.createdAt) > activityTimestamp(latest.createdAt) ? v : latest))
     items.push({
       id: `group-${ObjectTypes.VULNERABILITY}-${source || 'unknown'}`,
       label: `${group.length} Vulnerabilities`,
       type: ObjectTypes.VULNERABILITY,
-      createdAt: mostRecent.createdAt as string,
+      createdAt: mostRecent.createdAt ?? null,
       href: '/exposure/vulnerabilities',
       source: source || null,
+      isGrouped: true,
     })
   })
 }
@@ -118,45 +130,47 @@ const controlHref = (c: ControlNode) => `/controls/${c.id}`
 const policyHref = (p: PolicyNode) => `/policies/${p.id}/view`
 
 export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { includeNonExposureActivity?: boolean } = {}) => {
+  const activityWindowStart = ACTIVITY_WINDOW_START
+
   const { vulnerabilitiesNodes: recentVulns, isLoading: isLoadingVulns } = useVulnerabilitiesWithFilter({
-    where: { open: true, createdAtGTE: thirtyDaysAgo },
+    where: { open: true, createdAtGTE: activityWindowStart },
     orderBy: [{ field: VulnerabilityOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: DEFAULT_PAGINATION,
   })
 
   const { findingsNodes: recentFindings, isLoading: isLoadingFindings } = useFindingsWithFilter({
-    where: { open: true, createdAtGTE: thirtyDaysAgo },
+    where: { open: true, createdAtGTE: activityWindowStart },
     orderBy: [{ field: FindingOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: DEFAULT_PAGINATION,
   })
 
   const { risks: recentRisks, isLoading: isLoadingRisks } = useRisks({
-    where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], createdAtGTE: thirtyDaysAgo },
+    where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], createdAtGTE: activityWindowStart },
     orderBy: [{ field: RiskOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: DEFAULT_PAGINATION,
   })
 
   const { scansNodes: recentScans, isLoading: isLoadingScans } = useScansWithFilter({
-    where: { createdAtGTE: thirtyDaysAgo },
+    where: { createdAtGTE: activityWindowStart },
     orderBy: [{ field: ScanOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: DEFAULT_PAGINATION,
   })
 
   const { reviewsNodes: recentReviews, isLoading: isLoadingReviews } = useReviewsWithFilter({
-    where: { createdAtGTE: thirtyDaysAgo },
+    where: { createdAtGTE: activityWindowStart },
     orderBy: [{ field: ReviewOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: DEFAULT_PAGINATION,
   })
 
   const { policies: recentPolicies, isLoading: isLoadingPolicies } = useInternalPolicies({
-    where: { createdAtGTE: thirtyDaysAgo },
+    where: { createdAtGTE: activityWindowStart },
     orderBy: [{ field: InternalPolicyOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: CREATED_ACTIVITY_PAGINATION,
     enabled: includeNonExposureActivity,
   })
 
   const { controls: recentControls, isLoading: isLoadingControls } = useGetAllControls({
-    where: { createdAtGTE: thirtyDaysAgo },
+    where: { createdAtGTE: activityWindowStart },
     orderBy: [{ field: ControlOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: CREATED_ACTIVITY_PAGINATION,
     includeVars: { includeCreatedAt: true, includeTitle: true },
@@ -167,9 +181,9 @@ export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { 
   const recentMentions = useMemo(
     () =>
       includeNonExposureActivity
-        ? notifications.filter((notification) => notification.topic === NotificationNotificationTopic.MENTION && notification.createdAt && notification.createdAt >= thirtyDaysAgo)
+        ? notifications.filter((notification) => notification.topic === NotificationNotificationTopic.MENTION && notification.createdAt && notification.createdAt >= activityWindowStart)
         : [],
-    [notifications, includeNonExposureActivity],
+    [notifications, includeNonExposureActivity, activityWindowStart],
   )
 
   const baseItems = useMemo(() => {
@@ -186,7 +200,7 @@ export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { 
         id: notification.id,
         label: notification.title,
         type: 'Mention',
-        createdAt: notification.createdAt as string,
+        createdAt: notification.createdAt ?? null,
         href: getNotificationRedirectUrl(notification) ?? undefined,
       }),
     )
@@ -199,15 +213,15 @@ export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { 
     pushVulnerabilityActivity(items, recentVulns, includeNonExposureActivity)
     pushCreatedActivity(items, recentPolicies, ObjectTypes.INTERNAL_POLICY, '/policies', (p) => p.name ?? ObjectTypes.INTERNAL_POLICY, policyHref)
     pushCreatedActivity(items, recentControls, ObjectTypes.CONTROL, '/controls', controlLabel, controlHref)
-    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    return items.sort(byNewestFirst)
   }, [baseItems, recentVulns, recentPolicies, recentControls, includeNonExposureActivity])
 
   const allActivityItems = useMemo(() => {
     const items = [...baseItems]
     pushVulnerabilityActivity(items, recentVulns, false)
-    recentPolicies?.forEach((p) => items.push({ id: p.id, label: p.name ?? ObjectTypes.INTERNAL_POLICY, type: ObjectTypes.INTERNAL_POLICY, createdAt: p.createdAt as string, href: policyHref(p) }))
-    recentControls?.forEach((c) => items.push({ id: c.id, label: controlLabel(c), type: ObjectTypes.CONTROL, createdAt: c.createdAt as string, href: controlHref(c) }))
-    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    recentPolicies?.forEach((p) => items.push({ id: p.id, label: p.name ?? ObjectTypes.INTERNAL_POLICY, type: ObjectTypes.INTERNAL_POLICY, createdAt: p.createdAt ?? null, href: policyHref(p) }))
+    recentControls?.forEach((c) => items.push({ id: c.id, label: controlLabel(c), type: ObjectTypes.CONTROL, createdAt: c.createdAt ?? null, href: controlHref(c) }))
+    return items.sort(byNewestFirst)
   }, [baseItems, recentVulns, recentPolicies, recentControls])
 
   const isLoading = isLoadingVulns || isLoadingFindings || isLoadingRisks || isLoadingScans || isLoadingReviews || isLoadingPolicies || isLoadingControls

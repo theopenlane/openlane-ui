@@ -10,10 +10,10 @@ interface EditableNameProps {
   className?: string
 }
 
-// click-to-edit single-line counterpart to @repo/ui/textarea's EditableTextarea
 export const EditableName: React.FC<EditableNameProps> = ({ value, onChange, placeholder, className }) => {
   const [editing, setEditing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const valueBeforeEditRef = useRef(value)
 
   useEffect(() => {
     if (editing) {
@@ -21,6 +21,16 @@ export const EditableName: React.FC<EditableNameProps> = ({ value, onChange, pla
       inputRef.current?.select()
     }
   }, [editing])
+
+  const startEditing = () => {
+    valueBeforeEditRef.current = value
+    setEditing(true)
+  }
+
+  const cancelEditing = () => {
+    onChange(valueBeforeEditRef.current)
+    setEditing(false)
+  }
 
   if (editing) {
     return (
@@ -32,7 +42,14 @@ export const EditableName: React.FC<EditableNameProps> = ({ value, onChange, pla
         onChange={(event) => onChange(event.target.value)}
         onBlur={() => setEditing(false)}
         onKeyDown={(event) => {
-          if (event.key === 'Enter') setEditing(false)
+          if (event.key === 'Enter') {
+            setEditing(false)
+            return
+          }
+          if (event.key === 'Escape') {
+            event.preventDefault()
+            cancelEditing()
+          }
         }}
         className={className}
       />
@@ -43,7 +60,7 @@ export const EditableName: React.FC<EditableNameProps> = ({ value, onChange, pla
     <span
       onClick={(event) => {
         event.stopPropagation()
-        setEditing(true)
+        startEditing()
       }}
       className={`cursor-pointer decoration-dotted hover:underline ${!value ? 'text-muted-foreground' : ''} ${className ?? ''}`}
     >

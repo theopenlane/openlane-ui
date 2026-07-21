@@ -26,7 +26,6 @@ const SelectFrameworkStep = ({ required = false, defaultFramework }: { required?
         )}
       </div>
 
-      {/* Select Framework */}
       <div className="flex flex-col gap-1.5 mt-8">
         <div>
           <label className="text-sm">Select Framework</label>

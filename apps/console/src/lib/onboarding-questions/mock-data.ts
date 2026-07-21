@@ -23,6 +23,7 @@ export const mockOnboardingQuestionsResponse: OnboardingQuestionsResponse = {
           label: 'Company Domains',
           description: 'Used to automatically discover your technology and allow teammates to join your organization',
           inputType: 'multi-input',
+          format: 'domain',
           required: true,
           hidden: false,
         },

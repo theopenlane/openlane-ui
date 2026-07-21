@@ -1,37 +1,47 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
-import { getOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
+import { createOrgPersistedStore, parseStringArray, useOrgPersistedState } from '@/lib/storage/org-persisted-store'
 import { mockSuggestedTasks } from '@/lib/suggested-tasks/mock-data'
+import type { SuggestedTask, SuggestedTaskSourceValue } from '@/lib/suggested-tasks/types'
 
-const COMPLETED_RECOMMENDATIONS_STORAGE_KEY = 'dashboard-dismissed-recommendations'
+const DISMISSED_RECOMMENDATIONS_STORAGE_KEY = 'dashboard-dismissed-recommendations'
 
-export const useRecommendationsFeed = () => {
+const dismissedRecommendationsStore = createOrgPersistedStore<string[]>(DISMISSED_RECOMMENDATIONS_STORAGE_KEY, parseStringArray, () => [])
+
+const FEED_EVALUATED_AT = Date.now()
+
+export type RecommendationsFeedFilter = {
+  source?: SuggestedTaskSourceValue
+}
+
+export type RecommendationsFeed = {
+  suggestions: SuggestedTask[]
+  isLoading: boolean
+  error: Error | null
+  dismissSuggestion: (suggestionId: string) => void
+}
+
+export const useRecommendationsFeed = ({ source }: RecommendationsFeedFilter = {}): RecommendationsFeed => {
   const { currentOrgId } = useOrganization()
-  const [completedKeys, setCompletedKeys] = useState<string[]>([])
+  const { value: dismissedIds, isHydrated, setValue: setDismissedIds } = useOrgPersistedState(dismissedRecommendationsStore, currentOrgId)
 
-  useEffect(() => {
-    const raw = getOrganizationStorageItem(COMPLETED_RECOMMENDATIONS_STORAGE_KEY, currentOrgId)
-    if (!raw) return
-    try {
-      setCompletedKeys(JSON.parse(raw))
-    } catch {
-      console.error('Could not parse completed recommendations from localStorage')
-    }
-  }, [currentOrgId])
+  const suggestions = useMemo(() => {
+    if (!isHydrated) return []
 
-  // mock data standing in for real suggested tasks until this is backed by the tasks API --
-  // click routing (metadata.link vs opening the suggested-task view) is decided by the caller
-  const suggestions = mockSuggestedTasks.filter((task) => !task.availableAt || new Date(task.availableAt) <= new Date())
+    const dismissed = new Set(dismissedIds)
+    return mockSuggestedTasks.filter(
+      (task) => !dismissed.has(task.id) && (!task.availableAt || new Date(task.availableAt).getTime() <= FEED_EVALUATED_AT) && (source === undefined || task.source === source),
+    )
+  }, [dismissedIds, isHydrated, source])
 
-  const toggleComplete = (key: string) => {
-    setCompletedKeys((prev) => {
-      const next = prev.includes(key) ? prev.filter((completedKey) => completedKey !== key) : [...prev, key]
-      setOrganizationStorageItem(COMPLETED_RECOMMENDATIONS_STORAGE_KEY, JSON.stringify(next), currentOrgId)
-      return next
-    })
-  }
+  const dismissSuggestion = useCallback(
+    (suggestionId: string) => {
+      setDismissedIds((previous) => (previous.includes(suggestionId) ? previous.filter((id) => id !== suggestionId) : [...previous, suggestionId]))
+    },
+    [setDismissedIds],
+  )
 
-  return { suggestions, completedKeys, toggleComplete }
+  return { suggestions, isLoading: !isHydrated, error: null, dismissSuggestion }
 }

@@ -1,51 +1,74 @@
 import { z, type ZodTypeAny } from 'zod'
 import { type OnboardingQuestion, type OnboardingStep } from './types'
 
-const DOMAIN_REGEX = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+export const DOMAIN_REGEX = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
+export const allQuestionsForStep = (step: OnboardingStep): OnboardingQuestion[] => [...(step.questions ?? []), ...(step.sections ?? []).flatMap((section) => section.questions)]
+
+export const isQuestionVisible = (question: OnboardingQuestion, values: Record<string, unknown>): boolean => {
+  if (!question.dependsOn) return true
+
+  const parentValue = values[question.dependsOn.key]
+  if (Array.isArray(parentValue)) {
+    return parentValue.includes(question.dependsOn.equals)
+  }
+  return parentValue === question.dependsOn.equals
+}
+
+export const isAnswered = (value: unknown): boolean => {
+  if (value === undefined || value === null) return false
+  if (typeof value === 'string') return value.trim().length > 0
+  if (Array.isArray(value)) return value.length > 0
+  return true
+}
 
 const buildFieldSchema = (question: OnboardingQuestion): ZodTypeAny => {
   switch (question.inputType) {
     case 'string': {
-      // company_name keeps a stricter, human-friendly minimum beyond what the generic
-      // `required` flag can express
-      if (question.key === 'company_name') {
-        return z.string().min(3, 'Company name requires at least 3 characters')
-      }
       if (question.format === 'email') {
-        const email = z.string().email('Enter a valid email address')
-        return question.required ? email : email.optional().or(z.literal(''))
+        return z.string().email('Enter a valid email address').or(z.literal('')).optional()
       }
-      return question.required ? z.string().min(1, `${question.label} is required`) : z.string().optional()
+      if (question.key === 'company_name') {
+        return z.string().min(3, 'Company name requires at least 3 characters').or(z.literal('')).optional()
+      }
+      return z.string().optional()
     }
     case 'multi-input': {
-      // company_domains keeps its per-entry domain-format check regardless of required-ness
-      const items = question.key === 'company_domains' ? z.array(z.string().regex(DOMAIN_REGEX, 'Invalid domain format')) : z.array(z.string())
-      return question.required ? items.min(1, `${question.label} is required`) : items.optional()
+      const items = question.format === 'domain' ? z.array(z.string().regex(DOMAIN_REGEX, 'Invalid domain format')) : z.array(z.string())
+      return items.optional()
     }
     case 'select':
-      return question.required ? z.string().min(1, `${question.label} is required`) : z.string().optional()
-    case 'multiselect': {
-      const items = z.array(z.string())
-      return question.required ? items.min(1, `${question.label} is required`) : items.optional()
-    }
+      return z.string().optional()
+    case 'multiselect':
+      return z.array(z.string()).optional()
     case 'boolean':
     case 'checkbox':
-      return question.required ? z.boolean({ required_error: `${question.label} is required` }) : z.boolean().optional()
+      return z.boolean().optional()
   }
 }
 
-const allQuestionsForStep = (step: OnboardingStep): OnboardingQuestion[] => [...(step.questions ?? []), ...(step.sections ?? []).flatMap((section) => section.questions)]
-
 export const buildOnboardingSchema = (steps: OnboardingStep[]) => {
   const shape: Record<string, ZodTypeAny> = {}
+  const questions: OnboardingQuestion[] = []
 
   for (const step of steps) {
     for (const question of allQuestionsForStep(step)) {
       shape[question.key] = buildFieldSchema(question)
+      questions.push(question)
     }
   }
 
-  return z.object(shape)
+  return z.object(shape).superRefine((values: Record<string, unknown>, ctx) => {
+    for (const question of questions) {
+      if (!question.required || !isQuestionVisible(question, values) || isAnswered(values[question.key])) continue
+
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [question.key],
+        message: `${question.label ?? 'This field'} is required`,
+      })
+    }
+  })
 }
 
 export const buildOnboardingDefaultValues = (steps: OnboardingStep[]): Record<string, string | string[] | boolean | undefined> => {
@@ -75,25 +98,18 @@ export const buildOnboardingDefaultValues = (steps: OnboardingStep[]): Record<st
   return defaults
 }
 
-export const getRequiredKeysForStep = (step: OnboardingStep): string[] =>
+export const getRequiredKeysForStep = (step: OnboardingStep, values: Record<string, unknown>): string[] =>
   allQuestionsForStep(step)
-    .filter((question) => question.required)
+    .filter((question) => question.required && isQuestionVisible(question, values))
     .map((question) => question.key)
 
-// items without an explicit order keep their original array position, sorted after any that do --
-// shared by anything with an optional `order` field (question options, step sections)
+export const getVisibleKeysForStep = (step: OnboardingStep, values: Record<string, unknown>): string[] =>
+  allQuestionsForStep(step)
+    .filter((question) => isQuestionVisible(question, values))
+    .map((question) => question.key)
+
 export const sortByOrder = <T extends { order?: number }>(items: T[]): T[] =>
   items
     .map((item, index) => ({ item, index }))
     .sort((a, b) => (a.item.order ?? Infinity) - (b.item.order ?? Infinity) || a.index - b.index)
     .map(({ item }) => item)
-
-export const isQuestionVisible = (question: OnboardingQuestion, values: Record<string, unknown>): boolean => {
-  if (!question.dependsOn) return true
-
-  const parentValue = values[question.dependsOn.key]
-  if (Array.isArray(parentValue)) {
-    return parentValue.includes(question.dependsOn.equals)
-  }
-  return parentValue === question.dependsOn.equals
-}

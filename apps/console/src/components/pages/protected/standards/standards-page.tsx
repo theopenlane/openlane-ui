@@ -24,13 +24,16 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { getOnboardingFrameworks } from '@/lib/storage/onboarding-frameworks'
 
 const filterFields = getTasksFilterFields()
+
+const normalizeShortName = (value?: string | null) => value?.trim().toLowerCase().replace(/\s+/g, ' ')
+
 const StandardsPage = () => {
   const { setCrumbs } = use(BreadcrumbContext)
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<StandardWhereInput | null>(null)
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const { currentOrgId } = useOrganization()
-  const [recommendedFrameworks, setRecommendedFrameworks] = useState<string[]>(() => getOnboardingFrameworks(currentOrgId))
+  const [recommendedFrameworks, setRecommendedFrameworks] = useState<string[]>([])
 
   useEffect(() => {
     setRecommendedFrameworks(getOnboardingFrameworks(currentOrgId))
@@ -56,10 +59,16 @@ const StandardsPage = () => {
 
   const { data, isLoading, isError } = useGetStandards({ where: whereFilter, enabled: !!filters })
 
-  const isRecommended = useCallback((shortName?: string | null) => !!shortName && recommendedFrameworks.includes(shortName), [recommendedFrameworks])
+  const recommendedShortNames = useMemo(() => new Set(recommendedFrameworks.map(normalizeShortName).filter((name): name is string => !!name)), [recommendedFrameworks])
 
-  // Array.prototype.sort is stable, so standards within the same recommended/non-recommended
-  // group keep the order the API returned them in
+  const isRecommended = useCallback(
+    (shortName?: string | null) => {
+      const normalized = normalizeShortName(shortName)
+      return !!normalized && recommendedShortNames.has(normalized)
+    },
+    [recommendedShortNames],
+  )
+
   const sortedStandardEdges = useMemo(() => {
     const edges = data?.standards?.edges ?? []
     if (!recommendedFrameworks.length) return edges

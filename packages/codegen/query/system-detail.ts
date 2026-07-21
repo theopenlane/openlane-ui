@@ -115,16 +115,6 @@ export const DELETE_SYSTEM_DETAIL = gql`
   }
 `
 
-export const CREATE_BULK_SYSTEM_DETAIL = gql`
-  mutation CreateBulkSystemDetail($input: [CreateSystemDetailInput!]) {
-    createBulkSystemDetail(input: $input) {
-      systemDetails {
-        id
-      }
-    }
-  }
-`
-
 export const CREATE_CSV_BULK_SYSTEM_DETAIL = gql`
   mutation CreateBulkCSVSystemDetail($input: Upload!) {
     createBulkCSVSystemDetail(input: $input) {

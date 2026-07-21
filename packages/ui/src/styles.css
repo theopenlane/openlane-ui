@@ -327,7 +327,7 @@
   --color-table-secondary: #23344052;
   --color-nav: #233440;
   --color-gradient-border-from: rgba(255, 255, 255, 0.12);
-  --color-gradient-border-to: rgba(255, 255, 255, 0.12);
+  --color-gradient-border-to: rgba(255, 255, 255, 0);
   --color-gradient-border-top: #50616b;
   --color-toast-border: #ffffff1f;
   --color-document-chip: #ffffff;
@@ -401,6 +401,7 @@
   --color-moderate: #ca8a04;
   --color-danger: #f45b50;
   --color-suggestion: #ff842c;
+  --color-recommendation: #8b5cf6;
 
   --color-active-filter-border: #60e8c93d;
   --color-active-filter-background: #60e8c91f;

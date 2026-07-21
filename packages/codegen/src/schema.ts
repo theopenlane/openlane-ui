@@ -73042,11 +73042,17 @@ export type GetControlsByRefCodeQuery = {
 export type GetProgramControlsByRefCodeQueryVariables = Exact<{
   refCodeIn?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
   programId: Scalars['ID']['input']
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetProgramControlsByRefCodeQuery = {
   __typename?: 'Query'
-  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+  controls: {
+    __typename?: 'ControlConnection'
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
+    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null
+  }
 }
 
 export type GetControlRelatedControlsQueryVariables = Exact<{
@@ -78348,15 +78354,6 @@ export type DeletePlatformMutationVariables = Exact<{
 
 export type DeletePlatformMutation = { __typename?: 'Mutation'; deletePlatform: { __typename?: 'PlatformDeletePayload'; deletedID: string } }
 
-export type CreateBulkPlatformMutationVariables = Exact<{
-  input?: InputMaybe<Array<CreatePlatformInput> | CreatePlatformInput>
-}>
-
-export type CreateBulkPlatformMutation = {
-  __typename?: 'Mutation'
-  createBulkPlatform: { __typename?: 'PlatformBulkCreatePayload'; platforms?: Array<{ __typename?: 'Platform'; id: string }> | null }
-}
-
 export type CreateProcedureMutationVariables = Exact<{
   input: CreateProcedureInput
 }>
@@ -81301,15 +81298,6 @@ export type DeleteSystemDetailMutationVariables = Exact<{
 }>
 
 export type DeleteSystemDetailMutation = { __typename?: 'Mutation'; deleteSystemDetail: { __typename?: 'SystemDetailDeletePayload'; deletedID: string } }
-
-export type CreateBulkSystemDetailMutationVariables = Exact<{
-  input?: InputMaybe<Array<CreateSystemDetailInput> | CreateSystemDetailInput>
-}>
-
-export type CreateBulkSystemDetailMutation = {
-  __typename?: 'Mutation'
-  createBulkSystemDetail: { __typename?: 'SystemDetailBulkCreatePayload'; systemDetails?: Array<{ __typename?: 'SystemDetail'; id: string }> | null }
-}
 
 export type CreateBulkCsvSystemDetailMutationVariables = Exact<{
   input: Scalars['Upload']['input']
