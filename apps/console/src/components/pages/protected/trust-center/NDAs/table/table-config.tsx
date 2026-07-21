@@ -7,6 +7,8 @@ import { Building2, Calendar, CheckCheck, Mail, XIcon } from 'lucide-react'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { type FilterField } from '@/types'
 import React from 'react'
+import { AuthorDisplay } from '@/components/shared/user-display/author-cell'
+import { type ResolvedAuthor } from '@/lib/authors'
 
 export type NdaRequestRow = {
   id: string
@@ -16,7 +18,7 @@ export type NdaRequestRow = {
   email: string
   createdAt: string
   approvedAt?: string
-  approvedBy?: string
+  approvedBy?: ResolvedAuthor
   signedAt?: string
 }
 
@@ -68,7 +70,7 @@ export const getNdaRequestColumns = ({
     columns.push({
       accessorKey: 'approvedBy',
       header: 'Approved By',
-      cell: ({ row }) => row.original.approvedBy,
+      cell: ({ row }) => (row.original.approvedBy ? <AuthorDisplay author={row.original.approvedBy} className="truncate" /> : <span className="text-muted-foreground">-</span>),
       size: 120,
     })
   }

@@ -71,6 +71,14 @@ export const GET_ALL_TRUST_CENTER_NDA_REQUESTS = gql`
           createdAt
           approvedAt
           approvedByUserID
+          approvedByUser {
+            id
+            displayName
+            avatarFile {
+              base64
+            }
+            avatarRemoteURL
+          }
           signedAt
           status
         }

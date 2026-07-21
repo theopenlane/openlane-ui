@@ -9578,6 +9578,7 @@ export interface CreateFindingControlInput {
   findingID: Scalars['ID']['input']
   /** additional metadata about the control mapping from the source system */
   metadata?: InputMaybe<Scalars['Map']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the integration source that provided the mapping */
   source?: InputMaybe<Scalars['String']['input']>
   standardID?: InputMaybe<Scalars['ID']['input']>
@@ -11819,8 +11820,7 @@ export interface CreateTrustCenterNdaRequestInput {
   accessLevel?: InputMaybe<TrustCenterNdaRequestTrustCenterNdaRequestAccessLevel>
   /** timestamp when the request was approved */
   approvedAt?: InputMaybe<Scalars['DateTime']['input']>
-  /** ID of the user who approved the request */
-  approvedByUserID?: InputMaybe<Scalars['String']['input']>
+  approvedByUserID?: InputMaybe<Scalars['ID']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** company name of the requester */
   companyName?: InputMaybe<Scalars['String']['input']>
@@ -21508,6 +21508,9 @@ export interface FindingControl extends Node {
   id: Scalars['ID']['output']
   /** additional metadata about the control mapping from the source system */
   metadata?: Maybe<Scalars['Map']['output']>
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
   /** the integration source that provided the mapping */
   source?: Maybe<Scalars['String']['output']>
   standard?: Maybe<Standard>
@@ -36419,6 +36422,7 @@ export interface Organization extends Node {
   fileCreators: GroupConnection
   files: FileConnection
   findingControlCreators: GroupConnection
+  findingControls: FindingControlConnection
   findingCreators: GroupConnection
   findings: FindingConnection
   groupCreators: GroupConnection
@@ -37035,6 +37039,15 @@ export interface OrganizationFindingControlCreatorsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationFindingControlsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FindingControlOrder>>
+  where?: InputMaybe<FindingControlWhereInput>
 }
 
 export interface OrganizationFindingCreatorsArgs {
@@ -38866,6 +38879,9 @@ export interface OrganizationWhereInput {
   /** finding_control_creators edge predicates */
   hasFindingControlCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingControlCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** finding_controls edge predicates */
+  hasFindingControls?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingControlsWith?: InputMaybe<Array<FindingControlWhereInput>>
   /** finding_creators edge predicates */
   hasFindingCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -55543,8 +55559,9 @@ export interface TrustCenterNdaRequest extends Node {
   accessLevel?: Maybe<TrustCenterNdaRequestTrustCenterNdaRequestAccessLevel>
   /** timestamp when the request was approved */
   approvedAt?: Maybe<Scalars['DateTime']['output']>
+  approvedByUser?: Maybe<User>
   /** ID of the user who approved the request */
-  approvedByUserID?: Maybe<Scalars['String']['output']>
+  approvedByUserID?: Maybe<Scalars['ID']['output']>
   blockedGroups: GroupConnection
   /** company name of the requester */
   companyName?: Maybe<Scalars['String']['output']>
@@ -55724,20 +55741,20 @@ export interface TrustCenterNdaRequestWhereInput {
   approvedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   approvedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** approved_by_user_id field predicates */
-  approvedByUserID?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDContains?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDGT?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDGTE?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  approvedByUserID?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
   approvedByUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  approvedByUserIDLT?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDLTE?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDNEQ?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  approvedByUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   approvedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** company_name field predicates */
   companyName?: InputMaybe<Scalars['String']['input']>
@@ -55842,6 +55859,9 @@ export interface TrustCenterNdaRequestWhereInput {
   firstNameLTE?: InputMaybe<Scalars['String']['input']>
   firstNameNEQ?: InputMaybe<Scalars['String']['input']>
   firstNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** approved_by_user edge predicates */
+  hasApprovedByUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasApprovedByUserWith?: InputMaybe<Array<UserWhereInput>>
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -59813,6 +59833,7 @@ export interface UpdateFindingControlInput {
   clearExternalStandard?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalStandardVersion?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   /** timestamp when the mapping was first observed */
   discoveredAt?: InputMaybe<Scalars['DateTime']['input']>
@@ -59824,6 +59845,7 @@ export interface UpdateFindingControlInput {
   externalStandardVersion?: InputMaybe<Scalars['String']['input']>
   /** additional metadata about the control mapping from the source system */
   metadata?: InputMaybe<Scalars['Map']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the integration source that provided the mapping */
   source?: InputMaybe<Scalars['String']['input']>
 }
@@ -63666,11 +63688,10 @@ export interface UpdateTrustCenterNdaRequestInput {
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** timestamp when the request was approved */
   approvedAt?: InputMaybe<Scalars['DateTime']['input']>
-  /** ID of the user who approved the request */
-  approvedByUserID?: InputMaybe<Scalars['String']['input']>
+  approvedByUserID?: InputMaybe<Scalars['ID']['input']>
   clearAccessLevel?: InputMaybe<Scalars['Boolean']['input']>
   clearApprovedAt?: InputMaybe<Scalars['Boolean']['input']>
-  clearApprovedByUserID?: InputMaybe<Scalars['Boolean']['input']>
+  clearApprovedByUser?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyName?: InputMaybe<Scalars['Boolean']['input']>
   clearDocument?: InputMaybe<Scalars['Boolean']['input']>
@@ -82075,8 +82096,10 @@ export type GetTrustCenterNdaRequestsQuery = {
         email: string
         createdAt?: any | null
         approvedAt?: string | null
+        approvedByUserID?: string | null
         signedAt?: string | null
         status?: TrustCenterNdaRequestTrustCenterNdaRequestStatus | null
+        approvedByUser?: { __typename?: 'User'; id: string; displayName?: string | null; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
       } | null
     } | null> | null
   }

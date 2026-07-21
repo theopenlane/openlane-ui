@@ -697,6 +697,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'externalStandard', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'externalStandardVersion', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'metadata', kind: 'json', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'ownerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'source', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
   ],
   Group: [
@@ -1410,7 +1411,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
   TrustCenterNDARequest: [
     { name: 'accessLevel', kind: 'enum', list: false, nonNull: false, listItemNonNull: false, enumName: 'TrustCenterNdaRequestTrustCenterNdaRequestAccessLevel' },
     { name: 'approvedAt', kind: 'date', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'approvedByUserID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'approvedByUserID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'companyName', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'email', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
     { name: 'fileID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },

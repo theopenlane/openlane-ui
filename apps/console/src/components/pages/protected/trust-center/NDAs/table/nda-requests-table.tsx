@@ -5,7 +5,7 @@ import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { TrustCenterNdaRequestTrustCenterNdaRequestStatus, type TrustCenterNdaRequestWhereInput } from '@repo/codegen/src/schema'
+import { TrustCenterNdaRequestTrustCenterNdaRequestStatus, type TrustCenterNdaRequestWhereInput, type User } from '@repo/codegen/src/schema'
 import { DEFAULT_NDA_REQUESTS_ORDER, useBulkDeleteTrustCenterNdaRequest, useGetTrustCenterNdaRequests, useUpdateTrustCenterNdaRequest } from '@/lib/graphql-hooks/trust-center-nda-request'
 import NdaRequestsTableToolbar from './nda-requests-table-toolbar'
 import { getNdaRequestColumns, type NdaRequestRow } from './table-config'
@@ -14,6 +14,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useDebounce } from '@uidotdev/usehooks'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
+import { resolveAuthor } from '@/lib/authors'
 
 type NdaRequestsTableProps = {
   requireApproval: boolean
@@ -82,7 +83,11 @@ const NdaRequestsTable = ({ requireApproval, canRevoke }: NdaRequestsTableProps)
         createdAt: request.createdAt ?? '',
         approvedAt: request.approvedAt ?? '',
         signedAt: request.signedAt ?? '',
-        approvedBy: request.approvedByUserID ?? '',
+        approvedBy: request.approvedByUserID
+          ? resolveAuthor(request.approvedByUserID, {
+              userMap: request.approvedByUser ? { [request.approvedByUser.id]: request.approvedByUser as User } : undefined,
+            })
+          : undefined,
       })),
     [requests],
   )
