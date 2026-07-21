@@ -16,6 +16,7 @@ export type NdaRequestRow = {
   email: string
   createdAt: string
   approvedAt?: string
+  approvedBy?: string
   signedAt?: string
 }
 
@@ -62,6 +63,15 @@ export const getNdaRequestColumns = ({
       size: 120,
     },
   )
+
+  if (showApprovedOn || showSignedOn) {
+    columns.push({
+      accessorKey: 'approvedBy',
+      header: 'Approved By',
+      cell: ({ row }) => row.original.approvedBy,
+      size: 120,
+    })
+  }
 
   if (showApprovedOn) {
     columns.push({

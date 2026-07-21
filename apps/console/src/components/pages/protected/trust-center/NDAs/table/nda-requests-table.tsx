@@ -82,6 +82,7 @@ const NdaRequestsTable = ({ requireApproval, canRevoke }: NdaRequestsTableProps)
         createdAt: request.createdAt ?? '',
         approvedAt: request.approvedAt ?? '',
         signedAt: request.signedAt ?? '',
+        approvedBy: request.approvedByUserID ?? '',
       })),
     [requests],
   )
