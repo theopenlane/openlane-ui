@@ -21,6 +21,7 @@ import {
   type ImportDomainScanReviewMutation,
   type ImportDomainScanReviewMutationVariables,
 } from '@repo/codegen/src/schema'
+import { type ClientError } from 'graphql-request'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
@@ -89,7 +90,7 @@ export const useUpdateScan = () => {
 
 export const useImportDomainScanReview = () => {
   const { client } = useGraphQLClient()
-  return useMutation<ImportDomainScanReviewMutation, unknown, ImportDomainScanReviewMutationVariables>({
+  return useMutation<ImportDomainScanReviewMutation, ClientError, ImportDomainScanReviewMutationVariables>({
     mutationFn: async (variables) => client.request(IMPORT_DOMAIN_SCAN_REVIEW, variables),
   })
 }

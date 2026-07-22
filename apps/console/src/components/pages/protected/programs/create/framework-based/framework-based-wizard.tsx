@@ -10,7 +10,8 @@ import { StepHeader } from '@/components/shared/step-header/step-header'
 import TeamSetupStep from '../shared/steps/team-setup-step'
 import StartTypeStep from '../shared/steps/start-type-step'
 import SelectFrameworkStep from '../shared/steps/select-framework-step'
-import { suggestedControlsStepSchema, validateFullAndNotify, wizardSchema, type WizardValues } from './framework-based-wizard-config'
+import { validateFullAndNotify, wizardSchema, type WizardValues } from './framework-based-wizard-config'
+import { suggestedControlsStepSchema } from '../shared/suggested-controls-schema'
 import { ProgramMembershipRole, type CreateProgramWithMembersInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
@@ -22,13 +23,13 @@ import { addYears } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import SelectCategoryStep from '../shared/steps/select-category-step'
-import SuggestedControlsStep from '../soc2/suggested-controls-step'
+import SuggestedControlsStep from '../shared/steps/suggested-controls-step'
 import { useCloneControls } from '@/lib/graphql-hooks/standard'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
 
-export default function FrameworkBasedWizard() {
+const FrameworkBasedWizard = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const defaultFramework = searchParams.get('framework') ?? undefined
@@ -59,7 +60,7 @@ export default function FrameworkBasedWizard() {
     resolver: zodResolver(wizardSchema),
     mode: 'onChange',
     defaultValues: {
-      categories: includeSuggestedControls ? [] : ['Security'],
+      categories: ['Security'],
       suggestedControlIDs: [],
       suggestedControlCategories: [],
     },
@@ -146,21 +147,39 @@ export default function FrameworkBasedWizard() {
         })
       }
 
+      let mappingFailureDescription: string | undefined
+
       try {
-        await recreateSeededControlMappings({
+        const { failedCount, unresolvedRefCodes } = await recreateSeededControlMappings({
           client,
           programID,
           mappingGroups: values.suggestedControlMappings,
           createMappedControl,
         })
+
+        if (failedCount > 0 || unresolvedRefCodes.length > 0) {
+          const reasons = [
+            failedCount > 0 ? `${failedCount} mapping(s) failed to save` : '',
+            unresolvedRefCodes.length > 0 ? `${unresolvedRefCodes.length} control(s) were not found in the program` : '',
+          ]
+          mappingFailureDescription = `${reasons.filter(Boolean).join(' and ')}. Review the control mappings on this program.`
+        }
       } catch (mappingError) {
-        console.error('Failed to recreate control mappings', mappingError)
+        mappingFailureDescription = parseErrorMessage(mappingError)
       }
 
-      successNotification({
-        title: 'Program Created',
-        description: `Your program, ${input.program.name}, has been successfully created`,
-      })
+      if (mappingFailureDescription) {
+        errorNotification({
+          title: 'Program created without all control mappings',
+          description: mappingFailureDescription,
+        })
+      } else {
+        successNotification({
+          title: 'Program Created',
+          description: `Your program, ${input.program.name}, has been successfully created`,
+        })
+      }
+
       router.push(`/programs/${programID}`)
     } catch (e) {
       errorNotification({
@@ -218,3 +237,5 @@ export default function FrameworkBasedWizard() {
     </>
   )
 }
+
+export default FrameworkBasedWizard

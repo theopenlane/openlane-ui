@@ -1,83 +1,107 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { TaskTaskStatus } from '@repo/codegen/src/schema'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { NotificationNotificationTopic, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { useOrganization } from '@/hooks/useOrganization'
+import { useNotification } from '@/hooks/useNotification'
 import { useRecommendationsFeed } from '@/hooks/useRecommendationsFeed'
-import { getOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
-import { SuggestedTaskSource, type SuggestedTask } from '@/lib/suggested-tasks/types'
+import { type Notification } from '@/lib/graphql-hooks/notifications'
+import { useUpdateTask } from '@/lib/graphql-hooks/task'
+import { clearOnboardingTasksPending, getOnboardingTasksPending } from '@/lib/storage/onboarding-tasks-pending'
+import { isTerminalTaskStatus, SuggestedTaskSource, type SuggestedTask } from '@/lib/suggested-tasks/types'
+import { useNotificationsContext } from '@/providers/notifications-provider'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 export type SetupChecklistItemStatus = 'done' | 'in-progress' | 'not-started'
 
-const SETUP_CHECKLIST_STATUS_STORAGE_KEY = 'dashboard-setup-checklist-status'
+export type SetupChecklistItem = SuggestedTask & { itemStatus: SetupChecklistItemStatus }
 
-const statusFromTaskStatus = (status: TaskTaskStatus): SetupChecklistItemStatus => {
-  switch (status) {
-    case TaskTaskStatus.COMPLETED:
-    case TaskTaskStatus.WONT_DO:
-      return 'done'
-    case TaskTaskStatus.IN_PROGRESS:
-    case TaskTaskStatus.IN_REVIEW:
-      return 'in-progress'
-    default:
-      return 'not-started'
-  }
+const ONBOARDING_TASKS_WAIT_MS = 30000
+const SETUP_CHECKLIST_BATCH_SCHEMA = 'organization'
+
+type SuggestedTasksNotificationData = { schema?: string }
+
+const suggestedTasksBatchSchema = (notification: Notification): string | undefined => {
+  const data = notification.data as SuggestedTasksNotificationData | null | undefined
+  return data?.schema
 }
 
-export type SetupChecklistItem = SuggestedTask & { itemStatus: SetupChecklistItemStatus }
+const itemStatusFromTaskStatus = (status: TaskTaskStatus): SetupChecklistItemStatus => {
+  if (isTerminalTaskStatus(status)) return 'done'
+  if (status === TaskTaskStatus.IN_PROGRESS || status === TaskTaskStatus.IN_REVIEW) return 'in-progress'
+  return 'not-started'
+}
 
 export const useSetupChecklist = () => {
   const { currentOrgId } = useOrganization()
-  const { suggestions } = useRecommendationsFeed()
-  const [statusOverrides, setStatusOverrides] = useState<Record<string, SetupChecklistItemStatus>>({})
+  const queryClient = useQueryClient()
+  const { addNewNotificationListener } = useNotificationsContext()
+  const { mutate: updateTask } = useUpdateTask()
+  const { errorNotification } = useNotification()
+  const [isAwaitingGeneration, setIsAwaitingGeneration] = useState(false)
 
   useEffect(() => {
-    const raw = getOrganizationStorageItem(SETUP_CHECKLIST_STATUS_STORAGE_KEY, currentOrgId)
-    if (!raw) {
-      setStatusOverrides({})
-      return
-    }
-    try {
-      setStatusOverrides(JSON.parse(raw))
-    } catch {
-      setStatusOverrides({})
-    }
+    setIsAwaitingGeneration(getOnboardingTasksPending(currentOrgId))
   }, [currentOrgId])
 
-  const setItemStatus = (taskId: string, status: SetupChecklistItemStatus) => {
-    setStatusOverrides((prev) => {
-      const next = { ...prev, [taskId]: status }
-      setOrganizationStorageItem(SETUP_CHECKLIST_STATUS_STORAGE_KEY, JSON.stringify(next), currentOrgId)
-      return next
+  const { suggestions, isLoading: isFeedLoading } = useRecommendationsFeed({ source: SuggestedTaskSource.ONBOARDING })
+
+  const isHydrated = !isFeedLoading
+  const totalCount = suggestions.length
+  const isAwaitingTasks = isAwaitingGeneration && totalCount === 0
+
+  const { items, completedCount } = useMemo(() => {
+    const all: SetupChecklistItem[] = suggestions.map((task) => ({ ...task, itemStatus: itemStatusFromTaskStatus(task.status) }))
+    return { items: all, completedCount: all.filter((task) => task.itemStatus === 'done').length }
+  }, [suggestions])
+
+  useEffect(() => {
+    return addNewNotificationListener((notification) => {
+      if (notification.topic !== NotificationNotificationTopic.ORGANIZATION_READY) return
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      if (suggestedTasksBatchSchema(notification) === SETUP_CHECKLIST_BATCH_SCHEMA) {
+        clearOnboardingTasksPending(currentOrgId)
+        setIsAwaitingGeneration(false)
+      }
     })
-  }
+  }, [addNewNotificationListener, queryClient, currentOrgId])
 
-  const items: SetupChecklistItem[] = suggestions
-    .filter((task) => task.source === SuggestedTaskSource.ONBOARDING)
-    .map((task) => ({ ...task, itemStatus: statusOverrides[task.id] ?? statusFromTaskStatus(task.status) }))
-
-  const completedCount = items.filter((task) => task.itemStatus === 'done').length
-  const isComplete = items.length === 0 || completedCount === items.length
-
-  const markInProgress = (taskId: string) => {
-    const current = items.find((task) => task.id === taskId)?.itemStatus
-    if (current === 'not-started' || current === undefined) {
-      setItemStatus(taskId, 'in-progress')
+  useEffect(() => {
+    if (isAwaitingGeneration && totalCount > 0) {
+      clearOnboardingTasksPending(currentOrgId)
     }
-  }
+  }, [isAwaitingGeneration, totalCount, currentOrgId])
 
-  const markComplete = (taskId: string) => setItemStatus(taskId, 'done')
+  useEffect(() => {
+    if (!isAwaitingGeneration) return
+    const timer = setTimeout(() => {
+      clearOnboardingTasksPending(currentOrgId)
+      setIsAwaitingGeneration(false)
+    }, ONBOARDING_TASKS_WAIT_MS)
+    return () => clearTimeout(timer)
+  }, [isAwaitingGeneration, currentOrgId])
 
-  const markNotStarted = (taskId: string) => setItemStatus(taskId, 'not-started')
+  const isComplete = isHydrated && !isAwaitingTasks && completedCount === totalCount
 
-  const toggleDone = (taskId: string) => {
-    const current = items.find((task) => task.id === taskId)?.itemStatus
-    if (current === 'done') {
-      markNotStarted(taskId)
-    } else {
-      markComplete(taskId)
-    }
-  }
+  const notifyUpdateFailure = useCallback((error: unknown) => errorNotification({ title: 'Error', description: parseErrorMessage(error) }), [errorNotification])
 
-  return { items, completedCount, isComplete, markInProgress, markComplete, markNotStarted, toggleDone }
+  const markInProgress = useCallback(
+    (taskId: string) => {
+      const current = items.find((task) => task.id === taskId)
+      if (current && current.itemStatus === 'not-started') {
+        updateTask({ updateTaskId: taskId, input: { status: TaskTaskStatus.IN_PROGRESS } }, { onError: notifyUpdateFailure })
+      }
+    },
+    [items, updateTask, notifyUpdateFailure],
+  )
+
+  const completeItem = useCallback(
+    (taskId: string) => {
+      updateTask({ updateTaskId: taskId, input: { status: TaskTaskStatus.COMPLETED } }, { onError: notifyUpdateFailure })
+    },
+    [updateTask, notifyUpdateFailure],
+  )
+
+  return { items, completedCount, totalCount, isComplete, isHydrated, isAwaitingTasks, markInProgress, completeItem }
 }

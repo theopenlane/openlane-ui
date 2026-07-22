@@ -1,18 +1,12 @@
-// Proposed extension, not yet in the backend contract: 'checkbox' is a single opt-in ("would
-// you like help?") rendered as one checkbox, distinct from 'boolean' (a real yes/no choice)
 export type OnboardingQuestionInputType = 'string' | 'multi-input' | 'select' | 'multiselect' | 'boolean' | 'checkbox'
 
-// Proposed extension, not yet in the backend contract: restricts a string-type question to a
-// specific format so the client can apply the matching validation/keyboard (e.g. auditor_email)
-export type OnboardingQuestionFormat = 'email'
+export type OnboardingQuestionFormat = 'email' | 'domain'
 
 export interface OnboardingQuestionOption {
   value: string
   label: string
   description?: string
   hidden: boolean
-  // Proposed extension, not yet in the backend contract: explicit display order, since the
-  // payload otherwise relies on array position (see the frameworks options)
   order?: number
 }
 
@@ -58,6 +52,8 @@ export interface OnboardingStep {
   cards?: OnboardingCard[]
   sections?: OnboardingStepSection[]
 }
+
+export type SubmitStage = 'form' | 'transition' | 'ready'
 
 export interface OnboardingQuestionsResponse {
   success: boolean

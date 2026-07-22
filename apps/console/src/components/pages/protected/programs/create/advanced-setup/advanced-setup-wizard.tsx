@@ -34,13 +34,14 @@ import { AdvancedSetupFormSummary } from './advanced-setup-form-summary'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import SelectCategoryStep from '../shared/steps/select-category-step'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { PROGRAM_KIND } from '../shared/program-kind'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
 
 const SOC2_FRAMEWORK_NAME = 'SOC 2'
 
-export default function AdvancedSetupWizard() {
+const AdvancedSetupWizard = () => {
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const router = useRouter()
@@ -81,15 +82,13 @@ export default function AdvancedSetupWizard() {
       internalPolicyIDs: [],
       procedureIDs: [],
       categories: ['Security'],
-      frameworks: [],
-      ...(defaultFrameworks.length > 1 ? { programKindName: 'Framework' } : {}),
+      ...(defaultFrameworks.length > 0 ? { programKindName: PROGRAM_KIND.FRAMEWORK } : {}),
     },
   })
 
   const framework = useWatch({ control: form.control, name: 'framework' })
-  const selectedFrameworks = useWatch({ control: form.control, name: 'frameworks' })
 
-  const hasSoc2Framework = framework === SOC2_FRAMEWORK_NAME || selectedFrameworks?.some((selectedFramework) => selectedFramework.value === SOC2_FRAMEWORK_NAME)
+  const hasSoc2Framework = framework === SOC2_FRAMEWORK_NAME
 
   const disabledIDs = hasSoc2Framework ? [] : ['2']
 
@@ -224,7 +223,7 @@ export default function AdvancedSetupWizard() {
             <div className="flex flex-col flex-1">
               {stepper.flow.switch({
                 0: () => <AdvancedSetupStep1 />,
-                1: () => <AdvancedSetupStep2 defaultFrameworks={defaultFrameworks} />,
+                1: () => <AdvancedSetupStep2 defaultFramework={defaultFrameworks[0]} />,
                 2: () => <SelectCategoryStep />,
                 3: () => <AdvancedSetupStep3 />,
                 4: () => <AdvancedSetupStep4 isMemberSheetOpen={isMemberSheetOpen} setIsMemberSheetOpen={setIsMemberSheetOpen} />,
@@ -265,3 +264,5 @@ export default function AdvancedSetupWizard() {
     </>
   )
 }
+
+export default AdvancedSetupWizard

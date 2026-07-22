@@ -1,23 +1,10 @@
 import { z } from 'zod'
 import { type UseFormReturn } from 'react-hook-form'
 import { type TErrorProps } from '@/hooks/useNotification'
+import { PROGRAM_KIND } from '../shared/program-kind'
 
 export const categoriesStepSchema = z.object({
   categories: z.array(z.string()),
-})
-
-export const suggestedControlMappingSchema = z.object({
-  fromRefCodes: z.array(z.string()),
-  toRefCodes: z.array(z.string()),
-  mappingType: z.string(),
-  confidence: z.number().nullable().optional(),
-  relation: z.string().nullable().optional(),
-})
-
-export const suggestedControlsStepSchema = z.object({
-  suggestedControlIDs: z.array(z.string()).optional(),
-  suggestedControlCategories: z.array(z.string()).optional(),
-  suggestedControlMappings: z.array(suggestedControlMappingSchema).optional(),
 })
 
 export const step1Schema = z.object({
@@ -39,8 +26,7 @@ export const step2Schema = z
   .superRefine((data, ctx) => {
     const now = new Date()
 
-    // ✅ Framework requirement
-    if (data.programKindName === 'Framework' && !data.framework) {
+    if (data.programKindName === PROGRAM_KIND.FRAMEWORK && !data.framework) {
       ctx.addIssue({
         path: ['framework'],
         code: z.ZodIssueCode.custom,
@@ -149,29 +135,11 @@ export const step5Schema = z.object({
   procedureIDs: z.array(optionSchema).optional(),
 })
 
-export const fullSchema = categoriesStepSchema
-  .merge(suggestedControlsStepSchema)
-  .merge(step1Schema)
-  .merge(step3Schema)
-  .merge(step4Schema)
-  .merge(step5Schema)
-  .and(step2Schema)
-  .and(
-    z.object({
-      frameworks: z
-        .array(
-          z.object({
-            label: z.string(),
-            value: z.string(),
-          }),
-        )
-        .optional(),
-    }),
-  )
+export const fullSchema = categoriesStepSchema.merge(step1Schema).merge(step3Schema).merge(step4Schema).merge(step5Schema).and(step2Schema)
 
 export type WizardValues = z.infer<typeof fullSchema>
 
-export async function validateStepAndNotify(methods: UseFormReturn<WizardValues>, stepId: string, notify: (props: TErrorProps) => void): Promise<boolean> {
+export const validateStepAndNotify = async (methods: UseFormReturn<WizardValues>, stepId: string, notify: (props: TErrorProps) => void): Promise<boolean> => {
   let isValid: boolean
 
   if (stepId === '0') {
@@ -180,8 +148,6 @@ export async function validateStepAndNotify(methods: UseFormReturn<WizardValues>
     isValid = await methods.trigger(['name', 'startDate', 'endDate', 'framework'])
   } else if (stepId === '2') {
     isValid = await methods.trigger('categories')
-  } else if (stepId === '2a') {
-    isValid = await methods.trigger('suggestedControlIDs')
   } else if (stepId === '3') {
     isValid = await methods.trigger('auditPartnerEmail')
   } else {
@@ -197,7 +163,7 @@ export async function validateStepAndNotify(methods: UseFormReturn<WizardValues>
   return false
 }
 
-export async function validateFullAndNotify(methods: UseFormReturn<WizardValues>, notify: (props: TErrorProps) => void): Promise<boolean> {
+export const validateFullAndNotify = async (methods: UseFormReturn<WizardValues>, notify: (props: TErrorProps) => void): Promise<boolean> => {
   const values = methods.getValues()
   const result = fullSchema.safeParse(values)
 

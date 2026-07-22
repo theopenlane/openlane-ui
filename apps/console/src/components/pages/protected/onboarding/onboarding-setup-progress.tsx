@@ -1,25 +1,25 @@
-import React from 'react'
 import { Check, Circle, Loader2, Radar, Sparkles } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
+import { type SubmitStage } from '@/lib/onboarding-questions/types'
 
 type StepStatus = 'done' | 'in-progress' | 'pending'
-type SubmitStage = 'form' | 'transition' | 'ready'
 
-const buildSteps = (currentIndex: number, stage: SubmitStage): { label: string; status: StepStatus }[] => {
+const DOMAIN_SCAN_LABEL = 'Domain scan'
+
+type ProgressStep = { label: string; status: StepStatus }
+
+const buildSteps = (stepLabels: string[], currentIndex: number, stage: SubmitStage): ProgressStep[] => {
   if (stage !== 'form') {
-    return [
-      { label: 'Company profile', status: 'done' },
-      { label: 'Compliance frameworks', status: 'done' },
-      { label: 'Onboarding preferences', status: 'done' },
-      { label: 'Domain scan', status: stage === 'transition' ? 'in-progress' : 'done' },
-    ]
+    const scanStatus: StepStatus = stage === 'transition' ? 'in-progress' : 'done'
+    return [...stepLabels.map((label): ProgressStep => ({ label, status: 'done' })), { label: DOMAIN_SCAN_LABEL, status: scanStatus }]
   }
 
   return [
-    { label: 'Company profile', status: currentIndex >= 2 ? 'done' : 'in-progress' },
-    { label: 'Compliance frameworks', status: currentIndex >= 3 ? 'done' : currentIndex === 2 ? 'in-progress' : 'pending' },
-    { label: 'Onboarding preferences', status: currentIndex >= 3 ? 'in-progress' : 'pending' },
-    { label: 'Domain scan', status: 'pending' },
+    ...stepLabels.map((label, index): ProgressStep => ({
+      label,
+      status: index < currentIndex ? 'done' : index === currentIndex ? 'in-progress' : 'pending',
+    })),
+    { label: DOMAIN_SCAN_LABEL, status: 'pending' },
   ]
 }
 
@@ -35,12 +35,12 @@ const bannerCopy: Record<SubmitStage, { title: string; description: string; scan
   ready: { title: 'Results ready', description: 'Your setup is ready for review.', scanning: false },
 }
 
-const SetupProgressCard = ({ currentIndex, stage }: { currentIndex: number; stage: SubmitStage }) => {
-  const steps = buildSteps(currentIndex, stage)
+const SetupProgressCard = ({ stepLabels, currentIndex, stage }: { stepLabels: string[]; currentIndex: number; stage: SubmitStage }) => {
+  const steps = buildSteps(stepLabels, currentIndex, stage)
   const banner = bannerCopy[stage]
 
   return (
-    <Card className="flex h-80 w-full flex-col gap-4 p-5">
+    <Card className="flex min-h-80 w-full flex-col gap-4 p-5">
       <p className="text-sm font-semibold">Setup progress</p>
 
       <div className="flex flex-col gap-3">

@@ -340,13 +340,3 @@ export const DELETE_PLATFORM = gql`
     }
   }
 `
-
-export const CREATE_BULK_PLATFORM = gql`
-  mutation CreateBulkPlatform($input: [CreatePlatformInput!]) {
-    createBulkPlatform(input: $input) {
-      platforms {
-        id
-      }
-    }
-  }
-`

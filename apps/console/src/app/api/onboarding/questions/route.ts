@@ -1,14 +1,5 @@
-import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth/auth'
-import { mockOnboardingQuestionsResponse } from '@/lib/onboarding-questions/mock-data'
+import { coreAPIRequest, HTTP_METHODS } from '@/lib/auth/utils/core-api-request'
 
-// Stands in for the backend's `v1/onboarding/questions` endpoint
-export async function GET() {
-  const session = await auth()
-
-  if (!session || !session.user?.accessToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  return NextResponse.json(mockOnboardingQuestionsResponse)
+export const GET = async () => {
+  return coreAPIRequest('/v1/onboarding/questions', HTTP_METHODS.GET, undefined, 'Failed to fetch onboarding questions')
 }

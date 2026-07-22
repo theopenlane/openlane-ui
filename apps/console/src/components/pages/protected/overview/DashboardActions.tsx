@@ -6,13 +6,20 @@ import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
 
+type DashboardAction = {
+  key: string
+  label: string
+  icon: React.ReactNode
+  onClick: () => void
+}
+
 const DashboardActions = () => {
   const router = useRouter()
   const { data: orgPermission } = useOrganizationRoles()
   const { data: session } = useSession()
   const canCreateRisk = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRisk, session)
 
-  const actions = [
+  const actions: DashboardAction[] = [
     {
       key: 'tasks',
       label: 'View my tasks',
@@ -31,7 +38,6 @@ const DashboardActions = () => {
       icon: <Fingerprint size={14} className="text-success" />,
       onClick: () => router.push('/evidence'),
     },
-
     {
       key: 'risk',
       label: canCreateRisk ? 'Log new risk' : 'View exposure',
@@ -40,13 +46,15 @@ const DashboardActions = () => {
     },
   ]
 
+  const actionClassName = 'flex items-center gap-1.5 text-text-paragraph hover:text-muted-foreground transition-colors'
+
   return (
     <div className="flex flex-wrap items-center gap-3 text-sm">
       <span className="text-muted-foreground">Quick actions</span>
       {actions.map((action) => (
         <React.Fragment key={action.key}>
           <span className="text-border">|</span>
-          <button type="button" onClick={action.onClick} className="flex items-center gap-1.5 text-text-paragraph hover:text-muted-foreground transition-colors">
+          <button type="button" onClick={action.onClick} className={actionClassName}>
             {action.icon}
             {action.label}
           </button>

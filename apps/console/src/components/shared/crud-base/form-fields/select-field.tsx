@@ -28,9 +28,6 @@ interface SelectFieldProps<TUpdateInput> {
   layout?: 'vertical' | 'horizontal'
   labelClassName?: string
   renderValue?: (value: string) => React.ReactNode
-  // overrides the shape of the object passed to handleUpdate -- needed when the underlying
-  // mutation input no longer accepts this field as a plain scalar (e.g. a to-many edge)
-  buildUpdateInput?: (value: string) => TUpdateInput
 }
 
 export const SelectField = <TUpdateInput,>({
@@ -51,7 +48,6 @@ export const SelectField = <TUpdateInput,>({
   layout = 'vertical',
   labelClassName,
   renderValue,
-  buildUpdateInput,
 }: SelectFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
   const rawValue = data?.[name]
@@ -84,7 +80,7 @@ export const SelectField = <TUpdateInput,>({
                   onValueChange={async (val) => {
                     field.onChange(val)
                     if (!isEditing && !isCreate && handleUpdate) {
-                      await Promise.resolve(handleUpdate(buildUpdateInput ? buildUpdateInput(val) : ({ [name]: val } as TUpdateInput)))
+                      await Promise.resolve(handleUpdate({ [name]: val } as TUpdateInput))
                     }
                     setInternalEditing(null)
                   }}
@@ -95,7 +91,7 @@ export const SelectField = <TUpdateInput,>({
                   onValueChange={async (val) => {
                     field.onChange(val)
                     if (!isEditing && !isCreate && handleUpdate) {
-                      await Promise.resolve(handleUpdate(buildUpdateInput ? buildUpdateInput(val) : ({ [name]: val } as TUpdateInput)))
+                      await Promise.resolve(handleUpdate({ [name]: val } as TUpdateInput))
                     }
                     setInternalEditing(null)
                   }}

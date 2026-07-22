@@ -1,37 +1,60 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useOrganization } from '@/hooks/useOrganization'
-import { getOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
-import { mockSuggestedTasks } from '@/lib/suggested-tasks/mock-data'
+import { useCallback, useMemo } from 'react'
+import { OrderDirection, TaskOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { useTasksWithFilter, useUpdateTask } from '@/lib/graphql-hooks/task'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { SuggestedTaskSource, TASK_TERMINAL_STATUSES, type SuggestedTask, type SuggestedTaskMetadata, type SuggestedTaskSourceValue } from '@/lib/suggested-tasks/types'
 
-const COMPLETED_RECOMMENDATIONS_STORAGE_KEY = 'dashboard-dismissed-recommendations'
+const TASK_KIND_ENUM_WHERE = { objectType: 'task', field: 'kind' }
+const SUGGESTED_TASK_SOURCES: SuggestedTaskSourceValue[] = [SuggestedTaskSource.ONBOARDING, SuggestedTaskSource.RECOMMENDATIONS]
+const SUGGESTED_TASK_ORDER_BY = [{ field: TaskOrderField.priority, direction: OrderDirection.DESC }]
 
-export const useRecommendationsFeed = () => {
-  const { currentOrgId } = useOrganization()
-  const [completedKeys, setCompletedKeys] = useState<string[]>([])
+export type RecommendationsFeedFilter = {
+  source?: SuggestedTaskSourceValue
+  excludeTerminal?: boolean
+}
 
-  useEffect(() => {
-    const raw = getOrganizationStorageItem(COMPLETED_RECOMMENDATIONS_STORAGE_KEY, currentOrgId)
-    if (!raw) return
-    try {
-      setCompletedKeys(JSON.parse(raw))
-    } catch {
-      console.error('Could not parse completed recommendations from localStorage')
-    }
-  }, [currentOrgId])
+export type RecommendationsFeed = {
+  suggestions: SuggestedTask[]
+  isLoading: boolean
+  error: Error | null
+  dismissSuggestion: (suggestionId: string) => void
+}
 
-  // mock data standing in for real suggested tasks until this is backed by the tasks API --
-  // click routing (metadata.link vs opening the suggested-task view) is decided by the caller
-  const suggestions = mockSuggestedTasks.filter((task) => !task.availableAt || new Date(task.availableAt) <= new Date())
+export const useRecommendationsFeed = ({ source, excludeTerminal }: RecommendationsFeedFilter = {}): RecommendationsFeed => {
+  const where = useMemo(
+    () => ({ isSuggested: true, ...(source ? { source } : { sourceIn: SUGGESTED_TASK_SOURCES }), ...(excludeTerminal ? { statusNotIn: TASK_TERMINAL_STATUSES } : {}) }),
+    [source, excludeTerminal],
+  )
 
-  const toggleComplete = (key: string) => {
-    setCompletedKeys((prev) => {
-      const next = prev.includes(key) ? prev.filter((completedKey) => completedKey !== key) : [...prev, key]
-      setOrganizationStorageItem(COMPLETED_RECOMMENDATIONS_STORAGE_KEY, JSON.stringify(next), currentOrgId)
-      return next
-    })
-  }
+  const { tasks, isLoading: isTasksLoading, error } = useTasksWithFilter({ where, orderBy: SUGGESTED_TASK_ORDER_BY })
+  const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({ where: TASK_KIND_ENUM_WHERE })
+  const { mutate: updateTask } = useUpdateTask()
 
-  return { suggestions, completedKeys, toggleComplete }
+  const suggestions = useMemo(
+    () =>
+      tasks.map((task) => ({
+        id: task.id,
+        title: task.title,
+        details: task.details ?? '',
+        status: task.status,
+        taskKind: {
+          name: task.taskKindName ?? '',
+          color: taskKindOptions.find((option) => option.value === task.taskKindName)?.color ?? '',
+        },
+        source: (task.source ?? SuggestedTaskSource.RECOMMENDATIONS) as SuggestedTaskSourceValue,
+        metadata: (task.metadata ?? {}) as SuggestedTaskMetadata,
+      })),
+    [tasks, taskKindOptions],
+  )
+
+  const dismissSuggestion = useCallback(
+    (suggestionId: string) => {
+      updateTask({ updateTaskId: suggestionId, input: { status: TaskTaskStatus.WONT_DO } })
+    },
+    [updateTask],
+  )
+
+  return { suggestions, isLoading: isTasksLoading, error: (error as Error) ?? null, dismissSuggestion }
 }

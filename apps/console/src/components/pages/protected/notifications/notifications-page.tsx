@@ -7,7 +7,7 @@ import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
 import { NotificationRow } from '@/components/shared/SystemNotification/notification-row'
 import { ExportRow } from '@/components/shared/SystemNotification/export-row'
 import { useGetAllExports } from '@/lib/graphql-hooks/export'
-import { Bell, CheckCheck, Inbox, Stamp, Radar, FileDown, AtSign, FolderSync, ClipboardList, type LucideIcon, ArrowDownToLine } from 'lucide-react'
+import { Bell, CheckCheck, Inbox, Stamp, Radar, FileDown, AtSign, FolderSync, ClipboardList, type LucideIcon, ArrowDownToLine, ListChecks } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { Button } from '@repo/ui/button'
 import { isToday, isYesterday, format, startOfDay } from 'date-fns'
@@ -26,6 +26,7 @@ const topicIcons: Record<TopicFilter, LucideIcon> = {
   [NotificationNotificationTopic.STANDARD_UPDATE]: FolderSync,
   [NotificationNotificationTopic.TASK_ASSIGNMENT]: ClipboardList,
   [NotificationNotificationTopic.IMPORT_COMPLETE]: ArrowDownToLine,
+  [NotificationNotificationTopic.ORGANIZATION_READY]: ListChecks,
 }
 
 const getDateGroupLabel = (dateStr: string | null | undefined): string => {
@@ -77,6 +78,7 @@ const NotificationsPage = () => {
   const filteredNotifications = useMemo(() => {
     const sorted = [...notifications].sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime())
     return sorted.filter((n) => {
+      if (n.topic === NotificationNotificationTopic.ORGANIZATION_READY) return false
       if (showUnreadOnly && n.readAt) return false
       if (topicFilter !== 'ALL' && n.topic !== topicFilter) return false
       return true
@@ -134,9 +136,11 @@ const NotificationsPage = () => {
 
           <FilterItem label="All" icon={topicIcons.ALL} active={topicFilter === 'ALL'} onClick={() => handleTopicChange('ALL')} />
 
-          {Object.values(NotificationNotificationTopic).map((topic) => (
-            <FilterItem key={topic} label={toHumanLabel(topic)} icon={topicIcons[topic]} active={topicFilter === topic} onClick={() => handleTopicChange(topic)} />
-          ))}
+          {Object.values(NotificationNotificationTopic)
+            .filter((topic) => topic !== NotificationNotificationTopic.ORGANIZATION_READY)
+            .map((topic) => (
+              <FilterItem key={topic} label={toHumanLabel(topic)} icon={topicIcons[topic]} active={topicFilter === topic} onClick={() => handleTopicChange(topic)} />
+            ))}
         </aside>
 
         <div className="flex-1 min-w-0">

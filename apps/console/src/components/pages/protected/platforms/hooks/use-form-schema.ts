@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { type Value } from 'platejs'
 import { PlatformPlatformStatus } from '@repo/codegen/src/schema'
 import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { DEFAULT_PLATFORM_SCOPE, DEFAULT_PLATFORM_ENVIRONMENT } from '@/components/shared/enum-mapper/scope-environment-enum'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -36,8 +35,8 @@ const useFormSchema = () => {
       resolver: zodResolver(formSchema),
       defaultValues: {
         status: PlatformPlatformStatus.ACTIVE,
-        scopeName: DEFAULT_PLATFORM_SCOPE,
-        environmentName: DEFAULT_PLATFORM_ENVIRONMENT,
+        scopeName: 'in-scope',
+        environmentName: 'production',
         entityIDs: [],
         outOfScopeVendorIDs: [],
         assetIDs: [],

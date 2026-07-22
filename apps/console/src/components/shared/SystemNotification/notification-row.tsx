@@ -10,10 +10,9 @@ import { useRouter } from 'next/navigation'
 interface NotificationRowProps {
   notification: Notification
   onRead: (id: string) => void
-  variant?: 'default' | 'card'
 }
 
-export function NotificationRow({ notification, onRead, variant = 'default' }: NotificationRowProps) {
+export function NotificationRow({ notification, onRead }: NotificationRowProps) {
   const router = useRouter()
   const isUnread = !notification.readAt
   const handleClick = async () => {
@@ -24,14 +23,7 @@ export function NotificationRow({ notification, onRead, variant = 'default' }: N
   }
 
   return (
-    <div
-      onClick={handleClick}
-      className={cn(
-        'flex items-center gap-3 cursor-pointer transition-colors',
-        variant === 'default' && cn('py-2 px-1 rounded-md hover:bg-accent/50', isUnread && 'bg-accent/20'),
-        variant === 'card' && 'rounded-lg border border-homepage-card-border bg-homepage-card-item-transparent p-3 hover:border-muted-foreground duration-200',
-      )}
-    >
+    <div onClick={handleClick} className={cn('flex items-center gap-3 py-2 cursor-pointer transition-colors hover:bg-accent/50 px-1 rounded-md', isUnread && 'bg-accent/20')}>
       <div className="relative">
         <NotificationIcon objectType={notification.objectType} />
       </div>

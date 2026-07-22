@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { type OnboardingQuestionsResponse } from '@/lib/onboarding-questions/types'
+import { useMemo } from 'react'
+import { type OnboardingQuestionsResponse, type OnboardingStep } from '@/lib/onboarding-questions/types'
 
 const fetchOnboardingQuestions = async (): Promise<OnboardingQuestionsResponse> => {
   const response = await fetch('/api/onboarding/questions')
@@ -8,8 +9,25 @@ const fetchOnboardingQuestions = async (): Promise<OnboardingQuestionsResponse> 
     throw new Error('Failed to load onboarding questions')
   }
 
-  return response.json()
+  const payload: OnboardingQuestionsResponse = await response.json()
+
+  if (payload.success === false) {
+    throw new Error('Failed to load onboarding questions')
+  }
+
+  return payload
 }
+
+const visibleSteps = (steps: OnboardingStep[]): OnboardingStep[] =>
+  steps
+    .filter((step) => !step.hidden)
+    .map((step) => ({
+      ...step,
+      questions: (step.questions ?? []).filter((question) => !question.hidden),
+      sections: (step.sections ?? []).map((section) => ({ ...section, questions: section.questions.filter((question) => !question.hidden) })),
+    }))
+    .filter((step) => (step.questions ?? []).length > 0 || (step.sections ?? []).some((section) => section.questions.length > 0))
+    .sort((a, b) => a.order - b.order)
 
 export const useOnboardingQuestions = () => {
   const { data, isLoading, error } = useQuery({
@@ -18,21 +36,9 @@ export const useOnboardingQuestions = () => {
     staleTime: Infinity,
   })
 
-  const steps = (data?.steps ?? [])
-    .filter((step) => !step.hidden)
-    .map((step) => ({
-      ...step,
-      questions: (step.questions ?? []).filter((question) => !question.hidden),
-      sections: (step.sections ?? []).map((section) => ({ ...section, questions: section.questions.filter((question) => !question.hidden) })),
-    }))
-    // a step belongs in the form-step list if it has questions of its own, sectioned or not --
-    // the questions-less `trial` step (display-only content for the closing screen) is excluded
-    .filter((step) => step.questions.length > 0 || step.sections.some((section) => section.questions.length > 0))
-    .sort((a, b) => a.order - b.order)
+  const steps = useMemo(() => visibleSteps(data?.steps ?? []), [data])
 
-  // the trial step is identified by carrying `cards`, not by the absence of questions --
-  // steps whose questions live entirely in sections also have no top-level questions
-  const trialStep = data?.steps.find((step) => !step.hidden && step.cards && step.cards.length > 0)
+  const trialStep = useMemo(() => data?.steps.find((step) => !step.hidden && step.cards && step.cards.length > 0), [data])
 
   return {
     steps,

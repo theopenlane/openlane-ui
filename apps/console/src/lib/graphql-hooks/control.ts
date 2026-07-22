@@ -403,8 +403,10 @@ export function useAllControlsGrouped({ where, enabled = true }: { where?: Contr
 
   const isLoadingAll = isLoading || isFetchingNextPage || hasNextPage || isFetching
 
+  const emptyControls: typeof allControls = []
+
   if (isLoadingAll) {
-    return { isLoading: true, allControls: [] }
+    return { isLoading: true, allControls: emptyControls, isError: rest.isError, error: rest.error }
   }
 
   return {
