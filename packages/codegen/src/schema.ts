@@ -10919,6 +10919,10 @@ export interface CreateProgramInput {
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
+  /** the end date of fieldwork */
+  fieldworkEndDate?: InputMaybe<Scalars['Time']['input']>
+  /** the start date of fieldwork */
+  fieldworkStartDate?: InputMaybe<Scalars['Time']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the short name of the compliance standard the program is based on, only used for framework type programs */
@@ -10928,6 +10932,10 @@ export interface CreateProgramInput {
   name: Scalars['String']['input']
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   noteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the end date of the observation period */
+  observationPeriodEndDate?: InputMaybe<Scalars['Time']['input']>
+  /** the start date of the observation period */
+  observationPeriodStartDate?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programKindID?: InputMaybe<Scalars['ID']['input']>
@@ -11367,6 +11375,8 @@ export interface CreateStandardInput {
   /** the long name of the standard body */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** priority for displaying standards */
+  priority?: InputMaybe<Scalars['Int']['input']>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
   /** short name of the standard, e.g. SOC 2, ISO 27001, etc. */
@@ -11618,11 +11628,17 @@ export interface CreateTaskInput {
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** indicates if the task is suggested by the system as a recommended next action */
+  isSuggested?: InputMaybe<Scalars['Boolean']['input']>
   /** indicates if the task is intended to be used as a template */
   isTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  /** structured metadata used by clients for task presentation and routing */
+  metadata?: InputMaybe<Scalars['Map']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   parentID?: InputMaybe<Scalars['ID']['input']>
   platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** relative ordering priority for suggested and system-generated tasks */
+  priority?: InputMaybe<Scalars['Int']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -11630,6 +11646,10 @@ export interface CreateTaskInput {
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the task */
   scopeName?: InputMaybe<Scalars['String']['input']>
+  /** the system or workflow that created or suggested the task */
+  source?: InputMaybe<Scalars['String']['input']>
+  /** stable source-specific key for the task */
+  sourceKey?: InputMaybe<Scalars['String']['input']>
   /** the status of the task */
   status?: InputMaybe<TaskTaskStatus>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -11824,8 +11844,7 @@ export interface CreateTrustCenterNdaRequestInput {
   accessLevel?: InputMaybe<TrustCenterNdaRequestTrustCenterNdaRequestAccessLevel>
   /** timestamp when the request was approved */
   approvedAt?: InputMaybe<Scalars['DateTime']['input']>
-  /** ID of the user who approved the request */
-  approvedByUserID?: InputMaybe<Scalars['String']['input']>
+  approvedByUserID?: InputMaybe<Scalars['ID']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** company name of the requester */
   companyName?: InputMaybe<Scalars['String']['input']>
@@ -42086,6 +42105,10 @@ export interface Program extends Node {
   evidence: EvidenceConnection
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: Maybe<Scalars['String']['output']>
+  /** the end date of fieldwork */
+  fieldworkEndDate?: Maybe<Scalars['Time']['output']>
+  /** the start date of fieldwork */
+  fieldworkStartDate?: Maybe<Scalars['Time']['output']>
   files: FileConnection
   findings: FindingConnection
   /** the short name of the compliance standard the program is based on, only used for framework type programs */
@@ -42097,6 +42120,10 @@ export interface Program extends Node {
   name: Scalars['String']['output']
   narratives: NarrativeConnection
   notes: NoteConnection
+  /** the end date of the observation period */
+  observationPeriodEndDate?: Maybe<Scalars['Time']['output']>
+  /** the start date of the observation period */
+  observationPeriodStartDate?: Maybe<Scalars['Time']['output']>
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -42606,8 +42633,12 @@ export enum ProgramOrderField {
   STATUS = 'STATUS',
   created_at = 'created_at',
   end_date = 'end_date',
+  fieldwork_end_date = 'fieldwork_end_date',
+  fieldwork_start_date = 'fieldwork_start_date',
   framework = 'framework',
   name = 'name',
+  observation_period_end_date = 'observation_period_end_date',
+  observation_period_start_date = 'observation_period_start_date',
   start_date = 'start_date',
   updated_at = 'updated_at',
 }
@@ -42776,6 +42807,28 @@ export interface ProgramWhereInput {
   externalUUIDNEQ?: InputMaybe<Scalars['String']['input']>
   externalUUIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   externalUUIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** fieldwork_end_date field predicates */
+  fieldworkEndDate?: InputMaybe<Scalars['Time']['input']>
+  fieldworkEndDateGT?: InputMaybe<Scalars['Time']['input']>
+  fieldworkEndDateGTE?: InputMaybe<Scalars['Time']['input']>
+  fieldworkEndDateIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  fieldworkEndDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  fieldworkEndDateLT?: InputMaybe<Scalars['Time']['input']>
+  fieldworkEndDateLTE?: InputMaybe<Scalars['Time']['input']>
+  fieldworkEndDateNEQ?: InputMaybe<Scalars['Time']['input']>
+  fieldworkEndDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  fieldworkEndDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** fieldwork_start_date field predicates */
+  fieldworkStartDate?: InputMaybe<Scalars['Time']['input']>
+  fieldworkStartDateGT?: InputMaybe<Scalars['Time']['input']>
+  fieldworkStartDateGTE?: InputMaybe<Scalars['Time']['input']>
+  fieldworkStartDateIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  fieldworkStartDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  fieldworkStartDateLT?: InputMaybe<Scalars['Time']['input']>
+  fieldworkStartDateLTE?: InputMaybe<Scalars['Time']['input']>
+  fieldworkStartDateNEQ?: InputMaybe<Scalars['Time']['input']>
+  fieldworkStartDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  fieldworkStartDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** framework_name field predicates */
   frameworkName?: InputMaybe<Scalars['String']['input']>
   frameworkNameContains?: InputMaybe<Scalars['String']['input']>
@@ -42893,6 +42946,28 @@ export interface ProgramWhereInput {
   nameNEQ?: InputMaybe<Scalars['String']['input']>
   nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   not?: InputMaybe<ProgramWhereInput>
+  /** observation_period_end_date field predicates */
+  observationPeriodEndDate?: InputMaybe<Scalars['Time']['input']>
+  observationPeriodEndDateGT?: InputMaybe<Scalars['Time']['input']>
+  observationPeriodEndDateGTE?: InputMaybe<Scalars['Time']['input']>
+  observationPeriodEndDateIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  observationPeriodEndDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  observationPeriodEndDateLT?: InputMaybe<Scalars['Time']['input']>
+  observationPeriodEndDateLTE?: InputMaybe<Scalars['Time']['input']>
+  observationPeriodEndDateNEQ?: InputMaybe<Scalars['Time']['input']>
+  observationPeriodEndDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  observationPeriodEndDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** observation_period_start_date field predicates */
+  observationPeriodStartDate?: InputMaybe<Scalars['Time']['input']>
+  observationPeriodStartDateGT?: InputMaybe<Scalars['Time']['input']>
+  observationPeriodStartDateGTE?: InputMaybe<Scalars['Time']['input']>
+  observationPeriodStartDateIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  observationPeriodStartDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  observationPeriodStartDateLT?: InputMaybe<Scalars['Time']['input']>
+  observationPeriodStartDateLTE?: InputMaybe<Scalars['Time']['input']>
+  observationPeriodStartDateNEQ?: InputMaybe<Scalars['Time']['input']>
+  observationPeriodStartDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  observationPeriodStartDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<ProgramWhereInput>>
   /** owner_id field predicates */
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -49780,6 +49855,8 @@ export interface Standard extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** priority for displaying standards */
+  priority: Scalars['Int']['output']
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: Maybe<Scalars['String']['output']>
   /** short name of the standard, e.g. SOC 2, ISO 27001, etc. */
@@ -49896,6 +49973,7 @@ export enum StandardOrderField {
   framework = 'framework',
   governing_body = 'governing_body',
   name = 'name',
+  priority = 'priority',
   revision = 'revision',
   short_name = 'short_name',
   standard_type = 'standard_type',
@@ -50134,6 +50212,15 @@ export interface StandardWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** priority field predicates */
+  priority?: InputMaybe<Scalars['Int']['input']>
+  priorityGT?: InputMaybe<Scalars['Int']['input']>
+  priorityGTE?: InputMaybe<Scalars['Int']['input']>
+  priorityIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  priorityLT?: InputMaybe<Scalars['Int']['input']>
+  priorityLTE?: InputMaybe<Scalars['Int']['input']>
+  priorityNEQ?: InputMaybe<Scalars['Int']['input']>
+  priorityNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   /** revision field predicates */
   revision?: InputMaybe<Scalars['String']['input']>
   revisionContains?: InputMaybe<Scalars['String']['input']>
@@ -52945,8 +53032,12 @@ export interface Task extends Node {
   idempotencyKey?: Maybe<Scalars['String']['output']>
   identityHolders: IdentityHolderConnection
   internalPolicies: InternalPolicyConnection
+  /** indicates if the task is suggested by the system as a recommended next action */
+  isSuggested: Scalars['Boolean']['output']
   /** indicates if the task is intended to be used as a template */
   isTemplate: Scalars['Boolean']['output']
+  /** structured metadata used by clients for task presentation and routing */
+  metadata?: Maybe<Scalars['Map']['output']>
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -52954,6 +53045,8 @@ export interface Task extends Node {
   /** the parent task this task belongs to */
   parentTaskID?: Maybe<Scalars['ID']['output']>
   platforms: PlatformConnection
+  /** relative ordering priority for suggested and system-generated tasks */
+  priority: Scalars['Int']['output']
   procedures: ProcedureConnection
   programs: ProgramConnection
   risks: RiskConnection
@@ -52963,6 +53056,10 @@ export interface Task extends Node {
   scopeID?: Maybe<Scalars['ID']['output']>
   /** the scope of the task */
   scopeName?: Maybe<Scalars['String']['output']>
+  /** the system or workflow that created or suggested the task */
+  source?: Maybe<Scalars['String']['output']>
+  /** stable source-specific key for the task */
+  sourceKey?: Maybe<Scalars['String']['output']>
   /** the status of the task */
   status: TaskTaskStatus
   subcontrols: SubcontrolConnection
@@ -53237,7 +53334,9 @@ export enum TaskOrderField {
   completed = 'completed',
   created_at = 'created_at',
   due = 'due',
+  is_suggested = 'is_suggested',
   is_template = 'is_template',
+  priority = 'priority',
   title = 'title',
   updated_at = 'updated_at',
 }
@@ -53530,6 +53629,9 @@ export interface TaskWhereInput {
   idempotencyKeyNEQ?: InputMaybe<Scalars['String']['input']>
   idempotencyKeyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   idempotencyKeyNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** is_suggested field predicates */
+  isSuggested?: InputMaybe<Scalars['Boolean']['input']>
+  isSuggestedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   /** is_template field predicates */
   isTemplate?: InputMaybe<Scalars['Boolean']['input']>
   isTemplateNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -53567,6 +53669,15 @@ export interface TaskWhereInput {
   parentTaskIDNEQ?: InputMaybe<Scalars['ID']['input']>
   parentTaskIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   parentTaskIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** priority field predicates */
+  priority?: InputMaybe<Scalars['Int']['input']>
+  priorityGT?: InputMaybe<Scalars['Int']['input']>
+  priorityGTE?: InputMaybe<Scalars['Int']['input']>
+  priorityIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  priorityLT?: InputMaybe<Scalars['Int']['input']>
+  priorityLTE?: InputMaybe<Scalars['Int']['input']>
+  priorityNEQ?: InputMaybe<Scalars['Int']['input']>
+  priorityNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   /** scope_id field predicates */
   scopeID?: InputMaybe<Scalars['ID']['input']>
   scopeIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -53599,6 +53710,38 @@ export interface TaskWhereInput {
   scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
   scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source field predicates */
+  source?: InputMaybe<Scalars['String']['input']>
+  sourceContains?: InputMaybe<Scalars['String']['input']>
+  sourceContainsFold?: InputMaybe<Scalars['String']['input']>
+  sourceEqualFold?: InputMaybe<Scalars['String']['input']>
+  sourceGT?: InputMaybe<Scalars['String']['input']>
+  sourceGTE?: InputMaybe<Scalars['String']['input']>
+  sourceHasPrefix?: InputMaybe<Scalars['String']['input']>
+  sourceHasSuffix?: InputMaybe<Scalars['String']['input']>
+  sourceIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source_key field predicates */
+  sourceKey?: InputMaybe<Scalars['String']['input']>
+  sourceKeyContains?: InputMaybe<Scalars['String']['input']>
+  sourceKeyContainsFold?: InputMaybe<Scalars['String']['input']>
+  sourceKeyEqualFold?: InputMaybe<Scalars['String']['input']>
+  sourceKeyGT?: InputMaybe<Scalars['String']['input']>
+  sourceKeyGTE?: InputMaybe<Scalars['String']['input']>
+  sourceKeyHasPrefix?: InputMaybe<Scalars['String']['input']>
+  sourceKeyHasSuffix?: InputMaybe<Scalars['String']['input']>
+  sourceKeyIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceKeyIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  sourceKeyLT?: InputMaybe<Scalars['String']['input']>
+  sourceKeyLTE?: InputMaybe<Scalars['String']['input']>
+  sourceKeyNEQ?: InputMaybe<Scalars['String']['input']>
+  sourceKeyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceKeyNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  sourceLT?: InputMaybe<Scalars['String']['input']>
+  sourceLTE?: InputMaybe<Scalars['String']['input']>
+  sourceNEQ?: InputMaybe<Scalars['String']['input']>
+  sourceNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  sourceNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
   status?: InputMaybe<TaskTaskStatus>
   statusIn?: InputMaybe<Array<TaskTaskStatus>>
@@ -55721,8 +55864,9 @@ export interface TrustCenterNdaRequest extends Node {
   accessLevel?: Maybe<TrustCenterNdaRequestTrustCenterNdaRequestAccessLevel>
   /** timestamp when the request was approved */
   approvedAt?: Maybe<Scalars['DateTime']['output']>
+  approvedByUser?: Maybe<User>
   /** ID of the user who approved the request */
-  approvedByUserID?: Maybe<Scalars['String']['output']>
+  approvedByUserID?: Maybe<Scalars['ID']['output']>
   blockedGroups: GroupConnection
   /** company name of the requester */
   companyName?: Maybe<Scalars['String']['output']>
@@ -55902,20 +56046,20 @@ export interface TrustCenterNdaRequestWhereInput {
   approvedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   approvedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** approved_by_user_id field predicates */
-  approvedByUserID?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDContains?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDGT?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDGTE?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  approvedByUserID?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDGT?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDGTE?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
   approvedByUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  approvedByUserIDLT?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDLTE?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDNEQ?: InputMaybe<Scalars['String']['input']>
-  approvedByUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  approvedByUserIDLT?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDLTE?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  approvedByUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   approvedByUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** company_name field predicates */
   companyName?: InputMaybe<Scalars['String']['input']>
@@ -56020,6 +56164,9 @@ export interface TrustCenterNdaRequestWhereInput {
   firstNameLTE?: InputMaybe<Scalars['String']['input']>
   firstNameNEQ?: InputMaybe<Scalars['String']['input']>
   firstNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** approved_by_user edge predicates */
+  hasApprovedByUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasApprovedByUserWith?: InputMaybe<Array<UserWhereInput>>
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -62352,12 +62499,16 @@ export interface UpdateProgramInput {
   clearEndDate?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
+  clearFieldworkEndDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearFieldworkStartDate?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearFrameworkName?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearNotes?: InputMaybe<Scalars['Boolean']['input']>
+  clearObservationPeriodEndDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearObservationPeriodStartDate?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearProgramKind?: InputMaybe<Scalars['Boolean']['input']>
@@ -62379,10 +62530,18 @@ export interface UpdateProgramInput {
   endDate?: InputMaybe<Scalars['Time']['input']>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
+  /** the end date of fieldwork */
+  fieldworkEndDate?: InputMaybe<Scalars['Time']['input']>
+  /** the start date of fieldwork */
+  fieldworkStartDate?: InputMaybe<Scalars['Time']['input']>
   /** the short name of the compliance standard the program is based on, only used for framework type programs */
   frameworkName?: InputMaybe<Scalars['String']['input']>
   /** the name of the program */
   name?: InputMaybe<Scalars['String']['input']>
+  /** the end date of the observation period */
+  observationPeriodEndDate?: InputMaybe<Scalars['Time']['input']>
+  /** the start date of the observation period */
+  observationPeriodStartDate?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   programKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the program */
@@ -63112,6 +63271,8 @@ export interface UpdateStandardInput {
   /** the long name of the standard body */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** priority for displaying standards */
+  priority?: InputMaybe<Scalars['Int']['input']>
   removeApplicablePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -63522,6 +63683,7 @@ export interface UpdateTaskInput {
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearParent?: InputMaybe<Scalars['Boolean']['input']>
   clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
@@ -63530,6 +63692,8 @@ export interface UpdateTaskInput {
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearScope?: InputMaybe<Scalars['Boolean']['input']>
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
+  clearSource?: InputMaybe<Scalars['Boolean']['input']>
+  clearSourceKey?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTaskKind?: InputMaybe<Scalars['Boolean']['input']>
@@ -63554,9 +63718,15 @@ export interface UpdateTaskInput {
   externalReferenceURL?: InputMaybe<Array<Scalars['String']['input']>>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
+  /** indicates if the task is suggested by the system as a recommended next action */
+  isSuggested?: InputMaybe<Scalars['Boolean']['input']>
   /** indicates if the task is intended to be used as a template */
   isTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  /** structured metadata used by clients for task presentation and routing */
+  metadata?: InputMaybe<Scalars['Map']['input']>
   parentID?: InputMaybe<Scalars['ID']['input']>
+  /** relative ordering priority for suggested and system-generated tasks */
+  priority?: InputMaybe<Scalars['Int']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -63579,6 +63749,10 @@ export interface UpdateTaskInput {
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the task */
   scopeName?: InputMaybe<Scalars['String']['input']>
+  /** the system or workflow that created or suggested the task */
+  source?: InputMaybe<Scalars['String']['input']>
+  /** stable source-specific key for the task */
+  sourceKey?: InputMaybe<Scalars['String']['input']>
   /** the status of the task */
   status?: InputMaybe<TaskTaskStatus>
   /** indicates if the task was generated by the system */
@@ -63852,11 +64026,10 @@ export interface UpdateTrustCenterNdaRequestInput {
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** timestamp when the request was approved */
   approvedAt?: InputMaybe<Scalars['DateTime']['input']>
-  /** ID of the user who approved the request */
-  approvedByUserID?: InputMaybe<Scalars['String']['input']>
+  approvedByUserID?: InputMaybe<Scalars['ID']['input']>
   clearAccessLevel?: InputMaybe<Scalars['Boolean']['input']>
   clearApprovedAt?: InputMaybe<Scalars['Boolean']['input']>
-  clearApprovedByUserID?: InputMaybe<Scalars['Boolean']['input']>
+  clearApprovedByUser?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCompanyName?: InputMaybe<Scalars['Boolean']['input']>
   clearDocument?: InputMaybe<Scalars['Boolean']['input']>

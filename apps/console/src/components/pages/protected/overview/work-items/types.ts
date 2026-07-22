@@ -15,8 +15,6 @@ export const FILTER_LABELS: Record<'recommendations' | 'tasks' | 'approvals' | '
   evidenceRequests: 'Evidence Requests',
 }
 
-export const SCAN_NOTIFICATION_KIND = { name: 'Domain Scan', color: '#ff842c' }
-
 export const WORK_ITEM_ROW_CLASS =
   'flex items-center justify-between gap-3 rounded-lg border border-homepage-card-border bg-homepage-card-item-transparent p-3 cursor-pointer hover:border-muted-foreground transition-colors duration-200'
 

@@ -1,16 +1,14 @@
 'use client'
 
 import { useCallback, useMemo } from 'react'
-import { useOrganization } from '@/hooks/useOrganization'
-import { createOrgPersistedStore, parseStringArray, useOrgPersistedState } from '@/lib/storage/org-persisted-store'
-import { mockSuggestedTasks } from '@/lib/suggested-tasks/mock-data'
-import type { SuggestedTask, SuggestedTaskSourceValue } from '@/lib/suggested-tasks/types'
+import { OrderDirection, TaskOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { useTasksWithFilter, useUpdateTask } from '@/lib/graphql-hooks/task'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { SuggestedTaskSource, type SuggestedTask, type SuggestedTaskMetadata, type SuggestedTaskSourceValue } from '@/lib/suggested-tasks/types'
 
-const DISMISSED_RECOMMENDATIONS_STORAGE_KEY = 'dashboard-dismissed-recommendations'
-
-const dismissedRecommendationsStore = createOrgPersistedStore<string[]>(DISMISSED_RECOMMENDATIONS_STORAGE_KEY, parseStringArray, () => [])
-
-const FEED_EVALUATED_AT = Date.now()
+const TASK_KIND_ENUM_WHERE = { objectType: 'task', field: 'kind' }
+const SUGGESTED_TASK_SOURCES: SuggestedTaskSourceValue[] = [SuggestedTaskSource.ONBOARDING, SuggestedTaskSource.RECOMMENDATIONS]
+const SUGGESTED_TASK_ORDER_BY = [{ field: TaskOrderField.priority, direction: OrderDirection.DESC }]
 
 export type RecommendationsFeedFilter = {
   source?: SuggestedTaskSourceValue
@@ -24,24 +22,35 @@ export type RecommendationsFeed = {
 }
 
 export const useRecommendationsFeed = ({ source }: RecommendationsFeedFilter = {}): RecommendationsFeed => {
-  const { currentOrgId } = useOrganization()
-  const { value: dismissedIds, isHydrated, setValue: setDismissedIds } = useOrgPersistedState(dismissedRecommendationsStore, currentOrgId)
+  const where = useMemo(() => ({ isSuggested: true, ...(source ? { source } : { sourceIn: SUGGESTED_TASK_SOURCES }) }), [source])
 
-  const suggestions = useMemo(() => {
-    if (!isHydrated) return []
+  const { tasks, isLoading: isTasksLoading, error } = useTasksWithFilter({ where, orderBy: SUGGESTED_TASK_ORDER_BY })
+  const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({ where: TASK_KIND_ENUM_WHERE })
+  const { mutate: updateTask } = useUpdateTask()
 
-    const dismissed = new Set(dismissedIds)
-    return mockSuggestedTasks.filter(
-      (task) => !dismissed.has(task.id) && (!task.availableAt || new Date(task.availableAt).getTime() <= FEED_EVALUATED_AT) && (source === undefined || task.source === source),
-    )
-  }, [dismissedIds, isHydrated, source])
+  const suggestions = useMemo(
+    () =>
+      tasks.map((task) => ({
+        id: task.id,
+        title: task.title,
+        details: task.details ?? '',
+        status: task.status,
+        taskKind: {
+          name: task.taskKindName ?? '',
+          color: taskKindOptions.find((option) => option.value === task.taskKindName)?.color ?? '',
+        },
+        source: (task.source ?? SuggestedTaskSource.RECOMMENDATIONS) as SuggestedTaskSourceValue,
+        metadata: (task.metadata ?? {}) as SuggestedTaskMetadata,
+      })),
+    [tasks, taskKindOptions],
+  )
 
   const dismissSuggestion = useCallback(
     (suggestionId: string) => {
-      setDismissedIds((previous) => (previous.includes(suggestionId) ? previous.filter((id) => id !== suggestionId) : [...previous, suggestionId]))
+      updateTask({ updateTaskId: suggestionId, input: { status: TaskTaskStatus.WONT_DO } })
     },
-    [setDismissedIds],
+    [updateTask],
   )
 
-  return { suggestions, isLoading: !isHydrated, error: null, dismissSuggestion }
+  return { suggestions, isLoading: isTasksLoading, error: (error as Error) ?? null, dismissSuggestion }
 }

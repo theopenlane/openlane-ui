@@ -19,7 +19,7 @@ import { isPastDate } from '@/utils/date'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { firstLineOf } from '@/lib/suggested-tasks/utils'
 import { SuggestedTaskSource, type SuggestedTask } from '@/lib/suggested-tasks/types'
-import { ALL_FILTER_KEY, FILTER_LABELS, SCAN_NOTIFICATION_KIND, UNCATEGORIZED_KIND, type FilterKey, type GroupBy, type WorkItem, type WorkItemFilter } from './types'
+import { ALL_FILTER_KEY, FILTER_LABELS, UNCATEGORIZED_KIND, type FilterKey, type GroupBy, type WorkItem, type WorkItemFilter } from './types'
 
 const TASK_WHERE_STATUS_NOT_IN = [TaskTaskStatus.COMPLETED, TaskTaskStatus.WONT_DO]
 const TASK_ORDER_BY = [{ field: TaskOrderField.due, direction: OrderDirection.ASC }]
@@ -72,8 +72,6 @@ export const useWorkItems = () => {
     enabled: !!userId,
   })
 
-  const scanNotifications = useMemo(() => notifications.filter((notification) => !notification.readAt && notification.topic === NotificationNotificationTopic.DOMAIN_SCAN), [notifications])
-
   const approvalNotifications = useMemo(() => notifications.filter((notification) => !notification.readAt && notification.topic === NotificationNotificationTopic.APPROVAL), [notifications])
 
   const dismissNotification = useCallback((notificationId: string) => markAsRead(notificationId), [markAsRead])
@@ -104,20 +102,6 @@ export const useWorkItems = () => {
   )
 
   const recommendationWorkItems: WorkItem[] = useMemo(() => {
-    const scanItems = scanNotifications.map((notification) => ({
-      key: `notification-${notification.id}`,
-      kind: SCAN_NOTIFICATION_KIND.name,
-      kindColor: SCAN_NOTIFICATION_KIND.color,
-      title: notification.title,
-      preview: notification.body,
-      onClick: () => openNotification(notification),
-      actionKind: 'dismiss' as const,
-      onAction: (event: React.MouseEvent) => {
-        event.stopPropagation()
-        dismissNotification(notification.id)
-      },
-    }))
-
     const suggestionItems = suggestions
       .filter((suggestion) => suggestion.source === SuggestedTaskSource.RECOMMENDATIONS)
       .map((suggestion) => ({
@@ -135,8 +119,8 @@ export const useWorkItems = () => {
         },
       }))
 
-    return [...scanItems, ...suggestionItems]
-  }, [scanNotifications, suggestions, openNotification, dismissNotification, openSuggestion, dismissSuggestion])
+    return suggestionItems
+  }, [suggestions, openSuggestion, dismissSuggestion])
 
   const taskWorkItems: WorkItem[] = useMemo(
     () =>
