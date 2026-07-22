@@ -18,10 +18,9 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { isPastDate } from '@/utils/date'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { firstLineOf } from '@/lib/suggested-tasks/utils'
-import { SuggestedTaskSource, type SuggestedTask } from '@/lib/suggested-tasks/types'
+import { SuggestedTaskSource, TASK_TERMINAL_STATUSES, type SuggestedTask } from '@/lib/suggested-tasks/types'
 import { ALL_FILTER_KEY, FILTER_LABELS, UNCATEGORIZED_KIND, type FilterKey, type GroupBy, type WorkItem, type WorkItemFilter } from './types'
 
-const TASK_WHERE_STATUS_NOT_IN = [TaskTaskStatus.COMPLETED, TaskTaskStatus.WONT_DO]
 const TASK_ORDER_BY = [{ field: TaskOrderField.due, direction: OrderDirection.ASC }]
 const TASK_KIND_ENUM_WHERE = { objectType: 'task', field: 'kind' }
 
@@ -44,14 +43,14 @@ export const useWorkItems = () => {
   const [groupBy, setGroupBy] = useState<GroupBy>('type')
   const [requestedFilter, setRequestedFilter] = useState<FilterKey>(ALL_FILTER_KEY)
 
-  const { suggestions, isLoading: isFeedLoading, error: feedError, dismissSuggestion } = useRecommendationsFeed()
+  const { suggestions, isLoading: isFeedLoading, error: feedError, dismissSuggestion } = useRecommendationsFeed({ excludeTerminal: true })
 
   const {
     tasks,
     isLoading: isTasksLoading,
     error: tasksError,
   } = useTasksWithFilter({
-    where: { assigneeID: userId, statusNotIn: TASK_WHERE_STATUS_NOT_IN },
+    where: { assigneeID: userId, statusNotIn: TASK_TERMINAL_STATUSES },
     orderBy: TASK_ORDER_BY,
     pagination: DEFAULT_PAGINATION,
     enabled: !!userId,

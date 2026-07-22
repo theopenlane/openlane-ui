@@ -10,6 +10,7 @@ import { useCreateOnboarding } from '@/lib/graphql-hooks/onboarding'
 import { buildOnboardingInput, getSelectedFrameworkLabels } from '@/lib/onboarding-questions/submit-mapping'
 import { type OnboardingQuestion, type SubmitStage } from '@/lib/onboarding-questions/types'
 import { setOnboardingFrameworks } from '@/lib/storage/onboarding-frameworks'
+import { setOnboardingTasksPending } from '@/lib/storage/onboarding-tasks-pending'
 import { handleSSORedirect, switchOrganization } from '@/lib/user'
 import { useWebSocketClient } from '@/providers/websocket-provider'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -73,6 +74,7 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
     if (!orgId) return null
 
     setOnboardingFrameworks(getSelectedFrameworkLabels(allQuestions, formValues), orgId)
+    setOnboardingTasksPending(orgId)
 
     const switchResponse = await switchOrganization({
       target_organization_id: orgId,

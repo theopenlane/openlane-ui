@@ -20,10 +20,10 @@ const StatusMarker = ({ status }: { status: SetupChecklistItemStatus }) => {
 type SetupChecklistItemCardProps = {
   task: SetupChecklistItem
   onOpen: (task: SetupChecklistItem) => void
-  onToggleDone: (taskId: string) => void
+  onComplete: (taskId: string) => void
 }
 
-const SetupChecklistItemCard = ({ task, onOpen, onToggleDone }: SetupChecklistItemCardProps) => {
+const SetupChecklistItemCard = ({ task, onOpen, onComplete }: SetupChecklistItemCardProps) => {
   const status = SETUP_CHECKLIST_STATUS[task.itemStatus]
 
   return (
@@ -42,11 +42,11 @@ const SetupChecklistItemCard = ({ task, onOpen, onToggleDone }: SetupChecklistIt
       <div className="flex items-center justify-between gap-2">
         <button
           type="button"
-          aria-label={task.itemStatus === 'done' ? 'Mark as not started' : 'Mark as complete'}
+          aria-label="Mark as complete"
           className={cn('flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors', status.markerClass)}
           onClick={(event) => {
             event.stopPropagation()
-            onToggleDone(task.id)
+            onComplete(task.id)
           }}
           onKeyDown={(event) => event.stopPropagation()}
         >

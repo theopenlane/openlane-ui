@@ -1,4 +1,8 @@
-import { type TaskTaskStatus } from '@repo/codegen/src/schema'
+import { TaskTaskStatus } from '@repo/codegen/src/schema'
+
+export const TASK_TERMINAL_STATUSES: TaskTaskStatus[] = [TaskTaskStatus.COMPLETED, TaskTaskStatus.WONT_DO]
+
+export const isTerminalTaskStatus = (status: TaskTaskStatus): boolean => TASK_TERMINAL_STATUSES.includes(status)
 
 export const SuggestedTaskSource = {
   ONBOARDING: 'openlane_onboarding',

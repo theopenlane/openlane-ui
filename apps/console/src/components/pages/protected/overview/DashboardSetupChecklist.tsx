@@ -2,16 +2,25 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { FileText, Headset } from 'lucide-react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { useOrganization } from '@/hooks/useOrganization'
 import type { SetupChecklistItem } from '@/hooks/useSetupChecklist'
+import { SUPPORT_URL } from '@/constants'
+import { DOCS_URL } from '@/constants/docs.ts'
 import SetupChecklistItemCard, { SETUP_CHECKLIST_STATUS } from './setup-checklist-item'
+
+const helpLinks = [
+  { key: 'docs', label: 'View docs', icon: <FileText size={14} className="text-muted-foreground" />, href: DOCS_URL },
+  { key: 'support', label: 'Contact us', icon: <Headset size={14} className="text-muted-foreground" />, href: SUPPORT_URL },
+]
 
 export type SetupChecklistProps = {
   items: SetupChecklistItem[]
   completedCount: number
+  totalCount: number
   markInProgress: (taskId: string) => void
-  toggleDone: (taskId: string) => void
+  completeItem: (taskId: string) => void
 }
 
 type OrderedIds = {
@@ -19,7 +28,7 @@ type OrderedIds = {
   ids: string[]
 }
 
-const DashboardSetupChecklist = ({ items, completedCount, markInProgress, toggleDone }: SetupChecklistProps) => {
+const DashboardSetupChecklist = ({ items, completedCount, totalCount, markInProgress, completeItem }: SetupChecklistProps) => {
   const router = useRouter()
   const { currentOrgId } = useOrganization()
   const [initialOrder, setInitialOrder] = useState<OrderedIds | null>(null)
@@ -45,9 +54,9 @@ const DashboardSetupChecklist = ({ items, completedCount, markInProgress, toggle
     return [...known, ...added]
   }, [items, initialOrder, currentOrgId])
 
-  if (items.length === 0) return null
+  if (totalCount === 0) return null
 
-  const progress = Math.round((completedCount / items.length) * 100)
+  const progress = Math.round((completedCount / totalCount) * 100)
 
   const handleOpen = (task: SetupChecklistItem) => {
     markInProgress(task.id)
@@ -63,18 +72,26 @@ const DashboardSetupChecklist = ({ items, completedCount, markInProgress, toggle
           <div>
             <p className="text-lg font-semibold">Finish Setup</p>
             <p className="text-sm font-medium text-success">
-              {completedCount} of {items.length} completed
+              {completedCount} of {totalCount} completed
             </p>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
             <div className="h-full rounded-full bg-success transition-all" style={{ width: `${progress}%` }} />
           </div>
           <p className="text-sm text-muted-foreground">Complete these tasks to get the most out of Openlane</p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm">
+            {helpLinks.map((link) => (
+              <a key={link.key} href={link.href} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-text-paragraph hover:text-muted-foreground transition-colors">
+                {link.icon}
+                {link.label}
+              </a>
+            ))}
+          </div>
         </div>
 
         <div className="grid min-w-0 flex-1 grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
           {orderedItems.map((task) => (
-            <SetupChecklistItemCard key={task.id} task={task} onOpen={handleOpen} onToggleDone={toggleDone} />
+            <SetupChecklistItemCard key={task.id} task={task} onOpen={handleOpen} onComplete={completeItem} />
           ))}
         </div>
       </CardContent>

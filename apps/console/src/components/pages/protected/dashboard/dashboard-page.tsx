@@ -20,14 +20,23 @@ const DashboardPage: React.FC = () => {
   const { setCrumbs } = React.use(BreadcrumbContext)
 
   const { activityItems, allActivityItems, isLoading: isActivityLoading } = useRecentActivityItems()
-  const { items: setupChecklistItems, completedCount: setupChecklistCompletedCount, isComplete: isSetupChecklistComplete, isHydrated, markInProgress, toggleDone } = useSetupChecklist()
+  const {
+    items: setupChecklistItems,
+    completedCount: setupChecklistCompletedCount,
+    totalCount: setupChecklistTotalCount,
+    isComplete: isSetupChecklistComplete,
+    isHydrated,
+    isAwaitingTasks,
+    markInProgress,
+    completeItem,
+  } = useSetupChecklist()
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }])
   }, [setCrumbs])
 
   const renderSetupOrOverview = () => {
-    if (!isHydrated) {
+    if (!isHydrated || isAwaitingTasks) {
       return (
         <Card className="bg-homepage-card border-homepage-card-border">
           <CardContent className="p-6">
@@ -41,7 +50,15 @@ const DashboardPage: React.FC = () => {
       return <DashboardComplianceOverview />
     }
 
-    return <DashboardSetupChecklist items={setupChecklistItems} completedCount={setupChecklistCompletedCount} markInProgress={markInProgress} toggleDone={toggleDone} />
+    return (
+      <DashboardSetupChecklist
+        items={setupChecklistItems}
+        completedCount={setupChecklistCompletedCount}
+        totalCount={setupChecklistTotalCount}
+        markInProgress={markInProgress}
+        completeItem={completeItem}
+      />
+    )
   }
 
   return (

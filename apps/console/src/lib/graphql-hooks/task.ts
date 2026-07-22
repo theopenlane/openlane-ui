@@ -46,9 +46,10 @@ type GetAllTasksArgs = {
   orderBy?: TasksWithFilterQueryVariables['orderBy']
   pagination?: TPagination
   enabled?: boolean
+  refetchInterval?: number | false
 }
 
-export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllTasksArgs) => {
+export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true, refetchInterval }: GetAllTasksArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<TasksWithFilterQuery, unknown>({
@@ -58,6 +59,7 @@ export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true 
       return result as TasksWithFilterQuery
     },
     enabled,
+    refetchInterval,
   })
 
   const tasks = (queryResult.data?.tasks?.edges?.map((edge) => {

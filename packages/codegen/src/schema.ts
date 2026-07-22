@@ -81619,6 +81619,11 @@ export type TasksWithFilterQuery = {
         createdBy?: string | null
         taskKindName?: string | null
         completed?: string | null
+        isSuggested: boolean
+        priority: number
+        source?: string | null
+        sourceKey?: string | null
+        metadata?: any | null
         assigner?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
       } | null
