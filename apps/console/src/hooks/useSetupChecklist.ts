@@ -18,7 +18,7 @@ export type SetupChecklistItemStatus = 'done' | 'in-progress' | 'not-started'
 export type SetupChecklistItem = SuggestedTask & { itemStatus: SetupChecklistItemStatus }
 
 const ONBOARDING_TASKS_WAIT_MS = 30000
-const ONBOARDING_BATCH_SCHEMA = 'onboarding'
+const SETUP_CHECKLIST_BATCH_SCHEMA = 'organization'
 
 type SuggestedTasksNotificationData = { schema?: string }
 
@@ -67,7 +67,7 @@ export const useSetupChecklist = () => {
     return addNewNotificationListener((notification) => {
       if (notification.topic !== NotificationNotificationTopic.SUGGESTED_TASKS) return
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
-      if (suggestedTasksBatchSchema(notification) === ONBOARDING_BATCH_SCHEMA) {
+      if (suggestedTasksBatchSchema(notification) === SETUP_CHECKLIST_BATCH_SCHEMA) {
         clearOnboardingTasksPending(currentOrgId)
         setIsAwaitingGeneration(false)
       }
