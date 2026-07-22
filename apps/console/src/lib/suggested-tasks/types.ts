@@ -16,9 +16,15 @@ export interface SuggestedTaskKind {
   color: string
 }
 
+export interface SuggestedTaskReference {
+  name: string
+  url: string
+}
+
 export interface SuggestedTaskMetadata {
   link?: string
   docsLink?: string
+  references?: SuggestedTaskReference[]
 }
 
 export interface SuggestedTask {

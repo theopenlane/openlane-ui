@@ -11,8 +11,8 @@ import { DOCS_URL } from '@/constants/docs.ts'
 import SetupChecklistItemCard, { SETUP_CHECKLIST_STATUS } from './setup-checklist-item'
 
 const helpLinks = [
-  { key: 'docs', label: 'View docs', icon: <FileText size={14} className="text-muted-foreground" />, href: DOCS_URL },
-  { key: 'support', label: 'Contact us', icon: <Headset size={14} className="text-muted-foreground" />, href: SUPPORT_URL },
+  { key: 'docs', label: 'View Docs', icon: <FileText size={14} className="text-muted-foreground" />, href: DOCS_URL },
+  { key: 'support', label: 'Contact Us', icon: <Headset size={14} className="text-muted-foreground" />, href: SUPPORT_URL },
 ]
 
 export type SetupChecklistProps = {
