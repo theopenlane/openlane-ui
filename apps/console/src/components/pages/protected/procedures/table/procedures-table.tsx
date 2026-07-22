@@ -15,7 +15,8 @@ import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
-import useFileExport from '@/components/shared/export/use-file-export.ts'
+import useFileExport, { type TExportMetadata } from '@/components/shared/export/use-file-export.ts'
+import usePdfExportDialog from '@/components/shared/export/use-pdf-export-dialog.tsx'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
@@ -123,8 +124,10 @@ export const ProceduresTable = () => {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 
-  const handleExportFile = (format: ExportExportFormat = ExportExportFormat.CSV) => {
-    if (!procedures || procedures.length === 0) {
+  const hasExportableProcedures = !!procedures && procedures.length > 0
+
+  const exportProcedures = (format: ExportExportFormat, exportMetadata?: TExportMetadata) => {
+    if (!hasExportableProcedures) {
       return
     }
 
@@ -133,7 +136,25 @@ export const ProceduresTable = () => {
       filters: JSON.stringify(where),
       fields: format === ExportExportFormat.PDF ? null : columns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
       format,
+      exportMetadata,
     })
+  }
+
+  const { openPdfExportDialog, pdfExportDialog } = usePdfExportDialog({
+    onExport: (exportMetadata) => exportProcedures(ExportExportFormat.PDF, exportMetadata),
+  })
+
+  const handleExportFile = (format: ExportExportFormat = ExportExportFormat.CSV) => {
+    if (!hasExportableProcedures) {
+      return
+    }
+
+    if (format === ExportExportFormat.PDF) {
+      openPdfExportDialog()
+      return
+    }
+
+    exportProcedures(format)
   }
 
   useEffect(() => {
@@ -189,13 +210,15 @@ export const ProceduresTable = () => {
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
-        exportEnabled={procedures && procedures.length > 0}
+        exportEnabled={hasExportableProcedures}
         handleClearSelectedProcedures={handleClearSelectedProcedures}
         selectedProcedures={selectedProcedures}
         setSelectedProcedures={setSelectedProcedures}
         canEdit={canEdit}
         permission={permission}
       />
+
+      {pdfExportDialog}
 
       <DataTable
         sortFields={PROCEDURES_SORTABLE_FIELDS}
