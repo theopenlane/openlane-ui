@@ -16,6 +16,9 @@ export const EVIDENCE_ASSOCIATION_FIELDS = [
 
 export type EvidenceAssociationField = (typeof EVIDENCE_ASSOCIATION_FIELDS)[number]
 
+export type EvidenceEditableField =
+  'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'reviewFrequency' | 'creationDate' | 'renewalDate' | 'tags' | 'externalUUID' | 'scopeName' | 'environmentName'
+
 export type CustomEvidenceControl = { __typename?: string; id: string; referenceFramework?: string | null; refCode: string }
 
 export type FlattenedControl = {
