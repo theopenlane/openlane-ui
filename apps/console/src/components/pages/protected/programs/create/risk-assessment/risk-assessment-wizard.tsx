@@ -31,11 +31,11 @@ export default function RiskAssessmentWizard() {
   const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false) // ✅ new state
 
-  const { useStepper } = defineStepper(
+  const { useStepper } = defineStepper([
     { id: '0', label: 'Pick Categories', schema: selectFrameworkSchema },
     { id: '1', label: 'Team Setup', schema: programInviteSchema },
     { id: '2', label: 'Access Control', schema: step3Schema },
-  )
+  ])
 
   const stepper = useStepper()
 
@@ -102,18 +102,18 @@ export default function RiskAssessmentWizard() {
     const isValid = await methods.trigger()
     if (!isValid) return
 
-    if (!stepper.state.isLast) {
-      stepper.navigation.next()
+    if (!stepper.isLast) {
+      stepper.next()
     } else {
       await handleSubmit()
     }
   }
 
   const handleBack = () => {
-    if (stepper.state.isFirst) {
+    if (stepper.isFirst) {
       setShowExitConfirm(true)
     } else {
-      stepper.navigation.prev()
+      stepper.prev()
     }
   }
 
@@ -135,7 +135,7 @@ export default function RiskAssessmentWizard() {
         <FormProvider {...methods}>
           <form onSubmit={handleNext}>
             <div className="py-6">
-              {stepper.flow.switch({
+              {stepper.match({
                 0: () => <SelectFrameworkStep />,
                 1: () => <TeamSetupStep />,
                 2: () => <AssociateRisksStep />,
@@ -145,7 +145,7 @@ export default function RiskAssessmentWizard() {
                   Back
                 </Button>
                 <Button variant="primary" type="button" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
-                  {stepper.state.isLast ? 'Create' : 'Continue'}
+                  {stepper.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>
             </div>
