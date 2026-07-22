@@ -65,7 +65,7 @@ export const useSetupChecklist = () => {
 
   useEffect(() => {
     return addNewNotificationListener((notification) => {
-      if (notification.topic !== NotificationNotificationTopic.SUGGESTED_TASKS) return
+      if (notification.topic !== NotificationNotificationTopic.ORGANIZATION_READY) return
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
       if (suggestedTasksBatchSchema(notification) === SETUP_CHECKLIST_BATCH_SCHEMA) {
         clearOnboardingTasksPending(currentOrgId)

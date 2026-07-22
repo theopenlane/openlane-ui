@@ -26,7 +26,7 @@ const topicIcons: Record<TopicFilter, LucideIcon> = {
   [NotificationNotificationTopic.STANDARD_UPDATE]: FolderSync,
   [NotificationNotificationTopic.TASK_ASSIGNMENT]: ClipboardList,
   [NotificationNotificationTopic.IMPORT_COMPLETE]: ArrowDownToLine,
-  [NotificationNotificationTopic.SUGGESTED_TASKS]: ListChecks,
+  [NotificationNotificationTopic.ORGANIZATION_READY]: ListChecks,
 }
 
 const getDateGroupLabel = (dateStr: string | null | undefined): string => {
