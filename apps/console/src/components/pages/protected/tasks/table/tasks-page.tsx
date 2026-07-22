@@ -82,6 +82,10 @@ const TasksPage: React.FC = () => {
 
     const merged: TaskWhereInput = { ...result }
 
+    if (merged.isSuggested === undefined) {
+      merged.isSuggested = false
+    }
+
     if (debouncedSearch) {
       merged.and = [...(merged.and || []), { or: [{ titleContainsFold: debouncedSearch }, { detailsContainsFold: debouncedSearch }] }]
     }

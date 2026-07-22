@@ -7,7 +7,7 @@ import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
 import { NotificationRow } from '@/components/shared/SystemNotification/notification-row'
 import { ExportRow } from '@/components/shared/SystemNotification/export-row'
 import { useGetAllExports } from '@/lib/graphql-hooks/export'
-import { Bell, CheckCheck, Inbox, Stamp, Radar, FileDown, AtSign, FolderSync, ClipboardList, type LucideIcon } from 'lucide-react'
+import { Bell, CheckCheck, Inbox, Stamp, Radar, FileDown, FileInput, AtSign, FolderSync, ClipboardList, type LucideIcon } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { Button } from '@repo/ui/button'
 import { isToday, isYesterday, format, startOfDay } from 'date-fns'
@@ -22,6 +22,7 @@ const topicIcons: Record<TopicFilter, LucideIcon> = {
   [NotificationNotificationTopic.APPROVAL]: Stamp,
   [NotificationNotificationTopic.DOMAIN_SCAN]: Radar,
   [NotificationNotificationTopic.EXPORT]: FileDown,
+  [NotificationNotificationTopic.IMPORT_COMPLETE]: FileInput,
   [NotificationNotificationTopic.MENTION]: AtSign,
   [NotificationNotificationTopic.STANDARD_UPDATE]: FolderSync,
   [NotificationNotificationTopic.TASK_ASSIGNMENT]: ClipboardList,
