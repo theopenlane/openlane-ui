@@ -28,6 +28,7 @@ const suggestedTasksBatchSchema = (notification: Notification): string | undefin
 }
 
 const itemStatusFromTaskStatus = (status: TaskTaskStatus): SetupChecklistItemStatus => {
+  if (isTerminalTaskStatus(status)) return 'done'
   if (status === TaskTaskStatus.IN_PROGRESS || status === TaskTaskStatus.IN_REVIEW) return 'in-progress'
   return 'not-started'
 }
@@ -51,16 +52,8 @@ export const useSetupChecklist = () => {
   const isAwaitingTasks = isAwaitingGeneration && totalCount === 0
 
   const { items, completedCount } = useMemo(() => {
-    const active: SetupChecklistItem[] = []
-    let completed = 0
-    for (const task of suggestions) {
-      if (isTerminalTaskStatus(task.status)) {
-        completed += 1
-      } else {
-        active.push({ ...task, itemStatus: itemStatusFromTaskStatus(task.status) })
-      }
-    }
-    return { items: active, completedCount: completed }
+    const all: SetupChecklistItem[] = suggestions.map((task) => ({ ...task, itemStatus: itemStatusFromTaskStatus(task.status) }))
+    return { items: all, completedCount: all.filter((task) => task.itemStatus === 'done').length }
   }, [suggestions])
 
   useEffect(() => {

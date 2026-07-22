@@ -78,6 +78,7 @@ const NotificationsPage = () => {
   const filteredNotifications = useMemo(() => {
     const sorted = [...notifications].sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime())
     return sorted.filter((n) => {
+      if (n.topic === NotificationNotificationTopic.ORGANIZATION_READY) return false
       if (showUnreadOnly && n.readAt) return false
       if (topicFilter !== 'ALL' && n.topic !== topicFilter) return false
       return true
@@ -135,9 +136,11 @@ const NotificationsPage = () => {
 
           <FilterItem label="All" icon={topicIcons.ALL} active={topicFilter === 'ALL'} onClick={() => handleTopicChange('ALL')} />
 
-          {Object.values(NotificationNotificationTopic).map((topic) => (
-            <FilterItem key={topic} label={toHumanLabel(topic)} icon={topicIcons[topic]} active={topicFilter === topic} onClick={() => handleTopicChange(topic)} />
-          ))}
+          {Object.values(NotificationNotificationTopic)
+            .filter((topic) => topic !== NotificationNotificationTopic.ORGANIZATION_READY)
+            .map((topic) => (
+              <FilterItem key={topic} label={toHumanLabel(topic)} icon={topicIcons[topic]} active={topicFilter === topic} onClick={() => handleTopicChange(topic)} />
+            ))}
         </aside>
 
         <div className="flex-1 min-w-0">
