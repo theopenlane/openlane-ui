@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { ExportExportFormat, ExportExportType, type ProcedureDiscussionFieldsFragment, type ProcedureByIdFragment } from '@repo/codegen/src/schema.ts'
@@ -9,6 +9,7 @@ import { type Value } from 'platejs'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
+import usePdfExportDialog from '@/components/shared/export/use-pdf-export-dialog.tsx'
 
 type TDetailsFieldProps = {
   isEditing: boolean
@@ -23,14 +24,18 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure
   const { data: userData } = useGetCurrentUser(userId)
   const { handleExport } = useFileExport()
 
-  const handleExportPdf = () => {
-    handleExport({
-      exportType: ExportExportType.PROCEDURE,
-      filters: JSON.stringify({ id: procedure.id }),
-      fields: null,
-      format: ExportExportFormat.PDF,
-    })
-  }
+  const { openPdfExportDialog, pdfExportDialog } = usePdfExportDialog({
+    onExport: (exportMetadata) =>
+      handleExport({
+        exportType: ExportExportType.PROCEDURE,
+        filters: JSON.stringify({ id: procedure.id }),
+        fields: null,
+        format: ExportExportFormat.PDF,
+        exportMetadata,
+      }),
+  })
+
+  const readonlyEditorKey = useMemo(() => JSON.stringify(procedure.detailsJSON ?? procedure.details), [procedure.detailsJSON, procedure.details])
 
   return isEditing ? (
     <div className="w-full">
@@ -54,14 +59,15 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure
   ) : (
     <div className={`!mt-4 min-h-[20px]`}>
       <PlateEditor
-        key={JSON.stringify(procedure.detailsJSON ?? procedure.details)}
+        key={readonlyEditorKey}
         userData={userData}
         initialValue={procedure?.detailsJSON ? (procedure?.detailsJSON as Value) : (procedure?.details ?? undefined)}
         entity={discussionData}
         readonly={true}
         variant="readonly"
-        onExportPdf={handleExportPdf}
+        onExportPdf={openPdfExportDialog}
       />
+      {pdfExportDialog}
     </div>
   )
 }

@@ -170,7 +170,7 @@ export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { 
   })
 
   const { controls: recentControls, isLoading: isLoadingControls } = useGetAllControls({
-    where: { createdAtGTE: activityWindowStart, systemOwned: false },
+    where: { createdAtGTE: activityWindowStart, systemOwned: false, isTrustCenterControl: false },
     orderBy: [{ field: ControlOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: CREATED_ACTIVITY_PAGINATION,
     includeVars: { includeCreatedAt: true, includeTitle: true },
