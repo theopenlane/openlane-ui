@@ -35,7 +35,7 @@ export const NotificationsProvider = ({ children }: { children: React.ReactNode 
     liveNotifications.forEach((notification) => {
       if (!seenIdsRef.current.has(notification.id)) {
         seenIdsRef.current.add(notification.id)
-        const isNew = subscriptionStartedAt !== null && notification.createdAt != null && new Date(notification.createdAt).getTime() >= subscriptionStartedAt
+        const isNew = !notification.readAt || (subscriptionStartedAt !== null && notification.createdAt != null && new Date(notification.createdAt).getTime() >= subscriptionStartedAt)
         if (isNew) {
           listenersRef.current.forEach((listener) => listener(notification))
         }
