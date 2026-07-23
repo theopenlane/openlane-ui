@@ -7,8 +7,8 @@ import DashboardActions from '@/components/pages/protected/overview/DashboardAct
 import DashboardComplianceOverview from '@/components/pages/protected/overview/DashboardComplianceOverview.tsx'
 import DashboardSetupChecklist from '@/components/pages/protected/overview/DashboardSetupChecklist'
 import DashboardTasksAndSuggestions from '@/components/pages/protected/overview/DashboardTasksAndSuggestions.tsx'
-import ExposureActivityFeed from '@/components/pages/protected/exposure/overview/exposure-activity-feed'
-import { useRecentActivityItems } from '@/components/pages/protected/exposure/overview/use-recent-activity-items'
+import ActivityFeed from '@/components/shared/activity-feed/activity-feed'
+import { useRecentActivityItems } from '@/components/shared/activity-feed/use-recent-activity-items'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { useSetupChecklist } from '@/hooks/useSetupChecklist'
@@ -79,7 +79,7 @@ const DashboardPage: React.FC = () => {
         </div>
 
         <div className="w-full lg:w-[350px] shrink-0 flex flex-col gap-4">
-          <ExposureActivityFeed activityItems={activityItems} allActivityItems={allActivityItems} isLoading={isActivityLoading} title="Recent Activity" />
+          <ActivityFeed activityItems={activityItems} allActivityItems={allActivityItems} isLoading={isActivityLoading} title="Recent Activity" />
         </div>
       </div>
     </div>

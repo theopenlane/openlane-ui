@@ -224,7 +224,7 @@ export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { 
     return items.sort(byNewestFirst)
   }, [baseItems, recentVulns, recentPolicies, recentControls])
 
-  const isLoading = isLoadingVulns || isLoadingFindings || isLoadingRisks || isLoadingScans || isLoadingReviews || isLoadingPolicies || isLoadingControls
+  const isLoading = isLoadingVulns || isLoadingFindings || isLoadingRisks || isLoadingScans || isLoadingReviews || (includeNonExposureActivity && (isLoadingPolicies || isLoadingControls))
 
   return { activityItems, allActivityItems, isLoading }
 }

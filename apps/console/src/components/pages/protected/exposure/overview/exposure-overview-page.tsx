@@ -7,7 +7,7 @@ import { useVulnerabilitiesWithFilter } from '@/lib/graphql-hooks/vulnerability'
 import { useFindingsWithFilter } from '@/lib/graphql-hooks/finding'
 import { useRisks } from '@/lib/graphql-hooks/risk'
 import { OrderDirection, RiskRiskImpact, RiskRiskStatus, VulnerabilityOrderField, FindingOrderField, RiskOrderField } from '@repo/codegen/src/schema'
-import { useRecentActivityItems } from './use-recent-activity-items'
+import { useRecentActivityItems } from '@/components/shared/activity-feed/use-recent-activity-items'
 import { Button } from '@repo/ui/button'
 import { Settings } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
@@ -17,7 +17,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ExposureQuickActions from './exposure-quick-actions'
 import ExposureSeverityChart from './exposure-severity-chart'
-import ExposureActivityFeed from './exposure-activity-feed'
+import ActivityFeed from '@/components/shared/activity-feed/activity-feed'
 import ExposureCriticalCounts from './exposure-critical-counts'
 import ItemsRequiringAttention from './items-requiring-attention'
 import ConfigureSlaSheet from './configure-sla-sheet'
@@ -210,7 +210,7 @@ const ExposureOverviewPage = () => {
             <ExposureSeverityChart severityData={severityData} severityItems={severityItems} isLoading={isLoading} />
           </div>
           <div className="col-span-2">
-            <ExposureActivityFeed activityItems={activityItems} isLoading={isActivityLoading} />
+            <ActivityFeed activityItems={activityItems} isLoading={isActivityLoading} />
           </div>
         </div>
         <ExposureCriticalCounts counts={criticalCounts} isLoading={isLoading} />

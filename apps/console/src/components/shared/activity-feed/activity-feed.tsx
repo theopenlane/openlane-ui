@@ -73,7 +73,7 @@ type Props = {
   isLoading?: boolean
 }
 
-const ExposureActivityFeed = ({ activityItems, allActivityItems = activityItems, title = 'Recent Activity', isLoading = false }: Props) => {
+const ActivityFeed = ({ activityItems, allActivityItems = activityItems, title = 'Recent Activity', isLoading = false }: Props) => {
   const [viewItem, setViewItem] = useState<ActivityItem | null>(null)
   const preview = activityItems.slice(0, 5)
 
@@ -150,4 +150,4 @@ const ExposureActivityFeed = ({ activityItems, allActivityItems = activityItems,
   )
 }
 
-export default ExposureActivityFeed
+export default ActivityFeed
