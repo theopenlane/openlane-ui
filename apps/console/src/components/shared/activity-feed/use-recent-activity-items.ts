@@ -208,21 +208,24 @@ export const useRecentActivityItems = ({ includeNonExposureActivity = true }: { 
     return items
   }, [recentFindings, recentRisks, recentScans, recentReviews, recentMentions])
 
+  const nonExposurePolicies = includeNonExposureActivity ? recentPolicies : undefined
+  const nonExposureControls = includeNonExposureActivity ? recentControls : undefined
+
   const activityItems = useMemo(() => {
     const items = [...baseItems]
     pushVulnerabilityActivity(items, recentVulns, includeNonExposureActivity)
-    pushCreatedActivity(items, recentPolicies, ObjectTypes.INTERNAL_POLICY, '/policies', (p) => p.name ?? ObjectTypes.INTERNAL_POLICY, policyHref)
-    pushCreatedActivity(items, recentControls, ObjectTypes.CONTROL, '/controls', controlLabel, controlHref)
+    pushCreatedActivity(items, nonExposurePolicies, ObjectTypes.INTERNAL_POLICY, '/policies', (p) => p.name ?? ObjectTypes.INTERNAL_POLICY, policyHref)
+    pushCreatedActivity(items, nonExposureControls, ObjectTypes.CONTROL, '/controls', controlLabel, controlHref)
     return items.sort(byNewestFirst)
-  }, [baseItems, recentVulns, recentPolicies, recentControls, includeNonExposureActivity])
+  }, [baseItems, recentVulns, nonExposurePolicies, nonExposureControls, includeNonExposureActivity])
 
   const allActivityItems = useMemo(() => {
     const items = [...baseItems]
     pushVulnerabilityActivity(items, recentVulns, false)
-    recentPolicies?.forEach((p) => items.push({ id: p.id, label: p.name ?? ObjectTypes.INTERNAL_POLICY, type: ObjectTypes.INTERNAL_POLICY, createdAt: p.createdAt ?? null, href: policyHref(p) }))
-    recentControls?.forEach((c) => items.push({ id: c.id, label: controlLabel(c), type: ObjectTypes.CONTROL, createdAt: c.createdAt ?? null, href: controlHref(c) }))
+    nonExposurePolicies?.forEach((p) => items.push({ id: p.id, label: p.name ?? ObjectTypes.INTERNAL_POLICY, type: ObjectTypes.INTERNAL_POLICY, createdAt: p.createdAt ?? null, href: policyHref(p) }))
+    nonExposureControls?.forEach((c) => items.push({ id: c.id, label: controlLabel(c), type: ObjectTypes.CONTROL, createdAt: c.createdAt ?? null, href: controlHref(c) }))
     return items.sort(byNewestFirst)
-  }, [baseItems, recentVulns, recentPolicies, recentControls])
+  }, [baseItems, recentVulns, nonExposurePolicies, nonExposureControls])
 
   const isLoading = isLoadingVulns || isLoadingFindings || isLoadingRisks || isLoadingScans || isLoadingReviews || (includeNonExposureActivity && (isLoadingPolicies || isLoadingControls))
 
