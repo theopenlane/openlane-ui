@@ -14,13 +14,18 @@ const formSchema = z.object({
 
 export type MembersInviteFormData = z.infer<typeof formSchema>
 
-const useMembersInviteFormSchema = () => {
+type UseMembersInviteFormSchemaOptions = {
+  defaultEmails?: string[]
+  defaultRole?: InviteRole
+}
+
+const useMembersInviteFormSchema = ({ defaultEmails = [], defaultRole = InviteRole.MEMBER }: UseMembersInviteFormSchemaOptions = {}) => {
   return {
     form: useForm<MembersInviteFormData>({
       resolver: zodResolver(formSchema),
       defaultValues: {
-        emails: [],
-        role: InviteRole.MEMBER,
+        emails: defaultEmails,
+        role: defaultRole,
       },
     }),
   }
