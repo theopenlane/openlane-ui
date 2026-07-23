@@ -30,7 +30,7 @@
     "eslint": "10.6.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "husky": "^9.1.7",
-    "lint-staged": "^16.4.0",
+    "lint-staged": "^17.0.0",
     "prettier": "^3.9.5",
     "prettier-plugin-tailwindcss": "latest",
     "turbo": "^2.10.6"
