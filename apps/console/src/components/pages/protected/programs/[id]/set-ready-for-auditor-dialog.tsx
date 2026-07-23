@@ -76,7 +76,7 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">There are no auditors in your organisation. Invite the marked user as an AUDITOR.</p>
+                <p className="text-sm text-muted-foreground">There are no auditors in your organization. Invite the marked user as an Auditor.</p>
                 <Button variant="secondary" type="button" onClick={() => setIsInviteSheetOpen(true)}>
                   Invite auditor
                 </Button>
