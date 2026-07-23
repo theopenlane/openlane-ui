@@ -67,7 +67,7 @@
     "vite": "^8.1.4",
     "postcss": "^8.5.16",
     "dompurify": "^3.4.11",
-    "graphql": "16.14.2"
+    "graphql": "17.0.2"
   },
   "peerDependencies": {
     "react": "19.2.7",
