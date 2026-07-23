@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "openlane-ui",
@@ -177,7 +178,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@graphql-tools/schema": "10.0.36",
-        "graphql": "16.14.2",
+        "graphql": "17.0.2",
         "graphql-codegen-typescript-validation-schema": "^0.19.0",
         "graphql-request": "7.4.0",
         "typescript": "^6.0.3",
@@ -389,7 +390,7 @@
     "fast-xml-builder": "^1.2.1",
     "fast-xml-parser": "^5.9.3",
     "form-data": "^4.0.6",
-    "graphql": "16.14.2",
+    "graphql": "17.0.2",
     "next": "16.2.11",
     "node-fetch": "^3.3.2",
     "postcss": "^8.5.16",
@@ -2819,7 +2820,7 @@
 
     "graphlib": ["graphlib@2.1.8", "", { "dependencies": { "lodash": "^4.17.15" } }, "sha512-jcLLfkpoVGmH7/InMC/1hIvOPSUh38oJtGhvrOFGzioE1DZ+0YW16RgmOJhHiuWTvGiJQ9Z1Ik43JvkRPRvE+A=="],
 
-    "graphql": ["graphql@16.14.2", "", {}, "sha512-Chq1s4CY7jmh8gO2qvLIJyfCDIN+EHLFW/9iShnp1z8FjBQMoodWP1kDC36VAMXXIvAjj4ARa7ntfAV2BrjsbA=="],
+    "graphql": ["graphql@17.0.2", "", {}, "sha512-FRWbddMxfkjiB7z+aQDWIR+E34xo9I8c9mtK2RPv8PmMzKRvrdsreHL/Ui/TmwHJfhHChEtsFPyMHKI+xuarQQ=="],
 
     "graphql-codegen-typescript-validation-schema": ["graphql-codegen-typescript-validation-schema@0.19.0", "", { "dependencies": { "@graphql-codegen/plugin-helpers": "^6.0.0", "@graphql-codegen/schema-ast": "5.0.2", "@graphql-codegen/visitor-plugin-common": "^6.0.0", "@graphql-tools/utils": "^11.0.0", "graphlib": "^2.1.8", "graphql": "^16.6.0" }, "peerDependencies": { "zod": "^3.25.0 || ^4.0.0" } }, "sha512-tBlCoXWbe+74Codc8Ig1mDMa4MWlxmBKbeyE/DdimmcTXmtXL/nc9rKR5bZxUwg6i1lGLuf/CyO6XDTrGre0sg=="],
 
