@@ -401,6 +401,7 @@
   --color-moderate: #ca8a04;
   --color-danger: #f45b50;
   --color-suggestion: #ff842c;
+  --color-recommendation: #8b5cf6;
 
   --color-active-filter-border: #60e8c93d;
   --color-active-filter-background: #60e8c91f;
@@ -518,6 +519,7 @@
   --color-moderate: #ca8a04;
   --color-danger: #f45b50;
   --color-suggestion: #ff842c;
+  --color-recommendation: #8b5cf6;
 }
 
 @theme inline {

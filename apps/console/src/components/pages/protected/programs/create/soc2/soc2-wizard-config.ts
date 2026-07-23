@@ -28,7 +28,7 @@ export const step3Schema = z.object({
 export const fullSchema = step1Schema.merge(programInviteSchema).merge(step3Schema)
 export type WizardValues = z.infer<typeof fullSchema>
 
-export async function validateFullAndNotify(methods: UseFormReturn<WizardValues>, notify: (props: TErrorProps) => void): Promise<boolean> {
+export const validateFullAndNotify = async (methods: UseFormReturn<WizardValues>, notify: (props: TErrorProps) => void): Promise<boolean> => {
   const values = methods.getValues()
   const result = fullSchema.safeParse(values)
 

@@ -3,11 +3,11 @@ import React from 'react'
 import { Rocket, SearchCheck } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
-import { useFormContext, Controller } from 'react-hook-form'
+import { useFormContext, Controller, useWatch } from 'react-hook-form'
 
 export default function StartTypeStep() {
-  const { control, watch } = useFormContext<{ programKindName?: string }>()
-  const selected = watch('programKindName')
+  const { control } = useFormContext<{ programKindName?: string }>()
+  const selected = useWatch({ control, name: 'programKindName' })
 
   return (
     <div className="space-y-6">

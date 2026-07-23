@@ -1,148 +1,88 @@
 'use client'
-import React, { useState } from 'react'
-import { useForm, FormProvider } from 'react-hook-form'
+
+import { DynamicStep } from '@/components/pages/protected/onboarding/dynamic-step'
+import SetupProgressCard from '@/components/pages/protected/onboarding/onboarding-setup-progress'
+import OnboardingFooter from '@/components/pages/protected/onboarding/onboarding-footer'
+import OnboardingReadyCard from '@/components/pages/protected/onboarding/onboarding-ready-card'
+import OnboardingTransitionCard from '@/components/pages/protected/onboarding/onboarding-transition-card'
+import { CONTENT_LEFT_COLUMN_CLASS, CONTENT_RIGHT_COLUMN_CLASS } from '@/components/pages/protected/onboarding/onboarding-layout-classes'
+import { useOnboardingSubmit } from '@/components/pages/protected/onboarding/hooks/use-onboarding-submit'
+import { useOnboardingQuestions } from '@/hooks/useOnboardingQuestions'
+import { allQuestionsForStep, buildOnboardingDefaultValues, buildOnboardingSchema, getRequiredKeysForStep, getVisibleKeysForStep, isAnswered } from '@/lib/onboarding-questions/build-schema'
+import { type OnboardingCard, type OnboardingStep } from '@/lib/onboarding-questions/types'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { defineStepper } from '@stepperize/react'
-import { useSession } from 'next-auth/react'
-import { type CreateOnboardingInput } from '@repo/codegen/src/schema'
+import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
-import { Button } from '@repo/ui/button'
-import { ArrowRight, ArrowLeft, PartyPopper, WindIcon } from 'lucide-react'
-import Step1, { step1Schema } from '@/components/pages/protected/onboarding/step-1'
-import Step2, { step2Schema } from '@/components/pages/protected/onboarding/step-2'
-import Step3, { step3Schema } from '@/components/pages/protected/onboarding/step-3'
-import { useNotification } from '@/hooks/useNotification'
-import { useRouter } from 'next/navigation'
-import { switchOrganization, handleSSORedirect } from '@/lib/user'
-import { useCreateOnboarding } from '@/lib/graphql-hooks/onboarding'
-import { useQueryClient } from '@tanstack/react-query'
-import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { type z } from 'zod'
+import { Logo } from '@repo/ui/logo'
+import { defineStepper } from '@stepperize/react'
+import { Loader2 } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 
-const { useStepper, steps } = defineStepper(
-  { id: '0', label: `Company Info`, schema: step1Schema },
-  { id: '1', label: `User Info`, schema: step2Schema },
-  { id: '2', label: `Compliance Info`, schema: step3Schema },
-)
+type MultiStepFormProps = {
+  questionSteps: OnboardingStep[]
+  trialCards: OnboardingCard[]
+  trialTitle: string
+  trialDescription: string
+}
 
-const onboardingSchema = step1Schema.merge(step2Schema).merge(step3Schema)
-type OnboardingFormInput = z.input<typeof onboardingSchema>
-type OnboardingFormData = z.output<typeof onboardingSchema>
-
-export default function MultiStepForm() {
-  const queryClient = useQueryClient()
+const MultiStepForm = ({ questionSteps, trialCards, trialTitle, trialDescription }: MultiStepFormProps) => {
+  const { useStepper, steps } = useMemo(() => defineStepper(...questionSteps.map((step) => ({ id: step.key, label: step.title }))), [questionSteps])
   const stepper = useStepper()
-  const { mutateAsync: createOnboarding } = useCreateOnboarding()
-  const router = useRouter()
-  const { data: sessionData, update: updateSession } = useSession()
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const { successNotification, errorNotification } = useNotification()
+  const onboardingSchema = useMemo(() => buildOnboardingSchema(questionSteps), [questionSteps])
+  const defaultOnboardingValues = useMemo(() => buildOnboardingDefaultValues(questionSteps), [questionSteps])
+  const allQuestions = useMemo(() => questionSteps.flatMap(allQuestionsForStep), [questionSteps])
+  const { data: sessionData } = useSession()
+  const [isMounted, setIsMounted] = useState(false)
 
-  const methods = useForm<OnboardingFormInput, undefined, OnboardingFormData>({
+  const { submitStage, submitOnboarding, exitOnboarding, notifyIncompleteExit, leaveOnboarding, domainScanNotification, reviewDomainScanFindings } = useOnboardingSubmit(allQuestions)
+
+  const methods = useForm({
     resolver: zodResolver(onboardingSchema),
-    defaultValues: {
-      companyName: '',
-      domains: [],
-      companyDetails: {},
-      userDetails: {},
-      compliance: {
-        existing_policies_procedures: false,
-        completed_risk_assessment: false,
-        completed_gap_analysis: false,
-        existing_controls: false,
-      },
-      demo_requested: false,
-    },
+    defaultValues: defaultOnboardingValues,
     mode: 'onChange',
   })
+  const values = useWatch({ control: methods.control }) as Record<string, unknown>
 
-  const onSubmit = async () => {
-    setIsLoading(true)
-    try {
-      const values = methods.getValues()
-      const companyDetails = { ...(values.companyDetails ?? {}) }
-      if (companyDetails.sector === 'Other (Please Specify)') {
-        companyDetails.sector = companyDetails.otherSector || ''
-        companyDetails.otherSector = undefined
-      }
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
-      const fullData: CreateOnboardingInput = {
-        companyName: values.companyName || '',
-        domains: values.domains || [],
-        companyDetails,
-        userDetails: values.userDetails || {},
-        compliance: values.compliance || {},
-        demoRequested: values.demo_requested ?? false,
-      }
+  useEffect(() => {
+    const userDomain = sessionData?.user.email?.split('@')[1]
+    if (!userDomain) return
 
-      const response = await createOnboarding({
-        input: fullData,
-      })
-
-      if (response?.createOnboarding) {
-        successNotification({
-          title: 'Onboarding completed successfully',
-        })
-      } else {
-        throw new Error('Unexpected response format')
-      }
-
-      const orgId = response?.createOnboarding.onboarding.organizationID
-
-      if (orgId) {
-        const response = await switchOrganization({
-          target_organization_id: orgId,
-        })
-
-        if (handleSSORedirect(response)) {
-          return
-        }
-
-        if (sessionData && response) {
-          await updateSession({
-            ...response.session,
-            user: {
-              ...sessionData.user,
-              accessToken: response.access_token,
-              activeOrganizationId: orgId,
-              refreshToken: response.refresh_token,
-              isOnboarding: false,
-            },
-          })
-          requestAnimationFrame(() => {
-            queryClient?.clear()
-          })
-          router.push('/dashboard')
-        }
-      }
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    } finally {
-      setIsLoading(false)
+    const currentDomains = methods.getValues('company_domains')
+    const existingDomains = Array.isArray(currentDomains) ? currentDomains : []
+    if (!existingDomains.includes(userDomain)) {
+      methods.setValue('company_domains', [...existingDomains, userDomain])
     }
-  }
+
+    if (!methods.getValues('company_name')) {
+      const derivedName = userDomain
+        .split('.')[0]
+        .split(/[-_]+/)
+        .filter(Boolean)
+        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+      methods.setValue('company_name', derivedName, { shouldValidate: true })
+    }
+  }, [sessionData, methods])
+
+  const currentStep = questionSteps.find((step) => step.key === stepper.state.current.data.id)
 
   const handleNext = async () => {
-    let isValid: boolean
-
-    if (stepper.state.current.data.id === '0') {
-      isValid = await methods.trigger(['companyName', 'domains'])
-    } else if (stepper.state.current.data.id === '1') {
-      isValid = await methods.trigger(['userDetails.role', 'userDetails.department'])
-    } else {
-      isValid = await methods.trigger(['compliance.existing_policies_procedures', 'compliance.completed_risk_assessment', 'compliance.completed_gap_analysis', 'compliance.existing_controls'])
-    }
+    const visibleKeys = currentStep ? getVisibleKeysForStep(currentStep, values) : []
+    const isValid = visibleKeys.length > 0 ? await methods.trigger(visibleKeys) : true
 
     if (!isValid) return
 
     if (!stepper.state.isLast) {
       stepper.navigation.next()
     } else {
-      methods.handleSubmit(() => onSubmit())()
+      methods.handleSubmit(submitOnboarding)()
     }
   }
 
@@ -153,67 +93,102 @@ export default function MultiStepForm() {
   }
 
   const currentIndex = stepper.state.all.findIndex((item) => item.id === stepper.state.current.data.id)
-  const isLastStep = stepper.state.isLast
-  const isFirstStep = stepper.state.isFirst
+  const hasFormErrors = Object.keys(methods.formState.errors).length > 0
+  const isCurrentStepIncomplete = (currentStep ? getRequiredKeysForStep(currentStep, values) : []).some((key) => !isAnswered(values[key]))
+  const domains = values.company_domains
+  const primaryDomain = Array.isArray(domains) && typeof domains[0] === 'string' ? domains[0] : undefined
 
   return (
-    <div className="flex justify-center flex-col items-center max-w-[545px] m-auto">
-      <div className="self-start w-full">
-        <h1 className="text-2xl py-3 font-medium text-left">Welcome to Openlane</h1>
-        <p className="text-sm font-normal pb-5 text-left">We are glad to have you! Let&apos;s get started with a few questions.</p>
-      </div>
-      {isLoading && isLastStep && (
-        <Card className="p-7 flex flex-col gap-2 items-center w-full">
-          <PartyPopper size={89} strokeWidth="1" />
-          <p className="text-sm">Thank you for all your answers. We are now preparing your account.</p>
-          <p className="text-sm">Please wait ...</p>
-        </Card>
-      )}
+    <div className={`flex flex-col w-full max-w-6xl m-auto px-4 py-8 ${submitStage === 'form' ? 'pb-28' : ''}`}>
+      <div className="flex flex-col lg:flex-row w-full gap-10">
+        <div className={`hidden lg:flex flex-col gap-8 self-start ${CONTENT_LEFT_COLUMN_CLASS}`}>
+          <Logo width={150} height={24} />
 
-      {isLoading && !isLastStep && (
-        <Card className="p-7 flex flex-col gap-2 items-center w-full">
-          <WindIcon size={89} strokeWidth="1" />
-          <p className="text-sm">We understand that you’re in hurry and want jump into action.</p>
-          <p className="text-sm">We are now preparing your account ...</p>
-        </Card>
-      )}
+          <div className="flex flex-col gap-3">
+            <h1 className="text-3xl font-semibold">Welcome to Openlane</h1>
+            <p className="text-sm text-muted-foreground">Let&apos;s set up your workspace so you can get value faster</p>
+          </div>
 
-      {!isLoading && (
-        <FormProvider {...methods}>
-          <form className="w-full" onSubmit={methods.handleSubmit(onSubmit)}>
-            <Card className="bg-transparent">
-              <p className="text-center p-2">{`Let’s get you started (${currentIndex + 1}/${steps.length})`}</p>
-              <div className="relative bg-progressbar h-1 w-full">
-                <div className={`absolute bg-brand h-1`} style={{ width: `${((currentIndex + 1) / steps.length) * 100}%` }}></div>
-              </div>
-              <div className="p-7 bg-secondary rounded-b-lg">
-                {stepper.flow.switch({
-                  0: () => <Step1 />,
-                  1: () => <Step2 />,
-                  2: () => <Step3 />,
-                })}
-                <div className="flex justify-between mt-6">
-                  {!isFirstStep ? (
-                    <Button type="button" onClick={handleBack} variant="secondary" icon={<ArrowLeft />} iconPosition="left">
-                      {steps[currentIndex - 1]?.label}
-                    </Button>
-                  ) : (
-                    <div />
-                  )}
-                  <Button className="self-end" type="button" onClick={handleNext} icon={<ArrowRight />}>
-                    {isLastStep ? 'Submit' : steps[currentIndex + 1]?.label}
-                  </Button>
-                </div>
-                {currentIndex === 1 && (
-                  <div className="border-t pt-5 mt-5 text-sm" onClick={methods.handleSubmit(onSubmit)}>
-                    <span className="text-blue-500 cursor-pointer">Exit the onboarding process</span> <span> and use general template for my account.</span>
+          <SetupProgressCard stepLabels={questionSteps.map((step) => step.title)} currentIndex={currentIndex} stage={submitStage} />
+        </div>
+
+        <div className={`flex flex-col ${CONTENT_RIGHT_COLUMN_CLASS}`}>
+          {submitStage === 'transition' && (
+            <OnboardingTransitionCard totalSteps={steps.length} title={trialTitle} description={trialDescription} cards={trialCards} primaryDomain={primaryDomain} onLeave={leaveOnboarding} />
+          )}
+
+          {submitStage === 'ready' && (
+            <OnboardingReadyCard
+              totalSteps={steps.length}
+              scanData={domainScanNotification?.data}
+              hasScanReport={!!domainScanNotification}
+              primaryDomain={primaryDomain}
+              onReview={reviewDomainScanFindings}
+              onLeave={leaveOnboarding}
+            />
+          )}
+
+          {submitStage === 'form' && currentStep && (
+            <FormProvider {...methods}>
+              <form className="w-full" onSubmit={methods.handleSubmit(submitOnboarding)}>
+                <Card className="w-full min-h-96 p-7 md:p-8 shadow-lg rounded-xl">
+                  <div className="flex flex-col gap-3 mb-8">
+                    <Badge variant="primary" className="w-fit uppercase tracking-wide border-primary/24">
+                      Step {currentIndex + 1} of {steps.length}
+                    </Badge>
+                    <div className="relative h-1.5 w-full rounded-full bg-border overflow-hidden">
+                      <div className="absolute inset-y-0 left-0 bg-primary rounded-full transition-all" style={{ width: `${((currentIndex + 1) / steps.length) * 100}%` }} />
+                    </div>
                   </div>
-                )}
-              </div>
-            </Card>
-          </form>
-        </FormProvider>
-      )}
+
+                  <DynamicStep step={currentStep} />
+                </Card>
+              </form>
+            </FormProvider>
+          )}
+        </div>
+      </div>
+
+      {isMounted &&
+        submitStage === 'form' &&
+        createPortal(
+          <OnboardingFooter
+            showExit={currentIndex > 0}
+            onExit={methods.handleSubmit(exitOnboarding, notifyIncompleteExit)}
+            isFirstStep={stepper.state.isFirst}
+            isLastStep={stepper.state.isLast}
+            backLabel={steps[currentIndex - 1]?.label}
+            nextLabel={steps[currentIndex + 1]?.label}
+            isNextDisabled={hasFormErrors || isCurrentStepIncomplete}
+            onBack={handleBack}
+            onNext={handleNext}
+          />,
+          document.body,
+        )}
     </div>
   )
 }
+
+const OnboardingPage = () => {
+  const { steps: questionSteps, trialCards, trialTitle, trialDescription, isLoading, error } = useOnboardingQuestions()
+
+  if (isLoading) {
+    return (
+      <div className="flex w-full items-center justify-center py-32">
+        <Loader2 className="animate-spin text-primary" size={28} />
+      </div>
+    )
+  }
+
+  if (error || questionSteps.length === 0) {
+    return (
+      <div className="flex w-full items-center justify-center py-32">
+        <p className="text-sm text-text-light">We couldn&apos;t load the onboarding questions. Please refresh the page.</p>
+      </div>
+    )
+  }
+
+  return <MultiStepForm questionSteps={questionSteps} trialCards={trialCards} trialTitle={trialTitle} trialDescription={trialDescription} />
+}
+
+export default OnboardingPage

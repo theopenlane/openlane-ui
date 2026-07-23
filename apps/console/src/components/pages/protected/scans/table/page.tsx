@@ -3,7 +3,7 @@
 import React from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { type ScansNodeNonNull, useScan, useCreateScan, useUpdateScan, useCreateBulkCSVScan, useBulkEditScan, useBulkDeleteScan } from '@/lib/graphql-hooks/scan'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
 import { type ScanSheetConfig, type ScanTablePageConfig, type ScanFieldProps, objectType, objectName, tableKey, orderFieldEnum, defaultSorting } from './types'
@@ -14,6 +14,8 @@ import { normalizeEntityData, buildResponsibilityPayload } from '@/components/sh
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ScanAssociationsSection } from '../create/form/fields/association-section'
+import { Button } from '@repo/ui/button'
+import { FileText } from 'lucide-react'
 
 const normalizeData = (data: ScanQuery['scan']) =>
   normalizeEntityData(data, {
@@ -23,6 +25,7 @@ const normalizeData = (data: ScanQuery['scan']) =>
   })
 
 const ScanPage: React.FC = () => {
+  const router = useRouter()
   const { form } = useFormSchema()
 
   const searchParams = useSearchParams()
@@ -101,6 +104,8 @@ const ScanPage: React.FC = () => {
     scopeName: createScope,
   }
 
+  const isCompletedDomainScan = data?.scan?.scanType === ScanScanType.DOMAIN && data?.scan?.status === ScanScanStatus.COMPLETED
+
   const sheetConfig: ScanSheetConfig = {
     objectType: objectType,
     form,
@@ -111,11 +116,19 @@ const ScanPage: React.FC = () => {
     deleteMutation,
     normalizeData,
     extraContent: id ? <ScanAssociationsSection scanId={id} /> : undefined,
+    extraHeaderActions:
+      id && isCompletedDomainScan ? (
+        <Button icon={<FileText />} iconPosition="left" variant="secondary" onClick={() => router.push(`/exposure/scans/domain-scan?scanId=${encodeURIComponent(id)}`)}>
+          View Report
+        </Button>
+      ) : undefined,
     buildPayload: async (data) => {
-      const { assignedTo, performedBy, reviewedBy, ...rest } = data
+      const { assignedTo, performedBy, reviewedBy, scanDate, nextScanRunAt, ...rest } = data
       const mode = isCreate ? 'create' : 'update'
       return {
         ...rest,
+        scanDate: scanDate instanceof Date ? scanDate.toISOString() : scanDate,
+        nextScanRunAt: nextScanRunAt instanceof Date ? nextScanRunAt.toISOString() : nextScanRunAt,
         ...buildResponsibilityPayload('assignedTo', assignedTo, { mode }),
         ...buildResponsibilityPayload('performedBy', performedBy, { mode }),
         ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode }),

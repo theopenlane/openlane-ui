@@ -121,6 +121,13 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
         getCondition: () => ({ assigneeIDIsNil: true }),
         isActive: false,
       },
+      {
+        label: 'Suggested',
+        key: 'suggested',
+        type: 'custom',
+        getCondition: () => ({ isSuggested: true }),
+        isActive: false,
+      },
     ]
   }, [props.showMyTasks, session?.user?.userId])
 

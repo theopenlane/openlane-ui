@@ -7,7 +7,9 @@ import { type Value } from 'platejs'
 import { useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
-import { type ControlDiscussionFieldsFragment, type SubcontrolDiscussionFieldsFragment } from '@repo/codegen/src/schema.ts'
+import { ControlControlSource, SubcontrolControlSource, type ControlDiscussionFieldsFragment, type SubcontrolDiscussionFieldsFragment } from '@repo/codegen/src/schema.ts'
+import { hasPlaceholderText } from '@/components/shared/plate/plate-utils'
+import { Callout } from '@/components/shared/callout/callout'
 
 interface DescriptionFieldProps {
   isEditing: boolean
@@ -15,9 +17,10 @@ interface DescriptionFieldProps {
   isEditAllowed?: boolean
   discussionData?: ControlDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment
   systemCreated: boolean
+  source?: ControlControlSource | SubcontrolControlSource
 }
 
-const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialValue, isEditAllowed, discussionData, systemCreated }) => {
+const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialValue, isEditAllowed, discussionData, systemCreated, source }) => {
   const { subcontrolId } = useParams<{ subcontrolId: string | undefined; id: string }>()
   const { control } = useFormContext()
   const { data: sessionData } = useSession()
@@ -52,6 +55,11 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
   ) : (
     <div className="w-full">
       {label}
+      {(source === ControlControlSource.TEMPLATE || source === SubcontrolControlSource.TEMPLATE) && hasPlaceholderText(initialValue) && (
+        <Callout variant="warning" compact className="mb-2">
+          This description still contains template placeholder text (e.g. <code>{'{{ ... }}'}</code>) that should be reviewed and filled in.
+        </Callout>
+      )}
       <div className={'min-h-5'}>
         {systemCreated ? (
           <div className="rich-text" dangerouslySetInnerHTML={{ __html: initialValue as string }} />

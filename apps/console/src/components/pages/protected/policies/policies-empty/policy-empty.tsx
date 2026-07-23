@@ -1,12 +1,50 @@
+'use client'
+
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Card, CardDescription, CardTitle } from '@repo/ui/cardpanel'
-import { LinkIcon, SquarePenIcon, UploadIcon } from 'lucide-react'
+import { FileTextIcon, LinkIcon, LoaderCircle, SquarePenIcon, UploadIcon } from 'lucide-react'
 import Link from 'next/link'
+import { useState } from 'react'
+import { createPortal } from 'react-dom'
+import { useRouter } from 'next/navigation'
 import CreatePolicyUploadDialog from '../create/form/create-policy-upload-dialog'
 import { INTEGRATIONS_DOCUMENT_FILTER_URL } from '@/constants'
+import { PolicyTemplateBrowser } from '@/components/shared/github-selector/policy-selector'
+import { type TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
+import { useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-export function PolicyEmptyActions() {
+export const PolicyEmptyActions = () => {
+  const router = useRouter()
+  const { successNotification, errorNotification } = useNotification()
+  const { mutateAsync: createUploadPolicy } = useCreateUploadInternalPolicy()
+  const [showTemplateBrowser, setShowTemplateBrowser] = useState(false)
+  const [isCreatingFromTemplate, setIsCreatingFromTemplate] = useState(false)
+
+  const handleTemplateFileSelect = async (file: TUploadedFile) => {
+    setIsCreatingFromTemplate(true)
+    try {
+      const result = await createUploadPolicy({ internalPolicyFile: file.file })
+      const policyId = result.createUploadInternalPolicy.internalPolicy.id
+
+      successNotification({
+        title: 'Policy Created',
+        description: 'Policy has been successfully created from template',
+      })
+
+      router.push(`/policies/${policyId}/view`)
+    } catch (error) {
+      errorNotification({
+        title: 'Error',
+        description: parseErrorMessage(error),
+      })
+
+      setIsCreatingFromTemplate(false)
+    }
+  }
+
   const cards = [
     {
       id: 'create-manual',
@@ -21,6 +59,19 @@ export function PolicyEmptyActions() {
       },
       buttonVariant: 'primary' as const,
       buttonClassName: '!bg-[var(--color-success)] hover:opacity-90',
+    },
+    {
+      id: 'policy-hub',
+      title: 'Import from Policy Hub',
+      desc: 'Start from a library of pre-written policy templates and customize it to fit your organization.',
+      Icon: FileTextIcon,
+      iconClassName: 'text-blue-400',
+      cardClassName: 'border-blue-500/30 bg-blue-500/5',
+      dialog: (
+        <Button variant="primary" onClick={() => setShowTemplateBrowser(true)} disabled={isCreatingFromTemplate}>
+          Browse Templates
+        </Button>
+      ),
     },
     {
       id: 'managed-via-integration',
@@ -78,6 +129,19 @@ export function PolicyEmptyActions() {
           </Card>
         ))}
       </div>
+
+      <PolicyTemplateBrowser isOpen={showTemplateBrowser} onClose={() => setShowTemplateBrowser(false)} onFileSelect={handleTemplateFileSelect} />
+
+      {isCreatingFromTemplate &&
+        createPortal(
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-90">
+            <div className="bg-secondary rounded-xl border p-8 flex flex-col items-center gap-4">
+              <LoaderCircle className="animate-spin opacity-30" size={32} />
+              <p className="text-lg">Creating policy from template...</p>
+            </div>
+          </div>,
+          document.body,
+        )}
     </section>
   )
 }

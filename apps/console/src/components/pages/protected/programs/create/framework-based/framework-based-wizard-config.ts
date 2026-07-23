@@ -1,7 +1,7 @@
-// framework-based-wizard-config.ts
 import { type TErrorProps } from '@/hooks/useNotification'
 import { z } from 'zod'
 import { type UseFormReturn } from 'react-hook-form'
+import { suggestedControlsStepSchema } from '../shared/suggested-controls-schema'
 
 export const selectFrameworkSchema = z.object({
   framework: z.string({ required_error: 'Framework is required' }).min(1, { message: 'Framework is required' }),
@@ -26,11 +26,11 @@ export const categoriesStepSchema = z.object({
   categories: z.array(z.string()),
 })
 
-export const wizardSchema = selectFrameworkSchema.merge(programInviteSchema).merge(categoriesStepSchema).merge(programTypeSchema)
+export const wizardSchema = selectFrameworkSchema.merge(programInviteSchema).merge(categoriesStepSchema).merge(suggestedControlsStepSchema).merge(programTypeSchema)
 
 export type WizardValues = z.infer<typeof wizardSchema>
 
-export async function validateFullAndNotify(methods: UseFormReturn<WizardValues>, notify: (props: TErrorProps) => void): Promise<boolean> {
+export const validateFullAndNotify = async (methods: UseFormReturn<WizardValues>, notify: (props: TErrorProps) => void): Promise<boolean> => {
   const values = methods.getValues()
   const result = wizardSchema.safeParse(values)
 

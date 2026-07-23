@@ -22,6 +22,7 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import ImpersonationBanner from '@/components/shared/impersonation-banner/impersonation-banner'
 import { IMPERSONATION_BANNER_HEIGHT_VAR } from '@/constants/layout'
+import { DashboardContentOffsetProvider } from '@/providers/DashboardContentOffsetContext'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -130,7 +131,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
 
             <div className={base()}>
               <main className={main()} data-scroll-container="main">
-                {error ?? children}
+                <DashboardContentOffsetProvider value={{ marginLeft: contentMarginLeft, marginRight: 8 }}>{error ?? children}</DashboardContentOffsetProvider>
               </main>
               <ChatBot />
               <CommandMenu items={navItems} />

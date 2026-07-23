@@ -376,6 +376,7 @@ const ControlDetailsPage: React.FC = () => {
         isEditAllowed={!isSourceFramework && canEdit(permission?.roles, sessionData)}
         discussionData={discussionData?.control}
         systemCreated={!initialValues.descriptionJSON && !!initialValues.description}
+        source={control.source ?? undefined}
       />
 
       <div className="grid gap-4 sm:grid-cols-[160px_160px_1fr]">

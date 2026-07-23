@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import useFormSchema from './hooks/use-form-schema'
 import { type ScansNodeNonNull, useScan, useCreateScan, useUpdateScan } from '@/lib/graphql-hooks/scan'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
@@ -10,6 +11,9 @@ import { type CreateScanInput, type UpdateScanInput, ScanScanStatus, ScanScanTyp
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { ScanAssociationsSection } from './create/form/fields/association-section'
+import { Button } from '@repo/ui/button'
+import { FileText } from 'lucide-react'
 
 type Props = {
   entityId: string | null
@@ -17,6 +21,7 @@ type Props = {
 }
 
 const ViewScanSheet: React.FC<Props> = ({ entityId, onClose }) => {
+  const router = useRouter()
   const { form } = useFormSchema()
   const { data, isLoading } = useScan(entityId || undefined)
 
@@ -56,6 +61,8 @@ const ViewScanSheet: React.FC<Props> = ({ entityId, onClose }) => {
     [],
   )
 
+  const isCompletedDomainScan = data?.scan?.scanType === ScanScanType.DOMAIN && data?.scan?.status === ScanScanStatus.COMPLETED
+
   const sheetConfig: ScanSheetConfig = {
     objectType,
     form,
@@ -68,10 +75,19 @@ const ViewScanSheet: React.FC<Props> = ({ entityId, onClose }) => {
     onClose,
     normalizeData,
     basePath: '/exposure/scans',
+    extraContent: entityId ? <ScanAssociationsSection scanId={entityId} /> : undefined,
+    extraHeaderActions:
+      entityId && isCompletedDomainScan ? (
+        <Button icon={<FileText />} iconPosition="left" variant="secondary" onClick={() => router.push(`/exposure/scans/domain-scan?scanId=${encodeURIComponent(entityId)}`)}>
+          View Report
+        </Button>
+      ) : undefined,
     buildPayload: async (formData) => {
-      const { assignedTo, performedBy, reviewedBy, ...rest } = formData
+      const { assignedTo, performedBy, reviewedBy, scanDate, nextScanRunAt, ...rest } = formData
       return {
         ...rest,
+        scanDate: scanDate instanceof Date ? scanDate.toISOString() : scanDate,
+        nextScanRunAt: nextScanRunAt instanceof Date ? nextScanRunAt.toISOString() : nextScanRunAt,
         ...buildResponsibilityPayload('assignedTo', assignedTo, { mode: 'update' }),
         ...buildResponsibilityPayload('performedBy', performedBy, { mode: 'update' }),
         ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: 'update' }),

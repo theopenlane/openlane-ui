@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, use, useCallback, useEffect, useRef } from 'react'
+import { useSession } from 'next-auth/react'
 import { useWebsocketNotifications, type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 
 type NewNotificationListener = (notification: Notification) => void
@@ -11,19 +12,22 @@ type NotificationsContextValue = ReturnType<typeof useWebsocketNotifications> & 
 
 const NotificationsContext = createContext<NotificationsContextValue | null>(null)
 
+const RESUBSCRIBE_GRACE_MS = 30_000
+
 export const NotificationsProvider = ({ children }: { children: React.ReactNode }) => {
+  const { status } = useSession()
   const websocketNotifications = useWebsocketNotifications()
-  const { notifications, liveNotifications, subscriptionStartedAt } = websocketNotifications
+  const { liveNotifications, subscriptionStartedAt } = websocketNotifications
   const listenersRef = useRef<NewNotificationListener[]>([])
   const seenIdsRef = useRef<Set<string>>(new Set())
   const hasInitializedLiveNotificationsRef = useRef(false)
 
   useEffect(() => {
-    if (notifications.length === 0 && liveNotifications.length === 0) {
+    if (status === 'unauthenticated') {
       seenIdsRef.current = new Set()
       hasInitializedLiveNotificationsRef.current = false
     }
-  }, [liveNotifications, notifications.length])
+  }, [status])
 
   useEffect(() => {
     if (!hasInitializedLiveNotificationsRef.current) {
@@ -35,7 +39,9 @@ export const NotificationsProvider = ({ children }: { children: React.ReactNode 
     liveNotifications.forEach((notification) => {
       if (!seenIdsRef.current.has(notification.id)) {
         seenIdsRef.current.add(notification.id)
-        const isNew = subscriptionStartedAt !== null && notification.createdAt != null && new Date(notification.createdAt).getTime() >= subscriptionStartedAt
+        const isNew =
+          !notification.readAt && subscriptionStartedAt !== null && notification.createdAt != null && new Date(notification.createdAt).getTime() >= subscriptionStartedAt - RESUBSCRIBE_GRACE_MS
+
         if (isNew) {
           listenersRef.current.forEach((listener) => listener(notification))
         }
