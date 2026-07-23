@@ -15,6 +15,7 @@ export const toBase64DataUri = (base64: string): string => {
 }
 
 export const logoUrlFromDomain = (domain?: string): string | undefined => {
-  if (!domain) return undefined
-  return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`
+  const trimmed = domain?.trim()
+  if (!trimmed) return undefined
+  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(trimmed)}&sz=128`
 }

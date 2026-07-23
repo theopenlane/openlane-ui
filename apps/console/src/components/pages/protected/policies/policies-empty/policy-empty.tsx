@@ -1,3 +1,5 @@
+'use client'
+
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Card, CardDescription, CardTitle } from '@repo/ui/cardpanel'
@@ -14,7 +16,7 @@ import { useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/internal-poli
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-export function PolicyEmptyActions() {
+export const PolicyEmptyActions = () => {
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createUploadPolicy } = useCreateUploadInternalPolicy()
