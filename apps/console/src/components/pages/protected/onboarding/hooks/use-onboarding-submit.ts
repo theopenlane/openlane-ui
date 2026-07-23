@@ -12,10 +12,12 @@ import { type OnboardingQuestion, type SubmitStage } from '@/lib/onboarding-ques
 import { setOnboardingFrameworks } from '@/lib/storage/onboarding-frameworks'
 import { setOnboardingTasksPending } from '@/lib/storage/onboarding-tasks-pending'
 import { handleSSORedirect, switchOrganization } from '@/lib/user'
+import { useNotificationsContext } from '@/providers/notifications-provider'
 import { useWebSocketClient } from '@/providers/websocket-provider'
+import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-const DOMAIN_SCAN_WAIT_MS = 60000
+const ORGANIZATION_READY_WAIT_MS = 10000
 
 export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
   const queryClient = useQueryClient()
@@ -24,25 +26,35 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
   const { setPendingToken } = useWebSocketClient()
   const { mutateAsync: createOnboarding } = useCreateOnboarding()
   const { errorNotification } = useNotification()
-  const { domainScanNotification, canReviewDomainScanFindings, reviewDomainScanFindings } = useDomainScanNotification()
+  const { domainScanNotification, reviewDomainScanFindings } = useDomainScanNotification()
+  const { addNewNotificationListener } = useNotificationsContext()
 
   const [submitStage, setSubmitStage] = useState<SubmitStage>('form')
   const [workspaceReady, setWorkspaceReady] = useState(false)
-  const [domainScanWaitOver, setDomainScanWaitOver] = useState(false)
+  const [organizationReady, setOrganizationReady] = useState(false)
+  const [organizationReadyWaitOver, setOrganizationReadyWaitOver] = useState(false)
+
+  useEffect(() => {
+    return addNewNotificationListener((notification) => {
+      if (notification.topic === NotificationNotificationTopic.ORGANIZATION_READY) {
+        setOrganizationReady(true)
+      }
+    })
+  }, [addNewNotificationListener])
 
   useEffect(() => {
     if (submitStage !== 'transition' || !workspaceReady) return
 
-    const timeout = setTimeout(() => setDomainScanWaitOver(true), DOMAIN_SCAN_WAIT_MS)
+    const timeout = setTimeout(() => setOrganizationReadyWaitOver(true), ORGANIZATION_READY_WAIT_MS)
     return () => clearTimeout(timeout)
   }, [submitStage, workspaceReady])
 
   useEffect(() => {
     if (submitStage !== 'transition' || !workspaceReady) return
-    if (canReviewDomainScanFindings || domainScanWaitOver) {
+    if (organizationReady || organizationReadyWaitOver) {
       setSubmitStage('ready')
     }
-  }, [submitStage, workspaceReady, canReviewDomainScanFindings, domainScanWaitOver])
+  }, [submitStage, workspaceReady, organizationReady, organizationReadyWaitOver])
 
   useEffect(() => {
     if (submitStage !== 'ready' || !sessionData?.user || !sessionData.user.isOnboarding) return
@@ -110,7 +122,7 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
   const submitOnboarding = async (formValues: Record<string, unknown>) => {
     setSubmitStage('transition')
     setWorkspaceReady(false)
-    setDomainScanWaitOver(false)
+    setOrganizationReadyWaitOver(false)
 
     try {
       const result = await performOnboarding(formValues)
@@ -123,7 +135,7 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
     } catch (error) {
       notifyFailure(error)
       setWorkspaceReady(false)
-      setDomainScanWaitOver(false)
+      setOrganizationReadyWaitOver(false)
       setSubmitStage('form')
     }
   }

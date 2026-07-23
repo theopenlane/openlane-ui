@@ -58,11 +58,11 @@ const OnboardingTransitionCard = ({ totalSteps, title, description, cards, prima
           )
         })}
       </div>
-      <p className="text-xs text-text-light">Free 30-day trial, no credit card required. You do not need to stay on this page while we finish.</p>
+      <p className="text-xs text-text-light">Free 30-day trial, no credit card required.</p>
     </div>
 
     <Button className="w-full mt-6" type="button" icon={<ArrowRight />} onClick={onLeave}>
-      Explore Openlane, don&apos;t wait
+      Explore Openlane
     </Button>
   </Card>
 )

@@ -4,14 +4,14 @@ import { type SubmitStage } from '@/lib/onboarding-questions/types'
 
 type StepStatus = 'done' | 'in-progress' | 'pending'
 
-const DOMAIN_SCAN_LABEL = 'Domain scan'
+const WORKSPACE_SETUP_LABEL = 'Workspace setup'
 
 type ProgressStep = { label: string; status: StepStatus }
 
 const buildSteps = (stepLabels: string[], currentIndex: number, stage: SubmitStage): ProgressStep[] => {
   if (stage !== 'form') {
-    const scanStatus: StepStatus = stage === 'transition' ? 'in-progress' : 'done'
-    return [...stepLabels.map((label): ProgressStep => ({ label, status: 'done' })), { label: DOMAIN_SCAN_LABEL, status: scanStatus }]
+    const setupStatus: StepStatus = stage === 'transition' ? 'in-progress' : 'done'
+    return [...stepLabels.map((label): ProgressStep => ({ label, status: 'done' })), { label: WORKSPACE_SETUP_LABEL, status: setupStatus }]
   }
 
   return [
@@ -19,7 +19,7 @@ const buildSteps = (stepLabels: string[], currentIndex: number, stage: SubmitSta
       label,
       status: index < currentIndex ? 'done' : index === currentIndex ? 'in-progress' : 'pending',
     })),
-    { label: DOMAIN_SCAN_LABEL, status: 'pending' },
+    { label: WORKSPACE_SETUP_LABEL, status: 'pending' },
   ]
 }
 
@@ -30,9 +30,9 @@ const statusLabel: Record<StepStatus, string> = {
 }
 
 const bannerCopy: Record<SubmitStage, { title: string; description: string; scanning: boolean }> = {
-  form: { title: 'Getting things ready', description: "We'll scan your domain once you submit.", scanning: false },
-  transition: { title: 'Scan in progress', description: "We'll keep scanning in the background.", scanning: true },
-  ready: { title: 'Results ready', description: 'Your setup is ready for review.', scanning: false },
+  form: { title: 'Getting things ready', description: "We'll set up your workspace once you submit.", scanning: false },
+  transition: { title: 'Setting up your workspace', description: 'This only takes a few seconds.', scanning: true },
+  ready: { title: 'Workspace ready', description: 'Your setup is ready for review.', scanning: false },
 }
 
 const SetupProgressCard = ({ stepLabels, currentIndex, stage }: { stepLabels: string[]; currentIndex: number; stage: SubmitStage }) => {
