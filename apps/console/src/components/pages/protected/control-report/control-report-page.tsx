@@ -91,6 +91,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   const organizationControlsWhere: ControlWhereInput = useMemo(
     () => ({
       ownerIDNEQ: '',
+      isTrustCenterControl: false,
     }),
     [],
   )

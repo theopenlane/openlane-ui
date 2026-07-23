@@ -16,10 +16,10 @@ const WorkItemSection = ({ label, items, showHeader, showKindLabel = false }: Wo
   return (
     <div className="space-y-3">
       {showHeader && (
-        <p className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           {label}
           <Badge variant="secondary">{items.length}</Badge>
-        </p>
+        </div>
       )}
       {items.map((item) => (
         <WorkItemRow key={item.key} item={item} showKindLabel={showKindLabel} />
