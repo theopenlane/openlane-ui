@@ -176,7 +176,7 @@
     "lodash": "^4.18.1",
     "lowlight": "^3.3.0",
     "lucide-react": "^1.8.0",
-    "next": "16.2.10",
+    "next": "16.2.11",
     "pdf-lib": "^1.17.1",
     "platejs": "^53.0.0",
     "prismjs": "^1.29.0",
