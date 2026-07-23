@@ -210,7 +210,7 @@
     "@tailwindcss/forms": "latest",
     "@tailwindui/react": "latest",
     "@types/eslint": "latest",
-    "@types/node": "^25.0.0",
+    "@types/node": "^26.0.0",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "autoprefixer": "^10.4.21",
