@@ -4,14 +4,14 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { Form } from '@repo/ui/form'
 import { StepperSheet, type StepperStep } from '@/components/shared/stepper-sheet/stepper-sheet'
 import { QuestionnaireStep } from './steps/questionnaire-step'
-import { TargetsStep, type CampaignTargetEntry, type TargetTab } from './steps/targets-step'
-import { ScheduleStep } from './steps/schedule-step'
-import { CreateTemplateSheet } from './create-template-sheet'
-import { useCreateCampaign } from '@/lib/graphql-hooks/campaign'
-import { useCreateBulkCampaignTarget } from '@/lib/graphql-hooks/campaign-target'
+import { TargetsStep } from './steps/targets-step'
+import { EmailTemplateStep } from './steps/email-template-step'
+import { type CampaignTargetEntry, type TargetTab } from './steps/targets/target-entry'
+import { useCreateCampaignWithTargets } from '@/lib/graphql-hooks/campaign'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { CampaignCampaignStatus } from '@repo/codegen/src/schema'
+import { isValidEmail } from '@/lib/validators'
+import { CampaignCampaignStatus, CampaignCampaignType } from '@repo/codegen/src/schema'
 import useCampaignFormSchema, { type CampaignFormData } from './hooks/use-campaign-form-schema'
 
 interface CreateCampaignSheetProps {
@@ -19,25 +19,24 @@ interface CreateCampaignSheetProps {
   onClose: () => void
 }
 
+const QUESTIONNAIRE_STEP = 0
+
 export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, onClose }) => {
   const { form } = useCampaignFormSchema()
-  const [currentStep, setCurrentStep] = useState(0)
-  const [showCreateTemplate, setShowCreateTemplate] = useState(false)
+  const [currentStep, setCurrentStep] = useState(QUESTIONNAIRE_STEP)
 
   const [targets, setTargets] = useState<CampaignTargetEntry[]>([])
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
-  const [activeTargetTab, setActiveTargetTab] = useState<TargetTab>('csv')
+  const [activeTargetTab, setActiveTargetTab] = useState<TargetTab>('personnel')
 
-  const { mutateAsync: createCampaign, isPending: isCreating } = useCreateCampaign()
-  const { mutateAsync: createBulkTarget } = useCreateBulkCampaignTarget()
+  const { mutateAsync: createCampaignWithTargets, isPending: isCreating } = useCreateCampaignWithTargets()
   const { successNotification, errorNotification } = useNotification()
 
   const resetAll = useCallback(() => {
-    setCurrentStep(0)
+    setCurrentStep(QUESTIONNAIRE_STEP)
     setTargets([])
     setUploadedFile(null)
-    setActiveTargetTab('csv')
-    setShowCreateTemplate(false)
+    setActiveTargetTab('personnel')
     form.reset()
   }, [form])
 
@@ -46,84 +45,45 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
     onClose()
   }, [resetAll, onClose])
 
-  const createTargetsForCampaign = useCallback(
-    async (campaignId: string) => {
-      const validTargets = targets.filter((t) => t.email.trim())
-      if (validTargets.length === 0) return
-
-      await createBulkTarget({
-        input: validTargets.map((target) => ({
-          campaignID: campaignId,
-          email: target.email.trim(),
-          fullName: target.fullName.trim() || undefined,
-          contactID: target.contactID || undefined,
-          userID: target.userID || undefined,
-        })),
-      })
-    },
-    [targets, createBulkTarget],
-  )
-
-  const submitCampaign = useCallback(
-    async (data: CampaignFormData, status: CampaignCampaignStatus) => {
+  const createDraft = useCallback(
+    async (data: CampaignFormData) => {
       try {
-        const isLaunching = status === CampaignCampaignStatus.ACTIVE
-        const now = new Date().toISOString()
+        const validTargets = targets.filter((target) => isValidEmail(target.email.trim()))
 
-        const result = await createCampaign({
+        await createCampaignWithTargets({
           input: {
-            name: data.name ?? '',
-            description: data.description || undefined,
-            campaignType: data.campaignType || undefined,
-            status,
-            templateID: data.questionnaireTemplateID || undefined,
-            emailTemplateID: data.templateID || undefined,
-            dueDate: data.sendImmediately ? undefined : data.dueDate || undefined,
-            scheduledAt: data.sendImmediately && isLaunching ? now : data.scheduledAt || undefined,
-            launchedAt: data.sendImmediately && isLaunching ? now : undefined,
+            campaign: {
+              name: data.name.trim(),
+              description: data.description || undefined,
+              campaignType: data.questionnaireTemplateID ? CampaignCampaignType.QUESTIONNAIRE : CampaignCampaignType.CUSTOM,
+              status: CampaignCampaignStatus.DRAFT,
+              templateID: data.questionnaireTemplateID || undefined,
+              emailTemplateID: data.emailTemplateID || undefined,
+            },
+            targets: validTargets.map((target) => ({
+              email: target.email.trim(),
+              fullName: target.fullName.trim() || undefined,
+              contactID: target.contactID || undefined,
+            })),
           },
         })
 
-        const campaignId = result?.createCampaign?.campaign?.id
-        if (campaignId) {
-          await createTargetsForCampaign(campaignId)
-          successNotification({
-            title: status === CampaignCampaignStatus.DRAFT ? 'Campaign saved as draft' : 'Campaign launched successfully',
-          })
-          handleCancel()
-        }
+        successNotification({ title: 'Campaign saved as draft' })
+        handleCancel()
       } catch (error) {
         errorNotification({ title: 'Error', description: parseErrorMessage(error) })
       }
     },
-    [createCampaign, createTargetsForCampaign, successNotification, errorNotification, handleCancel],
+    [targets, createCampaignWithTargets, successNotification, errorNotification, handleCancel],
   )
 
-  const handleSaveDraft = useCallback(async () => {
-    const isNameValid = await form.trigger('name')
-    if (!isNameValid) {
-      setCurrentStep(0)
-      return
-    }
-    const data = form.getValues()
-    await submitCampaign(data, CampaignCampaignStatus.DRAFT)
-  }, [form, submitCampaign])
-
-  const handleLaunch = useCallback(async () => {
-    const data = form.getValues()
-
-    await submitCampaign(data, CampaignCampaignStatus.ACTIVE)
-  }, [form, submitCampaign])
-
-  const handleTemplateSave = useCallback(
-    (templateId: string, templateName: string) => {
-      form.setValue('templateID', templateId, { shouldDirty: true, shouldValidate: true })
-      if (!form.getValues('name')?.trim()) {
-        form.setValue('name', templateName, { shouldDirty: true })
-      }
-      setShowCreateTemplate(false)
-    },
-    [form],
+  const submitDraft = useCallback(
+    () =>
+      form.handleSubmit(
+        (data) => createDraft(data),
+        () => setCurrentStep(QUESTIONNAIRE_STEP),
+      )(),
+    [form, createDraft],
   )
 
   const steps: StepperStep[] = useMemo(
@@ -141,37 +101,34 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
         ),
       },
       {
-        title: 'Schedule',
-        description: 'Set when your campaign should start and configure reminders',
-        content: <ScheduleStep form={form} />,
+        title: 'Email Template',
+        description: 'Choose the email template used to contact recipients',
+        content: <EmailTemplateStep form={form} />,
       },
     ],
     [form, targets, uploadedFile, activeTargetTab],
   )
 
   return (
-    <>
-      <Form {...form}>
-        <StepperSheet
-          open={open}
-          onOpenChange={(isOpen) => {
-            if (!isOpen) handleCancel()
-          }}
-          title="Create Campaign"
-          steps={steps}
-          currentStep={currentStep}
-          onStepChange={setCurrentStep}
-          onCancel={handleCancel}
-          onSaveDraft={handleSaveDraft}
-          onComplete={handleLaunch}
-          completeLabel="Launch Now"
-          isSaving={isCreating}
-          isCompleting={isCreating}
-          isDirty={form.formState.isDirty || targets.length > 0 || uploadedFile !== null}
-          canProceed
-        />
-      </Form>
-      <CreateTemplateSheet open={showCreateTemplate} onClose={() => setShowCreateTemplate(false)} onCreated={handleTemplateSave} />
-    </>
+    <Form {...form}>
+      <StepperSheet
+        open={open}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) handleCancel()
+        }}
+        title="Create Campaign"
+        steps={steps}
+        currentStep={currentStep}
+        onStepChange={setCurrentStep}
+        onCancel={handleCancel}
+        onSaveDraft={submitDraft}
+        onComplete={submitDraft}
+        completeLabel="Create Campaign"
+        isSaving={isCreating}
+        isCompleting={isCreating}
+        isDirty={form.formState.isDirty || targets.length > 0 || uploadedFile !== null}
+        canProceed
+      />
+    </Form>
   )
 }
