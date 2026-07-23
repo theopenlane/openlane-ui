@@ -9,7 +9,7 @@ import { type InternalEditingType } from '@/components/shared/crud-base/generic-
 import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
-import { getSeverityStyle } from '@/utils/severity'
+import { SeverityChip } from '@/components/shared/severity/severity-chip'
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 import { TruncatedCell } from '@repo/ui/data-table'
@@ -76,13 +76,7 @@ const SeverityField: React.FC<SeverityFieldProps> = ({ isEditing, isEditAllowed,
                   if (isEditAllowed) setInternalEditing('severity')
                 }}
               >
-                {securityLevel ? (
-                  <span className="text-xs px-2 py-0.5 rounded-full font-medium capitalize" style={getSeverityStyle(securityLevel)}>
-                    {securityLevel.toLowerCase()}
-                  </span>
-                ) : (
-                  <span className="text-muted-foreground italic">Not set</span>
-                )}
+                {securityLevel ? <SeverityChip severity={securityLevel} /> : <span className="text-muted-foreground italic">Not set</span>}
               </div>
             )}
           </FormControl>

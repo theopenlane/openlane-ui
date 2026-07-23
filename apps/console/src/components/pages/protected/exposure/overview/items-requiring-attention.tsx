@@ -17,7 +17,7 @@ import ObjectAssociationSwitch from '@/components/shared/object-association/obje
 import { ObjectAssociationNodeEnum, type Section, type TConnectionLike } from '@/components/shared/object-association/types/object-association-types'
 import { getAttentionColumns } from './attention-table-config'
 import { searchTypeIcons } from '@/components/shared/search/search-config'
-import { getSeverityStyle } from '@/utils/severity'
+import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import ViewFindingSheet from '@/components/pages/protected/findings/view-finding-sheet'
 import ViewVulnerabilitySheet from '@/components/pages/protected/vulnerabilities/view-vulnerability-sheet'
 import ViewRiskSheet from '@/components/pages/protected/risks/view-risk-sheet'
@@ -171,9 +171,7 @@ const ItemsRequiringAttention = ({ items, isLoading }: Props) => {
                 </div>
               </DialogTitle>
               <div className="flex items-center gap-2">
-                <span className="text-xs px-2 py-0.5 rounded-full font-medium capitalize" style={getSeverityStyle(selectedItem.severity)}>
-                  {selectedItem.severity || 'Unknown'}
-                </span>
+                {selectedItem.severity ? <SeverityChip severity={selectedItem.severity} /> : <span className="text-xs text-muted-foreground">Unknown</span>}
                 <span className="text-xs text-muted-foreground">{selectedItem.type}</span>
               </div>
             </DialogHeader>

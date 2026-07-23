@@ -19,7 +19,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatDateTime } from '@/utils/date'
 import { normalizeUrl } from '@/utils/normalizeUrl'
-import { getSeverityStyle } from '@/utils/severity'
+import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import { toUpperSnakeCase } from '@/utils/strings'
 
 interface AdditionalFieldsProps {
@@ -61,13 +61,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
   const enumChipDisplay = (v: string) => (v ? <Badge variant="secondary">{getEnumLabel(v)}</Badge> : null)
 
   const securityLevelRaw: string = data?.securityLevel && data.securityLevel !== FindingSecurityLevel.NONE ? String(data.securityLevel) : (data?.severity ?? '')
-  const securityLevelDisplay = securityLevelRaw ? (
-    <span className="text-xs px-2 py-0.5 rounded-full font-medium capitalize" style={getSeverityStyle(securityLevelRaw)}>
-      {securityLevelRaw.toLowerCase()}
-    </span>
-  ) : (
-    ''
-  )
+  const securityLevelDisplay = securityLevelRaw ? <SeverityChip severity={securityLevelRaw} /> : ''
 
   const hasTargetDetails = isPopulatedObject(data?.targetDetails)
   const hasMetadata = Boolean(data?.source || data?.sourceUpdatedAt || data?.eventTime || data?.reportedAt)
