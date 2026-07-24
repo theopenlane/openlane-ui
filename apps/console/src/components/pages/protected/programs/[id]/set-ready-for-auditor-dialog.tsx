@@ -6,11 +6,14 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import React, { useMemo, useState } from 'react'
 import { useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { useQueryClient } from '@tanstack/react-query'
-import { InviteRole, OrgMembershipRole, ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { OrgMembershipRole, ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import MembersInviteSheet from '@/components/pages/protected/user-management/members/sidebar/members-invite-sheet'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
+import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
+import { useOrganization } from '@/hooks/useOrganization'
+import { getEmailDomain } from '@/utils/strings'
+import { SSOExemptionDialog } from './sso-exemption-dialog'
 
 interface SetReadyForAuditorDialogProps {
   programStatus: ProgramProgramStatus
@@ -19,24 +22,33 @@ interface SetReadyForAuditorDialogProps {
 
 const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ programStatus, email }: SetReadyForAuditorDialogProps) => {
   const [open, setOpen] = useState(false)
-  const [isInviteSheetOpen, setIsInviteSheetOpen] = useState(false)
+  const [isSSOExemptionDialogOpen, setIsSSOExemptionDialogOpen] = useState(false)
   const { mutateAsync: update } = useUpdateProgram()
   const { id } = useParams<{ id: string }>()
   const queryClient = useQueryClient()
+  const { currentOrgId } = useOrganization()
   const { members: auditorMemberships, isLoading } = useGetOrgMemberships({
     where: { role: OrgMembershipRole.AUDITOR },
     enabled: open,
   })
+  const { data: orgSettingData } = useGetOrganizationSetting(currentOrgId || '')
+  const orgSetting = orgSettingData?.organization?.setting
   const auditorEmail = email?.trim().toLowerCase()
+  const auditorDomain = getEmailDomain(auditorEmail)
+  const ssoExemptDomains = orgSetting?.ssoExemptDomains ?? []
+  const hasAuditorEmail = auditorEmail !== undefined && auditorEmail.length > 0
+  const hasAuditorDomain = auditorDomain !== null
+  const isSSOEnforced = orgSetting?.identityProvider !== undefined && orgSetting.identityProvider !== 'NONE' && orgSetting.identityProviderLoginEnforced === true
+  const isAuditorDomainExempt = auditorDomain ? ssoExemptDomains.includes(auditorDomain) : false
   const { members: markedAuditorMemberships, isLoading: isLoadingMarkedAuditorMembership } = useGetOrgMemberships({
     where: { hasUserWith: [{ emailEqualFold: auditorEmail }] },
     pagination: { page: 1, pageSize: 1, query: { first: 1 } },
-    enabled: open && !!auditorEmail,
+    enabled: open && hasAuditorEmail,
   })
 
   const auditors = useMemo(() => auditorMemberships.filter((membership) => membership.user), [auditorMemberships])
-  const defaultInvitationEmails = useMemo(() => (email ? [email] : []), [email])
-  const shouldShowAutoInvitationNotice = !!auditorEmail && !isLoadingMarkedAuditorMembership && markedAuditorMemberships.length === 0
+  const shouldShowAutoInvitationNotice = hasAuditorEmail && !isLoadingMarkedAuditorMembership && markedAuditorMemberships.length === 0
+  const shouldPromptForSSOExemption = shouldShowAutoInvitationNotice && isSSOEnforced && hasAuditorDomain && !isAuditorDomainExempt
 
   const handleSetReadyForAuditor = async () => {
     if (!id) return
@@ -48,7 +60,11 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
     })
     queryClient.invalidateQueries({ queryKey: ['programs'] })
     setOpen(false)
+    if (shouldPromptForSSOExemption) {
+      setIsSSOExemptionDialogOpen(true)
+    }
   }
+
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -83,10 +99,7 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">There are no auditors in your organization. Invite the marked user as an Auditor.</p>
-                <Button variant="secondary" type="button" onClick={() => setIsInviteSheetOpen(true)}>
-                  Invite auditor
-                </Button>
+                <p className="text-sm text-muted-foreground">There are no auditors in your organization.</p>
               </div>
             )}
           </div>
@@ -104,13 +117,14 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <MembersInviteSheet
-        isMemberSheetOpen={isInviteSheetOpen}
-        setIsMemberSheetOpen={setIsInviteSheetOpen}
-        defaultEmails={defaultInvitationEmails}
-        defaultRole={InviteRole.AUDITOR}
-        lockRoleChanges
-        title="Invite Auditor"
+      <SSOExemptionDialog
+        open={isSSOExemptionDialogOpen}
+        onOpenChange={setIsSSOExemptionDialogOpen}
+        email={email}
+        domain={auditorDomain}
+        organizationId={currentOrgId}
+        organizationSettingId={orgSetting?.id}
+        ssoExemptDomains={ssoExemptDomains}
       />
     </>
   )
