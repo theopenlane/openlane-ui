@@ -30,6 +30,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { UploadedEvidenceSection } from './uploaded-evidence-section'
+import { OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/standards'
 
 const controlReviewSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -107,7 +108,7 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
     }
     subcontrols.forEach((sub) => add('subcontrols', 'Subcontrols', undefined, true, { id: sub.id, refCode: sub.refCode, field: 'linkedSubcontrolIDs' }))
     relatedControls
-      .filter((related) => related.referenceFramework !== 'OTS')
+      .filter((related) => related.referenceFramework !== OPENLANE_TRUST_CENTER_STANDARD.shortName)
       .forEach((related) => {
         const framework = related.referenceFramework ?? undefined
         add(framework ?? 'custom', framework ?? 'CUSTOM', framework, false, {

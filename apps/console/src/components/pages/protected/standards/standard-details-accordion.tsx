@@ -62,8 +62,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const where = generateWhere(standardId, debouncedSearchQuery)
-  const hasFilters = Object.keys(where).length > 0
-  const allControls = useAllControlsGroupedWithListFields({ where: where as ControlWhereInput, enabled: hasFilters })
+  const allControls = useAllControlsGroupedWithListFields({ where: where as ControlWhereInput, enabled: !!standardId })
   const { convertToReadOnly } = usePlateEditor()
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({

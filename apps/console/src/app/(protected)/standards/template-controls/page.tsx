@@ -6,19 +6,22 @@ import StandardDetailsView from '@/components/pages/protected/standards/standard
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { ObjectWithDetailsSkeleton } from '@/components/shared/skeleton/object-with-slideout-skeleton'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { OPENLANE_STANDARD_SHORT_NAME } from '@/constants'
+import { OPENLANE_BASELINE_STANDARD } from '@/constants/standards'
 
 const TemplateControlsPage = () => {
-  const { data, isLoading, isError } = useStandardsSelect({ where: { shortName: OPENLANE_STANDARD_SHORT_NAME, systemOwned: true } })
+  const { data, isLoading, isError } = useStandardsSelect({
+    where: { framework: OPENLANE_BASELINE_STANDARD.framework, systemOwned: true },
+  })
   const standardId = data?.standards?.edges?.[0]?.node?.id
+  const detailsViewOwnsCrumbs = Boolean(standardId)
   const { setCrumbs } = use(BreadcrumbContext)
 
   useEffect(() => {
-    if (standardId) {
+    if (detailsViewOwnsCrumbs) {
       return
     }
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Compliance', href: '/programs' }, { label: 'Standards', href: '/standards' }, { label: 'Template Controls' }])
-  }, [setCrumbs, standardId])
+  }, [setCrumbs, detailsViewOwnsCrumbs])
 
   if (isLoading) {
     return <ObjectWithDetailsSkeleton />
@@ -28,7 +31,7 @@ const TemplateControlsPage = () => {
     return (
       <EmptyTabState
         title="Template controls are not available yet"
-        description="The openlane-standard has not been seeded for this environment. Once it exists, its template controls will show up here."
+        description={`The ${OPENLANE_BASELINE_STANDARD.shortName} standard isn't available in this workspace yet. Once it is, its template controls will show up here.`}
       />
     )
   }
