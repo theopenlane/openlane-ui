@@ -35,17 +35,24 @@ export const SelectQuestionnaireDialog: React.FC<SelectQuestionnaireDialogProps>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-w-2xl flex-col">
         <DialogHeader>
-          <DialogTitle>Select Questionnaire</DialogTitle>
-          <p className="text-sm text-muted-foreground">Choose an existing questionnaire to include in this campaign. Participants will complete it as part of the campaign.</p>
+          <DialogTitle>Select Questionnaire Template</DialogTitle>
+          <p className="text-sm text-muted-foreground">Choose an existing questionnaire template to include in this campaign. Participants will complete it as part of the campaign.</p>
         </DialogHeader>
 
-        <Input className="w-full" icon={<SearchIcon size={16} />} iconPosition="left" placeholder="Search questionnaires..." value={search} onChange={(e) => setSearch(e.currentTarget.value)} />
+        <Input
+          className="w-full"
+          icon={<SearchIcon size={16} />}
+          iconPosition="left"
+          placeholder="Search questionnaire templates..."
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+        />
 
         <div className="flex max-h-96 flex-col divide-y divide-border overflow-y-auto rounded-md border border-border">
           {isLoading ? (
-            <div className="p-4 text-sm text-muted-foreground">Loading questionnaires...</div>
+            <div className="p-4 text-sm text-muted-foreground">Loading questionnaire templates...</div>
           ) : filtered.length === 0 ? (
-            <div className="p-4 text-sm text-muted-foreground">No questionnaires found.</div>
+            <div className="p-4 text-sm text-muted-foreground">No questionnaire templates found.</div>
           ) : (
             filtered.map((template) => (
               <button
@@ -85,7 +92,7 @@ export const SelectQuestionnaireDialog: React.FC<SelectQuestionnaireDialogProps>
           <div className="flex flex-col">
             <span className="text-xs text-muted-foreground">Can&apos;t find what you&apos;re looking for?</span>
             <button type="button" className="inline-flex items-center gap-1 text-sm text-brand" onClick={() => window.open(CREATE_PATH, '_blank', 'noopener,noreferrer')}>
-              Create new questionnaire <SquareArrowOutUpRight size={12} />
+              Create new questionnaire template <SquareArrowOutUpRight size={12} />
             </button>
           </div>
           <Button variant="secondary" type="button" onClick={() => onOpenChange(false)}>

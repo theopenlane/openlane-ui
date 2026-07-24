@@ -13,7 +13,7 @@ import { useCampaignTargetStats } from '@/lib/graphql-hooks/campaign-target'
 import { type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { CampaignCampaignStatus, type UpdateCampaignInput } from '@repo/codegen/src/schema'
+import { CampaignCampaignStatus, CampaignCampaignType, type UpdateCampaignInput } from '@repo/codegen/src/schema'
 import { formatDate } from '@/utils/date'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
@@ -162,17 +162,21 @@ const CampaignDetailPage: React.FC = () => {
     if (await handleUpdateField({ name: values.name, description: values.description })) setEditDetailsOpen(false)
   }
 
+  const nonQuestionnaireType = campaign?.campaignType && campaign.campaignType !== CampaignCampaignType.QUESTIONNAIRE ? campaign.campaignType : CampaignCampaignType.CUSTOM
+
   const handleSaveTemplate = async (emailTemplateID: string) => {
-    if (await handleUpdateField({ emailTemplateID })) setChangeTemplateOpen(false)
+    if (await handleUpdateField({ emailTemplateID, campaignType: nonQuestionnaireType })) setChangeTemplateOpen(false)
   }
+
+  const handleRemoveTemplate = () => handleUpdateField({ clearEmailTemplate: true, campaignType: nonQuestionnaireType })
 
   const handleSelectQuestionnaire = async (templateId: string) => {
-    if (await handleUpdateField({ templateID: templateId })) setQuestionnaireDialogOpen(false)
+    const replacesExistingTemplate = !!campaign?.templateID && campaign.templateID !== templateId
+    if (await handleUpdateField({ templateID: templateId, campaignType: CampaignCampaignType.QUESTIONNAIRE, clearEmailTemplate: true, clearAssessment: replacesExistingTemplate || undefined }))
+      setQuestionnaireDialogOpen(false)
   }
 
-  const handleRemoveQuestionnaire = async () => {
-    await handleUpdateField({ clearTemplate: true })
-  }
+  const handleRemoveQuestionnaire = () => handleUpdateField({ clearTemplate: true, clearAssessment: true, campaignType: CampaignCampaignType.CUSTOM })
 
   const handleSendReminder = async () => {
     if (!campaignId) return
@@ -220,8 +224,10 @@ const CampaignDetailPage: React.FC = () => {
   const isDraft = status === CampaignCampaignStatus.DRAFT
   const isEditable = isDraft
   const hasQuestionnaire = !!campaign.templateID
-  const campaignTypeLabel = hasQuestionnaire ? 'Questionnaire' : 'Custom'
-  const canLaunch = isDraft
+  const hasEmailTemplate = !!campaign.emailTemplateID
+  const hasCampaignContent = hasQuestionnaire || hasEmailTemplate
+  const campaignTypeLabel = campaign.campaignType ? getEnumLabel(campaign.campaignType) : '—'
+  const canLaunch = isDraft && hasCampaignContent
   const canCancel = status !== CampaignCampaignStatus.COMPLETED && status !== CampaignCampaignStatus.CANCELED
   const canSendReminder = status === CampaignCampaignStatus.ACTIVE
   const lockBanner =
@@ -255,6 +261,13 @@ const CampaignDetailPage: React.FC = () => {
     handleUpdate: handleInlineFieldUpdate,
     layout: 'horizontal' as const,
     labelClassName: 'text-muted-foreground',
+  }
+
+  const emailTemplateFieldProps = {
+    ...sharedFieldProps,
+    handleUpdate: async (input: UpdateCampaignInput): Promise<void> => {
+      await handleUpdateField({ ...input, campaignType: nonQuestionnaireType })
+    },
   }
 
   const menuComponent = (
@@ -315,7 +328,14 @@ const CampaignDetailPage: React.FC = () => {
             <span className="text-sm text-muted-foreground">Type</span>
             <span className="text-sm">{campaignTypeLabel}</span>
           </div>
-          <SelectField name="emailTemplateID" label="Email Template" options={emailTemplateOptions} useCustomDisplay={false} {...sharedFieldProps} />
+          {hasQuestionnaire ? (
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-sm text-muted-foreground">Email Template</span>
+              <span className="text-sm py-2 px-1">System template</span>
+            </div>
+          ) : (
+            <SelectField name="emailTemplateID" label="Email Template" options={emailTemplateOptions} useCustomDisplay={false} {...emailTemplateFieldProps} />
+          )}
           {hasQuestionnaire && <DateField name="dueDate" label="Due Date" {...sharedFieldProps} />}
           {campaign.tags && campaign.tags.length > 0 && (
             <div>
@@ -342,11 +362,9 @@ const CampaignDetailPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="rounded-md border border-border bg-card p-4">
-        <h3 className="text-sm font-semibold mb-3">Questionnaires</h3>
-        {!tmpl ? (
-          <p className="text-sm text-muted-foreground">No questionnaires linked to this campaign.</p>
-        ) : (
+      {tmpl && (
+        <div className="rounded-md border border-border bg-card p-4">
+          <h3 className="text-sm font-semibold mb-3">Questionnaire Template</h3>
           <div className="flex flex-col gap-3">
             <p className="text-sm font-medium">{tmpl.name}</p>
             <div className="flex items-center gap-2">
@@ -381,8 +399,8 @@ const CampaignDetailPage: React.FC = () => {
               </Button>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </>
   )
 
@@ -430,13 +448,17 @@ const CampaignDetailPage: React.FC = () => {
 
       {isDraft ? (
         <CampaignSetupView
+          hasEmailTemplate={hasEmailTemplate}
           emailTemplateName={emailTemplateName}
+          isLoadingTemplates={emailTemplatesLoading}
+          isUpdating={isUpdating}
           questionnaireName={questionnaireName}
           questionnaireQuestionCount={questionnaireQuestionCount}
           dueDate={campaign.dueDate as string | null | undefined}
           recipientCount={stats.total}
           onEditDetails={() => setEditDetailsOpen(true)}
           onChangeTemplate={() => setChangeTemplateOpen(true)}
+          onRemoveTemplate={handleRemoveTemplate}
           onConfigureQuestionnaire={() => setQuestionnaireDialogOpen(true)}
           onRemoveQuestionnaire={handleRemoveQuestionnaire}
           onAddRecipients={() => setAddRecipientsOpen(true)}
@@ -521,7 +543,7 @@ const CampaignDetailPage: React.FC = () => {
         onOpenChange={setLaunchDialogOpen}
         onLaunch={handleLaunch}
         isPending={isUpdating}
-        summary={{ recipientCount: stats.total, emailTemplateName, questionnaireLabel }}
+        summary={{ recipientCount: stats.total, content: hasQuestionnaire ? { kind: 'questionnaire', label: questionnaireLabel } : { kind: 'email', label: emailTemplateName } }}
       />
       <EditDetailsDialog
         open={editDetailsOpen}

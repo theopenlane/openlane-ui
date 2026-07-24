@@ -26,6 +26,9 @@ export const QuestionnaireSelector: React.FC<QuestionnaireSelectorProps> = ({ fo
 
   const handleSelect = (template: QuestionnaireTemplate) => {
     form.setValue('questionnaireTemplateID', template.id, { shouldDirty: true })
+    if (form.getValues('emailTemplateID')) {
+      form.setValue('emailTemplateID', '', { shouldDirty: true })
+    }
     if (!form.getValues('name')?.trim()) {
       form.setValue('name', template.name, { shouldDirty: true, shouldValidate: true })
     }
@@ -42,8 +45,11 @@ export const QuestionnaireSelector: React.FC<QuestionnaireSelectorProps> = ({ fo
   return (
     <FormItem>
       <FormLabel className="pb-1 block">
-        Questionnaire <span className="text-muted-foreground">(Optional)</span>
+        Select Questionnaire Template <span className="text-muted-foreground">(Optional)</span>
       </FormLabel>
+      <p className="pb-2 text-xs text-muted-foreground">
+        Campaigns use either a questionnaire template or an email template. With a questionnaire template, recipients receive the system email template.
+      </p>
 
       {selected ? (
         <div className="flex flex-col gap-3 rounded-md border border-border p-4">
@@ -71,7 +77,7 @@ export const QuestionnaireSelector: React.FC<QuestionnaireSelectorProps> = ({ fo
               </span>
             </div>
             <Button variant="secondary" type="button" onClick={() => openPreview(selected.id)}>
-              Preview Questionnaire <SquareArrowOutUpRight size={14} className="ml-1.5" />
+              Preview Questionnaire Template <SquareArrowOutUpRight size={14} className="ml-1.5" />
             </Button>
           </div>
         </div>
@@ -82,10 +88,10 @@ export const QuestionnaireSelector: React.FC<QuestionnaireSelectorProps> = ({ fo
           className="flex w-full flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border p-8 text-center hover:bg-muted/50"
         >
           <FileText className="text-brand" size={28} />
-          <span className="text-sm font-medium">No questionnaire attached</span>
-          <span className="text-xs text-muted-foreground">Participants will only receive the campaign message.</span>
+          <span className="text-sm font-medium">No questionnaire template selected</span>
+          <span className="text-xs text-muted-foreground">Participants will only receive the campaign email.</span>
           <span className="inline-flex items-center gap-1 text-sm text-brand">
-            Click to select a questionnaire <ArrowRight size={14} />
+            Click to select a questionnaire template <ArrowRight size={14} />
           </span>
         </button>
       )}

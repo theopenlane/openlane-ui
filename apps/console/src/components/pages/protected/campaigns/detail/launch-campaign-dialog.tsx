@@ -6,13 +6,14 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Button } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
 import { AlertTriangle, CalendarClock, Mail, Rocket, SendHorizontal, Users } from 'lucide-react'
+import { ModeOption } from './mode-option'
+
+export type LaunchContent = { kind: 'questionnaire' | 'email'; label?: string }
 
 export interface LaunchSummary {
   recipientCount: number
-  emailTemplateName?: string
-  questionnaireLabel?: string
+  content: LaunchContent
 }
 
 interface LaunchCampaignDialogProps {
@@ -83,25 +84,21 @@ export const LaunchCampaignDialog: React.FC<LaunchCampaignDialogProps> = ({ open
 
         <div className="flex flex-col gap-2">
           <span className="text-sm font-medium">When do you want to launch?</span>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => setMode('immediate')}
-              className={cn('flex flex-col gap-1 rounded-md border p-3 text-left', mode === 'immediate' ? 'border-brand bg-brand/5' : 'border-border hover:bg-muted/50')}
-            >
-              <SendHorizontal size={18} className="text-brand" />
-              <span className="text-sm font-medium">Launch immediately</span>
-              <span className="text-xs text-muted-foreground">Send the campaign as soon as you launch.</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('scheduled')}
-              className={cn('flex flex-col gap-1 rounded-md border p-3 text-left', mode === 'scheduled' ? 'border-brand bg-brand/5' : 'border-border hover:bg-muted/50')}
-            >
-              <CalendarClock size={18} className="text-brand" />
-              <span className="text-sm font-medium">Schedule for later</span>
-              <span className="text-xs text-muted-foreground">Choose a date and time to launch the campaign.</span>
-            </button>
+          <div role="radiogroup" aria-label="Launch timing" className="grid grid-cols-2 gap-3">
+            <ModeOption
+              icon={<SendHorizontal size={18} className="text-brand" />}
+              title="Launch immediately"
+              description="Send the campaign as soon as you launch."
+              selected={mode === 'immediate'}
+              onSelect={() => setMode('immediate')}
+            />
+            <ModeOption
+              icon={<CalendarClock size={18} className="text-brand" />}
+              title="Schedule for later"
+              description="Choose a date and time to launch the campaign."
+              selected={mode === 'scheduled'}
+              onSelect={() => setMode('scheduled')}
+            />
           </div>
         </div>
 
@@ -141,15 +138,17 @@ export const LaunchCampaignDialog: React.FC<LaunchCampaignDialogProps> = ({ open
             </div>
             <div className="flex items-center justify-between gap-4 p-3">
               <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                <Mail size={16} /> Email template
+                {summary.content.kind === 'questionnaire' ? (
+                  <>
+                    <Rocket size={16} /> Questionnaire template
+                  </>
+                ) : (
+                  <>
+                    <Mail size={16} /> Email template
+                  </>
+                )}
               </span>
-              <span className="text-sm">{summary.emailTemplateName ?? 'Not set'}</span>
-            </div>
-            <div className="flex items-center justify-between gap-4 p-3">
-              <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                <Rocket size={16} /> Questionnaire
-              </span>
-              <span className="text-sm">{summary.questionnaireLabel ?? 'None'}</span>
+              <span className="text-sm">{summary.content.label ?? 'Not set'}</span>
             </div>
           </div>
         </div>

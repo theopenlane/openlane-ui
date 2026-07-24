@@ -1,48 +1,72 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { cn } from '@repo/ui/lib/utils'
-import { Calendar, Check, CircleCheck, Circle, CircleHelp, FileText, Mail, Rocket, SendHorizontal, Users } from 'lucide-react'
+import { AlertTriangle, Calendar, Check, CircleCheck, Circle, CircleHelp, FileText, Lock, Mail, Rocket, SendHorizontal, Users } from 'lucide-react'
 import { formatDate } from '@/utils/date'
+import { ModeOption } from './mode-option'
+
+type CampaignContentMode = 'questionnaire' | 'email'
 
 interface CampaignSetupViewProps {
+  hasEmailTemplate: boolean
   emailTemplateName?: string
+  isLoadingTemplates?: boolean
   questionnaireName?: string
   questionnaireQuestionCount?: number
   dueDate?: string | null
   recipientCount: number
+  isUpdating?: boolean
   onEditDetails: () => void
   onChangeTemplate: () => void
+  onRemoveTemplate: () => Promise<boolean>
   onConfigureQuestionnaire: () => void
-  onRemoveQuestionnaire: () => void
+  onRemoveQuestionnaire: () => Promise<boolean>
   onAddRecipients: () => void
   onSendTest: () => void
   onLaunch: () => void
 }
 
 export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
+  hasEmailTemplate,
   emailTemplateName,
+  isLoadingTemplates,
   questionnaireName,
   questionnaireQuestionCount = 0,
   dueDate,
   recipientCount,
+  isUpdating,
   onEditDetails,
   onChangeTemplate,
+  onRemoveTemplate,
   onConfigureQuestionnaire,
   onRemoveQuestionnaire,
   onAddRecipients,
   onSendTest,
   onLaunch,
 }) => {
-  const hasEmailTemplate = !!emailTemplateName
   const hasQuestionnaire = !!questionnaireName
   const hasRecipients = recipientCount > 0
 
+  const [pendingMode, setPendingMode] = useState<CampaignContentMode>('email')
+  const mode: CampaignContentMode = hasQuestionnaire ? 'questionnaire' : hasEmailTemplate ? 'email' : pendingMode
+  const hasContent = hasQuestionnaire || hasEmailTemplate
+
+  const handleModeChange = async (nextMode: CampaignContentMode) => {
+    if (nextMode === mode || isUpdating) return
+    if (nextMode === 'questionnaire' && hasEmailTemplate && !(await onRemoveTemplate())) return
+    if (nextMode === 'email' && hasQuestionnaire && !(await onRemoveQuestionnaire())) return
+    setPendingMode(nextMode)
+    if (nextMode === 'questionnaire' && !hasQuestionnaire) onConfigureQuestionnaire()
+  }
+
+  const emailTemplateLabel = emailTemplateName ?? (hasEmailTemplate && isLoadingTemplates ? 'Loading...' : undefined)
+  const contentStepHint = mode === 'questionnaire' ? (questionnaireName ?? 'Not set') : (emailTemplateLabel ?? 'Not set')
+
   const trackerSteps = [
     { label: 'Details', hint: 'Campaign information', done: true },
-    { label: 'Email template', hint: emailTemplateName ?? 'Not set', done: hasEmailTemplate },
-    { label: 'Questionnaire', hint: 'Optional', done: hasQuestionnaire },
+    { label: mode === 'questionnaire' ? 'Questionnaire' : 'Email template', hint: contentStepHint, done: hasContent },
     { label: 'Recipients', hint: 'Add or import recipients', done: hasRecipients },
     { label: 'Send Test Email', hint: 'Preview and send a test email', done: false },
     { label: 'Launch', hint: 'Launch now or schedule', done: false },
@@ -72,35 +96,86 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
 
       <div className="flex flex-col gap-3">
         <SetupCard icon={<FileText size={18} className="text-brand" />} title="Details" subtitle="Campaign information" actionLabel="Edit details" onAction={onEditDetails} done />
-        <SetupCard
-          icon={<Mail size={18} className="text-brand" />}
-          title="Email template"
-          subtitle={emailTemplateName ?? 'No template selected'}
-          actionLabel="Change template"
-          onAction={onChangeTemplate}
-          done={hasEmailTemplate}
-        />
-        <SetupCard
-          icon={<CircleHelp size={18} className="text-brand" />}
-          title="Questionnaire (optional)"
-          subtitle={questionnaireName ?? 'No questionnaire attached'}
-          actionLabel="Configure questionnaire"
-          onAction={onConfigureQuestionnaire}
-          secondaryAction={hasQuestionnaire ? { label: 'Remove', onAction: onRemoveQuestionnaire } : undefined}
-          done={hasQuestionnaire}
-          extra={
-            hasQuestionnaire ? (
-              <div className="mt-1 flex flex-col gap-1 text-xs text-muted-foreground">
-                <span>
-                  {questionnaireQuestionCount} question{questionnaireQuestionCount === 1 ? '' : 's'}
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Calendar size={12} /> Due date: {dueDate ? formatDate(dueDate) : 'Not set'}
-                </span>
+
+        <div className="flex flex-col gap-3 rounded-md border border-border bg-card p-4">
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-semibold">Campaign content</span>
+            <span className="text-xs text-muted-foreground">A campaign uses either a questionnaire template or an email template, not both.</span>
+          </div>
+
+          <div role="radiogroup" aria-label="Campaign content type" className="grid grid-cols-2 gap-3">
+            <ModeOption
+              icon={<CircleHelp size={18} className="text-brand" />}
+              title="Questionnaire template"
+              description="Recipients complete a questionnaire. Emails use the system template."
+              selected={mode === 'questionnaire'}
+              disabled={isUpdating}
+              onSelect={() => handleModeChange('questionnaire')}
+            />
+            <ModeOption
+              icon={<Mail size={18} className="text-brand" />}
+              title="Email template"
+              description="Recipients receive the email template you choose."
+              selected={mode === 'email'}
+              disabled={isUpdating}
+              onSelect={() => handleModeChange('email')}
+            />
+          </div>
+
+          {!hasContent && (
+            <div className="flex gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-3">
+              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-500" />
+              <span className="text-xs text-muted-foreground">Select either a questionnaire template or an email template before launching this campaign.</span>
+            </div>
+          )}
+        </div>
+
+        {mode === 'questionnaire' ? (
+          <>
+            <SetupCard
+              icon={<CircleHelp size={18} className="text-brand" />}
+              title="Questionnaire template"
+              subtitle={questionnaireName ?? 'No questionnaire template selected'}
+              actionLabel={hasQuestionnaire ? 'Change questionnaire template' : 'Select questionnaire template'}
+              onAction={onConfigureQuestionnaire}
+              secondaryAction={hasQuestionnaire ? { label: 'Remove', onAction: onRemoveQuestionnaire } : undefined}
+              done={hasQuestionnaire}
+              extra={
+                hasQuestionnaire ? (
+                  <div className="mt-1 flex flex-col gap-1 text-xs text-muted-foreground">
+                    <span>
+                      {questionnaireQuestionCount} question{questionnaireQuestionCount === 1 ? '' : 's'}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <Calendar size={12} /> Due date: {dueDate ? formatDate(dueDate) : 'Not set'}
+                    </span>
+                  </div>
+                ) : undefined
+              }
+            />
+            <div className="flex items-center gap-4 rounded-md border border-border bg-card p-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-secondary">
+                <Mail size={18} className="text-brand" />
               </div>
-            ) : undefined
-          }
-        />
+              <div className="flex min-w-0 flex-1 flex-col">
+                <span className="text-sm font-semibold">Email template</span>
+                <span className="text-xs text-muted-foreground">System template</span>
+              </div>
+              <Lock size={16} className="shrink-0 text-muted-foreground" />
+            </div>
+          </>
+        ) : (
+          <SetupCard
+            icon={<Mail size={18} className="text-brand" />}
+            title="Email template"
+            subtitle={emailTemplateLabel ?? 'No email template selected'}
+            actionLabel={hasEmailTemplate ? 'Change template' : 'Select template'}
+            onAction={onChangeTemplate}
+            secondaryAction={hasEmailTemplate ? { label: 'Remove', onAction: onRemoveTemplate } : undefined}
+            done={hasEmailTemplate}
+          />
+        )}
+
         <SetupCard
           icon={<Users size={18} className="text-brand" />}
           title="Recipients"
@@ -121,7 +196,15 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
           actionLabel="Send test email"
           onAction={onSendTest}
         />
-        <SetupCard icon={<Rocket size={18} className="text-brand" />} title="Launch" subtitle="Launch now or schedule for later." actionLabel="Launch campaign" onAction={onLaunch} primary />
+        <SetupCard
+          icon={<Rocket size={18} className="text-brand" />}
+          title="Launch"
+          subtitle={hasContent ? 'Launch now or schedule for later.' : 'Select a questionnaire template or an email template first.'}
+          actionLabel="Launch campaign"
+          onAction={onLaunch}
+          disabled={!hasContent}
+          primary
+        />
       </div>
     </div>
   )
@@ -136,10 +219,11 @@ interface SetupCardProps {
   secondaryAction?: { label: string; onAction: () => void }
   done?: boolean
   primary?: boolean
+  disabled?: boolean
   extra?: React.ReactNode
 }
 
-const SetupCard: React.FC<SetupCardProps> = ({ icon, title, subtitle, actionLabel, onAction, secondaryAction, done, primary, extra }) => (
+const SetupCard: React.FC<SetupCardProps> = ({ icon, title, subtitle, actionLabel, onAction, secondaryAction, done, primary, disabled, extra }) => (
   <div className="flex items-center gap-4 rounded-md border border-border bg-card p-4">
     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-secondary">{icon}</div>
     <div className="flex min-w-0 flex-1 flex-col">
@@ -152,7 +236,7 @@ const SetupCard: React.FC<SetupCardProps> = ({ icon, title, subtitle, actionLabe
         {secondaryAction.label}
       </Button>
     )}
-    <Button variant={primary ? 'primary' : 'secondary'} type="button" onClick={onAction} className="shrink-0">
+    <Button variant={primary ? 'primary' : 'secondary'} type="button" onClick={onAction} disabled={disabled} className="shrink-0">
       {actionLabel}
     </Button>
     {done ? <CircleCheck size={20} className="shrink-0 text-brand" /> : <Circle size={20} className="shrink-0 text-muted-foreground" />}

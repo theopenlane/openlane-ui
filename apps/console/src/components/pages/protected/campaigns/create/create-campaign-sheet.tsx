@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useCallback, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Form } from '@repo/ui/form'
 import { StepperSheet, type StepperStep } from '@/components/shared/stepper-sheet/stepper-sheet'
 import { QuestionnaireStep } from './steps/questionnaire-step'
@@ -31,6 +32,10 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
 
   const { mutateAsync: createCampaignWithTargets, isPending: isCreating } = useCreateCampaignWithTargets()
   const { successNotification, errorNotification } = useNotification()
+  const router = useRouter()
+
+  const questionnaireTemplateID = form.watch('questionnaireTemplateID')
+  const hasQuestionnaire = !!questionnaireTemplateID
 
   const resetAll = useCallback(() => {
     setCurrentStep(QUESTIONNAIRE_STEP)
@@ -50,7 +55,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
       try {
         const validTargets = targets.filter((target) => isValidEmail(target.email.trim()))
 
-        await createCampaignWithTargets({
+        const result = await createCampaignWithTargets({
           input: {
             campaign: {
               name: data.name.trim(),
@@ -58,7 +63,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
               campaignType: data.questionnaireTemplateID ? CampaignCampaignType.QUESTIONNAIRE : CampaignCampaignType.CUSTOM,
               status: CampaignCampaignStatus.DRAFT,
               templateID: data.questionnaireTemplateID || undefined,
-              emailTemplateID: data.emailTemplateID || undefined,
+              emailTemplateID: data.questionnaireTemplateID ? undefined : data.emailTemplateID || undefined,
             },
             targets: validTargets.map((target) => ({
               email: target.email.trim(),
@@ -68,13 +73,15 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
           },
         })
 
+        const campaignId = result.createCampaignWithTargets.campaign.id
         successNotification({ title: 'Campaign saved as draft' })
         handleCancel()
+        router.push(`/automation/campaigns/${campaignId}`)
       } catch (error) {
         errorNotification({ title: 'Error', description: parseErrorMessage(error) })
       }
     },
-    [targets, createCampaignWithTargets, successNotification, errorNotification, handleCancel],
+    [targets, createCampaignWithTargets, successNotification, errorNotification, handleCancel, router],
   )
 
   const submitDraft = useCallback(
@@ -86,11 +93,11 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
     [form, createDraft],
   )
 
-  const steps: StepperStep[] = useMemo(
-    () => [
+  const steps: StepperStep[] = useMemo(() => {
+    const baseSteps: StepperStep[] = [
       {
-        title: 'Questionnaire',
-        description: 'Name your campaign and optionally attach a questionnaire',
+        title: 'Campaign Details',
+        description: 'Name your campaign and optionally select a questionnaire template',
         content: <QuestionnaireStep form={form} />,
       },
       {
@@ -100,14 +107,21 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
           <TargetsStep targets={targets} onTargetsChange={setTargets} uploadedFile={uploadedFile} onFileUpload={setUploadedFile} activeTab={activeTargetTab} onActiveTabChange={setActiveTargetTab} />
         ),
       },
+    ]
+
+    if (hasQuestionnaire) return baseSteps
+
+    return [
+      ...baseSteps,
       {
         title: 'Email Template',
         description: 'Choose the email template used to contact recipients',
         content: <EmailTemplateStep form={form} />,
       },
-    ],
-    [form, targets, uploadedFile, activeTargetTab],
-  )
+    ]
+  }, [form, targets, uploadedFile, activeTargetTab, hasQuestionnaire])
+
+  const activeStep = Math.min(currentStep, steps.length - 1)
 
   return (
     <Form {...form}>
@@ -118,7 +132,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
         }}
         title="Create Campaign"
         steps={steps}
-        currentStep={currentStep}
+        currentStep={activeStep}
         onStepChange={setCurrentStep}
         onCancel={handleCancel}
         onSaveDraft={submitDraft}
