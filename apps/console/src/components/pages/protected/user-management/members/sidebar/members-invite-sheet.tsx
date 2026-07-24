@@ -16,7 +16,7 @@ import {
 import { useCreateBulkInvite } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -45,9 +45,22 @@ import { useSession } from 'next-auth/react'
 type TMembersInviteSheet = {
   isMemberSheetOpen: boolean
   setIsMemberSheetOpen: React.Dispatch<React.SetStateAction<boolean>>
+  defaultEmails?: string[]
+  defaultRole?: InviteRole
+  lockRoleChanges?: boolean
+  title?: string
 }
 
-const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMembersInviteSheet) => {
+const EMPTY_DEFAULT_EMAILS: string[] = []
+
+const MembersInviteSheet = ({
+  isMemberSheetOpen,
+  setIsMemberSheetOpen,
+  defaultEmails = EMPTY_DEFAULT_EMAILS,
+  defaultRole = InviteRole.MEMBER,
+  lockRoleChanges = false,
+  title = 'Invite New Member',
+}: TMembersInviteSheet) => {
   const { mutateAsync: inviteMembers } = useCreateBulkInvite()
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
@@ -93,7 +106,8 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
     return allGroups.slice(start, start + pagination.pageSize)
   }, [allGroups, pagination.page, pagination.pageSize])
 
-  const { form } = useMembersInviteFormSchema()
+  const canonicalizedDefaultEmails = useMemo(() => Array.from(new Set(defaultEmails.filter(Boolean))), [defaultEmails])
+  const { form } = useMembersInviteFormSchema({ defaultEmails: canonicalizedDefaultEmails, defaultRole })
 
   const columns = useMemo(() => {
     return groupTableForInvitesColumns({ allGroups, selectedGroups, setSelectedGroups })
@@ -109,9 +123,21 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const emails = watch('emails')
   const selectedRole = watch('role')
 
+  useEffect(() => {
+    if (isMemberSheetOpen) {
+      form.reset({
+        emails: canonicalizedDefaultEmails,
+        role: defaultRole,
+      })
+    }
+  }, [defaultRole, form, isMemberSheetOpen, canonicalizedDefaultEmails])
+
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      form.reset()
+      form.reset({
+        emails: canonicalizedDefaultEmails,
+        role: defaultRole,
+      })
       setSearchQuery('')
       setSelectedGroups([])
       resetPagination()
@@ -184,7 +210,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
             </div>
             <div className="flex items-center justify-start">
               <SheetTitle>
-                <h3 className="font-medium text-2xl text-text-header pb-2">Invite New Member</h3>
+                <h3 className="font-medium text-2xl text-text-header pb-2">{title}</h3>
               </SheetTitle>
             </div>
           </SheetHeader>
@@ -220,12 +246,12 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value} disabled={lockRoleChanges}>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select role" />
                               </SelectTrigger>
                               <SelectContent>
-                                {roleOptions.map((value) => (
+                                {(lockRoleChanges && !roleOptions.includes(defaultRole) ? [defaultRole] : roleOptions).map((value) => (
                                   <SelectItem key={value} value={value}>
                                     {toHumanLabel(value)}
                                   </SelectItem>
