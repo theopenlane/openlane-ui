@@ -12,7 +12,7 @@ import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import Link from 'next/link'
 import { formatDateSince } from '@/utils/date'
-import { INFO_EMAIL } from '@/constants'
+import { INFO_EMAIL, OPENLANE_STANDARD_SHORT_NAME } from '@/constants'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { type StandardWhereInput } from '@repo/codegen/src/schema'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
@@ -50,6 +50,7 @@ const StandardsPage = () => {
   const whereFilter = useMemo(() => {
     const conditions: StandardWhereInput = {
       frameworkNEQ: 'openlane-trust-center',
+      shortNameNEQ: OPENLANE_STANDARD_SHORT_NAME,
       ...(debouncedSearchQuery ? { shortNameContainsFold: debouncedSearchQuery } : {}),
       ...filters,
     }

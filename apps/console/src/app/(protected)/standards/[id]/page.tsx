@@ -1,99 +1,11 @@
 'use client'
 
-import { PageHeading } from '@repo/ui/page-heading'
 import { useParams } from 'next/navigation'
-import { useGetStandardDetails } from '@/lib/graphql-hooks/standard'
-import StandardDetailsCard from '@/components/pages/protected/standards/standard-details-card'
-import StandardDetailsAccordion from '@/components/pages/protected/standards/standard-details-accordion'
-import { useEffect, use, useState } from 'react'
-import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
-import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
-import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
-import { Button } from '@repo/ui/button'
-import { hasPermission } from '@/lib/authz/utils.ts'
-import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
-import Loading from './loading'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { useSession } from 'next-auth/react'
+import StandardDetailsView from '@/components/pages/protected/standards/standard-details-view'
 
 const StandardDetailsPage = () => {
   const { id } = useParams()
-  const { data, isLoading, error } = useGetStandardDetails(id as string)
-  const standard = data?.standard
-  const { setCrumbs } = use(BreadcrumbContext)
-  const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()
-  const { data: session } = useSession()
-
-  useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Compliance', href: '/programs' },
-      { label: 'Standards', href: '/standards' },
-      { label: standard?.shortName ?? standard?.name, isLoading: isLoading },
-    ])
-  }, [setCrumbs, standard, isLoading])
-
-  if (isLoading) {
-    return <Loading />
-  }
-  if (error) {
-    return <div>Error loading standard details.</div>
-  }
-
-  const mainContent = (
-    <>
-      <div className="flex flex-col gap-7">
-        <div className="flex flex-row gap-7 items-center">
-          <StandardsIconMapper shortName={standard?.shortName ?? ''} />
-          <PageHeading heading={data?.standard.name || 'Standard Details'} className="mb-3" />
-        </div>
-        <p className="">{data?.standard.description}</p>
-        <div className="flex gap-14 w-full">
-          <div className="flex flex-col gap-7 w-full">
-            <StandardDetailsAccordion
-              isDialogOpen={isDialogOpen}
-              setIsDialogOpen={setIsDialogOpen}
-              selectedControls={selectedControls}
-              setSelectedControls={setSelectedControls}
-              standardName={standard?.shortName ?? standard?.name}
-              permission={permission}
-              isLoadingPermission={isLoadingPermission}
-            />
-          </div>
-        </div>
-      </div>
-    </>
-  )
-
-  const detailsCard = (
-    <>
-      <StandardDetailsCard />
-    </>
-  )
-
-  const menuComponent = (
-    <div>
-      {hasPermission(permission?.roles, AccessEnum.CanCreateControl, session) && (
-        <Button
-          variant="secondary"
-          className="h-8 !px-2"
-          onClick={() => {
-            setIsDialogOpen(true)
-          }}
-        >
-          {selectedControls.length > 0 ? `Add Controls (${selectedControls.length})` : 'Add Controls'}
-        </Button>
-      )}
-    </div>
-  )
-
-  return (
-    <SlideBarLayout sidebarTitle="Details" menu={menuComponent} sidebarContent={detailsCard}>
-      {mainContent}
-    </SlideBarLayout>
-  )
+  return <StandardDetailsView standardId={id as string} />
 }
 
 export default StandardDetailsPage
