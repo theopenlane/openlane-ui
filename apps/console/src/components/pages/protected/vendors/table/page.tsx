@@ -43,6 +43,7 @@ const VendorPage: React.FC = () => {
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
+  const scanId = searchParams.get('scanId')
   const { data, isLoading } = useEntity(id || undefined)
   const { data: associationsData } = useGetEntityAssociations(id || undefined)
   const extractAssociations = useCallback((assocData: GetEntityAssociationsQuery) => {
@@ -207,6 +208,7 @@ const VendorPage: React.FC = () => {
     defaultVisibility: visibilityFields,
     filterFields: getFilterFields(enumOpts),
     searchFields: ['displayNameContainsFold'],
+    additionalWhereFilter: scanId ? { hasScansWith: [{ id: scanId }] } : undefined,
     breadcrumbs,
     form,
     getColumns,

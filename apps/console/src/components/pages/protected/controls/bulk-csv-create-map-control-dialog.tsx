@@ -8,7 +8,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { exportCSV } from '@/lib/export'
-import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
+import { IMPORT_CONTROL_DOCS_URL } from '@/constants/docs'
 import { useCreateBulkCSVMappedControl } from '@/lib/graphql-hooks/control'
 import { type TUploadedFile } from '../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -86,7 +86,7 @@ const BulkCSVCreateMappedControlDialog: React.FC<BulkCsvCreateMappedControlDialo
         </DialogHeader>
         <Callout title="CSV Format">
           You can upload a csv containing control mappings. Please refer to our{' '}
-          <a href={`${GRAPHQL_OBJECT_DOCS}#mappedcontrol`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+          <a href={`${IMPORT_CONTROL_DOCS_URL}`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
             documentation
           </a>{' '}
           for column format. We also provide a{' '}

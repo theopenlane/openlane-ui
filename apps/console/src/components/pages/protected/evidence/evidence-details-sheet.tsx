@@ -2,61 +2,18 @@
 
 import React, { useEffect, useRef, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@repo/ui/button'
-import {
-  Binoculars,
-  Calendar,
-  CalendarCheck2,
-  CalendarClock,
-  CircuitBoard,
-  Download,
-  Eye,
-  Fingerprint,
-  InfoIcon,
-  LinkIcon,
-  Link,
-  Maximize2,
-  Radio,
-  RefreshCw,
-  Tag,
-  Trash2,
-  UserRoundCheck,
-  UserRoundPen,
-  X,
-  Copy,
-  Pencil,
-  ChevronDown,
-  Plus,
-  Stamp,
-} from 'lucide-react'
-import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
-import { Input, InputRow } from '@repo/ui/input'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { useNotification } from '@/hooks/useNotification'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
-import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import { Form } from '@repo/ui/form'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
-import { formatDate } from '@/utils/date.ts'
-import { AuthorCell } from '@/components/shared/user-display/author-cell'
-import { type Control, EvidenceEvidenceStatus, EvidenceFrequency, type Subcontrol } from '@repo/codegen/src/schema.ts'
+import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { type EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { Controller } from 'react-hook-form'
-import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useQueryClient } from '@tanstack/react-query'
-import { Textarea } from '@repo/ui/textarea'
-import { fileDownload } from '@/components/shared/lib/export.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { EvidenceRenewDialog } from '@/components/pages/protected/evidence/evidence-renew-dialog'
-import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
-import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useIsAuditor } from '@/lib/graphql-hooks/member'
 import EvidenceRequestChangesDialog from './evidence-request-changes-dialog'
-import { Panel, PanelHeader } from '@repo/ui/panel'
-import ObjectAssociation from '@/components/shared/object-association/object-association.tsx'
-import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { getAssociationInput } from '@/components/shared/object-association/utils.ts'
 import { canEdit } from '@/lib/authz/utils'
@@ -64,47 +21,33 @@ import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EvidenceDetailsSheetSkeleton } from './skeleton/evidence-details-skeleton'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import NextLink from 'next/link'
 import EvidenceFiles from './evidence-files'
-import { Card, CardContent } from '@repo/ui/cardpanel'
-import { statCardStyles } from '@/components/shared/stats-cards/stats-cards-styles'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ProgramSelectionDialog } from '@/components/shared/object-association/object-association-programs-dialog'
-import { ControlSelectionDialog } from '@/components/shared/object-association/object-association-control-dialog'
-import ObjectAssociationProgramsChips from '@/components/shared/object-association/object-association-programs-chips'
-import ObjectAssociationControlsChips from '@/components/shared/object-association/object-association-controls-chips'
-import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { type CustomEvidenceControl } from './evidence-sheet-config'
+import { type CustomEvidenceControl, type EvidenceEditableField } from './evidence-sheet-config'
 import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-controls'
-import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
-import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
-import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
-import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import EvidenceCommentsCard from './evidence-comment-card'
-import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion'
-import type { Section } from '@/components/shared/object-association/types/object-association-types'
-import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectWorkflowPanel } from '@/components/workflows/object-workflow-panel'
 import { useSession } from 'next-auth/react'
+import EvidenceDetailHeader from './detail/evidence-detail-header'
+import EvidenceOverviewSection from './detail/evidence-overview-section'
+import EvidenceRelationshipsSection from './detail/evidence-relationships-section'
+import EvidenceMetadataSection from './detail/evidence-metadata-section'
+import EvidenceDetailSection from './detail/evidence-detail-section'
+import { evidenceToFormValues } from './detail/evidence-form-values'
+import { useEvidenceAssociations } from './hooks/use-evidence-associations'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
 }
 
-type EditableFields =
-  'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'reviewFrequency' | 'creationDate' | 'renewalDate' | 'tags' | 'externalUUID' | 'scopeName' | 'environmentName'
+const DATE_POPOVER_FIELDS: EvidenceEditableField[] = ['renewalDate', 'creationDate']
+const INLINE_POPOVER_FIELDS: EvidenceEditableField[] = ['tags', 'reviewFrequency', ...DATE_POPOVER_FIELDS]
 
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
   const { convertToHtml, convertToReadOnly } = usePlateEditor()
-  const objectAssociationRef = React.useRef<HTMLDivElement | null>(null)
+  const objectAssociationRef = useRef<HTMLDivElement | null>(null)
   const [isEditing, setIsEditing] = useState(false)
 
   const { data: session } = useSession()
@@ -126,16 +69,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const { isAuditor } = useIsAuditor()
   const [requestChangesOpen, setRequestChangesOpen] = useState(false)
   const [auditorActionPending, setAuditorActionPending] = useState(false)
-  const { wrapper, content } = statCardStyles({ color: 'green' })
-
-  const [openControlsDialog, setOpenControlsDialog] = useState(false)
 
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
-  const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
-  const { tagOptions } = useGetTags()
 
   const config = useMemo(() => {
     if (controlEvidenceIdParam) {
@@ -152,134 +90,36 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { data, isLoading: fetching } = useGetEvidenceById(config.id)
 
-  const [editField, setEditField] = useState<EditableFields | null>(null)
+  const [editField, setEditField] = useState<EvidenceEditableField | null>(null)
 
   const { data: permission } = useAccountRoles(ObjectTypes.EVIDENCE, data?.evidence.id)
 
   const editAllowed = canEdit(permission?.roles, session) || isAuditor
 
-  const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope', isEditAllowed: editAllowed })
-  const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment', isEditAllowed: editAllowed })
-
   const evidence = data?.evidence
 
-  const { userMap, tokenMap } = useAuthorMaps([evidence?.createdBy, evidence?.updatedBy])
-
   const evidenceName = evidence?.name
-  const statusOptions = EvidenceStatusOptions
 
   const { form } = useFormSchema(true)
 
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
 
-  const initialAssociations = useMemo(
-    () => ({
-      programIDs: evidence?.programs?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
-      controlObjectiveIDs: evidence?.controlObjectives?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
-      subcontrolIDs: evidence?.subcontrols?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
-      controlIDs: evidence?.controls?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
-      taskIDs: evidence?.tasks?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
-    }),
-    [evidence],
-  )
+  const { initialAssociations, controlsAndPrograms, associatedObjectSections } = useEvidenceAssociations(evidence)
 
-  const initialAssociationsControlsAndPrograms = useMemo(() => {
-    if (!evidence)
-      return {
-        programDisplayIDs: [],
-        subcontrolRefCodes: [],
-        subcontrolReferenceFramework: {},
-        controlRefCodes: [],
-        controlReferenceFramework: {},
-      }
-
-    const controls: Control[] = evidence.controls?.edges?.map((edge) => edge?.node).filter((n): n is Control => !!n) ?? []
-    const subcontrols: Subcontrol[] = evidence.subcontrols?.edges?.map((edge) => edge?.node).filter((n): n is Subcontrol => !!n) ?? []
-
-    return {
-      controls,
-      subcontrols,
-      programDisplayIDs: evidence.programs?.edges?.map((edge) => edge?.node?.name).filter((name): name is string => typeof name === 'string' && name.length > 0) ?? [],
-      subcontrolRefCodes: subcontrols.map((s) => s.refCode),
-      subcontrolReferenceFramework: Object.fromEntries(subcontrols.map((s) => [s.id, s.referenceFramework ?? ''])),
-      controlRefCodes: controls.map((c) => c.refCode),
-      controlReferenceFramework: Object.fromEntries(controls.map((c) => [c.id, c.referenceFramework ?? ''])),
-    }
-  }, [evidence])
-
-  const associatedObjectSections = useMemo<Section>(() => {
-    if (!evidence) return {}
-    const sections: Section = {}
-    if (evidence.programs?.edges?.length) sections.programs = evidence.programs
-    if (evidence.tasks?.edges?.length) sections.tasks = evidence.tasks
-    if (evidence.controlObjectives?.edges?.length) sections.controlObjectives = evidence.controlObjectives
-    if (evidence.controlImplementations?.edges?.length) {
-      sections.controlImplementations = {
-        totalCount: evidence.controlImplementations.totalCount,
-        edges: evidence.controlImplementations.edges.map((edge) => {
-          if (!edge?.node?.id) return edge
-          const refCode = edge.node.controls?.edges?.[0]?.node?.refCode
-          return {
-            node: {
-              id: edge.node.id,
-              details: edge.node.details,
-              name: refCode ? `Control ${refCode} - Control Implementation` : (edge.node.details?.slice(0, 50) ?? ''),
-            },
-          }
-        }),
-      }
-    }
-    if (evidence.scans?.edges?.length) sections.scans = evidence.scans
-    return sections
-  }, [evidence])
-
-  const hasAssociatedObjects = Object.keys(associatedObjectSections).length > 0
-
-  // Render-time state adjustment: sync derived data to state when evidence changes
-  const [prevAssocData, setPrevAssocData] = useState(initialAssociationsControlsAndPrograms)
-  if (initialAssociationsControlsAndPrograms !== prevAssocData) {
-    setPrevAssocData(initialAssociationsControlsAndPrograms)
-    if (initialAssociationsControlsAndPrograms.controls) {
-      setEvidenceControls(initialAssociationsControlsAndPrograms.controls)
-    }
-    if (initialAssociationsControlsAndPrograms.subcontrols) {
-      setEvidenceSubcontrols(initialAssociationsControlsAndPrograms.subcontrols)
-    }
-    setAssociationProgramsRefMap(initialAssociationsControlsAndPrograms.programDisplayIDs ?? [])
+  const [prevAssocData, setPrevAssocData] = useState(controlsAndPrograms)
+  if (controlsAndPrograms !== prevAssocData) {
+    setPrevAssocData(controlsAndPrograms)
+    setEvidenceControls(controlsAndPrograms.controls)
+    setEvidenceSubcontrols(controlsAndPrograms.subcontrols)
+    setAssociationProgramsRefMap(controlsAndPrograms.programDisplayIDs)
   }
 
   useEffect(() => {
     if (evidence) {
-      form.reset({
-        name: evidence.name ?? '',
-        description: evidence?.description ?? '',
-        renewalDate: evidence.renewalDate ? new Date(evidence.renewalDate) : null,
-        creationDate: evidence.creationDate ? new Date(evidence.creationDate) : null,
-        status: evidence?.status ? Object.values(EvidenceEvidenceStatus).find((type) => type === evidence?.status) : undefined,
-        reviewFrequency: evidence?.reviewFrequency ?? undefined,
-        tags: evidence?.tags ?? [],
-        collectionProcedure: evidence?.collectionProcedure || '',
-        source: evidence?.source ?? '',
-        url: evidence?.url ?? '',
-        externalUUID: evidence?.externalUUID ?? '',
-        scopeName: evidence?.scopeName ?? '',
-        environmentName: evidence?.environmentName ?? '',
-        controlIDs: initialAssociations.controlIDs ?? [],
-        programIDs: initialAssociations.programIDs ?? [],
-        subcontrolIDs: initialAssociations.subcontrolIDs ?? [],
-      })
+      form.reset(evidenceToFormValues(evidence, initialAssociations))
     }
   }, [evidence, form, initialAssociations])
-
-  const programIDs = form.watch('programIDs')
-  const watchedTags = form.watch('tags')
-
-  const tagValues = useMemo<Option[]>(() => {
-    return (watchedTags ?? []).map((item) => ({ value: item, label: item }))
-  }, [watchedTags])
-
-  const programsAccordionValue = (programIDs?.length || 0) > 0 ? 'ProgramsAccordion' : undefined
 
   const handleCopyLink = () => {
     if (!config.id) {
@@ -317,7 +157,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
 
-  const onSubmit = async (formData: EditEvidenceFormData) => {
+  const onSubmit = async (formData: EditEvidenceFormData, statusOverride?: EvidenceEvidenceStatus) => {
     if (!config.id) return
 
     const controlIDs = form.getValues('controlIDs') || []
@@ -345,7 +185,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
     try {
       const collectionProcedure = formData.collectionProcedure && typeof formData.collectionProcedure !== 'string' ? await convertToHtml(formData.collectionProcedure) : formData.collectionProcedure
-      const creationDate = formData.creationDate instanceof Date ? formData.creationDate.toISOString() : formData.creationDate
 
       await updateEvidence({
         updateEvidenceId: config.id,
@@ -353,17 +192,21 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
           ...cleanFormData,
           ...associationInputs,
           collectionProcedure,
-          creationDate,
           clearURL: formData?.url === undefined,
+          ...(statusOverride ? { status: statusOverride } : {}),
         },
       })
 
+      const submitted = statusOverride === EvidenceEvidenceStatus.SUBMITTED
       successNotification({
-        title: 'Evidence Updated',
-        description: 'The evidence has been successfully updated.',
+        title: submitted ? 'Evidence Submitted' : 'Evidence Updated',
+        description: submitted ? 'The evidence has been submitted for review.' : 'The evidence has been successfully updated.',
       })
 
       setIsEditing(false)
+      if (statusOverride) {
+        queryClient.invalidateQueries({ queryKey: ['evidences'] })
+      }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -372,6 +215,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       })
     }
   }
+
+  const handleSave = form.handleSubmit((data) => onSubmit(data))
+  const handleSubmitRequested = form.handleSubmit((data) => onSubmit(data, EvidenceEvidenceStatus.SUBMITTED))
 
   const handleDelete = async () => {
     if (!config.id) return
@@ -390,6 +236,22 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         title: 'Error',
         description: errorMessage,
       })
+    }
+  }
+
+  const handleStatusChange = async (status: EvidenceEvidenceStatus) => {
+    if (!config.id || status === evidence?.status) return
+    form.setValue('status', status)
+    try {
+      await updateEvidence({
+        updateEvidenceId: config.id,
+        input: { status },
+      })
+      successNotification({ title: 'Status updated successfully' })
+      queryClient.invalidateQueries({ queryKey: ['evidences'] })
+    } catch (error) {
+      form.setValue('status', evidence?.status ?? undefined)
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
     }
   }
 
@@ -427,7 +289,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }
 
-  const handleDoubleClick = (field: EditableFields) => {
+  const handleDoubleClick = (field: EvidenceEditableField) => {
     if (isEditing || !editAllowed) return
     setEditField(field)
   }
@@ -484,14 +346,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   useClickOutsideWithPortal(
     () => {
-      if (['renewalDate', 'creationDate'].includes(editField ?? '')) {
+      if (editField && DATE_POPOVER_FIELDS.includes(editField)) {
         return setEditField(null)
       }
       if (editField) handleUpdateField()
     },
     {
       refs: { triggerRef, popoverRef },
-      enabled: !!editField && ['tags', 'renewalDate', 'creationDate', 'status', 'reviewFrequency'].includes(editField),
+      enabled: !!editField && INLINE_POPOVER_FIELDS.includes(editField),
     },
   )
 
@@ -500,6 +362,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     setIsEditing(true)
     setIsEditPreset(false)
     setScrollTrigger((prev) => prev + 1)
+  }
+
+  const isFulfillMode = evidence?.status === EvidenceEvidenceStatus.REQUESTED && editAllowed && !isAuditor
+  const [fulfillAppliedId, setFulfillAppliedId] = useState<string | null>(null)
+  if (isFulfillMode && evidence?.id && fulfillAppliedId !== evidence.id) {
+    setFulfillAppliedId(evidence.id)
+    setIsEditing(true)
   }
 
   useEffect(() => {
@@ -512,19 +381,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       return () => clearTimeout(timeout)
     }
   }, [scrollTrigger])
-
-  const handleTags = () => {
-    if (evidence?.tags?.length === 0) {
-      return <span className="text-gray-500">no tags provided</span>
-    }
-    return <div className="flex justify-start flex-wrap gap-2">{evidence?.tags?.map((tag?: string) => tag && <TagChip key={tag} tag={tag} />)} </div>
-  }
-
-  const handleSavePrograms = (newIds: string[], newRefCodes: string[]) => {
-    setAssociationProgramsRefMap(newRefCodes || [])
-
-    form.setValue('programIDs', newIds)
-  }
 
   return (
     <Sheet open={!!id || !!controlEvidenceIdParam} onOpenChange={handleSheetClose}>
@@ -539,843 +395,120 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         className="flex flex-col"
         minWidth={600}
         header={
-          <SheetHeader>
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <span className={`text-2xl leading-8 font-medium`}>{evidence?.name || 'Untitled'}</span>
-
-                <X aria-label="Close detail sheet" size={20} className="cursor-pointer" onClick={handleSheetClose} />
-              </div>
-
-              <div className="flex justify-start gap-2 items-center">
-                <div className="flex gap-3">
-                  {isEditing ? (
-                    <>
-                      <CancelButton onClick={() => setIsEditing(false)}></CancelButton>
-                      <SaveButton onClick={form.handleSubmit(onSubmit)} />
-                    </>
-                  ) : (
-                    <>
-                      <Button className="h-8 p-2" icon={<Copy />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
-                        Copy link
-                      </Button>
-                      {evidence && !isAuditor && <EvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
-                      {isAuditor && evidence && (
-                        <>
-                          <Button
-                            type="button"
-                            className="h-8 p-2"
-                            icon={<Stamp size={16} />}
-                            iconPosition="left"
-                            onClick={handleApprove}
-                            loading={auditorActionPending}
-                            disabled={auditorActionPending || evidence.status === EvidenceEvidenceStatus.AUDITOR_APPROVED}
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            className="h-8 p-2"
-                            icon={<RefreshCw size={16} />}
-                            iconPosition="left"
-                            onClick={() => setRequestChangesOpen(true)}
-                            disabled={auditorActionPending}
-                          >
-                            Request Changes
-                          </Button>
-                        </>
-                      )}
-                      {editAllowed && (
-                        <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setIsEditing(true)} aria-label="Edit evidence">
-                          <Pencil size={16} strokeWidth={2} />
-                        </Button>
-                      )}
-
-                      <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setDeleteDialogIsOpen(true)} aria-label="Delete evidence">
-                        <Trash2 size={16} strokeWidth={2} />
-                      </Button>
-                    </>
-                  )}
-                </div>
-                <ConfirmationDialog
-                  open={deleteDialogIsOpen}
-                  onOpenChange={setDeleteDialogIsOpen}
-                  onConfirm={handleDelete}
-                  title={`Delete Evidence`}
-                  description={
-                    <>
-                      This action cannot be undone. This will permanently remove <b>{evidenceName} </b>from the control.
-                    </>
-                  }
-                />
-                <EvidenceRequestChangesDialog
-                  open={requestChangesOpen}
-                  onOpenChange={setRequestChangesOpen}
-                  onConfirm={handleRequestChanges}
-                  loading={auditorActionPending}
-                  evidenceName={evidenceName ?? undefined}
-                />
-              </div>
-            </div>
-          </SheetHeader>
+          <EvidenceDetailHeader
+            evidenceId={evidence?.id}
+            status={evidence?.status}
+            controlId={controlId}
+            isEditing={isEditing}
+            isAuditor={isAuditor}
+            editAllowed={editAllowed}
+            auditorActionPending={auditorActionPending}
+            onStatusChange={handleStatusChange}
+            onCopyLink={handleCopyLink}
+            onEdit={() => setIsEditing(true)}
+            onCancelEdit={() => setIsEditing(false)}
+            onSave={isFulfillMode ? handleSubmitRequested : handleSave}
+            saveLabel={isFulfillMode ? 'Submit' : undefined}
+            onDelete={() => setDeleteDialogIsOpen(true)}
+            onApprove={handleApprove}
+            onRequestChanges={() => setRequestChangesOpen(true)}
+            onClose={handleSheetClose}
+          />
         }
       >
         {fetching ? (
           <EvidenceDetailsSheetSkeleton />
         ) : (
-          <>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="pr-4">
-                {config.id && (
-                  <div className="mb-4">
-                    <ObjectWorkflowPanel objectId={config.id} objectType="Evidence" objectLabel={evidence?.name} />
-                  </div>
-                )}
-                {isEditing || editField === 'name' ? (
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel>Title</FormLabel>
-                        <FormControl>
-                          <Input variant="medium" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
-                        </FormControl>
-                        {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
-                      </FormItem>
-                    )}
-                  />
-                ) : null}
-                {isEditing || editField === 'description' ? (
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem className="w-full pt-4">
-                        <div className="flex items-center">
-                          <FormLabel>Description</FormLabel>
-                          <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a short description of what is contained in the files or linked URLs.</p>} />
-                        </div>
-                        <FormControl>
-                          <Textarea id="description" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
-                        </FormControl>
-                        {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
-                      </FormItem>
-                    )}
-                  />
-                ) : (
-                  <div className="mt-5">
-                    <FormLabel className="font-bold">Description</FormLabel>
-                    <HoverPencilWrapper
-                      pencilClass="!-right-5"
-                      showPencil={editAllowed}
-                      className={`w-fit ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                      onPencilClick={() => editAllowed && handleDoubleClick('description')}
-                    >
-                      <div onDoubleClick={() => editAllowed && handleDoubleClick('description')}>
-                        {evidence?.description ? <p>{evidence.description}</p> : <p className="text-gray-500">no description provided</p>}
-                      </div>
-                    </HoverPencilWrapper>
-                  </div>
-                )}
+          <Form {...form}>
+            <form onSubmit={isFulfillMode ? handleSubmitRequested : handleSave} className="pr-4 flex flex-col gap-6">
+              {config.id && <ObjectWorkflowPanel objectId={config.id} objectType="Evidence" objectLabel={evidence?.name} />}
 
-                {isEditing || editField === 'collectionProcedure' ? (
-                  <FormField
-                    control={form.control}
-                    name="collectionProcedure"
-                    render={({ field }) => (
-                      <FormItem className="w-full pt-4">
-                        <div className="flex items-center">
-                          <FormLabel>Collection Procedure</FormLabel>
-                          <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
-                        </div>
-                        <FormControl>
-                          <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
-                        </FormControl>
-                        {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
-                      </FormItem>
-                    )}
-                  />
-                ) : (
-                  <div className="mt-5 mb-6">
-                    <FormLabel className="font-bold">Collection Procedure</FormLabel>
-                    <HoverPencilWrapper showPencil={false} pencilClass="!-right-5" className={`w-fit cursor-not-allowed`}>
-                      <div>{evidence?.collectionProcedure ? <p>{convertToReadOnly(evidence.collectionProcedure)}</p> : <p className="text-gray-500">no collection procedure provided</p>}</div>
-                    </HoverPencilWrapper>
-                  </div>
-                )}
-                {!isEditing && ((evidenceControls?.length ?? 0) > 0 || (evidenceSubcontrols?.length ?? 0) > 0) && (
-                  <Card className={wrapper()}>
-                    <CardContent className={content()}>
-                      <div className="flex flex-col gap-4">
-                        <p className="text-sm font-medium leading-5">Controls</p>
-                        <ObjectAssociationControlsChips isEditing={false} evidenceControls={evidenceControls} evidenceSubcontrols={evidenceSubcontrols} />
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-                <div className="mt-6 mb-8">
-                  <Card className={wrapper()}>
-                    <CardContent className={content()}>
-                      <div className="space-y-4">
-                        {/* Source */}
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-45">
-                            <CircuitBoard size={16} className="text-accent-secondary" />
-                            Source
-                          </div>
+              <EvidenceOverviewSection
+                form={form}
+                isEditing={isEditing}
+                editField={editField}
+                editAllowed={editAllowed}
+                onEdit={handleDoubleClick}
+                onUpdateField={handleUpdateField}
+                onKeyDown={handleKeyDown}
+                name={evidence?.name}
+                description={evidence?.description}
+                collectionProcedure={evidence?.collectionProcedure}
+                renderCollectionProcedure={convertToReadOnly}
+              />
 
-                          <div className="text-sm text-right w-62.5">
-                            {isEditing || editField === 'source' ? (
-                              <InputRow className="w-full">
-                                <FormField
-                                  control={form.control}
-                                  name="source"
-                                  render={({ field }) => (
-                                    <FormItem className="w-full">
-                                      <FormControl>
-                                        <Input variant="medium" {...field} className="w-62.5" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
-                                      </FormControl>
-                                      {form.formState.errors.source && <p className="text-red-500 text-sm">{form.formState.errors.source.message}</p>}
-                                    </FormItem>
-                                  )}
-                                />
-                              </InputRow>
-                            ) : (
-                              <HoverPencilWrapper
-                                showPencil={editAllowed}
-                                pencilClass="!-right-5"
-                                className={`text-sm text-right w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                                onPencilClick={() => handleDoubleClick('source')}
-                              >
-                                <p onDoubleClick={() => handleDoubleClick('source')}>{evidence?.source || <span className="text-gray-500">no source provided</span>}</p>
-                              </HoverPencilWrapper>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* URL */}
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-45">
-                            <LinkIcon size={16} className="text-accent-secondary" />
-                            URL
-                          </div>
-
-                          <div className="text-sm text-right w-62.5">
-                            {isEditing || editField === 'url' ? (
-                              <InputRow className="w-full">
-                                <FormField
-                                  control={form.control}
-                                  name="url"
-                                  render={({ field }) => (
-                                    <FormItem className="w-full">
-                                      <FormControl>
-                                        <Input variant="medium" {...field} className="w-62.5" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
-                                      </FormControl>
-                                      {form.formState.errors.url && <p className="text-red-500 text-sm">{form.formState.errors.url.message}</p>}
-                                    </FormItem>
-                                  )}
-                                />
-                              </InputRow>
-                            ) : (
-                              <HoverPencilWrapper
-                                showPencil={editAllowed}
-                                pencilClass="!-right-5"
-                                className={`w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                                onPencilClick={() => handleDoubleClick('url')}
-                              >
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <div className="flex items-center w-full" onDoubleClick={() => handleDoubleClick('url')}>
-                                        <span className="truncate overflow-hidden whitespace-nowrap">{evidence?.url || <span className="text-gray-500">no url provided</span>}</span>
-                                      </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      {evidence?.url ? (
-                                        <NextLink href={evidence.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                          {evidence.url}
-                                        </NextLink>
-                                      ) : (
-                                        <span>No URL</span>
-                                      )}
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </HoverPencilWrapper>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Status */}
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-45">
-                            <Binoculars size={16} className="text-accent-secondary" />
-                            Status
-                          </div>
-                          <div ref={triggerRef} className="text-sm text-right w-62.5">
-                            {isEditing || editField === 'status' ? (
-                              <Controller
-                                name="status"
-                                control={form.control}
-                                render={({ field }) => (
-                                  <>
-                                    <Select
-                                      value={field.value ?? undefined}
-                                      onValueChange={(value) => {
-                                        field.onChange(value as EvidenceEvidenceStatus)
-                                        handleUpdateField()
-                                      }}
-                                    >
-                                      <SelectTrigger className="w-62.5">{getEnumLabel(field.value as EvidenceEvidenceStatus) || 'Select'}</SelectTrigger>
-                                      <SelectContent ref={popoverRef}>
-                                        {statusOptions.map((option) => (
-                                          <SelectItem key={option.value} value={option.value}>
-                                            {getEnumLabel(option.value as EvidenceEvidenceStatus)}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                    {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
-                                  </>
-                                )}
-                              />
-                            ) : (
-                              <HoverPencilWrapper
-                                pencilClass="!-right-5"
-                                showPencil={editAllowed}
-                                className={` space-x-2 w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                                onPencilClick={() => editAllowed && handleDoubleClick('status')}
-                              >
-                                <div className="flex justify-end items-center gap-2" onDoubleClick={() => editAllowed && handleDoubleClick('status')}>
-                                  {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
-                                  <p>{getEnumLabel(evidence?.status as EvidenceEvidenceStatus)}</p>
-                                </div>
-                              </HoverPencilWrapper>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Creation Date */}
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-45">
-                            <Calendar size={16} className="text-accent-secondary" />
-                            Creation Date
-                          </div>
-
-                          <div ref={triggerRef} className="text-sm text-right w-62.5">
-                            {isEditing || editField === 'creationDate' ? (
-                              <FormField
-                                control={form.control}
-                                name="creationDate"
-                                render={({ field }) => (
-                                  <FormItem ref={popoverRef} className="w-62.5">
-                                    <CalendarPopover
-                                      field={field}
-                                      defaultToday
-                                      required
-                                      onChange={(date) => {
-                                        field.onChange(date)
-                                        handleUpdateField()
-                                      }}
-                                    />
-                                    {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
-                                  </FormItem>
-                                )}
-                              />
-                            ) : (
-                              <HoverPencilWrapper
-                                showPencil={editAllowed}
-                                pencilClass="!-right-5"
-                                className={`text-sm text-right w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                                onPencilClick={() => handleDoubleClick('creationDate')}
-                              >
-                                <p onDoubleClick={() => handleDoubleClick('creationDate')}>{formatDate(evidence?.creationDate) || <span className="text-gray-500">no date provided</span>}</p>
-                              </HoverPencilWrapper>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Renewal Date */}
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-45">
-                            <Calendar size={16} className="text-accent-secondary" />
-                            Renewal Date
-                          </div>
-
-                          <div ref={triggerRef} className="text-sm text-right w-62.5">
-                            {isEditing || editField === 'renewalDate' ? (
-                              <FormField
-                                control={form.control}
-                                name="renewalDate"
-                                render={({ field }) => (
-                                  <FormItem ref={popoverRef} className="w-62.5">
-                                    <CalendarPopover
-                                      field={field}
-                                      defaultAddDays={365}
-                                      onChange={(date) => {
-                                        field.onChange(date)
-                                        handleUpdateField()
-                                      }}
-                                    />
-                                    {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
-                                  </FormItem>
-                                )}
-                              />
-                            ) : (
-                              <HoverPencilWrapper
-                                showPencil={editAllowed}
-                                pencilClass="!-right-5"
-                                className={`text-sm text-right w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                                onPencilClick={() => handleDoubleClick('renewalDate')}
-                              >
-                                <p onDoubleClick={() => handleDoubleClick('renewalDate')}>{formatDate(evidence?.renewalDate) || <span className="text-gray-500">no date provided</span>}</p>
-                              </HoverPencilWrapper>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Renewal Frequency */}
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-45">
-                            <RefreshCw size={16} className="text-accent-secondary" />
-                            Renewal Frequency
-                          </div>
-                          <div ref={triggerRef} className="text-sm text-right w-62.5">
-                            {isEditing || editField === 'reviewFrequency' ? (
-                              <Controller
-                                name="reviewFrequency"
-                                control={form.control}
-                                render={({ field }) => (
-                                  <>
-                                    <Select
-                                      value={field.value ?? undefined}
-                                      onValueChange={(value) => {
-                                        field.onChange(value as EvidenceFrequency)
-                                        handleUpdateField()
-                                      }}
-                                    >
-                                      <SelectTrigger className="w-62.5">{getEnumLabel(field.value as EvidenceFrequency) || 'Select'}</SelectTrigger>
-                                      <SelectContent ref={popoverRef}>
-                                        {Object.values(EvidenceFrequency).map((frequency) => (
-                                          <SelectItem key={frequency} value={frequency}>
-                                            {getEnumLabel(frequency)}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                    {form.formState.errors.reviewFrequency && <p className="text-red-500 text-sm">{form.formState.errors.reviewFrequency.message}</p>}
-                                  </>
-                                )}
-                              />
-                            ) : (
-                              <HoverPencilWrapper
-                                pencilClass="!-right-5"
-                                showPencil={editAllowed}
-                                className={`space-x-2 w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                                onPencilClick={() => editAllowed && handleDoubleClick('reviewFrequency')}
-                              >
-                                <div className="flex justify-end items-center gap-2" onDoubleClick={() => editAllowed && handleDoubleClick('reviewFrequency')}>
-                                  <p>{evidence?.reviewFrequency ? getEnumLabel(evidence.reviewFrequency) : <span className="text-gray-500">no frequency set</span>}</p>
-                                </div>
-                              </HoverPencilWrapper>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Scope */}
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-45">
-                            <Radio size={16} className="text-accent-secondary" />
-                            Scope
-                          </div>
-                          <div className="text-sm text-right w-62.5">
-                            {isEditing || editField === 'scopeName' ? (
-                              <Controller
-                                name="scopeName"
-                                control={form.control}
-                                render={({ field }) => (
-                                  <CreatableCustomTypeEnumSelect
-                                    value={field.value ?? undefined}
-                                    options={scopeOptions}
-                                    onCreateOption={createScope}
-                                    placeholder="Select scope"
-                                    searchPlaceholder="Search scope..."
-                                    triggerClassName="w-[250px]"
-                                    onValueChange={async (val) => {
-                                      field.onChange(val)
-                                      await handleUpdateField()
-                                    }}
-                                  />
-                                )}
-                              />
-                            ) : (
-                              <HoverPencilWrapper
-                                pencilClass="!-right-5"
-                                showPencil={editAllowed}
-                                className={`w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                                onPencilClick={() => editAllowed && handleDoubleClick('scopeName')}
-                              >
-                                <div className="flex justify-end items-center" onDoubleClick={() => editAllowed && handleDoubleClick('scopeName')}>
-                                  {evidence?.scopeName ? <CustomTypeEnumValue value={evidence.scopeName} options={scopeOptions} /> : <span className="text-gray-500">no scope provided</span>}
-                                </div>
-                              </HoverPencilWrapper>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Environment */}
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-45">
-                            <Maximize2 size={16} className="text-accent-secondary" />
-                            Environment
-                          </div>
-                          <div className="text-sm text-right w-62.5">
-                            {isEditing || editField === 'environmentName' ? (
-                              <Controller
-                                name="environmentName"
-                                control={form.control}
-                                render={({ field }) => (
-                                  <CreatableCustomTypeEnumSelect
-                                    value={field.value ?? undefined}
-                                    options={environmentOptions}
-                                    onCreateOption={createEnvironment}
-                                    placeholder="Select environment"
-                                    searchPlaceholder="Search environment..."
-                                    triggerClassName="w-[250px]"
-                                    onValueChange={async (val) => {
-                                      field.onChange(val)
-                                      await handleUpdateField()
-                                    }}
-                                  />
-                                )}
-                              />
-                            ) : (
-                              <HoverPencilWrapper
-                                pencilClass="!-right-5"
-                                showPencil={editAllowed}
-                                className={`w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                                onPencilClick={() => editAllowed && handleDoubleClick('environmentName')}
-                              >
-                                <div className="flex justify-end items-center" onDoubleClick={() => editAllowed && handleDoubleClick('environmentName')}>
-                                  {evidence?.environmentName ? (
-                                    <CustomTypeEnumValue value={evidence.environmentName} options={environmentOptions} />
-                                  ) : (
-                                    <span className="text-gray-500">no environment provided</span>
-                                  )}
-                                </div>
-                              </HoverPencilWrapper>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* External ID */}
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-45">
-                            <Fingerprint size={16} className="text-accent-secondary" />
-                            External ID
-                          </div>
-
-                          <div className="text-sm text-right w-62.5">
-                            {isEditing || editField === 'externalUUID' ? (
-                              <InputRow className="w-full">
-                                <FormField
-                                  control={form.control}
-                                  name="externalUUID"
-                                  render={({ field }) => (
-                                    <FormItem className="w-full">
-                                      <FormControl>
-                                        <Input variant="medium" {...field} value={field.value ?? ''} className="w-62.5" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
-                                      </FormControl>
-                                      {form.formState.errors.externalUUID && <p className="text-red-500 text-sm">{form.formState.errors.externalUUID.message}</p>}
-                                    </FormItem>
-                                  )}
-                                />
-                              </InputRow>
-                            ) : (
-                              <HoverPencilWrapper
-                                showPencil={editAllowed}
-                                pencilClass="!-right-5"
-                                className={`text-sm text-right w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                                onPencilClick={() => handleDoubleClick('externalUUID')}
-                              >
-                                <p onDoubleClick={() => handleDoubleClick('externalUUID')}>{evidence?.externalUUID || <span className="text-gray-500">no external id provided</span>}</p>
-                              </HoverPencilWrapper>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Tags */}
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-2 text-sm w-45">
-                            <Tag size={16} className="text-accent-secondary" />
-                            Tags
-                          </div>
-                          <div ref={triggerRef} className="text-sm text-right w-62.5">
-                            {isEditing || editField === 'tags' ? (
-                              <Controller
-                                name="tags"
-                                control={form.control}
-                                render={({ field }) => (
-                                  <>
-                                    <MultipleSelector
-                                      placeholder="Add tag..."
-                                      creatable
-                                      className="w-62.5"
-                                      commandProps={{ className: 'w-full' }}
-                                      value={tagValues}
-                                      hideClearAllButton
-                                      options={tagOptions}
-                                      onChange={(selectedOptions) => {
-                                        const options = selectedOptions.map((option) => option.value)
-                                        field.onChange(options)
-                                      }}
-                                    />
-                                    {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
-                                  </>
-                                )}
-                              />
-                            ) : (
-                              <HoverPencilWrapper
-                                pencilClass="!-right-5"
-                                showPencil={editAllowed}
-                                className={`w-62.5  ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                                onPencilClick={() => editAllowed && handleDoubleClick('tags')}
-                              >
-                                <div className="" onDoubleClick={() => editAllowed && handleDoubleClick('tags')}>
-                                  {handleTags()}
-                                </div>
-                              </HoverPencilWrapper>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {!isEditing && (
-                    <div className="flex flex-col gap-6 mt-6 mb-8">
-                      <Card className={wrapper()}>
-                        <CardContent className={content()}>
-                          <div className="space-y-4">
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2 text-sm w-45">
-                                <CalendarCheck2 size={16} className="text-accent-secondary" />
-                                Created At
-                              </div>
-                              <div className="text-sm cursor-not-allowed">
-                                <p className="text-sm text-right">{formatDate(evidence?.createdAt)}</p>
-                              </div>
-                            </div>
-
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2 text-sm w-45">
-                                <UserRoundCheck size={16} className="text-accent-secondary" />
-                                Created By
-                              </div>
-                              <div className="text-sm cursor-not-allowed">
-                                <AuthorCell id={evidence?.createdBy} userMap={userMap} tokenMap={tokenMap} className="text-sm justify-end flex items-center gap-2" />
-                              </div>
-                            </div>
-
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2 text-sm w-45">
-                                <CalendarClock size={16} className="text-accent-secondary" />
-                                Updated At
-                              </div>
-                              <div className="text-sm cursor-not-allowed">
-                                <p className="text-sm text-right">{formatDate(evidence?.updatedAt)}</p>
-                              </div>
-                            </div>
-
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2 text-sm w-45">
-                                <UserRoundPen size={16} className="text-accent-secondary" />
-                                Updated By
-                              </div>
-                              <div className="text-sm cursor-not-allowed">
-                                <AuthorCell id={evidence?.updatedBy} userMap={userMap} tokenMap={tokenMap} className="text-sm justify-end flex items-center gap-2" />
-                              </div>
-                            </div>
-                            {evidence?.url && (
-                              <div className="flex justify-between items-center">
-                                <div className="flex items-center gap-2 text-sm w-45">
-                                  <Link size={16} className="text-accent-secondary" />
-                                  URL
-                                </div>
-                                <div className="text-sm text-left w-50 cursor-not-allowed">
-                                  <div className="flex items-center gap-4 cursor-pointer">
-                                    <p className="flex items-center gap-1">
-                                      <Eye size={16} />
-                                      View
-                                    </p>
-                                    <p className="flex items-center gap-1" onClick={() => fileDownload(evidence.url ?? '', 'customFileName', errorNotification)}>
-                                      <Download size={16} />
-                                      Download
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                      <EvidenceCommentsCard />
-                      {hasAssociatedObjects && (
-                        <Card>
-                          <CardContent className="flex flex-col gap-3 p-5">
-                            <h3 className="text-sm font-medium">Associated Objects</h3>
-                            <AssociatedObjectsAccordion sections={associatedObjectSections} toggleAll={false} />
-                          </CardContent>
-                        </Card>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </form>
-              {isEditing && (
-                <div ref={objectAssociationRef} className="pr-4">
-                  <Panel className="mt-5">
-                    <Accordion type="single" collapsible defaultValue="ControlsAccordion" className="w-full">
-                      <AccordionItem value="ControlsAccordion">
-                        <div className="flex items-center justify-between w-full">
-                          <AccordionTrigger asChild>
-                            <div className="flex items-center gap-2 cursor-pointer group">
-                              <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
-                              <span className="text-sm font-medium">Linked Control(s)</span>
-                              <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-6.5 w-6.5">
-                                {(form.getValues('subcontrolIDs')?.length || 0) + (form.getValues('controlIDs')?.length || 0)}
-                              </span>
-                            </div>
-                          </AccordionTrigger>
-                          <Button
-                            variant="secondary"
-                            className="py-5"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setOpenControlsDialog(true)
-                            }}
-                            icon={<Plus />}
-                            iconPosition="left"
-                          >
-                            Add Controls
-                          </Button>
-                        </div>
-
-                        <AccordionContent>
-                          <div className="mt-5 flex flex-col gap-5">
-                            <ObjectAssociationControlsChips
-                              form={form}
-                              suggestedControlsMap={suggestedControlsMap}
-                              isLoadingSuggestions={isSuggestionsLoading}
-                              evidenceControls={evidenceControls}
-                              setEvidenceControls={setEvidenceControls}
-                              evidenceSubcontrols={evidenceSubcontrols}
-                              setEvidenceSubcontrols={setEvidenceSubcontrols}
-                            />
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                    <ControlSelectionDialog
-                      open={openControlsDialog}
-                      onClose={() => setOpenControlsDialog(false)}
-                      form={form}
-                      evidenceControls={evidenceControls}
-                      setEvidenceControls={setEvidenceControls}
-                      evidenceSubcontrols={evidenceSubcontrols}
-                      setEvidenceSubcontrols={setEvidenceSubcontrols}
-                    />
-                  </Panel>
-                  <Panel className="mt-5">
-                    <Accordion type="single" collapsible value={programsAccordionValue} className="w-full">
-                      <AccordionItem value="ProgramsAccordion">
-                        <div className="flex items-center justify-between w-full">
-                          <AccordionTrigger asChild>
-                            <div className="flex items-center gap-2 cursor-pointer group">
-                              <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
-                              <span className="text-sm font-medium">Linked Program(s)</span>
-                              <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-6.5 w-6.5">
-                                {form.getValues('programIDs')?.length || 0}
-                              </span>
-                            </div>
-                          </AccordionTrigger>
-
-                          <Button
-                            variant="secondary"
-                            className="py-5"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setOpenProgramsDialog(true)
-                            }}
-                            type="button"
-                            icon={<Plus />}
-                            iconPosition="left"
-                          >
-                            Add Programs
-                          </Button>
-                        </div>
-
-                        <AccordionContent>
-                          <div className="mt-5 flex flex-col gap-5">
-                            <ObjectAssociationProgramsChips form={form} refMap={associationProgramsRefMap} setRefMap={setAssociationProgramsRefMap} />
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-
-                    <ProgramSelectionDialog
-                      form={form}
-                      open={openProgramsDialog}
-                      onClose={() => setOpenProgramsDialog(false)}
-                      initialRefCodes={associationProgramsRefMap}
-                      onSave={handleSavePrograms}
-                    />
-                  </Panel>
-                  <Panel className="mt-5">
-                    <PanelHeader heading="Associate more objects" noBorder />
-                    <p>Associating objects will allow users with access to the object to see the created evidence.</p>
-                    <ObjectAssociation
-                      initialData={initialAssociations}
-                      onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                      allowedObjectTypes={[ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.SCAN, ObjectTypeObjects.TASK]}
-                    />
-                  </Panel>
-                </div>
-              )}
               {config.id && (
-                <div className="pr-4">
+                <EvidenceDetailSection title="Supporting files">
                   <EvidenceFiles editAllowed={editAllowed} evidenceID={config.id} />
-                </div>
+                </EvidenceDetailSection>
               )}
-            </Form>
-          </>
+
+              <div ref={objectAssociationRef}>
+                <EvidenceRelationshipsSection
+                  form={form}
+                  isEditing={isEditing}
+                  evidenceControls={evidenceControls}
+                  setEvidenceControls={setEvidenceControls}
+                  evidenceSubcontrols={evidenceSubcontrols}
+                  setEvidenceSubcontrols={setEvidenceSubcontrols}
+                  suggestedControlsMap={suggestedControlsMap}
+                  isLoadingSuggestions={isSuggestionsLoading}
+                  associationProgramsRefMap={associationProgramsRefMap}
+                  setAssociationProgramsRefMap={setAssociationProgramsRefMap}
+                  initialAssociations={initialAssociations}
+                  onAssociationsChange={setAssociations}
+                  associatedObjectSections={associatedObjectSections}
+                  programNames={controlsAndPrograms.programDisplayIDs}
+                />
+              </div>
+
+              {evidence && (
+                <EvidenceMetadataSection
+                  form={form}
+                  evidence={evidence}
+                  isEditing={isEditing}
+                  editField={editField}
+                  editAllowed={editAllowed}
+                  onEdit={handleDoubleClick}
+                  onUpdateField={handleUpdateField}
+                  onKeyDown={handleKeyDown}
+                  triggerRef={triggerRef}
+                  popoverRef={popoverRef}
+                />
+              )}
+
+              {!isEditing && <EvidenceCommentsCard />}
+            </form>
+          </Form>
         )}
+        <ConfirmationDialog
+          open={deleteDialogIsOpen}
+          onOpenChange={setDeleteDialogIsOpen}
+          onConfirm={handleDelete}
+          title={`Delete Evidence`}
+          description={
+            <>
+              This action cannot be undone. This will permanently remove <b>{evidenceName} </b>from the control.
+            </>
+          }
+        />
+        <EvidenceRequestChangesDialog
+          open={requestChangesOpen}
+          onOpenChange={setRequestChangesOpen}
+          onConfirm={handleRequestChanges}
+          loading={auditorActionPending}
+          evidenceName={evidenceName ?? undefined}
+        />
         <CancelDialog
           isOpen={isDiscardDialogOpen}
           onConfirm={() => {
             setIsDiscardDialogOpen(false)
             handleCloseParams()
-            form.reset({
-              name: evidence?.name ?? '',
-              description: evidence?.description ?? '',
-              renewalDate: evidence?.renewalDate ? new Date(evidence.renewalDate) : null,
-              creationDate: evidence?.creationDate ? new Date(evidence.creationDate) : null,
-              status: evidence?.status ?? undefined,
-              reviewFrequency: evidence?.reviewFrequency ?? undefined,
-              tags: evidence?.tags ?? [],
-              collectionProcedure: evidence?.collectionProcedure ?? '',
-              source: evidence?.source ?? '',
-              url: evidence?.url ?? '',
-              controlIDs: initialAssociations.controlIDs ?? [],
-              subcontrolIDs: initialAssociations.subcontrolIDs ?? [],
-              programIDs: initialAssociations.programIDs ?? [],
-            })
+            form.reset(evidenceToFormValues(evidence, initialAssociations))
 
-            setEvidenceControls(initialAssociationsControlsAndPrograms.controls ?? [])
-            setEvidenceSubcontrols(initialAssociationsControlsAndPrograms.subcontrols ?? [])
-            setAssociationProgramsRefMap(initialAssociationsControlsAndPrograms.programDisplayIDs ?? [])
+            setEvidenceControls(controlsAndPrograms.controls)
+            setEvidenceSubcontrols(controlsAndPrograms.subcontrols)
+            setAssociationProgramsRefMap(controlsAndPrograms.programDisplayIDs)
           }}
           onCancel={() => setIsDiscardDialogOpen(false)}
         />

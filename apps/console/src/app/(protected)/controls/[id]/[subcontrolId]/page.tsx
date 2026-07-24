@@ -35,7 +35,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
-import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
+import { ASSOCIATION_REMOVAL_CONFIG, SUBCONTROL_ASSOCIATION_SECTIONS, buildAssociationSections } from '@/components/shared/object-association/object-association-config'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 import Loading from './loading.tsx'
@@ -121,13 +121,7 @@ const ControlDetailsPage: React.FC = () => {
   const memoizedSections = useMemo(() => {
     if (!data?.subcontrol) return {}
     return {
-      policies: associationsData?.subcontrol.internalPolicies,
-      procedures: associationsData?.subcontrol.procedures,
-      tasks: associationsData?.subcontrol.tasks,
-      risks: associationsData?.subcontrol.risks,
-      assets: associationsData?.subcontrol.assets,
-      entities: associationsData?.subcontrol.entities,
-      identityHolders: associationsData?.subcontrol.identityHolders,
+      ...buildAssociationSections(SUBCONTROL_ASSOCIATION_SECTIONS, associationsData?.subcontrol),
       controls: data?.subcontrol.control,
     }
   }, [associationsData, data])
@@ -379,6 +373,7 @@ const ControlDetailsPage: React.FC = () => {
         isEditAllowed={!isSourceFramework && canEdit(permission?.roles, sessionData)}
         discussionData={discussionData?.subcontrol}
         systemCreated={!initialValues.descriptionJSON && !!initialValues.description}
+        source={subcontrol.source ?? undefined}
       />
 
       <div className="grid gap-4 sm:grid-cols-[160px_1fr]">

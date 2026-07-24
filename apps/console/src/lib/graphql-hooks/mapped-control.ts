@@ -13,7 +13,8 @@ import {
   EvidenceEvidenceStatus,
   MappedControlMappingSource,
 } from '@repo/codegen/src/schema'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useInfiniteQuery, type InfiniteData } from '@tanstack/react-query'
+import { useEffect, useMemo } from 'react'
 import { CREATE_MAPPED_CONTROL, DELETE_MAPPED_CONTROL, GET_MAPPED_CONTROL_BY_ID, GET_ALL_MAPPED_CONTROLS, UPDATE_MAPPED_CONTROL } from '@repo/codegen/query/mapped-control'
 
 type BuildLinkedControlsWhereArgs = {
@@ -71,6 +72,63 @@ export const useGetMappedControls = ({ where, enabled = true }: { where: GetAllM
     queryFn: () => client.request(GET_ALL_MAPPED_CONTROLS, { where }),
     enabled,
   })
+}
+
+type FetchAllMappedControlsOptions = {
+  where?: MappedControlWhereInput
+  enabled?: boolean
+  pageSize?: number
+  maxPages?: number
+}
+
+export const useFetchAllMappedControls = ({ where, enabled = true, pageSize, maxPages }: FetchAllMappedControlsOptions) => {
+  const { client } = useGraphQLClient()
+
+  return useInfiniteQuery<
+    GetAllMappedControlsQuery['mappedControls'],
+    Error,
+    InfiniteData<GetAllMappedControlsQuery['mappedControls']>,
+    ['mappedControls', 'infinite', MappedControlWhereInput | undefined, number | undefined]
+  >({
+    queryKey: ['mappedControls', 'infinite', where, pageSize],
+    queryFn: async ({ pageParam }) => {
+      const { mappedControls } = await client.request<GetAllMappedControlsQuery, GetAllMappedControlsQueryVariables>(GET_ALL_MAPPED_CONTROLS, {
+        where,
+        first: pageSize,
+        after: pageParam,
+      })
+      return mappedControls
+    },
+    initialPageParam: undefined,
+    getNextPageParam: (last, allPages) => {
+      if (maxPages !== undefined && allPages.length >= maxPages) return undefined
+      return last.pageInfo.hasNextPage ? last.pageInfo.endCursor : undefined
+    },
+    enabled,
+  })
+}
+
+export const useGetAllMappedControlsGrouped = ({ where, enabled = true, pageSize, maxPages }: FetchAllMappedControlsOptions) => {
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isError, error } = useFetchAllMappedControls({ where, enabled, pageSize, maxPages })
+
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const mappedControlEdges = useMemo(() => data?.pages.flatMap((page) => page.edges ?? []) ?? [], [data?.pages])
+
+  const pagesLoaded = data?.pages.length ?? 0
+  const isTruncated = maxPages !== undefined && pagesLoaded >= maxPages && (data?.pages[pagesLoaded - 1]?.pageInfo.hasNextPage ?? false)
+
+  return {
+    mappedControlEdges,
+    isLoading: isLoading || isFetchingNextPage || hasNextPage,
+    isError,
+    error,
+    isTruncated,
+  }
 }
 
 export const useGetMappedControlById = ({ mappedControlId, enabled }: { mappedControlId?: string; enabled: boolean }) => {

@@ -14,7 +14,8 @@ import { isUlid } from '@/lib/validators'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
-import useFileExport from '@/components/shared/export/use-file-export.ts'
+import useFileExport, { type TExportMetadata } from '@/components/shared/export/use-file-export.ts'
+import usePdfExportDialog from '@/components/shared/export/use-pdf-export-dialog.tsx'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
@@ -129,8 +130,10 @@ export const PoliciesTable = () => {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 
-  const handleExportFile = async (format: ExportExportFormat = ExportExportFormat.CSV) => {
-    if (!policies || policies.length === 0) {
+  const hasExportablePolicies = !!policies && policies.length > 0
+
+  const exportPolicies = (format: ExportExportFormat, exportMetadata?: TExportMetadata) => {
+    if (!hasExportablePolicies) {
       return
     }
 
@@ -139,7 +142,25 @@ export const PoliciesTable = () => {
       filters: JSON.stringify(where),
       fields: format === ExportExportFormat.PDF ? null : columns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
       format,
+      exportMetadata,
     })
+  }
+
+  const { openPdfExportDialog, pdfExportDialog } = usePdfExportDialog({
+    onExport: (exportMetadata) => exportPolicies(ExportExportFormat.PDF, exportMetadata),
+  })
+
+  const handleExportFile = (format: ExportExportFormat = ExportExportFormat.CSV) => {
+    if (!hasExportablePolicies) {
+      return
+    }
+
+    if (format === ExportExportFormat.PDF) {
+      openPdfExportDialog()
+      return
+    }
+
+    exportPolicies(format)
   }
 
   useEffect(() => {
@@ -186,13 +207,15 @@ export const PoliciesTable = () => {
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
-        exportEnabled={policies && policies.length > 0}
+        exportEnabled={hasExportablePolicies}
         handleClearSelectedPolicies={handleClearSelectedPolicies}
         selectedPolicies={selectedPolicies}
         setSelectedPolicies={setSelectedPolicies}
         canEdit={canEdit}
         permission={permission}
       />
+
+      {pdfExportDialog}
 
       <DataTable
         sortFields={INTERNAL_POLICIES_SORT_FIELDS}

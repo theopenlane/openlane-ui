@@ -41,6 +41,7 @@ const VulnerabilityPage: React.FC = () => {
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
+  const scanId = searchParams.get('scanId')
 
   const { data, isLoading } = useVulnerability(id || undefined)
   const { data: associationsData } = useGetVulnerabilityAssociations(id || undefined)
@@ -176,6 +177,7 @@ const VulnerabilityPage: React.FC = () => {
     defaultSorting,
     defaultVisibility: visibilityFields,
     filterFields: getFilterFields(enumOpts),
+    additionalWhereFilter: scanId ? { hasScansWith: [{ id: scanId }] } : undefined,
     quickFilters,
     searchFields: ['displayNameContainsFold', 'descriptionContainsFold', 'cveIDContainsFold', 'externalIDContainsFold'],
     breadcrumbs,

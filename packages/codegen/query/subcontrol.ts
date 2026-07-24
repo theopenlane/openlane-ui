@@ -228,6 +228,26 @@ export const GET_SUBCONTROL_ASSOCIATIONS_BY_ID = gql`
         }
         totalCount
       }
+      vulnerabilities {
+        edges {
+          node {
+            id
+            displayName
+            displayID
+          }
+        }
+        totalCount
+      }
+      findings {
+        edges {
+          node {
+            id
+            displayName
+            displayID
+          }
+        }
+        totalCount
+      }
     }
   }
 `

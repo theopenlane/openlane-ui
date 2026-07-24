@@ -23,6 +23,7 @@ const FindingPage: React.FC = () => {
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
+  const scanId = searchParams.get('scanId')
 
   const { enumOpts, form, ...sheetConfig } = useFindingSheetConfig(null, isCreate)
 
@@ -53,6 +54,7 @@ const FindingPage: React.FC = () => {
     defaultSorting,
     defaultVisibility: visibilityFields,
     filterFields: getFilterFields(enumOpts),
+    additionalWhereFilter: scanId ? { hasScansWith: [{ id: scanId }] } : undefined,
     quickFilters,
     searchFields: ['displayNameContainsFold', 'descriptionContainsFold', 'externalIDContainsFold', 'categoryContainsFold'],
     breadcrumbs,

@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { type EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
@@ -9,6 +9,7 @@ import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { type Value } from 'platejs'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
+import usePdfExportDialog from '@/components/shared/export/use-pdf-export-dialog.tsx'
 
 type TDetailsFieldProps = {
   isEditing: boolean
@@ -23,14 +24,18 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, d
   const { data: userData } = useGetCurrentUser(userId)
   const { handleExport } = useFileExport()
 
-  const handleExportPdf = () => {
-    handleExport({
-      exportType: ExportExportType.INTERNAL_POLICY,
-      filters: JSON.stringify({ id: policy.id }),
-      fields: null,
-      format: ExportExportFormat.PDF,
-    })
-  }
+  const { openPdfExportDialog, pdfExportDialog } = usePdfExportDialog({
+    onExport: (exportMetadata) =>
+      handleExport({
+        exportType: ExportExportType.INTERNAL_POLICY,
+        filters: JSON.stringify({ id: policy.id }),
+        fields: null,
+        format: ExportExportFormat.PDF,
+        exportMetadata,
+      }),
+  })
+
+  const readonlyEditorKey = useMemo(() => JSON.stringify(policy.detailsJSON ?? policy.details), [policy.detailsJSON, policy.details])
 
   return isEditing ? (
     <div className="w-full relative">
@@ -55,15 +60,16 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, d
   ) : (
     <div className="min-h-5">
       <PlateEditor
-        key={JSON.stringify(policy.detailsJSON ?? policy.details)}
+        key={readonlyEditorKey}
         userData={userData}
         initialValue={policy?.detailsJSON ? (policy?.detailsJSON as Value) : (policy?.details ?? undefined)}
         entity={discussionData}
         readonly={true}
         variant="readonly"
         toolbarClassName="-mt-40"
-        onExportPdf={handleExportPdf}
+        onExportPdf={openPdfExportDialog}
       />
+      {pdfExportDialog}
     </div>
   )
 }

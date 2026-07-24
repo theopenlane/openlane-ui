@@ -22,7 +22,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
-import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
+import { ASSOCIATION_REMOVAL_CONFIG, RISK_ASSOCIATION_SECTIONS, buildAssociationSections } from '@/components/shared/object-association/object-association-config'
 import AssetDetailsSheet from '@/components/pages/protected/controls/tabs/assets-scans/asset-details-sheet'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import RiskDetailHeader from './risk-detail-header'
@@ -208,23 +208,8 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
 
   // depending on the leaf fields instead of associationsData?.risk would satisfy the react-compiler
   // advisory rule but trips exhaustive-deps, which treats the parent as the real dep here
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const memoizedSections = useMemo(() => {
-    if (!associationsData?.risk) return {}
-    return {
-      assets: associationsData.risk.assets,
-      scans: associationsData.risk.scans,
-      controls: associationsData.risk.controls,
-      subcontrols: associationsData.risk.subcontrols,
-      policies: associationsData.risk.internalPolicies,
-      actionPlans: associationsData.risk.actionPlans,
-      reviews: associationsData.risk.reviews,
-      remediations: associationsData.risk.remediations,
-      entities: associationsData.risk.entities,
-      programs: associationsData.risk.programs,
-      procedures: associationsData.risk.procedures,
-      tasks: associationsData.risk.tasks,
-    }
+    return buildAssociationSections(RISK_ASSOCIATION_SECTIONS, associationsData?.risk)
   }, [associationsData?.risk])
 
   const memoizedCenterNode = useMemo(() => {

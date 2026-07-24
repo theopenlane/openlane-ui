@@ -25,7 +25,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
-import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
+import { ASSOCIATION_REMOVAL_CONFIG, CONTROL_ASSOCIATION_SECTIONS, buildAssociationSections } from '@/components/shared/object-association/object-association-config'
 import { useUpdateControlWithFindingLinks } from '@/components/shared/object-association/finding-control-links'
 import Loading from './loading.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
@@ -124,20 +124,8 @@ const ControlDetailsPage: React.FC = () => {
   const memoizedSections = useMemo(() => {
     if (!associationsData?.control || !data) return {}
     return {
-      policies: associationsData.control.internalPolicies,
-      procedures: associationsData.control.procedures,
-      tasks: associationsData.control.tasks,
-      programs: associationsData.control.programs,
-      risks: associationsData.control.risks,
+      ...buildAssociationSections(CONTROL_ASSOCIATION_SECTIONS, associationsData.control),
       subcontrols: data.control.subcontrols,
-      assets: associationsData.control.assets,
-      scans: associationsData.control.scans,
-      entities: associationsData.control.entities,
-      identityHolders: associationsData.control.identityHolders,
-      campaigns: associationsData.control.campaigns,
-      remediations: associationsData.control.remediations,
-      reviews: associationsData.control.reviews,
-      findings: associationsData.control.findings,
     }
   }, [associationsData?.control, data])
 
@@ -388,6 +376,7 @@ const ControlDetailsPage: React.FC = () => {
         isEditAllowed={!isSourceFramework && canEdit(permission?.roles, sessionData)}
         discussionData={discussionData?.control}
         systemCreated={!initialValues.descriptionJSON && !!initialValues.description}
+        source={control.source ?? undefined}
       />
 
       <div className="grid gap-4 sm:grid-cols-[160px_160px_1fr]">

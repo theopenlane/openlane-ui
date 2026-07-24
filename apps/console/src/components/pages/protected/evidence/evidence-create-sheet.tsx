@@ -1,23 +1,17 @@
 'use client'
-import { Grid, GridCell, GridRow } from '@repo/ui/grid'
 import React, { useCallback, useEffect, useState } from 'react'
-import { ChevronDown, InfoIcon, Plus, X } from 'lucide-react'
+import { InfoIcon, X } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { type CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import MultipleSelector from '@repo/ui/multiple-selector'
 import { Button } from '@repo/ui/button'
-import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { type CreateEvidenceInput } from '@repo/codegen/src/schema'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
 import { useNotification } from '@/hooks/useNotification'
-import { type Option } from '@repo/ui/multiple-selector'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
 import { type TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
-import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { Panel } from '@repo/ui/panel'
@@ -26,23 +20,22 @@ import { type TUploadedFile } from './upload/types/TUploadedFile'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
-import { ProgramSelectionDialog } from '@/components/shared/object-association/object-association-programs-dialog'
-import { ControlSelectionDialog } from '@/components/shared/object-association/object-association-control-dialog'
-import ObjectAssociationProgramsChips from '@/components/shared/object-association/object-association-programs-chips'
-import ObjectAssociationControlsChips from '@/components/shared/object-association/object-association-controls-chips'
 import { type CustomEvidenceControl, EVIDENCE_ASSOCIATION_FIELDS } from './evidence-sheet-config'
 import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-controls'
 import Link from 'next/link'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
-import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { EvidenceEvidenceStatus, EvidenceFrequency } from '@repo/codegen/src/schema'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
+import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { useIsAuditor } from '@/lib/graphql-hooks/member'
+import EvidenceLinkedControlsPanel from './panels/evidence-linked-controls-panel'
+import EvidenceAdditionalDetails from './create/evidence-additional-details'
+import { EVIDENCE_AUDITOR_REQUEST_MODE, EVIDENCE_CREATE_MODE } from './create/evidence-create-mode'
+
+const statusOptions = enumToOptions(EvidenceEvidenceStatus)
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -65,37 +58,35 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 }: TEvidenceCreateSheetProps) => {
   const { form } = useFormSchema()
   const { isAuditor } = useIsAuditor()
+  const mode = isAuditor ? EVIDENCE_AUDITOR_REQUEST_MODE : EVIDENCE_CREATE_MODE
   const { successNotification, errorNotification } = useNotification()
-  const [tagValues, setTagValues] = useState<Option[]>([])
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
   const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
   const queryClient = useQueryClient()
-  const [openControlsDialog, setOpenControlsDialog] = useState(false)
   const router = useRouter()
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
 
-  const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const { tagOptions } = useGetTags()
 
   const { convertToHtml } = usePlateEditor()
 
   useEffect(() => {
-    if (open && isAuditor && !form.getValues('status')) {
-      form.setValue('status', EvidenceEvidenceStatus.REQUESTED)
+    if (open && mode.defaultStatus && !form.getValues('status')) {
+      form.setValue('status', mode.defaultStatus)
     }
-  }, [open, isAuditor, form])
+  }, [open, mode.defaultStatus, form])
 
-  const onSubmitHandler = async (data: CreateEvidenceFormData) => {
+  const buildInput = async (data: CreateEvidenceFormData, status?: EvidenceEvidenceStatus): Promise<CreateEvidenceInput> => {
     const collectionProcedure = data.collectionProcedure && typeof data.collectionProcedure !== 'string' ? await convertToHtml(data.collectionProcedure) : data.collectionProcedure
 
-    const input: CreateEvidenceInput = {
+    return {
       name: data.name,
       description: data.description,
       tags: data.tags,
@@ -110,9 +101,13 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       subcontrolIDs: data.subcontrolIDs,
       programIDs: programId ? [programId] : (data.programIDs ?? []),
       ...(data.url ? { url: data.url } : {}),
-      ...(data.status ? { status: data.status } : {}),
+      ...(status ? { status } : {}),
       ...(data.reviewFrequency ? { reviewFrequency: data.reviewFrequency } : {}),
     }
+  }
+
+  const submitEvidence = async (data: CreateEvidenceFormData, status?: EvidenceEvidenceStatus) => {
+    const input = await buildInput(data, status)
 
     const payload = {
       input,
@@ -166,6 +161,21 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       })
     }
   }
+
+  const handleSaveAsDraft = form.handleSubmit((data) => {
+    form.clearErrors('controlIDs')
+    return submitEvidence(data, EvidenceEvidenceStatus.DRAFT)
+  })
+
+  const handleSubmit = form.handleSubmit((data) => {
+    form.clearErrors('controlIDs')
+    if (mode.requireLinkedControls && (data.controlIDs?.length ?? 0) + (data.subcontrolIDs?.length ?? 0) === 0) {
+      form.setError('controlIDs', { type: 'manual', message: 'Link at least one control before submitting for review.' })
+      return
+    }
+    return submitEvidence(data, mode.showStatusField ? (data.status ?? undefined) : undefined)
+  })
+
   // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleInitialValue = useCallback(() => {
     if (formData) {
@@ -195,13 +205,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
       if (formData?.tags) {
         form.setValue('tags', formData.tags)
-        const tags = formData.tags.map((item) => {
-          return {
-            value: item,
-            label: item,
-          }
-        })
-        setTagValues(tags)
       }
       if (formData && formData.objectAssociations) {
         form.setValue('controlIDs', formData.objectAssociations.controlIDs ? formData.objectAssociations.controlIDs : [])
@@ -236,10 +239,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
     setIsDiscardDialogOpen(true)
   }
 
-  const programIDs = form.watch('programIDs')
-
-  const programsAccordionValue = (programIDs?.length || 0) > 0 ? 'ProgramsAccordion' : undefined
-
   const handleEvidenceObjectIdsChange = useCallback((updatedMap: TObjectAssociationMap) => {
     setEvidenceObjectTypes(updatedMap)
   }, [])
@@ -253,12 +252,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
   const handleResetEvidenceFiles = () => {
     setResetEvidenceFiles(false)
-  }
-
-  const handleSavePrograms = (newIds: string[], newRefCodes: string[]) => {
-    setAssociationProgramsRefMap(newRefCodes || [])
-
-    form.setValue('programIDs', newIds)
   }
 
   return (
@@ -282,420 +275,138 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
           </SheetHeader>
         }
       >
-        <Grid>
-          {/* Form Section */}
-          <GridRow columns={1}>
-            <GridCell>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmitHandler)} className="flex flex-col gap-4">
-                  {/* Name Field */}
-                  <InputRow className="w-full">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <div className="flex items-center">
-                            <FormLabel>Evidence name</FormLabel>
-                            <SystemTooltip
-                              icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-                              content={<p>Provide a name for the evidence, generally should include the related Control or Task.</p>}
-                            />
-                          </div>
-                          <FormControl>
-                            <Input variant="medium" {...field} className="w-full" />
-                          </FormControl>
-                          {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
-                        </FormItem>
-                      )}
-                    />
-                  </InputRow>
-
-                  {/* Description Field */}
-                  <InputRow className="w-full">
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <div className="flex items-center">
-                            <FormLabel>Description</FormLabel>
-                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a short description of what is contained in the files or linked URLs.</p>} />
-                          </div>
-                          <FormControl>
-                            <Textarea id="description" {...field} className="w-full" />
-                          </FormControl>
-                          {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
-                        </FormItem>
-                      )}
-                    />
-                  </InputRow>
-
-                  {/* Collection Procedure */}
-                  {!isAuditor && (
-                    <InputRow className="w-full">
-                      <FormField
-                        control={form.control}
-                        name="collectionProcedure"
-                        render={({ field }) => (
-                          <FormItem className="w-full">
-                            <div className="flex items-center">
-                              <FormLabel>Collection Procedure</FormLabel>
-                              <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
-                            </div>
-                            <FormControl>
-                              <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
-                            </FormControl>
-                            {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
-                          </FormItem>
-                        )}
-                      />
-                    </InputRow>
-                  )}
-
-                  {/* Source Field */}
-                  <InputRow className="w-full">
-                    <FormField
-                      control={form.control}
-                      name="source"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <div className="flex items-center">
-                            <FormLabel>Source</FormLabel>
-                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>System the evidence was pulled from.</p>} />
-                          </div>
-                          <FormControl>
-                            <Input variant="medium" {...field} className="w-full" />
-                          </FormControl>
-                          {form.formState.errors.source && <p className="text-red-500 text-sm">{form.formState.errors.source.message}</p>}
-                        </FormItem>
-                      )}
-                    />
-                  </InputRow>
-
-                  {/* Status Field */}
-                  <InputRow className="w-full">
-                    <FormField
-                      control={form.control}
-                      name="status"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <div className="flex items-center">
-                            <FormLabel>Status</FormLabel>
-                            <TooltipProvider delayDuration={300}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <InfoIcon size={14} className="mx-1 mt-1 cursor-pointer" />
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="max-w-xs space-y-2 text-sm">
-                                  <p>
-                                    By default, evidence will be set to <strong>Submitted</strong> status unless there are no files attached which will set it to <strong>Missing Artifact</strong>.
-                                  </p>
-                                  <p>You can optionally set the status yourself, common statuses are:</p>
-                                  <ul className="list-disc pl-4 space-y-1">
-                                    <li>
-                                      <strong>Draft</strong>: This is started, but not quite ready for review
-                                    </li>
-                                    <li>
-                                      <strong>In Review</strong>: In an internal review before ready for the auditor to take a look
-                                    </li>
-                                    <li>
-                                      <strong>Ready For Auditor</strong>: Ready for auditor to look at this evidence
-                                    </li>
-                                  </ul>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
-                          <FormControl>
-                            <Select value={field.value ?? undefined} onValueChange={(val) => field.onChange(val === 'none' ? undefined : val)}>
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select status..." />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.values(EvidenceEvidenceStatus).map((status) => (
-                                  <SelectItem key={status} value={status}>
-                                    {status
-                                      .toLowerCase()
-                                      .replace(/_/g, ' ')
-                                      .replace(/\b\w/g, (c) => c.toUpperCase())}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
-                        </FormItem>
-                      )}
-                    />
-                  </InputRow>
-
-                  {/* Tags Field */}
-                  <InputRow className="w-full">
-                    <FormField
-                      control={form.control}
-                      name="tags"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel>Tags</FormLabel>
-                          <FormControl>
-                            <MultipleSelector
-                              options={tagOptions}
-                              placeholder="Add tag..."
-                              creatable
-                              value={tagValues}
-                              onChange={(selectedOptions) => {
-                                const options = selectedOptions.map((option) => option.value)
-                                field.onChange(options)
-                                setTagValues(
-                                  selectedOptions.map((item) => ({
-                                    value: item.value,
-                                    label: item.label,
-                                  })),
-                                )
-                              }}
-                              className="w-full"
-                            />
-                          </FormControl>
-                          {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
-                        </FormItem>
-                      )}
-                    />
-                  </InputRow>
-                  <div>
-                    {/* Creation Date */}
-                    <InputRow className="w-full">
-                      <FormField
-                        control={form.control}
-                        name="creationDate"
-                        render={({ field }) => (
-                          <FormItem className="w-full">
-                            <FormLabel className="mb-2 flex items-center">
-                              Creation Date
-                              <SystemTooltip
-                                icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-                                content={<p>The date the evidence was collected, generally the current date but can be adjusted.</p>}
-                              />
-                            </FormLabel>
-                            <CalendarPopover field={field} defaultToday required disableFuture />
-                            {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
-                          </FormItem>
-                        )}
-                      />
-                    </InputRow>
-
-                    {/* Renewal Date */}
-                    <InputRow className="w-full mt-4">
-                      <FormField
-                        control={form.control}
-                        name="renewalDate"
-                        render={({ field }) => (
-                          <FormItem className="w-full">
-                            <FormLabel className="mb-2 flex items-center">
-                              Renewal Date
-                              <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>The date the evidence will be re-requested.</p>} />
-                            </FormLabel>
-                            <CalendarPopover field={field} defaultAddDays={365} disabledFrom={new Date()} />
-                            {field.value !== null && (
-                              <p>
-                                Don&apos;t want to renew this evidence?{' '}
-                                <b className="text-sm cursor-pointer text-accent-secondary" onClick={() => field.onChange(null)}>
-                                  Clear it
-                                </b>
-                              </p>
-                            )}
-                            {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
-                          </FormItem>
-                        )}
-                      />
-                    </InputRow>
-
-                    {/* Renewal Frequency */}
-                    <InputRow className="w-full mt-4">
-                      <FormField
-                        control={form.control}
-                        name="reviewFrequency"
-                        render={({ field }) => (
-                          <FormItem className="w-full">
-                            <FormLabel className="mb-2 flex items-center">
-                              Renewal Frequency
-                              <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>How often the evidence should be renewed.</p>} />
-                            </FormLabel>
-                            <FormControl>
-                              <Select value={field.value ?? undefined} onValueChange={(val) => field.onChange(val as EvidenceFrequency)}>
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Select renewal frequency..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {Object.values(EvidenceFrequency).map((frequency) => (
-                                    <SelectItem key={frequency} value={frequency}>
-                                      {getEnumLabel(frequency)}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            {form.formState.errors.reviewFrequency && <p className="text-red-500 text-sm">{form.formState.errors.reviewFrequency.message}</p>}
-                          </FormItem>
-                        )}
-                      />
-                    </InputRow>
-                  </div>
-                </form>
-                <div className="flex flex-col gap-4 mt-4">
-                  <GridRow columns={1}>
-                    <GridCell>
-                      <Panel>
-                        <Accordion type="single" collapsible defaultValue="ControlsAccordion" className="w-full">
-                          <AccordionItem value="ControlsAccordion">
-                            <div className="flex items-center justify-between w-full">
-                              <AccordionTrigger asChild>
-                                <div className="flex items-center gap-2 cursor-pointer group">
-                                  <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
-                                  <span className="text-sm font-medium">Linked Control(s)</span>
-                                  <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-6.5 w-6.5">
-                                    {(form.getValues('subcontrolIDs')?.length || 0) + (form.getValues('controlIDs')?.length || 0)}
-                                  </span>
-                                </div>
-                              </AccordionTrigger>
-                              <Button
-                                variant="secondary"
-                                className="py-5"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setOpenControlsDialog(true)
-                                }}
-                                icon={<Plus />}
-                                iconPosition="left"
-                              >
-                                Add Controls
-                              </Button>
-                            </div>
-
-                            <AccordionContent>
-                              <div className="mt-5 flex flex-col gap-5">
-                                <ObjectAssociationControlsChips
-                                  form={form}
-                                  suggestedControlsMap={suggestedControlsMap}
-                                  isLoadingSuggestions={isSuggestionsLoading}
-                                  evidenceControls={evidenceControls}
-                                  setEvidenceControls={setEvidenceControls}
-                                  evidenceSubcontrols={evidenceSubcontrols}
-                                  setEvidenceSubcontrols={setEvidenceSubcontrols}
-                                />
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
-                        <ControlSelectionDialog
-                          open={openControlsDialog}
-                          onClose={() => setOpenControlsDialog(false)}
-                          form={form}
-                          evidenceControls={evidenceControls}
-                          setEvidenceControls={setEvidenceControls}
-                          evidenceSubcontrols={evidenceSubcontrols}
-                          setEvidenceSubcontrols={setEvidenceSubcontrols}
-                        />
-                      </Panel>
-                    </GridCell>
-                  </GridRow>
-                  <GridRow columns={1}>
-                    <GridCell>
-                      <Panel>
-                        <Accordion type="single" collapsible value={programsAccordionValue} className="w-full">
-                          <AccordionItem value="ProgramsAccordion">
-                            <div className="flex items-center justify-between w-full">
-                              <AccordionTrigger asChild>
-                                <div className="flex items-center gap-2 cursor-pointer group">
-                                  <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
-                                  <span className="text-sm font-medium">Linked Program(s)</span>
-                                  <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-6.5 w-6.5">
-                                    {form.getValues('programIDs')?.length || 0}
-                                  </span>
-                                </div>
-                              </AccordionTrigger>
-
-                              <Button
-                                variant="secondary"
-                                className="py-5"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setOpenProgramsDialog(true)
-                                }}
-                                type="button"
-                                icon={<Plus />}
-                                iconPosition="left"
-                              >
-                                Add Programs
-                              </Button>
-                            </div>
-
-                            <AccordionContent>
-                              <div className="mt-5 flex flex-col gap-5">
-                                <ObjectAssociationProgramsChips form={form} refMap={associationProgramsRefMap} setRefMap={setAssociationProgramsRefMap} />
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
-
-                        <ProgramSelectionDialog
-                          form={form}
-                          open={openProgramsDialog}
-                          onClose={() => setOpenProgramsDialog(false)}
-                          initialRefCodes={associationProgramsRefMap}
-                          onSave={handleSavePrograms}
-                        />
-                      </Panel>
-                    </GridCell>
-                  </GridRow>
-                  {/* Object Association Panel */}
-                  <GridRow columns={1}>
-                    <GridCell>
-                      <Panel>
-                        <Accordion type="single" collapsible value={undefined} className="w-full">
-                          <AccordionItem value="TITLE">
-                            <div className="flex items-center justify-between w-full">
-                              <AccordionTrigger asChild>
-                                <button className="group flex items-center gap-2 text-sm font-medium bg-unset">
-                                  <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
-                                  Associate more objects
-                                </button>
-                              </AccordionTrigger>
-                            </div>
-
-                            <AccordionContent className="mt-4 flex flex-col gap-4">
-                              <ObjectAssociation
-                                onIdChange={handleEvidenceObjectIdsChange}
-                                allowedObjectTypes={allowedObjectTypes}
-                                initialData={formData?.objectAssociations}
-                                defaultSelectedObject={defaultSelectedObject}
-                              />
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
-                      </Panel>
-                    </GridCell>
-                  </GridRow>
-                </div>
-
-                {!isAuditor && (
-                  <>
-                    <p className="pt-5 pb-5">Provide supporting file(s)</p>
-                    <EvidenceUploadForm evidenceFiles={handleUploadedFiles} resetEvidenceFiles={resetEvidenceFiles} setResetEvidenceFiles={handleResetEvidenceFiles} form={form} />
-                  </>
+        <Form {...form}>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            <InputRow className="w-full">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <div className="flex items-center">
+                      <FormLabel>
+                        Evidence name <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a name for the evidence, generally should include the related Control or Task.</p>} />
+                    </div>
+                    <FormControl>
+                      <Input variant="medium" {...field} className="w-full" placeholder="Enter a descriptive name for this evidence" />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">Choose a clear, searchable name so others can easily find it.</p>
+                    {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
+                  </FormItem>
                 )}
-              </Form>
-            </GridCell>
-          </GridRow>
-          {/* Submit Button */}
-          <GridRow columns={1}>
-            <GridCell>
-              <Button onClick={form.handleSubmit(onSubmitHandler)} loading={isPending} disabled={isPending}>
-                {isPending ? 'Submitting...' : isAuditor ? 'Submit Request' : 'Submit for review'}
+              />
+            </InputRow>
+
+            <div>
+              <p className="text-sm font-medium mb-2">Linked Control(s) {mode.requireLinkedControls && <span className="text-red-500">*</span>}</p>
+              <Panel>
+                <EvidenceLinkedControlsPanel
+                  form={form}
+                  evidenceControls={evidenceControls}
+                  setEvidenceControls={setEvidenceControls}
+                  evidenceSubcontrols={evidenceSubcontrols}
+                  setEvidenceSubcontrols={setEvidenceSubcontrols}
+                  suggestedControlsMap={suggestedControlsMap}
+                  isLoadingSuggestions={isSuggestionsLoading}
+                  showEmptyState
+                />
+              </Panel>
+              {mode.requireLinkedControls &&
+                (form.formState.errors.controlIDs ? (
+                  <p className="text-red-500 text-sm mt-1">{form.formState.errors.controlIDs.message}</p>
+                ) : (
+                  <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                    <InfoIcon size={12} />
+                    Required before submitting for review
+                  </p>
+                ))}
+            </div>
+
+            {mode.showFileUpload && (
+              <div>
+                <p className="text-sm font-medium mb-2">Provide supporting file(s)</p>
+                <EvidenceUploadForm evidenceFiles={handleUploadedFiles} resetEvidenceFiles={resetEvidenceFiles} setResetEvidenceFiles={handleResetEvidenceFiles} form={form} />
+              </div>
+            )}
+
+            <InputRow className="w-full">
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <div className="flex items-center">
+                      <FormLabel>Description (optional)</FormLabel>
+                      <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a short description of what is contained in the files or linked URLs.</p>} />
+                    </div>
+                    <FormControl>
+                      <Textarea id="description" {...field} className="w-full" placeholder="Provide context about this evidence (what it shows, why it's important, etc.)" />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">Help reviewers understand the purpose and relevance of this evidence.</p>
+                    {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
+                  </FormItem>
+                )}
+              />
+            </InputRow>
+
+            {mode.showStatusField && (
+              <InputRow className="w-full">
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <div className="flex items-center">
+                        <FormLabel>Status</FormLabel>
+                        <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>The status the requested evidence will start in.</p>} />
+                      </div>
+                      <FormControl>
+                        <Select value={field.value ?? undefined} onValueChange={(val) => field.onChange(val)}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select status..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {statusOptions.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {getEnumLabel(option.value)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
+                    </FormItem>
+                  )}
+                />
+              </InputRow>
+            )}
+
+            <EvidenceAdditionalDetails
+              form={form}
+              showCollectionProcedure={mode.showCollectionProcedure}
+              tagOptions={tagOptions}
+              associationProgramsRefMap={associationProgramsRefMap}
+              setAssociationProgramsRefMap={setAssociationProgramsRefMap}
+              onObjectAssociationChange={handleEvidenceObjectIdsChange}
+              allowedObjectTypes={allowedObjectTypes}
+              defaultSelectedObject={defaultSelectedObject}
+              formData={formData}
+            />
+
+            <div className="flex justify-end gap-3">
+              {mode.showSaveAsDraft && (
+                <Button type="button" variant="secondary" onClick={handleSaveAsDraft} loading={isPending} disabled={isPending}>
+                  Save as draft
+                </Button>
+              )}
+              <Button type="submit" loading={isPending} disabled={isPending}>
+                {isPending ? 'Submitting...' : mode.submitLabel}
               </Button>
-            </GridCell>
-          </GridRow>
-        </Grid>
+            </div>
+          </form>
+        </Form>
         <CancelDialog
           isOpen={isDiscardDialogOpen}
           onConfirm={() => {

@@ -15,6 +15,8 @@ const formSchema = z.object({
   performedBy: responsibilityFieldSchema,
   reviewedBy: responsibilityFieldSchema,
   scanSchedule: z.string().optional(),
+  scanDate: z.union([z.string(), z.date()]).optional().nullable(),
+  nextScanRunAt: z.union([z.string(), z.date()]).optional().nullable(),
 })
 
 export const bulkEditFieldSchema = z.object({

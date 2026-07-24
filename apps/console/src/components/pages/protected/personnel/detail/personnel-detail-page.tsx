@@ -23,7 +23,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
-import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
+import { ASSOCIATION_REMOVAL_CONFIG, IDENTITY_HOLDER_ASSOCIATION_SECTIONS, buildAssociationSections } from '@/components/shared/object-association/object-association-config'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import PersonnelDetailHeader from './personnel-detail-header'
 import PersonnelPropertiesSidebar from './personnel-properties-sidebar'
@@ -188,18 +188,8 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
 
   // depending on the leaf fields instead of associationsData?.identityHolder would satisfy the
   // react-compiler advisory rule but trips exhaustive-deps, which treats the parent as the real dep here
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const memoizedSections = useMemo(() => {
-    if (!associationsData?.identityHolder) return {}
-    return {
-      assets: associationsData.identityHolder.assets,
-      entities: associationsData.identityHolder.entities,
-      campaigns: associationsData.identityHolder.campaigns,
-      tasks: associationsData.identityHolder.tasks,
-      controls: associationsData.identityHolder.controls,
-      subcontrols: associationsData.identityHolder.subcontrols,
-      policies: associationsData.identityHolder.internalPolicies,
-    }
+    return buildAssociationSections(IDENTITY_HOLDER_ASSOCIATION_SECTIONS, associationsData?.identityHolder)
   }, [associationsData?.identityHolder])
 
   const memoizedCenterNode = useMemo(() => {

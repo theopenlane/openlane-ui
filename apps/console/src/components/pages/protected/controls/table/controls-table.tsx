@@ -1,6 +1,7 @@
 'use client'
 
 import React, { use, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
@@ -39,6 +40,8 @@ type TControlsTableProps = {
 
 const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => {
   const { convertToReadOnly } = usePlateEditor()
+  const searchParams = useSearchParams()
+  const scanId = searchParams.get('scanId')
   const [filters, setFilters] = useState<ControlWhereInput>({})
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
@@ -119,7 +122,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   }, [filters])
 
   const whereWithSearch: ControlWhereInput = useMemo(() => {
-    const baseWhere = { ...whereFilter, ownerIDNEQ: '', isTrustCenterControl: false }
+    const baseWhere: ControlWhereInput = { ...whereFilter, ownerIDNEQ: '', isTrustCenterControl: false, ...(scanId ? { hasScansWith: [{ id: scanId }] } : {}) }
 
     if (!debouncedSearch) return baseWhere
 
@@ -132,7 +135,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
         },
       ],
     }
-  }, [whereFilter, debouncedSearch])
+  }, [whereFilter, debouncedSearch, scanId])
 
   useEffect(() => {
     if (permission?.roles) {

@@ -36,6 +36,7 @@ const AssetPage: React.FC = () => {
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
+  const scanId = searchParams.get('scanId')
   const { data, isLoading } = useAsset(id || undefined)
   const canEditAsset = useCanEditObject(objectType, id)
   const { data: associationsData } = useGetAssetAssociations(id || undefined)
@@ -212,6 +213,7 @@ const AssetPage: React.FC = () => {
     defaultVisibility: visibilityFields,
     filterFields: getFilterFields(enumOpts),
     searchFields: ['nameContainsFold', 'descriptionContainsFold'],
+    additionalWhereFilter: scanId ? { hasScansWith: [{ id: scanId }] } : undefined,
     breadcrumbs,
     form,
     getColumns,

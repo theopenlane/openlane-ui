@@ -3,18 +3,23 @@ import { type ExportExportFormat, type ExportExportType, type InputMaybe, type S
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification.tsx'
 
+export type TExportMetadata = {
+  excludePDFMetadata?: boolean
+}
+
 type TUseFileExportProps = {
   exportType: ExportExportType
   filters: string
   fields: InputMaybe<Array<Scalars['String']['input']>>
   format: ExportExportFormat
+  exportMetadata?: TExportMetadata
 }
 
 const useFileExport = () => {
   const { successNotification } = useNotification()
   const { mutateAsync: createExport, isPending } = useCreateExport()
 
-  const handleExport = async ({ exportType, filters, fields, format }: TUseFileExportProps) => {
+  const handleExport = async ({ exportType, filters, fields, format, exportMetadata }: TUseFileExportProps) => {
     successNotification({
       title: `Export Started`,
       description: `You'll get a notification when your file is ready to download.`,
@@ -27,6 +32,7 @@ const useFileExport = () => {
           filters,
           fields,
           format,
+          ...(exportMetadata ? { exportMetadata } : {}),
         },
       })
 

@@ -10,6 +10,7 @@ interface WebSocketContextType {
   isConnected: boolean
   error: unknown | null
   resetConnection: () => void
+  setPendingToken: (token: string) => void
 }
 
 const WebSocketContext = createContext<WebSocketContextType>({
@@ -17,9 +18,10 @@ const WebSocketContext = createContext<WebSocketContextType>({
   isConnected: false,
   error: null,
   resetConnection: () => {},
+  setPendingToken: () => {},
 })
 
-export function useWebSocketClient() {
+export const useWebSocketClient = () => {
   return use(WebSocketContext)
 }
 
@@ -27,9 +29,20 @@ interface WebSocketProviderProps {
   children: ReactNode
 }
 
-export function WebSocketProvider({ children }: WebSocketProviderProps) {
+export const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
   const { data: session, status } = useSession()
-  const token = session?.user?.accessToken
+  const sessionToken = session?.user?.accessToken
+  const isOnboarding = session?.user?.isOnboarding === true
+
+  const [pendingToken, setPendingToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (pendingToken && status === 'authenticated' && sessionToken === pendingToken) {
+      setPendingToken(null)
+    }
+  }, [pendingToken, sessionToken, status])
+
+  const effectiveToken = status === 'unauthenticated' ? null : (pendingToken ?? (isOnboarding ? null : sessionToken))
 
   const [client, setClient] = useState<Client | null>(null)
   const [isConnected, setIsConnected] = useState(false)
@@ -42,7 +55,6 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
   const disposeClient = useCallback(() => {
     if (clientRef.current) {
-      console.log('[WS] dispose client')
       clientRef.current.dispose()
     }
     clientRef.current = null
@@ -51,7 +63,6 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   }, [])
 
   const resetConnection = useCallback(() => {
-    console.log('[WS] manual reset')
     setHasFatalError(false)
     setError(null)
     lastTokenRef.current = null
@@ -60,14 +71,9 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   }, [disposeClient])
 
   useEffect(() => {
-    const tokenChanged = lastTokenRef.current !== null && lastTokenRef.current !== token
+    const tokenChanged = lastTokenRef.current !== null && lastTokenRef.current !== effectiveToken
 
-    if (status !== 'authenticated' || !token || !websocketGQLUrl || (hasFatalError && !tokenChanged)) {
-      console.log('[WS] skip init', {
-        status,
-        hasToken: Boolean(token),
-        hasFatalError,
-      })
+    if (!effectiveToken || !websocketGQLUrl || (hasFatalError && !tokenChanged)) {
       disposeClient()
       return
     }
@@ -77,27 +83,23 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       setError(null)
     }
 
-    if (lastTokenRef.current === token && clientRef.current) {
-      console.log('[WS] reuse existing client')
+    if (lastTokenRef.current === effectiveToken && clientRef.current) {
       return
     }
 
-    lastTokenRef.current = token
-
-    console.log('[WS] create client (lazy)')
+    lastTokenRef.current = effectiveToken
 
     const wsClient = createClient({
       url: websocketGQLUrl,
-      lazy: true,
+      lazy: false,
       retryAttempts: 10,
       keepAlive: 20_000,
       connectionParams: async () => ({
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${effectiveToken}`,
       }),
     })
 
     const unsubConnected = wsClient.on('connected', () => {
-      console.log('[WS] socket connected')
       setIsConnected(true)
       setError(null)
       setHasFatalError(false)
@@ -105,32 +107,29 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
 
     const unsubClosed = wsClient.on('closed', (event) => {
       const reason = (event as CloseEvent)?.reason?.toLowerCase?.() ?? ''
-      console.warn('[WS] socket closed', reason || 'no reason')
       setIsConnected(false)
 
       if (reason.includes('terminated') || reason.includes('unauthorized') || reason.includes('forbidden')) {
-        console.error('[WS] fatal close reason')
         setHasFatalError(true)
         setError(reason || 'fatal websocket close')
       }
     })
 
     const unsubError = wsClient.on('error', (err) => {
-      console.error('[WS] protocol error', err)
       setIsConnected(false)
+      setError(err)
     })
 
     clientRef.current = wsClient
     setClient(wsClient)
 
     return () => {
-      console.log('[WS] cleanup')
       unsubConnected()
       unsubClosed()
       unsubError()
       disposeClient()
     }
-  }, [connectionResetKey, token, status, hasFatalError, disposeClient])
+  }, [connectionResetKey, effectiveToken, hasFatalError, disposeClient])
 
   useEffect(() => {
     if (status !== 'authenticated') {
@@ -165,6 +164,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
         isConnected,
         error,
         resetConnection,
+        setPendingToken,
       }}
     >
       {children}

@@ -8,7 +8,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { useControllableOpen } from '@/hooks/useControllableOpen'
 import { exportCSV } from '@/lib/export'
-import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
+import { RISK_IMPORT_EXAMPLES_DOCS_URL } from '@/constants/docs'
 import { useCreateBulkCSVRisk } from '@/lib/graphql-hooks/risk'
 import { type TUploadedFile } from '../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -87,7 +87,7 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
         <Callout title="CSV Format">
           <p className="text-sm">
             You can upload a csv containing risks. Please refer to our{' '}
-            <a href={`${GRAPHQL_OBJECT_DOCS}#risk`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
+            <a href={`${RISK_IMPORT_EXAMPLES_DOCS_URL}`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
               documentation
             </a>{' '}
             for column format. We also provide a{' '}
