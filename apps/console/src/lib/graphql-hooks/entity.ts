@@ -78,7 +78,7 @@ export const useEntitiesWithFilter = ({ where, orderBy, pagination, enabled = tr
 }
 
 export const useVendorsWithFilter = ({ where, orderBy, pagination, enabled }: GetAllEntitiesArgs = {}) => {
-  const vendorWhere = { ...where, hasEntityTypeWith: [{ name: 'vendor' }] }
+  const vendorWhere = { ...where, hasEntityTypeWith: [{ name: 'vendor' }], systemOwned: false }
   const { entitiesNodes, ...rest } = useEntitiesWithFilter({ where: vendorWhere, orderBy, pagination, enabled })
   return { ...rest, vendorNodes: entitiesNodes }
 }
