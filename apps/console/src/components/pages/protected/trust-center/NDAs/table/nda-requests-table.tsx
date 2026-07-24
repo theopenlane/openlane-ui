@@ -232,7 +232,7 @@ const NdaRequestsTable = ({ requireApproval, canRevoke }: NdaRequestsTableProps)
   }, [bulkDeleteNdaRequests, errorNotification, selectedRows, successNotification])
 
   return (
-    <div>
+    <div className="min-w-0">
       <ConfirmationDialog
         open={approveAllDialogOpen}
         onOpenChange={setApproveAllDialogOpen}
