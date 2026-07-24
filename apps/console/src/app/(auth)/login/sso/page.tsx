@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import { getCookie } from '@/lib/auth/utils/getCookie'
 import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
+import { runSSOCallbackOnce } from './run-sso-callback-once'
 
 const ORG_SETTINGS_URL = '/organization-settings/authentication'
 const LOGIN_URL = '/login'
@@ -12,6 +13,7 @@ const LOGIN_URL = '/login'
 const SSOCallbackPage: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const callbackStartedRef = useRef(false)
 
   const getRedirectUrl = (error?: string, isSuccess = false) => {
     const isTesting = localStorage.getItem('testing_sso')
@@ -98,7 +100,7 @@ const SSOCallbackPage: React.FC = () => {
       }
     }
 
-    handleSSOCallback()
+    runSSOCallbackOnce(callbackStartedRef, handleSSOCallback)
   }, [router, searchParams])
 
   return (
