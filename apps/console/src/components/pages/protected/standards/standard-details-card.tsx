@@ -1,6 +1,5 @@
 'use client'
 import React from 'react'
-import { useParams } from 'next/navigation'
 import { useGetStandardDetails } from '@/lib/graphql-hooks/standard'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { ExternalLink, TextCursorInput, Hammer, BookKey, FileStack, Link, Tag } from 'lucide-react'
@@ -20,9 +19,12 @@ const icons = {
   tags: Tag,
 }
 
-const StandardDetailsCard = () => {
-  const { id } = useParams()
-  const { data, isLoading, error } = useGetStandardDetails(id as string)
+type TStandardDetailsCardProps = {
+  standardId: string
+}
+
+const StandardDetailsCard: React.FC<TStandardDetailsCardProps> = ({ standardId }) => {
+  const { data, isLoading, error } = useGetStandardDetails(standardId)
   const { card, cardContent, tableCell, valueCell, tagsWrapper, icon } = standardDetailsStyles()
 
   if (isLoading) return <div>Loading...</div>

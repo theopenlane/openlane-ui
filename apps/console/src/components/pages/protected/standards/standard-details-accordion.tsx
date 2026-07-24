@@ -4,7 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@r
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronRight, ChevronsDownUp, List, SearchIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
-import { useParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type ControlListStandardFieldsFragment, type ControlWhereInput } from '@repo/codegen/src/schema'
 import { hasPermission } from '@/lib/authz/utils.ts'
@@ -33,6 +33,7 @@ const generateWhere = (id: string, searchValue: string) => ({
 })
 
 type TStandardDetailsAccordionProps = {
+  standardId: string
   standardName?: string | undefined
   selectedControls: { id: string; refCode: string }[]
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
@@ -42,6 +43,7 @@ type TStandardDetailsAccordionProps = {
   isLoadingPermission: boolean
 }
 const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
+  standardId,
   standardName,
   selectedControls,
   setSelectedControls,
@@ -50,9 +52,8 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
   permission,
   isLoadingPermission,
 }) => {
-  const params = useParams()
-  const id = typeof params?.id === 'string' ? params.id : ''
   const { data: session } = useSession()
+  const pathname = usePathname()
 
   const hasInitializedRef = useRef(false)
   const [paginations, setPaginations] = useState<Record<string, TPagination>>({})
@@ -60,7 +61,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
   const [openSections, setOpenSections] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const where = generateWhere(id, debouncedSearchQuery)
+  const where = generateWhere(standardId, debouncedSearchQuery)
   const hasFilters = Object.keys(where).length > 0
   const allControls = useAllControlsGroupedWithListFields({ where: where as ControlWhereInput, enabled: hasFilters })
   const { convertToReadOnly } = usePlateEditor()
@@ -223,7 +224,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
                     paginationMeta={{
                       totalCount: controls.length,
                     }}
-                    rowHref={(row) => `/standards/${id}?controlId=${row.id}`}
+                    rowHref={(row) => `${pathname}?controlId=${row.id}`}
                     pagination={paginations[category] ?? DEFAULT_PAGINATION}
                     columnVisibility={columnVisibility}
                     onPaginationChange={(newPagination) => handlePaginationChange(category, newPagination)}
@@ -240,7 +241,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
       <AddToOrganizationDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        standardId={selectedControls.length === 0 ? id : undefined}
+        standardId={selectedControls.length === 0 ? standardId : undefined}
         selectedControls={selectedControls.length > 0 ? selectedControls : []}
         standardName={selectedControls.length === 0 ? standardName : undefined}
       />
