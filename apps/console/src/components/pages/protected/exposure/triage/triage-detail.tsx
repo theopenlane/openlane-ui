@@ -5,7 +5,7 @@ import { ExternalLink } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { useGetVulnerabilityAssociations } from '@/lib/graphql-hooks/vulnerability'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
-import { getSeverityStyle } from '@/utils/severity'
+import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import { toHumanLabel } from '@/utils/strings'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 import PlateEditor from '@/components/shared/plate/plate-editor'
@@ -31,7 +31,6 @@ const TriageDetail: React.FC<Props> = ({ vuln }) => {
   const sheetNav = useSheetNavigation()
 
   const severityLabel = getSeverityLabel(vuln)
-  const severityStyle = getSeverityStyle(severityLabel)
 
   const assets = (associations?.vulnerability?.assets?.edges ?? []).map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => Boolean(node))
   const remediationCount = associations?.vulnerability?.remediations?.totalCount ?? 0
@@ -55,9 +54,7 @@ const TriageDetail: React.FC<Props> = ({ vuln }) => {
           <p className="text-xs uppercase tracking-wide text-muted-foreground">{vuln.cveID || vuln.externalID || vuln.displayID}</p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <h2 className="text-xl font-semibold">{getVulnerabilityName(vuln)}</h2>
-            <span className="rounded-full px-2 py-0.5 text-xs font-medium capitalize" style={severityStyle}>
-              {severityLabel}
-            </span>
+            <SeverityChip severity={severityLabel} />
             <PastDueBadge show={pastDue} />
           </div>
         </div>
