@@ -27,9 +27,16 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
     where: { role: OrgMembershipRole.AUDITOR },
     enabled: open,
   })
+  const auditorEmail = email?.trim().toLowerCase()
+  const { members: markedAuditorMemberships, isLoading: isLoadingMarkedAuditorMembership } = useGetOrgMemberships({
+    where: { hasUserWith: [{ emailEqualFold: auditorEmail }] },
+    pagination: { page: 1, pageSize: 1, query: { first: 1 } },
+    enabled: open && !!auditorEmail,
+  })
 
   const auditors = useMemo(() => auditorMemberships.filter((membership) => membership.user), [auditorMemberships])
   const defaultInvitationEmails = useMemo(() => (email ? [email] : []), [email])
+  const shouldShowAutoInvitationNotice = !!auditorEmail && !isLoadingMarkedAuditorMembership && markedAuditorMemberships.length === 0
 
   const handleSetReadyForAuditor = async () => {
     if (!id) return
@@ -83,6 +90,14 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
               </div>
             )}
           </div>
+          {shouldShowAutoInvitationNotice && (
+            <div className="flex items-start gap-2 rounded-md border border-border bg-input p-4">
+              <Info className="mt-1" size={16} />
+              <p className="text-sm text-muted-foreground">
+                <strong>{email}</strong> will be invited to this org as an Auditor.
+              </p>
+            </div>
+          )}
           <DialogFooter className="mt-6 flex gap-2">
             <Button onClick={handleSetReadyForAuditor}>Set ready</Button>
             <CancelButton onClick={() => setOpen(false)}></CancelButton>
