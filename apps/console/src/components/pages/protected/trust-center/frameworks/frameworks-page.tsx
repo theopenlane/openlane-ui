@@ -12,6 +12,7 @@ import { Switch } from '@repo/ui/switch'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination'
+import { OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/standards'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { BookUp2, PencilIcon, SquarePlus, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
@@ -55,7 +56,7 @@ export default function FrameworksPage() {
 
   const { compliances, isError: compliancesError, isFetched: compliancesFetched } = useGetTrustCenterCompliances()
   const baseWhere: StandardWhereInput = {
-    shortNameNEQ: 'OTS',
+    shortNameNEQ: OPENLANE_TRUST_CENTER_STANDARD.shortName,
     ...(isChecked ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } : {}),
   }
 

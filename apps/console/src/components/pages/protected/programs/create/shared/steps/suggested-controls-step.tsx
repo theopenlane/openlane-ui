@@ -16,6 +16,7 @@ import { type MappedControlWhereInput } from '@repo/codegen/src/schema'
 import { type MapControl } from '@/types'
 import { type SuggestedControlMappingGroup } from '../suggested-controls-schema'
 import SuggestedControlRow from './suggested-control-row'
+import { OPENLANE_BASELINE_STANDARD } from '@/constants/standards'
 
 type SuggestedControlFormValues = {
   suggestedControlIDs?: string[]
@@ -24,7 +25,6 @@ type SuggestedControlFormValues = {
   suggestedControlsInitialized?: boolean
 }
 
-const TEMPLATE_CONTROL_REF_CODE_PREFIX = 'OL-'
 const MAPPED_CONTROLS_PAGE_SIZE = 100
 const MAPPED_CONTROLS_MAX_PAGES = 20
 const UNCATEGORIZED = 'Uncategorized'
@@ -47,7 +47,7 @@ const SuggestedControlsStep = ({ frameworkName }: { frameworkName?: string }) =>
     isError: isControlsError,
   } = useAllControlsGrouped({
     where: {
-      refCodeHasPrefix: TEMPLATE_CONTROL_REF_CODE_PREFIX,
+      refCodeHasPrefix: OPENLANE_BASELINE_STANDARD.refCodePrefix,
       systemOwned: true,
     },
   })
