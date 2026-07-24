@@ -87,7 +87,7 @@ export function ProductCard({
   }
 
   return (
-    <Card className="bg-transparent p-4">
+    <Card className="bg-transparent p-4 mt-5">
       <div className="flex flex-col justify-between flex-1">
         <div className="flex gap-2 w-full">
           <Box size={16} className="mt-2" />
