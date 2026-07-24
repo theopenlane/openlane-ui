@@ -48,6 +48,8 @@ export type ScansNode = NonNullable<NonNullable<NonNullable<ScansWithFilterQuery
 
 export type ScansNodeNonNull = NonNullable<ScansNode>
 
+export type ScanDetailNode = NonNullable<ScanQuery['scan']>
+
 export const useScansWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllScansArgs) => {
   const { client } = useGraphQLClient()
   const queryResult = useQuery<ScansWithFilterQuery, unknown>({

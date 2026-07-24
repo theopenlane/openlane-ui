@@ -106,6 +106,7 @@ export const SCAN = gql`
       scopeID
       scopeName
       status
+      tags
       target
       updatedAt
       updatedBy
@@ -198,6 +199,24 @@ export const GET_SCAN_ASSOCIATIONS = gql`
             id
             name
             displayName
+          }
+        }
+      }
+      entities {
+        totalCount
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+      }
+      findings {
+        totalCount
+        edges {
+          node {
+            id
           }
         }
       }

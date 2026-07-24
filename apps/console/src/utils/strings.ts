@@ -19,7 +19,7 @@ export const toUpperSnakeCase = (input: string): string => {
  * Words that should always be fully uppercased regardless of how they appear
  * in the raw input (e.g. api_token → API Token, ssoAuthorization → SSO Authorization)
  */
-const ACRONYMS = new Set(['api', 'sso', 'oauth', 'id', 'ids', 'url', 'uri', 'ui', 'ux', 'sdk', 'pat', 'nda', 'ip', 'mfa', 'totp'])
+const ACRONYMS = new Set(['api', 'sso', 'oauth', 'id', 'ids', 'url', 'uri', 'ui', 'ux', 'sdk', 'pat', 'nda', 'ip', 'mfa', 'totp', 'dns'])
 
 export function toHumanLabel(input: string): string {
   if (!input) return ''

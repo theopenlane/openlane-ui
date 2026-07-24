@@ -70,15 +70,17 @@ const TasksPage: React.FC = () => {
     },
   })
 
-  const whereFilter = useMemo(() => {
-    if (!filters) return null
+  const scanId = searchParams.get('scanId')
 
-    const result = whereGenerator<TaskWhereInput>(filters, (key, value) => {
-      if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: [{ idIn: value }] } as TaskWhereInput
-      }
-      return { [key]: value } as TaskWhereInput
-    })
+  const whereFilter = useMemo(() => {
+    const result = filters
+      ? whereGenerator<TaskWhereInput>(filters, (key, value) => {
+          if (key === 'hasProgramsWith') {
+            return { hasProgramsWith: [{ idIn: value }] } as TaskWhereInput
+          }
+          return { [key]: value } as TaskWhereInput
+        })
+      : {}
 
     const merged: TaskWhereInput = { ...result }
 
@@ -86,8 +88,14 @@ const TasksPage: React.FC = () => {
       merged.and = [...(merged.and || []), { or: [{ titleContainsFold: debouncedSearch }, { detailsContainsFold: debouncedSearch }] }]
     }
 
+    if (scanId) {
+      merged.hasScansWith = [{ id: scanId }]
+    }
+
+    if (!filters && !debouncedSearch && !scanId) return null
+
     return merged
-  }, [filters, debouncedSearch])
+  }, [filters, debouncedSearch, scanId])
 
   useEffect(() => {
     setCrumbs([
