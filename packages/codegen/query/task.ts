@@ -19,6 +19,11 @@ export const TASKS_WITH_FILTER = gql`
           createdBy
           taskKindName
           completed
+          isSuggested
+          priority
+          source
+          sourceKey
+          metadata
           assigner {
             displayName
             avatarRemoteURL

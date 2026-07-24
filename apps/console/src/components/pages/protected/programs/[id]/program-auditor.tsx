@@ -25,6 +25,8 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
+import { Callout } from '@/components/shared/callout/callout'
+import { AUDITOR_URL } from '@/constants'
 
 interface ProgramAuditorProps {
   firm?: string | null
@@ -135,6 +137,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
             <h2 className="text-lg font-semibold">Auditor of this program</h2>
             <div className="flex gap-2">
               {!isEditing && isEligibleForAuditorSet && isEditAllowed && <SetReadyForAuditorDialog programStatus={programStatus} email={email} />}
+              {!hasAuditor && !isEditing && programStatus !== ProgramProgramStatus.ARCHIVED && isEditAllowed && <SetAuditorDialog />}
               {hasAuditor && !isEditing && isEditAllowed && (
                 <Button
                   disabled={programStatus === ProgramProgramStatus.ARCHIVED}
@@ -222,11 +225,12 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
               </div>
             </div>
           ) : (
-            <div className="flex flex-col gap-4">
-              <p className="text-muted-foreground text-sm">No auditor assigned yet.</p>
-
-              {programStatus !== ProgramProgramStatus.ARCHIVED && isEditAllowed && <SetAuditorDialog />}
-            </div>
+            <Callout variant="recommendation" title="Auditor Recommendations">
+              You do not currently have an auditor set for this program. If you need help finding an auditor, check out our{' '}
+              <a href={AUDITOR_URL} className="underline" target="_blank" rel="noopener noreferrer">
+                audit partner list
+              </a>
+            </Callout>
           )}
         </form>
       </FormProvider>

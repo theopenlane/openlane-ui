@@ -15,7 +15,7 @@ interface Props {
   summaryData: WizardValues
 }
 
-function AvatarListWithTooltip<T>({ items, getKey, getEntity, getName }: { items: T[]; getKey: (item: T) => string; getEntity: (item: T) => User | Group; getName: (item: T) => string }) {
+const AvatarListWithTooltip = <T,>({ items, getKey, getEntity, getName }: { items: T[]; getKey: (item: T) => string; getEntity: (item: T) => User | Group; getName: (item: T) => string }) => {
   if (!items.length) return <span className="text-xs text-inverted-muted-foreground">—</span>
 
   const firstFive = items.slice(0, 5)
@@ -60,11 +60,11 @@ export const AdvancedSetupFormSummary: React.FC<Props> = ({ summaryData }) => {
     if (items.length === 1) return <span className="text-sm">{items[0].label}</span>
     return <span className="text-sm">Multiple</span>
   }
+
   return (
     <div className="space-y-3 w-[400px] shrink-0">
       <h3 className="text-base font-medium mb-6">Your Program</h3>
 
-      {/* Basic Information */}
       <div className="rounded-md border border-border bg-card p-4">
         <p className="text-sm font-medium mb-3">Basic Information</p>
         <div className="text-xs space-y-3">
@@ -81,6 +81,10 @@ export const AdvancedSetupFormSummary: React.FC<Props> = ({ summaryData }) => {
             <span className="text-sm text-inverted-muted-foreground">{summaryData.name || 'Empty'}</span>
           </div>
           <div className="flex justify-between">
+            <span className="text-sm text-muted-foreground">Framework</span>
+            <span className="text-sm text-inverted-muted-foreground">{summaryData.framework || 'Empty'}</span>
+          </div>
+          <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">Start Date</span>
             <span className="text-sm text-inverted-muted-foreground">{summaryData.startDate ? formatDate(summaryData.startDate.toISOString()) : 'Empty'}</span>
           </div>
@@ -91,7 +95,6 @@ export const AdvancedSetupFormSummary: React.FC<Props> = ({ summaryData }) => {
         </div>
       </div>
 
-      {/* Audit Information */}
       <div className="rounded-md border border-border bg-card p-4">
         <p className="text-sm font-medium mb-3">Audit Information</p>
         <div className="text-xs space-y-3">
@@ -110,7 +113,6 @@ export const AdvancedSetupFormSummary: React.FC<Props> = ({ summaryData }) => {
         </div>
       </div>
 
-      {/* Team */}
       <div className="rounded-md border border-border bg-card p-4">
         <p className="text-sm font-medium mb-3">Team</p>
 
@@ -118,7 +120,6 @@ export const AdvancedSetupFormSummary: React.FC<Props> = ({ summaryData }) => {
           <p className="text-xs text-inverted-muted-foreground">Add team members to this program</p>
         ) : (
           <>
-            {/* Members / Admins */}
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Members</p>
@@ -131,7 +132,6 @@ export const AdvancedSetupFormSummary: React.FC<Props> = ({ summaryData }) => {
               </div>
             </div>
 
-            {/* Groups */}
             <div className="mt-4 grid grid-cols-2 gap-6">
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Groups (Edit Access)</p>
@@ -147,7 +147,6 @@ export const AdvancedSetupFormSummary: React.FC<Props> = ({ summaryData }) => {
         )}
       </div>
 
-      {/* Associate Existing Objects */}
       <div className="rounded-md border border-border bg-card p-4">
         <p className="text-sm font-medium mb-3">Associate Existing Objects</p>
         <div className="text-xs space-y-3">

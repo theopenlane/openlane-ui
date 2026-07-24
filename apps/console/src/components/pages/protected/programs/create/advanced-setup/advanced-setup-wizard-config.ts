@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { type UseFormReturn } from 'react-hook-form'
 import { type TErrorProps } from '@/hooks/useNotification'
+import { PROGRAM_KIND } from '../shared/program-kind'
 
 export const categoriesStepSchema = z.object({
   categories: z.array(z.string()),
@@ -25,8 +26,7 @@ export const step2Schema = z
   .superRefine((data, ctx) => {
     const now = new Date()
 
-    // ✅ Framework requirement
-    if (data.programKindName === 'Framework' && !data.framework) {
+    if (data.programKindName === PROGRAM_KIND.FRAMEWORK && !data.framework) {
       ctx.addIssue({
         path: ['framework'],
         code: z.ZodIssueCode.custom,
@@ -139,7 +139,7 @@ export const fullSchema = categoriesStepSchema.merge(step1Schema).merge(step3Sch
 
 export type WizardValues = z.infer<typeof fullSchema>
 
-export async function validateStepAndNotify(methods: UseFormReturn<WizardValues>, stepId: string, notify: (props: TErrorProps) => void): Promise<boolean> {
+export const validateStepAndNotify = async (methods: UseFormReturn<WizardValues>, stepId: string, notify: (props: TErrorProps) => void): Promise<boolean> => {
   let isValid: boolean
 
   if (stepId === '0') {
@@ -163,7 +163,7 @@ export async function validateStepAndNotify(methods: UseFormReturn<WizardValues>
   return false
 }
 
-export async function validateFullAndNotify(methods: UseFormReturn<WizardValues>, notify: (props: TErrorProps) => void): Promise<boolean> {
+export const validateFullAndNotify = async (methods: UseFormReturn<WizardValues>, notify: (props: TErrorProps) => void): Promise<boolean> => {
   const values = methods.getValues()
   const result = fullSchema.safeParse(values)
 

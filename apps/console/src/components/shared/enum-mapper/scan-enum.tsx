@@ -1,7 +1,14 @@
-import { CircleAlert, CircleCheck, CircleEllipsis, CircleX } from 'lucide-react'
-import { ScanScanStatus } from '@repo/codegen/src/schema.ts'
+import { CircleAlert, CircleCheck, CircleEllipsis, CircleX, Globe, Server, Building2, ShieldAlert } from 'lucide-react'
+import { ScanScanStatus, ScanScanType } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+
+export const ScanTypeIconMapper: Record<ScanScanType, React.ReactNode> = {
+  [ScanScanType.DOMAIN]: <Globe height={16} width={16} />,
+  [ScanScanType.PROVIDER]: <Server height={16} width={16} />,
+  [ScanScanType.VENDOR]: <Building2 height={16} width={16} />,
+  [ScanScanType.VULNERABILITY]: <ShieldAlert height={16} width={16} />,
+}
 
 export const ScanStatusIconMapper: Record<ScanScanStatus, React.ReactNode> = {
   [ScanScanStatus.PENDING]: <CircleAlert height={16} width={16} className="text-pending" />,

@@ -5,6 +5,7 @@ import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { type ScansNodeNonNull, useScan, useCreateScan, useUpdateScan, useCreateBulkCSVScan, useBulkEditScan, useBulkDeleteScan } from '@/lib/graphql-hooks/scan'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
+import { type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
 import { type ScanSheetConfig, type ScanTablePageConfig, type ScanFieldProps, objectType, objectName, tableKey, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
@@ -13,7 +14,8 @@ import { type CreateScanInput, type ScanQuery, ScanScanStatus, ScanScanType, typ
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { ScanAssociationsSection } from '../create/form/fields/association-section'
+import ScanDetailHeader from '../detail/scan-detail-header'
+import ScanDetailView from '../detail/scan-detail-view'
 
 const normalizeData = (data: ScanQuery['scan']) =>
   normalizeEntityData(data, {
@@ -110,12 +112,15 @@ const ScanPage: React.FC = () => {
     createMutation,
     deleteMutation,
     normalizeData,
-    extraContent: id ? <ScanAssociationsSection scanId={id} /> : undefined,
+    renderHeader: isCreate ? undefined : (props: RenderHeaderProps) => <ScanDetailHeader data={id ? data?.scan : undefined} onClose={props.close} />,
+    overrideContent: isCreate ? undefined : id && data?.scan ? <ScanDetailView data={data.scan} /> : null,
     buildPayload: async (data) => {
-      const { assignedTo, performedBy, reviewedBy, ...rest } = data
+      const { assignedTo, performedBy, reviewedBy, scanDate, nextScanRunAt, ...rest } = data
       const mode = isCreate ? 'create' : 'update'
       return {
         ...rest,
+        scanDate: scanDate instanceof Date ? scanDate.toISOString() : scanDate,
+        nextScanRunAt: nextScanRunAt instanceof Date ? nextScanRunAt.toISOString() : nextScanRunAt,
         ...buildResponsibilityPayload('assignedTo', assignedTo, { mode }),
         ...buildResponsibilityPayload('performedBy', performedBy, { mode }),
         ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode }),

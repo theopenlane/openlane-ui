@@ -1,5 +1,3 @@
-'use client'
-
 import { Slot } from '@radix-ui/react-slot'
 import { buttonStyles, type ButtonProps } from './button.styles'
 import { CheckIcon, LoaderCircle } from 'lucide-react'

@@ -1,13 +1,25 @@
 'use client'
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
-import { AlertCircle } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
+import { Badge } from '@repo/ui/badge'
+import { cn } from '@repo/ui/lib/utils'
+import { AlertCircle, BookLock, Cloud, GlobeLock, Shield, SlidersHorizontal } from 'lucide-react'
+import { Callout } from '@/components/shared/callout/callout'
+import { Checkbox } from '@repo/ui/checkbox'
 
-const CATEGORY_OPTIONS = ['Security', 'Availability', 'Confidentiality', 'Processing Integrity', 'Privacy']
+const CATEGORY_OPTIONS = [
+  { name: 'Security', icon: Shield },
+  { name: 'Availability', icon: Cloud },
+  { name: 'Confidentiality', icon: BookLock },
+  { name: 'Processing Integrity', icon: SlidersHorizontal },
+  { name: 'Privacy', icon: GlobeLock },
+]
 
-export default function SelectCategoryStep() {
+const SelectCategoryStep = () => {
   const { watch, setValue } = useFormContext<{ categories: string[] }>()
+  const searchParams = useSearchParams()
+  const isOnboardingFlow = searchParams.get('onboarding') === 'true'
 
   const selected = watch('categories') || []
 
@@ -28,24 +40,34 @@ export default function SelectCategoryStep() {
     <>
       <div>
         <h2 className="text-lg font-semibold">Add Trust Service Categories</h2>
-        <p className="text-sm text-muted-foreground">Security is automatically included. Add additional categories to expand your SOC 2 coverage.</p>
+        {isOnboardingFlow && (
+          <Callout variant="recommendation" title="Recommendation" className="mt-6">
+            Security is required for SOC 2 and has already been selected. For your first audit, we recommend starting with Security. Add <b>Availability</b> if uptime and service resilience are
+            important customer commitments.
+          </Callout>
+        )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mt-7">
-        {CATEGORY_OPTIONS.map((item, index) => {
-          const isSelected = selected.includes(item)
-          const isLastOdd = CATEGORY_OPTIONS.length % 2 !== 0 && index === CATEGORY_OPTIONS.length - 1
+      <p className="text-sm text-muted-foreground mt-5">Select the categories you want to include in this program</p>
+
+      <div className="flex flex-col gap-3 mt-3">
+        {CATEGORY_OPTIONS.map(({ name, icon: Icon }) => {
+          const isSelected = selected.includes(name)
+          const checkboxId = `trust-service-category-${name.replace(/\s+/g, '-').toLowerCase()}`
 
           return (
-            <Button
-              key={item}
-              type="button"
-              variant="secondary"
-              onClick={() => toggleCategory(item)}
-              className={`text-left h-11 transition-all ${isSelected ? 'shadow-primary24 border border-primary bg-primary/10' : ''} ${isLastOdd ? 'col-span-2 justify-self-center w-1/2' : ''}`}
-            >
-              {item}
-            </Button>
+            <div key={name} className={cn('flex items-center gap-3 p-4 rounded-md border transition-all', isSelected ? 'border-primary bg-primary/10' : 'border-border')}>
+              <Checkbox id={checkboxId} checked={isSelected} onCheckedChange={() => toggleCategory(name)} />
+              <Icon className="h-5 w-5 text-muted-foreground" />
+              <label htmlFor={checkboxId} className="flex flex-1 items-center gap-3 cursor-pointer font-semibold">
+                {name}
+                {name === 'Security' && (
+                  <Badge variant="outline" className="border-primary/40 bg-primary/15 text-primary">
+                    Required for SOC 2
+                  </Badge>
+                )}
+              </label>
+            </div>
           )
         })}
       </div>
@@ -59,3 +81,5 @@ export default function SelectCategoryStep() {
     </>
   )
 }
+
+export default SelectCategoryStep

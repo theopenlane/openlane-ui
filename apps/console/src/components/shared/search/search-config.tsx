@@ -17,6 +17,7 @@ import {
   FileSearch,
   ScanLine,
   MessageSquareText,
+  AtSign,
 } from 'lucide-react'
 
 export const searchTypeIcons: Record<string, React.ElementType> = {
@@ -41,6 +42,7 @@ export const searchTypeIcons: Record<string, React.ElementType> = {
   Finding: FileSearch,
   Scan: ScanLine,
   Review: MessageSquareText,
+  Mention: AtSign,
 }
 
 export const getEntityTypeLabel = (entityType: string) => toHumanLabel(entityType)

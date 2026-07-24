@@ -13,7 +13,7 @@ import { useParams } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import MessageBox from '@repo/ui/message-box'
 import { Label } from '@repo/ui/label'
-import { Info, InfoIcon } from 'lucide-react'
+import { InfoIcon } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useNotification } from '@/hooks/useNotification'
 import { isValidEmail } from '@/lib/validators'
@@ -21,6 +21,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { AUDITOR_URL } from '@/constants'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { Callout } from '@/components/shared/callout/callout'
 
 const setAuditorSchema = z.object({
   auditorName: z.string().optional().nullable(),
@@ -97,19 +98,13 @@ export const SetAuditorDialog = () => {
         <DialogHeader>
           <DialogTitle>Set auditor</DialogTitle>
         </DialogHeader>
-        <div className="flex items-start gap-2 rounded-md border border-border bg-input p-4 ">
-          <Info className="mt-1" size={16} />
-          <div className="text-sm">
-            <p className="text-base ">Need help finding an auditor?</p>
-            <p>
-              Reach out to support{' '}
-              <a href={AUDITOR_URL} className="underline" target="_blank" rel="noopener noreferrer">
-                for our partners list
-              </a>
-              .
-            </p>
-          </div>
-        </div>
+        <Callout variant="recommendation" title="Auditor Recommendations">
+          If you need help finding an auditor, check out our{' '}
+          <a href={AUDITOR_URL} className="underline" target="_blank" rel="noopener noreferrer">
+            audit partner list
+          </a>{' '}
+          or reach out to support for personalized recommendations
+        </Callout>
         <div className="flex flex-col gap-4 mt-4">
           {errorMessages.length > 0 && <MessageBox className="p-4 ml-1" message={errorMessages.join(', ')} variant="error" />}
           <div className="flex flex-col gap-2">

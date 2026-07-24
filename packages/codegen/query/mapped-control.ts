@@ -34,8 +34,12 @@ export const MAPPED_CONTROLS_FRAGMENT = gql`
 `
 
 export const GET_ALL_MAPPED_CONTROLS = gql`
-  query GetAllMappedControls($where: MappedControlWhereInput) {
-    mappedControls(where: $where) {
+  query GetAllMappedControls($where: MappedControlWhereInput, $first: Int, $after: Cursor) {
+    mappedControls(where: $where, first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
       edges {
         node {
           id
