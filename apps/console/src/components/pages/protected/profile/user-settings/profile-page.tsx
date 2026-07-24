@@ -155,7 +155,7 @@ const ProfilePage = () => {
     if (!tfaSettings || !isVerified) {
       return {
         badge: <Badge variant="secondary">Recommended</Badge>,
-        text: <p className="text-sm">A second factor method has not been setup for your account.</p>,
+        text: <p className="text-sm text-muted-foreground">A second factor method has not been setup for your account.</p>,
         buttons: [
           <Button variant="primary" key={0} className="mx-10 w-24" onClick={handleConfigure}>
             Configure
@@ -168,7 +168,7 @@ const ProfilePage = () => {
       return {
         badge: <Badge variant="default">Enabled</Badge>,
         text: (
-          <p className="text-sm">
+          <p className="text-sm text-muted-foreground">
             A second factor method has been added for your account. Ensure you have your recovery codes stored, or{' '}
             <span className="text-blue-400 cursor-pointer" onClick={regenerateCodes}>
               regenerate&nbsp;
@@ -190,7 +190,7 @@ const ProfilePage = () => {
     return {
       badge: <Badge variant="destructive">Disabled</Badge>,
       text: (
-        <p className="text-sm">
+        <p className="text-sm text-muted-foreground">
           A second factor method has been added for your account. Ensure you have your recovery codes stored, or{' '}
           <span className="text-blue-400 cursor-pointer" onClick={regenerateCodes}>
             regenerate&nbsp;

@@ -51,10 +51,12 @@ import {
   type UpdateOrganizationSettingMutation,
   type TransferOrganizationOwnershipMutationVariables,
   type TransferOrganizationOwnershipMutation,
+  OrgMembershipRole,
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
+import { useMemo } from 'react'
 
 export const useGetAllOrganizations = () => {
   const { client } = useGraphQLClient()
@@ -92,6 +94,21 @@ export const useGetAllOrganizationsWithMembers = (membersWhere: OrgMembershipWhe
     queryKey: ['organizationsWithMembers', membersWhere],
     queryFn: async () => client.request(GET_ALL_ORGANIZATIONS_WITH_MEMBERS, { membersWhere }),
   })
+}
+
+export const useIsOwnerInAnyOrg = (userId?: string) => {
+  const { data, isLoading, isError } = useGetAllOrganizationsWithMembers({ hasUserWith: [{ id: userId }] })
+
+  const isOwner = useMemo(
+    () => (data?.organizations?.edges ?? []).some((edge) => !edge?.node?.personalOrg && (edge?.node?.members?.edges ?? []).some((member) => member?.node?.role === OrgMembershipRole.OWNER)),
+    [data],
+  )
+
+  return {
+    isOwner,
+    isLoading,
+    isError,
+  }
 }
 
 type useGetInvitesProp = {
