@@ -10,11 +10,12 @@ import { getEdgeNodes } from '@/components/shared/object-association/utils'
 
 type TReviewCommentListProps = {
   comments?: NonNullable<ReviewQuery['review']>['comments']
+  showAuthor?: boolean
 }
 
 export const hasReviewComments = (comments: TReviewCommentListProps['comments']) => getEdgeNodes(comments?.edges).length > 0
 
-const ReviewCommentList: React.FC<TReviewCommentListProps> = ({ comments }) => {
+const ReviewCommentList: React.FC<TReviewCommentListProps> = ({ comments, showAuthor = true }) => {
   const nodes = useMemo(() => getEdgeNodes(comments?.edges), [comments])
 
   const userIds = useMemo(() => Array.from(new Set(nodes.map((node) => node.createdBy).filter((id): id is string => typeof id === 'string'))), [nodes])
@@ -35,7 +36,7 @@ const ReviewCommentList: React.FC<TReviewCommentListProps> = ({ comments }) => {
     [nodes, userMap, tokenMap],
   )
 
-  return <CommentList comments={items} />
+  return <CommentList comments={items} showAuthor={showAuthor} />
 }
 
 export default ReviewCommentList

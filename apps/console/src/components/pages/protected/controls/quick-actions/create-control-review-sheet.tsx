@@ -20,7 +20,7 @@ import { useControlReviewContext } from '@/components/pages/protected/controls/c
 import ControlContextPanel from '@/components/pages/protected/controls/control-review/control-context-panel'
 import RelatedControlsSelector from '@/components/pages/protected/controls/control-review/related-controls-selector'
 import ReviewFieldsPanel from '@/components/pages/protected/controls/control-review/review-fields-panel'
-import FindingFieldsPanel from '@/components/pages/protected/controls/control-review/finding-fields-panel'
+import ReviewFindingsPanel from '@/components/pages/protected/controls/control-review/review-findings-panel'
 import ReviewSheetFooter from '@/components/pages/protected/controls/control-review/review-sheet-footer'
 import { buildFindingInput, hasFindingInput, resolveAuditorNotesHtml } from '@/components/pages/protected/controls/control-review/review-submission'
 import { UploadedEvidenceSection } from './uploaded-evidence-section'
@@ -158,7 +158,7 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
 
             <ReviewFieldsPanel form={form} clearAuditorNotes={clearAuditorNotes} onAuditorNotesCleared={() => setClearAuditorNotes(false)} />
 
-            <FindingFieldsPanel form={form} />
+            <ReviewFindingsPanel findings={[]} isLoading={false} form={form} />
           </form>
         </Form>
 

@@ -35,7 +35,6 @@ import RelatedControlsSelector from './related-controls-selector'
 import ReviewFieldsPanel from './review-fields-panel'
 import ReviewSummaryPanel from './review-summary-panel'
 import ReviewFindingsPanel from './review-findings-panel'
-import FindingFieldsPanel from './finding-fields-panel'
 import ReviewSheetFooter from './review-sheet-footer'
 import { buildFindingInput, buildLinkedAssociationInput, hasFindingInput, resolveAuditorNotesHtml } from './review-submission'
 
@@ -269,8 +268,7 @@ const ControlReviewSheet: React.FC<TControlReviewSheetProps> = ({ controlId, que
                     auditorNotesLabel="Add Auditor Note"
                     auditorNotesPlaceholder="Add a new note to this review..."
                   />
-                  <ReviewFindingsPanel findings={findingsNodes} totalCount={findingsData?.findings?.totalCount} isLoading={isLoadingFindings} />
-                  <FindingFieldsPanel form={form} />
+                  <ReviewFindingsPanel findings={findingsNodes} totalCount={findingsData?.findings?.totalCount} isLoading={isLoadingFindings} form={form} />
                 </form>
               </Form>
 

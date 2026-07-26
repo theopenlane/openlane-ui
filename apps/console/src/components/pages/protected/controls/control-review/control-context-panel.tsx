@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Panel } from '@repo/ui/panel'
 import { type Group } from '@repo/codegen/src/schema'
 import { type ControlByIdNode } from '@/lib/graphql-hooks/control'
-import { HTML_SANITIZE_CONFIG, useHtmlPurifier } from '@/lib/html/sanitize-html'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
 
@@ -14,9 +14,7 @@ type TControlContextPanelProps = {
 }
 
 const ControlContextPanel: React.FC<TControlContextPanelProps> = ({ control, children }) => {
-  const purifier = useHtmlPurifier()
-  const description = control?.description
-  const descriptionHtml = useMemo(() => (description ? purifier.sanitize(description, HTML_SANITIZE_CONFIG) : ''), [purifier, description])
+  const { convertToReadOnly } = usePlateEditor()
 
   return (
     <Panel className="p-4 flex flex-col gap-3">
@@ -26,7 +24,7 @@ const ControlContextPanel: React.FC<TControlContextPanelProps> = ({ control, chi
         {control?.title ? <span className="text-muted-foreground">{control.title}</span> : null}
         {control?.auditorReferenceID ? <span className="text-xs text-muted-foreground">({control.auditorReferenceID})</span> : null}
       </div>
-      {descriptionHtml ? <div className="rich-text text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: descriptionHtml }} /> : null}
+      {control?.description ? <div className="text-sm text-muted-foreground">{convertToReadOnly(control.description)}</div> : null}
       <div className="flex items-center gap-6 flex-wrap">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Framework</span>
