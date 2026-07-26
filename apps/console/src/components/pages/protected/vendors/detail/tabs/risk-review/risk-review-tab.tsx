@@ -48,7 +48,12 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
   })
 
   const isHighRisk = isHighRiskTier(vendor.tier)
-  const { hasRecentReview, isLoading: isRecentReviewLoading } = useHasRecentReview({ entityId: vendor.id, lastReviewedAt: vendor.lastReviewedAt, enabled: isHighRisk })
+  const { hasRecentReview, isLoading: isRecentReviewLoading } = useHasRecentReview({
+    entityId: vendor.id,
+    lastReviewedAt: vendor.lastReviewedAt,
+    reviewFrequency: vendor.reviewFrequency,
+    enabled: isHighRisk,
+  })
 
   const isOverdue = vendor.nextReviewAt && Date.parse(vendor.nextReviewAt) < now
   const showHighRiskWarning = isHighRisk && !isRecentReviewLoading && !hasRecentReview
