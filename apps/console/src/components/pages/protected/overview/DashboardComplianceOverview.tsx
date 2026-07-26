@@ -105,7 +105,7 @@ const DashboardComplianceOverview = () => {
   ]
 
   return (
-    <Card className="bg-homepage-card border-homepage-card-border homepage-card-border">
+    <Card className="bg-homepage-card border-homepage-card-border">
       <CardTitle className="px-6 pt-6 pb-0 text-lg font-semibold">
         <span>Compliance Overview</span>
         <div className="flex items-center gap-2 pt-1">
