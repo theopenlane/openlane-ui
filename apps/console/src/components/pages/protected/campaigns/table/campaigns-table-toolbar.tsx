@@ -38,6 +38,7 @@ type TCampaignTableToolbarProps = {
   selectedCampaigns: { id: string }[]
   setSelectedCampaigns: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   onCreateCampaign?: () => void
+  additionalActiveFilterCount?: number
 }
 
 const CampaignTableToolbar: React.FC<TCampaignTableToolbarProps> = (props) => {
@@ -129,7 +130,7 @@ const CampaignTableToolbar: React.FC<TCampaignTableToolbarProps> = (props) => {
             {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
               <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={TableKeyEnum.CAMPAIGN} />
             )}
-            <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableKeyEnum.CAMPAIGN} />
+            <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableKeyEnum.CAMPAIGN} additionalActiveFilterCount={props.additionalActiveFilterCount} />
             {props.onCreateCampaign && (
               <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={props.onCreateCampaign}>
                 Create Campaign

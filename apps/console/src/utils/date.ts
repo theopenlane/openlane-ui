@@ -1,4 +1,6 @@
-import { format, isPast } from 'date-fns'
+import { differenceInCalendarDays, format, isPast, isToday, isTomorrow } from 'date-fns'
+
+export const MS_PER_DAY = 24 * 60 * 60 * 1000
 
 // dateFallback is a helper for all date formats to determine the correct fallback value
 const dateFallback = (empty?: string): string => {
@@ -119,6 +121,32 @@ const formatDateSince = (date: string | null | undefined, empty?: string): strin
 }
 
 export { formatDateSince }
+
+const formatDateUntil = (date: string | null | undefined, empty?: string): string => {
+  if (!date || date === '') {
+    return dateFallback(empty)
+  }
+
+  const dateObj = new Date(date)
+
+  if (isToday(dateObj)) {
+    return 'today'
+  }
+
+  if (isTomorrow(dateObj)) {
+    return 'tomorrow'
+  }
+
+  const daysUntil = differenceInCalendarDays(dateObj, new Date())
+
+  if (daysUntil > 1 && daysUntil < 7) {
+    return format(dateObj, 'EEEE')
+  }
+
+  return formatDate(date)
+}
+
+export { formatDateUntil }
 
 const computeDueDate = (responseDueDuration?: number | null): string | undefined => {
   if (!responseDueDuration || responseDueDuration <= 0) return undefined

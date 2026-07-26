@@ -168,6 +168,77 @@ export const LAUNCH_CAMPAIGN = gql`
   }
 `
 
+export const GET_CAMPAIGN_SUMMARY = gql`
+  fragment UpcomingCampaignFields on Campaign {
+    id
+    name
+    campaignType
+    recipientCount
+    scheduledAt
+    nextRunAt
+    dueDate
+  }
+
+  query CampaignSummary(
+    $activeWhere: CampaignWhereInput
+    $needsAttentionWhere: CampaignWhereInput
+    $overdueWhere: CampaignWhereInput
+    $scheduledOverdueWhere: CampaignWhereInput
+    $completedRecentlyWhere: CampaignWhereInput
+    $upcomingScheduledWhere: CampaignWhereInput
+    $upcomingRecurringWhere: CampaignWhereInput
+    $upcomingDueWhere: CampaignWhereInput
+    $activeFirst: Int!
+    $upcomingFirst: Int!
+  ) {
+    allCampaigns: campaigns {
+      totalCount
+    }
+    activeCampaigns: campaigns(where: $activeWhere, first: $activeFirst) {
+      totalCount
+      edges {
+        node {
+          id
+          recipientCount
+        }
+      }
+    }
+    needsAttentionCampaigns: campaigns(where: $needsAttentionWhere) {
+      totalCount
+    }
+    overdueCampaigns: campaigns(where: $overdueWhere) {
+      totalCount
+    }
+    scheduledOverdueCampaigns: campaigns(where: $scheduledOverdueWhere) {
+      totalCount
+    }
+    completedRecentlyCampaigns: campaigns(where: $completedRecentlyWhere) {
+      totalCount
+    }
+    upcomingScheduledCampaigns: campaigns(where: $upcomingScheduledWhere, orderBy: [{ field: scheduled_at, direction: ASC }], first: $upcomingFirst) {
+      edges {
+        node {
+          ...UpcomingCampaignFields
+        }
+      }
+    }
+    upcomingRecurringCampaigns: campaigns(where: $upcomingRecurringWhere, orderBy: [{ field: next_run_at, direction: ASC }], first: $upcomingFirst) {
+      edges {
+        node {
+          ...UpcomingCampaignFields
+        }
+      }
+    }
+    upcomingDueCampaigns: campaigns(where: $upcomingDueWhere, orderBy: [{ field: due_date, direction: ASC }], first: $upcomingFirst) {
+      edges {
+        node {
+          ...UpcomingCampaignFields
+        }
+      }
+    }
+  }
+`
+
 export const SEND_CAMPAIGN_TEST_EMAIL = gql`
   mutation SendCampaignTestEmail($input: SendCampaignTestEmailInput!) {
     sendCampaignTestEmail(input: $input) {

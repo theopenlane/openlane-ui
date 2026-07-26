@@ -1,6 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
+import { MS_PER_DAY } from '@/utils/date'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
+  CampaignCampaignStatus,
+  type CampaignWhereInput,
+  type CampaignSummaryQuery,
+  type CampaignSummaryQueryVariables,
+  type UpcomingCampaignFieldsFragment,
   type CampaignsWithFilterQuery,
   type CampaignsWithFilterQueryVariables,
   type CreateCampaignMutation,
@@ -29,6 +36,7 @@ import {
   UPDATE_CAMPAIGN,
   DELETE_CAMPAIGN,
   CAMPAIGN,
+  GET_CAMPAIGN_SUMMARY,
   LAUNCH_CAMPAIGN,
   SEND_CAMPAIGN_TEST_EMAIL,
   RESEND_CAMPAIGN_INCOMPLETE_TARGETS,
@@ -154,4 +162,135 @@ export const useCampaign = (campaignId?: CampaignQueryVariables['campaignId']) =
     },
     enabled: !!campaignId,
   })
+}
+
+export const COMPLETED_RECENTLY_WINDOW_DAYS = 30
+export const UPCOMING_CAMPAIGN_COUNT = 3
+const ACTIVE_RECIPIENTS_PAGE_SIZE = 100
+const SUMMARY_CLOCK_BUCKET_MS = 5 * 60 * 1000
+const SUMMARY_STALE_TIME_MS = 5 * 60 * 1000
+
+export type TCampaignSummaryScope = 'active' | 'needsAttention' | 'completedRecently'
+
+export type TUpcomingCampaignKind = 'LAUNCH' | 'RUN' | 'DUE'
+
+export type TUpcomingCampaign = Pick<UpcomingCampaignFieldsFragment, 'id' | 'name' | 'campaignType' | 'recipientCount'> & {
+  date: string
+  kind: TUpcomingCampaignKind
+}
+
+export type TCampaignSummary = {
+  totalCampaignCount: number
+  activeCount: number
+  activeRecipientCount: number
+  activeRecipientCountIsPartial: boolean
+  needsAttentionCount: number
+  overdueCount: number
+  scheduledOverdueCount: number
+  completedRecentlyCount: number
+  upcoming: TUpcomingCampaign[]
+}
+
+const upcomingKindDateFields: Record<TUpcomingCampaignKind, 'scheduledAt' | 'nextRunAt' | 'dueDate'> = {
+  LAUNCH: 'scheduledAt',
+  RUN: 'nextRunAt',
+  DUE: 'dueDate',
+}
+
+const buildCampaignSummaryVariables = (now: Date): CampaignSummaryQueryVariables => {
+  const nowIso = now.toISOString()
+  const completedSince = new Date(now.getTime() - COMPLETED_RECENTLY_WINDOW_DAYS * MS_PER_DAY).toISOString()
+
+  const overdueWhere: CampaignWhereInput = { isActive: true, statusNEQ: CampaignCampaignStatus.DRAFT, dueDateLT: nowIso, completedAtIsNil: true }
+  const scheduledOverdueWhere: CampaignWhereInput = { status: CampaignCampaignStatus.SCHEDULED, scheduledAtLT: nowIso, launchedAtIsNil: true }
+
+  return {
+    activeWhere: { isActive: true },
+    overdueWhere,
+    scheduledOverdueWhere,
+    needsAttentionWhere: { or: [overdueWhere, scheduledOverdueWhere] },
+    completedRecentlyWhere: { completedAtGTE: completedSince, completedAtLTE: nowIso },
+    upcomingScheduledWhere: { status: CampaignCampaignStatus.SCHEDULED, scheduledAtGTE: nowIso, launchedAtIsNil: true },
+    upcomingRecurringWhere: { isRecurring: true, nextRunAtGTE: nowIso, statusIn: [CampaignCampaignStatus.SCHEDULED, CampaignCampaignStatus.ACTIVE] },
+    upcomingDueWhere: { isActive: true, dueDateGTE: nowIso, completedAtIsNil: true },
+    activeFirst: ACTIVE_RECIPIENTS_PAGE_SIZE,
+    upcomingFirst: UPCOMING_CAMPAIGN_COUNT,
+  }
+}
+
+type TUpcomingCampaignEdges = NonNullable<CampaignSummaryQuery['upcomingScheduledCampaigns']>['edges']
+
+const toUpcomingCampaigns = (edges: TUpcomingCampaignEdges, kind: TUpcomingCampaignKind): TUpcomingCampaign[] =>
+  (edges ?? []).flatMap((edge) => {
+    const node = edge?.node
+    const date = node?.[upcomingKindDateFields[kind]]
+
+    if (!node || !date) {
+      return []
+    }
+
+    return [{ id: node.id, name: node.name, campaignType: node.campaignType, recipientCount: node.recipientCount, date, kind }]
+  })
+
+const takeNextCampaigns = (campaigns: TUpcomingCampaign[]): TUpcomingCampaign[] =>
+  [...campaigns]
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .filter((campaign, index, all) => all.findIndex((other) => other.id === campaign.id) === index)
+    .slice(0, UPCOMING_CAMPAIGN_COUNT)
+
+export const useCampaignSummary = () => {
+  const { client } = useGraphQLClient()
+
+  const [clockBucket, setClockBucket] = useState(() => Math.floor(Date.now() / SUMMARY_CLOCK_BUCKET_MS))
+
+  useEffect(() => {
+    const intervalId = setInterval(() => setClockBucket(Math.floor(Date.now() / SUMMARY_CLOCK_BUCKET_MS)), SUMMARY_CLOCK_BUCKET_MS)
+    return () => clearInterval(intervalId)
+  }, [])
+
+  const variables = useMemo(() => buildCampaignSummaryVariables(new Date(clockBucket * SUMMARY_CLOCK_BUCKET_MS)), [clockBucket])
+
+  const { data, isPending, error } = useQuery<CampaignSummaryQuery, unknown>({
+    queryKey: ['campaigns', 'summary', variables],
+    queryFn: async (): Promise<CampaignSummaryQuery> => client.request<CampaignSummaryQuery>(GET_CAMPAIGN_SUMMARY, variables),
+    staleTime: SUMMARY_STALE_TIME_MS,
+  })
+
+  const summary = useMemo<TCampaignSummary | undefined>(() => {
+    if (!data) {
+      return undefined
+    }
+
+    const activeEdges = data.activeCampaigns.edges ?? []
+    const activeRecipientCount = activeEdges.reduce((total, edge) => total + (edge?.node?.recipientCount ?? 0), 0)
+
+    const upcoming = takeNextCampaigns([
+      ...toUpcomingCampaigns(data.upcomingScheduledCampaigns.edges, 'LAUNCH'),
+      ...toUpcomingCampaigns(data.upcomingRecurringCampaigns.edges, 'RUN'),
+      ...toUpcomingCampaigns(data.upcomingDueCampaigns.edges, 'DUE'),
+    ])
+
+    return {
+      totalCampaignCount: data.allCampaigns.totalCount,
+      activeCount: data.activeCampaigns.totalCount,
+      activeRecipientCount,
+      activeRecipientCountIsPartial: data.activeCampaigns.totalCount > activeEdges.length,
+      needsAttentionCount: data.needsAttentionCampaigns.totalCount,
+      overdueCount: data.overdueCampaigns.totalCount,
+      scheduledOverdueCount: data.scheduledOverdueCampaigns.totalCount,
+      completedRecentlyCount: data.completedRecentlyCampaigns.totalCount,
+      upcoming,
+    }
+  }, [data])
+
+  const scopeFilters = useMemo(
+    () => ({
+      active: variables.activeWhere,
+      needsAttention: variables.needsAttentionWhere,
+      completedRecently: variables.completedRecentlyWhere,
+    }),
+    [variables],
+  )
+
+  return { summary, scopeFilters, isLoading: isPending, error }
 }
