@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Presentation, Table } from 'lucide-react'
+import { Presentation, Table, type LucideIcon } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/tooltip'
 import { type TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 import { useOrganization } from '@/hooks/useOrganization'
 import { getOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
@@ -18,13 +19,19 @@ type TTabSwitcherProps = {
   active?: TTab
   setActive?: (tab: TTab) => void
   labels?: { dashboard?: string; table?: string }
+  labelClassName?: string
 }
 
 const DEFAULT_LABELS = { dashboard: 'Report', table: 'Table' }
 
+const TABS: { id: TTab; Icon: LucideIcon }[] = [
+  { id: 'dashboard', Icon: Presentation },
+  { id: 'table', Icon: Table },
+]
+
 export const STORAGE_KEY_PREFIX = 'tab-switch'
 
-const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: externalActive, setActive: externalSetActive, labels }) => {
+const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: externalActive, setActive: externalSetActive, labels, labelClassName }) => {
   const { currentOrgId } = useOrganization()
   const storageKeyWithPrefix = `${STORAGE_KEY_PREFIX}-${storageKey}`
   const resolvedLabels = { ...DEFAULT_LABELS, ...labels }
@@ -45,23 +52,31 @@ const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: external
 
   return (
     <div className="flex items-center p-[3px] gap-1 border rounded-md cursor-pointer overflow-hidden bg-background">
-      <button
-        type="button"
-        className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${active === 'dashboard' ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
-        onClick={() => setActive('dashboard')}
-      >
-        <Presentation size={16} />
-        <span>{resolvedLabels.dashboard}</span>
-      </button>
+      {TABS.map(({ id, Icon }) => {
+        const label = resolvedLabels[id]
+        const tab = (
+          <button
+            type="button"
+            aria-label={label}
+            className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${active === id ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
+            onClick={() => setActive(id)}
+          >
+            <Icon size={16} />
+            <span className={labelClassName}>{label}</span>
+          </button>
+        )
 
-      <button
-        type="button"
-        className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${active === 'table' ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
-        onClick={() => setActive('table')}
-      >
-        <Table size={16} />
-        <span>{resolvedLabels.table}</span>
-      </button>
+        return labelClassName ? (
+          <Tooltip key={id}>
+            <TooltipTrigger asChild>{tab}</TooltipTrigger>
+            <TooltipContent portal side="bottom">
+              {label}
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <React.Fragment key={id}>{tab}</React.Fragment>
+        )
+      })}
     </div>
   )
 }

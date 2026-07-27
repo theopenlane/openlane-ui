@@ -10,6 +10,7 @@ import { ControlControlStatus, ControlOrderField, type ControlWhereInput, Export
 
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { HIDE_BELOW_1400, TOOLBAR_CONTAINER } from '@/constants/toolbar'
 import ControlsTableToolbar from './controls-table-toolbar'
 import { CONTROLS_SORT_FIELDS, getControlColumns } from './table-config'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -223,10 +224,10 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
 
   return (
     <div>
-      <div className="flex justify-between items-center">
+      <div className={`${TOOLBAR_CONTAINER} flex justify-between items-center`}>
         <div className="flex items-center gap-4">
           <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
-          <TabSwitcher active={active} setActive={setActive} storageKey={TabSwitcherStorageKeys.CONTROL} />
+          <TabSwitcher active={active} setActive={setActive} storageKey={TabSwitcherStorageKeys.CONTROL} labelClassName={HIDE_BELOW_1400} />
         </div>
       </div>
       <ControlsTableToolbar
