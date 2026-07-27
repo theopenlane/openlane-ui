@@ -41,7 +41,7 @@ const CampaignSummaryCard: React.FC<TCampaignSummaryCardProps> = ({ title, value
         </div>
         {detailDescription && <p className="text-xs text-muted-foreground">{detailDescription}</p>}
       </div>
-      <Button variant="outline" size="sm" aria-pressed={isFilterApplied} onClick={onToggleFilter}>
+      <Button variant="outline" aria-pressed={isFilterApplied} onClick={onToggleFilter}>
         {isFilterApplied ? 'Clear' : 'View all'}
       </Button>
     </div>

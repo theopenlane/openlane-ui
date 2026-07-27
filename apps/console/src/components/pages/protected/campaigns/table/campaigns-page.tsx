@@ -8,6 +8,9 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { type VisibilityState } from '@tanstack/react-table'
 import CampaignsTable from '@/components/pages/protected/campaigns/table/campaigns-table'
 import { useDebounce } from '@uidotdev/usehooks'
+import { PageHeading } from '@repo/ui/page-heading'
+import { Button } from '@repo/ui/button'
+import { SquarePlus } from 'lucide-react'
 
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils'
@@ -145,6 +148,15 @@ const CampaignsPage: React.FC = () => {
 
   return (
     <>
+      <PageHeading
+        heading="Campaigns"
+        subheading="Create and manage questionnaires, acknowledgements, and recurring outreach."
+        actions={
+          <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={() => setIsCreateSheetOpen(true)}>
+            Create Campaign
+          </Button>
+        }
+      />
       {summary &&
         (summary.totalCampaignCount === 0 ? (
           <CampaignsEmptyState onCreateCampaign={() => setIsCreateSheetOpen(true)} />
@@ -169,7 +181,6 @@ const CampaignsPage: React.FC = () => {
         permission={permission}
         selectedCampaigns={selectedCampaigns}
         setSelectedCampaigns={setSelectedCampaigns}
-        onCreateCampaign={() => setIsCreateSheetOpen(true)}
         additionalActiveFilterCount={summaryScope ? 1 : 0}
       />
       <CampaignsTable
