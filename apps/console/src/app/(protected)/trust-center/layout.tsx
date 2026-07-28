@@ -1,12 +1,11 @@
-import { FeatureEnum } from '@/lib/subscription-plan/feature-enum'
-import { PlanEnum } from '@/lib/subscription-plan/plan-enum'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { FeatureGate } from '@/lib/subscription-plan/feature-gate'
 import TrustCenter from '@/components/pages/protected/trust-center/trust-center'
 
-export default function EntitiesLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <FeatureGate feature={FeatureEnum.TRUST_CENTER} module={PlanEnum.TRUST_CENTER_MODULE}>
-      <TrustCenter>{children}</TrustCenter>
-    </FeatureGate>
-  )
-}
+const TrustCenterLayout = ({ children }: { children: React.ReactNode }) => (
+  <FeatureGate objectType={ObjectTypes.TRUST_CENTER}>
+    <TrustCenter>{children}</TrustCenter>
+  </FeatureGate>
+)
+
+export default TrustCenterLayout

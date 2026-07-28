@@ -12,12 +12,15 @@ import { useRecentActivityItems } from '@/components/shared/activity-feed/use-re
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { useSetupChecklist } from '@/hooks/useSetupChecklist'
+import { useHasModule } from '@/lib/subscription-plan/hooks/use-module-access'
+import { PlanEnum } from '@/lib/subscription-plan/plan-enum'
 
 const DashboardPage: React.FC = () => {
   const { data: sessionData } = useSession()
   const userId = sessionData?.user?.userId
   const { data: userData } = useGetCurrentUser(userId)
   const { setCrumbs } = React.use(BreadcrumbContext)
+  const hasComplianceModule = useHasModule(PlanEnum.COMPLIANCE_MODULE)
 
   const { activityItems, allActivityItems, isLoading: isActivityLoading } = useRecentActivityItems()
   const {
@@ -41,7 +44,7 @@ const DashboardPage: React.FC = () => {
     }
 
     if (isSetupChecklistComplete) {
-      return <DashboardComplianceOverview />
+      return hasComplianceModule ? <DashboardComplianceOverview /> : null
     }
 
     return (

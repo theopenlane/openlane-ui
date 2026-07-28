@@ -8,7 +8,9 @@ import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-en
 import { TaskStatusOptions } from '../enum-mapper/task-enum'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { EvidenceStatusOptions } from '../enum-mapper/evidence-enum'
-import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { OBJECT_QUERY_CONFIG, ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
+import { useMemo } from 'react'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { buildMutationKey } from '@/components/shared/object-association/utils'
 
@@ -247,6 +249,12 @@ export const generateAssociationSelectOptions = (allowedTypes: readonly ObjectTy
   }))
 }
 
+export const useModuleFilteredSelectOptions = <T extends string>(options: SelectOptionSelectedObject<T>[]): SelectOptionSelectedObject<T>[] => {
+  const { hasObjectType } = useModuleAccess()
+
+  return useMemo(() => options.filter((option) => !option.objectType || hasObjectType(OBJECT_QUERY_CONFIG[option.objectType].objectType)), [options, hasObjectType])
+}
+
 export const getAssociationSelectedCount = (selectedAssociations?: Record<string, string[]>): number => {
   if (!selectedAssociations) return 0
   return Object.values(selectedAssociations).reduce((sum, ids) => sum + (ids?.length ?? 0), 0)
@@ -394,7 +402,7 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: BulkEditGroup[], 
 }
 
 export const useGetAllSelectOptionsForBulkEditControls = (groups: BulkEditGroup[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
-  const { programOptions } = useProgramSelect({})
+  const { programOptions, hasProgramAccess } = useProgramSelect({})
 
   return [
     {
@@ -418,13 +426,17 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: BulkEditGroup[
       inputType: InputType.Select,
       options: typeOptions,
     },
-    {
-      selectOptionEnum: SelectOptionBulkEditControls.Program,
-      name: 'addProgramIDs',
-      placeholder: 'Select program...',
-      inputType: InputType.Select,
-      options: programOptions || [],
-    },
+    ...(hasProgramAccess
+      ? [
+          {
+            selectOptionEnum: SelectOptionBulkEditControls.Program,
+            name: 'addProgramIDs',
+            placeholder: 'Select program...',
+            inputType: InputType.Select,
+            options: programOptions,
+          },
+        ]
+      : []),
     {
       selectOptionEnum: SelectOptionBulkEditControls.Category,
       name: 'category',

@@ -75,7 +75,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   permission,
 }: TProps) => {
   const { data: session } = useSession()
-  const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
+  const { programOptions, isSuccess: isProgramSuccess, hasProgramAccess } = useProgramSelect()
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
   const groups = useMemo(() => groupOptions || [], [groupOptions])
 
@@ -135,9 +135,9 @@ const ControlsTableToolbar: React.FC<TProps> = ({
     if (filterFields || !isProgramSuccess || !isGroupSuccess || !isStandardSuccess || !isTypesSuccess) {
       return
     }
-    const fields = getControlsFilterFields(standardOptions, groups, programOptions, enumOptions, tagOptions)
+    const fields = getControlsFilterFields(standardOptions, groups, programOptions, enumOptions, tagOptions, hasProgramAccess)
     setFilterFields(fields)
-  }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, standardOptions, isStandardSuccess, enumOptions, isTypesSuccess, tagOptions])
+  }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, hasProgramAccess, standardOptions, isStandardSuccess, enumOptions, isTypesSuccess, tagOptions])
 
   const handleBulkDelete = async () => {
     if (!selectedControls) {
