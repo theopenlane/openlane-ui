@@ -22,6 +22,7 @@ import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/c
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 
 export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
@@ -29,6 +30,7 @@ export const getControlsFilterFields = (
   programOptions: { value: string; label: string }[],
   typeOptions: { value: string; label: string }[],
   tagOptions: { value: string; label: string }[],
+  hasProgramAccess: boolean,
 ): FilterField[] => [
   { key: 'refCodeContainsFold', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
   { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
@@ -63,13 +65,7 @@ export const getControlsFilterFields = (
     })),
     icon: FilterIcons.Owners,
   },
-  {
-    key: 'hasProgramsWith',
-    label: 'Program Name',
-    type: 'multiselect',
-    options: programOptions,
-    icon: FilterIcons.ProgramName,
-  },
+  ...getProgramFilterFields(programOptions, hasProgramAccess),
   {
     key: 'controlKindNameIn',
     label: 'Control Type',

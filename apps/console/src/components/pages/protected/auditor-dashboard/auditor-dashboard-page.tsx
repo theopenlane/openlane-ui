@@ -23,7 +23,7 @@ const AuditorDashboardPage: React.FC = () => {
   const programIdParam = searchParams.get(PROGRAM_PARAM) ?? undefined
   const { currentOrgId } = useOrganization()
 
-  const { programOptions, isLoading: isLoadingPrograms } = useProgramSelect({})
+  const { programOptions, isLoading: isLoadingPrograms } = useProgramSelect()
 
   const selectedProgramId = useMemo(() => {
     if (programIdParam && programOptions.some((option) => option.value === programIdParam)) {

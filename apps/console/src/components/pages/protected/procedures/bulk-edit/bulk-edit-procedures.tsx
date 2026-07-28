@@ -17,6 +17,7 @@ import {
   type BulkEditProceduresDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditProcedures,
+  useModuleFilteredSelectOptions,
   getMappedClearValue,
   InputType,
   SelectOptionBulkEditProcedures,
@@ -80,10 +81,11 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
     field: 'kind',
   })
 
-  const allOptionSelects = useMemo(() => {
+  const unfilteredOptionSelects = useMemo(() => {
     if (!groups || !isTypesSuccess) return []
     return getAllSelectOptionsForBulkEditProcedures(groups?.filter((g): g is Group => Boolean(g)) ?? [], enumOptions)
   }, [groups, isTypesSuccess, enumOptions])
+  const allOptionSelects = useModuleFilteredSelectOptions(unfilteredOptionSelects)
 
   const { control, handleSubmit } = form
 

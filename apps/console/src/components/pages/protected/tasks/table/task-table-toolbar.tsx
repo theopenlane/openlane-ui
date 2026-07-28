@@ -56,7 +56,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
   const { data: session } = useSession()
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const { orgMembers } = useTaskStore()
-  const { programOptions, isSuccess } = useProgramSelect({})
+  const { programOptions, isSuccess, hasProgramAccess } = useProgramSelect()
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
@@ -172,10 +172,10 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
     if (filterFields || !orgMembers || !isSuccess || !isEnumOptionsSuccess) {
       return
     }
-    const fields = getTasksFilterFields(orgMembers, programOptions, taskKindOptions ?? [])
+    const fields = getTasksFilterFields(orgMembers, programOptions, taskKindOptions ?? [], hasProgramAccess)
 
     setFilterFields(fields)
-  }, [orgMembers, programOptions, filterFields, isSuccess, taskKindOptions, isEnumOptionsSuccess])
+  }, [orgMembers, programOptions, filterFields, isSuccess, hasProgramAccess, taskKindOptions, isEnumOptionsSuccess])
 
   const handleTabChange = (tab: 'table' | 'card') => {
     setActiveTab(tab)
