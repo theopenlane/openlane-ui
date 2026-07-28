@@ -25,6 +25,7 @@ import { useGetStandards, useCloneControls } from '@/lib/graphql-hooks/standard'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { ControlCategoryIcon } from '@/components/shared/control-category-icon-mapper/control-category-icon-mapper'
 import { useSession } from 'next-auth/react'
+import { OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/standards'
 
 type FilterTab = 'all' | 'added' | 'not-added' | 'recommended'
 type DraftAction = 'add' | 'remove'
@@ -57,7 +58,7 @@ export default function ControlsPage() {
   const { queryClient } = useGraphQLClient()
 
   const { data: otsStandardData } = useGetStandards({
-    where: { shortName: 'OTS', framework: 'openlane-trust-center' },
+    where: { shortName: OPENLANE_TRUST_CENTER_STANDARD.shortName, framework: OPENLANE_TRUST_CENTER_STANDARD.framework },
   })
   const otsStandardID = otsStandardData?.standards?.edges?.[0]?.node?.id
   const { mutateAsync: cloneControls, isPending: isCloning } = useCloneControls()

@@ -21,6 +21,7 @@ import type { WhereCondition } from '@/types'
 import { reviewHistoryColumns, isHighRiskTier, mappedReviewColumns, DEFAULT_VISIBILITY, REVIEW_FILTER_FIELDS } from '@/components/pages/protected/reviews/common/risk-review-config'
 import CreateReviewSheet from '@/components/pages/protected/reviews/common/create-review-sheet'
 import ReviewDetailSheet from '@/components/pages/protected/reviews/common/review-detail-sheet'
+import { useHasRecentReview } from '@/components/pages/protected/reviews/hooks/use-has-recent-review'
 
 interface RiskReviewTabProps {
   vendor: EntityQuery['entity']
@@ -46,8 +47,16 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
     where: { hasEntitiesWith: [{ id: vendor.id }], ...filterWhere, ...searchFields },
   })
 
-  const isOverdue = vendor.nextReviewAt && Date.parse(vendor.nextReviewAt) < now
   const isHighRisk = isHighRiskTier(vendor.tier)
+  const { hasRecentReview, isLoading: isRecentReviewLoading } = useHasRecentReview({
+    entityId: vendor.id,
+    lastReviewedAt: vendor.lastReviewedAt,
+    reviewFrequency: vendor.reviewFrequency,
+    enabled: isHighRisk,
+  })
+
+  const isOverdue = vendor.nextReviewAt && Date.parse(vendor.nextReviewAt) < now
+  const showHighRiskWarning = isHighRisk && !isRecentReviewLoading && !hasRecentReview
 
   const sharedFieldProps = {
     isEditing,
@@ -78,7 +87,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
         </div>
       )}
 
-      {isHighRisk && (
+      {showHighRiskWarning && (
         <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive border border-destructive/20">
           <AlertTriangle size={16} />
           <span className="text-sm font-medium">High risk vendor - immediate action required</span>

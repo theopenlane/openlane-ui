@@ -25,6 +25,7 @@ import { type ReportFilterId } from './report-filter-options'
 import { getOrganizationStorageItem, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
 import { compareNatural } from '@/lib/sort'
 import { useSession } from 'next-auth/react'
+import { OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/standards'
 
 type TControlReportPageProps = {
   active: 'dashboard' | 'table'
@@ -64,7 +65,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
 
   const { standardOptions, isSuccess: isSuccessStandards } = useStandardsSelect({
     where: {
-      shortNameNEQ: 'OTS',
+      shortNameNEQ: OPENLANE_TRUST_CENTER_STANDARD.shortName,
       hasControlsWith: [
         {
           hasOwnerWith: [{ id: currentOrgId }],

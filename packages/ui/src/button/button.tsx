@@ -62,7 +62,7 @@ const Button = ({
             </Comp>
           </TooltipTrigger>
           {descriptiveTooltipText && (
-            <TooltipContent side="bottom" sideOffset={8} align="center">
+            <TooltipContent portal side="bottom" sideOffset={8} align="center">
               {descriptiveTooltipText}
             </TooltipContent>
           )}

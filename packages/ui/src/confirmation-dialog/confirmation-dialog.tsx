@@ -49,7 +49,11 @@ export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, descr
         {showInput && (
           <div className="mb-4 flex flex-col gap-2 text-left">
             <Label>
-              To confirm, please type <b>DELETE</b> below:
+              To confirm, please type{' '}
+              <b className="cursor-pointer select-all" title="Click to select, then copy">
+                DELETE
+              </b>{' '}
+              below:
             </Label>
             <Input onChange={(e) => setConfirmationValue(e.target.value)}></Input>
           </div>

@@ -82541,8 +82541,10 @@ export type GetTrustCenterNdaRequestsQuery = {
         email: string
         createdAt?: any | null
         approvedAt?: string | null
+        approvedByUserID?: string | null
         signedAt?: string | null
         status?: TrustCenterNdaRequestTrustCenterNdaRequestStatus | null
+        approvedByUser?: { __typename?: 'User'; id: string; displayName?: string | null; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
       } | null
     } | null> | null
   }

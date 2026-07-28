@@ -108,7 +108,7 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
     if (!userData?.user.setting.isWebauthnAllowed) {
       return {
         badge: <Badge variant="secondary">Recommended</Badge>,
-        text: <p className="text-sm">With Passkeys, you can securely sign into your account using just your fingerprint, face, screen lock, or security key</p>,
+        text: <p className="text-sm text-muted-foreground">With Passkeys, you can securely sign into your account using just your fingerprint, face, screen lock, or security key</p>,
         buttons: [],
       }
     }
@@ -122,7 +122,7 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
 
   return (
     <Panel>
-      <PanelHeader heading="Passkeys and security keys" noBorder />
+      <PanelHeader heading="Passkeys and Security Keys" noBorder />
       <div className="flex w-full justify-between">
         <div className="flex w-full justify-between">
           <div className="rounded-lg bg-card border flex-1">

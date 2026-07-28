@@ -45,8 +45,8 @@ const NdaRequestsTableToolbar: React.FC<Props> = ({
   const showRevokeAccess = activeTab === 'signed' && selectedCount > 0
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 my-3 w-full">
-      <div className="flex flex-wrap items-center gap-3 grow sm:grow-0">
+    <div className="flex min-w-0 flex-wrap items-center justify-between gap-3 my-3 w-full">
+      <div className="flex min-w-0 flex-wrap items-center gap-3 grow sm:grow-0">
         <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as typeof activeTab)}>
           <TabsList className={`grid w-full ${requireApproval ? 'max-w-[400px] grid-cols-3' : 'max-w-[320px] grid-cols-2'}`}>
             <TabsTrigger value="requested">{requireApproval ? 'Needs Approval' : 'Requested'}</TabsTrigger>
@@ -55,8 +55,15 @@ const NdaRequestsTableToolbar: React.FC<Props> = ({
           </TabsList>
         </Tabs>
       </div>
-      <div className="flex items-center gap-2">
-        <Input icon={<SearchIcon size={16} />} placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.currentTarget.value)} variant="searchTable" className="w-60" />
+      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2 sm:flex-none">
+        <Input
+          icon={<SearchIcon size={16} />}
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.currentTarget.value)}
+          variant="searchTable"
+          className="w-full min-w-0 sm:w-60"
+        />
         <TableFilter filterFields={ndaRequestsFilterFields} onFilterChange={onFilterChange} pageKey={TableKeyEnum.TRUST_CENTER_NDA_REQUESTS} />
         {showApproveAll && (
           <Button icon={<CheckCheck size={16} />} iconPosition="left" onClick={onApproveAllRequest ?? onApproveAll} loading={approveAllLoading} disabled={approveAllDisabled || approveAllLoading}>

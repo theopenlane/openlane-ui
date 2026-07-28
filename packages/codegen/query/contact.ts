@@ -65,7 +65,7 @@ export const CONTACT = gql`
       title
       updatedAt
       updatedBy
-      entities(where: { hasEntityTypeWith: [{ name: "vendor" }] }) {
+      entities(where: { hasEntityTypeWith: [{ name: "vendor" }], systemOwned: false }) {
         edges {
           node {
             id

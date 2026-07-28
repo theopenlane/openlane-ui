@@ -83,8 +83,8 @@ const NDAsPage = () => {
   }
 
   return (
-    <div className="flex w-full justify-center py-8">
-      <div className="grid w-full max-w-300 gap-4 px-6">
+    <div className="flex w-full min-w-0 justify-center py-8">
+      <div className="grid w-full min-w-0 max-w-300 gap-4 px-6">
         <div>
           <PageHeading heading="Non-Disclosure Agreements" />
           <h3 className="mt-6 text-lg font-medium">NDA Document</h3>
@@ -203,7 +203,7 @@ const NDAsPage = () => {
             <NdaApprovalGroupCard selectedGroup={trustCenterSetting?.ndaApproverGroup} canEdit={canEditTc} disabled={isUpdatingSetting} onSelect={handleUpdateApproverGroup} />
           </div>
         )}
-        <div className="mt-4">
+        <div className="mt-4 min-w-0">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-lg font-medium">NDA Requests</h3>
           </div>
