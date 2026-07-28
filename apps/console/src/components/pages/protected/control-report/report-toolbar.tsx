@@ -14,6 +14,9 @@ import { BulkCSVCloneControlDialog } from '../controls/bulk-csv-clone-control-di
 import { BulkCSVCreateControlDialog } from '../controls/bulk-csv-create-control-dialog'
 import { BulkCSVCreateMappedControlDialog } from '../controls/bulk-csv-create-map-control-dialog'
 import { REPORT_FILTER_OPTIONS, type ReportFilterId } from './report-filter-options'
+import ReportToolbarAction from './report-toolbar-action'
+import ReportToolbarFilterLabel from './report-toolbar-filter-label'
+import { HIDE_BELOW_1300, HIDE_BELOW_1400, ICON_ONLY_BELOW_1300, TOOLBAR_CONTAINER } from '@/constants/toolbar'
 
 type ReportToolbarProps = {
   active: 'dashboard' | 'table'
@@ -68,25 +71,29 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isMapOpen, setIsMapOpen] = useState(false)
 
+  const expandLabel = allExpanded ? 'Collapse all' : 'Expand all'
+
+  const frameworkValue = effectiveStandard === 'CUSTOM' ? 'Organization Controls' : effectiveStandard ? (standardOptions.find((o) => o.value === effectiveStandard)?.label ?? 'Framework') : 'Framework'
+
+  const programValue =
+    selectedPrograms.length === 0
+      ? 'All programs'
+      : selectedPrograms.length === 1
+        ? (programOptions.find((o) => o.value === selectedPrograms[0])?.label ?? '1 program')
+        : `${selectedPrograms.length} programs`
+
+  const reportValue =
+    reportFilters.size === 0 ? 'All controls' : reportFilters.size === 1 ? (REPORT_FILTER_OPTIONS.find((o) => reportFilters.has(o.id))?.label ?? 'Custom') : `${reportFilters.size} criteria`
+
   return (
-    <div className="flex justify-between items-center gap-2 flex-wrap">
+    <div className={`${TOOLBAR_CONTAINER} flex justify-between items-center gap-2 flex-wrap`}>
       <div className="flex items-center gap-4">
         <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
-        <TabSwitcher active={active} setActive={setActive} storageKey={TabSwitcherStorageKeys.CONTROL} />
+        <TabSwitcher active={active} setActive={setActive} storageKey={TabSwitcherStorageKeys.CONTROL} labelClassName={HIDE_BELOW_1400} />
         {showActions && (
           <>
-            {hasVisibleControls && (
-              <Button type="button" variant="outline" className="h-7.5 px-3 gap-1.5" onClick={onToggleExpandAll}>
-                <ChevronsUpDown size={15} />
-                {allExpanded ? 'Collapse all' : 'Expand all'}
-              </Button>
-            )}
-            {canSelect && (hasVisibleControls || isSelectionMode) && (
-              <Button type="button" className={`h-7.5 px-3 gap-1.5 ${isSelectionMode ? 'border border-primary' : ''}`} variant="outline" onClick={onToggleSelectionMode}>
-                <ListChecks size={15} />
-                Select
-              </Button>
-            )}
+            {hasVisibleControls && <ReportToolbarAction label={expandLabel} icon={<ChevronsUpDown size={15} />} onClick={onToggleExpandAll} />}
+            {canSelect && (hasVisibleControls || isSelectionMode) && <ReportToolbarAction label="Select" icon={<ListChecks size={15} />} active={isSelectionMode} onClick={onToggleSelectionMode} />}
           </>
         )}
       </div>
@@ -95,10 +102,7 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" icon={<SlidersHorizontal />} iconPosition="left" className={`h-7.5 px-2! pl-3! ${effectiveStandard ? 'border border-primary' : ''}`}>
-              <span className="text-muted-foreground">Filter by:</span>
-              <span>
-                {effectiveStandard === 'CUSTOM' ? 'Organization Controls' : effectiveStandard ? (standardOptions.find((o) => o.value === effectiveStandard)?.label ?? 'Framework') : 'Framework'}
-              </span>
+              <ReportToolbarFilterLabel label="Filter by:" value={frameworkValue} />
             </Button>
           </DropdownMenuTrigger>
 
@@ -117,14 +121,7 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
           <Popover open={programPopoverOpen} onOpenChange={setProgramPopoverOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" icon={<FolderKanban />} iconPosition="left" className={`h-7.5 px-2! pl-3! ${selectedPrograms.length > 0 ? 'border border-primary' : ''}`}>
-                <span className="text-muted-foreground">Program:</span>
-                <span>
-                  {selectedPrograms.length === 0
-                    ? 'All programs'
-                    : selectedPrograms.length === 1
-                      ? (programOptions.find((o) => o.value === selectedPrograms[0])?.label ?? '1 program')
-                      : `${selectedPrograms.length} programs`}
-                </span>
+                <ReportToolbarFilterLabel label="Program:" value={programValue} />
               </Button>
             </PopoverTrigger>
             <PopoverContent align="start" className="w-72 p-4 space-y-2">
@@ -144,14 +141,7 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
             <PopoverTrigger asChild>
               <Button type="button" variant="outline" className={`h-7.5 px-2! pl-3! gap-1.5 ${reportFilters.size > 0 ? 'border border-primary' : ''}`}>
                 <FileSearch size={15} />
-                <span className="text-muted-foreground">Report on:</span>
-                <span>
-                  {reportFilters.size === 0
-                    ? 'All controls'
-                    : reportFilters.size === 1
-                      ? (REPORT_FILTER_OPTIONS.find((o) => reportFilters.has(o.id))?.label ?? 'Custom')
-                      : `${reportFilters.size} criteria`}
-                </span>
+                <ReportToolbarFilterLabel label="Report on:" value={reportValue} />
               </Button>
             </PopoverTrigger>
             <PopoverContent align="end" className="w-72 p-4 space-y-2">
@@ -222,9 +212,9 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
           </>
         ) : null}
         {createAllowed && showActions && (
-          <Link href="/controls/create-control" aria-label="Create Control">
-            <Button variant="primary" className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
-              Create
+          <Link href="/controls/create-control">
+            <Button variant="primary" className={`h-8 px-2! pl-3! ${ICON_ONLY_BELOW_1300}`} icon={<SquarePlus />} iconPosition="left" descriptiveTooltipText="Create control">
+              <span className={HIDE_BELOW_1300}>Create</span>
             </Button>
           </Link>
         )}
