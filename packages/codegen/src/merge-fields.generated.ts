@@ -164,6 +164,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'workflowEligibleMarker', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
   ],
   Assessment: [
+    { name: 'assessmentType', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'AssessmentAssessmentType' },
     { name: 'internalNotes', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'jsonconfig', kind: 'json', list: false, nonNull: false, listItemNonNull: false },
     { name: 'name', kind: 'string', list: false, nonNull: true, listItemNonNull: false },

@@ -23,8 +23,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { AssessmentAssessmentType } from '@repo/codegen/src/schema'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
 import { Label } from '@repo/ui/label'
-import { Badge } from '@repo/ui/badge'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 const enLocale = editorLocalization.getLocale('en')
 
@@ -39,6 +39,7 @@ const DURATION_OPTIONS = [
 ]
 
 const PRESET_VALUES = new Set([604800, 1209600, 2592000, 5184000, 7776000])
+const ASSESSMENT_TYPE_OPTIONS = enumToOptions(AssessmentAssessmentType)
 
 const customThemeName = 'Openlane'
 
@@ -192,6 +193,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
             input: {
               name: data.title || 'Untitled Questionnaire',
               jsonconfig: data,
+              assessmentType,
               ...(responseDueDuration === 0 ? { clearResponseDueDuration: true } : { responseDueDuration }),
             },
           })
@@ -246,34 +248,32 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
     }
   }, [saveAssessment])
 
-  const isEditing = !!input.existingId
-
   return (
     <Panel className="flex flex-col h-full bg-card border-oxford-blue-100 dark:border-oxford-blue-900 p-0">
       <div className="flex items-center gap-6 border-b px-4 py-3">
         <div className="flex items-center gap-2">
           <Label htmlFor="assessment-type">Type</Label>
-          {isEditing ? (
-            <Badge variant="outline">{assessmentType === AssessmentAssessmentType.INTERNAL ? 'Internal' : 'External'}</Badge>
-          ) : (
-            <Select
-              value={assessmentType}
-              onValueChange={(value) =>
-                dispatchQuestionnaireEditorState({
-                  type: 'set-assessment-type',
-                  value: value as AssessmentAssessmentType,
-                })
-              }
-            >
-              <SelectTrigger id="assessment-type" className="w-[140px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={AssessmentAssessmentType.EXTERNAL}>External</SelectItem>
-                <SelectItem value={AssessmentAssessmentType.INTERNAL}>Internal</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
+          <Select
+            value={assessmentType}
+            onValueChange={(value) => {
+              dispatchQuestionnaireEditorState({
+                type: 'set-assessment-type',
+                value: value as AssessmentAssessmentType,
+              })
+              creatorRef.current?.setModified({ type: 'PROPERTY_CHANGED' })
+            }}
+          >
+            <SelectTrigger id="assessment-type" className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ASSESSMENT_TYPE_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="flex items-center gap-2">
           <Label htmlFor="response-due">Response Due</Label>
