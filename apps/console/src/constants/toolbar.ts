@@ -1,0 +1,6 @@
+export const TOOLBAR_CONTAINER = '@container/toolbar'
+export const HIDE_BELOW_1400 = '@max-[1400px]/toolbar:hidden'
+export const ICON_ONLY_BELOW_1400 = '@max-[1400px]/toolbar:w-7.5 @max-[1400px]/toolbar:px-0'
+export const HIDE_BELOW_1300 = '@max-[1300px]/toolbar:hidden'
+export const SR_ONLY_BELOW_1300 = '@max-[1300px]/toolbar:sr-only'
+export const ICON_ONLY_BELOW_1300 = '@max-[1300px]/toolbar:size-8 @max-[1300px]/toolbar:p-0! @max-[1300px]/toolbar:gap-0!'
