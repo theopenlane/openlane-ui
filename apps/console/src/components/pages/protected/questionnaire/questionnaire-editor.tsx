@@ -29,6 +29,7 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 const enLocale = editorLocalization.getLocale('en')
 
 const DURATION_OPTIONS = [
+  { value: 0, label: 'No due date' },
   { value: 604800, label: '7 days' },
   { value: 1209600, label: '14 days' },
   { value: 2592000, label: '30 days' },
@@ -98,8 +99,8 @@ function questionnaireEditorReducer(state: TQuestionnaireEditorState, action: TQ
       return { ...state, customDueDate: action.value }
     case 'hydrate-from-assessment': {
       const nextAssessmentType = action.assessmentType ?? state.assessmentType
-      const nextDuration = action.responseDueDuration ?? state.responseDueDuration
-      const nextIsCustomDuration = !PRESET_VALUES.has(nextDuration)
+      const nextDuration = action.responseDueDuration ?? 0
+      const nextIsCustomDuration = nextDuration > 0 && !PRESET_VALUES.has(nextDuration)
 
       return {
         assessmentType: nextAssessmentType,
@@ -191,7 +192,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
             input: {
               name: data.title || 'Untitled Questionnaire',
               jsonconfig: data,
-              responseDueDuration,
+              ...(responseDueDuration === 0 ? { clearResponseDueDuration: true } : { responseDueDuration }),
             },
           })
 
@@ -199,7 +200,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
             title: 'Assessment updated successfully',
           })
 
-          router.push(`/automation/questionnaires`)
+          router.push(`/automation/questionnaires/${input.existingId}`)
         } catch (error) {
           const errorMessage = parseErrorMessage(error)
           errorNotification({
@@ -280,14 +281,23 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
             value={isCustomDuration ? '-1' : String(responseDueDuration)}
             onValueChange={(value) => {
               const num = Number(value)
-              if (num === -1) {
-                dispatchQuestionnaireEditorState({ type: 'set-is-custom-duration', value: true })
-              } else {
+              if (num === 0) {
                 dispatchQuestionnaireEditorState({ type: 'set-is-custom-duration', value: false })
                 dispatchQuestionnaireEditorState({ type: 'set-custom-due-date', value: null })
-                dispatchQuestionnaireEditorState({ type: 'set-response-due-duration', value: num })
+                dispatchQuestionnaireEditorState({ type: 'set-response-due-duration', value: 0 })
                 creatorRef.current?.setModified({ type: 'PROPERTY_CHANGED' })
+                return
               }
+
+              if (num === -1) {
+                dispatchQuestionnaireEditorState({ type: 'set-is-custom-duration', value: true })
+                return
+              }
+
+              dispatchQuestionnaireEditorState({ type: 'set-is-custom-duration', value: false })
+              dispatchQuestionnaireEditorState({ type: 'set-custom-due-date', value: null })
+              dispatchQuestionnaireEditorState({ type: 'set-response-due-duration', value: num })
+              creatorRef.current?.setModified({ type: 'PROPERTY_CHANGED' })
             }}
           >
             <SelectTrigger id="response-due" className="w-[140px]">
