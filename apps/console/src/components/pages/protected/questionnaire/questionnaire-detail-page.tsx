@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Users, CheckCircle, Calendar, Send, FileText, Download, Eye, Pencil, Trash2, Copy, ExternalLink, RefreshCw } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGenerateAssessmentAccessURL, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
-import { formatDate } from '@/utils/date'
+import { computeDueDate, formatDate } from '@/utils/date'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterIcons, QuestionnaireFilterIconName } from '@/components/shared/enum-mapper/questionnaire-enum'
@@ -226,12 +226,11 @@ const QuestionnaireDetailPage = () => {
   }, [setCrumbs, assessment?.name, isLoading])
 
   const { dueDate, isPastDue } = useMemo(() => {
-    if (!responses?.length) return { dueDate: '-', isPastDue: false }
-    const firstDueDate = responses.find((r) => r?.dueDate)?.dueDate
-    if (!firstDueDate) return { dueDate: '-', isPastDue: false }
-    const isOverdue = new Date(firstDueDate) < new Date() && completedResponses < totalRecipients
-    return { dueDate: formatDate(firstDueDate), isPastDue: isOverdue }
-  }, [responses, completedResponses, totalRecipients])
+    const computedDueDate = computeDueDate(assessment?.responseDueDuration)
+    if (!computedDueDate) return { dueDate: '-', isPastDue: false }
+    const isOverdue = new Date(computedDueDate) < new Date() && completedResponses < totalRecipients
+    return { dueDate: formatDate(computedDueDate), isPastDue: isOverdue }
+  }, [assessment?.responseDueDuration, completedResponses, totalRecipients])
 
   const responseRows = useMemo(
     () =>

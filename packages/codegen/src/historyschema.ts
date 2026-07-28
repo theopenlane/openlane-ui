@@ -16970,8 +16970,6 @@ export interface CreateStandardInput {
   /** the long name of the standard body */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** priority for displaying standards */
-  priority?: InputMaybe<Scalars['Int']['input']>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
   /** short name of the standard, e.g. SOC 2, ISO 27001, etc. */
@@ -52096,8 +52094,8 @@ export enum NotificationNotificationTopic {
   EXPORT = 'EXPORT',
   IMPORT_COMPLETE = 'IMPORT_COMPLETE',
   MENTION = 'MENTION',
-  STANDARD_UPDATE = 'STANDARD_UPDATE',
   ORGANIZATION_READY = 'ORGANIZATION_READY',
+  STANDARD_UPDATE = 'STANDARD_UPDATE',
   TASK_ASSIGNMENT = 'TASK_ASSIGNMENT',
 }
 
@@ -75780,8 +75778,6 @@ export interface Standard extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  /** priority for displaying standards */
-  priority: Scalars['Int']['output']
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: Maybe<Scalars['String']['output']>
   /** short name of the standard, e.g. SOC 2, ISO 27001, etc. */
@@ -75914,8 +75910,6 @@ export interface StandardHistory extends Node {
   operation: StandardHistoryOpType
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['String']['output']>
-  /** priority for displaying standards */
-  priority: Scalars['Int']['output']
   ref?: Maybe<Scalars['String']['output']>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: Maybe<Scalars['String']['output']>
@@ -75982,7 +75976,6 @@ export enum StandardHistoryOrderField {
   governing_body = 'governing_body',
   history_time = 'history_time',
   name = 'name',
-  priority = 'priority',
   revision = 'revision',
   short_name = 'short_name',
   standard_type = 'standard_type',
@@ -76208,15 +76201,6 @@ export interface StandardHistoryWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** priority field predicates */
-  priority?: InputMaybe<Scalars['Int']['input']>
-  priorityGT?: InputMaybe<Scalars['Int']['input']>
-  priorityGTE?: InputMaybe<Scalars['Int']['input']>
-  priorityIn?: InputMaybe<Array<Scalars['Int']['input']>>
-  priorityLT?: InputMaybe<Scalars['Int']['input']>
-  priorityLTE?: InputMaybe<Scalars['Int']['input']>
-  priorityNEQ?: InputMaybe<Scalars['Int']['input']>
-  priorityNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -76385,7 +76369,6 @@ export enum StandardOrderField {
   framework = 'framework',
   governing_body = 'governing_body',
   name = 'name',
-  priority = 'priority',
   revision = 'revision',
   short_name = 'short_name',
   standard_type = 'standard_type',
@@ -76624,15 +76607,6 @@ export interface StandardWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** priority field predicates */
-  priority?: InputMaybe<Scalars['Int']['input']>
-  priorityGT?: InputMaybe<Scalars['Int']['input']>
-  priorityGTE?: InputMaybe<Scalars['Int']['input']>
-  priorityIn?: InputMaybe<Array<Scalars['Int']['input']>>
-  priorityLT?: InputMaybe<Scalars['Int']['input']>
-  priorityLTE?: InputMaybe<Scalars['Int']['input']>
-  priorityNEQ?: InputMaybe<Scalars['Int']['input']>
-  priorityNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   /** revision field predicates */
   revision?: InputMaybe<Scalars['String']['input']>
   revisionContains?: InputMaybe<Scalars['String']['input']>
@@ -95022,8 +94996,6 @@ export interface UpdateStandardInput {
   /** the long name of the standard body */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** priority for displaying standards */
-  priority?: InputMaybe<Scalars['Int']['input']>
   removeApplicablePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -119287,7 +119259,7 @@ export type GetTrustCenterNdaRequestsQuery = {
         approvedByUserID?: string | null
         signedAt?: string | null
         status?: TrustCenterNdaRequestTrustCenterNdaRequestStatus | null
-        approvedByUser?: { __typename?: 'User'; id: string; displayName?: string | null; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        approvedByUser?: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
       } | null
     } | null> | null
   }
