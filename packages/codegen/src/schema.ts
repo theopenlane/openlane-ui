@@ -11375,8 +11375,6 @@ export interface CreateStandardInput {
   /** the long name of the standard body */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** priority for displaying standards */
-  priority?: InputMaybe<Scalars['Int']['input']>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
   /** short name of the standard, e.g. SOC 2, ISO 27001, etc. */
@@ -34770,8 +34768,8 @@ export enum NotificationNotificationTopic {
   EXPORT = 'EXPORT',
   IMPORT_COMPLETE = 'IMPORT_COMPLETE',
   MENTION = 'MENTION',
-  STANDARD_UPDATE = 'STANDARD_UPDATE',
   ORGANIZATION_READY = 'ORGANIZATION_READY',
+  STANDARD_UPDATE = 'STANDARD_UPDATE',
   TASK_ASSIGNMENT = 'TASK_ASSIGNMENT',
 }
 
@@ -49856,8 +49854,6 @@ export interface Standard extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  /** priority for displaying standards */
-  priority: Scalars['Int']['output']
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: Maybe<Scalars['String']['output']>
   /** short name of the standard, e.g. SOC 2, ISO 27001, etc. */
@@ -49974,7 +49970,6 @@ export enum StandardOrderField {
   framework = 'framework',
   governing_body = 'governing_body',
   name = 'name',
-  priority = 'priority',
   revision = 'revision',
   short_name = 'short_name',
   standard_type = 'standard_type',
@@ -50213,15 +50208,6 @@ export interface StandardWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** priority field predicates */
-  priority?: InputMaybe<Scalars['Int']['input']>
-  priorityGT?: InputMaybe<Scalars['Int']['input']>
-  priorityGTE?: InputMaybe<Scalars['Int']['input']>
-  priorityIn?: InputMaybe<Array<Scalars['Int']['input']>>
-  priorityLT?: InputMaybe<Scalars['Int']['input']>
-  priorityLTE?: InputMaybe<Scalars['Int']['input']>
-  priorityNEQ?: InputMaybe<Scalars['Int']['input']>
-  priorityNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   /** revision field predicates */
   revision?: InputMaybe<Scalars['String']['input']>
   revisionContains?: InputMaybe<Scalars['String']['input']>
@@ -63272,8 +63258,6 @@ export interface UpdateStandardInput {
   /** the long name of the standard body */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** priority for displaying standards */
-  priority?: InputMaybe<Scalars['Int']['input']>
   removeApplicablePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -71324,15 +71308,6 @@ export type GetAssessmentAccessUrlQueryVariables = Exact<{
 
 export type GetAssessmentAccessUrlQuery = { __typename?: 'Query'; assessment: { __typename?: 'Assessment'; id: string; accessURL?: string | null } }
 
-export type GetAssessmentRecipientsTotalCountQueryVariables = Exact<{
-  getAssessmentId: Scalars['ID']['input']
-}>
-
-export type GetAssessmentRecipientsTotalCountQuery = {
-  __typename?: 'Query'
-  assessment: { __typename?: 'Assessment'; id: string; assessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number } }
-}
-
 export type GetAssessmentResponsesTotalCountQueryVariables = Exact<{
   getAssessmentId: Scalars['ID']['input']
   where?: InputMaybe<AssessmentResponseWhereInput>
@@ -71805,6 +71780,15 @@ export type CreateCampaignMutationVariables = Exact<{
 
 export type CreateCampaignMutation = { __typename?: 'Mutation'; createCampaign: { __typename?: 'CampaignCreatePayload'; campaign: { __typename?: 'Campaign'; id: string } } }
 
+export type CreateCampaignWithTargetsMutationVariables = Exact<{
+  input: CreateCampaignWithTargetsInput
+}>
+
+export type CreateCampaignWithTargetsMutation = {
+  __typename?: 'Mutation'
+  createCampaignWithTargets: { __typename?: 'CampaignCreateWithTargetsPayload'; campaign: { __typename?: 'Campaign'; id: string } }
+}
+
 export type UpdateCampaignMutationVariables = Exact<{
   updateCampaignId: Scalars['ID']['input']
   input: UpdateCampaignInput
@@ -71817,6 +71801,18 @@ export type DeleteCampaignMutationVariables = Exact<{
 }>
 
 export type DeleteCampaignMutation = { __typename?: 'Mutation'; deleteCampaign: { __typename?: 'CampaignDeletePayload'; deletedID: string } }
+
+export type SendCampaignTestEmailMutationVariables = Exact<{
+  input: SendCampaignTestEmailInput
+}>
+
+export type SendCampaignTestEmailMutation = { __typename?: 'Mutation'; sendCampaignTestEmail: { __typename?: 'CampaignTestEmailPayload'; queuedCount: number; skippedCount: number } }
+
+export type ResendCampaignIncompleteTargetsMutationVariables = Exact<{
+  input: ResendCampaignIncompleteInput
+}>
+
+export type ResendCampaignIncompleteTargetsMutation = { __typename?: 'Mutation'; resendCampaignIncompleteTargets: { __typename?: 'CampaignLaunchPayload'; queuedCount: number; skippedCount: number } }
 
 export type CheckResultsWithFilterQueryVariables = Exact<{
   where?: InputMaybe<CheckResultWhereInput>
@@ -74252,6 +74248,7 @@ export type EmailTemplatesWithFilterQuery = {
         version: number
         workflowDefinitionID?: string | null
         workflowInstanceID?: string | null
+        campaigns: { __typename?: 'CampaignConnection'; totalCount: number }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -74498,6 +74495,19 @@ export type EntitiesWithFilterQuery = {
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type GetEntityOptionsQueryVariables = Exact<{
+  where?: InputMaybe<EntityWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetEntityOptionsQuery = {
+  __typename?: 'Query'
+  entities: {
+    __typename?: 'EntityConnection'
+    edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
   }
 }
 
@@ -76201,6 +76211,27 @@ export type IdentityHoldersWithFilterQuery = {
         internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
       } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type GetIdentityHolderOptionsQueryVariables = Exact<{
+  where?: InputMaybe<IdentityHolderWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetIdentityHolderOptionsQuery = {
+  __typename?: 'Query'
+  identityHolders: {
+    __typename?: 'IdentityHolderConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'IdentityHolderEdge'
+      node?: { __typename?: 'IdentityHolder'; id: string; email: string; fullName: string; identityHolderType: IdentityHolderIdentityHolderType } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
@@ -82544,7 +82575,7 @@ export type GetTrustCenterNdaRequestsQuery = {
         approvedByUserID?: string | null
         signedAt?: string | null
         status?: TrustCenterNdaRequestTrustCenterNdaRequestStatus | null
-        approvedByUser?: { __typename?: 'User'; id: string; displayName?: string | null; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        approvedByUser?: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
       } | null
     } | null> | null
   }

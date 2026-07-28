@@ -1250,7 +1250,6 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'logoFileID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'name', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
     { name: 'ownerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'priority', kind: 'number', list: false, nonNull: true, listItemNonNull: false },
     { name: 'revision', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'shortName', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'standardType', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
