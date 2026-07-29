@@ -40,16 +40,19 @@ type MemberActionsProps = {
   memberName: string
   additionalRoles?: string[] | null
   memberSSOExempt?: boolean
+  memberTFAEnforced?: boolean
 }
 
 const ICON_SIZE = 12
 
-export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, additionalRoles, memberSSOExempt = false }: MemberActionsProps) => {
+export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, additionalRoles, memberSSOExempt = false, memberTFAEnforced = false }: MemberActionsProps) => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [showChangeRole, setShowChangeRole] = useState(false)
   const [showManageRoles, setShowManageRoles] = useState(false)
   const [showSSOExempt, setShowSSOExempt] = useState(false)
   const [exemptReason, setExemptReason] = useState('')
+  const [showTFAEnforced, setShowTFAEnforced] = useState(false)
+  const [tfaEnforcedReason, setTfaEnforcedReason] = useState('')
   const hasFullAccess = memberRole === OrgMembershipRole.OWNER || memberRole === OrgMembershipRole.SUPER_ADMIN
   const { changeRoleGrid } = pageStyles()
   const { mutateAsync: deleteMember } = useRemoveUserFromOrg()
@@ -113,6 +116,31 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
 
       setShowSSOExempt(false)
       setExemptReason('')
+    } catch (error) {
+      errorNotification({
+        title: 'Error',
+        description: parseErrorMessage(error),
+      })
+    }
+  }
+
+  const handleToggleTFAEnforced = async () => {
+    const granting = !memberTFAEnforced
+    try {
+      await updateMember({
+        updateOrgMemberId: memberId,
+        input: granting ? { tfaEnforced: true, tfaEnforcedReason: tfaEnforcedReason.trim() || undefined } : { tfaEnforced: false, clearTfaEnforcedReason: true },
+      })
+      successNotification({
+        title: '2FA Enforcement Updated',
+        description: granting ? 'Member marked as 2FA enforced' : '2FA enforcement removed',
+        variant: 'success',
+      })
+
+      invalidateMembershipQueries(queryClient)
+
+      setShowTFAEnforced(false)
+      setTfaEnforcedReason('')
     } catch (error) {
       errorNotification({
         title: 'Error',
@@ -221,6 +249,13 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
                   </div>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
+              <DropdownMenuGroup>
+                <DropdownMenuItem onSelect={() => (memberTFAEnforced ? handleToggleTFAEnforced() : setShowTFAEnforced(true))}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    {memberTFAEnforced ? <ShieldCheck width={ICON_SIZE} /> : <ShieldOff width={ICON_SIZE} />} &nbsp; {memberTFAEnforced ? 'Remove 2FA Enforcement' : 'Mark as 2FA Enforced'}
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
             </>
           )}
         </DropdownMenuContent>
@@ -306,6 +341,30 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
             <AlertDialogAction asChild>
               <Button variant="primary" onClick={handleToggleSSOExempt}>
                 Mark exempt
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog open={showTFAEnforced} onOpenChange={setShowTFAEnforced}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Mark as 2FA Enforced</AlertDialogTitle>
+            <AlertDialogDescription>
+              <b>{memberName} </b> will be required to configure multi-factor authentication for this organization, even when organization-wide 2FA enforcement is disabled.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm text-muted-foreground">Reason (optional)</span>
+            <Input value={tfaEnforcedReason} onChange={(e) => setTfaEnforcedReason(e.target.value)} placeholder="Privileged access" />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <CancelButton />
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button variant="primary" onClick={handleToggleTFAEnforced}>
+                Mark enforced
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>

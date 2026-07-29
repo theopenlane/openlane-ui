@@ -10429,6 +10429,10 @@ export interface CreateOrgMembershipInput {
   ssoExempt?: InputMaybe<Scalars['Boolean']['input']>
   /** reason the member was granted an SSO exemption */
   ssoExemptReason?: InputMaybe<Scalars['String']['input']>
+  /** member must configure multifactor authentication for this organization even when organization-wide TFA enforcement is disabled */
+  tfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  /** reason the member was required to configure multifactor authentication */
+  tfaEnforcedReason?: InputMaybe<Scalars['String']['input']>
   userID: Scalars['ID']['input']
 }
 
@@ -11375,8 +11379,6 @@ export interface CreateStandardInput {
   /** the long name of the standard body */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** priority for displaying standards */
-  priority?: InputMaybe<Scalars['Int']['input']>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
   /** short name of the standard, e.g. SOC 2, ISO 27001, etc. */
@@ -34770,8 +34772,8 @@ export enum NotificationNotificationTopic {
   EXPORT = 'EXPORT',
   IMPORT_COMPLETE = 'IMPORT_COMPLETE',
   MENTION = 'MENTION',
-  STANDARD_UPDATE = 'STANDARD_UPDATE',
   ORGANIZATION_READY = 'ORGANIZATION_READY',
+  STANDARD_UPDATE = 'STANDARD_UPDATE',
   TASK_ASSIGNMENT = 'TASK_ASSIGNMENT',
 }
 
@@ -35969,6 +35971,14 @@ export interface OrgMembership extends Node {
   ssoExemptGrantedBy?: Maybe<Scalars['String']['output']>
   /** reason the member was granted an SSO exemption */
   ssoExemptReason?: Maybe<Scalars['String']['output']>
+  /** member must configure multifactor authentication for this organization even when organization-wide TFA enforcement is disabled */
+  tfaEnforced?: Maybe<Scalars['Boolean']['output']>
+  /** when multifactor authentication was required; stamped server-side, not settable via the API */
+  tfaEnforcedAt?: Maybe<Scalars['DateTime']['output']>
+  /** id of the user that required multifactor authentication; stamped server-side, not settable via the API */
+  tfaEnforcedBy?: Maybe<Scalars['String']['output']>
+  /** reason the member was required to configure multifactor authentication */
+  tfaEnforcedReason?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   /** the real user acting through an impersonation session when the record was last mutated, if any */
@@ -36179,6 +36189,54 @@ export interface OrgMembershipWhereInput {
   ssoExemptReasonNEQ?: InputMaybe<Scalars['String']['input']>
   ssoExemptReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   ssoExemptReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** tfa_enforced field predicates */
+  tfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  /** tfa_enforced_at field predicates */
+  tfaEnforcedAt?: InputMaybe<Scalars['DateTime']['input']>
+  tfaEnforcedAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  tfaEnforcedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  tfaEnforcedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  tfaEnforcedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  tfaEnforcedAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  tfaEnforcedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  tfaEnforcedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  tfaEnforcedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  tfaEnforcedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** tfa_enforced_by field predicates */
+  tfaEnforcedBy?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByContains?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByGT?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByGTE?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  tfaEnforcedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  tfaEnforcedByLT?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByLTE?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByNEQ?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  tfaEnforcedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  tfaEnforcedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  tfaEnforcedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  tfaEnforcedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** tfa_enforced_reason field predicates */
+  tfaEnforcedReason?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonContains?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonContainsFold?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonEqualFold?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonGT?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonGTE?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonHasPrefix?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonHasSuffix?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonIn?: InputMaybe<Array<Scalars['String']['input']>>
+  tfaEnforcedReasonIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  tfaEnforcedReasonLT?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonLTE?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonNEQ?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  tfaEnforcedReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -49856,8 +49914,6 @@ export interface Standard extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  /** priority for displaying standards */
-  priority: Scalars['Int']['output']
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: Maybe<Scalars['String']['output']>
   /** short name of the standard, e.g. SOC 2, ISO 27001, etc. */
@@ -49974,7 +50030,6 @@ export enum StandardOrderField {
   framework = 'framework',
   governing_body = 'governing_body',
   name = 'name',
-  priority = 'priority',
   revision = 'revision',
   short_name = 'short_name',
   standard_type = 'standard_type',
@@ -50213,15 +50268,6 @@ export interface StandardWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** priority field predicates */
-  priority?: InputMaybe<Scalars['Int']['input']>
-  priorityGT?: InputMaybe<Scalars['Int']['input']>
-  priorityGTE?: InputMaybe<Scalars['Int']['input']>
-  priorityIn?: InputMaybe<Array<Scalars['Int']['input']>>
-  priorityLT?: InputMaybe<Scalars['Int']['input']>
-  priorityLTE?: InputMaybe<Scalars['Int']['input']>
-  priorityNEQ?: InputMaybe<Scalars['Int']['input']>
-  priorityNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   /** revision field predicates */
   revision?: InputMaybe<Scalars['String']['input']>
   revisionContains?: InputMaybe<Scalars['String']['input']>
@@ -58169,6 +58215,7 @@ export interface UpdateAssessmentInput {
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  assessmentType?: InputMaybe<AssessmentAssessmentType>
   clearAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
@@ -61449,12 +61496,18 @@ export interface UpdateOrgMembershipInput {
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearSSOExempt?: InputMaybe<Scalars['Boolean']['input']>
   clearSSOExemptReason?: InputMaybe<Scalars['Boolean']['input']>
+  clearTfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  clearTfaEnforcedReason?: InputMaybe<Scalars['Boolean']['input']>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   role?: InputMaybe<OrgMembershipRole>
   /** member is exempt from the SSO login redirect for this organization; TFA enforcement still applies. Who may set this is gated by the org membership mutation policy */
   ssoExempt?: InputMaybe<Scalars['Boolean']['input']>
   /** reason the member was granted an SSO exemption */
   ssoExemptReason?: InputMaybe<Scalars['String']['input']>
+  /** member must configure multifactor authentication for this organization even when organization-wide TFA enforcement is disabled */
+  tfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  /** reason the member was required to configure multifactor authentication */
+  tfaEnforcedReason?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -63272,8 +63325,6 @@ export interface UpdateStandardInput {
   /** the long name of the standard body */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** priority for displaying standards */
-  priority?: InputMaybe<Scalars['Int']['input']>
   removeApplicablePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterComplianceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -77663,7 +77714,17 @@ export type UpdateUserRoleInOrgMutation = {
   __typename?: 'Mutation'
   updateOrgMembership: {
     __typename?: 'OrgMembershipUpdatePayload'
-    orgMembership: { __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; userID: string; organizationID: string; ssoExempt?: boolean | null; ssoExemptReason?: string | null }
+    orgMembership: {
+      __typename?: 'OrgMembership'
+      id: string
+      role: OrgMembershipRole
+      userID: string
+      organizationID: string
+      ssoExempt?: boolean | null
+      ssoExemptReason?: string | null
+      tfaEnforced?: boolean | null
+      tfaEnforcedReason?: string | null
+    }
   }
 }
 
@@ -77698,6 +77759,8 @@ export type OrgMembershipsQuery = {
         additionalRoles?: Array<string> | null
         ssoExempt?: boolean | null
         ssoExemptReason?: string | null
+        tfaEnforced?: boolean | null
+        tfaEnforcedReason?: string | null
         user: {
           __typename?: 'User'
           id: string
@@ -82544,7 +82607,7 @@ export type GetTrustCenterNdaRequestsQuery = {
         approvedByUserID?: string | null
         signedAt?: string | null
         status?: TrustCenterNdaRequestTrustCenterNdaRequestStatus | null
-        approvedByUser?: { __typename?: 'User'; id: string; displayName?: string | null; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        approvedByUser?: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
       } | null
     } | null> | null
   }
