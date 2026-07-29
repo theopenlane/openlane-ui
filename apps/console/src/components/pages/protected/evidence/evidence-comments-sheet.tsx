@@ -13,12 +13,13 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 import { SheetTitle } from '@repo/ui/sheet'
 import { useQueryClient } from '@tanstack/react-query'
 import { ArrowDownUp, ArrowUpDown } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
-import { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
-const EvidenceCommentSheet = () => {
-  const searchParams = useSearchParams()
-  const evidenceId = searchParams.get('id') || searchParams.get('controlEvidenceId')
+type TEvidenceCommentSheetProps = {
+  evidenceId: string
+}
+
+const EvidenceCommentSheet: React.FC<TEvidenceCommentSheetProps> = ({ evidenceId }) => {
   const { data } = useGetEvidenceComments(evidenceId)
   const { mutateAsync: updateEvidenceComment } = useUpdateEvidenceComment()
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
