@@ -19,7 +19,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { canDelete, canEdit } from '@/lib/authz/utils.ts'
+import { canDelete, canEdit, hasPermission } from '@/lib/authz/utils.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SendQuestionnaireDialog } from '@/components/pages/protected/questionnaire/dialog/send-questionnaire-dialog'
@@ -27,6 +27,8 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useAssessmentSendPermissionMap } from '@/lib/authz/use-can-send-questionnaire'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { useSession } from 'next-auth/react'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { CreateAssessmentTemplateDialog } from '@/components/pages/protected/questionnaire/dialog/create-assessment-template-dialog'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
@@ -38,6 +40,7 @@ export const QuestionnairesTable = () => {
 
   const [deleteTarget, setDeleteTarget] = useState<Assessment | null>(null)
   const [sendTarget, setSendTarget] = useState<Assessment | null>(null)
+  const [createTemplateTarget, setCreateTemplateTarget] = useState<Assessment | null>(null)
 
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
   const { data: permission } = useOrganizationRoles()
@@ -135,6 +138,10 @@ export const QuestionnairesTable = () => {
     setDeleteTarget(assessment)
   }, [])
 
+  const handleTemplateCloning = useCallback((assessment: Assessment) => {
+    setCreateTemplateTarget(assessment)
+  }, [])
+
   const confirmDelete = async () => {
     if (!deleteTarget) return
     try {
@@ -148,6 +155,7 @@ export const QuestionnairesTable = () => {
   }
 
   const canSendMap = useAssessmentSendPermissionMap(assessments ?? [])
+  const canCreateTemplate = hasPermission(permission?.roles, AccessEnum.CanCreateTemplate, session)
 
   const { columns, mappedColumns } = getQuestionnaireColumns({
     userMap,
@@ -158,10 +166,12 @@ export const QuestionnairesTable = () => {
     onEdit: handleEdit,
     onPreview: handlePreview,
     onViewDetails: handleViewDetails,
+    onCreateTemplate: handleTemplateCloning,
     onDelete: handleDelete,
     canSendMap,
     canEdit: canEdit(permission?.roles, session),
     canDelete: canDelete(permission?.roles),
+    canCreateTemplate,
   })
 
   const getColumnExportKey = <T,>(col: ColumnDef<T>): string | null => {
@@ -285,6 +295,8 @@ export const QuestionnairesTable = () => {
         assessmentName={sendTarget?.name}
         responseDueDuration={sendTarget?.responseDueDuration}
       />
+
+      <CreateAssessmentTemplateDialog open={!!createTemplateTarget} onOpenChange={(open) => !open && setCreateTemplateTarget(null)} assessment={createTemplateTarget} />
 
       {/* Delete Confirmation Dialog */}
       <ConfirmationDialog

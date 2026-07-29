@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
 import {
+  CREATE_ASSESSMENT_TEMPLATE,
   CREATE_ASSESSMENT,
   UPDATE_ASSESSMENT,
   GET_ALL_ASSESSMENTS,
@@ -39,8 +40,20 @@ import {
   type DeleteBulkAssessmentMutationVariables,
   type AssessmentResponseOrder,
   type AssessmentResponseWhereInput,
+  type CreateAssessmentTemplateInput,
+  type Template,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
+
+type CreateAssessmentTemplateMutationVariables = {
+  input: CreateAssessmentTemplateInput
+}
+
+type CreateAssessmentTemplateMutation = {
+  createAssessmentTemplate?: {
+    template: Pick<Template, 'id' | 'name' | 'description' | 'tags'>
+  }
+}
 
 type UseAssessmentsArgs = {
   where?: FilterAssessmentsQueryVariables['where']
@@ -269,6 +282,17 @@ export const useCreateAssessment = () => {
     mutationFn: (variables) => client.request(CREATE_ASSESSMENT, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assessments'] })
+    },
+  })
+}
+
+export const useCreateAssessmentTemplate = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<CreateAssessmentTemplateMutation, unknown, CreateAssessmentTemplateMutationVariables>({
+    mutationFn: (variables) => client.request<CreateAssessmentTemplateMutation, CreateAssessmentTemplateMutationVariables>(CREATE_ASSESSMENT_TEMPLATE, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['templates'] })
     },
   })
 }
