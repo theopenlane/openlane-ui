@@ -97,8 +97,8 @@ export const SignupPage = () => {
 
             const isEmailValid = await validateEmail(payload)
             if (!isEmailValid) {
-              // router.push('/waitlist')
-              // return
+              router.push('/waitlist')
+              return
             }
 
             if (payload.password === payload.confirmedPassword) {
