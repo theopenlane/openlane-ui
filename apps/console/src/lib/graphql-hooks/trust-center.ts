@@ -34,10 +34,15 @@ import { fetchGraphQLWithUpload } from '../fetchGraphql'
 export const useGetTrustCenter = () => {
   const { client } = useGraphQLClient()
 
-  return useQuery({
+  const queryResult = useQuery({
     queryKey: ['trustCenter'],
     queryFn: async () => client.request<GetTrustCenterQuery>(GET_ALL_TRUST_CENTERS),
   })
+
+  return {
+    ...queryResult,
+    trustCenter: queryResult.data?.trustCenters?.edges?.[0]?.node,
+  }
 }
 
 export type TrustCenterEdge = NonNullable<NonNullable<GetTrustCenterQuery['trustCenters']>['edges']>[number]
