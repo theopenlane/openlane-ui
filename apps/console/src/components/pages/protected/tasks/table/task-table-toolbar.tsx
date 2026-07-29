@@ -1,7 +1,7 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useMemo, useState } from 'react'
 import { getTasksFilterFields } from '@/components/pages/protected/tasks/table/table-config.ts'
-import { taskDefaultFilterValues } from '@/components/pages/protected/tasks/util/task'
+import { overdueTaskQuickFilter, taskDefaultFilterValues } from '@/components/pages/protected/tasks/util/task'
 import CreateTaskDropdown from '@/components/pages/protected/tasks/create-task/dialog/create-task-dropdown'
 import { type FilterField } from '@/types'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
@@ -94,13 +94,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
         getCondition: () => ({ assigneeID: session?.user?.userId }),
         isActive: props.showMyTasks ?? false,
       },
-      {
-        label: 'Overdue',
-        key: 'overdue',
-        type: 'custom',
-        getCondition: () => ({ dueLT: format(startOfDay(new Date()), DateFormatStorage) }),
-        isActive: false,
-      },
+      overdueTaskQuickFilter(false),
       {
         label: 'Due This Week',
         key: 'dueThisWeek',

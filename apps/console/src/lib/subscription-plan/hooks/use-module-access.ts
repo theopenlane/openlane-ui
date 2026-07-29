@@ -8,14 +8,14 @@ import { featureUtil } from '@/lib/subscription-plan/plans'
 import { type NavItem } from '@/types'
 
 export const useModuleAccess = () => {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const modules = useMemo(() => session?.user?.modules ?? [], [session?.user?.modules])
 
   const hasModule = useCallback((module: PlanEnum) => featureUtil.hasModule(modules, module, session), [modules, session])
 
   const hasObjectType = useCallback((objectType: ObjectTypes) => featureUtil.hasObjectType(modules, objectType, session), [modules, session])
 
-  return useMemo(() => ({ modules, hasModule, hasObjectType }), [modules, hasModule, hasObjectType])
+  return useMemo(() => ({ modules, hasModule, hasObjectType, isLoading: status === 'loading' }), [modules, hasModule, hasObjectType, status])
 }
 
 export const useHasObjectType = (objectType: ObjectTypes) => {
