@@ -23,7 +23,6 @@ const AssigneeCell: React.FC<TAssigneeCellProps> = ({ assignee, taskId }) => {
           clearAssignee: !data.id,
         },
       })
-      await helpers.queryClient.invalidateQueries({ queryKey: ['procedures'] })
       helpers.notifySuccess()
     } catch (err) {
       helpers.notifyError(parseErrorMessage(err))

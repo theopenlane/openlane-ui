@@ -9,7 +9,7 @@ import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-ass
 import { getHrefForObjectType, type NormalizedObject } from '@/utils/getHrefForObjectType.ts'
 import { type Section, type TBaseAssociatedNode, type TEdgeNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import { useTheme } from 'next-themes'
-import { useSheetNavigation, SHEET_KINDS, FULL_PAGE_KINDS } from '@/providers/sheet-navigation-provider'
+import { useSheetNavigation, isSheetKind, FULL_PAGE_KINDS } from '@/providers/sheet-navigation-provider'
 import { useRouter } from 'next/navigation'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -397,12 +397,10 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
           <div className="flex flex-col gap-1">
             {group.items.map((item: TGroupItem) => {
               const handleChipClick = () => {
-                if (selectedGroup && SHEET_KINDS.has(selectedGroup)) {
-                  if (onItemClick) {
-                    onItemClick(item.id, selectedGroup)
-                  } else {
-                    sheetNavigation?.openSheet(item.id, selectedGroup)
-                  }
+                if (onItemClick && selectedGroup && isSheetKind(selectedGroup)) {
+                  onItemClick(item.id, selectedGroup)
+                } else if (sheetNavigation && selectedGroup && isSheetKind(selectedGroup)) {
+                  sheetNavigation.openSheet(item.id, selectedGroup)
                 } else if (selectedGroup && FULL_PAGE_KINDS.has(selectedGroup) && item.link) {
                   router.push(item.link)
                 } else {

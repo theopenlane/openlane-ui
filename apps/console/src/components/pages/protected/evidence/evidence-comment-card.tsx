@@ -1,7 +1,9 @@
 import { useGetEvidenceComments } from '@/lib/graphql-hooks/evidence'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import EvidenceCommentSheet from './evidence-comments-sheet'
 import { Card } from '@repo/ui/cardpanel'
 import { Link, PanelRightClose, PanelRightOpen } from 'lucide-react'
@@ -15,9 +17,12 @@ import { formatDateTime } from '@/utils/date'
 import { resolveAuthor } from '@/lib/authors'
 import { AuthorDisplay } from '@/components/shared/user-display/author-cell'
 
-const EvidenceCommentsCard = () => {
+type TEvidenceCommentsCardProps = {
+  evidenceId: string
+}
+
+const EvidenceCommentsCard: React.FC<TEvidenceCommentsCardProps> = ({ evidenceId }) => {
   const searchParams = useSearchParams()
-  const evidenceId = searchParams.get('id') || searchParams.get('controlEvidenceId')
   const { data } = useGetEvidenceComments(evidenceId)
   const [sheetOpen, setSheetOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
@@ -41,12 +46,13 @@ const EvidenceCommentsCard = () => {
   const latestCommentAuthor = useMemo(() => resolveAuthor(latestComment?.createdBy, { userMap, tokenMap }), [latestComment?.createdBy, tokenMap, userMap])
 
   const handleCopyLink = () => {
-    if (!evidenceId) return
     const params = new URLSearchParams(window.location.search)
+    const urlIdentifiesEvidence = params.get('id') === evidenceId || params.get('controlEvidenceId') === evidenceId
     params.set('showComments', 'true')
-    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`
+    const path = urlIdentifiesEvidence ? `${window.location.pathname}?${params.toString()}` : `${getHrefForObjectType(ObjectAssociationNodeEnum.EVIDENCE, { id: evidenceId })}&showComments=true`
+
     navigator.clipboard
-      .writeText(url)
+      .writeText(`${window.location.origin}${path}`)
       .then(() => {
         successNotification({
           title: 'Link copied to clipboard',
@@ -60,7 +66,6 @@ const EvidenceCommentsCard = () => {
   }
 
   const handleOpenSheet = () => {
-    if (!evidenceId) return
     smartRouter.push({ showComments: 'true' })
   }
 
@@ -138,7 +143,7 @@ const EvidenceCommentsCard = () => {
             </SheetHeader>
           }
         >
-          <EvidenceCommentSheet />
+          <EvidenceCommentSheet evidenceId={evidenceId} />
         </SheetContent>
       </Sheet>
     </Card>

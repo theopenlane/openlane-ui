@@ -1,5 +1,15 @@
 import { type ApiToken, type User } from '@repo/codegen/src/schema'
-import { DELETED_USER_LABEL, resolveAuthor, resolveAuthorName, SUPPORT_DISPLAY_NAME, SUPPORT_SUBJECT_ID, UNKNOWN_AUTHOR_ID, UNKNOWN_AUTHOR_LABEL } from './authors'
+import {
+  DELETED_USER_LABEL,
+  INTEGRATION_DISPLAY_NAME,
+  INTEGRATION_SUBJECT_ID,
+  resolveAuthor,
+  resolveAuthorName,
+  SUPPORT_DISPLAY_NAME,
+  SUPPORT_SUBJECT_ID,
+  UNKNOWN_AUTHOR_ID,
+  UNKNOWN_AUTHOR_LABEL,
+} from './authors'
 
 const user = { id: '01HXAMPLEUSER0000000000000', displayName: 'Sarah Funkhouser' } as User
 const token = { id: '01HXAMPLETOKEN000000000000', name: 'ci-token' } as ApiToken
@@ -16,6 +26,11 @@ describe('resolveAuthor', () => {
   it('resolves the support subject id to Openlane Support', () => {
     const author = resolveAuthor(SUPPORT_SUBJECT_ID, { userMap, tokenMap })
     expect(author).toEqual({ kind: 'support', displayName: SUPPORT_DISPLAY_NAME })
+  })
+
+  it('resolves the integration subject id to Openlane Integrations', () => {
+    const author = resolveAuthor(INTEGRATION_SUBJECT_ID, { userMap, tokenMap })
+    expect(author).toEqual({ kind: 'integration', displayName: INTEGRATION_DISPLAY_NAME })
   })
 
   it('prefers a matching user over the support identity', () => {

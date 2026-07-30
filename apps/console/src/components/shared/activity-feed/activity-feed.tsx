@@ -1,13 +1,12 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
 import { formatDate } from '@/utils/date'
 import { Shield } from 'lucide-react'
 import Link from 'next/link'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import Skeleton from '@/components/shared/skeleton/skeleton'
+import { ACTIVITY_FEED_PREVIEW_LIMIT, ActivityFeedCard, ActivityFeedRowsSkeleton, DEFAULT_ACTIVITY_FEED_TITLE } from './activity-feed-card'
 import ViewVulnerabilitySheet from '@/components/pages/protected/vulnerabilities/view-vulnerability-sheet'
 import ViewFindingSheet from '@/components/pages/protected/findings/view-finding-sheet'
 import ViewScanSheet from '@/components/pages/protected/scans/view-scan-sheet'
@@ -21,8 +20,6 @@ import type { ActivityItem } from './use-recent-activity-items'
 const CREATED_ACTIVITY_TYPES = new Set<string>([ObjectTypes.INTERNAL_POLICY, ObjectTypes.CONTROL])
 
 const SHEET_ENABLED_TYPES = new Set<string>([ObjectTypes.VULNERABILITY, ObjectTypes.FINDING, ObjectTypes.SCAN, ObjectTypes.REVIEW, ObjectTypes.RISK])
-
-const PREVIEW_SKELETON_ROWS = [0, 1, 2, 3, 4]
 
 const activitySubtitle = (item: ActivityItem) => {
   if (item.type === 'Mention') {
@@ -73,17 +70,15 @@ type Props = {
   isLoading?: boolean
 }
 
-const ActivityFeed = ({ activityItems, allActivityItems = activityItems, title = 'Recent Activity', isLoading = false }: Props) => {
+const ActivityFeed = ({ activityItems, allActivityItems = activityItems, title = DEFAULT_ACTIVITY_FEED_TITLE, isLoading = false }: Props) => {
   const [viewItem, setViewItem] = useState<ActivityItem | null>(null)
-  const preview = activityItems.slice(0, 5)
+  const preview = activityItems.slice(0, ACTIVITY_FEED_PREVIEW_LIMIT)
 
   const renderPreview = () => {
     if (isLoading) {
       return (
         <div className="flex-1 space-y-3">
-          {PREVIEW_SKELETON_ROWS.map((row) => (
-            <Skeleton key={row} height={36} className="w-full rounded-md" />
-          ))}
+          <ActivityFeedRowsSkeleton />
         </div>
       )
     }
@@ -108,7 +103,7 @@ const ActivityFeed = ({ activityItems, allActivityItems = activityItems, title =
 
   const renderAll = () => {
     if (isLoading) {
-      return PREVIEW_SKELETON_ROWS.map((row) => <Skeleton key={row} height={36} className="w-full rounded-md mb-3" />)
+      return <ActivityFeedRowsSkeleton className="mb-3" />
     }
 
     if (allActivityItems.length === 0) {
@@ -118,35 +113,34 @@ const ActivityFeed = ({ activityItems, allActivityItems = activityItems, title =
     return allActivityItems.map((item) => <ActivityRow key={`${item.type}-${item.id}`} item={item} onLabelClick={setViewItem} />)
   }
 
-  return (
-    <Card className="h-full">
-      <CardContent className="pt-6 flex flex-col h-full">
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-xl font-medium leading-7">{title}</p>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="transparent" size="sm" className="text-xs">
-                See all
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-120 sm:max-w-120">
-              <SheetHeader>
-                <SheetTitle>All {title} (30 days)</SheetTitle>
-              </SheetHeader>
-              <div className="mt-4 overflow-y-auto flex-1">{renderAll()}</div>
-            </SheetContent>
-          </Sheet>
-        </div>
+  const seeAll = (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="transparent" size="sm" className="text-xs">
+          See all
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-120 sm:max-w-120">
+        <SheetHeader>
+          <SheetTitle>All {title} (30 days)</SheetTitle>
+        </SheetHeader>
+        <div className="mt-4 overflow-y-auto flex-1">{renderAll()}</div>
+      </SheetContent>
+    </Sheet>
+  )
 
+  return (
+    <>
+      <ActivityFeedCard title={title} action={seeAll}>
         {renderPreview()}
-      </CardContent>
+      </ActivityFeedCard>
 
       <ViewVulnerabilitySheet entityId={viewItem?.type === ObjectTypes.VULNERABILITY ? viewItem.id : null} onClose={() => setViewItem(null)} />
       <ViewFindingSheet entityId={viewItem?.type === ObjectTypes.FINDING ? viewItem.id : null} onClose={() => setViewItem(null)} />
       <ViewScanSheet entityId={viewItem?.type === ObjectTypes.SCAN ? viewItem.id : null} onClose={() => setViewItem(null)} />
       <ViewReviewSheet entityId={viewItem?.type === ObjectTypes.REVIEW ? viewItem.id : null} onClose={() => setViewItem(null)} />
       <ViewRiskSheet entityId={viewItem?.type === ObjectTypes.RISK ? viewItem.id : null} onClose={() => setViewItem(null)} />
-    </Card>
+    </>
   )
 }
 
