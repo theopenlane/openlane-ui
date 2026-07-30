@@ -40,8 +40,8 @@ import {
   type DeleteBulkAssessmentMutationVariables,
   type AssessmentResponseOrder,
   type AssessmentResponseWhereInput,
-  type CreateAssessmentTemplateInput,
-  type Template,
+  type AssessmentTemplateCreatePayload,
+  type MutationCreateAssessmentTemplateArgs,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 

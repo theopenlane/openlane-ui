@@ -1,5 +1,6 @@
 'use client'
 
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateAssessmentTemplate } from '@/lib/graphql-hooks/assessment'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -7,11 +8,21 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type Assessment } from '@repo/codegen/src/schema'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
-import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import MultipleSelector from '@repo/ui/multiple-selector'
 import { Textarea } from '@repo/ui/textarea'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { z, type infer as zInfer } from 'zod'
+
+const formSchema = z.object({
+  name: z.string().trim().max(255, 'Name must be 255 characters or fewer'),
+  description: z.string().trim().max(1000, 'Description must be 1000 characters or fewer'),
+  tags: z.array(z.string().trim().min(1)),
+})
+
+type FormData = zInfer<typeof formSchema>
 
 type AssessmentTemplateCloneProps = {
   open: boolean
@@ -20,28 +31,33 @@ type AssessmentTemplateCloneProps = {
 }
 
 export const CreateAssessmentTemplateDialog = ({ open, onOpenChange, assessment }: AssessmentTemplateCloneProps) => {
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [selectedTags, setSelectedTags] = useState<Option[]>([])
-
   const { tagOptions } = useGetTags()
   const { mutateAsync: createAssessmentTemplate, isPending } = useCreateAssessmentTemplate()
 
   const { successNotification, errorNotification } = useNotification()
 
-  const defaultTags = useMemo(() => (assessment?.tags ?? []).map((tag) => ({ value: tag, label: tag })), [assessment?.tags])
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      tags: [],
+    },
+  })
 
   useEffect(() => {
     if (!open) {
       return
     }
 
-    setName(assessment?.name ?? '')
-    setDescription('')
-    setSelectedTags(defaultTags)
-  }, [assessment?.name, defaultTags, open])
+    form.reset({
+      name: assessment?.name ?? '',
+      description: '',
+      tags: assessment?.tags ?? [],
+    })
+  }, [assessment?.name, assessment?.tags, form, open])
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (data: FormData) => {
     if (!assessment?.id || isPending) {
       return
     }
@@ -50,9 +66,9 @@ export const CreateAssessmentTemplateDialog = ({ open, onOpenChange, assessment 
       await createAssessmentTemplate({
         input: {
           assessmentID: assessment.id,
-          name: name.trim() || undefined,
-          description: description.trim() || undefined,
-          tags: selectedTags.map((tag) => tag.value),
+          name: data.name || undefined,
+          description: data.description || undefined,
+          tags: data.tags,
         },
       })
 
@@ -63,46 +79,78 @@ export const CreateAssessmentTemplateDialog = ({ open, onOpenChange, assessment 
     }
   }
 
+  const isSubmitting = isPending || form.formState.isSubmitting
+
   return (
-    <Dialog open={open} onOpenChange={(nextOpen) => !isPending && onOpenChange(nextOpen)}>
+    <Dialog open={open} onOpenChange={(nextOpen) => !isSubmitting && onOpenChange(nextOpen)}>
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
           <DialogTitle>Create Template from Assessment</DialogTitle>
           <DialogDescription>{assessment?.name ? `Create a reusable template from "${assessment.name}".` : 'Create a reusable template from this assessment.'}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 py-2">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="assessment-template-name">Name</Label>
-            <Input id="assessment-template-name" value={name} onChange={(event) => setName(event.target.value)} placeholder={assessment?.name ?? 'Template name'} disabled={isPending} />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="assessment-template-description">Description</Label>
-            <Textarea
-              id="assessment-template-description"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="Describe this template"
-              rows={3}
-              disabled={isPending}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4 py-2">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="assessment-template-name">Name</FormLabel>
+                  <FormControl>
+                    <Input id="assessment-template-name" {...field} placeholder={assessment?.name ?? 'Template name'} disabled={isSubmitting} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Label>Tags</Label>
-            <MultipleSelector options={tagOptions} placeholder="Add tag..." creatable value={selectedTags} onChange={setSelectedTags} className="w-full" />
-          </div>
-        </div>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="assessment-template-description">Description</FormLabel>
+                  <FormControl>
+                    <Textarea id="assessment-template-description" {...field} placeholder="Describe this template" rows={3} disabled={isSubmitting} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
-            Cancel
-          </Button>
-          <Button type="button" onClick={handleSubmit} disabled={!assessment?.id || isPending}>
-            {isPending ? 'Creating...' : 'Create Template'}
-          </Button>
-        </DialogFooter>
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tags</FormLabel>
+                  <FormControl>
+                    <MultipleSelector
+                      options={tagOptions}
+                      placeholder="Add tag..."
+                      creatable
+                      value={(field.value ?? []).map((tag) => ({ value: tag, label: tag }))}
+                      onChange={(selectedOptions) => field.onChange(selectedOptions.map((option) => option.value))}
+                      className="w-full"
+                      disabled={isSubmitting}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={!assessment?.id || isSubmitting}>
+                {isSubmitting ? 'Creating...' : 'Create Template'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   )

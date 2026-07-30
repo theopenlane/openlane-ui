@@ -29,6 +29,7 @@ import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-st
 import { useSession } from 'next-auth/react'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { CreateAssessmentTemplateDialog } from '@/components/pages/protected/questionnaire/dialog/create-assessment-template-dialog'
+import { includeQuestionnaireCreation } from '@repo/dally/auth'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
