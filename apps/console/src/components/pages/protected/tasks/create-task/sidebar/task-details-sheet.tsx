@@ -1,7 +1,9 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { TaskTaskStatus, type UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
@@ -34,6 +36,8 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { type TOrgMembers, useTaskStore } from '../../hooks/useTaskStore'
+import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 
 type TaskDetailsSheetProps = {
   queryParamKey?: string
@@ -46,8 +50,9 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const [internalEditing, setInternalEditing] = useState<keyof EditTaskFormData | null>(null)
   const queryClient = useQueryClient()
   const plateEditorHelper = usePlateEditor()
-  const router = useRouter()
+  const smartRouter = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
+  const openObjectSheet = useOpenObjectSheet()
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
   const { mutateAsync: updateTask, isPending } = useUpdateTask()
@@ -56,7 +61,9 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: orgMembers === undefined ? session?.user.activeOrganizationId : undefined })
 
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const id = entityIdProp !== undefined ? entityIdProp : searchParams.get(queryParamKey)
+  const sharePath = !id ? '' : entityIdProp !== undefined ? getHrefForObjectType(ObjectAssociationNodeEnum.TASK, { id }) : `${pathname}?${queryParamKey}=${id}`
   const { data: permission } = useAccountRoles(ObjectTypes.TASK, id)
   const isEditAllowed = canEdit(permission?.roles, session)
   const { data, isLoading: fetching } = useTask(id as string)
@@ -178,10 +185,20 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
       setIsEditing(false)
       return
     }
-    const newSearchParams = new URLSearchParams(searchParams.toString())
-    newSearchParams.delete(queryParamKey)
-    router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
+    smartRouter.replace({ [queryParamKey]: null })
     setIsEditing(false)
+  }
+
+  const handleDuplicateCreated = (newId: string) => {
+    setIsEditing(false)
+
+    if (onCloseProp) {
+      onCloseProp()
+      openObjectSheet(newId, ObjectAssociationNodeEnum.TASK)
+      return
+    }
+
+    smartRouter.replace({ [queryParamKey]: newId })
   }
 
   const onSubmit = async (data: EditTaskFormData) => {
@@ -257,6 +274,8 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
               id={id}
               onDuplicate={() => setDuplicateOpen(true)}
               canDuplicate={!!taskData && !fetching && !associationsLoading}
+              sharePath={sharePath}
+              onDeleted={handleCloseParams}
             />
           }
         >
@@ -347,7 +366,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
           initialValues={duplicateInitialValues}
           initialData={duplicateAssociations}
           objectAssociationsDisplayIDs={duplicateDisplayIDs}
-          onSuccessWithId={(newId) => router.push(`/automation/tasks?id=${newId}`)}
+          onSuccessWithId={handleDuplicateCreated}
         />
       )}
     </>

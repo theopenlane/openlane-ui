@@ -7,14 +7,11 @@ import { Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { canDelete } from '@/lib/authz/utils.ts'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
-const DeleteTaskDialog: React.FC<{ taskName: string; taskId: string }> = ({ taskName, taskId }) => {
-  const searchParams = useSearchParams()
-  const router = useRouter()
+const DeleteTaskDialog: React.FC<{ taskName: string; taskId: string; onDeleted: () => void }> = ({ taskName, taskId, onDeleted }) => {
   const { successNotification, errorNotification } = useNotification()
   const { data: permission } = useAccountRoles(ObjectTypes.TASK, taskId)
   const [isOpen, setIsOpen] = useState(false)
@@ -25,9 +22,7 @@ const DeleteTaskDialog: React.FC<{ taskName: string; taskId: string }> = ({ task
     if (!taskId) return
 
     try {
-      const newSearchParams = new URLSearchParams(searchParams.toString())
-      newSearchParams.delete('id')
-      router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
+      onDeleted()
       await deleteTask({ deleteTaskId: taskId })
       successNotification({ title: `Task deleted successfully.` })
     } catch (error) {
