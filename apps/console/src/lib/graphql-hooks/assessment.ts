@@ -45,16 +45,13 @@ import {
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 
-type CreateAssessmentTemplateMutationVariables = {
-  input: CreateAssessmentTemplateInput
-}
+type CreateAssessmentTemplateMutationVariables = MutationCreateAssessmentTemplateArgs
 
 type CreateAssessmentTemplateMutation = {
-  createAssessmentTemplate?: {
-    template: Pick<Template, 'id' | 'name' | 'description' | 'tags'>
+  createAssessmentTemplate: {
+    template: Pick<AssessmentTemplateCreatePayload['template'], 'id' | 'name' | 'description' | 'tags'>
   }
 }
-
 type UseAssessmentsArgs = {
   where?: FilterAssessmentsQueryVariables['where']
   orderBy?: FilterAssessmentsQueryVariables['orderBy']
