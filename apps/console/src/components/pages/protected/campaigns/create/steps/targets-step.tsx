@@ -1,16 +1,16 @@
 'use client'
 
-import React, { useCallback, useMemo, type Dispatch, type SetStateAction } from 'react'
+import React, { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { Button } from '@repo/ui/button'
 import { Trash2 } from 'lucide-react'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
-import { isValidEmail } from '@/lib/validators'
+import { isValidEmail, normalizeEmail } from '@/lib/validators'
 import { PersonnelSelector } from './targets/personnel-selector'
 import { ContactsSelector } from './targets/contacts-selector'
-import { mergeTargets, type CampaignTargetEntry, type TargetTab } from './targets/target-entry'
+import { EMPTY_EMAIL_KEYS, mergeTargets, type CampaignTargetEntry, type TargetTab } from './targets/target-entry'
 
 interface TargetsStepProps {
   targets: CampaignTargetEntry[]
@@ -19,10 +19,12 @@ interface TargetsStepProps {
   onFileUpload: (file: File | null) => void
   activeTab: TargetTab
   onActiveTabChange: (tab: TargetTab) => void
+  lockedEmails?: ReadonlySet<string>
 }
 
-export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChange, uploadedFile, onFileUpload, activeTab, onActiveTabChange }) => {
+export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChange, uploadedFile, onFileUpload, activeTab, onActiveTabChange, lockedEmails = EMPTY_EMAIL_KEYS }) => {
   const manualOptions: Option[] = useMemo(() => targets.filter((target) => target.source === 'manual').map((target) => ({ value: target.email, label: target.email })), [targets])
+  const [skippedManualEmails, setSkippedManualEmails] = useState<string[]>([])
 
   const handleFileUpload = (uploaded: TUploadedFile) => {
     if (uploaded.file) {
@@ -33,10 +35,13 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
   const handleManualChange = useCallback(
     (options: Option[]) => {
       const keptTargets = targets.filter((target) => target.source !== 'manual')
-      const manualTargets: CampaignTargetEntry[] = options.filter((option) => isValidEmail(option.value.trim())).map((option) => ({ email: option.value.trim(), fullName: '', source: 'manual' }))
+      const enteredEmails = options.map((option) => option.value.trim()).filter(isValidEmail)
+      const isAlreadyRecipient = (email: string) => lockedEmails.has(normalizeEmail(email))
+      const manualTargets: CampaignTargetEntry[] = enteredEmails.filter((email) => !isAlreadyRecipient(email)).map((email) => ({ email, fullName: '', source: 'manual' }))
+      setSkippedManualEmails(enteredEmails.filter(isAlreadyRecipient))
       onTargetsChange(mergeTargets(keptTargets, manualTargets))
     },
-    [targets, onTargetsChange],
+    [targets, onTargetsChange, lockedEmails],
   )
 
   return (
@@ -50,11 +55,11 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
         </TabsList>
 
         <TabsContent value="personnel" className="mt-4">
-          <PersonnelSelector targets={targets} onTargetsChange={onTargetsChange} />
+          <PersonnelSelector targets={targets} onTargetsChange={onTargetsChange} lockedEmails={lockedEmails} />
         </TabsContent>
 
         <TabsContent value="contacts" className="mt-4">
-          <ContactsSelector targets={targets} onTargetsChange={onTargetsChange} />
+          <ContactsSelector targets={targets} onTargetsChange={onTargetsChange} lockedEmails={lockedEmails} />
         </TabsContent>
 
         <TabsContent value="csv" className="mt-4">
@@ -96,6 +101,7 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
                 },
               }}
             />
+            {skippedManualEmails.length > 0 && <p className="text-xs text-amber-500">Already a recipient, skipped: {skippedManualEmails.join(', ')}</p>}
           </div>
         </TabsContent>
       </Tabs>

@@ -553662,6 +553662,18 @@
             "deprecationReason": null
           },
           {
+            "name": "assessmentType",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "AssessmentAssessmentType",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "clearAssessmentResponses",
             "description": null,
             "type": {

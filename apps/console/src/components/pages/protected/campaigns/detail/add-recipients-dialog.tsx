@@ -1,22 +1,23 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { TargetsStep } from '../create/steps/targets-step'
-import { type CampaignTargetEntry, type TargetTab } from '../create/steps/targets/target-entry'
+import { toEmailKeys, type CampaignTargetEntry, type TargetTab } from '../create/steps/targets/target-entry'
 import { useCreateBulkCampaignTarget } from '@/lib/graphql-hooks/campaign-target'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { isValidEmail } from '@/lib/validators'
+import { isValidEmail, normalizeEmail } from '@/lib/validators'
 
 interface AddRecipientsDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   campaignId: string
+  existingEmails: string[]
 }
 
-export const AddRecipientsDialog: React.FC<AddRecipientsDialogProps> = ({ open, onOpenChange, campaignId }) => {
+export const AddRecipientsDialog: React.FC<AddRecipientsDialogProps> = ({ open, onOpenChange, campaignId, existingEmails }) => {
   const [targets, setTargets] = useState<CampaignTargetEntry[]>([])
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [activeTab, setActiveTab] = useState<TargetTab>('personnel')
@@ -24,7 +25,9 @@ export const AddRecipientsDialog: React.FC<AddRecipientsDialogProps> = ({ open, 
   const { mutateAsync: createBulkTarget, isPending } = useCreateBulkCampaignTarget()
   const { successNotification, errorNotification } = useNotification()
 
-  const validTargets = targets.filter((target) => isValidEmail(target.email.trim()))
+  const lockedEmails = useMemo(() => toEmailKeys(existingEmails), [existingEmails])
+
+  const validTargets = targets.filter((target) => isValidEmail(target.email.trim()) && !lockedEmails.has(normalizeEmail(target.email)))
 
   const reset = () => {
     setTargets([])
@@ -61,9 +64,22 @@ export const AddRecipientsDialog: React.FC<AddRecipientsDialogProps> = ({ open, 
       <DialogContent className="flex max-w-2xl flex-col">
         <DialogHeader>
           <DialogTitle>Add recipients</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            {existingEmails.length === 0
+              ? 'This campaign has no recipients yet.'
+              : `${existingEmails.length} recipient${existingEmails.length === 1 ? '' : 's'} already added. They are marked "Already added" and cannot be added twice.`}
+          </p>
         </DialogHeader>
 
-        <TargetsStep targets={targets} onTargetsChange={setTargets} uploadedFile={uploadedFile} onFileUpload={setUploadedFile} activeTab={activeTab} onActiveTabChange={setActiveTab} />
+        <TargetsStep
+          targets={targets}
+          onTargetsChange={setTargets}
+          uploadedFile={uploadedFile}
+          onFileUpload={setUploadedFile}
+          activeTab={activeTab}
+          onActiveTabChange={setActiveTab}
+          lockedEmails={lockedEmails}
+        />
 
         <div className="flex items-center justify-end gap-2">
           <Button variant="secondary" type="button" onClick={() => handleClose(false)} disabled={isPending}>

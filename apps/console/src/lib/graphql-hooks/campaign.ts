@@ -11,10 +11,14 @@ import {
   type DeleteCampaignMutationVariables,
   type CampaignQuery,
   type CampaignQueryVariables,
-  type CreateCampaignInput,
-  type CreateCampaignTargetInput,
-  type SendCampaignTestEmailInput,
-  type ResendCampaignIncompleteInput,
+  type CreateCampaignWithTargetsMutation,
+  type CreateCampaignWithTargetsMutationVariables,
+  type LaunchCampaignMutation,
+  type LaunchCampaignMutationVariables,
+  type SendCampaignTestEmailMutation,
+  type SendCampaignTestEmailMutationVariables,
+  type ResendCampaignIncompleteTargetsMutation,
+  type ResendCampaignIncompleteTargetsMutationVariables,
 } from '@repo/codegen/src/schema'
 
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -25,6 +29,7 @@ import {
   UPDATE_CAMPAIGN,
   DELETE_CAMPAIGN,
   CAMPAIGN,
+  LAUNCH_CAMPAIGN,
   SEND_CAMPAIGN_TEST_EMAIL,
   RESEND_CAMPAIGN_INCOMPLETE_TARGETS,
 } from '@repo/codegen/query/campaign'
@@ -70,11 +75,6 @@ export const useCreateCampaign = () => {
   })
 }
 
-export type CampaignWithTargetsTargetInput = Omit<CreateCampaignTargetInput, 'campaignID'>
-
-type CreateCampaignWithTargetsMutation = { createCampaignWithTargets: { campaign: { id: string } } }
-type CreateCampaignWithTargetsMutationVariables = { input: { campaign: CreateCampaignInput; targets?: CampaignWithTargetsTargetInput[] } }
-
 export const useCreateCampaignWithTargets = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
@@ -111,8 +111,18 @@ export const useDeleteCampaign = () => {
   })
 }
 
-type SendCampaignTestEmailMutation = { sendCampaignTestEmail: { queuedCount: number; skippedCount: number } }
-type SendCampaignTestEmailMutationVariables = { input: SendCampaignTestEmailInput }
+export const useLaunchCampaign = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+  return useMutation<LaunchCampaignMutation, unknown, LaunchCampaignMutationVariables>({
+    mutationFn: async (variables) => client.request(LAUNCH_CAMPAIGN, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['campaigns'] })
+      queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
+      queryClient.invalidateQueries({ queryKey: ['campaignTargetStats'] })
+    },
+  })
+}
 
 export const useSendCampaignTestEmail = () => {
   const { client } = useGraphQLClient()
@@ -120,9 +130,6 @@ export const useSendCampaignTestEmail = () => {
     mutationFn: async (variables) => client.request(SEND_CAMPAIGN_TEST_EMAIL, variables),
   })
 }
-
-type ResendCampaignIncompleteTargetsMutation = { resendCampaignIncompleteTargets: { queuedCount: number; skippedCount: number } }
-type ResendCampaignIncompleteTargetsMutationVariables = { input: ResendCampaignIncompleteInput }
 
 export const useResendCampaignIncompleteTargets = () => {
   const { client } = useGraphQLClient()

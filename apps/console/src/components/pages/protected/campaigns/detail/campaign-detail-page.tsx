@@ -7,7 +7,7 @@ import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Ban, Calendar, CheckCircle, ExternalLink, FileText, Lock, Mail, Rocket, SendHorizontal, Trash2 } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useCampaign, useUpdateCampaign, useResendCampaignIncompleteTargets } from '@/lib/graphql-hooks/campaign'
+import { useCampaign, useUpdateCampaign, useLaunchCampaign, useResendCampaignIncompleteTargets } from '@/lib/graphql-hooks/campaign'
 import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
 import { useCampaignTargetStats } from '@/lib/graphql-hooks/campaign-target'
 import { type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
@@ -18,6 +18,7 @@ import { formatDate } from '@/utils/date'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import Menu from '@/components/shared/menu/menu'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useDeleteCampaign } from '@/lib/graphql-hooks/campaign'
 import { useRouter } from 'next/navigation'
 import { RecipientDetailPanel } from './recipient-detail-panel'
@@ -53,7 +54,8 @@ const CampaignDetailPage: React.FC = () => {
   const { data, isLoading } = useCampaign(campaignId)
   const { emailTemplateOptions, isLoading: emailTemplatesLoading } = useCampaignEmailTemplateSelect({ ensureId: data?.campaign?.emailTemplateID })
   const { mutateAsync: updateCampaign, isPending: isUpdating } = useUpdateCampaign()
-  const { mutateAsync: deleteCampaign } = useDeleteCampaign()
+  const { mutateAsync: deleteCampaign, isPending: isDeleting } = useDeleteCampaign()
+  const { mutateAsync: launchCampaign, isPending: isLaunching } = useLaunchCampaign()
   const { mutateAsync: resendIncomplete, isPending: isResending } = useResendCampaignIncompleteTargets()
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
@@ -66,6 +68,8 @@ const CampaignDetailPage: React.FC = () => {
   const [changeTemplateOpen, setChangeTemplateOpen] = useState(false)
   const [questionnaireDialogOpen, setQuestionnaireDialogOpen] = useState(false)
   const [addRecipientsOpen, setAddRecipientsOpen] = useState(false)
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const { templates: questionnaireTemplates, isLoading: questionnairesLoading } = useTemplateSelect({ where: { kind: TemplateTemplateKind.QUESTIONNAIRE } })
 
@@ -104,6 +108,8 @@ const CampaignDetailPage: React.FC = () => {
     ])
   }, [setCrumbs, campaign?.name, campaignId])
 
+  const existingRecipientEmails = useMemo(() => recipients.map((recipient) => recipient.email), [recipients])
+
   const stats = useMemo(() => {
     const total = totalCount
     const sent = recipients.filter((r) => r.sentAt).length
@@ -139,9 +145,14 @@ const CampaignDetailPage: React.FC = () => {
   const handleLaunch = async (scheduledAt: string | null) => {
     if (!campaignId) return
     try {
-      const input = scheduledAt ? { status: CampaignCampaignStatus.SCHEDULED, scheduledAt } : { status: CampaignCampaignStatus.ACTIVE, launchedAt: new Date().toISOString() }
-      await updateCampaign({ updateCampaignId: campaignId, input })
-      successNotification({ title: scheduledAt ? 'Campaign scheduled' : 'Campaign launched' })
+      const { queuedCount, skippedCount } = (await launchCampaign({ input: { campaignID: campaignId, scheduledAt } })).launchCampaign
+      const skippedSuffix = skippedCount ? `, skipped ${skippedCount}` : ''
+      successNotification({
+        title: scheduledAt ? 'Campaign scheduled' : 'Campaign launched',
+        description: scheduledAt
+          ? `${queuedCount} recipient${queuedCount === 1 ? '' : 's'} scheduled for ${formatDate(scheduledAt)}${skippedSuffix}.`
+          : `Queued ${queuedCount} email${queuedCount === 1 ? '' : 's'}${skippedSuffix}.`,
+      })
       setLaunchDialogOpen(false)
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
@@ -153,6 +164,7 @@ const CampaignDetailPage: React.FC = () => {
     try {
       await updateCampaign({ updateCampaignId: campaignId, input: { status: CampaignCampaignStatus.CANCELED } })
       successNotification({ title: 'Campaign canceled' })
+      setCancelDialogOpen(false)
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
     }
@@ -270,46 +282,73 @@ const CampaignDetailPage: React.FC = () => {
     },
   }
 
+  const primaryAction = canLaunch
+    ? { label: 'Launch', icon: <Rocket size={14} />, onClick: () => setLaunchDialogOpen(true), disabled: isLaunching }
+    : status === CampaignCampaignStatus.ACTIVE
+      ? { label: 'Complete Campaign', icon: <CheckCircle size={14} />, onClick: handleCompleteCampaign, disabled: isUpdating }
+      : null
+
   const menuComponent = (
-    <div className="flex items-center gap-2 ml-auto">
+    <div className="flex items-center gap-2">
       <Menu
         closeOnSelect
         content={(close) => (
-          <Button
-            variant="destructive"
-            icon={<Trash2 size={14} />}
-            iconPosition="left"
-            className="w-full justify-start"
-            onClick={() => {
-              handleDeleteCampaign()
-              close()
-            }}
-          >
-            Delete Campaign
-          </Button>
+          <>
+            <Button
+              variant="transparent"
+              className="flex justify-start space-x-2"
+              onClick={() => {
+                setTestDialogOpen(true)
+                close()
+              }}
+            >
+              <Mail size={16} strokeWidth={2} />
+              <span>Send test email</span>
+            </Button>
+            {canSendReminder && (
+              <Button
+                variant="transparent"
+                className="flex justify-start space-x-2"
+                disabled={isResending}
+                onClick={() => {
+                  handleSendReminder()
+                  close()
+                }}
+              >
+                <SendHorizontal size={16} strokeWidth={2} />
+                <span>Send reminder</span>
+              </Button>
+            )}
+            {canCancel && (
+              <Button
+                variant="transparent"
+                className="flex justify-start space-x-2"
+                onClick={() => {
+                  setCancelDialogOpen(true)
+                  close()
+                }}
+              >
+                <Ban size={16} strokeWidth={2} />
+                <span>Cancel campaign</span>
+              </Button>
+            )}
+            <Button
+              variant="transparent"
+              className="flex justify-start space-x-2"
+              onClick={() => {
+                setDeleteDialogOpen(true)
+                close()
+              }}
+            >
+              <Trash2 size={16} strokeWidth={2} />
+              <span>Delete campaign</span>
+            </Button>
+          </>
         )}
       />
-      <Button variant="secondary" icon={<Mail size={14} />} iconPosition="left" onClick={() => setTestDialogOpen(true)} className="h-8">
-        Send Test Email
-      </Button>
-      {canCancel && (
-        <Button variant="secondary" icon={<Ban size={14} />} iconPosition="left" onClick={handleCancelCampaign} disabled={isUpdating} className="h-8">
-          Cancel
-        </Button>
-      )}
-      {canSendReminder && (
-        <Button variant="secondary" icon={<SendHorizontal size={14} />} iconPosition="left" onClick={handleSendReminder} disabled={isResending} className="h-8">
-          Send Reminder
-        </Button>
-      )}
-      {status === CampaignCampaignStatus.ACTIVE && (
-        <Button variant="primary" icon={<CheckCircle size={14} />} iconPosition="left" onClick={handleCompleteCampaign} disabled={isUpdating} className="h-8">
-          Complete Campaign
-        </Button>
-      )}
-      {canLaunch && (
-        <Button variant="primary" icon={<Rocket size={14} />} iconPosition="left" onClick={() => setLaunchDialogOpen(true)} disabled={isUpdating} className="h-8">
-          Launch
+      {primaryAction && (
+        <Button variant="primary" icon={primaryAction.icon} iconPosition="left" onClick={primaryAction.onClick} disabled={primaryAction.disabled} className="h-8">
+          {primaryAction.label}
         </Button>
       )}
     </div>
@@ -390,12 +429,12 @@ const CampaignDetailPage: React.FC = () => {
             {campaign.assessmentID && (
               <Button
                 variant="secondary"
-                size="sm"
                 type="button"
                 className="w-full justify-center"
                 onClick={() => window.open(`/automation/questionnaires/${campaign.assessmentID}`, '_blank', 'noopener,noreferrer')}
+                icon={<ExternalLink />}
               >
-                View responses <ExternalLink size={14} className="ml-1.5" />
+                View responses
               </Button>
             )}
           </div>
@@ -456,6 +495,7 @@ const CampaignDetailPage: React.FC = () => {
           questionnaireQuestionCount={questionnaireQuestionCount}
           dueDate={campaign.dueDate as string | null | undefined}
           recipientCount={stats.total}
+          recipientsSlot={stats.total > 0 ? <RecipientsTable campaignId={campaignId} onRecipientClick={setSelectedRecipient} showDelivery={false} canRemove /> : undefined}
           onEditDetails={() => setEditDetailsOpen(true)}
           onChangeTemplate={() => setChangeTemplateOpen(true)}
           onRemoveTemplate={handleRemoveTemplate}
@@ -542,7 +582,7 @@ const CampaignDetailPage: React.FC = () => {
         open={launchDialogOpen}
         onOpenChange={setLaunchDialogOpen}
         onLaunch={handleLaunch}
-        isPending={isUpdating}
+        isPending={isLaunching}
         summary={{ recipientCount: stats.total, content: hasQuestionnaire ? { kind: 'questionnaire', label: questionnaireLabel } : { kind: 'email', label: emailTemplateName } }}
       />
       <EditDetailsDialog
@@ -570,7 +610,34 @@ const CampaignDetailPage: React.FC = () => {
         selectedId={campaign.templateID ?? undefined}
         onSelect={(template) => handleSelectQuestionnaire(template.id)}
       />
-      <AddRecipientsDialog open={addRecipientsOpen} onOpenChange={setAddRecipientsOpen} campaignId={campaignId} />
+      <AddRecipientsDialog open={addRecipientsOpen} onOpenChange={setAddRecipientsOpen} campaignId={campaignId} existingEmails={existingRecipientEmails} />
+      <ConfirmationDialog
+        open={cancelDialogOpen}
+        onOpenChange={setCancelDialogOpen}
+        onConfirm={handleCancelCampaign}
+        loading={isUpdating}
+        confirmationText="Cancel campaign"
+        title="Cancel campaign"
+        description={
+          <>
+            <b>{campaign.name}</b> will stop sending and can no longer be edited. Recipients who already received it keep their access.
+          </>
+        }
+      />
+      <ConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteCampaign}
+        loading={isDeleting}
+        confirmationText="Delete campaign"
+        confirmationTextVariant="destructive"
+        title="Delete campaign"
+        description={
+          <>
+            This action cannot be undone. This will permanently remove <b>{campaign.name}</b> and its recipients from the organization.
+          </>
+        }
+      />
     </FormProvider>
   )
 }

@@ -153,6 +153,21 @@ export const DELETE_CAMPAIGN = gql`
   }
 `
 
+export const LAUNCH_CAMPAIGN = gql`
+  mutation LaunchCampaign($input: LaunchCampaignInput!) {
+    launchCampaign(input: $input) {
+      queuedCount
+      skippedCount
+      campaign {
+        id
+        status
+        launchedAt
+        scheduledAt
+      }
+    }
+  }
+`
+
 export const SEND_CAMPAIGN_TEST_EMAIL = gql`
   mutation SendCampaignTestEmail($input: SendCampaignTestEmailInput!) {
     sendCampaignTestEmail(input: $input) {

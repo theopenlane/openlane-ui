@@ -17,9 +17,10 @@ const toEntry = (option: RecipientOption): CampaignTargetEntry => ({ email: opti
 interface PersonnelSelectorProps {
   targets: CampaignTargetEntry[]
   onTargetsChange: Dispatch<SetStateAction<CampaignTargetEntry[]>>
+  lockedEmails?: ReadonlySet<string>
 }
 
-export const PersonnelSelector: React.FC<PersonnelSelectorProps> = ({ targets, onTargetsChange }) => {
+export const PersonnelSelector: React.FC<PersonnelSelectorProps> = ({ targets, onTargetsChange, lockedEmails }) => {
   const [scope, setScope] = useState<string>(ALL_SCOPE)
   const [searchText, setSearchText] = useState('')
   const [pagination, setPagination] = useState<TPagination>(PICKER_PAGINATION)
@@ -88,6 +89,7 @@ export const PersonnelSelector: React.FC<PersonnelSelectorProps> = ({ targets, o
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
         targets={targets}
+        lockedEmails={lockedEmails}
         onToggle={handleToggle}
         onToggleAll={handleToggleAll}
         emptyLabel="No personnel found."

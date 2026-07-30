@@ -9,7 +9,7 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'
 import { normalizeEmail } from '@/lib/validators'
-import { type CampaignTargetEntry } from './target-entry'
+import { EMPTY_EMAIL_KEYS, type CampaignTargetEntry } from './target-entry'
 
 export interface RecipientOption {
   id: string
@@ -32,6 +32,7 @@ interface RecipientPickerProps {
   onPaginationChange: (pagination: TPagination) => void
   paginationMeta: TPaginationMeta
   targets: CampaignTargetEntry[]
+  lockedEmails?: ReadonlySet<string>
   onToggle: (option: RecipientOption) => void
   onToggleAll: (options: RecipientOption[], nextChecked: boolean) => void
   emptyLabel: string
@@ -51,20 +52,31 @@ export const RecipientPicker: React.FC<RecipientPickerProps> = ({
   onPaginationChange,
   paginationMeta,
   targets,
+  lockedEmails = EMPTY_EMAIL_KEYS,
   onToggle,
   onToggleAll,
   emptyLabel,
 }) => {
   const selectedEmails = useMemo(() => new Set(targets.map((target) => normalizeEmail(target.email))), [targets])
-  const allOnPageSelected = options.length > 0 && options.every((option) => selectedEmails.has(normalizeEmail(option.email)))
-  const someOnPageSelected = options.some((option) => selectedEmails.has(normalizeEmail(option.email)))
+  const selectableOptions = useMemo(() => options.filter((option) => !lockedEmails.has(normalizeEmail(option.email))), [options, lockedEmails])
+  const allOnPageSelected = selectableOptions.length > 0 && selectableOptions.every((option) => selectedEmails.has(normalizeEmail(option.email)))
+  const someOnPageSelected = selectableOptions.some((option) => selectedEmails.has(normalizeEmail(option.email)))
 
   const columns = useMemo<ColumnDef<RecipientOption>[]>(
     () => [
       {
         id: 'select',
-        header: () => <Checkbox checked={allOnPageSelected ? true : someOnPageSelected ? 'indeterminate' : false} onCheckedChange={() => onToggleAll(options, !allOnPageSelected)} />,
-        cell: ({ row }) => <Checkbox checked={selectedEmails.has(normalizeEmail(row.original.email))} onCheckedChange={() => onToggle(row.original)} />,
+        header: () => (
+          <Checkbox
+            checked={allOnPageSelected ? true : someOnPageSelected ? 'indeterminate' : false}
+            disabled={selectableOptions.length === 0}
+            onCheckedChange={() => onToggleAll(selectableOptions, !allOnPageSelected)}
+          />
+        ),
+        cell: ({ row }) => {
+          const locked = lockedEmails.has(normalizeEmail(row.original.email))
+          return <Checkbox checked={locked || selectedEmails.has(normalizeEmail(row.original.email))} disabled={locked} onCheckedChange={() => onToggle(row.original)} />
+        },
         size: 40,
       },
       {
@@ -80,11 +92,16 @@ export const RecipientPicker: React.FC<RecipientPickerProps> = ({
       {
         accessorKey: 'meta',
         header: 'Meta',
-        cell: ({ row }) => (row.original.meta ? <span className="text-xs text-muted-foreground">{row.original.meta}</span> : null),
+        cell: ({ row }) =>
+          lockedEmails.has(normalizeEmail(row.original.email)) ? (
+            <span className="text-xs text-brand">Already added</span>
+          ) : row.original.meta ? (
+            <span className="text-xs text-muted-foreground">{row.original.meta}</span>
+          ) : null,
         size: 140,
       },
     ],
-    [options, allOnPageSelected, someOnPageSelected, selectedEmails, onToggle, onToggleAll],
+    [selectableOptions, allOnPageSelected, someOnPageSelected, selectedEmails, lockedEmails, onToggle, onToggleAll],
   )
 
   return (

@@ -17,6 +17,7 @@ interface CampaignSetupViewProps {
   questionnaireQuestionCount?: number
   dueDate?: string | null
   recipientCount: number
+  recipientsSlot?: React.ReactNode
   isUpdating?: boolean
   onEditDetails: () => void
   onChangeTemplate: () => void
@@ -36,6 +37,7 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
   questionnaireQuestionCount = 0,
   dueDate,
   recipientCount,
+  recipientsSlot,
   isUpdating,
   onEditDetails,
   onChangeTemplate,
@@ -189,6 +191,7 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
             </div>
           }
         />
+        {recipientsSlot && <div className="rounded-md border border-border bg-card p-4">{recipientsSlot}</div>}
         <SetupCard
           icon={<SendHorizontal size={18} className="text-brand" />}
           title="Send Test Email"

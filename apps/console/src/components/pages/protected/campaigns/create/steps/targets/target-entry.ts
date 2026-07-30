@@ -18,6 +18,10 @@ export const PICKER_PAGE_SIZE = 5
 
 export const PICKER_PAGINATION: TPagination = { page: 1, pageSize: PICKER_PAGE_SIZE, query: { first: PICKER_PAGE_SIZE } }
 
+export const EMPTY_EMAIL_KEYS: ReadonlySet<string> = new Set()
+
+export const toEmailKeys = (emails: string[]): ReadonlySet<string> => new Set(emails.map(normalizeEmail).filter(Boolean))
+
 export const hasTarget = (targets: CampaignTargetEntry[], email: string): boolean => targets.some((target) => normalizeEmail(target.email) === normalizeEmail(email))
 
 const enrichTarget = (existing: CampaignTargetEntry, incoming: CampaignTargetEntry): CampaignTargetEntry => ({

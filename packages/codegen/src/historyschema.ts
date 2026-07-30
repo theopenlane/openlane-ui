@@ -89893,6 +89893,7 @@ export interface UpdateAssessmentInput {
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  assessmentType?: InputMaybe<AssessmentAssessmentType>
   clearAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
@@ -108323,7 +108324,7 @@ export type CampaignTargetStatsQuery = {
   campaignTargets: {
     __typename?: 'CampaignTargetConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'CampaignTargetEdge'; node?: { __typename?: 'CampaignTarget'; sentAt?: string | null; completedAt?: string | null } | null } | null> | null
+    edges?: Array<{ __typename?: 'CampaignTargetEdge'; node?: { __typename?: 'CampaignTarget'; id: string; email: string; sentAt?: string | null; completedAt?: string | null } | null } | null> | null
   }
 }
 
@@ -108532,6 +108533,20 @@ export type DeleteCampaignMutationVariables = Exact<{
 }>
 
 export type DeleteCampaignMutation = { __typename?: 'Mutation'; deleteCampaign: { __typename?: 'CampaignDeletePayload'; deletedID: string } }
+
+export type LaunchCampaignMutationVariables = Exact<{
+  input: LaunchCampaignInput
+}>
+
+export type LaunchCampaignMutation = {
+  __typename?: 'Mutation'
+  launchCampaign: {
+    __typename?: 'CampaignLaunchPayload'
+    queuedCount: number
+    skippedCount: number
+    campaign: { __typename?: 'Campaign'; id: string; status: CampaignCampaignStatus; launchedAt?: string | null; scheduledAt?: string | null }
+  }
+}
 
 export type SendCampaignTestEmailMutationVariables = Exact<{
   input: SendCampaignTestEmailInput

@@ -23,9 +23,10 @@ const toEntry = (option: RecipientOption): CampaignTargetEntry => ({ email: opti
 interface ContactsSelectorProps {
   targets: CampaignTargetEntry[]
   onTargetsChange: Dispatch<SetStateAction<CampaignTargetEntry[]>>
+  lockedEmails?: ReadonlySet<string>
 }
 
-export const ContactsSelector: React.FC<ContactsSelectorProps> = ({ targets, onTargetsChange }) => {
+export const ContactsSelector: React.FC<ContactsSelectorProps> = ({ targets, onTargetsChange, lockedEmails }) => {
   const [scope, setScope] = useState<string>(ALL_SCOPE)
   const [searchText, setSearchText] = useState('')
   const [pagination, setPagination] = useState<TPagination>(PICKER_PAGINATION)
@@ -100,6 +101,7 @@ export const ContactsSelector: React.FC<ContactsSelectorProps> = ({ targets, onT
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
         targets={targets}
+        lockedEmails={lockedEmails}
         onToggle={handleToggle}
         onToggleAll={handleToggleAll}
         emptyLabel="No contacts found."
