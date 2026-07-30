@@ -676,7 +676,12 @@ const DataRow = memo(function DataRow<TData, TValue>({ row, isExpanded = false, 
   const href = rowHref?.(row.original)
   const isClickable = !!(onRowClick || href)
 
-  const handleClick = (e: React.MouseEvent) => {
+  const isInsideRow = (e: React.MouseEvent<HTMLTableRowElement>) => e.target instanceof Node && e.currentTarget.contains(e.target)
+
+  const handleClick = (e: React.MouseEvent<HTMLTableRowElement>) => {
+    if (!isInsideRow(e)) {
+      return
+    }
     if (href && (e.metaKey || e.ctrlKey)) {
       e.preventDefault()
       window.open(href, '_blank', 'noopener')
@@ -689,7 +694,10 @@ const DataRow = memo(function DataRow<TData, TValue>({ row, isExpanded = false, 
     }
   }
 
-  const handleAuxClick = (e: React.MouseEvent) => {
+  const handleAuxClick = (e: React.MouseEvent<HTMLTableRowElement>) => {
+    if (!isInsideRow(e)) {
+      return
+    }
     if (href && e.button === 1) {
       e.preventDefault()
       window.open(href, '_blank', 'noopener')
