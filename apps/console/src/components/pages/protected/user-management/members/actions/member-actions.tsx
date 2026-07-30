@@ -45,6 +45,43 @@ type MemberActionsProps = {
 
 const ICON_SIZE = 12
 
+type MemberSecurityActionDialogProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  title: string
+  description: React.ReactNode
+  reason: string
+  onReasonChange: (reason: string) => void
+  reasonPlaceholder: string
+  confirmLabel: string
+  onConfirm: () => void
+}
+
+const MemberSecurityActionDialog = ({ open, onOpenChange, title, description, reason, onReasonChange, reasonPlaceholder, confirmLabel, onConfirm }: MemberSecurityActionDialogProps) => (
+  <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>{title}</AlertDialogTitle>
+        <AlertDialogDescription>{description}</AlertDialogDescription>
+      </AlertDialogHeader>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm text-muted-foreground">Reason (optional)</span>
+        <Input value={reason} onChange={(e) => onReasonChange(e.target.value)} placeholder={reasonPlaceholder} />
+      </div>
+      <AlertDialogFooter>
+        <AlertDialogCancel asChild>
+          <CancelButton />
+        </AlertDialogCancel>
+        <AlertDialogAction asChild>
+          <Button variant="primary" onClick={onConfirm}>
+            {confirmLabel}
+          </Button>
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+)
+
 export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, additionalRoles, memberSSOExempt = false, memberTFAEnforced = false }: MemberActionsProps) => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [showChangeRole, setShowChangeRole] = useState(false)
@@ -322,54 +359,36 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
         subjectName={memberName}
         currentRoleNames={additionalRoles ?? []}
       />
-      <AlertDialog open={showSSOExempt} onOpenChange={setShowSSOExempt}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Mark as SSO Exempt</AlertDialogTitle>
-            <AlertDialogDescription>
-              <b>{memberName} </b> will be allowed to sign in without the organization&apos;s SSO directory, even when SSO is enforced. Multi-factor authentication still applies.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="flex flex-col gap-1.5">
-            <span className="text-sm text-muted-foreground">Reason (optional)</span>
-            <Input value={exemptReason} onChange={(e) => setExemptReason(e.target.value)} placeholder="External auditor" />
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel asChild>
-              <CancelButton />
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button variant="primary" onClick={handleToggleSSOExempt}>
-                Mark exempt
-              </Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      <AlertDialog open={showTFAEnforced} onOpenChange={setShowTFAEnforced}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Mark as 2FA Enforced</AlertDialogTitle>
-            <AlertDialogDescription>
-              <b>{memberName} </b> will be required to configure multi-factor authentication for this organization, even when organization-wide 2FA enforcement is disabled.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="flex flex-col gap-1.5">
-            <span className="text-sm text-muted-foreground">Reason (optional)</span>
-            <Input value={tfaEnforcedReason} onChange={(e) => setTfaEnforcedReason(e.target.value)} placeholder="Privileged access" />
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel asChild>
-              <CancelButton />
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button variant="primary" onClick={handleToggleTFAEnforced}>
-                Mark enforced
-              </Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <MemberSecurityActionDialog
+        open={showSSOExempt}
+        onOpenChange={setShowSSOExempt}
+        title="Mark as SSO Exempt"
+        description={
+          <>
+            <b>{memberName} </b> will be allowed to sign in without the organization&apos;s SSO directory, even when SSO is enforced. Multi-factor authentication still applies.
+          </>
+        }
+        reason={exemptReason}
+        onReasonChange={setExemptReason}
+        reasonPlaceholder="External auditor"
+        confirmLabel="Mark exempt"
+        onConfirm={handleToggleSSOExempt}
+      />
+      <MemberSecurityActionDialog
+        open={showTFAEnforced}
+        onOpenChange={setShowTFAEnforced}
+        title="Mark as 2FA Enforced"
+        description={
+          <>
+            <b>{memberName} </b> will be required to configure multi-factor authentication for this organization, even when organization-wide 2FA enforcement is disabled.
+          </>
+        }
+        reason={tfaEnforcedReason}
+        onReasonChange={setTfaEnforcedReason}
+        reasonPlaceholder="Privileged access"
+        confirmLabel="Mark enforced"
+        onConfirm={handleToggleTFAEnforced}
+      />
     </>
   )
 }
