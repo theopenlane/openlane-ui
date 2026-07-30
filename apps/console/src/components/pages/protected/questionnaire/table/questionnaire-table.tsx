@@ -155,7 +155,7 @@ export const QuestionnairesTable = () => {
   }
 
   const canSendMap = useAssessmentSendPermissionMap(assessments ?? [])
-  const canCreateTemplate = hasPermission(permission?.roles, AccessEnum.CanCreateTemplate, session)
+  const canCreateTemplate = includeQuestionnaireCreation === 'true' && hasPermission(permission?.roles, AccessEnum.CanCreateTemplate, session)
 
   const { columns, mappedColumns } = getQuestionnaireColumns({
     userMap,
