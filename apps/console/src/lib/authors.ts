@@ -4,6 +4,8 @@ import { type User } from '@repo/codegen/src/schema'
 // used for created_by/updated_by attribution during Openlane support impersonation sessions
 export const SUPPORT_SUBJECT_ID = process.env.NEXT_PUBLIC_SUPPORT_SUBJECT_ID || '01JSPPRT000000000000000000'
 export const SUPPORT_DISPLAY_NAME = 'Openlane Support'
+export const INTEGRATION_SUBJECT_ID = process.env.NEXT_PUBLIC_INTEGRATION_SUBJECT_ID || '01JNTGACTR0000000000000000'
+export const INTEGRATION_DISPLAY_NAME = 'Openlane Integrations'
 export const DELETED_USER_LABEL = 'Deleted user'
 
 export const UNKNOWN_AUTHOR_ID = 'unknown'
@@ -19,6 +21,7 @@ export type AuthorMaps = {
 export type ResolvedAuthor =
   | { kind: 'user'; displayName: string; user: User }
   | { kind: 'support'; displayName: string }
+  | { kind: 'integration'; displayName: string }
   | { kind: 'token'; displayName: string; token: AuthorToken }
   | { kind: 'unknown'; displayName: string }
   | { kind: 'deleted'; displayName: string }
@@ -29,6 +32,7 @@ export function resolveAuthor(id: string | null | undefined, { userMap, tokenMap
   const user = userMap?.[id]
   if (user) return { kind: 'user', displayName: user.displayName || '-', user }
   if (id === SUPPORT_SUBJECT_ID) return { kind: 'support', displayName: SUPPORT_DISPLAY_NAME }
+  if (id === INTEGRATION_SUBJECT_ID) return { kind: 'integration', displayName: INTEGRATION_DISPLAY_NAME }
   const token = tokenMap?.[id]
   if (token) return { kind: 'token', displayName: token.name, token }
   return { kind: 'deleted', displayName: DELETED_USER_LABEL }

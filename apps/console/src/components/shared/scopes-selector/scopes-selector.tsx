@@ -3,9 +3,12 @@
 import React, { useMemo, useState } from 'react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Input } from '@repo/ui/input'
+import { Button } from '@repo/ui/button'
+import { cn } from '@repo/ui/lib/utils'
 import { ChevronDown, ChevronRight, Search } from 'lucide-react'
 import { useScopes } from '@/lib/query-hooks/permissions'
 import { toHumanLabel } from '@/utils/strings'
+import { SCOPE_PRESETS, buildPresetScopes, getActivePresetKey, type TScopePreset } from './scope-presets'
 
 const PERMISSION_ORDER = ['read', 'write', 'delete'] as const
 
@@ -95,6 +98,12 @@ export const ScopesSelector = ({ value, onChange }: ScopesSelectorProps) => {
     onChange(checked ? allScopes : [])
   }
 
+  const activePresetKey = useMemo(() => getActivePresetKey(grouped, value), [grouped, value])
+
+  const handlePresetSelect = (preset: TScopePreset) => {
+    onChange(buildPresetScopes(grouped, preset))
+  }
+
   const handleTypeToggle = (objectType: string, permissions: string[], checked: boolean) => {
     const typeScopes = permissions.map((p) => `${objectType}:${p}`)
     const filtered = value.filter((s) => !s.startsWith(`${objectType}:`))
@@ -168,6 +177,22 @@ export const ScopesSelector = ({ value, onChange }: ScopesSelectorProps) => {
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Select all</span>
               <span className="text-xs text-muted-foreground">Enables every permission scope. We recommend using least-privilege access whenever possible.</span>
             </div>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-muted-foreground">Presets</span>
+            {SCOPE_PRESETS.map((preset) => (
+              <Button
+                key={preset.key}
+                type="button"
+                size="sm"
+                variant="tag"
+                descriptiveTooltipText={preset.description}
+                className={cn('font-normal text-xs py-1', activePresetKey === preset.key && 'is-active')}
+                onClick={() => handlePresetSelect(preset)}
+              >
+                {preset.label}
+              </Button>
+            ))}
           </div>
           <div className="flex items-center gap-2">
             <Input placeholder="Filter permissions..." value={filter} onChange={(e) => setFilter(e.target.value)} icon={<Search className="h-3.5 w-3.5" />} className="h-7 text-xs flex-1" />
