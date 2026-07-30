@@ -124,6 +124,7 @@ const QuestionnaireDetailPage = () => {
     }
   }, [assessment?.campaigns])
   const canSend = useCanSendQuestionnaire(campaignIds, entityIds)
+  const hasDeletePermission = canDelete(permission?.roles)
 
   const deliveryWhereFilter = useMemo(
     () =>
@@ -390,7 +391,7 @@ const QuestionnaireDetailPage = () => {
                       <span>Edit</span>
                     </Button>
                   )}
-                  {canDelete(permission?.roles) && !assessment.systemOwned && (
+                  {hasDeletePermission && !assessment.systemOwned && (
                     <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setIsDeleteDialogOpen(true)}>
                       <Trash2 size={16} strokeWidth={2} />
                       <span>Delete</span>
@@ -449,6 +450,7 @@ const QuestionnaireDetailPage = () => {
             onTotalCountChange={handleDeliveryTotalCountChange}
             responseDueDuration={assessment?.responseDueDuration}
             canSend={canSend}
+            canDelete={hasDeletePermission}
           />
         </TabsContent>
         <TabsContent value="responses" className="mt-6">
