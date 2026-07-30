@@ -11,7 +11,9 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useNotification } from '@/hooks/useNotification'
-import { useRouter } from 'next/navigation'
+import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetEntityAssociations } from '@/lib/graphql-hooks/entity'
@@ -35,7 +37,7 @@ interface MarkAsEvidenceDialogProps {
 }
 
 const MarkAsEvidenceDialog: React.FC<MarkAsEvidenceDialogProps> = ({ fileId, fileName, vendorId, onClose }) => {
-  const router = useRouter()
+  const openObjectSheet = useOpenObjectSheet()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
   const [selectedIds, setSelectedIds] = useState<TObjectAssociationMap>({})
@@ -64,10 +66,6 @@ const MarkAsEvidenceDialog: React.FC<MarkAsEvidenceDialogProps> = ({ fileId, fil
     })
   }, [])
 
-  const openEvidence = (evidenceId: string) => {
-    router.push(`/evidence?id=${evidenceId}`)
-  }
-
   const handleSubmit = async (data: MarkAsEvidenceFormData) => {
     const controlIDs = selectedIds.controlIDs ?? []
     const subcontrolIDs = selectedIds.subcontrolIDs ?? []
@@ -88,10 +86,7 @@ const MarkAsEvidenceDialog: React.FC<MarkAsEvidenceDialogProps> = ({ fileId, fil
         title: 'Marked as evidence',
         description: (
           <span>
-            &quot;{data.name}&quot; has been created as evidence.{' '}
-            <button type="button" className="underline font-medium cursor-pointer bg-transparent border-0 p-0" onClick={() => openEvidence(evidenceId)}>
-              View evidence
-            </button>
+            &quot;{data.name}&quot; has been created as evidence. <ObjectSheetLink id={evidenceId} kind={ObjectAssociationNodeEnum.EVIDENCE} label="View evidence" onOpenSheet={openObjectSheet} />
           </span>
         ),
       })

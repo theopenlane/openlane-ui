@@ -15,10 +15,13 @@ import ControlImplementationDetailsSheet from '@/components/pages/protected/cont
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import ViewVendorSheet from '@/components/pages/protected/vendors/view-vendor-sheet'
 import ViewPersonnelSheet from '@/components/pages/protected/personnel/view-personnel-sheet'
+import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
+import { useRouter } from 'next/navigation'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 
 export const FULL_PAGE_KINDS = new Set<string>([ObjectAssociationNodeEnum.CONTROL, ObjectAssociationNodeEnum.SUBCONTROL])
 
-export const SHEET_KINDS = new Set<string>([
+const SHEET_KIND_LIST = [
   ObjectAssociationNodeEnum.POLICY,
   ObjectAssociationNodeEnum.PROCEDURE,
   ObjectAssociationNodeEnum.VULNERABILITY,
@@ -30,24 +33,48 @@ export const SHEET_KINDS = new Set<string>([
   ObjectAssociationNodeEnum.CONTROL_OBJECTIVE,
   ObjectAssociationNodeEnum.CONTROL_IMPLEMENTATION,
   ObjectAssociationNodeEnum.TASK,
+  ObjectAssociationNodeEnum.EVIDENCE,
   ObjectAssociationNodeEnum.ENTITY,
   ObjectAssociationNodeEnum.IDENTITY_HOLDER,
-])
+] as const
+
+export type SheetKind = (typeof SHEET_KIND_LIST)[number]
+
+const SHEET_KINDS: ReadonlySet<string> = new Set<string>(SHEET_KIND_LIST)
+
+export const isSheetKind = (kind: string): kind is SheetKind => SHEET_KINDS.has(kind)
 
 type SheetNavigationContextValue = {
-  openSheet: (id: string, kind: string) => void
+  openSheet: (id: string, kind: SheetKind) => void
 }
 
 const SheetNavigationContext = createContext<SheetNavigationContextValue | null>(null)
 
 export const useSheetNavigation = () => use(SheetNavigationContext)
 
-type ActiveSheet = { id: string; kind: string } | null
+export const useOpenObjectSheet = () => {
+  const sheetNavigation = useSheetNavigation()
+  const router = useRouter()
 
-const renderSheet = (activeSheet: ActiveSheet, onClose: () => void) => {
-  if (!activeSheet) return null
-  const { id, kind } = activeSheet
+  return useCallback(
+    (id: string, kind: ObjectAssociationNodeEnum) => {
+      if (sheetNavigation && isSheetKind(kind)) {
+        sheetNavigation.openSheet(id, kind)
+        return
+      }
 
+      const href = getHrefForObjectType(kind, { id })
+      if (href) {
+        router.push(href)
+      }
+    },
+    [sheetNavigation, router],
+  )
+}
+
+type ActiveSheet = { id: string; kind: SheetKind } | null
+
+const renderSheetContent = (id: string, kind: SheetKind, onClose: () => void) => {
   switch (kind) {
     case ObjectAssociationNodeEnum.POLICY:
       return <ViewPolicySheet policyId={id} onClose={onClose} />
@@ -71,24 +98,29 @@ const renderSheet = (activeSheet: ActiveSheet, onClose: () => void) => {
       return <ControlImplementationDetailsSheet entityId={id} onClose={onClose} />
     case ObjectAssociationNodeEnum.TASK:
       return <TaskDetailsSheet entityId={id} onClose={onClose} />
+    case ObjectAssociationNodeEnum.EVIDENCE:
+      return <EvidenceDetailsSheet entityId={id} onClose={onClose} />
     case ObjectAssociationNodeEnum.ENTITY:
       return <ViewVendorSheet entityId={id} onClose={onClose} />
     case ObjectAssociationNodeEnum.IDENTITY_HOLDER:
       return <ViewPersonnelSheet identityHolderId={id} onClose={onClose} />
     default:
+      kind satisfies never
       return null
   }
+}
+
+const renderSheet = (activeSheet: ActiveSheet, onClose: () => void) => {
+  if (!activeSheet) return null
+
+  return <React.Fragment key={`${activeSheet.kind}:${activeSheet.id}`}>{renderSheetContent(activeSheet.id, activeSheet.kind, onClose)}</React.Fragment>
 }
 
 export const SheetNavigationProvider = ({ children }: { children: React.ReactNode }) => {
   const [activeSheet, setActiveSheet] = useState<ActiveSheet>(null)
   const closeSheet = useCallback(() => setActiveSheet(null), [])
 
-  const openSheet = useCallback((id: string, kind: string) => {
-    if (SHEET_KINDS.has(kind)) {
-      setActiveSheet({ id, kind })
-    }
-  }, [])
+  const openSheet = useCallback((id: string, kind: SheetKind) => setActiveSheet({ id, kind }), [])
 
   const contextValue = useMemo(() => ({ openSheet }), [openSheet])
 

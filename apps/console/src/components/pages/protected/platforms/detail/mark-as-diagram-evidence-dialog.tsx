@@ -7,11 +7,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { FormField, FormItem, FormLabel, FormControl, Form } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
-import { Button } from '@repo/ui/button'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useNotification } from '@/hooks/useNotification'
-import { useRouter, usePathname } from 'next/navigation'
+import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
@@ -38,8 +39,7 @@ interface MarkAsDiagramEvidenceDialogProps {
 }
 
 const MarkAsDiagramEvidenceDialog: React.FC<MarkAsDiagramEvidenceDialogProps> = ({ fileId, fileName, diagramType, platformId, platformName, onClose }) => {
-  const router = useRouter()
-  const pathname = usePathname()
+  const openObjectSheet = useOpenObjectSheet()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
   const [selectedIds, setSelectedIds] = useState<TObjectAssociationMap>({})
@@ -54,10 +54,6 @@ const MarkAsDiagramEvidenceDialog: React.FC<MarkAsDiagramEvidenceDialogProps> = 
   const handleIdChange = useCallback((updatedMap: TObjectAssociationMap) => {
     setSelectedIds(updatedMap)
   }, [])
-
-  const openEvidence = (evidenceId: string) => {
-    router.push(`${pathname}?id=${evidenceId}`)
-  }
 
   const handleSubmit = async (data: MarkAsEvidenceFormData) => {
     const controlIDs = selectedIds.controlIDs ?? []
@@ -81,10 +77,7 @@ const MarkAsDiagramEvidenceDialog: React.FC<MarkAsDiagramEvidenceDialogProps> = 
         title: 'Marked as evidence',
         description: (
           <span>
-            &quot;{data.name}&quot; has been created as evidence.{' '}
-            <Button type="button" variant="transparent" className="h-auto p-0 underline cursor-pointer font-medium" onClick={() => openEvidence(evidenceId)}>
-              View evidence
-            </Button>
+            &quot;{data.name}&quot; has been created as evidence. <ObjectSheetLink id={evidenceId} kind={ObjectAssociationNodeEnum.EVIDENCE} label="View evidence" onOpenSheet={openObjectSheet} />
           </span>
         ),
       })

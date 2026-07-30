@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { type AttentionItem } from './items-requiring-attention'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { getSeverityStyle } from '@/utils/severity'
+import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import { searchTypeIcons } from '@/components/shared/search/search-config'
 import { type SlaDefinitionsNodeNonNull } from '@/lib/graphql-hooks/sla-definition'
 import { getVulnerabilityDueDate } from '@/utils/vulnerability-due-date'
@@ -71,11 +71,7 @@ export const getAttentionColumns = (onAssociate: (item: AttentionItem) => void, 
     accessorKey: 'severity',
     header: 'Severity',
     size: 110,
-    cell: ({ row }) => (
-      <span className="text-xs px-2 py-0.5 rounded-full font-medium capitalize" style={getSeverityStyle(row.original.severity)}>
-        {row.original.severity || '—'}
-      </span>
-    ),
+    cell: ({ row }) => (row.original.severity ? <SeverityChip severity={row.original.severity} /> : <span className="text-xs text-muted-foreground">—</span>),
   },
   {
     accessorKey: 'status',

@@ -24,7 +24,9 @@ import { type ObjectTypeObjects } from '@/components/shared/object-association/o
 import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
 import { type Value } from 'platejs'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import Link from 'next/link'
+import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
@@ -47,6 +49,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const { form } = useFormSchema(props.initialValues)
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
+  const openObjectSheet = useOpenObjectSheet()
   const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask()
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
 
@@ -107,10 +110,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
         title: 'Task Created',
         description: (
           <>
-            Task has been successfully created.{' '}
-            <Link href={`/automation/tasks?id=${taskId}`} className="text-blue-600 underline">
-              View Task
-            </Link>
+            Task has been successfully created. <ObjectSheetLink id={taskId} kind={ObjectAssociationNodeEnum.TASK} label="View Task" onOpenSheet={openObjectSheet} />
           </>
         ),
       })

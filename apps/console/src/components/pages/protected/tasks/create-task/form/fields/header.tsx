@@ -17,19 +17,20 @@ interface TasksSheetHeaderProps {
   id: string | null
   onDuplicate: () => void
   canDuplicate: boolean
+  sharePath: string
+  onDeleted: () => void
 }
 
-const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, title, isEditAllowed, id, onDuplicate, canDuplicate }: TasksSheetHeaderProps) => {
+const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, title, isEditAllowed, id, onDuplicate, canDuplicate, sharePath, onDeleted }: TasksSheetHeaderProps) => {
   const { successNotification, errorNotification } = useNotification()
 
   const handleCopyLink = () => {
-    if (!id) {
+    if (!sharePath) {
       return
     }
 
-    const url = `${window.location.origin}${window.location.pathname}?id=${id}`
     navigator.clipboard
-      .writeText(url)
+      .writeText(`${window.location.origin}${sharePath}`)
       .then(() => {
         successNotification({
           title: 'Link copied to clipboard',
@@ -67,7 +68,7 @@ const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, title, is
               </Button>
             </>
           )}
-          {title && id && <DeleteTaskDialog taskName={title} taskId={id} />}
+          {title && id && <DeleteTaskDialog taskName={title} taskId={id} onDeleted={onDeleted} />}
         </div>
       </div>
     </SheetHeader>
