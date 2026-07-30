@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
+export const UNASSIGNED = '__unassigned'
+
 const formSchema = z.object({
   id: z.string().optional().nullable(),
 })

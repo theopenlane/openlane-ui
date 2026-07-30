@@ -44,7 +44,7 @@ import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sid
 import AssetDetailsSheet from '@/components/pages/protected/controls/tabs/assets-scans/asset-details-sheet'
 import ScanDetailsSheet from '@/components/pages/protected/controls/tabs/assets-scans/scan-details-sheet'
 import FindingDetailsSheet from '@/components/pages/protected/controls/tabs/findings-risks/finding-details-sheet'
-import ReviewDetailsSheet from '@/components/pages/protected/controls/tabs/reviews/review-details-sheet'
+import ControlReviewSheet from '@/components/pages/protected/controls/control-review/control-review-sheet'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -462,7 +462,7 @@ const ControlDetailsPage: React.FC = () => {
       <AssetDetailsSheet queryParamKey="assetId" />
       <ScanDetailsSheet queryParamKey="scanId" />
       <FindingDetailsSheet queryParamKey="findingId" />
-      <ReviewDetailsSheet queryParamKey="reviewId" />
+      <ControlReviewSheet controlId={id} queryParamKey="reviewId" />
 
       <ConfirmationDialog
         open={isDeleteDialogOpen}

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useMemo, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { useNotification } from '@/hooks/useNotification'
 import { Form } from '@repo/ui/form'
@@ -37,15 +37,20 @@ import EvidenceMetadataSection from './detail/evidence-metadata-section'
 import EvidenceDetailSection from './detail/evidence-detail-section'
 import { evidenceToFormValues } from './detail/evidence-form-values'
 import { useEvidenceAssociations } from './hooks/use-evidence-associations'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
+  entityId?: string | null
+  onClose?: () => void
 }
 
 const DATE_POPOVER_FIELDS: EvidenceEditableField[] = ['renewalDate', 'creationDate']
 const INLINE_POPOVER_FIELDS: EvidenceEditableField[] = ['tags', 'reviewFrequency', ...DATE_POPOVER_FIELDS]
 
-const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
+const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, entityId: entityIdProp, onClose: onCloseProp }) => {
   const { convertToHtml, convertToReadOnly } = usePlateEditor()
   const objectAssociationRef = useRef<HTMLDivElement | null>(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -59,7 +64,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const searchParams = useSearchParams()
   const controlEvidenceIdParam = searchParams?.get('controlEvidenceId')
   const id = searchParams.get('id')
-  const router = useRouter()
+  const smartRouter = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
@@ -76,11 +81,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
 
   const config = useMemo(() => {
+    if (entityIdProp !== undefined) {
+      return { id: entityIdProp, link: entityIdProp ? `${window.location.origin}${getHrefForObjectType(ObjectAssociationNodeEnum.EVIDENCE, { id: entityIdProp })}` : '' }
+    }
     if (controlEvidenceIdParam) {
       return { id: controlEvidenceIdParam, link: `${window.location.origin}${window.location.pathname}?controlEvidenceId=${controlEvidenceIdParam}` }
     }
     return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
-  }, [controlEvidenceIdParam, id])
+  }, [entityIdProp, controlEvidenceIdParam, id])
 
   const { suggestedControlsMap, isLoading: isSuggestionsLoading } = useEvidenceSuggestedControls({
     evidenceControls,
@@ -151,10 +159,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const handleCloseParams = () => {
     setIsEditing(false)
 
-    const newSearchParams = new URLSearchParams(searchParams.toString())
-    newSearchParams.delete('controlEvidenceId')
-    newSearchParams.delete('id')
-    router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
+    if (onCloseProp) {
+      onCloseProp()
+      return
+    }
+
+    smartRouter.replace({ controlEvidenceId: null, id: null })
   }
 
   const onSubmit = async (formData: EditEvidenceFormData, statusOverride?: EvidenceEvidenceStatus) => {
@@ -225,6 +235,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     try {
       await deleteEvidence({ deleteEvidenceId: config.id })
       successNotification({ title: `Evidence "${evidence?.name}" deleted successfully` })
+      queryClient.invalidateQueries({ queryKey: ['evidences'] })
       if (controlId) {
         queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
       }
@@ -358,7 +369,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   )
 
   const [scrollTrigger, setScrollTrigger] = useState(0)
-  if (isEditPreset) {
+  if (isEditPreset && config.id) {
     setIsEditing(true)
     setIsEditPreset(false)
     setScrollTrigger((prev) => prev + 1)
@@ -383,7 +394,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }, [scrollTrigger])
 
   return (
-    <Sheet open={!!id || !!controlEvidenceIdParam} onOpenChange={handleSheetClose}>
+    <Sheet open={!!config.id} onOpenChange={handleSheetClose}>
       <SheetContent
         onEscapeKeyDown={(e) => {
           if (editField) {
@@ -477,7 +488,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                 />
               )}
 
-              {!isEditing && <EvidenceCommentsCard />}
+              {!isEditing && config.id && <EvidenceCommentsCard evidenceId={config.id} />}
             </form>
           </Form>
         )}
@@ -503,12 +514,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
           isOpen={isDiscardDialogOpen}
           onConfirm={() => {
             setIsDiscardDialogOpen(false)
-            handleCloseParams()
             form.reset(evidenceToFormValues(evidence, initialAssociations))
-
             setEvidenceControls(controlsAndPrograms.controls)
             setEvidenceSubcontrols(controlsAndPrograms.subcontrols)
             setAssociationProgramsRefMap(controlsAndPrograms.programDisplayIDs)
+            handleCloseParams()
           }}
           onCancel={() => setIsDiscardDialogOpen(false)}
         />
