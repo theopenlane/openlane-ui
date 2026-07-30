@@ -64,7 +64,7 @@ export const SSOExemptionDialog: React.FC<SSOExemptionDialogProps> = ({ open, on
           <Button onClick={handleAddSSOExemption} disabled={isPending}>
             Add domain to SSO exemptions
           </Button>
-          <CancelButton title="Skip" onClick={() => onOpenChange(false)} />
+          <CancelButton title="Skip" disabled={isPending} onClick={() => onOpenChange(false)} />
         </DialogFooter>
       </DialogContent>
     </Dialog>
