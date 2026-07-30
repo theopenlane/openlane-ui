@@ -10,7 +10,7 @@ import { useSlaDefinitionsWithFilter, useUpdateSlaDefinition } from '@/lib/graph
 import { SlaDefinitionSecurityLevel } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { Pencil, Check, X, Loader2 } from 'lucide-react'
-import { getSeverityStyle } from '@/utils/severity'
+import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -91,11 +91,7 @@ const ConfigureSlaSheet = ({ isOpen, onClose, readOnly = false }: Props) => {
             const severityName = def.securityLevel ?? 'Unknown'
             return (
               <div key={def.id} className="flex items-center justify-between px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs px-2 py-0.5 rounded-full font-medium capitalize w-20 text-center" style={getSeverityStyle(severityName)}>
-                    {severityName.toLowerCase()}
-                  </span>
-                </div>
+                <SeverityChip severity={severityName} className="w-20 text-center" />
                 <div className="flex items-center gap-2">
                   {isEditing ? (
                     <>

@@ -1,8 +1,8 @@
 'use client'
 import React, { useEffect } from 'react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
-import { Card, CardContent } from '@repo/ui/cardpanel'
-import Skeleton from '@/components/shared/skeleton/skeleton'
+import { DashboardPageShell } from '@/components/pages/protected/dashboard/dashboard-page-shell'
+import { DashboardOverviewCardSkeleton } from '@/components/pages/protected/dashboard/skeleton/dashboard-overview-card-skeleton'
 import DashboardActions from '@/components/pages/protected/overview/DashboardActions.tsx'
 import DashboardComplianceOverview from '@/components/pages/protected/overview/DashboardComplianceOverview.tsx'
 import DashboardSetupChecklist from '@/components/pages/protected/overview/DashboardSetupChecklist'
@@ -37,13 +37,7 @@ const DashboardPage: React.FC = () => {
 
   const renderSetupOrOverview = () => {
     if (!isHydrated || isAwaitingTasks) {
-      return (
-        <Card className="bg-homepage-card border-homepage-card-border">
-          <CardContent className="p-6">
-            <Skeleton height={96} className="w-full rounded-lg" />
-          </CardContent>
-        </Card>
-      )
+      return <DashboardOverviewCardSkeleton />
     }
 
     if (isSetupChecklistComplete) {
@@ -61,28 +55,23 @@ const DashboardPage: React.FC = () => {
     )
   }
 
+  const header = (
+    <>
+      <p className="text-2xl leading-9 font-medium pt-2">Welcome, {userData?.user?.displayName}!</p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-muted-foreground text-base font-normal leading-6 pt-2 pb-3">Here&apos;s what&apos;s happening in your organization today</p>
+        <DashboardActions />
+      </div>
+    </>
+  )
+
   return (
-    <div className="max-w-[1476px] mx-auto w-full px-4 flex flex-col gap-4">
-      <div>
-        <p className="text-2xl leading-9 font-medium pt-2">Welcome, {userData?.user?.displayName}!</p>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-muted-foreground text-base font-normal leading-6 pt-2 pb-3">Here&apos;s what&apos;s happening in your organization today</p>
-          <DashboardActions />
-        </div>
-      </div>
-
-      {renderSetupOrOverview()}
-
-      <div className="flex flex-col lg:flex-row gap-4">
-        <div className="flex-1 min-w-0">
-          <DashboardTasksAndSuggestions />
-        </div>
-
-        <div className="w-full lg:w-[350px] shrink-0 flex flex-col gap-4">
-          <ActivityFeed activityItems={activityItems} allActivityItems={allActivityItems} isLoading={isActivityLoading} title="Recent Activity" />
-        </div>
-      </div>
-    </div>
+    <DashboardPageShell
+      header={header}
+      overview={renderSetupOrOverview()}
+      main={<DashboardTasksAndSuggestions />}
+      aside={<ActivityFeed activityItems={activityItems} allActivityItems={allActivityItems} isLoading={isActivityLoading} />}
+    />
   )
 }
 
