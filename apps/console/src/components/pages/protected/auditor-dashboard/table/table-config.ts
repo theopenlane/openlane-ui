@@ -8,6 +8,8 @@ import { type TFilterState } from '@/components/shared/table-filter/filter-stora
 
 type TOption = { value: string; label: string }
 
+export const AUDITOR_CONTROL_EXPORT_FIELDS = ['refCode', 'title', 'description', 'category', 'subcategory', 'status', 'referenceFramework', 'controlOwner.name', 'internalPolicies.name']
+
 export const getAuditorDashboardFilterFields = (frameworkOptions: TOption[], ownerOptions: TOption[]): FilterField[] => [
   {
     key: 'standardIDIn',
