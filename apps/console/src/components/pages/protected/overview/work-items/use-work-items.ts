@@ -11,6 +11,7 @@ import { useTasksWithFilter, useUpdateTask } from '@/lib/graphql-hooks/task'
 import { useGetEvidenceListLight } from '@/lib/graphql-hooks/evidence'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useNotification } from '@/hooks/useNotification'
+import { useOrgPersistedState } from '@/lib/storage/org-persisted-store'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { useRecommendationsFeed } from '@/hooks/useRecommendationsFeed'
 import { redirectToNotification } from '@/components/shared/SystemNotification/notification-redirect'
@@ -19,7 +20,8 @@ import { isPastDate } from '@/utils/date'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { firstLineOf } from '@/lib/suggested-tasks/utils'
 import { SuggestedTaskSource, TASK_TERMINAL_STATUSES, type SuggestedTask } from '@/lib/suggested-tasks/types'
-import { ALL_FILTER_KEY, FILTER_LABELS, UNCATEGORIZED_KIND, type FilterKey, type GroupBy, type WorkItem, type WorkItemFilter } from './types'
+import { ALL_FILTER_KEY, FILTER_LABELS, UNCATEGORIZED_KIND, type FilterKey, type WorkItem, type WorkItemFilter } from './types'
+import { workItemsGroupByStore } from './group-by-storage'
 
 const TASK_ORDER_BY = [{ field: TaskOrderField.due, direction: OrderDirection.ASC }]
 const TASK_KIND_ENUM_WHERE = { objectType: 'task', field: 'kind' }
@@ -34,13 +36,14 @@ export const useWorkItems = () => {
   const router = useRouter()
   const { data: sessionData } = useSession()
   const userId = sessionData?.user?.userId
+  const currentOrgId = sessionData?.user?.activeOrganizationId
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: updateTask } = useUpdateTask()
   const { notifications, markAsRead } = useNotificationsContext()
 
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const [selectedSuggestionId, setSelectedSuggestionId] = useState<string | null>(null)
-  const [groupBy, setGroupBy] = useState<GroupBy>('type')
+  const { value: groupBy, setValue: setGroupBy } = useOrgPersistedState(workItemsGroupByStore, currentOrgId)
   const [requestedFilter, setRequestedFilter] = useState<FilterKey>(ALL_FILTER_KEY)
 
   const { suggestions, isLoading: isFeedLoading, error: feedError, dismissSuggestion } = useRecommendationsFeed({ excludeTerminal: true })

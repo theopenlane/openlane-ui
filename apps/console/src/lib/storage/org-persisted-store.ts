@@ -15,17 +15,17 @@ export type OrgPersistedStore<T> = {
   set: (organizationId: string | undefined, next: T) => void
 }
 
-export const createOrgPersistedStore = <T>(storageKey: string, parse: (raw: string) => T | null, createEmpty: () => T): OrgPersistedStore<T> => {
+export const createOrgPersistedStore = <T>(storageKey: string, parse: (raw: string) => T | null, createDefault: () => T): OrgPersistedStore<T> => {
   const listeners = new Set<() => void>()
   const snapshots = new Map<string, OrgPersistedSnapshot<T>>()
-  const serverSnapshot: OrgPersistedSnapshot<T> = { value: createEmpty(), isHydrated: false }
+  const serverSnapshot: OrgPersistedSnapshot<T> = { value: createDefault(), isHydrated: false }
 
   const scopeOf = (organizationId?: string) => getOrganizationStorageKey(storageKey, organizationId)
 
   const readSnapshot = (organizationId?: string): OrgPersistedSnapshot<T> => {
     const raw = getOrganizationStorageItem(storageKey, organizationId)
     const parsed = raw === null ? null : parse(raw)
-    return { value: parsed === null ? createEmpty() : parsed, isHydrated: true }
+    return { value: parsed === null ? createDefault() : parsed, isHydrated: true }
   }
 
   return {
@@ -46,8 +46,12 @@ export const createOrgPersistedStore = <T>(storageKey: string, parse: (raw: stri
     },
     getServerSnapshot: () => serverSnapshot,
     set: (organizationId, next) => {
-      snapshots.set(scopeOf(organizationId), { value: next, isHydrated: true })
       setOrganizationStorageItem(storageKey, JSON.stringify(next), organizationId)
+
+      const scope = scopeOf(organizationId)
+      if (snapshots.get(scope)?.value === next) return
+
+      snapshots.set(scope, { value: next, isHydrated: true })
       listeners.forEach((listener) => listener())
     },
   }
@@ -57,14 +61,18 @@ export const useOrgPersistedState = <T>(store: OrgPersistedStore<T>, organizatio
   const getSnapshot = useCallback(() => store.getSnapshot(organizationId), [store, organizationId])
   const { value, isHydrated } = useSyncExternalStore(store.subscribe, getSnapshot, store.getServerSnapshot)
 
-  const setValue = useCallback(
-    (updater: (previous: T) => T) => {
-      store.set(organizationId, updater(store.getSnapshot(organizationId).value))
-    },
-    [store, organizationId],
-  )
+  const setValue = useCallback((next: T) => store.set(organizationId, next), [store, organizationId])
 
   return { value, isHydrated, setValue }
+}
+
+export const parseStringUnion = <T extends string>(raw: string, isValidValue: (value: string) => value is T): T | null => {
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    return typeof parsed === 'string' && isValidValue(parsed) ? parsed : null
+  } catch {
+    return null
+  }
 }
 
 export const parseStringArray = (raw: string): string[] | null => {
