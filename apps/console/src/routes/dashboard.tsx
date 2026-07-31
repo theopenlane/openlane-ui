@@ -125,7 +125,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       title: 'Registry',
       plan: PlanEnum.COMPLIANCE_MODULE,
       icon: LibraryBig,
-      href: '/registry/platforms',
+      href: '/registry',
       hidden: session?.user?.isOnboarding || billingExpired,
       children: [
         {
