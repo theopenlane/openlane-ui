@@ -3,7 +3,17 @@ import type React from 'react'
 export type WorkItemActionKind = 'dismiss' | 'complete'
 
 export type FilterKey = string
-export type GroupBy = 'type' | 'kind'
+
+export const GROUP_BY_OPTIONS = [
+  { value: 'type', label: 'Type' },
+  { value: 'kind', label: 'Kind' },
+] as const
+
+export type GroupBy = (typeof GROUP_BY_OPTIONS)[number]['value']
+
+export const DEFAULT_GROUP_BY: GroupBy = 'type'
+
+export const isGroupBy = (value: string): value is GroupBy => GROUP_BY_OPTIONS.some((option) => option.value === value)
 
 export const ALL_FILTER_KEY = 'all'
 export const UNCATEGORIZED_KIND = 'Uncategorized'
