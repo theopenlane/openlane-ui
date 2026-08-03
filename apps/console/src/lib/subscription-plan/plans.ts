@@ -1,6 +1,6 @@
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
-import { UPGRADE_MODULES_BY_OBJECT_TYPE } from '@/lib/subscription-plan/object-type-modules.ts'
+import { MODULES_BY_OBJECT_TYPE } from '@/lib/subscription-plan/object-type-modules.ts'
 import { type Addon, type Module, type OpenlaneProductsResponse } from '@/types/stripe.ts'
 import { type Session } from 'next-auth'
 import { isImpersonation } from '../authz/utils'
@@ -24,7 +24,8 @@ export const featureUtil = {
   notAvailableText: 'Not available in your current plan',
   notAvailableFullText: 'Forbidden. This feature is not available in your current subscription plan. Please upgrade your plan from your billing settings to access this feature.',
 
-  getUpgradeModules: (objectType: ObjectTypes): PlanEnum[] => UPGRADE_MODULES_BY_OBJECT_TYPE[objectType],
+  // object types that are not module gated have no entry, so they require nothing
+  getUpgradeModules: (objectType: ObjectTypes): PlanEnum[] => MODULES_BY_OBJECT_TYPE[objectType] ?? [],
 
   getPlanProduct: (plan: PlanEnum, products: OpenlaneProductsResponse | undefined): Module | Addon | undefined => products?.modules?.[plan] ?? products?.addons?.[plan],
 
