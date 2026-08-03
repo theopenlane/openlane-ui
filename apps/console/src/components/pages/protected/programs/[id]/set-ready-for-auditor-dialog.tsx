@@ -9,6 +9,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface SetReadyForAuditorDialogProps {
   programStatus: ProgramProgramStatus
@@ -19,17 +21,26 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
   const { mutateAsync: update } = useUpdateProgram()
   const { id } = useParams<{ id: string }>()
   const queryClient = useQueryClient()
+  const { errorNotification } = useNotification()
 
   const handleSetReadyForAuditor = async () => {
     if (!id) return
-    await update({
-      updateProgramId: id,
-      input: {
-        auditorReady: true,
-      },
-    })
-    queryClient.invalidateQueries({ queryKey: ['programs'] })
-    setOpen(false)
+    try {
+      await update({
+        updateProgramId: id,
+        input: {
+          auditorReady: true,
+        },
+      })
+      queryClient.invalidateQueries({ queryKey: ['programs'] })
+      setOpen(false)
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    }
   }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
