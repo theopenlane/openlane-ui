@@ -4,7 +4,7 @@ import { type ColumnDef } from '@tanstack/react-table'
 import { formatDate } from '@/utils/date'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
-import { MoreHorizontal } from 'lucide-react'
+import { MoreHorizontal, Trash2 } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { AssessmentResponseAssessmentResponseStatus } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -24,7 +24,9 @@ export type DeliveryRow = {
 type DeliveryColumnCallbacks = {
   onResend: (row: DeliveryRow) => void
   onViewResponse: (row: DeliveryRow) => void
+  onDelete: (row: DeliveryRow) => void
   canResend?: boolean
+  canDelete?: boolean
 }
 
 const statusVariantMap: Record<AssessmentResponseAssessmentResponseStatus, 'green' | 'blue' | 'default' | 'destructive'> = {
@@ -35,7 +37,7 @@ const statusVariantMap: Record<AssessmentResponseAssessmentResponseStatus, 'gree
   [AssessmentResponseAssessmentResponseStatus.DRAFT]: 'default',
 }
 
-export const getDeliveryColumns = ({ onResend, onViewResponse, canResend = false }: DeliveryColumnCallbacks): ColumnDef<DeliveryRow>[] => [
+export const getDeliveryColumns = ({ onResend, onViewResponse, onDelete, canResend = false, canDelete = false }: DeliveryColumnCallbacks): ColumnDef<DeliveryRow>[] => [
   {
     accessorKey: 'email',
     header: 'Recipient',
@@ -80,8 +82,10 @@ export const getDeliveryColumns = ({ onResend, onViewResponse, canResend = false
     id: 'actions',
     header: '',
     cell: ({ row }) => {
-      const isCompleted = row.original.status === AssessmentResponseAssessmentResponseStatus.COMPLETED
-      if (!isCompleted && !canResend) {
+      const showViewResponse = row.original.status === AssessmentResponseAssessmentResponseStatus.COMPLETED
+      const showResend = !showViewResponse && canResend
+      const hasAnyAction = showViewResponse || showResend || canDelete
+      if (!hasAnyAction) {
         return null
       }
       return (
@@ -92,10 +96,13 @@ export const getDeliveryColumns = ({ onResend, onViewResponse, canResend = false
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {isCompleted ? (
-              <DropdownMenuItem onClick={() => onViewResponse(row.original)}>See Response</DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem onClick={() => onResend(row.original)}>Resend</DropdownMenuItem>
+            {showViewResponse && <DropdownMenuItem onClick={() => onViewResponse(row.original)}>See Response</DropdownMenuItem>}
+            {showResend && <DropdownMenuItem onClick={() => onResend(row.original)}>Resend</DropdownMenuItem>}
+            {canDelete && (
+              <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => onDelete(row.original)}>
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
