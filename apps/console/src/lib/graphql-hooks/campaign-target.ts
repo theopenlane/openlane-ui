@@ -13,8 +13,8 @@ import {
   type DeleteCampaignTargetMutationVariables,
   type CampaignTargetQuery,
   type CampaignTargetQueryVariables,
-  type CampaignTargetBulkCreatePayload,
-  type CreateCampaignTargetInput,
+  type CreateBulkCampaignTargetMutation,
+  type CreateBulkCampaignTargetMutationVariables,
 } from '@repo/codegen/src/schema'
 
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -82,12 +82,10 @@ export const useCreateCampaignTarget = () => {
     mutationFn: async (variables) => client.request(CREATE_CAMPAIGN_TARGET, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
+      queryClient.invalidateQueries({ queryKey: ['campaignTargetStats'] })
     },
   })
 }
-
-type CreateBulkCampaignTargetMutation = { createBulkCampaignTarget: CampaignTargetBulkCreatePayload }
-type CreateBulkCampaignTargetMutationVariables = { input: CreateCampaignTargetInput[] }
 
 export const useCreateBulkCampaignTarget = () => {
   const { client } = useGraphQLClient()
@@ -96,6 +94,7 @@ export const useCreateBulkCampaignTarget = () => {
     mutationFn: async (variables) => client.request(CREATE_BULK_CAMPAIGN_TARGET, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
+      queryClient.invalidateQueries({ queryKey: ['campaignTargetStats'] })
     },
   })
 }
@@ -118,6 +117,7 @@ export const useDeleteCampaignTarget = () => {
     mutationFn: async (variables) => client.request(DELETE_CAMPAIGN_TARGET, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
+      queryClient.invalidateQueries({ queryKey: ['campaignTargetStats'] })
     },
   })
 }

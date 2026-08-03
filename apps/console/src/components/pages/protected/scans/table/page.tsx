@@ -3,7 +3,7 @@
 import React from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { type ScansNodeNonNull, useScan, useCreateScan, useUpdateScan, useCreateBulkCSVScan, useBulkEditScan, useBulkDeleteScan } from '@/lib/graphql-hooks/scan'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -25,7 +25,6 @@ const normalizeData = (data: ScanQuery['scan']) =>
   })
 
 const ScanPage: React.FC = () => {
-  const router = useRouter()
   const { form } = useFormSchema()
 
   const searchParams = useSearchParams()
@@ -103,8 +102,6 @@ const ScanPage: React.FC = () => {
     environmentName: createEnvironment,
     scopeName: createScope,
   }
-
-  const isCompletedDomainScan = data?.scan?.scanType === ScanScanType.DOMAIN && data?.scan?.status === ScanScanStatus.COMPLETED
 
   const sheetConfig: ScanSheetConfig = {
     objectType: objectType,

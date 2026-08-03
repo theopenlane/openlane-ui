@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button } from '@repo/ui/button'
 import { cn } from '@repo/ui/lib/utils'
-import type { FilterKey, GroupBy, WorkItemFilter } from './types'
+import { GROUP_BY_OPTIONS, type FilterKey, type GroupBy, type WorkItemFilter } from './types'
 
 type FilterBarProps = {
   filters: WorkItemFilter[]
@@ -22,12 +22,11 @@ const FilterBar = ({ filters, activeFilter, onFilterChange, groupBy, onGroupByCh
     </div>
     <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
       Group by
-      <Button size="sm" variant="tag" className={cn('font-normal', groupBy === 'type' && 'is-active')} onClick={() => onGroupByChange('type')}>
-        Type
-      </Button>
-      <Button size="sm" variant="tag" className={cn('font-normal', groupBy === 'kind' && 'is-active')} onClick={() => onGroupByChange('kind')}>
-        Kind
-      </Button>
+      {GROUP_BY_OPTIONS.map((option) => (
+        <Button key={option.value} size="sm" variant="tag" className={cn('font-normal', groupBy === option.value && 'is-active')} onClick={() => onGroupByChange(option.value)}>
+          {option.label}
+        </Button>
+      ))}
     </div>
   </div>
 )

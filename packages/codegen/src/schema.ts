@@ -71309,15 +71309,6 @@ export type GetAssessmentAccessUrlQueryVariables = Exact<{
 
 export type GetAssessmentAccessUrlQuery = { __typename?: 'Query'; assessment: { __typename?: 'Assessment'; id: string; accessURL?: string | null } }
 
-export type GetAssessmentRecipientsTotalCountQueryVariables = Exact<{
-  getAssessmentId: Scalars['ID']['input']
-}>
-
-export type GetAssessmentRecipientsTotalCountQuery = {
-  __typename?: 'Query'
-  assessment: { __typename?: 'Assessment'; id: string; assessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number } }
-}
-
 export type GetAssessmentResponsesTotalCountQueryVariables = Exact<{
   getAssessmentId: Scalars['ID']['input']
   where?: InputMaybe<AssessmentResponseWhereInput>
@@ -71602,7 +71593,7 @@ export type CampaignTargetStatsQuery = {
   campaignTargets: {
     __typename?: 'CampaignTargetConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'CampaignTargetEdge'; node?: { __typename?: 'CampaignTarget'; sentAt?: string | null; completedAt?: string | null } | null } | null> | null
+    edges?: Array<{ __typename?: 'CampaignTargetEdge'; node?: { __typename?: 'CampaignTarget'; id: string; email: string; sentAt?: string | null; completedAt?: string | null } | null } | null> | null
   }
 }
 
@@ -71790,6 +71781,15 @@ export type CreateCampaignMutationVariables = Exact<{
 
 export type CreateCampaignMutation = { __typename?: 'Mutation'; createCampaign: { __typename?: 'CampaignCreatePayload'; campaign: { __typename?: 'Campaign'; id: string } } }
 
+export type CreateCampaignWithTargetsMutationVariables = Exact<{
+  input: CreateCampaignWithTargetsInput
+}>
+
+export type CreateCampaignWithTargetsMutation = {
+  __typename?: 'Mutation'
+  createCampaignWithTargets: { __typename?: 'CampaignCreateWithTargetsPayload'; campaign: { __typename?: 'Campaign'; id: string } }
+}
+
 export type UpdateCampaignMutationVariables = Exact<{
   updateCampaignId: Scalars['ID']['input']
   input: UpdateCampaignInput
@@ -71802,6 +71802,32 @@ export type DeleteCampaignMutationVariables = Exact<{
 }>
 
 export type DeleteCampaignMutation = { __typename?: 'Mutation'; deleteCampaign: { __typename?: 'CampaignDeletePayload'; deletedID: string } }
+
+export type LaunchCampaignMutationVariables = Exact<{
+  input: LaunchCampaignInput
+}>
+
+export type LaunchCampaignMutation = {
+  __typename?: 'Mutation'
+  launchCampaign: {
+    __typename?: 'CampaignLaunchPayload'
+    queuedCount: number
+    skippedCount: number
+    campaign: { __typename?: 'Campaign'; id: string; status: CampaignCampaignStatus; launchedAt?: string | null; scheduledAt?: string | null }
+  }
+}
+
+export type SendCampaignTestEmailMutationVariables = Exact<{
+  input: SendCampaignTestEmailInput
+}>
+
+export type SendCampaignTestEmailMutation = { __typename?: 'Mutation'; sendCampaignTestEmail: { __typename?: 'CampaignTestEmailPayload'; queuedCount: number; skippedCount: number } }
+
+export type ResendCampaignIncompleteTargetsMutationVariables = Exact<{
+  input: ResendCampaignIncompleteInput
+}>
+
+export type ResendCampaignIncompleteTargetsMutation = { __typename?: 'Mutation'; resendCampaignIncompleteTargets: { __typename?: 'CampaignLaunchPayload'; queuedCount: number; skippedCount: number } }
 
 export type CheckResultsWithFilterQueryVariables = Exact<{
   where?: InputMaybe<CheckResultWhereInput>
@@ -74237,6 +74263,7 @@ export type EmailTemplatesWithFilterQuery = {
         version: number
         workflowDefinitionID?: string | null
         workflowInstanceID?: string | null
+        campaigns: { __typename?: 'CampaignConnection'; totalCount: number }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -74483,6 +74510,19 @@ export type EntitiesWithFilterQuery = {
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type GetEntityOptionsQueryVariables = Exact<{
+  where?: InputMaybe<EntityWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetEntityOptionsQuery = {
+  __typename?: 'Query'
+  entities: {
+    __typename?: 'EntityConnection'
+    edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
   }
 }
 
@@ -76186,6 +76226,27 @@ export type IdentityHoldersWithFilterQuery = {
         internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
       } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type GetIdentityHolderOptionsQueryVariables = Exact<{
+  where?: InputMaybe<IdentityHolderWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetIdentityHolderOptionsQuery = {
+  __typename?: 'Query'
+  identityHolders: {
+    __typename?: 'IdentityHolderConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'IdentityHolderEdge'
+      node?: { __typename?: 'IdentityHolder'; id: string; email: string; fullName: string; identityHolderType: IdentityHolderIdentityHolderType } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
