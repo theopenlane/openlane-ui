@@ -20,6 +20,7 @@ export const AuthorDisplay: React.FC<AuthorDisplayProps> = ({ author, showAvatar
       case 'user':
         return showAvatar && <Avatar entity={author.user} className={cn('h-6 w-6', avatarClassName)} />
       case 'support':
+      case 'integration':
         return (
           showAvatar && (
             <span className={cn('flex h-6 w-6 shrink-0 items-center justify-center rounded-full border bg-card', avatarClassName)}>

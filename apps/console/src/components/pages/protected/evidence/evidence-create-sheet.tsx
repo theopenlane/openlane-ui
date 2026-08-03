@@ -17,13 +17,15 @@ import { type TObjectAssociationMap } from '@/components/shared/object-associati
 import { Panel } from '@repo/ui/panel'
 import { useQueryClient } from '@tanstack/react-query'
 import { type TUploadedFile } from './upload/types/TUploadedFile'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { type CustomEvidenceControl, EVIDENCE_ASSOCIATION_FIELDS } from './evidence-sheet-config'
 import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-controls'
-import Link from 'next/link'
+import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -66,7 +68,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
   const queryClient = useQueryClient()
-  const router = useRouter()
+  const openObjectSheet = useOpenObjectSheet()
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
@@ -132,26 +134,23 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
       if (!res.createEvidence.evidence.id) return
       const id = res.createEvidence.evidence.id
-      if (defaultSelectedObject === ObjectTypeObjects.TASK || defaultSelectedObject === ObjectTypeObjects.CONTROL) {
-        successNotification({
-          title: 'Evidence Created',
-          description: (
-            <>
-              Evidence has been successfully created.{' '}
-              <Link href={`/evidence?id=${id}`} className="text-blue-600 underline">
-                View Evidence
-              </Link>
-            </>
-          ),
-        })
-        onOpenChange(false)
-        return
-      } else {
-        successNotification({
-          title: 'Evidence Created',
-          description: `Evidence has been successfully created`,
-        })
-        router.push(`/evidence?id=${id}`)
+      const autoOpenCreatedEvidence = defaultSelectedObject !== ObjectTypeObjects.TASK && defaultSelectedObject !== ObjectTypeObjects.CONTROL
+
+      successNotification({
+        title: 'Evidence Created',
+        description: autoOpenCreatedEvidence ? (
+          'Evidence has been successfully created'
+        ) : (
+          <>
+            Evidence has been successfully created. <ObjectSheetLink id={id} kind={ObjectAssociationNodeEnum.EVIDENCE} label="View Evidence" onOpenSheet={openObjectSheet} />
+          </>
+        ),
+      })
+
+      onOpenChange(false)
+
+      if (autoOpenCreatedEvidence) {
+        openObjectSheet(id, ObjectAssociationNodeEnum.EVIDENCE)
       }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)

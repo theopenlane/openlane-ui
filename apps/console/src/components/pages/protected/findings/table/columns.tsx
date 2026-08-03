@@ -10,7 +10,7 @@ import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
 import { MoreHorizontal, ShieldCheck, ListTodo } from 'lucide-react'
-import { getSeverityStyle } from '@/utils/severity'
+import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type SlaDaysByLevel } from '@/lib/sla'
 import { SlaDueDateCell } from '@/components/shared/crud-base/columns/sla-due-date-cell'
@@ -46,15 +46,7 @@ export const getColumns = ({
       accessorKey: 'securityLevel',
       header: 'Severity Level',
       size: 150,
-      cell: ({ cell }) => {
-        const val = cell.getValue() as string | null | undefined
-        if (!val) return ''
-        return (
-          <span className="text-xs px-2 py-0.5 rounded-full font-medium capitalize" style={getSeverityStyle(val)}>
-            {val.toLowerCase()}
-          </span>
-        )
-      },
+      cell: ({ cell }) => <SeverityChip severity={cell.getValue<string | null>()} />,
     },
     { accessorKey: 'findingStatusName', header: 'Status', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="finding" field="status" /> },
     { accessorKey: 'numericSeverity', header: 'Numeric Severity', size: 130 },

@@ -15,9 +15,10 @@ type CommentListProps = {
   comments: TCommentData[]
   onEdit?: (commentId: string, newValue: string) => Promise<void> | void
   onRemove?: (commentId: string) => Promise<void> | void
+  showAuthor?: boolean
 }
 
-const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove }) => {
+const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove, showAuthor = true }) => {
   const { data: session } = useSession()
   const plateEditorHelper = usePlateEditor()
 
@@ -67,7 +68,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove })
               <div className="flex flex-col w-full min-w-0">
                 <div className="flex items-center justify-between">
                   <div className="flex items-baseline space-x-2">
-                    <AuthorDisplay author={item.author} className="font-semibold" avatarClassName="h-10 w-10 mr-2" />
+                    {showAuthor && <AuthorDisplay author={item.author} className="font-semibold" avatarClassName="h-10 w-10 mr-2" />}
                     <p className="text-sm text-muted-foreground">{formatDateTime(item.createdAt)}</p>
                   </div>
 

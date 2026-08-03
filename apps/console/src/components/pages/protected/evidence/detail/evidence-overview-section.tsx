@@ -8,6 +8,7 @@ import { Textarea } from '@repo/ui/textarea'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import PlateEditor from '@/components/shared/plate/plate-editor'
+import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils'
 import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { type EvidenceEditableField } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import EvidenceDetailSection from './evidence-detail-section'
@@ -43,7 +44,12 @@ const EvidenceOverviewSection: React.FC<TEvidenceOverviewSectionProps> = ({
     if (editAllowed) onEdit(field)
   }
 
-  const readOnlyProcedure = useMemo(() => (collectionProcedure ? renderCollectionProcedure(collectionProcedure) : null), [collectionProcedure, renderCollectionProcedure])
+  const isEditingProcedure = isEditing || editField === 'collectionProcedure'
+  const hasCollectionProcedure = useMemo(() => !!collectionProcedure && !isPlateValueEmpty(collectionProcedure), [collectionProcedure])
+  const readOnlyProcedure = useMemo(
+    () => (hasCollectionProcedure && collectionProcedure ? renderCollectionProcedure(collectionProcedure) : null),
+    [hasCollectionProcedure, collectionProcedure, renderCollectionProcedure],
+  )
 
   return (
     <EvidenceDetailSection title="Overview">
@@ -99,28 +105,30 @@ const EvidenceOverviewSection: React.FC<TEvidenceOverviewSectionProps> = ({
         )}
       </div>
 
-      <div className="rounded-md border border-border p-4">
-        <div className="flex items-center">
-          <FormLabel className="text-muted-foreground text-xs">Collection procedure</FormLabel>
-          <SystemTooltip icon={<InfoIcon size={14} className="mx-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
+      {(isEditingProcedure || hasCollectionProcedure) && (
+        <div className="rounded-md border border-border p-4">
+          <div className="flex items-center">
+            <FormLabel className="text-muted-foreground text-xs">Collection procedure</FormLabel>
+            <SystemTooltip icon={<InfoIcon size={14} className="mx-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
+          </div>
+          {isEditingProcedure ? (
+            <FormField
+              control={form.control}
+              name="collectionProcedure"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormControl>
+                    <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
+                  </FormControl>
+                  {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
+                </FormItem>
+              )}
+            />
+          ) : (
+            <div>{readOnlyProcedure}</div>
+          )}
         </div>
-        {isEditing || editField === 'collectionProcedure' ? (
-          <FormField
-            control={form.control}
-            name="collectionProcedure"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormControl>
-                  <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
-                </FormControl>
-                {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
-              </FormItem>
-            )}
-          />
-        ) : (
-          <div>{readOnlyProcedure ?? <p className="text-gray-500">no collection procedure provided</p>}</div>
-        )}
-      </div>
+      )}
     </EvidenceDetailSection>
   )
 }
