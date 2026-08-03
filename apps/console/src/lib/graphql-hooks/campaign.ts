@@ -11,10 +11,28 @@ import {
   type DeleteCampaignMutationVariables,
   type CampaignQuery,
   type CampaignQueryVariables,
+  type CreateCampaignWithTargetsMutation,
+  type CreateCampaignWithTargetsMutationVariables,
+  type LaunchCampaignMutation,
+  type LaunchCampaignMutationVariables,
+  type SendCampaignTestEmailMutation,
+  type SendCampaignTestEmailMutationVariables,
+  type ResendCampaignIncompleteTargetsMutation,
+  type ResendCampaignIncompleteTargetsMutationVariables,
 } from '@repo/codegen/src/schema'
 
 import { type TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_CAMPAIGNS, CREATE_CAMPAIGN, UPDATE_CAMPAIGN, DELETE_CAMPAIGN, CAMPAIGN } from '@repo/codegen/query/campaign'
+import {
+  GET_ALL_CAMPAIGNS,
+  CREATE_CAMPAIGN,
+  CREATE_CAMPAIGN_WITH_TARGETS,
+  UPDATE_CAMPAIGN,
+  DELETE_CAMPAIGN,
+  CAMPAIGN,
+  LAUNCH_CAMPAIGN,
+  SEND_CAMPAIGN_TEST_EMAIL,
+  RESEND_CAMPAIGN_INCOMPLETE_TARGETS,
+} from '@repo/codegen/query/campaign'
 
 type GetAllCampaignsArgs = {
   where?: CampaignsWithFilterQueryVariables['where']
@@ -52,6 +70,20 @@ export const useCreateCampaign = () => {
     mutationFn: async (variables) => client.request(CREATE_CAMPAIGN, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaigns'] })
+      queryClient.invalidateQueries({ queryKey: ['emailTemplates'] })
+    },
+  })
+}
+
+export const useCreateCampaignWithTargets = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+  return useMutation<CreateCampaignWithTargetsMutation, unknown, CreateCampaignWithTargetsMutationVariables>({
+    mutationFn: async (variables) => client.request(CREATE_CAMPAIGN_WITH_TARGETS, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['campaigns'] })
+      queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
+      queryClient.invalidateQueries({ queryKey: ['emailTemplates'] })
     },
   })
 }
@@ -63,6 +95,7 @@ export const useUpdateCampaign = () => {
     mutationFn: async (variables) => client.request(UPDATE_CAMPAIGN, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaigns'] })
+      queryClient.invalidateQueries({ queryKey: ['emailTemplates'] })
     },
   })
 }
@@ -74,6 +107,39 @@ export const useDeleteCampaign = () => {
     mutationFn: async (variables) => client.request(DELETE_CAMPAIGN, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaigns'] })
+    },
+  })
+}
+
+export const useLaunchCampaign = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+  return useMutation<LaunchCampaignMutation, unknown, LaunchCampaignMutationVariables>({
+    mutationFn: async (variables) => client.request(LAUNCH_CAMPAIGN, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['campaigns'] })
+      queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
+      queryClient.invalidateQueries({ queryKey: ['campaignTargetStats'] })
+    },
+  })
+}
+
+export const useSendCampaignTestEmail = () => {
+  const { client } = useGraphQLClient()
+  return useMutation<SendCampaignTestEmailMutation, unknown, SendCampaignTestEmailMutationVariables>({
+    mutationFn: async (variables) => client.request(SEND_CAMPAIGN_TEST_EMAIL, variables),
+  })
+}
+
+export const useResendCampaignIncompleteTargets = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+  return useMutation<ResendCampaignIncompleteTargetsMutation, unknown, ResendCampaignIncompleteTargetsMutationVariables>({
+    mutationFn: async (variables) => client.request(RESEND_CAMPAIGN_INCOMPLETE_TARGETS, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['campaigns'] })
+      queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
+      queryClient.invalidateQueries({ queryKey: ['campaignTargetStats'] })
     },
   })
 }

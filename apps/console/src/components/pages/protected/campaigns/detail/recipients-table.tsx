@@ -8,12 +8,19 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useCampaignTargetsWithFilter, type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
+import { useCampaignTargetsWithFilter, useDeleteCampaignTarget, type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
 import { formatDate } from '@/utils/date'
+import { Button } from '@repo/ui/button'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { Trash2 } from 'lucide-react'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type RecipientsTableProps = {
   campaignId: string
   onRecipientClick: (recipient: CampaignTargetsNodeNonNull) => void
+  showDelivery?: boolean
+  canRemove?: boolean
 }
 
 const getRecipientStatus = (recipient: CampaignTargetsNodeNonNull) => {
@@ -22,10 +29,25 @@ const getRecipientStatus = (recipient: CampaignTargetsNodeNonNull) => {
   return { label: 'Pending', color: 'bg-gray-500' }
 }
 
-const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipientClick }) => {
+const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipientClick, showDelivery = true, canRemove = false }) => {
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pendingRemoval, setPendingRemoval] = useState<CampaignTargetsNodeNonNull | null>(null)
+
+  const { mutateAsync: deleteCampaignTarget, isPending: isRemoving } = useDeleteCampaignTarget()
+  const { successNotification, errorNotification } = useNotification()
+
+  const handleRemove = async () => {
+    if (!pendingRemoval) return
+    try {
+      await deleteCampaignTarget({ deleteCampaignTargetId: pendingRemoval.id })
+      successNotification({ title: 'Recipient removed' })
+      setPendingRemoval(null)
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    }
+  }
 
   const where = useMemo(() => {
     const base: Record<string, unknown> = { hasCampaignWith: [{ id: campaignId }] }
@@ -46,8 +68,8 @@ const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipie
     enabled: !!campaignId,
   })
 
-  const columns = useMemo<ColumnDef<CampaignTargetsNodeNonNull>[]>(
-    () => [
+  const columns = useMemo<ColumnDef<CampaignTargetsNodeNonNull>[]>(() => {
+    const baseColumns: ColumnDef<CampaignTargetsNodeNonNull>[] = [
       {
         accessorKey: 'fullName',
         header: 'Name',
@@ -62,6 +84,9 @@ const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipie
         header: 'Email',
         cell: ({ row }) => <span className="text-muted-foreground">{row.original.email}</span>,
       },
+    ]
+
+    const deliveryColumns: ColumnDef<CampaignTargetsNodeNonNull>[] = [
       {
         id: 'status',
         header: 'Status',
@@ -85,9 +110,27 @@ const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipie
         header: 'Completed At',
         cell: ({ row }) => <span className="text-muted-foreground">{row.original.completedAt ? formatDate(row.original.completedAt as string) : '—'}</span>,
       },
-    ],
-    [onRecipientClick],
-  )
+    ]
+
+    const addedColumn: ColumnDef<CampaignTargetsNodeNonNull> = {
+      accessorKey: 'createdAt',
+      header: 'Added',
+      cell: ({ row }) => <span className="text-muted-foreground">{row.original.createdAt ? formatDate(row.original.createdAt as string) : '—'}</span>,
+    }
+
+    const removeColumn: ColumnDef<CampaignTargetsNodeNonNull> = {
+      id: 'remove',
+      header: '',
+      size: 48,
+      cell: ({ row }) => (
+        <Button variant="icon" type="button" aria-label={`Remove ${row.original.email}`} onClick={() => setPendingRemoval(row.original)}>
+          <Trash2 size={16} />
+        </Button>
+      ),
+    }
+
+    return [...baseColumns, ...(showDelivery ? deliveryColumns : [addedColumn]), ...(canRemove ? [removeColumn] : [])]
+  }, [onRecipientClick, showDelivery, canRemove])
 
   const paginationMeta = useMemo(
     () => ({
@@ -113,6 +156,21 @@ const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipie
         paginationMeta={paginationMeta}
         tableKey={TableKeyEnum.CAMPAIGN_RECIPIENTS}
         noResultsText="No recipients found"
+      />
+      <ConfirmationDialog
+        open={!!pendingRemoval}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) setPendingRemoval(null)
+        }}
+        onConfirm={handleRemove}
+        confirmationText="Remove"
+        loading={isRemoving}
+        title="Remove recipient"
+        description={
+          <>
+            <b>{pendingRemoval?.email}</b> will no longer receive this campaign.
+          </>
+        }
       />
     </div>
   )

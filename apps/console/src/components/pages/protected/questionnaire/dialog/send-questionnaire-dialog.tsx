@@ -38,7 +38,7 @@ const MIN_SEARCH_LENGTH = 3
 const INVALID_EMAIL_MESSAGE = 'Please enter a valid email address.'
 const DUPLICATE_EMAIL_MESSAGE = 'This email is already added.'
 
-const normalizeEmail = (email: string) => email.trim()
+const trimEmail = (email: string) => email.trim()
 
 export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, assessmentName, responseDueDuration }: SendQuestionnaireDialogProps) => {
   const { successNotification, errorNotification } = useNotification()
@@ -51,7 +51,7 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
   const inputRef = useRef<HTMLInputElement>(null)
   const [showSuggestions, setShowSuggestions] = useState(false)
 
-  const debouncedSearch = useDebounce(normalizeEmail(inputValue), 250)
+  const debouncedSearch = useDebounce(trimEmail(inputValue), 250)
 
   const { contacts } = useContacts({
     where: {
@@ -102,7 +102,7 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
   )
 
   const pendingInputEmail = useMemo(() => {
-    const trimmed = normalizeEmail(inputValue)
+    const trimmed = trimEmail(inputValue)
     if (!trimmed || !isValidEmail(trimmed)) return null
     if (isDuplicateEmail(trimmed, emails)) return null
     return trimmed
@@ -112,7 +112,7 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
 
   const addEmail = useCallback(
     (email: string): boolean => {
-      const normalized = normalizeEmail(email)
+      const normalized = trimEmail(email)
       if (!normalized) return false
 
       if (!isValidEmail(normalized)) {
@@ -152,7 +152,7 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
   )
 
   const handleAddMore = useCallback(() => {
-    if (normalizeEmail(inputValue)) {
+    if (trimEmail(inputValue)) {
       addEmail(inputValue)
     }
     inputRef.current?.focus()
@@ -162,7 +162,7 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
         e.preventDefault()
-        if (normalizeEmail(inputValue)) {
+        if (trimEmail(inputValue)) {
           addEmail(inputValue)
         }
       }
@@ -188,7 +188,7 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
   )
 
   const handleSend = async () => {
-    const trimmed = normalizeEmail(inputValue)
+    const trimmed = trimEmail(inputValue)
 
     if (trimmed && !isValidEmail(trimmed)) {
       setInputError(INVALID_EMAIL_MESSAGE)
@@ -296,7 +296,7 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
                           maxWidth
                           autoFocus
                         />
-                        {showSuggestions && normalizeEmail(inputValue).length >= MIN_SEARCH_LENGTH && suggestions.length > 0 && (
+                        {showSuggestions && trimEmail(inputValue).length >= MIN_SEARCH_LENGTH && suggestions.length > 0 && (
                           <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-md">
                             <ul className="max-h-50 overflow-y-auto p-1">
                               {suggestions.map((s) => (
