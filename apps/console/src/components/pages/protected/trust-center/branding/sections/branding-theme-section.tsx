@@ -11,11 +11,16 @@ import { useFormContext } from 'react-hook-form'
 import { type BrandFormValues } from '../brand-schema'
 import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
+import { normalizeUrl } from '@/utils/normalizeUrl'
+import { BrandingPaletteImport } from './branding-palette-import'
+import { Button } from '@repo/ui/button'
+import { Palette } from 'lucide-react'
 
 interface BrandingThemeSectionProps {
   isReadOnly: boolean
   setting: TrustCenterSetting
   hasWarning?: boolean
+  cnameRecord?: string | null
 }
 
 const ReadOnlyColor = ({ label, value }: { label: string; value?: string | null }) => {
@@ -31,7 +36,7 @@ const ReadOnlyColor = ({ label, value }: { label: string; value?: string | null 
   )
 }
 
-export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting }: BrandingThemeSectionProps) => {
+export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting, cnameRecord }: BrandingThemeSectionProps) => {
   const { watch, setValue } = useFormContext<BrandFormValues>()
 
   const themeMode = watch('themeMode')
@@ -48,6 +53,8 @@ export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting }: Brandi
   }
 
   const currentThemeMode = isReadOnly ? setting?.themeMode : themeMode
+  const previewUrl = normalizeUrl(cnameRecord)
+  const showColorGenerator = !isReadOnly && !!previewUrl && currentThemeMode === TrustCenterSettingTrustCenterThemeMode.ADVANCED
 
   return (
     <Card>
@@ -59,16 +66,24 @@ export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting }: Brandi
             <p className="text-sm text-inverted-muted-foreground">Control the visual appearance of your Trust Center.</p>
           </div>
 
-          <div className="flex gap-6">
-            {[TrustCenterSettingTrustCenterThemeMode.EASY, TrustCenterSettingTrustCenterThemeMode.ADVANCED].map((mode) => (
-              <label key={mode} className={`flex items-center gap-1 ${isReadOnly ? 'cursor-default opacity-70' : 'cursor-pointer'}`}>
-                <input type="radio" className="sr-only" checked={currentThemeMode === mode} onChange={() => !isReadOnly && handleUpdate('themeMode', mode)} disabled={isReadOnly} />
-                <div className={`mr-3 flex h-5 w-5 items-center justify-center rounded-full border-2 ${currentThemeMode === mode ? 'border-primary' : 'border-border'}`}>
-                  {currentThemeMode === mode && <div className="h-2 w-2 rounded-full bg-primary" />}
-                </div>
-                <p className="text-sm font-medium">{mode === TrustCenterSettingTrustCenterThemeMode.EASY ? 'Easy' : 'Advanced'}</p>
-              </label>
-            ))}
+          <div className="flex items-center justify-between gap-6">
+            <div className="flex gap-6">
+              {[TrustCenterSettingTrustCenterThemeMode.EASY, TrustCenterSettingTrustCenterThemeMode.ADVANCED].map((mode) => (
+                <label key={mode} className={`flex items-center gap-1 ${isReadOnly ? 'cursor-default opacity-70' : 'cursor-pointer'}`}>
+                  <input type="radio" className="sr-only" checked={currentThemeMode === mode} onChange={() => !isReadOnly && handleUpdate('themeMode', mode)} disabled={isReadOnly} />
+                  <div className={`mr-3 flex h-5 w-5 items-center justify-center rounded-full border-2 ${currentThemeMode === mode ? 'border-primary' : 'border-border'}`}>
+                    {currentThemeMode === mode && <div className="h-2 w-2 rounded-full bg-primary" />}
+                  </div>
+                  <p className="text-sm font-medium">{mode === TrustCenterSettingTrustCenterThemeMode.EASY ? 'Easy' : 'Advanced'}</p>
+                </label>
+              ))}
+            </div>
+
+            {showColorGenerator && (
+              <Button type="button" variant="secondary" icon={<Palette size={16} />} onClick={() => window.open(`${previewUrl}?fresh=1&colorGen=true`, '_blank', 'noopener,noreferrer')}>
+                Generate Colors Live
+              </Button>
+            )}
           </div>
 
           {currentThemeMode === TrustCenterSettingTrustCenterThemeMode.EASY ? (
@@ -85,45 +100,49 @@ export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting }: Brandi
               )}
             </div>
           ) : (
-            <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-4">
-              <div className="col-span-2 space-y-1">
-                <Label className="text-sm">Font family</Label>
+            <>
+              {!isReadOnly && <BrandingPaletteImport />}
+
+              <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-4">
+                <div className="col-span-2 space-y-1">
+                  <Label className="text-sm">Font family</Label>
+                  {isReadOnly ? (
+                    <p className="text-sm font-medium">{TrustCenterWatermarkConfigFontOptions.find((f) => f.value === setting?.font)?.label || setting?.font || 'Default'}</p>
+                  ) : (
+                    <Select value={font} onValueChange={(v) => handleUpdate('font', v)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TrustCenterWatermarkConfigFontOptions.map((f) => (
+                          <SelectItem key={f.value} value={f.value}>
+                            {f.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
                 {isReadOnly ? (
-                  <p className="text-sm font-medium">{TrustCenterWatermarkConfigFontOptions.find((f) => f.value === setting?.font)?.label || setting?.font || 'Default'}</p>
+                  <>
+                    <ReadOnlyColor label="Foreground" value={setting?.foregroundColor} />
+                    <ReadOnlyColor label="Background" value={setting?.backgroundColor} />
+                    <ReadOnlyColor label="Accent" value={setting?.accentColor} />
+                    <ReadOnlyColor label="Sec. Foreground" value={setting?.secondaryForegroundColor} />
+                    <ReadOnlyColor label="Sec. Background" value={setting?.secondaryBackgroundColor} />
+                  </>
                 ) : (
-                  <Select value={font} onValueChange={(v) => handleUpdate('font', v)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TrustCenterWatermarkConfigFontOptions.map((f) => (
-                        <SelectItem key={f.value} value={f.value}>
-                          {f.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <>
+                    <ColorInput label="Foreground" value={foregroundColor} onChange={(v) => handleUpdate('foregroundColor', v)} />
+                    <ColorInput label="Background" value={backgroundColor} onChange={(v) => handleUpdate('backgroundColor', v)} />
+                    <ColorInput label="Accent" value={accentColor} onChange={(v) => handleUpdate('accentColor', v)} />
+                    <ColorInput label="Sec. Foreground" value={secondaryForegroundColor} onChange={(v) => handleUpdate('secondaryForegroundColor', v)} />
+                    <ColorInput label="Sec. Background" value={secondaryBackgroundColor} onChange={(v) => handleUpdate('secondaryBackgroundColor', v)} />
+                  </>
                 )}
               </div>
-
-              {isReadOnly ? (
-                <>
-                  <ReadOnlyColor label="Foreground" value={setting?.foregroundColor} />
-                  <ReadOnlyColor label="Background" value={setting?.backgroundColor} />
-                  <ReadOnlyColor label="Accent" value={setting?.accentColor} />
-                  <ReadOnlyColor label="Sec. Foreground" value={setting?.secondaryForegroundColor} />
-                  <ReadOnlyColor label="Sec. Background" value={setting?.secondaryBackgroundColor} />
-                </>
-              ) : (
-                <>
-                  <ColorInput label="Foreground" value={foregroundColor} onChange={(v) => handleUpdate('foregroundColor', v)} />
-                  <ColorInput label="Background" value={backgroundColor} onChange={(v) => handleUpdate('backgroundColor', v)} />
-                  <ColorInput label="Accent" value={accentColor} onChange={(v) => handleUpdate('accentColor', v)} />
-                  <ColorInput label="Sec. Foreground" value={secondaryForegroundColor} onChange={(v) => handleUpdate('secondaryForegroundColor', v)} />
-                  <ColorInput label="Sec. Background" value={secondaryBackgroundColor} onChange={(v) => handleUpdate('secondaryBackgroundColor', v)} />
-                </>
-              )}
-            </div>
+            </>
           )}
         </div>
       </CardContent>
