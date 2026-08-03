@@ -226,11 +226,15 @@ const QuestionnaireDetailPage = () => {
   }, [setCrumbs, assessment?.name, isLoading])
 
   const { dueDate, isPastDue } = useMemo(() => {
-    const computedDueDate = computeDueDate(assessment?.responseDueDuration)
-    if (!computedDueDate) return { dueDate: '-', isPastDue: false }
-    const isOverdue = new Date(computedDueDate) < new Date() && completedResponses < totalRecipients
-    return { dueDate: formatDate(computedDueDate), isPastDue: isOverdue }
-  }, [assessment?.responseDueDuration, completedResponses, totalRecipients])
+    const assignedDueDate = responses.find((response) => response?.dueDate)?.dueDate
+
+    if (!assignedDueDate) {
+      const projectedDueDate = computeDueDate(assessment?.responseDueDuration)
+      return { dueDate: projectedDueDate ? formatDate(projectedDueDate) : '-', isPastDue: false }
+    }
+
+    return { dueDate: formatDate(assignedDueDate), isPastDue: isPastDate(assignedDueDate) && completedResponses < totalRecipients }
+  }, [responses, assessment?.responseDueDuration, completedResponses, totalRecipients])
 
   const responseRows = useMemo(
     () =>
