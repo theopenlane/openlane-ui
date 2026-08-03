@@ -14,6 +14,8 @@ import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { useOrganization } from '@/hooks/useOrganization'
 import { getEmailDomain } from '@/utils/strings'
 import { SSOExemptionDialog } from './sso-exemption-dialog'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface SetReadyForAuditorDialogProps {
   programStatus: ProgramProgramStatus
@@ -27,6 +29,7 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
   const { id } = useParams<{ id: string }>()
   const queryClient = useQueryClient()
   const { currentOrgId } = useOrganization()
+  const { errorNotification } = useNotification()
   const { members: auditorMemberships, isLoading } = useGetOrgMemberships({
     where: { role: OrgMembershipRole.AUDITOR },
     enabled: open,
@@ -52,16 +55,25 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
 
   const handleSetReadyForAuditor = async () => {
     if (!id) return
-    await update({
-      updateProgramId: id,
-      input: {
-        auditorReady: true,
-      },
-    })
-    queryClient.invalidateQueries({ queryKey: ['programs'] })
-    setOpen(false)
-    if (shouldPromptForSSOExemption) {
-      setIsSSOExemptionDialogOpen(true)
+
+    try {
+      await update({
+        updateProgramId: id,
+        input: {
+          auditorReady: true,
+        },
+      })
+      queryClient.invalidateQueries({ queryKey: ['programs'] })
+      setOpen(false)
+      if (shouldPromptForSSOExemption) {
+        setIsSSOExemptionDialogOpen(true)
+      }
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
     }
   }
 
