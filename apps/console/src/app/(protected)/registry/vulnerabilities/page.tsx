@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation'
 
-export default function RedirectPage() {
+const Page = () => {
   redirect('/exposure/vulnerabilities')
 }
+
+export default Page
