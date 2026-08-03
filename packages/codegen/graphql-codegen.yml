@@ -32,6 +32,11 @@ generates:
     plugins:
       - introspection
     config:
+  # the raw sdl is emitted because introspection drops directives applied to types,
+  # and the @modules directives are what drive the object module map
+  ./src/schema.graphql:
+    plugins:
+      - schema-ast
   ./src/schema.ts:
     #    preset: near-operation-file
     #    presetConfig:
@@ -60,6 +65,7 @@ generates:
 hooks:
   afterAllFileWrite:
     - node ./plugins/generate-type-constants.js
+    - node ./plugins/generate-object-modules.js
     - node ./plugins/generate-queries.js
     - node ./plugins/generate-hooks.js
     - node ./plugins/generate-merge-fields.js
