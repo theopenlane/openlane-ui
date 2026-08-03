@@ -52,6 +52,7 @@ import {
   type GetEvidencesByStatusQuery,
   type GetEvidenceFilesByIdQuery,
   type GetEvidenceCountsByStatusAllProgramsQuery,
+  type GetEvidenceCountsByStatusByProgramIdQuery,
   type EvidenceSuggestedActionsQuery,
   type FileWhereInput,
   type GetItemsMissingEvidenceCountQuery,
@@ -314,10 +315,12 @@ export const useGetEvidenceListLight = ({ orderBy, pagination, where, enabled = 
   }
 }
 
+export type TEvidenceCountsByStatus = Pick<GetEvidenceCountsByStatusAllProgramsQuery, keyof GetEvidenceCountsByStatusAllProgramsQuery & keyof GetEvidenceCountsByStatusByProgramIdQuery>
+
 export const useGetEvidenceCountsByStatus = (programId?: string | null) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetEvidenceCountsByStatusAllProgramsQuery, unknown>({
+  return useQuery<TEvidenceCountsByStatus, unknown>({
     queryKey: ['evidences', 'counts', programId],
     queryFn: async () => {
       if (programId) return client.request(GET_EVIDENCE_COUNTS_BY_STATUS_BY_PROGRAM_ID, { programId })

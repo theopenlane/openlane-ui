@@ -401,6 +401,9 @@ export const GET_EVIDENCE_COUNTS_BY_STATUS_BY_PROGRAM_ID = gql`
     requested: evidences(where: { status: REQUESTED, hasProgramsWith: [{ id: $programId }] }) {
       totalCount
     }
+    draft: evidences(where: { status: DRAFT, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
     submitted: evidences(where: { status: SUBMITTED, hasProgramsWith: [{ id: $programId }] }) {
       totalCount
     }
@@ -425,6 +428,9 @@ export const GET_EVIDENCE_COUNTS_BY_STATUS_ALL_PROGRAMS = gql`
       totalCount
     }
     requested: evidences(where: { status: REQUESTED }) {
+      totalCount
+    }
+    draft: evidences(where: { status: DRAFT }) {
       totalCount
     }
     submitted: evidences(where: { status: SUBMITTED }) {

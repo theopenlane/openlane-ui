@@ -3560,6 +3560,13 @@ export interface AssessmentResponseWhereInput {
   workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** Return response for createAssessmentTemplate mutation */
+export interface AssessmentTemplateCreatePayload {
+  __typename?: 'AssessmentTemplateCreatePayload'
+  /** Created template */
+  template: Template
+}
+
 /** Return response for updateAssessment mutation */
 export interface AssessmentUpdatePayload {
   __typename?: 'AssessmentUpdatePayload'
@@ -13964,6 +13971,18 @@ export interface CreateAssessmentResponseInput {
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+}
+
+/** Input for creating a questionnaire template from an assessment */
+export interface CreateAssessmentTemplateInput {
+  /** ID of the assessment to turn into a template */
+  assessmentID: Scalars['ID']['input']
+  /** Description for the template. */
+  description?: InputMaybe<Scalars['String']['input']>
+  /** Name for the template. Defaults to the assessment name when omitted. */
+  name?: InputMaybe<Scalars['String']['input']>
+  /** Tags for the template. */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 /**
@@ -46644,6 +46663,8 @@ export interface Mutation {
   createAssessment: AssessmentCreatePayload
   /** Create a new assessmentResponse */
   createAssessmentResponse: AssessmentResponseCreatePayload
+  /** Create a questionnaire template from an existing assessment */
+  createAssessmentTemplate: AssessmentTemplateCreatePayload
   /** Create a new asset */
   createAsset: AssetCreatePayload
   /** Create multiple new apiTokens */
@@ -47897,6 +47918,10 @@ export interface MutationCreateAssessmentArgs {
 
 export interface MutationCreateAssessmentResponseArgs {
   input: CreateAssessmentResponseInput
+}
+
+export interface MutationCreateAssessmentTemplateArgs {
+  input: CreateAssessmentTemplateInput
 }
 
 export interface MutationCreateAssetArgs {
@@ -111923,6 +111948,7 @@ export type GetEvidenceCountsByStatusByProgramIdQuery = {
   missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
   needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
   requested: { __typename?: 'EvidenceConnection'; totalCount: number }
+  draft: { __typename?: 'EvidenceConnection'; totalCount: number }
   submitted: { __typename?: 'EvidenceConnection'; totalCount: number }
 }
 
@@ -111936,6 +111962,7 @@ export type GetEvidenceCountsByStatusAllProgramsQuery = {
   missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
   needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
   requested: { __typename?: 'EvidenceConnection'; totalCount: number }
+  draft: { __typename?: 'EvidenceConnection'; totalCount: number }
   submitted: { __typename?: 'EvidenceConnection'; totalCount: number }
 }
 

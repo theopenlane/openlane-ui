@@ -3,8 +3,8 @@ import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useGetFirstFiveEvidencesByStatus } from '@/lib/graphql-hooks/evidence.ts'
 import { CircleQuestionMark, Fingerprint, Folder } from 'lucide-react'
-import { type TChardData } from '@/components/pages/protected/evidence/chart/evidence-summary-card.tsx'
-import { ChartColorsSequence } from '@/components/shared/enum-mapper/evidence-enum.tsx'
+import { type TChartData } from '@/components/pages/protected/evidence/chart/evidence-summary-card.tsx'
+import { EvidenceStatusColors } from '@/components/shared/enum-mapper/evidence-enum.tsx'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { type EvidenceWhereInput } from '@repo/codegen/src/schema'
 import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
@@ -13,19 +13,18 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { useOrganization } from '@/hooks/useOrganization'
 
 type TEvidenceStatusChipProps = {
-  data: TChardData
+  data: TChartData
   programId: string
-  index: number
 }
 
-const EvidenceStatusChip: React.FC<TEvidenceStatusChipProps> = ({ programId, index, data }) => {
+const EvidenceStatusChip: React.FC<TEvidenceStatusChipProps> = ({ programId, data }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
 
   return (
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTrigger asChild>
-          <Badge className="text-white px-2 py-1 text-xs font-normal cursor-pointer" style={{ backgroundColor: ChartColorsSequence[index] }}>
+          <Badge className="text-white px-2 py-1 text-xs font-normal cursor-pointer" style={{ backgroundColor: EvidenceStatusColors[data.status] }}>
             {data.name}
           </Badge>
         </TooltipTrigger>
@@ -41,7 +40,7 @@ const EvidenceStatusChip: React.FC<TEvidenceStatusChipProps> = ({ programId, ind
 }
 
 type TEvidenceTooltipContentProps = {
-  evidenceData: TChardData
+  evidenceData: TChartData
   programId: string
 }
 
