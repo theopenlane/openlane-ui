@@ -9,7 +9,7 @@ import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Users, CheckCircle, Calendar, Send, FileText, Download, Eye, Pencil, Trash2, Copy, ExternalLink, RefreshCw } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGenerateAssessmentAccessURL, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
+import { EXCLUDE_TEST_RESPONSES, useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGenerateAssessmentAccessURL, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
 import { formatDate } from '@/utils/date'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
@@ -103,7 +103,7 @@ const QuestionnaireDetailPage = () => {
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { client } = useGraphQLClient()
   const { errorNotification, successNotification } = useNotification()
-  const { assessment, responses, isLoading } = useGetAssessmentDetail({ id })
+  const { assessment, responses, isLoading } = useGetAssessmentDetail({ id, where: EXCLUDE_TEST_RESPONSES })
   const [deliveryFilters, setDeliveryFilters] = useState<WhereCondition>({})
   const [deliveryTotalCount, setDeliveryTotalCount] = useState(0)
   const [isExportingDelivery, setIsExportingDelivery] = useState(false)
@@ -125,9 +125,9 @@ const QuestionnaireDetailPage = () => {
   }, [assessment?.campaigns])
   const canSend = useCanSendQuestionnaire(campaignIds, entityIds)
 
-  const deliveryWhereFilter = useMemo(
-    () =>
-      whereGenerator<AssessmentResponseWhereInput>(deliveryFilters as AssessmentResponseWhereInput, (key, value) => {
+  const deliveryWhereFilter = useMemo<AssessmentResponseWhereInput>(
+    () => ({
+      ...whereGenerator<AssessmentResponseWhereInput>(deliveryFilters as AssessmentResponseWhereInput, (key, value) => {
         if (key === 'status') {
           return Array.isArray(value)
             ? ({
@@ -140,6 +140,8 @@ const QuestionnaireDetailPage = () => {
 
         return { [key]: value } as AssessmentResponseWhereInput
       }),
+      ...EXCLUDE_TEST_RESPONSES,
+    }),
     [deliveryFilters],
   )
 

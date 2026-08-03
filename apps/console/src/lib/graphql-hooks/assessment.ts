@@ -10,7 +10,6 @@ import {
   GET_ASSESSMENT,
   GET_ASSESSMENT_ACCESS_URL,
   GET_ASSESSMENT_DETAIL,
-  GET_ASSESSMENT_RECIPIENTS_TOTAL_COUNT,
   GET_ASSESSMENT_RESPONSES_TOTAL_COUNT,
   DELETE_ASSESSMENT,
   DELETE_BULK_ASSESSMENT,
@@ -30,6 +29,8 @@ import {
   type GetAssessmentAccessUrlQueryVariables,
   type GetAssessmentDetailQuery,
   type GetAssessmentDetailQueryVariables,
+  type GetAssessmentResponsesTotalCountQuery,
+  type GetAssessmentResponsesTotalCountQueryVariables,
   type DeleteAssessmentMutation,
   type DeleteAssessmentMutationVariables,
   type CreateAssessmentResponseMutation,
@@ -52,6 +53,8 @@ type CreateAssessmentTemplateMutation = {
     template: Pick<AssessmentTemplateCreatePayload['template'], 'id' | 'name' | 'description' | 'tags'>
   }
 }
+
+export const EXCLUDE_TEST_RESPONSES = { isTest: false } as const satisfies AssessmentResponseWhereInput
 type UseAssessmentsArgs = {
   where?: FilterAssessmentsQueryVariables['where']
   orderBy?: FilterAssessmentsQueryVariables['orderBy']
@@ -204,27 +207,15 @@ export const useGetAssessmentDetail = ({ id, where, orderBy, pagination, enabled
   }
 }
 
-type AssessmentRecipientsTotalCountQuery = {
-  assessment?: {
-    id: string
-    assessmentResponses: {
-      totalCount: number
-    }
-  } | null
-}
-
-type AssessmentRecipientsTotalCountQueryVariables = {
-  getAssessmentId: string
-}
-
-export const useAssessmentRecipientsTotalCount = (id?: string) => {
+const useAssessmentResponseCount = (scope: string, id?: string, where?: AssessmentResponseWhereInput) => {
   const { client } = useGraphQLClient()
 
-  const queryResult = useQuery<AssessmentRecipientsTotalCountQuery>({
-    queryKey: ['assessments', 'recipients-total-count', id],
+  const queryResult = useQuery<GetAssessmentResponsesTotalCountQuery>({
+    queryKey: ['assessments', scope, id, where],
     queryFn: () =>
-      client.request<AssessmentRecipientsTotalCountQuery, AssessmentRecipientsTotalCountQueryVariables>(GET_ASSESSMENT_RECIPIENTS_TOTAL_COUNT, {
+      client.request<GetAssessmentResponsesTotalCountQuery, GetAssessmentResponsesTotalCountQueryVariables>(GET_ASSESSMENT_RESPONSES_TOTAL_COUNT, {
         getAssessmentId: id ?? '',
+        where,
       }),
     enabled: !!id,
   })
@@ -236,41 +227,11 @@ export const useAssessmentRecipientsTotalCount = (id?: string) => {
   }
 }
 
-type AssessmentResponsesTotalCountQuery = {
-  assessment?: {
-    id: string
-    assessmentResponses: {
-      totalCount: number
-    }
-  } | null
-}
+export const useAssessmentRecipientsTotalCount = (id?: string) => useAssessmentResponseCount('recipients-total-count', id, EXCLUDE_TEST_RESPONSES)
 
-type AssessmentResponsesTotalCountQueryVariables = {
-  getAssessmentId: string
-  where: AssessmentResponseWhereInput
-}
+const COMPLETED_NON_TEST_RESPONSES: AssessmentResponseWhereInput = { ...EXCLUDE_TEST_RESPONSES, status: AssessmentResponseAssessmentResponseStatus.COMPLETED }
 
-export const useAssessmentResponsesTotalCount = (id?: string) => {
-  const { client } = useGraphQLClient()
-
-  const queryResult = useQuery<AssessmentResponsesTotalCountQuery>({
-    queryKey: ['assessments', 'responses-total-count', id],
-    queryFn: () =>
-      client.request<AssessmentResponsesTotalCountQuery, AssessmentResponsesTotalCountQueryVariables>(GET_ASSESSMENT_RESPONSES_TOTAL_COUNT, {
-        getAssessmentId: id ?? '',
-        where: {
-          status: AssessmentResponseAssessmentResponseStatus.COMPLETED,
-        },
-      }),
-    enabled: !!id,
-  })
-
-  return {
-    ...queryResult,
-    totalCount: queryResult.data?.assessment?.assessmentResponses?.totalCount ?? 0,
-    isLoading: queryResult.isLoading,
-  }
-}
+export const useAssessmentResponsesTotalCount = (id?: string) => useAssessmentResponseCount('responses-total-count', id, COMPLETED_NON_TEST_RESPONSES)
 
 export const useCreateAssessment = () => {
   const { client, queryClient } = useGraphQLClient()
