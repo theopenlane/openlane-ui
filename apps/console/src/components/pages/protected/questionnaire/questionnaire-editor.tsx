@@ -23,21 +23,27 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { AssessmentAssessmentType } from '@repo/codegen/src/schema'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
 import { Label } from '@repo/ui/label'
-import { Badge } from '@repo/ui/badge'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 const enLocale = editorLocalization.getLocale('en')
 
+const NO_DUE_DATE_DURATION = 0
+const CUSTOM_DUE_DATE_DURATION = -1
+const DEFAULT_DUE_DURATION = 604800
+
 const DURATION_OPTIONS = [
-  { value: 604800, label: '7 days' },
+  { value: NO_DUE_DATE_DURATION, label: 'No due date' },
+  { value: DEFAULT_DUE_DURATION, label: '7 days' },
   { value: 1209600, label: '14 days' },
   { value: 2592000, label: '30 days' },
   { value: 5184000, label: '60 days' },
   { value: 7776000, label: '90 days' },
-  { value: -1, label: 'Custom' },
+  { value: CUSTOM_DUE_DATE_DURATION, label: 'Custom' },
 ]
 
-const PRESET_VALUES = new Set([604800, 1209600, 2592000, 5184000, 7776000])
+const PRESET_VALUES = new Set(DURATION_OPTIONS.filter((option) => option.value > 0).map((option) => option.value))
+const ASSESSMENT_TYPE_OPTIONS = enumToOptions(AssessmentAssessmentType)
 
 const customThemeName = 'Openlane'
 
@@ -70,9 +76,9 @@ type TQuestionnaireEditorState = {
 
 type TQuestionnaireEditorAction =
   | { type: 'set-assessment-type'; value: AssessmentAssessmentType }
-  | { type: 'set-response-due-duration'; value: number }
-  | { type: 'set-is-custom-duration'; value: boolean }
-  | { type: 'set-custom-due-date'; value: Date | null }
+  | { type: 'select-duration-preset'; value: number }
+  | { type: 'enter-custom-duration' }
+  | { type: 'set-custom-due-date'; value: Date }
   | {
       type: 'hydrate-from-assessment'
       assessmentType?: AssessmentAssessmentType | null
@@ -81,31 +87,35 @@ type TQuestionnaireEditorAction =
 
 const initialQuestionnaireEditorState: TQuestionnaireEditorState = {
   assessmentType: AssessmentAssessmentType.EXTERNAL,
-  responseDueDuration: 604800,
+  responseDueDuration: DEFAULT_DUE_DURATION,
   isCustomDuration: false,
   customDueDate: null,
 }
 
-function questionnaireEditorReducer(state: TQuestionnaireEditorState, action: TQuestionnaireEditorAction): TQuestionnaireEditorState {
+const durationToDate = (durationSeconds: number): Date => new Date(Date.now() + durationSeconds * 1000)
+
+const questionnaireEditorReducer = (state: TQuestionnaireEditorState, action: TQuestionnaireEditorAction): TQuestionnaireEditorState => {
   switch (action.type) {
     case 'set-assessment-type':
       return { ...state, assessmentType: action.value }
-    case 'set-response-due-duration':
-      return { ...state, responseDueDuration: action.value }
-    case 'set-is-custom-duration':
-      return { ...state, isCustomDuration: action.value }
+    case 'select-duration-preset':
+      return { ...state, responseDueDuration: action.value, isCustomDuration: false, customDueDate: null }
+    case 'enter-custom-duration': {
+      const seededDuration = state.responseDueDuration > 0 ? state.responseDueDuration : DEFAULT_DUE_DURATION
+      return { ...state, isCustomDuration: true, responseDueDuration: seededDuration, customDueDate: durationToDate(seededDuration) }
+    }
     case 'set-custom-due-date':
-      return { ...state, customDueDate: action.value }
+      return { ...state, customDueDate: action.value, responseDueDuration: Math.max(86400, Math.round((action.value.getTime() - Date.now()) / 1000)) }
     case 'hydrate-from-assessment': {
       const nextAssessmentType = action.assessmentType ?? state.assessmentType
-      const nextDuration = action.responseDueDuration ?? state.responseDueDuration
-      const nextIsCustomDuration = !PRESET_VALUES.has(nextDuration)
+      const nextDuration = action.responseDueDuration ?? NO_DUE_DATE_DURATION
+      const nextIsCustomDuration = nextDuration > 0 && !PRESET_VALUES.has(nextDuration)
 
       return {
         assessmentType: nextAssessmentType,
         responseDueDuration: nextDuration,
         isCustomDuration: nextIsCustomDuration,
-        customDueDate: nextIsCustomDuration ? new Date(Date.now() + nextDuration * 1000) : null,
+        customDueDate: nextIsCustomDuration ? durationToDate(nextDuration) : null,
       }
     }
     default:
@@ -115,7 +125,7 @@ function questionnaireEditorReducer(state: TQuestionnaireEditorState, action: TQ
 
 slk(surveyLicenseKey as string)
 
-export default function CreateQuestionnaire(input: { templateId: string; existingId: string }) {
+const QuestionnaireEditor = (input: { templateId: string; existingId: string }) => {
   const { setCrumbs } = use(BreadcrumbContext)
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
@@ -191,7 +201,8 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
             input: {
               name: data.title || 'Untitled Questionnaire',
               jsonconfig: data,
-              responseDueDuration,
+              assessmentType,
+              ...(responseDueDuration === NO_DUE_DATE_DURATION ? { clearResponseDueDuration: true } : { responseDueDuration }),
             },
           })
 
@@ -199,7 +210,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
             title: 'Assessment updated successfully',
           })
 
-          router.push(`/automation/questionnaires`)
+          router.push(`/automation/questionnaires/${input.existingId}`)
         } catch (error) {
           const errorMessage = parseErrorMessage(error)
           errorNotification({
@@ -245,49 +256,47 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
     }
   }, [saveAssessment])
 
-  const isEditing = !!input.existingId
-
   return (
     <Panel className="flex flex-col h-full bg-card border-oxford-blue-100 dark:border-oxford-blue-900 p-0">
       <div className="flex items-center gap-6 border-b px-4 py-3">
         <div className="flex items-center gap-2">
           <Label htmlFor="assessment-type">Type</Label>
-          {isEditing ? (
-            <Badge variant="outline">{assessmentType === AssessmentAssessmentType.INTERNAL ? 'Internal' : 'External'}</Badge>
-          ) : (
-            <Select
-              value={assessmentType}
-              onValueChange={(value) =>
-                dispatchQuestionnaireEditorState({
-                  type: 'set-assessment-type',
-                  value: value as AssessmentAssessmentType,
-                })
-              }
-            >
-              <SelectTrigger id="assessment-type" className="w-[140px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={AssessmentAssessmentType.EXTERNAL}>External</SelectItem>
-                <SelectItem value={AssessmentAssessmentType.INTERNAL}>Internal</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
+          <Select
+            value={assessmentType}
+            onValueChange={(value) => {
+              dispatchQuestionnaireEditorState({
+                type: 'set-assessment-type',
+                value: value as AssessmentAssessmentType,
+              })
+              creatorRef.current?.setModified({ type: 'PROPERTY_CHANGED' })
+            }}
+          >
+            <SelectTrigger id="assessment-type" className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ASSESSMENT_TYPE_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="flex items-center gap-2">
           <Label htmlFor="response-due">Response Due</Label>
           <Select
-            value={isCustomDuration ? '-1' : String(responseDueDuration)}
+            value={String(isCustomDuration ? CUSTOM_DUE_DATE_DURATION : responseDueDuration)}
             onValueChange={(value) => {
               const num = Number(value)
-              if (num === -1) {
-                dispatchQuestionnaireEditorState({ type: 'set-is-custom-duration', value: true })
+
+              if (num === CUSTOM_DUE_DATE_DURATION) {
+                dispatchQuestionnaireEditorState({ type: 'enter-custom-duration' })
               } else {
-                dispatchQuestionnaireEditorState({ type: 'set-is-custom-duration', value: false })
-                dispatchQuestionnaireEditorState({ type: 'set-custom-due-date', value: null })
-                dispatchQuestionnaireEditorState({ type: 'set-response-due-duration', value: num })
-                creatorRef.current?.setModified({ type: 'PROPERTY_CHANGED' })
+                dispatchQuestionnaireEditorState({ type: 'select-duration-preset', value: num })
               }
+
+              creatorRef.current?.setModified({ type: 'PROPERTY_CHANGED' })
             }}
           >
             <SelectTrigger id="response-due" className="w-[140px]">
@@ -309,8 +318,6 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
               onChange={(date) => {
                 if (date) {
                   dispatchQuestionnaireEditorState({ type: 'set-custom-due-date', value: date })
-                  const durationSeconds = Math.max(86400, Math.round((date.getTime() - Date.now()) / 1000))
-                  dispatchQuestionnaireEditorState({ type: 'set-response-due-duration', value: durationSeconds })
                   creatorRef.current?.setModified({ type: 'PROPERTY_CHANGED' })
                 }
               }}
@@ -324,3 +331,5 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
     </Panel>
   )
 }
+
+export default QuestionnaireEditor
