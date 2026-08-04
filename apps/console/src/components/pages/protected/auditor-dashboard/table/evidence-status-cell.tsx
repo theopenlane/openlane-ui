@@ -2,7 +2,7 @@ import React from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Table, TableBody, TableCell, TableRow } from '@repo/ui/table'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { EvidenceBadgeMapper } from '@/components/shared/enum-mapper/evidence-enum'
+import { EvidenceStatusBadge } from '@/components/shared/enum-mapper/evidence-enum'
 import { type AuditorDashboardEvidenceItem } from '@/lib/graphql-hooks/control'
 import { getControlEvidenceStatus } from '../utils/control-status'
 
@@ -16,7 +16,7 @@ export const EvidenceStatusCell: React.FC<EvidenceStatusCellProps> = ({ items })
 
   return (
     <div className="flex items-center gap-2">
-      {status ? EvidenceBadgeMapper[status] : <Badge variant="destructive">Missing</Badge>}
+      {status ? <EvidenceStatusBadge status={status} /> : <Badge variant="destructive">Missing</Badge>}
       {count > 0 && (
         <TooltipProvider delayDuration={200}>
           <Tooltip>
@@ -32,7 +32,7 @@ export const EvidenceStatusCell: React.FC<EvidenceStatusCellProps> = ({ items })
                       {items.map((item) => (
                         <TableRow key={item.id} className="[&:nth-child(even)]:bg-transparent">
                           <TableCell className="text-sm group-hover:bg-transparent">{item.name}</TableCell>
-                          <TableCell className="text-right group-hover:bg-transparent">{item.status ? EvidenceBadgeMapper[item.status] : null}</TableCell>
+                          <TableCell className="text-right group-hover:bg-transparent">{item.status ? <EvidenceStatusBadge status={item.status} /> : null}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

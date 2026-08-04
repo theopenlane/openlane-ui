@@ -75268,6 +75268,7 @@ export type GetEvidenceCountsByStatusByProgramIdQuery = {
   missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
   needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
   requested: { __typename?: 'EvidenceConnection'; totalCount: number }
+  draft: { __typename?: 'EvidenceConnection'; totalCount: number }
   submitted: { __typename?: 'EvidenceConnection'; totalCount: number }
 }
 
@@ -75281,6 +75282,7 @@ export type GetEvidenceCountsByStatusAllProgramsQuery = {
   missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
   needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
   requested: { __typename?: 'EvidenceConnection'; totalCount: number }
+  draft: { __typename?: 'EvidenceConnection'; totalCount: number }
   submitted: { __typename?: 'EvidenceConnection'; totalCount: number }
 }
 

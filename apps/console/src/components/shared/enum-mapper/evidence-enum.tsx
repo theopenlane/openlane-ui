@@ -1,6 +1,8 @@
+import React from 'react'
 import { ArchiveX, FileArchive, FileSearch, FileText, Inbox, RefreshCw, Stamp } from 'lucide-react'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const EvidenceIconMapper: Record<EvidenceEvidenceStatus, React.ReactNode> = {
   [EvidenceEvidenceStatus.AUDITOR_APPROVED]: <Stamp height={16} width={16} className="text-approved" />,
@@ -14,82 +16,40 @@ export const EvidenceIconMapper: Record<EvidenceEvidenceStatus, React.ReactNode>
   [EvidenceEvidenceStatus.REQUESTED]: <Inbox height={16} width={16} className="text-requested" />,
 }
 
-export const ChartColorsSequence = ['#f97316', '#2563EB', '#16A34A', '#15803D', '#CA8A04', '#EF4444', '#B91C1C', '#2563EB', '#D97706']
-
-export const EvidenceBadgeMapper: Record<EvidenceEvidenceStatus, React.ReactNode> = {
-  [EvidenceEvidenceStatus.AUDITOR_APPROVED]: (
-    <Badge style={{ backgroundColor: '#15803D' }} className="text-white text-xs font-medium">
-      Approved
-    </Badge>
-  ),
-  [EvidenceEvidenceStatus.REJECTED]: (
-    <Badge style={{ backgroundColor: '#B91C1C' }} className="text-white text-xs font-medium">
-      Rejected
-    </Badge>
-  ),
-  [EvidenceEvidenceStatus.NEEDS_RENEWAL]: (
-    <Badge style={{ backgroundColor: '#CA8A04' }} className="text-white text-xs font-medium">
-      Needs Renewal
-    </Badge>
-  ),
-  [EvidenceEvidenceStatus.READY_FOR_AUDITOR]: (
-    <Badge style={{ backgroundColor: '#16A34A' }} className="text-white text-xs font-medium">
-      Ready
-    </Badge>
-  ),
-  [EvidenceEvidenceStatus.MISSING_ARTIFACT]: (
-    <Badge style={{ backgroundColor: '#EF4444' }} className="text-white text-xs font-medium">
-      Missing Artifact
-    </Badge>
-  ),
-  [EvidenceEvidenceStatus.SUBMITTED]: (
-    <Badge style={{ backgroundColor: '#2563EB' }} className="text-white text-xs font-medium">
-      Submitted
-    </Badge>
-  ),
-  [EvidenceEvidenceStatus.IN_REVIEW]: (
-    <Badge style={{ backgroundColor: '#D97706' }} className="text-white text-xs font-medium">
-      In Review
-    </Badge>
-  ),
-  [EvidenceEvidenceStatus.DRAFT]: (
-    <Badge style={{ backgroundColor: '#6B7280' }} className="text-white text-xs font-medium">
-      Draft
-    </Badge>
-  ),
-  [EvidenceEvidenceStatus.REQUESTED]: (
-    <Badge style={{ backgroundColor: '#f97316' }} className="text-white text-xs font-medium">
-      Requested
-    </Badge>
-  ),
+export const EvidenceStatusColors: Record<EvidenceEvidenceStatus, string> = {
+  [EvidenceEvidenceStatus.AUDITOR_APPROVED]: '#15803D',
+  [EvidenceEvidenceStatus.REJECTED]: '#B91C1C',
+  [EvidenceEvidenceStatus.NEEDS_RENEWAL]: '#CA8A04',
+  [EvidenceEvidenceStatus.READY_FOR_AUDITOR]: '#16A34A',
+  [EvidenceEvidenceStatus.MISSING_ARTIFACT]: '#EF4444',
+  [EvidenceEvidenceStatus.SUBMITTED]: '#2563EB',
+  [EvidenceEvidenceStatus.IN_REVIEW]: '#D97706',
+  [EvidenceEvidenceStatus.DRAFT]: '#6B7280',
+  [EvidenceEvidenceStatus.REQUESTED]: '#f97316',
 }
 
-export const EVIDENCE_STATUS_STYLES: Partial<Record<EvidenceEvidenceStatus, { bg: string; color: string }>> = {
-  [EvidenceEvidenceStatus.REJECTED]: { bg: 'color-mix(in srgb, var(--color-rejected) 15%, transparent)', color: 'var(--color-rejected)' },
-  [EvidenceEvidenceStatus.MISSING_ARTIFACT]: { bg: 'color-mix(in srgb, var(--color-missing-artifact) 15%, transparent)', color: 'var(--color-missing-artifact)' },
-  [EvidenceEvidenceStatus.NEEDS_RENEWAL]: { bg: 'color-mix(in srgb, var(--color-needs-renewal) 15%, transparent)', color: 'var(--color-needs-renewal)' },
-  [EvidenceEvidenceStatus.REQUESTED]: { bg: 'color-mix(in srgb, var(--color-requested) 15%, transparent)', color: 'var(--color-requested)' },
-  [EvidenceEvidenceStatus.DRAFT]: { bg: 'color-mix(in srgb, var(--color-draft) 15%, transparent)', color: 'var(--color-draft)' },
-  [EvidenceEvidenceStatus.SUBMITTED]: { bg: 'color-mix(in srgb, var(--color-approved) 15%, transparent)', color: 'var(--color-approved)' },
-  [EvidenceEvidenceStatus.IN_REVIEW]: { bg: 'color-mix(in srgb, var(--color-in-review) 15%, transparent)', color: 'var(--color-in-review)' },
-  [EvidenceEvidenceStatus.READY_FOR_AUDITOR]: { bg: 'color-mix(in srgb, var(--color-ready) 15%, transparent)', color: 'var(--color-ready)' },
-  [EvidenceEvidenceStatus.AUDITOR_APPROVED]: { bg: 'color-mix(in srgb, var(--color-approved) 15%, transparent)', color: 'var(--color-approved)' },
+const EVIDENCE_STATUS_SHORT_LABELS: Partial<Record<EvidenceEvidenceStatus, string>> = {
+  [EvidenceEvidenceStatus.AUDITOR_APPROVED]: 'Approved',
+  [EvidenceEvidenceStatus.READY_FOR_AUDITOR]: 'Ready',
 }
 
-// Status options for select dropdowns
+export const getEvidenceStatusLabel = (status: EvidenceEvidenceStatus) => EVIDENCE_STATUS_SHORT_LABELS[status] ?? getEnumLabel(status)
+
+export const getEvidenceStatusStyle = (status: EvidenceEvidenceStatus) => ({
+  bg: `color-mix(in srgb, ${EvidenceStatusColors[status]} 15%, transparent)`,
+  color: EvidenceStatusColors[status],
+})
+
+export const EvidenceStatusBadge = React.memo(({ status }: { status: EvidenceEvidenceStatus }) => (
+  <Badge style={{ backgroundColor: EvidenceStatusColors[status] }} className="text-white text-xs font-medium">
+    {getEvidenceStatusLabel(status)}
+  </Badge>
+))
+EvidenceStatusBadge.displayName = 'EvidenceStatusBadge'
+
 export const EvidenceStatusOptions = Object.values(EvidenceEvidenceStatus).map((status) => ({
-  label: status
-    .split('_')
-    .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
-    .join(' '),
+  label: getEnumLabel(status),
   value: status,
 }))
 
-// Status options for table filters
-export const EvidenceStatusFilterOptions = Object.entries(EvidenceEvidenceStatus).map(([key, value]) => ({
-  label: key
-    .replace(/_/g, ' ')
-    .toLowerCase()
-    .replace(/\b\w/g, (c) => c.toUpperCase()),
-  value,
-}))
+export const EvidenceStatusFilterOptions = EvidenceStatusOptions
