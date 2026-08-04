@@ -2,6 +2,8 @@ import { normalizeHexColor } from '@/utils/normalizeHexColor'
 
 const BRANDING_STRING_VERSION = 'olbrand1'
 
+const MAX_BRANDING_STRING_LENGTH = 512
+
 const STRING_KEYS = {
   background: 'bg',
   foreground: 'fg',
@@ -19,6 +21,8 @@ export type BrandingStringColors = {
 }
 
 export const parseBrandingString = (value: string): BrandingStringColors | null => {
+  if (value.length > MAX_BRANDING_STRING_LENGTH) return null
+
   const trimmed = value.trim()
   const separator = trimmed.indexOf(':')
   if (separator < 0 || trimmed.slice(0, separator).trim() !== BRANDING_STRING_VERSION) return null

@@ -11,7 +11,7 @@ import { useFormContext } from 'react-hook-form'
 import { type BrandFormValues } from '../brand-schema'
 import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
-import { normalizeUrl } from '@/utils/normalizeUrl'
+import { buildPreviewUrl } from '../helpers/preview-url'
 import { BrandingPaletteImport } from './branding-palette-import'
 import { Button } from '@repo/ui/button'
 import { Palette } from 'lucide-react'
@@ -53,8 +53,8 @@ export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting, cnameRec
   }
 
   const currentThemeMode = isReadOnly ? setting?.themeMode : themeMode
-  const previewUrl = normalizeUrl(cnameRecord)
-  const showColorGenerator = !isReadOnly && !!previewUrl && currentThemeMode === TrustCenterSettingTrustCenterThemeMode.ADVANCED
+  const colorGeneratorUrl = buildPreviewUrl(cnameRecord, { colorGen: 'true' })
+  const showColorGenerator = !isReadOnly && !!colorGeneratorUrl && currentThemeMode === TrustCenterSettingTrustCenterThemeMode.ADVANCED
 
   return (
     <Card>
@@ -80,7 +80,7 @@ export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting, cnameRec
             </div>
 
             {showColorGenerator && (
-              <Button type="button" variant="secondary" icon={<Palette size={16} />} onClick={() => window.open(`${previewUrl}?fresh=1&colorGen=true`, '_blank', 'noopener,noreferrer')}>
+              <Button type="button" variant="secondary" icon={<Palette size={16} />} onClick={() => window.open(colorGeneratorUrl, '_blank', 'noopener,noreferrer')}>
                 Generate Colors Live
               </Button>
             )}
