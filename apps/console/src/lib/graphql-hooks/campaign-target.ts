@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
@@ -65,8 +66,7 @@ export const useCampaignTargetStats = ({ where, enabled = true }: { where?: Camp
     enabled,
   })
 
-  const edges = queryResult.data?.campaignTargets?.edges ?? []
-  const nodes = edges.flatMap((edge) => (edge?.node ? [edge.node] : []))
+  const nodes = useMemo(() => (queryResult.data?.campaignTargets?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [queryResult.data])
 
   return {
     ...queryResult,

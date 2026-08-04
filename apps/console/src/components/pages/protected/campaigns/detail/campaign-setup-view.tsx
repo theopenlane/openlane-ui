@@ -17,6 +17,7 @@ interface CampaignSetupViewProps {
   questionnaireQuestionCount?: number
   dueDate?: string | null
   recipientCount: number
+  launchBlockedReason?: string
   recipientsSlot?: React.ReactNode
   isUpdating?: boolean
   onEditDetails: () => void
@@ -37,6 +38,7 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
   questionnaireQuestionCount = 0,
   dueDate,
   recipientCount,
+  launchBlockedReason,
   recipientsSlot,
   isUpdating,
   onEditDetails,
@@ -202,10 +204,10 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
         <SetupCard
           icon={<Rocket size={18} className="text-brand" />}
           title="Launch"
-          subtitle={hasContent ? 'Launch now or schedule for later.' : 'Select a questionnaire template or an email template first.'}
+          subtitle={launchBlockedReason ?? 'Launch now or schedule for later.'}
           actionLabel="Launch campaign"
           onAction={onLaunch}
-          disabled={!hasContent}
+          disabled={!!launchBlockedReason}
           primary
         />
       </div>

@@ -20,6 +20,8 @@ import {
   type CampaignQueryVariables,
   type CreateCampaignWithTargetsMutation,
   type CreateCampaignWithTargetsMutationVariables,
+  type CreateCampaignInput,
+  type CreateCampaignTargetInput,
   type LaunchCampaignMutation,
   type LaunchCampaignMutationVariables,
   type SendCampaignTestEmailMutation,
@@ -83,14 +85,30 @@ export const useCreateCampaign = () => {
   })
 }
 
-export const useCreateCampaignWithTargets = () => {
+type CreateCampaignWithOptionalTargetsVariables = {
+  campaign: CreateCampaignInput
+  targets?: CreateCampaignTargetInput[]
+}
+
+export const useCreateCampaignWithOptionalTargets = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-  return useMutation<CreateCampaignWithTargetsMutation, unknown, CreateCampaignWithTargetsMutationVariables>({
-    mutationFn: async (variables) => client.request(CREATE_CAMPAIGN_WITH_TARGETS, variables),
+  return useMutation<string, unknown, CreateCampaignWithOptionalTargetsVariables>({
+    mutationFn: async ({ campaign, targets }) => {
+      if (targets?.length) {
+        const variables: CreateCampaignWithTargetsMutationVariables = { input: { campaign, targets } }
+        const result = await client.request<CreateCampaignWithTargetsMutation, CreateCampaignWithTargetsMutationVariables>(CREATE_CAMPAIGN_WITH_TARGETS, variables)
+        return result.createCampaignWithTargets.campaign.id
+      }
+
+      const variables: CreateCampaignMutationVariables = { input: campaign }
+      const result = await client.request<CreateCampaignMutation, CreateCampaignMutationVariables>(CREATE_CAMPAIGN, variables)
+      return result.createCampaign.campaign.id
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaigns'] })
       queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
+      queryClient.invalidateQueries({ queryKey: ['campaignTargetStats'] })
       queryClient.invalidateQueries({ queryKey: ['emailTemplates'] })
     },
   })

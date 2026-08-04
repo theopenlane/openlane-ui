@@ -1,4 +1,5 @@
-import { normalizeEmail } from '@/lib/validators'
+import { isValidEmail, normalizeEmail } from '@/lib/validators'
+import { type CreateCampaignTargetInput } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 
 export type TargetTab = 'personnel' | 'contacts' | 'csv' | 'manual'
@@ -55,3 +56,12 @@ export const getRecipientDisplayName = (name: string, email: string): string => 
   const trimmed = name.trim()
   return normalizeEmail(trimmed) === normalizeEmail(email) ? '' : trimmed
 }
+
+export const toCampaignTargetInputs = (targets: CampaignTargetEntry[], excludedEmails: ReadonlySet<string> = EMPTY_EMAIL_KEYS): CreateCampaignTargetInput[] =>
+  targets.reduce<CreateCampaignTargetInput[]>((accumulated, target) => {
+    const email = target.email.trim()
+    if (!isValidEmail(email) || excludedEmails.has(normalizeEmail(email))) return accumulated
+
+    accumulated.push({ email, fullName: getRecipientDisplayName(target.fullName, email) || undefined, contactID: target.contactID || undefined })
+    return accumulated
+  }, [])
