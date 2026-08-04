@@ -29,7 +29,7 @@ type MultiStepFormProps = {
 }
 
 const MultiStepForm = ({ questionSteps, trialCards, trialTitle, trialDescription }: MultiStepFormProps) => {
-  const { useStepper, steps } = useMemo(() => defineStepper(...questionSteps.map((step) => ({ id: step.key, label: step.title }))), [questionSteps])
+  const { useStepper, steps } = useMemo(() => defineStepper(questionSteps.map((step) => ({ id: step.key, label: step.title }))), [questionSteps])
   const stepper = useStepper()
   const onboardingSchema = useMemo(() => buildOnboardingSchema(questionSteps), [questionSteps])
   const defaultOnboardingValues = useMemo(() => buildOnboardingDefaultValues(questionSteps), [questionSteps])
@@ -71,7 +71,7 @@ const MultiStepForm = ({ questionSteps, trialCards, trialTitle, trialDescription
     }
   }, [sessionData, methods])
 
-  const currentStep = questionSteps.find((step) => step.key === stepper.state.current.data.id)
+  const currentStep = questionSteps.find((step) => step.key === stepper.current.id)
 
   const handleNext = async () => {
     const visibleKeys = currentStep ? getVisibleKeysForStep(currentStep, values) : []
@@ -79,20 +79,20 @@ const MultiStepForm = ({ questionSteps, trialCards, trialTitle, trialDescription
 
     if (!isValid) return
 
-    if (!stepper.state.isLast) {
-      stepper.navigation.next()
+    if (!stepper.isLast) {
+      stepper.next()
     } else {
       methods.handleSubmit(submitOnboarding)()
     }
   }
 
   const handleBack = () => {
-    if (!stepper.state.isFirst) {
-      stepper.navigation.prev()
+    if (!stepper.isFirst) {
+      stepper.prev()
     }
   }
 
-  const currentIndex = stepper.state.all.findIndex((item) => item.id === stepper.state.current.data.id)
+  const currentIndex = stepper.steps.findIndex((item) => item.id === stepper.current.id)
   const hasFormErrors = Object.keys(methods.formState.errors).length > 0
   const isCurrentStepIncomplete = (currentStep ? getRequiredKeysForStep(currentStep, values) : []).some((key) => !isAnswered(values[key]))
   const domains = values.company_domains
@@ -155,8 +155,8 @@ const MultiStepForm = ({ questionSteps, trialCards, trialTitle, trialDescription
           <OnboardingFooter
             showExit={currentIndex > 0}
             onExit={methods.handleSubmit(exitOnboarding, notifyIncompleteExit)}
-            isFirstStep={stepper.state.isFirst}
-            isLastStep={stepper.state.isLast}
+            isFirstStep={stepper.isFirst}
+            isLastStep={stepper.isLast}
             backLabel={steps[currentIndex - 1]?.label}
             nextLabel={steps[currentIndex + 1]?.label}
             isNextDisabled={hasFormErrors || isCurrentStepIncomplete}

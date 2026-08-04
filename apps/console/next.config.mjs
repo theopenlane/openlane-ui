@@ -39,6 +39,31 @@ const nextConfig = {
         destination: '/automation/integrations/:path*',
         permanent: true,
       },
+      {
+        source: '/registry',
+        destination: '/registry/platforms',
+        permanent: false,
+      },
+      {
+        source: '/trust-center',
+        destination: '/trust-center/overview',
+        permanent: false,
+      },
+      {
+        source: '/automation',
+        destination: '/automation/tasks',
+        permanent: false,
+      },
+      {
+        source: '/user-management',
+        destination: '/user-management/members',
+        permanent: false,
+      },
+      {
+        source: '/developers',
+        destination: '/developers/api-tokens',
+        permanent: false,
+      },
     ]
   },
   images: {

@@ -2087,6 +2087,13 @@ export interface AssessmentResponseWhereInput {
   workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** Return response for createAssessmentTemplate mutation */
+export interface AssessmentTemplateCreatePayload {
+  __typename?: 'AssessmentTemplateCreatePayload'
+  /** Created template */
+  template: Template
+}
+
 /** Return response for updateAssessment mutation */
 export interface AssessmentUpdatePayload {
   __typename?: 'AssessmentUpdatePayload'
@@ -8369,6 +8376,18 @@ export interface CreateAssessmentResponseInput {
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+}
+
+/** Input for creating a questionnaire template from an assessment */
+export interface CreateAssessmentTemplateInput {
+  /** ID of the assessment to turn into a template */
+  assessmentID: Scalars['ID']['input']
+  /** Description for the template. */
+  description?: InputMaybe<Scalars['String']['input']>
+  /** Name for the template. Defaults to the assessment name when omitted. */
+  name?: InputMaybe<Scalars['String']['input']>
+  /** Tags for the template. */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 /**
@@ -29957,6 +29976,8 @@ export interface Mutation {
   createAssessment: AssessmentCreatePayload
   /** Create a new assessmentResponse */
   createAssessmentResponse: AssessmentResponseCreatePayload
+  /** Create a questionnaire template from an existing assessment */
+  createAssessmentTemplate: AssessmentTemplateCreatePayload
   /** Create a new asset */
   createAsset: AssetCreatePayload
   /** Create multiple new apiTokens */
@@ -31210,6 +31231,10 @@ export interface MutationCreateAssessmentArgs {
 
 export interface MutationCreateAssessmentResponseArgs {
   input: CreateAssessmentResponseInput
+}
+
+export interface MutationCreateAssessmentTemplateArgs {
+  input: CreateAssessmentTemplateInput
 }
 
 export interface MutationCreateAssetArgs {
@@ -34771,6 +34796,7 @@ export enum NotificationNotificationTopic {
   DOMAIN_SCAN = 'DOMAIN_SCAN',
   EXPORT = 'EXPORT',
   IMPORT_COMPLETE = 'IMPORT_COMPLETE',
+  INTEGRATION = 'INTEGRATION',
   MENTION = 'MENTION',
   ORGANIZATION_READY = 'ORGANIZATION_READY',
   STANDARD_UPDATE = 'STANDARD_UPDATE',
@@ -71375,15 +71401,6 @@ export type GetAssessmentAccessUrlQueryVariables = Exact<{
 
 export type GetAssessmentAccessUrlQuery = { __typename?: 'Query'; assessment: { __typename?: 'Assessment'; id: string; accessURL?: string | null } }
 
-export type GetAssessmentRecipientsTotalCountQueryVariables = Exact<{
-  getAssessmentId: Scalars['ID']['input']
-}>
-
-export type GetAssessmentRecipientsTotalCountQuery = {
-  __typename?: 'Query'
-  assessment: { __typename?: 'Assessment'; id: string; assessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number } }
-}
-
 export type GetAssessmentResponsesTotalCountQueryVariables = Exact<{
   getAssessmentId: Scalars['ID']['input']
   where?: InputMaybe<AssessmentResponseWhereInput>
@@ -71668,7 +71685,7 @@ export type CampaignTargetStatsQuery = {
   campaignTargets: {
     __typename?: 'CampaignTargetConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'CampaignTargetEdge'; node?: { __typename?: 'CampaignTarget'; sentAt?: string | null; completedAt?: string | null } | null } | null> | null
+    edges?: Array<{ __typename?: 'CampaignTargetEdge'; node?: { __typename?: 'CampaignTarget'; id: string; email: string; sentAt?: string | null; completedAt?: string | null } | null } | null> | null
   }
 }
 
@@ -71856,6 +71873,15 @@ export type CreateCampaignMutationVariables = Exact<{
 
 export type CreateCampaignMutation = { __typename?: 'Mutation'; createCampaign: { __typename?: 'CampaignCreatePayload'; campaign: { __typename?: 'Campaign'; id: string } } }
 
+export type CreateCampaignWithTargetsMutationVariables = Exact<{
+  input: CreateCampaignWithTargetsInput
+}>
+
+export type CreateCampaignWithTargetsMutation = {
+  __typename?: 'Mutation'
+  createCampaignWithTargets: { __typename?: 'CampaignCreateWithTargetsPayload'; campaign: { __typename?: 'Campaign'; id: string } }
+}
+
 export type UpdateCampaignMutationVariables = Exact<{
   updateCampaignId: Scalars['ID']['input']
   input: UpdateCampaignInput
@@ -71868,6 +71894,82 @@ export type DeleteCampaignMutationVariables = Exact<{
 }>
 
 export type DeleteCampaignMutation = { __typename?: 'Mutation'; deleteCampaign: { __typename?: 'CampaignDeletePayload'; deletedID: string } }
+
+export type LaunchCampaignMutationVariables = Exact<{
+  input: LaunchCampaignInput
+}>
+
+export type LaunchCampaignMutation = {
+  __typename?: 'Mutation'
+  launchCampaign: {
+    __typename?: 'CampaignLaunchPayload'
+    queuedCount: number
+    skippedCount: number
+    campaign: { __typename?: 'Campaign'; id: string; status: CampaignCampaignStatus; launchedAt?: string | null; scheduledAt?: string | null }
+  }
+}
+
+export type UpcomingCampaignFieldsFragment = {
+  __typename?: 'Campaign'
+  id: string
+  name: string
+  campaignType: CampaignCampaignType
+  recipientCount?: number | null
+  scheduledAt?: string | null
+  nextRunAt?: string | null
+}
+
+export type CampaignSummaryQueryVariables = Exact<{
+  activeWhere?: InputMaybe<CampaignWhereInput>
+  needsAttentionWhere?: InputMaybe<CampaignWhereInput>
+  overdueWhere?: InputMaybe<CampaignWhereInput>
+  scheduledOverdueWhere?: InputMaybe<CampaignWhereInput>
+  completedRecentlyWhere?: InputMaybe<CampaignWhereInput>
+  upcomingScheduledWhere?: InputMaybe<CampaignWhereInput>
+  upcomingRecurringWhere?: InputMaybe<CampaignWhereInput>
+  activeFirst: Scalars['Int']['input']
+  upcomingFirst: Scalars['Int']['input']
+}>
+
+export type CampaignSummaryQuery = {
+  __typename?: 'Query'
+  allCampaigns: { __typename?: 'CampaignConnection'; totalCount: number }
+  activeCampaigns: {
+    __typename?: 'CampaignConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'CampaignEdge'; node?: { __typename?: 'Campaign'; id: string; recipientCount?: number | null } | null } | null> | null
+  }
+  needsAttentionCampaigns: { __typename?: 'CampaignConnection'; totalCount: number }
+  overdueCampaigns: { __typename?: 'CampaignConnection'; totalCount: number }
+  scheduledOverdueCampaigns: { __typename?: 'CampaignConnection'; totalCount: number }
+  completedRecentlyCampaigns: { __typename?: 'CampaignConnection'; totalCount: number }
+  upcomingScheduledCampaigns: {
+    __typename?: 'CampaignConnection'
+    edges?: Array<{
+      __typename?: 'CampaignEdge'
+      node?: { __typename?: 'Campaign'; id: string; name: string; campaignType: CampaignCampaignType; recipientCount?: number | null; scheduledAt?: string | null; nextRunAt?: string | null } | null
+    } | null> | null
+  }
+  upcomingRecurringCampaigns: {
+    __typename?: 'CampaignConnection'
+    edges?: Array<{
+      __typename?: 'CampaignEdge'
+      node?: { __typename?: 'Campaign'; id: string; name: string; campaignType: CampaignCampaignType; recipientCount?: number | null; scheduledAt?: string | null; nextRunAt?: string | null } | null
+    } | null> | null
+  }
+}
+
+export type SendCampaignTestEmailMutationVariables = Exact<{
+  input: SendCampaignTestEmailInput
+}>
+
+export type SendCampaignTestEmailMutation = { __typename?: 'Mutation'; sendCampaignTestEmail: { __typename?: 'CampaignTestEmailPayload'; queuedCount: number; skippedCount: number } }
+
+export type ResendCampaignIncompleteTargetsMutationVariables = Exact<{
+  input: ResendCampaignIncompleteInput
+}>
+
+export type ResendCampaignIncompleteTargetsMutation = { __typename?: 'Mutation'; resendCampaignIncompleteTargets: { __typename?: 'CampaignLaunchPayload'; queuedCount: number; skippedCount: number } }
 
 export type CheckResultsWithFilterQueryVariables = Exact<{
   where?: InputMaybe<CheckResultWhereInput>
@@ -74303,6 +74405,7 @@ export type EmailTemplatesWithFilterQuery = {
         version: number
         workflowDefinitionID?: string | null
         workflowInstanceID?: string | null
+        campaigns: { __typename?: 'CampaignConnection'; totalCount: number }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -74549,6 +74652,19 @@ export type EntitiesWithFilterQuery = {
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type GetEntityOptionsQueryVariables = Exact<{
+  where?: InputMaybe<EntityWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetEntityOptionsQuery = {
+  __typename?: 'Query'
+  entities: {
+    __typename?: 'EntityConnection'
+    edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
   }
 }
 
@@ -75218,6 +75334,7 @@ export type GetEvidenceCountsByStatusByProgramIdQuery = {
   missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
   needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
   requested: { __typename?: 'EvidenceConnection'; totalCount: number }
+  draft: { __typename?: 'EvidenceConnection'; totalCount: number }
   submitted: { __typename?: 'EvidenceConnection'; totalCount: number }
 }
 
@@ -75231,6 +75348,7 @@ export type GetEvidenceCountsByStatusAllProgramsQuery = {
   missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
   needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
   requested: { __typename?: 'EvidenceConnection'; totalCount: number }
+  draft: { __typename?: 'EvidenceConnection'; totalCount: number }
   submitted: { __typename?: 'EvidenceConnection'; totalCount: number }
 }
 
@@ -76252,6 +76370,27 @@ export type IdentityHoldersWithFilterQuery = {
         internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
       } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type GetIdentityHolderOptionsQueryVariables = Exact<{
+  where?: InputMaybe<IdentityHolderWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetIdentityHolderOptionsQuery = {
+  __typename?: 'Query'
+  identityHolders: {
+    __typename?: 'IdentityHolderConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'IdentityHolderEdge'
+      node?: { __typename?: 'IdentityHolder'; id: string; email: string; fullName: string; identityHolderType: IdentityHolderIdentityHolderType } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }

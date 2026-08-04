@@ -3,18 +3,12 @@
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CampaignCampaignType } from '@repo/codegen/src/schema'
 
 const campaignFormSchema = z.object({
-  name: z.string().optional(),
+  name: z.string().trim().min(1, 'Campaign name is required'),
   description: z.string().optional(),
-  campaignType: z.nativeEnum(CampaignCampaignType).optional(),
   questionnaireTemplateID: z.string().optional(),
-  templateID: z.string(),
-  sendImmediately: z.boolean(),
-  dueDate: z.string().optional().nullable(),
-  scheduledAt: z.string().optional().nullable(),
-  reminderEnabled: z.boolean(),
+  emailTemplateID: z.string().optional(),
 })
 
 export type CampaignFormData = z.infer<typeof campaignFormSchema>
@@ -26,13 +20,8 @@ const useCampaignFormSchema = () => {
       defaultValues: {
         name: '',
         description: '',
-        campaignType: undefined,
         questionnaireTemplateID: '',
-        templateID: '',
-        sendImmediately: true,
-        dueDate: null,
-        scheduledAt: null,
-        reminderEnabled: true,
+        emailTemplateID: '',
       },
     }),
   }

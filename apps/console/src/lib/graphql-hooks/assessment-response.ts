@@ -50,6 +50,7 @@ export const useCreateAssessmentResponse = () => {
     mutationFn: async (variables) => client.request(CREATE_ASSESSMENT_RESPONSE, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assessmentResponses'] })
+      queryClient.invalidateQueries({ queryKey: ['assessments'] })
     },
   })
 }
@@ -62,6 +63,7 @@ export const useDeleteAssessmentResponse = () => {
     mutationFn: async (variables) => client.request(DELETE_ASSESSMENT_RESPONSE, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assessmentResponses'] })
+      queryClient.invalidateQueries({ queryKey: ['assessments'] })
     },
   })
 }

@@ -1,13 +1,16 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import CampaignTableToolbar from '@/components/pages/protected/campaigns/table/campaigns-table-toolbar'
-import { CampaignOrderField, OrderDirection, type CampaignWhereInput } from '@repo/codegen/src/schema'
+import { CampaignOrderField, ExportExportFormat, ExportExportType, OrderDirection, type CampaignWhereInput } from '@repo/codegen/src/schema'
 import { getCampaignColumns } from '@/components/pages/protected/campaigns/table/columns'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { type VisibilityState } from '@tanstack/react-table'
 import CampaignsTable from '@/components/pages/protected/campaigns/table/campaigns-table'
 import { useDebounce } from '@uidotdev/usehooks'
+import { PageHeading } from '@repo/ui/page-heading'
+import { Button } from '@repo/ui/button'
+import { SquarePlus } from 'lucide-react'
 
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils'
@@ -20,14 +23,22 @@ import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 import { CreateCampaignSheet } from '@/components/pages/protected/campaigns/create/create-campaign-sheet'
+import CampaignsSummary from '@/components/pages/protected/campaigns/summary/campaigns-summary'
+import CampaignsEmptyState from '@/components/pages/protected/campaigns/campaigns-empty/campaigns-empty-state'
+import { useCampaignSummary, type TCampaignSummaryScope } from '@/lib/graphql-hooks/campaign'
+import { useNotification } from '@/hooks/useNotification'
+import useFileExport from '@/components/shared/export/use-file-export.ts'
 
 const CampaignsPage: React.FC = () => {
   const [isCreateSheetOpen, setIsCreateSheetOpen] = useState(false)
+  const [summaryScope, setSummaryScope] = useState<TCampaignSummaryScope | null>(null)
   const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.CAMPAIGN)
   const [filters, setFilters] = useState<CampaignWhereInput | null>(null)
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.CAMPAIGN)
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
+  const { errorNotification } = useNotification()
+  const { handleExport } = useFileExport()
 
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.CAMPAIGN, CampaignOrderField, [
     {
@@ -37,7 +48,7 @@ const CampaignsPage: React.FC = () => {
   ])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() =>
     getInitialVisibility(TableKeyEnum.CAMPAIGN, {
-      id: false,
+      displayID: false,
       createdAt: false,
       createdBy: false,
       updatedAt: false,
@@ -51,6 +62,8 @@ const CampaignsPage: React.FC = () => {
   const searching = searchQuery !== debouncedSearch
   const [hasCampaigns, setHasCampaigns] = useState(false)
   const [selectedCampaigns, setSelectedCampaigns] = useState<{ id: string }[]>([])
+
+  const { summary, scopeFilters, error: summaryError } = useCampaignSummary()
 
   const whereFilter = useMemo(() => {
     if (!filters) return null
@@ -67,8 +80,23 @@ const CampaignsPage: React.FC = () => {
       merged.and = [...(merged.and || []), { or: [{ nameContainsFold: debouncedSearch }] }]
     }
 
+    const scopeFilter = summaryScope ? scopeFilters[summaryScope] : null
+
+    if (scopeFilter) {
+      merged.and = [...(merged.and || []), scopeFilter]
+    }
+
     return merged
-  }, [filters, debouncedSearch])
+  }, [filters, debouncedSearch, summaryScope, scopeFilters])
+
+  useEffect(() => {
+    if (summaryError) {
+      errorNotification({
+        title: 'Error',
+        description: 'Failed to load campaign summary',
+      })
+    }
+  }, [summaryError, errorNotification])
 
   useEffect(() => {
     setCrumbs([
@@ -93,23 +121,52 @@ const CampaignsPage: React.FC = () => {
       }))
   }, [selectedCampaigns, setSelectedCampaigns])
 
-  const handleExport = async () => {
+  const handleExportFile = () => {
     if (!hasCampaigns) {
       return
     }
-    // Export will be supported when ExportExportType.CAMPAIGN is added to the backend
+
+    handleExport({
+      exportType: ExportExportType.CAMPAIGN,
+      filters: JSON.stringify(whereFilter),
+      fields: mappedColumns.filter((column) => columnVisibility[column.accessorKey] !== false).map((column) => column.meta?.exportPrefix ?? column.accessorKey),
+      format: ExportExportFormat.CSV,
+    })
   }
 
   const handleClearSelectedCampaigns = () => {
     setSelectedCampaigns([])
   }
 
+  const handleScopeChange = useCallback(
+    (scope: TCampaignSummaryScope | null) => {
+      setSummaryScope(scope)
+      resetPagination()
+    },
+    [resetPagination],
+  )
+
   return (
     <>
+      <PageHeading
+        heading="Campaigns"
+        subheading="Create and manage questionnaires, acknowledgements, and recurring outreach."
+        actions={
+          <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={() => setIsCreateSheetOpen(true)}>
+            Create Campaign
+          </Button>
+        }
+      />
+      {summary &&
+        (summary.totalCampaignCount === 0 ? (
+          <CampaignsEmptyState onCreateCampaign={() => setIsCreateSheetOpen(true)} />
+        ) : (
+          <CampaignsSummary summary={summary} activeScope={summaryScope} onScopeChange={handleScopeChange} />
+        ))}
       <CampaignTableToolbar
         onFilterChange={setFilters}
         handleClearSelectedCampaigns={handleClearSelectedCampaigns}
-        handleExport={handleExport}
+        handleExport={handleExportFile}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
@@ -124,7 +181,7 @@ const CampaignsPage: React.FC = () => {
         permission={permission}
         selectedCampaigns={selectedCampaigns}
         setSelectedCampaigns={setSelectedCampaigns}
-        onCreateCampaign={() => setIsCreateSheetOpen(true)}
+        additionalActiveFilterCount={summaryScope ? 1 : 0}
       />
       <CampaignsTable
         orderByFilter={orderBy || undefined}

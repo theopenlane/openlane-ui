@@ -11,7 +11,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@tanstack/react-table'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
-import { type ControlWhereInput, type EvidenceWhereInput } from '@repo/codegen/src/schema'
+import { type ControlWhereInput, type EvidenceWhereInput, ExportExportFormat, ExportExportType } from '@repo/codegen/src/schema'
 import { useGetAuditorDashboardControls } from '@/lib/graphql-hooks/control'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
@@ -28,7 +28,8 @@ import { ExportEvidenceDialog } from '@/components/pages/protected/evidence/dial
 import { BulkCSVCreateEvidenceDialog } from '@/components/pages/protected/evidence/dialog/bulk-csv-create-evidence-dialog'
 import { getControlReview, getControlLastReviewed } from '../utils/control-status'
 import { getAuditorDashboardColumns, getAuditorDashboardMappedColumns, type AuditorDashboardControlRow } from './columns'
-import { getAuditorDashboardFilterFields, getAuditorDashboardQuickFilters } from './table-config'
+import useFileExport from '@/components/shared/export/use-file-export'
+import { AUDITOR_CONTROL_EXPORT_FIELDS, getAuditorDashboardFilterFields, getAuditorDashboardQuickFilters } from './table-config'
 
 type AuditorControlsTableProps = {
   programId: string
@@ -116,6 +117,16 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
 
   const exportFilters = useMemo(() => JSON.stringify({ hasProgramsWith: [{ id: programId }] } satisfies EvidenceWhereInput), [programId])
 
+  const { handleExport, isPending: isExporting } = useFileExport()
+
+  const handleExportControls = () =>
+    handleExport({
+      exportType: ExportExportType.CONTROL,
+      filters: JSON.stringify(where),
+      fields: AUDITOR_CONTROL_EXPORT_FIELDS,
+      format: ExportExportFormat.CSV,
+    })
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
@@ -136,6 +147,9 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
               </Button>
             }
           />
+          <Button variant="secondary" icon={<Download size={16} />} iconPosition="left" disabled={isExporting || rows.length === 0} onClick={handleExportControls}>
+            Export Controls
+          </Button>
           <ExportEvidenceDialog
             filters={exportFilters}
             trigger={

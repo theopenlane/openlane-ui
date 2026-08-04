@@ -9,8 +9,8 @@ import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Users, CheckCircle, Calendar, Send, FileText, Download, Eye, Pencil, Trash2, Copy, ExternalLink, RefreshCw } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGenerateAssessmentAccessURL, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
-import { formatDate } from '@/utils/date'
+import { EXCLUDE_TEST_RESPONSES, useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGenerateAssessmentAccessURL, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
+import { computeDueDate, formatDate, isPastDate } from '@/utils/date'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterIcons, QuestionnaireFilterIconName } from '@/components/shared/enum-mapper/questionnaire-enum'
@@ -103,7 +103,7 @@ const QuestionnaireDetailPage = () => {
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { client } = useGraphQLClient()
   const { errorNotification, successNotification } = useNotification()
-  const { assessment, responses, isLoading } = useGetAssessmentDetail({ id })
+  const { assessment, responses, isLoading } = useGetAssessmentDetail({ id, where: EXCLUDE_TEST_RESPONSES })
   const [deliveryFilters, setDeliveryFilters] = useState<WhereCondition>({})
   const [deliveryTotalCount, setDeliveryTotalCount] = useState(0)
   const [isExportingDelivery, setIsExportingDelivery] = useState(false)
@@ -124,10 +124,11 @@ const QuestionnaireDetailPage = () => {
     }
   }, [assessment?.campaigns])
   const canSend = useCanSendQuestionnaire(campaignIds, entityIds)
+  const hasDeletePermission = canDelete(permission?.roles)
 
-  const deliveryWhereFilter = useMemo(
-    () =>
-      whereGenerator<AssessmentResponseWhereInput>(deliveryFilters as AssessmentResponseWhereInput, (key, value) => {
+  const deliveryWhereFilter = useMemo<AssessmentResponseWhereInput>(
+    () => ({
+      ...whereGenerator<AssessmentResponseWhereInput>(deliveryFilters as AssessmentResponseWhereInput, (key, value) => {
         if (key === 'status') {
           return Array.isArray(value)
             ? ({
@@ -140,6 +141,8 @@ const QuestionnaireDetailPage = () => {
 
         return { [key]: value } as AssessmentResponseWhereInput
       }),
+      ...EXCLUDE_TEST_RESPONSES,
+    }),
     [deliveryFilters],
   )
 
@@ -226,12 +229,15 @@ const QuestionnaireDetailPage = () => {
   }, [setCrumbs, assessment?.name, isLoading])
 
   const { dueDate, isPastDue } = useMemo(() => {
-    if (!responses?.length) return { dueDate: '-', isPastDue: false }
-    const firstDueDate = responses.find((r) => r?.dueDate)?.dueDate
-    if (!firstDueDate) return { dueDate: '-', isPastDue: false }
-    const isOverdue = new Date(firstDueDate) < new Date() && completedResponses < totalRecipients
-    return { dueDate: formatDate(firstDueDate), isPastDue: isOverdue }
-  }, [responses, completedResponses, totalRecipients])
+    const assignedDueDate = responses.find((response) => response?.dueDate)?.dueDate
+
+    if (!assignedDueDate) {
+      const projectedDueDate = computeDueDate(assessment?.responseDueDuration)
+      return { dueDate: projectedDueDate ? formatDate(projectedDueDate) : '-', isPastDue: false }
+    }
+
+    return { dueDate: formatDate(assignedDueDate), isPastDue: isPastDate(assignedDueDate) && completedResponses < totalRecipients }
+  }, [responses, assessment?.responseDueDuration, completedResponses, totalRecipients])
 
   const responseRows = useMemo(
     () =>
@@ -390,7 +396,7 @@ const QuestionnaireDetailPage = () => {
                       <span>Edit</span>
                     </Button>
                   )}
-                  {canDelete(permission?.roles) && !assessment.systemOwned && (
+                  {hasDeletePermission && !assessment.systemOwned && (
                     <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setIsDeleteDialogOpen(true)}>
                       <Trash2 size={16} strokeWidth={2} />
                       <span>Delete</span>
@@ -449,6 +455,7 @@ const QuestionnaireDetailPage = () => {
             onTotalCountChange={handleDeliveryTotalCountChange}
             responseDueDuration={assessment?.responseDueDuration}
             canSend={canSend}
+            canDelete={hasDeletePermission}
           />
         </TabsContent>
         <TabsContent value="responses" className="mt-6">
