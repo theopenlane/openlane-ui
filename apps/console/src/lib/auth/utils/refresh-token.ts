@@ -1,32 +1,47 @@
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { secureFetch } from './secure-fetch'
+import { parseRetryAfter } from './retry-after'
 
 export interface Tokens {
   accessToken: string
   refreshToken: string
 }
 
-export const fetchNewAccessToken = async (refreshToken: string): Promise<Tokens | null> => {
+export type RefreshResult = { status: 'ok'; tokens: Tokens } | { status: 'rejected' } | { status: 'unavailable'; retryAfterMs: number }
+
+export const fetchNewAccessToken = async (refreshToken: string): Promise<RefreshResult> => {
+  let response: Response
+
   try {
-    // Determine API URL: Absolute URL on server, relative on client
-    const apiUrl = `${openlaneAPIUrl}/v1/refresh`
-    const response = await secureFetch(apiUrl, {
+    response = await secureFetch(`${openlaneAPIUrl}/v1/refresh`, {
       method: 'POST',
       body: JSON.stringify({ refresh_token: refreshToken }),
     })
-
-    if (!response.ok) {
-      console.error(`Failed to refresh access token. Status: ${response.status}`)
-      return null
-    }
-
-    const data = await response.json()
-    return {
-      accessToken: data.access_token,
-      refreshToken: data.refresh_token,
-    }
   } catch (error) {
     console.error('Refresh token request failed:', error)
-    return null
+    return { status: 'unavailable', retryAfterMs: parseRetryAfter(null) }
+  }
+
+  if (response.status === 429 || response.status >= 500) {
+    console.error(`Refresh endpoint unavailable. Status: ${response.status}`)
+    return { status: 'unavailable', retryAfterMs: parseRetryAfter(response.headers.get('retry-after')) }
+  }
+
+  if (!response.ok) {
+    console.error(`Failed to refresh access token. Status: ${response.status}`)
+    return { status: 'rejected' }
+  }
+
+  try {
+    const data = await response.json()
+
+    if (!data?.access_token) {
+      return { status: 'rejected' }
+    }
+
+    return { status: 'ok', tokens: { accessToken: data.access_token, refreshToken: data.refresh_token } }
+  } catch (error) {
+    console.error('Refresh token response was not valid JSON:', error)
+    return { status: 'unavailable', retryAfterMs: parseRetryAfter(null) }
   }
 }

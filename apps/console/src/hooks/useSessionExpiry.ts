@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { jwtDecode } from 'jwt-decode'
-import { useSessionRefresh } from '@/lib/graphqlClient'
+import { refreshTokens } from '@/lib/auth/utils/session-refresh'
+import { getIsSessionInvalid } from '@/lib/auth/utils/session-status'
 
 const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = ['keydown', 'mousemove', 'click', 'scroll', 'touchstart']
 
@@ -13,9 +14,8 @@ interface RefreshTokenClaims {
 }
 
 export function useSessionExpiry() {
-  const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false)
+  const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(getIsSessionInvalid)
   const { data: sessionData } = useSession()
-  const refreshSession = useSessionRefresh()
 
   useEffect(() => {
     const handler = () => setShowSessionExpiredModal(true)
@@ -68,7 +68,7 @@ export function useSessionExpiry() {
       if (!armed || inFlight) return
       inFlight = true
       try {
-        await refreshSession(token)
+        await refreshTokens(token)
       } catch {
         inFlight = false
       }
@@ -89,7 +89,7 @@ export function useSessionExpiry() {
       window.clearTimeout(expireTimeoutId)
       ACTIVITY_EVENTS.forEach((e) => window.removeEventListener(e, onActivity))
     }
-  }, [sessionData, refreshSession])
+  }, [sessionData])
 
   return { showSessionExpiredModal }
 }
