@@ -7,11 +7,10 @@ import { StepperSheet, type StepperStep } from '@/components/shared/stepper-shee
 import { QuestionnaireStep } from './steps/questionnaire-step'
 import { TargetsStep } from './steps/targets-step'
 import { EmailTemplateStep } from './steps/email-template-step'
-import { type CampaignTargetEntry, type TargetTab } from './steps/targets/target-entry'
-import { useCreateCampaignWithTargets } from '@/lib/graphql-hooks/campaign'
+import { toCampaignTargetInputs, type CampaignTargetEntry, type TargetTab } from './steps/targets/target-entry'
+import { useCreateCampaignWithOptionalTargets } from '@/lib/graphql-hooks/campaign'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { isValidEmail } from '@/lib/validators'
 import { CampaignCampaignStatus, CampaignCampaignType } from '@repo/codegen/src/schema'
 import useCampaignFormSchema, { type CampaignFormData } from './hooks/use-campaign-form-schema'
 
@@ -30,7 +29,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [activeTargetTab, setActiveTargetTab] = useState<TargetTab>('personnel')
 
-  const { mutateAsync: createCampaignWithTargets, isPending: isCreating } = useCreateCampaignWithTargets()
+  const { mutateAsync: createCampaign, isPending: isCreating } = useCreateCampaignWithOptionalTargets()
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
 
@@ -53,27 +52,18 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
   const createDraft = useCallback(
     async (data: CampaignFormData) => {
       try {
-        const validTargets = targets.filter((target) => isValidEmail(target.email.trim()))
-
-        const result = await createCampaignWithTargets({
-          input: {
-            campaign: {
-              name: data.name.trim(),
-              description: data.description || undefined,
-              campaignType: data.questionnaireTemplateID ? CampaignCampaignType.QUESTIONNAIRE : CampaignCampaignType.CUSTOM,
-              status: CampaignCampaignStatus.DRAFT,
-              templateID: data.questionnaireTemplateID || undefined,
-              emailTemplateID: data.questionnaireTemplateID ? undefined : data.emailTemplateID || undefined,
-            },
-            targets: validTargets.map((target) => ({
-              email: target.email.trim(),
-              fullName: target.fullName.trim() || undefined,
-              contactID: target.contactID || undefined,
-            })),
+        const campaignId = await createCampaign({
+          campaign: {
+            name: data.name.trim(),
+            description: data.description || undefined,
+            campaignType: data.questionnaireTemplateID ? CampaignCampaignType.QUESTIONNAIRE : CampaignCampaignType.CUSTOM,
+            status: CampaignCampaignStatus.DRAFT,
+            templateID: data.questionnaireTemplateID || undefined,
+            emailTemplateID: data.questionnaireTemplateID ? undefined : data.emailTemplateID || undefined,
           },
+          targets: toCampaignTargetInputs(targets),
         })
 
-        const campaignId = result.createCampaignWithTargets.campaign.id
         successNotification({ title: 'Campaign saved as draft' })
         handleCancel()
         router.push(`/automation/campaigns/${campaignId}`)
@@ -81,7 +71,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
         errorNotification({ title: 'Error', description: parseErrorMessage(error) })
       }
     },
-    [targets, createCampaignWithTargets, successNotification, errorNotification, handleCancel, router],
+    [targets, createCampaign, successNotification, errorNotification, handleCancel, router],
   )
 
   const submitDraft = useCallback(

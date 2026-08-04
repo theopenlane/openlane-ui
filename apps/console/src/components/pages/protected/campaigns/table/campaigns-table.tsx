@@ -112,6 +112,7 @@ const CampaignsTable = ({
       }}
       columnVisibility={columnVisibility}
       setColumnVisibility={setColumnVisibility}
+      noResultsText="No campaigns found"
       tableKey={TableKeyEnum.CAMPAIGN}
     />
   )

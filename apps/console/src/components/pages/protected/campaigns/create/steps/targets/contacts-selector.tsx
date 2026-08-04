@@ -1,16 +1,23 @@
 'use client'
 
-import React, { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type ContactWhereInput } from '@repo/codegen/src/schema'
-import { useContactsWithFilter } from '@/lib/graphql-hooks/contact'
+import { ContactOrderField, OrderDirection, type ContactOrder, type ContactWhereInput } from '@repo/codegen/src/schema'
+import { useFetchAllContacts } from '@/lib/graphql-hooks/contact'
 import { useVendorOptions, VENDOR_ENTITY_TYPE_WHERE } from '@/lib/graphql-hooks/entity'
-import { RecipientPicker, type RecipientOption } from './recipient-picker'
+import { RecipientPicker } from './recipient-picker'
+import { dedupeRecipientOptions, type RecipientOption } from './recipient-option'
 import { SelectedTargetsPreview } from './selected-targets-preview'
-import { ALL_SCOPE, PICKER_PAGINATION, mergeTargets, removeTarget, toggleTarget, type CampaignTargetEntry } from './target-entry'
+import { ALL_SCOPE, PICKER_PAGINATION, getRecipientDisplayName, mergeTargets, removeTarget, toggleTarget, type CampaignTargetEntry } from './target-entry'
+import { normalizeEmail } from '@/lib/validators'
+import { sliceByPagination } from '@/utils/pagination'
 import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'
 
 const ANY_VENDOR = 'ANY_VENDOR'
+
+const FETCH_PAGE_SIZE = 100
+
+const FETCH_MAX_PAGES = 5
 
 const vendorScopeWhere = (scope: string): ContactWhereInput => {
   if (scope === ALL_SCOPE) return {}
@@ -18,7 +25,14 @@ const vendorScopeWhere = (scope: string): ContactWhereInput => {
   return { hasEntitiesWith: [{ id: scope }] }
 }
 
-const toEntry = (option: RecipientOption): CampaignTargetEntry => ({ email: option.email, fullName: option.name, contactID: option.id, source: 'contact' })
+const CONTACT_OPTIONS_ORDER: ContactOrder[] = [{ field: ContactOrderField.email, direction: OrderDirection.ASC }]
+
+const toEntry = (option: RecipientOption): CampaignTargetEntry => ({
+  email: option.email,
+  fullName: getRecipientDisplayName(option.name, option.email),
+  contactID: option.id,
+  source: 'contact',
+})
 
 interface ContactsSelectorProps {
   targets: CampaignTargetEntry[]
@@ -56,34 +70,46 @@ export const ContactsSelector: React.FC<ContactsSelectorProps> = ({ targets, onT
     [scope, debouncedSearch],
   )
 
-  const { contactsNodes, pageInfo, totalCount, isFetching } = useContactsWithFilter({ where, pagination })
+  const { contactsNodes, totalCount, isLoading, isTruncated } = useFetchAllContacts({
+    where,
+    orderBy: CONTACT_OPTIONS_ORDER,
+    pageSize: FETCH_PAGE_SIZE,
+    maxPages: FETCH_MAX_PAGES,
+  })
 
-  const paginationMeta: TPaginationMeta = { totalCount, pageInfo, isLoading: isFetching }
-
-  const options = useMemo<RecipientOption[]>(
-    () => contactsNodes.flatMap((contact) => (contact.email ? [{ id: contact.id, email: contact.email, name: contact.fullName ?? '', meta: contact.company ?? undefined }] : [])),
+  const uniqueOptions = useMemo<RecipientOption[]>(
+    () =>
+      dedupeRecipientOptions(contactsNodes.flatMap((contact) => (contact.email ? [{ id: contact.id, email: contact.email, name: contact.fullName ?? '', meta: contact.company ?? undefined }] : []))),
     [contactsNodes],
   )
 
+  const pageCount = Math.max(1, Math.ceil(uniqueOptions.length / pagination.pageSize))
+
+  useEffect(() => {
+    if (pagination.page > pageCount) {
+      setPagination((prev) => ({ ...prev, page: pageCount }))
+    }
+  }, [pageCount, pagination.page])
+
+  const pageOptions = useMemo(() => sliceByPagination(uniqueOptions, pagination), [uniqueOptions, pagination])
+
+  const paginationMeta: TPaginationMeta = { totalCount: uniqueOptions.length, isLoading }
+
   const selectedContacts = useMemo(() => targets.filter((target) => target.source === 'contact'), [targets])
 
-  const handleToggle = useCallback((option: RecipientOption) => onTargetsChange(toggleTarget(targets, toEntry(option))), [targets, onTargetsChange])
+  const handleToggle = useCallback((option: RecipientOption) => onTargetsChange((prev) => toggleTarget(prev, toEntry(option))), [onTargetsChange])
 
   const handleToggleAll = useCallback(
-    (pageOptions: RecipientOption[], nextChecked: boolean) => {
-      if (nextChecked) {
-        onTargetsChange(mergeTargets(targets, pageOptions.map(toEntry)))
-      } else {
-        const emails = new Set(pageOptions.map((option) => option.email.toLowerCase()))
-        onTargetsChange(targets.filter((target) => target.source !== 'contact' || !emails.has(target.email.toLowerCase())))
-      }
+    (optionsOnPage: RecipientOption[], nextChecked: boolean) => {
+      const emails = new Set(optionsOnPage.map((option) => normalizeEmail(option.email)))
+      onTargetsChange((prev) => (nextChecked ? mergeTargets(prev, optionsOnPage.map(toEntry)) : prev.filter((target) => target.source !== 'contact' || !emails.has(normalizeEmail(target.email)))))
     },
-    [targets, onTargetsChange],
+    [onTargetsChange],
   )
 
-  const handleRemove = useCallback((email: string) => onTargetsChange(removeTarget(targets, email)), [targets, onTargetsChange])
+  const handleRemove = useCallback((email: string) => onTargetsChange((prev) => removeTarget(prev, email)), [onTargetsChange])
 
-  const handleClear = useCallback(() => onTargetsChange(targets.filter((target) => target.source !== 'contact')), [targets, onTargetsChange])
+  const handleClear = useCallback(() => onTargetsChange((prev) => prev.filter((target) => target.source !== 'contact')), [onTargetsChange])
 
   return (
     <div className="flex flex-col gap-4">
@@ -95,8 +121,8 @@ export const ContactsSelector: React.FC<ContactsSelectorProps> = ({ targets, onT
         searchText={searchText}
         onSearchChange={handleSearchChange}
         searchPlaceholder="Search by name or email..."
-        options={options}
-        isLoading={isFetching}
+        options={pageOptions}
+        isLoading={isLoading}
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
@@ -105,6 +131,7 @@ export const ContactsSelector: React.FC<ContactsSelectorProps> = ({ targets, onT
         onToggle={handleToggle}
         onToggleAll={handleToggleAll}
         emptyLabel="No contacts found."
+        note={isTruncated ? `Showing ${uniqueOptions.length} unique contacts from the first ${contactsNodes.length} of ${totalCount} matches. Use search to narrow the list.` : undefined}
       />
       <SelectedTargetsPreview title="Selected contacts" targets={selectedContacts} onRemove={handleRemove} onClearAll={handleClear} />
     </div>
