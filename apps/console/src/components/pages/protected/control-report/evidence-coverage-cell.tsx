@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { EVIDENCE_STATUS_STYLES } from '@/components/shared/enum-mapper/evidence-enum'
+import { getEvidenceStatusStyle } from '@/components/shared/enum-mapper/evidence-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { EVIDENCE_SEVERITY_ORDER } from '@/lib/graphql-hooks/mapped-control'
 import { type ControlReportItem } from '@/lib/graphql-hooks/control'
@@ -23,7 +23,7 @@ const EvidenceCoverageCell: React.FC<EvidenceCoverageProps> = ({ data, primaryCo
   const approvedCount = data.approvedCount
   const worstStatus = data.worstStatus
   const pct = (approvedCount / totalCount) * 100
-  const statusStyle = worstStatus ? EVIDENCE_STATUS_STYLES[worstStatus] : null
+  const statusStyle = worstStatus ? getEvidenceStatusStyle(worstStatus) : null
 
   const sortedCounts = [...(data.countByStatus ?? [])].sort((a, b) => {
     const ai = EVIDENCE_SEVERITY_ORDER.indexOf(a.status)
@@ -50,16 +50,12 @@ const EvidenceCoverageCell: React.FC<EvidenceCoverageProps> = ({ data, primaryCo
                   <div className="text-xs min-w-[180px] max-w-[280px] space-y-1.5">
                     <p className="font-semibold mb-1">Evidence by status</p>
                     {sortedCounts.map((entry) => {
-                      const style = EVIDENCE_STATUS_STYLES[entry.status]
+                      const style = getEvidenceStatusStyle(entry.status)
                       return (
                         <div key={entry.status} className="flex items-center justify-between gap-2">
-                          {style ? (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full shrink-0" style={{ backgroundColor: style.bg, color: style.color }}>
-                              {getEnumLabel(entry.status)}
-                            </span>
-                          ) : (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full shrink-0 bg-muted text-muted-foreground">—</span>
-                          )}
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full shrink-0" style={{ backgroundColor: style.bg, color: style.color }}>
+                            {getEnumLabel(entry.status)}
+                          </span>
                           <span className="text-muted-foreground">{entry.totalCount}</span>
                         </div>
                       )

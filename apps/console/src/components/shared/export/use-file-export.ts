@@ -16,15 +16,10 @@ type TUseFileExportProps = {
 }
 
 const useFileExport = () => {
-  const { successNotification } = useNotification()
+  const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createExport, isPending } = useCreateExport()
 
   const handleExport = async ({ exportType, filters, fields, format, exportMetadata }: TUseFileExportProps) => {
-    successNotification({
-      title: `Export Started`,
-      description: `You'll get a notification when your file is ready to download.`,
-    })
-
     try {
       const data = await createExport({
         input: {
@@ -36,11 +31,18 @@ const useFileExport = () => {
         },
       })
 
+      successNotification({
+        title: `Export Started`,
+        description: `You'll get a notification when your file is ready to download.`,
+      })
+
       return data.createExport.export.id
     } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      console.error(errorMessage)
-      throw error
+      errorNotification({
+        title: 'Export failed',
+        description: parseErrorMessage(error),
+      })
+      return undefined
     }
   }
 

@@ -73,10 +73,10 @@ export const GET_ALL_ASSESSMENTS = gql`
           updatedAt
           createdBy
           updatedBy
-          assessmentResponses(first: 1) {
+          assessmentResponses(where: { isTest: false }, first: 1) {
             totalCount
           }
-          completedAssessmentResponses: assessmentResponses(where: { status: COMPLETED }, first: 1) {
+          completedAssessmentResponses: assessmentResponses(where: { status: COMPLETED, isTest: false }, first: 1) {
             totalCount
           }
           campaigns {
@@ -190,17 +190,6 @@ export const GET_ASSESSMENT_ACCESS_URL = gql`
     assessment(id: $getAssessmentId) {
       id
       accessURL
-    }
-  }
-`
-
-export const GET_ASSESSMENT_RECIPIENTS_TOTAL_COUNT = gql`
-  query GetAssessmentRecipientsTotalCount($getAssessmentId: ID!) {
-    assessment(id: $getAssessmentId) {
-      id
-      assessmentResponses(first: 1) {
-        totalCount
-      }
     }
   }
 `

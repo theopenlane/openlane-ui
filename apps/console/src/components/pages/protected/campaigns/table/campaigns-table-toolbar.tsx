@@ -2,7 +2,7 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useMemo, useState } from 'react'
 import { getCampaignFilterFields } from '@/components/pages/protected/campaigns/table/table-config'
 import { type FilterField } from '@/types'
-import { DownloadIcon, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
+import { DownloadIcon, LoaderCircle, SearchIcon } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
 import { type VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
@@ -37,7 +37,7 @@ type TCampaignTableToolbarProps = {
   handleClearSelectedCampaigns: () => void
   selectedCampaigns: { id: string }[]
   setSelectedCampaigns: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  onCreateCampaign?: () => void
+  additionalActiveFilterCount?: number
 }
 
 const CampaignTableToolbar: React.FC<TCampaignTableToolbarProps> = (props) => {
@@ -129,12 +129,7 @@ const CampaignTableToolbar: React.FC<TCampaignTableToolbarProps> = (props) => {
             {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
               <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={TableKeyEnum.CAMPAIGN} />
             )}
-            <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableKeyEnum.CAMPAIGN} />
-            {props.onCreateCampaign && (
-              <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={props.onCreateCampaign}>
-                Create Campaign
-              </Button>
-            )}
+            <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableKeyEnum.CAMPAIGN} additionalActiveFilterCount={props.additionalActiveFilterCount} />
           </>
         )}
       </div>

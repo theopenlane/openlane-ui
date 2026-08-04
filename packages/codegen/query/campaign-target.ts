@@ -41,6 +41,8 @@ export const GET_CAMPAIGN_TARGET_STATS = gql`
       totalCount
       edges {
         node {
+          id
+          email
           sentAt
           completedAt
         }

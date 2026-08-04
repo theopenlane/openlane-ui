@@ -1,47 +1,60 @@
 'use client'
-import { useGetEvidenceCountsByStatus } from '@/lib/graphql-hooks/evidence.ts'
+import { useMemo } from 'react'
+import { useGetEvidenceCountsByStatus, type TEvidenceCountsByStatus } from '@/lib/graphql-hooks/evidence.ts'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { DonutChart } from '@repo/ui/donut-chart'
 import { useSearchParams } from 'next/navigation'
 import EvidenceStatusChip from '@/components/pages/protected/evidence/chart/evidence-status-chip.tsx'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
-import { ChartColorsSequence } from '@/components/shared/enum-mapper/evidence-enum'
+import { EvidenceStatusColors, getEvidenceStatusLabel } from '@/components/shared/enum-mapper/evidence-enum'
 
-export type TChardData = {
+export type TChartData = {
   name: string
   value: number
   status: EvidenceEvidenceStatus
   description: string
 }
 
-export function EvidenceSummaryCard() {
+const EMPTY_CHART_COLOR = '#E5E7EB'
+
+type TChartSeries = {
+  status: EvidenceEvidenceStatus
+  countKey: keyof Omit<TEvidenceCountsByStatus, '__typename'>
+  description: string
+}
+
+const CHART_SERIES: TChartSeries[] = [
+  { status: EvidenceEvidenceStatus.REQUESTED, countKey: 'requested', description: 'Indicates that the evidence has been requested' },
+  { status: EvidenceEvidenceStatus.DRAFT, countKey: 'draft', description: 'Indicates that the evidence is still a draft' },
+  { status: EvidenceEvidenceStatus.SUBMITTED, countKey: 'submitted', description: 'Indicates that the evidence has been submitted' },
+  { status: EvidenceEvidenceStatus.READY_FOR_AUDITOR, countKey: 'ready', description: 'Indicates that the evidence is ready for auditor review.' },
+  { status: EvidenceEvidenceStatus.AUDITOR_APPROVED, countKey: 'approved', description: 'Indicates that the evidence has been approved by the auditor' },
+  { status: EvidenceEvidenceStatus.NEEDS_RENEWAL, countKey: 'needsRenewal', description: 'Indicates that the evidence needs to be renewed' },
+  { status: EvidenceEvidenceStatus.MISSING_ARTIFACT, countKey: 'missingArtifact', description: 'Indicates that the evidence is missing an artifact' },
+  { status: EvidenceEvidenceStatus.REJECTED, countKey: 'rejected', description: 'Indicates that the evidence has been rejected by the auditor' },
+]
+
+export const EvidenceSummaryCard = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
 
   const { data, isLoading } = useGetEvidenceCountsByStatus(programId)
 
-  const approvedCount = data?.approved?.totalCount ?? 0
-  const rejectedCount = data?.rejected?.totalCount ?? 0
-  const readyCount = data?.ready?.totalCount ?? 0
-  const missingArtifactCount = data?.missingArtifact?.totalCount ?? 0
-  const needsRenewalCount = data?.needsRenewal?.totalCount ?? 0
-  const submittedCount = data?.submitted?.totalCount ?? 0
-  const requestedCount = data?.requested?.totalCount ?? 0
-
-  const chartData: TChardData[] = [
-    { name: 'Requested', value: requestedCount, status: EvidenceEvidenceStatus.REQUESTED, description: 'Indicates that the evidence has been requested' },
-    { name: 'Submitted', value: submittedCount, status: EvidenceEvidenceStatus.SUBMITTED, description: 'Indicates that the evidence has been submitted' },
-    { name: 'Ready', value: readyCount, status: EvidenceEvidenceStatus.READY_FOR_AUDITOR, description: 'Indicates that the evidence is ready for auditor review.' },
-    { name: 'Approved', value: approvedCount, status: EvidenceEvidenceStatus.AUDITOR_APPROVED, description: 'Indicates that the evidence has been approved by the auditor' },
-    { name: 'Needs Renewal', value: needsRenewalCount, status: EvidenceEvidenceStatus.NEEDS_RENEWAL, description: 'Indicates that the evidence needs to be renewed' },
-    { name: 'Missing Artifact', value: missingArtifactCount, status: EvidenceEvidenceStatus.MISSING_ARTIFACT, description: 'Indicates that the evidence is missing an artifact' },
-    { name: 'Rejected', value: rejectedCount, status: EvidenceEvidenceStatus.REJECTED, description: 'Indicates that the evidence has been rejected by the auditor' },
-  ]
+  const chartData: TChartData[] = useMemo(
+    () =>
+      CHART_SERIES.map(({ status, countKey, description }) => ({
+        name: getEvidenceStatusLabel(status),
+        value: data?.[countKey]?.totalCount ?? 0,
+        status,
+        description,
+      })),
+    [data],
+  )
 
   const totalValue = chartData.reduce((acc, item) => acc + item.value, 0)
 
   const donutChartData = totalValue > 0 ? chartData : [{ name: 'No data', value: 1 }]
-  const donutChartColors = totalValue > 0 ? ChartColorsSequence : ['#E5E7EB']
+  const donutChartColors = totalValue > 0 ? chartData.map((item) => EvidenceStatusColors[item.status]) : [EMPTY_CHART_COLOR]
 
   return (
     <Card className="p-6 mb-10">
@@ -53,10 +66,10 @@ export function EvidenceSummaryCard() {
           <DonutChart data={donutChartData} colors={donutChartColors} width={130} height={130} innerRadius={45} outerRadius={65} />
         </div>
         <div className="flex gap-8 flex-wrap">
-          {chartData.map((item, i) => (
-            <div key={item.name} className="flex flex-col items-center gap-1">
+          {chartData.map((item) => (
+            <div key={item.status} className="flex flex-col items-center gap-1">
               <div className="text-2xl font-semibold">{isLoading ? '...' : item.value}</div>
-              <EvidenceStatusChip data={item} programId={programId ?? ''} index={i} />
+              <EvidenceStatusChip data={item} programId={programId ?? ''} />
             </div>
           ))}
         </div>

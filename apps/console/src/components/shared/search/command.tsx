@@ -4,6 +4,7 @@ import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, C
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
+import { getNavLandingHref } from '@/routes/get-nav-landing-href'
 
 interface CommandNavProps {
   items: (NavItem | Separator | NavHeading)[]
@@ -51,7 +52,7 @@ export function CommandMenu({ items }: CommandNavProps) {
                   key={idx}
                   onSelect={() => {
                     setOpen(false)
-                    router.push(item.href)
+                    router.push(getNavLandingHref(item))
                   }}
                 >
                   {item.title}

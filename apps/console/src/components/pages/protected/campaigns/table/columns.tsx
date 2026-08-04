@@ -4,6 +4,7 @@ import { type AuthorToken } from '@/lib/authors'
 import { type CampaignsNodeNonNull } from '@/lib/graphql-hooks/campaign'
 import { formatDate } from '@/utils/date'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { CampaignStatusIconMapper } from '@/components/shared/enum-mapper/campaign-enum'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
@@ -37,8 +38,13 @@ export const getCampaignColumns = ({ userMap, tokenMap, selectedCampaigns, setSe
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => {
-        const status = row.original.status ?? ''
-        return <p>{getEnumLabel(status)}</p>
+        const status = row.original.status
+        return (
+          <div className="flex items-center gap-2">
+            {status ? CampaignStatusIconMapper[status] : null}
+            <span>{getEnumLabel(status ?? '')}</span>
+          </div>
+        )
       },
       size: 120,
     },

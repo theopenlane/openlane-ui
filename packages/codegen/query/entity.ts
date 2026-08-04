@@ -85,6 +85,20 @@ export const GET_ALL_ENTITIES = gql`
   }
 `
 
+export const GET_ENTITY_OPTIONS = gql`
+  query GetEntityOptions($where: EntityWhereInput, $first: Int) {
+    entities(where: $where, first: $first) {
+      edges {
+        node {
+          id
+          name
+          displayName
+        }
+      }
+    }
+  }
+`
+
 export const ENTITY = gql`
   query Entity($entityId: ID!) {
     entity(id: $entityId) {
