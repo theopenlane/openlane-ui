@@ -4,11 +4,10 @@ import React, { useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { TargetsStep } from '../create/steps/targets-step'
-import { toEmailKeys, type CampaignTargetEntry, type TargetTab } from '../create/steps/targets/target-entry'
+import { toCampaignTargetInputs, toEmailKeys, type CampaignTargetEntry, type TargetTab } from '../create/steps/targets/target-entry'
 import { useCreateBulkCampaignTarget } from '@/lib/graphql-hooks/campaign-target'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { isValidEmail, normalizeEmail } from '@/lib/validators'
 
 interface AddRecipientsDialogProps {
   open: boolean
@@ -27,7 +26,7 @@ export const AddRecipientsDialog: React.FC<AddRecipientsDialogProps> = ({ open, 
 
   const lockedEmails = useMemo(() => toEmailKeys(existingEmails), [existingEmails])
 
-  const validTargets = targets.filter((target) => isValidEmail(target.email.trim()) && !lockedEmails.has(normalizeEmail(target.email)))
+  const validTargets = useMemo(() => toCampaignTargetInputs(targets, lockedEmails), [targets, lockedEmails])
 
   const reset = () => {
     setTargets([])
@@ -44,12 +43,7 @@ export const AddRecipientsDialog: React.FC<AddRecipientsDialogProps> = ({ open, 
     if (validTargets.length === 0) return
     try {
       await createBulkTarget({
-        input: validTargets.map((target) => ({
-          campaignID: campaignId,
-          email: target.email.trim(),
-          fullName: target.fullName.trim() || undefined,
-          contactID: target.contactID || undefined,
-        })),
+        input: validTargets.map((target) => ({ ...target, campaignID: campaignId })),
       })
       successNotification({ title: `Added ${validTargets.length} recipient${validTargets.length === 1 ? '' : 's'}` })
       reset()

@@ -19,6 +19,7 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import Menu from '@/components/shared/menu/menu'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useDeleteCampaign } from '@/lib/graphql-hooks/campaign'
 import { useRouter } from 'next/navigation'
 import { RecipientDetailPanel } from './recipient-detail-panel'
@@ -47,6 +48,21 @@ type CampaignFormData = {
   emailTemplateID: string | undefined
 }
 
+type LaunchGateInput = {
+  hasCampaignContent: boolean
+  isFetchingRecipients: boolean
+  hasRecipientsError: boolean
+  recipientCount: number
+}
+
+const getLaunchBlockedReason = ({ hasCampaignContent, isFetchingRecipients, hasRecipientsError, recipientCount }: LaunchGateInput): string | undefined => {
+  if (!hasCampaignContent) return 'Select a questionnaire template or an email template first.'
+  if (isFetchingRecipients) return 'Checking recipients...'
+  if (hasRecipientsError) return 'Recipients could not be loaded. Refresh and try again.'
+  if (recipientCount === 0) return 'Add at least one recipient first.'
+  return undefined
+}
+
 const CampaignDetailPage: React.FC = () => {
   const params = useParams<{ id: string }>()
   const campaignId = params.id
@@ -73,7 +89,12 @@ const CampaignDetailPage: React.FC = () => {
 
   const { templates: questionnaireTemplates, isLoading: questionnairesLoading } = useTemplateSelect({ where: { kind: TemplateTemplateKind.QUESTIONNAIRE } })
 
-  const { nodes: recipients, totalCount } = useCampaignTargetStats({
+  const {
+    nodes: recipients,
+    totalCount,
+    isFetching: isFetchingRecipients,
+    isError: hasRecipientsError,
+  } = useCampaignTargetStats({
     where: { hasCampaignWith: [{ id: campaignId }] },
     enabled: !!campaignId,
   })
@@ -144,6 +165,10 @@ const CampaignDetailPage: React.FC = () => {
 
   const handleLaunch = async (scheduledAt: string | null) => {
     if (!campaignId) return
+    if (totalCount === 0) {
+      errorNotification({ title: 'Error', description: 'Add at least one recipient before launching this campaign.' })
+      return
+    }
     try {
       const { queuedCount, skippedCount } = (await launchCampaign({ input: { campaignID: campaignId, scheduledAt } })).launchCampaign
       const skippedSuffix = skippedCount ? `, skipped ${skippedCount}` : ''
@@ -239,7 +264,8 @@ const CampaignDetailPage: React.FC = () => {
   const hasEmailTemplate = !!campaign.emailTemplateID
   const hasCampaignContent = hasQuestionnaire || hasEmailTemplate
   const campaignTypeLabel = campaign.campaignType ? getEnumLabel(campaign.campaignType) : '—'
-  const canLaunch = isDraft && hasCampaignContent
+  const launchBlockedReason = getLaunchBlockedReason({ hasCampaignContent, isFetchingRecipients, hasRecipientsError, recipientCount: stats.total })
+  const canLaunch = !launchBlockedReason
   const canCancel = status !== CampaignCampaignStatus.COMPLETED && status !== CampaignCampaignStatus.CANCELED
   const canSendReminder = status === CampaignCampaignStatus.ACTIVE
   const lockBanner =
@@ -282,11 +308,17 @@ const CampaignDetailPage: React.FC = () => {
     },
   }
 
-  const primaryAction = canLaunch
-    ? { label: 'Launch', icon: <Rocket size={14} />, onClick: () => setLaunchDialogOpen(true), disabled: isLaunching }
+  const primaryAction = isDraft
+    ? { label: 'Launch', icon: <Rocket size={14} />, onClick: () => setLaunchDialogOpen(true), disabled: isLaunching || !canLaunch, disabledReason: launchBlockedReason }
     : status === CampaignCampaignStatus.ACTIVE
-      ? { label: 'Complete Campaign', icon: <CheckCircle size={14} />, onClick: handleCompleteCampaign, disabled: isUpdating }
+      ? { label: 'Complete Campaign', icon: <CheckCircle size={14} />, onClick: handleCompleteCampaign, disabled: isUpdating, disabledReason: undefined }
       : null
+
+  const primaryActionButton = primaryAction && (
+    <Button variant="primary" icon={primaryAction.icon} iconPosition="left" onClick={primaryAction.onClick} disabled={primaryAction.disabled} className="h-8">
+      {primaryAction.label}
+    </Button>
+  )
 
   const menuComponent = (
     <div className="flex items-center gap-2">
@@ -346,10 +378,10 @@ const CampaignDetailPage: React.FC = () => {
           </>
         )}
       />
-      {primaryAction && (
-        <Button variant="primary" icon={primaryAction.icon} iconPosition="left" onClick={primaryAction.onClick} disabled={primaryAction.disabled} className="h-8">
-          {primaryAction.label}
-        </Button>
+      {primaryAction?.disabled && primaryAction.disabledReason ? (
+        <SystemTooltip content={primaryAction.disabledReason} icon={<span className="inline-flex">{primaryActionButton}</span>} />
+      ) : (
+        primaryActionButton
       )}
     </div>
   )
@@ -495,6 +527,7 @@ const CampaignDetailPage: React.FC = () => {
           questionnaireQuestionCount={questionnaireQuestionCount}
           dueDate={campaign.dueDate as string | null | undefined}
           recipientCount={stats.total}
+          launchBlockedReason={launchBlockedReason}
           recipientsSlot={stats.total > 0 ? <RecipientsTable campaignId={campaignId} onRecipientClick={setSelectedRecipient} showDelivery={false} canRemove /> : undefined}
           onEditDetails={() => setEditDetailsOpen(true)}
           onChangeTemplate={() => setChangeTemplateOpen(true)}
