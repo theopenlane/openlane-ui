@@ -5,14 +5,16 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { IdentityHolderIdentityHolderType, type IdentityHolderWhereInput } from '@repo/codegen/src/schema'
 import { useIdentityHolderOptions } from '@/lib/graphql-hooks/identity-holder'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { RecipientPicker, type RecipientOption } from './recipient-picker'
+import { RecipientPicker } from './recipient-picker'
+import { type RecipientOption } from './recipient-option'
 import { SelectedTargetsPreview } from './selected-targets-preview'
-import { ALL_SCOPE, PICKER_PAGINATION, mergeTargets, removeTarget, toggleTarget, type CampaignTargetEntry } from './target-entry'
+import { ALL_SCOPE, PICKER_PAGINATION, getRecipientDisplayName, mergeTargets, removeTarget, toggleTarget, type CampaignTargetEntry } from './target-entry'
+import { normalizeEmail } from '@/lib/validators'
 import { type TPagination } from '@repo/ui/pagination-types'
 
 const scopeOptions = [{ label: 'All personnel', value: ALL_SCOPE }, ...enumToOptions(IdentityHolderIdentityHolderType)]
 
-const toEntry = (option: RecipientOption): CampaignTargetEntry => ({ email: option.email, fullName: option.name, source: 'personnel' })
+const toEntry = (option: RecipientOption): CampaignTargetEntry => ({ email: option.email, fullName: getRecipientDisplayName(option.name, option.email), source: 'personnel' })
 
 interface PersonnelSelectorProps {
   targets: CampaignTargetEntry[]
@@ -55,23 +57,19 @@ export const PersonnelSelector: React.FC<PersonnelSelectorProps> = ({ targets, o
 
   const selectedPersonnel = useMemo(() => targets.filter((target) => target.source === 'personnel'), [targets])
 
-  const handleToggle = useCallback((option: RecipientOption) => onTargetsChange(toggleTarget(targets, toEntry(option))), [targets, onTargetsChange])
+  const handleToggle = useCallback((option: RecipientOption) => onTargetsChange((prev) => toggleTarget(prev, toEntry(option))), [onTargetsChange])
 
   const handleToggleAll = useCallback(
-    (pageOptions: RecipientOption[], nextChecked: boolean) => {
-      if (nextChecked) {
-        onTargetsChange(mergeTargets(targets, pageOptions.map(toEntry)))
-      } else {
-        const emails = new Set(pageOptions.map((option) => option.email.toLowerCase()))
-        onTargetsChange(targets.filter((target) => target.source !== 'personnel' || !emails.has(target.email.toLowerCase())))
-      }
+    (optionsOnPage: RecipientOption[], nextChecked: boolean) => {
+      const emails = new Set(optionsOnPage.map((option) => normalizeEmail(option.email)))
+      onTargetsChange((prev) => (nextChecked ? mergeTargets(prev, optionsOnPage.map(toEntry)) : prev.filter((target) => target.source !== 'personnel' || !emails.has(normalizeEmail(target.email)))))
     },
-    [targets, onTargetsChange],
+    [onTargetsChange],
   )
 
-  const handleRemove = useCallback((email: string) => onTargetsChange(removeTarget(targets, email)), [targets, onTargetsChange])
+  const handleRemove = useCallback((email: string) => onTargetsChange((prev) => removeTarget(prev, email)), [onTargetsChange])
 
-  const handleClear = useCallback(() => onTargetsChange(targets.filter((target) => target.source !== 'personnel')), [targets, onTargetsChange])
+  const handleClear = useCallback(() => onTargetsChange((prev) => prev.filter((target) => target.source !== 'personnel')), [onTargetsChange])
 
   return (
     <div className="flex flex-col gap-4">
