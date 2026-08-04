@@ -24,6 +24,19 @@ export const CREATE_ASSESSMENT = gql`
   }
 `
 
+export const CREATE_ASSESSMENT_TEMPLATE = gql`
+  mutation CreateAssessmentTemplate($input: CreateAssessmentTemplateInput!) {
+    createAssessmentTemplate(input: $input) {
+      template {
+        id
+        name
+        description
+        tags
+      }
+    }
+  }
+`
+
 export const GET_ASSESSMENT_BY_ID_MINIFIED = gql`
   query GetAssessmentByIdMinified($getAssessmentId: ID!) {
     assessment(id: $getAssessmentId) {
