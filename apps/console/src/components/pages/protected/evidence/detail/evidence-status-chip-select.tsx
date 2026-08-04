@@ -4,7 +4,7 @@ import React from 'react'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
 import { Badge } from '@repo/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { EVIDENCE_STATUS_STYLES } from '@/components/shared/enum-mapper/evidence-enum'
+import { getEvidenceStatusStyle } from '@/components/shared/enum-mapper/evidence-enum'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type TEvidenceStatusChipSelectProps = {
@@ -16,7 +16,7 @@ type TEvidenceStatusChipSelectProps = {
 const statusOptions = enumToOptions(EvidenceEvidenceStatus)
 
 const EvidenceStatusChipSelect: React.FC<TEvidenceStatusChipSelectProps> = ({ status, editAllowed, onChange }) => {
-  const style = status ? EVIDENCE_STATUS_STYLES[status] : undefined
+  const style = status ? getEvidenceStatusStyle(status) : undefined
   const chipStyle = style ? { backgroundColor: style.bg, color: style.color } : undefined
   const label = getEnumLabel(status ?? undefined) || 'No status'
 

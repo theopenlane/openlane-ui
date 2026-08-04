@@ -35,11 +35,11 @@ export default function Soc2Wizard() {
 
   const standardID = data?.standards?.edges?.[0]?.node?.id
 
-  const { useStepper } = defineStepper(
+  const { useStepper } = defineStepper([
     { id: '0', label: 'Pick Categories', schema: fullSchema.pick({ categories: true, standardID: true }) },
     { id: '1', label: 'Team Setup', schema: fullSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) },
     { id: '2', label: 'Access Control', schema: fullSchema.pick({ programKindName: true }) },
-  )
+  ])
   const stepper = useStepper()
 
   const methods = useForm<WizardValues>({
@@ -98,16 +98,16 @@ export default function Soc2Wizard() {
 
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
-    if (!stepper.state.isLast) {
+    if (!stepper.isLast) {
       let isValid: boolean
-      if (stepper.state.current.data.id === '0') {
+      if (stepper.current.id === '0') {
         isValid = await methods.trigger(['categories', 'standardID'])
       } else {
         isValid = await methods.trigger(['programAdmins', 'programMembers', 'viewerIDs', 'editorIDs'])
       }
 
       if (!isValid) return
-      stepper.navigation.next()
+      stepper.next()
     } else {
       const validAll = await validateFullAndNotify(methods, errorNotification)
       if (!validAll) return
@@ -117,10 +117,10 @@ export default function Soc2Wizard() {
   }
 
   const handleBack = () => {
-    if (stepper.state.isFirst) {
+    if (stepper.isFirst) {
       setShowExitConfirm(true)
     } else {
-      stepper.navigation.prev()
+      stepper.prev()
     }
   }
 
@@ -142,7 +142,7 @@ export default function Soc2Wizard() {
         <FormProvider {...methods}>
           <form onSubmit={handleNext}>
             <div className="py-6">
-              {stepper.flow.switch({
+              {stepper.match({
                 0: () => <SelectCategoryStep />,
                 1: () => <TeamSetupStep />,
                 2: () => <StartTypeStep />,
@@ -152,7 +152,7 @@ export default function Soc2Wizard() {
                   Back
                 </Button>
                 <Button variant="primary" type="button" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
-                  {stepper.state.isLast ? 'Create' : 'Continue'}
+                  {stepper.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>
             </div>

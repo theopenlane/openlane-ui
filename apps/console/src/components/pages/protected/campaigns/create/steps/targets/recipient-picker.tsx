@@ -8,15 +8,10 @@ import { Input } from '@repo/ui/input'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'
+import { cn } from '@repo/ui/lib/utils'
 import { normalizeEmail } from '@/lib/validators'
-import { EMPTY_EMAIL_KEYS, type CampaignTargetEntry } from './target-entry'
-
-export interface RecipientOption {
-  id: string
-  email: string
-  name: string
-  meta?: string
-}
+import { EMPTY_EMAIL_KEYS, getRecipientDisplayName, type CampaignTargetEntry } from './target-entry'
+import { type RecipientOption } from './recipient-option'
 
 interface RecipientPickerProps {
   scopeLabel: string
@@ -36,6 +31,7 @@ interface RecipientPickerProps {
   onToggle: (option: RecipientOption) => void
   onToggleAll: (options: RecipientOption[], nextChecked: boolean) => void
   emptyLabel: string
+  note?: string
 }
 
 export const RecipientPicker: React.FC<RecipientPickerProps> = ({
@@ -56,6 +52,7 @@ export const RecipientPicker: React.FC<RecipientPickerProps> = ({
   onToggle,
   onToggleAll,
   emptyLabel,
+  note,
 }) => {
   const selectedEmails = useMemo(() => new Set(targets.map((target) => normalizeEmail(target.email))), [targets])
   const selectableOptions = useMemo(() => options.filter((option) => !lockedEmails.has(normalizeEmail(option.email))), [options, lockedEmails])
@@ -82,12 +79,15 @@ export const RecipientPicker: React.FC<RecipientPickerProps> = ({
       {
         accessorKey: 'name',
         header: 'Name',
-        cell: ({ row }) => (
-          <div className="flex min-w-0 flex-col">
-            <span className="truncate text-sm">{row.original.name || row.original.email}</span>
-            <span className="truncate text-xs text-muted-foreground">{row.original.email}</span>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const displayName = getRecipientDisplayName(row.original.name, row.original.email)
+          return (
+            <div className="flex min-w-0 flex-col">
+              {displayName && <span className="truncate text-sm">{displayName}</span>}
+              <span className={cn('truncate', displayName ? 'text-xs text-muted-foreground' : 'text-sm')}>{row.original.email}</span>
+            </div>
+          )
+        },
       },
       {
         accessorKey: 'meta',
@@ -124,6 +124,8 @@ export const RecipientPicker: React.FC<RecipientPickerProps> = ({
         </div>
         <Input className="w-64" icon={<SearchIcon size={16} />} iconPosition="left" placeholder={searchPlaceholder} value={searchText} onChange={(e) => onSearchChange(e.currentTarget.value)} />
       </div>
+
+      {note && <p className="text-xs text-muted-foreground">{note}</p>}
 
       <DataTable
         columns={columns}

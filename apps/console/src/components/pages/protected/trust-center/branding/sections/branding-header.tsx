@@ -1,7 +1,7 @@
 import { Button } from '@repo/ui/button'
 import { BookUp, Eye, RotateCcw } from 'lucide-react'
 import UrlInput from '../../shared/url-input'
-import { normalizeUrl } from '@/utils/normalizeUrl'
+import { buildPreviewUrl } from '../helpers/preview-url'
 
 interface BrandingHeaderProps {
   cnameRecord?: string | null
@@ -12,7 +12,7 @@ interface BrandingHeaderProps {
 }
 
 export const BrandingHeader = ({ cnameRecord, hasChanges, onPreview, onRevert, onPublish }: BrandingHeaderProps) => {
-  const url = normalizeUrl(cnameRecord)
+  const url = buildPreviewUrl(cnameRecord)
   return (
     <div className="flex items-center gap-5 w-full">
       <Button onClick={onPreview} type="button" variant="secondary" icon={<Eye size={16} />}>
@@ -24,7 +24,7 @@ export const BrandingHeader = ({ cnameRecord, hasChanges, onPreview, onRevert, o
         </Button>
       )}
       <div className="flex items-center gap-10 flex-1">
-        <UrlInput disabled hasCopyButton placeholder={cnameRecord ?? 'Preview URL not available yet'} value={url ? url + '?fresh=1' : ''} className="h-8" />
+        <UrlInput disabled hasCopyButton placeholder={cnameRecord ?? 'Preview URL not available yet'} value={url} className="h-8" />
         <Button className="ml-auto" variant="primary" icon={<BookUp size={16} />} onClick={onPublish}>
           Publish
         </Button>

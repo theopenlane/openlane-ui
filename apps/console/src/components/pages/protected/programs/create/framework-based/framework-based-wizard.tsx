@@ -45,14 +45,14 @@ const FrameworkBasedWizard = () => {
   const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
 
-  const { useStepper } = defineStepper(
+  const { useStepper } = defineStepper([
     { id: '0', label: 'Select Framework', schema: wizardSchema.pick({ framework: true, standardID: true, name: true }) },
     ...(includeSuggestedControls
       ? [{ id: '1', label: 'Import Controls', schema: suggestedControlsStepSchema }]
       : [{ id: '1', label: 'Select Categories', schema: wizardSchema.pick({ categories: true }) }]),
     ...(!isOnboardingFlow ? [{ id: '2', label: 'Team Setup', schema: wizardSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) }] : []),
     { id: '3', label: 'Program Type', schema: wizardSchema.pick({ programKindName: true }) },
-  )
+  ])
 
   const stepper = useStepper()
 
@@ -71,11 +71,11 @@ const FrameworkBasedWizard = () => {
 
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
-    if (!stepper.state.isLast) {
+    if (!stepper.isLast) {
       let isValid: boolean
-      if (stepper.state.current.data.id === '0') {
+      if (stepper.current.id === '0') {
         isValid = await methods.trigger(['framework', 'standardID', 'name'])
-      } else if (stepper.state.current.data.id === '1') {
+      } else if (stepper.current.id === '1') {
         isValid = includeSuggestedControls ? await methods.trigger(['suggestedControlIDs', 'categories']) : await methods.trigger('categories')
       } else {
         isValid = await methods.trigger(['programAdmins', 'programMembers', 'viewerIDs', 'editorIDs'])
@@ -83,13 +83,13 @@ const FrameworkBasedWizard = () => {
 
       if (!isValid) return
 
-      let nextStepIndex = stepper.state.all.findIndex((s) => s.id === stepper.state.current.data.id) + 1
-      while (disabledIDs.includes(stepper.state.all[nextStepIndex]?.id)) {
+      let nextStepIndex = stepper.steps.findIndex((s) => s.id === stepper.current.id) + 1
+      while (disabledIDs.includes(stepper.steps[nextStepIndex]?.id)) {
         nextStepIndex++
       }
 
-      const nextStep = stepper.state.all[nextStepIndex]
-      if (nextStep) stepper.navigation.goTo(nextStep.id)
+      const nextStep = stepper.steps[nextStepIndex]
+      if (nextStep) stepper.goTo(nextStep.id)
     } else {
       const validAll = await validateFullAndNotify(methods, errorNotification)
       if (!validAll) return
@@ -98,16 +98,16 @@ const FrameworkBasedWizard = () => {
   }
 
   const handleBack = () => {
-    if (stepper.state.isFirst) {
+    if (stepper.isFirst) {
       setShowExitConfirm(true)
     } else {
-      let prevStepIndex = stepper.state.all.findIndex((s) => s.id === stepper.state.current.data.id) - 1
-      while (disabledIDs.includes(stepper.state.all[prevStepIndex]?.id)) {
+      let prevStepIndex = stepper.steps.findIndex((s) => s.id === stepper.current.id) - 1
+      while (disabledIDs.includes(stepper.steps[prevStepIndex]?.id)) {
         prevStepIndex--
       }
 
-      const prevStep = stepper.state.all[prevStepIndex]
-      if (prevStep) stepper.navigation.goTo(prevStep.id)
+      const prevStep = stepper.steps[prevStepIndex]
+      if (prevStep) stepper.goTo(prevStep.id)
     }
   }
 
@@ -207,7 +207,7 @@ const FrameworkBasedWizard = () => {
         <FormProvider {...methods}>
           <form onSubmit={handleNext}>
             <div className="py-6">
-              {stepper.flow.switch({
+              {stepper.match({
                 0: () => <SelectFrameworkStep required defaultFramework={defaultFramework} />,
                 1: () => (includeSuggestedControls ? <SuggestedControlsStep frameworkName={framework} /> : <SelectCategoryStep />),
                 2: () => <TeamSetupStep />,
@@ -218,7 +218,7 @@ const FrameworkBasedWizard = () => {
                   Back
                 </Button>
                 <Button variant="primary" type="button" onClick={() => handleNext()} disabled={isPending || isControlBeingCloned} loading={isPending || isControlBeingCloned}>
-                  {stepper.state.isLast ? 'Create' : 'Continue'}
+                  {stepper.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>
             </div>

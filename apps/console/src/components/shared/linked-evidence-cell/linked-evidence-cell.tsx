@@ -1,6 +1,6 @@
 import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { EVIDENCE_STATUS_STYLES } from '@/components/shared/enum-mapper/evidence-enum'
+import { getEvidenceStatusStyle } from '@/components/shared/enum-mapper/evidence-enum'
 import { type EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
 
 type EvidenceRef = { id: string; name: string; status?: string | null }
@@ -11,7 +11,7 @@ type LinkedEvidenceCellProps = {
 }
 
 const EvidenceBadge = ({ item }: { item: EvidenceRef }) => {
-  const style = item.status ? EVIDENCE_STATUS_STYLES[item.status as EvidenceEvidenceStatus] : undefined
+  const style = item.status ? getEvidenceStatusStyle(item.status as EvidenceEvidenceStatus) : undefined
   return (
     <Badge variant="secondary" className="text-xs font-normal" style={style ? { backgroundColor: style.bg, color: style.color } : undefined}>
       {item.name}
