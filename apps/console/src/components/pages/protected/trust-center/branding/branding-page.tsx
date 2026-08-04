@@ -239,7 +239,7 @@ const BrandPage: React.FC = () => {
           <BrandingCompanyInfoSection hasWarning={hasPreviewDifference?.companyInfo} isReadOnly={isReadOnly} setting={setting} />
           <BrandingTextSection hasWarning={hasPreviewDifference?.text} isReadOnly={isReadOnly} setting={setting} />
 
-          <BrandingThemeSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.theme} setting={setting} />
+          <BrandingThemeSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.theme} setting={setting} cnameRecord={cnameRecord} />
 
           <BrandingAssetsSection isReadOnly={isReadOnly} hasWarning={hasPreviewDifference?.assets} />
         </div>

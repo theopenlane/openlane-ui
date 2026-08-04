@@ -34792,6 +34792,7 @@ export enum NotificationNotificationTopic {
   DOMAIN_SCAN = 'DOMAIN_SCAN',
   EXPORT = 'EXPORT',
   IMPORT_COMPLETE = 'IMPORT_COMPLETE',
+  INTEGRATION = 'INTEGRATION',
   MENTION = 'MENTION',
   ORGANIZATION_READY = 'ORGANIZATION_READY',
   STANDARD_UPDATE = 'STANDARD_UPDATE',
@@ -71842,6 +71843,56 @@ export type LaunchCampaignMutation = {
   }
 }
 
+export type UpcomingCampaignFieldsFragment = {
+  __typename?: 'Campaign'
+  id: string
+  name: string
+  campaignType: CampaignCampaignType
+  recipientCount?: number | null
+  scheduledAt?: string | null
+  nextRunAt?: string | null
+}
+
+export type CampaignSummaryQueryVariables = Exact<{
+  activeWhere?: InputMaybe<CampaignWhereInput>
+  needsAttentionWhere?: InputMaybe<CampaignWhereInput>
+  overdueWhere?: InputMaybe<CampaignWhereInput>
+  scheduledOverdueWhere?: InputMaybe<CampaignWhereInput>
+  completedRecentlyWhere?: InputMaybe<CampaignWhereInput>
+  upcomingScheduledWhere?: InputMaybe<CampaignWhereInput>
+  upcomingRecurringWhere?: InputMaybe<CampaignWhereInput>
+  activeFirst: Scalars['Int']['input']
+  upcomingFirst: Scalars['Int']['input']
+}>
+
+export type CampaignSummaryQuery = {
+  __typename?: 'Query'
+  allCampaigns: { __typename?: 'CampaignConnection'; totalCount: number }
+  activeCampaigns: {
+    __typename?: 'CampaignConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'CampaignEdge'; node?: { __typename?: 'Campaign'; id: string; recipientCount?: number | null } | null } | null> | null
+  }
+  needsAttentionCampaigns: { __typename?: 'CampaignConnection'; totalCount: number }
+  overdueCampaigns: { __typename?: 'CampaignConnection'; totalCount: number }
+  scheduledOverdueCampaigns: { __typename?: 'CampaignConnection'; totalCount: number }
+  completedRecentlyCampaigns: { __typename?: 'CampaignConnection'; totalCount: number }
+  upcomingScheduledCampaigns: {
+    __typename?: 'CampaignConnection'
+    edges?: Array<{
+      __typename?: 'CampaignEdge'
+      node?: { __typename?: 'Campaign'; id: string; name: string; campaignType: CampaignCampaignType; recipientCount?: number | null; scheduledAt?: string | null; nextRunAt?: string | null } | null
+    } | null> | null
+  }
+  upcomingRecurringCampaigns: {
+    __typename?: 'CampaignConnection'
+    edges?: Array<{
+      __typename?: 'CampaignEdge'
+      node?: { __typename?: 'Campaign'; id: string; name: string; campaignType: CampaignCampaignType; recipientCount?: number | null; scheduledAt?: string | null; nextRunAt?: string | null } | null
+    } | null> | null
+  }
+}
+
 export type SendCampaignTestEmailMutationVariables = Exact<{
   input: SendCampaignTestEmailInput
 }>
@@ -75217,6 +75268,7 @@ export type GetEvidenceCountsByStatusByProgramIdQuery = {
   missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
   needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
   requested: { __typename?: 'EvidenceConnection'; totalCount: number }
+  draft: { __typename?: 'EvidenceConnection'; totalCount: number }
   submitted: { __typename?: 'EvidenceConnection'; totalCount: number }
 }
 
@@ -75230,6 +75282,7 @@ export type GetEvidenceCountsByStatusAllProgramsQuery = {
   missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
   needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
   requested: { __typename?: 'EvidenceConnection'; totalCount: number }
+  draft: { __typename?: 'EvidenceConnection'; totalCount: number }
   submitted: { __typename?: 'EvidenceConnection'; totalCount: number }
 }
 

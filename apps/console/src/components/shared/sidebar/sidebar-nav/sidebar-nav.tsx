@@ -25,6 +25,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { IMPERSONATION_BANNER_HEIGHT_VAR } from '@/constants/layout'
+import { getNavLandingHref } from '@/routes/get-nav-landing-href'
 
 const SidebarChildLink: React.FC<{ child: NavItem; pathname: string; secondaryExpanded: boolean; router: ReturnType<typeof useRouter> }> = ({ child, pathname, secondaryExpanded, router }) => {
   const isActive = pathname === child.href || pathname.startsWith(`${child.href}/`)
@@ -128,10 +129,9 @@ export default function SideNav({
     }
 
     if (children.length > 0) {
-      const firstChild = children.find((child) => !child.hidden)
       const hasActiveChild = children.some((child) => !child.hidden && (pathname === child.href || pathname.startsWith(`${child.href}/`)))
-      if (!hasActiveChild && firstChild?.href) {
-        router.push(firstChild.href)
+      if (!hasActiveChild) {
+        router.push(getNavLandingHref(item))
       }
     }
   }

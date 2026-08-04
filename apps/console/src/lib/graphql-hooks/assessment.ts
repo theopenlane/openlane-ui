@@ -14,7 +14,6 @@ import {
   DELETE_ASSESSMENT,
   DELETE_BULK_ASSESSMENT,
 } from '@repo/codegen/query/assessment'
-import { CREATE_ASSESSMENT_RESPONSE } from '@repo/codegen/query/assessment-response'
 
 import {
   type CreateAssessmentMutation,
@@ -33,8 +32,6 @@ import {
   type GetAssessmentResponsesTotalCountQueryVariables,
   type DeleteAssessmentMutation,
   type DeleteAssessmentMutationVariables,
-  type CreateAssessmentResponseMutation,
-  type CreateAssessmentResponseMutationVariables,
   type Assessment,
   AssessmentResponseAssessmentResponseStatus,
   type DeleteBulkAssessmentMutation,
@@ -272,17 +269,6 @@ export const useDeleteAssessment = () => {
 
   return useMutation<DeleteAssessmentMutation, unknown, DeleteAssessmentMutationVariables>({
     mutationFn: (variables) => client.request(DELETE_ASSESSMENT, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['assessments'] })
-    },
-  })
-}
-
-export const useCreateAssessmentResponse = () => {
-  const { client, queryClient } = useGraphQLClient()
-
-  return useMutation<CreateAssessmentResponseMutation, unknown, CreateAssessmentResponseMutationVariables>({
-    mutationFn: (variables) => client.request(CREATE_ASSESSMENT_RESPONSE, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assessments'] })
     },

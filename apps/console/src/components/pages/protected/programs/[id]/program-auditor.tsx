@@ -136,7 +136,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
           <div className="flex justify-between items-center gap-4 mb-4">
             <h2 className="text-lg font-semibold">Auditor of this program</h2>
             <div className="flex gap-2">
-              {!isEditing && isEligibleForAuditorSet && isEditAllowed && <SetReadyForAuditorDialog programStatus={programStatus} />}
+              {!isEditing && isEligibleForAuditorSet && isEditAllowed && <SetReadyForAuditorDialog programStatus={programStatus} email={email} />}
               {!hasAuditor && !isEditing && programStatus !== ProgramProgramStatus.ARCHIVED && isEditAllowed && <SetAuditorDialog />}
               {hasAuditor && !isEditing && isEditAllowed && (
                 <Button

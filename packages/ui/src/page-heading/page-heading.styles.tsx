@@ -5,6 +5,7 @@ export const pageHeadingStyles = tv({
     wrapper: 'flex flex-col gap-[2px] mb-4 grow',
     eyebrow: 'font-sans text-text-header uppercase tracking-[0.025rem] text-[10px]',
     heading: 'text-3xl tracking-[-0.056rem] text-header',
+    subheading: 'text-sm text-muted-foreground',
     actions: 'flex gap-2',
   },
 })
