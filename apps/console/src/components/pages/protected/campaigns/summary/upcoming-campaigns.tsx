@@ -11,7 +11,6 @@ import { type TUpcomingCampaign, type TUpcomingCampaignKind } from '@/lib/graphq
 const kindLabels: Record<TUpcomingCampaignKind, string> = {
   LAUNCH: 'Launches',
   RUN: 'Runs',
-  DUE: 'Due',
 }
 
 type TUpcomingCampaignsProps = {
@@ -21,7 +20,7 @@ type TUpcomingCampaignsProps = {
 const UpcomingCampaigns: React.FC<TUpcomingCampaignsProps> = ({ campaigns }) => (
   <Card className="px-5 py-4">
     <h3 className="text-sm font-medium">Upcoming</h3>
-    <p className="text-xs text-muted-foreground">Next campaigns to launch, run, or are due.</p>
+    <p className="text-xs text-muted-foreground">Campaigns scheduled to launch or run next.</p>
     {campaigns.length === 0 ? (
       <p className="py-6 text-center text-sm text-muted-foreground">No upcoming campaigns scheduled.</p>
     ) : (

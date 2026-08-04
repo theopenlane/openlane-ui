@@ -176,7 +176,6 @@ export const GET_CAMPAIGN_SUMMARY = gql`
     recipientCount
     scheduledAt
     nextRunAt
-    dueDate
   }
 
   query CampaignSummary(
@@ -187,7 +186,6 @@ export const GET_CAMPAIGN_SUMMARY = gql`
     $completedRecentlyWhere: CampaignWhereInput
     $upcomingScheduledWhere: CampaignWhereInput
     $upcomingRecurringWhere: CampaignWhereInput
-    $upcomingDueWhere: CampaignWhereInput
     $activeFirst: Int!
     $upcomingFirst: Int!
   ) {
@@ -223,13 +221,6 @@ export const GET_CAMPAIGN_SUMMARY = gql`
       }
     }
     upcomingRecurringCampaigns: campaigns(where: $upcomingRecurringWhere, orderBy: [{ field: next_run_at, direction: ASC }], first: $upcomingFirst) {
-      edges {
-        node {
-          ...UpcomingCampaignFields
-        }
-      }
-    }
-    upcomingDueCampaigns: campaigns(where: $upcomingDueWhere, orderBy: [{ field: due_date, direction: ASC }], first: $upcomingFirst) {
       edges {
         node {
           ...UpcomingCampaignFields

@@ -71,6 +71,6 @@ export function pluralizeTypeName(name: string): string {
   return lc + 's'
 }
 
-export const pluralize = (count: number, singular: string, plural?: string): string => (count === 1 ? singular : (plural ?? `${singular}s`))
+export const pluralize = (count: number, singular: string, plural?: string): string => (count === 1 ? singular : (plural ?? pluralizeTypeName(singular)))
 
 export const pluralizeWithCount = (count: number, singular: string, plural?: string): string => `${count} ${pluralize(count, singular, plural)}`

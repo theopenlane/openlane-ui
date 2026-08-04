@@ -13,43 +13,97 @@ export interface Scalars {
   Boolean: { input: boolean; output: boolean }
   Int: { input: number; output: number }
   Float: { input: number; output: number }
+  /** AAGUID (Authenticator Attestation Global Unique Identifier) is a 128-bit identifier used in the WebAuthn and FIDO2 protocols to uniquely identify the model of an authenticator device */
   AAGUID: { input: any; output: any }
+  /**
+   * The `Address` scalar type represents a physical or mailing address.
+   * This scalar can be used to store and validate address information in the GraphQL schema.
+   * It contains `Line1`, `Line2`, `City`, `State`, `PostalCode`, and `Country`
+   */
   Address: { input: any; output: any }
+  /** Any is a generic fallback type */
   Any: { input: any; output: any }
+  /** The `AssessmentMethod` scalar type represents methods that can be used during the audit to assess the control implementation */
   AssessmentMethod: { input: any; output: any }
+  /** The `AssessmentObjective` scalar type represents objectives that are validated during the audit to ensure the control is implemented */
   AssessmentObjective: { input: any; output: any }
+  /** AssignmentOutcome captures consolidated terminal outcome metadata for a workflow assignment, discriminated by decision. */
   AssignmentOutcome: { input: any; output: any }
+  /**
+   * Change is a difference between two updates to an object used by
+   * the audit history resolvers
+   */
   Change: { input: any; output: any }
+  /** Channel notifications will be sent to including in-app, slack, etc */
   Channel: { input: any; output: any }
+  /** CredentialSet is a json of of credential keys that are used to authenticate to a third party */
   CredentialSet: { input: any; output: any }
+  /**
+   * Define a Relay Cursor type:
+   * https://relay.dev/graphql/connections.htm#sec-Cursor
+   */
   Cursor: { input: any; output: any }
+  /** DateTime allows clients to use multiple time/date formats ( 2006-01-10 or 2025-04-28T04:00:00Z ) */
   DateTime: { input: string; output: string }
+  /** The EvidenceRequests scalar type that represents documents or artifacts that can be collected to demonstrate compliance with a control */
   EvidenceRequests: { input: any; output: any }
+  /** The `ExampleEvidence` scalar type represents example evidence that can be used to satisfy the control */
   ExampleEvidence: { input: any; output: any }
+  /** ExportMetadata contains metadata for an export record */
   ExportMetadata: { input: any; output: any }
+  /** The `ImplementationGuidance` scalar type that represents steps to take to implement a control; they can come directly from the control source or pulled from external sources */
   ImplementationGuidance: { input: any; output: any }
+  /** A valid JSON string. */
   JSON: { input: any; output: any }
+  /** JobCadence is when a job should be scheduled to run */
   JobCadence: { input: any; output: any }
+  /** JobConfiguration is the configuration for an automated job */
   JobConfiguration: { input: any; output: any }
+  /** The builtin Map type */
   Map: { input: any; output: any }
+  /** The `Price` scalar type represents a monetary value for a subscription, including the numerical amount, the interval of recurrence and the currency to be charged in (e.g. USD) */
   Price: { input: any; output: any }
+  /** The `Reference` represents are links to external sources that can be used to gain more information about the control */
   Reference: { input: any; output: any }
+  /** RiskThresholdsConfig holds org-custom threshold overrides for vendor risk levels */
   RiskThresholdsConfig: { input: any; output: any }
+  /**
+   * SSOAuthorizationMap is a map of organization IDs to SSO verification timestamps.
+   * This scalar is used to track SSO verification times for organizations in the context of token authorization.
+   */
   SSOAuthorizationMap: { input: any; output: any }
+  /** TemplateProjectionConfig describes how submitted template document data is projected into typed records. */
   TemplateProjectionConfig: { input: any; output: any }
+  /** The TestingProcedures scalar type that represents steps to take to test a control; they can come directly from the control source or pulled from external sources */
   TestingProcedures: { input: any; output: any }
+  /** The builtin Time type */
   Time: { input: any; output: any }
+  /**
+   * The `Upload` scalar type represents a file upload.
+   * This scalar is typically used to handle file uploads in GraphQL mutations.
+   */
   Upload: { input: any; output: any }
+  /** UploadFileName allows passing file name overrides for uploaded files without requiring a resolver. */
   UploadFileName: { input: any; output: any }
+  /** VendorScoringQuestionsConfig holds org-custom question overrides and additions for vendor scoring */
   VendorScoringQuestionsConfig: { input: any; output: any }
+  /** VersionBump allows a revision to automatically be bumped based on "Major", "Minor", "Patch", or "Draft" */
   VersionBump: { input: any; output: any }
+  /** WorkflowAssignmentApproval captures structured metadata for workflow assignment approvals. */
   WorkflowAssignmentApproval: { input: any; output: any }
+  /** WorkflowAssignmentInvalidation captures details when an approval is invalidated. */
   WorkflowAssignmentInvalidation: { input: any; output: any }
+  /** WorkflowAssignmentRejection captures details when an approval is rejected or denied. */
   WorkflowAssignmentRejection: { input: any; output: any }
+  /** WorkflowDefinitionDocument captures triggers, conditions, actions, and selectors that define a workflow. */
   WorkflowDefinitionDocument: { input: any; output: any }
+  /** WorkflowDefinitionSchema is a JSON schema describing the shape of workflow definitions for validation. */
   WorkflowDefinitionSchema: { input: any; output: any }
+  /** WorkflowEventPayload stores payloads emitted by workflow events and actions. */
   WorkflowEventPayload: { input: any; output: any }
+  /** WorkflowInstanceContext contains runtime context for a workflow instance including assignments and object info. */
   WorkflowInstanceContext: { input: any; output: any }
+  /** WorkflowProposedChanges captures staged field updates as opaque JSON for workflow proposals. */
   WorkflowProposedChanges: { input: any; output: any }
 }
 
@@ -2031,6 +2085,13 @@ export interface AssessmentResponseWhereInput {
   workflowEligibleMarkerIsNil?: InputMaybe<Scalars['Boolean']['input']>
   workflowEligibleMarkerNEQ?: InputMaybe<Scalars['Boolean']['input']>
   workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Return response for createAssessmentTemplate mutation */
+export interface AssessmentTemplateCreatePayload {
+  __typename?: 'AssessmentTemplateCreatePayload'
+  /** Created template */
+  template: Template
 }
 
 /** Return response for updateAssessment mutation */
@@ -8315,6 +8376,18 @@ export interface CreateAssessmentResponseInput {
   /** internal marker field for workflow eligibility, not exposed in API */
   workflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+}
+
+/** Input for creating a questionnaire template from an assessment */
+export interface CreateAssessmentTemplateInput {
+  /** ID of the assessment to turn into a template */
+  assessmentID: Scalars['ID']['input']
+  /** Description for the template. */
+  description?: InputMaybe<Scalars['String']['input']>
+  /** Name for the template. Defaults to the assessment name when omitted. */
+  name?: InputMaybe<Scalars['String']['input']>
+  /** Tags for the template. */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 /**
@@ -29899,6 +29972,8 @@ export interface Mutation {
   createAssessment: AssessmentCreatePayload
   /** Create a new assessmentResponse */
   createAssessmentResponse: AssessmentResponseCreatePayload
+  /** Create a questionnaire template from an existing assessment */
+  createAssessmentTemplate: AssessmentTemplateCreatePayload
   /** Create a new asset */
   createAsset: AssetCreatePayload
   /** Create multiple new apiTokens */
@@ -31152,6 +31227,10 @@ export interface MutationCreateAssessmentArgs {
 
 export interface MutationCreateAssessmentResponseArgs {
   input: CreateAssessmentResponseInput
+}
+
+export interface MutationCreateAssessmentTemplateArgs {
+  input: CreateAssessmentTemplateInput
 }
 
 export interface MutationCreateAssetArgs {
@@ -34713,6 +34792,7 @@ export enum NotificationNotificationTopic {
   DOMAIN_SCAN = 'DOMAIN_SCAN',
   EXPORT = 'EXPORT',
   IMPORT_COMPLETE = 'IMPORT_COMPLETE',
+  INTEGRATION = 'INTEGRATION',
   MENTION = 'MENTION',
   ORGANIZATION_READY = 'ORGANIZATION_READY',
   STANDARD_UPDATE = 'STANDARD_UPDATE',
@@ -71763,18 +71843,6 @@ export type LaunchCampaignMutation = {
   }
 }
 
-export type SendCampaignTestEmailMutationVariables = Exact<{
-  input: SendCampaignTestEmailInput
-}>
-
-export type SendCampaignTestEmailMutation = { __typename?: 'Mutation'; sendCampaignTestEmail: { __typename?: 'CampaignTestEmailPayload'; queuedCount: number; skippedCount: number } }
-
-export type ResendCampaignIncompleteTargetsMutationVariables = Exact<{
-  input: ResendCampaignIncompleteInput
-}>
-
-export type ResendCampaignIncompleteTargetsMutation = { __typename?: 'Mutation'; resendCampaignIncompleteTargets: { __typename?: 'CampaignLaunchPayload'; queuedCount: number; skippedCount: number } }
-
 export type UpcomingCampaignFieldsFragment = {
   __typename?: 'Campaign'
   id: string
@@ -71783,7 +71851,6 @@ export type UpcomingCampaignFieldsFragment = {
   recipientCount?: number | null
   scheduledAt?: string | null
   nextRunAt?: string | null
-  dueDate?: string | null
 }
 
 export type CampaignSummaryQueryVariables = Exact<{
@@ -71794,7 +71861,6 @@ export type CampaignSummaryQueryVariables = Exact<{
   completedRecentlyWhere?: InputMaybe<CampaignWhereInput>
   upcomingScheduledWhere?: InputMaybe<CampaignWhereInput>
   upcomingRecurringWhere?: InputMaybe<CampaignWhereInput>
-  upcomingDueWhere?: InputMaybe<CampaignWhereInput>
   activeFirst: Scalars['Int']['input']
   upcomingFirst: Scalars['Int']['input']
 }>
@@ -71815,51 +71881,29 @@ export type CampaignSummaryQuery = {
     __typename?: 'CampaignConnection'
     edges?: Array<{
       __typename?: 'CampaignEdge'
-      node?: {
-        __typename?: 'Campaign'
-        id: string
-        name: string
-        campaignType: CampaignCampaignType
-        recipientCount?: number | null
-        scheduledAt?: string | null
-        nextRunAt?: string | null
-        dueDate?: string | null
-      } | null
+      node?: { __typename?: 'Campaign'; id: string; name: string; campaignType: CampaignCampaignType; recipientCount?: number | null; scheduledAt?: string | null; nextRunAt?: string | null } | null
     } | null> | null
   }
   upcomingRecurringCampaigns: {
     __typename?: 'CampaignConnection'
     edges?: Array<{
       __typename?: 'CampaignEdge'
-      node?: {
-        __typename?: 'Campaign'
-        id: string
-        name: string
-        campaignType: CampaignCampaignType
-        recipientCount?: number | null
-        scheduledAt?: string | null
-        nextRunAt?: string | null
-        dueDate?: string | null
-      } | null
-    } | null> | null
-  }
-  upcomingDueCampaigns: {
-    __typename?: 'CampaignConnection'
-    edges?: Array<{
-      __typename?: 'CampaignEdge'
-      node?: {
-        __typename?: 'Campaign'
-        id: string
-        name: string
-        campaignType: CampaignCampaignType
-        recipientCount?: number | null
-        scheduledAt?: string | null
-        nextRunAt?: string | null
-        dueDate?: string | null
-      } | null
+      node?: { __typename?: 'Campaign'; id: string; name: string; campaignType: CampaignCampaignType; recipientCount?: number | null; scheduledAt?: string | null; nextRunAt?: string | null } | null
     } | null> | null
   }
 }
+
+export type SendCampaignTestEmailMutationVariables = Exact<{
+  input: SendCampaignTestEmailInput
+}>
+
+export type SendCampaignTestEmailMutation = { __typename?: 'Mutation'; sendCampaignTestEmail: { __typename?: 'CampaignTestEmailPayload'; queuedCount: number; skippedCount: number } }
+
+export type ResendCampaignIncompleteTargetsMutationVariables = Exact<{
+  input: ResendCampaignIncompleteInput
+}>
+
+export type ResendCampaignIncompleteTargetsMutation = { __typename?: 'Mutation'; resendCampaignIncompleteTargets: { __typename?: 'CampaignLaunchPayload'; queuedCount: number; skippedCount: number } }
 
 export type CheckResultsWithFilterQueryVariables = Exact<{
   where?: InputMaybe<CheckResultWhereInput>

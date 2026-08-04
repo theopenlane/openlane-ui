@@ -172,7 +172,7 @@ const SUMMARY_STALE_TIME_MS = 5 * 60 * 1000
 
 export type TCampaignSummaryScope = 'active' | 'needsAttention' | 'completedRecently'
 
-export type TUpcomingCampaignKind = 'LAUNCH' | 'RUN' | 'DUE'
+export type TUpcomingCampaignKind = 'LAUNCH' | 'RUN'
 
 export type TUpcomingCampaign = Pick<UpcomingCampaignFieldsFragment, 'id' | 'name' | 'campaignType' | 'recipientCount'> & {
   date: string
@@ -191,10 +191,9 @@ export type TCampaignSummary = {
   upcoming: TUpcomingCampaign[]
 }
 
-const upcomingKindDateFields: Record<TUpcomingCampaignKind, 'scheduledAt' | 'nextRunAt' | 'dueDate'> = {
+const upcomingKindDateFields: Record<TUpcomingCampaignKind, 'scheduledAt' | 'nextRunAt'> = {
   LAUNCH: 'scheduledAt',
   RUN: 'nextRunAt',
-  DUE: 'dueDate',
 }
 
 const buildCampaignSummaryVariables = (now: Date): CampaignSummaryQueryVariables => {
@@ -212,7 +211,6 @@ const buildCampaignSummaryVariables = (now: Date): CampaignSummaryQueryVariables
     completedRecentlyWhere: { completedAtGTE: completedSince, completedAtLTE: nowIso },
     upcomingScheduledWhere: { status: CampaignCampaignStatus.SCHEDULED, scheduledAtGTE: nowIso, launchedAtIsNil: true },
     upcomingRecurringWhere: { isRecurring: true, nextRunAtGTE: nowIso, statusIn: [CampaignCampaignStatus.SCHEDULED, CampaignCampaignStatus.ACTIVE] },
-    upcomingDueWhere: { isActive: true, dueDateGTE: nowIso, completedAtIsNil: true },
     activeFirst: ACTIVE_RECIPIENTS_PAGE_SIZE,
     upcomingFirst: UPCOMING_CAMPAIGN_COUNT,
   }
@@ -264,11 +262,7 @@ export const useCampaignSummary = () => {
     const activeEdges = data.activeCampaigns.edges ?? []
     const activeRecipientCount = activeEdges.reduce((total, edge) => total + (edge?.node?.recipientCount ?? 0), 0)
 
-    const upcoming = takeNextCampaigns([
-      ...toUpcomingCampaigns(data.upcomingScheduledCampaigns.edges, 'LAUNCH'),
-      ...toUpcomingCampaigns(data.upcomingRecurringCampaigns.edges, 'RUN'),
-      ...toUpcomingCampaigns(data.upcomingDueCampaigns.edges, 'DUE'),
-    ])
+    const upcoming = takeNextCampaigns([...toUpcomingCampaigns(data.upcomingScheduledCampaigns.edges, 'LAUNCH'), ...toUpcomingCampaigns(data.upcomingRecurringCampaigns.edges, 'RUN')])
 
     return {
       totalCampaignCount: data.allCampaigns.totalCount,
