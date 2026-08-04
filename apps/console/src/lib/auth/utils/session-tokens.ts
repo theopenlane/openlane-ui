@@ -44,8 +44,7 @@ const mergeRefreshToken = (current: TokenState, refreshToken: string): TokenStat
     return current
   }
 
-  tokenState = { ...current, refreshToken }
-  return tokenState
+  return commit({ ...current, refreshToken }) as TokenState
 }
 
 export const setAuthoritativeTokens = (accessToken: string, refreshToken: string): TokenState => {
