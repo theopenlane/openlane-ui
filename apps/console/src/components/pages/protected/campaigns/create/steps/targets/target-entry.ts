@@ -24,26 +24,34 @@ export const toEmailKeys = (emails: string[]): ReadonlySet<string> => new Set(em
 
 export const hasTarget = (targets: CampaignTargetEntry[], email: string): boolean => targets.some((target) => normalizeEmail(target.email) === normalizeEmail(email))
 
+export const dedupeByEmail = <T>(items: T[], getEmail: (item: T) => string, merge: (current: T, incoming: T) => T): T[] => {
+  const byEmail = new Map<string, T>()
+
+  items.forEach((item) => {
+    const key = normalizeEmail(getEmail(item))
+    if (!key) return
+    const current = byEmail.get(key)
+    byEmail.set(key, current ? merge(current, item) : item)
+  })
+
+  return Array.from(byEmail.values())
+}
+
 const enrichTarget = (existing: CampaignTargetEntry, incoming: CampaignTargetEntry): CampaignTargetEntry => ({
   ...existing,
   fullName: existing.fullName || incoming.fullName,
   contactID: existing.contactID ?? incoming.contactID,
 })
 
-export const mergeTargets = (existing: CampaignTargetEntry[], incoming: CampaignTargetEntry[]): CampaignTargetEntry[] => {
-  const byEmail = new Map<string, CampaignTargetEntry>()
-
-  ;[...existing, ...incoming].forEach((target) => {
-    const key = normalizeEmail(target.email)
-    if (!key) return
-    const current = byEmail.get(key)
-    byEmail.set(key, current ? enrichTarget(current, target) : target)
-  })
-
-  return Array.from(byEmail.values())
-}
+export const mergeTargets = (existing: CampaignTargetEntry[], incoming: CampaignTargetEntry[]): CampaignTargetEntry[] =>
+  dedupeByEmail([...existing, ...incoming], (target) => target.email, enrichTarget)
 
 export const removeTarget = (targets: CampaignTargetEntry[], email: string): CampaignTargetEntry[] => targets.filter((target) => normalizeEmail(target.email) !== normalizeEmail(email))
 
 export const toggleTarget = (targets: CampaignTargetEntry[], entry: CampaignTargetEntry): CampaignTargetEntry[] =>
   hasTarget(targets, entry.email) ? removeTarget(targets, entry.email) : mergeTargets(targets, [entry])
+
+export const getRecipientDisplayName = (name: string, email: string): string => {
+  const trimmed = name.trim()
+  return normalizeEmail(trimmed) === normalizeEmail(email) ? '' : trimmed
+}

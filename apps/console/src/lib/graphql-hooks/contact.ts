@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useMemo } from 'react'
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery, type InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type GetContactsQuery,
@@ -67,6 +67,8 @@ export type ContactsNode = NonNullable<NonNullable<NonNullable<ContactsWithFilte
 
 export type ContactsNodeNonNull = NonNullable<ContactsNode>
 
+const toContactNodes = (edges: NonNullable<ContactsWithFilterQuery['contacts']>['edges']): ContactsNodeNonNull[] => (edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
+
 export const useContactsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllContactsArgs) => {
   const { client } = useGraphQLClient()
   const queryResult = useQuery<ContactsWithFilterQuery, unknown>({
@@ -78,13 +80,70 @@ export const useContactsWithFilter = ({ where, orderBy, pagination, enabled = tr
     enabled,
   })
 
-  const edges = queryResult.data?.contacts?.edges ?? []
+  const contactsNodes = useMemo<ContactsNodeNonNull[]>(() => toContactNodes(queryResult.data?.contacts?.edges), [queryResult.data?.contacts?.edges])
 
-  const contactsNodes: ContactsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as ContactsNodeNonNull)
   const pageInfo = queryResult.data?.contacts?.pageInfo
   const totalCount = queryResult.data?.contacts?.totalCount ?? 0
 
   return { ...queryResult, contactsNodes, pageInfo, totalCount }
+}
+
+type ContactsConnection = ContactsWithFilterQuery['contacts']
+
+type FetchAllContactsOptions = {
+  where?: ContactsWithFilterQueryVariables['where']
+  orderBy?: ContactsWithFilterQueryVariables['orderBy']
+  enabled?: boolean
+  pageSize?: number
+  maxPages?: number
+}
+
+type FetchAllContactsKey = ['contacts', 'infinite', FetchAllContactsOptions['where'], FetchAllContactsOptions['orderBy'], number | undefined, number | undefined]
+
+export const useFetchAllContacts = ({ where, orderBy, enabled = true, pageSize, maxPages }: FetchAllContactsOptions) => {
+  const { client } = useGraphQLClient()
+
+  const { data, isFetching, isFetchingNextPage, isFetchNextPageError, hasNextPage, fetchNextPage, isError, error, refetch } = useInfiniteQuery<
+    ContactsConnection,
+    Error,
+    InfiniteData<ContactsConnection>,
+    FetchAllContactsKey,
+    string | undefined
+  >({
+    queryKey: ['contacts', 'infinite', where, orderBy, pageSize, maxPages],
+    queryFn: async ({ pageParam }) => {
+      const { contacts } = await client.request<ContactsWithFilterQuery, ContactsWithFilterQueryVariables>(GET_ALL_CONTACTS, { where, orderBy, first: pageSize, after: pageParam })
+      return contacts
+    },
+    initialPageParam: undefined,
+    getNextPageParam: (last, allPages) => {
+      if (maxPages !== undefined && allPages.length >= maxPages) return undefined
+      return last.pageInfo.hasNextPage ? last.pageInfo.endCursor : undefined
+    },
+    enabled,
+  })
+
+  const isPaging = hasNextPage && !isFetchNextPageError
+
+  useEffect(() => {
+    if (isPaging && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [isPaging, isFetchingNextPage, fetchNextPage])
+
+  const contactsNodes = useMemo<ContactsNodeNonNull[]>(() => (data?.pages ?? []).flatMap((page) => toContactNodes(page.edges)), [data?.pages])
+
+  const pagesLoaded = data?.pages.length ?? 0
+
+  return {
+    contactsNodes,
+    totalCount: data?.pages[0]?.totalCount ?? 0,
+    isLoading: isFetching || isPaging,
+    isError,
+    error,
+    refetch,
+    isTruncated: maxPages !== undefined && pagesLoaded >= maxPages && (data?.pages[pagesLoaded - 1]?.pageInfo.hasNextPage ?? false),
+  }
 }
 
 export const useCreateContact = () => {
