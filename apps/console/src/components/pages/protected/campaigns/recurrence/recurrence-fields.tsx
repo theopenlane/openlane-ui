@@ -6,14 +6,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@repo/ui/input'
 import { Checkbox } from '@repo/ui/checkbox'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
+import { TimezoneSelect } from '@/components/shared/timezone-select/timezone-select'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type CampaignFrequency } from '@repo/codegen/src/schema'
 import { type CampaignRecurrenceValues, SUPPORTED_RECURRENCE_FREQUENCIES, describeRecurrence } from './campaign-recurrence'
 
 const FREQUENCY_OPTIONS = SUPPORTED_RECURRENCE_FREQUENCIES.map((value) => ({ value, label: getEnumLabel(value) }))
-
-const TIMEZONE_OPTIONS = [...new Set(['UTC', ...Intl.supportedValuesOf('timeZone')])].map((timezone) => ({ label: timezone.replace(/_/g, ' '), value: timezone }))
 
 type RecurrenceFieldsProps = {
   values: CampaignRecurrenceValues
@@ -66,7 +64,7 @@ export const RecurrenceFields: React.FC<RecurrenceFieldsProps> = ({ values, onCh
 
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium">Timezone</label>
-            <SearchableSingleSelect value={values.timezone} options={TIMEZONE_OPTIONS} onChange={(timezone) => onChange({ ...values, timezone })} placeholder="Select a timezone..." />
+            <TimezoneSelect value={values.timezone} onChange={(timezone) => onChange({ ...values, timezone })} />
           </div>
 
           <div className="flex flex-col gap-1.5">

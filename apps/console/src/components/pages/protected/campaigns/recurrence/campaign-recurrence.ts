@@ -1,6 +1,7 @@
 import { type Campaign, CampaignFrequency, type UpdateCampaignInput } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { frequencyToMonths } from '@/components/shared/enum-mapper/frequency'
+import { getBrowserTimeZone } from '@/utils/date'
 
 export type CampaignRecurrenceValues = {
   isRecurring: boolean
@@ -14,15 +15,11 @@ export type CampaignRecurrenceSource = Pick<Campaign, 'isRecurring' | 'recurrenc
 
 export const SUPPORTED_RECURRENCE_FREQUENCIES = [CampaignFrequency.MONTHLY, CampaignFrequency.QUARTERLY, CampaignFrequency.BIANNUALLY, CampaignFrequency.YEARLY]
 
-let cachedDefaultTimezone: string | undefined
-
-const getDefaultTimezone = (): string => (cachedDefaultTimezone ??= Intl.DateTimeFormat().resolvedOptions().timeZone)
-
 export const toRecurrenceValues = (campaign: CampaignRecurrenceSource | null | undefined): CampaignRecurrenceValues => ({
   isRecurring: !!campaign?.isRecurring,
   frequency: campaign?.recurrenceFrequency && campaign.recurrenceFrequency !== CampaignFrequency.NONE ? campaign.recurrenceFrequency : CampaignFrequency.MONTHLY,
   interval: campaign?.recurrenceInterval && campaign.recurrenceInterval > 0 ? campaign.recurrenceInterval : 1,
-  timezone: campaign?.recurrenceTimezone || getDefaultTimezone(),
+  timezone: campaign?.recurrenceTimezone || getBrowserTimeZone(),
   endAt: campaign?.recurrenceEndAt ? new Date(campaign.recurrenceEndAt) : null,
 })
 
