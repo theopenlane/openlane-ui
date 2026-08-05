@@ -405,7 +405,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
       title: 'Developers',
       href: '/developers',
       icon: Bot,
-      hidden: session?.user?.isOnboarding || billingExpired || isAuditor || isImpersonation,
+      hidden: session?.user?.isOnboarding || billingExpired || isAuditor,
       children: [
         {
           title: 'API Tokens',
@@ -416,6 +416,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
           title: 'Personal Access Tokens',
           href: '/developers/personal-access-tokens',
           icon: KeyRoundIcon,
+          hidden: isImpersonation,
         },
       ],
     },
