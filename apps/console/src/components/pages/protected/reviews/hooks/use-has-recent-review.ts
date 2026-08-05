@@ -2,16 +2,7 @@ import { useState } from 'react'
 import { isAfter, isFuture, startOfDay, subMonths } from 'date-fns'
 import { EntityFrequency } from '@repo/codegen/src/schema'
 import { useReviewsWithFilter } from '@/lib/graphql-hooks/review'
-
-const REVIEW_FREQUENCY_MONTHS: Record<EntityFrequency, number | null> = {
-  [EntityFrequency.MONTHLY]: 1,
-  [EntityFrequency.QUARTERLY]: 3,
-  [EntityFrequency.BIANNUALLY]: 6,
-  [EntityFrequency.YEARLY]: 12,
-  [EntityFrequency.BIENNIALLY]: 24,
-  [EntityFrequency.TRIENNIALLY]: 36,
-  [EntityFrequency.NONE]: null,
-}
+import { frequencyToMonths } from '@/components/shared/enum-mapper/frequency'
 
 const DEFAULT_REVIEW_FREQUENCY = EntityFrequency.YEARLY
 
@@ -25,7 +16,7 @@ type UseHasRecentReviewArgs = {
 export const useHasRecentReview = ({ entityId, lastReviewedAt, reviewFrequency, enabled = true }: UseHasRecentReviewArgs) => {
   const [now] = useState(() => Date.now())
 
-  const lookbackMonths = REVIEW_FREQUENCY_MONTHS[reviewFrequency ?? DEFAULT_REVIEW_FREQUENCY]
+  const lookbackMonths = frequencyToMonths(reviewFrequency ?? DEFAULT_REVIEW_FREQUENCY)
   const cutoff = lookbackMonths === null ? null : startOfDay(subMonths(now, lookbackMonths)).toISOString()
 
   const reviewedDate = lastReviewedAt ? new Date(lastReviewedAt) : null

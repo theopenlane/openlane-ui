@@ -71730,6 +71730,7 @@ export type CampaignsWithFilterQuery = {
         recipientCount?: number | null
         recurrenceCron?: string | null
         recurrenceEndAt?: string | null
+        recurrenceFrequency?: CampaignFrequency | null
         recurrenceInterval?: number | null
         recurrenceTimezone?: string | null
         resendCount?: number | null
@@ -71787,6 +71788,7 @@ export type CampaignQuery = {
     recipientCount?: number | null
     recurrenceCron?: string | null
     recurrenceEndAt?: string | null
+    recurrenceFrequency?: CampaignFrequency | null
     recurrenceInterval?: number | null
     recurrenceTimezone?: string | null
     resendCount?: number | null

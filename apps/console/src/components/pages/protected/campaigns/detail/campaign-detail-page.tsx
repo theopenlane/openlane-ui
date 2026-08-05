@@ -14,7 +14,7 @@ import { type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-ta
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CampaignCampaignStatus, CampaignCampaignType, type UpdateCampaignInput } from '@repo/codegen/src/schema'
-import { formatDate, formatDateTimeWithZone } from '@/utils/date'
+import { formatDate, formatDateTime, formatDateTimeWithZone } from '@/utils/date'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import Menu from '@/components/shared/menu/menu'
@@ -24,7 +24,10 @@ import { useDeleteCampaign } from '@/lib/graphql-hooks/campaign'
 import { useRouter } from 'next/navigation'
 import { RecipientDetailPanel } from './recipient-detail-panel'
 import { SendTestEmailDialog } from './send-test-email-dialog'
-import { LaunchCampaignDialog } from './launch-campaign-dialog'
+import { LaunchCampaignDialog, type LaunchCampaignValues } from './launch-campaign-dialog'
+import { type CampaignRecurrenceValues, buildRecurrenceUpdateInput, describeCampaignRecurrence, toRecurrenceValues } from '../recurrence/campaign-recurrence'
+import { EditRecurrenceDialog } from '../recurrence/edit-recurrence-dialog'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { CampaignSetupView } from './campaign-setup-view'
 import { EditDetailsDialog } from './edit-details-dialog'
 import { ChangeTemplateDialog } from './change-template-dialog'
@@ -81,6 +84,7 @@ const CampaignDetailPage: React.FC = () => {
   const [testDialogOpen, setTestDialogOpen] = useState(false)
   const [launchDialogOpen, setLaunchDialogOpen] = useState(false)
   const [editDetailsOpen, setEditDetailsOpen] = useState(false)
+  const [editRecurrenceOpen, setEditRecurrenceOpen] = useState(false)
   const [changeTemplateOpen, setChangeTemplateOpen] = useState(false)
   const [questionnaireDialogOpen, setQuestionnaireDialogOpen] = useState(false)
   const [addRecipientsOpen, setAddRecipientsOpen] = useState(false)
@@ -131,6 +135,8 @@ const CampaignDetailPage: React.FC = () => {
 
   const existingRecipientEmails = useMemo(() => recipients.map((recipient) => recipient.email), [recipients])
 
+  const recurrenceValues = useMemo(() => toRecurrenceValues(campaign), [campaign])
+
   const stats = useMemo(() => {
     const total = totalCount
     const sent = recipients.filter((r) => r.sentAt).length
@@ -163,13 +169,17 @@ const CampaignDetailPage: React.FC = () => {
     await handleUpdateField(input)
   }
 
-  const handleLaunch = async (scheduledAt: string | null) => {
+  const handleLaunch = async ({ scheduledAt, recurrence }: LaunchCampaignValues) => {
     if (!campaignId) return
     if (totalCount === 0) {
       errorNotification({ title: 'Error', description: 'Add at least one recipient before launching this campaign.' })
       return
     }
     try {
+      const recurrenceInput = buildRecurrenceUpdateInput(recurrence)
+      if (JSON.stringify(recurrenceInput) !== JSON.stringify(buildRecurrenceUpdateInput(recurrenceValues))) {
+        await updateCampaign({ updateCampaignId: campaignId, input: recurrenceInput })
+      }
       const { queuedCount, skippedCount } = (await launchCampaign({ input: { campaignID: campaignId, scheduledAt } })).launchCampaign
       const skippedSuffix = skippedCount ? `, skipped ${skippedCount}` : ''
       successNotification({
@@ -190,6 +200,15 @@ const CampaignDetailPage: React.FC = () => {
 
   const handleSaveDetails = async (values: { name: string; description: string }) => {
     if (await handleUpdateField({ name: values.name, description: values.description })) setEditDetailsOpen(false)
+  }
+
+  const handleSaveRecurrence = async (values: CampaignRecurrenceValues) => {
+    const input = buildRecurrenceUpdateInput(values)
+    if (JSON.stringify(input) === JSON.stringify(buildRecurrenceUpdateInput(recurrenceValues))) {
+      setEditRecurrenceOpen(false)
+      return
+    }
+    if (await handleUpdateField(input)) setEditRecurrenceOpen(false)
   }
 
   const nonQuestionnaireType = campaign?.campaignType && campaign.campaignType !== CampaignCampaignType.QUESTIONNAIRE ? campaign.campaignType : CampaignCampaignType.CUSTOM
@@ -245,18 +264,21 @@ const CampaignDetailPage: React.FC = () => {
   const hasCampaignContent = hasQuestionnaire || hasEmailTemplate
   const campaignTypeLabel = campaign.campaignType ? getEnumLabel(campaign.campaignType) : '—'
   const launchBlockedReason = getLaunchBlockedReason({ hasCampaignContent, isFetchingRecipients, hasRecipientsError, recipientCount: stats.total })
-  const canCancel = status !== CampaignCampaignStatus.COMPLETED && status !== CampaignCampaignStatus.CANCELED
+  const canLaunch = !launchBlockedReason
+  const isTerminalStatus = status === CampaignCampaignStatus.COMPLETED || status === CampaignCampaignStatus.CANCELED
+  const canCancel = !isTerminalStatus
+  const canEditRecurrence = !isTerminalStatus
   const canSendReminder = status === CampaignCampaignStatus.ACTIVE
   const lockBanner =
     !isDraft &&
     {
       [CampaignCampaignStatus.SCHEDULED]: {
         title: 'This campaign is scheduled',
-        description: `It will launch on ${campaign.scheduledAt ? formatDateTimeWithZone(campaign.scheduledAt as string) : 'the scheduled date'}. Campaign content, settings, and recipients cannot be changed.`,
+        description: `It will launch on ${campaign.scheduledAt ? formatDateTimeWithZone(campaign.scheduledAt as string) : 'the scheduled date'}. Campaign content and recipients cannot be changed, but you can still adjust the recurrence schedule.`,
       },
       [CampaignCampaignStatus.ACTIVE]: {
         title: 'This campaign is active',
-        description: 'Campaign content, settings, and recipients cannot be changed. You can monitor progress and send reminders to participants.',
+        description: 'Campaign content and recipients cannot be changed, but you can still adjust the recurrence schedule, monitor progress, and send reminders to participants.',
       },
       [CampaignCampaignStatus.COMPLETED]: { title: 'This campaign is completed', description: 'Campaign content, settings, and recipients cannot be changed.' },
       [CampaignCampaignStatus.CANCELED]: { title: 'This campaign was canceled', description: 'Campaign content, settings, and recipients cannot be changed.' },
@@ -377,6 +399,24 @@ const CampaignDetailPage: React.FC = () => {
             <SelectField name="emailTemplateID" label="Email Template" options={emailTemplateOptions} useCustomDisplay={false} {...emailTemplateFieldProps} />
           )}
           {hasQuestionnaire && <DateField name="dueDate" label="Due Date" {...sharedFieldProps} />}
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-sm text-muted-foreground">Repeats</span>
+            <HoverPencilWrapper showPencil={canEditRecurrence} onPencilClick={() => setEditRecurrenceOpen(true)} pencilAriaLabel="Edit recurrence">
+              <span className="text-sm">{describeCampaignRecurrence(campaign)}</span>
+            </HoverPencilWrapper>
+          </div>
+          {campaign.isRecurring && campaign.nextRunAt && (
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-sm text-muted-foreground">Next Run</span>
+              <span className="text-sm">{formatDateTime(campaign.nextRunAt as string)}</span>
+            </div>
+          )}
+          {campaign.isRecurring && campaign.recurrenceEndAt && (
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-sm text-muted-foreground">Repeats Until</span>
+              <span className="text-sm">{formatDate(campaign.recurrenceEndAt as string)}</span>
+            </div>
+          )}
           {campaign.tags && campaign.tags.length > 0 && (
             <div>
               <span className="text-xs text-muted-foreground">Tags</span>
@@ -580,13 +620,19 @@ const CampaignDetailPage: React.FC = () => {
         {mainContent}
       </SlideBarLayout>
       <SendTestEmailDialog campaignId={campaignId} open={testDialogOpen} onOpenChange={setTestDialogOpen} />
-      <LaunchCampaignDialog
-        open={launchDialogOpen}
-        onOpenChange={setLaunchDialogOpen}
-        onLaunch={handleLaunch}
-        isPending={isLaunching}
-        summary={{ recipientCount: stats.total, content: hasQuestionnaire ? { kind: 'questionnaire', label: questionnaireLabel } : { kind: 'email', label: emailTemplateName } }}
-      />
+      {launchDialogOpen && (
+        <LaunchCampaignDialog
+          open={launchDialogOpen}
+          onOpenChange={setLaunchDialogOpen}
+          onLaunch={handleLaunch}
+          isPending={isLaunching || isUpdating}
+          summary={{ recipientCount: stats.total, content: hasQuestionnaire ? { kind: 'questionnaire', label: questionnaireLabel } : { kind: 'email', label: emailTemplateName } }}
+          initialRecurrence={recurrenceValues}
+        />
+      )}
+      {editRecurrenceOpen && (
+        <EditRecurrenceDialog open={editRecurrenceOpen} onOpenChange={setEditRecurrenceOpen} initialValues={recurrenceValues} onSave={handleSaveRecurrence} isPending={isUpdating} />
+      )}
       <EditDetailsDialog
         open={editDetailsOpen}
         onOpenChange={setEditDetailsOpen}
