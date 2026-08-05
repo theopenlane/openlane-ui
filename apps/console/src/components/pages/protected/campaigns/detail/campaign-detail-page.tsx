@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { Ban, Calendar, ExternalLink, FileText, Lock, Mail, Rocket, SendHorizontal, Trash2 } from 'lucide-react'
+import { Ban, Calendar, CalendarClock, ExternalLink, FileText, Lock, Mail, Rocket, SendHorizontal, Trash2 } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useCampaign, useUpdateCampaign, useLaunchCampaign, useResendCampaignIncompleteTargets } from '@/lib/graphql-hooks/campaign'
 import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
@@ -27,7 +27,6 @@ import { SendTestEmailDialog } from './send-test-email-dialog'
 import { LaunchCampaignDialog, type LaunchCampaignValues } from './launch-campaign-dialog'
 import { type CampaignRecurrenceValues, buildRecurrenceUpdateInput, describeCampaignRecurrence, toRecurrenceValues } from '../recurrence/campaign-recurrence'
 import { EditRecurrenceDialog } from '../recurrence/edit-recurrence-dialog'
-import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { CampaignSetupView } from './campaign-setup-view'
 import { EditDetailsDialog } from './edit-details-dialog'
 import { ChangeTemplateDialog } from './change-template-dialog'
@@ -265,7 +264,6 @@ const CampaignDetailPage: React.FC = () => {
   const showProgress = campaign.campaignType !== CampaignCampaignType.CUSTOM || !!campaign.assessmentID
   const campaignTypeLabel = campaign.campaignType ? getEnumLabel(campaign.campaignType) : '—'
   const launchBlockedReason = getLaunchBlockedReason({ hasCampaignContent, isFetchingRecipients, hasRecipientsError, recipientCount: stats.total })
-  const canLaunch = !launchBlockedReason
   const isTerminalStatus = status === CampaignCampaignStatus.COMPLETED || status === CampaignCampaignStatus.CANCELED
   const canCancel = !isTerminalStatus
   const canEditRecurrence = !isTerminalStatus
@@ -399,25 +397,6 @@ const CampaignDetailPage: React.FC = () => {
           ) : (
             <SelectField name="emailTemplateID" label="Email Template" options={emailTemplateOptions} useCustomDisplay={false} {...emailTemplateFieldProps} />
           )}
-          {hasQuestionnaire && <DateField name="dueDate" label="Due Date" {...sharedFieldProps} />}
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-sm text-muted-foreground">Repeats</span>
-            <HoverPencilWrapper showPencil={canEditRecurrence} onPencilClick={() => setEditRecurrenceOpen(true)} pencilAriaLabel="Edit recurrence">
-              <span className="text-sm">{describeCampaignRecurrence(campaign)}</span>
-            </HoverPencilWrapper>
-          </div>
-          {campaign.isRecurring && campaign.nextRunAt && (
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-sm text-muted-foreground">Next Run</span>
-              <span className="text-sm">{formatDateTime(campaign.nextRunAt as string)}</span>
-            </div>
-          )}
-          {campaign.isRecurring && campaign.recurrenceEndAt && (
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-sm text-muted-foreground">Repeats Until</span>
-              <span className="text-sm">{formatDate(campaign.recurrenceEndAt as string)}</span>
-            </div>
-          )}
           {campaign.tags && campaign.tags.length > 0 && (
             <div>
               <span className="text-xs text-muted-foreground">Tags</span>
@@ -440,6 +419,43 @@ const CampaignDetailPage: React.FC = () => {
               <span className="text-sm py-2 px-1">{formatDate(campaign.completedAt as string)}</span>
             </div>
           )}
+        </div>
+      </div>
+
+      <div className="rounded-md border border-border bg-card p-4">
+        <h3 className="text-sm font-semibold mb-3">Schedule</h3>
+        <div className="flex flex-col gap-3">
+          {hasQuestionnaire && (
+            <div className="rounded-md border border-border px-2.5">
+              <DateField name="dueDate" label="Due Date" {...sharedFieldProps} />
+            </div>
+          )}
+          <div className="flex flex-col gap-2">
+            <span className="text-sm text-muted-foreground">Recurrence</span>
+            <div className="flex flex-col divide-y divide-border rounded-md border border-border">
+              <div className="flex items-center justify-between gap-4 p-2.5">
+                <span className="text-sm text-muted-foreground">Frequency</span>
+                <span className="text-sm">{describeCampaignRecurrence(campaign)}</span>
+              </div>
+              {campaign.isRecurring && campaign.nextRunAt && (
+                <div className="flex items-center justify-between gap-4 p-2.5">
+                  <span className="text-sm text-muted-foreground">Next Run</span>
+                  <span className="text-sm">{formatDateTime(campaign.nextRunAt as string)}</span>
+                </div>
+              )}
+              {campaign.isRecurring && campaign.recurrenceEndAt && (
+                <div className="flex items-center justify-between gap-4 p-2.5">
+                  <span className="text-sm text-muted-foreground">Ends</span>
+                  <span className="text-sm">{formatDate(campaign.recurrenceEndAt as string)}</span>
+                </div>
+              )}
+            </div>
+            {canEditRecurrence && (
+              <Button variant="secondary" type="button" className="w-full justify-center" icon={<CalendarClock size={16} />} iconPosition="left" onClick={() => setEditRecurrenceOpen(true)}>
+                {campaign.isRecurring ? 'Change recurrence' : 'Set up recurrence'}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -637,7 +653,13 @@ const CampaignDetailPage: React.FC = () => {
         />
       )}
       {editRecurrenceOpen && (
-        <EditRecurrenceDialog open={editRecurrenceOpen} onOpenChange={setEditRecurrenceOpen} initialValues={recurrenceValues} onSave={handleSaveRecurrence} isPending={isUpdating} />
+        <EditRecurrenceDialog
+          open={editRecurrenceOpen}
+          onOpenChange={setEditRecurrenceOpen}
+          initialValues={recurrenceValues.isRecurring ? recurrenceValues : { ...recurrenceValues, isRecurring: true }}
+          onSave={handleSaveRecurrence}
+          isPending={isUpdating}
+        />
       )}
       <EditDetailsDialog
         open={editDetailsOpen}
