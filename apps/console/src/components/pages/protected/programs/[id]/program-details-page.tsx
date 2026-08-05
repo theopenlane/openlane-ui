@@ -9,7 +9,7 @@ import BasicInformation from '@/components/pages/protected/programs/[id]/basic-i
 import ProgramAuditor from '@/components/pages/protected/programs/[id]/program-auditor'
 import ProgramTaskTable from '@/components/pages/protected/programs/[id]/program-tasks-table/program-tasks-table'
 import { ControlsSummaryCard } from '@/components/pages/protected/programs/[id]/controls-summary-card'
-import { Cog, FolderOpen, CirclePlus, Archive, ArchiveRestore, Trash2 } from 'lucide-react'
+import { Cog, FolderOpen, CirclePlus, CopyPlus, Archive, ArchiveRestore, Trash2 } from 'lucide-react'
 import { hasPermission, canEdit, canDelete } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -121,6 +121,12 @@ const ProgramDetailsPage: React.FC = () => {
                       <Link href="/programs/create" onClick={close} className="flex w-full items-center gap-2 px-1 py-1 text-sm hover:text-brand">
                         <CirclePlus size={16} strokeWidth={2} className="shrink-0" />
                         <span>Create Program</span>
+                      </Link>
+                    )}
+                    {canCreateProgram && (
+                      <Link href={`/programs/create/from-existing?from=${id}`} onClick={close} className="flex w-full items-center gap-2 px-1 py-1 text-sm hover:text-brand">
+                        <CopyPlus size={16} strokeWidth={2} className="shrink-0" />
+                        <span>Duplicate Program</span>
                       </Link>
                     )}
                     {editAllowed && (

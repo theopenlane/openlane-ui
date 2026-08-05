@@ -2,7 +2,7 @@
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
-import { FilePlus2, Wrench } from 'lucide-react'
+import { CopyPlus, FilePlus2, Wrench } from 'lucide-react'
 import Link from 'next/link'
 import Soc2Illustration from './illustrations/soc2-illustration'
 import RiskAssessmentIllustration from './illustrations/risk-assessment-illustration'
@@ -36,6 +36,12 @@ const quickstartOptions = [
 ]
 
 const customOptions = [
+  {
+    title: 'From Existing Program',
+    description: 'Reuse controls, auditor and owner from a program',
+    icon: <CopyPlus className="text-btn-primary" size={20} />,
+    url: '/programs/create/from-existing',
+  },
   {
     title: 'Generic Program',
     description: 'Start with a blank program structure',
@@ -127,7 +133,7 @@ export default function ProgramsCreate({ disableHeader = false, noPrograms = fal
           {customOptions.map((option) => (
             <Link className="flex flex-1" key={option.title} href={option.url}>
               <Card className="flex w-full items-center gap-3 rounded-xl p-4 hover:border-primary transition cursor-pointer">
-                <div className="flex items-center justify-center w-12 h-12 rounded-md bg-secondary border">{option.icon}</div>
+                <div className="flex items-center justify-center w-12 h-12 shrink-0 rounded-md bg-secondary border">{option.icon}</div>
                 <div>
                   <h3 className="font-medium">{option.title}</h3>
                   <p className="text-sm text-muted-foreground">{option.description}</p>
