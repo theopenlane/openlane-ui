@@ -30,8 +30,9 @@ const TeamStep = ({ sourceProgram, droppedMemberCount }: TeamStepProps) => {
 
       {droppedMemberCount > 0 && (
         <Callout variant="warning" compact>
-          {droppedMemberCount} member{droppedMemberCount === 1 ? '' : 's'} of {sourceProgram?.name} {droppedMemberCount === 1 ? 'is' : 'are'} no longer in this organization and could not be carried
-          over.
+          {`${droppedMemberCount} member${droppedMemberCount === 1 ? '' : 's'} of ${sourceProgram?.name ?? 'the copied program'} ${
+            droppedMemberCount === 1 ? 'is' : 'are'
+          } no longer in this organization and could not be carried over.`}
         </Callout>
       )}
 

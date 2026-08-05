@@ -203,7 +203,7 @@ const SelectSourceProgramStep = ({
 
       {showSummary && sourceProgram && ownerLeftOrg && (
         <Callout variant="warning" compact>
-          The owner of {sourceProgram.name} is no longer in this organization, so the new program will be created without an owner unless you pick one.
+          {`The owner of ${sourceProgram.name} is no longer in this organization, so the new program will be created without an owner unless you pick one.`}
         </Callout>
       )}
     </div>

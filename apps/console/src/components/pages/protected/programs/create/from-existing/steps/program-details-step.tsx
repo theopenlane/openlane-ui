@@ -110,7 +110,7 @@ const ProgramDetailsStep = ({ sourceProgram, ownerLeftOrg }: ProgramDetailsStepP
 
       {ownerLeftOrg && (
         <Callout variant="warning" compact>
-          The owner of {sourceProgram?.name} is no longer in this organization, so we couldn&apos;t carry them over. Pick a new program owner.
+          {`The owner of ${sourceProgram?.name ?? 'the copied program'} is no longer in this organization, so we couldn't carry them over. Pick a new program owner.`}
         </Callout>
       )}
 
