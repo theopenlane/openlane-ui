@@ -80,8 +80,8 @@ const SSOCallbackPage: React.FC = () => {
           })
 
           if (signInResult && !signInResult.error) {
-            // we cannot inline this with the if branch above as this needed for not authenticated users already else
-            // we won't be able to redirect them correctly
+            // we cannot inline this with the if branch above as this is already used for un-authenticated users already
+            // else we won't be able to redirect them correctly
             if (sessionData) {
               await updateSession({
                 user: {
