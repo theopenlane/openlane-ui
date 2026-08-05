@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { Ban, Calendar, CheckCircle, ExternalLink, FileText, Lock, Mail, Rocket, SendHorizontal, Trash2 } from 'lucide-react'
+import { Ban, Calendar, ExternalLink, FileText, Lock, Mail, Rocket, SendHorizontal, Trash2 } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useCampaign, useUpdateCampaign, useLaunchCampaign, useResendCampaignIncompleteTargets } from '@/lib/graphql-hooks/campaign'
 import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
@@ -147,11 +147,11 @@ const CampaignDetailPage: React.FC = () => {
     return Math.round((stats.completed / stats.total) * 100)
   }, [stats])
 
-  const handleUpdateField = async (input: UpdateCampaignInput): Promise<boolean> => {
+  const handleUpdateField = async (input: UpdateCampaignInput, successTitle = 'Campaign updated'): Promise<boolean> => {
     if (!campaignId) return false
     try {
       await updateCampaign({ updateCampaignId: campaignId, input })
-      successNotification({ title: 'Campaign updated' })
+      successNotification({ title: successTitle })
       return true
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
@@ -185,14 +185,7 @@ const CampaignDetailPage: React.FC = () => {
   }
 
   const handleCancelCampaign = async () => {
-    if (!campaignId) return
-    try {
-      await updateCampaign({ updateCampaignId: campaignId, input: { status: CampaignCampaignStatus.CANCELED } })
-      successNotification({ title: 'Campaign canceled' })
-      setCancelDialogOpen(false)
-    } catch (error) {
-      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
-    }
+    if (await handleUpdateField({ status: CampaignCampaignStatus.CANCELED }, 'Campaign canceled')) setCancelDialogOpen(false)
   }
 
   const handleSaveDetails = async (values: { name: string; description: string }) => {
@@ -226,19 +219,6 @@ const CampaignDetailPage: React.FC = () => {
     }
   }
 
-  const handleCompleteCampaign = async () => {
-    if (!campaignId) return
-    try {
-      await updateCampaign({
-        updateCampaignId: campaignId,
-        input: { status: CampaignCampaignStatus.COMPLETED },
-      })
-      successNotification({ title: 'Campaign completed' })
-    } catch (error) {
-      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
-    }
-  }
-
   const handleDeleteCampaign = async () => {
     if (!campaignId) return
     try {
@@ -265,7 +245,6 @@ const CampaignDetailPage: React.FC = () => {
   const hasCampaignContent = hasQuestionnaire || hasEmailTemplate
   const campaignTypeLabel = campaign.campaignType ? getEnumLabel(campaign.campaignType) : '—'
   const launchBlockedReason = getLaunchBlockedReason({ hasCampaignContent, isFetchingRecipients, hasRecipientsError, recipientCount: stats.total })
-  const canLaunch = !launchBlockedReason
   const canCancel = status !== CampaignCampaignStatus.COMPLETED && status !== CampaignCampaignStatus.CANCELED
   const canSendReminder = status === CampaignCampaignStatus.ACTIVE
   const lockBanner =
@@ -308,15 +287,9 @@ const CampaignDetailPage: React.FC = () => {
     },
   }
 
-  const primaryAction = isDraft
-    ? { label: 'Launch', icon: <Rocket size={14} />, onClick: () => setLaunchDialogOpen(true), disabled: isLaunching || !canLaunch, disabledReason: launchBlockedReason }
-    : status === CampaignCampaignStatus.ACTIVE
-      ? { label: 'Complete Campaign', icon: <CheckCircle size={14} />, onClick: handleCompleteCampaign, disabled: isUpdating, disabledReason: undefined }
-      : null
-
-  const primaryActionButton = primaryAction && (
-    <Button variant="primary" icon={primaryAction.icon} iconPosition="left" onClick={primaryAction.onClick} disabled={primaryAction.disabled} className="h-8">
-      {primaryAction.label}
+  const launchButton = isDraft && (
+    <Button variant="primary" icon={<Rocket size={14} />} iconPosition="left" onClick={() => setLaunchDialogOpen(true)} disabled={isLaunching || !!launchBlockedReason} className="h-8">
+      Launch
     </Button>
   )
 
@@ -378,11 +351,7 @@ const CampaignDetailPage: React.FC = () => {
           </>
         )}
       />
-      {primaryAction?.disabled && primaryAction.disabledReason ? (
-        <SystemTooltip content={primaryAction.disabledReason} icon={<span className="inline-flex">{primaryActionButton}</span>} />
-      ) : (
-        primaryActionButton
-      )}
+      {isDraft && launchBlockedReason ? <SystemTooltip content={launchBlockedReason} icon={<span className="inline-flex">{launchButton}</span>} /> : launchButton}
     </div>
   )
 
