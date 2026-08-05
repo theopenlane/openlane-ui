@@ -15,8 +15,10 @@ type TeamStepProps = {
 
 const TeamStep = ({ sourceProgram, droppedMemberCount }: TeamStepProps) => {
   const { data: session } = useSession()
-  // the creator is already a member of the program, offering them again would fail on create
-  const { userOptions } = useUserSelect({ where: { not: { userID: session?.user?.userId } } })
+  const currentUserID = session?.user?.userId
+  // the creator is already a member of the program, offering them again would fail on create,
+  // the filter waits for the session so the list is never queried with an empty predicate
+  const { userOptions } = useUserSelect(currentUserID ? { where: { not: { userID: currentUserID } } } : {})
   const { groupOptions } = useGroupSelect()
 
   return (

@@ -10,6 +10,11 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Check, Hourglass, Info, Pencil, Repeat } from 'lucide-react'
 import { Callout } from '@/components/shared/callout/callout'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { formatDate } from '@/utils/date'
 import { type FrameworkControlCount, type SourceProgram, type SourceTeam } from '../from-existing-types'
@@ -46,6 +51,7 @@ const SelectSourceProgramStep = ({
   const { programOptions } = useProgramSelect({})
   const [isEditingName, setIsEditingName] = useState(false)
   const [isSwitchingProgram, setIsSwitchingProgram] = useState(false)
+  const { enumOptions } = useGetCustomTypeEnums({ where: { objectType: objectToSnakeCase(ObjectTypes.PROGRAM), field: 'kind' } })
 
   const showSummary = !isLoading && !!sourceProgram
   const showProgramSelect = isSwitchingProgram || (!isLoading && !sourceProgram)
@@ -136,7 +142,7 @@ const SelectSourceProgramStep = ({
                         </Button>
                       </>
                     )}
-                    {sourceProgram.programKindName && <Badge variant="outline">{sourceProgram.programKindName}</Badge>}
+                    {sourceProgram.programKindName && <CustomTypeEnumValue value={sourceProgram.programKindName} options={enumOptions ?? []} />}
                     {sourceProgram.frameworkName && <Badge variant="outline">{sourceProgram.frameworkName}</Badge>}
                   </div>
                   {fieldState.error && <FormMessage />}
@@ -177,9 +183,10 @@ const SelectSourceProgramStep = ({
               <>
                 <span className="text-sm text-muted-foreground">{controlCount} total</span>
                 {controlsByFramework.map((framework) => (
-                  <Badge key={framework.framework} variant="outline" className="border-brand/30 bg-brand/15 text-brand">
-                    {framework.framework} · {framework.count}
-                  </Badge>
+                  <div key={framework.framework} className="flex items-center gap-1.5">
+                    <StandardChip referenceFramework={framework.framework} />
+                    <span className="flex h-6 min-w-6 items-center justify-center rounded-full border bg-secondary px-1.5 text-xs">{framework.count}</span>
+                  </div>
                 ))}
               </>
             )}

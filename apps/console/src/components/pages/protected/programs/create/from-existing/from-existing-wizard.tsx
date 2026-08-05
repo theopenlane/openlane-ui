@@ -17,7 +17,7 @@ import { useCreateProgramWithMembers, useGetProgramBasicInfo, useGetProgramGroup
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ProgramMembershipRole, type CreateProgramWithMembersInput } from '@repo/codegen/src/schema'
+import { ControlControlStatus, ProgramMembershipRole, type CreateProgramWithMembersInput } from '@repo/codegen/src/schema'
 import SelectSourceProgramStep from './steps/select-source-program-step'
 import ProgramDetailsStep from './steps/program-details-step'
 import AuditorStep from './steps/auditor-step'
@@ -73,7 +73,7 @@ const FromExistingProgramWizard = () => {
       startDate: today,
       endDate: oneYearFromToday,
       useSameAuditor: true,
-      ...auditorValuesFrom(undefined, false),
+      ...auditorValuesFrom(),
       ...emptySelections(),
     },
   })
@@ -84,8 +84,13 @@ const FromExistingProgramWizard = () => {
   const sourceProgram = sourceProgramID ? sourceData?.program : undefined
   const prefilledForIDRef = useRef<string>('')
 
-  const { allControls: sourceControls, isLoading: isSourceControlsLoading } = useAllControlsGroupedWithListFields({
-    where: { hasProgramsWith: [{ id: sourceProgramID }] },
+  // archived controls stay out of the copy, they are still listed on the controls step if you want them back
+  const {
+    allControls: sourceControls,
+    isLoading: isFetchingSourceControls,
+    isSuccess: sourceControlsFetched,
+  } = useAllControlsGroupedWithListFields({
+    where: { and: [{ hasProgramsWith: [{ id: sourceProgramID }] }, { or: [{ statusNEQ: ControlControlStatus.ARCHIVED }, { statusIsNil: true }] }] },
     enabled: !!sourceProgramID,
   })
 
@@ -96,8 +101,8 @@ const FromExistingProgramWizard = () => {
   const ownerName = userOptions.find((user) => user.value === sourceProgram?.programOwnerID)?.label
   const ownerLeftOrg = !isMembersLoading && !!sourceProgram?.programOwnerID && !ownerName
 
-  const { data: sourceMembersData, isLoading: isSourceMembersLoading } = useGetProgramMembers({ where: { programID: sourceProgramID || undefined }, enabled: !!sourceProgramID })
-  const { data: sourceGroupsData, isLoading: isSourceGroupsLoading } = useGetProgramGroups({ programId: sourceProgramID || null })
+  const { data: sourceMembersData, isSuccess: sourceMembersFetched } = useGetProgramMembers({ where: { programID: sourceProgramID || undefined }, enabled: !!sourceProgramID })
+  const { data: sourceGroupsData, isSuccess: sourceGroupsFetched } = useGetProgramGroups({ programId: sourceProgramID || null })
 
   const sourceTeam = useMemo(() => {
     const orgUserIDs = new Set(userOptions.map((user) => user.value))
@@ -115,7 +120,10 @@ const FromExistingProgramWizard = () => {
     }
   }, [sourceMembersData, sourceGroupsData, userOptions, currentUserID])
 
-  const isSourceTeamLoading = isSourceMembersLoading || isSourceGroupsLoading || isMembersLoading
+  // a disabled or not yet started query reports isLoading false while holding no data,
+  // so these wait on the fetch having succeeded instead
+  const isSourceTeamLoading = !sourceMembersFetched || !sourceGroupsFetched || isMembersLoading
+  const isSourceControlsLoading = isFetchingSourceControls || !sourceControlsFetched
   const teamInitialized = useWatch({ control: methods.control, name: 'teamInitialized' })
 
   // copy the source program into the form the first time each source program loads,
@@ -136,7 +144,7 @@ const FromExistingProgramWizard = () => {
       endDate: oneYearFromToday,
       programOwnerID: ownerLeftOrg ? undefined : (sourceProgram.programOwnerID ?? undefined),
       useSameAuditor,
-      ...auditorValuesFrom(sourceProgram, useSameAuditor),
+      ...auditorValuesFrom(sourceProgram),
       ...emptySelections(),
     })
   }, [sourceProgram, sourceProgramID, isMembersLoading, ownerLeftOrg, methods])
@@ -160,8 +168,12 @@ const FromExistingProgramWizard = () => {
     methods.setValue('teamInitialized', true)
   }, [sourceProgramID, isSourceTeamLoading, teamInitialized, sourceTeam, methods])
 
+  // turning the toggle back on restores the copied auditor, turning it off leaves whatever
+  // is there and just hands the fields over for editing
   const handleUseSameAuditorChange = (useSameAuditor: boolean) => {
-    const { auditPartnerName, auditFirm, auditPartnerEmail } = auditorValuesFrom(sourceProgram, useSameAuditor)
+    if (!useSameAuditor) return
+
+    const { auditPartnerName, auditFirm, auditPartnerEmail } = auditorValuesFrom(sourceProgram)
 
     methods.setValue('auditPartnerName', auditPartnerName)
     methods.setValue('auditFirm', auditFirm)

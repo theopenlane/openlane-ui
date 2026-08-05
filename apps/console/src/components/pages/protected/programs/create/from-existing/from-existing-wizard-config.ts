@@ -3,7 +3,7 @@ import { type UseFormReturn } from 'react-hook-form'
 import { type TErrorProps } from '@/hooks/useNotification'
 import { type FrameworkControlCount, type SourceProgram } from './from-existing-types'
 
-export const NO_FRAMEWORK_LABEL = 'Organization controls'
+export const NO_FRAMEWORK_LABEL = 'Organization'
 
 export const sourceProgramStepSchema = z.object({
   sourceProgramID: z.string({ required_error: 'Select a program to copy from' }).min(1, { message: 'Select a program to copy from' }),
@@ -85,11 +85,11 @@ type AuditorFields = Pick<SourceProgram, 'auditor' | 'auditFirm' | 'auditorEmail
 export const hasAuditorDetails = (program?: AuditorFields): boolean => !!(program?.auditor || program?.auditFirm || program?.auditorEmail)
 
 // auditorValuesFrom keeps the "use the same auditor" toggle and the initial prefill in sync,
-// both fill the same three fields from the copied program or clear them
-export const auditorValuesFrom = (program: AuditorFields | undefined, useSameAuditor: boolean) => ({
-  auditPartnerName: useSameAuditor ? (program?.auditor ?? '') : '',
-  auditFirm: useSameAuditor ? (program?.auditFirm ?? '') : '',
-  auditPartnerEmail: useSameAuditor ? (program?.auditorEmail ?? '') : '',
+// both fill the same three fields from the copied program
+export const auditorValuesFrom = (program?: AuditorFields) => ({
+  auditPartnerName: program?.auditor ?? '',
+  auditFirm: program?.auditFirm ?? '',
+  auditPartnerEmail: program?.auditorEmail ?? '',
 })
 
 // the team and control selections are filled in by their own effects once those queries settle
@@ -104,16 +104,16 @@ export const emptySelections = () => ({
 })
 
 // suggestedProgramName rolls a program name forward to the current year so an annual
-// program copied from last year's does not come back as "SOC 2 - 2025" again
+// program copied from last year's does not come back as "SOC 2 - 2025" again, and marks
+// it as a copy so it is never mistaken for the program it came from
 export const suggestedProgramName = (sourceName?: string | null): string => {
   const currentYear = new Date().getFullYear()
   const name = (sourceName ?? '').trim()
 
-  if (!name) return `Program - ${currentYear}`
+  if (!name) return `Program - ${currentYear} Copy`
 
   const withoutYear = name.replace(/[\s-]*\b(19|20)\d{2}\b\s*$/, '').trim()
+  const rolledForward = withoutYear && withoutYear !== name ? withoutYear : name
 
-  if (withoutYear && withoutYear !== name) return `${withoutYear} - ${currentYear}`
-
-  return `${name} - ${currentYear}`
+  return `${rolledForward} - ${currentYear} Copy`
 }

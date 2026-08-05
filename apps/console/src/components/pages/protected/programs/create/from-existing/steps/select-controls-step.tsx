@@ -9,10 +9,14 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Switch } from '@repo/ui/switch'
-import { ChevronDown, ChevronRight, PackageOpen, ShieldCheck } from 'lucide-react'
+import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { ChevronDown, ChevronRight, PackageOpen } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import Skeleton from '@/components/shared/skeleton/skeleton'
+import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
+import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { groupControlsByFramework, type WizardValues } from '../from-existing-wizard-config'
 
 const emptySelection: string[] = []
@@ -30,6 +34,10 @@ const SelectControlsStep = ({ sourceProgramName }: SelectControlsStepProps) => {
 
   // controls owned by the organization, system owned standard controls are imported from a framework instead
   const { allControls: orgControls, isLoading } = useAllControlsGroupedWithListFields({ where: { or: [{ systemOwned: false }, { systemOwnedIsNil: true }] } })
+
+  // archived controls are listed but never preselected, the badge explains why they are unchecked
+  const { allControls: archivedControls } = useAllControlsGroupedWithListFields({ where: { status: ControlControlStatus.ARCHIVED } })
+  const archivedControlIDs = useMemo(() => new Set(archivedControls.map((archivedControl) => archivedControl.id)), [archivedControls])
 
   const selectedControlIDs = useWatch({ control, name: 'controlIDs' }) ?? emptySelection
   const selectedControlSet = useMemo(() => new Set(selectedControlIDs), [selectedControlIDs])
@@ -77,8 +85,8 @@ const SelectControlsStep = ({ sourceProgramName }: SelectControlsStepProps) => {
       <div>
         <h2 className="text-lg font-medium">Select controls</h2>
         <p className="text-sm text-muted-foreground">
-          {sourceProgramName ? `Controls from ${sourceProgramName} are preselected.` : 'Controls from the copied program are preselected.'} Add or remove any control in your organization before
-          creating the program.
+          {sourceProgramName ? `Controls from ${sourceProgramName} are preselected.` : 'Controls from the copied program are preselected.'} Archived controls are left unchecked by default. Add or
+          remove any control in your organization before creating the program.
         </p>
       </div>
 
@@ -143,7 +151,7 @@ const SelectControlsStep = ({ sourceProgramName }: SelectControlsStepProps) => {
                     <div className="flex items-center gap-3 p-4">
                       <Checkbox checked={frameworkStatus === 'all' ? true : frameworkStatus === 'partial' ? 'indeterminate' : false} onCheckedChange={() => toggleFramework(framework)} />
                       <div className="flex h-12 w-12 items-center justify-center rounded-md border bg-secondary">
-                        <ShieldCheck size={22} className="text-brand" />
+                        <StandardsIconMapper height={24} width={24} shortName={framework} />
                       </div>
                       <AccordionTrigger className="flex flex-1 items-center justify-between bg-transparent text-left">
                         <div>
@@ -171,7 +179,13 @@ const SelectControlsStep = ({ sourceProgramName }: SelectControlsStepProps) => {
                             <Checkbox checked={selectedControlSet.has(visibleControl.id)} onCheckedChange={() => toggleControl(visibleControl.id)} />
                             <div>
                               <div className="flex items-center gap-2">
-                                <p className="text-sm font-medium">{visibleControl.refCode}</p>
+                                <ControlChip
+                                  control={{ __typename: ObjectTypes.CONTROL, id: visibleControl.id, refCode: visibleControl.refCode, referenceFramework: visibleControl.referenceFramework }}
+                                  hideStandard
+                                  disableHref
+                                  clickable={false}
+                                />
+                                {archivedControlIDs.has(visibleControl.id) && <Badge variant="outline">Archived</Badge>}
                                 {visibleControl.category && <span className="text-xs text-muted-foreground">{visibleControl.category}</span>}
                               </div>
                               {visibleControl.title && <p className="text-sm text-muted-foreground">{visibleControl.title}</p>}
