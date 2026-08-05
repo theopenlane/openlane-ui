@@ -32,12 +32,7 @@ const SelectControlsStep = ({ sourceProgramName }: SelectControlsStepProps) => {
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
-  // controls owned by the organization, system owned standard controls are imported from a framework instead
   const { allControls: orgControls, isLoading } = useAllControlsGroupedWithListFields({ where: { or: [{ systemOwned: false }, { systemOwnedIsNil: true }] } })
-
-  // archived controls are listed but never preselected, the badge explains why they are unchecked
-  const { allControls: archivedControls } = useAllControlsGroupedWithListFields({ where: { status: ControlControlStatus.ARCHIVED } })
-  const archivedControlIDs = useMemo(() => new Set(archivedControls.map((archivedControl) => archivedControl.id)), [archivedControls])
 
   const selectedControlIDs = useWatch({ control, name: 'controlIDs' }) ?? emptySelection
   const selectedControlSet = useMemo(() => new Set(selectedControlIDs), [selectedControlIDs])
@@ -62,8 +57,9 @@ const SelectControlsStep = ({ sourceProgramName }: SelectControlsStepProps) => {
 
   const toggleFramework = (framework: string) => {
     const controlIDsForFramework = (groupedByFramework[framework] ?? []).map((frameworkControl) => frameworkControl.id)
+    const frameworkControlSet = new Set(controlIDsForFramework)
     const fullySelected = controlIDsForFramework.length > 0 && controlIDsForFramework.every((id) => selectedControlSet.has(id))
-    applySelection(fullySelected ? selectedControlIDs.filter((id) => !controlIDsForFramework.includes(id)) : [...new Set([...selectedControlIDs, ...controlIDsForFramework])])
+    applySelection(fullySelected ? selectedControlIDs.filter((id) => !frameworkControlSet.has(id)) : [...new Set([...selectedControlIDs, ...controlIDsForFramework])])
   }
 
   const allControlIDs = useMemo(() => orgControls.map((orgControl) => orgControl.id), [orgControls])
@@ -105,8 +101,10 @@ const SelectControlsStep = ({ sourceProgramName }: SelectControlsStepProps) => {
             </div>
             <div className="flex items-center gap-2">
               <div className="flex flex-col">
-                <Label className="sr-only">Search</Label>
-                <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search controls..." className="h-9 w-[200px]" />
+                <Label htmlFor="control-search" className="sr-only">
+                  Search
+                </Label>
+                <Input id="control-search" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search controls..." className="h-9 w-[200px]" />
               </div>
               <span className="shrink-0 text-xs font-medium text-muted-foreground">Show only selected</span>
               <Switch checked={showOnlySelected} onCheckedChange={setShowOnlySelected} />
@@ -185,7 +183,7 @@ const SelectControlsStep = ({ sourceProgramName }: SelectControlsStepProps) => {
                                   disableHref
                                   clickable={false}
                                 />
-                                {archivedControlIDs.has(visibleControl.id) && <Badge variant="outline">Archived</Badge>}
+                                {visibleControl.status === ControlControlStatus.ARCHIVED && <Badge variant="outline">Archived</Badge>}
                                 {visibleControl.category && <span className="text-xs text-muted-foreground">{visibleControl.category}</span>}
                               </div>
                               {visibleControl.title && <p className="text-sm text-muted-foreground">{visibleControl.title}</p>}

@@ -52082,7 +52082,7 @@ export interface Notification extends Node {
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** the user this notification is for */
-  userID?: Maybe<Scalars['ID']['output']>
+  userID?: Maybe<Scalars['String']['output']>
 }
 
 /** A connection to a list of items. */
@@ -109174,6 +109174,7 @@ export type ControlListStandardFieldsFragment = {
   refCode: string
   title?: string | null
   description?: string | null
+  status?: ControlControlStatus | null
   category?: string | null
   subcategory?: string | null
   mappedCategories?: Array<string> | null
@@ -109837,6 +109838,7 @@ export type GetControlsPaginatedWithListFieldsQuery = {
         refCode: string
         title?: string | null
         description?: string | null
+        status?: ControlControlStatus | null
         category?: string | null
         subcategory?: string | null
         mappedCategories?: Array<string> | null

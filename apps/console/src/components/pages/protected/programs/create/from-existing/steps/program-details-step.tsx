@@ -59,7 +59,7 @@ const ProgramDetailsStep = ({ sourceProgram, ownerLeftOrg }: ProgramDetailsStepP
         )}
       />
 
-      <ProgramTypeSelect />
+      <ProgramTypeSelect autoName={false} />
 
       <FormField
         control={control}

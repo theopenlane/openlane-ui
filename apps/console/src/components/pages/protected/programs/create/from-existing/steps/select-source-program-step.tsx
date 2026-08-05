@@ -54,7 +54,7 @@ const SelectSourceProgramStep = ({
   const [isSwitchingProgram, setIsSwitchingProgram] = useState(false)
   const { enumOptions } = useGetCustomTypeEnums({ where: { objectType: objectToSnakeCase(ObjectTypes.PROGRAM), field: 'kind' } })
 
-  const showSummary = !isLoading && !!sourceProgram
+  const summaryProgram = !isLoading ? sourceProgram : undefined
   const showProgramSelect = isSwitchingProgram || (!isLoading && !sourceProgram)
 
   return (
@@ -97,7 +97,7 @@ const SelectSourceProgramStep = ({
         </div>
       )}
 
-      {showSummary && sourceProgram && (
+      {summaryProgram && (
         <Card className="divide-y">
           <div className="flex items-center justify-between gap-4 px-4 py-3">
             <FormField
@@ -128,21 +128,21 @@ const SelectSourceProgramStep = ({
                       </>
                     ) : (
                       <>
-                        <h3 className="font-medium">{field.value || sourceProgram.name}</h3>
+                        <h3 className="font-medium">{field.value || summaryProgram.name}</h3>
                         <Button type="button" variant="secondary" size="icon-sm" className="p-0!" aria-label="Edit program name" onClick={() => setIsEditingName(true)}>
                           <Pencil size={14} />
                         </Button>
                       </>
                     )}
-                    {sourceProgram.programKindName && <CustomTypeEnumValue value={sourceProgram.programKindName} options={enumOptions ?? []} />}
-                    {sourceProgram.frameworkName && <Badge variant="outline">{sourceProgram.frameworkName}</Badge>}
+                    {summaryProgram.programKindName && <CustomTypeEnumValue value={summaryProgram.programKindName} options={enumOptions ?? []} />}
+                    {summaryProgram.frameworkName && <Badge variant="outline">{summaryProgram.frameworkName}</Badge>}
                   </div>
                   {fieldState.error && <FormMessage />}
                 </FormItem>
               )}
             />
             <div className="flex shrink-0 items-center gap-2">
-              <Badge variant="outline">Copied from {sourceProgram.name}</Badge>
+              <Badge variant="outline">Copied from {summaryProgram.name}</Badge>
               <Button type="button" variant="secondary" size="icon-sm" className="p-0!" aria-label="Switch program" onClick={() => setIsSwitchingProgram(true)}>
                 <Repeat size={14} />
               </Button>
@@ -152,14 +152,14 @@ const SelectSourceProgramStep = ({
           <div className="grid grid-cols-2 gap-x-8 px-4 py-3">
             <div className="space-y-2">
               <SummaryRow label="New period" value={`${formatDate(newStartDate.toISOString())} - ${formatDate(newEndDate.toISOString())}`} hint="Today through one year from today" />
-              <SummaryRow label="Previous period" value={sourceProgram.startDate ? `${formatDate(sourceProgram.startDate)} - ${formatDate(sourceProgram.endDate)}` : undefined} />
+              <SummaryRow label="Previous period" value={summaryProgram.startDate ? `${formatDate(summaryProgram.startDate)} - ${formatDate(summaryProgram.endDate)}` : undefined} />
               <SummaryRow label="Program owner" value={ownerName} hint={ownerLeftOrg ? 'No longer in this organization, pick a new owner' : undefined} />
-              <SummaryRow label="Description" value={sourceProgram.description} />
+              <SummaryRow label="Description" value={summaryProgram.description} />
             </div>
             <div className="space-y-2">
-              <SummaryRow label="Audit partner" value={sourceProgram.auditor} />
-              <SummaryRow label="Audit firm" value={sourceProgram.auditFirm} />
-              <SummaryRow label="Audit partner email" value={sourceProgram.auditorEmail} />
+              <SummaryRow label="Audit partner" value={summaryProgram.auditor} />
+              <SummaryRow label="Audit firm" value={summaryProgram.auditFirm} />
+              <SummaryRow label="Audit partner email" value={summaryProgram.auditorEmail} />
               <SummaryRow label="Users" value={isTeamLoading ? 'Loading...' : teamSummary(team)} />
               <SummaryRow label="Groups" value={isTeamLoading ? 'Loading...' : groupSummary(team)} />
             </div>
@@ -186,16 +186,16 @@ const SelectSourceProgramStep = ({
         </Card>
       )}
 
-      {showSummary && sourceProgram && (
+      {summaryProgram && (
         <Callout variant="info" icon={<Info className="h-5 w-5 opacity-90" />} compact>
           The new program will be created using the settings above. Click <b>Continue</b> to update the name, audit period, owner, auditor, or controls, or select <b>Create</b> to keep everything as
           shown.
         </Callout>
       )}
 
-      {showSummary && sourceProgram && ownerLeftOrg && (
+      {summaryProgram && ownerLeftOrg && (
         <Callout variant="warning" compact>
-          {`The owner of ${sourceProgram.name} is no longer in this organization, so the new program will be created without an owner unless you pick one.`}
+          {`The owner of ${summaryProgram.name} is no longer in this organization, so the new program will be created without an owner unless you pick one.`}
         </Callout>
       )}
     </div>
