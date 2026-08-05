@@ -262,6 +262,7 @@ const CampaignDetailPage: React.FC = () => {
   const hasQuestionnaire = !!campaign.templateID
   const hasEmailTemplate = !!campaign.emailTemplateID
   const hasCampaignContent = hasQuestionnaire || hasEmailTemplate
+  const showProgress = campaign.campaignType !== CampaignCampaignType.CUSTOM || !!campaign.assessmentID
   const campaignTypeLabel = campaign.campaignType ? getEnumLabel(campaign.campaignType) : '—'
   const launchBlockedReason = getLaunchBlockedReason({ hasCampaignContent, isFetchingRecipients, hasRecipientsError, recipientCount: stats.total })
   const canLaunch = !launchBlockedReason
@@ -299,7 +300,7 @@ const CampaignDetailPage: React.FC = () => {
     setInternalEditing,
     handleUpdate: handleInlineFieldUpdate,
     layout: 'horizontal' as const,
-    labelClassName: 'text-muted-foreground',
+    labelClassName: 'text-sm text-muted-foreground',
   }
 
   const emailTemplateFieldProps = {
@@ -538,6 +539,9 @@ const CampaignDetailPage: React.FC = () => {
           recipientCount={stats.total}
           launchBlockedReason={launchBlockedReason}
           recipientsSlot={stats.total > 0 ? <RecipientsTable campaignId={campaignId} onRecipientClick={setSelectedRecipient} showDelivery={false} canRemove /> : undefined}
+          isRecurring={!!campaign.isRecurring}
+          recurrenceLabel={describeCampaignRecurrence(campaign)}
+          onEditRecurrence={() => setEditRecurrenceOpen(true)}
           onEditDetails={() => setEditDetailsOpen(true)}
           onChangeTemplate={() => setChangeTemplateOpen(true)}
           onRemoveTemplate={handleRemoveTemplate}
@@ -560,12 +564,14 @@ const CampaignDetailPage: React.FC = () => {
               </div>
             </div>
           )}
-          <div className="rounded-md border border-border bg-card p-4 mb-4 w-full">
-            <h3 className="text-sm font-semibold mb-3">Campaign Progress</h3>
-            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-green-500 rounded-full transition-all" style={{ width: `${progressPercent}%` }} />
+          {showProgress && (
+            <div className="rounded-md border border-border bg-card p-4 mb-4 w-full">
+              <h3 className="text-sm font-semibold mb-3">Campaign Progress</h3>
+              <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-green-500 rounded-full transition-all" style={{ width: `${progressPercent}%` }} />
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="grid grid-cols-4 gap-3 mb-3">
             <div className="rounded-md border border-border bg-card p-3">

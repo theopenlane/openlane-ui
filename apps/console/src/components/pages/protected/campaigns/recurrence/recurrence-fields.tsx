@@ -69,7 +69,7 @@ export const RecurrenceFields: React.FC<RecurrenceFieldsProps> = ({ values, onCh
 
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium">End date (optional)</label>
-            <CalendarPopover defaultValue={values.endAt} disabledFrom={today} onChange={(endAt) => onChange({ ...values, endAt })} />
+            <CalendarPopover portal defaultValue={values.endAt} disabledFrom={today} onChange={(endAt) => onChange({ ...values, endAt })} />
           </div>
         </div>
       )}

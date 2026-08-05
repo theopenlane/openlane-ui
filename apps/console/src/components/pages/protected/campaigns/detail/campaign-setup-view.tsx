@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { cn } from '@repo/ui/lib/utils'
-import { AlertTriangle, Calendar, Check, CircleCheck, Circle, CircleHelp, FileText, Lock, Mail, Rocket, SendHorizontal, Users } from 'lucide-react'
+import { AlertTriangle, Calendar, Check, CircleCheck, Circle, CircleHelp, FileText, Lock, Mail, Repeat, Rocket, SendHorizontal, Users } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 import { ModeOption } from './mode-option'
 
@@ -20,6 +20,9 @@ interface CampaignSetupViewProps {
   launchBlockedReason?: string
   recipientsSlot?: React.ReactNode
   isUpdating?: boolean
+  isRecurring: boolean
+  recurrenceLabel: string
+  onEditRecurrence: () => void
   onEditDetails: () => void
   onChangeTemplate: () => void
   onRemoveTemplate: () => Promise<boolean>
@@ -41,6 +44,9 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
   launchBlockedReason,
   recipientsSlot,
   isUpdating,
+  isRecurring,
+  recurrenceLabel,
+  onEditRecurrence,
   onEditDetails,
   onChangeTemplate,
   onRemoveTemplate,
@@ -72,6 +78,7 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
     { label: 'Details', hint: 'Campaign information', done: true },
     { label: mode === 'questionnaire' ? 'Questionnaire' : 'Email template', hint: contentStepHint, done: hasContent },
     { label: 'Recipients', hint: 'Add or import recipients', done: hasRecipients },
+    { label: 'Recurrence', hint: recurrenceLabel, done: isRecurring },
     { label: 'Send Test Email', hint: 'Preview and send a test email', done: false },
     { label: 'Launch', hint: 'Launch now or schedule', done: false },
   ]
@@ -194,6 +201,14 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
           }
         />
         {recipientsSlot && <div className="rounded-md border border-border bg-card p-4">{recipientsSlot}</div>}
+        <SetupCard
+          icon={<Repeat size={18} className="text-brand" />}
+          title="Recurrence"
+          subtitle={isRecurring ? recurrenceLabel : 'Optionally repeat this campaign on a schedule.'}
+          actionLabel={isRecurring ? 'Edit recurrence' : 'Set up recurrence'}
+          onAction={onEditRecurrence}
+          done={isRecurring}
+        />
         <SetupCard
           icon={<SendHorizontal size={18} className="text-brand" />}
           title="Send Test Email"

@@ -120,7 +120,7 @@ export const LaunchCampaignDialog: React.FC<LaunchCampaignDialogProps> = ({ open
             <span className="text-sm font-medium">Launch date &amp; time</span>
             <div className="flex items-center gap-2">
               <div className="flex-1">
-                <CalendarPopover onChange={(val) => setScheduledDate(val)} />
+                <CalendarPopover portal onChange={(val) => setScheduledDate(val)} />
               </div>
               <Select value={scheduledTime} onValueChange={setScheduledTime}>
                 <SelectTrigger className="w-32">
