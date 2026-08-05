@@ -85,7 +85,7 @@ export const DateField = <TUpdateInput,>({
                 }}
               />
             ) : (
-              <div className={cn('text-sm py-2 rounded-md cursor-pointer px-1 w-full hover:bg-accent', layout === 'horizontal' && 'text-right')} onClick={handleClick}>
+              <div className={cn('text-sm py-2 rounded-md px-1 w-full', isEditAllowed && 'cursor-pointer hover:bg-accent', layout === 'horizontal' && 'text-right')} onClick={handleClick}>
                 {value ? formatDate(value) : <span className="text-muted-foreground italic">Not set</span>}
               </div>
             )}

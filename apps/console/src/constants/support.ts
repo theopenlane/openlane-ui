@@ -11,4 +11,4 @@ export const supportUser = (): User =>
     email: '',
   }) as unknown as User
 
-export const SUPPORT_BLOCKED_PAGES = ['/user-settings/profile', '/developers/personal-access-tokens', '/developers/api-tokens']
+export const SUPPORT_BLOCKED_PAGES = ['/user-settings/profile', '/developers/personal-access-tokens']

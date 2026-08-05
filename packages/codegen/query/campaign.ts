@@ -33,6 +33,7 @@ export const GET_ALL_CAMPAIGNS = gql`
           recipientCount
           recurrenceCron
           recurrenceEndAt
+          recurrenceFrequency
           recurrenceInterval
           recurrenceTimezone
           resendCount
@@ -94,6 +95,7 @@ export const CAMPAIGN = gql`
       recipientCount
       recurrenceCron
       recurrenceEndAt
+      recurrenceFrequency
       recurrenceInterval
       recurrenceTimezone
       resendCount
