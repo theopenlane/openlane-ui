@@ -28,7 +28,7 @@ const TimezoneSelectInner: React.FC<TimezoneSelectProps> = ({ value, onChange, r
   const selectedLabel = formatTimeZoneLabel(value, offsetDate)
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover modal open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button type="button" className="flex h-10 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-input px-3 text-sm">
           <span className="inline-flex min-w-0 items-center gap-2">
