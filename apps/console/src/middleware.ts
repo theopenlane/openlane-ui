@@ -65,7 +65,9 @@ export default auth(async (req) => {
   }
 
   // needed for accepting invites to orgs
-  if (path === '/login/sso/enforce') {
+  //
+  // also this is needed when users are coming from a shareable org slug
+  if (path === '/login/sso/enforce' || path === '/login/sso') {
     return NextResponse.next()
   }
 
