@@ -7,7 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@repo/ui/checkbox'
 import { Button } from '@repo/ui/button'
 import { AlertTriangle, CalendarClock, Mail, Rocket, SendHorizontal, Users } from 'lucide-react'
+import { TZDate } from '@date-fns/tz'
 import { ModeOption } from './mode-option'
+import { TimezoneSelect } from '@/components/shared/timezone-select/timezone-select'
+import { formatDateTime, getBrowserTimeZone } from '@/utils/date'
 
 export type LaunchContent = { kind: 'questionnaire' | 'email'; label?: string }
 
@@ -24,17 +27,20 @@ interface LaunchCampaignDialogProps {
   summary: LaunchSummary
 }
 
+const formatTimeLabel = (hours: number, minutes: number) => new Date(2000, 0, 1, hours, minutes).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
   const hours = Math.floor(i / 2)
   const minutes = i % 2 === 0 ? 0 : 30
-  const label = new Date(2000, 0, 1, hours, minutes).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-  return { value: `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`, label }
+  return { value: `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`, label: formatTimeLabel(hours, minutes) }
 })
 
 export const LaunchCampaignDialog: React.FC<LaunchCampaignDialogProps> = ({ open, onOpenChange, onLaunch, isPending, summary }) => {
+  const browserTimeZone = useMemo(() => getBrowserTimeZone(), [])
   const [mode, setMode] = useState<'immediate' | 'scheduled'>('immediate')
   const [scheduledDate, setScheduledDate] = useState<Date | null>(null)
   const [scheduledTime, setScheduledTime] = useState<string>('09:00')
+  const [timeZone, setTimeZone] = useState<string>(browserTimeZone)
   const [confirmed, setConfirmed] = useState(false)
   const [now, setNow] = useState(0)
 
@@ -43,28 +49,33 @@ export const LaunchCampaignDialog: React.FC<LaunchCampaignDialogProps> = ({ open
       setMode('immediate')
       setScheduledDate(null)
       setScheduledTime('09:00')
+      setTimeZone(browserTimeZone)
       setConfirmed(false)
       return
     }
     setNow(Date.now())
     const interval = setInterval(() => setNow(Date.now()), 30_000)
     return () => clearInterval(interval)
-  }, [open])
+  }, [open, browserTimeZone])
 
   const scheduledAt = useMemo(() => {
     if (mode === 'immediate' || !scheduledDate) return null
     const [hours, minutes] = scheduledTime.split(':').map(Number)
-    const combined = new Date(scheduledDate)
-    combined.setHours(hours, minutes, 0, 0)
-    return combined
-  }, [mode, scheduledDate, scheduledTime])
+    return new TZDate(scheduledDate.getFullYear(), scheduledDate.getMonth(), scheduledDate.getDate(), hours, minutes, timeZone)
+  }, [mode, scheduledDate, scheduledTime, timeZone])
+
+  const dstAdjustedTime = useMemo(() => {
+    if (!scheduledAt) return null
+    const [hours, minutes] = scheduledTime.split(':').map(Number)
+    return scheduledAt.getHours() !== hours || scheduledAt.getMinutes() !== minutes ? formatTimeLabel(scheduledAt.getHours(), scheduledAt.getMinutes()) : null
+  }, [scheduledAt, scheduledTime])
 
   const isScheduleInFuture = !!scheduledAt && now > 0 && scheduledAt.getTime() > now
   const canLaunch = confirmed && (mode === 'immediate' || isScheduleInFuture)
 
   const handleLaunch = () => {
     if (!canLaunch) return
-    onLaunch(mode === 'immediate' ? null : (scheduledAt?.toISOString() ?? null))
+    onLaunch(scheduledAt?.toISOString() ?? null)
   }
 
   return (
@@ -122,6 +133,9 @@ export const LaunchCampaignDialog: React.FC<LaunchCampaignDialogProps> = ({ open
                 </SelectContent>
               </Select>
             </div>
+            <TimezoneSelect value={timeZone} onChange={setTimeZone} referenceDate={scheduledAt} />
+            {dstAdjustedTime && <span className="text-xs text-muted-foreground">This time is skipped by daylight saving in the selected timezone; the campaign will launch at {dstAdjustedTime}.</span>}
+            {scheduledAt && timeZone !== browserTimeZone && <span className="text-xs text-muted-foreground">Your local time: {formatDateTime(scheduledAt.toISOString())}</span>}
           </div>
         )}
 

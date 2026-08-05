@@ -1,4 +1,5 @@
 import { differenceInCalendarDays, format, isPast, isToday, isTomorrow } from 'date-fns'
+import { tzOffset } from '@date-fns/tz'
 
 export const MS_PER_DAY = 24 * 60 * 60 * 1000
 
@@ -160,3 +161,35 @@ const formatCurrency = (cost?: number | null): string | undefined => {
 }
 
 export { formatCurrency }
+
+const getBrowserTimeZone = (): string => Intl.DateTimeFormat().resolvedOptions().timeZone
+
+export { getBrowserTimeZone }
+
+const formatUtcOffset = (offsetMinutes: number): string => {
+  const sign = offsetMinutes < 0 ? '-' : '+'
+  const absMinutes = Math.abs(offsetMinutes)
+  return `GMT${sign}${String(Math.floor(absMinutes / 60)).padStart(2, '0')}:${String(absMinutes % 60).padStart(2, '0')}`
+}
+
+const formatTimeZoneLabel = (timeZone: string, date: Date): string => {
+  const offsetMinutes = tzOffset(timeZone, date)
+  const zoneName = timeZone.replaceAll('_', ' ')
+  return Number.isNaN(offsetMinutes) ? zoneName : `(${formatUtcOffset(offsetMinutes)}) ${zoneName}`
+}
+
+export { formatTimeZoneLabel }
+
+const shortZoneNameFormat = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short' })
+
+const formatDateTimeWithZone = (date: string | null | undefined, empty?: string): string => {
+  if (!date || date === '') {
+    return dateFallback(empty)
+  }
+
+  const dateObj = new Date(date)
+  const zoneName = shortZoneNameFormat.formatToParts(dateObj).find((part) => part.type === 'timeZoneName')?.value
+  return `${format(dateObj, 'MMMM d, yyyy h:mm aa')}${zoneName ? ` (${zoneName})` : ''}`
+}
+
+export { formatDateTimeWithZone }

@@ -14,7 +14,7 @@ import { type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-ta
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CampaignCampaignStatus, CampaignCampaignType, type UpdateCampaignInput } from '@repo/codegen/src/schema'
-import { formatDate } from '@/utils/date'
+import { formatDate, formatDateTimeWithZone } from '@/utils/date'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import Menu from '@/components/shared/menu/menu'
@@ -175,7 +175,7 @@ const CampaignDetailPage: React.FC = () => {
       successNotification({
         title: scheduledAt ? 'Campaign scheduled' : 'Campaign launched',
         description: scheduledAt
-          ? `${queuedCount} recipient${queuedCount === 1 ? '' : 's'} scheduled for ${formatDate(scheduledAt)}${skippedSuffix}.`
+          ? `${queuedCount} recipient${queuedCount === 1 ? '' : 's'} scheduled for ${formatDateTimeWithZone(scheduledAt)}${skippedSuffix}.`
           : `Queued ${queuedCount} email${queuedCount === 1 ? '' : 's'}${skippedSuffix}.`,
       })
       setLaunchDialogOpen(false)
@@ -252,7 +252,7 @@ const CampaignDetailPage: React.FC = () => {
     {
       [CampaignCampaignStatus.SCHEDULED]: {
         title: 'This campaign is scheduled',
-        description: `It will launch on ${campaign.scheduledAt ? formatDate(campaign.scheduledAt as string) : 'the scheduled date'}. Campaign content, settings, and recipients cannot be changed.`,
+        description: `It will launch on ${campaign.scheduledAt ? formatDateTimeWithZone(campaign.scheduledAt as string) : 'the scheduled date'}. Campaign content, settings, and recipients cannot be changed.`,
       },
       [CampaignCampaignStatus.ACTIVE]: {
         title: 'This campaign is active',
@@ -468,7 +468,7 @@ const CampaignDetailPage: React.FC = () => {
             </Badge>
           )}
           <Badge variant="outline" className="text-muted-foreground">
-            {launched ? `Launched ${formatDate(campaign.launchedAt as string)}` : campaign.scheduledAt ? `Scheduled ${formatDate(campaign.scheduledAt as string)}` : 'Not launched'}
+            {launched ? `Launched ${formatDate(campaign.launchedAt as string)}` : campaign.scheduledAt ? `Scheduled ${formatDateTimeWithZone(campaign.scheduledAt as string)}` : 'Not launched'}
           </Badge>
         </div>
         <TextField
