@@ -7,7 +7,7 @@ import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
-import { Check, Hourglass, Info, Pencil, Repeat } from 'lucide-react'
+import { Check, Hourglass, Pencil, Repeat } from 'lucide-react'
 import { Callout } from '@/components/shared/callout/callout'
 import CountBadge from '@/components/shared/count-badge/count-badge'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
@@ -187,7 +187,7 @@ const SelectSourceProgramStep = ({
       )}
 
       {summaryProgram && (
-        <Callout variant="info" icon={<Info className="h-5 w-5 opacity-90" />} compact>
+        <Callout variant="info" compact>
           The new program will be created using the settings above. Click <b>Continue</b> to update the name, audit period, owner, auditor, or controls, or select <b>Create</b> to keep everything as
           shown.
         </Callout>
