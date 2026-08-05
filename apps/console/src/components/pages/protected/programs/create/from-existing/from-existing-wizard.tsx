@@ -1,6 +1,6 @@
 'use client'
 
-import React, { use, useEffect, useMemo, useRef, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { defineStepper } from '@stepperize/react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -13,34 +13,32 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { StepHeader } from '@/components/shared/step-header/step-header'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useNotification } from '@/hooks/useNotification'
-import { useCreateProgramWithMembers, useGetProgramBasicInfo, useGetProgramGroups, useGetProgramMembers } from '@/lib/graphql-hooks/program'
-import { useUserSelect } from '@/lib/graphql-hooks/member'
-import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
+import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ControlControlStatus, ProgramMembershipRole, type CreateProgramWithMembersInput } from '@repo/codegen/src/schema'
+import { ProgramMembershipRole, type CreateProgramWithMembersInput } from '@repo/codegen/src/schema'
 import SelectSourceProgramStep from './steps/select-source-program-step'
 import ProgramDetailsStep from './steps/program-details-step'
 import AuditorStep from './steps/auditor-step'
 import SelectControlsStep from './steps/select-controls-step'
 import TeamStep from './steps/team-step'
-import {
-  auditorStepSchema,
-  auditorValuesFrom,
-  controlCountsByFramework,
-  emptySelections,
-  hasAuditorDetails,
-  controlsStepSchema,
-  detailsStepSchema,
-  sourceProgramStepSchema,
-  suggestedProgramName,
-  teamStepSchema,
-  validateFullAndNotify,
-  wizardSchema,
-  type WizardValues,
-} from './from-existing-wizard-config'
+import { auditorValuesFrom, emptySelections, validateFullAndNotify, wizardSchema, type WizardValues } from './from-existing-wizard-config'
+import { useFromExistingPrefill } from './use-from-existing-prefill'
 
-const today = new Date()
-const oneYearFromToday = addYears(today, 1)
+const stepIds = ['0', '1', '2', '3', '4'] as const
+
+const { useStepper } = defineStepper([
+  { id: '0', label: 'Select a Program' },
+  { id: '1', label: 'Program Details' },
+  { id: '2', label: 'Auditor' },
+  { id: '3', label: 'Team' },
+  { id: '4', label: 'Select Controls' },
+])
+
+const stepTriggerFields: Partial<Record<string, (keyof WizardValues)[]>> = {
+  '0': ['sourceProgramID'],
+  '1': ['name', 'startDate', 'endDate'],
+  '2': ['auditPartnerEmail'],
+}
 
 const FromExistingProgramWizard = () => {
   const router = useRouter()
@@ -51,14 +49,8 @@ const FromExistingProgramWizard = () => {
   const { data: session } = useSession()
   const currentUserID = session?.user?.userId
   const [showExitConfirm, setShowExitConfirm] = useState(false)
-
-  const { useStepper } = defineStepper([
-    { id: '0', label: 'Select a Program', schema: sourceProgramStepSchema },
-    { id: '1', label: 'Program Details', schema: detailsStepSchema },
-    { id: '2', label: 'Auditor', schema: auditorStepSchema },
-    { id: '3', label: 'Team', schema: teamStepSchema },
-    { id: '4', label: 'Select Controls', schema: controlsStepSchema },
-  ])
+  const [today] = useState(() => new Date())
+  const [oneYearFromToday] = useState(() => addYears(new Date(), 1))
 
   const stepper = useStepper()
 
@@ -79,134 +71,51 @@ const FromExistingProgramWizard = () => {
   })
 
   const sourceProgramID = useWatch({ control: methods.control, name: 'sourceProgramID' })
-  const { data: sourceData, isLoading: isSourceLoading } = useGetProgramBasicInfo(sourceProgramID || null)
-  const { userOptions, isLoading: isMembersLoading } = useUserSelect({})
-  const sourceProgram = sourceProgramID ? sourceData?.program : undefined
-  const prefilledForIDRef = useRef<string>('')
 
-  // archived controls stay out of the copy, they are still listed on the controls step if you want them back
   const {
-    allControls: sourceControls,
-    isLoading: isFetchingSourceControls,
-    isSuccess: sourceControlsFetched,
-  } = useAllControlsGroupedWithListFields({
-    where: { and: [{ hasProgramsWith: [{ id: sourceProgramID }] }, { or: [{ statusNEQ: ControlControlStatus.ARCHIVED }, { statusIsNil: true }] }] },
-    enabled: !!sourceProgramID,
-  })
+    sourceProgram,
+    isSourceLoading,
+    isPrefillPending,
+    sourceControlIDs,
+    controlsByFramework,
+    isSourceControlsLoading,
+    sourceTeam,
+    isSourceTeamLoading,
+    ownerName,
+    ownerLeftOrg,
+    handleUseSameAuditorChange,
+  } = useFromExistingPrefill({ methods, sourceProgramID, currentUserID, today, oneYearFromToday })
 
-  const sourceControlIDs = useMemo(() => sourceControls.map((sourceControl) => sourceControl.id), [sourceControls])
-  const controlsByFramework = useMemo(() => controlCountsByFramework(sourceControls), [sourceControls])
-  const controlsInitialized = useWatch({ control: methods.control, name: 'controlsInitialized' })
-
-  const ownerName = userOptions.find((user) => user.value === sourceProgram?.programOwnerID)?.label
-  const ownerLeftOrg = !isMembersLoading && !!sourceProgram?.programOwnerID && !ownerName
-
-  const { data: sourceMembersData, isSuccess: sourceMembersFetched } = useGetProgramMembers({ where: { programID: sourceProgramID || undefined }, enabled: !!sourceProgramID })
-  const { data: sourceGroupsData, isSuccess: sourceGroupsFetched } = useGetProgramGroups({ programId: sourceProgramID || null })
-
-  const sourceTeam = useMemo(() => {
-    const orgUserIDs = new Set(userOptions.map((user) => user.value))
-    const memberships = sourceMembersData?.programMemberships?.edges?.map((edge) => edge?.node).filter((node) => !!node) ?? []
-    // the creator is added to the program automatically, sending them again violates the
-    // unique membership constraint on (user_id, program_id)
-    const inOrg = memberships.filter((membership) => orgUserIDs.has(membership.user.id) && membership.user.id !== currentUserID)
-
-    return {
-      admins: inOrg.filter((membership) => membership.role === ProgramMembershipRole.ADMIN).map((membership) => membership.user.id),
-      members: inOrg.filter((membership) => membership.role !== ProgramMembershipRole.ADMIN).map((membership) => membership.user.id),
-      editorIDs: sourceGroupsData?.program?.editors?.edges?.flatMap((edge) => (edge?.node?.id ? [edge.node.id] : [])) ?? [],
-      viewerIDs: sourceGroupsData?.program?.viewers?.edges?.flatMap((edge) => (edge?.node?.id ? [edge.node.id] : [])) ?? [],
-      droppedMemberCount: memberships.filter((membership) => !orgUserIDs.has(membership.user.id)).length,
+  const submitIfValid = async () => {
+    const firstInvalidStep = await validateFullAndNotify(methods, errorNotification)
+    if (firstInvalidStep !== null) {
+      stepper.goTo(stepIds[firstInvalidStep] ?? '0')
+      return
     }
-  }, [sourceMembersData, sourceGroupsData, userOptions, currentUserID])
-
-  // a disabled or not yet started query reports isLoading false while holding no data,
-  // so these wait on the fetch having succeeded instead
-  const isSourceTeamLoading = !sourceMembersFetched || !sourceGroupsFetched || isMembersLoading
-  const isSourceControlsLoading = isFetchingSourceControls || !sourceControlsFetched
-  const teamInitialized = useWatch({ control: methods.control, name: 'teamInitialized' })
-
-  // copy the source program into the form the first time each source program loads,
-  // everything stays editable from there
-  useEffect(() => {
-    if (!sourceProgram || !sourceProgramID || isMembersLoading || prefilledForIDRef.current === sourceProgramID) return
-
-    prefilledForIDRef.current = sourceProgramID
-    const useSameAuditor = hasAuditorDetails(sourceProgram)
-
-    methods.reset({
-      sourceProgramID,
-      name: suggestedProgramName(sourceProgram.name),
-      description: sourceProgram.description ?? '',
-      programKindName: sourceProgram.programKindName ?? undefined,
-      framework: sourceProgram.frameworkName ?? '',
-      startDate: today,
-      endDate: oneYearFromToday,
-      programOwnerID: ownerLeftOrg ? undefined : (sourceProgram.programOwnerID ?? undefined),
-      useSameAuditor,
-      ...auditorValuesFrom(sourceProgram),
-      ...emptySelections(),
-    })
-  }, [sourceProgram, sourceProgramID, isMembersLoading, ownerLeftOrg, methods])
-
-  // preselect the controls the source program already has, they get linked to the new program as is
-  useEffect(() => {
-    if (!sourceProgramID || isSourceControlsLoading || controlsInitialized) return
-
-    methods.setValue('controlIDs', sourceControlIDs, { shouldDirty: true })
-    methods.setValue('controlsInitialized', true)
-  }, [sourceProgramID, isSourceControlsLoading, controlsInitialized, sourceControlIDs, methods])
-
-  // carry over the admins, members and groups that are still available in this organization
-  useEffect(() => {
-    if (!sourceProgramID || isSourceTeamLoading || teamInitialized) return
-
-    methods.setValue('programAdmins', sourceTeam.admins, { shouldDirty: true })
-    methods.setValue('programMembers', sourceTeam.members, { shouldDirty: true })
-    methods.setValue('editorIDs', sourceTeam.editorIDs, { shouldDirty: true })
-    methods.setValue('viewerIDs', sourceTeam.viewerIDs, { shouldDirty: true })
-    methods.setValue('teamInitialized', true)
-  }, [sourceProgramID, isSourceTeamLoading, teamInitialized, sourceTeam, methods])
-
-  // turning the toggle back on restores the copied auditor, turning it off leaves whatever
-  // is there and just hands the fields over for editing
-  const handleUseSameAuditorChange = (useSameAuditor: boolean) => {
-    if (!useSameAuditor) return
-
-    const { auditPartnerName, auditFirm, auditPartnerEmail } = auditorValuesFrom(sourceProgram)
-
-    methods.setValue('auditPartnerName', auditPartnerName)
-    methods.setValue('auditFirm', auditFirm)
-    methods.setValue('auditPartnerEmail', auditPartnerEmail)
+    await handleSubmit()
   }
 
   const handleNext = async () => {
-    if (!stepper.isLast) {
-      let isValid: boolean
-      if (stepper.current.id === '0') {
-        isValid = await methods.trigger('sourceProgramID')
-      } else if (stepper.current.id === '1') {
-        isValid = await methods.trigger(['name', 'startDate', 'endDate'])
-      } else if (stepper.current.id === '2') {
-        isValid = await methods.trigger('auditPartnerEmail')
-      } else {
-        isValid = await methods.trigger(['programAdmins', 'programMembers', 'editorIDs', 'viewerIDs'])
-      }
+    if (stepper.current.id === '0' && isPrefillPending) return
 
+    if (stepper.isLast) {
+      await submitIfValid()
+      return
+    }
+
+    const fields = stepTriggerFields[stepper.current.id]
+    if (fields) {
+      const isValid = await methods.trigger(fields)
       if (!isValid) {
-        const firstError = Object.values(methods.formState.errors)[0]
-        if (firstError && 'message' in firstError && firstError.message) {
+        const firstError = fields.map((field) => methods.formState.errors[field]).find(Boolean)
+        if (firstError?.message) {
           errorNotification({ title: 'Error', description: String(firstError.message) })
         }
         return
       }
-
-      stepper.next()
-    } else {
-      const validAll = await validateFullAndNotify(methods, errorNotification)
-      if (!validAll) return
-      await handleSubmit()
     }
+
+    stepper.next()
   }
 
   const handleBack = () => {
@@ -218,22 +127,20 @@ const FromExistingProgramWizard = () => {
     stepper.prev()
   }
 
-  const handleQuickCreate = async () => {
-    const validAll = await validateFullAndNotify(methods, errorNotification)
-    if (!validAll) return
-    await handleSubmit()
-  }
-
   const handleSubmit = async () => {
     const values = methods.getValues()
 
     const toMembers = (userIDs: string[] | undefined, role: ProgramMembershipRole) => userIDs?.map((userID) => ({ userID, role })) ?? []
 
     const input: CreateProgramWithMembersInput = {
-      members: [...toMembers(values.programAdmins, ProgramMembershipRole.ADMIN), ...toMembers(values.programMembers, ProgramMembershipRole.MEMBER)],
+      members: [
+        ...toMembers(values.programAdmins, ProgramMembershipRole.ADMIN),
+        ...toMembers(values.programMembers, ProgramMembershipRole.MEMBER),
+        ...toMembers(values.programAuditors, ProgramMembershipRole.AUDITOR),
+      ],
       program: {
         name: values.name,
-        description: values.description,
+        description: values.description || undefined,
         programKindName: values.programKindName,
         frameworkName: values.framework || undefined,
         startDate: values.startDate ?? undefined,
@@ -286,7 +193,7 @@ const FromExistingProgramWizard = () => {
               0: () => (
                 <SelectSourceProgramStep
                   sourceProgram={sourceProgram}
-                  isLoading={!!sourceProgramID && isSourceLoading}
+                  isLoading={!!sourceProgramID && (isSourceLoading || isPrefillPending)}
                   controlsByFramework={controlsByFramework}
                   controlCount={sourceControlIDs.length}
                   isControlsLoading={!!sourceProgramID && isSourceControlsLoading}
@@ -310,11 +217,17 @@ const FromExistingProgramWizard = () => {
               </Button>
               <div className="flex gap-2">
                 {!stepper.isLast && (
-                  <Button type="button" variant="secondary" onClick={handleQuickCreate} disabled={!sourceProgramID || isPending || isSourceControlsLoading || isSourceTeamLoading} loading={isPending}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={submitIfValid}
+                    disabled={!sourceProgramID || isPending || isPrefillPending || isSourceControlsLoading || isSourceTeamLoading}
+                    loading={isPending}
+                  >
                     Create
                   </Button>
                 )}
-                <Button type="button" variant="primary" onClick={handleNext} disabled={isPending} loading={isPending}>
+                <Button type="button" variant="primary" onClick={handleNext} disabled={isPending || (stepper.current.id === '0' && isPrefillPending)} loading={isPending}>
                   {stepper.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>

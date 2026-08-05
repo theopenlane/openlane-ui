@@ -17,7 +17,6 @@ const AuditorStep = ({ sourceProgram, onUseSameAuditorChange }: AuditorStepProps
   const { control } = useFormContext<WizardValues>()
 
   const hasSourceAuditor = hasAuditorDetails(sourceProgram)
-  // while the toggle is on the fields mirror the copied program, turning it off clears them for a new auditor
   const useSameAuditor = !!useWatch({ control, name: 'useSameAuditor' })
 
   return (

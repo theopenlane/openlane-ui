@@ -16,9 +16,7 @@ type TeamStepProps = {
 const TeamStep = ({ sourceProgram, droppedMemberCount }: TeamStepProps) => {
   const { data: session } = useSession()
   const currentUserID = session?.user?.userId
-  // the creator is already a member of the program, offering them again would fail on create,
-  // the filter waits for the session so the list is never queried with an empty predicate
-  const { userOptions } = useUserSelect(currentUserID ? { where: { not: { userID: currentUserID } } } : {})
+  const { userOptions } = useUserSelect({ where: { not: { userID: currentUserID } }, enabled: !!currentUserID })
   const { groupOptions } = useGroupSelect()
 
   return (
@@ -39,6 +37,7 @@ const TeamStep = ({ sourceProgram, droppedMemberCount }: TeamStepProps) => {
       <div className="space-y-6">
         <AddSelectDropdown fieldName="programAdmins" formLabel="Program Admins" placeholder="Search users..." options={userOptions} />
         <AddSelectDropdown fieldName="programMembers" formLabel="Program Members" placeholder="Search users..." options={userOptions} />
+        <AddSelectDropdown fieldName="programAuditors" formLabel="Program Auditors" placeholder="Search users..." options={userOptions} />
         <AddSelectDropdown fieldName="editorIDs" formLabel="Groups with Edit Access" placeholder="Search groups..." options={groupOptions} />
         <AddSelectDropdown fieldName="viewerIDs" formLabel="Groups with Read Only Access" placeholder="Search groups..." options={groupOptions} />
       </div>

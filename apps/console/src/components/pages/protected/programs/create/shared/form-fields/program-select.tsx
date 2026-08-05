@@ -8,7 +8,7 @@ import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-e
 
 const currentYear = getYear(new Date())
 
-const ProgramTypeSelect = () => {
+const ProgramTypeSelect = ({ autoName = true }: { autoName?: boolean }) => {
   const { control, setValue, trigger } = useFormContext()
   const { enumOptions, onCreateOption } = useCreatableEnumOptions({
     objectType: objectToSnakeCase(ObjectTypes.PROGRAM),
@@ -40,7 +40,7 @@ const ProgramTypeSelect = () => {
                 setValue('programKindName', value)
                 trigger('programKindName')
 
-                if (value === 'Risk Assessment' || value === 'Gap Analysis') {
+                if (autoName && (value === 'Risk Assessment' || value === 'Gap Analysis')) {
                   const selectedOption = enumOptions?.find((opt) => opt.value === value)
                   if (selectedOption?.label) {
                     setValue('name', `${selectedOption.label} - ${currentYear}`)

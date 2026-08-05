@@ -29,6 +29,7 @@ export const auditorStepSchema = z.object({
 export const teamStepSchema = z.object({
   programAdmins: z.array(z.string()).optional(),
   programMembers: z.array(z.string()).optional(),
+  programAuditors: z.array(z.string()).optional(),
   editorIDs: z.array(z.string()).optional(),
   viewerIDs: z.array(z.string()).optional(),
   teamInitialized: z.boolean().optional(),
@@ -53,18 +54,26 @@ export const wizardSchema = baseSchema.superRefine((data, ctx) => {
 
 export type WizardValues = z.infer<typeof wizardSchema>
 
-export const validateFullAndNotify = async (methods: UseFormReturn<WizardValues>, notify: (props: TErrorProps) => void): Promise<boolean> => {
-  const result = wizardSchema.safeParse(methods.getValues())
+type WizardField = keyof WizardValues
 
-  if (!result.success) {
-    const firstIssue = result.error.issues[0]
-    if (firstIssue?.message) {
-      notify({ title: 'Error', description: firstIssue.message })
-    }
-    return false
+const stepSchemas = [sourceProgramStepSchema, detailsStepSchema, auditorStepSchema, teamStepSchema, controlsStepSchema]
+
+export const stepIndexForField = (field: WizardField): number => stepSchemas.findIndex((schema) => field in schema.shape)
+
+export const validateFullAndNotify = async (methods: UseFormReturn<WizardValues>, notify: (props: TErrorProps) => void): Promise<number | null> => {
+  const valid = await methods.trigger()
+  if (valid) return null
+
+  const errorSteps = (Object.keys(methods.formState.errors) as WizardField[])
+    .map((field) => ({ step: stepIndexForField(field), message: methods.formState.errors[field]?.message }))
+    .filter((entry) => entry.step >= 0)
+    .sort((a, b) => a.step - b.step)
+
+  const first = errorSteps[0]
+  if (first?.message) {
+    notify({ title: 'Error', description: String(first.message) })
   }
-
-  return true
+  return first?.step ?? 0
 }
 
 export const groupControlsByFramework = <T extends { referenceFramework?: string | null }>(controls: T[]): Record<string, T[]> =>
@@ -84,18 +93,16 @@ type AuditorFields = Pick<SourceProgram, 'auditor' | 'auditFirm' | 'auditorEmail
 
 export const hasAuditorDetails = (program?: AuditorFields): boolean => !!(program?.auditor || program?.auditFirm || program?.auditorEmail)
 
-// auditorValuesFrom keeps the "use the same auditor" toggle and the initial prefill in sync,
-// both fill the same three fields from the copied program
 export const auditorValuesFrom = (program?: AuditorFields) => ({
   auditPartnerName: program?.auditor ?? '',
   auditFirm: program?.auditFirm ?? '',
   auditPartnerEmail: program?.auditorEmail ?? '',
 })
 
-// the team and control selections are filled in by their own effects once those queries settle
 export const emptySelections = () => ({
   programAdmins: [],
   programMembers: [],
+  programAuditors: [],
   editorIDs: [],
   viewerIDs: [],
   teamInitialized: false,
@@ -103,16 +110,13 @@ export const emptySelections = () => ({
   controlsInitialized: false,
 })
 
-// suggestedProgramName rolls a program name forward to the current year so an annual
-// program copied from last year's does not come back as "SOC 2 - 2025" again, and marks
-// it as a copy so it is never mistaken for the program it came from
 export const suggestedProgramName = (sourceName?: string | null): string => {
   const currentYear = new Date().getFullYear()
   const name = (sourceName ?? '').trim()
 
   if (!name) return `Program - ${currentYear} Copy`
 
-  const withoutYear = name.replace(/[\s-]*\b(19|20)\d{2}\b\s*$/, '').trim()
+  const withoutYear = name.replace(/[\s-]*\b(19|20)\d{2}\b(\s+Copy)?\s*$/i, '').trim()
   const rolledForward = withoutYear && withoutYear !== name ? withoutYear : name
 
   return `${rolledForward} - ${currentYear} Copy`

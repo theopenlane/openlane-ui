@@ -10,6 +10,7 @@ export type FrameworkControlCount = {
 export type SourceTeam = {
   admins: string[]
   members: string[]
+  auditors: string[]
   editorIDs: string[]
   viewerIDs: string[]
   droppedMemberCount: number
