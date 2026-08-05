@@ -1,12 +1,12 @@
 'use client'
 
-import React from 'react'
-import { useFormContext } from 'react-hook-form'
+import React, { useMemo } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Callout } from '@/components/shared/callout/callout'
+import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import ProgramTypeSelect from '../../shared/form-fields/program-select'
 import { DateSelect } from '../../shared/form-fields/date-select'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
@@ -26,6 +26,15 @@ const ProgramDetailsStep = ({ sourceProgram, ownerLeftOrg }: ProgramDetailsStepP
   } = useFormContext<WizardValues>()
   const { userOptions } = useUserSelect({})
   const { standardOptions } = useStandardsSelect({})
+  const framework = useWatch({ control, name: 'framework' })
+
+  // standardOptions are keyed by standard id, the program stores the framework by name,
+  // and a copied program can carry a framework that is not one of the known standards
+  const frameworkOptions = useMemo(() => {
+    const options = standardOptions.map((standard) => ({ label: standard.label, value: standard.label }))
+
+    return framework && !options.some((option) => option.value === framework) ? [{ label: framework, value: framework }, ...options] : options
+  }, [standardOptions, framework])
 
   return (
     <div className="max-w-2xl space-y-4">
@@ -59,13 +68,8 @@ const ProgramDetailsStep = ({ sourceProgram, ownerLeftOrg }: ProgramDetailsStepP
           <FormItem>
             <FormLabel>Framework</FormLabel>
             <FormControl>
-              <Input {...field} value={field.value ?? ''} placeholder="Framework name" list="from-existing-frameworks" />
+              <SearchableSingleSelect value={field.value ?? ''} options={frameworkOptions} placeholder="Select a framework" clearable clearLabel="No framework" onChange={field.onChange} />
             </FormControl>
-            <datalist id="from-existing-frameworks">
-              {standardOptions.map((standard) => (
-                <option key={standard.value} value={standard.label} />
-              ))}
-            </datalist>
             {fieldState.error && <FormMessage />}
           </FormItem>
         )}
@@ -90,18 +94,7 @@ const ProgramDetailsStep = ({ sourceProgram, ownerLeftOrg }: ProgramDetailsStepP
           <FormItem>
             <FormLabel>Program Owner</FormLabel>
             <FormControl>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select owner" />
-                </SelectTrigger>
-                <SelectContent>
-                  {userOptions.map((user) => (
-                    <SelectItem key={user.value} value={user.value}>
-                      {user.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSingleSelect value={field.value} options={userOptions} placeholder="Select owner" clearable clearLabel="No owner" onChange={field.onChange} />
             </FormControl>
             {fieldState.error && <FormMessage />}
           </FormItem>

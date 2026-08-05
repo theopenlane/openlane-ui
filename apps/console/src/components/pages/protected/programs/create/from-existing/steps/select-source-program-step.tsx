@@ -7,9 +7,10 @@ import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Check, Hourglass, Info, Pencil, Repeat } from 'lucide-react'
 import { Callout } from '@/components/shared/callout/callout'
+import CountBadge from '@/components/shared/count-badge/count-badge'
+import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
@@ -73,24 +74,15 @@ const SelectSourceProgramStep = ({
                 Program<span className="text-destructive"> *</span>
               </FormLabel>
               <FormControl>
-                <Select
+                <SearchableSingleSelect
                   value={field.value}
-                  onValueChange={(value) => {
+                  options={programOptions}
+                  placeholder="Select a program"
+                  onChange={(value) => {
                     field.onChange(value)
                     setIsSwitchingProgram(false)
                   }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a program" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {programOptions.map((program) => (
-                      <SelectItem key={program.value} value={program.value}>
-                        {program.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                />
               </FormControl>
               {fieldState.error && <FormMessage />}
             </FormItem>
@@ -185,7 +177,7 @@ const SelectSourceProgramStep = ({
                 {controlsByFramework.map((framework) => (
                   <div key={framework.framework} className="flex items-center gap-1.5">
                     <StandardChip referenceFramework={framework.framework} />
-                    <span className="flex h-6 min-w-6 items-center justify-center rounded-full border bg-secondary px-1.5 text-xs">{framework.count}</span>
+                    <CountBadge count={framework.count} />
                   </div>
                 ))}
               </>
