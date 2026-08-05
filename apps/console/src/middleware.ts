@@ -67,6 +67,16 @@ export default auth(async (req) => {
   // needed for accepting invites to orgs
   //
   // also this is needed when users are coming from a shareable org slug
+  // else this falls through to `/dashbaord` always and `/login/sso` page will never be redirected to for us to do the switch.
+  //
+  // the reason why we have this sso/enforce check initially was because the user is authenticated already and we need
+  // to enforce them to go through that page if requred.
+  //
+  // /logn/sso page only worked for unauthenticated users prior to sso shareable urls. so we need to enforce it here too
+  // if an already authenticated user is coming through
+  //
+  // Else after sso shareable url is used, the user will always fall through to the /dashboard page and we will
+  // never be able to switch
   if (path === '/login/sso/enforce' || path === '/login/sso') {
     return NextResponse.next()
   }
