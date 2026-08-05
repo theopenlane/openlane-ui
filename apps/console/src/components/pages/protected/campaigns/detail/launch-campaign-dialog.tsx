@@ -6,11 +6,13 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Button } from '@repo/ui/button'
-import { AlertTriangle, CalendarClock, Mail, Rocket, SendHorizontal, Users } from 'lucide-react'
+import { AlertTriangle, CalendarClock, Mail, Repeat, Rocket, SendHorizontal, Users } from 'lucide-react'
 import { TZDate } from '@date-fns/tz'
 import { ModeOption } from './mode-option'
 import { TimezoneSelect } from '@/components/shared/timezone-select/timezone-select'
 import { formatDateTime, getBrowserTimeZone } from '@/utils/date'
+import { type CampaignRecurrenceValues, describeRecurrence } from '../recurrence/campaign-recurrence'
+import { RecurrenceFields } from '../recurrence/recurrence-fields'
 
 export type LaunchContent = { kind: 'questionnaire' | 'email'; label?: string }
 
@@ -19,12 +21,18 @@ export interface LaunchSummary {
   content: LaunchContent
 }
 
+export type LaunchCampaignValues = {
+  scheduledAt: string | null
+  recurrence: CampaignRecurrenceValues
+}
+
 interface LaunchCampaignDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onLaunch: (scheduledAt: string | null) => Promise<void> | void
+  onLaunch: (values: LaunchCampaignValues) => Promise<void> | void
   isPending?: boolean
   summary: LaunchSummary
+  initialRecurrence: CampaignRecurrenceValues
 }
 
 const formatTimeLabel = (hours: number, minutes: number) => new Date(2000, 0, 1, hours, minutes).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
@@ -35,28 +43,22 @@ const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
   return { value: `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`, label: formatTimeLabel(hours, minutes) }
 })
 
-export const LaunchCampaignDialog: React.FC<LaunchCampaignDialogProps> = ({ open, onOpenChange, onLaunch, isPending, summary }) => {
+export const LaunchCampaignDialog: React.FC<LaunchCampaignDialogProps> = ({ open, onOpenChange, onLaunch, isPending, summary, initialRecurrence }) => {
   const browserTimeZone = useMemo(() => getBrowserTimeZone(), [])
   const [mode, setMode] = useState<'immediate' | 'scheduled'>('immediate')
   const [scheduledDate, setScheduledDate] = useState<Date | null>(null)
   const [scheduledTime, setScheduledTime] = useState<string>('09:00')
   const [timeZone, setTimeZone] = useState<string>(browserTimeZone)
+  const [recurrence, setRecurrence] = useState<CampaignRecurrenceValues>(initialRecurrence)
   const [confirmed, setConfirmed] = useState(false)
   const [now, setNow] = useState(0)
 
   useEffect(() => {
-    if (!open) {
-      setMode('immediate')
-      setScheduledDate(null)
-      setScheduledTime('09:00')
-      setTimeZone(browserTimeZone)
-      setConfirmed(false)
-      return
-    }
+    if (!open) return
     setNow(Date.now())
     const interval = setInterval(() => setNow(Date.now()), 30_000)
     return () => clearInterval(interval)
-  }, [open, browserTimeZone])
+  }, [open])
 
   const scheduledAt = useMemo(() => {
     if (mode === 'immediate' || !scheduledDate) return null
@@ -75,7 +77,7 @@ export const LaunchCampaignDialog: React.FC<LaunchCampaignDialogProps> = ({ open
 
   const handleLaunch = () => {
     if (!canLaunch) return
-    onLaunch(scheduledAt?.toISOString() ?? null)
+    onLaunch({ scheduledAt: scheduledAt?.toISOString() ?? null, recurrence })
   }
 
   return (
@@ -118,7 +120,7 @@ export const LaunchCampaignDialog: React.FC<LaunchCampaignDialogProps> = ({ open
             <span className="text-sm font-medium">Launch date &amp; time</span>
             <div className="flex items-center gap-2">
               <div className="flex-1">
-                <CalendarPopover onChange={(val) => setScheduledDate(val)} />
+                <CalendarPopover portal onChange={(val) => setScheduledDate(val)} />
               </div>
               <Select value={scheduledTime} onValueChange={setScheduledTime}>
                 <SelectTrigger className="w-32">
@@ -138,6 +140,8 @@ export const LaunchCampaignDialog: React.FC<LaunchCampaignDialogProps> = ({ open
             {scheduledAt && timeZone !== browserTimeZone && <span className="text-xs text-muted-foreground">Your local time: {formatDateTime(scheduledAt.toISOString())}</span>}
           </div>
         )}
+
+        <RecurrenceFields values={recurrence} onChange={setRecurrence} />
 
         <div className="flex flex-col gap-2">
           <span className="text-sm font-medium">Summary</span>
@@ -163,6 +167,12 @@ export const LaunchCampaignDialog: React.FC<LaunchCampaignDialogProps> = ({ open
                 )}
               </span>
               <span className="text-sm">{summary.content.label ?? 'Not set'}</span>
+            </div>
+            <div className="flex items-center justify-between gap-4 p-3">
+              <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                <Repeat size={16} /> Repeats
+              </span>
+              <span className="text-sm">{describeRecurrence(recurrence)}</span>
             </div>
           </div>
         </div>
