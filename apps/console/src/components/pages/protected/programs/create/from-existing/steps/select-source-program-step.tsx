@@ -162,7 +162,7 @@ const SelectSourceProgramStep = ({
               <SummaryRow label="Audit partner" value={sourceProgram.auditor} />
               <SummaryRow label="Audit firm" value={sourceProgram.auditFirm} />
               <SummaryRow label="Audit partner email" value={sourceProgram.auditorEmail} />
-              <SummaryRow label="Program team" value={isTeamLoading ? 'Loading...' : teamSummary(team)} />
+              <SummaryRow label="Users" value={isTeamLoading ? 'Loading...' : teamSummary(team)} />
               <SummaryRow label="Groups" value={isTeamLoading ? 'Loading...' : groupSummary(team)} />
             </div>
           </div>

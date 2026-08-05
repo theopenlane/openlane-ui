@@ -259,7 +259,7 @@ const FromExistingProgramWizard = () => {
       { label: 'Compliance', href: '/programs' },
       { label: 'Programs', href: '/programs' },
       { label: 'Create', href: '/programs/create' },
-      { label: 'From existing program', href: '/programs/create/from-existing' },
+      { label: 'Clone', href: '/programs/create/from-existing' },
     ])
   }, [setCrumbs])
 
