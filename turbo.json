@@ -7,6 +7,7 @@
       "env": [
         "NODE_ENV",
         "API_REST_URL",
+        "API_GQL_URL",
         "NEXT_PUBLIC_OPENLANE_URL",
 
         // Auth Settings
@@ -14,8 +15,12 @@
         "AUTH_GITHUB_SECRET",
         "AUTH_GOOGLE_ID",
         "AUTH_GOOGLE_SECRET",
+        "AUTH_SECRET",
+        "NEXTAUTH_SECRET",
         "SESSION_COOKIE_NAME",
         "SESSION_COOKIE_DOMAIN",
+        "SESSION_COOKIE_EXPIRATION_MINUTES",
+        "COOKIE_DOMAIN",
         "NEXT_PUBLIC_ALLOWED_LOGIN_DOMAINS",
         "SESSION_NEXAUTH_MAX_AGE",
 
@@ -43,7 +48,12 @@
         "NEXT_PUBLIC_AI_SUGGESTIONS_ENABLED",
         "GOOGLE_AI_MODEL_NAME",
         "GOOGLE_GENERATIVE_AI_API_KEY",
-        "GCS_LOG_BUCKET"
+        "GCS_LOG_BUCKET",
+        "MAX_OUTPUT_TOKENS",
+        "AI_SYSTEM_INSTRUCTION",
+        "CONTROL_FRAMEWORK_INSTRUCTION",
+        "FLAGS",
+        "FLAGS_SECRET"
       ],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "storybook-static/**"]
     },
