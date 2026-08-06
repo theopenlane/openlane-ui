@@ -5,7 +5,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { useCallback, useState } from 'react'
-import { type FileWithPath, useDropzone } from 'react-dropzone'
+import { useDropzone } from 'react-dropzone'
 import { Button } from '@repo/ui/button'
 import Cropper, { type Area, type Point } from 'react-easy-crop'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
@@ -36,7 +36,7 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
     </>
   )
 
-  const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0]
     const reader = new FileReader()
 
