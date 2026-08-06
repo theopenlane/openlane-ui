@@ -696,7 +696,7 @@ const CampaignDetailPage: React.FC = () => {
         title="Cancel campaign"
         description={
           <>
-            <b>{campaign.name}</b> will stop sending and can no longer be edited. Recipients who already received it keep their access.
+            <b>{campaign.name}</b> will be cancelled. Any scheduled emails will still be sent but not future emails will be sent.
           </>
         }
       />
@@ -710,7 +710,7 @@ const CampaignDetailPage: React.FC = () => {
         title="Delete campaign"
         description={
           <>
-            This action cannot be undone. This will permanently remove <b>{campaign.name}</b> and its recipients from the organization.
+            This action cannot be undone. This will permanently remove <b>{campaign.name}</b> and from the organization and emails will no longer be sent.
           </>
         }
       />
