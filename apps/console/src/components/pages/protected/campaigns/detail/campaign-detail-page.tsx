@@ -7,7 +7,7 @@ import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Ban, Calendar, CalendarClock, ExternalLink, FileText, Lock, Mail, Rocket, SendHorizontal, Trash2 } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useCampaign, useUpdateCampaign, useLaunchCampaign, useResendCampaignIncompleteTargets } from '@/lib/graphql-hooks/campaign'
+import { CAMPAIGN_TERMINAL_STATUSES, useCampaign, useUpdateCampaign, useLaunchCampaign, useResendCampaignIncompleteTargets } from '@/lib/graphql-hooks/campaign'
 import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
 import { useCampaignTargetStats } from '@/lib/graphql-hooks/campaign-target'
 import { type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
@@ -264,7 +264,7 @@ const CampaignDetailPage: React.FC = () => {
   const showProgress = campaign.campaignType !== CampaignCampaignType.CUSTOM || !!campaign.assessmentID
   const campaignTypeLabel = campaign.campaignType ? getEnumLabel(campaign.campaignType) : '—'
   const launchBlockedReason = getLaunchBlockedReason({ hasCampaignContent, isFetchingRecipients, hasRecipientsError, recipientCount: stats.total })
-  const isTerminalStatus = status === CampaignCampaignStatus.COMPLETED || status === CampaignCampaignStatus.CANCELED
+  const isTerminalStatus = CAMPAIGN_TERMINAL_STATUSES.includes(status)
   const canCancel = !isTerminalStatus
   const canEditRecurrence = !isTerminalStatus
   const canSendReminder = status === CampaignCampaignStatus.ACTIVE
