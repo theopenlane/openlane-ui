@@ -31,6 +31,7 @@ export const useFromExistingPrefill = ({ methods, sourceProgramID, currentUserID
     where: {
       and: [
         { hasProgramsWith: [{ id: sourceProgramID }] },
+        { isTrustCenterControl: false },
         { or: [{ statusNEQ: ControlControlStatus.ARCHIVED }, { statusIsNil: true }] },
         { or: [{ systemOwned: false }, { systemOwnedIsNil: true }] },
       ],

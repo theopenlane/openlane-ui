@@ -21,7 +21,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useAllControlsGroupedWithListFields, useBulkEditControl } from '@/lib/graphql-hooks/control'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { useGetStandards, useCloneControls } from '@/lib/graphql-hooks/standard'
+import { useSystemStandard, useCloneControls } from '@/lib/graphql-hooks/standard'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { ControlCategoryIcon } from '@/components/shared/control-category-icon-mapper/control-category-icon-mapper'
 import { useSession } from 'next-auth/react'
@@ -57,10 +57,7 @@ export default function ControlsPage() {
   const { mutateAsync: bulkEditControl, isPending: isBulkEditing } = useBulkEditControl()
   const { queryClient } = useGraphQLClient()
 
-  const { data: otsStandardData } = useGetStandards({
-    where: { shortName: OPENLANE_TRUST_CENTER_STANDARD.shortName, framework: OPENLANE_TRUST_CENTER_STANDARD.framework },
-  })
-  const otsStandardID = otsStandardData?.standards?.edges?.[0]?.node?.id
+  const { standardId: otsStandardID } = useSystemStandard(OPENLANE_TRUST_CENTER_STANDARD)
   const { mutateAsync: cloneControls, isPending: isCloning } = useCloneControls()
 
   const filterWhere = useMemo((): ControlWhereInput => {

@@ -564,7 +564,7 @@ export const GET_CONTROL_COUNTS_BY_STATUS = gql`
 
 export const GET_CONTROL_NOT_IMPLEMENTED_COUNT = gql`
   query GetNotImplementedControlCount {
-    controls(where: { status: NOT_IMPLEMENTED, systemOwned: false }) {
+    controls(where: { status: NOT_IMPLEMENTED, systemOwned: false, isTrustCenterControl: false }) {
       totalCount
     }
   }
@@ -994,59 +994,6 @@ export const BULK_DELETE_CONTROL = gql`
     }
   }
 `
-export const GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS = gql`
-  query GetSuggestedControlsOrSubcontrols($where: MappedControlWhereInput) {
-    mappedControls(where: $where) {
-      edges {
-        node {
-          id
-          source
-          fromControls {
-            edges {
-              node {
-                id
-                referenceFramework
-                refCode
-                __typename
-              }
-            }
-          }
-          toControls {
-            edges {
-              node {
-                id
-                referenceFramework
-                refCode
-                __typename
-              }
-            }
-          }
-          fromSubcontrols {
-            edges {
-              node {
-                id
-                referenceFramework
-                refCode
-                __typename
-              }
-            }
-          }
-          toSubcontrols {
-            edges {
-              node {
-                id
-                referenceFramework
-                refCode
-                __typename
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`
-
 export const GET_EXISTING_CONTROLS_FOR_ORGANIZATION = gql`
   query GetExistingControlsForOrganization($where: ControlWhereInput) {
     controls(where: $where) {

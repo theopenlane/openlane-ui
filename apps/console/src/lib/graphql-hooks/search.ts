@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
-import { OPENLANE_SYSTEM_FRAMEWORKS } from '@/constants/standards'
+import { isSystemStandardRecord } from '@/constants/standards'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import routeList from '@/route-list.json'
 import type { RoutePage } from '@/types'
@@ -59,8 +59,7 @@ export const buildSearchContextLabelLookup = (search?: SearchQuery['search']): S
     const node = edge?.node
     if (!node?.id) continue
 
-    const standardFramework = node.standard?.framework
-    const isSystemStandardControl = Boolean(node.systemOwned && standardFramework && OPENLANE_SYSTEM_FRAMEWORKS.some((framework) => framework === standardFramework))
+    const isSystemStandardControl = isSystemStandardRecord({ systemOwned: node.systemOwned, framework: node.standard?.framework })
 
     lookup.set(getLabelLookupKey('Control', node.id), {
       primaryLabel: node.refCode ?? node.id,
@@ -77,6 +76,7 @@ export const buildSearchContextLabelLookup = (search?: SearchQuery['search']): S
     lookup.set(getLabelLookupKey('Subcontrol', node.id), {
       primaryLabel: node.refCode ?? node.id,
       subcontrolParentId: node.control?.id,
+      isExcludedFromSearch: Boolean(node.control?.isTrustCenterControl) || isSystemStandardRecord({ systemOwned: node.systemOwned, framework: node.control?.standard?.framework }),
     })
   }
 
@@ -149,6 +149,7 @@ export const buildSearchContextLabelLookup = (search?: SearchQuery['search']): S
 
     lookup.set(getLabelLookupKey('Standard', node.id), {
       primaryLabel: node.shortName ?? node.name ?? node.id,
+      isExcludedFromSearch: isSystemStandardRecord(node),
     })
   }
 
@@ -177,7 +178,7 @@ export const enrichSearchContextResults = (results: SearchContextResult[], label
   return results.flatMap((result) => {
     const labelData = labelLookup.get(getLabelLookupKey(result.entityType, result.entityID))
 
-    if (result.entityType === 'Control' && labelData?.isExcludedFromSearch) {
+    if (labelData?.isExcludedFromSearch) {
       return []
     }
 

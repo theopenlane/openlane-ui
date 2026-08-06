@@ -82,18 +82,16 @@ export const buildWhere = (evidenceControls: CustomEvidenceControl[] | null, evi
 }
 
 export const flattenAndFilterControls = (
-  mappedControls: GetAllMappedControlsQuery | undefined,
+  mappedControlEdges: NonNullable<NonNullable<GetAllMappedControlsQuery['mappedControls']>['edges']>,
   evidenceControls: CustomEvidenceControl[] | null,
   evidenceSubcontrols: CustomEvidenceControl[] | null,
 ): RelatedNode[] => {
-  if (!mappedControls?.mappedControls?.edges) return []
-
   const evidenceControlIds = new Set(evidenceControls?.map((ec) => ec.id) ?? [])
   const evidenceSubcontrolIds = new Set(evidenceSubcontrols?.map((ec) => ec.id) ?? [])
 
   const result: RelatedNode[] = []
 
-  mappedControls.mappedControls.edges.forEach((edge) => {
+  mappedControlEdges.forEach((edge) => {
     const node = edge?.node
     if (!node) return
 

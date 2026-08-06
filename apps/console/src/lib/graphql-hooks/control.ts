@@ -26,7 +26,6 @@ import {
   CREATE_CSV_BULK_MAPPED_CONTROL,
   DELETE_NOTE,
   BULK_DELETE_CONTROL,
-  GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS,
   GET_CONTROL_ASSOCIATIONS_BY_ID,
   GET_CONTROL_NOT_IMPLEMENTED_COUNT,
   INSERT_CONTROL_PLATE_COMMENT,
@@ -82,8 +81,6 @@ import {
   type DeleteNoteMutationVariables,
   type DeleteBulkControlMutation,
   type DeleteBulkControlMutationVariables,
-  type MappedControlWhereInput,
-  type GetSuggestedControlsOrSubcontrolsQuery,
   type GetControlAssociationsByIdQuery,
   type GetControlAssociationsByIdQueryVariables,
   type GetNotImplementedControlCountQuery,
@@ -631,23 +628,6 @@ export const useBulkDeleteControls = () => {
       invalidateControlQueries(queryClient)
     },
   })
-}
-
-export const useGetSuggestedControlsOrSubcontrols = ({ where, enabled = true }: { where?: MappedControlWhereInput; enabled?: boolean }) => {
-  const { client } = useGraphQLClient()
-
-  const queryResult = useQuery<GetSuggestedControlsOrSubcontrolsQuery>({
-    queryKey: ['mappedcontrols', where],
-    queryFn: () =>
-      client.request(GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS, {
-        where,
-      }),
-    enabled,
-  })
-
-  return {
-    ...queryResult,
-  }
 }
 
 export const useGetControlNotImplementedCount = () => {

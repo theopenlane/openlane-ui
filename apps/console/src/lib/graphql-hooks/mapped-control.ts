@@ -11,44 +11,10 @@ import {
   type UpdateMappedControlMutationVariables,
   type MappedControlWhereInput,
   EvidenceEvidenceStatus,
-  MappedControlMappingSource,
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery, useInfiniteQuery, type InfiniteData } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import { CREATE_MAPPED_CONTROL, DELETE_MAPPED_CONTROL, GET_MAPPED_CONTROL_BY_ID, GET_ALL_MAPPED_CONTROLS, UPDATE_MAPPED_CONTROL } from '@repo/codegen/query/mapped-control'
-
-type BuildLinkedControlsWhereArgs = {
-  controlId?: string
-  subcontrolId?: string
-  refCode: string
-  sourceFramework?: string | null
-}
-
-export const buildLinkedControlsWhere = ({ controlId, subcontrolId, refCode, sourceFramework }: BuildLinkedControlsWhereArgs): MappedControlWhereInput | undefined => {
-  const isSubcontrolMode = !!subcontrolId
-  const withFilter = sourceFramework ? { refCode, referenceFramework: sourceFramework } : { refCode, referenceFrameworkIsNil: true as const }
-  const suggestedWhere = {
-    and: [{ source: MappedControlMappingSource.SUGGESTED }, isSubcontrolMode ? { hasFromSubcontrolsWith: [withFilter] } : { hasFromControlsWith: [withFilter] }],
-  }
-
-  if (isSubcontrolMode && subcontrolId) {
-    return { or: [suggestedWhere, { hasFromSubcontrolsWith: [{ id: subcontrolId }] }] }
-  }
-
-  if (controlId) {
-    return {
-      or: [
-        suggestedWhere,
-        { hasFromControlsWith: [{ id: controlId }] },
-        { hasToControlsWith: [{ id: controlId }] },
-        { hasFromSubcontrolsWith: [{ controlID: controlId }] },
-        { hasToSubcontrolsWith: [{ controlID: controlId }] },
-      ],
-    }
-  }
-
-  return undefined
-}
 
 export const useCreateMappedControl = () => {
   const { client, queryClient } = useGraphQLClient()
@@ -61,16 +27,6 @@ export const useCreateMappedControl = () => {
         predicate: (query) => (query.queryKey[0] === 'controls' || query.queryKey[0] === 'subcontrols') && query.queryKey[2] === 'relatedControls',
       })
     },
-  })
-}
-
-export const useGetMappedControls = ({ where, enabled = true }: { where: GetAllMappedControlsQueryVariables['where']; enabled?: boolean }) => {
-  const { client } = useGraphQLClient()
-
-  return useQuery<GetAllMappedControlsQuery>({
-    queryKey: ['mappedControls', where],
-    queryFn: () => client.request(GET_ALL_MAPPED_CONTROLS, { where }),
-    enabled,
   })
 }
 

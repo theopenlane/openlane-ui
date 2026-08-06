@@ -32,8 +32,13 @@ export const SEARCH = gql`
           node {
             id
             refCode
+            systemOwned
             control {
               id
+              isTrustCenterControl
+              standard {
+                framework
+              }
             }
           }
         }
@@ -102,6 +107,8 @@ export const SEARCH = gql`
             id
             name
             shortName
+            framework
+            systemOwned
           }
         }
       }

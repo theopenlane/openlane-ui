@@ -11,7 +11,6 @@ import {
   GET_SUBCONTROL_BY_ID_MINIFIED,
   GET_SUBCONTROL_COMMENTS,
   GET_SUBCONTROL_DISCUSSION_BY_ID,
-  GET_SUBCONTROL_SELECT_OPTIONS,
   GET_SUBCONTROLS_BY_REFCODE,
   GET_SUBCONTROL_RELATED_CONTROLS,
   GET_SUBCONTROLS_PAGINATED,
@@ -35,8 +34,6 @@ import {
   type GetSubcontrolDiscussionByIdQuery,
   type GetSubcontrolsByRefCodeQuery,
   type GetSubcontrolRelatedControlsQuery,
-  type GetSubcontrolSelectOptionsQuery,
-  type GetSubcontrolSelectOptionsQueryVariables,
   type GetSubcontrolsPaginatedQuery,
   type GetSubcontrolsPaginatedQueryVariables,
   type Subcontrol,
@@ -212,33 +209,6 @@ export const useCreateSubcontrol = () => {
       queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
-}
-
-export const useSubcontrolSelect = ({ where, enabled = true }: { where?: SubcontrolWhereInput; enabled?: boolean }) => {
-  const { client } = useGraphQLClient()
-
-  const { data, isLoading, error } = useQuery<GetSubcontrolSelectOptionsQuery>({
-    queryKey: ['subcontrols', where, 'select'],
-    queryFn: async () => {
-      return client.request<GetSubcontrolSelectOptionsQuery, GetSubcontrolSelectOptionsQueryVariables>(GET_SUBCONTROL_SELECT_OPTIONS, { where })
-    },
-    enabled,
-  })
-
-  const subcontrolOptions = useMemo(
-    () =>
-      data?.subcontrols?.edges?.flatMap((edge) =>
-        edge?.node?.id && edge.node.refCode ? [{ label: `${edge.node.refCode}${edge.node.referenceFramework ? `( ${edge.node.referenceFramework})` : ''}`, value: edge.node.id }] : [],
-      ) ?? [],
-    [data],
-  )
-
-  return {
-    subcontrolOptions,
-    isLoading,
-    error,
-    data,
-  }
 }
 
 export function useFetchAllSubcontrols(where?: SubcontrolWhereInput, enabled = true) {

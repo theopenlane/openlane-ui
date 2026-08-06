@@ -13,7 +13,6 @@ import { useDebounce } from '@uidotdev/usehooks'
 import Link from 'next/link'
 import { formatDateSince } from '@/utils/date'
 import { INFO_EMAIL } from '@/constants'
-import { OPENLANE_SYSTEM_FRAMEWORKS } from '@/constants/standards'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { type StandardWhereInput } from '@repo/codegen/src/schema'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
@@ -48,15 +47,7 @@ const StandardsPage = () => {
     ])
   }, [setCrumbs])
 
-  const whereFilter = useMemo(() => {
-    const conditions: StandardWhereInput = {
-      frameworkNotIn: OPENLANE_SYSTEM_FRAMEWORKS,
-      ...(debouncedSearchQuery ? { shortNameContainsFold: debouncedSearchQuery } : {}),
-      ...filters,
-    }
-
-    return conditions
-  }, [debouncedSearchQuery, filters])
+  const whereFilter = useMemo<StandardWhereInput>(() => ({ ...(debouncedSearchQuery ? { shortNameContainsFold: debouncedSearchQuery } : {}), ...filters }), [debouncedSearchQuery, filters])
 
   const { data, isLoading, isError } = useGetStandards({ where: whereFilter, enabled: !!filters })
 

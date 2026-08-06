@@ -118,7 +118,7 @@ export default function CreateControlForm() {
   const { data: mappedSubcontrolData } = useGetSubcontrolMinifiedById(mapSubcontrolId || '')
 
   const { data, controlOptions } = useControlSelect({
-    where: search ? { refCodeContainsFold: search } : undefined,
+    where: { systemOwned: false, isTrustCenterControl: false, ...(search ? { refCodeContainsFold: search } : {}) },
   })
 
   const { mutateAsync: createControl } = useCreateControl()
