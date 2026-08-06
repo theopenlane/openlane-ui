@@ -7,7 +7,6 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import BulkCSVCreateSubscriberDialog from '@/components/pages/protected/organization-settings/subscribers/bulk-csv-create-subscriber-dialog.tsx'
 import { type SubscriberWhereInput } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { Button } from '@repo/ui/button'
 
 type TProps = {
   onFilterChange: (filters: SubscriberWhereInput) => void
@@ -36,10 +35,17 @@ const SubscribersTableToolbar: React.FC<TProps> = ({ searching, searchTerm, onFi
           closeOnSelect={true}
           content={(close) => (
             <>
-              <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1 justify-start" onClick={handleExport}>
+              <button
+                type="button"
+                className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                onClick={() => {
+                  handleExport()
+                  close()
+                }}
+              >
                 <DownloadIcon size={16} strokeWidth={2} />
                 <span>Export</span>
-              </Button>
+              </button>
               <button
                 type="button"
                 className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"

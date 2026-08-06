@@ -316,7 +316,7 @@ const SubprocessorsPage = () => {
               selectedRows={selectedRows}
               setSelectedRows={setSelectedRows}
               onExport={handleExportFile}
-              exportEnabled={trustCenterSubprocessors.length === 0}
+              exportEnabled={trustCenterSubprocessors.length > 0}
               canCreateSubprocessor={canCreateSubprocessor}
               canEditSubprocessor={canEditSubprocessor}
             />
