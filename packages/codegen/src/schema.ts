@@ -80746,7 +80746,16 @@ export type SearchQuery = {
       __typename?: 'ControlConnection'
       edges?: Array<{
         __typename?: 'ControlEdge'
-        node?: { __typename?: 'Control'; id: string; refCode: string; ownerID?: string | null; standardID?: string | null; isTrustCenterControl?: boolean | null } | null
+        node?: {
+          __typename?: 'Control'
+          id: string
+          refCode: string
+          ownerID?: string | null
+          standardID?: string | null
+          isTrustCenterControl?: boolean | null
+          systemOwned?: boolean | null
+          standard?: { __typename?: 'Standard'; framework?: string | null } | null
+        } | null
       } | null> | null
     } | null
     subcontrols?: {
