@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { getCookie } from '@/lib/auth/utils/getCookie'
 import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 
@@ -13,6 +13,7 @@ const SSOCallbackPage: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackStartedRef = useRef(false)
+  const { data: sessionData, status, update: updateSession } = useSession()
 
   const getRedirectUrl = (error?: string, isSuccess = false) => {
     const isTesting = localStorage.getItem('testing_sso')
@@ -79,6 +80,19 @@ const SSOCallbackPage: React.FC = () => {
           })
 
           if (signInResult && !signInResult.error) {
+            // we cannot inline this with the if branch above as this is already used for un-authenticated users already
+            // else we won't be able to redirect them correctly
+            if (sessionData) {
+              await updateSession({
+                user: {
+                  ...sessionData.user,
+                  accessToken: data.access_token,
+                  activeOrganizationId: organizationId,
+                  refreshToken: data.refresh_token,
+                },
+              })
+            }
+
             const redirectUrl = sanitizeLoginRedirect(data.redirect_url, getRedirectUrl(undefined, true))
             router.push(redirectUrl)
             return
@@ -99,11 +113,11 @@ const SSOCallbackPage: React.FC = () => {
       }
     }
 
-    if (callbackStartedRef.current) return
+    if (status === 'loading' || callbackStartedRef.current) return
 
     callbackStartedRef.current = true
     handleSSOCallback()
-  }, [router, searchParams])
+  }, [router, searchParams, sessionData, status, updateSession])
 
   return (
     <div className="flex h-full w-full min-h-screen justify-center items-center">
