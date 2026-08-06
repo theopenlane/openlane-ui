@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, useSession } from 'next-auth/react'
 import { getCookie } from '@/lib/auth/utils/getCookie'
 import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
+import { clearSsoTokenAuthorization, readSsoTokenAuthorization } from '@/lib/auth/utils/sso-token-storage'
 
 const ORG_SETTINGS_URL = '/organization-settings/authentication'
 const LOGIN_URL = '/login'
@@ -17,22 +18,22 @@ const SSOCallbackPage: React.FC = () => {
 
   const getRedirectUrl = (error?: string, isSuccess = false) => {
     const isTesting = localStorage.getItem('testing_sso')
-    const apiTokenData = localStorage.getItem('api_token')
+    const tokenAuthorization = readSsoTokenAuthorization()
+    const encodedError = encodeURIComponent(error ?? '')
 
     if (isTesting) {
       if (isSuccess) return `${ORG_SETTINGS_URL}?ssotested=1`
-      return `${ORG_SETTINGS_URL}?ssotested=0&error=${error}`
+      return `${ORG_SETTINGS_URL}?ssotested=0&error=${encodedError}`
     }
 
-    if (apiTokenData) {
-      const tokenInfo = JSON.parse(apiTokenData)
-      const basePath = tokenInfo.isOrg ? '/developers/api-tokens' : '/developers/personal-access-tokens'
+    if (tokenAuthorization) {
+      const basePath = tokenAuthorization === 'api' ? '/developers/api-tokens' : '/developers/personal-access-tokens'
       if (isSuccess) return `${basePath}?token_authorized=1`
-      return `${basePath}?error=${error}`
+      return `${basePath}?error=${encodedError}`
     }
 
     if (isSuccess) return '/'
-    return `${LOGIN_URL}?error=${error}`
+    return `${LOGIN_URL}?error=${encodedError}`
   }
 
   useEffect(() => {
@@ -102,14 +103,14 @@ const SSOCallbackPage: React.FC = () => {
         } else {
           // surface the server's explanation (e.g. authenticated successfully but not a member of the
           // organization) instead of a generic failure code so the login page can guide the user
-          const reason = data?.message ? encodeURIComponent(data.message) : 'sso_callback_failed'
+          const reason = data?.message ? data.message : 'sso_callback_failed'
           router.push(getRedirectUrl(reason))
         }
       } catch {
         router.push(getRedirectUrl('sso_callback_error'))
       } finally {
         localStorage.removeItem('testing_sso')
-        localStorage.removeItem('api_token')
+        clearSsoTokenAuthorization()
       }
     }
 
