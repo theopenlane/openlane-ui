@@ -20,6 +20,10 @@ export const SEARCH = gql`
             ownerID
             standardID
             isTrustCenterControl
+            systemOwned
+            standard {
+              framework
+            }
           }
         }
       }
