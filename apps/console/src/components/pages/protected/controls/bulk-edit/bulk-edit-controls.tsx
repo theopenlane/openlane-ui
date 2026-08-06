@@ -18,6 +18,7 @@ import {
   defaultObject,
   SelectOptionBulkEditControls,
   useGetAllSelectOptionsForBulkEditControls,
+  useModuleFilteredSelectOptions,
   InputType,
   bulkEditFieldsSchema,
   type BulkEditFieldsFormValues,
@@ -306,7 +307,7 @@ const BulkEditRecordsDialog: React.FC<BulkEditRecordsDialogProps> = ({ selectedI
 export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ selectedControls, setSelectedControls, onClearSelectedControls }) => {
   const { mutateAsync: bulkEditControl } = useBulkEditControl()
   const { groups, enumOptions, createControlType } = useBulkEditOptionData()
-  const allOptionSelects = useGetAllSelectOptionsForBulkEditControls(groups, enumOptions)
+  const allOptionSelects = useModuleFilteredSelectOptions(useGetAllSelectOptionsForBulkEditControls(groups, enumOptions))
 
   const clearSelectedControls = () => {
     if (onClearSelectedControls) {

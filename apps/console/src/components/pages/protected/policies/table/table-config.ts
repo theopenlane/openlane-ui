@@ -5,9 +5,10 @@ import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { FilterIcons, InternalPolicyStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 
 export function usePoliciesFilters(): FilterField[] | null {
-  const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
+  const { programOptions, isSuccess: isProgramSuccess, hasProgramAccess } = useProgramSelect()
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
 
   const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
@@ -38,13 +39,7 @@ export function usePoliciesFilters(): FilterField[] | null {
         type: 'text',
         icon: FilterIcons.Control,
       },
-      {
-        key: 'hasProgramsWith',
-        label: 'Program Name',
-        type: 'multiselect',
-        options: programOptions,
-        icon: FilterIcons.ProgramName,
-      },
+      ...getProgramFilterFields(programOptions, hasProgramAccess),
       {
         key: 'hasSubcontrolsWith',
         label: 'Subcontrol Ref Code',
@@ -127,7 +122,7 @@ export function usePoliciesFilters(): FilterField[] | null {
     ]
 
     setFilters(newFilters)
-  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters, isTypesSuccess, enumOptions, tagOptions])
+  }, [isProgramSuccess, hasProgramAccess, programOptions, isGroupSuccess, groupOptions, filters, isTypesSuccess, enumOptions, tagOptions])
 
   return filters
 }

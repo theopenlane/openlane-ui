@@ -15,8 +15,6 @@ import { passKeyProvider } from './providers/passkey'
 import { skipCSRFCheck } from '@auth/core'
 
 import { CredentialsSignin } from 'next-auth'
-import { type PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
-import { featureUtil } from '@/lib/subscription-plan/plans.ts'
 
 export class InvalidLoginError extends CredentialsSignin {
   code = 'Invalid login'
@@ -221,7 +219,6 @@ export const config = {
     async session({ session, token }) {
       try {
         const decodedToken = typeof token.accessToken === 'string' ? jwtDecode<JwtPayload>(token.accessToken) : {}
-        const features = (decodedToken.modules ?? []).flatMap((m: PlanEnum) => featureUtil.getPlanFeatures(m)).filter((f: string, i: number, arr: string[]) => arr.indexOf(f) === i)
 
         const impersonatorId = (decodedToken as { impersonator_id?: string })?.impersonator_id
         const tokenType = (decodedToken as { type?: string })?.type
@@ -236,7 +233,6 @@ export const config = {
           isTfaEnabled: token.isTfaEnabled ?? false,
           isOnboarding: token.isOnboarding ?? false,
           modules: decodedToken?.modules ?? [],
-          features,
           isImpersonation: tokenType === 'support' || !!impersonatorId,
           impersonator: impersonatorId ?? null,
           impersonationSessionId: impersonationSessionId ?? null,

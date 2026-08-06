@@ -66,6 +66,7 @@ import {
   VulnerabilityOrderField,
   ActionPlanOrderField,
 } from '@repo/codegen/src/schema'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { type useQueryClient } from '@tanstack/react-query'
 import { type RequestDocument } from 'graphql-request'
 
@@ -287,6 +288,7 @@ export enum ObjectTypeObjects {
 }
 
 type ObjectQueryConfig = {
+  objectType: ObjectTypes
   responseObjectKey: AllObjectQueriesDataKey
   queryDocument: RequestDocument
   inputName: string
@@ -296,6 +298,7 @@ type ObjectQueryConfig = {
 
 export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> = {
   [ObjectTypeObjects.ACTION_PLAN]: {
+    objectType: ObjectTypes.ACTION_PLAN,
     responseObjectKey: 'actionPlans',
     inputName: 'actionPlanIDs',
     placeholder: 'Search action plans',
@@ -303,6 +306,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: ActionPlanOrderField.title, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.CONTROL]: {
+    objectType: ObjectTypes.CONTROL,
     responseObjectKey: 'controls',
     inputName: 'controlIDs',
     placeholder: 'Search controls',
@@ -310,6 +314,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: {
+    objectType: ObjectTypes.CONTROL_IMPLEMENTATION,
     responseObjectKey: 'controlImplementations',
     inputName: 'controlImplementationIDs',
     placeholder: 'Search control implementations',
@@ -317,6 +322,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: ControlImplementationOrderField.created_at, direction: OrderDirection.DESC }],
   },
   [ObjectTypeObjects.SUB_CONTROL]: {
+    objectType: ObjectTypes.SUBCONTROL,
     responseObjectKey: 'subcontrols',
     inputName: 'subcontrolIDs',
     placeholder: 'Search subcontrols',
@@ -324,6 +330,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: SubcontrolOrderField.ref_code, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.CONTROL_OBJECTIVE]: {
+    objectType: ObjectTypes.CONTROL_OBJECTIVE,
     responseObjectKey: 'controlObjectives',
     inputName: 'controlObjectiveIDs',
     placeholder: 'Search control objectives',
@@ -331,6 +338,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: ControlObjectiveOrderField.name, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.PROGRAM]: {
+    objectType: ObjectTypes.PROGRAM,
     responseObjectKey: 'programs',
     inputName: 'programIDs',
     placeholder: 'Search programs',
@@ -338,6 +346,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: ProgramOrderField.name, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.TASK]: {
+    objectType: ObjectTypes.TASK,
     responseObjectKey: 'tasks',
     inputName: 'taskIDs',
     placeholder: 'Search tasks',
@@ -345,6 +354,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: TaskOrderField.title, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.EVIDENCE]: {
+    objectType: ObjectTypes.EVIDENCE,
     responseObjectKey: 'evidences',
     inputName: 'evidenceIDs',
     placeholder: 'Search evidence',
@@ -352,6 +362,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: EvidenceOrderField.name, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.GROUP]: {
+    objectType: ObjectTypes.GROUP,
     responseObjectKey: 'groups',
     inputName: 'groupIDs',
     placeholder: 'Search groups',
@@ -359,6 +370,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: GroupOrderField.name, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.INTERNAL_POLICY]: {
+    objectType: ObjectTypes.INTERNAL_POLICY,
     responseObjectKey: 'internalPolicies',
     inputName: 'internalPolicyIDs',
     placeholder: 'Search internal policies',
@@ -366,6 +378,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: InternalPolicyOrderField.name, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.PROCEDURE]: {
+    objectType: ObjectTypes.PROCEDURE,
     responseObjectKey: 'procedures',
     inputName: 'procedureIDs',
     placeholder: 'Search procedures',
@@ -373,6 +386,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: ProcedureOrderField.name, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.RISK]: {
+    objectType: ObjectTypes.RISK,
     responseObjectKey: 'risks',
     inputName: 'riskIDs',
     placeholder: 'Search risks',
@@ -380,6 +394,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: RiskOrderField.name, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.SCAN]: {
+    objectType: ObjectTypes.SCAN,
     responseObjectKey: 'scans',
     inputName: 'scanIDs',
     placeholder: 'Search scans',
@@ -387,6 +402,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: ScanOrderField.created_at, direction: OrderDirection.DESC }],
   },
   [ObjectTypeObjects.CAMPAIGN]: {
+    objectType: ObjectTypes.CAMPAIGN,
     responseObjectKey: 'campaigns',
     inputName: 'campaignIDs',
     placeholder: 'Search campaigns',
@@ -394,6 +410,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: CampaignOrderField.name, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.ASSET]: {
+    objectType: ObjectTypes.ASSET,
     responseObjectKey: 'assets',
     inputName: 'assetIDs',
     placeholder: 'Search assets',
@@ -401,6 +418,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: AssetOrderField.name, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.ENTITY]: {
+    objectType: ObjectTypes.ENTITY,
     responseObjectKey: 'entities',
     inputName: 'entityIDs',
     placeholder: 'Search vendors',
@@ -408,6 +426,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: EntityOrderField.name, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.FINDING]: {
+    objectType: ObjectTypes.FINDING,
     responseObjectKey: 'findings',
     inputName: 'findingIDs',
     placeholder: 'Search findings',
@@ -415,6 +434,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: FindingOrderField.external_id, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.IDENTITY_HOLDER]: {
+    objectType: ObjectTypes.IDENTITY_HOLDER,
     responseObjectKey: 'identityHolders',
     inputName: 'identityHolderIDs',
     placeholder: 'Search personnel',
@@ -422,6 +442,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: IdentityHolderOrderField.full_name, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.REMEDIATION]: {
+    objectType: ObjectTypes.REMEDIATION,
     responseObjectKey: 'remediations',
     inputName: 'remediationIDs',
     placeholder: 'Search remediations',
@@ -429,6 +450,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: RemediationOrderField.title, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.REVIEW]: {
+    objectType: ObjectTypes.REVIEW,
     responseObjectKey: 'reviews',
     inputName: 'reviewIDs',
     placeholder: 'Search reviews',
@@ -436,6 +458,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     defaultOrderBy: [{ field: ReviewOrderField.title, direction: OrderDirection.ASC }],
   },
   [ObjectTypeObjects.VULNERABILITY]: {
+    objectType: ObjectTypes.VULNERABILITY,
     responseObjectKey: 'vulnerabilities',
     inputName: 'vulnerabilityIDs',
     placeholder: 'Search vulnerabilities',

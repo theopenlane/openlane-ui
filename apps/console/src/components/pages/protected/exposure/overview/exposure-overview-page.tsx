@@ -23,6 +23,7 @@ import ItemsRequiringAttention from './items-requiring-attention'
 import ConfigureSlaSheet from './configure-sla-sheet'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useSession } from 'next-auth/react'
+import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
 
 const CRIT_WHERE = { or: [{ severityContainsFold: 'critical' }, { severityIn: ['CRITICAL', 'Critical'] }] }
 const HIGH_WHERE = { or: [{ severityContainsFold: 'high' }, { severityIn: ['HIGH', 'High'] }] }
@@ -50,19 +51,27 @@ const ExposureOverviewPage = () => {
   const { data: findMedData, findingsNodes: findMedNodes } = useFindingsWithFilter({ where: { open: true, ...MED_WHERE }, pagination: DEFAULT_PAGINATION })
   const { data: findLowData, findingsNodes: findLowNodes } = useFindingsWithFilter({ where: { open: true, ...LOW_WHERE }, pagination: DEFAULT_PAGINATION })
 
+  const hasRiskAccess = useHasObjectType(ObjectTypes.RISK)
   const { data: riskCritData, risks: riskCritNodes } = useRisks({
     where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.CRITICAL] },
     pagination: DEFAULT_PAGINATION,
+    enabled: hasRiskAccess,
   })
   const { data: riskHighData, risks: riskHighNodes } = useRisks({
     where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.HIGH] },
     pagination: DEFAULT_PAGINATION,
+    enabled: hasRiskAccess,
   })
   const { data: riskMedData, risks: riskMedNodes } = useRisks({
     where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.MODERATE] },
     pagination: DEFAULT_PAGINATION,
+    enabled: hasRiskAccess,
   })
-  const { data: riskLowData, risks: riskLowNodes } = useRisks({ where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.LOW] }, pagination: DEFAULT_PAGINATION })
+  const { data: riskLowData, risks: riskLowNodes } = useRisks({
+    where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.LOW] },
+    pagination: DEFAULT_PAGINATION,
+    enabled: hasRiskAccess,
+  })
 
   const severityData = useMemo(
     () => ({
@@ -145,6 +154,7 @@ const ExposureOverviewPage = () => {
     where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED] },
     orderBy: [{ field: RiskOrderField.created_at, direction: OrderDirection.DESC }],
     pagination: DEFAULT_PAGINATION,
+    enabled: hasRiskAccess,
   })
 
   const attentionItems = useMemo(() => {

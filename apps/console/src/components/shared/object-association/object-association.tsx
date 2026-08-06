@@ -26,6 +26,7 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import Pagination from '@repo/ui/pagination'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useSession } from 'next-auth/react'
+import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
 
 const initialPagination = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } }
 
@@ -39,13 +40,20 @@ type Props = {
 
 const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCodeInitialData, defaultSelectedObject }: Props) => {
   const { client } = useGraphQLClient()
+  const { hasObjectType } = useModuleAccess()
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(defaultSelectedObject || null)
   const [searchValue, setSearchValue] = useState('')
   const [pagination, setPagination] = useState<TPagination>(initialPagination)
   const debouncedSearchValue = useDebounce(searchValue, 300)
   const [activeSheet, setActiveSheet] = useState<{ id: string; type: ObjectTypeObjects } | null>(null)
 
-  const selectedConfig = selectedObject ? OBJECT_QUERY_CONFIG[selectedObject] : null
+  const selectableObjectTypes = useMemo(
+    () => Object.values(ObjectTypeObjects).filter((option) => (!allowedObjectTypes || allowedObjectTypes.includes(option)) && hasObjectType(OBJECT_QUERY_CONFIG[option].objectType)),
+    [allowedObjectTypes, hasObjectType],
+  )
+
+  const isSelectedObjectAllowed = !!selectedObject && selectableObjectTypes.includes(selectedObject)
+  const selectedConfig = isSelectedObjectAllowed && selectedObject ? OBJECT_QUERY_CONFIG[selectedObject] : null
   const selectedQuery = selectedConfig?.queryDocument || ''
   const objectKey = selectedConfig?.responseObjectKey
   const inputName = selectedConfig?.inputName
@@ -76,6 +84,12 @@ const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCod
   useEffect(() => {
     setPagination(initialPagination)
   }, [debouncedSearchValue, selectedObject])
+
+  useEffect(() => {
+    if (selectedObject && !isSelectedObjectAllowed) {
+      setSelectedObject(null)
+    }
+  }, [selectedObject, isSelectedObjectAllowed])
 
   const mainMeta = objectKey && !isLoading && !isFetching ? getPagination(objectKey, data) : undefined
 
@@ -111,15 +125,17 @@ const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCod
               setSearchValue('')
             }}
           >
-            <SelectTrigger className="w-full">{selectedObject || 'Select object'}</SelectTrigger>
+            <SelectTrigger className="w-full">{isSelectedObjectAllowed ? selectedObject : 'Select object'}</SelectTrigger>
             <SelectContent>
-              {Object.values(ObjectTypeObjects)
-                .filter((option) => !allowedObjectTypes || allowedObjectTypes.includes(option))
-                .map((option) => (
+              {selectableObjectTypes.length === 0 ? (
+                <div className="px-2 py-1.5 text-sm text-muted-foreground">No object types available in your plan</div>
+              ) : (
+                selectableObjectTypes.map((option) => (
                   <SelectItem key={option} value={option}>
                     {option}
                   </SelectItem>
-                ))}
+                ))
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -128,7 +144,7 @@ const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCod
           <Input disabled={!selectedQuery} onChange={handleSearchChange} value={searchValue} placeholder={inputPlaceholder ? `${inputPlaceholder}` : 'Select object first'} className="h-10 w-full" />
         </div>
       </div>
-      {selectedObject ? (
+      {isSelectedObjectAllowed ? (
         <>
           <ObjectAssociationTable
             isLoading={isLoading || isPinnedLoading}

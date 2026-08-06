@@ -1,10 +1,8 @@
 import { auth } from '@/lib/auth/auth'
 import { featureUtil } from '../plans'
-import { type FeatureEnum } from '@/lib/subscription-plan/feature-enum'
-import { type PlanEnum } from '@/lib/subscription-plan/plan-enum'
-import { isImpersonation } from '@/lib/authz/utils'
+import { type ObjectTypes } from '@repo/codegen/src/type-names'
 
-export async function hasFeature(feature: FeatureEnum): Promise<boolean> {
+export const hasFeature = async (objectType: ObjectTypes): Promise<boolean> => {
   const session = await auth()
   const featureEnabled = process.env.NEXT_PUBLIC_ENABLE_PLAN
 
@@ -16,10 +14,5 @@ export async function hasFeature(feature: FeatureEnum): Promise<boolean> {
     return false
   }
 
-  if (isImpersonation(session)) {
-    return true
-  }
-
-  const modules = session.user?.modules ?? []
-  return modules.some((module: PlanEnum) => featureUtil.planHasFeature(module, feature))
+  return featureUtil.hasObjectType(session.user?.modules ?? [], objectType, session)
 }
