@@ -274,10 +274,10 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                       <Upload size={16} strokeWidth={2} />
                       <span>Update Existing Controls</span>
                     </button>
-                    <Button
-                      size="sm"
-                      variant="transparent"
-                      className={`px-1 flex items-center justify-start space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                    <button
+                      type="button"
+                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={!exportEnabled}
                       onClick={() => {
                         handleExport()
                         close()
@@ -285,7 +285,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     >
                       <DownloadIcon size={16} strokeWidth={2} />
                       <span>Export</span>
-                    </Button>
+                    </button>
                   </>
                 )}
               />

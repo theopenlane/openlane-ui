@@ -242,10 +242,9 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
           <Menu
             closeOnSelect={true}
             content={(close) => (
-              <Button
-                size="sm"
-                variant="transparent"
-                className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
+              <button
+                type="button"
+                className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
                 onClick={() => {
                   handleExportCSV()
                   close()
@@ -253,7 +252,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
               >
                 <DownloadIcon size={16} strokeWidth={2} />
                 <span>Export</span>
-              </Button>
+              </button>
             )}
           />
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.ENTITY_FILES} />

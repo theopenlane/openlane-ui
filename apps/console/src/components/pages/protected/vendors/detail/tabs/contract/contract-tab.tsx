@@ -148,10 +148,9 @@ const ContractTab: React.FC<ContractTabProps> = ({ vendor, vendorId }) => {
           <Menu
             closeOnSelect={true}
             content={(close) => (
-              <Button
-                size="sm"
-                variant="transparent"
-                className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
+              <button
+                type="button"
+                className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
                 onClick={() => {
                   handleExportCSV(contractData)
                   close()
@@ -159,7 +158,7 @@ const ContractTab: React.FC<ContractTabProps> = ({ vendor, vendorId }) => {
               >
                 <DownloadIcon size={16} strokeWidth={2} />
                 <span>Export</span>
-              </Button>
+              </button>
             )}
           />
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.VENDOR_CONTRACT} />

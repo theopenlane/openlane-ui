@@ -14,7 +14,6 @@ import { BulkCSVCreateTemplateDialog } from '@/components/pages/protected/questi
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { Button } from '@repo/ui/button'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { useSession } from 'next-auth/react'
@@ -107,10 +106,15 @@ const TemplateTableToolbar: React.FC<TTemplateTableToolbarProps> = ({
                   <Upload size={16} strokeWidth={2} />
                   <span>Bulk Upload</span>
                 </button>
-                <Button size="sm" variant="transparent" className={`px-1 flex items-center justify-start space-x-2`} onClick={handleExport} disabled={!exportEnabled}>
+                <button
+                  type="button"
+                  className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleExport}
+                  disabled={!exportEnabled}
+                >
                   <DownloadIcon size={16} strokeWidth={2} />
                   <span>Export</span>
-                </Button>
+                </button>
               </>
             )}
           />

@@ -198,10 +198,15 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
                       <Upload size={16} strokeWidth={2} />
                       <span>Bulk Upload</span>
                     </button>
-                    <Button size="sm" variant="transparent" className={`px-1 flex items-center justify-start space-x-2`} onClick={handleExport} disabled={!exportEnabled}>
+                    <button
+                      type="button"
+                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={handleExport}
+                      disabled={!exportEnabled}
+                    >
                       <DownloadIcon size={16} strokeWidth={2} />
                       <span>Export</span>
-                    </Button>
+                    </button>
                   </>
                 )}
               />

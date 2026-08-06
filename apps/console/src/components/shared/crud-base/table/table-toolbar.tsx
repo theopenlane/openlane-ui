@@ -214,10 +214,9 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                         <span>Bulk Upload</span>
                       </button>
                     )}
-                    <Button
-                      size="sm"
-                      variant="transparent"
-                      className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
+                    <button
+                      type="button"
+                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
                       onClick={() => {
                         props.handleExport()
                         close()
@@ -225,7 +224,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                     >
                       <DownloadIcon size={16} strokeWidth={2} />
                       <span>Export</span>
-                    </Button>
+                    </button>
                   </>
                 )}
               />
