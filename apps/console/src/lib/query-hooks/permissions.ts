@@ -80,12 +80,9 @@ export const useOrganizationRoles = () => {
 export const useScopes = () => {
   const { errorNotification } = useNotification()
   const fetchWithRetry = useFetchWithRetry()
-  const { data: session } = useSession()
-  const isImpersonation = !!session?.user?.isImpersonation
 
   const resp = useQuery<TScopesResponse>({
     queryKey: ['scopes'],
-    enabled: !isImpersonation,
     retry: shouldRetryPermission,
     queryFn: async () => {
       const res = await fetchWithRetry('/api/permissions/scopes', { method: 'GET' })

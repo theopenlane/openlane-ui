@@ -240,6 +240,11 @@
     "name": "Create Framework Based Program"
   },
   {
+    "route": "/programs/create/from-existing",
+    "name": "Duplicate Program",
+    "keywords": ["copy", "clone", "from existing"]
+  },
+  {
     "route": "/programs/create/generic-program",
     "name": "Generic Program Setup"
   },

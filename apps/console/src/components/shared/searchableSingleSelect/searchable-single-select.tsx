@@ -82,7 +82,8 @@ export const SearchableSingleSelect = ({
                 {options.map((option, i) => (
                   <CommandItem
                     key={`option-${option.value}-${i}`}
-                    value={option.label}
+                    value={option.value}
+                    keywords={[option.label]}
                     onSelect={() => {
                       onChange?.(option.value)
                       setOpen(false)

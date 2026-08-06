@@ -9,6 +9,7 @@ import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
+import { describeCampaignRecurrence } from '../recurrence/campaign-recurrence'
 
 type ColumnOptions = {
   userMap: Record<string, User>
@@ -72,8 +73,8 @@ export const getCampaignColumns = ({ userMap, tokenMap, selectedCampaigns, setSe
     {
       accessorKey: 'isRecurring',
       header: 'Recurring',
-      cell: ({ cell }) => <p>{(cell.getValue() as boolean) ? 'Yes' : 'No'}</p>,
-      size: 100,
+      cell: ({ row }) => <p>{describeCampaignRecurrence(row.original)}</p>,
+      size: 130,
     },
     {
       accessorKey: 'completedAt',

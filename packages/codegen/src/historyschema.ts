@@ -52086,7 +52086,7 @@ export interface Notification extends Node {
   /** the real user acting through an impersonation session when the record was last mutated, if any */
   updatedByImpersonator?: Maybe<Scalars['String']['output']>
   /** the user this notification is for */
-  userID?: Maybe<Scalars['ID']['output']>
+  userID?: Maybe<Scalars['String']['output']>
 }
 
 /** A connection to a list of items. */
@@ -108527,6 +108527,7 @@ export type CampaignsWithFilterQuery = {
         recipientCount?: number | null
         recurrenceCron?: string | null
         recurrenceEndAt?: string | null
+        recurrenceFrequency?: CampaignFrequency | null
         recurrenceInterval?: number | null
         recurrenceTimezone?: string | null
         resendCount?: number | null
@@ -108584,6 +108585,7 @@ export type CampaignQuery = {
     recipientCount?: number | null
     recurrenceCron?: string | null
     recurrenceEndAt?: string | null
+    recurrenceFrequency?: CampaignFrequency | null
     recurrenceInterval?: number | null
     recurrenceTimezone?: string | null
     resendCount?: number | null
@@ -109240,6 +109242,7 @@ export type ControlListStandardFieldsFragment = {
   refCode: string
   title?: string | null
   description?: string | null
+  status?: ControlControlStatus | null
   category?: string | null
   subcategory?: string | null
   mappedCategories?: Array<string> | null
@@ -109903,6 +109906,7 @@ export type GetControlsPaginatedWithListFieldsQuery = {
         refCode: string
         title?: string | null
         description?: string | null
+        status?: ControlControlStatus | null
         category?: string | null
         subcategory?: string | null
         mappedCategories?: Array<string> | null
