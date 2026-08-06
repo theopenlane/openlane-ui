@@ -17,13 +17,15 @@ type TUpcomingCampaignsProps = {
   campaigns: TUpcomingCampaign[]
 }
 
-const UpcomingCampaigns: React.FC<TUpcomingCampaignsProps> = ({ campaigns }) => (
-  <Card className="px-5 py-4">
-    <h3 className="text-sm font-medium">Upcoming</h3>
-    <p className="text-xs text-muted-foreground">Campaigns scheduled to launch or run next.</p>
-    {campaigns.length === 0 ? (
-      <p className="py-6 text-center text-sm text-muted-foreground">No upcoming campaigns scheduled.</p>
-    ) : (
+const UpcomingCampaigns: React.FC<TUpcomingCampaignsProps> = ({ campaigns }) => {
+  if (campaigns.length === 0) {
+    return null
+  }
+
+  return (
+    <Card className="px-5 py-4">
+      <h3 className="text-sm font-medium">Upcoming</h3>
+      <p className="text-xs text-muted-foreground">Campaigns scheduled to launch or run next.</p>
       <ul className="mt-3 divide-y">
         {campaigns.map((campaign) => (
           <li key={campaign.id}>
@@ -44,8 +46,8 @@ const UpcomingCampaigns: React.FC<TUpcomingCampaignsProps> = ({ campaigns }) => 
           </li>
         ))}
       </ul>
-    )}
-  </Card>
-)
+    </Card>
+  )
+}
 
 export default UpcomingCampaigns
