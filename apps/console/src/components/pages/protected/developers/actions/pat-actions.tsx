@@ -32,7 +32,7 @@ export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpires
   const isApiTokens = path.includes('/api-tokens')
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
-  const { handleSSOAuthorize, isAuthorizingSSO } = useSSOAuthorize({ isApiKeyPage: false, isEditMode: true, editTokenId: tokenId, createdTokenId: '' })
+  const { handleSSOAuthorize, isAuthorizingSSO } = useSSOAuthorize({ isApiKeyPage: isApiTokens, isEditMode: true, editTokenId: tokenId, createdTokenId: '' })
 
   const orgsNeedingSSO = isApiTokens
     ? []

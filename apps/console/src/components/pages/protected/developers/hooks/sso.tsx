@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
+import { setSsoTokenAuthorization, type SsoTokenType } from '@/lib/auth/utils/sso-token-storage'
 
 type UseSSOAuthorizeProps = {
   isApiKeyPage: boolean
@@ -16,13 +17,12 @@ export const useSSOAuthorize = ({ isApiKeyPage, isEditMode, editTokenId, created
   const { currentOrgId } = useOrganization()
   const { errorNotification } = useNotification()
 
-  const tokenType = isApiKeyPage ? 'api' : 'personal'
+  const tokenType: SsoTokenType = isApiKeyPage ? 'api' : 'personal'
   const tokenIdForSSO = isEditMode && editTokenId ? editTokenId : createdTokenId
 
   const handleSSOAuthorize = async (orgId?: string) => {
     try {
       setIsAuthorizingSSO(true)
-      localStorage.setItem('api_token', JSON.stringify({ tokenType, isApiKeyPage }))
       const response = await fetch('/api/auth/sso/authorize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,6 +31,7 @@ export const useSSOAuthorize = ({ isApiKeyPage, isEditMode, editTokenId, created
       })
       const data = await response.json()
       if (response.ok && data.success && data.redirect_uri) {
+        setSsoTokenAuthorization(tokenType)
         window.location.assign(data.redirect_uri)
       } else {
         throw new Error(data.error || 'SSO authorization failed')
