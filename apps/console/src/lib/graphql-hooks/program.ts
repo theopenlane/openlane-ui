@@ -8,7 +8,6 @@ import {
   GET_PROGRAM_DETAILS_BY_ID,
   GET_PROGRAM_BASIC_INFO,
   GET_EVIDENCE_STATS,
-  GET_GLOBAL_EVIDENCE_STATS,
   GET_PROGRAM_SETTINGS,
   GET_PROGRAM_MEMBERS,
   GET_PROGRAM_GROUPS,
@@ -29,7 +28,6 @@ import {
   type GetProgramBasicInfoQuery,
   type GetProgramBasicInfoQueryVariables,
   type GetEvidenceStatsQuery,
-  type GetGlobalEvidenceStatsQuery,
   type GetProgramSettingsQuery,
   type GetProgramSettingsQueryVariables,
   type ProgramMembershipWhereInput,
@@ -173,25 +171,6 @@ export const useProgramEvidenceStats = (programId: string | undefined) => {
       }
     },
     enabled: !!programId,
-  })
-}
-
-export const useGlobalEvidenceStats = ({ enabled = true }) => {
-  const { client } = useGraphQLClient()
-
-  return useQuery<ProgramEvidenceStats>({
-    queryKey: ['global-evidence-stats'],
-    queryFn: async () => {
-      const data = await client.request<GetGlobalEvidenceStatsQuery>(GET_GLOBAL_EVIDENCE_STATS)
-
-      return {
-        total: data.totalControls.totalCount,
-        submitted: data.submitted.totalCount,
-        accepted: data.accepted.totalCount,
-        rejected: data.rejected.totalCount,
-      }
-    },
-    enabled,
   })
 }
 

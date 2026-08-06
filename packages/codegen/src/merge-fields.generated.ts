@@ -941,6 +941,8 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'role', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'OrgMembershipRole' },
     { name: 'ssoExempt', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'ssoExemptReason', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'tfaEnforced', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'tfaEnforcedReason', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
   ],
   Organization: [
     { name: 'avatarRemoteURL', kind: 'string', list: false, nonNull: false, listItemNonNull: false },

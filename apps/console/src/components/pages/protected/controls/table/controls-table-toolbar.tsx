@@ -36,7 +36,6 @@ import { useSession } from 'next-auth/react'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { type Session } from 'next-auth'
-import { OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/standards'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -108,7 +107,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({
 
   const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({
     where: {
-      shortNameNEQ: OPENLANE_TRUST_CENTER_STANDARD.shortName,
       hasControlsWith: [
         {
           hasOwnerWith: [

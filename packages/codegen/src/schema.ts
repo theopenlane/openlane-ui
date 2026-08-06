@@ -10448,6 +10448,10 @@ export interface CreateOrgMembershipInput {
   ssoExempt?: InputMaybe<Scalars['Boolean']['input']>
   /** reason the member was granted an SSO exemption */
   ssoExemptReason?: InputMaybe<Scalars['String']['input']>
+  /** member must configure multifactor authentication for this organization even when organization-wide TFA enforcement is disabled */
+  tfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  /** reason the member was required to configure multifactor authentication */
+  tfaEnforcedReason?: InputMaybe<Scalars['String']['input']>
   userID: Scalars['ID']['input']
 }
 
@@ -35993,6 +35997,14 @@ export interface OrgMembership extends Node {
   ssoExemptGrantedBy?: Maybe<Scalars['String']['output']>
   /** reason the member was granted an SSO exemption */
   ssoExemptReason?: Maybe<Scalars['String']['output']>
+  /** member must configure multifactor authentication for this organization even when organization-wide TFA enforcement is disabled */
+  tfaEnforced?: Maybe<Scalars['Boolean']['output']>
+  /** when multifactor authentication was required; stamped server-side, not settable via the API */
+  tfaEnforcedAt?: Maybe<Scalars['DateTime']['output']>
+  /** id of the user that required multifactor authentication; stamped server-side, not settable via the API */
+  tfaEnforcedBy?: Maybe<Scalars['String']['output']>
+  /** reason the member was required to configure multifactor authentication */
+  tfaEnforcedReason?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   /** the real user acting through an impersonation session when the record was last mutated, if any */
@@ -36203,6 +36215,54 @@ export interface OrgMembershipWhereInput {
   ssoExemptReasonNEQ?: InputMaybe<Scalars['String']['input']>
   ssoExemptReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   ssoExemptReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** tfa_enforced field predicates */
+  tfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  /** tfa_enforced_at field predicates */
+  tfaEnforcedAt?: InputMaybe<Scalars['DateTime']['input']>
+  tfaEnforcedAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  tfaEnforcedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  tfaEnforcedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  tfaEnforcedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  tfaEnforcedAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  tfaEnforcedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  tfaEnforcedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  tfaEnforcedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  tfaEnforcedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** tfa_enforced_by field predicates */
+  tfaEnforcedBy?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByContains?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByGT?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByGTE?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  tfaEnforcedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  tfaEnforcedByLT?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByLTE?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByNEQ?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  tfaEnforcedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  tfaEnforcedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  tfaEnforcedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  tfaEnforcedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** tfa_enforced_reason field predicates */
+  tfaEnforcedReason?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonContains?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonContainsFold?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonEqualFold?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonGT?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonGTE?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonHasPrefix?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonHasSuffix?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonIn?: InputMaybe<Array<Scalars['String']['input']>>
+  tfaEnforcedReasonIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  tfaEnforcedReasonLT?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonLTE?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonNEQ?: InputMaybe<Scalars['String']['input']>
+  tfaEnforcedReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  tfaEnforcedReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -61462,12 +61522,18 @@ export interface UpdateOrgMembershipInput {
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearSSOExempt?: InputMaybe<Scalars['Boolean']['input']>
   clearSSOExemptReason?: InputMaybe<Scalars['Boolean']['input']>
+  clearTfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  clearTfaEnforcedReason?: InputMaybe<Scalars['Boolean']['input']>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   role?: InputMaybe<OrgMembershipRole>
   /** member is exempt from the SSO login redirect for this organization; TFA enforcement still applies. Who may set this is gated by the org membership mutation policy */
   ssoExempt?: InputMaybe<Scalars['Boolean']['input']>
   /** reason the member was granted an SSO exemption */
   ssoExemptReason?: InputMaybe<Scalars['String']['input']>
+  /** member must configure multifactor authentication for this organization even when organization-wide TFA enforcement is disabled */
+  tfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  /** reason the member was required to configure multifactor authentication */
+  tfaEnforcedReason?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -73423,41 +73489,6 @@ export type DeleteBulkControlMutation = {
   deleteBulkControl: { __typename?: 'ControlBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
 }
 
-export type GetSuggestedControlsOrSubcontrolsQueryVariables = Exact<{
-  where?: InputMaybe<MappedControlWhereInput>
-}>
-
-export type GetSuggestedControlsOrSubcontrolsQuery = {
-  __typename?: 'Query'
-  mappedControls: {
-    __typename?: 'MappedControlConnection'
-    edges?: Array<{
-      __typename?: 'MappedControlEdge'
-      node?: {
-        __typename?: 'MappedControl'
-        id: string
-        source?: MappedControlMappingSource | null
-        fromControls: {
-          __typename?: 'ControlConnection'
-          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
-        }
-        toControls: {
-          __typename?: 'ControlConnection'
-          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
-        }
-        fromSubcontrols: {
-          __typename?: 'SubcontrolConnection'
-          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
-        }
-        toSubcontrols: {
-          __typename?: 'SubcontrolConnection'
-          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
-        }
-      } | null
-    } | null> | null
-  }
-}
-
 export type GetExistingControlsForOrganizationQueryVariables = Exact<{
   where?: InputMaybe<ControlWhereInput>
 }>
@@ -79454,16 +79485,6 @@ export type GetEvidenceStatsQuery = {
   rejected: { __typename?: 'ControlConnection'; totalCount: number }
 }
 
-export type GetGlobalEvidenceStatsQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetGlobalEvidenceStatsQuery = {
-  __typename?: 'Query'
-  totalControls: { __typename?: 'ControlConnection'; totalCount: number }
-  submitted: { __typename?: 'ControlConnection'; totalCount: number }
-  accepted: { __typename?: 'ControlConnection'; totalCount: number }
-  rejected: { __typename?: 'ControlConnection'; totalCount: number }
-}
-
 export type GetProgramDashboardQueryVariables = Exact<{
   where?: InputMaybe<ProgramWhereInput>
 }>
@@ -80760,7 +80781,16 @@ export type SearchQuery = {
     } | null
     subcontrols?: {
       __typename?: 'SubcontrolConnection'
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; id: string } } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: {
+          __typename?: 'Subcontrol'
+          id: string
+          refCode: string
+          systemOwned?: boolean | null
+          control: { __typename?: 'Control'; id: string; isTrustCenterControl?: boolean | null; standard?: { __typename?: 'Standard'; framework?: string | null } | null }
+        } | null
+      } | null> | null
     } | null
     internalPolicies?: {
       __typename?: 'InternalPolicyConnection'
@@ -80777,7 +80807,10 @@ export type SearchQuery = {
     } | null
     standards?: {
       __typename?: 'StandardConnection'
-      edges?: Array<{ __typename?: 'StandardEdge'; node?: { __typename?: 'Standard'; id: string; name: string; shortName?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'StandardEdge'
+        node?: { __typename?: 'Standard'; id: string; name: string; shortName?: string | null; framework?: string | null; systemOwned?: boolean | null } | null
+      } | null> | null
     } | null
     templates?: { __typename?: 'TemplateConnection'; edges?: Array<{ __typename?: 'TemplateEdge'; node?: { __typename?: 'Template'; id: string; name: string } | null } | null> | null } | null
     evidences?: { __typename?: 'EvidenceConnection'; edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string } | null } | null> | null } | null
@@ -81221,21 +81254,6 @@ export type CreateSubcontrolMutationVariables = Exact<{
 }>
 
 export type CreateSubcontrolMutation = { __typename?: 'Mutation'; createSubcontrol: { __typename?: 'SubcontrolCreatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
-
-export type GetSubcontrolSelectOptionsQueryVariables = Exact<{
-  where?: InputMaybe<SubcontrolWhereInput>
-}>
-
-export type GetSubcontrolSelectOptionsQuery = {
-  __typename?: 'Query'
-  subcontrols: {
-    __typename?: 'SubcontrolConnection'
-    edges?: Array<{
-      __typename?: 'SubcontrolEdge'
-      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
-    } | null> | null
-  }
-}
 
 export type GetSubcontrolsPaginatedQueryVariables = Exact<{
   where?: InputMaybe<SubcontrolWhereInput>

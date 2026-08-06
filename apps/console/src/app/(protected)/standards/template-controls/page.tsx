@@ -1,7 +1,7 @@
 'use client'
 
 import { use, useEffect } from 'react'
-import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
+import { useSystemStandard } from '@/lib/graphql-hooks/standard'
 import StandardDetailsView from '@/components/pages/protected/standards/standard-details-view'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { ObjectWithDetailsSkeleton } from '@/components/shared/skeleton/object-with-slideout-skeleton'
@@ -9,10 +9,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { OPENLANE_BASELINE_STANDARD } from '@/constants/standards'
 
 const TemplateControlsPage = () => {
-  const { data, isLoading, isError } = useStandardsSelect({
-    where: { framework: OPENLANE_BASELINE_STANDARD.framework, systemOwned: true },
-  })
-  const standardId = data?.standards?.edges?.[0]?.node?.id
+  const { standardId, isLoading, isError } = useSystemStandard(OPENLANE_BASELINE_STANDARD)
   const detailsViewOwnsCrumbs = Boolean(standardId)
   const { setCrumbs } = use(BreadcrumbContext)
 

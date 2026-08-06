@@ -77,7 +77,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
   }, [selectedObject, resetPagination])
 
   const controlsWhere = useMemo(() => {
-    const baseWhere = { ownerIDNEQ: '' }
+    const baseWhere = { ownerIDNEQ: '', isTrustCenterControl: false }
 
     if (!debouncedSearch) return baseWhere
 

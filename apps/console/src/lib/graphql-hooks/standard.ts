@@ -16,7 +16,6 @@ import {
   type CloneControlInput,
   type CreateControlsByCloneMutation,
   type GetAllStandardsQuery,
-  type GetAllStandardsQueryVariables,
   type GetStandardDetailsQuery,
   type Standard,
   type CreateStandardMutation,
@@ -34,13 +33,25 @@ import {
 import { useMemo } from 'react'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
+import { EXCLUDE_SYSTEM_STANDARDS_WHERE, type TSystemStandard } from '@/constants/standards'
+import { mergeWhere } from '@/lib/merge-where'
 
-export const useGetStandards = ({ where, enabled = true }: { where?: GetAllStandardsQueryVariables['where']; enabled?: boolean }) => {
+type TStandardsQueryArgs = {
+  where?: StandardWhereInput | null
+  enabled?: boolean
+  includeSystemStandards?: boolean
+}
+
+const resolveStandardsWhere = (where: TStandardsQueryArgs['where'], includeSystemStandards?: boolean): StandardWhereInput =>
+  mergeWhere<StandardWhereInput>([where, includeSystemStandards ? undefined : EXCLUDE_SYSTEM_STANDARDS_WHERE])
+
+export const useGetStandards = ({ where, enabled = true, includeSystemStandards }: TStandardsQueryArgs) => {
   const { client } = useGraphQLClient()
+  const effectiveWhere = resolveStandardsWhere(where, includeSystemStandards)
 
   const queryResult = useQuery<GetAllStandardsQuery>({
-    queryKey: ['standards', where],
-    queryFn: () => client.request(GET_ALL_STANDARDS, { where }),
+    queryKey: ['standards', effectiveWhere],
+    queryFn: () => client.request(GET_ALL_STANDARDS, { where: effectiveWhere }),
     enabled,
   })
 
@@ -68,12 +79,13 @@ export const useCloneControls = () => {
   })
 }
 
-export const useStandardsSelect = ({ where, enabled = true }: { where?: GetAllStandardsQueryVariables['where']; enabled?: boolean }) => {
+export const useStandardsSelect = ({ where, enabled = true, includeSystemStandards }: TStandardsQueryArgs) => {
   const { client } = useGraphQLClient()
+  const effectiveWhere = resolveStandardsWhere(where, includeSystemStandards)
 
   const res = useQuery<GetAllStandardsQuery>({
-    queryKey: ['standards', where, 'select'],
-    queryFn: () => client.request(GET_ALL_STANDARDS_SELECT, { where }),
+    queryKey: ['standards', effectiveWhere, 'select'],
+    queryFn: () => client.request(GET_ALL_STANDARDS_SELECT, { where: effectiveWhere }),
     enabled,
   })
 
@@ -91,6 +103,18 @@ export const useStandardsSelect = ({ where, enabled = true }: { where?: GetAllSt
   return {
     standardOptions,
     ...res,
+  }
+}
+
+export const useSystemStandard = (systemStandard: TSystemStandard) => {
+  const res = useStandardsSelect({
+    where: { framework: systemStandard.framework, systemOwned: true, isPublic: true },
+    includeSystemStandards: true,
+  })
+
+  return {
+    ...res,
+    standardId: res.data?.standards?.edges?.[0]?.node?.id,
   }
 }
 
@@ -162,10 +186,11 @@ type StandardEdge = NonNullable<NonNullable<GetStandardsPaginatedQuery['standard
 
 export type StandardNode = NonNullable<NonNullable<StandardEdge>['node']>
 
-export const useGetAllStandardsInfinite = ({ where = {}, pagination, enabled = true }: { where?: StandardWhereInput; pagination: TPagination; enabled?: boolean }) => {
+export const useGetAllStandardsInfinite = ({ where, pagination, enabled = true, includeSystemStandards }: TStandardsQueryArgs & { pagination: TPagination }) => {
   const { client } = useGraphQLClient()
+  const effectiveWhere = resolveStandardsWhere(where, includeSystemStandards)
 
-  const queryKey = useMemo(() => ['standards', 'infinite', where, pagination.query] as const, [pagination.query, where])
+  const queryKey = ['standards', 'infinite', effectiveWhere, pagination.query] as const
 
   const queryResult = useInfiniteQuery<GetStandardsPaginatedQuery, Error, InfiniteData<GetStandardsPaginatedQuery>, typeof queryKey, string | null>({
     queryKey,
@@ -175,7 +200,7 @@ export const useGetAllStandardsInfinite = ({ where = {}, pagination, enabled = t
         ...pagination.query,
         first: pagination.query.first,
         after: pageParam ?? undefined,
-        where,
+        where: effectiveWhere,
         orderBy: [{ field: StandardOrderField.short_name, direction: OrderDirection.ASC }],
       }),
 
@@ -207,18 +232,19 @@ export const useGetAllStandardsInfinite = ({ where = {}, pagination, enabled = t
   }
 }
 
-export const useGetRecommendedStandards = ({ where = {}, enabled = true }: { where?: StandardWhereInput; enabled?: boolean }) => {
+export const useGetRecommendedStandards = ({ where, enabled = true, includeSystemStandards }: TStandardsQueryArgs) => {
   const { client } = useGraphQLClient()
+  const effectiveWhere = resolveStandardsWhere(where, includeSystemStandards)
 
   const queryResult = useQuery<StandardNode[]>({
-    queryKey: ['standards', 'recommended', where],
+    queryKey: ['standards', 'recommended', effectiveWhere],
     queryFn: async () => {
       const nodes: StandardNode[] = []
       let after: string | undefined = undefined
 
       do {
         const page: GetStandardsPaginatedQuery = await client.request<GetStandardsPaginatedQuery, GetStandardsPaginatedQueryVariables>(GET_STANDARDS_PAGINATED, {
-          where,
+          where: effectiveWhere,
           first: 100,
           after,
           orderBy: [{ field: StandardOrderField.short_name, direction: OrderDirection.ASC }],

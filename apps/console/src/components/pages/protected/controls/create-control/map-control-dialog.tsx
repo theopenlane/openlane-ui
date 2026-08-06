@@ -72,6 +72,7 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
   } = useGetAllControls({
     where: {
       ownerIDNEQ: '',
+      isTrustCenterControl: false,
       ...where,
     },
     enabled: hasFilters && mode === 'controls',

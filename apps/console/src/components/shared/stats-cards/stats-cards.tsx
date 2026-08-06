@@ -2,8 +2,8 @@ import React from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { ArrowDownRight, ArrowUpRight, Hourglass, Minus } from 'lucide-react'
 import { statCardStyles } from './stats-cards-styles'
-import { useParams, usePathname, useSearchParams } from 'next/navigation'
-import { useGlobalEvidenceStats, useProgramEvidenceStats } from '@/lib/graphql-hooks/program'
+import { useParams, useSearchParams } from 'next/navigation'
+import { useProgramEvidenceStats } from '@/lib/graphql-hooks/program'
 import { useSubmittedEvidenceTrend, useAcceptedEvidenceTrend, useRejectedEvidenceTrend } from '@/lib/graphql-hooks/evidence'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import Link from 'next/link'
@@ -127,7 +127,6 @@ const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNo
 }
 
 const StatsCards: React.FC = () => {
-  const pathname = usePathname()
   const params = useParams<{ id?: string }>()
   const searchParams = useSearchParams()
 
@@ -137,12 +136,11 @@ const StatsCards: React.FC = () => {
   const id = queryId || routeId
 
   const programStats = useProgramEvidenceStats(id)
-  const globalStats = useGlobalEvidenceStats({ enabled: !pathname.startsWith('/programs') })
   const submittedTrend = useSubmittedEvidenceTrend(id)
   const acceptedTrend = useAcceptedEvidenceTrend(id)
   const rejectedTrend = useRejectedEvidenceTrend(id)
 
-  const data = (id ? programStats.data : globalStats.data) as { total: number; submitted: number; accepted: number; rejected: number } | undefined
+  const data = programStats.data as { total: number; submitted: number; accepted: number; rejected: number } | undefined
 
   const total = data?.total ?? 0
 
