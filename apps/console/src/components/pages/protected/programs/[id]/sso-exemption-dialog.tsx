@@ -1,43 +1,45 @@
 'use client'
 
-import type React from 'react'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useNotification } from '@/hooks/useNotification'
+import { useUpdateOrganizationSetting } from '@/lib/graphql-hooks/organization'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { useUpdateOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
-import { useNotification } from '@/hooks/useNotification'
-import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import type React from 'react'
 
 interface SSOExemptionDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  email?: string | null
-  domain?: string | null
+  emails: string[]
+  domains: string[]
   organizationId?: string
   organizationSettingId?: string
   ssoExemptDomains: string[]
 }
 
-export const SSOExemptionDialog: React.FC<SSOExemptionDialogProps> = ({ open, onOpenChange, email, domain, organizationId, organizationSettingId, ssoExemptDomains }) => {
+export const SSOExemptionDialog: React.FC<SSOExemptionDialogProps> = ({ open, onOpenChange, emails, domains, organizationId, organizationSettingId, ssoExemptDomains }) => {
   const { mutateAsync: updateOrgSetting, isPending } = useUpdateOrganizationSetting()
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
+  const domainLabel = domains.join(', ')
+  const emailLabel = emails.join(', ')
 
   const handleAddSSOExemption = async () => {
-    if (!organizationSettingId || !domain) return
+    if (!organizationSettingId || domains.length === 0) return
 
     try {
       await updateOrgSetting({
         updateOrganizationSettingId: organizationSettingId,
         input: {
-          ssoExemptDomains: [...ssoExemptDomains, domain],
+          ssoExemptDomains: Array.from(new Set([...ssoExemptDomains, ...domains])),
         },
       })
       queryClient.invalidateQueries({ queryKey: ['organizationSetting', organizationId] })
       successNotification({
-        title: 'SSO exemption added',
-        description: `${domain} was added to SSO exempt domains.`,
+        title: domains.length > 1 ? 'SSO exemptions added' : 'SSO exemption added',
+        description: `${domainLabel} ${domains.length > 1 ? 'were' : 'was'} added to SSO exempt domains.`,
       })
       onOpenChange(false)
     } catch (error) {
@@ -56,13 +58,13 @@ export const SSOExemptionDialog: React.FC<SSOExemptionDialogProps> = ({ open, on
         </DialogHeader>
         <div className="space-y-3 text-sm text-muted-foreground">
           <p>
-            <strong>{email}</strong> was invited as an Auditor. Because SSO is enforced, add <strong>{domain}</strong> to SSO exemptions so they can accept the invite without using your identity
-            provider.
+            <strong>{emailLabel}</strong> {emails.length > 1 ? 'were' : 'was'} invited as {emails.length > 1 ? 'Auditors' : 'an Auditor'}. Because SSO is enforced, add <strong>{domainLabel}</strong>{' '}
+            to SSO exemptions so they can accept the invite without using your identity provider.
           </p>
         </div>
         <DialogFooter className="mt-6 flex gap-2">
           <Button onClick={handleAddSSOExemption} disabled={isPending}>
-            Add domain to SSO exemptions
+            Add {domains.length > 1 ? 'domains' : 'domain'} to SSO exemptions
           </Button>
           <CancelButton title="Skip" disabled={isPending} onClick={() => onOpenChange(false)} />
         </DialogFooter>
