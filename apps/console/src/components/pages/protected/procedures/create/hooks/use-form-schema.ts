@@ -14,7 +14,7 @@ const formSchema = z.object({
   }),
   approvalRequired: z.boolean(),
   reviewFrequency: z.enum(ProcedureFrequency, {
-    error: 'Invalid status',
+    error: 'Invalid frequency',
   }),
   procedureKindName: z.string().optional(),
   reviewDue: z.date().optional().nullable(),

@@ -1,5 +1,6 @@
 import { type ColumnDef } from '@tanstack/react-table'
-import { type Task, type User } from '@repo/codegen/src/schema'
+import { type User } from '@repo/codegen/src/schema'
+import { type TasksWithFilterNode } from '@/lib/graphql-hooks/task'
 import { type AuthorToken } from '@/lib/authors'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatDate } from '@/utils/date'
@@ -22,9 +23,9 @@ type ColumnOptions = {
   taskKindOptions: CustomTypeEnumOption[]
 }
 
-export const getTaskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedTasks, setSelectedTasks, taskKindOptions }: ColumnOptions): ColumnDef<Task>[] => {
+export const getTaskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedTasks, setSelectedTasks, taskKindOptions }: ColumnOptions): ColumnDef<TasksWithFilterNode>[] => {
   return [
-    createSelectColumn<Task>(selectedTasks, setSelectedTasks),
+    createSelectColumn<TasksWithFilterNode>(selectedTasks, setSelectedTasks),
     {
       accessorKey: 'id',
       header: 'ID',

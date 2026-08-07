@@ -156,7 +156,6 @@
     "@types/prismjs": "^1.26.6",
     "@udecode/cn": "^52.3.4",
     "@uploadthing/react": "7.3.3",
-    "add": "^2.0.9",
     "ai": "7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

@@ -68,7 +68,7 @@ export const useGetAllGroups = ({ where, orderBy, pagination, enabled = true }: 
     enabled,
   })
 
-  const groups = (queryResult.data?.groups?.edges?.map((edge) => edge?.node) ?? []) as Group[]
+  const groups = useMemo(() => queryResult.data?.groups?.edges?.map((edge) => edge?.node).filter((node): node is GroupsNode => !!node) ?? [], [queryResult.data])
 
   const paginationMeta = {
     totalCount: queryResult.data?.groups?.totalCount ?? 0,

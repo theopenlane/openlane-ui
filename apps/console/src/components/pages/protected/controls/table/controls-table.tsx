@@ -160,21 +160,13 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     [convertToReadOnly, setSelectedControls, enumOptions, columnVisibility],
   )
 
-  const {
-    data: controlsData,
-    isError,
-    paginationMeta,
-    isLoading,
-    isFetching,
-  } = useGetAllControls({
+  const { controls, isError, paginationMeta, isLoading, isFetching } = useGetAllControls({
     where: whereWithSearch,
     orderBy,
     pagination,
     includeVars,
     enabled: true,
   })
-
-  const controls = useMemo(() => controlsData?.controls?.edges?.flatMap((edge) => (edge?.node ? [edge.node] : [])) ?? [], [controlsData])
 
   useEffect(() => {
     if (isError) {

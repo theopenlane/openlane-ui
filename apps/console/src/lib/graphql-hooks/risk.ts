@@ -45,6 +45,7 @@ import {
   type GetRiskAssociationsQuery,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
+import { useMemo } from 'react'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 
 type UseRisksProps = {
@@ -68,7 +69,7 @@ export const useRisks = ({ where, pagination, orderBy, enabled = true }: UseRisk
     enabled,
   })
 
-  const risks = queryResult?.data?.risks?.edges?.map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => !!node)
+  const risks = useMemo(() => queryResult.data?.risks?.edges?.map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => !!node) ?? [], [queryResult.data])
 
   const paginationMeta = {
     totalCount: queryResult.data?.risks?.totalCount ?? 0,

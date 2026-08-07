@@ -13,9 +13,7 @@
     "@graphql-codegen/cli": "7.2.0",
     "@graphql-codegen/introspection": "6.1.0",
     "@graphql-codegen/typescript": "6.1.0",
-    "@graphql-codegen/typescript-document-nodes": "6.1.0",
-    "@graphql-codegen/typescript-operations": "6.1.2",
-    "@graphql-codegen/typescript-resolvers": "6.1.0"
+    "@graphql-codegen/typescript-operations": "6.1.2"
   },
   "scripts": {
     "codegen": "graphql-codegen --config graphql-codegen.yml"
