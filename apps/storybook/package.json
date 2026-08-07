@@ -44,7 +44,7 @@
     "globals": "^17.0.0",
     "storybook": "10.5.5",
     "tailwindcss": "^4.1.13",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.0",
     "typescript-eslint": "^8.15.0",
     "vite": "^8.0.0"
   }
