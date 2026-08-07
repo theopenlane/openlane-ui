@@ -1,5 +1,6 @@
 'use client'
 
+import { registeredLanguages } from '@repo/ui/components/editor/lowlight-registry.ts'
 import * as React from 'react'
 
 import { formatCodeBlock, isLangSupported } from '@platejs/code-block'
@@ -124,7 +125,7 @@ export function CodeSyntaxLeaf(props: PlateLeafProps<TCodeSyntaxLeaf>) {
   return <PlateLeaf className={tokenClassName} {...props} />
 }
 
-const languages: { label: string; value: string }[] = [
+const allLanguages: { label: string; value: string }[] = [
   { label: 'Auto', value: 'auto' },
   { label: 'Plain Text', value: 'plaintext' },
   { label: 'ABAP', value: 'abap' },
@@ -215,3 +216,5 @@ const languages: { label: string; value: string }[] = [
   { label: 'XML', value: 'xml' },
   { label: 'YAML', value: 'yaml' },
 ]
+
+const languages = allLanguages.filter((language) => registeredLanguages.has(language.value))

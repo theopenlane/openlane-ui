@@ -10,6 +10,7 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@repo/dally', '@repo/ui', '@repo/codegen', 'survey-core', 'survey-react-ui'],
   experimental: {
+    useTypeScriptCli: true,
     webpackMemoryOptimizations: true,
   },
   async redirects() {
