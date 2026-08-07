@@ -7,8 +7,8 @@ import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fi
 
 const formSchema = z.object({
   target: z.string().min(1, 'Target is required'),
-  scanType: z.nativeEnum(ScanScanType).optional(),
-  status: z.nativeEnum(ScanScanStatus).optional(),
+  scanType: z.enum(ScanScanType).optional(),
+  status: z.enum(ScanScanStatus).optional(),
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
   assignedTo: responsibilityFieldSchema,
@@ -20,7 +20,7 @@ const formSchema = z.object({
 })
 
 export const bulkEditFieldSchema = z.object({
-  status: z.nativeEnum(ScanScanStatus).optional(),
+  status: z.enum(ScanScanStatus).optional(),
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
 })

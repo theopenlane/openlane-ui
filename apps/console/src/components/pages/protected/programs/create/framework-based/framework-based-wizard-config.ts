@@ -4,7 +4,7 @@ import { type UseFormReturn } from 'react-hook-form'
 import { suggestedControlsStepSchema } from '../shared/suggested-controls-schema'
 
 export const selectFrameworkSchema = z.object({
-  framework: z.string({ required_error: 'Framework is required' }).min(1, { message: 'Framework is required' }),
+  framework: z.string({ error: (issue) => (issue.input === undefined ? 'Framework is required' : undefined) }).min(1, { message: 'Framework is required' }),
   standardID: z.string().optional(),
   name: z.string().optional(),
 })
@@ -18,7 +18,7 @@ export const programInviteSchema = z.object({
 
 export const programTypeSchema = z.object({
   programKindName: z.string({
-    required_error: 'Please choose a program type',
+    error: (issue) => (issue.input === undefined ? 'Please choose a program type' : undefined),
   }),
 })
 

@@ -173,7 +173,7 @@ const RiskTable: React.FC = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         mappedColumns={mappedColumns}
-        exportEnabled={risks && risks.length > 0}
+        exportEnabled={(risks?.length ?? 0) > 0}
         handleClearSelectedControls={handleClearSelectedControls}
         selectedRisks={selectedRisks}
         setSelectedRisks={setSelectedRisks}

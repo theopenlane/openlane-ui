@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { type Control, type GetEvidenceQuery, type Subcontrol } from '@repo/codegen/src/schema'
+import { type GetEvidenceQuery } from '@repo/codegen/src/schema'
+import { type CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import type { Section } from '@/components/shared/object-association/types/object-association-types'
 
 type EvidenceNode = GetEvidenceQuery['evidence']
@@ -21,8 +22,8 @@ export const useEvidenceAssociations = (evidence?: EvidenceNode) => {
   )
 
   const controlsAndPrograms = useMemo(() => {
-    const controls: Control[] = evidence?.controls?.edges?.map((edge) => edge?.node).filter((n): n is Control => !!n) ?? []
-    const subcontrols: Subcontrol[] = evidence?.subcontrols?.edges?.map((edge) => edge?.node).filter((n): n is Subcontrol => !!n) ?? []
+    const controls: CustomEvidenceControl[] = evidence?.controls?.edges?.map((edge) => edge?.node).filter((n) => !!n) ?? []
+    const subcontrols: CustomEvidenceControl[] = evidence?.subcontrols?.edges?.map((edge) => edge?.node).filter((n) => !!n) ?? []
 
     return {
       controls,

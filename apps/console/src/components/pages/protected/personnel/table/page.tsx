@@ -9,7 +9,6 @@ import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import {
   IdentityHolderUserStatus,
   IdentityHolderIdentityHolderType,
-  type IdentityHolderQuery,
   type UpdateIdentityHolderInput,
   type CreateIdentityHolderInput,
   type GetIdentityHolderAssociationsQuery,
@@ -35,7 +34,7 @@ import { buildAssociationPayload } from '@/components/shared/object-association/
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { IDENTITY_HOLDER_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 
-const normalizeData = (data: IdentityHolderQuery['identityHolder']) =>
+const normalizeData = (data: IdentityHoldersNodeNonNull | null | undefined) =>
   normalizeEntityData(data, {
     internalOwner: { user: data?.internalOwnerUser, group: data?.internalOwnerGroup, stringValue: data?.internalOwner },
   })

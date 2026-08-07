@@ -108,7 +108,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
   }
 
   const handleExportCSV = () => {
-    const visibleFiles = files.filter((f): f is TFile => !!f)
+    const visibleFiles = files.filter((f) => !!f)
     if (visibleFiles.length === 0) return
 
     const headers = ['File Name', 'Category', 'Uploaded Date', 'Classified as Evidence']
@@ -126,7 +126,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
     URL.revokeObjectURL(url)
   }
 
-  const validFiles = files.filter((f): f is TFile => !!f)
+  const validFiles = files.filter((f) => !!f)
 
   const isClassifiedAsEvidence = (file: TFile) => fileToEvidenceMap.has(file.id)
 

@@ -7,8 +7,8 @@ import { isValidEmail } from '@/lib/validators'
 
 const formSchema = z.object({
   emails: z.array(z.string().refine(isValidEmail, { message: 'Invalid email address' })).min(1, 'Add at least one email'),
-  role: z.nativeEnum(InviteRole, {
-    errorMap: () => ({ message: 'Invalid role' }),
+  role: z.enum(InviteRole, {
+    error: 'Invalid role',
   }),
 })
 

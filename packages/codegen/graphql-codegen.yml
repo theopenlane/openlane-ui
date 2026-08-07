@@ -9,9 +9,9 @@ config:
   optimizeDocumentNode: true
   maybeValue: T | null
   declarationKind: interface
-  preResolveTypes: true
   onlyOperationTypes: false
   flattenGeneratedTypes: false
+  defaultScalarType: any
   namingConvention:
     enumValues: keep
   scalars:
@@ -32,31 +32,37 @@ generates:
     plugins:
       - introspection
     config:
-  ./src/schema.ts:
-    #    preset: near-operation-file
-    #    presetConfig:
-    #      baseTypesPath: 'types.ts'
+  ./src/schema-types.ts:
     plugins:
-      - typescript # This plugin generates the base TypeScript types, based on your GraphQL schema
-      - typescript-operations # This plugin generates TypeScript types based on your GraphQLSchema and your GraphQL operations and fragments. It generates types for your GraphQL documents: Query, Mutation, Subscription and Fragment
-      # - typescript-resolvers # This plugin generates TypeScript signature for resolve functions of your GraphQL API. You can use this plugin to generate simple resolvers signature based on your GraphQL types, or you can change its behavior be providing custom model types (mappers)
-      # - typescript-graphql-request
-      # - plugin-typescript-swr
-      # - typescript-react-query # This plugin generates React-Query Hooks with TypeScript typings
-      # - typescript-react-apollo
-      # - typed-document-node # These plugins generate a ready-to-use TypedDocumentNode (a combination of pre-compiled DocumentNode and the TypeScript signature it represents)
-      #      - typescript-mock-data
-      #      - typescript-validation-schema # A plugin for GraphQL Codegen to generate form validation schema (such as yup, zod) based on your GraphQL schema for use in a client application
+      - typescript # Base TypeScript types (object types, inputs, native enums) from the GraphQL schema
+      - add:
+          content: '/* eslint-disable */'
+  ./src/schema.ts:
+    plugins:
+      - typescript-operations # Operation types (Query/Mutation/Fragment results and variables); base types are imported, not re-emitted
+      - add:
+          content: '/* eslint-disable */'
+      - add:
+          content: "export * from './schema-types'"
+    config:
+      importSchemaTypesFrom: './src/schema-types'
+  ./src/historyschema-types.ts:
+    schema: https://raw.githubusercontent.com/theopenlane/core/main/internal/graphapi/historyschema/schema.graphql
+    plugins:
+      - typescript
       - add:
           content: '/* eslint-disable */'
   ./src/historyschema.ts:
     schema: https://raw.githubusercontent.com/theopenlane/core/main/internal/graphapi/historyschema/schema.graphql
     documents: './query-history/**/*.ts'
     plugins:
-      - typescript
       - typescript-operations
       - add:
           content: '/* eslint-disable */'
+      - add:
+          content: "export * from './historyschema-types'"
+    config:
+      importSchemaTypesFrom: './src/historyschema-types'
 hooks:
   afterAllFileWrite:
     - node ./plugins/generate-type-constants.js

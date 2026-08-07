@@ -690257,9 +690257,13 @@
                 "name": "includeDeprecated",
                 "description": null,
                 "type": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
-                  "ofType": null
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "name": "Boolean",
+                    "kind": "SCALAR",
+                    "ofType": null
+                  }
                 },
                 "defaultValue": "false",
                 "isDeprecated": false,
@@ -690373,7 +690377,13 @@
           },
           {
             "name": "VARIABLE_DEFINITION",
-            "description": "Location adjacent to a variable definition.",
+            "description": "Location adjacent to an operation variable definition.",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "FRAGMENT_VARIABLE_DEFINITION",
+            "description": "Location adjacent to a fragment variable definition.",
             "isDeprecated": false,
             "deprecationReason": null
           },
@@ -690562,9 +690572,13 @@
                 "name": "includeDeprecated",
                 "description": null,
                 "type": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
-                  "ofType": null
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "name": "Boolean",
+                    "kind": "SCALAR",
+                    "ofType": null
+                  }
                 },
                 "defaultValue": "false",
                 "isDeprecated": false,
@@ -690932,9 +690946,13 @@
                 "name": "includeDeprecated",
                 "description": null,
                 "type": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
-                  "ofType": null
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "name": "Boolean",
+                    "kind": "SCALAR",
+                    "ofType": null
+                  }
                 },
                 "defaultValue": "false",
                 "isDeprecated": false,
@@ -691005,9 +691023,13 @@
                 "name": "includeDeprecated",
                 "description": null,
                 "type": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
-                  "ofType": null
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "name": "Boolean",
+                    "kind": "SCALAR",
+                    "ofType": null
+                  }
                 },
                 "defaultValue": "false",
                 "isDeprecated": false,
@@ -691038,9 +691060,13 @@
                 "name": "includeDeprecated",
                 "description": null,
                 "type": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
-                  "ofType": null
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "name": "Boolean",
+                    "kind": "SCALAR",
+                    "ofType": null
+                  }
                 },
                 "defaultValue": "false",
                 "isDeprecated": false,
@@ -691161,15 +691187,19 @@
         "isRepeatable": false,
         "isDeprecated": false,
         "deprecationReason": null,
-        "locations": ["ARGUMENT_DEFINITION", "DIRECTIVE_DEFINITION", "ENUM_VALUE", "FIELD_DEFINITION", "INPUT_FIELD_DEFINITION"],
+        "locations": ["FIELD_DEFINITION", "ARGUMENT_DEFINITION", "INPUT_FIELD_DEFINITION", "ENUM_VALUE", "DIRECTIVE_DEFINITION"],
         "args": [
           {
             "name": "reason",
             "description": "Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/).",
             "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "name": "String",
+                "kind": "SCALAR",
+                "ofType": null
+              }
             },
             "defaultValue": "\"No longer supported\"",
             "isDeprecated": false,

@@ -16,12 +16,7 @@ export const programInviteSchema = z.object({
 
 export const step3Schema = z.object({
   programKindName: z.string({
-    errorMap: (issue, ctx) => {
-      if (issue.code === z.ZodIssueCode.invalid_type) {
-        return { message: 'Choose how you want to get started' }
-      }
-      return { message: ctx.defaultError }
-    },
+    error: 'Choose how you want to get started',
   }),
 })
 

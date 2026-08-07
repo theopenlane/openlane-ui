@@ -67,7 +67,7 @@ export type ContactsNode = NonNullable<NonNullable<NonNullable<ContactsWithFilte
 
 export type ContactsNodeNonNull = NonNullable<ContactsNode>
 
-const toContactNodes = (edges: NonNullable<ContactsWithFilterQuery['contacts']>['edges']): ContactsNodeNonNull[] => (edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
+const toContactNodes = (edges: NonNullable<ContactsWithFilterQuery['contacts']>['edges'] | undefined): ContactsNodeNonNull[] => (edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
 
 export const useContactsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllContactsArgs) => {
   const { client } = useGraphQLClient()

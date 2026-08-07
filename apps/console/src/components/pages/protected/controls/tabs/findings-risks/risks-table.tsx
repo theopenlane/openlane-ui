@@ -6,7 +6,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { type ColumnDef } from '@tanstack/react-table'
-import type { Risk, RiskTableFieldsFragment, RiskWhereInput } from '@repo/codegen/src/schema'
+import type { RiskTableFieldsFragment, RiskWhereInput } from '@repo/codegen/src/schema'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useRisks } from '@/lib/graphql-hooks/risk'
@@ -51,11 +51,17 @@ const RisksTable: React.FC<RisksTableProps> = ({ controlId, subcontrolIds }) => 
     return mergeWhere<RiskWhereInput>([associationFilter as RiskWhereInput, base])
   }, [associationFilter, debouncedSearch])
 
-  const { risks, paginationMeta, isLoading } = useRisks({
+  const {
+    data: risksData,
+    paginationMeta,
+    isLoading,
+  } = useRisks({
     where,
     pagination,
     enabled: true,
   })
+
+  const risks = useMemo(() => risksData?.risks?.edges?.flatMap((edge) => (edge?.node ? [edge.node] : [])) ?? [], [risksData])
 
   const memberIds = useMemo(() => [...new Set((risks ?? []).flatMap((r) => [r.createdBy, r.updatedBy]).filter((id): id is string => typeof id === 'string' && id.length > 0))], [risks])
 
@@ -71,7 +77,7 @@ const RisksTable: React.FC<RisksTableProps> = ({ controlId, subcontrolIds }) => 
           if ('accessorKey' in col && col.accessorKey === 'name') {
             return {
               ...col,
-              cell: ({ row }: { row: { original: Risk } }) => (
+              cell: ({ row }: { row: { original: RiskTableFieldsFragment } }) => (
                 <Link href={`/exposure/risks/${row.original.id}`} className="block truncate text-blue-500 hover:underline">
                   {row.original.name || ''}
                 </Link>
