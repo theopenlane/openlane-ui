@@ -22,7 +22,6 @@ config:
     ID: string
     JSON: any
     Upload: any
-  schema: yup
 overwrite: true
 schema: https://raw.githubusercontent.com/theopenlane/core/main/internal/graphapi/clientschema/schema.graphql
 # schema: ../../../core-more/internal/graphapi/clientschema/schema.graphql
@@ -48,6 +47,7 @@ generates:
       importSchemaTypesFrom: './src/schema-types'
   ./src/historyschema-types.ts:
     schema: https://raw.githubusercontent.com/theopenlane/core/main/internal/graphapi/historyschema/schema.graphql
+    documents: './query-history/**/*.ts'
     plugins:
       - typescript
       - add:

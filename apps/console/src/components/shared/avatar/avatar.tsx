@@ -31,10 +31,12 @@ export function Avatar({ variant, entity, className }: AvatarProps) {
         return toBase64DataUri(entity.logoFile.base64)
       }
     }
-    if ('avatarRemoteURL' in entity) return entity.avatarRemoteURL
-    if ('gravatarLogoURL' in entity) return entity.gravatarLogoURL
-    if ('logoURL' in entity) return entity.logoURL
-    return undefined
+    return (
+      ('avatarRemoteURL' in entity ? entity.avatarRemoteURL : undefined) ??
+      ('gravatarLogoURL' in entity ? entity.gravatarLogoURL : undefined) ??
+      ('logoURL' in entity ? entity.logoURL : undefined) ??
+      undefined
+    )
   })()
 
   const fallbackText = entity.displayName?.substring(0, variant === 'small' ? 1 : 2)

@@ -1,6 +1,6 @@
 'use client'
 
-import { registeredLanguages } from '@repo/ui/components/editor/lowlight-registry.ts'
+import { isRegisteredLanguage } from '@repo/ui/components/editor/lowlight-registry.ts'
 import * as React from 'react'
 
 import { formatCodeBlock, isLangSupported } from '@platejs/code-block'
@@ -217,4 +217,4 @@ const allLanguages: { label: string; value: string }[] = [
   { label: 'YAML', value: 'yaml' },
 ]
 
-const languages = allLanguages.filter((language) => registeredLanguages.has(language.value))
+const languages = allLanguages.filter((language) => isRegisteredLanguage(language.value))

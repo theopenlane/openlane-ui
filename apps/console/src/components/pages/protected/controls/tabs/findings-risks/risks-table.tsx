@@ -51,19 +51,13 @@ const RisksTable: React.FC<RisksTableProps> = ({ controlId, subcontrolIds }) => 
     return mergeWhere<RiskWhereInput>([associationFilter as RiskWhereInput, base])
   }, [associationFilter, debouncedSearch])
 
-  const {
-    data: risksData,
-    paginationMeta,
-    isLoading,
-  } = useRisks({
+  const { risks, paginationMeta, isLoading } = useRisks({
     where,
     pagination,
     enabled: true,
   })
 
-  const risks = useMemo(() => risksData?.risks?.edges?.flatMap((edge) => (edge?.node ? [edge.node] : [])) ?? [], [risksData])
-
-  const memberIds = useMemo(() => [...new Set((risks ?? []).flatMap((r) => [r.createdBy, r.updatedBy]).filter((id): id is string => typeof id === 'string' && id.length > 0))], [risks])
+  const memberIds = useMemo(() => [...new Set(risks.flatMap((r) => [r.createdBy, r.updatedBy]).filter((id): id is string => typeof id === 'string' && id.length > 0))], [risks])
 
   const { userMap, tokenMap } = useAuthorMaps(memberIds)
 
@@ -97,7 +91,7 @@ const RisksTable: React.FC<RisksTableProps> = ({ controlId, subcontrolIds }) => 
       </div>
       <DataTable
         columns={filteredColumns}
-        data={risks ?? []}
+        data={risks}
         loading={isLoading}
         pagination={pagination}
         onPaginationChange={setPagination}

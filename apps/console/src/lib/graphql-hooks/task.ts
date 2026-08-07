@@ -26,7 +26,6 @@ import {
   type TaskQueryVariables,
   type CreateBulkCsvTaskMutation,
   type CreateBulkCsvTaskMutationVariables,
-  type Task,
   type UpdateBulkTaskMutation,
   type UpdateBulkTaskMutationVariables,
   type UpdateTaskCommentMutation,
@@ -37,6 +36,7 @@ import {
   type GetTaskAssociationsQuery,
   type GetTaskAssociationsQueryVariables,
 } from '@repo/codegen/src/schema'
+import { useMemo } from 'react'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { invalidateTaskAssociations } from '@/components/shared/object-association/object-association-config'
@@ -60,11 +60,7 @@ export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true 
     enabled,
   })
 
-  const tasks = (queryResult.data?.tasks?.edges?.map((edge) => {
-    return {
-      ...edge?.node,
-    }
-  }) ?? []) as Task[]
+  const tasks = useMemo(() => queryResult.data?.tasks?.edges?.map((edge) => edge?.node).filter((node): node is TasksWithFilterNode => !!node) ?? [], [queryResult.data])
 
   return { ...queryResult, tasks, isLoading: queryResult.isPending }
 }

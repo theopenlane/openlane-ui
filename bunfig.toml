@@ -1,3 +1,14 @@
 [install]
 linker = "hoisted"
 minimumReleaseAge = 604800
+minimumReleaseAgeExcludes = [
+  "@assistant-ui/react",
+  "@assistant-ui/react-ai-sdk",
+  "@assistant-ui/react-markdown",
+  "@assistant-ui/core",
+  "@assistant-ui/store",
+  "@assistant-ui/tap",
+  "assistant-stream",
+  "assistant-cloud",
+  "safe-content-frame",
+]

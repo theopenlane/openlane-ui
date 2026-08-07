@@ -107,7 +107,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
   }, [debouncedSearch])
 
   const {
-    data: controlsData,
+    controls,
     paginationMeta: controlsPagination,
     isLoading: controlsLoading,
     isFetching: controlsFetching,
@@ -117,8 +117,6 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     pagination,
     includeVars: { includeDescription: true },
   })
-
-  const controls = useMemo(() => (controlsData?.controls?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [controlsData?.controls?.edges])
 
   const {
     subcontrols,
@@ -208,7 +206,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
 
         <DataTable
           columns={columns}
-          data={items || []}
+          data={items}
           pagination={pagination}
           onPaginationChange={setPagination}
           paginationMeta={paginationMeta}

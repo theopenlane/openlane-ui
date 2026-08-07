@@ -34,14 +34,12 @@ export const SubscribersTable = () => {
     }
   }, [filters, debouncedSearch])
 
-  const { data, isError, isLoading, paginationMeta } = useGetAllSubscribers({
+  const { subscribers, isError, isLoading, paginationMeta } = useGetAllSubscribers({
     where: whereFilter,
     orderBy,
     pagination,
     enabled: !!filters,
   })
-
-  const subscribers = useMemo(() => (data?.subscribers?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [data?.subscribers?.edges])
 
   const handleExport = () => {
     exportToCSV(subscribers, exportableSubscriberColumns, 'subscribers')

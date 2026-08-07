@@ -36,7 +36,6 @@ import {
 } from '@repo/codegen/query/control'
 
 import {
-  type Control,
   type ControlWhereInput,
   type CreateBulkCsvControlMutation,
   type CreateBulkCsvControlMutationVariables,
@@ -104,6 +103,8 @@ export type ControlEvidenceItem = NonNullable<NonNullable<NonNullable<NonNullabl
 export type ControlsByRefcodeEdge = NonNullable<NonNullable<NonNullable<GetControlsByRefCodeQuery['controls']>['edges']>[number]>
 export type ControlsByRefcodeNode = NonNullable<ControlsByRefcodeEdge['node']>
 
+export type ControlsNode = NonNullable<NonNullable<NonNullable<NonNullable<GetAllControlsQuery['controls']>['edges']>[number]>['node']>
+
 type UseGetAllControlsArgs = {
   where?: GetAllControlsQueryVariables['where']
   pagination?: TPagination | null
@@ -127,8 +128,7 @@ export const useGetAllControls = ({ where, pagination, orderBy, enabled = true, 
     enabled,
   })
 
-  const edges = queryResult.data?.controls?.edges ?? []
-  const controls = edges.map((edge) => edge?.node) as Control[]
+  const controls = useMemo(() => queryResult.data?.controls?.edges?.map((edge) => edge?.node).filter((node): node is ControlsNode => !!node) ?? [], [queryResult.data])
 
   const paginationMeta = {
     totalCount: queryResult.data?.controls?.totalCount ?? 0,
