@@ -32,7 +32,6 @@ import {
   type GetRiskByIdQuery,
   type GetRiskByIdQueryVariables,
   type GetRiskDiscussionByIdQuery,
-  type Risk,
   type RiskFieldsFragment,
   type RiskWhereInput,
   type UpdateBulkRiskMutation,
@@ -69,7 +68,7 @@ export const useRisks = ({ where, pagination, orderBy, enabled = true }: UseRisk
     enabled,
   })
 
-  const risks = queryResult?.data?.risks?.edges?.map((edge) => edge?.node as RiskFieldsFragment) as Risk[]
+  const risks = queryResult?.data?.risks?.edges?.map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => !!node)
 
   const paginationMeta = {
     totalCount: queryResult.data?.risks?.totalCount ?? 0,

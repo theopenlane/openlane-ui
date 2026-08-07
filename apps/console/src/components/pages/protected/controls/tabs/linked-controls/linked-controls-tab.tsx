@@ -154,7 +154,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       if (map.has(rawNode.refCode) && rawNode.systemOwned) return
 
       const linkedPolicies = rawNode.internalPolicies?.edges?.map((e) => e?.node).filter((n): n is { id: string; name: string } => !!n?.id && !!n?.name) ?? []
-      const evidenceRefs = rawNode.evidence?.edges?.map((e) => e?.node).filter((n): n is { id: string; name: string } => !!n?.id) ?? []
+      const evidenceRefs = rawNode.evidence?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => !!n?.id) ?? []
 
       map.set(rawNode.refCode, {
         description: rawNode.description,

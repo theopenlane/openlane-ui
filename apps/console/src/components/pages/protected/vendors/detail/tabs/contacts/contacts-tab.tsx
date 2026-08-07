@@ -51,7 +51,7 @@ const VIEW_MODE_STORAGE_KEY = 'view-mode:vendor-contacts'
 const bulkEditFieldSchema = z.object({
   title: z.string().optional(),
   company: z.string().optional(),
-  status: z.nativeEnum(ContactUserStatus).optional(),
+  status: z.enum(ContactUserStatus).optional(),
 })
 
 const statusEnumOptions = enumToOptions(ContactUserStatus)

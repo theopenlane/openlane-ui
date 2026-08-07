@@ -8,7 +8,7 @@ import { type Value } from 'platejs'
 const formSchema = z.object({
   taskKindName: z
     .string({
-      errorMap: () => ({ message: 'Invalid category' }),
+      error: 'Invalid category',
     })
     .min(1, { message: 'Invalid category' }),
   title: z.string().min(2, {
@@ -18,8 +18,8 @@ const formSchema = z.object({
   assigneeID: z.string().optional().nullable(),
   due: z.any(),
   tags: z.array(z.string()).optional(),
-  status: z.nativeEnum(TaskTaskStatus, {
-    errorMap: () => ({ message: 'Invalid status' }),
+  status: z.enum(TaskTaskStatus, {
+    error: 'Invalid status',
   }),
 })
 

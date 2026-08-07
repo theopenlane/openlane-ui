@@ -14,7 +14,7 @@ export const controlReviewSchema = z.object({
   linkedControlIDs: z.array(z.string()),
   linkedSubcontrolIDs: z.array(z.string()),
   findingTitle: z.string().optional(),
-  findingSeverity: z.nativeEnum(FindingSecurityLevel).optional(),
+  findingSeverity: z.enum(FindingSecurityLevel).optional(),
   findingDescription: z.string().optional(),
 })
 

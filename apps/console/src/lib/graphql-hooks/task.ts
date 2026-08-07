@@ -69,6 +69,8 @@ export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true 
   return { ...queryResult, tasks, isLoading: queryResult.isPending }
 }
 
+export type TasksWithFilterNode = NonNullable<NonNullable<NonNullable<NonNullable<TasksWithFilterQuery['tasks']>['edges']>[number]>['node']>
+
 export const useTasksWithFilterInfinite = ({ where, orderBy, pagination, enabled = true }: GetAllTasksArgs) => {
   const { client } = useGraphQLClient()
 
@@ -88,7 +90,7 @@ export const useTasksWithFilterInfinite = ({ where, orderBy, pagination, enabled
     enabled,
   })
 
-  const tasks: Task[] = queryResult.data?.pages.flatMap((page) => (page.tasks?.edges ?? []).map((edge) => edge?.node).filter((node): node is Task => node !== undefined)) ?? []
+  const tasks: TasksWithFilterNode[] = queryResult.data?.pages.flatMap((page) => (page.tasks?.edges ?? []).map((edge) => edge?.node).filter((node): node is TasksWithFilterNode => !!node)) ?? []
 
   const lastPage = queryResult.data?.pages.at(-1)
 

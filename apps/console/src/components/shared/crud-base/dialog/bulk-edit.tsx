@@ -213,9 +213,9 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                 const enumKey = fieldKey ? getEnumKey(fieldKey) : undefined
                 const selectOptions = enumOpts && enumKey ? enumOpts[enumKey] : undefined
 
-                const getInnerZodType = (zodType: z.ZodTypeAny): z.ZodTypeAny => {
+                const getInnerZodType = (zodType: z.core.$ZodType): z.core.$ZodType => {
                   if (zodType instanceof z.ZodOptional || zodType instanceof z.ZodNullable) {
-                    return getInnerZodType(zodType._def.innerType)
+                    return getInnerZodType(zodType.unwrap())
                   }
                   return zodType
                 }

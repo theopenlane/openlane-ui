@@ -9,12 +9,12 @@ const formSchema = z.object({
   name: z.string(),
   details: z.custom<Value | string>().optional(),
   detailsJSON: z.custom<Value>().optional(),
-  status: z.nativeEnum(InternalPolicyDocumentStatus, {
-    errorMap: () => ({ message: 'Invalid status' }),
+  status: z.enum(InternalPolicyDocumentStatus, {
+    error: 'Invalid status',
   }),
   approvalRequired: z.boolean(),
-  reviewFrequency: z.nativeEnum(InternalPolicyFrequency, {
-    errorMap: () => ({ message: 'Invalid status' }),
+  reviewFrequency: z.enum(InternalPolicyFrequency, {
+    error: 'Invalid status',
   }),
   internalPolicyKindName: z.string(),
   reviewDue: z.date().optional().nullable(),

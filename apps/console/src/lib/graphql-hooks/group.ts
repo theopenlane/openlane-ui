@@ -45,6 +45,8 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 
+export type GroupsNode = NonNullable<NonNullable<NonNullable<NonNullable<GetAllGroupsQuery['groups']>['edges']>[number]>['node']>
+
 type GroupsArgs = {
   where?: GetAllGroupsQueryVariables['where']
   orderBy?: GetAllGroupsQueryVariables['orderBy']
@@ -131,7 +133,7 @@ export const useGetAllGroupsInfinite = ({ where, orderBy, pagination, enabled = 
     enabled,
   })
 
-  const groups = queryResult.data?.pages.flatMap((page) => page.groups?.edges?.map((edge) => edge?.node).filter((node): node is Group => node !== undefined) ?? []) ?? []
+  const groups = queryResult.data?.pages.flatMap((page) => page.groups?.edges?.map((edge) => edge?.node).filter((node): node is GroupsNode => !!node) ?? []) ?? []
   const lastPage = queryResult.data?.pages.at(-1)
 
   const paginationMeta = {

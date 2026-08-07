@@ -80,7 +80,9 @@ export function ManagePermissionSheet({ open, onOpenChange }: { open: boolean; o
     }
   }, [id, isProcedurePage, queryClient, groupToRemove?.id, updatePolicy, updateProcedure])
 
-  const { isLoading, groups } = useGetAllGroups({ where: config.where })
+  const { isLoading, data } = useGetAllGroups({ where: config.where })
+
+  const groups = useMemo(() => (data?.groups?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [data?.groups?.edges])
 
   const handleRemoveGroup = (group: Group) => {
     setGroupToRemove(group)

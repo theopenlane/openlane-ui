@@ -26,9 +26,9 @@ export enum SelectOptionBulkEditTrustCenterDocs {
 }
 
 const fieldItemSchema = z.object({
-  value: z.nativeEnum(SelectOptionBulkEditTrustCenterDocs).optional(),
+  value: z.enum(SelectOptionBulkEditTrustCenterDocs).optional(),
   selectedValue: z.string().optional(),
-  visibilityEnum: z.nativeEnum(TrustCenterDocTrustCenterDocumentVisibility).optional(),
+  visibilityEnum: z.enum(TrustCenterDocTrustCenterDocumentVisibility).optional(),
 })
 
 const bulkEditDocsSchema = z.object({

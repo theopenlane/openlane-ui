@@ -18,7 +18,7 @@ export const brandSchema = z.object({
   secondaryBackgroundColor: z.string().optional(),
   accentColor: z.string().optional(),
   font: z.string().optional(),
-  themeMode: z.nativeEnum(TrustCenterSettingTrustCenterThemeMode).optional(),
+  themeMode: z.enum(TrustCenterSettingTrustCenterThemeMode).optional(),
   logoRemoteURL: z.string().optional(),
   faviconRemoteURL: z.string().optional(),
   logoFile: z.any().nullable().optional(),

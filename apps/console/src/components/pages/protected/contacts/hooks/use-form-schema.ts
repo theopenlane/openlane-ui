@@ -11,13 +11,13 @@ const formSchema = z.object({
   title: z.string().optional(),
   address: z.string().optional(),
   phoneNumber: z.string().optional(),
-  status: z.nativeEnum(ContactUserStatus).optional(),
+  status: z.enum(ContactUserStatus).optional(),
   tags: z.array(z.string()).optional(),
   entityIDs: z.array(z.string()).optional(),
 })
 
 export const bulkEditFieldSchema = z.object({
-  status: z.nativeEnum(ContactUserStatus).optional(),
+  status: z.enum(ContactUserStatus).optional(),
   company: z.string().optional(),
   title: z.string().optional(),
 })

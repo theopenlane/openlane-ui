@@ -9,7 +9,7 @@ export const categoriesStepSchema = z.object({
 
 export const step1Schema = z.object({
   programKindName: z.string({
-    required_error: 'Please select a program type',
+    error: (issue) => (issue.input === undefined ? 'Please select a program type' : undefined),
   }),
 })
 
