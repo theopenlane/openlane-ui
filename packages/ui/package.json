@@ -212,8 +212,8 @@
     "@tailwindui/react": "latest",
     "@types/eslint": "latest",
     "@types/node": "^26.0.0",
-    "@types/react": "19.2.17",
-    "@types/react-dom": "19.2.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
     "autoprefixer": "^10.4.21",
     "clsx": "^2.1.1",
     "eslint": "^10.0.0",
@@ -224,7 +224,7 @@
     "typescript": "^6.0.3"
   },
   "overrides": {
-    "@types/react": "19.2.17",
-    "@types/react-dom": "19.2.3"
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4"
   }
 }
