@@ -112,6 +112,8 @@ export default function CreateControlForm() {
     formState: { errors },
   } = form
 
+  console.log('errors', errors)
+
   const { data: controlData, isLoading } = useGetControlById(id)
 
   const { data: mappedControlData } = useGetControlMinifiedById(mapControlId || '')
@@ -137,10 +139,7 @@ export default function CreateControlForm() {
   const resetAllExcept = (fieldsToKeep: keyof ControlFormData | (keyof ControlFormData)[]) => {
     setClearData(true)
     const keepArray = Array.isArray(fieldsToKeep) ? fieldsToKeep : [fieldsToKeep]
-    const preservedValues = keepArray.reduce((acc, key) => {
-      acc[key] = form.getValues(key)
-      return acc
-    }, {} as Partial<ControlFormData>)
+    const preservedValues = Object.fromEntries(keepArray.map((key) => [key, form.getValues(key)])) as Partial<ControlFormData>
     const controlID = form.getValues('controlID')
     reset({ controlID, ...initialValues, ...preservedValues })
   }
@@ -213,7 +212,7 @@ export default function CreateControlForm() {
       }
 
       if (desiredOutcome && createObjective) {
-        const controlObjectiveOutcome = await convertToHtml(desiredOutcome as ControlFormData['desiredOutcome'])
+        const controlObjectiveOutcome = await convertToHtml(desiredOutcome)
 
         const payload: CreateControlObjectiveInput = {
           name: `${data.refCode} Objective`,
@@ -228,7 +227,7 @@ export default function CreateControlForm() {
       }
 
       if (details && createImplementation) {
-        const controlImplementationDetails = await convertToHtml(details as ControlFormData['details'])
+        const controlImplementationDetails = await convertToHtml(details)
         const payload: CreateControlImplementationInput = {
           details: controlImplementationDetails,
           implementationDate: new Date().toISOString(),
@@ -469,7 +468,7 @@ export default function CreateControlForm() {
                   name="desiredOutcome"
                   control={control}
                   render={({ field }) => (
-                    <PlateEditor initialValue={field.value as string} clearData={clearData} onClear={() => setClearData(false)} onChange={field.onChange} placeholder="Enter the control objective" />
+                    <PlateEditor initialValue={field.value} clearData={clearData} onClear={() => setClearData(false)} onChange={field.onChange} placeholder="Enter the control objective" />
                   )}
                 />
               )}
@@ -484,13 +483,7 @@ export default function CreateControlForm() {
                   name="details"
                   control={control}
                   render={({ field }) => (
-                    <PlateEditor
-                      initialValue={field.value as string}
-                      clearData={clearData}
-                      onClear={() => setClearData(false)}
-                      onChange={field.onChange}
-                      placeholder="Enter the implementation details"
-                    />
+                    <PlateEditor initialValue={field.value} clearData={clearData} onClear={() => setClearData(false)} onChange={field.onChange} placeholder="Enter the implementation details" />
                   )}
                 />
               )}

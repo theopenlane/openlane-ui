@@ -66,7 +66,7 @@ export const memberUserSchema = z
     email: z.string().email().optional(),
     role: z.string().optional(),
     createdAt: z.string().optional(),
-    avatarFile: z.any().nullable().optional(),
+    avatarFile: z.object({ base64: z.string().nullable().optional() }).nullable().optional(),
   })
   .passthrough()
 

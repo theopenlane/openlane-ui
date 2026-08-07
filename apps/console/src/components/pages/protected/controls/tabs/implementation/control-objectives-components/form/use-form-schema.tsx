@@ -4,10 +4,11 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ControlObjectiveControlSource, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import { type Value } from 'platejs'
 
 export const controlObjectiveSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  desiredOutcome: z.any().optional(),
+  desiredOutcome: z.custom<Value | string>().optional(),
   status: z.enum(ControlObjectiveObjectiveStatus),
   source: z.enum(ControlObjectiveControlSource),
   controlObjectiveType: z.string().optional(),
