@@ -1,7 +1,7 @@
 'use client'
 import React, { useCallback, useState } from 'react'
 import { File, FileUp, Upload } from 'lucide-react'
-import { type FileWithPath, useDropzone } from 'react-dropzone'
+import { useDropzone } from 'react-dropzone'
 import { cn } from '@repo/ui/lib/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
@@ -23,7 +23,7 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
   const { errorNotification } = useNotification()
 
   const onDrop = useCallback(
-    (acceptedFiles: FileWithPath[]) => {
+    (acceptedFiles: File[]) => {
       const validFiles = acceptedFiles.filter((file) => {
         if (file.size > MAX_FILE_SIZE) {
           errorNotification({
