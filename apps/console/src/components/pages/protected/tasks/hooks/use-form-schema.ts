@@ -16,7 +16,7 @@ const formSchema = z.object({
   }),
   details: z.custom<Value | string>().optional(),
   assigneeID: z.string().optional().nullable(),
-  due: z.any(),
+  due: z.union([z.date(), z.string()]).nullable().optional(),
   tags: z.array(z.string()).optional(),
   status: z.enum(TaskTaskStatus, {
     error: 'Invalid status',

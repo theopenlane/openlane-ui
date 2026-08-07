@@ -24,11 +24,11 @@ const formSchema = z.object({
     .regex(/^v?\d+\.\d+\.\d+$/, { message: 'Must be a semver string (e.g. v1.0.0)' })
     .optional(),
   tags: z.array(z.string().optional()),
-  programIDs: z.array(z.any()).optional(),
-  procedureIDs: z.array(z.any()).optional(),
-  controlObjectiveIDs: z.array(z.any()).optional(),
-  controlIDs: z.array(z.any()).optional(),
-  taskIDs: z.array(z.any()).optional(),
+  programIDs: z.array(z.string()).optional(),
+  procedureIDs: z.array(z.string()).optional(),
+  controlObjectiveIDs: z.array(z.string()).optional(),
+  controlIDs: z.array(z.string()).optional(),
+  taskIDs: z.array(z.string()).optional(),
   approverID: z.string().optional(),
   delegateID: z.string().optional(),
 })

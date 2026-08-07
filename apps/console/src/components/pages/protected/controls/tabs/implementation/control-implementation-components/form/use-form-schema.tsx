@@ -4,9 +4,10 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ControlImplementationDocumentStatus } from '@repo/codegen/src/schema'
+import { type Value } from 'platejs'
 
 export const controlImplementationSchema = z.object({
-  details: z.any().optional(),
+  details: z.custom<Value | string>().optional(),
   status: z.enum(ControlImplementationDocumentStatus).optional(),
   implementationDate: z.date().optional(),
   controlIDs: z.array(z.string()).optional(),

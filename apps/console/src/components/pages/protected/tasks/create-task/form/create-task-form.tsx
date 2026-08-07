@@ -94,7 +94,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
       const formData: { input: CreateTaskInput } = {
         input: {
           taskKindName: data?.taskKindName,
-          due: data?.due,
+          due: data?.due ? new Date(data.due).toISOString() : undefined,
           title: data?.title,
           details: detailsField,
           assigneeID: data?.assigneeID,
