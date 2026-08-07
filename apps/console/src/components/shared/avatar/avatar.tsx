@@ -2,8 +2,17 @@ import { type Entity, type Group, type Organization, type User } from '@repo/cod
 import { Avatar as AvatarComponent, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { toBase64DataUri } from '@/lib/image-utils'
 
+export type AvatarEntityLike = {
+  displayName?: string | null
+  avatarRemoteURL?: string | null
+  gravatarLogoURL?: string | null
+  logoURL?: string | null
+  avatarFile?: { base64?: string | null } | null
+  logoFile?: { base64?: string | null } | null
+}
+
 interface AvatarProps {
-  entity?: User | Organization | Group | Entity | null
+  entity?: User | Organization | Group | Entity | AvatarEntityLike | null
   variant?: 'small' | 'medium' | 'large' | 'extra-large'
   className?: string
 }
@@ -22,10 +31,12 @@ export function Avatar({ variant, entity, className }: AvatarProps) {
         return toBase64DataUri(entity.logoFile.base64)
       }
     }
-    if ('avatarRemoteURL' in entity) return entity.avatarRemoteURL
-    if ('gravatarLogoURL' in entity) return entity.gravatarLogoURL
-    if ('logoURL' in entity) return entity.logoURL
-    return undefined
+    return (
+      ('avatarRemoteURL' in entity ? entity.avatarRemoteURL : undefined) ??
+      ('gravatarLogoURL' in entity ? entity.gravatarLogoURL : undefined) ??
+      ('logoURL' in entity ? entity.logoURL : undefined) ??
+      undefined
+    )
   })()
 
   const fallbackText = entity.displayName?.substring(0, variant === 'small' ? 1 : 2)

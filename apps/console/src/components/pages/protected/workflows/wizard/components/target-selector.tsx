@@ -5,10 +5,10 @@ import { Label } from '@repo/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { X, KeyRound } from 'lucide-react'
-import type { User, Group } from '@repo/codegen/src/schema'
+import type { User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
-import { useGetAllGroups } from '@/lib/graphql-hooks/group'
+import { useGetAllGroups, type GroupsNode } from '@/lib/graphql-hooks/group'
 import type { TargetSelectorProps } from '../types'
 import { buildTargetKey, formatResolverLabel } from '../utils'
 
@@ -39,7 +39,7 @@ export const TargetSelector = ({ targets, onAdd, onRemove, resolverKeys, getTarg
   const groupSearchWhere = debouncedSearch.trim() ? { displayNameContainsFold: debouncedSearch.trim() } : undefined
   const { groups, isLoading: isLoadingGroups } = useGetAllGroups({ where: groupSearchWhere })
   const groupMap = useMemo(() => {
-    const map = new Map<string, Group>()
+    const map = new Map<string, GroupsNode>()
     for (const g of groups) {
       if (g?.id) map.set(g.id, g)
     }
@@ -102,7 +102,7 @@ export const TargetSelector = ({ targets, onAdd, onRemove, resolverKeys, getTarg
                       {target.type === 'RESOLVER' ? (
                         <ResolverIcon />
                       ) : target.type === 'GROUP' ? (
-                        <Avatar entity={groupMap.get(target.id ?? '') as Group | undefined} variant="small" />
+                        <Avatar entity={groupMap.get(target.id ?? '')} variant="small" />
                       ) : (
                         <Avatar entity={userMap.get(target.id ?? '') as User | undefined} variant="small" />
                       )}
@@ -157,7 +157,7 @@ export const TargetSelector = ({ targets, onAdd, onRemove, resolverKeys, getTarg
                           setSearchText('')
                         }}
                       >
-                        <Avatar entity={groupMap.get(option.value) as Group | undefined} variant="small" />
+                        <Avatar entity={groupMap.get(option.value)} variant="small" />
                         <span className="ml-2">{option.label}</span>
                       </CommandItem>
                     ))}

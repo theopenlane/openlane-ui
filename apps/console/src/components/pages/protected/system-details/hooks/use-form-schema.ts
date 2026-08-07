@@ -11,7 +11,7 @@ const formSchema = z.object({
   description: z.custom<Value | string>().optional(),
   authorizationBoundary: z.string().optional(),
   revisionHistory: z.custom<Value | string>().optional(),
-  sensitivityLevel: z.nativeEnum(SystemDetailSystemSensitivityLevel).optional(),
+  sensitivityLevel: z.enum(SystemDetailSystemSensitivityLevel).optional(),
   lastReviewed: z.union([z.string(), z.date()]).optional().nullable(),
   tags: z.array(z.string()).optional(),
   platformIDs: z.array(z.string()).optional(),
@@ -25,7 +25,7 @@ const bulkEditAssociationSchema = z.object({
 
 export const bulkEditFieldSchema = z
   .object({
-    sensitivityLevel: z.nativeEnum(SystemDetailSystemSensitivityLevel).optional(),
+    sensitivityLevel: z.enum(SystemDetailSystemSensitivityLevel).optional(),
   })
   .merge(bulkEditAssociationSchema)
 

@@ -11,7 +11,7 @@ const formSchema = z.object({
   displayName: z.string().optional(),
   description: z.custom<Value | string>().optional(),
   domains: z.array(z.string()).optional(),
-  status: z.nativeEnum(EntityEntityStatus).optional(),
+  status: z.enum(EntityEntityStatus).optional(),
   tags: z.array(z.string()).optional(),
   annualSpend: z.number().optional(),
   approvedForUse: z.boolean().optional(),
@@ -40,9 +40,9 @@ const formSchema = z.object({
   spendCurrency: z.string().optional(),
   ssoEnforced: z.boolean().optional(),
   statusPageURL: z.string().optional(),
-  reviewFrequency: z.nativeEnum(EntityFrequency).optional(),
+  reviewFrequency: z.enum(EntityFrequency).optional(),
   terminationNoticeDays: z.number().optional(),
-  tier: z.nativeEnum(EntityVendorTier).optional(),
+  tier: z.enum(EntityVendorTier).optional(),
   assetIDs: z.array(z.string()).optional(),
   internalPolicyIDs: z.array(z.string()).optional(),
   subcontrolIDs: z.array(z.string()).optional(),
@@ -73,7 +73,7 @@ export const bulkEditFieldSchema = z.object({
   scopeName: z.string().optional(),
   soc2PeriodEnd: z.string().optional(),
   spendCurrency: z.string().optional(),
-  tier: z.nativeEnum(EntityVendorTier).optional(),
+  tier: z.enum(EntityVendorTier).optional(),
 })
 
 export type EditVendorFormData = z.infer<typeof formSchema>

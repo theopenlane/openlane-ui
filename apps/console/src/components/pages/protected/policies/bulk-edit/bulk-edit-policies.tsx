@@ -24,7 +24,6 @@ import {
   bulkEditFieldsSchema,
   type BulkEditFieldsFormValues,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
-import { type Group } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -62,7 +61,7 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
 
   const allOptionSelects = useMemo(() => {
     if (!groups || !isTypesSuccess) return []
-    return getAllSelectOptionsForBulkEditPolicies(groups?.filter((g): g is Group => Boolean(g)) ?? [], enumOptions)
+    return getAllSelectOptionsForBulkEditPolicies(groups?.filter((g): g is NonNullable<typeof g> => Boolean(g)) ?? [], enumOptions)
   }, [groups, enumOptions, isTypesSuccess])
 
   const { control, handleSubmit } = form

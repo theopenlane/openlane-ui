@@ -6,7 +6,7 @@ import { type FrameworkControlCount, type SourceProgram } from './from-existing-
 export const NO_FRAMEWORK_LABEL = 'Organization'
 
 export const sourceProgramStepSchema = z.object({
-  sourceProgramID: z.string({ required_error: 'Select a program to copy from' }).min(1, { message: 'Select a program to copy from' }),
+  sourceProgramID: z.string({ error: (issue) => (issue.input === undefined ? 'Select a program to copy from' : undefined) }).min(1, { message: 'Select a program to copy from' }),
 })
 
 export const detailsStepSchema = z.object({

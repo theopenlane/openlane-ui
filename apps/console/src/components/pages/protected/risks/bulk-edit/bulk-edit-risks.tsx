@@ -23,7 +23,6 @@ import {
   bulkEditFieldsSchema,
   type BulkEditFieldsFormValues,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
-import { type Group } from '@repo/codegen/src/schema'
 import { useBulkEditRisk } from '@/lib/graphql-hooks/risk'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -71,7 +70,7 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
 
   const allOptionSelects = useMemo(() => {
     if (!groups || !isTypesSuccess || !isCategoriesSuccess) return []
-    return getAllSelectOptionsForBulkEditRisks(groups?.filter((g): g is Group => Boolean(g)) ?? [], typeOptions, categoryOptions)
+    return getAllSelectOptionsForBulkEditRisks(groups?.filter((g): g is NonNullable<typeof g> => Boolean(g)) ?? [], typeOptions, categoryOptions)
   }, [groups, typeOptions, categoryOptions, isCategoriesSuccess, isTypesSuccess])
 
   const { control, handleSubmit } = form

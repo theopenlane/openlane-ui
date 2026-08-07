@@ -2,11 +2,9 @@
 
 import { CodeBlockRules } from '@platejs/code-block'
 import { CodeBlockPlugin, CodeLinePlugin, CodeSyntaxPlugin } from '@platejs/code-block/react'
-import { all, createLowlight } from 'lowlight'
 
 import { CodeBlockElement, CodeLineElement, CodeSyntaxLeaf } from '@repo/ui/components/ui/code-block-node.tsx'
-
-const lowlight = createLowlight(all)
+import { lowlight } from '@repo/ui/components/editor/lowlight-registry.ts'
 
 export const CodeBlockKit = [
   CodeBlockPlugin.configure({

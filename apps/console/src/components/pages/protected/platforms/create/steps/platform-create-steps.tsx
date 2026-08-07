@@ -19,7 +19,7 @@ export const createPlatformSteps = (): StepConfig[] => [
     label: 'Basic Info',
     schema: z.object({
       name: z.string().min(1, 'Name is required'),
-      status: z.nativeEnum(PlatformPlatformStatus).optional(),
+      status: z.enum(PlatformPlatformStatus).optional(),
       description: z.string().optional(),
     }),
     render: () => <StepBasicInfo />,

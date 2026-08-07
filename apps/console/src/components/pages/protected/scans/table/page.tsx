@@ -10,14 +10,14 @@ import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } fro
 import { type ScanSheetConfig, type ScanTablePageConfig, type ScanFieldProps, objectType, objectName, tableKey, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
-import { type CreateScanInput, type ScanQuery, ScanScanStatus, ScanScanType, type UpdateScanInput } from '@repo/codegen/src/schema'
+import { type CreateScanInput, ScanScanStatus, ScanScanType, type UpdateScanInput } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import ScanDetailHeader from '../detail/scan-detail-header'
 import ScanDetailView from '../detail/scan-detail-view'
 
-const normalizeData = (data: ScanQuery['scan']) =>
+const normalizeData = (data: ScansNodeNonNull | null | undefined) =>
   normalizeEntityData(data, {
     assignedTo: { user: data?.assignedToUser, group: data?.assignedToGroup, stringValue: data?.assignedTo },
     performedBy: { user: data?.performedByUser, group: data?.performedByGroup, stringValue: data?.performedBy },
