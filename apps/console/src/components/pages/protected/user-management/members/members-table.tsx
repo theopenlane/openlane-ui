@@ -33,7 +33,7 @@ import { whereGenerator } from '@/components/shared/table-filter/where-generator
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { toHumanLabel } from '@/utils/strings'
 
-const SSO_EXEMPT_ROLES = [OrgMembershipRole.OWNER, OrgMembershipRole.AUDITOR]
+const SSO_EXEMPT_ROLES = [OrgMembershipRole.OWNER]
 
 const getSsoExemptReason = (member: OrgMembership, exemptDomains: string[]): string | null => {
   if (SSO_EXEMPT_ROLES.includes(member.role)) return 'Exempt due to Owner role'
