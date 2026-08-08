@@ -113750,8 +113750,17 @@ export type GetInternalPolicyAssociationsByIdQuery = {
           displayID: string
           summary?: string | null
           procedureKindName?: string | null
+          status?: ProcedureDocumentStatus | null
           details?: string | null
           detailsJSON?: Array<any> | null
+          approver?: {
+            __typename?: 'Group'
+            id: string
+            displayName: string
+            gravatarLogoURL?: string | null
+            logoURL?: string | null
+            avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+          } | null
         } | null
       } | null> | null
     }

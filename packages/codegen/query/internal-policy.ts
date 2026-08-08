@@ -246,6 +246,16 @@ export const GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID = gql`
             displayID
             summary
             procedureKindName
+            status
+            approver {
+              id
+              displayName
+              gravatarLogoURL
+              logoURL
+              avatarFile {
+                base64
+              }
+            }
             details
             detailsJSON
           }
