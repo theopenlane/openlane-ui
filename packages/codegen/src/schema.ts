@@ -30749,6 +30749,8 @@ export interface Mutation {
   importDomainScanReview: ImportDomainScanReviewPayload
   /** Launch a campaign and send emails to its targets */
   launchCampaign: CampaignLaunchPayload
+  /** Leave an organization the authenticated user belongs to */
+  leaveOrganization: OrgMembershipDeletePayload
   /** Update multiple existing notifications */
   markNotificationsAsRead: ActionNotificationsReadPayload
   /** Publish changes from preview to live environment */
@@ -32840,6 +32842,10 @@ export interface MutationImportDomainScanReviewArgs {
 
 export interface MutationLaunchCampaignArgs {
   input: LaunchCampaignInput
+}
+
+export interface MutationLeaveOrganizationArgs {
+  organizationID: Scalars['ID']['input']
 }
 
 export interface MutationMarkNotificationsAsReadArgs {
