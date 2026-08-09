@@ -52,7 +52,6 @@ import {
   type UpdateOrganizationSettingMutation,
   type TransferOrganizationOwnershipMutationVariables,
   type TransferOrganizationOwnershipMutation,
-  type Mutation,
   type MutationLeaveOrganizationArgs,
   OrgMembershipRole,
 } from '@repo/codegen/src/schema'
@@ -263,8 +262,8 @@ export const useDeleteOrganization = () => {
 export const useLeaveOrganization = () => {
   const { client } = useGraphQLClient()
 
-  return useMutation<Pick<Mutation, 'leaveOrganization'>, unknown, MutationLeaveOrganizationArgs>({
-    mutationFn: async (variables) => client.request(LEAVE_ORGANIZATION, variables),
+  return useMutation({
+    mutationFn: async (variables: MutationLeaveOrganizationArgs) => client.request(LEAVE_ORGANIZATION, variables),
   })
 }
 
