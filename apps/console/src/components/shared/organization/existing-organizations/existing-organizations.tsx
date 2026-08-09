@@ -133,14 +133,16 @@ export const ExistingOrganizations = () => {
                 <div className={orgTitle()}>{org?.node?.displayName}</div>
                 <Tag>{role}</Tag>
               </div>
-              {currentOrg !== org?.node?.id ? (
-                <div className={orgSelect()}>
-                  <Button variant="secondary" size="md" onClick={() => handleOrganizationSwitch(org?.node?.id)}>
-                    Select
-                  </Button>
-                </div>
-              ) : (
-                role.toUpperCase() !== OrgMembershipRole.OWNER && (
+              <>
+                {currentOrg !== org?.node?.id && (
+                  <div className={orgSelect()}>
+                    <Button variant="secondary" size="md" onClick={() => handleOrganizationSwitch(org?.node?.id)}>
+                      Select
+                    </Button>
+                  </div>
+                )}
+
+                {role.toUpperCase() !== OrgMembershipRole.OWNER && (
                   <div className={orgSelect()}>
                     <Button variant="destructive" size="md" onClick={() => setShowLeaveConfirmation(org?.node?.id || null)}>
                       Leave
@@ -158,8 +160,8 @@ export const ExistingOrganizations = () => {
                       }
                     />
                   </div>
-                )
-              )}
+                )}
+              </>
             </div>
           )
         })}
