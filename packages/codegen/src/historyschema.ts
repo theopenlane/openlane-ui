@@ -102964,7 +102964,10 @@ export type CampaignTargetStatsQuery = {
   campaignTargets: {
     __typename?: 'CampaignTargetConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'CampaignTargetEdge'; node?: { __typename?: 'CampaignTarget'; id: string; email: string; sentAt?: string | null; completedAt?: string | null } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'CampaignTargetEdge'
+      node?: { __typename?: 'CampaignTarget'; id: string; email: string; sentAt?: string | null; completedAt?: string | null; metadata?: any | null } | null
+    } | null> | null
   }
 }
 
