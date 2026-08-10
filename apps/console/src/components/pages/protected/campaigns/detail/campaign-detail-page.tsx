@@ -57,6 +57,17 @@ type LaunchGateInput = {
   recipientCount: number
 }
 
+type campaignTargetMetadataEvent = {
+  email_id?: string
+  timestamp?: string
+}
+
+type campaignTargetMetadata = Partial<Record<'sent' | 'opened' | 'delivered' | 'bounced', campaignTargetMetadataEvent>>
+
+const doesEmailEventExists = (metadata: campaignTargetMetadata, eventType: keyof campaignTargetMetadata): boolean => {
+  return !!metadata[eventType]
+}
+
 const getLaunchBlockedReason = ({ hasCampaignContent, isFetchingRecipients, hasRecipientsError, recipientCount }: LaunchGateInput): string | undefined => {
   if (!hasCampaignContent) return 'Select a questionnaire template or an email template first.'
   if (isFetchingRecipients) return 'Checking recipients...'
@@ -139,12 +150,15 @@ const CampaignDetailPage: React.FC = () => {
   const stats = useMemo(() => {
     const total = totalCount
     const sent = recipients.filter((r) => r.sentAt).length
+    const delivered = recipients.filter((r) => doesEmailEventExists(r.metadata, 'delivered')).length
+    const opened = recipients.filter((r) => doesEmailEventExists(r.metadata, 'opened')).length
+    const bounced = recipients.filter((r) => doesEmailEventExists(r.metadata, 'bounced')).length
     const completed = recipients.filter((r) => r.completedAt).length
     const inProgress = recipients.filter((r) => r.sentAt && !r.completedAt).length
     const now = new Date()
     const dueDate = campaign?.dueDate ? new Date(campaign.dueDate as string) : null
     const overdue = dueDate && dueDate < now ? recipients.filter((r) => !r.completedAt).length : 0
-    return { total, sent, completed, inProgress, overdue }
+    return { total, sent, delivered, opened, bounced, completed, inProgress, overdue }
   }, [recipients, totalCount, campaign])
 
   const progressPercent = useMemo(() => {
@@ -615,15 +629,15 @@ const CampaignDetailPage: React.FC = () => {
             </div>
             <div className="rounded-md border border-border bg-card p-3">
               <span className="text-xs text-muted-foreground">Email Delivered</span>
-              <p className="text-lg font-semibold">{stats.sent}</p>
+              <p className="text-lg font-semibold">{stats.delivered}</p>
             </div>
             <div className="rounded-md border border-border bg-card p-3">
               <span className="text-xs text-muted-foreground">Email Bounced</span>
-              <p className="text-lg font-semibold">0</p>
+              <p className="text-lg font-semibold">{stats.bounced}</p>
             </div>
             <div className="rounded-md border border-border bg-card p-3">
               <span className="text-xs text-muted-foreground">Email Opened</span>
-              <p className="text-lg font-semibold">—</p>
+              <p className="text-lg font-semibold">{stats.opened}</p>
             </div>
           </div>
 
