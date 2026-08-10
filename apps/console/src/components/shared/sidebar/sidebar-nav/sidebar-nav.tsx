@@ -71,9 +71,9 @@ const SidebarChildLink: React.FC<{ child: NavItem; pathname: string; secondaryEx
 export type PanelKey = 'compliance' | 'trust center' | 'automation' | 'registry' | null
 
 export const PRIMARY_WIDTH = 50
-export const PRIMARY_EXPANDED_WIDTH = 248
+export const PRIMARY_EXPANDED_WIDTH = 200
 export const SECONDARY_COLLAPSED_WIDTH = 44
-export const SECONDARY_EXPANDED_WIDTH = 240
+export const SECONDARY_EXPANDED_WIDTH = 190
 
 type TSideNavProps = {
   navItems: (NavItem | Separator | NavHeading)[]
