@@ -45,6 +45,7 @@ export const GET_CAMPAIGN_TARGET_STATS = gql`
           email
           sentAt
           completedAt
+          metadata
         }
       }
     }
