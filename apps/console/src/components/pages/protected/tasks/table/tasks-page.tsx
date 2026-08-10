@@ -75,9 +75,6 @@ const TasksPage: React.FC = () => {
   const whereFilter = useMemo(() => {
     const result = filters
       ? whereGenerator<TaskWhereInput>(filters, (key, value) => {
-          if (key === 'hasProgramsWith') {
-            return { hasProgramsWith: [{ idIn: value }] } as TaskWhereInput
-          }
           return { [key]: value } as TaskWhereInput
         })
       : {}

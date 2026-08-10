@@ -54,10 +54,6 @@ export const ProceduresTable = () => {
         return { hasControlsWith: [{ refCodeContainsFold: value as string }] } as ProcedureWhereInput
       }
 
-      if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: [{ idIn: value }] } as ProcedureWhereInput
-      }
-
       if (key === 'hasSubcontrolsWith') {
         return { hasSubcontrolsWith: [{ refCodeContainsFold: value as string }] } as ProcedureWhereInput
       }
