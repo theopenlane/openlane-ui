@@ -68,10 +68,6 @@ const RiskTable: React.FC = () => {
 
   const where = useMemo(() => {
     const result = whereGenerator<RiskWhereInput>(filters, (key, value) => {
-      if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: [{ idIn: value }] } as RiskWhereInput
-      }
-
       return { [key]: value } as RiskWhereInput
     })
 
