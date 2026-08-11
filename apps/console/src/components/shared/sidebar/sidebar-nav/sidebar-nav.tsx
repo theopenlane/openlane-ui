@@ -186,9 +186,9 @@ export default function SideNav({
               <Button
                 variant="sidebar"
                 onClick={() => handleTogglePanel(item)}
-                className={`group relative flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center'}`}
+                className={`group relative flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center [&_svg]:size-5!'}`}
               >
-                <Icon className={`shrink-0 ${iconHoverClass} ${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
+                <Icon size={primaryExpanded ? 16 : 20} className={`shrink-0 ${iconHoverClass}`} />
                 {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
               </Button>
             ) : (
@@ -211,7 +211,7 @@ export default function SideNav({
                 }}
                 className={`group relative flex items-center px-2 gap-2 h-8 bg-transparent border border-transparent rounded-[6px] text-muted-foreground transition-all duration-500 ease-in-out hover:bg-nav hover:border-border hover:text-text-paragraph [&.is-active]:bg-nav [&.is-active]:border-border [&.is-active]:text-text-paragraph ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2 justify-start' : 'w-8 justify-center'}`}
               >
-                <Icon className={`shrink-0 ${iconHoverClass} ${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
+                <Icon size={primaryExpanded ? 16 : 20} className={`shrink-0 ${iconHoverClass}`} />
                 {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
               </Link>
             )}
