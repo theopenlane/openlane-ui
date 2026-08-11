@@ -906,6 +906,32 @@
 }
 
 /* ─────────────────────────────────────────────────────────
+   Nav icon hover animation
+────────────────────────────────────────────────────────── */
+@theme {
+  --animate-nav-pop: nav-pop 0.45s ease-in-out;
+}
+@keyframes nav-pop {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  30% {
+    transform: scale(1.15) rotate(-8deg);
+  }
+  60% {
+    transform: scale(1.1) rotate(6deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-nav-pop {
+    animation: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
    Extra utilities
 ────────────────────────────────────────────────────────── */
 .button-icon svg {

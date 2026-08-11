@@ -6,6 +6,6 @@ export const metadata: Metadata = {
   title: 'Organization Settings',
 }
 
-const Page: React.FC = () => <PageHeading heading="Organization settings" />
+const Page: React.FC = () => <PageHeading heading="Organization Settings" />
 
 export default Page
