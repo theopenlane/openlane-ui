@@ -1,4 +1,4 @@
-import { Bug, UserRoundPen } from 'lucide-react'
+import { UserRoundPen } from 'lucide-react'
 import {
   ActivityIcon,
   ArchiveIcon,
@@ -19,6 +19,7 @@ import {
   FilePenLineIcon,
   FileTextIcon,
   FingerprintIcon,
+  GaugeIcon,
   GalleryVerticalEndIcon,
   HeartHandshakeIcon,
   HistoryIcon,
@@ -233,7 +234,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
         {
           title: 'Risks',
           href: '/exposure/risks',
-          icon: BadgeAlertIcon,
+          icon: GaugeIcon,
         },
         {
           title: 'Scans',
@@ -248,7 +249,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
         {
           title: 'Vulnerabilities',
           href: '/exposure/vulnerabilities',
-          icon: Bug,
+          icon: BadgeAlertIcon,
         },
         {
           title: 'Remediations',
