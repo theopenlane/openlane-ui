@@ -1,8 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { CardContent } from '@repo/ui/cardpanel'
-import { PartyPopper, TriangleAlert } from 'lucide-react'
+import { TriangleAlert } from 'lucide-react'
+import { PartyPopperIcon } from '@/components/shared/icons/animated'
+import type { PartyPopperIconHandle } from '@/components/shared/icons/animated/party-popper'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import SuggestedTaskDetailsSheet from '@/components/pages/protected/overview/suggested-task-details-sheet'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -17,6 +19,14 @@ import { WorkItemsCard, WorkItemsCardSkeletonContent } from './work-items/work-i
 const DashboardTasksAndSuggestions = () => {
   const workItems = useWorkItems()
   const showSectionHeaders = workItems.activeFilter === ALL_FILTER_KEY
+  const tadaRef = useRef<PartyPopperIconHandle>(null)
+
+  // play the celebration once when the caught-up state appears
+  useEffect(() => {
+    if (!workItems.isLoading && workItems.isEmpty) {
+      tadaRef.current?.startAnimation()
+    }
+  }, [workItems.isLoading, workItems.isEmpty])
 
   const renderBody = () => {
     if (workItems.isLoading) {
@@ -60,7 +70,7 @@ const DashboardTasksAndSuggestions = () => {
 
               {workItems.isEmpty && (
                 <div className="flex flex-col items-center gap-2 py-6 text-center">
-                  <PartyPopper className="text-homepage-action-icon" size={20} />
+                  <PartyPopperIcon ref={tadaRef} className="text-homepage-action-icon" size={20} />
                   <p className="text-sm text-muted-foreground">All caught up!</p>
                 </div>
               )}

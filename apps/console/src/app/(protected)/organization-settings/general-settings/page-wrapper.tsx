@@ -26,7 +26,7 @@ export const PageWrapper: React.FC = () => {
       {!loading && !canView && <ProtectedArea />}
       {!loading && canView && (
         <>
-          <PageHeading eyebrow="Organization settings" heading="General" />
+          <PageHeading eyebrow="Organization Settings" heading="General" />
           <div className={wrapper()}>
             <OrganizationNameForm />
             <OrganizationManagement onLoadingChange={setLoading} />

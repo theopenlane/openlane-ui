@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 const Page: React.FC = () => {
   return (
     <>
-      <PageHeading eyebrow="Organization settings" heading="Subscribers" />
+      <PageHeading eyebrow="Organization Settings" heading="Subscribers" />
       <SubscribersPage />
     </>
   )
