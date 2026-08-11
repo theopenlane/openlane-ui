@@ -242,6 +242,14 @@ export const DELETE_ORGANIZATION = gql`
   }
 `
 
+export const LEAVE_ORGANIZATION = gql`
+  mutation LeaveOrganization($organizationID: ID!) {
+    leaveOrganization(organizationID: $organizationID) {
+      deletedID
+    }
+  }
+`
+
 export const UPDATE_ORG_SETTING = gql`
   mutation UpdateOrganizationSetting($updateOrganizationSettingId: ID!, $input: UpdateOrganizationSettingInput!) {
     updateOrganizationSetting(id: $updateOrganizationSettingId, input: $input) {
