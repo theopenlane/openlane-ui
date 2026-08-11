@@ -175,7 +175,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
 
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/general-settings' },
+      { label: 'Automation', href: '/automation' },
       { label: 'Integrations', href: '/automation/integrations' },
       { label: provider.displayName, href: `/automation/integrations/${definitionId}` },
     ])
