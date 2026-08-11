@@ -62,10 +62,11 @@ type campaignTargetMetadataEvent = {
   timestamp?: string
 }
 
-type campaignTargetMetadata = Partial<Record<'sent' | 'opened' | 'delivered' | 'bounced', campaignTargetMetadataEvent>>
+type campaignTargetMetadataEventType = 'sent' | 'opened' | 'delivered' | 'bounced'
+type campaignTargetMetadata = Partial<Record<campaignTargetMetadataEventType, campaignTargetMetadataEvent>> | null | undefined
 
-const doesEmailEventExists = (metadata: campaignTargetMetadata, eventType: keyof campaignTargetMetadata): boolean => {
-  return !!metadata[eventType]
+const doesEmailEventExists = (metadata: campaignTargetMetadata, eventType: campaignTargetMetadataEventType): boolean => {
+  return !!metadata?.[eventType]
 }
 
 const getLaunchBlockedReason = ({ hasCampaignContent, isFetchingRecipients, hasRecipientsError, recipientCount }: LaunchGateInput): string | undefined => {
