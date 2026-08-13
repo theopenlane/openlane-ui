@@ -37,7 +37,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_REVIEWS, DEFAULT_VISIBILITY))
-  const [filterWhere, setFilterWhere] = useState<WhereCondition>({})
+  const [filterWhere, setFilterWhere] = useState<WhereCondition | null>(null)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
   const searchFields = debouncedSearch ? { or: [{ titleContainsFold: debouncedSearch }, { summaryContainsFold: debouncedSearch }, { reporterContainsFold: debouncedSearch }] } : {}
@@ -45,6 +45,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
 
   const { reviewsNodes, isLoading } = useReviewsWithFilter({
     where: { hasEntitiesWith: [{ id: vendor.id }], ...filterWhere, ...searchFields },
+    enabled: filterWhere !== null,
   })
 
   const isHighRisk = isHighRiskTier(vendor.tier)

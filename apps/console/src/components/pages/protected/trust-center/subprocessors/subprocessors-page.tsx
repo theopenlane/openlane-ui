@@ -138,6 +138,7 @@ const SubprocessorsPage = () => {
   const { trustCenterSubprocessors, paginationMeta, isLoading } = useGetTrustCenterSubprocessors({
     where,
     pagination,
+    enabled: filters !== null,
   })
 
   const { paginationMeta: managedMeta } = useGetTrustCenterSubprocessors({

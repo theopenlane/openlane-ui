@@ -55,6 +55,7 @@ const ReportsAndCertificationsPage = () => {
       ...whereFilter,
     },
     pagination,
+    enabled: filters !== null,
   })
   const { latestFile: latestNdaFile } = useGetTrustCenterNDAFiles()
   const hasNdaTemplate = Boolean(latestNdaFile)

@@ -28,6 +28,7 @@ import { getActiveFilterCount, getQuickFiltersWhereCondition, getWhereCondition,
 import { DropdownSearchField } from '../filter-components/dropdown-search-field'
 import { DropdownSearchMultiselect } from '../filter-components/dropdown-search-multiselect-field'
 import { useOrganization } from '@/hooks/useOrganization'
+import { useSession } from 'next-auth/react'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
@@ -49,6 +50,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
   defaultFilterValues,
 }) => {
   const { currentOrgId } = useOrganization()
+  const { status: sessionStatus } = useSession()
   const [filterFields, setFilterFields] = useState(filterFieldsProp)
   useEffect(() => {
     setFilterFields((prev) => {
@@ -80,6 +82,8 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
       onFilterChange?.({})
       return
     }
+
+    if (sessionStatus === 'loading') return
 
     const contextKey = `${pageKey}:${currentOrgId ?? ''}`
     if (initializedContextRef.current !== contextKey) {
@@ -128,7 +132,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
     } else {
       onFilterChange?.({})
     }
-  }, [pageKey, filterFields, quickFilters, onFilterChange, buildWhereCondition, buildQuickFilterWhereCondition, storageEnabled, defaultFilterValues, currentOrgId])
+  }, [pageKey, filterFields, quickFilters, onFilterChange, buildWhereCondition, buildQuickFilterWhereCondition, storageEnabled, defaultFilterValues, currentOrgId, sessionStatus])
 
   useEffect(() => {
     if (!storageEnabled || !pageKey) return

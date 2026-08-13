@@ -21,6 +21,7 @@ type DeliveryTabProps = {
   assessmentId: string
   jsonconfig: unknown
   where?: AssessmentResponseWhereInput
+  enabled?: boolean
   onTotalCountChange?: (count: number) => void
   responseDueDuration?: number | null
   canSend?: boolean
@@ -46,7 +47,7 @@ const paginationReducer = (state: TPagination, action: PaginationAction): TPagin
   }
 }
 
-export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChange, responseDueDuration, canSend = false, canDelete = false }: DeliveryTabProps) => {
+export const DeliveryTab = ({ assessmentId, jsonconfig, where, enabled = true, onTotalCountChange, responseDueDuration, canSend = false, canDelete = false }: DeliveryTabProps) => {
   const [pagination, dispatchPagination] = useReducer(paginationReducer, DEFAULT_PAGINATION)
   const { mutateAsync: createResponse } = useCreateAssessmentResponse()
   const { mutateAsync: deleteResponse } = useDeleteAssessmentResponse()
@@ -61,6 +62,7 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChang
     id: assessmentId,
     where,
     pagination,
+    enabled,
   })
 
   const responses = useMemo(
