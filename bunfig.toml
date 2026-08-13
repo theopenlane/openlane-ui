@@ -11,4 +11,7 @@ minimumReleaseAgeExcludes = [
   "assistant-stream",
   "assistant-cloud",
   "safe-content-frame",
+  "ai",
+  "@ai-sdk/react",
+  "@ai-sdk/gateway",
 ]

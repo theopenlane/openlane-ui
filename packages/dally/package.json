@@ -21,7 +21,7 @@
     "react": "^19.0.0"
   },
   "devDependencies": {
-    "swr": "^2.4.2",
+    "swr": "^2.5.0",
     "dotenv": "^17.4.2",
     "@repo/eslint-config": "workspace:*",
     "@types/node": "^26.1.2",
