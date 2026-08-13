@@ -1,0 +1,89 @@
+/* full-page background for public questionnaire / intake pages
+   grid + mint horizon glow, fading out by mid-page
+   light and dark both supported: follows the `.dark` class with a
+   prefers-color-scheme fallback for the auto variant */
+
+.ol-qbg {
+  /* light values — the dark rules below only swap these four */
+  --qbg-surface: #eff4f5;
+  --qbg-line: rgba(9, 21, 29, 0.045);
+  --qbg-glow: rgba(44, 203, 171, 0.3);
+  --qbg-fade: 239, 244, 245;
+
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  background: var(--qbg-surface);
+  overflow-x: clip;
+}
+
+.ol-qbg__grid,
+.ol-qbg__glow,
+.ol-qbg__fade {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ol-qbg__grid {
+  inset: 0;
+  background-image: linear-gradient(var(--qbg-line) 1px, transparent 1px), linear-gradient(90deg, var(--qbg-line) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+/* one glow behind the head of the card; nothing below it */
+.ol-qbg__glow {
+  left: 50%;
+  top: -260px;
+  width: min(1100px, 130vw);
+  height: 640px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, var(--qbg-glow), transparent);
+}
+
+/* returns the page to a flat surface so a long form never scrolls over texture */
+.ol-qbg__fade {
+  inset: 0;
+  background: linear-gradient(rgba(var(--qbg-fade), 0) 380px, rgba(var(--qbg-fade), 0.92) 680px, rgb(var(--qbg-fade)) 860px);
+}
+
+.ol-qbg__content {
+  position: relative;
+  z-index: 1;
+}
+
+.ol-qbg--dark,
+.dark .ol-qbg--auto {
+  --qbg-surface: #09151d;
+  --qbg-line: rgba(255, 255, 255, 0.055);
+  --qbg-glow: rgba(44, 203, 171, 0.22);
+  --qbg-fade: 9, 21, 29;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not(.light) .ol-qbg--auto {
+    --qbg-surface: #09151d;
+    --qbg-line: rgba(255, 255, 255, 0.055);
+    --qbg-glow: rgba(44, 203, 171, 0.22);
+    --qbg-fade: 9, 21, 29;
+  }
+}
+
+/* the grid is decorative — drop it tighter where it would band on low-DPI displays */
+@media (max-width: 480px) {
+  .ol-qbg__grid {
+    background-size: 56px 56px;
+  }
+  .ol-qbg__glow {
+    top: -200px;
+    height: 480px;
+  }
+}
+
+/* questionnaires that carry their own embedded theme are branded by the sender —
+   drop the openlane grid and glow and leave a flat surface */
+html[data-survey-custom-theme] .ol-qbg__grid,
+html[data-survey-custom-theme] .ol-qbg__glow,
+html[data-survey-custom-theme] .ol-qbg__fade {
+  display: none;
+}
