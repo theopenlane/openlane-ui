@@ -71,6 +71,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
 
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
+  const latestStatusRef = useRef<EvidenceEvidenceStatus | null>(null)
   const { isAuditor } = useIsAuditor()
   const [requestChangesOpen, setRequestChangesOpen] = useState(false)
   const [auditorActionPending, setAuditorActionPending] = useState(false)
@@ -125,6 +126,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
 
   useEffect(() => {
     if (evidence) {
+      latestStatusRef.current = null
       form.reset(evidenceToFormValues(evidence, initialAssociations))
     }
   }, [evidence, form, initialAssociations])
@@ -167,7 +169,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
     smartRouter.replace({ controlEvidenceId: null, id: null })
   }
 
-  const onSubmit = async (formData: EditEvidenceFormData, statusOverride?: EvidenceEvidenceStatus) => {
+  const onSubmit = async (formData: EditEvidenceFormData) => {
     if (!config.id) return
 
     const controlIDs = form.getValues('controlIDs') || []
@@ -186,12 +188,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
 
     const associationInputs = getAssociationInput(initialAssociations, updatedAssociations)
 
-    const { programIDs: _programIDs, controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, creationDate, renewalDate, ...restFormData } = formData
+    const { programIDs: _programIDs, controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, status: _status, creationDate, renewalDate, ...restFormData } = formData
     const serializedDates = {
       creationDate: creationDate?.toISOString(),
       ...(form.formState.dirtyFields.renewalDate ? { renewalDate: renewalDate?.toISOString() } : {}),
     }
     const cleanFormData = { ...restFormData, ...serializedDates }
+    const currentStatus = latestStatusRef.current ?? evidence?.status
 
     try {
       const collectionProcedure = formData.collectionProcedure && typeof formData.collectionProcedure !== 'string' ? await convertToHtml(formData.collectionProcedure) : formData.collectionProcedure
@@ -203,20 +206,16 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
           ...associationInputs,
           collectionProcedure,
           clearURL: formData?.url === undefined,
-          ...(statusOverride ? { status: statusOverride } : {}),
+          ...(currentStatus && currentStatus !== EvidenceEvidenceStatus.MISSING_ARTIFACT ? { status: currentStatus } : {}),
         },
       })
 
-      const submitted = statusOverride === EvidenceEvidenceStatus.SUBMITTED
       successNotification({
-        title: submitted ? 'Evidence Submitted' : 'Evidence Updated',
-        description: submitted ? 'The evidence has been submitted for review.' : 'The evidence has been successfully updated.',
+        title: 'Evidence Updated',
+        description: 'The evidence has been successfully updated.',
       })
 
       setIsEditing(false)
-      if (statusOverride) {
-        queryClient.invalidateQueries({ queryKey: ['evidences'] })
-      }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -226,8 +225,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
     }
   }
 
-  const handleSave = form.handleSubmit((data) => onSubmit(data))
-  const handleSubmitRequested = form.handleSubmit((data) => onSubmit(data, EvidenceEvidenceStatus.SUBMITTED))
+  const handleSave = (e?: React.BaseSyntheticEvent) => form.handleSubmit(onSubmit)(e)
 
   const handleDelete = async () => {
     if (!config.id) return
@@ -235,7 +233,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
     try {
       await deleteEvidence({ deleteEvidenceId: config.id })
       successNotification({ title: `Evidence "${evidence?.name}" deleted successfully` })
-      queryClient.invalidateQueries({ queryKey: ['evidences'] })
       if (controlId) {
         queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
       }
@@ -252,16 +249,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
 
   const handleStatusChange = async (status: EvidenceEvidenceStatus) => {
     if (!config.id || status === evidence?.status) return
-    form.setValue('status', status)
     try {
       await updateEvidence({
         updateEvidenceId: config.id,
         input: { status },
       })
+      latestStatusRef.current = status
       successNotification({ title: 'Status updated successfully' })
-      queryClient.invalidateQueries({ queryKey: ['evidences'] })
     } catch (error) {
-      form.setValue('status', evidence?.status ?? undefined)
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
     }
   }
@@ -274,6 +269,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
         updateEvidenceId: config.id,
         input: { status: EvidenceEvidenceStatus.AUDITOR_APPROVED },
       })
+      latestStatusRef.current = EvidenceEvidenceStatus.AUDITOR_APPROVED
       successNotification({ title: 'Evidence approved', description: 'The evidence has been marked as approved by auditor.' })
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
@@ -290,6 +286,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
         updateEvidenceId: config.id,
         input: { status: EvidenceEvidenceStatus.REJECTED, addComment: { text: comment } },
       })
+      latestStatusRef.current = EvidenceEvidenceStatus.REJECTED
       queryClient.invalidateQueries({ queryKey: ['evidenceComments', config.id] })
       successNotification({ title: 'Changes requested', description: 'The evidence has been marked as changes requested and your comment was added.' })
       setRequestChangesOpen(false)
@@ -336,7 +333,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
     successNotification({
       title: 'Field updated successfully',
     })
-    queryClient.invalidateQueries({ queryKey: ['evidences'] })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -375,13 +371,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
     setScrollTrigger((prev) => prev + 1)
   }
 
-  const isFulfillMode = evidence?.status === EvidenceEvidenceStatus.REQUESTED && editAllowed && !isAuditor
-  const [fulfillAppliedId, setFulfillAppliedId] = useState<string | null>(null)
-  if (isFulfillMode && evidence?.id && fulfillAppliedId !== evidence.id) {
-    setFulfillAppliedId(evidence.id)
-    setIsEditing(true)
-  }
-
   useEffect(() => {
     if (scrollTrigger > 0) {
       const timeout = setTimeout(() => {
@@ -418,8 +407,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
             onCopyLink={handleCopyLink}
             onEdit={() => setIsEditing(true)}
             onCancelEdit={() => setIsEditing(false)}
-            onSave={isFulfillMode ? handleSubmitRequested : handleSave}
-            saveLabel={isFulfillMode ? 'Submit' : undefined}
+            onSave={handleSave}
             onDelete={() => setDeleteDialogIsOpen(true)}
             onApprove={handleApprove}
             onRequestChanges={() => setRequestChangesOpen(true)}
@@ -431,7 +419,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
           <EvidenceDetailsSheetSkeleton />
         ) : (
           <Form {...form}>
-            <form onSubmit={isFulfillMode ? handleSubmitRequested : handleSave} className="pr-4 flex flex-col gap-6">
+            <form onSubmit={handleSave} className="pr-4 flex flex-col gap-6">
               {config.id && <ObjectWorkflowPanel objectId={config.id} objectType="Evidence" objectLabel={evidence?.name} />}
 
               <EvidenceOverviewSection
