@@ -7,10 +7,11 @@ import { type ITheme, Model } from 'survey-core'
 import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import 'survey-core/survey-core.min.css'
+import '@/styles/questionnaire/survey-viewer.css'
 import { jwtDecode } from 'jwt-decode'
 import { useQuestionnaire, useSubmitQuestionnaire, useResendQuestionnaireLink } from '@/lib/query-hooks/questionnaire'
-import { lightTheme } from '@/components/pages/protected/questionnaire/theme-light'
-import { darkTheme } from '@/components/pages/protected/questionnaire/theme-dark'
+import { lightTheme } from '@/styles/questionnaire/theme-light'
+import { darkTheme } from '@/styles/questionnaire/theme-dark'
 import { CircleCheckBig, MailCheck } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { recaptchaSiteKey } from '@repo/dally/auth'
@@ -168,14 +169,28 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     })
   }, [survey, token, hasTokenEmail])
 
+  // a questionnaire may some day ship its own embedded theme; when it does, honor it and
+  // drop the openlane-branded page decorations (see questionnaire-background.css)
+  const customTheme = useMemo(() => {
+    const theme = (questionnaireData as { theme?: ITheme } | null)?.theme
+    return theme && typeof theme === 'object' ? theme : null
+  }, [questionnaireData])
+
   useEffect(() => {
     if (!survey) return
-    if (resolvedTheme === 'dark') {
+    if (customTheme) {
+      survey.applyTheme(customTheme)
+    } else if (resolvedTheme === 'dark') {
       survey.applyTheme(darkTheme as ITheme)
     } else {
       survey.applyTheme(lightTheme)
     }
-  }, [survey, resolvedTheme])
+  }, [survey, resolvedTheme, customTheme])
+
+  useEffect(() => {
+    document.documentElement.toggleAttribute('data-survey-custom-theme', !!customTheme)
+    return () => document.documentElement.removeAttribute('data-survey-custom-theme')
+  }, [customTheme])
 
   useEffect(() => {
     if (!token) {
@@ -280,7 +295,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
   if (!survey) return null
 
   return (
-    <div className="relative z-20 shadow-2xl bg-white dark:bg-card rounded-lg flex flex-col justify-center mx-auto my-auto py-8 px-6 w-full max-w-4xl">
+    <div className="relative z-20 flex flex-col justify-center mx-auto my-auto py-8 w-full max-w-5xl">
       <Survey model={survey} />
     </div>
   )
