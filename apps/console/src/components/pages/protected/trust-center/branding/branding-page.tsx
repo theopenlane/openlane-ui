@@ -19,7 +19,6 @@ import { type BrandFormValues, DEFAULT_BRAND_COLOR, useBrandForm } from './brand
 import { TrustCenterSkeleton } from '../skeleton/trust-center-skeleton'
 import { BrandingCompanyInfoSection } from './sections/branding-company-info-section'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { trimPlateValue } from '@/components/shared/plate/plate-utils'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
 
 export enum InputTypeEnum {
@@ -118,7 +117,7 @@ const BrandPage: React.FC = () => {
     if (!targetSettingId) return
 
     const overviewValue = values.overview
-    const overview = typeof overviewValue === 'string' ? overviewValue.trim() : await convertToHtml(trimPlateValue(overviewValue ?? []))
+    const overview = typeof overviewValue === 'string' ? overviewValue.trim() : overviewValue ? await convertToHtml(overviewValue) : ''
 
     const payload: UpdateTrustCenterSettingsArgs = {
       id: targetSettingId,

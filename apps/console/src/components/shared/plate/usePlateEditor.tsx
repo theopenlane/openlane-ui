@@ -5,7 +5,7 @@ import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
 import { EditorStatic } from '@repo/ui/components/ui/editor-static.tsx'
 import { ThemeAwareBaseFontBackgroundColorPlugin, ThemeAwareBaseFontColorPlugin } from '@repo/ui/components/editor/plugins/font-base-kit.tsx'
 import { createSlateEditor, type Value } from 'platejs'
-import { isPlateValueEmpty } from './plate-utils'
+import { isPlateValueEmpty, trimPlateValue } from './plate-utils'
 import { PlateStatic, serializeHtml } from 'platejs/static'
 
 type Detected = 'markdown' | 'html' | 'slate-json' | 'text'
@@ -79,12 +79,14 @@ const usePlateEditor = () => {
       return ''
     }
 
+    const trimmed = trimPlateValue(data)
+
     const editor = createSlateEditor({
       plugins: BaseEditorKit,
-      value: data,
+      value: trimmed,
     })
 
-    const fmt = detectFormat(data)
+    const fmt = detectFormat(trimmed)
 
     switch (fmt) {
       case 'markdown':

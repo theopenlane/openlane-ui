@@ -51,7 +51,7 @@ const pruneEmptyEdgeLeaves = (block: TElement): void => {
 }
 
 export const trimPlateValue = (value: Value): Value => {
-  if (value.length === 0) return value
+  if (!Array.isArray(value) || value.length === 0) return value
   const editor = createSlateEditor({ plugins: BaseEditorKit })
   let start = 0
   let end = value.length
