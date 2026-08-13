@@ -14,7 +14,6 @@ export const evidenceToFormValues = (evidence: EvidenceNode | undefined, associa
   description: evidence?.description ?? '',
   renewalDate: evidence?.renewalDate ? new Date(evidence.renewalDate) : null,
   creationDate: evidence?.creationDate ? new Date(evidence.creationDate) : null,
-  status: evidence?.status ?? undefined,
   reviewFrequency: evidence?.reviewFrequency ?? undefined,
   tags: evidence?.tags ?? [],
   collectionProcedure: evidence?.collectionProcedure ?? '',
