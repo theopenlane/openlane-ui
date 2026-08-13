@@ -37,6 +37,7 @@ type TSheetContentProps = {
   initialWidth?: number | string
   resizable?: boolean
   header?: React.ReactNode
+  edge?: React.ReactNode
 }
 
 function SheetContent({
@@ -47,6 +48,7 @@ function SheetContent({
   initialWidth = 825,
   resizable = true,
   header,
+  edge,
   ref,
   onInteractOutside,
   ...props
@@ -110,6 +112,8 @@ function SheetContent({
         {...props}
       >
         <div onMouseDown={onMouseDown} className={cn('absolute top-0 bottom-0 h-full z-10 w-3 bg-transparent', side === 'right' ? '-left-1 cursor-ew-resize' : '-right-1 cursor-ew-resize')} />
+
+        {edge}
 
         {header && <SheetHeader className="sticky top-0 z-10">{header}</SheetHeader>}
 

@@ -23,6 +23,8 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import ImpersonationBanner from '@/components/shared/impersonation-banner/impersonation-banner'
 import { IMPERSONATION_BANNER_HEIGHT_VAR } from '@/constants/layout'
 import { DashboardContentOffsetProvider } from '@/providers/DashboardContentOffsetContext'
+import { DocsHelpTopicProvider } from '@/components/shared/need-help/docs-help-context'
+import { DocsHelpTab } from '@/components/shared/need-help/docs-help-tab'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -89,55 +91,58 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   return (
     <DndProvider backend={HTML5Backend}>
       <SheetNavigationProvider>
-        <div style={{ [IMPERSONATION_BANNER_HEIGHT_VAR]: `${bannerHeight}px` } as React.CSSProperties}>
-          <div ref={bannerRef} className="fixed top-0 left-0 right-0 z-50">
-            <ImpersonationBanner />
-          </div>
-
-          <SessionExpiredModal open={showSessionExpiredModal} />
-          <Sidebar
-            navItems={navItems}
-            footerNavItems={footerNavItems}
-            openPanel={openPanel}
-            primaryExpanded={primaryExpanded}
-            secondaryExpanded={secondaryExpanded}
-            onPrimaryExpandToggle={() => {
-              const newState = !primaryExpanded
-              setPrimaryExpanded(newState)
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('sidebar-primary-expanded', String(newState))
-              }
-            }}
-            onSecondaryExpandToggle={() => {
-              const newState = !secondaryExpanded
-              setSecondaryExpanded(newState)
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('sidebar-secondary-expanded', String(newState))
-              }
-            }}
-            onToggle={handleOpenPanel}
-            isOrganizationSelected={isOrganizationSelected}
-          />
-          <div
-            className="flex flex-col overflow-hidden transition-all duration-200"
-            style={{
-              marginLeft: contentMarginLeft,
-              marginRight: '8px',
-              marginTop: `var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px)`,
-              height: `calc(100vh - var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px))`,
-            }}
-          >
-            <Header />
-
-            <div className={base()}>
-              <main className={main()} data-scroll-container="main">
-                <DashboardContentOffsetProvider value={{ marginLeft: contentMarginLeft, marginRight: 8 }}>{error ?? children}</DashboardContentOffsetProvider>
-              </main>
-              <ChatBot />
-              <CommandMenu items={navItems} />
+        <DocsHelpTopicProvider>
+          <div style={{ [IMPERSONATION_BANNER_HEIGHT_VAR]: `${bannerHeight}px` } as React.CSSProperties}>
+            <div ref={bannerRef} className="fixed top-0 left-0 right-0 z-50">
+              <ImpersonationBanner />
             </div>
+
+            <SessionExpiredModal open={showSessionExpiredModal} />
+            <Sidebar
+              navItems={navItems}
+              footerNavItems={footerNavItems}
+              openPanel={openPanel}
+              primaryExpanded={primaryExpanded}
+              secondaryExpanded={secondaryExpanded}
+              onPrimaryExpandToggle={() => {
+                const newState = !primaryExpanded
+                setPrimaryExpanded(newState)
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem('sidebar-primary-expanded', String(newState))
+                }
+              }}
+              onSecondaryExpandToggle={() => {
+                const newState = !secondaryExpanded
+                setSecondaryExpanded(newState)
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem('sidebar-secondary-expanded', String(newState))
+                }
+              }}
+              onToggle={handleOpenPanel}
+              isOrganizationSelected={isOrganizationSelected}
+            />
+            <div
+              className="flex flex-col overflow-hidden transition-all duration-200"
+              style={{
+                marginLeft: contentMarginLeft,
+                marginRight: '8px',
+                marginTop: `var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px)`,
+                height: `calc(100vh - var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px))`,
+              }}
+            >
+              <Header />
+
+              <div className={base()}>
+                <main className={main()} data-scroll-container="main">
+                  <DashboardContentOffsetProvider value={{ marginLeft: contentMarginLeft, marginRight: 8 }}>{error ?? children}</DashboardContentOffsetProvider>
+                </main>
+                <ChatBot />
+                <CommandMenu items={navItems} />
+              </div>
+            </div>
+            <DocsHelpTab />
           </div>
-        </div>
+        </DocsHelpTopicProvider>
       </SheetNavigationProvider>
     </DndProvider>
   )

@@ -104,7 +104,7 @@ export const PolicyEmptyActions = () => {
 
   return (
     <section aria-label="Create policies" className="w-full">
-      <div className="flex flex-col gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
         {cards.map(({ id, title, badge, desc, Icon, iconClassName, cardClassName, action, buttonVariant, buttonClassName, dialog }) => (
           <Card key={id} className={`flex flex-col h-full p-6 ${cardClassName ?? ''}`}>
             <div className="flex flex-1 items-start gap-3">

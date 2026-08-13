@@ -47,6 +47,8 @@ import FindingDetailsSheet from '@/components/pages/protected/controls/tabs/find
 import ControlReviewSheet from '@/components/pages/protected/controls/control-review/control-review-sheet'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSetDocsHelpTopic } from '@/components/shared/need-help/docs-help-context'
+import { docsHelpQuery } from '@/components/shared/need-help/docs-help-query'
 
 interface FormValues {
   refCode: string
@@ -117,6 +119,18 @@ const ControlDetailsPage: React.FC = () => {
     updateControl: updateControlEntity,
   })
   const hasScrollbar = useHasScrollbar([isEditing, data?.control, associationsData?.control])
+
+  // point the global docs tab at this specific control's doc page
+  const helpControl = data?.control
+  useSetDocsHelpTopic(
+    helpControl
+      ? {
+          title: [helpControl.referenceFramework, helpControl.refCode].filter(Boolean).join(' '),
+          query: docsHelpQuery('view', [helpControl.referenceFramework, helpControl.refCode, helpControl.title].filter(Boolean).join(' ')),
+          prefer: helpControl.refCode ?? undefined,
+        }
+      : null,
+  )
 
   // depending on the leaf fields instead of associationsData?.control/data would satisfy the react-compiler
   // advisory rule but trips exhaustive-deps, which treats the parents as the real deps here

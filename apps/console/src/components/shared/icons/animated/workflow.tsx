@@ -1,6 +1,5 @@
 'use client'
 
-import type { Transition, Variants } from 'motion/react'
 import { motion, useAnimation } from 'motion/react'
 import type { HTMLAttributes, Ref } from 'react'
 import { useEffect, useImperativeHandle, useRef } from 'react'
@@ -19,26 +18,6 @@ export interface WorkflowIconHandle {
 interface WorkflowIconProps extends HTMLAttributes<HTMLDivElement> {
   size?: number
   ref?: Ref<WorkflowIconHandle>
-}
-
-const TRANSITION: Transition = {
-  duration: 0.3,
-  opacity: { delay: 0.15 },
-}
-
-const VARIANTS: Variants = {
-  normal: {
-    pathLength: 1,
-    opacity: 1,
-  },
-  animate: (custom: number) => ({
-    pathLength: [0, 1],
-    opacity: [0, 1],
-    transition: {
-      ...TRANSITION,
-      delay: 0.1 * custom,
-    },
-  }),
 }
 
 const WorkflowIconBase = ({ ref, className, size, ...props }: WorkflowIconProps) => {
@@ -85,9 +64,25 @@ const WorkflowIconBase = ({ ref, className, size, ...props }: WorkflowIconProps)
         width={size ?? '100%'}
         xmlns="http://www.w3.org/2000/svg"
       >
-        <motion.rect animate={controls} custom={0} height="8" rx="2" variants={VARIANTS} width="8" x="3" y="3" />
-        <motion.path animate={controls} custom={3} d="M7 11v4a2 2 0 0 0 2 2h4" variants={VARIANTS} />
-        <motion.rect animate={controls} custom={0} height="8" rx="2" variants={VARIANTS} width="8" x="13" y="13" />
+        {/* the two boxes stay static; the ghost path keeps the connector visible while it redraws */}
+        <rect height="8" rx="2" width="8" x="3" y="3" />
+        <rect height="8" rx="2" width="8" x="13" y="13" />
+        <path d="M7 11v4a2 2 0 0 0 2 2h4" opacity="0.5" />
+        <motion.path
+          animate={controls}
+          d="M7 11v4a2 2 0 0 0 2 2h4"
+          transition={{ duration: 0.5 }}
+          variants={{
+            normal: {
+              pathLength: 1,
+              pathOffset: 0,
+            },
+            animate: {
+              pathLength: [0, 1],
+              pathOffset: [1, 0],
+            },
+          }}
+        />
       </svg>
     </div>
   )

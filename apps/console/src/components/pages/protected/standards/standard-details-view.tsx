@@ -14,6 +14,8 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { ObjectWithDetailsSkeleton } from '@/components/shared/skeleton/object-with-slideout-skeleton'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useSession } from 'next-auth/react'
+import { useSetDocsHelpTopic } from '@/components/shared/need-help/docs-help-context'
+import { docsHelpQuery } from '@/components/shared/need-help/docs-help-query'
 
 type TStandardDetailsViewProps = {
   standardId: string
@@ -24,6 +26,19 @@ const StandardDetailsView: React.FC<TStandardDetailsViewProps> = ({ standardId, 
   const { data, isLoading, error } = useGetStandardDetails(standardId)
   const standard = data?.standard
   const { setCrumbs } = use(BreadcrumbContext)
+
+  // point the global docs tab at this standard's own doc pages instead of the
+  // catalog, prefer matches the doc page title (e.g. "SOC 2")
+  const standardName = standard?.shortName || standard?.name
+  useSetDocsHelpTopic(
+    standardName
+      ? {
+          title: standardName,
+          query: docsHelpQuery('view', `the ${standardName} standard`),
+          prefer: standardName,
+        }
+      : null,
+  )
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()

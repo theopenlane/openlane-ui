@@ -29,7 +29,6 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Callout } from '@/components/shared/callout/callout'
 import ProgramsCreate from '../create/programs-page'
-import { PROGRAM_DOCS_URL } from '@/constants/docs'
 import { ProgramSettingsAssignUserDialog } from '../[id]/settings/users/program-settings-assign-user-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { ProgramsDashboardSkeleton } from '../skeleton/programs-dashboard-skeleton'
@@ -121,14 +120,6 @@ const ProgramsDashboardPage = () => {
         <PageHeading heading="Programs" />
 
         <div className="max-w-5xl mx-auto">
-          <Callout variant="info" title="What is a Program?">
-            Within Openlane, Programs are a centerpiece for managing compliance and regulatory requirements. Think of a program as a large, high-level grouping of work; it represents a significant
-            body of work that can be broken down into smaller, more manageable tasks. Essentially, it’s a big picture initiative that can span months or possibly a year+, and can encompass work across
-            different teams.
-            <a href={`${PROGRAM_DOCS_URL}`} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500">
-              See docs to learn more.
-            </a>
-          </Callout>
           {hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram, session) ? (
             <ProgramsCreate disableHeader={true} noPrograms={true} />
           ) : (

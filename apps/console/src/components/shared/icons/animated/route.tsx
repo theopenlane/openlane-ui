@@ -1,6 +1,5 @@
 'use client'
 
-import type { Transition, Variants } from 'motion/react'
 import { motion, useAnimation } from 'motion/react'
 import type { HTMLAttributes, Ref } from 'react'
 import { useEffect, useImperativeHandle, useRef } from 'react'
@@ -19,23 +18,6 @@ export interface RouteIconHandle {
 interface RouteIconProps extends HTMLAttributes<HTMLDivElement> {
   size?: number
   ref?: Ref<RouteIconHandle>
-}
-
-const CIRCLE_TRANSITION: Transition = {
-  duration: 0.3,
-  delay: 0.1,
-  opacity: { delay: 0.15 },
-}
-
-const CIRCLE_VARIANTS: Variants = {
-  normal: {
-    pathLength: 1,
-    opacity: 1,
-  },
-  animate: {
-    pathLength: [0, 1],
-    opacity: [0, 1],
-  },
 }
 
 const RouteIconBase = ({ ref, className, size, ...props }: RouteIconProps) => {
@@ -82,25 +64,25 @@ const RouteIconBase = ({ ref, className, size, ...props }: RouteIconProps) => {
         width={size ?? '100%'}
         xmlns="http://www.w3.org/2000/svg"
       >
-        <motion.circle animate={controls} cx="6" cy="19" r="3" transition={CIRCLE_TRANSITION} variants={CIRCLE_VARIANTS} />
+        {/* endpoint circles stay static; the ghost path keeps the route visible while it redraws */}
+        <circle cx="6" cy="19" r="3" />
+        <circle cx="18" cy="5" r="3" />
+        <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" opacity="0.5" />
         <motion.path
           animate={controls}
           d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"
-          transition={{ duration: 0.7, delay: 0.5, opacity: { delay: 0.5 } }}
+          transition={{ duration: 0.7 }}
           variants={{
             normal: {
               pathLength: 1,
-              opacity: 1,
               pathOffset: 0,
             },
             animate: {
               pathLength: [0, 1],
-              opacity: [0, 1],
               pathOffset: [1, 0],
             },
           }}
         />
-        <motion.circle animate={controls} cx="18" cy="5" r="3" transition={CIRCLE_TRANSITION} variants={CIRCLE_VARIANTS} />
       </svg>
     </div>
   )
