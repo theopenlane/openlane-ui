@@ -31,7 +31,7 @@ export const EvidenceTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.EVIDENCE)
-  const [filters, setFilters] = useState<EvidenceWhereInput>({})
+  const [filters, setFilters] = useState<EvidenceWhereInput | null>(null)
   const { setCrumbs } = use(BreadcrumbContext)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.EVIDENCE)
   const { replace } = useSmartRouter()
@@ -81,7 +81,7 @@ export const EvidenceTable = () => {
     return orderBy
   }, [orderBy])
 
-  const { evidences, isError, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: true })
+  const { evidences, isError, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: filters !== null })
   const defaultVisibility: VisibilityState = {
     id: false,
     collectionProcedure: false,

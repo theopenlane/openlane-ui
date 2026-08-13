@@ -39,7 +39,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const [filters, setFilters] = useState<ControlWhereInput>({})
+  const [filters, setFilters] = useState<ControlWhereInput | null>(null)
   const [startReviewControlId, setStartReviewControlId] = useState<string | null>(null)
   const [openReviewId, setOpenReviewId] = useState<string | null>(null)
   const [requestInfoControl, setRequestInfoControl] = useState<{ id: string; refCode: string } | null>(null)
@@ -49,10 +49,13 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
   const { data: permission } = useOrganizationRoles()
   const canCreateReview = !!permission?.roles?.includes(AccessEnum.CanCreateReview)
 
-  const { standardOptions } = useStandardsSelect({ where: { hasControlsWith: [{ hasProgramsWith: [{ id: programId }] }] } })
-  const { groupOptions } = useGroupSelect()
+  const { standardOptions, isSuccess: isStandardsSuccess } = useStandardsSelect({ where: { hasControlsWith: [{ hasProgramsWith: [{ id: programId }] }] } })
+  const { groupOptions, isSuccess: isGroupsSuccess } = useGroupSelect()
 
-  const filterFields = useMemo(() => getAuditorDashboardFilterFields(standardOptions, groupOptions), [standardOptions, groupOptions])
+  const filterFields = useMemo(
+    () => (isStandardsSuccess && isGroupsSuccess ? getAuditorDashboardFilterFields(standardOptions, groupOptions) : null),
+    [standardOptions, groupOptions, isStandardsSuccess, isGroupsSuccess],
+  )
   const quickFilters = useMemo(() => getAuditorDashboardQuickFilters(programId), [programId])
 
   const handleReviewSheetClose = useCallback(() => {
@@ -83,7 +86,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
     return base
   }, [programId, filters, debouncedSearch])
 
-  const { controls, paginationMeta, isLoading, isFetching } = useGetAuditorDashboardControls({ programId, where, pagination })
+  const { controls, paginationMeta, isLoading, isFetching } = useGetAuditorDashboardControls({ programId, where, pagination, enabled: filters !== null })
 
   const rows = useMemo<AuditorDashboardControlRow[]>(
     () =>
@@ -138,7 +141,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
           onChange={(event) => setSearchTerm(event.currentTarget.value)}
         />
         <div className="flex items-center gap-2">
-          <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS} quickFilters={quickFilters} />
+          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS} quickFilters={quickFilters} />}
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS} />
           <BulkCSVCreateEvidenceDialog
             trigger={

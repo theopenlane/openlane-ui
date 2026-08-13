@@ -74,12 +74,15 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteQuestionnaires } = useDeleteBulkAssessment()
 
-  const { tagOptions: rawTagOptions } = useGetTags()
+  const { tagOptions: rawTagOptions, isSuccess: isTagsSuccess } = useGetTags()
   const tagOptions = useMemo(() => rawTagOptions ?? [], [rawTagOptions])
 
-  const { templateOptions } = useTemplateSelect({ where: { kind: TemplateTemplateKind.QUESTIONNAIRE } })
+  const { templateOptions, isSuccess: isTemplatesSuccess } = useTemplateSelect({ where: { kind: TemplateTemplateKind.QUESTIONNAIRE } })
 
-  const filterFields = useMemo(() => getQuestionnaireFilterFields(tagOptions, templateOptions), [tagOptions, templateOptions])
+  const filterFields = useMemo(
+    () => (isTagsSuccess && isTemplatesSuccess ? getQuestionnaireFilterFields(tagOptions, templateOptions) : null),
+    [tagOptions, templateOptions, isTagsSuccess, isTemplatesSuccess],
+  )
 
   const quickFilters = useMemo<TQuickFilter[]>(
     () => [
@@ -214,7 +217,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.QUESTIONNAIRE} />
               )}
-              <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.QUESTIONNAIRE} quickFilters={quickFilters} />
+              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.QUESTIONNAIRE} quickFilters={quickFilters} />}
               {createDropdown()}
             </>
           )}

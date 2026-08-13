@@ -43,7 +43,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const { convertToReadOnly } = usePlateEditor()
   const searchParams = useSearchParams()
   const scanId = searchParams.get('scanId')
-  const [filters, setFilters] = useState<ControlWhereInput>({})
+  const [filters, setFilters] = useState<ControlWhereInput | null>(null)
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { data: session } = useSession()
@@ -161,7 +161,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     orderBy,
     pagination,
     includeVars,
-    enabled: true,
+    enabled: filters !== null,
   })
 
   useEffect(() => {
