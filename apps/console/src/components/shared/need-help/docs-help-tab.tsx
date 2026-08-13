@@ -140,6 +140,7 @@ export function DocsHelpTab() {
       width={660}
       resizable
       hideClose
+      modal={false}
       icon={<BookText size={20} className="self-center" />}
       trigger={(openPanel) =>
         showClosedTab && body

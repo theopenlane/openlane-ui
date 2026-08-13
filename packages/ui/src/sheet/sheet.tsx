@@ -38,6 +38,8 @@ type TSheetContentProps = {
   resizable?: boolean
   header?: React.ReactNode
   edge?: React.ReactNode
+  /** render the dimming backdrop; disable for non-modal drawers that leave the page interactive */
+  overlay?: boolean
 }
 
 function SheetContent({
@@ -49,6 +51,7 @@ function SheetContent({
   resizable = true,
   header,
   edge,
+  overlay = true,
   ref,
   onInteractOutside,
   ...props
@@ -96,7 +99,7 @@ function SheetContent({
 
   return (
     <SheetPortal>
-      <SheetOverlay />
+      {overlay && <SheetOverlay />}
       <SheetPrimitive.Content
         style={{ width, minWidth: typeof minWidth === 'number' ? `${minWidth}px` : minWidth }}
         data-slot="sheet-content"

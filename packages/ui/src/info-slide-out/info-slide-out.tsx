@@ -15,6 +15,8 @@ type InfoSlideOutProps = {
   resizable?: boolean
   edgeHandle?: React.ReactNode
   hideClose?: boolean
+  /** non-modal leaves the page (and things like chat widgets) interactive while open */
+  modal?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }
@@ -30,6 +32,7 @@ export function InfoSlideOut({
   resizable = false,
   edgeHandle,
   hideClose = false,
+  modal = true,
   open: controlledOpen,
   onOpenChange,
 }: InfoSlideOutProps) {
@@ -44,7 +47,7 @@ export function InfoSlideOut({
   const handleClose = () => setOpen(false)
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={setOpen} modal={modal}>
       {trigger
         ? trigger(handleOpen)
         : !isControlled && (
@@ -57,6 +60,7 @@ export function InfoSlideOut({
         minWidth={380}
         resizable={resizable}
         edge={edgeHandle}
+        overlay={modal}
         onClick={(e) => e.stopPropagation()}
         header={
           <SheetHeader>
