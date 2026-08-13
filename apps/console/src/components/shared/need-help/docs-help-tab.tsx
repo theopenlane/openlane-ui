@@ -150,15 +150,7 @@ export function DocsHelpTab() {
       edgeHandle={<DocsTabButton onClick={() => handleOpenChange(false)} label="Close docs help" className={`absolute left-0 top-1/2 -translate-x-full -translate-y-1/2 ${TAB_CLASSES}`} />}
     >
       {/* key resets follow-up/selection state when the topic changes */}
-      <DocsHelpContent
-        key={topic.query}
-        query={topic.query}
-        prefer={topic.prefer}
-        intro={topic.intro}
-        section={pathname?.startsWith('/developers') ? 'developers' : 'platform'}
-        enabled={open}
-        closePanel={() => handleOpenChange(false)}
-      />
+      <DocsHelpContent key={topic.query} query={topic.query} prefer={topic.prefer} intro={topic.intro} section={pathname?.startsWith('/developers') ? 'developers' : 'platform'} enabled={open} />
     </InfoSlideOut>
   )
 }

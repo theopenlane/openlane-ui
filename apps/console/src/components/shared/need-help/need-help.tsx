@@ -73,7 +73,7 @@ export function NeedHelp({ query, prefer, title, subtitle, className, onNeedMore
         ))
       }
     >
-      <DocsHelpContent query={query} prefer={prefer} enabled={open} onNeedMoreHelp={onNeedMoreHelp} closePanel={() => setOpen(false)} />
+      <DocsHelpContent query={query} prefer={prefer} enabled={open} onNeedMoreHelp={onNeedMoreHelp} />
     </InfoSlideOut>
   )
 }
@@ -126,7 +126,6 @@ export function DocsHelpContent({
   section,
   enabled,
   onNeedMoreHelp,
-  closePanel,
 }: {
   query: string
   prefer?: string
@@ -134,20 +133,10 @@ export function DocsHelpContent({
   section?: DocsSection
   enabled: boolean
   onNeedMoreHelp?: () => void
-  /** closes the containing slideout — the modal sheet blocks interaction with the chat widget, so escalation closes it first */
-  closePanel?: () => void
 }) {
-  // default escalation: open the DevRev PLuG chat widget when it's running;
-  // an explicit onNeedMoreHelp prop overrides this
+  // default escalation: open the DevRev PLuG chat widget when it's running
   const plugReady = typeof window !== 'undefined' && !!window.plugSDK?.__plug_initialized__ && typeof window.plugSDK.toggleWidget === 'function'
-  const escalate = onNeedMoreHelp ?? (plugReady ? () => window.plugSDK?.toggleWidget?.(true) : undefined)
-  const openSupport = escalate
-    ? () => {
-        closePanel?.()
-        // let the sheet dismiss (and release its pointer-event lock) first
-        setTimeout(escalate, 0)
-      }
-    : undefined
+  const openSupport = onNeedMoreHelp ?? (plugReady ? () => window.plugSDK?.toggleWidget?.(true) : undefined)
   const [followUp, setFollowUp] = useState('')
   // when set, the user asked their own question or clicked an inline doc link —
   // retrieve on that instead of the page topic. Doc-link hops carry their own
