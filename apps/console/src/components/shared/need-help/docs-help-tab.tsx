@@ -25,7 +25,7 @@ const INTROS = {
 
 // Override of route topics, only needed if the default isn't pulling up a relevant/best doc to start
 const ROUTE_TOPICS: [string, DocsHelpTopic][] = [
-  ['/dashboard', { title: 'Home', query: docsHelpQuery('list', 'the dashboard'), intro: INTROS.dashboard }],
+  ['/dashboard', { title: 'Home', query: docsHelpQuery('list', 'the dashboard'), intro: INTROS.dashboard, prefer: 'Platform Overview' }],
   ['/controls/create-control', { title: 'Create a Control', query: docsHelpQuery('create', 'a control'), prefer: 'Writing Controls', intro: INTROS.controls }],
   ['/controls/create-subcontrol', { title: 'Create a Subcontrol', query: docsHelpQuery('create', 'a subcontrol'), prefer: 'Writing Controls', intro: INTROS.controls }],
   ['/controls', { title: 'Controls', query: docsHelpQuery('list', 'controls'), intro: INTROS.controls }],
@@ -149,7 +149,15 @@ export function DocsHelpTab() {
       edgeHandle={<DocsTabButton onClick={() => handleOpenChange(false)} label="Close docs help" className={`absolute left-0 top-1/2 -translate-x-full -translate-y-1/2 ${TAB_CLASSES}`} />}
     >
       {/* key resets follow-up/selection state when the topic changes */}
-      <DocsHelpContent key={topic.query} query={topic.query} prefer={topic.prefer} intro={topic.intro} section={pathname?.startsWith('/developers') ? 'developers' : 'platform'} enabled={open} />
+      <DocsHelpContent
+        key={topic.query}
+        query={topic.query}
+        prefer={topic.prefer}
+        intro={topic.intro}
+        section={pathname?.startsWith('/developers') ? 'developers' : 'platform'}
+        enabled={open}
+        closePanel={() => handleOpenChange(false)}
+      />
     </InfoSlideOut>
   )
 }
