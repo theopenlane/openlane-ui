@@ -112,8 +112,6 @@ export default function CreateControlForm() {
     formState: { errors },
   } = form
 
-  console.log('errors', errors)
-
   const { data: controlData, isLoading } = useGetControlById(id)
 
   const { data: mappedControlData } = useGetControlMinifiedById(mapControlId || '')

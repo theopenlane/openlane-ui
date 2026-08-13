@@ -164,6 +164,7 @@
     "date-fns": "^4.4.0",
     "dedent": "1.7.2",
     "emblor": "^1.4.8",
+    "highlight.js": "^11.11.1",
     "html2canvas": "^1.4.1",
     "html2canvas-pro": "^2.3.3",
     "input-otp": "^1.4.2",
