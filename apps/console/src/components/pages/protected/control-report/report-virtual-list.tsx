@@ -5,6 +5,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { type ControlReportItem, type ControlReportSubcontrolItem } from '@/lib/graphql-hooks/control'
 import ControlRow from './control-row'
+import { DocsSectionBatchProvider } from '@/components/shared/docs-help/docs-section-batch'
 import ControlTableHeader from './control-table-header'
 import { SubcontrolRow, SubcontrolGroupHeader } from './subcontrol-rows'
 import ReportCategoryHeader from './report-category-header'
@@ -177,20 +178,22 @@ const ReportVirtualList: React.FC<ReportVirtualListProps> = ({
   }
 
   return (
-    <div ref={listRef}>
-      <div style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative', width: '100%' }}>
-        {virtualizer.getVirtualItems().map((virtualRow) => (
-          <div
-            key={virtualRow.key}
-            data-index={virtualRow.index}
-            ref={virtualizer.measureElement}
-            style={{ position: 'absolute', top: 0, left: 0, width: '100%', transform: `translateY(${virtualRow.start - virtualizer.options.scrollMargin}px)` }}
-          >
-            {renderRow(flatRows[virtualRow.index])}
-          </div>
-        ))}
+    <DocsSectionBatchProvider>
+      <div ref={listRef}>
+        <div style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative', width: '100%' }}>
+          {virtualizer.getVirtualItems().map((virtualRow) => (
+            <div
+              key={virtualRow.key}
+              data-index={virtualRow.index}
+              ref={virtualizer.measureElement}
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', transform: `translateY(${virtualRow.start - virtualizer.options.scrollMargin}px)` }}
+            >
+              {renderRow(flatRows[virtualRow.index])}
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </DocsSectionBatchProvider>
   )
 }
 

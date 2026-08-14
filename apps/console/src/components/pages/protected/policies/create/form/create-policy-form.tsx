@@ -3,15 +3,14 @@ import { Input, InputRow } from '@repo/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { type Value } from 'platejs'
 import { useCreateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { type CreateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import useFormSchema, { type CreatePolicyFormData } from '../hooks/use-form-schema'
-import { PolicyAssociationSection } from '@/components/pages/protected/policies/create/form/fields/association-section'
 import StatusCard from '@/components/pages/protected/policies/create/cards/status-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/create/cards/tags-card.tsx'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
@@ -30,6 +29,14 @@ const POLICY_DRAFT_KEY = 'draft:policy-create'
 
 const CreatePolicyForm: React.FC = () => {
   const { form } = useFormSchema()
+  const searchParams = useSearchParams()
+
+  // allow deep-links to prefill the policy name, e.g. from the suggested
+  // policy coverage alert
+  const nameParam = searchParams.get('name')
+  useEffect(() => {
+    if (nameParam && !form.getValues('name')) form.setValue('name', nameParam)
+  }, [nameParam, form])
   const router = useRouter()
   const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy()
   const { successNotification, errorNotification } = useNotification()
@@ -51,6 +58,10 @@ const CreatePolicyForm: React.FC = () => {
     form,
   })
 
+  // deep-links can request auto-mapping the new policy to a control, e.g.
+  // "create & map" from a control's suggested policies
+  const mapControlId = searchParams.get('mapControlId')
+
   const onCreateHandler = async (data: CreatePolicyFormData) => {
     try {
       const formData: { input: CreateInternalPolicyInput } = {
@@ -59,6 +70,7 @@ const CreatePolicyForm: React.FC = () => {
           detailsJSON: data.detailsJSON,
           details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+          ...(mapControlId ? { controlIDs: [...new Set([...(data.controlIDs ?? []), mapControlId])] } : {}),
         },
       }
 
@@ -76,7 +88,9 @@ const CreatePolicyForm: React.FC = () => {
         const { name: _name, details: _details, detailsJSON: _detailsJSON, ...preserved } = data
         form.reset({ name: '', details: '', ...preserved })
       } else {
-        router.push(`/policies/${createdPolicy.createInternalPolicy.internalPolicy.id}/view`)
+        // the backend maps controls during create, so tell the view to read
+        // associations fresh rather than trusting whatever is cached
+        router.push(`/policies/${createdPolicy.createInternalPolicy.internalPolicy.id}/view?created=1`)
       }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -104,6 +118,7 @@ const CreatePolicyForm: React.FC = () => {
               onNameChange={(newName) => {
                 form.setValue('name', newName)
               }}
+              autoGenerateName={searchParams.get('generate') === 'true' ? (nameParam ?? undefined) : undefined}
             />
 
             <InputRow className="w-full">
@@ -154,7 +169,9 @@ const CreatePolicyForm: React.FC = () => {
                 )}
               />
             </InputRow>
-            <PolicyAssociationSection isEditing={false} isCreate={true} isEditAllowed={true} />
+            {/* the association picker is not mounted on create — it costs a lot of vertical space and is easier to
+                use from the policy once it exists. Association IDs still live on the form, so deep-link auto-mapping
+                and restored drafts are submitted with the policy */}
             <div className="flex justify-between items-center">
               <SaveButton disabled={isCreating} title={isCreating ? 'Creating policy' : 'Save Changes'} />
               <div className="flex items-center gap-2">

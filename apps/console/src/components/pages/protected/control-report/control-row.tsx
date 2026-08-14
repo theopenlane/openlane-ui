@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ChevronRight, TriangleAlert } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type ControlReportItem } from '@/lib/graphql-hooks/control'
+import { ControlControlSource } from '@repo/codegen/src/schema'
 import { CONTROL_STATUS_STYLES } from '@/components/shared/enum-mapper/control-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
@@ -13,6 +14,7 @@ import { toBase64DataUri } from '@/lib/image-utils'
 import { TruncatedCell } from '@repo/ui/data-table'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import OrgCoverageCell from './org-coverage-cell'
+import { MapSuggestedPoliciesButton } from '@/components/pages/protected/controls/map-policies-dialog'
 import EvidenceCoverageCell from './evidence-coverage-cell'
 import ReportShowMore from './report-show-more'
 import { getGridCols } from './control-report-grid'
@@ -97,7 +99,12 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
 
       {!isCustomView && (
         <div>
-          <OrgCoverageCell data={orgCoverage} />
+          <OrgCoverageCell
+            data={orgCoverage}
+            frameworkControl={
+              control.referenceFramework && control.referenceFramework !== 'CUSTOM' ? { id: control.id, refCode: control.refCode, referenceFramework: control.referenceFramework } : undefined
+            }
+          />
         </div>
       )}
 
@@ -107,7 +114,15 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
 
       <div className="flex flex-wrap gap-1 min-w-0" onClick={(e) => e.stopPropagation()}>
         {linkedPolicies.length === 0 ? (
-          <span className="text-xs italic text-muted-foreground">None linked</span>
+          <div className="flex min-w-0 flex-col items-start gap-1.5">
+            <span className="text-xs italic text-muted-foreground">None linked</span>
+            {control.referenceFramework && control.referenceFramework !== 'CUSTOM' && (
+              <MapSuggestedPoliciesButton
+                control={{ controlId: control.id, refCode: control.refCode, referenceFramework: control.referenceFramework, source: ControlControlSource.FRAMEWORK }}
+                size="sm"
+              />
+            )}
+          </div>
         ) : (
           <ReportShowMore
             items={linkedPolicies}

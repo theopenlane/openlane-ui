@@ -11,9 +11,10 @@ import { ObjectiveItem } from './control-objectives-components/objective-item'
 
 type ControlObjectivesProps = {
   edges: { node: ControlObjectiveFieldsFragment }[] | undefined
+  emptyState?: React.ReactNode
 }
 
-const ControlObjectives: React.FC<ControlObjectivesProps> = ({ edges }) => {
+const ControlObjectives: React.FC<ControlObjectivesProps> = ({ edges, emptyState }) => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
   const [showCreateSheet, setShowCreateSheet] = useState(false)
   const [editData, setEditData] = useState<ControlObjectiveFieldsFragment | null>(null)
@@ -81,22 +82,20 @@ const ControlObjectives: React.FC<ControlObjectivesProps> = ({ edges }) => {
             <h2 className="text-lg font-semibold">Control Objectives</h2>
           </div>
         </div>
-        {edges && edges?.length > 0 ? (
-          edges.map(({ node }) => (
-            <ObjectiveItem
-              key={node.id}
-              node={node}
-              onEdit={(selected) => {
-                setEditData(selected)
-                setShowCreateSheet(true)
-              }}
-              onUnarchive={handleUnarchive}
-              onDelete={handleDelete}
-            />
-          ))
-        ) : (
-          <div className="text-base text-muted-foreground">No control objectives found.</div>
-        )}
+        {edges && edges?.length > 0
+          ? edges.map(({ node }) => (
+              <ObjectiveItem
+                key={node.id}
+                node={node}
+                onEdit={(selected) => {
+                  setEditData(selected)
+                  setShowCreateSheet(true)
+                }}
+                onUnarchive={handleUnarchive}
+                onDelete={handleDelete}
+              />
+            ))
+          : (emptyState ?? <div className="text-base text-muted-foreground">No control objectives found.</div>)}
       </div>
     </div>
   )

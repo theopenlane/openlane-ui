@@ -8,7 +8,7 @@ import { Button } from '@repo/ui/button'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { Callout } from '@/components/shared/callout/callout'
+import PlatformsEmptyState from '../platforms-empty/platforms-empty-state'
 import { usePlatformsWithFilter, useCreatePlatform, useUpdatePlatform } from '@/lib/graphql-hooks/platform'
 import { type Platform, PlatformPlatformStatus, type CreatePlatformInput } from '@repo/codegen/src/schema'
 import { StepDialog } from '@/components/shared/crud-base/step-dialog'
@@ -167,25 +167,25 @@ const PlatformsDashboardPage: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center gap-4">
-        <h2 className="text-2xl font-semibold">Platforms</h2>
-        {canCreatePlatform && (
-          <Button icon={<SquarePlus />} iconPosition="left" onClick={() => setShowCreate(true)}>
-            Create Platform
-          </Button>
-        )}
-      </div>
-
       {hasNoPlatforms ? (
-        <Callout variant="info" title="No platforms yet">
-          Each platform represents a top-level system (e.g. a product or service) and defines its audit scope. Create your first platform to begin organizing assets, vendors, and ownership.
-        </Callout>
+        <PlatformsEmptyState onCreate={canCreatePlatform ? () => setShowCreate(true) : undefined} />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {platformsNodes.map((platform) => (
-            <PlatformCard key={platform.id} platform={platform as unknown as Platform} />
-          ))}
-        </div>
+        <>
+          <div className="flex justify-between items-center gap-4">
+            <h2 className="text-2xl font-semibold">Platforms</h2>
+            {canCreatePlatform && (
+              <Button icon={<SquarePlus />} iconPosition="left" onClick={() => setShowCreate(true)}>
+                Create Platform
+              </Button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {platformsNodes.map((platform) => (
+              <PlatformCard key={platform.id} platform={platform as unknown as Platform} />
+            ))}
+          </div>
+        </>
       )}
 
       {showCreate && (

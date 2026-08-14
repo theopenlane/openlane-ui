@@ -22,6 +22,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { type CustomEvidenceControl, EVIDENCE_ASSOCIATION_FIELDS } from './evidence-sheet-config'
+import { EvidenceDocsExamples } from './evidence-docs-examples'
 import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-controls'
 import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
@@ -276,6 +277,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       >
         <Form {...form}>
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            <EvidenceDocsExamples control={controlParam?.[0]} />
             <InputRow className="w-full">
               <FormField
                 control={form.control}

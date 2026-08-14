@@ -20,6 +20,7 @@ import { useGetSubcontrolAssociationsById, type SubcontrolByIdNode } from '@/lib
 import { useMappedEntityRefs } from '@/lib/graphql-hooks/use-mapped-entity-refs'
 import { buildControlEvidenceData, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
 import { type UpdateSubcontrolInput, type UpdateControlInput } from '@repo/codegen/src/schema.ts'
+import { useSuggestedPolicies } from '@/components/pages/protected/controls/suggested-policies'
 
 type ControlTabsProps = {
   kind: 'control'
@@ -65,6 +66,11 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
 
   const evidenceRequests = isSubcontrol ? (subcontrol as { evidenceRequests?: unknown } | undefined)?.evidenceRequests : (control as { evidenceRequests?: unknown } | undefined)?.evidenceRequests
   const refCode = (isSubcontrol ? subcontrol?.refCode : control?.refCode) ?? ''
+
+  const docsControl = !isSubcontrol && control ? { controlId: control.id, refCode: control.refCode, referenceFramework: control.referenceFramework, source: control.source } : undefined
+
+  const suggestedPolicies = useSuggestedPolicies(docsControl)
+  const documentationAlertCount = suggestedPolicies && !suggestedPolicies.dismissed ? suggestedPolicies.suggestions.length : 0
 
   const testingProcedures = useMemo(() => {
     const raw = (isSubcontrol ? subcontrol?.testingProcedures : control?.testingProcedures) as
@@ -143,16 +149,17 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
     <Tabs value={activeTab} onValueChange={handleTabChange} variant="underline">
       <div className="mb-6">
         <ScrollableTabsList>
-          <ControlTabsList includeGuidance={hasGuidanceData} />
+          <ControlTabsList includeGuidance={hasGuidanceData} badges={{ documentation: documentationAlertCount }} />
         </ScrollableTabsList>
       </div>
 
       <TabsContent value="implementation" className="space-y-6">
-        <ImplementationTab isEditing={props.isEditing} data={props.data} canEdit={props.canEdit} />
+        <ImplementationTab isEditing={props.isEditing} data={props.data} canEdit={props.canEdit} docsControl={docsControl} />
       </TabsContent>
 
       <TabsContent value="evidence" className="space-y-6">
         <EvidenceTab
+          docsControl={docsControl}
           evidenceFormData={evidenceFormData}
           subcontrolIds={subcontrolIds}
           evidenceRequests={evidenceRequests as { documentationType?: string; description?: string }[] | null}
@@ -168,6 +175,11 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
           parentControlId={isSubcontrol ? (subcontrol?.control?.id ?? undefined) : undefined}
           refCode={refCode}
           canEdit={props.canEdit}
+          frameworkControl={
+            !isSubcontrol && control && control.referenceFramework && control.referenceFramework !== 'CUSTOM'
+              ? { id: control.id, refCode: control.refCode, referenceFramework: control.referenceFramework }
+              : undefined
+          }
         />
       </TabsContent>
 
@@ -190,6 +202,7 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
 
       <TabsContent value="documentation" className="space-y-6">
         <DocumentationTab
+          suggestedPolicies={suggestedPolicies}
           controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')}
           subcontrolIds={subcontrolIds}
           canEdit={props.canEdit}

@@ -6,6 +6,7 @@ import { type ControlControlStatus } from '@repo/codegen/src/schema'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { CONTROL_STATUS_STYLES } from '@/components/shared/enum-mapper/control-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { CreateOrgControlsFromDocsButton, type TCreateOrgControlsTarget } from '@/components/pages/protected/controls/create-org-controls-dialog'
 
 export type OrgCoverageData = {
   approvedCount: number
@@ -16,11 +17,17 @@ export type OrgCoverageData = {
 
 type Props = {
   data?: OrgCoverageData | null
+  frameworkControl?: TCreateOrgControlsTarget
 }
 
-const OrgCoverageCell: React.FC<Props> = ({ data }) => {
+const OrgCoverageCell: React.FC<Props> = ({ data, frameworkControl }) => {
   if (!data || data.activeCount === 0) {
-    return <span className="text-xs italic text-muted-foreground">No org controls</span>
+    return (
+      <div className="flex min-w-0 flex-col items-start gap-1.5" onClick={(e) => e.stopPropagation()}>
+        <span className="text-xs italic text-muted-foreground">No org controls</span>
+        {frameworkControl && <CreateOrgControlsFromDocsButton frameworkControl={frameworkControl} size="sm" />}
+      </div>
+    )
   }
 
   const { approvedCount, activeCount, worstStatus, orgControlRefs } = data

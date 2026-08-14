@@ -9,7 +9,7 @@ import { InfoSlideOut } from '@repo/ui/info-slide-out'
 import { docsHelpEnabled } from '@repo/dally/ai'
 import { DocsHelpContent } from './docs-help-content'
 import { docsHelpQuery } from './docs-help-query'
-import { useDocsHelpTopic, type DocsHelpTopic } from './docs-help-context'
+import { useDocsHelpDrawer, useDocsHelpEphemeralTopic, useDocsHelpTopic, type DocsHelpTopic } from './docs-help-context'
 
 const INTROS = {
   dashboard: 'This is your Compliance Home dashboard. Use it to get a snapshot of your compliance posture and quickly access your most important work.',
@@ -23,7 +23,7 @@ const INTROS = {
 
 const ROUTE_TOPICS: [string, DocsHelpTopic][] = [
   ['/dashboard', { title: 'Home', query: docsHelpQuery('list', 'the dashboard'), intro: INTROS.dashboard, prefer: 'Platform Overview' }],
-  ['/controls', { title: 'Controls', query: docsHelpQuery('list', 'controls'), intro: INTROS.controls }],
+  ['/controls', { title: 'Controls', query: docsHelpQuery('list', 'controls'), prefer: 'Controls Overview', intro: INTROS.controls }],
   ['/controls/create-control', { title: 'Create a Control', query: docsHelpQuery('create', 'a control'), prefer: 'Writing Controls', intro: INTROS.controls }],
   ['/controls/create-subcontrol', { title: 'Create a Subcontrol', query: docsHelpQuery('create', 'a subcontrol'), prefer: 'Writing Controls', intro: INTROS.controls }],
   ['/programs', { title: 'Programs', query: docsHelpQuery('list', 'compliance programs'), intro: INTROS.programs }],
@@ -35,6 +35,7 @@ const ROUTE_TOPICS: [string, DocsHelpTopic][] = [
   ['/standards', { title: 'Standards Catalog', query: docsHelpQuery('list', 'standards and frameworks') }],
   ['/exposure/reviews', { title: 'Reviews', query: docsHelpQuery('list', 'risk review'), prefer: 'reviews' }],
   ['/exposure/triage', { title: 'Triage Queue', query: docsHelpQuery('list', 'vulnerabilities'), prefer: 'vulnerabilities' }],
+  ['/trust-center/frameworks', { title: 'Trust Center - Frameworks', query: docsHelpQuery('list', 'trust center frameworks') }],
   ['/organization-settings/authentication', { title: 'Authentication', query: docsHelpQuery('list', 'authentication and single sign-on') }],
   ['/user-management', { title: 'User Management', query: docsHelpQuery('list', 'members groups and roles') }],
 ]
@@ -103,18 +104,28 @@ const DocsTabButton = ({ onClick, label, className }: { onClick: () => void; lab
 }
 
 export const DocsHelpTab = () => {
-  const [open, setOpen] = useState(false)
+  // open state lives in context so in-page links can open the drawer too
+  const { open, setOpen } = useDocsHelpDrawer()
+  const { ephemeralTopic, setEphemeralTopic } = useDocsHelpEphemeralTopic()
   const [showClosedTab, setShowClosedTab] = useState(true)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pathname = usePathname()
   const override = useDocsHelpTopic()
+
+  // one-off topics don't survive closing the drawer or navigating away
+  useEffect(() => {
+    if (!open) setEphemeralTopic(null)
+  }, [open, setEphemeralTopic])
+  useEffect(() => {
+    setEphemeralTopic(null)
+  }, [pathname, setEphemeralTopic])
 
   const [body, setBody] = useState<HTMLElement | null>(null)
   useEffect(() => setBody(document.body), [])
 
   useEffect(() => () => clearTimeout(closeTimerRef.current ?? undefined), [])
 
-  const topic = useMemo(() => override ?? topicForPath(pathname ?? '/'), [override, pathname])
+  const topic = useMemo(() => ephemeralTopic ?? override ?? topicForPath(pathname ?? '/'), [ephemeralTopic, override, pathname])
 
   if (!docsHelpEnabled) return null
 

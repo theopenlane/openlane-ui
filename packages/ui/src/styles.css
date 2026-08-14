@@ -27,7 +27,7 @@
   }
 
   /* keep the DevRev PLuG chat clickable while a modal sheet/dialog is open —
-     Radix disables pointer events on the whole body during modal overlays */
+     Radix disables pointer events on the whole body durinfdg modal overlays */
   iframe[data-drid^='PLUG'],
   iframe[src*='plug-platform.devrev.ai'] {
     pointer-events: auto !important;
@@ -251,6 +251,9 @@
   --color-border: #e1e7ea;
   --color-text-paragraph: #09151d;
 
+  /* platform diagram */
+  --diagram-accent: #107565;
+
   --color-avatar-transparent: #9aa5b0;
 
   --step-active-bg: rgba(96, 232, 201, 0.1);
@@ -364,6 +367,9 @@
 
   --color-avatar-transparent: #394b58;
 
+  /* platform diagram */
+  --diagram-accent: #60e8c9;
+
   --step-active-bg: rgba(96, 232, 201, 0.1);
 
   --tip-text: #60e8c9;
@@ -476,6 +482,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-diagram-accent: var(--diagram-accent);
   --radius: var(--radius);
   --color-panel-bg: var(--card);
   --color-panel-text: var(--card-foreground);

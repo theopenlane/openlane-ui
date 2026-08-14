@@ -1,6 +1,9 @@
-import { useMemo } from 'react'
+import { use, useEffect, useMemo } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { DocsHelpChunk, DocsHelpFrame, DocsHelpResponse, DocsSection } from '@/types/docs-help'
+import { DocsSectionBatchContext, type DocsSectionResult } from '@/components/shared/docs-help/docs-section-batch-context'
+
+export type { DocsSectionResult }
 
 const DOCS_HELP_STALE_TIME_MS = 5 * 60 * 1000
 
@@ -64,5 +67,72 @@ export const useDocsHelp = ({ query, prefer, section, summarize, enabled, seed }
     retry: false,
     refetchOnWindowFocus: false,
     staleTime: (docsQuery) => (docsQuery.state.data?.summary === null ? 0 : DOCS_HELP_STALE_TIME_MS),
+  })
+}
+
+// the section/title/full-page modes return a single json body rather than the
+// streamed frames useDocsHelp consumes
+async function postDocsHelp(body: object) {
+  const res = await fetch('/api/docs-help', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) throw new Error(`docs-help ${res.status}`)
+  return res.json()
+}
+
+// Extract one named markdown section (e.g. "Evidence Requests") from the doc
+// page best matching the query — prefer should pin the exact page. Inside a
+// DocsSectionBatchProvider the lookup joins that batch instead of issuing its
+// own request, so a long list makes one call rather than one per row
+export function useDocsSection(query: string, extractSection: string | string[], enabled: boolean, prefer?: string) {
+  const batch = use(DocsSectionBatchContext)
+  const key = `${query}|${prefer ?? ''}|${Array.isArray(extractSection) ? extractSection.join(',') : extractSection}`
+
+  useEffect(() => {
+    if (batch.active && enabled && query) batch.request({ key, query, prefer, extractSection })
+  }, [batch, enabled, query, key, prefer, extractSection])
+
+  const solo = useQuery({
+    queryKey: ['docs-help-section', query, prefer, extractSection],
+    queryFn: async () => (await postDocsHelp({ query, prefer, extractSection })) as DocsSectionResult,
+    enabled: !batch.active && enabled && !!query,
+    staleTime: DOCS_HELP_STALE_TIME_MS,
+    retry: false,
+    placeholderData: undefined,
+  })
+
+  if (!batch.active) return solo
+  const result = batch.results[key]
+  return { data: result, isLoading: !result && batch.pending(key) }
+}
+
+export type DocsControlTitleInput = { refCode?: string; description?: string }
+
+// AI-written titles for docs example controls that arrived without a usable
+// one; returns titles positionally, with '' where none could be generated
+export function useDocsControlTitles(controls: DocsControlTitleInput[], enabled: boolean) {
+  const key = controls.map((control) => `${control.refCode ?? ''}:${(control.description ?? '').slice(0, 80)}`).join('|')
+
+  return useQuery({
+    queryKey: ['docs-help-control-titles', key],
+    queryFn: async () => ((await postDocsHelp({ suggestTitles: controls })).titles ?? []) as string[],
+    enabled: enabled && controls.length > 0,
+    retry: false,
+    staleTime: DOCS_HELP_STALE_TIME_MS,
+    placeholderData: undefined,
+  })
+}
+
+// The whole extracted doc page, for expanding a chunk that retrieval cut off
+export function useDocsFullPage(query: string, source: string | null, enabled: boolean, prefer?: string) {
+  return useQuery({
+    queryKey: ['docs-help-full-page', query, prefer, source],
+    queryFn: async () => ((await postDocsHelp({ query, prefer, fullPageFor: source })).text ?? '') as string,
+    enabled: enabled && !!query && !!source,
+    retry: false,
+    staleTime: DOCS_HELP_STALE_TIME_MS,
+    placeholderData: undefined,
   })
 }
