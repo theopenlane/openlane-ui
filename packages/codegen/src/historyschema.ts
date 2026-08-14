@@ -6220,12 +6220,6 @@ export interface LeaveOrganizationMutation {
   leaveOrganization: { deletedID: string }
 }
 
-export type LeaveOrganizationMutationVariables = Exact<{
-  organizationID: Scalars['ID']['input']
-}>
-
-export type LeaveOrganizationMutation = { __typename?: 'Mutation'; leaveOrganization: { __typename?: 'OrgMembershipDeletePayload'; deletedID: string } }
-
 export type UpdateOrganizationSettingMutationVariables = Exact<{
   updateOrganizationSettingId: string
   input: Types.UpdateOrganizationSettingInput
