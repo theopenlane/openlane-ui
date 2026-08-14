@@ -58,6 +58,9 @@ export const GET_STANDARD_DETAILS = gql`
       controls(where: { ownerIDIsNil: true }) {
         totalCount
       }
+      controlsWithSubcontrols: controls(where: { ownerIDIsNil: true, hasSubcontrols: true }) {
+        totalCount
+      }
       logoFile {
         base64
       }

@@ -78,6 +78,7 @@ const StandardDetailsView: React.FC<TStandardDetailsViewProps> = ({ standardId, 
             standardName={standard?.shortName ?? standard?.name}
             permission={permission}
             isLoadingPermission={isLoadingPermission}
+            showSubcontrolsColumn={(standard?.controlsWithSubcontrols.totalCount ?? 0) > 0}
           />
         </div>
       </div>
