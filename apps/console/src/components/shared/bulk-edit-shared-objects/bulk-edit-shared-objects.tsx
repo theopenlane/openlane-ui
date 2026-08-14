@@ -224,10 +224,11 @@ export const checkHasFieldsToUpdate = (watchedFields: BulkEditFieldLike[]): bool
 const POLICY_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
 const CONTROL_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
 const RISK_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.INTERNAL_POLICY] as const
-const EVIDENCE_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.SCAN] as const
+const EVIDENCE_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.PROGRAM, ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.SCAN] as const
 
 const ASSOCIATION_DISPLAY_NAMES: Partial<Record<ObjectTypeObjects, string>> = {
   [ObjectTypeObjects.CONTROL]: 'Associate Controls',
+  [ObjectTypeObjects.PROGRAM]: 'Associate Programs',
   [ObjectTypeObjects.INTERNAL_POLICY]: 'Associate Policies',
   [ObjectTypeObjects.PROCEDURE]: 'Associate Procedures',
   [ObjectTypeObjects.RISK]: 'Associate Risks',
