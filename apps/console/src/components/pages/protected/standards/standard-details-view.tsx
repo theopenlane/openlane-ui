@@ -14,8 +14,8 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { ObjectWithDetailsSkeleton } from '@/components/shared/skeleton/object-with-slideout-skeleton'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useSession } from 'next-auth/react'
-import { useSetDocsHelpTopic } from '@/components/shared/need-help/docs-help-context'
-import { docsHelpQuery } from '@/components/shared/need-help/docs-help-query'
+import { useSetDocsHelpTopic } from '@/components/shared/docs-help/docs-help-context'
+import { docsHelpQuery } from '@/components/shared/docs-help/docs-help-query'
 
 type TStandardDetailsViewProps = {
   standardId: string

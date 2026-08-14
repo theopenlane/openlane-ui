@@ -23,8 +23,8 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import ImpersonationBanner from '@/components/shared/impersonation-banner/impersonation-banner'
 import { IMPERSONATION_BANNER_HEIGHT_VAR } from '@/constants/layout'
 import { DashboardContentOffsetProvider } from '@/providers/DashboardContentOffsetContext'
-import { DocsHelpTopicProvider } from '@/components/shared/need-help/docs-help-context'
-import { DocsHelpTab } from '@/components/shared/need-help/docs-help-tab'
+import { DocsHelpTopicProvider } from '@/components/shared/docs-help/docs-help-context'
+import { DocsHelpTab } from '@/components/shared/docs-help/docs-help-tab'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode

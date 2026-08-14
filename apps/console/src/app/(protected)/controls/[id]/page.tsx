@@ -47,8 +47,8 @@ import FindingDetailsSheet from '@/components/pages/protected/controls/tabs/find
 import ControlReviewSheet from '@/components/pages/protected/controls/control-review/control-review-sheet'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { useSetDocsHelpTopic } from '@/components/shared/need-help/docs-help-context'
-import { docsHelpQuery } from '@/components/shared/need-help/docs-help-query'
+import { useSetDocsHelpTopic } from '@/components/shared/docs-help/docs-help-context'
+import { docsHelpQuery } from '@/components/shared/docs-help/docs-help-query'
 
 interface FormValues {
   refCode: string
@@ -120,12 +120,12 @@ const ControlDetailsPage: React.FC = () => {
   })
   const hasScrollbar = useHasScrollbar([isEditing, data?.control, associationsData?.control])
 
-  // point the global docs tab at this specific control's doc page
   const helpControl = data?.control
+  const helpControlTitle = [helpControl?.referenceFramework, helpControl?.refCode].filter(Boolean).join(' ')
   useSetDocsHelpTopic(
-    helpControl
+    helpControl && helpControlTitle
       ? {
-          title: [helpControl.referenceFramework, helpControl.refCode].filter(Boolean).join(' '),
+          title: helpControlTitle,
           query: docsHelpQuery('view', [helpControl.referenceFramework, helpControl.refCode, helpControl.title].filter(Boolean).join(' ')),
           prefer: helpControl.refCode ?? undefined,
         }

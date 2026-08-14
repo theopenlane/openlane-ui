@@ -33,8 +33,8 @@ import CredentialConnectionSection from './credential-connection-section'
 import { useInstallationPolling } from './use-installation-polling'
 import { useIntegrationConnect } from './use-integration-connect'
 import { useSession } from 'next-auth/react'
-import { useSetDocsHelpTopic } from '@/components/shared/need-help/docs-help-context'
-import { docsHelpQuery } from '@/components/shared/need-help/docs-help-query'
+import { useSetDocsHelpTopic } from '@/components/shared/docs-help/docs-help-context'
+import { docsHelpQuery } from '@/components/shared/docs-help/docs-help-query'
 
 type IntegrationDefinitionPageProps = {
   definitionId: string

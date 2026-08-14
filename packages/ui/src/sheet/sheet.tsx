@@ -97,11 +97,17 @@ function SheetContent({
     }
   }
 
+  const maxContentWidth = edge ? 'calc(100vw - 3rem)' : '100vw'
+
   return (
     <SheetPortal>
       {overlay && <SheetOverlay />}
       <SheetPrimitive.Content
-        style={{ width, minWidth: typeof minWidth === 'number' ? `${minWidth}px` : minWidth }}
+        style={{
+          width,
+          minWidth: typeof minWidth === 'number' ? `min(${minWidth}px, ${maxContentWidth})` : minWidth,
+          maxWidth: maxContentWidth,
+        }}
         data-slot="sheet-content"
         className={cn(
           'gap-4 p-[24px] pt-[12px] bg-secondary data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500',
@@ -116,7 +122,7 @@ function SheetContent({
       >
         <div onMouseDown={onMouseDown} className={cn('absolute top-0 bottom-0 h-full z-10 w-3 bg-transparent', side === 'right' ? '-left-1 cursor-ew-resize' : '-right-1 cursor-ew-resize')} />
 
-        {edge}
+        {edge && <div className={cn('absolute top-1/2 z-20 -translate-y-1/2', side === 'right' ? 'left-0 -translate-x-full' : 'right-0 translate-x-full')}>{edge}</div>}
 
         {header && <SheetHeader className="sticky top-0 z-10">{header}</SheetHeader>}
 
