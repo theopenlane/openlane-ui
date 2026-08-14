@@ -703,7 +703,7 @@ export type CampaignTargetStatsQueryVariables = Exact<{
 }>
 
 export interface CampaignTargetStatsQuery {
-  campaignTargets: { totalCount: number; edges: Array<{ node: { id: string; email: string; sentAt: string | null; completedAt: string | null } | null } | null> | null }
+  campaignTargets: { totalCount: number; edges: Array<{ node: { id: string; email: string; sentAt: string | null; completedAt: string | null; metadata: any } | null } | null> | null }
 }
 
 export type CampaignTargetQueryVariables = Exact<{
@@ -5037,7 +5037,17 @@ export interface GetInternalPolicyAssociationsByIdQuery {
     procedures: {
       totalCount: number
       edges: Array<{
-        node: { id: string; name: string; displayID: string; summary: string | null; procedureKindName: string | null; details: string | null; detailsJSON: Array<any> | null } | null
+        node: {
+          id: string
+          name: string
+          displayID: string
+          summary: string | null
+          procedureKindName: string | null
+          status: Types.ProcedureDocumentStatus | null
+          details: string | null
+          detailsJSON: Array<any> | null
+          approver: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
+        } | null
       } | null> | null
     }
     controls: { totalCount: number; edges: Array<{ node: { id: string; displayID: string; refCode: string; description: string | null } | null } | null> | null }
@@ -6200,6 +6210,14 @@ export type DeleteOrganizationMutationVariables = Exact<{
 
 export interface DeleteOrganizationMutation {
   deleteOrganization: { deletedID: string }
+}
+
+export type LeaveOrganizationMutationVariables = Exact<{
+  organizationID: string
+}>
+
+export interface LeaveOrganizationMutation {
+  leaveOrganization: { deletedID: string }
 }
 
 export type UpdateOrganizationSettingMutationVariables = Exact<{
