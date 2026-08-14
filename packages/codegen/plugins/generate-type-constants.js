@@ -4,7 +4,7 @@ const { toHumanLabel, toUpperSnake, getObjectNameFromBody, toKebab, getQueryName
 const { generatePermissionsSection } = require('./permissions')
 const { generateTasksSection } = require('./tasks')
 
-const schemaPath = path.join(__dirname, '..', 'src', 'schema.ts')
+const schemaPath = path.join(__dirname, '..', 'src', 'schema-types.ts')
 const outputPath = path.join(__dirname, '..', 'src', 'type-names.ts')
 const schemaContent = fs.readFileSync(schemaPath, 'utf8')
 

@@ -11,16 +11,16 @@ const formSchema = z.object({
   description: z.custom<Value | string>().optional(),
   descriptionJSON: z.custom<Value>().optional(),
   source: z.string().optional(),
-  status: z.preprocess((v) => (v === '' ? null : v), z.nativeEnum(ActionPlanDocumentStatus).optional().nullable()),
-  priority: z.preprocess((v) => (v === '' ? null : v), z.nativeEnum(ActionPlanPriority).optional().nullable()),
-  reviewFrequency: z.preprocess((v) => (v === '' ? null : v), z.nativeEnum(ActionPlanFrequency).optional().nullable()),
+  status: z.preprocess((v) => (v === '' ? null : v), z.enum(ActionPlanDocumentStatus).optional().nullable()),
+  priority: z.preprocess((v) => (v === '' ? null : v), z.enum(ActionPlanPriority).optional().nullable()),
+  reviewFrequency: z.preprocess((v) => (v === '' ? null : v), z.enum(ActionPlanFrequency).optional().nullable()),
   dueDate: z.union([z.string(), z.date()]).optional().nullable(),
   reviewDue: z.union([z.string(), z.date()]).optional().nullable(),
 })
 
 export const bulkEditFieldSchema = z.object({
-  status: z.nativeEnum(ActionPlanDocumentStatus).optional().nullable(),
-  priority: z.nativeEnum(ActionPlanPriority).optional().nullable(),
+  status: z.enum(ActionPlanDocumentStatus).optional().nullable(),
+  priority: z.enum(ActionPlanPriority).optional().nullable(),
 })
 
 export type ActionPlanFormData = z.infer<typeof formSchema>

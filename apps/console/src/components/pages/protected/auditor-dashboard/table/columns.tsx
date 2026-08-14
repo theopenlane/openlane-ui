@@ -8,7 +8,7 @@ import { TruncatedCell } from '@repo/ui/data-table'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { ReviewReviewStatus, type User } from '@repo/codegen/src/schema'
+import { ReviewReviewStatus } from '@repo/codegen/src/schema'
 import { type AuditorDashboardControlNode, type AuditorDashboardEvidenceItem, type AuditorDashboardPolicyItem } from '@/lib/graphql-hooks/control'
 import { OverflowBadgesCell } from '@/components/shared/crud-base/columns/overflow-badges-cell'
 import { type ControlReviewSummary } from '../utils/control-status'
@@ -72,7 +72,7 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
       id: 'owner',
       header: 'Control Owner',
       size: 180,
-      cell: ({ row }) => <UserCell user={(row.original.controlOwner as User) ?? undefined} fallback="—" />,
+      cell: ({ row }) => <UserCell user={row.original.controlOwner ?? undefined} fallback="—" />,
     },
     {
       id: 'linkedPolicies',

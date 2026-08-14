@@ -1,13 +1,13 @@
 import React from 'react'
 import { type QueryClient } from '@tanstack/react-query'
-import { type User } from '@repo/codegen/src/schema'
+import { type AvatarEntityLike } from '@/components/shared/avatar/avatar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
 import { useUpdateTask } from '@/lib/graphql-hooks/task'
 import EditableUserCell from '@/components/shared/editable-user-cell/editable-user-cell'
 
 type TAssigneeCellProps = {
-  assignee?: User | null
+  assignee?: AvatarEntityLike | null
   taskId: string
 }
 

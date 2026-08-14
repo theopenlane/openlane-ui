@@ -4,14 +4,14 @@ import React from 'react'
 import { Calendar, CircleUser, ListChecks } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { type Task } from '@repo/codegen/src/schema.ts'
+import { type TasksWithFilterNode } from '@/lib/graphql-hooks/task'
 import { formatDate } from '@/utils/date'
 import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type TTaskCardsProps = {
-  tasks: Task[]
+  tasks: TasksWithFilterNode[]
   isError: boolean
 }
 
