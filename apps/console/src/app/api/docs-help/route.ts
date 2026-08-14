@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { GoogleGenAI } from '@google/genai'
 import { VertexRagServiceClient } from '@google-cloud/aiplatform'
 import { docsHelpEnabled, googleAPIKey, googleProjectID, googleAIRegion, docsAIRegion, docsRagCorpusID, geminiModelName, temperature } from '@repo/dally/ai'
-import type { DocsHelpChunk } from '@/types/docs-help'
+import type { DocsHelpChunk, DocsHelpFrame } from '@/types/docs-help'
 
 export const runtime = 'nodejs'
 export const maxDuration = 30
@@ -135,7 +135,7 @@ const rankChunks = (chunks: DocsHelpChunk[], prefer: string | undefined, section
     .map(({ chunk }) => chunk)
 }
 
-const summarizeChunks = async (genAI: GoogleGenAI, chunks: DocsHelpChunk[], query: string): Promise<string> => {
+const summarizeChunks = async (genAI: GoogleGenAI, chunks: DocsHelpChunk[], query: string, abortSignal: AbortSignal): Promise<string> => {
   if (chunks.length === 0) return ''
   try {
     const excerpts = chunks
@@ -152,6 +152,7 @@ const summarizeChunks = async (genAI: GoogleGenAI, chunks: DocsHelpChunk[], quer
         temperature,
         maxOutputTokens: 300,
         thinkingConfig: { thinkingBudget: 0 },
+        abortSignal,
       },
     })
     const text = summaryResponse.text?.trim() ?? ''
@@ -161,6 +162,24 @@ const summarizeChunks = async (genAI: GoogleGenAI, chunks: DocsHelpChunk[], quer
     return ''
   }
 }
+
+const encoder = new TextEncoder()
+
+const encodeFrame = (frame: DocsHelpFrame): Uint8Array => encoder.encode(`${JSON.stringify(frame)}\n`)
+
+const docsHelpStream = (chunks: DocsHelpChunk[], summary: Promise<string>): ReadableStream<Uint8Array> =>
+  new ReadableStream({
+    async start(controller) {
+      controller.enqueue(encodeFrame({ chunks }))
+      const text = await summary
+      try {
+        controller.enqueue(encodeFrame({ summary: text }))
+        controller.close()
+      } catch {
+        controller.error(new Error('docs-help stream closed'))
+      }
+    },
+  })
 
 export const POST = async (req: NextRequest) => {
   const session = await auth()
@@ -192,9 +211,15 @@ export const POST = async (req: NextRequest) => {
 
     const chunks = rankChunks(dedupeBySource((ragResponse.contexts?.contexts ?? []).map((context) => context?.text)), prefer, section)
 
-    const summary = summarize ? await summarizeChunks(docsClients.genAI, chunks, query) : ''
+    const summary = summarize ? summarizeChunks(docsClients.genAI, chunks, query, req.signal) : Promise.resolve('')
 
-    return NextResponse.json({ chunks, summary })
+    return new Response(docsHelpStream(chunks, summary), {
+      headers: {
+        'Content-Type': 'application/x-ndjson; charset=utf-8',
+        'Cache-Control': 'no-store',
+        'X-Accel-Buffering': 'no',
+      },
+    })
   } catch (err) {
     console.error('docs-help error:', err instanceof Error ? err.message : err)
     return NextResponse.json({ error: 'Failed to retrieve docs' }, { status: 500 })

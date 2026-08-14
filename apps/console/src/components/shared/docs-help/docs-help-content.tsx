@@ -114,21 +114,24 @@ type DocsHelpContentProps = {
   enabled: boolean
 }
 
+type TAskedTopic = { query: string; prefer?: string; fromSearch?: boolean; seed?: DocsHelpChunk[] }
+
 export const DocsHelpContent = ({ query, prefer, intro, section, enabled }: DocsHelpContentProps) => {
   const [followUp, setFollowUp] = useState('')
-  const [asked, setAsked] = useState<{ query: string; prefer?: string } | null>(null)
+  const [asked, setAsked] = useState<TAskedTopic | null>(null)
 
   const activeQuery = asked?.query ?? query
   const activePrefer = asked ? asked.prefer : prefer
   const showIntro = !!intro && !asked
 
-  const { data, isLoading, isFetching, isError } = useDocsHelp(activeQuery, enabled, !showIntro, activePrefer, section)
+  const { data, isLoading, isFetching, isError } = useDocsHelp({ query: activeQuery, prefer: activePrefer, section, summarize: !showIntro, enabled, seed: asked?.seed })
 
-  const chunks = data?.chunks
+  const chunks = data?.chunks ?? asked?.seed
   const best = chunks?.[0]
-  const summary = data?.summary ?? ''
-  const showSummaryBox = !showIntro && (isLoading || !!summary || !!asked)
-  const isSearching = isFetching && !!asked
+  const summary = data?.summary ?? null
+  const summaryPending = summary === null && isFetching
+  const showSummaryBox = !showIntro && !!chunks?.length && (summaryPending || !!summary || !!asked)
+  const isSearching = isFetching && !!asked?.fromSearch
 
   const openSupport = usePlugSupportWidget()
 
@@ -136,14 +139,21 @@ export const DocsHelpContent = ({ query, prefer, intro, section, enabled }: Docs
     setAsked({ query: buildLinkQuery(text, path), prefer: path })
   }, [])
 
-  const selectRelated = useCallback((chunk: DocsHelpChunk) => {
-    setAsked({ query: chunk.title || chunk.source, prefer: docPathOf(chunk.source) })
-  }, [])
+  const selectRelated = useCallback(
+    (chunk: DocsHelpChunk) => {
+      setAsked({
+        query: chunk.title || chunk.source,
+        prefer: docPathOf(chunk.source),
+        seed: [chunk, ...(chunks ?? []).filter((other) => other.source !== chunk.source)],
+      })
+    },
+    [chunks],
+  )
 
   const submitFollowUp = (e: FormEvent) => {
     e.preventDefault()
     const trimmed = followUp.trim()
-    if (trimmed) setAsked({ query: trimmed })
+    if (trimmed) setAsked({ query: trimmed, fromSearch: true })
   }
 
   const backToTopic = () => {
@@ -194,9 +204,11 @@ export const DocsHelpContent = ({ query, prefer, intro, section, enabled }: Docs
           </button>
         </div>
       )}
-      {isLoading && <p className="text-sm text-muted-foreground">Looking in the docs…</p>}
-      {isError && <p className="text-sm text-destructive">Couldn&apos;t load help right now.</p>}
-      {!isLoading && !isError && chunks?.length === 0 && <p className="text-sm text-muted-foreground">No docs found for this topic.</p>}
+      <div role="status" aria-live="polite" className="flex flex-col gap-4 empty:hidden">
+        {isLoading && <p className="text-sm text-muted-foreground">Looking in the docs…</p>}
+        {isError && !chunks?.length && <p className="text-sm text-destructive">Couldn&apos;t load help right now.</p>}
+        {!isLoading && !isError && chunks?.length === 0 && <p className="text-sm text-muted-foreground">No docs found for this topic.</p>}
+      </div>
 
       {showSummaryBox && (
         <div className="flex flex-col gap-2 rounded-md border border-border bg-muted/40 p-4" aria-live="polite">
@@ -204,10 +216,11 @@ export const DocsHelpContent = ({ query, prefer, intro, section, enabled }: Docs
             <Sparkles size={14} />
             AI Summary
           </h4>
-          {isLoading ? (
-            <div className="flex flex-col gap-1.5 animate-pulse" aria-label="Generating summary">
-              <div className="h-3.5 rounded bg-muted" />
-              <div className="h-3.5 rounded bg-muted w-4/5" />
+          {summaryPending ? (
+            <div className="flex flex-col gap-1.5 animate-pulse">
+              <span className="sr-only">Generating summary…</span>
+              <div aria-hidden className="h-3.5 rounded bg-muted" />
+              <div aria-hidden className="h-3.5 rounded bg-muted w-4/5" />
             </div>
           ) : summary ? (
             <>
