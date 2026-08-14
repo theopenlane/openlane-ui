@@ -40,6 +40,7 @@ import {
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { invalidateTaskAssociations } from '@/components/shared/object-association/object-association-config'
+import { overdueTaskDueCutoff } from '@/components/pages/protected/tasks/util/task'
 
 type GetAllTasksArgs = {
   where?: TasksWithFilterQueryVariables['where']
@@ -206,7 +207,7 @@ export const useGetOverdueTasksCount = () => {
     queryKey: ['tasks', 'overdueTasksCount'],
     queryFn: async () =>
       client.request(GET_OVERDUE_TASK_COUNT, {
-        now: new Date().toISOString(),
+        now: overdueTaskDueCutoff(),
       }),
     enabled: true,
   })

@@ -1,25 +1,18 @@
-import React from 'react'
 import { BookOpenCheck, Fingerprint, ListChecks, ShieldAlert, SquarePlus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
+import DashboardActionsBar, { type TDashboardAction } from './DashboardActionsBar'
 
-type DashboardAction = {
-  key: string
-  label: string
-  icon: React.ReactNode
-  onClick: () => void
-}
-
-const DashboardActions = () => {
+const DashboardComplianceActions = () => {
   const router = useRouter()
   const { data: orgPermission } = useOrganizationRoles()
   const { data: session } = useSession()
   const canCreateRisk = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRisk, session)
 
-  const actions: DashboardAction[] = [
+  const actions: TDashboardAction[] = [
     {
       key: 'tasks',
       label: 'View my tasks',
@@ -46,22 +39,7 @@ const DashboardActions = () => {
     },
   ]
 
-  const actionClassName = 'flex items-center gap-1.5 text-text-paragraph hover:text-muted-foreground transition-colors'
-
-  return (
-    <div className="flex flex-wrap items-center gap-3 text-sm">
-      <span className="text-muted-foreground">Quick actions</span>
-      {actions.map((action) => (
-        <React.Fragment key={action.key}>
-          <span className="text-border">|</span>
-          <button type="button" onClick={action.onClick} className={actionClassName}>
-            {action.icon}
-            {action.label}
-          </button>
-        </React.Fragment>
-      ))}
-    </div>
-  )
+  return <DashboardActionsBar actions={actions} />
 }
 
-export default DashboardActions
+export default DashboardComplianceActions
