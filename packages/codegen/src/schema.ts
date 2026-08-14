@@ -9781,6 +9781,7 @@ export interface GetTrustCenterQuery {
           ndaApproverGroupID: string | null
           logoFile: { id: string; base64: string | null } | null
           faviconFile: { id: string; base64: string | null } | null
+          heroImageFile: { id: string; base64: string | null } | null
           ndaApproverGroup: { id: string; displayName: string; name: string } | null
         } | null
         previewSetting: {
@@ -9805,6 +9806,7 @@ export interface GetTrustCenterQuery {
           updatedAt: any
           logoFile: { id: string; base64: string | null } | null
           faviconFile: { id: string; base64: string | null } | null
+          heroImageFile: { id: string; base64: string | null } | null
         } | null
         watermarkConfig: {
           id: string
@@ -9826,10 +9828,20 @@ export type UpdateTrustCenterSettingMutationVariables = Exact<{
   input: Types.UpdateTrustCenterSettingInput
   faviconFile?: any
   logoFile?: any
+  heroImageFile?: any
 }>
 
 export interface UpdateTrustCenterSettingMutation {
-  updateTrustCenterSetting: { trustCenterSetting: { id: string; logoRemoteURL: string | null; faviconRemoteURL: string | null; faviconFile: { id: string } | null; logoFile: { id: string } | null } }
+  updateTrustCenterSetting: {
+    trustCenterSetting: {
+      id: string
+      logoRemoteURL: string | null
+      faviconRemoteURL: string | null
+      faviconFile: { id: string } | null
+      logoFile: { id: string } | null
+      heroImageFile: { id: string } | null
+    }
+  }
 }
 
 export type CreateCustomDomainMutationVariables = Exact<{
