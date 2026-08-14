@@ -1,5 +1,5 @@
 import { type ColumnDef } from '@tanstack/react-table'
-import { type Subscriber } from '@repo/codegen/src/schema'
+import { type SubscribersNode } from '@/lib/graphql-hooks/subscriber'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { createRowActionsColumn } from '@/components/shared/crud-base/columns/row-actions-column'
@@ -11,7 +11,7 @@ type GetSubscriberColumnsArgs = {
   onDelete: (email: string) => void
 }
 
-const subscriberStatusLabel = (subscriber: Subscriber): string => {
+const subscriberStatusLabel = (subscriber: SubscribersNode): string => {
   if (subscriber.unsubscribed) {
     return 'Unsubscribed'
   }
@@ -23,8 +23,8 @@ const subscriberStatusLabel = (subscriber: Subscriber): string => {
   return 'Pending'
 }
 
-export const getSubscriberColumns = ({ canEdit, onUnsubscribe, onDelete }: GetSubscriberColumnsArgs): ColumnDef<Subscriber>[] => {
-  const columns: ColumnDef<Subscriber>[] = [
+export const getSubscriberColumns = ({ canEdit, onUnsubscribe, onDelete }: GetSubscriberColumnsArgs): ColumnDef<SubscribersNode>[] => {
+  const columns: ColumnDef<SubscribersNode>[] = [
     { accessorKey: 'email', header: 'Email', size: 260 },
     {
       id: 'status',
@@ -47,7 +47,7 @@ export const getSubscriberColumns = ({ canEdit, onUnsubscribe, onDelete }: GetSu
 
   if (canEdit) {
     columns.push(
-      createRowActionsColumn<Subscriber>({
+      createRowActionsColumn<SubscribersNode>({
         actions: [
           { label: 'Unsubscribe', icon: <BellOff size={16} />, onClick: (row) => onUnsubscribe(row.email), disabled: (row) => !!row.unsubscribed },
           { label: 'Remove', icon: <Trash2 size={16} />, onClick: (row) => onDelete(row.email) },

@@ -32,10 +32,10 @@ import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/b
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 const fieldItemSchema = z.object({
-  value: z.nativeEnum(SelectOptionBulkEditTasks).optional(),
+  value: z.enum(SelectOptionBulkEditTasks).optional(),
   selectedObject: z
     .object({
-      selectOptionEnum: z.nativeEnum(SelectOptionBulkEditTasks),
+      selectOptionEnum: z.enum(SelectOptionBulkEditTasks),
       name: z.string(),
       placeholder: z.string(),
       options: z
@@ -46,7 +46,7 @@ const fieldItemSchema = z.object({
           }),
         )
         .optional(),
-      inputType: z.nativeEnum(InputType),
+      inputType: z.enum(InputType),
     })
     .optional(),
   selectedValue: z.union([z.string(), z.array(z.string())]).optional(),

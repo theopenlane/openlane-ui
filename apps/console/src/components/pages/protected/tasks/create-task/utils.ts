@@ -33,7 +33,7 @@ export const buildTaskPayload = async (
   const details = data?.details ? await plateEditorHelper.convertToHtml(data.details as Value) : undefined
   return {
     taskKindName: data?.taskKindName,
-    due: data?.due ? data.due.toISOString() : undefined,
+    due: data?.due ? new Date(data.due).toISOString() : undefined,
     title: data?.title,
     details,
     assigneeID: data?.assigneeID,

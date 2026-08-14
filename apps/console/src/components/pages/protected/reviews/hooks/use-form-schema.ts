@@ -12,7 +12,7 @@ const formSchema = z.object({
   summary: z.string().optional(),
   category: z.string().optional(),
   classification: z.string().optional(),
-  status: z.preprocess((v) => (v === '' ? null : v), z.nativeEnum(ReviewReviewStatus).optional().nullable()),
+  status: z.preprocess((v) => (v === '' ? null : v), z.enum(ReviewReviewStatus).optional().nullable()),
   source: z.string().optional(),
   reporter: z.string().optional(),
   approved: z.boolean().optional(),
@@ -35,7 +35,7 @@ const formSchema = z.object({
 })
 
 export const bulkEditFieldSchema = z.object({
-  status: z.nativeEnum(ReviewReviewStatus).optional().nullable(),
+  status: z.enum(ReviewReviewStatus).optional().nullable(),
   category: z.string().optional(),
   classification: z.string().optional(),
   source: z.string().optional(),

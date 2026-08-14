@@ -2,7 +2,7 @@
 
 import type { TElement } from 'platejs'
 
-import { faker } from '@faker-js/faker'
+import { loremSentence } from '@repo/ui/components/editor/placeholder-text.ts'
 import { CopilotPlugin } from '@platejs/ai/react'
 import { serializeMd, stripMarkdown } from '@platejs/markdown'
 
@@ -32,7 +32,7 @@ export const CopilotKit = [
         onError: () => {
           // Mock the API response. Remove it when you implement the route /api/ai/copilot
           api.copilot.setBlockSuggestion({
-            text: stripMarkdown(faker.lorem.sentence()),
+            text: stripMarkdown(loremSentence()),
           })
         },
         onFinish: (_, completion) => {

@@ -1,8 +1,7 @@
-import { type User } from '@repo/codegen/src/schema'
-import { Avatar } from '@/components/shared/avatar/avatar'
+import { Avatar, type AvatarEntityLike } from '@/components/shared/avatar/avatar'
 
 type UserCellProps = {
-  user: User | undefined
+  user: AvatarEntityLike | undefined
   fallback?: string
   className?: string
 }
