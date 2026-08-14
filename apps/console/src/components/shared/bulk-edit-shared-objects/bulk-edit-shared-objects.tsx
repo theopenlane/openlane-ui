@@ -155,7 +155,7 @@ export const fieldItemSchema = z.object({
       selectOptionEnum: z.string(),
       name: z.string(),
       placeholder: z.string(),
-      inputType: z.nativeEnum(InputType),
+      inputType: z.enum(InputType),
       options: z
         .array(
           z.object({
@@ -164,8 +164,8 @@ export const fieldItemSchema = z.object({
           }),
         )
         .optional(),
-      allowedObjectTypes: z.array(z.nativeEnum(ObjectTypeObjects)).readonly().optional(),
-      objectType: z.nativeEnum(ObjectTypeObjects).optional(),
+      allowedObjectTypes: z.array(z.enum(ObjectTypeObjects)).readonly().optional(),
+      objectType: z.enum(ObjectTypeObjects).optional(),
     })
     .optional(),
   selectedValue: z.union([z.string(), z.array(z.string())]).optional(),
@@ -252,7 +252,9 @@ export const getAssociationSelectedCount = (selectedAssociations?: Record<string
   return Object.values(selectedAssociations).reduce((sum, ids) => sum + (ids?.length ?? 0), 0)
 }
 
-export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions: Option[], categoryOptions: Option[]): SelectOptionSelectedObject[] => {
+export type BulkEditGroup = Pick<Group, 'id' | 'name' | 'displayName'>
+
+export const getAllSelectOptionsForBulkEditRisks = (groups: BulkEditGroup[], typeOptions: Option[], categoryOptions: Option[]): SelectOptionSelectedObject[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskDelegate,
@@ -312,7 +314,7 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions
   ]
 }
 
-export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject<SelectOptionBulkEditProcedures>[] => {
+export const getAllSelectOptionsForBulkEditProcedures = (groups: BulkEditGroup[], typeOptions: Option[]): SelectOptionSelectedObject<SelectOptionBulkEditProcedures>[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureDelegate,
@@ -351,7 +353,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[], typeOp
   ]
 }
 
-export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
+export const getAllSelectOptionsForBulkEditPolicies = (groups: BulkEditGroup[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditPolicies.PolicyDelegate,
@@ -391,7 +393,7 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[], typeOpti
   ]
 }
 
-export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
+export const useGetAllSelectOptionsForBulkEditControls = (groups: BulkEditGroup[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
   const { programOptions } = useProgramSelect({})
 
   return [

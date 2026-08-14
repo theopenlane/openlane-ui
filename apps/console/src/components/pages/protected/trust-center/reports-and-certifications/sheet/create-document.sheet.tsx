@@ -41,12 +41,12 @@ import { useSession } from 'next-auth/react'
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
   category: z.string().min(1, 'Category is required'),
-  visibility: z.nativeEnum(TrustCenterDocTrustCenterDocumentVisibility, {
-    required_error: 'Visibility is required',
+  visibility: z.enum(TrustCenterDocTrustCenterDocumentVisibility, {
+    error: (issue) => (issue.input === undefined ? 'Visibility is required' : undefined),
   }),
   tags: z.array(z.string()).optional(),
   file: z.instanceof(File).optional(),
-  status: z.nativeEnum(TrustCenterDocWatermarkStatus).optional(),
+  status: z.enum(TrustCenterDocWatermarkStatus).optional(),
   standardID: z.string().optional(),
 })
 

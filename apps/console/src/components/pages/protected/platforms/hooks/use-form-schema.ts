@@ -12,7 +12,7 @@ const formSchema = z.object({
   businessPurpose: z.custom<Value | string>().optional(),
   dataFlowSummary: z.custom<Value | string>().optional(),
   trustBoundaryDescription: z.custom<Value | string>().optional(),
-  status: z.nativeEnum(PlatformPlatformStatus).optional(),
+  status: z.enum(PlatformPlatformStatus).optional(),
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
   containsPii: z.boolean().optional(),

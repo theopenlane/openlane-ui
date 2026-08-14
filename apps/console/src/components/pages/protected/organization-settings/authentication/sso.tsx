@@ -266,7 +266,7 @@ const SSOPage = () => {
   const formSchema = useMemo(
     () =>
       z.object({
-        identityProvider: z.enum(identityProviderOptions as [string, ...string[]], { required_error: 'Identity provider is required' }),
+        identityProvider: z.enum(identityProviderOptions, { error: (issue) => (issue.input === undefined ? 'Identity provider is required' : undefined) }),
         identityProviderClientID: z.string().min(1, 'Client ID is required'),
         identityProviderClientSecret: z.string().min(1, 'Client Secret is required'),
         oidcDiscoveryEndpoint: z.string().min(1, 'OIDC Discovery Endpoint is required').url('Enter a valid URL'),

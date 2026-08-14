@@ -21,7 +21,6 @@ import {
   InputType,
   SelectOptionBulkEditProcedures,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
-import { type Group } from '@repo/codegen/src/schema'
 import { useBulkEditProcedure } from '@/lib/graphql-hooks/procedure'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -31,13 +30,13 @@ import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/b
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 const fieldItemSchema = z.object({
-  value: z.nativeEnum(SelectOptionBulkEditProcedures).optional(),
+  value: z.enum(SelectOptionBulkEditProcedures).optional(),
   selectedObject: z
     .object({
-      selectOptionEnum: z.nativeEnum(SelectOptionBulkEditProcedures),
+      selectOptionEnum: z.enum(SelectOptionBulkEditProcedures),
       name: z.string(),
       placeholder: z.string(),
-      inputType: z.nativeEnum(InputType),
+      inputType: z.enum(InputType),
       options: z
         .array(
           z.object({
@@ -82,7 +81,7 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
 
   const allOptionSelects = useMemo(() => {
     if (!groups || !isTypesSuccess) return []
-    return getAllSelectOptionsForBulkEditProcedures(groups?.filter((g): g is Group => Boolean(g)) ?? [], enumOptions)
+    return getAllSelectOptionsForBulkEditProcedures(groups?.filter((g): g is NonNullable<typeof g> => Boolean(g)) ?? [], enumOptions)
   }, [groups, isTypesSuccess, enumOptions])
 
   const { control, handleSubmit } = form

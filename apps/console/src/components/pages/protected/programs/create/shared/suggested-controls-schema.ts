@@ -4,7 +4,7 @@ import { MappedControlMappingType } from '@repo/codegen/src/schema'
 export const suggestedControlMappingSchema = z.object({
   fromRefCodes: z.array(z.string()),
   toRefCodes: z.array(z.string()),
-  mappingType: z.nativeEnum(MappedControlMappingType),
+  mappingType: z.enum(MappedControlMappingType),
   confidence: z.number().nullable().optional(),
   relation: z.string().nullable().optional(),
 })

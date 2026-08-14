@@ -3,7 +3,7 @@ import { Controller } from 'react-hook-form'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { type QueryClient, useQueryClient } from '@tanstack/react-query'
-import { type User } from '@repo/codegen/src/schema'
+import { type AvatarEntityLike } from '@/components/shared/avatar/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore.ts'
 import { Form } from '@repo/ui/form'
@@ -14,7 +14,7 @@ import { type Option } from '@repo/ui/multiple-selector'
 
 type EditableUserCellProps = {
   label: string
-  entity?: User | null
+  entity?: AvatarEntityLike | null
   onSubmitData: (
     data: EditableFieldFormData,
     helpers: {

@@ -23,7 +23,6 @@ import {
   type BulkEditFieldsFormValues,
   type SelectOptionSelectedObject,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
-import { type Group } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { EditableSelectFromQuery } from '../propereties-card/fields/editable-select-from-query'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -62,7 +61,7 @@ const useBulkEditOptionData = () => {
 
   const groups = useMemo(() => {
     if (!data) return []
-    return data.groups?.edges?.map((edge) => edge?.node).filter((group): group is Group => Boolean(group)) ?? []
+    return data.groups?.edges?.map((edge) => edge?.node).filter((group): group is NonNullable<typeof group> => Boolean(group)) ?? []
   }, [data])
 
   return { groups, enumOptions, createControlType }

@@ -131,7 +131,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
   }
 
   const handleExportCSV = () => {
-    const visibleFiles = files.filter((f): f is TFile => !!f)
+    const visibleFiles = files.filter((f) => !!f)
     if (visibleFiles.length === 0) return
 
     exportToCSV(
@@ -146,7 +146,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
     )
   }
 
-  const validFiles = files.filter((f): f is TFile => !!f)
+  const validFiles = files.filter((f) => !!f)
 
   const isClassifiedAsEvidence = (file: TFile) => fileToEvidenceMap.has(file.id)
 
