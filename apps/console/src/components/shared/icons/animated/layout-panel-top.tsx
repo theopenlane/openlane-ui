@@ -64,20 +64,17 @@ const LayoutPanelTopIconBase = ({ ref, className, size, ...props }: LayoutPanelT
         width={size ?? '100%'}
         xmlns="http://www.w3.org/2000/svg"
       >
+        {/* panels stay fully visible and nudge from their resting position so the glyph never blanks */}
         <motion.rect
           animate={controls}
           height="7"
           initial="normal"
           rx="1"
           variants={{
-            normal: { opacity: 1, translateY: 0 },
+            normal: { translateY: 0 },
             animate: {
-              opacity: [0, 1],
-              translateY: [-5, 0],
-              transition: {
-                opacity: { duration: 0.5, times: [0.2, 1] },
-                duration: 0.5,
-              },
+              translateY: [0, -1.5, 0],
+              transition: { duration: 0.4 },
             },
           }}
           width="18"
@@ -90,15 +87,10 @@ const LayoutPanelTopIconBase = ({ ref, className, size, ...props }: LayoutPanelT
           initial="normal"
           rx="1"
           variants={{
-            normal: { opacity: 1, translateX: 0 },
+            normal: { translateX: 0 },
             animate: {
-              opacity: [0, 1],
-              translateX: [-10, 0],
-              transition: {
-                opacity: { duration: 0.7, times: [0.5, 1] },
-                translateX: { delay: 0.3 },
-                duration: 0.5,
-              },
+              translateX: [0, -1.5, 0],
+              transition: { duration: 0.4, delay: 0.15 },
             },
           }}
           width="7"
@@ -111,15 +103,10 @@ const LayoutPanelTopIconBase = ({ ref, className, size, ...props }: LayoutPanelT
           initial="normal"
           rx="1"
           variants={{
-            normal: { opacity: 1, translateX: 0 },
+            normal: { translateX: 0 },
             animate: {
-              opacity: [0, 1],
-              translateX: [10, 0],
-              transition: {
-                opacity: { duration: 0.8, times: [0.5, 1] },
-                translateX: { delay: 0.4 },
-                duration: 0.5,
-              },
+              translateX: [0, 1.5, 0],
+              transition: { duration: 0.4, delay: 0.15 },
             },
           }}
           width="7"

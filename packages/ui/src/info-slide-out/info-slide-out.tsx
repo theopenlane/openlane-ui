@@ -12,11 +12,30 @@ type InfoSlideOutProps = {
   docsUrl?: string
   icon?: React.ReactNode
   width?: number
+  resizable?: boolean
+  edgeHandle?: React.ReactNode
+  hideClose?: boolean
+  /** non-modal leaves the page (and things like chat widgets) interactive while open */
+  modal?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }
 
-export function InfoSlideOut({ title, subtitle, children, trigger, docsUrl, icon, width = 440, open: controlledOpen, onOpenChange }: InfoSlideOutProps) {
+export function InfoSlideOut({
+  title,
+  subtitle,
+  children,
+  trigger,
+  docsUrl,
+  icon,
+  width = 440,
+  resizable = false,
+  edgeHandle,
+  hideClose = false,
+  modal = true,
+  open: controlledOpen,
+  onOpenChange,
+}: InfoSlideOutProps) {
   const [internalOpen, setInternalOpen] = React.useState(false)
   const isControlled = controlledOpen !== undefined
   const open = isControlled ? controlledOpen : internalOpen
@@ -28,7 +47,7 @@ export function InfoSlideOut({ title, subtitle, children, trigger, docsUrl, icon
   const handleClose = () => setOpen(false)
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={setOpen} modal={modal}>
       {trigger
         ? trigger(handleOpen)
         : !isControlled && (
@@ -39,13 +58,17 @@ export function InfoSlideOut({ title, subtitle, children, trigger, docsUrl, icon
       <SheetContent
         initialWidth={width}
         minWidth={380}
-        resizable={false}
+        resizable={resizable}
+        edge={edgeHandle}
+        overlay={modal}
         onClick={(e) => e.stopPropagation()}
         header={
           <SheetHeader>
-            <div className="flex items-center justify-between pb-1">
-              <PanelRightClose aria-label="Close info panel" size={16} className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors" onClick={() => setOpen(false)} />
-            </div>
+            {!hideClose && (
+              <div className="flex items-center justify-between pb-1">
+                <PanelRightClose aria-label="Close info panel" size={16} className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors" onClick={() => setOpen(false)} />
+              </div>
+            )}
             <div className="flex items-stretch gap-2">
               {icon}
               <div className="flex flex-col justify-center">
