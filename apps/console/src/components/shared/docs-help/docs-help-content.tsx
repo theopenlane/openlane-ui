@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
-import { ArrowLeft, ExternalLink, SearchIcon, Sparkles } from 'lucide-react'
+import { ArrowLeft, ExternalLink, LoaderCircle, SearchIcon, Sparkles } from 'lucide-react'
 import ReactMarkdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Button } from '@repo/ui/button'
@@ -122,12 +122,13 @@ export const DocsHelpContent = ({ query, prefer, intro, section, enabled }: Docs
   const activePrefer = asked ? asked.prefer : prefer
   const showIntro = !!intro && !asked
 
-  const { data, isLoading, isError } = useDocsHelp(activeQuery, enabled, !showIntro, activePrefer, section)
+  const { data, isLoading, isFetching, isError } = useDocsHelp(activeQuery, enabled, !showIntro, activePrefer, section)
 
   const chunks = data?.chunks
   const best = chunks?.[0]
   const summary = data?.summary ?? ''
   const showSummaryBox = !showIntro && (isLoading || !!summary || !!asked)
+  const isSearching = isFetching && !!asked
 
   const openSupport = usePlugSupportWidget()
 
@@ -159,7 +160,13 @@ export const DocsHelpContent = ({ query, prefer, intro, section, enabled }: Docs
     <div className="flex flex-col gap-4 pt-1">
       <form onSubmit={submitFollowUp} className="flex items-center gap-2 pb-4 border-b border-border">
         <div className="flex-1">
-          <Input maxWidth icon={<SearchIcon size={16} />} placeholder="Ask the docs, e.g. how do I link evidence to a control?" value={followUp} onChange={(e) => setFollowUp(e.currentTarget.value)} />
+          <Input
+            maxWidth
+            icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
+            placeholder="Ask the docs, e.g. how do I link evidence to a control?"
+            value={followUp}
+            onChange={(e) => setFollowUp(e.currentTarget.value)}
+          />
         </div>
         <Button type="submit" variant="secondary" disabled={!followUp.trim()}>
           Search
