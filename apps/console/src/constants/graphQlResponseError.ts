@@ -7,7 +7,16 @@ export enum GraphQlResponseError {
   AlreadyExistsErrorCode = 'ALREADY_EXISTS',
   MaxAttemptsErrorCode = 'MAX_ATTEMPTS',
   BadRequestErrorCode = 'BAD_REQUEST',
+  NoAccessToModuleErrorCode = 'MODULE_NO_ACCESS',
+  BulkActionIncompleteErrorCode = 'BULK_ACTION_INCOMPLETELY_APPLIED',
+  InsufficientScopesErrorCode = 'INSUFFICIENT_SCOPES',
+  GraphQlValidationFailedCode = 'GRAPHQL_VALIDATION_FAILED',
+  GraphQlParseFailedCode = 'GRAPHQL_PARSE_FAILED',
 }
+
+export const invalidRequestMessage = 'We couldn’t complete this request because the server rejected it as invalid. Reach out to support if the problem continues.'
+
+export const invalidQueryFilterMessage = 'Try clearing your filters and searching again, and reach out to support if it keeps failing.'
 
 export const errorCodeMessages: Record<string, string> = {
   NOT_FOUND: 'Resource could not be found.',
@@ -20,4 +29,8 @@ export const errorCodeMessages: Record<string, string> = {
   MAX_ATTEMPTS: 'Max attempts to resend email reached, please create a new request or reach out to support.',
   BAD_REQUEST: 'Something’s not right. Please check your input and try again.',
   MODULE_NO_ACCESS: 'You do not have access to module.',
+  BULK_ACTION_INCOMPLETELY_APPLIED: 'Some items could not be updated, most likely because you do not have permission to change them.',
+  INSUFFICIENT_SCOPES: 'This API token is missing the scopes required for this request.',
+  GRAPHQL_VALIDATION_FAILED: invalidRequestMessage,
+  GRAPHQL_PARSE_FAILED: invalidRequestMessage,
 }

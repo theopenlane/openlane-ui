@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { useGetAllSubscribers } from '@/lib/graphql-hooks/subscriber'
@@ -11,7 +11,7 @@ import { SUBSCRIBERS_SORT_FIELDS } from '@/components/pages/protected/organizati
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { exportToCSV } from '@/utils/exportToCSV'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
 export const SubscribersTable = () => {
@@ -19,7 +19,6 @@ export const SubscribersTable = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.SUBSCRIBER)
-  const { errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.SUBSCRIBER, SubscriberOrderField, [
     {
       field: SubscriberOrderField.created_at,
@@ -34,7 +33,7 @@ export const SubscribersTable = () => {
     }
   }, [filters, debouncedSearch])
 
-  const { subscribers, isError, isLoading, paginationMeta } = useGetAllSubscribers({
+  const { subscribers, error, isLoading, paginationMeta } = useGetAllSubscribers({
     where: whereFilter,
     orderBy,
     pagination,
@@ -45,14 +44,7 @@ export const SubscribersTable = () => {
     exportToCSV(subscribers, exportableSubscriberColumns, 'subscribers')
   }
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load subscribers',
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: 'Failed to load subscribers' })
 
   return (
     <div>

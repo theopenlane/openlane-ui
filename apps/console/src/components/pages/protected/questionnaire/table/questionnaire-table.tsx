@@ -16,6 +16,7 @@ import { exportToCSV } from '@/utils/exportToCSV'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { resolveAuthorName } from '@/lib/authors'
 import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -84,7 +85,7 @@ export const QuestionnairesTable = () => {
 
   const {
     assessments,
-    isError,
+    error: queryError,
     isLoading: fetching,
     paginationMeta,
   } = useAssessments({
@@ -227,14 +228,7 @@ export const QuestionnairesTable = () => {
     ])
   }, [setCrumbs])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load questionnaires',
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error: queryError, description: 'Failed to load questionnaires' })
 
   const handleClearSelectedQuestionnaires = () => {
     setSelectedQuestionnaires([])

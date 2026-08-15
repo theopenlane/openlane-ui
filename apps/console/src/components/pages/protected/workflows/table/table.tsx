@@ -6,6 +6,7 @@ import { type WorkflowDefinitionWhereInput, type WorkflowDefinitionOrderField } 
 import { type WorkflowDefinitionsNodeNonNull, useWorkflowDefinitionsWithFilter, useDeleteWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { WORKFLOW_SORT_FIELDS } from './table-config'
 import { getColumns } from './columns'
 import { type TTableProps } from '@/components/shared/crud-base/page'
@@ -49,7 +50,7 @@ const TableComponent = ({
     isLoading: fetching,
     data,
     isFetching,
-    isError,
+    error: queryError,
   } = useWorkflowDefinitionsWithFilter({
     where: whereFilter,
     orderBy,
@@ -66,14 +67,7 @@ const TableComponent = ({
     }
   }, [permission?.roles, setColumnVisibility, canEdit, session])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: `Failed to load ${objectName.toLowerCase()}`,
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error: queryError, description: `Failed to load ${objectName.toLowerCase()}` })
 
   const handleDelete = async () => {
     if (!deleteId) return

@@ -5,7 +5,7 @@ import { DataTable } from '@repo/ui/data-table'
 import { type SystemDetail, type SystemDetailOrderField, type SystemDetailWhereInput } from '@repo/codegen/src/schema'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { type SystemDetailsNodeNonNull, useSystemDetailsWithFilter } from '@/lib/graphql-hooks/system-detail'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -47,15 +47,13 @@ const TableComponent = ({
     isLoading: fetching,
     data,
     isFetching,
-    isError,
+    error,
   } = useSystemDetailsWithFilter({
     where: whereFilter,
     orderBy,
     pagination,
     enabled: true,
   })
-
-  const { errorNotification } = useNotification()
 
   const userIds = useMemo(() => {
     if (!items) {
@@ -93,14 +91,7 @@ const TableComponent = ({
     }
   }, [permission?.roles, setColumnVisibility, canEdit, session])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: `Failed to load ${objectName.toLowerCase()}`,
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}` })
 
   const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 

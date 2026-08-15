@@ -19,6 +19,7 @@ import EvidenceTableToolbar from '@/components/pages/protected/evidence/table/ev
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
@@ -81,7 +82,7 @@ export const EvidenceTable = () => {
     return orderBy
   }, [orderBy])
 
-  const { evidences, isError, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: filters !== null })
+  const { evidences, error: queryError, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: filters !== null })
   const defaultVisibility: VisibilityState = {
     id: false,
     collectionProcedure: false,
@@ -163,14 +164,7 @@ export const EvidenceTable = () => {
     ])
   }, [setCrumbs])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load evidence',
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error: queryError, description: 'Failed to load evidence' })
 
   const handleRowClick = (rowData: Evidence) => {
     replace({ id: rowData.id })
