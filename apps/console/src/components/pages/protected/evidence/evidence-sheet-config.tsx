@@ -1,6 +1,8 @@
 import { type GetAllMappedControlsQuery, MappedControlMappingSource, type MappedControlWhereInput } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
+export const EDIT_ASSOCIATIONS_PARAM = 'editAssociationsFor'
+
 export const EVIDENCE_ASSOCIATION_FIELDS = [
   'controlObjectiveIDs',
   'subcontrolIDs',
