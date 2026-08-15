@@ -72,7 +72,7 @@ export const SendTestEmailDialog: React.FC<SendTestEmailDialogProps> = ({ campai
         </div>
 
         <div className="flex gap-3 rounded-md border border-border bg-muted/40 p-3">
-          <Info size={16} className="mt-0.5 shrink-0 text-brand" />
+          <Info size={16} className="mt-0.5 shrink-0" />
           <div className="flex flex-col gap-1">
             <span className="text-sm font-medium">About test emails</span>
             <span className="text-xs text-muted-foreground">
