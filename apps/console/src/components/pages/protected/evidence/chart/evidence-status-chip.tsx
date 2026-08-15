@@ -7,8 +7,8 @@ import { type TChartData } from '@/components/pages/protected/evidence/chart/evi
 import { EvidenceStatusColors } from '@/components/shared/enum-mapper/evidence-enum.tsx'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { type EvidenceWhereInput } from '@repo/codegen/src/schema'
-import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
-import Link from 'next/link'
+import { saveFilters, type TFilterStateFor } from '@/components/shared/table-filter/filter-storage.ts'
+import { type TEvidenceFilterKey } from '@/components/pages/protected/evidence/table/table-config.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useOrganization } from '@/hooks/useOrganization'
 
@@ -31,7 +31,7 @@ const EvidenceStatusChip: React.FC<TEvidenceStatusChipProps> = ({ programId, dat
 
         {tooltipOpen && (
           <TooltipContent side="top" className="max-w-[550px]">
-            <EvidenceTooltipContent evidenceData={data} programId={programId} />
+            <EvidenceTooltipContent evidenceData={data} programId={programId} onFilterApplied={() => setTooltipOpen(false)} />
           </TooltipContent>
         )}
       </Tooltip>
@@ -42,9 +42,10 @@ const EvidenceStatusChip: React.FC<TEvidenceStatusChipProps> = ({ programId, dat
 type TEvidenceTooltipContentProps = {
   evidenceData: TChartData
   programId: string
+  onFilterApplied: () => void
 }
 
-const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ programId, evidenceData }) => {
+const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ programId, evidenceData, onFilterApplied }) => {
   const { currentOrgId } = useOrganization()
   const where: EvidenceWhereInput = {
     hasProgramsWith: programId ? [{ id: programId }] : undefined,
@@ -62,12 +63,12 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
   const columnClass = evidences.length <= 1 ? 'grid-cols-1' : evidences.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
 
   const handleClick = () => {
-    const filters: TFilterState = {
-      ...(programId ? { hasProgramsWith: [programId] } : {}),
-      status: [evidenceData.status],
+    const filters: TFilterStateFor<TEvidenceFilterKey> = {
+      statusIn: [evidenceData.status],
     }
 
     saveFilters(TableKeyEnum.EVIDENCE, filters, currentOrgId)
+    onFilterApplied()
   }
 
   return (
@@ -86,9 +87,9 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
           <span className="font-medium">Browse by filter</span>
         </div>
         <div className="w-full border-b">
-          <Link href={`/evidence`} onClick={handleClick}>
-            <span className="text-primary size-fit pl-3 pb-2 hover:underline flex items-center gap-1 cursor-pointer">{evidenceData.name}</span>
-          </Link>
+          <button type="button" onClick={handleClick} className="text-primary size-fit pl-3 pb-2 hover:underline flex items-center gap-1 cursor-pointer">
+            {evidenceData.name}
+          </button>
         </div>
 
         <div className="flex items-center gap-1">

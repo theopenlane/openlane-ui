@@ -7,19 +7,15 @@ import { useProgramEvidenceStats } from '@/lib/graphql-hooks/program'
 import { useSubmittedEvidenceTrend, useAcceptedEvidenceTrend, useRejectedEvidenceTrend } from '@/lib/graphql-hooks/evidence'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import Link from 'next/link'
-import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { saveFilters, type TFilterStateFor } from '@/components/shared/table-filter/filter-storage.ts'
+import { type TEvidenceFilterKey } from '@/components/pages/protected/evidence/table/table-config.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
 import { useOrganization } from '@/hooks/useOrganization'
 
-type TFilter = {
-  field: string
-  value: string
-}
-
 interface Stat {
   title: string
-  filter: TFilter
+  status: EvidenceEvidenceStatus
   percentage: number
   count: number
   total: number
@@ -57,16 +53,16 @@ const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNo
     return trendType === 'up' ? 'green' : 'red'
   }
 
-  const handleClick = (filter: TFilter) => {
-    const filters: TFilterState = {
-      [filter.field]: [filter.value],
+  const handleClick = () => {
+    const filters: TFilterStateFor<TEvidenceFilterKey> = {
+      statusIn: [stat.status],
     }
 
     saveFilters(TableKeyEnum.EVIDENCE, filters, currentOrgId)
   }
 
   return (
-    <Link className="w-full" href={`/evidence?${programId ? `programId=${programId}&` : ''}`} onClick={() => handleClick(stat.filter)}>
+    <Link className="w-full" href={programId ? `/evidence?programId=${encodeURIComponent(programId)}` : '/evidence'} onClick={handleClick}>
       <Card className={wrapper()}>
         <CardContent className={content() + ' relative'}>
           <div className="flex items-center justify-between">
@@ -147,10 +143,7 @@ const StatsCards: React.FC = () => {
   const dynamicStats: Stat[] = [
     {
       title: 'Evidence Submitted',
-      filter: {
-        field: 'status',
-        value: EvidenceEvidenceStatus.READY_FOR_AUDITOR,
-      },
+      status: EvidenceEvidenceStatus.READY_FOR_AUDITOR,
       percentage: total ? Math.round(((data?.submitted ?? 0) / total) * 100) : 0,
       count: data?.submitted ?? 0,
       total,
@@ -162,10 +155,7 @@ const StatsCards: React.FC = () => {
     },
     {
       title: 'Evidence Accepted',
-      filter: {
-        field: 'status',
-        value: EvidenceEvidenceStatus.AUDITOR_APPROVED,
-      },
+      status: EvidenceEvidenceStatus.AUDITOR_APPROVED,
       percentage: total ? Math.round(((data?.accepted ?? 0) / total) * 100) : 0,
       count: data?.accepted ?? 0,
       total,
@@ -177,10 +167,7 @@ const StatsCards: React.FC = () => {
     },
     {
       title: 'Evidence Rejected',
-      filter: {
-        field: 'status',
-        value: EvidenceEvidenceStatus.REJECTED,
-      },
+      status: EvidenceEvidenceStatus.REJECTED,
       percentage: total ? Math.round(((data?.rejected ?? 0) / total) * 100) : 0,
       count: data?.rejected ?? 0,
       total,

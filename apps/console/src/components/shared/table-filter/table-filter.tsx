@@ -21,6 +21,7 @@ import {
   loadQuickFilter,
   clearQuickFilters,
   getFiltersUpdatedEvent,
+  pickDeclaredFilterKeys,
 } from '@/components/shared/table-filter/filter-storage.ts'
 import Slider from '../slider/slider'
 import { Checkbox } from '@repo/ui/checkbox'
@@ -136,10 +137,10 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
 
   useEffect(() => {
     if (!storageEnabled || !pageKey) return
+    const declaredKeys = new Set(filterFields.map((f) => f.key))
+
     const listener = (e: CustomEvent) => {
-      const updated = e.detail as TFilterState
-      const validKeys = filterFields.map((f) => f.key)
-      const cleaned: TFilterState = Object.fromEntries(Object.entries(updated).filter(([key]) => validKeys.includes(key)))
+      const cleaned = pickDeclaredFilterKeys(e.detail as TFilterState, declaredKeys, pageKey)
 
       setValues((prev) => {
         const isSame = JSON.stringify(prev) === JSON.stringify(cleaned)

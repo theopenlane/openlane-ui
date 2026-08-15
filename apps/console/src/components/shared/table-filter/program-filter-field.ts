@@ -3,7 +3,7 @@ import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 
 type ProgramOption = { value: string; label: string }
 
-export const getProgramFilterFields = (programOptions: ProgramOption[], hasProgramAccess: boolean, label = 'Program Name'): FilterField[] =>
+export const getProgramFilterFields = (programOptions: ProgramOption[], hasProgramAccess: boolean, label = 'Program Name'): FilterField<'hasProgramsWith'>[] =>
   hasProgramAccess
     ? [
         {
