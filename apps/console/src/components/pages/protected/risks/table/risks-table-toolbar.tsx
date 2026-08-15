@@ -66,7 +66,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
   permission,
 }: TProps) => {
   const { data: session } = useSession()
-  const { programOptions, isSuccess: isProgramsSuccess } = useProgramSelect({})
+  const { programOptions, isSuccess: isProgramsSuccess, hasProgramAccess } = useProgramSelect()
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
@@ -92,10 +92,10 @@ const RisksTableToolbar: React.FC<TProps> = ({
   useEffect(() => {
     if (!isProgramsSuccess || !isTypeSuccess || !isCategorySuccess) return
     if (filterFields) return
-    const fields = getRisksFilterFields(programOptions, riskKindOptions ?? [], riskCategoryOptions ?? [], tagOptions)
+    const fields = getRisksFilterFields(programOptions, riskKindOptions ?? [], riskCategoryOptions ?? [], tagOptions, hasProgramAccess)
 
     setFilterFields(fields)
-  }, [filterFields, programOptions, riskKindOptions, riskCategoryOptions, isProgramsSuccess, isTypeSuccess, isCategorySuccess, tagOptions])
+  }, [filterFields, programOptions, riskKindOptions, riskCategoryOptions, isProgramsSuccess, hasProgramAccess, isTypeSuccess, isCategorySuccess, tagOptions])
 
   const handleBulkDelete = async () => {
     if (!selectedRisks) {

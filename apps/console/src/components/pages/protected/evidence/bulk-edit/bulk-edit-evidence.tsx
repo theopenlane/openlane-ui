@@ -5,6 +5,7 @@ import {
   type BulkEditEvidenceDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditEvidence,
+  useModuleFilteredSelectOptions,
   getMappedClearValue,
   InputType,
   bulkEditFieldsSchema,
@@ -44,9 +45,10 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
   const watchedFields = useWatch({ control, name: 'fieldsArray' }) ?? []
   const hasFieldsToUpdate = checkHasFieldsToUpdate(watchedFields)
 
-  const allOptionSelects = useMemo(() => {
+  const unfilteredOptionSelects = useMemo(() => {
     return getAllSelectOptionsForBulkEditEvidence()
   }, [])
+  const allOptionSelects = useModuleFilteredSelectOptions(unfilteredOptionSelects)
 
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
