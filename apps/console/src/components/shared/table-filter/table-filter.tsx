@@ -30,6 +30,7 @@ import { DropdownSearchField } from '../filter-components/dropdown-search-field'
 import { DropdownSearchMultiselect } from '../filter-components/dropdown-search-multiselect-field'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useSession } from 'next-auth/react'
+import { isNullFilterValue, NULL_FILTER_OPTIONS, type TNullState } from '@/components/shared/table-filter/null-filter.ts'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
@@ -221,6 +222,23 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
     [resetQuickFilters],
   )
 
+  const handleNullStateChange = useCallback(
+    (key: string, nullState?: TNullState) => {
+      userEditedRef.current = true
+      resetQuickFilters(false)
+      setValues((prev) => {
+        const next: TFilterState = { ...prev }
+        if (nullState) {
+          next[key] = { nullState }
+        } else {
+          delete next[key]
+        }
+        return next
+      })
+    },
+    [resetQuickFilters],
+  )
+
   const applyFilters = useCallback(() => {
     const activeQuickFilter = getActiveQuickFilter()
     if (activeQuickFilter) {
@@ -244,7 +262,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
       return true
     })
 
-  const renderField = useCallback(
+  const renderFieldEditor = useCallback(
     (field: FilterField) => {
       const val = values[field.key]
 
@@ -403,6 +421,33 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
     },
     [values, handleChange],
   )
+
+  const renderField = (field: FilterField) => {
+    if (!field.nullableKey) return renderFieldEditor(field)
+
+    const val = values[field.key]
+    const activeNullState = isNullFilterValue(val) ? val.nullState : undefined
+
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap gap-2">
+          {NULL_FILTER_OPTIONS.map((option) => (
+            <Button
+              key={option.label}
+              size="sm"
+              variant="tag"
+              aria-pressed={activeNullState === option.value}
+              className={cn('font-normal', activeNullState === option.value && 'is-active')}
+              onClick={() => handleNullStateChange(field.key, option.value)}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
+        {!activeNullState && renderFieldEditor(field)}
+      </div>
+    )
+  }
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
