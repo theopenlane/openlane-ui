@@ -1083,3 +1083,29 @@ export const INSERT_CONTROL_PLATE_COMMENT = gql`
     }
   }
 `
+
+// Template controls with the framework controls they map to, so the console can
+// index suggestions by ref code without a lookup per control
+export const GET_TEMPLATE_CONTROLS_WITH_MAPPINGS = gql`
+  query GetTemplateControlsWithMappings($where: ControlWhereInput, $after: Cursor, $first: Int) {
+    controls(where: $where, after: $after, first: $first) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          id
+          refCode
+          category
+          description
+          relatedControls {
+            id
+            refCode
+            referenceFramework
+          }
+        }
+      }
+    }
+  }
+`

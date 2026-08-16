@@ -1,4 +1,4 @@
-import { SIMILARITY_THRESHOLD, isWeakTitle, parseExampleControls, textSimilarity } from './example-controls'
+import { SIMILARITY_THRESHOLD, existingRefCodePrefix, isWeakTitle, orgRefCodeFromTemplate, textSimilarity } from './example-controls'
 
 describe('isWeakTitle', () => {
   it('treats an empty or stub title as weak', () => {
@@ -36,26 +36,46 @@ describe('textSimilarity', () => {
   })
 })
 
-describe('parseExampleControls', () => {
-  const section = ['* **A1.1.1** - Capacity is monitored continuously', '* **A1.1.2** - Systems are reviewed annually', 'not a bullet'].join('\n')
-
-  it('reads ref code and description from doc bullets', () => {
-    expect(parseExampleControls(section)).toEqual([
-      { refCode: 'A1.1.1', title: '', description: 'Capacity is monitored continuously' },
-      { refCode: 'A1.1.2', title: '', description: 'Systems are reviewed annually' },
-    ])
+describe('orgRefCodeFromTemplate', () => {
+  it('swaps the OL prefix for the org abbreviation', () => {
+    expect(orgRefCodeFromTemplate('OL-12.06', 'Acme Corp')).toBe('AC-12.06')
   })
 
-  it('drops suggestions the org already has, case insensitively', () => {
-    expect(parseExampleControls(section, ['a1.1.1']).map((row) => row.refCode)).toEqual(['A1.1.2'])
+  it('handles a single word org name', () => {
+    expect(orgRefCodeFromTemplate('OL-01.01', 'Microsoft')).toBe('MI-01.01')
   })
 
-  it('strips inline markdown from the bullet', () => {
-    const linked = '* **[A2.1](https://example.com)** - Backups are **tested** quarterly'
-    expect(parseExampleControls(linked)).toEqual([{ refCode: 'A2.1', title: '', description: 'Backups are tested quarterly' }])
+  it('keeps the OL prefix when the name gives nothing to abbreviate', () => {
+    expect(orgRefCodeFromTemplate('OL-12.06', '')).toBe('OL-12.06')
+    expect(orgRefCodeFromTemplate('OL-12.06', undefined)).toBe('OL-12.06')
   })
 
-  it('returns nothing for a section with no bullets', () => {
-    expect(parseExampleControls('No examples here.')).toEqual([])
+  it('leaves a ref code that is not an OL template alone', () => {
+    expect(orgRefCodeFromTemplate('CC6.1', 'Acme Corp')).toBe('CC6.1')
+  })
+})
+
+describe('existingRefCodePrefix', () => {
+  it('reads the prefix the org already uses', () => {
+    expect(existingRefCodePrefix(['MS-01.01', 'MS-02.03'])).toBe('MS')
+  })
+
+  it('takes the most common prefix, not a stray one', () => {
+    expect(existingRefCodePrefix(['MS-01.01', 'MS-02.03', 'XX-09.01'])).toBe('MS')
+  })
+
+  it('ignores ref codes without a prefix', () => {
+    expect(existingRefCodePrefix(['CC6.1', 'A1.1'])).toBe('')
+    expect(existingRefCodePrefix([])).toBe('')
+  })
+})
+
+describe('orgRefCodeFromTemplate with existing controls', () => {
+  it('prefers the prefix already in use over the name abbreviation', () => {
+    expect(orgRefCodeFromTemplate('OL-12.06', 'Microsoft', ['MS-01.01', 'MS-02.03'])).toBe('MS-12.06')
+  })
+
+  it('falls back to the name when no existing prefix is found', () => {
+    expect(orgRefCodeFromTemplate('OL-12.06', 'Microsoft', ['CC6.1'])).toBe('MI-12.06')
   })
 })

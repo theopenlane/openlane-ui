@@ -2192,6 +2192,27 @@ export interface InsertControlPlateCommentMutation {
   }
 }
 
+export type GetTemplateControlsWithMappingsQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+  after?: any
+  first?: number | null | undefined
+}>
+
+export interface GetTemplateControlsWithMappingsQuery {
+  controls: {
+    pageInfo: { hasNextPage: boolean; endCursor: any }
+    edges: Array<{
+      node: {
+        id: string
+        refCode: string
+        category: string | null
+        description: string | null
+        relatedControls: Array<{ id: string; refCode: string; referenceFramework: string | null }> | null
+      } | null
+    } | null> | null
+  }
+}
+
 export type CustomTypeEnumFieldsFragment = { id: string; name: string; color: string | null; objectType: string; description: string | null; field: string; systemOwned: boolean | null }
 
 export type GetCustomTypeEnumsQueryVariables = Exact<{

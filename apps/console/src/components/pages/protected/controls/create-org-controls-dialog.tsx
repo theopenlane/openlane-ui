@@ -6,18 +6,20 @@ import { useQueryClient } from '@tanstack/react-query'
 import CountBadge from '@/components/shared/count-badge/count-badge'
 import { DocsSourceLink } from '@/components/shared/docs-help/suggestion-card'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { LightbulbIcon, Link2, PencilLine, Sparkles, Trash2 } from 'lucide-react'
+import { LightbulbIcon, Link2, PencilLine, Sparkles, Trash2, TriangleAlert } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { Textarea } from '@repo/ui/textarea'
+import { PlaceholderTextarea } from '@/components/shared/placeholder-textarea/placeholder-textarea'
 import { Loader2 } from 'lucide-react'
 import { docsHelpEnabled } from '@repo/dally/ai'
-import { ControlControlStatus, MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
-import { useCreateControl, useGetAllControls, useGetControlMinifiedById } from '@/lib/graphql-hooks/control'
+import { ControlControlSource, ControlControlStatus, MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
+import { useCreateControl, useGetAllControls, useGetControlMinifiedById, useTemplateControlsWithMappings } from '@/lib/graphql-hooks/control'
+import { TEMPLATE_CONTROLS_WHERE } from '@/constants/standards'
 import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
-import { useDocsControlTitles, useDocsSection } from '@/hooks/useDocsHelp'
-import { SIMILARITY_THRESHOLD, isWeakTitle, parseExampleControls, textSimilarity, type TExampleRow, type TExistingMatch } from '@/lib/docs-help/example-controls'
+import { useDocsControlTitles, type DocsControlTitleInput } from '@/hooks/useDocsHelp'
+import { SIMILARITY_THRESHOLD, isWeakTitle, templateControlRows, textSimilarity, type TExampleRow, type TExistingMatch, type TTemplateControl } from '@/lib/docs-help/example-controls'
 import { useDocsHelpDrawer } from '@/components/shared/docs-help/docs-help-context'
+import { hasPlaceholderText } from '@/components/shared/plate/plate-utils'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
 import { getOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
@@ -27,17 +29,6 @@ export type TCreateOrgControlsTarget = {
   id: string
   refCode: string
   referenceFramework?: string | null
-}
-
-// shared by the button (to decide whether to render at all) and the dialog —
-// identical query key, so the second consumer hits the React Query cache
-function useExampleControlsSection(frameworkControl: TCreateOrgControlsTarget | null, enabled: boolean) {
-  return useDocsSection(
-    frameworkControl ? `${frameworkControl.referenceFramework ?? ''} ${frameworkControl.refCode}`.trim() : '',
-    'Example Organization Controls',
-    enabled && docsHelpEnabled && !!frameworkControl,
-    frameworkControl?.refCode,
-  )
 }
 
 // deleted suggestions stay deleted: keyed per framework control, scoped to the
@@ -76,9 +67,37 @@ function useDismissedSuggestions(frameworkControlId?: string): string[] {
   return dismissed
 }
 
+// OL Baseline template controls, fetched once for the page. Each carries the
+// framework controls it maps to, so a control looks its suggestions up by ref
+// code rather than needing the system control's id
+function useTemplateIndex(enabled: boolean) {
+  const { controls } = useTemplateControlsWithMappings({ where: TEMPLATE_CONTROLS_WHERE, enabled })
+
+  return useMemo(() => {
+    const index = new Map<string, TTemplateControl[]>()
+
+    for (const control of controls) {
+      if (!control.refCode) continue
+      const template: TTemplateControl = { refCode: control.refCode, name: control.category, description: control.description }
+
+      for (const related of control.relatedControls ?? []) {
+        if (!related?.refCode) continue
+        const key = related.refCode.trim().toLowerCase()
+        index.set(key, [...(index.get(key) ?? []), template])
+      }
+    }
+
+    return index
+  }, [controls])
+}
+
 function useResolvedSuggestions(frameworkControl: TCreateOrgControlsTarget | null, existingRefCodes: string[] | undefined, enabled: boolean) {
-  const { data, isLoading } = useExampleControlsSection(frameworkControl, enabled)
   const dismissed = useDismissedSuggestions(frameworkControl?.id)
+  const { currentOrgId, getOrganizationByID } = useOrganization()
+  const organizationName = getOrganizationByID(currentOrgId ?? '')?.node?.displayName
+
+  const templateIndex = useTemplateIndex(enabled && docsHelpEnabled)
+  const templates = useMemo(() => templateIndex.get(frameworkControl?.refCode.trim().toLowerCase() ?? '') ?? [], [templateIndex, frameworkControl])
 
   // existing org controls, to offer mapping instead of creating a duplicate
   const { data: orgControlsData } = useGetAllControls({
@@ -87,7 +106,6 @@ function useResolvedSuggestions(frameworkControl: TCreateOrgControlsTarget | nul
     includeVars: { includeDescription: true },
   })
 
-  const section = data?.section
   const existingKey = (existingRefCodes ?? []).join('|')
 
   const orgControls: TExistingMatch[] = useMemo(
@@ -96,19 +114,30 @@ function useResolvedSuggestions(frameworkControl: TCreateOrgControlsTarget | nul
     [orgControlsData],
   )
 
-  const rows = useMemo(() => resolveSuggestions(section, existingKey, orgControls, dismissed), [section, existingKey, orgControls, dismissed])
+  const rows = useMemo(() => resolveSuggestions(templates, existingKey, orgControls, dismissed, organizationName), [templates, existingKey, orgControls, dismissed, organizationName])
 
-  return { rows, isLoading, section }
+  return { rows, isLoading: false }
 }
 
-function resolveSuggestions(section: string | undefined, existingKey: string, orgControls: TExistingMatch[], dismissed: string[] = []): TExampleRow[] {
+// rows are identified by the template they came from, so editing a ref code
+// does not detach a row from its suggestion
+const rowKey = (row: TExampleRow) => row.templateRefCode ?? row.refCode
+
+function resolveSuggestions(templates: TTemplateControl[], existingKey: string, orgControls: TExistingMatch[], dismissed: string[] = [], organizationName?: string | null): TExampleRow[] {
   const dismissedSet = new Set(dismissed)
-  const alreadyMapped = new Set((existingKey ? existingKey.split('|') : []).map((code) => code.trim().toLowerCase()))
-  const parsed = section ? parseExampleControls(section, existingKey ? existingKey.split('|') : []) : []
+  const existingRefCodes = existingKey ? existingKey.split('|') : []
+  const alreadyMapped = new Set(existingRefCodes.map((code) => code.trim().toLowerCase()))
+
   return (
-    parsed
+    templateControlRows(
+      templates,
+      existingRefCodes,
+      organizationName,
+      orgControls.map((control) => control.refCode),
+    )
       .map((row) => {
-        // same ref code, or text that reads like the same control
+        // the backend maps the template, but an org may have written its own
+        // equivalent under a different ref code — offer to map that instead
         const match =
           orgControls.find((c) => c.refCode.trim().toLowerCase() === row.refCode.trim().toLowerCase()) ??
           orgControls.find((c) => textSimilarity(`${row.refCode} ${row.description}`, `${c.refCode} ${c.description ?? ''}`) >= SIMILARITY_THRESHOLD)
@@ -116,7 +145,7 @@ function resolveSuggestions(section: string | undefined, existingKey: string, or
       })
       .filter((row) => !row.existingMatch || !alreadyMapped.has(row.existingMatch.refCode.trim().toLowerCase()))
       // the user deleted this suggestion before
-      .filter((row) => !dismissedSet.has(row.refCode.trim().toLowerCase()))
+      .filter((row) => !dismissedSet.has(rowKey(row).trim().toLowerCase()))
       // one-click maps first, then the rows that need writing
       .sort((a, b) => Number(!!b.existingMatch) - Number(!!a.existingMatch))
   )
@@ -186,11 +215,13 @@ export function CreateOrgControlsDialog({ open, onOpenChange, frameworkControl, 
     if (isCreating) return
     setRows((current) =>
       resolvedRows.map((row) => {
-        const edited = current.find((existing) => existing.refCode === row.refCode)
-        const written = writtenTitlesRef.current[row.refCode]
+        const edited = current.find((existing) => rowKey(existing) === rowKey(row))
+        const written = writtenTitlesRef.current[rowKey(row)]
         const title = edited?.title || written || row.title
         return {
           ...row,
+          // the user may have retitled, reworded or re-coded the row already
+          refCode: edited?.refCode || row.refCode,
           title,
           description: edited?.description || row.description,
           titleFromAI: edited ? edited.titleFromAI : !!written && title === written,
@@ -199,26 +230,42 @@ export function CreateOrgControlsDialog({ open, onOpenChange, frameworkControl, 
     )
   }, [resolvedRows, isCreating])
 
-  const untitled = useMemo(
-    () => resolvedRows.filter((row) => !row.existingMatch && isWeakTitle(row.title, row.refCode)).map((row) => ({ refCode: row.refCode, description: row.description })),
-    [resolvedRows],
-  )
-  const { data: suggestedTitles } = useDocsControlTitles(untitled, open && docsHelpEnabled)
+  // rows the template left unnamed are titled automatically; the user can also
+  // ask for one on any row, which is snapshotted so typing does not refetch
+  const [requestedTitles, setRequestedTitles] = useState<DocsControlTitleInput[]>([])
+  // only the rows that were asked show as working, though the batch covers more
+  const [pendingTitleKeys, setPendingTitleKeys] = useState<string[]>([])
+  const requestTitle = (row: TExampleRow) => {
+    setPendingTitleKeys((current) => [...current, rowKey(row)])
+    setRequestedTitles((current) => [...current, { refCode: rowKey(row), description: row.description }])
+  }
+
+  const titleTargets = useMemo(() => {
+    const automatic = resolvedRows.filter((row) => !row.existingMatch && isWeakTitle(row.title, row.refCode)).map((row) => ({ refCode: rowKey(row), description: row.description }))
+    const seen = new Set(automatic.map((control) => control.refCode))
+    return [...automatic, ...requestedTitles.filter((control) => control.refCode && !seen.has(control.refCode))]
+  }, [resolvedRows, requestedTitles])
+
+  const { data: suggestedTitles } = useDocsControlTitles(titleTargets, open && docsHelpEnabled)
 
   useEffect(() => {
     if (!suggestedTitles?.length) return
-    untitled.forEach((control, index) => {
+    titleTargets.forEach((control, index) => {
       const suggested = suggestedTitles[index]
-      if (suggested) writtenTitlesRef.current[control.refCode] = suggested
+      if (suggested && control.refCode) writtenTitlesRef.current[control.refCode] = suggested
     })
 
+    setPendingTitleKeys([])
+    const requested = new Set(requestedTitles.map((control) => control.refCode))
     setRows((current) =>
       current.map((row) => {
-        const suggested = writtenTitlesRef.current[row.refCode]
-        return suggested && isWeakTitle(row.title, row.refCode) ? { ...row, title: suggested, titleFromAI: true } : row
+        const suggested = writtenTitlesRef.current[rowKey(row)]
+        // an asked-for title replaces whatever is there; an automatic one only fills a gap
+        const wanted = suggested && (requested.has(rowKey(row)) || isWeakTitle(row.title, row.refCode))
+        return wanted ? { ...row, title: suggested, titleFromAI: true } : row
       }),
     )
-  }, [suggestedTitles, untitled])
+  }, [suggestedTitles, titleTargets, requestedTitles])
 
   const queryClient = useQueryClient()
   const { currentOrgId } = useOrganization()
@@ -233,7 +280,7 @@ export function CreateOrgControlsDialog({ open, onOpenChange, frameworkControl, 
   const updateRow = (index: number, patch: Partial<TExampleRow>) => setRows((current) => current.map((row, i) => (i === index ? { ...row, ...patch } : row)))
   const removeRow = (index: number) => {
     const removed = rows[index]
-    if (removed && frameworkControl) dismissSuggestion(frameworkControl.id, removed.refCode, currentOrgId)
+    if (removed && frameworkControl) dismissSuggestion(frameworkControl.id, rowKey(removed), currentOrgId)
     setRows((current) => current.filter((_, i) => i !== index))
   }
 
@@ -257,6 +304,7 @@ export function CreateOrgControlsDialog({ open, onOpenChange, frameworkControl, 
             title: row.title.trim() || undefined,
             description: row.description.trim() || undefined,
             status: ControlControlStatus.DRAFT,
+            source: ControlControlSource.TEMPLATE,
           },
         })
         const id = result.createControl.control.id
@@ -354,7 +402,7 @@ export function CreateOrgControlsDialog({ open, onOpenChange, frameworkControl, 
               </div>
             )}
             {rows.map((row, index) => (
-              <div key={index} className="rounded-md border border-border p-3 space-y-2">
+              <div key={index} className={`rounded-md border p-3 space-y-2 ${!row.existingMatch && hasPlaceholderText(row.description) ? 'border-[var(--color-warning)]/50' : 'border-border'}`}>
                 {row.existingMatch ? (
                   <div className="flex items-start gap-3">
                     <div className="min-w-0 flex-1">
@@ -369,11 +417,29 @@ export function CreateOrgControlsDialog({ open, onOpenChange, frameworkControl, 
                   </div>
                 ) : (
                   <>
+                    {hasPlaceholderText(row.description) && (
+                      <p className="flex items-center gap-1.5 rounded-md bg-[var(--color-warning)]/10 px-2 py-1.5 text-xs">
+                        <TriangleAlert size={12} className="shrink-0 text-[var(--color-warning)]" />
+                        Contains template placeholder text (e.g. <code>{'{{ ... }}'}</code>) to review and fill in
+                      </p>
+                    )}
                     <div className="flex items-center gap-3">
                       <Input value={row.refCode} onChange={(e) => updateRow(index, { refCode: e.currentTarget.value })} placeholder="Ref code" className="w-36" />
                       <div className="flex-1">
                         <Input maxWidth value={row.title} onChange={(e) => updateRow(index, { title: e.currentTarget.value, titleFromAI: false })} placeholder="Title (optional)" />
                       </div>
+                      {!row.titleFromAI && (
+                        <button
+                          type="button"
+                          onClick={() => requestTitle(row)}
+                          disabled={pendingTitleKeys.includes(rowKey(row)) || !row.description.trim()}
+                          title={row.description.trim() ? 'Write a title from the description' : 'Add a description first'}
+                          className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+                        >
+                          <Sparkles size={12} className="text-brand" />
+                          {pendingTitleKeys.includes(rowKey(row)) ? 'Writing…' : 'Generate title'}
+                        </button>
+                      )}
                       {row.titleFromAI && (
                         <span
                           className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground"
@@ -385,7 +451,7 @@ export function CreateOrgControlsDialog({ open, onOpenChange, frameworkControl, 
                       )}
                       <RemoveRowButton onClick={() => removeRow(index)} label={`Remove ${row.refCode}`} />
                     </div>
-                    <Textarea value={row.description} onChange={(e) => updateRow(index, { description: e.currentTarget.value })} placeholder="Description" rows={2} />
+                    <PlaceholderTextarea value={row.description} onChange={(description) => updateRow(index, { description })} placeholder="Description" rows={2} />
                   </>
                 )}
               </div>
