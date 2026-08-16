@@ -10,12 +10,12 @@ import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
-import { toBase64DataUri } from '@/lib/image-utils'
+import { getVendorLogoUrl } from '@/lib/vendor-logo'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { toHumanLabel } from '@/utils/strings'
 
 const renderVendorIdentityCell = (row: EntitiesNodeNonNull, label: string) => {
-  const logo = row.logoFile?.base64 ? toBase64DataUri(row.logoFile.base64) : undefined
+  const logo = getVendorLogoUrl(row.logoFile)
 
   return (
     <div className="flex items-center gap-2">

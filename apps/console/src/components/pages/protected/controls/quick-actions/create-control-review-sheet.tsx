@@ -22,7 +22,8 @@ import RelatedControlsSelector from '@/components/pages/protected/controls/contr
 import ReviewFieldsPanel from '@/components/pages/protected/controls/control-review/review-fields-panel'
 import ReviewFindingsPanel from '@/components/pages/protected/controls/control-review/review-findings-panel'
 import ReviewSheetFooter from '@/components/pages/protected/controls/control-review/review-sheet-footer'
-import { buildFindingInput, hasFindingInput, resolveAuditorNotesHtml } from '@/components/pages/protected/controls/control-review/review-submission'
+import { buildFindingInput, hasFindingInput } from '@/components/pages/protected/controls/control-review/review-submission'
+import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import { UploadedEvidenceSection } from './uploaded-evidence-section'
 
 type TCreateControlReviewSheetProps = {
@@ -99,7 +100,7 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
         createdReviewIdRef.current = reviewId
       }
 
-      const auditorNotesHtml = await resolveAuditorNotesHtml(data.auditorNotes, plateEditorHelper)
+      const auditorNotesHtml = await plateToHtmlOrNull(data.auditorNotes, plateEditorHelper)
       if (auditorNotesHtml && !commentSavedRef.current) {
         await updateReview({ updateReviewId: reviewId, input: { addComment: { text: auditorNotesHtml } } })
         commentSavedRef.current = true

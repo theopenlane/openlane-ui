@@ -70,46 +70,43 @@ const DocumentsSection: React.FC<DocumentsSectionProps> = ({
     setDeleteFileInfo({ id: null, name: null })
   }
 
-  const getAction = () => {
-    if (!editAllowed) return []
-    return [
-      {
-        id: 'actions',
-        header: '',
-        cell: ({ row }: { row: Row<TFile> }) => {
-          return (
-            <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">
-              <SystemTooltip
-                icon={
-                  <p className="flex items-center gap-1 cursor-pointer" onClick={() => fileDownload(row?.original?.presignedURL || '', row.original.providedFileName, errorNotification)}>
-                    <Download size={16} />
-                  </p>
-                }
-                content={<p>Download</p>}
-              />
-              <SystemTooltip
-                icon={
-                  <p
-                    className="flex items-center gap-1 cursor-pointer"
-                    onClick={() => {
-                      setDeleteDialogIsOpen(true)
-                      setDeleteFileInfo({ id: row.original.id, name: row.original.providedFileName })
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </p>
-                }
-                content={<p>Delete</p>}
-              />
-            </div>
-          )
-        },
-        size: 40,
-      },
-    ]
+  const actionsColumn = {
+    id: 'actions',
+    header: '',
+    cell: ({ row }: { row: Row<TFile> }) => {
+      return (
+        <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">
+          <SystemTooltip
+            icon={
+              <p className="flex items-center gap-1 cursor-pointer" onClick={() => fileDownload(row?.original?.presignedURL || '', row.original.providedFileName, errorNotification)}>
+                <Download size={16} />
+              </p>
+            }
+            content={<p>Download</p>}
+          />
+          {editAllowed && (
+            <SystemTooltip
+              icon={
+                <p
+                  className="flex items-center gap-1 cursor-pointer"
+                  onClick={() => {
+                    setDeleteDialogIsOpen(true)
+                    setDeleteFileInfo({ id: row.original.id, name: row.original.providedFileName })
+                  }}
+                >
+                  <Trash2 size={16} />
+                </p>
+              }
+              content={<p>Delete</p>}
+            />
+          )}
+        </div>
+      )
+    },
+    size: 40,
   }
 
-  const columns = [...fileColumns, ...getAction()]
+  const columns = [...fileColumns, actionsColumn]
 
   if (isError) {
     return <p className="text-red-500">Error loading documents</p>

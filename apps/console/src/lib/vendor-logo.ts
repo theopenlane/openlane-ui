@@ -1,3 +1,5 @@
+import { toBase64DataUri } from '@/lib/image-utils'
+
 export const VENDOR_LOGO_DOMAIN_REGEX = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/
 
 export const VENDOR_LOGO_SIZE = {
@@ -18,3 +20,5 @@ export const toVendorLogoHost = (domain: string): string | null => {
 }
 
 export const buildVendorLogoProxyUrl = (host: string, size: number = VENDOR_LOGO_SIZE.default): string => `/api/vendor-logo?domain=${encodeURIComponent(host)}&sz=${size}`
+
+export const getVendorLogoUrl = (logoFile?: { base64?: string | null } | null): string | undefined => (logoFile?.base64 ? toBase64DataUri(logoFile.base64) : undefined)

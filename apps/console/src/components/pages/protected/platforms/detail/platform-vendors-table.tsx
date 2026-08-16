@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Building2 } from 'lucide-react'
-import { toBase64DataUri } from '@/lib/image-utils'
+import { getVendorLogoUrl } from '@/lib/vendor-logo'
 import ViewVendorSheet from '@/components/pages/protected/vendors/view-vendor-sheet'
 import { VendorStatusBadge } from '@/components/shared/enum-mapper/vendor-enum'
 import { type EntityEntityStatus } from '@repo/codegen/src/schema'
@@ -72,7 +72,7 @@ const VendorSection: React.FC<{ title: string; vendors: VendorNode[]; outOfScope
       </thead>
       <tbody>
         {vendors.map((vendor) => {
-          const logo = vendor.logoFile?.base64 ? toBase64DataUri(vendor.logoFile.base64) : undefined
+          const logo = getVendorLogoUrl(vendor.logoFile)
           const label = vendor.displayName ?? vendor.name ?? vendor.id
           return (
             <tr key={vendor.id} onClick={() => onRowClick(vendor.id)} className={`border-b last:border-0 cursor-pointer hover:bg-muted/50 transition-colors ${outOfScope ? 'opacity-60' : ''}`}>

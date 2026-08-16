@@ -1,6 +1,7 @@
 import { createSlateEditor, ElementApi, KEYS, NodeApi, type SlateEditor, type TElement, type Value } from 'platejs'
 import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
 import { detectFormat } from './usePlateEditor'
+import type usePlateEditor from './usePlateEditor'
 
 const deserializeToPlate = (input: string): { editor: SlateEditor; nodes: Value | null } => {
   const editor = createSlateEditor({ plugins: BaseEditorKit })
@@ -27,6 +28,16 @@ export const isPlateValueEmpty = (value: Value | string | undefined | null, edit
   }
 
   return true
+}
+
+type TPlateHtmlConverter = Pick<ReturnType<typeof usePlateEditor>, 'convertToHtml'>
+
+export const plateToHtmlOrNull = async (value: Value | string | undefined | null, converter: TPlateHtmlConverter): Promise<string | null> => {
+  if (!value || isPlateValueEmpty(value)) {
+    return null
+  }
+
+  return typeof value === 'string' ? value : converter.convertToHtml(value)
 }
 
 const isUntrimmableElement = (editor: SlateEditor, node: TElement): boolean => editor.api.isVoid(node) || node.type === KEYS.codeBlock
