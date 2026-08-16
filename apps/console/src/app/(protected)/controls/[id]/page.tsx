@@ -404,7 +404,7 @@ const ControlDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      <QuickActions kind="control" controlId={id} control={control} canEdit={canEdit(permission?.roles, sessionData)} />
+      <QuickActions kind="control" controlId={id} control={control} canEdit={canEdit(permission?.roles, sessionData)} onEdit={() => setIsEditing(true)} />
 
       <ControlTabs kind="control" control={control} isEditing={isEditing} data={control} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles, sessionData)} />
     </div>

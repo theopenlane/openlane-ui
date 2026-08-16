@@ -1,5 +1,5 @@
 import { BaseAlignKit } from './plugins/align-base-kit'
-import { TemplatePlaceholderKit } from './plugins/template-placeholder-kit'
+import { BaseTemplatePlaceholderKit } from './plugins/template-placeholder-kit'
 import { BaseBasicBlocksKit } from './plugins/basic-blocks-base-kit'
 import { BaseBasicMarksKit } from './plugins/basic-marks-base-kit'
 import { BaseCalloutKit } from './plugins/callout-base-kit'
@@ -21,7 +21,7 @@ import { BaseTocKit } from './plugins/toc-base-kit'
 import { BaseToggleKit } from './plugins/toggle-base-kit'
 
 export const BaseEditorKit = [
-  ...TemplatePlaceholderKit,
+  ...BaseTemplatePlaceholderKit,
   ...BaseBasicBlocksKit,
   ...BaseCodeBlockKit,
   ...BaseTableKit,

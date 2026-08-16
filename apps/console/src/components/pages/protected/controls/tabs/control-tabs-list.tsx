@@ -5,8 +5,8 @@ import { TabsList, TabsTrigger } from '@repo/ui/tabs'
 
 const CONTROL_TABS = [
   { value: 'implementation', label: 'Implementations', className: 'px-0' },
-  { value: 'evidence', label: 'Evidence' },
   { value: 'linked-controls', label: 'Linked Controls' },
+  { value: 'evidence', label: 'Evidence' },
   { value: 'guidance', label: 'Guidance' },
   { value: 'documentation', label: 'Documentation' },
   { value: 'assets-scans', label: 'Assets + Scans' },
@@ -16,14 +16,15 @@ const CONTROL_TABS = [
 ]
 
 type ControlTabsListProps = {
-  includeGuidance?: boolean
-  /** per-tab alert counts, rendered as a small badge on the trigger */
+  // tabs to render; omitted ones have nothing to show for this control
+  visibleTabs?: string[]
+  // per-tab alert counts, rendered as a small badge on the trigger
   badges?: Partial<Record<string, number>>
 }
 
-const ControlTabsList: React.FC<ControlTabsListProps> = ({ includeGuidance = true, badges }) => (
+const ControlTabsList: React.FC<ControlTabsListProps> = ({ visibleTabs, badges }) => (
   <TabsList className="w-max gap-2">
-    {CONTROL_TABS.filter((tab) => includeGuidance || tab.value !== 'guidance').map(({ value, label, className }) => {
+    {CONTROL_TABS.filter((tab) => !visibleTabs || visibleTabs.includes(tab.value)).map(({ value, label, className }) => {
       const badgeCount = badges?.[value] ?? 0
       return (
         <TabsTrigger key={value} value={value} className={className}>

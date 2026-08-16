@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Tabs, TabsContent } from '@repo/ui/tabs'
 import type { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
-import ImplementationTab from '@/components/pages/protected/controls/tabs/implementation/implementation-tab'
+import ImplementationTab, { useHasImplementationData } from '@/components/pages/protected/controls/tabs/implementation/implementation-tab'
 import EvidenceTab from '@/components/pages/protected/controls/tabs/evidence/evidence-tab'
 import LinkedControlsTab from '@/components/pages/protected/controls/tabs/linked-controls/linked-controls-tab'
 import GuidanceTab from '@/components/pages/protected/controls/tabs/guidance/guidance-tab'
@@ -45,7 +45,7 @@ type ControlTabValue = 'implementation' | 'evidence' | 'linked-controls' | 'guid
 
 const DEFAULT_TAB: ControlTabValue = 'implementation'
 const TAB_QUERY_PARAM = 'tab'
-const ALL_TABS: ControlTabValue[] = ['implementation', 'evidence', 'linked-controls', 'guidance', 'documentation', 'assets-scans', 'findings-risks', 'reviews', 'activity']
+const ALL_TABS: ControlTabValue[] = ['implementation', 'linked-controls', 'evidence', 'guidance', 'documentation', 'assets-scans', 'findings-risks', 'reviews', 'activity']
 
 const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
   const router = useRouter()
@@ -99,17 +99,40 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
     [implementationGuidance, controlQuestions, assessmentMethods, assessmentObjectives, testingProcedures, references],
   )
 
-  const availableTabs = useMemo<ControlTabValue[]>(() => (hasGuidanceData ? ALL_TABS : ALL_TABS.filter((tab) => tab !== 'guidance')), [hasGuidanceData])
+  // tabs that only list associated records are hidden when there are none.
+  // Subcontrol associations carry a subset of the collections, hence the shape
+  const associations = (isSubcontrol ? subcontrolAssociationsData?.subcontrol : controlAssociationsData?.control) as Record<string, { totalCount?: number | null } | undefined> | undefined
+  const associationCount = (...names: string[]) => names.reduce((total, name) => total + (associations?.[name]?.totalCount ?? 0), 0)
+
+  const hasAssetsScans = associationCount('assets', 'scans') > 0
+  const hasFindingsRisks = associationCount('findings', 'risks', 'vulnerabilities') > 0
+  const hasReviews = associationCount('reviews') > 0
+
+  const hasImplementationData = useHasImplementationData({ publicRepresentation: props.data?.publicRepresentation })
+
+  const hiddenTabs = useMemo(() => {
+    const hidden = new Set<ControlTabValue>()
+    if (!hasGuidanceData) hidden.add('guidance')
+    if (!hasAssetsScans) hidden.add('assets-scans')
+    if (!hasFindingsRisks) hidden.add('findings-risks')
+    if (!hasReviews) hidden.add('reviews')
+    if (!hasImplementationData) hidden.add('implementation')
+    return hidden
+  }, [hasGuidanceData, hasAssetsScans, hasFindingsRisks, hasReviews, hasImplementationData])
+
+  const availableTabs = useMemo<ControlTabValue[]>(() => ALL_TABS.filter((tab) => !hiddenTabs.has(tab)), [hiddenTabs])
 
   const tabParamValue = searchParams.get(TAB_QUERY_PARAM)
-  const requestedTab = tabParamValue && availableTabs.includes(tabParamValue as ControlTabValue) ? (tabParamValue as ControlTabValue) : DEFAULT_TAB
+  // the default tab may be hidden for this control, so fall back to the first shown
+  const fallbackTab = availableTabs.includes(DEFAULT_TAB) ? DEFAULT_TAB : (availableTabs[0] ?? DEFAULT_TAB)
+  const requestedTab = tabParamValue && availableTabs.includes(tabParamValue as ControlTabValue) ? (tabParamValue as ControlTabValue) : fallbackTab
   const activeTab = requestedTab
 
   const updateTabParam = useCallback(
     (tab: ControlTabValue) => {
       const nextParams = new URLSearchParams(searchParams.toString())
 
-      if (tab === DEFAULT_TAB) {
+      if (tab === fallbackTab) {
         nextParams.delete(TAB_QUERY_PARAM)
       } else {
         nextParams.set(TAB_QUERY_PARAM, tab)
@@ -118,15 +141,15 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
       const query = nextParams.toString()
       router.replace(query ? `${pathname}?${query}` : pathname)
     },
-    [pathname, router, searchParams],
+    [pathname, router, searchParams, fallbackTab],
   )
 
   useEffect(() => {
-    const expectedParam = activeTab === DEFAULT_TAB ? null : activeTab
+    const expectedParam = activeTab === fallbackTab ? null : activeTab
     if (tabParamValue !== expectedParam) {
       updateTabParam(activeTab)
     }
-  }, [activeTab, tabParamValue, updateTabParam])
+  }, [activeTab, tabParamValue, updateTabParam, fallbackTab])
 
   const evidenceFormData = useMemo<TFormEvidenceData>(() => {
     if (isSubcontrol) {
@@ -138,7 +161,7 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
 
   const handleTabChange = (nextTab: string) => {
     if (!availableTabs.includes(nextTab as ControlTabValue)) {
-      updateTabParam(DEFAULT_TAB)
+      updateTabParam(fallbackTab)
       return
     }
 
@@ -149,13 +172,15 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
     <Tabs value={activeTab} onValueChange={handleTabChange} variant="underline">
       <div className="mb-6">
         <ScrollableTabsList>
-          <ControlTabsList includeGuidance={hasGuidanceData} badges={{ documentation: documentationAlertCount }} />
+          <ControlTabsList visibleTabs={availableTabs} badges={{ documentation: documentationAlertCount }} />
         </ScrollableTabsList>
       </div>
 
-      <TabsContent value="implementation" className="space-y-6">
-        <ImplementationTab isEditing={props.isEditing} data={props.data} canEdit={props.canEdit} docsControl={docsControl} />
-      </TabsContent>
+      {hasImplementationData && (
+        <TabsContent value="implementation" className="space-y-6">
+          <ImplementationTab isEditing={props.isEditing} data={props.data} canEdit={props.canEdit} />
+        </TabsContent>
+      )}
 
       <TabsContent value="evidence" className="space-y-6">
         <EvidenceTab
@@ -212,17 +237,23 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
         />
       </TabsContent>
 
-      <TabsContent value="assets-scans" className="space-y-6">
-        <AssetsScansTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} />
-      </TabsContent>
+      {hasAssetsScans && (
+        <TabsContent value="assets-scans" className="space-y-6">
+          <AssetsScansTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} />
+        </TabsContent>
+      )}
 
-      <TabsContent value="findings-risks" className="space-y-6">
-        <FindingsRisksTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} />
-      </TabsContent>
+      {hasFindingsRisks && (
+        <TabsContent value="findings-risks" className="space-y-6">
+          <FindingsRisksTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} />
+        </TabsContent>
+      )}
 
-      <TabsContent value="reviews" className="space-y-6">
-        <ReviewsTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} />
-      </TabsContent>
+      {hasReviews && (
+        <TabsContent value="reviews" className="space-y-6">
+          <ReviewsTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} />
+        </TabsContent>
+      )}
 
       <TabsContent value="activity" className="space-y-6">
         <ActivityTab controlId={isSubcontrol ? undefined : control?.id} subcontrolIds={subcontrolIds} />

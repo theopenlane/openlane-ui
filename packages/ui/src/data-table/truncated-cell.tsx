@@ -27,11 +27,13 @@ export const TruncatedCell = ({ children, className, tooltipClassName, tooltipCo
   }, [])
 
   const clampStyle = lineClamp ? { display: '-webkit-box', WebkitBoxOrient: 'vertical' as const, WebkitLineClamp: lineClamp } : undefined
+  // a clamped line cuts marks mid-height, leaving a stray sliver of their  background, so highlights are dropped where the text is truncated
+  const clampedMarks = '[&_mark]:bg-transparent [&_mark]:text-inherit'
 
   return (
     <Tooltip open={open} onOpenChange={handleOpenChange}>
       <TooltipTrigger asChild>
-        <div ref={ref} className={cn(lineClamp ? 'overflow-hidden whitespace-normal' : 'truncate', className)} style={clampStyle}>
+        <div ref={ref} className={cn(lineClamp ? 'overflow-hidden whitespace-normal' : 'truncate', clampedMarks, className)} style={clampStyle}>
           {children}
         </div>
       </TooltipTrigger>

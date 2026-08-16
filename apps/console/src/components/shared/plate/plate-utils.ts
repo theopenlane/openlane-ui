@@ -96,3 +96,6 @@ export const hasPlaceholderText = (value: Value | string | undefined | null): bo
   const text = typeof value === 'string' ? value : Array.isArray(value) ? value.map((node) => NodeApi.string(node)).join('') : ''
   return /\{\{.*?\}\}/.test(text)
 }
+
+// Wrap template placeholders in a mark for html rendered outside the editor, where the plate decoration cannot reach
+export const highlightPlaceholderText = (html: string): string => html.replace(/\{\{[^{}]*\}\}/g, (match) => `<mark class="rounded-xs bg-[var(--color-warning)]/25 text-inherit">${match}</mark>`)

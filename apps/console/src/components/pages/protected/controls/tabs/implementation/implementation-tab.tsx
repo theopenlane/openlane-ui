@@ -11,7 +11,6 @@ import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
 import PublicRepresentationField from '@/components/pages/protected/controls/form-fields/public-representation-field.tsx'
 import type { ControlByIdNode } from '@/lib/graphql-hooks/control'
 import type { SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
-import { SuggestedObjective, useSuggestedObjective } from '@/components/pages/protected/controls/suggested-objective'
 import type { TDocsEvidenceControl } from '@/components/pages/protected/controls/example-evidence-requests'
 
 type ImplementationTabProps = {
@@ -21,7 +20,7 @@ type ImplementationTabProps = {
   docsControl?: TDocsEvidenceControl
 }
 
-const ImplementationTab: React.FC<ImplementationTabProps> = ({ isEditing, data, canEdit, docsControl }) => {
+const ImplementationTab: React.FC<ImplementationTabProps> = ({ isEditing, data, canEdit }) => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
 
   const { data: implementationsData, isLoading: isImplementationsLoading } = useGetAllControlImplementations({
@@ -37,9 +36,7 @@ const ImplementationTab: React.FC<ImplementationTabProps> = ({ isEditing, data, 
 
   const objectiveEdges = objectivesData?.controlObjectives?.edges?.filter((edge): edge is { node: ControlObjectiveFieldsFragment } => !!edge?.node)
 
-  const objectiveSuggestion = useSuggestedObjective(docsControl)
   const hasObjectives = (objectiveEdges?.length ?? 0) > 0
-  const showObjectiveSuggestion = !!objectiveSuggestion && !objectiveSuggestion.dismissed
 
   const isLoading = isImplementationsLoading || isObjectivesLoading
 
@@ -51,9 +48,19 @@ const ImplementationTab: React.FC<ImplementationTabProps> = ({ isEditing, data, 
     <div className="space-y-6">
       {(isEditing || !!data?.publicRepresentation) && <PublicRepresentationField isEditing={isEditing} initialValue={data?.publicRepresentation || ''} isEditAllowed={canEdit} />}
       {(implementationEdges?.length ?? 0) > 0 && <ControlImplementations edges={implementationEdges} />}
-      {(hasObjectives || showObjectiveSuggestion) && <ControlObjectives edges={objectiveEdges} emptyState={<SuggestedObjective data={objectiveSuggestion} />} />}
+      {hasObjectives && <ControlObjectives edges={objectiveEdges} />}
     </div>
   )
 }
 
 export default ImplementationTab
+
+// Whether the tab has anything to show, so the parent can hide it entirely
+export const useHasImplementationData = ({ publicRepresentation }: { publicRepresentation?: string | null }) => {
+  const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
+  const association = subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }
+
+  const { data: implementationsData } = useGetAllControlImplementations(association)
+  const { data: objectivesData } = useGetAllControlObjectives({ ...association, statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED })
+  return Boolean(publicRepresentation || implementationsData?.controlImplementations?.edges?.length || objectivesData?.controlObjectives?.edges?.length)
+}

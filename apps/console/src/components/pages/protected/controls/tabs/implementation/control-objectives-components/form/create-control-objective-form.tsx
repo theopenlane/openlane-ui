@@ -12,7 +12,7 @@ import { ControlObjectiveControlSource } from '@repo/codegen/src/schema'
 import { useCreateControlObjective, useDeleteControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Info, Trash2 } from 'lucide-react'
+import { Info, Sparkles, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { type TFormData } from './use-form-schema'
 import { VersionBump } from '@/lib/enums/revision-enum'
@@ -31,16 +31,20 @@ export const CreateControlObjectiveForm = ({
   onSuccess,
   onClose,
   defaultValues,
+  suggestedValues,
   form,
 }: {
   onSuccess: () => void
   onClose: () => void
   defaultValues?: Partial<TFormData>
+  // seeded from the docs when creating
+  suggestedValues?: { name?: string; desiredOutcome?: string }
   form: UseFormReturn<TFormData>
 }) => {
   const { id, subcontrolId } = useParams()
   const { successNotification, errorNotification } = useNotification()
   const isEditing = !!defaultValues
+  const isSuggested = !isEditing && !!suggestedValues
   const { convertToHtml } = usePlateEditor()
   const {
     handleSubmit,
@@ -134,6 +138,15 @@ export const CreateControlObjectiveForm = ({
         )}
       </div>
       <SheetHeader>{!isEditing && <SheetTitle className="text-left">Control Objective</SheetTitle>}</SheetHeader>
+      {isSuggested && (
+        <Alert className="border-[var(--color-warning)]/40 bg-[var(--color-warning)]/10">
+          <Sparkles className="h-4 w-4 text-[var(--color-warning)]" />
+          <AlertTitle>Suggested</AlertTitle>
+          <AlertDescription>
+            <p>The name and desired outcome below are prefilled from suggestions. Review and edit them before saving.</p>
+          </AlertDescription>
+        </Alert>
+      )}
       {!isEditing && (
         <Alert>
           <Info className="h-4 w-4" />
@@ -156,7 +169,11 @@ export const CreateControlObjectiveForm = ({
 
         <div className="border-b flex items-center py-2.5">
           <Label className="self-start whitespace-nowrap min-w-36">Desired outcome</Label>
-          <Controller control={control} name="desiredOutcome" render={({ field }) => <PlateEditor initialValue={defaultValues?.desiredOutcome} onChange={(val) => field.onChange(val)} />} />
+          <Controller
+            control={control}
+            name="desiredOutcome"
+            render={({ field }) => <PlateEditor initialValue={defaultValues?.desiredOutcome ?? suggestedValues?.desiredOutcome} onChange={(val) => field.onChange(val)} />}
+          />
         </div>
 
         <div className="border-b flex items-center py-2.5">

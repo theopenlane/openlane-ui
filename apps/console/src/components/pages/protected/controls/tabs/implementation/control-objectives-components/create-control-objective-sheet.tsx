@@ -4,6 +4,7 @@ import { Sheet, SheetContent } from '@repo/ui/sheet'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { CreateControlObjectiveForm } from './form/create-control-objective-form'
+import { useSuggestedObjective } from '@/components/pages/protected/controls/suggested-objective'
 import { ControlObjectiveControlSource, type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import useFormSchema from './form/use-form-schema'
 import { VersionBump } from '@/lib/enums/revision-enum'
@@ -24,6 +25,15 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
   const isSubcontrol = !!subcontrolId
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(isSubcontrol ? null : (id ?? null))
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(subcontrolId ?? null)
+
+  // the docs suggestion belongs here too, where the objective is actually written
+  const objectiveControl = controlData?.control
+  const objectiveSuggestionData = useSuggestedObjective(
+    !isSubcontrol && objectiveControl
+      ? { controlId: objectiveControl.id, refCode: objectiveControl.refCode, referenceFramework: objectiveControl.referenceFramework, source: objectiveControl.source }
+      : undefined,
+  )
+  const suggestion = !editData && objectiveSuggestionData && !objectiveSuggestionData.dismissed ? objectiveSuggestionData.suggestion : null
   const loading = isLoadingControl || isLoadingSubcontrol
 
   const normalizedValues = useMemo(() => {
@@ -55,8 +65,10 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
       source: ControlObjectiveControlSource.USER_DEFINED,
       category: subcontrolData?.subcontrol?.category || controlData?.control?.category || '',
       subcategory: subcontrolData?.subcontrol?.subcategory || controlData?.control?.subcategory || '',
+      name: suggestion?.name ?? '',
+      desiredOutcome: suggestion?.desiredOutcome ?? '',
     })
-  }, [open, form, normalizedValues, loading, controlData, subcontrolData])
+  }, [open, form, normalizedValues, loading, controlData, subcontrolData, suggestion])
 
   const handleClose = () => {
     if (form.formState.isDirty) {
@@ -93,7 +105,13 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
             }
           }}
         >
-          <CreateControlObjectiveForm form={form} onSuccess={() => onOpenChange(false)} onClose={handleClose} defaultValues={normalizedValues} />
+          <CreateControlObjectiveForm
+            form={form}
+            onSuccess={() => onOpenChange(false)}
+            onClose={handleClose}
+            defaultValues={normalizedValues}
+            suggestedValues={suggestion ? { name: suggestion.name, desiredOutcome: suggestion.desiredOutcome } : undefined}
+          />
         </SheetContent>
       </Sheet>
       <CancelDialog isOpen={showCancelDialog} onConfirm={handleConfirmClose} onCancel={() => setShowCancelDialog(false)} />

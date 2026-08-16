@@ -23,6 +23,7 @@ const QuickActionsBar: React.FC<QuickActionsBarProps> = ({ actions, renderAction
   const containerRef = useRef<HTMLDivElement>(null)
   const measureRef = useRef<HTMLDivElement>(null)
   const [visibleCount, setVisibleCount] = useState<number | null>(null)
+  const [measured, setMeasured] = useState(false)
   const lastWidthRef = useRef<number>(0)
 
   useEffect(() => {
@@ -57,8 +58,10 @@ const QuickActionsBar: React.FC<QuickActionsBarProps> = ({ actions, renderAction
       } else {
         setVisibleCount(Math.max(1, count))
       }
+      setMeasured(true)
     }
 
+    calculateVisibleItems()
     const timer = setTimeout(calculateVisibleItems, 0)
 
     const resizeObserver = new ResizeObserver(() => {
@@ -85,13 +88,13 @@ const QuickActionsBar: React.FC<QuickActionsBarProps> = ({ actions, renderAction
 
       <div ref={measureRef} className="flex gap-2 invisible absolute pointer-events-none" aria-hidden="true">
         {actions.map((action) => (
-          <Button key={action.id} type="button" variant="secondary" className="h-8 px-3" icon={action.icon}>
+          <Button key={action.id} type="button" variant="secondary" className="h-8 px-3 whitespace-nowrap" icon={action.icon}>
             {action.label}
           </Button>
         ))}
       </div>
 
-      <div ref={containerRef} className="flex flex-wrap gap-2 items-center">
+      <div ref={containerRef} className={`flex flex-nowrap gap-2 items-center overflow-hidden ${measured ? '' : 'invisible'}`}>
         {visibleActions.map((action) => renderAction(action, { inMenu: false }))}
 
         {overflowActions.length > 0 && (

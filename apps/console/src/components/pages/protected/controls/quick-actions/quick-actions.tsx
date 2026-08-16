@@ -11,6 +11,7 @@ import CreateControlReviewSheet from '@/components/pages/protected/controls/quic
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/create-control-implementation-sheet'
 import type { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import QuickActionsBar, { type QuickActionItem } from '@/components/shared/crud-base/quick-actions/quick-actions-bar'
+import { Globe } from 'lucide-react'
 import { useGetControlAssociationsById } from '@/lib/graphql-hooks/control'
 import { useIsAuditor } from '@/lib/graphql-hooks/member'
 import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol'
@@ -41,6 +42,7 @@ type SubcontrolLike = {
 type BaseQuickActionsProps = {
   controlId: string
   canEdit: boolean
+  onEdit?: () => void
 }
 
 type ControlQuickActionsProps = BaseQuickActionsProps & {
@@ -57,6 +59,7 @@ type SubcontrolQuickActionsProps = BaseQuickActionsProps & {
 type QuickActionsProps = ControlQuickActionsProps | SubcontrolQuickActionsProps
 
 const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
+  const { onEdit } = props
   const [isEvidenceSheetOpen, setIsEvidenceSheetOpen] = useState(false)
   const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
   const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)
@@ -95,32 +98,32 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
     const baseActions: QuickActionItem[] = [
       {
         id: 'add-implementation',
-        label: 'Add Implementation',
+        label: 'Implementation',
         icon: <PlusSquare size={16} />,
         onClick: () => setShowCreateImplementationSheet(true),
       },
       {
         id: 'add-objective',
-        label: 'Add Objective',
+        label: 'Objective',
         icon: <Target size={16} />,
         onClick: () => setShowCreateObjectiveSheet(true),
       },
       {
         id: 'upload-evidence',
-        label: isAuditor ? 'Request Evidence' : 'Upload Evidence',
+        label: 'Evidence',
         icon: <Upload size={16} />,
         onClick: () => setIsEvidenceSheetOpen(true),
       },
       {
         id: 'create-task',
-        label: 'Create Task',
+        label: 'Task',
         icon: <CheckCircle2 size={16} />,
       },
       ...(isAuditor
         ? [
             {
               id: 'create-review',
-              label: 'Create Review',
+              label: 'Review',
               icon: <ClipboardCheck size={16} />,
               onClick: () => setShowCreateReviewSheet(true),
             },
@@ -137,6 +140,12 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
           icon: <GitBranch size={16} />,
           href: `/controls/${controlId}/${subcontrolId}/map-control`,
         },
+        {
+          id: 'add-public-representation',
+          label: 'Public Representation',
+          icon: <Globe size={16} />,
+          onClick: () => onEdit?.(),
+        },
       ]
     }
 
@@ -144,7 +153,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
       ...baseActions,
       {
         id: 'create-subcontrol',
-        label: 'Create Subcontrol',
+        label: 'Subcontrol',
         icon: <PlusSquare size={16} />,
         href: `/controls/${controlId}/create-subcontrol`,
       },
@@ -154,8 +163,14 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
         icon: <GitBranch size={16} />,
         href: `/controls/${controlId}/map-control`,
       },
+      {
+        id: 'add-public-representation',
+        label: 'Public Representation',
+        icon: <Globe size={16} />,
+        onClick: () => onEdit?.(),
+      },
     ]
-  }, [isSubcontrol, controlId, subcontrolId, isAuditor])
+  }, [isSubcontrol, controlId, subcontrolId, isAuditor, onEdit])
 
   const filteredActions = useMemo(() => {
     if (props.canEdit) return actions
@@ -168,7 +183,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
         <CreateTaskDialog
           key={action.id}
           trigger={
-            <Button type="button" variant="secondary" className="h-8 px-3" icon={action.icon} iconPosition="left">
+            <Button type="button" variant="secondary" className="h-8 shrink-0 whitespace-nowrap px-3" icon={action.icon} iconPosition="left">
               {action.label}
             </Button>
           }
@@ -192,7 +207,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
       }
       return (
         <Link key={action.id} href={action.href}>
-          <Button type="button" variant="secondary" className="h-8 px-3" icon={action.icon} iconPosition="left">
+          <Button type="button" variant="secondary" className="h-8 shrink-0 whitespace-nowrap px-3" icon={action.icon} iconPosition="left">
             {action.label}
           </Button>
         </Link>

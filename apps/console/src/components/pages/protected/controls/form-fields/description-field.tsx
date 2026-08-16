@@ -8,7 +8,7 @@ import { useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { ControlControlSource, SubcontrolControlSource, type ControlDiscussionFieldsFragment, type SubcontrolDiscussionFieldsFragment } from '@repo/codegen/src/schema.ts'
-import { hasPlaceholderText } from '@/components/shared/plate/plate-utils'
+import { hasPlaceholderText, highlightPlaceholderText } from '@/components/shared/plate/plate-utils'
 import { Callout } from '@/components/shared/callout/callout'
 
 interface DescriptionFieldProps {
@@ -62,7 +62,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
       )}
       <div className={'min-h-5'}>
         {systemCreated ? (
-          <div className="rich-text" dangerouslySetInnerHTML={{ __html: initialValue as string }} />
+          <div className="rich-text" dangerouslySetInnerHTML={{ __html: highlightPlaceholderText(initialValue as string) }} />
         ) : (
           <PlateEditor
             toolbarClassName="-mt-20"
