@@ -103,7 +103,7 @@ export const getOrgControlsColumns = (controlLinkMap: LinkMap, subcontrolLinkMap
   {
     accessorKey: 'description',
     header: () => <span className="whitespace-nowrap">Description</span>,
-    cell: ({ row }) => <div className="line-clamp-2 text-justify">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</div>,
+    cell: ({ row }) => <TruncatedCell className="line-clamp-2 text-justify whitespace-normal">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</TruncatedCell>,
     size: 280,
   },
   statusColumn,
