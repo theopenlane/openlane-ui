@@ -37,7 +37,13 @@ export const isDocsHomepage = (source: string): boolean => {
   }
 }
 
-// Unwrap inline links and drop bold markers, leaving the readable text
+// Unwrap inline links and drop bold markers, leaving the readable text tags out
+export const htmlToText = (value: string) =>
+  value
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
 export const stripInlineMarkdown = (value: string): string =>
   value
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')

@@ -1,7 +1,16 @@
 import { auth } from '@/lib/auth/auth'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { BATCH_CONCURRENCY, MAX_BATCH_ITEMS, MAX_PREFER_CHARS, MAX_QUERY_CHARS } from '@/lib/docs-help/constants'
+import {
+  BATCH_CONCURRENCY,
+  MAX_BATCH_ITEMS,
+  MAX_EXISTING_CHARS,
+  MAX_IMPLEMENTATION_CHARS,
+  MAX_PREFER_CHARS,
+  MAX_QUERY_CHARS,
+  MAX_REQUIREMENT_CHARS,
+  MAX_SUGGESTION_SOURCES,
+} from '@/lib/docs-help/constants'
 import { corpusLocation, getClients, fetchGcsFile } from '@/lib/docs-help/clients'
 import { dedupeBySource, extractMarkdownSection, parseChunk, parsePolicyMappingTable, rankChunks } from '@/lib/docs-help/parse'
 import { generateControlTitles, generatePublicRepresentation, summarizeChunks } from '@/lib/docs-help/ai'
@@ -24,12 +33,12 @@ const requestSchema = z.object({
   suggestTitles: z.array(z.object({ refCode: z.string().optional(), description: z.string().optional() })).optional(),
   suggestPublicRepresentation: z
     .object({
-      refCode: z.string().optional(),
-      referenceFramework: z.string().optional(),
-      description: z.string().optional(),
-      implementations: z.array(z.string()).max(20).optional(),
-      objectives: z.array(z.string()).max(20).optional(),
-      existing: z.string().optional(),
+      refCode: z.string().trim().max(MAX_PREFER_CHARS).optional(),
+      referenceFramework: z.string().trim().max(MAX_PREFER_CHARS).optional(),
+      description: z.string().max(MAX_REQUIREMENT_CHARS).optional(),
+      implementations: z.array(z.string().max(MAX_IMPLEMENTATION_CHARS)).max(MAX_SUGGESTION_SOURCES).optional(),
+      objectives: z.array(z.string().max(MAX_IMPLEMENTATION_CHARS)).max(MAX_SUGGESTION_SOURCES).optional(),
+      existing: z.string().max(MAX_EXISTING_CHARS).optional(),
     })
     .optional(),
   fullPageFor: z.string().optional(),

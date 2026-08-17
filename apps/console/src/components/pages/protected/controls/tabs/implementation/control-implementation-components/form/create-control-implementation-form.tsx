@@ -9,6 +9,7 @@ import PlateEditor from '@/components/shared/plate/plate-editor'
 import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import { Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { type TFormData } from './use-form-schema'
@@ -39,11 +40,7 @@ export const CreateControlImplementationForm = ({
   const { convertToHtml } = usePlateEditor()
   const { handleSubmit, control } = form
 
-  const hydratedRef = React.useRef(false)
-  const hydrate = (value: TFormData['details']) => {
-    hydratedRef.current = true
-    form.setValue('details', value, { shouldDirty: false })
-  }
+  const onDetailsChange = usePlateHydration(form, 'details')
 
   const { mutate: createImplementation } = useCreateControlImplementation()
   const { mutate: updateImplementation } = useUpdateControlImplementation()
@@ -146,11 +143,7 @@ export const CreateControlImplementationForm = ({
       <div className="p-4 border rounded-lg">
         <div className="border-b flex items-center py-2.5">
           <Label className="self-start whitespace-nowrap min-w-36">Details</Label>
-          <Controller
-            control={control}
-            name="details"
-            render={({ field }) => <PlateEditor initialValue={defaultValues?.details} onChange={(val) => (hydratedRef.current ? field.onChange(val) : hydrate(val))} />}
-          />
+          <Controller control={control} name="details" render={({ field }) => <PlateEditor initialValue={defaultValues?.details} onChange={(val) => onDetailsChange(val, field.onChange)} />} />
         </div>
 
         <div className="border-b flex items-center py-2.5">

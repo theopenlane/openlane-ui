@@ -12,6 +12,7 @@ import { ControlObjectiveControlSource } from '@repo/codegen/src/schema'
 import { useCreateControlObjective, useDeleteControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import { Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { type TFormData } from './use-form-schema'
@@ -52,11 +53,7 @@ export const CreateControlObjectiveForm = ({
     formState: { errors },
   } = form
 
-  const hydratedRef = React.useRef(false)
-  const hydrate = (value: TFormData['desiredOutcome']) => {
-    hydratedRef.current = true
-    form.setValue('desiredOutcome', value, { shouldDirty: false })
-  }
+  const onDesiredOutcomeChange = usePlateHydration(form, 'desiredOutcome')
 
   const { mutate: createObjective } = useCreateControlObjective()
   const { mutate: updateObjective } = useUpdateControlObjective()
@@ -170,9 +167,7 @@ export const CreateControlObjectiveForm = ({
           <Controller
             control={control}
             name="desiredOutcome"
-            render={({ field }) => (
-              <PlateEditor initialValue={defaultValues?.desiredOutcome ?? suggestedValues?.desiredOutcome} onChange={(val) => (hydratedRef.current ? field.onChange(val) : hydrate(val))} />
-            )}
+            render={({ field }) => <PlateEditor initialValue={defaultValues?.desiredOutcome ?? suggestedValues?.desiredOutcome} onChange={(val) => onDesiredOutcomeChange(val, field.onChange)} />}
           />
         </div>
 

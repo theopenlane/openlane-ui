@@ -18,6 +18,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ImplementationItem } from './implementation-item'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { controlAssociationFilter } from '@/lib/graphql-hooks/control-association'
 import { useSession } from 'next-auth/react'
 
 const ControlImplementationPage = () => {
@@ -31,7 +32,7 @@ const ControlImplementationPage = () => {
 
   const { successNotification, errorNotification } = useNotification()
   const { data, isLoading } = useGetAllControlImplementations({
-    ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),
+    ...controlAssociationFilter(id, subcontrolId),
   })
 
   const { setCrumbs } = use(BreadcrumbContext)

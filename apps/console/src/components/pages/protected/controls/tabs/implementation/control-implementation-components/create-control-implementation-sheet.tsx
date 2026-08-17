@@ -6,6 +6,7 @@ import { CreateControlImplementationForm } from './form/create-control-implement
 import { ControlImplementationDocumentStatus, type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import useFormSchema from './form/use-form-schema'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
+import { useRetainedWhileOpen } from '@/hooks/useRetainedWhileOpen'
 
 type CreateControlImplementationSheetProps = {
   open: boolean
@@ -17,12 +18,7 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const { form } = useFormSchema()
 
-  // editData clears as the sheet starts closing; keep it until the sheet reopens
-  // so the form doesn't flash its create state during the close animation
-  const [openedWith, setOpenedWith] = useState<ControlImplementationFieldsFragment | null>(null)
-  useEffect(() => {
-    if (open) setOpenedWith(editData ?? null)
-  }, [open, editData])
+  const openedWith = useRetainedWhileOpen(open, editData)
 
   const normalizedValues = useMemo(() => {
     return openedWith

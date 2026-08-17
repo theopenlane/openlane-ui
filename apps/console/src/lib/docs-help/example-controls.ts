@@ -22,6 +22,8 @@ export const isWeakTitle = (title: string, refCode: string) => {
   return trimmed.length < 4 || trimmed.toLowerCase() === refCode.trim().toLowerCase()
 }
 
+const HTML_TAG = /<[^>]*>/g
+
 export const stem = (word: string) => word.replace(/(ings?|ions?|ments?|ed|es|s)$/, '')
 
 // words that appear in nearly every control description, so counting them
@@ -32,7 +34,7 @@ export const wordSet = (value: string) =>
   new Set(
     value
       .toLowerCase()
-      .replace(/<[^>]*>/g, ' ')
+      .replace(HTML_TAG, ' ')
       .split(/[^a-z0-9]+/)
       .filter((word) => word.length > 3)
       .map(stem)

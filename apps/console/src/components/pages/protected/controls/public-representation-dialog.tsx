@@ -12,6 +12,7 @@ import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/control
 import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 import { useGetAllControlImplementations } from '@/lib/graphql-hooks/control-implementation'
 import { useGetAllControlObjectives } from '@/lib/graphql-hooks/control-objective'
+import { controlAssociationFilter } from '@/lib/graphql-hooks/control-association'
 import { ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { useSuggestPublicRepresentation } from '@/hooks/useDocsHelp'
 import { useNotification } from '@/hooks/useNotification'
@@ -34,7 +35,7 @@ const PublicRepresentationDialog: React.FC<PublicRepresentationDialogProps> = ({
   const { data: subcontrolData } = useGetSubcontrolById(subcontrolId ?? null)
   const record = isSubcontrol ? subcontrolData?.subcontrol : controlData?.control
 
-  const association = isSubcontrol ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id: controlId }] }
+  const association = controlAssociationFilter(controlId, subcontrolId)
   const { data: implementationsData } = useGetAllControlImplementations(association)
   const { data: objectivesData } = useGetAllControlObjectives({ ...association, statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED })
 
@@ -45,14 +46,20 @@ const PublicRepresentationDialog: React.FC<PublicRepresentationDialogProps> = ({
   const existing = record?.publicRepresentation ?? ''
   const [value, setValue] = useState<Value | string>(existing)
   const [draft, setDraft] = useState<string | null>(null)
+  const [seeded, setSeeded] = useState(false)
 
-  // the editor only reads initialValue once, so remount it when a draft arrives
+  // seed once per opening, and only until the record has actually loaded, so a
+  // refetch can't overwrite what the user has already typed
   useEffect(() => {
-    if (open) {
-      setValue(existing)
-      setDraft(null)
+    if (!open) {
+      setSeeded(false)
+      return
     }
-  }, [open, existing])
+    if (seeded) return
+    setValue(existing)
+    setDraft(null)
+    if (record) setSeeded(true)
+  }, [open, existing, record, seeded])
 
   const handleSuggest = async () => {
     const implementations = (implementationsData?.controlImplementations?.edges ?? []).flatMap((edge) => (edge?.node?.details ? [edge.node.details] : []))

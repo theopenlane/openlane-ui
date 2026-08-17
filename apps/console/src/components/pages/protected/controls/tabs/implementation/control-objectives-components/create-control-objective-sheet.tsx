@@ -9,6 +9,7 @@ import { ControlObjectiveControlSource, type ControlObjectiveFieldsFragment, Con
 import useFormSchema from './form/use-form-schema'
 import { VersionBump } from '@/lib/enums/revision-enum'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
+import { useRetainedWhileOpen } from '@/hooks/useRetainedWhileOpen'
 import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 
@@ -26,10 +27,7 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(isSubcontrol ? null : (id ?? null))
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(subcontrolId ?? null)
 
-  const [openedWith, setOpenedWith] = useState<ControlObjectiveFieldsFragment | null>(null)
-  useEffect(() => {
-    if (open) setOpenedWith(editData ?? null)
-  }, [open, editData])
+  const openedWith = useRetainedWhileOpen(open, editData)
 
   // the docs suggestion belongs here too, where the objective is actually written
   const objectiveControl = controlData?.control

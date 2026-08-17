@@ -4,6 +4,7 @@ import React from 'react'
 import { useParams } from 'next/navigation'
 import { useGetAllControlImplementations } from '@/lib/graphql-hooks/control-implementation'
 import { useGetAllControlObjectives } from '@/lib/graphql-hooks/control-objective'
+import { controlAssociationFilter } from '@/lib/graphql-hooks/control-association'
 import { type ControlImplementationFieldsFragment, type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import ControlImplementations from '@/components/pages/protected/controls/tabs/implementation/control-implementations'
 import ControlObjectives from '@/components/pages/protected/controls/tabs/implementation/control-objectives'
@@ -24,11 +25,11 @@ const ImplementationTab: React.FC<ImplementationTabProps> = ({ isEditing, data, 
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
 
   const { data: implementationsData, isLoading: isImplementationsLoading } = useGetAllControlImplementations({
-    ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),
+    ...controlAssociationFilter(id, subcontrolId),
   })
 
   const { data: objectivesData, isLoading: isObjectivesLoading } = useGetAllControlObjectives({
-    ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),
+    ...controlAssociationFilter(id, subcontrolId),
     statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED,
   })
 
@@ -58,7 +59,7 @@ export default ImplementationTab
 // Whether the tab has anything to show, so the parent can hide it entirely
 export const useHasImplementationData = ({ publicRepresentation }: { publicRepresentation?: string | null }) => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
-  const association = subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }
+  const association = controlAssociationFilter(id, subcontrolId)
 
   const { data: implementationsData } = useGetAllControlImplementations(association)
   const { data: objectivesData } = useGetAllControlObjectives({ ...association, statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED })
