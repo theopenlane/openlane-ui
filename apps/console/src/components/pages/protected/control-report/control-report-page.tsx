@@ -21,7 +21,8 @@ import ReportLoadingIndicator from './report-loading-indicator'
 import { getGridMinWidth } from './control-report-grid'
 import { useReportSelection } from './use-report-selection'
 import { getOrgRelatedControls, getFrameworkRelatedControls } from './report-coverage'
-import { type ReportFilterId } from './report-filter-options'
+import { QUERY_REPORT_FILTER_IDS, type ReportFilterId } from './report-filter-options'
+import { controlOwnedByUserWhere } from '@/lib/control-where'
 import { getOrganizationStorageItem, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
 import { compareNatural } from '@/lib/sort'
 import { useSession } from 'next-auth/react'
@@ -95,9 +96,14 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     [],
   )
 
+  const userId = session?.user?.userId ?? ''
+  const isMyControlsFilterActive = reportFilters.has('MY_CONTROLS')
+  const hasNarrowingFilters = selectedPrograms.length > 0 || [...reportFilters].some((filterId) => QUERY_REPORT_FILTER_IDS.has(filterId))
+
   const where: ControlWhereInput | undefined = useMemo(() => {
     const base: ControlWhereInput = {
       ...organizationControlsWhere,
+      ...(isMyControlsFilterActive ? controlOwnedByUserWhere(userId) : {}),
       statusNotIn: [ControlControlStatus.ARCHIVED, ControlControlStatus.NOT_APPLICABLE],
     }
 
@@ -113,7 +119,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
 
     base.standardIDIn = [effectiveStandard]
     return base
-  }, [effectiveStandard, organizationControlsWhere, selectedPrograms])
+  }, [effectiveStandard, organizationControlsWhere, selectedPrograms, isMyControlsFilterActive, userId])
 
   const { data: organizationControlsData, isLoading: isLoadingOrganizationControls } = useGetAllControls({
     where: organizationControlsWhere,
@@ -152,8 +158,10 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     return map
   }, [sortedData, isCustomView])
 
+  const clientReportFilters = useMemo(() => [...reportFilters].filter((filterId) => !QUERY_REPORT_FILTER_IDS.has(filterId)), [reportFilters])
+
   const filteredSortedData = useMemo(() => {
-    if (!sortedData || reportFilters.size === 0) return sortedData
+    if (!sortedData || clientReportFilters.length === 0) return sortedData
 
     return sortedData
       .map((entry) => ({
@@ -165,7 +173,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
           const orgRelatedCount = getOrgRelatedControls(control.relatedControls).length
           const frameworkRelatedCount = getFrameworkRelatedControls(control.relatedControls).length
 
-          for (const filterId of reportFilters) {
+          for (const filterId of clientReportFilters) {
             if (filterId === 'NOT_APPROVED' && control.status === ControlControlStatus.APPROVED) return false
             if (filterId === 'NO_OWNER' && control.controlOwner) return false
             if (filterId === 'NO_EVIDENCE' && evidenceTotal !== 0) return false
@@ -178,7 +186,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
         }),
       }))
       .filter((entry) => entry.controls.length > 0)
-  }, [sortedData, reportFilters, isCustomView])
+  }, [sortedData, clientReportFilters, isCustomView])
 
   useEffect(() => {
     setSelectedStandard(getOrganizationStorageItem(REPORT_STANDARD_KEY, currentOrgId) ?? '')
@@ -221,12 +229,13 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   useEffect(() => {
     if (userSelectedStandardRef.current) return
     if (effectiveStandard !== 'CUSTOM') return
+    if (hasNarrowingFilters) return
     if (isLoading || isLoadingMore || !data || !hasNoReportControls) return
     if (!isSuccessStandards || standardOptions.length === 0) return
 
     const preferred = standardOptions.find((opt) => opt.label.replace(/\s+/g, '').toLowerCase() === 'soc2') ?? standardOptions[0]
     setSelectedStandard(preferred.value)
-  }, [effectiveStandard, isLoading, isLoadingMore, data, hasNoReportControls, isSuccessStandards, standardOptions])
+  }, [effectiveStandard, hasNarrowingFilters, isLoading, isLoadingMore, data, hasNoReportControls, isSuccessStandards, standardOptions])
 
   useEffect(() => {
     if (!sortedData) return

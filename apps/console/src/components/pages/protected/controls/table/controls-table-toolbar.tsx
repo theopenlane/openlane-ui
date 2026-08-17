@@ -1,6 +1,6 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useMemo, useState } from 'react'
-import { type FilterField } from '@/types'
+import { type Condition, type FilterField } from '@/types'
 import { CirclePlus, DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { getControlsFilterFields } from './table-config'
 import { Input } from '@repo/ui/input'
@@ -12,6 +12,7 @@ import Link from 'next/link'
 import { type VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
+import { controlOwnedByUserWhere } from '@/lib/control-where'
 import { type ControlWhereInput } from '@repo/codegen/src/schema'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { Button } from '@repo/ui/button'
@@ -34,7 +35,6 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 import { useSession } from 'next-auth/react'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
-import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { type Session } from 'next-auth'
 
 type TProps = {
@@ -85,7 +85,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
         label: 'My Controls',
         key: 'myControls',
         type: 'custom',
-        getCondition: () => ({ hasControlOwnerWith: [{ hasMembersWith: [{ userID: session?.user?.userId ?? '' }] }] }) as TFilterState,
+        getCondition: () => controlOwnedByUserWhere(session?.user?.userId ?? '') as Condition,
         isActive: false,
       },
       {
