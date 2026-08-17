@@ -14,7 +14,7 @@ export enum GraphQlResponseError {
   GraphQlParseFailedCode = 'GRAPHQL_PARSE_FAILED',
 }
 
-export const invalidRequestMessage = 'We couldn’t complete this request because the server rejected it as invalid. Reach out to support if the problem continues.'
+export const invalidRequestMessage = 'The request could not be completed. Reach out to support if the issue persists.'
 
 export const invalidQueryFilterMessage = 'Try clearing your filters and searching again. Reach out to support if the issue persists.'
 
