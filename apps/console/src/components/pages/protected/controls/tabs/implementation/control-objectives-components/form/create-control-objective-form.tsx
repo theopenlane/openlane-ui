@@ -53,7 +53,7 @@ export const CreateControlObjectiveForm = ({
     formState: { errors },
   } = form
 
-  const onDesiredOutcomeChange = usePlateHydration(form, 'desiredOutcome')
+  const onDesiredOutcomeChange = usePlateHydration(form, 'desiredOutcome', defaultValues?.desiredOutcome ?? suggestedValues?.desiredOutcome)
 
   const { mutate: createObjective } = useCreateControlObjective()
   const { mutate: updateObjective } = useUpdateControlObjective()

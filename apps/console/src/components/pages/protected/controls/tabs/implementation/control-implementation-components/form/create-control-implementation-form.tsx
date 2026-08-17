@@ -40,7 +40,7 @@ export const CreateControlImplementationForm = ({
   const { convertToHtml } = usePlateEditor()
   const { handleSubmit, control } = form
 
-  const onDetailsChange = usePlateHydration(form, 'details')
+  const onDetailsChange = usePlateHydration(form, 'details', defaultValues?.details)
 
   const { mutate: createImplementation } = useCreateControlImplementation()
   const { mutate: updateImplementation } = useUpdateControlImplementation()

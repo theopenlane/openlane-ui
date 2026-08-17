@@ -26,6 +26,7 @@ type ControlLike = {
   id?: string | null
   referenceFramework?: string | null
   refCode?: string | null
+  publicRepresentation?: string | null
   controlObjectives?: {
     edges?: Array<{ node?: { id?: string | null; displayID?: string | null } | null } | null> | null
   } | null
@@ -35,6 +36,7 @@ type SubcontrolLike = {
   id?: string | null
   referenceFramework?: string | null
   refCode?: string | null
+  publicRepresentation?: string | null
   controlObjectives?: {
     edges?: Array<{ node?: { id?: string | null; displayID?: string | null } | null } | null> | null
   } | null
@@ -94,6 +96,8 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
     return { controlIDs: controlId ? [controlId] : [] }
   }, [isSubcontrol, controlId, subcontrolId])
 
+  const hasPublicRepresentation = !!(isSubcontrol ? subcontrolData?.publicRepresentation : controlData?.publicRepresentation)
+
   const actions = useMemo<QuickActionItem[]>(() => {
     const baseActions: QuickActionItem[] = [
       {
@@ -140,12 +144,16 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
           icon: <GitBranch size={16} />,
           href: `/controls/${controlId}/${subcontrolId}/map-control`,
         },
-        {
-          id: 'add-public-representation',
-          label: 'Public Representation',
-          icon: <Globe size={16} />,
-          onClick: () => setShowPublicRepresentationDialog(true),
-        },
+        ...(hasPublicRepresentation
+          ? []
+          : [
+              {
+                id: 'add-public-representation',
+                label: 'Public Representation',
+                icon: <Globe size={16} />,
+                onClick: () => setShowPublicRepresentationDialog(true),
+              },
+            ]),
       ]
     }
 
@@ -163,14 +171,18 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
         icon: <GitBranch size={16} />,
         href: `/controls/${controlId}/map-control`,
       },
-      {
-        id: 'add-public-representation',
-        label: 'Public Representation',
-        icon: <Globe size={16} />,
-        onClick: () => setShowPublicRepresentationDialog(true),
-      },
+      ...(hasPublicRepresentation
+        ? []
+        : [
+            {
+              id: 'add-public-representation',
+              label: 'Public Representation',
+              icon: <Globe size={16} />,
+              onClick: () => setShowPublicRepresentationDialog(true),
+            },
+          ]),
     ]
-  }, [isSubcontrol, controlId, subcontrolId, isAuditor])
+  }, [isSubcontrol, controlId, subcontrolId, isAuditor, hasPublicRepresentation])
 
   const filteredActions = useMemo(() => {
     if (props.canEdit) return actions
@@ -266,7 +278,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
       />
       <CreateControlImplementationSheet open={showCreateImplementationSheet} onOpenChange={setShowCreateImplementationSheet} />
       <CreateControlObjectiveSheet open={showCreateObjectiveSheet} onOpenChange={setShowCreateObjectiveSheet} />
-      <PublicRepresentationDialog open={showPublicRepresentationDialog} onOpenChange={setShowPublicRepresentationDialog} controlId={controlId} subcontrolId={subcontrolId} />
+      {showPublicRepresentationDialog && <PublicRepresentationDialog open onOpenChange={setShowPublicRepresentationDialog} controlId={controlId} subcontrolId={subcontrolId} />}
       {isAuditor && <CreateControlReviewSheet open={showCreateReviewSheet} onOpenChange={setShowCreateReviewSheet} controlId={controlId} subcontrolId={subcontrolId} />}
     </div>
   )
