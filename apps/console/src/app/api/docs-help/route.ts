@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { BATCH_CONCURRENCY, MAX_BATCH_ITEMS, MAX_PREFER_CHARS, MAX_QUERY_CHARS } from '@/lib/docs-help/constants'
 import { corpusLocation, getClients, fetchGcsFile } from '@/lib/docs-help/clients'
 import { dedupeBySource, extractMarkdownSection, parseChunk, parsePolicyMappingTable, rankChunks } from '@/lib/docs-help/parse'
-import { generateControlTitles, summarizeChunks } from '@/lib/docs-help/ai'
+import { generateControlTitles, generatePublicRepresentation, summarizeChunks } from '@/lib/docs-help/ai'
 import { lookupSection } from '@/lib/docs-help/retrieval'
 import { cacheKeyOf, readSectionCache, writeSectionCache } from '@/lib/docs-help/section-cache'
 import { docsHelpStream } from '@/lib/docs-help/stream'
@@ -22,6 +22,16 @@ const requestSchema = z.object({
   extractSection: z.union([z.string(), z.array(z.string())]).optional(),
   policyMapping: z.boolean().optional(),
   suggestTitles: z.array(z.object({ refCode: z.string().optional(), description: z.string().optional() })).optional(),
+  suggestPublicRepresentation: z
+    .object({
+      refCode: z.string().optional(),
+      referenceFramework: z.string().optional(),
+      description: z.string().optional(),
+      implementations: z.array(z.string()).max(20).optional(),
+      objectives: z.array(z.string()).max(20).optional(),
+      existing: z.string().optional(),
+    })
+    .optional(),
   fullPageFor: z.string().optional(),
   batch: z
     .array(
@@ -52,7 +62,11 @@ export const POST = async (req: NextRequest) => {
   if (!parsed.success) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }
-  const { query, prefer, section, summarize, extractSection, policyMapping, suggestTitles, fullPageFor, batch } = parsed.data
+  const { query, prefer, section, summarize, extractSection, policyMapping, suggestTitles, suggestPublicRepresentation, fullPageFor, batch } = parsed.data
+
+  if (suggestPublicRepresentation) {
+    return NextResponse.json({ text: await generatePublicRepresentation(docsClients.genAI, suggestPublicRepresentation) })
+  }
 
   if (suggestTitles) {
     if (suggestTitles.length === 0) return NextResponse.json({ titles: [] })

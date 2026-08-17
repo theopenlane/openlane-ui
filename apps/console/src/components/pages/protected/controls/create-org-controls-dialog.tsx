@@ -78,7 +78,7 @@ function useTemplateIndex(enabled: boolean) {
 
     for (const control of controls) {
       if (!control.refCode) continue
-      const template: TTemplateControl = { refCode: control.refCode, name: control.category, description: control.description }
+      const template: TTemplateControl = { refCode: control.refCode, name: control.title, description: control.description, category: control.category, subcategory: control.subcategory }
 
       for (const related of control.relatedControls ?? []) {
         if (!related?.refCode) continue
@@ -304,6 +304,8 @@ export function CreateOrgControlsDialog({ open, onOpenChange, frameworkControl, 
             title: row.title.trim() || undefined,
             description: row.description.trim() || undefined,
             status: ControlControlStatus.DRAFT,
+            category: row.category,
+            subcategory: row.subcategory,
             source: ControlControlSource.TEMPLATE,
           },
         })
@@ -409,7 +411,6 @@ export function CreateOrgControlsDialog({ open, onOpenChange, frameworkControl, 
                       <div className="flex flex-wrap items-center gap-2">
                         <Link2 size={14} className="text-[var(--color-info)]" />
                         <span className="text-sm font-medium">Map existing {row.existingMatch.refCode}</span>
-                        <span className="text-xs text-muted-foreground">covers &ldquo;{row.refCode}&rdquo; — no new control created</span>
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">{row.description}</p>
                     </div>

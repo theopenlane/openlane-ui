@@ -17,16 +17,23 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const { form } = useFormSchema()
 
+  // editData clears as the sheet starts closing; keep it until the sheet reopens
+  // so the form doesn't flash its create state during the close animation
+  const [openedWith, setOpenedWith] = useState<ControlImplementationFieldsFragment | null>(null)
+  useEffect(() => {
+    if (open) setOpenedWith(editData ?? null)
+  }, [open, editData])
+
   const normalizedValues = useMemo(() => {
-    return editData
+    return openedWith
       ? {
-          id: editData.id,
-          details: editData.details ?? '',
-          status: editData.status ?? ControlImplementationDocumentStatus.DRAFT,
-          implementationDate: editData.implementationDate ? new Date(editData.implementationDate) : undefined,
+          id: openedWith.id,
+          details: openedWith.details ?? '',
+          status: openedWith.status ?? ControlImplementationDocumentStatus.DRAFT,
+          implementationDate: openedWith.implementationDate ? new Date(openedWith.implementationDate) : undefined,
         }
       : undefined
-  }, [editData])
+  }, [openedWith])
 
   useEffect(() => {
     if (!open) return
@@ -50,7 +57,6 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
 
   const handleConfirmClose = () => {
     setShowCancelDialog(false)
-    form.reset()
     onOpenChange(false)
   }
 

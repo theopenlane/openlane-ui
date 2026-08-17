@@ -26,6 +26,11 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(isSubcontrol ? null : (id ?? null))
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(subcontrolId ?? null)
 
+  const [openedWith, setOpenedWith] = useState<ControlObjectiveFieldsFragment | null>(null)
+  useEffect(() => {
+    if (open) setOpenedWith(editData ?? null)
+  }, [open, editData])
+
   // the docs suggestion belongs here too, where the objective is actually written
   const objectiveControl = controlData?.control
   const objectiveSuggestionData = useSuggestedObjective(
@@ -33,25 +38,25 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
       ? { controlId: objectiveControl.id, refCode: objectiveControl.refCode, referenceFramework: objectiveControl.referenceFramework, source: objectiveControl.source }
       : undefined,
   )
-  const suggestion = !editData && objectiveSuggestionData && !objectiveSuggestionData.dismissed ? objectiveSuggestionData.suggestion : null
+  const suggestion = !openedWith && objectiveSuggestionData && !objectiveSuggestionData.dismissed ? objectiveSuggestionData.suggestion : null
   const loading = isLoadingControl || isLoadingSubcontrol
 
   const normalizedValues = useMemo(() => {
-    if (!editData) return undefined
-    const RevisionBump: VersionBump | undefined = editData.status === ControlObjectiveObjectiveStatus.DRAFT ? VersionBump.DRAFT : undefined
+    if (!openedWith) return undefined
+    const RevisionBump: VersionBump | undefined = openedWith.status === ControlObjectiveObjectiveStatus.DRAFT ? VersionBump.DRAFT : undefined
     return {
-      id: editData.id,
-      name: editData.name ?? '',
-      desiredOutcome: editData.desiredOutcome ?? '',
-      status: editData.status ?? ControlObjectiveObjectiveStatus.DRAFT,
-      source: editData.source ?? ControlObjectiveControlSource.USER_DEFINED,
-      controlObjectiveType: editData.controlObjectiveType ?? '',
-      category: editData.category ?? '',
-      subcategory: editData.subcategory ?? '',
-      revision: editData.revision ?? '',
+      id: openedWith.id,
+      name: openedWith.name ?? '',
+      desiredOutcome: openedWith.desiredOutcome ?? '',
+      status: openedWith.status ?? ControlObjectiveObjectiveStatus.DRAFT,
+      source: openedWith.source ?? ControlObjectiveControlSource.USER_DEFINED,
+      controlObjectiveType: openedWith.controlObjectiveType ?? '',
+      category: openedWith.category ?? '',
+      subcategory: openedWith.subcategory ?? '',
+      revision: openedWith.revision ?? '',
       RevisionBump,
     }
-  }, [editData])
+  }, [openedWith])
 
   useEffect(() => {
     if (!open) return
@@ -80,7 +85,6 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
 
   const handleConfirmClose = () => {
     setShowCancelDialog(false)
-    form.reset()
     onOpenChange(false)
   }
 

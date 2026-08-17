@@ -9,6 +9,8 @@ export type TExampleRow = {
   refCode: string
   // the template's own ref code, which survives the user editing refCode above
   templateRefCode?: string
+  category?: string
+  subcategory?: string
   title: string
   description: string
   existingMatch?: TExistingMatch
@@ -85,7 +87,7 @@ export const orgRefCodeFromTemplate = (templateRefCode: string, organizationName
 }
 
 // A control from the OL Baseline template standard
-export type TTemplateControl = { refCode: string; name?: string | null; description?: string | null }
+export type TTemplateControl = { refCode: string; name?: string | null; description?: string | null; category?: string | null; subcategory?: string | null }
 
 // Seed editable rows from template controls, re-prefixing each ref code to the
 // organization. Suggestions the org already has by ref code are dropped
@@ -97,6 +99,8 @@ export function templateControlRows(templates: TTemplateControl[], existingRefCo
       templateRefCode: template.refCode,
       title: template.name?.trim() ?? '',
       description: template.description?.trim() ?? '',
+      category: template.category ?? undefined,
+      subcategory: template.subcategory ?? undefined,
     }))
     .filter((row) => !existing.has(row.refCode.toLowerCase()))
 }

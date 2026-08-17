@@ -7,7 +7,7 @@ import { ControlControlSource } from '@repo/codegen/src/schema'
 import { useDocsSection } from '@/hooks/useDocsHelp'
 import { useGetAllMappedControlsGrouped } from '@/lib/graphql-hooks/mapped-control'
 import { createDocsMarkdownComponents as docsMarkdownComponents } from '@/components/shared/docs-help/docs-help-content'
-import { DocsSourceLink, SuggestionCard } from '@/components/shared/docs-help/suggestion-card'
+import { DocsSourceLink, EvidenceExamplesDisclaimer, SuggestionCard } from '@/components/shared/docs-help/suggestion-card'
 
 export type TDocsEvidenceControl = {
   controlId: string
@@ -94,6 +94,7 @@ export function ExampleEvidenceRequestsCard({ requests, title = 'Example Evidenc
           {requests.section}
         </ReactMarkdown>
       </div>
+      <EvidenceExamplesDisclaimer />
     </SuggestionCard>
   )
 }

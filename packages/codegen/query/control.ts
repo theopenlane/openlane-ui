@@ -1097,7 +1097,9 @@ export const GET_TEMPLATE_CONTROLS_WITH_MAPPINGS = gql`
         node {
           id
           refCode
+          title
           category
+          subcategory
           description
           relatedControls {
             id

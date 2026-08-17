@@ -88,7 +88,7 @@ function MapSuggestedPoliciesDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <p className="text-sm text-muted-foreground">The docs recommend these policies for this control, and your organization already has them — they just aren&apos;t linked yet.</p>
+        <p className="text-sm text-muted-foreground">We recommend these policies for this control, and your organization already has them, they just aren&apos;t linked yet.</p>
 
         <div className="max-h-[60vh] space-y-2 overflow-y-auto pr-1">
           {suggestions.map((suggestion) => (

@@ -2246,7 +2246,9 @@ export interface GetTemplateControlsWithMappingsQuery {
       node: {
         id: string
         refCode: string
+        title: string | null
         category: string | null
+        subcategory: string | null
         description: string | null
         relatedControls: Array<{ id: string; refCode: string; referenceFramework: string | null }> | null
       } | null

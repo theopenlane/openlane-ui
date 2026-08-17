@@ -9,15 +9,17 @@ import PlateEditor from '@/components/shared/plate/plate-editor'
 import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Info, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { type TFormData } from './use-form-schema'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useCreateControlImplementation, useDeleteControlImplementation, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementation'
-import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { ControlImplementationStatusOptions } from '@/components/shared/enum-mapper/control-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { Callout } from '@/components/shared/callout/callout'
+import { DocsSourceLink } from '@/components/shared/docs-help/suggestion-card'
+import { docsHelpQuery } from '@/components/shared/docs-help/docs-help-query'
 
 export const CreateControlImplementationForm = ({
   onSuccess,
@@ -36,6 +38,13 @@ export const CreateControlImplementationForm = ({
   const isSubcontrol = !!subcontrolId
   const { convertToHtml } = usePlateEditor()
   const { handleSubmit, control } = form
+
+  const hydratedRef = React.useRef(false)
+  const hydrate = (value: TFormData['details']) => {
+    hydratedRef.current = true
+    form.setValue('details', value, { shouldDirty: false })
+  }
+
   const { mutate: createImplementation } = useCreateControlImplementation()
   const { mutate: updateImplementation } = useUpdateControlImplementation()
   const { mutate: deleteImplementation } = useDeleteControlImplementation()
@@ -129,18 +138,19 @@ export const CreateControlImplementationForm = ({
       </div>
       <SheetHeader>{!isEditing && <SheetTitle className="text-left">Control Implementation</SheetTitle>}</SheetHeader>
       {!isEditing && (
-        <Alert>
-          <Info className="h-4 w-4" />
-          <AlertTitle>Add details about how this control is implemented in your environment.</AlertTitle>
-          <AlertDescription>
-            <p>Include relevant tools, processes, teams involved, and how effectiveness is ensured.</p>
-          </AlertDescription>
-        </Alert>
+        <Callout variant="info" title="Not sure what to write?">
+          Add details about how this control is implemented in your environment. Include relevant tools, processes, teams involved, and how effectiveness is ensured.{' '}
+          <DocsSourceLink label="Read more" topic={{ title: 'Control Implementation', query: docsHelpQuery('create', 'a control implementation'), prefer: 'Control Implementation' }} />
+        </Callout>
       )}
       <div className="p-4 border rounded-lg">
         <div className="border-b flex items-center py-2.5">
           <Label className="self-start whitespace-nowrap min-w-36">Details</Label>
-          <Controller control={control} name="details" render={({ field }) => <PlateEditor initialValue={defaultValues?.details} onChange={(val) => field.onChange(val)} />} />
+          <Controller
+            control={control}
+            name="details"
+            render={({ field }) => <PlateEditor initialValue={defaultValues?.details} onChange={(val) => (hydratedRef.current ? field.onChange(val) : hydrate(val))} />}
+          />
         </div>
 
         <div className="border-b flex items-center py-2.5">

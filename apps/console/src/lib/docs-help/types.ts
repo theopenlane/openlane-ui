@@ -11,4 +11,13 @@ export type SectionResult = { section: string; title: string; source: string }
 
 export type DocsControlTitleInput = { refCode?: string; description?: string }
 
+export type PublicRepresentationInput = {
+  refCode?: string
+  referenceFramework?: string
+  description?: string
+  implementations?: string[]
+  objectives?: string[]
+  existing?: string
+}
+
 export type DocsPolicyMappingRow = { policy: string; frameworks: string[] }

@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, use, useEffect, useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
+import { createContext, use, useCallback, useEffect, useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
 
 export type DocsHelpTopic = { title: string; query: string; prefer?: string; intro?: string }
 
@@ -10,6 +10,7 @@ const DocsHelpTopicSetterContext = createContext<Dispatch<SetStateAction<DocsHel
 type DocsHelpDrawerState = {
   open: boolean
   setOpen: (open: boolean) => void
+  modal: boolean
   // a one-off topic pushed by an in-page action, cleared when the drawer closes
   ephemeralTopic: DocsHelpTopic | null
   setEphemeralTopic: (topic: DocsHelpTopic | null) => void
@@ -18,15 +19,25 @@ type DocsHelpDrawerState = {
 const DocsHelpDrawerContext = createContext<DocsHelpDrawerState>({
   open: false,
   setOpen: () => {},
+  modal: false,
   ephemeralTopic: null,
   setEphemeralTopic: () => {},
 })
 
+const modalLayerIsOpen = () => typeof document !== 'undefined' && (document.body.style.pointerEvents === 'none' || document.body.hasAttribute('data-scroll-locked'))
+
 export const DocsHelpTopicProvider = ({ children }: { children: ReactNode }) => {
   const [topic, setTopic] = useState<DocsHelpTopic | null>(null)
   const [open, setOpen] = useState(false)
+  const [modal, setModal] = useState(false)
   const [ephemeralTopic, setEphemeralTopic] = useState<DocsHelpTopic | null>(null)
-  const drawer = useMemo(() => ({ open, setOpen, ephemeralTopic, setEphemeralTopic }), [open, ephemeralTopic])
+
+  const openDrawer = useCallback((next: boolean) => {
+    if (next) setModal(modalLayerIsOpen())
+    setOpen(next)
+  }, [])
+
+  const drawer = useMemo(() => ({ open, setOpen: openDrawer, modal, ephemeralTopic, setEphemeralTopic }), [open, openDrawer, modal, ephemeralTopic])
 
   return (
     <DocsHelpTopicSetterContext value={setTopic}>
@@ -41,8 +52,8 @@ export const useDocsHelpTopic = () => use(DocsHelpTopicContext)
 
 // open/close the global docs drawer from anywhere, e.g. an in-page docs link
 export function useDocsHelpDrawer() {
-  const { open, setOpen } = use(DocsHelpDrawerContext)
-  return { open, setOpen }
+  const { open, setOpen, modal } = use(DocsHelpDrawerContext)
+  return { open, setOpen, modal }
 }
 
 // open the docs drawer on a specific topic (one-off, cleared on close)

@@ -17,9 +17,10 @@ import { useIsAuditor } from '@/lib/graphql-hooks/member'
 import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol'
 import { buildControlEvidenceData, buildEvidenceControlParam, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
 import CreateControlObjectiveSheet from '../tabs/implementation/control-objectives-components/create-control-objective-sheet'
+import PublicRepresentationDialog from '@/components/pages/protected/controls/public-representation-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
-const EDIT_RESTRICTED_IDS = new Set(['add-implementation', 'add-objective', 'create-subcontrol', 'map-control'])
+const EDIT_RESTRICTED_IDS = new Set(['add-implementation', 'add-objective', 'create-subcontrol', 'map-control', 'add-public-representation'])
 
 type ControlLike = {
   id?: string | null
@@ -42,7 +43,6 @@ type SubcontrolLike = {
 type BaseQuickActionsProps = {
   controlId: string
   canEdit: boolean
-  onEdit?: () => void
 }
 
 type ControlQuickActionsProps = BaseQuickActionsProps & {
@@ -59,11 +59,11 @@ type SubcontrolQuickActionsProps = BaseQuickActionsProps & {
 type QuickActionsProps = ControlQuickActionsProps | SubcontrolQuickActionsProps
 
 const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
-  const { onEdit } = props
   const [isEvidenceSheetOpen, setIsEvidenceSheetOpen] = useState(false)
   const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
   const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)
   const [showCreateReviewSheet, setShowCreateReviewSheet] = useState(false)
+  const [showPublicRepresentationDialog, setShowPublicRepresentationDialog] = useState(false)
 
   const { isAuditor } = useIsAuditor()
   const isSubcontrol = props.kind === 'subcontrol'
@@ -144,7 +144,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
           id: 'add-public-representation',
           label: 'Public Representation',
           icon: <Globe size={16} />,
-          onClick: () => onEdit?.(),
+          onClick: () => setShowPublicRepresentationDialog(true),
         },
       ]
     }
@@ -167,10 +167,10 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
         id: 'add-public-representation',
         label: 'Public Representation',
         icon: <Globe size={16} />,
-        onClick: () => onEdit?.(),
+        onClick: () => setShowPublicRepresentationDialog(true),
       },
     ]
-  }, [isSubcontrol, controlId, subcontrolId, isAuditor, onEdit])
+  }, [isSubcontrol, controlId, subcontrolId, isAuditor])
 
   const filteredActions = useMemo(() => {
     if (props.canEdit) return actions
@@ -224,7 +224,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
     }
 
     return (
-      <Button key={action.id} type="button" variant="secondary" className="h-8 px-3" icon={action.icon} iconPosition="left" onClick={action.onClick}>
+      <Button key={action.id} type="button" variant="secondary" className="h-8 shrink-0 whitespace-nowrap px-3" icon={action.icon} iconPosition="left" onClick={action.onClick}>
         {action.label}
       </Button>
     )
@@ -266,6 +266,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
       />
       <CreateControlImplementationSheet open={showCreateImplementationSheet} onOpenChange={setShowCreateImplementationSheet} />
       <CreateControlObjectiveSheet open={showCreateObjectiveSheet} onOpenChange={setShowCreateObjectiveSheet} />
+      <PublicRepresentationDialog open={showPublicRepresentationDialog} onOpenChange={setShowPublicRepresentationDialog} controlId={controlId} subcontrolId={subcontrolId} />
       {isAuditor && <CreateControlReviewSheet open={showCreateReviewSheet} onOpenChange={setShowCreateReviewSheet} controlId={controlId} subcontrolId={subcontrolId} />}
     </div>
   )

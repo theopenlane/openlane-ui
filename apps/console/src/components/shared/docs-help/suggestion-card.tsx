@@ -25,6 +25,16 @@ export function DocsSourceLink({ label, topic, size = 12 }: { label: string; top
   )
 }
 
+// Reminder that doc examples are not a substitute for the auditor's own ask
+export function EvidenceExamplesDisclaimer({ children }: { children?: ReactNode }) {
+  return (
+    <p className="mt-2 flex flex-wrap items-center gap-x-1.5 text-xs italic text-muted-foreground">
+      <span>These are examples only. Reach out to your auditor if you have specific questions on what evidence you need to supply.</span>
+      {children}
+    </p>
+  )
+}
+
 // Wave a suggestion away without acting on it
 export function DismissButton({ onClick, label }: { onClick: () => void; label: string }) {
   return (

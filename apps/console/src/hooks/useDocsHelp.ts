@@ -1,5 +1,5 @@
 import { use, useEffect, useMemo } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { DocsHelpChunk, DocsHelpFrame, DocsHelpResponse, DocsSection } from '@/types/docs-help'
 import { DocsSectionBatchContext, type DocsSectionResult } from '@/components/shared/docs-help/docs-section-batch-context'
 
@@ -134,5 +134,20 @@ export function useDocsFullPage(query: string, source: string | null, enabled: b
     retry: false,
     staleTime: DOCS_HELP_STALE_TIME_MS,
     placeholderData: undefined,
+  })
+}
+
+export type PublicRepresentationRequest = {
+  refCode?: string
+  referenceFramework?: string
+  description?: string
+  implementations?: string[]
+  objectives?: string[]
+  existing?: string
+}
+
+export function useSuggestPublicRepresentation() {
+  return useMutation({
+    mutationFn: async (input: PublicRepresentationRequest) => ((await postDocsHelp({ suggestPublicRepresentation: input })).text ?? '') as string,
   })
 }

@@ -8,7 +8,7 @@ import { docsHelpEnabled } from '@repo/dally/ai'
 import { ControlControlSource } from '@repo/codegen/src/schema'
 import { useControlDocsSection } from '@/components/pages/protected/controls/example-evidence-requests'
 import { createDocsMarkdownComponents as docsMarkdownComponents } from '@/components/shared/docs-help/docs-help-content'
-import { DocsSourceLink } from '@/components/shared/docs-help/suggestion-card'
+import { DocsSourceLink, EvidenceExamplesDisclaimer } from '@/components/shared/docs-help/suggestion-card'
 
 export function EvidenceDocsExamples({ control }: { control?: { id: string; refCode: string; referenceFramework?: string | null } }) {
   const [open, setOpen] = useState(false)
@@ -45,9 +45,13 @@ export function EvidenceDocsExamples({ control }: { control?: { id: string; refC
               {examples.section}
             </ReactMarkdown>
           </div>
-          <div className="mt-2">
-            <DocsSourceLink label={`View ${target.refCode} docs`} topic={{ title: `${target.framework} ${target.refCode}`, query: `${target.framework} ${target.refCode}`, prefer: target.refCode }} />
-          </div>
+          <EvidenceExamplesDisclaimer>
+            <DocsSourceLink
+              label={`View ${target.refCode} docs`}
+              topic={{ title: `${target.framework} ${target.refCode}`, query: `${target.framework} ${target.refCode}`, prefer: target.refCode }}
+              size={11}
+            />
+          </EvidenceExamplesDisclaimer>
         </div>
       )}
     </div>

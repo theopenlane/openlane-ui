@@ -27,10 +27,13 @@ const QuickActionsBar: React.FC<QuickActionsBarProps> = ({ actions, renderAction
   const lastWidthRef = useRef<number>(0)
 
   useEffect(() => {
+    lastWidthRef.current = 0
+
     const calculateVisibleItems = () => {
       if (!containerRef.current || !measureRef.current) return
 
       const containerWidth = containerRef.current.offsetWidth
+      if (containerWidth === 0) return
 
       if (Math.abs(containerWidth - lastWidthRef.current) < 5) return
       lastWidthRef.current = containerWidth
@@ -76,25 +79,25 @@ const QuickActionsBar: React.FC<QuickActionsBarProps> = ({ actions, renderAction
       clearTimeout(timer)
       resizeObserver.disconnect()
     }
-  }, [])
+  }, [actions])
 
   const showAll = visibleCount === null
   const visibleActions = showAll ? actions : actions.slice(0, visibleCount)
   const overflowActions = showAll ? [] : actions.slice(visibleCount)
 
   return (
-    <div className="space-y-3">
+    <div className="relative space-y-3">
       <p className="text-sm text-muted-foreground">{label}</p>
 
-      <div ref={measureRef} className="flex gap-2 invisible absolute pointer-events-none" aria-hidden="true">
+      <div ref={measureRef} className="flex w-max max-w-none gap-2 invisible absolute left-0 top-0 pointer-events-none" aria-hidden="true">
         {actions.map((action) => (
-          <Button key={action.id} type="button" variant="secondary" className="h-8 px-3 whitespace-nowrap" icon={action.icon}>
+          <Button key={action.id} type="button" variant="secondary" className="h-8 px-3 shrink-0 whitespace-nowrap" icon={action.icon} iconPosition="left">
             {action.label}
           </Button>
         ))}
       </div>
 
-      <div ref={containerRef} className={`flex flex-nowrap gap-2 items-center overflow-hidden ${measured ? '' : 'invisible'}`}>
+      <div ref={containerRef} className={`flex flex-nowrap gap-2 items-center overflow-hidden [&>*]:shrink-0 ${measured ? '' : 'invisible'}`}>
         {visibleActions.map((action) => renderAction(action, { inMenu: false }))}
 
         {overflowActions.length > 0 && (

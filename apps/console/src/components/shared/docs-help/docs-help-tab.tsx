@@ -96,7 +96,7 @@ const AnimatedBookText = ({ hovered, size = 14 }: { hovered: boolean; size?: num
 const DocsTabButton = ({ onClick, label, className }: { onClick: () => void; label: string; className: string }) => {
   const [hovered, setHovered] = useState(false)
   return (
-    <button type="button" onClick={onClick} aria-label={label} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className={className}>
+    <button type="button" data-info-panel="" onClick={onClick} aria-label={label} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className={className}>
       <AnimatedBookText hovered={hovered} />
       <span style={{ writingMode: 'vertical-rl' }}>Docs</span>
     </button>
@@ -105,7 +105,7 @@ const DocsTabButton = ({ onClick, label, className }: { onClick: () => void; lab
 
 export const DocsHelpTab = () => {
   // open state lives in context so in-page links can open the drawer too
-  const { open, setOpen } = useDocsHelpDrawer()
+  const { open, setOpen, modal } = useDocsHelpDrawer()
   const { ephemeralTopic, setEphemeralTopic } = useDocsHelpEphemeralTopic()
   const [showClosedTab, setShowClosedTab] = useState(true)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -123,38 +123,46 @@ export const DocsHelpTab = () => {
   const [body, setBody] = useState<HTMLElement | null>(null)
   useEffect(() => setBody(document.body), [])
 
+  // in-page links open the drawer through the context, bypassing any close handler
+  useEffect(() => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+    if (open) {
+      setShowClosedTab(false)
+      return
+    }
+    closeTimerRef.current = setTimeout(() => setShowClosedTab(true), CLOSE_ANIMATION_MS)
+  }, [open])
+
   useEffect(() => () => clearTimeout(closeTimerRef.current ?? undefined), [])
 
   const topic = useMemo(() => ephemeralTopic ?? override ?? topicForPath(pathname ?? '/'), [ephemeralTopic, override, pathname])
 
   if (!docsHelpEnabled) return null
 
-  const handleOpenChange = (next: boolean) => {
-    setOpen(next)
-    if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
-    if (next) {
-      setShowClosedTab(false)
-    } else {
-      closeTimerRef.current = setTimeout(() => setShowClosedTab(true), CLOSE_ANIMATION_MS)
-    }
-  }
-
   return (
     <InfoSlideOut
       title={topic.title}
       open={open}
-      onOpenChange={handleOpenChange}
+      onOpenChange={setOpen}
       width={660}
       resizable
       hideClose
-      modal={false}
+      // modal only over a sheet or dialog, where it has to take the scroll lock to
+      // be scrollable; the backdrop is transparent so it never dims what's behind
+      modal={modal}
+      overlayClassName="bg-transparent"
       icon={<BookText size={20} className="self-center" />}
       trigger={(openPanel) =>
         showClosedTab && body
-          ? createPortal(<DocsTabButton onClick={openPanel} label={`Open docs help for ${topic.title}`} className={`fixed right-0 top-1/2 z-40 -translate-y-1/2 ${TAB_CLASSES}`} />, body)
+          ? // above sheets and dialogs (z-50) so the tab stays reachable over any slide-out, and
+            // pointer-events-auto keeps it clickable when a modal layer sets body pointer-events: none
+            createPortal(
+              <DocsTabButton onClick={openPanel} label={`Open docs help for ${topic.title}`} className={`fixed right-0 top-1/2 z-[60] -translate-y-1/2 pointer-events-auto ${TAB_CLASSES}`} />,
+              body,
+            )
           : null
       }
-      edgeHandle={<DocsTabButton onClick={() => handleOpenChange(false)} label="Close docs help" className={TAB_CLASSES} />}
+      edgeHandle={<DocsTabButton onClick={() => setOpen(false)} label="Close docs help" className={TAB_CLASSES} />}
     >
       <DocsHelpContent key={topic.query} query={topic.query} prefer={topic.prefer} intro={topic.intro} section={pathname?.startsWith('/developers') ? 'developers' : 'platform'} enabled={open} />
     </InfoSlideOut>
