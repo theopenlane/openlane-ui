@@ -123,7 +123,7 @@ const describeInvalidQuery = (info: TGraphQlErrorInfo): string => {
   const reason = asAside(info.reason)
 
   return info.path.length > 0
-    ? `We couldn’t run this query because “${info.path.join('.')}” is not valid${reason}. Remove or change that filter and try again, and reach out to support if it keeps failing.`
+    ? `We couldn’t run this query because “${info.path.join('.')}” is not valid${reason}. Remove or change the filter and try again. Reach out to support if the issue persists.`
     : `We couldn’t run this query${reason}. ${invalidQueryFilterMessage}`
 }
 
