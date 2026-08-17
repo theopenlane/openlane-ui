@@ -12,6 +12,7 @@ import {
   BULK_DELETE_TASK,
   GET_OVERDUE_TASK_COUNT,
   GET_TASK_ASSOCIATIONS,
+  TASK_TEMPLATES,
 } from '@repo/codegen/query/task'
 import {
   type TasksWithFilterQuery,
@@ -35,26 +36,34 @@ import {
   type GetOverdueTaskCountQuery,
   type GetTaskAssociationsQuery,
   type GetTaskAssociationsQueryVariables,
+  type TaskTemplatesQuery,
+  type TaskTemplatesQueryVariables,
+  type TaskWhereInput,
+  OrderDirection,
+  TaskOrderField,
 } from '@repo/codegen/src/schema'
 import { useMemo } from 'react'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { invalidateTaskAssociations } from '@/components/shared/object-association/object-association-config'
+import { resolveTasksWhere } from '@/lib/graphql-hooks/task-where'
 
 type GetAllTasksArgs = {
   where?: TasksWithFilterQueryVariables['where']
   orderBy?: TasksWithFilterQueryVariables['orderBy']
   pagination?: TPagination
   enabled?: boolean
+  includeTemplates?: boolean
 }
 
-export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllTasksArgs) => {
+export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true, includeTemplates }: GetAllTasksArgs) => {
   const { client } = useGraphQLClient()
+  const effectiveWhere = resolveTasksWhere(where, includeTemplates)
 
   const queryResult = useQuery<TasksWithFilterQuery, unknown>({
-    queryKey: ['tasks', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryKey: ['tasks', effectiveWhere, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async (): Promise<TasksWithFilterQuery> => {
-      const result = await client.request(TASKS_WITH_FILTER, { where, orderBy, ...pagination?.query })
+      const result = await client.request(TASKS_WITH_FILTER, { where: effectiveWhere, orderBy, ...pagination?.query })
       return result as TasksWithFilterQuery
     },
     enabled,
@@ -71,19 +80,21 @@ type GetInfiniteTasksArgs = {
   where: NonNullable<TasksWithFilterQueryVariables['where']>
   orderBy?: TasksWithFilterQueryVariables['orderBy']
   pageSize: number
+  includeTemplates?: boolean
 }
 
 type TaskCursor = string | null
 
-export const useTasksWithFilterInfinite = ({ where, orderBy, pageSize }: GetInfiniteTasksArgs) => {
+export const useTasksWithFilterInfinite = ({ where, orderBy, pageSize, includeTemplates }: GetInfiniteTasksArgs) => {
   const { client } = useGraphQLClient()
+  const effectiveWhere = resolveTasksWhere(where, includeTemplates)
 
   const queryResult = useInfiniteQuery<TasksWithFilterQuery, Error, InfiniteData<TasksWithFilterQuery>, QueryKey, TaskCursor>({
     initialPageParam: null,
-    queryKey: ['tasks', 'infinite', where, orderBy, pageSize],
+    queryKey: ['tasks', 'infinite', effectiveWhere, orderBy, pageSize],
     queryFn: async ({ pageParam }): Promise<TasksWithFilterQuery> => {
       const result = await client.request<TasksWithFilterQuery, TasksWithFilterQueryVariables>(TASKS_WITH_FILTER, {
-        where,
+        where: effectiveWhere,
         orderBy,
         first: pageSize,
         after: pageParam,
@@ -239,6 +250,29 @@ export const useGetOverdueTasksCount = () => {
     ...queryResult,
     totalCount: queryResult.data?.tasks?.totalCount ?? 0,
   }
+}
+
+export type TaskTemplateNode = NonNullable<NonNullable<NonNullable<NonNullable<TaskTemplatesQuery['tasks']>['edges']>[number]>['node']>
+
+const TASK_TEMPLATE_PAGE_SIZE = 20
+const TASK_TEMPLATE_ORDER_BY = [{ field: TaskOrderField.updated_at, direction: OrderDirection.DESC }]
+const TASK_TEMPLATE_STALE_TIME = 5 * 60 * 1000
+
+export const useTaskTemplates = ({ searchTerm }: { searchTerm?: string }) => {
+  const { client } = useGraphQLClient()
+
+  const where: TaskWhereInput = { isTemplate: true, ...(searchTerm ? { titleContainsFold: searchTerm } : {}) }
+
+  const queryResult = useQuery<TaskTemplatesQuery, unknown>({
+    queryKey: ['tasks', 'templates', where],
+    queryFn: async (): Promise<TaskTemplatesQuery> =>
+      client.request<TaskTemplatesQuery, TaskTemplatesQueryVariables>(TASK_TEMPLATES, { where, orderBy: TASK_TEMPLATE_ORDER_BY, first: TASK_TEMPLATE_PAGE_SIZE }),
+    staleTime: TASK_TEMPLATE_STALE_TIME,
+  })
+
+  const templates = useMemo(() => queryResult.data?.tasks?.edges?.map((edge) => edge?.node).filter((node): node is TaskTemplateNode => !!node) ?? [], [queryResult.data])
+
+  return { ...queryResult, templates, totalCount: queryResult.data?.tasks?.totalCount ?? 0 }
 }
 
 export const useTaskAssociations = (taskId?: GetTaskAssociationsQueryVariables['taskId']) => {

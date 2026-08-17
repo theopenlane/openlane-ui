@@ -7,6 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
 import { Button } from '@repo/ui/button'
+import { Switch } from '@repo/ui/switch'
 import { type CreateTaskInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
@@ -99,6 +100,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
           details: detailsField,
           assigneeID: data?.assigneeID,
           tags: data?.tags,
+          isTemplate: data?.isTemplate,
           ...associations,
         },
       }
@@ -287,6 +289,27 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                             </FormLabel>
                             <CalendarPopover field={field} disabledFrom={new Date()} />
                             {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message as string}</p>}
+                          </FormItem>
+                        )}
+                      />
+                    </InputRow>
+
+                    <InputRow className="w-full">
+                      <FormField
+                        control={form.control}
+                        name="isTemplate"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <div className="flex items-center gap-2">
+                              <FormControl>
+                                <Switch checked={!!field.value} onCheckedChange={field.onChange} aria-label="Save as template" />
+                              </FormControl>
+                              <FormLabel>Save as template</FormLabel>
+                              <SystemTooltip
+                                icon={<InfoIcon size={14} className="mx-1" />}
+                                content={<p>Templates are hidden from the task list by default and can be used to pre-fill new tasks.</p>}
+                              />
+                            </div>
                           </FormItem>
                         )}
                       />

@@ -99,7 +99,7 @@ const EVIDENCE_FIELDS = gql`
         }
       }
     }
-    tasks {
+    tasks(where: { isTemplate: false }) {
       totalCount
       edges {
         node {
@@ -210,7 +210,7 @@ export const GET_RENEW_EVIDENCE = gql`
           }
         }
       }
-      tasks {
+      tasks(where: { isTemplate: false }) {
         edges {
           node {
             id

@@ -2,9 +2,10 @@
 
 import React, { useMemo, useRef } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
-import { BookText, CalendarCheck2, Circle, CircleUser, Folder, Tag, UserRoundPen } from 'lucide-react'
+import { BookText, CalendarCheck2, Circle, CircleUser, Folder, LayoutTemplate, Tag, UserRoundPen } from 'lucide-react'
 
 import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/select'
+import { Switch } from '@repo/ui/switch'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { formatDate } from '@/utils/date'
@@ -28,7 +29,7 @@ type PropertiesProps = {
   taskData: TaskQuery['task'] | undefined
   internalEditing: keyof EditTaskFormData | null
   setInternalEditing: (field: keyof EditTaskFormData | null) => void
-  handleUpdate?: (val: UpdateTaskInput) => void
+  handleUpdate?: (val: UpdateTaskInput) => void | Promise<boolean>
   isEditAllowed: boolean
 }
 
@@ -338,6 +339,30 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('tags')}>{renderTags()}</div>
           </HoverPencilWrapper>
         )}
+      </div>
+
+      <div className="flex items-center gap-4">
+        <LayoutTemplate className="text-primary" size={16} />
+        <p className="text-sm w-[120px]">Template</p>
+
+        <Controller
+          name="isTemplate"
+          control={control}
+          render={({ field }) => (
+            <Switch
+              checked={!!field.value}
+              disabled={!isEditAllowed}
+              aria-label="Mark task as template"
+              onCheckedChange={async (checked) => {
+                field.onChange(checked)
+                const updated = await handleUpdate?.({ isTemplate: checked })
+                if (updated === false) {
+                  field.onChange(!checked)
+                }
+              }}
+            />
+          )}
+        />
       </div>
 
       {/* Related Objects */}

@@ -3,6 +3,7 @@
 import React from 'react'
 import { Calendar } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
+import { Badge } from '@repo/ui/badge'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { type TasksWithFilterNode } from '@/lib/graphql-hooks/task'
 import { formatDate } from '@/utils/date'
@@ -34,7 +35,14 @@ const TaskBoardCard = ({ task }: TTaskBoardCardProps) => {
       }}
       className="w-full p-4 space-y-3 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <h3 className="font-semibold truncate">{task.title}</h3>
+      <div className="flex items-center gap-2 min-w-0">
+        <h3 className="font-semibold truncate">{task.title}</h3>
+        {task.isTemplate && (
+          <Badge variant="blue" className="shrink-0">
+            Template
+          </Badge>
+        )}
+      </div>
       <p className="text-sm text-muted-foreground truncate">{subtitle}</p>
       <div className="flex items-center gap-2 min-w-0">
         {task.assignee ? (

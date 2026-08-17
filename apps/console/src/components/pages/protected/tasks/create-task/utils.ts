@@ -1,9 +1,12 @@
 import type usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type EditTaskFormData } from '../hooks/use-form-schema'
+import { type CreateTaskFormData, type EditTaskFormData } from '../hooks/use-form-schema'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { capitalizeFirstLetter } from '@/lib/auth/utils/strings'
 import { type Value } from 'platejs'
 import { type GetTaskAssociationsQuery, type TaskQuery } from '@repo/codegen/src/schema'
+import { asAssociationsData, buildInitialAssociationIds, getEdgeDisplayIds, getEdgeValues } from '@/components/shared/object-association/utils'
+
+export type TTaskCopyMode = 'duplicate' | 'template'
 
 const generateAssociationPayload = (original: TObjectAssociationMap, updated: TObjectAssociationMap) => {
   const payload: Record<string, string[]> = {}
@@ -41,7 +44,68 @@ export const buildTaskPayload = async (
     clearAssignee: !data?.assigneeID,
     clearDue: !data?.due,
     tags: data.tags,
+    isTemplate: data.isTemplate,
     ...generateAssociationPayload(initialAssociations, updatedAssociations),
+  }
+}
+
+export const TASK_ASSOCIATION_CONFIG = {
+  dataRootField: 'task',
+  initialDataKeys: {
+    programIDs: 'programs',
+    procedureIDs: 'procedures',
+    internalPolicyIDs: 'internalPolicies',
+    controlObjectiveIDs: 'controlObjectives',
+    groupIDs: 'groups',
+    subcontrolIDs: 'subcontrols',
+    controlIDs: 'controls',
+    riskIDs: 'risks',
+  },
+} as const
+
+export const buildTaskCopyAssociations = (associationData: GetTaskAssociationsQuery | undefined): TObjectAssociationMap =>
+  buildInitialAssociationIds(TASK_ASSOCIATION_CONFIG, asAssociationsData(associationData))
+
+export const buildTaskAssociations = (associationData: GetTaskAssociationsQuery | undefined, taskData: TaskQuery['task'] | undefined): TObjectAssociationMap => ({
+  ...buildTaskCopyAssociations(associationData),
+  taskIDs: (taskData?.tasks ?? []).flatMap((item) => (item?.id ? [item.id] : [])),
+})
+
+export const buildTaskAssociationDisplayIDs = (associationData: GetTaskAssociationsQuery | undefined): string[] | undefined => {
+  const task = associationData?.task
+  if (!task) {
+    return undefined
+  }
+
+  const displayIDs = [
+    ...getEdgeValues(task.controls?.edges, 'refCode'),
+    ...getEdgeValues(task.subcontrols?.edges, 'refCode'),
+    ...getEdgeDisplayIds(task.programs?.edges),
+    ...getEdgeDisplayIds(task.procedures?.edges),
+    ...getEdgeDisplayIds(task.internalPolicies?.edges),
+    ...getEdgeDisplayIds(task.controlObjectives?.edges),
+    ...getEdgeDisplayIds(task.risks?.edges),
+    ...getEdgeDisplayIds(task.groups?.edges),
+  ]
+
+  return displayIDs.length > 0 ? displayIDs : undefined
+}
+
+export const buildTaskFormValues = (taskData: TaskQuery['task'] | undefined, mode: TTaskCopyMode): Partial<CreateTaskFormData> | undefined => {
+  if (!taskData) {
+    return undefined
+  }
+
+  const isDuplicate = mode === 'duplicate'
+
+  return {
+    title: isDuplicate ? `Copy of ${taskData.title ?? ''}` : (taskData.title ?? ''),
+    taskKindName: taskData.taskKindName ?? undefined,
+    details: taskData.details ?? undefined,
+    assigneeID: taskData.assignee?.id,
+    tags: taskData.tags?.filter((tag): tag is string => !!tag) ?? [],
+    due: isDuplicate && taskData.due ? new Date(String(taskData.due)) : undefined,
+    isTemplate: isDuplicate && !!taskData.isTemplate,
   }
 }
 

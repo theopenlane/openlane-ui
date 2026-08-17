@@ -13,6 +13,7 @@ import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
+import { Badge } from '@repo/ui/badge'
 
 type ColumnOptions = {
   userMap: Record<string, User>
@@ -37,7 +38,16 @@ export const getTaskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedT
     {
       accessorKey: 'title',
       header: 'Title',
-      cell: ({ cell }) => <div>{cell.getValue() as string}</div>,
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="truncate">{row.original.title}</span>
+          {row.original.isTemplate && (
+            <Badge variant="blue" className="shrink-0">
+              Template
+            </Badge>
+          )}
+        </div>
+      ),
       size: 200,
     },
     {

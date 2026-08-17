@@ -18,6 +18,7 @@ import { GET_ALL_VULNERABILITIES } from '@repo/codegen/query/vulnerability'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risk'
 import { GET_ALL_SCANS } from '@repo/codegen/query/scan'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
+import { EXCLUDE_TEMPLATES_WHERE } from '@/lib/graphql-hooks/task-where'
 import { TASKS_WITH_FILTER } from '@repo/codegen/query/task'
 import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
 
@@ -811,7 +812,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.SUB_CONTROL]: { systemOwned: false },
     [ObjectTypeObjects.CONTROL_OBJECTIVE]: { ownerID: ownerID },
     [ObjectTypeObjects.PROGRAM]: { ownerID: ownerID },
-    [ObjectTypeObjects.TASK]: { ownerID: ownerID },
+    [ObjectTypeObjects.TASK]: { ownerID: ownerID, ...EXCLUDE_TEMPLATES_WHERE },
     [ObjectTypeObjects.EVIDENCE]: { ownerID: ownerID },
     [ObjectTypeObjects.GROUP]: { ownerID: ownerID },
     [ObjectTypeObjects.INTERNAL_POLICY]: { systemOwned: false },

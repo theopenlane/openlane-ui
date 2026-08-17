@@ -21,6 +21,7 @@ const formSchema = z.object({
   status: z.enum(TaskTaskStatus, {
     error: 'Invalid status',
   }),
+  isTemplate: z.boolean(),
 })
 
 export type CreateTaskFormData = z.infer<typeof formSchema>
@@ -35,6 +36,7 @@ const useFormSchema = (defaultValues?: Partial<CreateTaskFormData>) => {
         title: '',
         tags: [],
         status: TaskTaskStatus.OPEN,
+        isTemplate: false,
         ...defaultValues,
       },
     }),
