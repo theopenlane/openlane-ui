@@ -31,7 +31,7 @@ import { useSession } from 'next-auth/react'
 export const TemplatesTable = () => {
   const router = useRouter()
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.TEMPLATE)
-  const [filters, setFilters] = useState<TemplateWhereInput>({})
+  const [filters, setFilters] = useState<TemplateWhereInput | null>(null)
   const { setCrumbs } = use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
 
@@ -92,7 +92,7 @@ export const TemplatesTable = () => {
     where: whereFilter,
     orderBy: orderByFilter,
     pagination,
-    enabled: true,
+    enabled: filters !== null,
   })
 
   const userIds = useMemo(() => {

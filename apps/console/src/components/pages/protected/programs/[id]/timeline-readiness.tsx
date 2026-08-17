@@ -34,7 +34,7 @@ const formSchema = z
   .object({
     startDate: z.date().nullable().optional(),
     endDate: z.date().nullable().optional(),
-    status: z.nativeEnum(ProgramProgramStatus).optional(),
+    status: z.enum(ProgramProgramStatus).optional(),
   })
   .superRefine((data, ctx) => {
     const now = new Date()

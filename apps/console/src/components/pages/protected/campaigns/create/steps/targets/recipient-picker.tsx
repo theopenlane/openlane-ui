@@ -94,7 +94,7 @@ export const RecipientPicker: React.FC<RecipientPickerProps> = ({
         header: 'Meta',
         cell: ({ row }) =>
           lockedEmails.has(normalizeEmail(row.original.email)) ? (
-            <span className="text-xs text-brand">Already added</span>
+            <span className="text-xs text-muted-foreground">Already added</span>
           ) : row.original.meta ? (
             <span className="text-xs text-muted-foreground">{row.original.meta}</span>
           ) : null,

@@ -9,6 +9,8 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import type { TPagination, TPaginationMeta } from '@repo/ui/pagination-types'
 import type { FilterField, WhereCondition } from '@/types'
 
+export { mergeWhere } from '@/lib/merge-where'
+
 export type AssociationRow = {
   id: string
   name: string
@@ -17,18 +19,6 @@ export type AssociationRow = {
   updatedBy?: string | null
   updatedAt?: string | null
   href: string
-}
-
-const isEmptyCondition = (value: unknown): boolean => {
-  if (!value || typeof value !== 'object') return true
-  return Object.keys(value as Record<string, unknown>).length === 0
-}
-
-export const mergeWhere = <T extends { and?: T[] | null | undefined }>(conditions: Array<T | null | undefined>): T => {
-  const valid = conditions.filter((condition) => condition && !isEmptyCondition(condition)) as T[]
-  if (valid.length === 0) return {} as T
-  if (valid.length === 1) return valid[0]
-  return { and: valid } as T
 }
 
 type SearchFilterBarProps = {

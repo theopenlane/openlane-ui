@@ -57,10 +57,6 @@ export const PoliciesTable = () => {
         return { hasControlsWith: [{ refCodeContainsFold: value as string }] }
       }
 
-      if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: [{ idIn: value }] } as InternalPolicyWhereInput
-      }
-
       if (key === 'hasSubcontrolsWith') {
         return { hasSubcontrolsWith: [{ refCodeContainsFold: value as string }] }
       }

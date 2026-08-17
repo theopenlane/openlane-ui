@@ -33,6 +33,8 @@ import CredentialConnectionSection from './credential-connection-section'
 import { useInstallationPolling } from './use-installation-polling'
 import { useIntegrationConnect } from './use-integration-connect'
 import { useSession } from 'next-auth/react'
+import { useSetDocsHelpTopic } from '@/components/shared/docs-help/docs-help-context'
+import { docsHelpQuery } from '@/components/shared/docs-help/docs-help-query'
 
 type IntegrationDefinitionPageProps = {
   definitionId: string
@@ -56,6 +58,17 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
   const providers = useMemo(() => providersData?.providers ?? [], [providersData?.providers])
 
   const provider = useMemo(() => providers.find((p) => p.id === definitionId), [providers, definitionId])
+
+  // point the global docs tab at this integration's docs instead of the id route
+  useSetDocsHelpTopic(
+    provider
+      ? {
+          title: provider.displayName,
+          query: docsHelpQuery('view', `the ${provider.displayName} integration`),
+          prefer: provider.displayName,
+        }
+      : null,
+  )
 
   const installedInstances = useMemo(() => {
     if (!provider) {
@@ -175,7 +188,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
 
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/general-settings' },
+      { label: 'Automation', href: '/automation' },
       { label: 'Integrations', href: '/automation/integrations' },
       { label: provider.displayName, href: `/automation/integrations/${definitionId}` },
     ])

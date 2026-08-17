@@ -3,8 +3,9 @@
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { cn } from '@repo/ui/lib/utils'
-import { AlertTriangle, Calendar, Check, CircleCheck, Circle, CircleHelp, FileText, Lock, Mail, Repeat, Rocket, SendHorizontal, Users } from 'lucide-react'
+import { AlertTriangle, Calendar, CircleHelp, FileText, Lock, Mail, Repeat, Rocket, SendHorizontal, Users } from 'lucide-react'
 import { formatDate } from '@/utils/date'
+import { StepBadge } from '@/components/shared/step-badge/step-badge'
 import { ModeOption } from './mode-option'
 
 type CampaignContentMode = 'questionnaire' | 'email'
@@ -93,20 +94,18 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
           {trackerSteps.map((step, index) => (
             <React.Fragment key={step.label}>
               <div className="flex w-24 shrink-0 flex-col items-center gap-1 text-center">
-                <div className={cn('flex h-8 w-8 items-center justify-center rounded-full border text-sm', step.done ? 'border-brand bg-brand text-white' : 'border-border text-muted-foreground')}>
-                  {step.done ? <Check size={16} /> : index + 1}
-                </div>
+                <StepBadge done={step.done} stepNumber={index + 1} />
                 <span className="text-xs font-medium">{step.label}</span>
                 <span className="text-[11px] text-muted-foreground">{step.hint}</span>
               </div>
-              {index < trackerSteps.length - 1 && <div className={cn('mt-4 h-0.5 flex-1', step.done ? 'bg-brand' : 'bg-border')} />}
+              {index < trackerSteps.length - 1 && <div className={cn('mt-4 h-0.5 flex-1', step.done ? 'bg-primary' : 'bg-border')} />}
             </React.Fragment>
           ))}
         </div>
       </div>
 
       <div className="flex flex-col gap-3">
-        <SetupCard icon={<FileText size={18} className="text-brand" />} title="Details" subtitle="Campaign information" actionLabel="Edit details" onAction={onEditDetails} done />
+        <SetupCard icon={<FileText size={18} />} title="Details" subtitle="Campaign information" actionLabel="Edit details" onAction={onEditDetails} done />
 
         <div className="flex flex-col gap-3 rounded-md border border-border bg-card p-4">
           <div className="flex flex-col gap-1">
@@ -116,7 +115,7 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
 
           <div role="radiogroup" aria-label="Campaign content type" className="grid grid-cols-2 gap-3">
             <ModeOption
-              icon={<CircleHelp size={18} className="text-brand" />}
+              icon={<CircleHelp size={18} />}
               title="Questionnaire template"
               description="Recipients complete a questionnaire. Emails use the system template."
               selected={mode === 'questionnaire'}
@@ -124,7 +123,7 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
               onSelect={() => handleModeChange('questionnaire')}
             />
             <ModeOption
-              icon={<Mail size={18} className="text-brand" />}
+              icon={<Mail size={18} />}
               title="Email template"
               description="Recipients receive the email template you choose."
               selected={mode === 'email'}
@@ -144,7 +143,7 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
         {mode === 'questionnaire' ? (
           <>
             <SetupCard
-              icon={<CircleHelp size={18} className="text-brand" />}
+              icon={<CircleHelp size={18} />}
               title="Questionnaire template"
               subtitle={questionnaireName ?? 'No questionnaire template selected'}
               actionLabel={hasQuestionnaire ? 'Change questionnaire template' : 'Select questionnaire template'}
@@ -166,7 +165,7 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
             />
             <div className="flex items-center gap-4 rounded-md border border-border bg-card p-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-secondary">
-                <Mail size={18} className="text-brand" />
+                <Mail size={18} />
               </div>
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="text-sm font-semibold">Email template</span>
@@ -177,7 +176,7 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
           </>
         ) : (
           <SetupCard
-            icon={<Mail size={18} className="text-brand" />}
+            icon={<Mail size={18} />}
             title="Email template"
             subtitle={emailTemplateLabel ?? 'No email template selected'}
             actionLabel={hasEmailTemplate ? 'Change template' : 'Select template'}
@@ -188,7 +187,7 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
         )}
 
         <SetupCard
-          icon={<Users size={18} className="text-brand" />}
+          icon={<Users size={18} />}
           title="Recipients"
           subtitle="People who will receive this campaign."
           actionLabel="Add recipients"
@@ -202,22 +201,16 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
         />
         {recipientsSlot && <div className="rounded-md border border-border bg-card p-4">{recipientsSlot}</div>}
         <SetupCard
-          icon={<Repeat size={18} className="text-brand" />}
+          icon={<Repeat size={18} />}
           title="Recurrence"
           subtitle={isRecurring ? recurrenceLabel : 'Optionally repeat this campaign on a schedule.'}
           actionLabel={isRecurring ? 'Edit recurrence' : 'Set up recurrence'}
           onAction={onEditRecurrence}
           done={isRecurring}
         />
+        <SetupCard icon={<SendHorizontal size={18} />} title="Send Test Email" subtitle="Preview your campaign and send a test email." actionLabel="Send test email" onAction={onSendTest} />
         <SetupCard
-          icon={<SendHorizontal size={18} className="text-brand" />}
-          title="Send Test Email"
-          subtitle="Preview your campaign and send a test email."
-          actionLabel="Send test email"
-          onAction={onSendTest}
-        />
-        <SetupCard
-          icon={<Rocket size={18} className="text-brand" />}
+          icon={<Rocket size={18} />}
           title="Launch"
           subtitle={launchBlockedReason ?? 'Launch now or schedule for later.'}
           actionLabel="Launch campaign"
@@ -259,6 +252,6 @@ const SetupCard: React.FC<SetupCardProps> = ({ icon, title, subtitle, actionLabe
     <Button variant={primary ? 'primary' : 'secondary'} type="button" onClick={onAction} disabled={disabled} className="shrink-0">
       {actionLabel}
     </Button>
-    {done ? <CircleCheck size={20} className="shrink-0 text-brand" /> : <Circle size={20} className="shrink-0 text-muted-foreground" />}
+    <StepBadge done={done} size="sm" />
   </div>
 )

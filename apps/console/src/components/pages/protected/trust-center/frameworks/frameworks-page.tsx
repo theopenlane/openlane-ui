@@ -56,7 +56,7 @@ export default function FrameworksPage() {
 
   const { compliances, isError: compliancesError, isFetched: compliancesFetched } = useGetTrustCenterCompliances()
   const baseWhere: StandardWhereInput = {
-    shortNameNEQ: OPENLANE_TRUST_CENTER_STANDARD.shortName,
+    frameworkNEQ: OPENLANE_TRUST_CENTER_STANDARD.framework,
     ...(isChecked ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } : {}),
   }
 
@@ -65,6 +65,7 @@ export default function FrameworksPage() {
   const { standards: recommendedStandards, isFetched: recommendedFetched } = useGetRecommendedStandards({
     where: { ...baseWhere, hasControlsWith: [{ hasOwnerWith: [{ id: currentOrgId }] }] },
     enabled: !!currentOrgId,
+    includeSystemStandards: true,
   })
 
   const recommendedStandardsIDs = useMemo(() => recommendedStandards.map((s) => s.id), [recommendedStandards])
@@ -84,6 +85,7 @@ export default function FrameworksPage() {
     where,
     pagination: cardPagination,
     enabled: sessionResolved && (!currentOrgId || recommendedFetched),
+    includeSystemStandards: true,
   })
 
   const initialLoading = !compliancesFetched || !standardsFetched

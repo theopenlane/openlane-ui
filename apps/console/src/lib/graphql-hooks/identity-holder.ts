@@ -245,7 +245,7 @@ export const useUploadIdentityHolderFiles = () => {
   })
 }
 
-export const useGetIdentityHolderDirectoryAccounts = (identityHolderId?: string, where?: DirectoryAccountWhereInput, membershipWhere?: DirectoryMembershipWhereInput) => {
+export const useGetIdentityHolderDirectoryAccounts = (identityHolderId?: string, where?: DirectoryAccountWhereInput, membershipWhere?: DirectoryMembershipWhereInput, enabled: boolean = true) => {
   const { client } = useGraphQLClient()
   const queryResult = useQuery<GetIdentityHolderDirectoryAccountsQuery, unknown>({
     queryKey: ['identityHolders', identityHolderId, 'directoryAccounts', where, membershipWhere],
@@ -255,7 +255,7 @@ export const useGetIdentityHolderDirectoryAccounts = (identityHolderId?: string,
         where,
         membershipWhere,
       }),
-    enabled: !!identityHolderId,
+    enabled: !!identityHolderId && enabled,
   })
 
   const edges = queryResult.data?.identityHolder?.directoryAccounts?.edges ?? []

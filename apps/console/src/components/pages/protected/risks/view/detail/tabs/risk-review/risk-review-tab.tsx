@@ -40,13 +40,14 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ risk, handleUpdateField, 
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.RISK_REVIEWS, DEFAULT_VISIBILITY))
-  const [filterWhere, setFilterWhere] = useState<WhereCondition>({})
+  const [filterWhere, setFilterWhere] = useState<WhereCondition | null>(null)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
   const searchFields = debouncedSearch ? { or: [{ titleContainsFold: debouncedSearch }, { summaryContainsFold: debouncedSearch }, { reporterContainsFold: debouncedSearch }] } : {}
 
   const { reviewsNodes, isLoading } = useReviewsWithFilter({
     where: { hasRisksWith: [{ id: risk.id }], ...filterWhere, ...searchFields },
+    enabled: filterWhere !== null,
   })
 
   const isOverdue = risk.nextReviewDueAt && Date.parse(risk.nextReviewDueAt) < now

@@ -26,7 +26,6 @@ import {
   CREATE_CSV_BULK_MAPPED_CONTROL,
   DELETE_NOTE,
   BULK_DELETE_CONTROL,
-  GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS,
   GET_CONTROL_ASSOCIATIONS_BY_ID,
   GET_CONTROL_NOT_IMPLEMENTED_COUNT,
   INSERT_CONTROL_PLATE_COMMENT,
@@ -37,7 +36,6 @@ import {
 } from '@repo/codegen/query/control'
 
 import {
-  type Control,
   type ControlWhereInput,
   type CreateBulkCsvControlMutation,
   type CreateBulkCsvControlMutationVariables,
@@ -82,8 +80,6 @@ import {
   type DeleteNoteMutationVariables,
   type DeleteBulkControlMutation,
   type DeleteBulkControlMutationVariables,
-  type MappedControlWhereInput,
-  type GetSuggestedControlsOrSubcontrolsQuery,
   type GetControlAssociationsByIdQuery,
   type GetControlAssociationsByIdQueryVariables,
   type GetNotImplementedControlCountQuery,
@@ -106,6 +102,8 @@ export type ControlByIdNode = GetControlByIdQuery['control']
 export type ControlEvidenceItem = NonNullable<NonNullable<NonNullable<NonNullable<NonNullable<ControlByIdNode>['evidence']>['edges']>[number]>['node']>
 export type ControlsByRefcodeEdge = NonNullable<NonNullable<NonNullable<GetControlsByRefCodeQuery['controls']>['edges']>[number]>
 export type ControlsByRefcodeNode = NonNullable<ControlsByRefcodeEdge['node']>
+
+export type ControlsNode = NonNullable<NonNullable<NonNullable<NonNullable<GetAllControlsQuery['controls']>['edges']>[number]>['node']>
 
 type UseGetAllControlsArgs = {
   where?: GetAllControlsQueryVariables['where']
@@ -130,8 +128,7 @@ export const useGetAllControls = ({ where, pagination, orderBy, enabled = true, 
     enabled,
   })
 
-  const edges = queryResult.data?.controls?.edges ?? []
-  const controls = edges.map((edge) => edge?.node) as Control[]
+  const controls = useMemo(() => queryResult.data?.controls?.edges?.map((edge) => edge?.node).filter((node): node is ControlsNode => !!node) ?? [], [queryResult.data])
 
   const paginationMeta = {
     totalCount: queryResult.data?.controls?.totalCount ?? 0,
@@ -631,23 +628,6 @@ export const useBulkDeleteControls = () => {
       invalidateControlQueries(queryClient)
     },
   })
-}
-
-export const useGetSuggestedControlsOrSubcontrols = ({ where, enabled = true }: { where?: MappedControlWhereInput; enabled?: boolean }) => {
-  const { client } = useGraphQLClient()
-
-  const queryResult = useQuery<GetSuggestedControlsOrSubcontrolsQuery>({
-    queryKey: ['mappedcontrols', where],
-    queryFn: () =>
-      client.request(GET_SUGGESTED_CONTROLS_OR_SUBCONTROLS, {
-        where,
-      }),
-    enabled,
-  })
-
-  return {
-    ...queryResult,
-  }
 }
 
 export const useGetControlNotImplementedCount = () => {

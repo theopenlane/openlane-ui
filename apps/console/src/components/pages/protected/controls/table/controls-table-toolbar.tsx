@@ -36,7 +36,6 @@ import { useSession } from 'next-auth/react'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { type Session } from 'next-auth'
-import { OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/standards'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -76,7 +75,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   permission,
 }: TProps) => {
   const { data: session } = useSession()
-  const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
+  const { programOptions, isSuccess: isProgramSuccess, hasProgramAccess } = useProgramSelect()
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
   const groups = useMemo(() => groupOptions || [], [groupOptions])
 
@@ -108,7 +107,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({
 
   const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({
     where: {
-      shortNameNEQ: OPENLANE_TRUST_CENTER_STANDARD.shortName,
       hasControlsWith: [
         {
           hasOwnerWith: [
@@ -137,9 +135,9 @@ const ControlsTableToolbar: React.FC<TProps> = ({
     if (filterFields || !isProgramSuccess || !isGroupSuccess || !isStandardSuccess || !isTypesSuccess) {
       return
     }
-    const fields = getControlsFilterFields(standardOptions, groups, programOptions, enumOptions, tagOptions)
+    const fields = getControlsFilterFields(standardOptions, groups, programOptions, enumOptions, tagOptions, hasProgramAccess)
     setFilterFields(fields)
-  }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, standardOptions, isStandardSuccess, enumOptions, isTypesSuccess, tagOptions])
+  }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, hasProgramAccess, standardOptions, isStandardSuccess, enumOptions, isTypesSuccess, tagOptions])
 
   const handleBulkDelete = async () => {
     if (!selectedControls) {
@@ -274,10 +272,10 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                       <Upload size={16} strokeWidth={2} />
                       <span>Update Existing Controls</span>
                     </button>
-                    <Button
-                      size="sm"
-                      variant="transparent"
-                      className={`px-1 flex items-center justify-start space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                    <button
+                      type="button"
+                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={!exportEnabled}
                       onClick={() => {
                         handleExport()
                         close()
@@ -285,7 +283,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     >
                       <DownloadIcon size={16} strokeWidth={2} />
                       <span>Export</span>
-                    </Button>
+                    </button>
                   </>
                 )}
               />

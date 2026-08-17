@@ -32,7 +32,7 @@ const SelectControlsStep = ({ sourceProgramName }: SelectControlsStepProps) => {
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
-  const { allControls: orgControls, isLoading } = useAllControlsGroupedWithListFields({ where: { or: [{ systemOwned: false }, { systemOwnedIsNil: true }] } })
+  const { allControls: orgControls, isLoading } = useAllControlsGroupedWithListFields({ where: { isTrustCenterControl: false, or: [{ systemOwned: false }, { systemOwnedIsNil: true }] } })
 
   const selectedControlIDs = useWatch({ control, name: 'controlIDs' }) ?? emptySelection
   const selectedControlSet = useMemo(() => new Set(selectedControlIDs), [selectedControlIDs])

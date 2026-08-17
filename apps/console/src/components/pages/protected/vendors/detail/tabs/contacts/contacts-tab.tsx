@@ -51,7 +51,7 @@ const VIEW_MODE_STORAGE_KEY = 'view-mode:vendor-contacts'
 const bulkEditFieldSchema = z.object({
   title: z.string().optional(),
   company: z.string().optional(),
-  status: z.nativeEnum(ContactUserStatus).optional(),
+  status: z.enum(ContactUserStatus).optional(),
 })
 
 const statusEnumOptions = enumToOptions(ContactUserStatus)
@@ -92,7 +92,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
   const [isBulkEditDialogOpen, setIsBulkEditDialogOpen] = useState(false)
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null)
-  const [filterWhere, setFilterWhere] = useState<WhereCondition>({})
+  const [filterWhere, setFilterWhere] = useState<WhereCondition | null>(null)
   const { successNotification, errorNotification } = useNotification()
 
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -106,6 +106,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
   } = useContactsWithFilter({
     where: { hasEntitiesWith: [{ id: vendorId }], ...filterWhere, ...searchFields },
     pagination,
+    enabled: filterWhere !== null,
   })
 
   const existingContactIds = useMemo(() => contacts.map((c) => c.id), [contacts])
@@ -246,10 +247,9 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
                         <span>Bulk Upload</span>
                       </button>
                     )}
-                    <Button
-                      size="sm"
-                      variant="transparent"
-                      className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
+                    <button
+                      type="button"
+                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
                       onClick={() => {
                         handleExportCSV()
                         close()
@@ -257,7 +257,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
                     >
                       <DownloadIcon size={16} strokeWidth={2} />
                       <span>Export</span>
-                    </Button>
+                    </button>
                   </>
                 )}
               />

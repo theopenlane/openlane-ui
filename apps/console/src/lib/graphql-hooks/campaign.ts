@@ -182,6 +182,7 @@ export const useCampaign = (campaignId?: CampaignQueryVariables['campaignId']) =
   })
 }
 
+export const CAMPAIGN_TERMINAL_STATUSES: readonly CampaignCampaignStatus[] = [CampaignCampaignStatus.COMPLETED, CampaignCampaignStatus.CANCELED]
 export const COMPLETED_RECENTLY_WINDOW_DAYS = 30
 export const UPCOMING_CAMPAIGN_COUNT = 3
 const ACTIVE_RECIPIENTS_PAGE_SIZE = 100
@@ -218,11 +219,11 @@ const buildCampaignSummaryVariables = (now: Date): CampaignSummaryQueryVariables
   const nowIso = now.toISOString()
   const completedSince = new Date(now.getTime() - COMPLETED_RECENTLY_WINDOW_DAYS * MS_PER_DAY).toISOString()
 
-  const overdueWhere: CampaignWhereInput = { isActive: true, statusNEQ: CampaignCampaignStatus.DRAFT, dueDateLT: nowIso, completedAtIsNil: true }
+  const overdueWhere: CampaignWhereInput = { isActive: true, statusNotIn: [CampaignCampaignStatus.DRAFT, ...CAMPAIGN_TERMINAL_STATUSES], dueDateLT: nowIso, completedAtIsNil: true }
   const scheduledOverdueWhere: CampaignWhereInput = { status: CampaignCampaignStatus.SCHEDULED, scheduledAtLT: nowIso, launchedAtIsNil: true }
 
   return {
-    activeWhere: { isActive: true },
+    activeWhere: { isActive: true, statusNotIn: [...CAMPAIGN_TERMINAL_STATUSES] },
     overdueWhere,
     scheduledOverdueWhere,
     needsAttentionWhere: { or: [overdueWhere, scheduledOverdueWhere] },

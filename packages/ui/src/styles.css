@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 @plugin 'tailwind-scrollbar-hide';
+@plugin '@tailwindcss/typography';
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
@@ -23,6 +24,13 @@
 
   .grecaptcha-badge {
     visibility: hidden;
+  }
+
+  /* keep the DevRev PLuG chat clickable while a modal sheet/dialog is open —
+     Radix disables pointer events on the whole body during modal overlays */
+  iframe[data-drid^='PLUG'],
+  iframe[src*='plug-platform.devrev.ai'] {
+    pointer-events: auto !important;
   }
 
   body {
@@ -192,6 +200,7 @@
   --popover-foreground: hsl(209 22% 24%);
   --primary: #2dcdad;
   --primary-foreground: hsl(191 72% 9%);
+  --link: hsl(168 64% 28%);
   --secondary: #ffffff;
   --secondary-foreground: hsl(191 72% 9%);
   --muted: #ffffff;
@@ -310,6 +319,7 @@
   --popover-foreground: hsl(196 20% 73%);
   --primary: hsl(168 64% 49%);
   --primary-foreground: hsl(210 40% 98%);
+  --link: hsl(168 64% 70%);
   --secondary: #162431;
   --secondary-foreground: hsl(216 33% 9%);
   --muted: #4c5e69;
@@ -454,6 +464,7 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-link: var(--link);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -902,6 +913,32 @@
   to {
     opacity: 0;
     transform: translateX(-10%);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   Nav icon hover animation
+────────────────────────────────────────────────────────── */
+@theme {
+  --animate-nav-pop: nav-pop 0.45s ease-in-out;
+}
+@keyframes nav-pop {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  30% {
+    transform: scale(1.15) rotate(-8deg);
+  }
+  60% {
+    transform: scale(1.1) rotate(6deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-nav-pop {
+    animation: none;
   }
 }
 

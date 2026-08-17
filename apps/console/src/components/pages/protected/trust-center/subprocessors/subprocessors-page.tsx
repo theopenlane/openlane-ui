@@ -138,6 +138,7 @@ const SubprocessorsPage = () => {
   const { trustCenterSubprocessors, paginationMeta, isLoading } = useGetTrustCenterSubprocessors({
     where,
     pagination,
+    enabled: filters !== null,
   })
 
   const { paginationMeta: managedMeta } = useGetTrustCenterSubprocessors({
@@ -316,7 +317,7 @@ const SubprocessorsPage = () => {
               selectedRows={selectedRows}
               setSelectedRows={setSelectedRows}
               onExport={handleExportFile}
-              exportEnabled={trustCenterSubprocessors.length === 0}
+              exportEnabled={trustCenterSubprocessors.length > 0}
               canCreateSubprocessor={canCreateSubprocessor}
               canEditSubprocessor={canEditSubprocessor}
             />

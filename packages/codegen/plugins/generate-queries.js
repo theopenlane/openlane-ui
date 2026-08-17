@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const { toKebab, toUpperSnake, pluralizeTypeName } = require('./lib')
 
-const schemaPath = path.join(__dirname, '..', 'src', 'schema.ts')
+const schemaPath = path.join(__dirname, '..', 'src', 'schema-types.ts')
 const queryOutputDir = path.join(__dirname, '..', 'query')
 const schemaContent = fs.readFileSync(schemaPath, 'utf8')
 

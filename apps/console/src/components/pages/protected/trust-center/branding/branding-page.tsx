@@ -20,7 +20,6 @@ import { TrustCenterSkeleton } from '../skeleton/trust-center-skeleton'
 import { BrandingCompanyInfoSection } from './sections/branding-company-info-section'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
-import { type Value } from 'platejs'
 
 export enum InputTypeEnum {
   URL = 'url',
@@ -118,7 +117,7 @@ const BrandPage: React.FC = () => {
     if (!targetSettingId) return
 
     const overviewValue = values.overview
-    const overview = typeof overviewValue === 'string' ? overviewValue : overviewValue ? await convertToHtml(overviewValue as Value) : ''
+    const overview = typeof overviewValue === 'string' ? overviewValue.trim() : overviewValue ? await convertToHtml(overviewValue) : ''
 
     const payload: UpdateTrustCenterSettingsArgs = {
       id: targetSettingId,

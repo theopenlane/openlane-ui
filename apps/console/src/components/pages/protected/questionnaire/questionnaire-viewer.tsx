@@ -4,11 +4,12 @@ import { type ITheme, Model } from 'survey-core'
 import { Survey } from 'survey-react-ui'
 
 import 'survey-core/survey-core.min.css'
+import '@/styles/questionnaire/survey-viewer.css'
 
 import { useEffect, use } from 'react'
 import { useTheme } from 'next-themes'
-import { lightTheme } from './theme-light'
-import { darkTheme } from './theme-dark'
+import { lightTheme } from '@/styles/questionnaire/theme-light'
+import { darkTheme } from '@/styles/questionnaire/theme-dark'
 import { useGetAssessment } from '@/lib/graphql-hooks/assessment'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 

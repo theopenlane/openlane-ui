@@ -68,10 +68,6 @@ const RiskTable: React.FC = () => {
 
   const where = useMemo(() => {
     const result = whereGenerator<RiskWhereInput>(filters, (key, value) => {
-      if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: [{ idIn: value }] } as RiskWhereInput
-      }
-
       return { [key]: value } as RiskWhereInput
     })
 
@@ -177,7 +173,7 @@ const RiskTable: React.FC = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         mappedColumns={mappedColumns}
-        exportEnabled={risks && risks.length > 0}
+        exportEnabled={(risks?.length ?? 0) > 0}
         handleClearSelectedControls={handleClearSelectedControls}
         selectedRisks={selectedRisks}
         setSelectedRisks={setSelectedRisks}

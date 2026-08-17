@@ -68,7 +68,7 @@ export const SelectQuestionnaireDialog: React.FC<SelectQuestionnaireDialogProps>
                 <span
                   role="link"
                   tabIndex={0}
-                  className="shrink-0 cursor-pointer text-sm text-brand"
+                  className="shrink-0 cursor-pointer text-sm text-link hover:underline"
                   onClick={(e) => {
                     e.stopPropagation()
                     window.open(`${PREVIEW_PATH}?id=${template.id}`, '_blank', 'noopener,noreferrer')
@@ -91,7 +91,7 @@ export const SelectQuestionnaireDialog: React.FC<SelectQuestionnaireDialogProps>
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col">
             <span className="text-xs text-muted-foreground">Can&apos;t find what you&apos;re looking for?</span>
-            <button type="button" className="inline-flex items-center gap-1 text-sm text-brand" onClick={() => window.open(CREATE_PATH, '_blank', 'noopener,noreferrer')}>
+            <button type="button" className="inline-flex items-center gap-1 text-sm text-link hover:underline" onClick={() => window.open(CREATE_PATH, '_blank', 'noopener,noreferrer')}>
               Create new questionnaire template <SquareArrowOutUpRight size={12} />
             </button>
           </div>

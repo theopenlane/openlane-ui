@@ -2,20 +2,18 @@
   "name": "@repo/codegen",
   "version": "0.0.0",
   "dependencies": {
-    "@graphql-tools/schema": "10.0.36",
+    "@graphql-tools/schema": "10.0.38",
     "graphql": "16.14.2",
-    "graphql-codegen-typescript-validation-schema": "^0.19.0",
     "graphql-request": "7.4.0",
     "typescript": "^6.0.3"
   },
   "devDependencies": {
-    "@graphql-codegen/add": "6.0.1",
-    "@graphql-codegen/cli": "6.3.1",
-    "@graphql-codegen/introspection": "5.0.2",
-    "@graphql-codegen/typescript": "5.0.10",
-    "@graphql-codegen/typescript-document-nodes": "5.0.10",
-    "@graphql-codegen/typescript-operations": "5.1.0",
-    "@graphql-codegen/typescript-resolvers": "5.1.8"
+    "@graphql-codegen/add": "7.1.0",
+    "@graphql-codegen/cli": "7.2.0",
+    "@graphql-codegen/introspection": "6.1.0",
+    "@graphql-codegen/schema-ast": "6.1.0",
+    "@graphql-codegen/typescript": "6.1.0",
+    "@graphql-codegen/typescript-operations": "6.1.2"
   },
   "scripts": {
     "codegen": "graphql-codegen --config graphql-codegen.yml"

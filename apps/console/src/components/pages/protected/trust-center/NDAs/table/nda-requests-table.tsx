@@ -70,6 +70,7 @@ const NdaRequestsTable = ({ requireApproval, canRevoke }: NdaRequestsTableProps)
     where: whereFilter,
     orderBy: DEFAULT_NDA_REQUESTS_ORDER,
     pagination,
+    enabled: filters !== null,
   })
 
   const tableData = useMemo<NdaRequestRow[]>(

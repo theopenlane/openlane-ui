@@ -3,21 +3,21 @@
 import React from 'react'
 import { GlobeIcon, LockIcon } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
-import { type Group } from '@repo/codegen/src/schema'
+import { type GroupsNode } from '@/lib/graphql-hooks/group'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 interface Props {
-  groups: Group[]
+  groups: GroupsNode[]
   isError: boolean
 }
 
 const MyGroupsCard = ({ groups, isError }: Props) => {
   const { replace } = useSmartRouter()
 
-  const handleRowClick = (group: Group) => {
+  const handleRowClick = (group: GroupsNode) => {
     replace({ id: group.id })
   }
 
@@ -29,13 +29,10 @@ const MyGroupsCard = ({ groups, isError }: Props) => {
     <div className="flex flex-wrap gap-7">
       {groups.length > 0 ? (
         groups.map((group) => (
-          <Card key={group.id} className="w-full max-w-md cursor-pointer" onClick={() => handleRowClick(group as Group)}>
+          <Card key={group.id} className="w-full max-w-md cursor-pointer" onClick={() => handleRowClick(group)}>
             <div className="flex py-1.5 px-4 justify-between items-center mb-2 border-b gap-2">
               <h3 className="font-semibold truncate">{group.displayName || group.name}</h3>
-              <div className="flex gap-2  items-center">
-                {group.isManaged && <p className="text-text-light text-normal">Prebuilt</p>}
-                {group.setting?.visibility === 'PUBLIC' ? <GlobeIcon className="h-5 w-5 " /> : <LockIcon className="h-5 w-5 " />}
-              </div>
+              <div className="flex gap-2  items-center">{group.setting?.visibility === 'PUBLIC' ? <GlobeIcon className="h-5 w-5 " /> : <LockIcon className="h-5 w-5 " />}</div>
             </div>
             <div className="py-3 px-4 pb-5">
               <p className="text-sm mb-3 line-clamp-3 overflow-hidden text-ellipsis">{group.description}</p>{' '}

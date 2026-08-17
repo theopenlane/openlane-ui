@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText, Plus, Lock, Ellipsis } from 'lucide-react'
@@ -18,6 +18,7 @@ import { ProgramCreatePrefixIconBtn } from '@/components/shared/enum-mapper/prog
 import { TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum'
 import { CONTRIBUTE_URL, SUPPORT_URL } from '@/constants'
 import { featureUtil } from '@/lib/subscription-plan/plans'
+import { useIsNavItemLocked } from '@/lib/subscription-plan/hooks/use-module-access'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { Button } from '@repo/ui/button'
 import { DOCS_URL } from '@/constants/docs'
@@ -27,7 +28,13 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { IMPERSONATION_BANNER_HEIGHT_VAR } from '@/constants/layout'
 import { getNavLandingHref } from '@/routes/get-nav-landing-href'
 
-const SidebarChildLink: React.FC<{ child: NavItem; pathname: string; secondaryExpanded: boolean; router: ReturnType<typeof useRouter> }> = ({ child, pathname, secondaryExpanded, router }) => {
+const SidebarChildLink: React.FC<{ child: NavItem; pathname: string; secondaryExpanded: boolean; router: ReturnType<typeof useRouter>; locked: boolean }> = ({
+  child,
+  pathname,
+  secondaryExpanded,
+  router,
+  locked,
+}) => {
   const isActive = pathname === child.href || pathname.startsWith(`${child.href}/`)
   if (child.hidden) return null
 
@@ -45,12 +52,15 @@ const SidebarChildLink: React.FC<{ child: NavItem; pathname: string; secondaryEx
           window.open(child.href ?? '#', '_blank', 'noopener')
         }
       }}
-      className={`flex items-center gap-2 mb-2 h-8 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
-        secondaryExpanded ? 'px-2.5' : 'justify-center'
+      className={`group relative flex gap-2 mb-2 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
+        secondaryExpanded ? 'items-start min-h-8 px-2.5 py-1.5' : 'items-center justify-center h-8'
       }`}
     >
-      {child.icon && <child.icon size={secondaryExpanded ? 16 : 20} />}
+      {child.icon && (
+        <child.icon size={secondaryExpanded ? 16 : 20} className={`${secondaryExpanded ? 'mt-0.5 ' : ''}${'animated' in child.icon && child.icon.animated ? '' : 'group-hover:animate-nav-pop'}`} />
+      )}
       {secondaryExpanded && <span className="text-sm font-normal leading-5">{child.title}</span>}
+      {locked && <Lock className={`w-3 h-3 text-gray-400 ${secondaryExpanded ? 'ml-auto' : 'absolute bottom-0.5 right-0.5'}`} />}
     </Link>
   )
 
@@ -71,9 +81,9 @@ const SidebarChildLink: React.FC<{ child: NavItem; pathname: string; secondaryEx
 export type PanelKey = 'compliance' | 'trust center' | 'automation' | 'registry' | null
 
 export const PRIMARY_WIDTH = 50
-export const PRIMARY_EXPANDED_WIDTH = 248
+export const PRIMARY_EXPANDED_WIDTH = 200
 export const SECONDARY_COLLAPSED_WIDTH = 44
-export const SECONDARY_EXPANDED_WIDTH = 240
+export const SECONDARY_EXPANDED_WIDTH = 190
 
 type TSideNavProps = {
   navItems: (NavItem | Separator | NavHeading)[]
@@ -101,8 +111,7 @@ export default function SideNav({
   const { data: session } = useSession()
   const pathname = usePathname()
   const router = useRouter()
-  const featureEnabled = process.env.NEXT_PUBLIC_ENABLE_PLAN
-  const modules = useMemo(() => session?.user?.modules ?? [], [session?.user?.modules])
+  const isLocked = useIsNavItemLocked()
 
   const sidebarItems = [...navItems, ...footerNavItems]
   const { data: orgPermission } = useOrganizationRoles()
@@ -113,12 +122,12 @@ export default function SideNav({
     if (!openPanel) {
       const firstItem = navItems
         .filter((item): item is NavItem => 'title' in item)
-        .filter((item) => !(featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item.plan, session)))
+        .filter((item) => !item.hidden && !isLocked(item))
         .find((item) => item.children && item.children.length > 0)
 
       onToggleAction(firstItem?.title?.toLowerCase() as PanelKey)
     }
-  }, [featureEnabled, modules, navItems, onToggleAction, openPanel, session])
+  }, [isLocked, navItems, onToggleAction, openPanel])
 
   const handleTogglePanel = (item: NavItem) => {
     const panelKey = item?.title?.toLowerCase() as PanelKey
@@ -131,7 +140,7 @@ export default function SideNav({
     if (children.length > 0) {
       const hasActiveChild = children.some((child) => !child.hidden && (pathname === child.href || pathname.startsWith(`${child.href}/`)))
       if (!hasActiveChild) {
-        router.push(getNavLandingHref(item))
+        router.push(getNavLandingHref(item, isLocked))
       }
     }
   }
@@ -168,6 +177,8 @@ export default function SideNav({
 
       if ('icon' in item && item.icon) {
         const Icon = item.icon
+        // icons that animate themselves (see components/shared/icons/animated) skip the generic CSS hover pop
+        const iconHoverClass = 'animated' in Icon && Icon.animated ? '' : 'group-hover:animate-nav-pop'
         const isExpandable = !!item.children
         const isActive = activeNav?.title === item.title
         const url = item.params ? item.href + item.params : item.href
@@ -176,15 +187,15 @@ export default function SideNav({
           <div key={idx} className="relative flex w-full items-center justify-center">
             <div className="w-2.5 h-full flex absolute left-0">{isActive && <span className="h-full w-0.5 bg-foreground dark:bg-primary absolute" />}</div>
 
-            {featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item?.plan, session) && <Lock className="absolute bottom-6 right-[5px] w-3 h-3 z-90 text-gray-400" />}
+            {isLocked(item) && <Lock className="absolute bottom-6 right-[5px] w-3 h-3 z-90 text-gray-400" />}
 
             {isExpandable ? (
               <Button
                 variant="sidebar"
                 onClick={() => handleTogglePanel(item)}
-                className={`relative flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center'}`}
+                className={`group relative flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center [&_svg]:size-5!'}`}
               >
-                <Icon className={`shrink-0 ${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
+                <Icon size={primaryExpanded ? 16 : 20} className={`shrink-0 ${iconHoverClass}`} />
                 {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
               </Button>
             ) : (
@@ -205,9 +216,9 @@ export default function SideNav({
                     window.open(url, '_blank', 'noopener')
                   }
                 }}
-                className={`relative flex items-center px-2 gap-2 h-8 bg-transparent border border-transparent rounded-[6px] text-muted-foreground transition-all duration-500 ease-in-out hover:bg-nav hover:border-border hover:text-text-paragraph [&.is-active]:bg-nav [&.is-active]:border-border [&.is-active]:text-text-paragraph ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2 justify-start' : 'w-8 justify-center'}`}
+                className={`group relative flex items-center px-2 gap-2 h-8 bg-transparent border border-transparent rounded-[6px] text-muted-foreground transition-all duration-500 ease-in-out hover:bg-nav hover:border-border hover:text-text-paragraph [&.is-active]:bg-nav [&.is-active]:border-border [&.is-active]:text-text-paragraph ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2 justify-start' : 'w-8 justify-center'}`}
               >
-                <Icon className={`shrink-0 ${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
+                <Icon size={primaryExpanded ? 16 : 20} className={`shrink-0 ${iconHoverClass}`} />
                 {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
               </Link>
             )}
@@ -394,7 +405,7 @@ export default function SideNav({
                 item.children ? (
                   <div key={item.title} className="flex flex-col">
                     {item.children.map((child, index) => (
-                      <SidebarChildLink key={index} child={child} pathname={pathname} secondaryExpanded={secondaryExpanded} router={router} />
+                      <SidebarChildLink key={index} child={child} pathname={pathname} secondaryExpanded={secondaryExpanded} router={router} locked={isLocked(child)} />
                     ))}
                   </div>
                 ) : null,

@@ -8,7 +8,9 @@ import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-en
 import { TaskStatusOptions } from '../enum-mapper/task-enum'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { EvidenceStatusOptions } from '../enum-mapper/evidence-enum'
-import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { OBJECT_QUERY_CONFIG, ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
+import { useMemo } from 'react'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { buildMutationKey } from '@/components/shared/object-association/utils'
 
@@ -155,7 +157,7 @@ export const fieldItemSchema = z.object({
       selectOptionEnum: z.string(),
       name: z.string(),
       placeholder: z.string(),
-      inputType: z.nativeEnum(InputType),
+      inputType: z.enum(InputType),
       options: z
         .array(
           z.object({
@@ -164,8 +166,8 @@ export const fieldItemSchema = z.object({
           }),
         )
         .optional(),
-      allowedObjectTypes: z.array(z.nativeEnum(ObjectTypeObjects)).readonly().optional(),
-      objectType: z.nativeEnum(ObjectTypeObjects).optional(),
+      allowedObjectTypes: z.array(z.enum(ObjectTypeObjects)).readonly().optional(),
+      objectType: z.enum(ObjectTypeObjects).optional(),
     })
     .optional(),
   selectedValue: z.union([z.string(), z.array(z.string())]).optional(),
@@ -224,10 +226,11 @@ export const checkHasFieldsToUpdate = (watchedFields: BulkEditFieldLike[]): bool
 const POLICY_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
 const CONTROL_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
 const RISK_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.INTERNAL_POLICY] as const
-const EVIDENCE_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.SCAN] as const
+const EVIDENCE_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.PROGRAM, ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.SCAN] as const
 
 const ASSOCIATION_DISPLAY_NAMES: Partial<Record<ObjectTypeObjects, string>> = {
   [ObjectTypeObjects.CONTROL]: 'Associate Controls',
+  [ObjectTypeObjects.PROGRAM]: 'Associate Programs',
   [ObjectTypeObjects.INTERNAL_POLICY]: 'Associate Policies',
   [ObjectTypeObjects.PROCEDURE]: 'Associate Procedures',
   [ObjectTypeObjects.RISK]: 'Associate Risks',
@@ -247,12 +250,20 @@ export const generateAssociationSelectOptions = (allowedTypes: readonly ObjectTy
   }))
 }
 
+export const useModuleFilteredSelectOptions = <T extends string>(options: SelectOptionSelectedObject<T>[]): SelectOptionSelectedObject<T>[] => {
+  const { hasObjectType } = useModuleAccess()
+
+  return useMemo(() => options.filter((option) => !option.objectType || hasObjectType(OBJECT_QUERY_CONFIG[option.objectType].objectType)), [options, hasObjectType])
+}
+
 export const getAssociationSelectedCount = (selectedAssociations?: Record<string, string[]>): number => {
   if (!selectedAssociations) return 0
   return Object.values(selectedAssociations).reduce((sum, ids) => sum + (ids?.length ?? 0), 0)
 }
 
-export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions: Option[], categoryOptions: Option[]): SelectOptionSelectedObject[] => {
+export type BulkEditGroup = Pick<Group, 'id' | 'name' | 'displayName'>
+
+export const getAllSelectOptionsForBulkEditRisks = (groups: BulkEditGroup[], typeOptions: Option[], categoryOptions: Option[]): SelectOptionSelectedObject[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskDelegate,
@@ -312,7 +323,7 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions
   ]
 }
 
-export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject<SelectOptionBulkEditProcedures>[] => {
+export const getAllSelectOptionsForBulkEditProcedures = (groups: BulkEditGroup[], typeOptions: Option[]): SelectOptionSelectedObject<SelectOptionBulkEditProcedures>[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureDelegate,
@@ -351,7 +362,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[], typeOp
   ]
 }
 
-export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
+export const getAllSelectOptionsForBulkEditPolicies = (groups: BulkEditGroup[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditPolicies.PolicyDelegate,
@@ -391,8 +402,8 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[], typeOpti
   ]
 }
 
-export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
-  const { programOptions } = useProgramSelect({})
+export const useGetAllSelectOptionsForBulkEditControls = (groups: BulkEditGroup[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
+  const { programOptions, hasProgramAccess } = useProgramSelect({})
 
   return [
     {
@@ -416,13 +427,17 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeO
       inputType: InputType.Select,
       options: typeOptions,
     },
-    {
-      selectOptionEnum: SelectOptionBulkEditControls.Program,
-      name: 'addProgramIDs',
-      placeholder: 'Select program...',
-      inputType: InputType.Select,
-      options: programOptions || [],
-    },
+    ...(hasProgramAccess
+      ? [
+          {
+            selectOptionEnum: SelectOptionBulkEditControls.Program,
+            name: 'addProgramIDs',
+            placeholder: 'Select program...',
+            inputType: InputType.Select,
+            options: programOptions,
+          },
+        ]
+      : []),
     {
       selectOptionEnum: SelectOptionBulkEditControls.Category,
       name: 'category',

@@ -2,12 +2,13 @@ import type { NextAuthConfig } from 'next-auth'
 import NextAuth from 'next-auth'
 import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
-import { isDevelopment, openlaneAPIUrl } from '@repo/dally/auth'
+import { csrfCookieName, isDevelopment, openlaneAPIUrl } from '@repo/dally/auth'
 import { jwtDecode } from 'jwt-decode'
 import { type JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
 import { checkWebfinger, getTokenFromOpenlaneAPI, type OAuthUserRequest } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
+import { secureFetch } from './utils/secure-fetch'
 import { cookies } from 'next/headers'
 import { allowedLoginDomains } from '@repo/dally/auth'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
@@ -15,8 +16,6 @@ import { passKeyProvider } from './providers/passkey'
 import { skipCSRFCheck } from '@auth/core'
 
 import { CredentialsSignin } from 'next-auth'
-import { type PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
-import { featureUtil } from '@/lib/subscription-plan/plans.ts'
 
 export class InvalidLoginError extends CredentialsSignin {
   code = 'Invalid login'
@@ -67,20 +66,25 @@ export const config = {
 
       if (accessToken || refreshToken) {
         try {
-          const cookieHeader = cookieStore
-            .getAll()
-            .map((c) => `${c.name}=${c.value}`)
-            .join('; ')
+          const csrfToken = cookieStore.get(csrfCookieName)?.value
+          const cookieHeader = cookieStore.toString()
 
-          await fetch(`${openlaneAPIUrl}/v1/logout`, {
-            method: 'POST',
-            headers: {
-              'content-type': 'application/json',
-              ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-              ...(cookieHeader ? { cookie: cookieHeader } : {}),
+          const response = await secureFetch(
+            `${openlaneAPIUrl}/v1/logout`,
+            {
+              method: 'POST',
+              headers: {
+                ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+                ...(cookieHeader ? { cookie: cookieHeader } : {}),
+              },
+              body: JSON.stringify({ refresh_token: refreshToken ?? '' }),
             },
-            body: JSON.stringify({ refresh_token: refreshToken ?? '' }),
-          })
+            { token: csrfToken },
+          )
+
+          if (!response.ok) {
+            console.error('Failed to revoke tokens on logout:', response.status, await response.text())
+          }
         } catch (error) {
           console.error('Failed to revoke tokens on logout:', error)
         }
@@ -221,7 +225,6 @@ export const config = {
     async session({ session, token }) {
       try {
         const decodedToken = typeof token.accessToken === 'string' ? jwtDecode<JwtPayload>(token.accessToken) : {}
-        const features = (decodedToken.modules ?? []).flatMap((m: PlanEnum) => featureUtil.getPlanFeatures(m)).filter((f: string, i: number, arr: string[]) => arr.indexOf(f) === i)
 
         const impersonatorId = (decodedToken as { impersonator_id?: string })?.impersonator_id
         const tokenType = (decodedToken as { type?: string })?.type
@@ -236,7 +239,6 @@ export const config = {
           isTfaEnabled: token.isTfaEnabled ?? false,
           isOnboarding: token.isOnboarding ?? false,
           modules: decodedToken?.modules ?? [],
-          features,
           isImpersonation: tokenType === 'support' || !!impersonatorId,
           impersonator: impersonatorId ?? null,
           impersonationSessionId: impersonationSessionId ?? null,

@@ -2,9 +2,10 @@
 
 import { useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { getCookie } from '@/lib/auth/utils/getCookie'
 import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
+import { clearSsoTokenAuthorization, readSsoTokenAuthorization } from '@/lib/auth/utils/sso-token-storage'
 
 const ORG_SETTINGS_URL = '/organization-settings/authentication'
 const LOGIN_URL = '/login'
@@ -13,25 +14,26 @@ const SSOCallbackPage: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackStartedRef = useRef(false)
+  const { data: sessionData, status, update: updateSession } = useSession()
 
   const getRedirectUrl = (error?: string, isSuccess = false) => {
     const isTesting = localStorage.getItem('testing_sso')
-    const apiTokenData = localStorage.getItem('api_token')
+    const tokenAuthorization = readSsoTokenAuthorization()
+    const encodedError = encodeURIComponent(error ?? '')
 
     if (isTesting) {
       if (isSuccess) return `${ORG_SETTINGS_URL}?ssotested=1`
-      return `${ORG_SETTINGS_URL}?ssotested=0&error=${error}`
+      return `${ORG_SETTINGS_URL}?ssotested=0&error=${encodedError}`
     }
 
-    if (apiTokenData) {
-      const tokenInfo = JSON.parse(apiTokenData)
-      const basePath = tokenInfo.isOrg ? '/developers/api-tokens' : '/developers/personal-access-tokens'
+    if (tokenAuthorization) {
+      const basePath = tokenAuthorization === 'api' ? '/developers/api-tokens' : '/developers/personal-access-tokens'
       if (isSuccess) return `${basePath}?token_authorized=1`
-      return `${basePath}?error=${error}`
+      return `${basePath}?error=${encodedError}`
     }
 
     if (isSuccess) return '/'
-    return `${LOGIN_URL}?error=${error}`
+    return `${LOGIN_URL}?error=${encodedError}`
   }
 
   useEffect(() => {
@@ -79,6 +81,19 @@ const SSOCallbackPage: React.FC = () => {
           })
 
           if (signInResult && !signInResult.error) {
+            // we cannot inline this with the if branch above as this is already used for un-authenticated users already
+            // else we won't be able to redirect them correctly
+            if (sessionData) {
+              await updateSession({
+                user: {
+                  ...sessionData.user,
+                  accessToken: data.access_token,
+                  activeOrganizationId: organizationId,
+                  refreshToken: data.refresh_token,
+                },
+              })
+            }
+
             const redirectUrl = sanitizeLoginRedirect(data.redirect_url, getRedirectUrl(undefined, true))
             router.push(redirectUrl)
             return
@@ -88,22 +103,22 @@ const SSOCallbackPage: React.FC = () => {
         } else {
           // surface the server's explanation (e.g. authenticated successfully but not a member of the
           // organization) instead of a generic failure code so the login page can guide the user
-          const reason = data?.message ? encodeURIComponent(data.message) : 'sso_callback_failed'
+          const reason = data?.message ? data.message : 'sso_callback_failed'
           router.push(getRedirectUrl(reason))
         }
       } catch {
         router.push(getRedirectUrl('sso_callback_error'))
       } finally {
         localStorage.removeItem('testing_sso')
-        localStorage.removeItem('api_token')
+        clearSsoTokenAuthorization()
       }
     }
 
-    if (callbackStartedRef.current) return
+    if (status === 'loading' || callbackStartedRef.current) return
 
     callbackStartedRef.current = true
     handleSSOCallback()
-  }, [router, searchParams])
+  }, [router, searchParams, sessionData, status, updateSession])
 
   return (
     <div className="flex h-full w-full min-h-screen justify-center items-center">

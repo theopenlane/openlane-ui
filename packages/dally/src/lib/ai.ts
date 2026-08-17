@@ -8,6 +8,12 @@ export const googleProjectID = process.env.GOOGLE_AI_PROJECT_ID || ''
 export const googleAIRegion = process.env.GOOGLE_AI_REGION || ''
 export const aiLogBucket = process.env.GCS_LOG_BUCKET || ''
 export const ragCorpusID = process.env.GOOGLE_RAG_CORPUS_ID || ''
+// docs-only corpus used by the "need help here" slideout; it can live in a
+// different region than the suggestions corpus
+export const docsRagCorpusID = process.env.GOOGLE_DOCS_RAG_CORPUS_ID || ''
+export const docsAIRegion = process.env.GOOGLE_DOCS_AI_REGION || googleAIRegion
+// client-visible switch for the "need help" trigger
+export const docsHelpEnabled = aiEnabled && process.env.NEXT_PUBLIC_DOCS_HELP_ENABLED === 'true'
 
 // this is used for non-tuned model ai such as from the editor, all chat and generated policies use the fine tuned model
 export const geminiModelName = process.env.GOOGLE_AI_MODEL_NAME || 'gemini-2.5-flash'

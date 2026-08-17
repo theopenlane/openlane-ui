@@ -131,7 +131,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
   }
 
   const handleExportCSV = () => {
-    const visibleFiles = files.filter((f): f is TFile => !!f)
+    const visibleFiles = files.filter((f) => !!f)
     if (visibleFiles.length === 0) return
 
     exportToCSV(
@@ -146,7 +146,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
     )
   }
 
-  const validFiles = files.filter((f): f is TFile => !!f)
+  const validFiles = files.filter((f) => !!f)
 
   const isClassifiedAsEvidence = (file: TFile) => fileToEvidenceMap.has(file.id)
 
@@ -262,10 +262,9 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
           <Menu
             closeOnSelect={true}
             content={(close) => (
-              <Button
-                size="sm"
-                variant="transparent"
-                className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
+              <button
+                type="button"
+                className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
                 onClick={() => {
                   handleExportCSV()
                   close()
@@ -273,7 +272,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
               >
                 <DownloadIcon size={16} strokeWidth={2} />
                 <span>Export</span>
-              </Button>
+              </button>
             )}
           />
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.IDENTITY_HOLDER_FILES} />

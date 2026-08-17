@@ -283,7 +283,7 @@ function buildFieldSchema(fieldKey: string, property: IntegrationSchemaProperty,
     return buildNumericSchema(label, property, required)
   }
 
-  let schema: z.ZodTypeAny = required ? z.string().min(1, `${label} is required`) : z.string()
+  let schema: z.ZodType<string> = required ? z.string().min(1, `${label} is required`) : z.string()
 
   if (Array.isArray(property.enum) && property.enum.length > 0) {
     const options = property.enum.map(String)
@@ -321,13 +321,11 @@ function buildNumericSchema(label: string, property: IntegrationSchemaProperty, 
     property.type === 'integer'
       ? z
           .number({
-            invalid_type_error: `${label} must be a whole number`,
-            required_error: `${label} is required`,
+            error: (issue) => (issue.input === undefined ? `${label} is required` : `${label} must be a whole number`),
           })
           .int(`${label} must be a whole number`)
       : z.number({
-          invalid_type_error: `${label} must be a number`,
-          required_error: `${label} is required`,
+          error: (issue) => (issue.input === undefined ? `${label} is required` : `${label} must be a number`),
         })
 
   if (typeof property.minimum === 'number') {

@@ -12,7 +12,6 @@ import { ControlObjectiveControlSource } from '@repo/codegen/src/schema'
 import { useCreateControlObjective, useDeleteControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type Value } from 'platejs'
 import { Info, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { type TFormData } from './use-form-schema'
@@ -71,7 +70,7 @@ export const CreateControlObjectiveForm = ({
   }
 
   const onSubmit = async (data: TFormData) => {
-    const desiredOutcome = typeof data.desiredOutcome === 'string' ? data.desiredOutcome || undefined : data.desiredOutcome ? await convertToHtml(data.desiredOutcome as Value) : undefined
+    const desiredOutcome = typeof data.desiredOutcome === 'string' ? data.desiredOutcome || undefined : data.desiredOutcome ? await convertToHtml(data.desiredOutcome) : undefined
 
     const basePayload = {
       ...data,

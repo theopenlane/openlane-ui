@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
+import { useGetAllMappedControlsGrouped } from '@/lib/graphql-hooks/mapped-control'
 import { useGetExistingOrgControls } from '@/lib/graphql-hooks/control'
 import { useGetExistingOrgSubcontrols } from '@/lib/graphql-hooks/subcontrol'
 import { buildWhere, type CustomEvidenceControl, flattenAndFilterControls } from '../evidence-sheet-config'
@@ -22,21 +22,21 @@ type UseEvidenceSuggestedControlsArgs = {
 export const useEvidenceSuggestedControls = ({ evidenceControls, evidenceSubcontrols, enabled = true }: UseEvidenceSuggestedControlsArgs) => {
   const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
 
-  const { data: mappedControls, isLoading: isMappedLoading } = useGetMappedControls({
-    where: where,
+  const { mappedControlEdges, isLoading: isMappedLoading } = useGetAllMappedControlsGrouped({
+    where,
     enabled: enabled && !!where,
+    pageSize: 100,
   })
 
   const suggestions = useMemo(() => {
-    if (!mappedControls) return []
-    return flattenAndFilterControls(mappedControls, evidenceControls, evidenceSubcontrols).map((item) => ({
+    return flattenAndFilterControls(mappedControlEdges, evidenceControls, evidenceSubcontrols).map((item) => ({
       id: item.id,
       refCode: item.refCode,
       referenceFramework: item.referenceFramework ?? null,
       source: item.source ?? '',
       typeName: item.type,
     }))
-  }, [mappedControls, evidenceControls, evidenceSubcontrols])
+  }, [mappedControlEdges, evidenceControls, evidenceSubcontrols])
 
   const controlRefCodes = useMemo(() => Array.from(new Set(suggestions.filter((s) => s.typeName === ObjectTypes.CONTROL).map((s) => s.refCode))), [suggestions])
 

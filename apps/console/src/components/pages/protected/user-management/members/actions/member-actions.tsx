@@ -188,8 +188,8 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
 
   const formSchema = z.object({
     role: z
-      .nativeEnum(OrgMembershipRole, {
-        errorMap: () => ({ message: 'Invalid role' }),
+      .enum(OrgMembershipRole, {
+        error: 'Invalid role',
       })
       .default(OrgMembershipRole.MEMBER),
   })

@@ -14,8 +14,8 @@ const formSchema = z.object({
   team: z.string().optional(),
   location: z.string().optional(),
   phoneNumber: z.string().optional(),
-  status: z.nativeEnum(IdentityHolderUserStatus).optional(),
-  identityHolderType: z.nativeEnum(IdentityHolderIdentityHolderType).optional(),
+  status: z.enum(IdentityHolderUserStatus).optional(),
+  identityHolderType: z.enum(IdentityHolderIdentityHolderType).optional(),
   isActive: z.boolean().optional(),
   isOpenlaneUser: z.boolean().optional(),
   startDate: z.string().optional(),
@@ -36,8 +36,8 @@ const formSchema = z.object({
 })
 
 export const bulkEditFieldSchema = z.object({
-  status: z.nativeEnum(IdentityHolderUserStatus).optional(),
-  identityHolderType: z.nativeEnum(IdentityHolderIdentityHolderType).optional(),
+  status: z.enum(IdentityHolderUserStatus).optional(),
+  identityHolderType: z.enum(IdentityHolderIdentityHolderType).optional(),
   internalOwner: responsibilityFieldSchema,
   isActive: z.boolean().optional(),
   isOpenlaneUser: z.boolean().optional(),

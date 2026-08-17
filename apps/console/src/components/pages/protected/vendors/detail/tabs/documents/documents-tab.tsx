@@ -68,7 +68,9 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
     where: fileWhere,
   })
 
-  const fileIds = useMemo(() => files.map((f) => f?.id).filter(Boolean) as string[], [files])
+  const validFiles = useMemo(() => files.filter((f) => !!f), [files])
+
+  const fileIds = useMemo(() => validFiles.map((f) => f.id), [validFiles])
 
   const { data: evidencesData } = useGetEvidencesWithFileIds(fileIds)
 
@@ -108,11 +110,10 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
   }
 
   const handleExportCSV = () => {
-    const visibleFiles = files.filter((f): f is TFile => !!f)
-    if (visibleFiles.length === 0) return
+    if (validFiles.length === 0) return
 
     const headers = ['File Name', 'Category', 'Uploaded Date', 'Classified as Evidence']
-    const rows = visibleFiles.map((f) => [f.providedFileName, f.categoryType || '', f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '', fileToEvidenceMap.has(f.id) ? 'Yes' : 'No'])
+    const rows = validFiles.map((f) => [f.providedFileName, f.categoryType || '', f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '', fileToEvidenceMap.has(f.id) ? 'Yes' : 'No'])
 
     const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -125,8 +126,6 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
   }
-
-  const validFiles = files.filter((f): f is TFile => !!f)
 
   const isClassifiedAsEvidence = (file: TFile) => fileToEvidenceMap.has(file.id)
 
@@ -242,10 +241,9 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
           <Menu
             closeOnSelect={true}
             content={(close) => (
-              <Button
-                size="sm"
-                variant="transparent"
-                className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
+              <button
+                type="button"
+                className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
                 onClick={() => {
                   handleExportCSV()
                   close()
@@ -253,7 +251,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
               >
                 <DownloadIcon size={16} strokeWidth={2} />
                 <span>Export</span>
-              </Button>
+              </button>
             )}
           />
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.ENTITY_FILES} />

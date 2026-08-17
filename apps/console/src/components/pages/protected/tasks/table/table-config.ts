@@ -3,8 +3,14 @@ import { TaskTaskStatus } from '@repo/codegen/src/schema'
 import { type TOrgMembers } from '../hooks/useTaskStore'
 import { TaskFilterIcons } from '@/components/shared/enum-mapper/task-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 
-export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: { value: string; label: string }[], taskKindOptions: { value: string; label: string }[]): FilterField[] => [
+export const getTasksFilterFields = (
+  orgMembers: TOrgMembers[],
+  programOptions: { value: string; label: string }[],
+  taskKindOptions: { value: string; label: string }[],
+  hasProgramAccess: boolean,
+): FilterField[] => [
   { key: 'displayID', label: 'DisplayID', type: 'text', icon: TaskFilterIcons.DisplayID },
   { key: 'title', label: 'Title', type: 'text', icon: TaskFilterIcons.Title },
 
@@ -42,13 +48,7 @@ export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: 
     icon: TaskFilterIcons.Assignee,
   },
 
-  {
-    key: 'hasProgramsWith',
-    label: 'Program Name',
-    type: 'multiselect',
-    options: programOptions,
-    icon: TaskFilterIcons.ProgramName,
-  },
+  ...getProgramFilterFields(programOptions, hasProgramAccess),
 ]
 
 export const TASK_SORT_FIELDS = [

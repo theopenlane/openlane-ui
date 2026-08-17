@@ -102,22 +102,22 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
   if (!orgs) return <Loading />
 
   return (
-    <div>
+    <div className={expanded ? 'w-full px-3' : ''}>
       <div>
         <Popover onOpenChange={setIsPopoverOpened} open={isPopoverOpened}>
           <PopoverTrigger className="bg-unset w-full">
             {expanded ? (
               <div className="flex items-center justify-between w-full  py-1 rounded-md hover:bg-card transition-colors">
-                <div className="flex items-center gap-2">
-                  <Avatar entity={currentOrg as Organization} />
-                  <div className="flex flex-col justify-start ">
-                    <span className="text-sm  text-start font-medium text-foreground truncate w-[166px]">{currentOrg?.displayName}</span>
+                <div className="flex items-center gap-2 min-w-0">
+                  <Avatar entity={currentOrg as Organization} className="shrink-0" />
+                  <div className="flex flex-col justify-start min-w-0">
+                    <span className="text-sm  text-start font-medium text-foreground truncate">{currentOrg?.displayName}</span>
                     <span className="text-xs text-left text-muted-foreground uppercase self-start">
                       {(currentOrg?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role.toLowerCase() ?? ''}
                     </span>
                   </div>
                 </div>
-                <ChevronsUpDown className="ml-2 text-muted-foreground" size={16} />
+                <ChevronsUpDown className="ml-2 shrink-0 text-muted-foreground" size={16} />
               </div>
             ) : (
               <Avatar entity={currentOrg as Organization} />

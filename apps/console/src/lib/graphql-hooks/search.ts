@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
+import { isSystemStandardRecord } from '@/constants/standards'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import routeList from '@/route-list.json'
 import type { RoutePage } from '@/types'
@@ -31,7 +32,7 @@ type SearchContextLabelData = {
   subcontrolParentId?: string
   controlOwnerID?: string | null
   controlStandardID?: string | null
-  isTrustCenterControl?: boolean | null
+  isExcludedFromSearch?: boolean
 }
 
 type SearchContextLabelLookup = Map<string, SearchContextLabelData>
@@ -58,14 +59,13 @@ export const buildSearchContextLabelLookup = (search?: SearchQuery['search']): S
     const node = edge?.node
     if (!node?.id) continue
 
-    const controlStandardID = typeof node === 'object' && node !== null && 'standardID' in node ? ((node as { standardID?: string | null }).standardID ?? null) : null
-    const isTrustCenterControl = typeof node === 'object' && node !== null && 'isTrustCenterControl' in node ? ((node as { isTrustCenterControl?: boolean | null }).isTrustCenterControl ?? null) : null
+    const isSystemStandardControl = isSystemStandardRecord({ systemOwned: node.systemOwned, framework: node.standard?.framework })
 
     lookup.set(getLabelLookupKey('Control', node.id), {
       primaryLabel: node.refCode ?? node.id,
       controlOwnerID: node.ownerID ?? null,
-      controlStandardID,
-      isTrustCenterControl,
+      controlStandardID: node.standardID ?? null,
+      isExcludedFromSearch: Boolean(node.isTrustCenterControl) || isSystemStandardControl,
     })
   }
 
@@ -76,6 +76,7 @@ export const buildSearchContextLabelLookup = (search?: SearchQuery['search']): S
     lookup.set(getLabelLookupKey('Subcontrol', node.id), {
       primaryLabel: node.refCode ?? node.id,
       subcontrolParentId: node.control?.id,
+      isExcludedFromSearch: Boolean(node.control?.isTrustCenterControl) || isSystemStandardRecord({ systemOwned: node.systemOwned, framework: node.control?.standard?.framework }),
     })
   }
 
@@ -148,6 +149,7 @@ export const buildSearchContextLabelLookup = (search?: SearchQuery['search']): S
 
     lookup.set(getLabelLookupKey('Standard', node.id), {
       primaryLabel: node.shortName ?? node.name ?? node.id,
+      isExcludedFromSearch: isSystemStandardRecord(node),
     })
   }
 
@@ -176,7 +178,7 @@ export const enrichSearchContextResults = (results: SearchContextResult[], label
   return results.flatMap((result) => {
     const labelData = labelLookup.get(getLabelLookupKey(result.entityType, result.entityID))
 
-    if (result.entityType === 'Control' && labelData?.isTrustCenterControl) {
+    if (labelData?.isExcludedFromSearch) {
       return []
     }
 

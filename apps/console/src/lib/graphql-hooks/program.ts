@@ -1,4 +1,5 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
 import {
@@ -8,7 +9,6 @@ import {
   GET_PROGRAM_DETAILS_BY_ID,
   GET_PROGRAM_BASIC_INFO,
   GET_EVIDENCE_STATS,
-  GET_GLOBAL_EVIDENCE_STATS,
   GET_PROGRAM_SETTINGS,
   GET_PROGRAM_MEMBERS,
   GET_PROGRAM_GROUPS,
@@ -29,7 +29,6 @@ import {
   type GetProgramBasicInfoQuery,
   type GetProgramBasicInfoQueryVariables,
   type GetEvidenceStatsQuery,
-  type GetGlobalEvidenceStatsQuery,
   type GetProgramSettingsQuery,
   type GetProgramSettingsQueryVariables,
   type ProgramMembershipWhereInput,
@@ -45,6 +44,10 @@ import {
   type GetProgramDashboardQueryVariables,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
+
+const EMPTY_PROGRAM_OPTIONS: { label: string; value: string }[] = []
 
 interface UseGetAllProgramsArgs {
   where?: GetAllProgramsQueryVariables['where']
@@ -53,13 +56,13 @@ interface UseGetAllProgramsArgs {
   enabled?: boolean
 }
 
-export const useGetAllPrograms = ({ where, orderBy }: UseGetAllProgramsArgs = {}) => {
+export const useGetAllPrograms = ({ where, orderBy, enabled = true }: UseGetAllProgramsArgs = {}) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllProgramsQuery, GetAllProgramsQueryVariables>({
     queryKey: ['programs', { where, orderBy }],
     queryFn: async () => client.request(GET_ALL_PROGRAMS, { where, orderBy }),
-    enabled: true,
+    enabled,
   })
 }
 
@@ -176,31 +179,22 @@ export const useProgramEvidenceStats = (programId: string | undefined) => {
   })
 }
 
-export const useGlobalEvidenceStats = ({ enabled = true }) => {
-  const { client } = useGraphQLClient()
+export const useProgramSelect = ({ where }: { where?: ProgramWhereInput } = {}) => {
+  const hasProgramAccess = useHasObjectType(ObjectTypes.PROGRAM)
+  const query = useGetAllPrograms({ where, enabled: hasProgramAccess })
 
-  return useQuery<ProgramEvidenceStats>({
-    queryKey: ['global-evidence-stats'],
-    queryFn: async () => {
-      const data = await client.request<GetGlobalEvidenceStatsQuery>(GET_GLOBAL_EVIDENCE_STATS)
+  const programOptions = useMemo(
+    () => query.data?.programs?.edges?.flatMap((edge) => (edge?.node?.id && edge?.node?.name ? [{ label: edge.node.name, value: edge.node.id }] : [])) ?? EMPTY_PROGRAM_OPTIONS,
+    [query.data],
+  )
 
-      return {
-        total: data.totalControls.totalCount,
-        submitted: data.submitted.totalCount,
-        accepted: data.accepted.totalCount,
-        rejected: data.rejected.totalCount,
-      }
-    },
-    enabled,
-  })
-}
-
-export const useProgramSelect = ({ where }: { where?: ProgramWhereInput }) => {
-  const { data, ...rest } = useGetAllPrograms({ where })
-
-  const programOptions = data?.programs?.edges?.flatMap((edge) => (edge?.node?.id && edge?.node?.name ? [{ label: edge.node.name, value: edge.node.id }] : [])) || []
-
-  return { programOptions, ...rest }
+  return {
+    programOptions,
+    hasProgramAccess,
+    isLoading: hasProgramAccess && query.isLoading,
+    isSuccess: !hasProgramAccess || query.isSuccess,
+    isError: hasProgramAccess && query.isError,
+  }
 }
 
 export const useGetProgramSettings = (programId: string | null) => {

@@ -71,7 +71,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
   const isSearching = useDebounce(searching, 200)
   const { currentOrgId } = useOrganization()
-  const { standardOptions } = useStandardsSelect({
+  const { standardOptions, isSuccess: isStandardsSuccess } = useStandardsSelect({
     where: {
       hasControlsWith: [
         {
@@ -81,10 +81,13 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
     },
     enabled: Boolean(currentOrgId),
   })
-  const { tagOptions: rawTagOptions } = useGetTags()
+  const { tagOptions: rawTagOptions, isSuccess: isTagsSuccess } = useGetTags()
   const tagOptions = useMemo(() => rawTagOptions ?? [], [rawTagOptions])
 
-  const filterFields = useMemo(() => getEvidenceFilterableFields(standardOptions, tagOptions), [standardOptions, tagOptions])
+  const filterFields = useMemo(
+    () => (isStandardsSuccess && isTagsSuccess ? getEvidenceFilterableFields(standardOptions, tagOptions) : null),
+    [standardOptions, tagOptions, isStandardsSuccess, isTagsSuccess],
+  )
 
   const handleBulkDelete = async () => {
     if (selectedEvidence.length === 0) {
@@ -221,7 +224,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.EVIDENCE} />
               )}
-              <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.EVIDENCE} />
+              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.EVIDENCE} />}
             </>
           )}
         </div>

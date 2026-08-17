@@ -103,7 +103,7 @@ const SystemDetailPage: React.FC = () => {
   }
 
   const { platformOptions } = usePlatformSelect({})
-  const { programOptions } = useProgramSelect({})
+  const { programOptions, hasProgramAccess } = useProgramSelect()
   const sensitivityLevelOptions = enumToOptions(SystemDetailSystemSensitivityLevel)
   const { tagOptions } = useGetTags()
 
@@ -158,7 +158,7 @@ const SystemDetailPage: React.FC = () => {
     orderFieldEnum,
     defaultSorting,
     defaultVisibility: visibilityFields,
-    filterFields: getFilterFields(enumOpts),
+    filterFields: getFilterFields(enumOpts, hasProgramAccess),
     searchFields: ['systemNameContainsFold', 'descriptionContainsFold'],
     breadcrumbs,
     form,

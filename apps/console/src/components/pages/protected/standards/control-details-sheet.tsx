@@ -7,8 +7,8 @@ import { LinkIcon, PanelRightClose } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
 import ControlChip from '../controls/map-controls/shared/control-chip'
-import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
-import { type GroupedControls, type RelatedNode } from '../controls/related-controls'
+import { useGetAllMappedControlsGrouped } from '@/lib/graphql-hooks/mapped-control'
+import { type GroupedControls, type RelatedNode } from '../controls/shared/related-node'
 import { RelatedControlChip } from '../controls/shared/related-control-chip'
 import AccordionInfo from './control-details-accordion-info'
 import { MappedControlMappingSource, type MappedControlWhereInput } from '@repo/codegen/src/schema'
@@ -32,7 +32,7 @@ const ControlDetailsSheet = () => {
     and: [{ source: MappedControlMappingSource.SUGGESTED }, { or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }] }],
   }
 
-  const { data: mappedControlsData } = useGetMappedControls({ where, enabled: !!controlId })
+  const { mappedControlEdges } = useGetAllMappedControlsGrouped({ where, enabled: !!controlId, pageSize: 100 })
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
@@ -67,7 +67,7 @@ const ControlDetailsSheet = () => {
 
   const grouped: GroupedControls = {}
 
-  mappedControlsData?.mappedControls?.edges?.forEach((edge) => {
+  mappedControlEdges.forEach((edge) => {
     const node = edge?.node
     if (!node) return
 

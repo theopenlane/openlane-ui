@@ -1,0 +1,156 @@
+/* survey viewer styling shared by the public questionnaire page and the in-app viewer
+   layout: one rounded card containing the title, progress, and form, floating on the
+   page background */
+
+.sd-root-modern {
+  background-color: transparent;
+}
+
+.sd-root-modern .sd-container-modern {
+  background-color: var(--ol-survey-panel-backcolor, #fff);
+  border-radius: 12px;
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+/* title: left aligned at the top of the card, replacing the default renderer's
+   edge-to-edge bar with 2px primary-color underline (box-shadow) */
+.sd-root-modern .sd-container-modern__title {
+  box-shadow: none;
+  background-color: transparent;
+  padding: 32px 40px 16px;
+}
+
+.sd-root-modern .sd-container-modern__title .sd-title {
+  letter-spacing: -0.01em;
+}
+.sd-root-modern .sd-container-modern__title .sd-header__text .sd-title {
+  margin-bottom: 0;
+}
+
+.sd-root-modern .sd-container-modern__title .sd-description {
+  margin-top: 4px;
+}
+
+/* static and responsive modes disagree on page padding (40px vs 0), which threw the
+   title/progress alignment off between the public page and the in-app viewer — zero it
+   in both so every surface shares the card's 40px content edge */
+.sd-root-modern .sd-page {
+  padding: 0;
+}
+
+/* form body inside the card */
+.sd-root-modern .sd-body {
+  background-color: transparent;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 8px 40px 48px;
+}
+
+/* progress: segmented bar inside the card instead of dots on a wire */
+.sd-root-modern .sd-progress-buttons {
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 20px 40px 0;
+}
+.sd-root-modern .sd-progress-buttons .sd-progress-buttons__list-container {
+  margin: 0;
+}
+.sd-root-modern .sd-progress-buttons .sd-progress-buttons__connector {
+  display: none !important;
+}
+.sd-root-modern .sd-progress-buttons .sd-progress-buttons__list {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+.sd-root-modern .sd-progress-buttons .sd-progress-buttons__list li {
+  flex: 1 1 0;
+  padding: 0;
+  margin: 0;
+  position: relative;
+}
+.sd-root-modern .sd-progress-buttons .sd-progress-buttons__list li .sd-progress-buttons__button {
+  align-self: stretch;
+  width: auto;
+  height: 6px;
+  border: none;
+  padding: 0;
+  border-radius: 9999px;
+  background: var(--sjs-border-light, #e1e7ea);
+  box-sizing: border-box;
+}
+.sd-root-modern .sd-progress-buttons .sd-progress-buttons__list li .sd-progress-buttons__button-background,
+.sd-root-modern .sd-progress-buttons .sd-progress-buttons__list li .sd-progress-buttons__button-content {
+  display: none;
+}
+.sd-root-modern .sd-progress-buttons .sd-progress-buttons__list li:hover .sd-progress-buttons__button {
+  border: none;
+  padding: 0;
+  background: var(--sjs-general-backcolor-dark, #e1e7ea);
+}
+.sd-root-modern .sd-progress-buttons .sd-progress-buttons__list li.sd-progress-buttons__list-element--passed .sd-progress-buttons__button,
+.sd-root-modern .sd-progress-buttons .sd-progress-buttons__list li.sd-progress-buttons__list-element--current .sd-progress-buttons__button,
+.sd-root-modern .sd-progress-buttons .sd-progress-buttons__list li.sd-progress-buttons__list-element--passed:hover .sd-progress-buttons__button,
+.sd-root-modern .sd-progress-buttons .sd-progress-buttons__list li.sd-progress-buttons__list-element--current:hover .sd-progress-buttons__button {
+  background: var(--sjs-primary-backcolor, #2dcdad);
+}
+.sd-root-modern .sd-progress-buttons .sd-progress-buttons__page-title {
+  font-size: 13px;
+}
+
+/* navigation actions (save draft / back / next / complete) centered under the form */
+.sd-root-modern .sd-body__navigation {
+  justify-content: center;
+  gap: 12px;
+}
+
+/* navigation buttons: match the app's button styling (packages/ui button) —
+   36px tall, 6px radius, primary fill for the main action, quiet secondary for the rest;
+   !important because the renderer's compact-mode selectors outrank anything sane */
+.sd-root-modern .sd-btn {
+  height: 36px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: none;
+  border: 1px solid var(--color-border, transparent);
+  background: var(--color-btn-secondary, var(--sjs-general-backcolor, #fff)) !important;
+  color: var(--color-btn-secondary-text, var(--sjs-general-forecolor, #09151d)) !important;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+.sd-root-modern .sd-btn:not(:disabled):hover {
+  background: var(--color-btn-secondary-hover, var(--sjs-general-backcolor-dim, #eff4f5)) !important;
+  box-shadow: none;
+}
+
+/* next and complete are the primary action */
+.sd-root-modern .sd-btn.sd-btn--action,
+.sd-root-modern .sd-btn.sd-navigation__next-btn,
+.sd-root-modern .sd-btn.sd-navigation__complete-btn {
+  border: 1px solid transparent;
+  background: var(--color-btn-primary, var(--sjs-primary-backcolor, #2dcdad)) !important;
+  color: var(--color-btn-primary-text, var(--sjs-primary-forecolor, #052e2a)) !important;
+}
+.sd-root-modern .sd-btn.sd-btn--action:not(:disabled):hover,
+.sd-root-modern .sd-btn.sd-navigation__next-btn:not(:disabled):hover,
+.sd-root-modern .sd-btn.sd-navigation__complete-btn:not(:disabled):hover {
+  background: var(--color-btn-primary-hover, var(--sjs-primary-backcolor-dark, #0e937c)) !important;
+}
+
+/* radio / checkbox decorators: the default 24px circles overpower the 14px labels */
+.sd-root-modern .sd-item__decorator {
+  width: 18px;
+  height: 18px;
+}
+.sd-root-modern .sd-item__svg {
+  width: 14px;
+  height: 14px;
+}

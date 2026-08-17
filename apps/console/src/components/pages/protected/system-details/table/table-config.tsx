@@ -1,5 +1,6 @@
 import { type FilterField } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
+import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 import { type CustomEnumOption } from '@/components/shared/crud-base/page'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { ObjectNames } from '@repo/codegen/src/type-names'
@@ -18,7 +19,7 @@ export const breadcrumbs = [
   { label: 'System Details', href: '/registry/system-details' },
 ]
 
-export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
+export const getFilterFields = (enumOptions: EnumOptions, hasProgramAccess: boolean): FilterField[] => [
   {
     key: 'sensitivityLevelIn',
     label: 'Sensitivity Level',
@@ -40,13 +41,7 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
     icon: FilterIcons.Platform,
     options: enumOptions.platformIDsOptions,
   },
-  {
-    key: 'hasProgramsWith',
-    label: 'Programs',
-    type: 'multiselect',
-    icon: FilterIcons.ProgramName,
-    options: enumOptions.programIDsOptions,
-  },
+  ...getProgramFilterFields(enumOptions.programIDsOptions, hasProgramAccess, 'Programs'),
 ]
 
 export const getPlatformQuickFilters = (platformOptions: CustomEnumOption[]): TQuickFilter[] =>

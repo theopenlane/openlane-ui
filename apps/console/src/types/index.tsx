@@ -1,16 +1,23 @@
 import { type LucideIcon } from 'lucide-react'
+import { type ComponentType } from 'react'
 import { type PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
+import { type ObjectTypes } from '@repo/codegen/src/type-names'
+
+// nav icons are either plain lucide icons or self-animating icon components
+// (see components/shared/icons/animated) which carry an `animated` marker
+export type NavIcon = LucideIcon | (ComponentType<{ className?: string; size?: number }> & { animated?: boolean })
 
 export interface NavItem {
   title: string
   addCount?: boolean
   href: string
   params?: string
-  icon?: LucideIcon
+  icon?: NavIcon
   isChildren?: boolean
   children?: NavItem[]
   hidden?: boolean
   plan?: PlanEnum
+  objectType?: ObjectTypes
 }
 
 export interface Separator {

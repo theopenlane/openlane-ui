@@ -7,7 +7,7 @@ import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Ban, Calendar, CalendarClock, ExternalLink, FileText, Lock, Mail, Rocket, SendHorizontal, Trash2 } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useCampaign, useUpdateCampaign, useLaunchCampaign, useResendCampaignIncompleteTargets } from '@/lib/graphql-hooks/campaign'
+import { CAMPAIGN_TERMINAL_STATUSES, useCampaign, useUpdateCampaign, useLaunchCampaign, useResendCampaignIncompleteTargets } from '@/lib/graphql-hooks/campaign'
 import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
 import { useCampaignTargetStats } from '@/lib/graphql-hooks/campaign-target'
 import { type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
@@ -55,6 +55,18 @@ type LaunchGateInput = {
   isFetchingRecipients: boolean
   hasRecipientsError: boolean
   recipientCount: number
+}
+
+type campaignTargetMetadataEvent = {
+  email_id?: string
+  timestamp?: string
+}
+
+type campaignTargetMetadataEventType = 'sent' | 'opened' | 'delivered' | 'bounced'
+type campaignTargetMetadata = Partial<Record<campaignTargetMetadataEventType, campaignTargetMetadataEvent>> | null | undefined
+
+const doesEmailEventExists = (metadata: campaignTargetMetadata, eventType: campaignTargetMetadataEventType): boolean => {
+  return !!metadata?.[eventType]
 }
 
 const getLaunchBlockedReason = ({ hasCampaignContent, isFetchingRecipients, hasRecipientsError, recipientCount }: LaunchGateInput): string | undefined => {
@@ -139,12 +151,15 @@ const CampaignDetailPage: React.FC = () => {
   const stats = useMemo(() => {
     const total = totalCount
     const sent = recipients.filter((r) => r.sentAt).length
+    const delivered = recipients.filter((r) => doesEmailEventExists(r.metadata, 'delivered')).length
+    const opened = recipients.filter((r) => doesEmailEventExists(r.metadata, 'opened')).length
+    const bounced = recipients.filter((r) => doesEmailEventExists(r.metadata, 'bounced')).length
     const completed = recipients.filter((r) => r.completedAt).length
     const inProgress = recipients.filter((r) => r.sentAt && !r.completedAt).length
     const now = new Date()
     const dueDate = campaign?.dueDate ? new Date(campaign.dueDate as string) : null
     const overdue = dueDate && dueDate < now ? recipients.filter((r) => !r.completedAt).length : 0
-    return { total, sent, completed, inProgress, overdue }
+    return { total, sent, delivered, opened, bounced, completed, inProgress, overdue }
   }, [recipients, totalCount, campaign])
 
   const progressPercent = useMemo(() => {
@@ -264,7 +279,7 @@ const CampaignDetailPage: React.FC = () => {
   const showProgress = campaign.campaignType !== CampaignCampaignType.CUSTOM || !!campaign.assessmentID
   const campaignTypeLabel = campaign.campaignType ? getEnumLabel(campaign.campaignType) : '—'
   const launchBlockedReason = getLaunchBlockedReason({ hasCampaignContent, isFetchingRecipients, hasRecipientsError, recipientCount: stats.total })
-  const isTerminalStatus = status === CampaignCampaignStatus.COMPLETED || status === CampaignCampaignStatus.CANCELED
+  const isTerminalStatus = CAMPAIGN_TERMINAL_STATUSES.includes(status)
   const canCancel = !isTerminalStatus
   const canEditRecurrence = !isTerminalStatus
   const canSendReminder = status === CampaignCampaignStatus.ACTIVE
@@ -615,15 +630,15 @@ const CampaignDetailPage: React.FC = () => {
             </div>
             <div className="rounded-md border border-border bg-card p-3">
               <span className="text-xs text-muted-foreground">Email Delivered</span>
-              <p className="text-lg font-semibold">{stats.sent}</p>
+              <p className="text-lg font-semibold">{stats.delivered}</p>
             </div>
             <div className="rounded-md border border-border bg-card p-3">
               <span className="text-xs text-muted-foreground">Email Bounced</span>
-              <p className="text-lg font-semibold">0</p>
+              <p className="text-lg font-semibold">{stats.bounced}</p>
             </div>
             <div className="rounded-md border border-border bg-card p-3">
               <span className="text-xs text-muted-foreground">Email Opened</span>
-              <p className="text-lg font-semibold">—</p>
+              <p className="text-lg font-semibold">{stats.opened}</p>
             </div>
           </div>
 
@@ -696,7 +711,7 @@ const CampaignDetailPage: React.FC = () => {
         title="Cancel campaign"
         description={
           <>
-            <b>{campaign.name}</b> will stop sending and can no longer be edited. Recipients who already received it keep their access.
+            <b>{campaign.name}</b> will be cancelled. Any scheduled emails will still be sent but not future emails will be sent.
           </>
         }
       />
@@ -710,7 +725,7 @@ const CampaignDetailPage: React.FC = () => {
         title="Delete campaign"
         description={
           <>
-            This action cannot be undone. This will permanently remove <b>{campaign.name}</b> and its recipients from the organization.
+            This action cannot be undone. This will permanently remove <b>{campaign.name}</b> and from the organization and emails will no longer be sent.
           </>
         }
       />
