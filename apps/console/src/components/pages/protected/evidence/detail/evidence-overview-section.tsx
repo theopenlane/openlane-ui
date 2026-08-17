@@ -62,7 +62,7 @@ const EvidenceOverviewSection: React.FC<TEvidenceOverviewSectionProps> = ({
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormControl>
-                  <Input variant="medium" {...field} className="w-full" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus />
+                  <Input variant="medium" {...field} className="w-full" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus={editField === 'name'} />
                 </FormControl>
                 {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
               </FormItem>
@@ -87,7 +87,7 @@ const EvidenceOverviewSection: React.FC<TEvidenceOverviewSectionProps> = ({
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormControl>
-                  <Textarea id="description" {...field} className="w-full" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus />
+                  <Textarea id="description" {...field} className="w-full" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus={editField === 'description'} />
                 </FormControl>
                 {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
               </FormItem>

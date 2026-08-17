@@ -22,13 +22,13 @@ export const ModeOption: React.FC<ModeOptionProps> = ({ icon, title, description
     onClick={onSelect}
     className={cn(
       'flex flex-col gap-1 rounded-md border p-3 text-left',
-      selected ? 'border-brand bg-brand/10 ring-2 ring-brand' : 'border-border hover:bg-muted/50',
+      selected ? 'border-primary bg-primary-muted ring-2 ring-primary' : 'border-border hover:bg-muted/50',
       disabled && 'cursor-not-allowed opacity-60',
     )}
   >
     <div className="flex items-center justify-between">
       {icon}
-      {selected && <CircleCheck size={16} className="text-brand" />}
+      {selected && <CircleCheck size={16} />}
     </div>
     <span className="text-sm font-medium">{title}</span>
     <span className="text-xs text-muted-foreground">{description}</span>

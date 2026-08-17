@@ -1,3 +1,4 @@
-export default function ReviewsLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
-}
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { featureGatedLayout } from '@/lib/subscription-plan/feature-gate'
+
+export default featureGatedLayout(ObjectTypes.REVIEW)

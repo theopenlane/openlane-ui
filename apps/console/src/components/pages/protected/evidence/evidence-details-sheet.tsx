@@ -6,7 +6,6 @@ import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { useNotification } from '@/hooks/useNotification'
 import { Form } from '@repo/ui/form'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
-import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { type EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
@@ -23,7 +22,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EvidenceDetailsSheetSkeleton } from './skeleton/evidence-details-skeleton'
 import EvidenceFiles from './evidence-files'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { type CustomEvidenceControl, type EvidenceEditableField } from './evidence-sheet-config'
+import { EDIT_ASSOCIATIONS_PARAM, type CustomEvidenceControl, type EvidenceEditableField } from './evidence-sheet-config'
 import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-controls'
 import EvidenceCommentsCard from './evidence-comment-card'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
@@ -52,19 +51,18 @@ const INLINE_POPOVER_FIELDS: EvidenceEditableField[] = ['tags', 'reviewFrequency
 
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, entityId: entityIdProp, onClose: onCloseProp }) => {
   const { convertToHtml, convertToReadOnly } = usePlateEditor()
-  const objectAssociationRef = useRef<HTMLDivElement | null>(null)
-  const [isEditing, setIsEditing] = useState(false)
+  const [editRequested, setEditRequested] = useState(false)
 
   const { data: session } = useSession()
 
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
 
-  const { isEditPreset, setIsEditPreset } = useControlEvidenceStore()
   const searchParams = useSearchParams()
   const controlEvidenceIdParam = searchParams?.get('controlEvidenceId')
   const id = searchParams.get('id')
-  const smartRouter = useSmartRouter()
+  const editAssociationsForId = searchParams.get(EDIT_ASSOCIATIONS_PARAM)
+  const { replace: replaceSearchParams } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
@@ -91,12 +89,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
     return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
   }, [entityIdProp, controlEvidenceIdParam, id])
 
-  const { suggestedControlsMap, isLoading: isSuggestionsLoading } = useEvidenceSuggestedControls({
-    evidenceControls,
-    evidenceSubcontrols,
-    enabled: isEditing,
-  })
-
   const { data, isLoading: fetching } = useGetEvidenceById(config.id)
 
   const [editField, setEditField] = useState<EvidenceEditableField | null>(null)
@@ -104,6 +96,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
   const { data: permission } = useAccountRoles(ObjectTypes.EVIDENCE, data?.evidence.id)
 
   const editAllowed = canEdit(permission?.roles, session) || isAuditor
+
+  const isEditing = editRequested && editAllowed
+
+  const { suggestedControlsMap, isLoading: isSuggestionsLoading } = useEvidenceSuggestedControls({
+    evidenceControls,
+    evidenceSubcontrols,
+    enabled: isEditing,
+  })
 
   const evidence = data?.evidence
 
@@ -159,14 +159,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
   }
 
   const handleCloseParams = () => {
-    setIsEditing(false)
+    setEditRequested(false)
 
     if (onCloseProp) {
       onCloseProp()
       return
     }
 
-    smartRouter.replace({ controlEvidenceId: null, id: null })
+    replaceSearchParams({ controlEvidenceId: null, id: null })
   }
 
   const onSubmit = async (formData: EditEvidenceFormData) => {
@@ -215,7 +215,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
         description: 'The evidence has been successfully updated.',
       })
 
-      setIsEditing(false)
+      setEditRequested(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -364,23 +364,22 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
     },
   )
 
-  const [scrollTrigger, setScrollTrigger] = useState(0)
-  if (isEditPreset && config.id) {
-    setIsEditing(true)
-    setIsEditPreset(false)
-    setScrollTrigger((prev) => prev + 1)
+  const [prevConfigId, setPrevConfigId] = useState(config.id)
+  if (config.id !== prevConfigId) {
+    setPrevConfigId(config.id)
+    setEditRequested(false)
+    setEditField(null)
   }
 
   useEffect(() => {
-    if (scrollTrigger > 0) {
-      const timeout = setTimeout(() => {
-        requestAnimationFrame(() => {
-          objectAssociationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        })
-      }, 500)
-      return () => clearTimeout(timeout)
+    if (entityIdProp !== undefined || !editAssociationsForId) {
+      return
     }
-  }, [scrollTrigger])
+    if (editAssociationsForId === config.id) {
+      setEditRequested(true)
+    }
+    replaceSearchParams({ [EDIT_ASSOCIATIONS_PARAM]: null })
+  }, [editAssociationsForId, entityIdProp, config.id, replaceSearchParams])
 
   return (
     <Sheet open={!!config.id} onOpenChange={handleSheetClose}>
@@ -405,8 +404,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
             auditorActionPending={auditorActionPending}
             onStatusChange={handleStatusChange}
             onCopyLink={handleCopyLink}
-            onEdit={() => setIsEditing(true)}
-            onCancelEdit={() => setIsEditing(false)}
+            onEdit={() => setEditRequested(true)}
+            onCancelEdit={() => setEditRequested(false)}
             onSave={handleSave}
             onDelete={() => setDeleteDialogIsOpen(true)}
             onApprove={handleApprove}
@@ -442,24 +441,22 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
                 </EvidenceDetailSection>
               )}
 
-              <div ref={objectAssociationRef}>
-                <EvidenceRelationshipsSection
-                  form={form}
-                  isEditing={isEditing}
-                  evidenceControls={evidenceControls}
-                  setEvidenceControls={setEvidenceControls}
-                  evidenceSubcontrols={evidenceSubcontrols}
-                  setEvidenceSubcontrols={setEvidenceSubcontrols}
-                  suggestedControlsMap={suggestedControlsMap}
-                  isLoadingSuggestions={isSuggestionsLoading}
-                  associationProgramsRefMap={associationProgramsRefMap}
-                  setAssociationProgramsRefMap={setAssociationProgramsRefMap}
-                  initialAssociations={initialAssociations}
-                  onAssociationsChange={setAssociations}
-                  associatedObjectSections={associatedObjectSections}
-                  programNames={controlsAndPrograms.programDisplayIDs}
-                />
-              </div>
+              <EvidenceRelationshipsSection
+                form={form}
+                isEditing={isEditing}
+                evidenceControls={evidenceControls}
+                setEvidenceControls={setEvidenceControls}
+                evidenceSubcontrols={evidenceSubcontrols}
+                setEvidenceSubcontrols={setEvidenceSubcontrols}
+                suggestedControlsMap={suggestedControlsMap}
+                isLoadingSuggestions={isSuggestionsLoading}
+                associationProgramsRefMap={associationProgramsRefMap}
+                setAssociationProgramsRefMap={setAssociationProgramsRefMap}
+                initialAssociations={initialAssociations}
+                onAssociationsChange={setAssociations}
+                associatedObjectSections={associatedObjectSections}
+                programNames={controlsAndPrograms.programDisplayIDs}
+              />
 
               {evidence && (
                 <EvidenceMetadataSection

@@ -8202,6 +8202,7 @@ export interface GetStandardDetailsQuery {
     framework: string | null
     governingBody: string | null
     controls: { totalCount: number }
+    controlsWithSubcontrols: { totalCount: number }
     logoFile: { base64: string | null } | null
   }
 }

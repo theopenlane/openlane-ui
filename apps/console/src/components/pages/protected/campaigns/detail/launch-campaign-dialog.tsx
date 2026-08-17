@@ -99,14 +99,14 @@ export const LaunchCampaignDialog: React.FC<LaunchCampaignDialogProps> = ({ open
           <span className="text-sm font-medium">When do you want to launch?</span>
           <div role="radiogroup" aria-label="Launch timing" className="grid grid-cols-2 gap-3">
             <ModeOption
-              icon={<SendHorizontal size={18} className="text-brand" />}
+              icon={<SendHorizontal size={18} />}
               title="Launch immediately"
               description="Send the campaign as soon as you launch."
               selected={mode === 'immediate'}
               onSelect={() => setMode('immediate')}
             />
             <ModeOption
-              icon={<CalendarClock size={18} className="text-brand" />}
+              icon={<CalendarClock size={18} />}
               title="Schedule for later"
               description="Choose a date and time to launch the campaign."
               selected={mode === 'scheduled'}
