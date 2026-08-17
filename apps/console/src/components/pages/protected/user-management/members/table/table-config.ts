@@ -1,6 +1,6 @@
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { InvitesFilterIcons, MembersFilterIcons } from '@/components/shared/enum-mapper/members-enum'
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { InviteInviteStatus, InviteRole, OrgMembershipRole, UserAuthProvider } from '@repo/codegen/src/schema'
 
 const AUTH_PROVIDER_LABELS: Partial<Record<UserAuthProvider, string>> = {
@@ -18,7 +18,7 @@ const INVITE_STATUS_LABELS: Partial<Record<InviteInviteStatus, string>> = {
   [InviteInviteStatus.APPROVAL_REQUIRED]: 'Approval required',
 }
 
-export const MEMBERS_FILTER_FIELDS: FilterField[] = [
+export const MEMBERS_FILTER_FIELDS = defineFilterFields([
   {
     key: 'authProviderIn',
     label: 'Providers',
@@ -33,9 +33,11 @@ export const MEMBERS_FILTER_FIELDS: FilterField[] = [
     icon: MembersFilterIcons.Role,
     options: enumToOptions(OrgMembershipRole),
   },
-]
+])
 
-export const INVITES_FILTER_FIELDS: FilterField[] = [
+export type TMemberFilterKey = (typeof MEMBERS_FILTER_FIELDS)[number]['key']
+
+export const INVITES_FILTER_FIELDS = defineFilterFields([
   { key: 'createdAt', label: 'Created At', type: 'dateRange', icon: InvitesFilterIcons.CreatedAt },
   {
     key: 'roleIn',
@@ -51,7 +53,9 @@ export const INVITES_FILTER_FIELDS: FilterField[] = [
     icon: InvitesFilterIcons.Status,
     options: enumToOptions(InviteInviteStatus, INVITE_STATUS_LABELS),
   },
-]
+])
+
+export type TInviteFilterKey = (typeof INVITES_FILTER_FIELDS)[number]['key']
 
 export const INVITES_SORT_FIELDS = [
   { key: 'send_attempts', label: 'Send Attempts' },

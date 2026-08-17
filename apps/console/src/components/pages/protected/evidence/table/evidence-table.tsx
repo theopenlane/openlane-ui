@@ -3,7 +3,7 @@
 import { useSearchParams } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
-import React, { useState, useMemo, useEffect, use } from 'react'
+import React, { useState, useMemo, useEffect, useCallback, use } from 'react'
 import { type Evidence, EvidenceEvidenceStatus, type EvidenceOrder, EvidenceOrderField, type EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -166,6 +166,14 @@ export const EvidenceTable = () => {
 
   useQueryErrorNotification({ error: queryError, description: 'Failed to load evidence' })
 
+  const handleFilterChange = useCallback(
+    (nextFilters: EvidenceWhereInput) => {
+      setFilters(nextFilters)
+      resetPagination()
+    },
+    [resetPagination],
+  )
+
   const handleRowClick = (rowData: Evidence) => {
     replace({ id: rowData.id })
   }
@@ -174,7 +182,7 @@ export const EvidenceTable = () => {
     <>
       <EvidenceTableToolbar
         searching={fetching}
-        setFilters={setFilters}
+        setFilters={handleFilterChange}
         searchTerm={searchTerm}
         setSearchTerm={(inputVal) => {
           setSearchTerm(inputVal)

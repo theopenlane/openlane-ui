@@ -4,7 +4,8 @@ import { useGetControlNotImplementedCount } from '@/lib/graphql-hooks/control'
 import { useGetEvidenceMissingArtifactCount } from '@/lib/graphql-hooks/evidence.ts'
 import { useGetOverdueTasksCount } from '@/lib/graphql-hooks/task'
 import { useGetRiskOpenAndIdentifiedCount } from '@/lib/graphql-hooks/risk'
-import { saveFilters, saveQuickFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { saveFilters, saveQuickFilters, type TFilterState, type TFilterStateFor } from '@/components/shared/table-filter/filter-storage.ts'
+import { type TEvidenceFilterKey } from '@/components/pages/protected/evidence/table/table-config.ts'
 import { ControlControlStatus, EvidenceEvidenceStatus, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
 import { DateFormatStorage, type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { format, startOfDay } from 'date-fns'
@@ -31,7 +32,7 @@ const DashboardComplianceOverview = () => {
   }
 
   const handleOpenEvidenceDashboard = () => {
-    const filters: TFilterState = {
+    const filters: TFilterStateFor<TEvidenceFilterKey> = {
       statusIn: [EvidenceEvidenceStatus.MISSING_ARTIFACT],
     }
 

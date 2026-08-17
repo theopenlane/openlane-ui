@@ -31,8 +31,8 @@ export interface NavHeading {
   hidden?: boolean
 }
 
-export interface FilterField {
-  key: string
+export interface FilterField<K extends string = string> {
+  key: K
   label: string
   icon: LucideIcon
   type:
@@ -42,6 +42,8 @@ export interface FilterField {
   max?: number // for sliderNumber type
   radioOptions?: { value: string | boolean | undefined; label: string }[] // Specific for tri-state/radio logic
 }
+
+export const defineFilterFields = <K extends string>(fields: FilterField<K>[]): FilterField<K>[] => fields
 
 export type ConditionValue =
   | string
