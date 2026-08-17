@@ -4,9 +4,10 @@ import type { DateRange } from 'react-day-picker'
 import { isValid } from 'date-fns'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { getOrganizationStorageItem, getOrganizationStorageKey, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
+import { isNullFilterValue, type TNullFilterValue } from './null-filter'
 
 export type TNumberRange = { min: number; max: number }
-export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | TNumberRange | undefined
+export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | TNumberRange | TNullFilterValue | undefined
 export type TFilterState = Record<string, TFilterValue>
 export type TFilterStateFor<K extends string> = Partial<Record<string extends K ? never : K, TFilterValue>>
 export type TQuickFilterState = { key: string; condition: TFilterState | Condition } | Record<string, boolean>
@@ -132,6 +133,11 @@ const validateValues = (values: TFilterState, filterFields: FilterField[]): TFil
   for (const [key, value] of Object.entries(values)) {
     const field = filterFields.find((f) => f.key === key)
     if (!field) continue
+
+    if (field.nullableKey && isNullFilterValue(value)) {
+      result[key] = value
+      continue
+    }
 
     switch (field.type) {
       case 'text':

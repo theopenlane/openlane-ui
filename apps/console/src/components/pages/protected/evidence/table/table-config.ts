@@ -33,8 +33,8 @@ export const getEvidenceFilterableFields = (frameworkOptions: { value: string; l
       icon: FilterIcons.Status,
       options: tagOptions,
     },
-    { key: 'scopeNameIn', label: 'Scope', type: 'text', icon: FilterIcons.Scope },
-    { key: 'environmentNameIn', label: 'Environment', type: 'text', icon: FilterIcons.Environment },
+    { key: 'scopeNameIn', label: 'Scope', type: 'text', icon: FilterIcons.Scope, nullableKey: 'scopeName' },
+    { key: 'environmentNameIn', label: 'Environment', type: 'text', icon: FilterIcons.Environment, nullableKey: 'environmentName' },
     { key: 'externalUUIDContainsFold', label: 'External UUID', type: 'text', icon: FilterIcons.ID },
   ])
 

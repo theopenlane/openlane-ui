@@ -2,6 +2,7 @@ import { type TFilterState } from './filter-storage'
 import { addDays, format, isSameDay, isValid, startOfDay } from 'date-fns'
 import type { DateRange } from 'react-day-picker'
 import { type Condition, type FilterField, type WhereCondition } from '@/types'
+import { getNullFilterCondition, isNullFilterValue } from './null-filter'
 
 // For devs: Only 1 quick filter can be active in same time
 export type TQuickFilter = {
@@ -89,6 +90,14 @@ const getFiltersWhereCondition = (filterState: TFilterState, filterFields: Filte
   for (const field of filterFields) {
     const key = field.key
     const val = filterState[field.key]
+
+    if (isNullFilterValue(val)) {
+      if (field.nullableKey) {
+        andConditions.push(getNullFilterCondition(field.nullableKey, val))
+      }
+      continue
+    }
+
     if (val === undefined || val === null || (typeof val === 'string' && val.trim() === '') || (Array.isArray(val) && val.length === 0)) {
       continue
     }

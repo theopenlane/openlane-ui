@@ -9,6 +9,7 @@ import { type PersonnelFieldProps, type EnumOptions, type EnumCreateHandlers } f
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { IdentityHolderAssociationSection } from '../create/form/fields/association-section'
 import { IdentityHolderDocumentsSection } from '../create/form/fields/documents-section'
+import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
 
 export const formId = 'edit' + ObjectNames.IDENTITY_HOLDER
 
@@ -53,20 +54,8 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
       { value: false, label: 'Not Openlane User' },
     ],
   },
-  {
-    key: 'environmentNameIn',
-    label: 'Environment',
-    type: 'multiselect',
-    icon: FilterIcons.Environment,
-    options: enumOptions.environmentOptions,
-  },
-  {
-    key: 'scopeNameIn',
-    label: 'Scope',
-    type: 'multiselect',
-    icon: FilterIcons.Scope,
-    options: enumOptions.scopeOptions,
-  },
+  getEnvironmentFilterField(enumOptions.environmentOptions),
+  getScopeFilterField(enumOptions.scopeOptions),
   {
     key: 'tagsHas',
     label: 'Tags',
