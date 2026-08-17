@@ -6,7 +6,7 @@ import { type EntityWhereInput, type Entity, type EntityOrderField } from '@repo
 import { type EntitiesNodeNonNull, useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { VENDORS_SORT_FIELDS } from './table-config'
 import { getColumns } from './columns'
 import { type TTableProps } from '@/components/shared/crud-base/page'
@@ -41,7 +41,7 @@ const TableComponent = ({
     isLoading: fetching,
     data,
     isFetching,
-    isError,
+    error,
   } = useVendorsWithFilter({
     where: whereFilter,
     orderBy: orderBy,
@@ -50,7 +50,6 @@ const TableComponent = ({
   })
 
   const { convertToReadOnly } = usePlateEditor()
-  const { errorNotification } = useNotification()
   const { data: session } = useSession()
   const userIds = useMemo(() => {
     if (!items) return []
@@ -83,14 +82,7 @@ const TableComponent = ({
     }
   }, [permission?.roles, setColumnVisibility, canEdit, session])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: `Failed to load ${objectName.toLowerCase()}`,
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}` })
 
   const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 

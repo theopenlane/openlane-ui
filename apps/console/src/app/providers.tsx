@@ -17,6 +17,7 @@ import { NotificationToastContainer } from '@/components/shared/SystemNotificati
 import { SessionUnavailableError } from '@/lib/auth/utils/session-health'
 import { getIsSessionInvalid } from '@/lib/auth/utils/session-status'
 import { useSessionTokenSync } from '@/lib/graphqlClient'
+import { isNonRetryableGraphQlError } from '@/utils/graphQlErrorMatcher'
 
 interface ProvidersProps {
   children: ReactNode
@@ -62,7 +63,7 @@ const Providers = ({ children }: ProvidersProps) => {
             placeholderData: (prev: unknown) => prev,
             refetchOnWindowFocus: false,
             retry: (failureCount: number, error: Error) => {
-              if (getIsSessionInvalid()) return false
+              if (getIsSessionInvalid() || isNonRetryableGraphQlError(error)) return false
               return error instanceof SessionUnavailableError ? failureCount < 5 : failureCount < 3
             },
             retryDelay: sessionRetryDelay,

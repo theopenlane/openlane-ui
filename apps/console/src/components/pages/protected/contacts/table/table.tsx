@@ -6,7 +6,7 @@ import { type ContactWhereInput, type Contact, type ContactOrderField } from '@r
 import { type ContactsNodeNonNull, useContactsWithFilter } from '@/lib/graphql-hooks/contact'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { CONTACTS_SORT_FIELDS } from './table-config'
 import { getColumns } from './columns'
 import { type TTableProps } from '@/components/shared/crud-base/page'
@@ -44,7 +44,7 @@ const TableComponent = ({
     isLoading: fetching,
     data,
     isFetching,
-    isError,
+    error,
   } = useContactsWithFilter({
     where: whereFilter,
     orderBy: orderBy,
@@ -52,7 +52,6 @@ const TableComponent = ({
     enabled: true,
   })
 
-  const { errorNotification } = useNotification()
   const { data: session } = useSession()
   const userIds = useMemo(() => {
     if (!items) return []
@@ -83,14 +82,7 @@ const TableComponent = ({
     }
   }, [permission?.roles, setColumnVisibility, canEdit, session])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: `Failed to load ${objectName.toLowerCase()}`,
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}` })
 
   const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 

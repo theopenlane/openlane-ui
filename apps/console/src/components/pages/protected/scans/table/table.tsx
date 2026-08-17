@@ -7,7 +7,7 @@ import { getColumns } from '@/components/pages/protected/scans/table/columns.tsx
 import { type ScansNodeNonNull, useScansWithFilter } from '@/lib/graphql-hooks/scan'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { SCANS_SORT_FIELDS } from './table-config'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
@@ -44,7 +44,7 @@ const TableComponent = ({
     isLoading: fetching,
     data,
     isFetching,
-    isError,
+    error,
   } = useScansWithFilter({
     where: whereFilter,
     orderBy: orderBy,
@@ -52,7 +52,6 @@ const TableComponent = ({
     enabled: true,
   })
 
-  const { errorNotification } = useNotification()
   const { data: session } = useSession()
 
   const userIds = useMemo(() => {
@@ -84,14 +83,7 @@ const TableComponent = ({
     }
   }, [permission?.roles, setColumnVisibility, canEdit, session])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: `Failed to load ${objectName.toLowerCase()}`,
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}` })
 
   const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 

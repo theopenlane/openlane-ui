@@ -17,6 +17,7 @@ import { MemberActions } from './actions/member-actions'
 import { MembersBulkActions } from './actions/members-bulk-actions'
 import { AdditionalRolesCell } from '@/components/shared/organization-roles/additional-roles-cell'
 import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { Avatar } from '@/components/shared/avatar/avatar'
@@ -59,7 +60,7 @@ export const MembersTable = () => {
   const [selectedIds, setSelectedIds] = useState<{ id: string }[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [, copyToClipboard] = useCopyToClipboard()
-  const { successNotification, errorNotification } = useNotification()
+  const { successNotification } = useNotification()
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.MEMBER)
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.MEMBER, OrgMembershipOrderField, [
@@ -98,7 +99,7 @@ export const MembersTable = () => {
     return result
   }, [filters, debouncedSearch])
 
-  const { members, isError, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
+  const { members, error, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
 
   const { data: orgRoles } = useOrganizationRoles()
   const canEditMembers = canEdit(orgRoles?.roles, sessionData)
@@ -130,14 +131,7 @@ export const MembersTable = () => {
     })
   }
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load members',
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: 'Failed to load members' })
 
   const providerIcon = (provider: UserAuthProvider) => {
     switch (provider) {

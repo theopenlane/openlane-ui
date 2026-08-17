@@ -8,7 +8,7 @@ import { type AssetsNodeNonNull, useAssetsWithFilter } from '@/lib/graphql-hooks
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { ASSETS_SORT_FIELDS } from './table-config'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
@@ -46,7 +46,7 @@ const TableComponent = ({
     isLoading: fetching,
     data,
     isFetching,
-    isError,
+    error,
   } = useAssetsWithFilter({
     where: whereFilter,
     orderBy: orderBy,
@@ -55,7 +55,6 @@ const TableComponent = ({
   })
 
   const { convertToReadOnly } = usePlateEditor()
-  const { errorNotification } = useNotification()
 
   const userIds = useMemo(() => {
     if (!items) return []
@@ -87,14 +86,7 @@ const TableComponent = ({
     }
   }, [permission?.roles, setColumnVisibility, canEdit, session])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: `Failed to load ${objectName.toLowerCase()}`,
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}` })
 
   const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 

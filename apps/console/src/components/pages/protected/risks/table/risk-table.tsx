@@ -19,7 +19,7 @@ import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -39,7 +39,6 @@ const RiskTable: React.FC = () => {
   const { data: permission } = useOrganizationRoles()
   const { data: session } = useSession()
   const { handleExport } = useFileExport()
-  const { errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.RISK, RiskOrderField, [
     {
       field: RiskOrderField.name,
@@ -84,7 +83,7 @@ const RiskTable: React.FC = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { risks, paginationMeta, isError } = useRisks({
+  const { risks, paginationMeta, isError, error } = useRisks({
     where,
     orderBy: orderByFilter,
     pagination,
@@ -122,14 +121,7 @@ const RiskTable: React.FC = () => {
     ])
   }, [setCrumbs])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load risks',
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: 'Failed to load risks' })
 
   const handleCreateNew = async () => {
     router.push(`/exposure/risks/create`)
