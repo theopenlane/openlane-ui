@@ -9,16 +9,12 @@ import { Pencil } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { useEffect, useState } from 'react'
-import { useForm, Controller, useFormContext, FormProvider } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { Controller, useFormContext, FormProvider } from 'react-hook-form'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import { ProgramProgramStatus } from '@repo/codegen/src/schema'
-import { ProgramIconMapper } from '@/components/shared/enum-mapper/program-enum'
-import { useQueryClient } from '@tanstack/react-query'
+import { ProgramProgramStatus, type UpdateProgramInput } from '@repo/codegen/src/schema'
+import { ProgramIconMapper, ProgramStatusOptions } from '@/components/shared/enum-mapper/program-enum'
 import { useNotification } from '@/hooks/useNotification'
-import { ProgramStatusOptions } from '@/components/shared/enum-mapper/program-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
@@ -29,34 +25,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { useSession } from 'next-auth/react'
-
-const formSchema = z
-  .object({
-    startDate: z.date().nullable().optional(),
-    endDate: z.date().nullable().optional(),
-    status: z.enum(ProgramProgramStatus).optional(),
-  })
-  .superRefine((data, ctx) => {
-    const now = new Date()
-
-    if (data.endDate && data.endDate < now) {
-      ctx.addIssue({
-        path: ['endDate'],
-        code: z.ZodIssueCode.custom,
-        message: 'End date must be in the future',
-      })
-    }
-
-    if (data.startDate && data.endDate && data.endDate <= data.startDate) {
-      ctx.addIssue({
-        path: ['endDate'],
-        code: z.ZodIssueCode.custom,
-        message: 'End date must be after start date',
-      })
-    }
-  })
-
-type FormValues = z.infer<typeof formSchema>
+import useTimelineReadinessFormSchema, { changedTimelineFields, type TimelineReadinessFormValues } from './hooks/use-timeline-readiness-form-schema'
 
 const TimelineReadiness = () => {
   const { id } = useParams<{ id: string }>()
@@ -65,7 +34,6 @@ const TimelineReadiness = () => {
   const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
   const isEditAllowed = canEdit(permission?.roles, session)
 
-  const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
 
   const { data } = useGetProgramBasicInfo(id)
@@ -74,39 +42,47 @@ const TimelineReadiness = () => {
 
   const [isEditing, setIsEditing] = useState(false)
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      startDate: program?.startDate,
-      endDate: program?.endDate,
-      status: program?.status ?? ProgramProgramStatus.NOT_STARTED,
-    },
-  })
+  const { form, initialValues } = useTimelineReadinessFormSchema(program)
 
   const { handleSubmit, control } = form
 
-  const onSubmit = async (values: FormValues) => {
-    const clearStartDate = values.startDate ? undefined : true
-    const clearEndDate = values.endDate ? undefined : true
+  const onSubmit = async (values: TimelineReadinessFormValues) => {
+    const changed = changedTimelineFields(values, initialValues)
+
+    if (!Object.values(changed).some(Boolean)) {
+      setIsEditing(false)
+      return
+    }
+
+    const input: UpdateProgramInput = {}
+
+    if (changed.status) {
+      input.status = values.status
+    }
+
+    if (changed.startDate) {
+      if (values.startDate) {
+        input.startDate = values.startDate
+      } else {
+        input.clearStartDate = true
+      }
+    }
+
+    if (changed.endDate) {
+      if (values.endDate) {
+        input.endDate = values.endDate
+      } else {
+        input.clearEndDate = true
+      }
+    }
 
     try {
-      await updateProgram({
-        updateProgramId: id,
-        input: {
-          ...values,
-          startDate: values.startDate || undefined,
-          endDate: values.endDate || undefined,
-          clearStartDate,
-          clearEndDate,
-        },
-      })
+      await updateProgram({ updateProgramId: id, input })
 
       successNotification({
         title: 'Program updated',
         description: 'Timeline and status saved successfully.',
       })
-
-      queryClient.invalidateQueries({ queryKey: ['programs', id] })
 
       setIsEditing(false)
     } catch (error) {
@@ -119,23 +95,15 @@ const TimelineReadiness = () => {
   }
 
   const handleCancel = () => {
-    form.reset({
-      startDate: program?.startDate ? new Date(program.startDate) : null,
-      endDate: program?.endDate ? new Date(program.endDate) : null,
-      status: program?.status ?? ProgramProgramStatus.NOT_STARTED,
-    })
+    form.reset(initialValues)
     setIsEditing(false)
   }
 
   useEffect(() => {
     if (program) {
-      form.reset({
-        startDate: program.startDate ? new Date(program.startDate) : null,
-        endDate: program.endDate ? new Date(program.endDate) : null,
-        status: program.status ?? ProgramProgramStatus.NOT_STARTED,
-      })
+      form.reset(initialValues)
     }
-  }, [program, form])
+  }, [program, initialValues, form])
 
   const formattedStartDate = program?.startDate ? formatDate(program.startDate) : null
   const formattedEndDate = program?.endDate ? formatDate(program.endDate) : null
@@ -174,7 +142,6 @@ const TimelineReadiness = () => {
           </div>
 
           <div className="space-y-3 text-sm">
-            {/* Status */}
             <div className={clsx('flex pb-3 gap-2 items-center', (startDate || endDate || isEditing) && 'border-b')}>
               {isEditing ? (
                 <StatusSelect />
@@ -187,7 +154,6 @@ const TimelineReadiness = () => {
               )}
             </div>
 
-            {/* Start Date */}
             {(!!startDate || isEditing) && (
               <div className={clsx('flex gap-2 pb-3 items-center', (endDate || isEditing) && 'border-b')}>
                 <Label className="w-32 flex shrink-0">Start Date:</Label>
@@ -195,7 +161,6 @@ const TimelineReadiness = () => {
               </div>
             )}
 
-            {/* End Date */}
             {(!!endDate || isEditing) && (
               <div>
                 <div className="flex pb-3 gap-2 items-center">
@@ -219,7 +184,7 @@ const TimelineReadiness = () => {
 export default TimelineReadiness
 
 const StatusSelect = () => {
-  const { control } = useFormContext<FormValues>()
+  const { control } = useFormContext<TimelineReadinessFormValues>()
 
   return (
     <FormField
@@ -229,7 +194,7 @@ const StatusSelect = () => {
         <FormItem className="flex gap-2 items-center w-full">
           <FormLabel className="w-32 shrink-0">Status</FormLabel>
           <FormControl>
-            <Select onValueChange={field.onChange} value={field.value} defaultValue={ProgramProgramStatus.NOT_STARTED}>
+            <Select onValueChange={field.onChange} value={field.value}>
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
