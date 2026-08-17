@@ -30,7 +30,6 @@ export const errorCodeMessages: Record<string, string> = {
   BAD_REQUEST: 'Something’s not right. Please check your input and try again.',
   MODULE_NO_ACCESS: 'You do not have access to module.',
   BULK_ACTION_INCOMPLETELY_APPLIED: 'Some items could not be updated, most likely because you do not have permission to change them.',
-  INSUFFICIENT_SCOPES: 'This API token is missing the scopes required for this request.',
   GRAPHQL_VALIDATION_FAILED: invalidRequestMessage,
   GRAPHQL_PARSE_FAILED: invalidRequestMessage,
 }
