@@ -84,7 +84,6 @@ const PERMANENT_ERROR_CODES = new Set<string>([
   GraphQlResponseError.BadRequestErrorCode,
   GraphQlResponseError.NoAccessToModuleErrorCode,
   GraphQlResponseError.BulkActionIncompleteErrorCode,
-  GraphQlResponseError.InsufficientScopesErrorCode,
   GraphQlResponseError.GraphQlValidationFailedCode,
   GraphQlResponseError.GraphQlParseFailedCode,
 ])
