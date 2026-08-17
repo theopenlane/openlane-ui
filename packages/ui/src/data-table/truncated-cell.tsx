@@ -17,24 +17,21 @@ export const TruncatedCell = ({ children, className, tooltipClassName, tooltipCo
   const ref = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
 
-  const handleMouseEnter = useCallback(() => {
-    const el = ref.current
-    if (!el) return
-    if (el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight) {
-      setOpen(true)
+  const handleOpenChange = useCallback((nextOpen: boolean) => {
+    if (!nextOpen) {
+      setOpen(false)
+      return
     }
-  }, [])
-
-  const handleMouseLeave = useCallback(() => {
-    setOpen(false)
+    const el = ref.current
+    setOpen(!!el && (el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight))
   }, [])
 
   const clampStyle = lineClamp ? { display: '-webkit-box', WebkitBoxOrient: 'vertical' as const, WebkitLineClamp: lineClamp } : undefined
 
   return (
-    <Tooltip open={open} onOpenChange={setOpen}>
+    <Tooltip open={open} onOpenChange={handleOpenChange}>
       <TooltipTrigger asChild>
-        <div ref={ref} className={cn(lineClamp ? 'overflow-hidden' : 'truncate', className)} style={clampStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div ref={ref} className={cn(lineClamp ? 'overflow-hidden whitespace-normal' : 'truncate', className)} style={clampStyle}>
           {children}
         </div>
       </TooltipTrigger>
