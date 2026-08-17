@@ -16,7 +16,7 @@ export enum GraphQlResponseError {
 
 export const invalidRequestMessage = 'We couldn’t complete this request because the server rejected it as invalid. Reach out to support if the problem continues.'
 
-export const invalidQueryFilterMessage = 'Try clearing your filters and searching again, and reach out to support if it keeps failing.'
+export const invalidQueryFilterMessage = 'Try clearing your filters and searching again. Reach out to support if the issue persists.'
 
 export const errorCodeMessages: Record<string, string> = {
   NOT_FOUND: 'Resource could not be found.',
