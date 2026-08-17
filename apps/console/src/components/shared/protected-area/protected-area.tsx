@@ -8,7 +8,8 @@ import { OrgMembershipRole } from '@repo/codegen/src/schema.ts'
 import { useRouter } from 'next/navigation'
 import { SUPPORT_URL } from '@/constants'
 import Link from 'next/link'
-import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { saveFilters, type TFilterStateFor } from '@/components/shared/table-filter/filter-storage.ts'
+import { type TMemberFilterKey } from '@/components/pages/protected/user-management/members/table/table-config.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useOrganization } from '@/hooks/useOrganization'
 
@@ -16,8 +17,8 @@ const ProtectedArea: React.FC = () => {
   const { currentOrgId } = useOrganization()
   const router = useRouter()
   const handleClick = () => {
-    const filters: TFilterState = {
-      role: [OrgMembershipRole.OWNER],
+    const filters: TFilterStateFor<TMemberFilterKey> = {
+      roleIn: [OrgMembershipRole.OWNER],
     }
 
     saveFilters(TableKeyEnum.MEMBER, filters, currentOrgId)
