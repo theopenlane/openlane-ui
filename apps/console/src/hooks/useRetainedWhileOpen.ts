@@ -12,5 +12,5 @@ export function useRetainedWhileOpen<T>(open: boolean, value: T | null | undefin
     if (open) setRetained(value ?? null)
   }, [open, value])
 
-  return retained
+  return open ? (value ?? null) : retained
 }

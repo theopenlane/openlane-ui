@@ -145,6 +145,8 @@ export function SuggestedPolicyCoverage() {
     setIsCreatingFromTemplate(true)
     try {
       const response = await fetch(template.downloadUrl)
+      if (!response.ok) throw new Error(`Could not download the ${template.name} template (${response.status})`)
+
       const blob = await response.blob()
       const file = new File([blob], template.name, { type: blob.type || 'text/markdown' })
       const result = await createUploadPolicy({ internalPolicyFile: file })

@@ -417,7 +417,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       {/* above the title: the plate toolbar is pulled up onto the title row
           with a fixed -mt-40, so anything between the title and the editor
           displaces it */}
-      {!isEditing && (
+      {!isEditing && editAllowed && (
         <SuggestedControlMappings
           policyId={policy.id}
           policyName={policy.name}

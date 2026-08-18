@@ -9,12 +9,18 @@ import { getOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/st
 // gone once dismissed
 export function useDismissible(key: string): { dismissed: boolean; dismiss: () => void } {
   const { currentOrgId } = useOrganization()
-  const [dismissed, setDismissed] = useState(() => getOrganizationStorageItem(key, currentOrgId) === 'true')
+  const [dismissed, setDismissed] = useState(false)
 
-  const dismiss = () => {
+  useEffect(() => {
+    setDismissed(getOrganizationStorageItem(key, currentOrgId) === 'true')
+  }, [key, currentOrgId])
+
+  // useCallback because this is passed down into card subtrees; a new function each
+  // render would defeat any memoization there
+  const dismiss = useCallback(() => {
     setDismissed(true)
     setOrganizationStorageItem(key, 'true', currentOrgId)
-  }
+  }, [key, currentOrgId])
 
   return { dismissed, dismiss }
 }

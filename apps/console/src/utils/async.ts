@@ -3,7 +3,8 @@
 export const mapWithConcurrency = async <T, R>(items: T[], limit: number, run: (item: T) => Promise<R>): Promise<R[]> => {
   const results: R[] = new Array(items.length)
   let cursor = 0
-  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+  const workerCount = items.length === 0 ? 0 : Math.max(1, Math.min(Math.floor(limit), items.length))
+  const workers = Array.from({ length: workerCount }, async () => {
     for (let index = cursor++; index < items.length; index = cursor++) {
       results[index] = await run(items[index])
     }
