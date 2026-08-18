@@ -10,6 +10,8 @@ export const UPDATE_USER_ROLE_IN_ORG = gql`
         organizationID
         ssoExempt
         ssoExemptReason
+        tfaEnforced
+        tfaEnforcedReason
       }
     }
   }
@@ -41,6 +43,8 @@ export const GET_ORG_MEMBERSHIPS = gql`
           additionalRoles
           ssoExempt
           ssoExemptReason
+          tfaEnforced
+          tfaEnforcedReason
           user {
             id
             displayName

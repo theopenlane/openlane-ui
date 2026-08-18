@@ -3,7 +3,7 @@
 import { OrderDirection, type OrgMembership, OrgMembershipOrderField, OrgMembershipRole, type OrgMembershipWhereInput, type User, UserAuthProvider } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Copy, Info, KeyRoundIcon, Shield, ShieldOff } from 'lucide-react'
+import { Copy, Info, KeyRoundIcon, Shield, ShieldCheck, ShieldOff } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
@@ -43,6 +43,8 @@ const getSsoExemptReason = (member: OrgMembership, exemptDomains: string[]): str
   if (member.ssoExempt) return member.ssoExemptReason || 'Manually marked as SSO exempt'
   return null
 }
+
+const getTfaEnforcedReason = (member: OrgMembership): string => member.tfaEnforcedReason || 'Manually required to configure 2FA'
 
 export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
   providersIn?: UserAuthProvider[]
@@ -175,6 +177,37 @@ export const MembersTable = () => {
     maxSize: 120,
   }
 
+  const tfaColumn: ColumnDef<OrgMembership> = {
+    id: 'tfa',
+    header: '2FA',
+    cell: ({ row }) => {
+      if (row.original.tfaEnforced) {
+        return (
+          <SystemTooltip
+            icon={
+              <span className="cursor-default">
+                <Badge variant="primary" className="gap-1 text-xs pointer-events-none">
+                  <ShieldCheck className="h-3 w-3" />
+                  Enforced
+                </Badge>
+              </span>
+            }
+            content={getTfaEnforcedReason(row.original)}
+          />
+        )
+      }
+
+      return (
+        <Badge variant="select" className="gap-1 text-xs">
+          <ShieldOff className="h-3 w-3" />
+          Not enforced
+        </Badge>
+      )
+    },
+    size: 140,
+    maxSize: 140,
+  }
+
   const columns: ColumnDef<OrgMembership>[] = [
     ...(canEditMembers ? [selectColumn] : []),
     {
@@ -259,6 +292,7 @@ export const MembersTable = () => {
       maxSize: 180,
     },
     ...(ssoEnforced ? [ssoColumn] : []),
+    tfaColumn,
     {
       id: 'actions',
       header: '',
@@ -271,6 +305,7 @@ export const MembersTable = () => {
             memberRole={cell.row.original.role}
             additionalRoles={cell.row.original.additionalRoles}
             memberSSOExempt={cell.row.original.ssoExempt ?? false}
+            memberTFAEnforced={cell.row.original.tfaEnforced ?? false}
           />
         )
       },
