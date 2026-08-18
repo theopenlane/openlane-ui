@@ -9,6 +9,7 @@ import { GITHUB_API_BASE, POLICY_DIRECTORIES, POLICY_HUB_REPO_URL, POLICY_REPO }
 import { formatFileName } from './naming'
 import Link from 'next/link'
 import { CancelButton } from '../cancel-button.tsx/cancel-button'
+import { wordTokens } from '@/utils/strings'
 
 type GitHubItem = {
   name: string
@@ -127,10 +128,7 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect, initialSe
 
   // Filter items by search: every word must appear in the name, so
   // "Asset Management" matches asset_management_policy.md
-  const searchTokens = search
-    .toLowerCase()
-    .split(/[^a-z0-9]+/)
-    .filter(Boolean)
+  const searchTokens = wordTokens(search)
   const filteredItems = items.filter((item) => {
     const name = item.name.toLowerCase()
     return searchTokens.every((token) => name.includes(token))

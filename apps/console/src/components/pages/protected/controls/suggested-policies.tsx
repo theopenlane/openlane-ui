@@ -4,15 +4,18 @@ import { useState } from 'react'
 import { useDismissible } from '@/hooks/useDismissible'
 import { DismissButton, DocsSourceLink, SuggestionRow } from '@/components/shared/docs-help/suggestion-card'
 import { parseDocBullets } from '@/lib/docs-help/parse'
-import { useRouter } from 'next/navigation'
-import { FileTextIcon, Lightbulb, Link2, Sparkles } from 'lucide-react'
+import { Lightbulb, Link2, Sparkles } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { docsHelpEnabled } from '@repo/dally/ai'
-import { useCreateUploadInternalPolicy, useInternalPolicies, useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
+import { useInternalPolicies, useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { namesMatch, tokens, usePolicyTemplates, type PolicyTemplate } from '@/components/pages/protected/policies/suggested-policy-coverage'
+import { usePolicyTemplates } from '@/components/pages/protected/policies/suggested-policy-coverage'
+import { CreatePolicyMenuItems, findPolicyTemplate, useCreatePolicyFromTemplate } from '@/components/pages/protected/policies/create-policy-actions'
+
+import { coverageNote, namesMatch, policyCovers } from '@/lib/docs-help/names'
+import { useDismissedItems } from '@/hooks/useDismissedItems'
 import { useControlDocsSection, type TDocsEvidenceControl } from '@/components/pages/protected/controls/example-evidence-requests'
 
 type TSuggestedPolicy = {
@@ -27,11 +30,36 @@ export type TSuggestedPoliciesData = {
   suggestions: TSuggestedPolicy[]
   dismissed: boolean
   dismiss: () => void
+  dismissOne: (policyName: string) => void
 }
 
 const parsePolicies = (section: string): Array<{ name: string; description: string }> => parseDocBullets(section).map((bullet) => ({ name: bullet.label, description: bullet.description }))
 
 const allPoliciesPagination = { page: 1, pageSize: 200, query: { first: 200 } }
+
+type TOrgPolicy = { id: string; name: string; summary?: string | null }
+
+// Names first, then the looser content match, and each policy is claimed by at
+// most one suggestion — otherwise a broad policy answers several topics at once
+// and the mapping dialog offers to map it repeatedly
+function matchExistingPolicies(rows: Array<{ name: string; description: string }>, orgPolicies: TOrgPolicy[]): TSuggestedPolicy[] {
+  const claimed = new Set<string>()
+  const matched: TSuggestedPolicy[] = rows.map((row) => ({ ...row }))
+
+  const claim = (matches: (policy: TOrgPolicy, row: TSuggestedPolicy) => boolean) => {
+    for (const row of matched) {
+      if (row.existingPolicy) continue
+      const hit = orgPolicies.find((policy) => !claimed.has(policy.id) && matches(policy, row))
+      if (!hit) continue
+      claimed.add(hit.id)
+      row.existingPolicy = { id: hit.id, name: hit.name }
+    }
+  }
+
+  claim((policy, row) => namesMatch(policy.name, row.name))
+  claim((policy, row) => policyCovers(policy, row))
+  return matched
+}
 
 export function useSuggestedPolicies(control?: TDocsEvidenceControl): TSuggestedPoliciesData | null {
   const { section, target } = useControlDocsSection(docsHelpEnabled ? control : undefined, 'Policies')
@@ -42,34 +70,30 @@ export function useSuggestedPolicies(control?: TDocsEvidenceControl): TSuggested
   const { data: linkedPoliciesData } = useInternalPolicies({ where: { hasControlsWith: [{ id: control?.controlId ?? '' }] }, enabled })
 
   const { dismissed, dismiss } = useDismissible(`suggested-policies-dismissed:${control?.controlId ?? ''}`)
+  const { isDismissed, dismiss: dismissOne } = useDismissedItems(control?.controlId ? `suggested-policy-covered:${control.controlId}` : undefined)
 
   if (!docsHelpEnabled || !control || !section || !target) return null
 
-  const orgPolicies = (policiesData?.internalPolicies?.edges ?? []).flatMap((e) => (e?.node?.id && e.node.name ? [{ id: e.node.id, name: e.node.name }] : []))
+  const orgPolicies = (policiesData?.internalPolicies?.edges ?? []).flatMap((e) => (e?.node?.id && e.node.name ? [{ id: e.node.id, name: e.node.name, summary: e.node.summary }] : []))
   const linkedPolicyIds = new Set((linkedPoliciesData?.internalPolicies?.edges ?? []).flatMap((e) => (e?.node?.id ? [e.node.id] : [])))
 
-  const suggestions: TSuggestedPolicy[] = parsePolicies(section)
-    .map((row) => {
-      const existingPolicy = orgPolicies.find((p) => namesMatch(p.name, row.name))
-      return { ...row, existingPolicy }
-    })
-    .filter((row) => !row.existingPolicy || !linkedPolicyIds.has(row.existingPolicy.id))
+  const suggestions: TSuggestedPolicy[] = matchExistingPolicies(
+    parsePolicies(section).filter((row) => !isDismissed(row.name)),
+    orgPolicies,
+  ).filter((row) => !row.existingPolicy || !linkedPolicyIds.has(row.existingPolicy.id))
 
-  return { controlId: control.controlId, target, suggestions, dismissed, dismiss }
+  return { controlId: control.controlId, target, suggestions, dismissed, dismiss, dismissOne }
 }
 
 export function SuggestedPolicies({ data }: { data: TSuggestedPoliciesData | null }) {
-  const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const { data: templates } = usePolicyTemplates(!!data && !data.dismissed)
   const { mutateAsync: updatePolicy } = useUpdateInternalPolicy()
-  const { mutateAsync: createUploadPolicy } = useCreateUploadInternalPolicy()
+  const { createFromTemplate } = useCreatePolicyFromTemplate(data?.controlId)
   const [busyPolicy, setBusyPolicy] = useState<string | null>(null)
 
   if (!data || data.dismissed || data.suggestions.length === 0) return null
-  const { controlId, target, suggestions, dismiss } = data
-
-  const findTemplate = (policy: string): PolicyTemplate | undefined => (templates ?? []).find((t) => tokens(policy).every((token) => t.name.toLowerCase().includes(token)))
+  const { controlId, target, suggestions, dismiss, dismissOne } = data
 
   const mapExistingPolicy = async (policy: { id: string; name: string }) => {
     setBusyPolicy(policy.id)
@@ -78,26 +102,6 @@ export function SuggestedPolicies({ data }: { data: TSuggestedPoliciesData | nul
       successNotification({ title: 'Policy mapped', description: `${policy.name} is now linked to this control` })
     } catch (error) {
       errorNotification({ title: 'Failed to map policy', description: parseErrorMessage(error) })
-    } finally {
-      setBusyPolicy(null)
-    }
-  }
-
-  const createFromTemplate = async (template: PolicyTemplate) => {
-    setBusyPolicy(template.name)
-    try {
-      const response = await fetch(template.downloadUrl)
-      if (!response.ok) throw new Error(`Could not download the ${template.name} template (${response.status})`)
-      const blob = await response.blob()
-      const file = new File([blob], template.name, { type: blob.type || 'text/markdown' })
-      const result = await createUploadPolicy({ internalPolicyFile: file })
-      const policyId = result.createUploadInternalPolicy.internalPolicy.id
-
-      await updatePolicy({ updateInternalPolicyId: policyId, input: { addControlIDs: [controlId] } })
-      successNotification({ title: 'Policy created and mapped', description: `Created from the ${template.name} template` })
-      router.push(`/policies/${policyId}/view`)
-    } catch (error) {
-      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
     } finally {
       setBusyPolicy(null)
     }
@@ -124,48 +128,40 @@ export function SuggestedPolicies({ data }: { data: TSuggestedPoliciesData | nul
       <div className="flex flex-col gap-2">
         {suggestions.map((row) => {
           const existingPolicy = row.existingPolicy
-          const template = existingPolicy ? undefined : findTemplate(row.name)
+          const template = existingPolicy ? undefined : findPolicyTemplate(templates, row.name)
           return (
             <SuggestionRow
               key={row.name}
-              title={row.name}
+              title={existingPolicy?.name ?? row.name}
+              note={existingPolicy && coverageNote(existingPolicy.name, row.name)}
               description={row.description}
               action={
-                existingPolicy ? (
-                  <button
-                    type="button"
-                    disabled={busyPolicy === existingPolicy.id}
-                    onClick={() => mapExistingPolicy(existingPolicy)}
-                    className="inline-flex shrink-0 items-center gap-1.5 text-sm text-[var(--color-info)] hover:underline underline-offset-4 disabled:opacity-50"
-                  >
-                    <Link2 size={14} />
-                    Map existing policy
-                  </button>
-                ) : (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button type="button" className="inline-flex shrink-0 items-center gap-1.5 text-sm text-[var(--color-info)] hover:underline underline-offset-4">
-                        <Sparkles size={14} />
-                        Create &amp; map
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        className="flex items-center gap-2"
-                        onSelect={() => router.push(`/policies/create?name=${encodeURIComponent(row.name)}&generate=true&mapControlId=${controlId}`)}
-                      >
-                        <Sparkles size={14} />
-                        Create with AI
-                      </DropdownMenuItem>
-                      {template && (
-                        <DropdownMenuItem className="flex items-center gap-2" onSelect={() => createFromTemplate(template)}>
-                          <FileTextIcon size={14} />
-                          From Policy Hub
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )
+                <div className="flex shrink-0 items-center gap-3">
+                  {existingPolicy ? (
+                    <button
+                      type="button"
+                      disabled={busyPolicy === existingPolicy.id}
+                      onClick={() => mapExistingPolicy(existingPolicy)}
+                      className="inline-flex shrink-0 items-center gap-1.5 text-sm text-[var(--color-info)] hover:underline underline-offset-4 disabled:opacity-50"
+                    >
+                      <Link2 size={14} />
+                      Map existing policy
+                    </button>
+                  ) : (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button type="button" className="inline-flex shrink-0 items-center gap-1.5 text-sm text-[var(--color-info)] hover:underline underline-offset-4">
+                          <Sparkles size={14} />
+                          Create &amp; map
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <CreatePolicyMenuItems policyName={row.name} template={template} mapControlId={controlId} onCreateFromTemplate={createFromTemplate} />
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                  <DismissButton onClick={() => dismissOne(row.name)} label={`Dismiss ${row.name}`} tooltip="Already covered by another policy" />
+                </div>
               }
             />
           )

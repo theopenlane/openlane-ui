@@ -1,13 +1,10 @@
 'use client'
 
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import { docsHelpEnabled } from '@repo/dally/ai'
 import { ControlControlSource } from '@repo/codegen/src/schema'
 import { useDocsSection } from '@/hooks/useDocsHelp'
 import { useGetAllMappedControlsGrouped } from '@/lib/graphql-hooks/mapped-control'
-import { createDocsMarkdownComponents as docsMarkdownComponents } from '@/components/shared/docs-help/docs-help-content'
-import { DocsSourceLink, EvidenceExamplesDisclaimer, SuggestionCard } from '@/components/shared/docs-help/suggestion-card'
+import { DocsMarkdown, DocsSourceLink, EvidenceExamplesDisclaimer, SuggestionCard } from '@/components/shared/docs-help/suggestion-card'
 
 export type TDocsEvidenceControl = {
   controlId: string
@@ -89,11 +86,7 @@ export function useDocsExampleEvidence(control?: TDocsEvidenceControl): { reques
 export function ExampleEvidenceRequestsCard({ requests, title = 'Example Evidence Requests', defaultOpen = true }: { requests: TDocsEvidenceRequests; title?: string; defaultOpen?: boolean }) {
   return (
     <SuggestionCard title={title} defaultOpen={defaultOpen} actions={<DocsSourceLink label={`From ${requests.target.framework} ${requests.target.refCode} docs`} />}>
-      <div className="prose prose-sm dark:prose-invert mt-2 max-w-none text-sm text-muted-foreground">
-        <ReactMarkdown remarkPlugins={[remarkGfm]} components={docsMarkdownComponents(requests.source)}>
-          {requests.section}
-        </ReactMarkdown>
-      </div>
+      <DocsMarkdown section={requests.section} source={requests.source} className="mt-2" />
       <EvidenceExamplesDisclaimer />
     </SuggestionCard>
   )

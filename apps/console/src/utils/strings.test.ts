@@ -1,4 +1,4 @@
-import { objectToSnakeCase, orgAbbreviation, pluralizeTypeName } from './strings'
+import { wordTokens, objectToSnakeCase, orgAbbreviation, pluralizeTypeName } from './strings'
 
 describe('objectToSnakeCase', () => {
   it('should convert camelCase to snake_case', () => {
@@ -74,5 +74,19 @@ describe('orgAbbreviation', () => {
     expect(orgAbbreviation('')).toBe('')
     expect(orgAbbreviation(null)).toBe('')
     expect(orgAbbreviation('   ')).toBe('')
+  })
+})
+
+describe('wordTokens', () => {
+  it('lowercases and splits on punctuation', () => {
+    expect(wordTokens('Business Continuity (BC/DR)')).toEqual(['business', 'continuity', 'bc', 'dr'])
+  })
+
+  it('drops empty segments', () => {
+    expect(wordTokens('  Access--Control  ')).toEqual(['access', 'control'])
+  })
+
+  it('returns nothing for a string with no word characters', () => {
+    expect(wordTokens('— / —')).toEqual([])
   })
 })

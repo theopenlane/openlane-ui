@@ -4,7 +4,11 @@
 // the rows inside it, the "from the docs" attribution and the dismiss control
 import { useState, type ReactNode } from 'react'
 import { BookText, ChevronDown, X } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { Card } from '@repo/ui/cardpanel'
+import { createDocsMarkdownComponents } from '@/components/shared/docs-help/docs-help-content'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 import CountBadge from '@/components/shared/count-badge/count-badge'
 import { useDocsHelpDrawer, useDocsHelpNavigate, type DocsHelpTopic } from '@/components/shared/docs-help/docs-help-context'
 
@@ -25,6 +29,17 @@ export function DocsSourceLink({ label, topic, size = 12 }: { label: string; top
   )
 }
 
+// A slice of documentation markdown, rendered the way the docs panel renders it
+export function DocsMarkdown({ section, source, className }: { section: string; source?: string; className?: string }) {
+  return (
+    <div className={`prose prose-sm dark:prose-invert max-w-none text-sm text-muted-foreground ${className ?? ''}`}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={createDocsMarkdownComponents(source)}>
+        {section}
+      </ReactMarkdown>
+    </div>
+  )
+}
+
 // Reminder that doc examples are not a substitute for the auditor's own ask
 export function EvidenceExamplesDisclaimer({ children }: { children?: ReactNode }) {
   return (
@@ -36,11 +51,16 @@ export function EvidenceExamplesDisclaimer({ children }: { children?: ReactNode 
 }
 
 // Wave a suggestion away without acting on it
-export function DismissButton({ onClick, label }: { onClick: () => void; label: string }) {
+export function DismissButton({ onClick, label, tooltip = 'Dismiss All Suggestions' }: { onClick: () => void; label: string; tooltip?: string }) {
   return (
-    <button type="button" onClick={onClick} aria-label={label} title={label} className="rounded-md border border-border p-1 text-muted-foreground transition-colors hover:text-foreground">
-      <X size={14} />
-    </button>
+    <SystemTooltip
+      content={tooltip}
+      icon={
+        <button type="button" onClick={onClick} aria-label={label} className="rounded-md border border-border p-1 text-muted-foreground transition-colors hover:text-foreground">
+          <X size={14} />
+        </button>
+      }
+    />
   )
 }
 

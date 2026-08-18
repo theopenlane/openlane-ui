@@ -11,7 +11,8 @@ import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { tokens, usePolicyTemplates } from '@/components/pages/protected/policies/suggested-policy-coverage'
+import { usePolicyTemplates } from '@/components/pages/protected/policies/suggested-policy-coverage'
+import { findPolicyTemplate } from '@/components/pages/protected/policies/create-policy-actions'
 
 type TSuggestedControl = {
   id: string
@@ -75,7 +76,7 @@ export function SuggestedControlMappings({
 
   // the matching Policy Hub template, if any, for its satisfies frontmatter
   const { data: templates } = usePolicyTemplates(docsHelpEnabled && !dismissed)
-  const template = policyName ? (templates ?? []).find((t) => tokens(policyName).every((token) => t.name.toLowerCase().includes(token))) : undefined
+  const template = policyName ? findPolicyTemplate(templates, policyName) : undefined
 
   const templateUrl = template?.downloadUrl
   const { data: templateRefCodes } = useQuery({

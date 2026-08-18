@@ -1,6 +1,6 @@
 // Turning OL Baseline template controls into editable rows, and deciding
 // whether a suggestion is really a control the org already has
-import { orgAbbreviation } from '@/utils/strings'
+import { orgAbbreviation, wordTokens } from '@/utils/strings'
 import { OPENLANE_BASELINE_STANDARD } from '@/constants/standards'
 
 export type TExistingMatch = { id: string; refCode: string; description?: string | null }
@@ -24,7 +24,9 @@ export const isWeakTitle = (title: string, refCode: string) => {
 
 const HTML_TAG = /<[^>]*>/g
 
-export const stem = (word: string) => word.replace(/(ings?|ions?|ments?|ed|es|s)$/, '')
+// strips the common suffix then the consonant doubled to carry it, so logging
+// and log land on the same stem
+export const stem = (word: string) => word.replace(/(ings?|ions?|ments?|ed|es|s)$/, '').replace(/([bdfglmnprt])\1$/, '$1')
 
 // words that appear in nearly every control description, so counting them
 // makes unrelated controls look alike
@@ -32,10 +34,7 @@ const FILLER_WORDS = new Set(['control', 'organization', 'organizational', 'ensu
 
 export const wordSet = (value: string) =>
   new Set(
-    value
-      .toLowerCase()
-      .replace(HTML_TAG, ' ')
-      .split(/[^a-z0-9]+/)
+    wordTokens(value.replace(HTML_TAG, ' '))
       .filter((word) => word.length > 3)
       .map(stem)
       .filter((word) => !FILLER_WORDS.has(word)),

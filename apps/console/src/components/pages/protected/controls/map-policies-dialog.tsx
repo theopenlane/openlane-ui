@@ -11,6 +11,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useSuggestedPolicies } from '@/components/pages/protected/controls/suggested-policies'
 import { SuggestionRow } from '@/components/shared/docs-help/suggestion-card'
+import { coverageNote } from '@/lib/docs-help/names'
 import { type TDocsEvidenceControl } from '@/components/pages/protected/controls/example-evidence-requests'
 
 export function MapSuggestedPoliciesButton({ control, size }: { control: TDocsEvidenceControl; size?: 'sm' }) {
@@ -95,6 +96,7 @@ function MapSuggestedPoliciesDialog({
             <SuggestionRow
               key={suggestion.existingPolicy.id}
               title={suggestion.existingPolicy.name}
+              note={coverageNote(suggestion.existingPolicy.name, suggestion.name)}
               description={suggestion.description}
               action={
                 <button

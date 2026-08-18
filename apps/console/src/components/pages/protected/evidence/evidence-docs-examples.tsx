@@ -1,14 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import { ChevronDown, Lightbulb } from 'lucide-react'
 import { docsHelpEnabled } from '@repo/dally/ai'
 import { ControlControlSource } from '@repo/codegen/src/schema'
 import { useControlDocsSection } from '@/components/pages/protected/controls/example-evidence-requests'
-import { createDocsMarkdownComponents as docsMarkdownComponents } from '@/components/shared/docs-help/docs-help-content'
-import { DocsSourceLink, EvidenceExamplesDisclaimer } from '@/components/shared/docs-help/suggestion-card'
+import { DocsMarkdown, DocsSourceLink, EvidenceExamplesDisclaimer } from '@/components/shared/docs-help/suggestion-card'
 
 export function EvidenceDocsExamples({ control }: { control?: { id: string; refCode: string; referenceFramework?: string | null } }) {
   const [open, setOpen] = useState(false)
@@ -40,11 +37,7 @@ export function EvidenceDocsExamples({ control }: { control?: { id: string; refC
       </button>
       {open && (
         <div className="border-t border-border px-3 py-3">
-          <div className="prose prose-sm dark:prose-invert max-w-none text-sm text-muted-foreground">
-            <ReactMarkdown remarkPlugins={[remarkGfm]} components={docsMarkdownComponents(examples.source ?? undefined)}>
-              {examples.section}
-            </ReactMarkdown>
-          </div>
+          <DocsMarkdown section={examples.section} source={examples.source ?? undefined} />
           <EvidenceExamplesDisclaimer>
             <DocsSourceLink
               label={`View ${target.refCode} docs`}

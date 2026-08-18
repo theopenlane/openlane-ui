@@ -22,7 +22,7 @@ import { useDocsHelpDrawer } from '@/components/shared/docs-help/docs-help-conte
 import { hasPlaceholderText } from '@/components/shared/plate/plate-utils'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
-import { getOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
+import { dismissItem, useDismissedItems } from '@/hooks/useDismissedItems'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 export type TCreateOrgControlsTarget = {
@@ -31,41 +31,8 @@ export type TCreateOrgControlsTarget = {
   referenceFramework?: string | null
 }
 
-// deleted suggestions stay deleted: keyed per framework control, scoped to the
-// organization, and broadcast so the trigger button and the open dialog stay in step
+// deleted suggestions stay deleted, keyed per framework control
 const dismissedKey = (frameworkControlId: string) => `suggested-controls-dismissed:${frameworkControlId}`
-const DISMISSED_EVENT = 'suggested-controls-dismissed'
-
-function readDismissed(frameworkControlId?: string, organizationId?: string): string[] {
-  if (!frameworkControlId) return []
-  try {
-    const stored = getOrganizationStorageItem(dismissedKey(frameworkControlId), organizationId)
-    const parsed: unknown = stored ? JSON.parse(stored) : []
-    return Array.isArray(parsed) ? parsed.filter((entry): entry is string => typeof entry === 'string') : []
-  } catch {
-    return []
-  }
-}
-
-function dismissSuggestion(frameworkControlId: string, refCode: string, organizationId?: string) {
-  const next = [...new Set([...readDismissed(frameworkControlId, organizationId), refCode.trim().toLowerCase()])]
-  setOrganizationStorageItem(dismissedKey(frameworkControlId), JSON.stringify(next), organizationId)
-  window.dispatchEvent(new CustomEvent(DISMISSED_EVENT))
-}
-
-function useDismissedSuggestions(frameworkControlId?: string): string[] {
-  const { currentOrgId } = useOrganization()
-  const [dismissed, setDismissed] = useState<string[]>(() => readDismissed(frameworkControlId, currentOrgId))
-
-  useEffect(() => {
-    const sync = () => setDismissed(readDismissed(frameworkControlId, currentOrgId))
-    sync()
-    window.addEventListener(DISMISSED_EVENT, sync)
-    return () => window.removeEventListener(DISMISSED_EVENT, sync)
-  }, [frameworkControlId, currentOrgId])
-
-  return dismissed
-}
 
 // OL Baseline template controls, fetched once for the page. Each carries the
 // framework controls it maps to, so a control looks its suggestions up by ref
@@ -92,7 +59,7 @@ function useTemplateIndex(enabled: boolean) {
 }
 
 function useResolvedSuggestions(frameworkControl: TCreateOrgControlsTarget | null, existingRefCodes: string[] | undefined, enabled: boolean) {
-  const dismissed = useDismissedSuggestions(frameworkControl?.id)
+  const { dismissed } = useDismissedItems(frameworkControl ? dismissedKey(frameworkControl.id) : undefined)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const organizationName = getOrganizationByID(currentOrgId ?? '')?.node?.displayName
 
@@ -280,7 +247,7 @@ export function CreateOrgControlsDialog({ open, onOpenChange, frameworkControl, 
   const updateRow = (index: number, patch: Partial<TExampleRow>) => setRows((current) => current.map((row, i) => (i === index ? { ...row, ...patch } : row)))
   const removeRow = (index: number) => {
     const removed = rows[index]
-    if (removed && frameworkControl) dismissSuggestion(frameworkControl.id, rowKey(removed), currentOrgId)
+    if (removed && frameworkControl) dismissItem(dismissedKey(frameworkControl.id), rowKey(removed), currentOrgId)
     setRows((current) => current.filter((_, i) => i !== index))
   }
 

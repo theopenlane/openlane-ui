@@ -126,3 +126,11 @@ export const orgAbbreviation = (name?: string | null): string => {
 export const pluralize = (count: number, singular: string, plural?: string): string => (count === 1 ? singular : (plural ?? pluralizeTypeName(singular)))
 
 export const pluralizeWithCount = (count: number, singular: string, plural?: string): string => `${count} ${pluralize(count, singular, plural)}`
+
+// lowercased words, punctuation dropped: the shared basis for name matching,
+// similarity scoring and word-by-word search filters
+export const wordTokens = (value: string): string[] =>
+  value
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
