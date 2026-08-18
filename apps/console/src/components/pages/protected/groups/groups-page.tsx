@@ -90,6 +90,8 @@ const GroupsPage = () => {
   }, [session?.user?.userId])
 
   const whereFilter = useMemo(() => {
+    if (whereFilters === null) return null
+
     const searchClause: GroupWhereInput[] = debouncedSearchQuery ? [{ or: [{ nameContainsFold: debouncedSearchQuery }, { displayNameContainsFold: debouncedSearchQuery }] }] : []
 
     const mapCustomKey = (key: string, value: unknown): GroupWhereInput => {

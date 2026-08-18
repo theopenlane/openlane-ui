@@ -18,6 +18,7 @@ import {
   GET_ORGANIZATION_BILLING_BANNER,
   UPDATE_ORG_SETTING,
   TRANSFER_ORGANIZATION_OWNERSHIP,
+  LEAVE_ORGANIZATION,
 } from '@repo/codegen/query/organization'
 import {
   type GetAllOrganizationsQuery,
@@ -51,6 +52,7 @@ import {
   type UpdateOrganizationSettingMutation,
   type TransferOrganizationOwnershipMutationVariables,
   type TransferOrganizationOwnershipMutation,
+  type MutationLeaveOrganizationArgs,
   OrgMembershipRole,
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -254,6 +256,14 @@ export const useDeleteOrganization = () => {
         extensions: typedExtensions,
       }
     },
+  })
+}
+
+export const useLeaveOrganization = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation({
+    mutationFn: async (variables: MutationLeaveOrganizationArgs) => client.request(LEAVE_ORGANIZATION, variables),
   })
 }
 

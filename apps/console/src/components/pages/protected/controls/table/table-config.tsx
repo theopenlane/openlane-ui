@@ -10,6 +10,7 @@ import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import StandardChip from '../../standards/shared/standard-chip'
 import { Badge } from '@repo/ui/badge'
+import { TruncatedCell } from '@repo/ui/data-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import OwnerCell from './owner-cell'
 import DelegateCell from './delegate-cell'
@@ -22,6 +23,7 @@ import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/c
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 
 export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
@@ -29,6 +31,7 @@ export const getControlsFilterFields = (
   programOptions: { value: string; label: string }[],
   typeOptions: { value: string; label: string }[],
   tagOptions: { value: string; label: string }[],
+  hasProgramAccess: boolean,
 ): FilterField[] => [
   { key: 'refCodeContainsFold', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
   { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
@@ -63,13 +66,7 @@ export const getControlsFilterFields = (
     })),
     icon: FilterIcons.Owners,
   },
-  {
-    key: 'hasProgramsWith',
-    label: 'Program Name',
-    type: 'multiselect',
-    options: programOptions,
-    icon: FilterIcons.ProgramName,
-  },
+  ...getProgramFilterFields(programOptions, hasProgramAccess),
   {
     key: 'controlKindNameIn',
     label: 'Control Type',
@@ -235,7 +232,9 @@ export const getControlColumns = ({ convertToReadOnly, userMap, tokenMap, select
 
         return (
           <div>
-            <div className="line-clamp-3">{description}</div>
+            <TruncatedCell portal lineClamp={3} tooltipContent={description}>
+              {description}
+            </TruncatedCell>
             <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
               <StandardChip referenceFramework={referenceFramework ?? ''} />
               {row.original.category && <Badge variant={'outline'}>{row.original.category}</Badge>}

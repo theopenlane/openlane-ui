@@ -10,13 +10,14 @@ import { NavigationGuardProvider } from 'next-navigation-guard'
 import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
 import { InitPlugSDK } from '@/providers/chatSdk'
 import { TooltipProvider } from '@repo/ui/tooltip'
-import { enableDevrevChat } from '@repo/dally/auth'
+import { devrevChatEnabled } from '@repo/dally/auth'
 import { WebSocketProvider } from '@/providers/websocket-provider'
 import { NotificationsProvider } from '@/providers/notifications-provider'
 import { NotificationToastContainer } from '@/components/shared/SystemNotification/notification-toast-container'
 import { SessionUnavailableError } from '@/lib/auth/utils/session-health'
 import { getIsSessionInvalid } from '@/lib/auth/utils/session-status'
 import { useSessionTokenSync } from '@/lib/graphqlClient'
+import { isNonRetryableGraphQlError } from '@/utils/graphQlErrorMatcher'
 
 interface ProvidersProps {
   children: ReactNode
@@ -62,7 +63,7 @@ const Providers = ({ children }: ProvidersProps) => {
             placeholderData: (prev: unknown) => prev,
             refetchOnWindowFocus: false,
             retry: (failureCount: number, error: Error) => {
-              if (getIsSessionInvalid()) return false
+              if (getIsSessionInvalid() || isNonRetryableGraphQlError(error)) return false
               return error instanceof SessionUnavailableError ? failureCount < 5 : failureCount < 3
             },
             retryDelay: sessionRetryDelay,
@@ -95,7 +96,7 @@ const Providers = ({ children }: ProvidersProps) => {
           <WebSocketProvider>
             <NotificationsProvider>
               <BreadcrumbProvider>
-                {enableDevrevChat === 'true' && <InitPlugSDK />}
+                {devrevChatEnabled && <InitPlugSDK />}
                 <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
                   {children}
                 </TooltipProvider>

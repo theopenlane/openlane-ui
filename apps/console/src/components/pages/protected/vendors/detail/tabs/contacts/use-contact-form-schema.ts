@@ -11,7 +11,7 @@ export const addContactSchema = z.object({
   company: z.string().optional(),
   title: z.string().optional(),
   phoneNumber: z.string().optional(),
-  status: z.nativeEnum(ContactUserStatus).optional(),
+  status: z.enum(ContactUserStatus).optional(),
   address: z.string().optional(),
 })
 

@@ -57,9 +57,6 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds,
       if (key === 'hasControlsWith' || key === 'hasSubcontrolsWith') {
         return {} as InternalPolicyWhereInput
       }
-      if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: [{ idIn: value }] } as InternalPolicyWhereInput
-      }
       return { [key]: value }
     })
 

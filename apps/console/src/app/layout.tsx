@@ -5,6 +5,7 @@ import Providers from './providers'
 import { pirschAnalyticsKey, recaptchaSiteKey } from '@repo/dally/auth'
 import Script from 'next/script'
 import type { Metadata } from 'next'
+import GlobalBanners from '@/components/shared/global-banners/global-banners'
 import '@repo/ui/styles.css'
 
 const imageWidth = '1200'
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
         <Script src={`https://plug-platform.devrev.ai/static/plug.js`} typeof="text/javascript"></Script>
       </head>
       <body className={`${outfit.variable} ${mincho.variable} ${jetBrainsMono.variable} font-sans w-full overscroll-none`}>
+        <GlobalBanners />
         <SessionProvider refetchOnWindowFocus={false}>
           <Providers>{children}</Providers>
           <Toaster />

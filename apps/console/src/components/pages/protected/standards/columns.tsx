@@ -13,10 +13,18 @@ type GetColumnsProps = {
   setSelectedControls: React.Dispatch<React.SetStateAction<ControlSelection[]>>
   controls: ControlListStandardFieldsFragment[]
   convertToReadOnly: (value: string, depth: number) => React.ReactNode
+  showSubcontrolsColumn: boolean
 }
 
-export const getColumns = ({ controls, setSelectedControls, toggleSelection, selectedControls, convertToReadOnly }: GetColumnsProps): ColumnDef<ControlListStandardFieldsFragment>[] => {
-  return [
+export const getColumns = ({
+  controls,
+  setSelectedControls,
+  toggleSelection,
+  selectedControls,
+  convertToReadOnly,
+  showSubcontrolsColumn,
+}: GetColumnsProps): ColumnDef<ControlListStandardFieldsFragment>[] => {
+  const columns: ColumnDef<ControlListStandardFieldsFragment>[] = [
     {
       id: 'select',
       header: () => {
@@ -73,13 +81,18 @@ export const getColumns = ({ controls, setSelectedControls, toggleSelection, sel
         className: 'max-w-[50%] w-[50%]',
       },
     },
-    {
+  ]
+
+  if (showSubcontrolsColumn) {
+    columns.push({
       accessorKey: 'subcontrols.totalCount',
       header: '# of Subcontrols',
       cell: (info) => info.row.original.subcontrols.totalCount,
       meta: {
         className: 'max-w-[5%] w-[5%]',
       },
-    },
-  ]
+    })
+  }
+
+  return columns
 }

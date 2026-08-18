@@ -19,6 +19,8 @@ import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { getColumnsForImportControlsDialogFramework } from '../program-tasks-table/columns'
 import { useParams } from 'next/navigation'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { ORG_MANAGED_CONTROLS_WHERE } from '@/constants/standards'
+import { mergeWhere } from '@/lib/merge-where'
 
 const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selectedProgramIds, setSelectedProgramIds }: TSharedImportControlsComponentsPropsPrograms) => {
   const { id } = useParams<{ id: string | undefined }>()
@@ -38,30 +40,29 @@ const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selected
     TableKeyEnum.PROGRAM_SETTINGS_IMPORT_CONTROLS_PROGRAM,
   )
 
-  const where: ControlWhereInput = useMemo(() => {
-    const initialWhereFilters: ControlWhereInput[] = [{ hasPrograms: true }]
-
-    const whereFilters: ControlWhereInput[] = []
-    if (selectedProgramIds.length > 0) whereFilters.push({ hasProgramsWith: [{ idIn: selectedProgramIds }] })
-    if (debouncedSearchQuery) {
-      whereFilters.push({
-        or: [
-          { refCodeContainsFold: debouncedSearchQuery },
-          { categoryContainsFold: debouncedSearchQuery },
-          { subcategoryContainsFold: debouncedSearchQuery },
-          { descriptionContainsFold: debouncedSearchQuery },
-        ],
-      })
-    }
-    const allFilters = [...initialWhereFilters, ...whereFilters]
-    if (allFilters.length === 1) return allFilters[0]
-    return { and: allFilters }
-  }, [selectedProgramIds, debouncedSearchQuery])
+  const where: ControlWhereInput = useMemo(
+    () =>
+      mergeWhere<ControlWhereInput>([
+        { hasPrograms: true, hasProgramsWith: [{ idIn: selectedProgramIds }] },
+        debouncedSearchQuery
+          ? {
+              or: [
+                { refCodeContainsFold: debouncedSearchQuery },
+                { categoryContainsFold: debouncedSearchQuery },
+                { subcategoryContainsFold: debouncedSearchQuery },
+                { descriptionContainsFold: debouncedSearchQuery },
+              ],
+            }
+          : undefined,
+        ORG_MANAGED_CONTROLS_WHERE,
+      ]),
+    [selectedProgramIds, debouncedSearchQuery],
+  )
 
   const handleToggle = (id: string) => {
     setSelectedProgramIds((prev) => (prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]))
   }
-  const { allControls } = useAllControlsGroupedWithListFields({ where: where as ControlWhereInput, enabled: selectedProgramIds.length > 0 })
+  const { allControls } = useAllControlsGroupedWithListFields({ where, enabled: selectedProgramIds.length > 0 })
   const handleCheckboxShowToggle = () => {
     setShowCheckboxes((prev) => !prev)
   }

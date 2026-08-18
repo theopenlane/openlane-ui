@@ -23,7 +23,6 @@ type TEvidenceDetailHeaderProps = {
   onEdit: () => void
   onCancelEdit: () => void
   onSave: () => void
-  saveLabel?: string
   onDelete: () => void
   onApprove: () => void
   onRequestChanges: () => void
@@ -43,7 +42,6 @@ const EvidenceDetailHeader: React.FC<TEvidenceDetailHeaderProps> = ({
   onEdit,
   onCancelEdit,
   onSave,
-  saveLabel,
   onDelete,
   onApprove,
   onRequestChanges,
@@ -60,7 +58,7 @@ const EvidenceDetailHeader: React.FC<TEvidenceDetailHeaderProps> = ({
         {isEditing ? (
           <>
             <CancelButton onClick={onCancelEdit} />
-            <SaveButton onClick={onSave} title={saveLabel} />
+            <SaveButton onClick={onSave} />
           </>
         ) : (
           <>

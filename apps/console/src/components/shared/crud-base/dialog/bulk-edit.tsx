@@ -50,7 +50,7 @@ const fieldItemSchema = z.object({
   fieldKey: z.string().optional(),
   selectedValue: z.union([z.string(), z.boolean(), z.array(z.string())]).optional(),
   selectedDate: z.date().nullable().optional(),
-  selectedResponsibility: z.any().optional(),
+  selectedResponsibility: z.custom<ResponsibilitySelection>().optional(),
 })
 
 const bulkEditSchema = z.object({
@@ -142,7 +142,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
 
       const respConfig = responsibilityFields?.[key]
       if (respConfig && field.selectedResponsibility !== undefined) {
-        const selection = field.selectedResponsibility as ResponsibilitySelection
+        const selection = field.selectedResponsibility
         const baseName = respConfig.fieldBaseName
         const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
         const inputRecord = input as Record<string, unknown>
@@ -213,9 +213,9 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                 const enumKey = fieldKey ? getEnumKey(fieldKey) : undefined
                 const selectOptions = enumOpts && enumKey ? enumOpts[enumKey] : undefined
 
-                const getInnerZodType = (zodType: z.ZodTypeAny): z.ZodTypeAny => {
+                const getInnerZodType = (zodType: z.core.$ZodType): z.core.$ZodType => {
                   if (zodType instanceof z.ZodOptional || zodType instanceof z.ZodNullable) {
-                    return getInnerZodType(zodType._def.innerType)
+                    return getInnerZodType(zodType.unwrap())
                   }
                   return zodType
                 }

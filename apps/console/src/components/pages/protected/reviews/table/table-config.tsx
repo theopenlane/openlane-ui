@@ -12,6 +12,7 @@ import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { ReviewAssociationSection } from '../create/form/fields/association-section'
 import { ReviewDocumentsSection } from '../create/form/fields/documents-section'
 import { ReviewCommentsSection } from '../create/form/fields/comments-section'
+import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
 
 export const formId = 'edit' + ObjectNames.REVIEW
 
@@ -57,20 +58,8 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
     type: 'text',
     icon: FilterIcons.Source,
   },
-  {
-    key: 'environmentNameIn',
-    label: 'Environment',
-    type: 'multiselect',
-    icon: FilterIcons.Environment,
-    options: enumOptions.environmentOptions,
-  },
-  {
-    key: 'scopeNameIn',
-    label: 'Scope',
-    type: 'multiselect',
-    icon: FilterIcons.Scope,
-    options: enumOptions.scopeOptions,
-  },
+  getEnvironmentFilterField(enumOptions.environmentOptions),
+  getScopeFilterField(enumOptions.scopeOptions),
   {
     key: 'tagsHas',
     label: 'Tags',

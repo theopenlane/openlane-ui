@@ -191,7 +191,7 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const [membershipFilter, setMembershipFilter] = useState<WhereCondition>({})
+  const [membershipFilter, setMembershipFilter] = useState<WhereCondition | null>(null)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.PERSONNEL_LINKED_ACCOUNTS, {}))
 
   const where = useMemo(
@@ -204,9 +204,9 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
     [debouncedSearch],
   )
 
-  const membershipWhere: DirectoryMembershipWhereInput | undefined = Object.keys(membershipFilter).length === 0 ? undefined : (membershipFilter as DirectoryMembershipWhereInput)
+  const membershipWhere: DirectoryMembershipWhereInput | undefined = !membershipFilter || Object.keys(membershipFilter).length === 0 ? undefined : (membershipFilter as DirectoryMembershipWhereInput)
 
-  const { directoryAccounts, isLoading } = useGetIdentityHolderDirectoryAccounts(personnelId, where, membershipWhere)
+  const { directoryAccounts, isLoading } = useGetIdentityHolderDirectoryAccounts(personnelId, where, membershipWhere, membershipFilter !== null)
 
   const columns = useMemo<ColumnDef<DirectoryAccountRow>[]>(
     () => [

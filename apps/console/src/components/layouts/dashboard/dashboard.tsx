@@ -21,8 +21,10 @@ import { SheetNavigationProvider } from '@/providers/sheet-navigation-provider'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import ImpersonationBanner from '@/components/shared/impersonation-banner/impersonation-banner'
-import { IMPERSONATION_BANNER_HEIGHT_VAR } from '@/constants/layout'
+import { GLOBAL_BANNER_HEIGHT_VAR, TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
 import { DashboardContentOffsetProvider } from '@/providers/DashboardContentOffsetContext'
+import { DocsHelpTopicProvider } from '@/components/shared/docs-help/docs-help-context'
+import { DocsHelpTab } from '@/components/shared/docs-help/docs-help-tab'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -67,6 +69,15 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const bannerRef = useRef<HTMLDivElement>(null)
   const bannerHeight = useElementHeight(bannerRef)
 
+  useEffect(() => {
+    const root = document.documentElement
+    root.style.setProperty(TOP_BANNER_HEIGHT_VAR, `calc(var(${GLOBAL_BANNER_HEIGHT_VAR}, 0px) + ${bannerHeight}px)`)
+
+    return () => {
+      root.style.removeProperty(TOP_BANNER_HEIGHT_VAR)
+    }
+  }, [bannerHeight])
+
   const currentActivePanel = [...navItems, ...footerNavItems]
     .filter(isNavItem)
     .find((item) => item.children?.some((child) => pathname === child.href || pathname.startsWith(`${child.href}/`)))
@@ -89,55 +100,58 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   return (
     <DndProvider backend={HTML5Backend}>
       <SheetNavigationProvider>
-        <div style={{ [IMPERSONATION_BANNER_HEIGHT_VAR]: `${bannerHeight}px` } as React.CSSProperties}>
-          <div ref={bannerRef} className="fixed top-0 left-0 right-0 z-50">
-            <ImpersonationBanner />
-          </div>
-
-          <SessionExpiredModal open={showSessionExpiredModal} />
-          <Sidebar
-            navItems={navItems}
-            footerNavItems={footerNavItems}
-            openPanel={openPanel}
-            primaryExpanded={primaryExpanded}
-            secondaryExpanded={secondaryExpanded}
-            onPrimaryExpandToggle={() => {
-              const newState = !primaryExpanded
-              setPrimaryExpanded(newState)
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('sidebar-primary-expanded', String(newState))
-              }
-            }}
-            onSecondaryExpandToggle={() => {
-              const newState = !secondaryExpanded
-              setSecondaryExpanded(newState)
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('sidebar-secondary-expanded', String(newState))
-              }
-            }}
-            onToggle={handleOpenPanel}
-            isOrganizationSelected={isOrganizationSelected}
-          />
-          <div
-            className="flex flex-col overflow-hidden transition-all duration-200"
-            style={{
-              marginLeft: contentMarginLeft,
-              marginRight: '8px',
-              marginTop: `var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px)`,
-              height: `calc(100vh - var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px))`,
-            }}
-          >
-            <Header />
-
-            <div className={base()}>
-              <main className={main()} data-scroll-container="main">
-                <DashboardContentOffsetProvider value={{ marginLeft: contentMarginLeft, marginRight: 8 }}>{error ?? children}</DashboardContentOffsetProvider>
-              </main>
-              <ChatBot />
-              <CommandMenu items={navItems} />
+        <DocsHelpTopicProvider>
+          <>
+            <div ref={bannerRef} className="fixed left-0 right-0 z-50" style={{ top: `var(${GLOBAL_BANNER_HEIGHT_VAR}, 0px)` }}>
+              <ImpersonationBanner />
             </div>
-          </div>
-        </div>
+
+            <SessionExpiredModal open={showSessionExpiredModal} />
+            <Sidebar
+              navItems={navItems}
+              footerNavItems={footerNavItems}
+              openPanel={openPanel}
+              primaryExpanded={primaryExpanded}
+              secondaryExpanded={secondaryExpanded}
+              onPrimaryExpandToggle={() => {
+                const newState = !primaryExpanded
+                setPrimaryExpanded(newState)
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem('sidebar-primary-expanded', String(newState))
+                }
+              }}
+              onSecondaryExpandToggle={() => {
+                const newState = !secondaryExpanded
+                setSecondaryExpanded(newState)
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem('sidebar-secondary-expanded', String(newState))
+                }
+              }}
+              onToggle={handleOpenPanel}
+              isOrganizationSelected={isOrganizationSelected}
+            />
+            <div
+              className="flex flex-col overflow-hidden transition-[margin-left] duration-200"
+              style={{
+                marginLeft: contentMarginLeft,
+                marginRight: '8px',
+                marginTop: `var(${TOP_BANNER_HEIGHT_VAR}, 0px)`,
+                height: `calc(100vh - var(${TOP_BANNER_HEIGHT_VAR}, 0px))`,
+              }}
+            >
+              <Header />
+
+              <div className={base()}>
+                <main className={main()} data-scroll-container="main">
+                  <DashboardContentOffsetProvider value={{ marginLeft: contentMarginLeft, marginRight: 8 }}>{error ?? children}</DashboardContentOffsetProvider>
+                </main>
+                <ChatBot />
+                <CommandMenu items={navItems} />
+              </div>
+            </div>
+            <DocsHelpTab />
+          </>
+        </DocsHelpTopicProvider>
       </SheetNavigationProvider>
     </DndProvider>
   )

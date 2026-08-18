@@ -110,16 +110,19 @@ export const fetchCSRFToken = async (): Promise<string> => {
   return request
 }
 
-export function appendCookie(headers: Record<string, string>, name: string, value: string): Record<string, string> {
+export const appendCookie = (headers: Record<string, string>, name: string, value: string): Record<string, string> => {
   const existingCookieKey = Object.keys(headers).find((k) => k.toLowerCase() === 'cookie')
   const existingCookie = existingCookieKey ? headers[existingCookieKey] : ''
 
-  const newCookie = `${existingCookie ? existingCookie + '; ' : ''}${name}=${value}`.trim()
+  const otherCookies = existingCookie
+    .split(';')
+    .map((cookie) => cookie.trim())
+    .filter((cookie) => cookie !== '' && !cookie.startsWith(`${name}=`))
 
   if (existingCookieKey) {
     delete headers[existingCookieKey]
   }
 
-  headers['cookie'] = newCookie
+  headers['cookie'] = [...otherCookies, `${name}=${value}`].join('; ')
   return headers
 }

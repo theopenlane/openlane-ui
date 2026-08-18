@@ -17,7 +17,7 @@ import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport, { type TExportMetadata } from '@/components/shared/export/use-file-export.ts'
 import usePdfExportDialog from '@/components/shared/export/use-pdf-export-dialog.tsx'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -57,10 +57,6 @@ export const PoliciesTable = () => {
         return { hasControlsWith: [{ refCodeContainsFold: value as string }] }
       }
 
-      if (key === 'hasProgramsWith') {
-        return { hasProgramsWith: [{ idIn: value }] } as InternalPolicyWhereInput
-      }
-
       if (key === 'hasSubcontrolsWith') {
         return { hasSubcontrolsWith: [{ refCodeContainsFold: value as string }] }
       }
@@ -92,7 +88,7 @@ export const PoliciesTable = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { policies, isError, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
+  const { policies, error, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
 
   const memberIds = useMemo(() => {
     if (!policies || policies.length === 0) {
@@ -104,7 +100,6 @@ export const PoliciesTable = () => {
 
   const { userMap, tokenMap } = useAuthorMaps(memberIds)
   const [selectedPolicies, setSelectedPolicies] = useState<{ id: string }[]>([])
-  const { errorNotification } = useNotification()
   const defaultVisibility: VisibilityState = {
     id: false,
     approvalRequired: false,
@@ -163,14 +158,7 @@ export const PoliciesTable = () => {
     exportPolicies(format)
   }
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load policies',
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: 'Failed to load policies' })
 
   useEffect(() => {
     if (permission?.roles) {

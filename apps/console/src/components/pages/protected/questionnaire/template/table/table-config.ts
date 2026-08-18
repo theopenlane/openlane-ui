@@ -28,8 +28,8 @@ export function useTemplateFilters(): FilterField[] | undefined {
     const scopeOptions = scopeData?.customTypeEnums?.edges?.map((edge) => ({ value: edge?.node?.name ?? '', label: edge?.node?.name ?? '' })).filter((o) => o.value) ?? []
 
     return [
-      { key: 'environmentNameIn', label: 'Environment', type: 'multiselect', icon: TemplateFilterIcons.Environment, options: environmentOptions },
-      { key: 'scopeNameIn', label: 'Scope', type: 'multiselect', icon: TemplateFilterIcons.Scope, options: scopeOptions },
+      { key: 'environmentNameIn', label: 'Environment', type: 'multiselect', icon: TemplateFilterIcons.Environment, options: environmentOptions, nullableKey: 'environmentName' },
+      { key: 'scopeNameIn', label: 'Scope', type: 'multiselect', icon: TemplateFilterIcons.Scope, options: scopeOptions, nullableKey: 'scopeName' },
       {
         key: 'systemOwned',
         label: 'System Owned',

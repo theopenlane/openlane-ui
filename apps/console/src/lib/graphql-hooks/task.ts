@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery, type InfiniteData } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery, type InfiniteData, type QueryKey } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   TASKS_WITH_FILTER,
@@ -26,7 +26,6 @@ import {
   type TaskQueryVariables,
   type CreateBulkCsvTaskMutation,
   type CreateBulkCsvTaskMutationVariables,
-  type Task,
   type UpdateBulkTaskMutation,
   type UpdateBulkTaskMutationVariables,
   type UpdateTaskCommentMutation,
@@ -37,6 +36,7 @@ import {
   type GetTaskAssociationsQuery,
   type GetTaskAssociationsQueryVariables,
 } from '@repo/codegen/src/schema'
+import { useMemo } from 'react'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { invalidateTaskAssociations } from '@/components/shared/object-association/object-association-config'
@@ -60,43 +60,67 @@ export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true 
     enabled,
   })
 
-  const tasks = (queryResult.data?.tasks?.edges?.map((edge) => {
-    return {
-      ...edge?.node,
-    }
-  }) ?? []) as Task[]
+  const tasks = useMemo(() => queryResult.data?.tasks?.edges?.map((edge) => edge?.node).filter((node): node is TasksWithFilterNode => !!node) ?? [], [queryResult.data])
 
   return { ...queryResult, tasks, isLoading: queryResult.isPending }
 }
 
-export const useTasksWithFilterInfinite = ({ where, orderBy, pagination, enabled = true }: GetAllTasksArgs) => {
+export type TasksWithFilterNode = NonNullable<NonNullable<NonNullable<NonNullable<TasksWithFilterQuery['tasks']>['edges']>[number]>['node']>
+
+type GetInfiniteTasksArgs = {
+  where: NonNullable<TasksWithFilterQueryVariables['where']>
+  orderBy?: TasksWithFilterQueryVariables['orderBy']
+  pageSize: number
+}
+
+type TaskCursor = string | null
+
+export const useTasksWithFilterInfinite = ({ where, orderBy, pageSize }: GetInfiniteTasksArgs) => {
   const { client } = useGraphQLClient()
 
-  const queryResult = useInfiniteQuery<TasksWithFilterQuery, Error, InfiniteData<TasksWithFilterQuery>>({
-    initialPageParam: 1,
-    queryKey: ['tasks', 'infinite', where, orderBy],
-    queryFn: async (): Promise<TasksWithFilterQuery> => {
+  const queryResult = useInfiniteQuery<TasksWithFilterQuery, Error, InfiniteData<TasksWithFilterQuery>, QueryKey, TaskCursor>({
+    initialPageParam: null,
+    queryKey: ['tasks', 'infinite', where, orderBy, pageSize],
+    queryFn: async ({ pageParam }): Promise<TasksWithFilterQuery> => {
       const result = await client.request<TasksWithFilterQuery, TasksWithFilterQueryVariables>(TASKS_WITH_FILTER, {
         where,
         orderBy,
-        ...pagination?.query,
+        first: pageSize,
+        after: pageParam,
       })
+
       return result as TasksWithFilterQuery
     },
-    getNextPageParam: (lastPage, allPages) => (lastPage.tasks?.pageInfo?.hasNextPage ? allPages.length + 1 : undefined),
+    getNextPageParam: (lastPage, _allPages, _lastPageParam, allPageParams) => {
+      const pageInfo = lastPage.tasks?.pageInfo
+      const nextCursor: TaskCursor = pageInfo?.endCursor ?? null
+
+      if (!pageInfo?.hasNextPage || nextCursor == null || allPageParams.includes(nextCursor)) {
+        return undefined
+      }
+
+      return nextCursor
+    },
     staleTime: Infinity,
-    enabled,
   })
 
-  const tasks: Task[] = queryResult.data?.pages.flatMap((page) => (page.tasks?.edges ?? []).map((edge) => edge?.node).filter((node): node is Task => node !== undefined)) ?? []
+  const pages = queryResult.data?.pages
 
-  const lastPage = queryResult.data?.pages.at(-1)
+  const tasks: TasksWithFilterNode[] = useMemo(() => {
+    const nodes = pages?.flatMap((page) => (page.tasks?.edges ?? []).map((edge) => edge?.node).filter((node): node is TasksWithFilterNode => node != null)) ?? []
 
-  const paginationMeta = {
-    totalCount: lastPage?.tasks?.totalCount ?? 0,
-    pageInfo: lastPage?.tasks?.pageInfo,
-    isLoading: queryResult.isPending,
-  }
+    return Array.from(new Map(nodes.map((task) => [task.id, task])).values())
+  }, [pages])
+
+  const paginationMeta = useMemo(() => {
+    const lastPage = pages?.at(-1)
+
+    return {
+      totalCount: lastPage?.tasks?.totalCount ?? 0,
+      pageInfo: { ...lastPage?.tasks?.pageInfo, hasNextPage: queryResult.hasNextPage },
+      isLoading: queryResult.isFetching,
+    }
+  }, [pages, queryResult.hasNextPage, queryResult.isFetching])
 
   return {
     ...queryResult,

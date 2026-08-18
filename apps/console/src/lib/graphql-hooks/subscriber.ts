@@ -7,7 +7,6 @@ import {
   type DeleteSubscriberMutation,
   type DeleteSubscriberMutationVariables,
   type GetAllSubscribersQueryVariables,
-  type Subscriber,
   type UpdateSubscriberMutation,
   type UpdateSubscriberMutationVariables,
   type CreateBulkCsvSubscriberMutation,
@@ -15,6 +14,9 @@ import {
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
+import { useMemo } from 'react'
+
+export type SubscribersNode = NonNullable<NonNullable<NonNullable<NonNullable<GetAllSubscribersQuery['subscribers']>['edges']>[number]>['node']>
 
 type UseGetAllSubscribersArgs = {
   where?: GetAllSubscribersQueryVariables['where']
@@ -37,7 +39,7 @@ export const useGetAllSubscribers = ({ where, orderBy, pagination, enabled = tru
     enabled,
   })
 
-  const subscribers = (queryResult.data?.subscribers?.edges ?? []).map((edge) => edge?.node) as Subscriber[]
+  const subscribers = useMemo(() => queryResult.data?.subscribers?.edges?.map((edge) => edge?.node).filter((node): node is SubscribersNode => !!node) ?? [], [queryResult.data])
 
   const paginationMeta = {
     totalCount: queryResult.data?.subscribers?.totalCount ?? 0,

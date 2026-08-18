@@ -15,6 +15,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -31,7 +32,7 @@ import { useSession } from 'next-auth/react'
 export const TemplatesTable = () => {
   const router = useRouter()
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.TEMPLATE)
-  const [filters, setFilters] = useState<TemplateWhereInput>({})
+  const [filters, setFilters] = useState<TemplateWhereInput | null>(null)
   const { setCrumbs } = use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
 
@@ -85,14 +86,14 @@ export const TemplatesTable = () => {
 
   const {
     templates,
-    isError,
+    error: queryError,
     isLoading: fetching,
     paginationMeta,
   } = useTemplates({
     where: whereFilter,
     orderBy: orderByFilter,
     pagination,
-    enabled: true,
+    enabled: filters !== null,
   })
 
   const userIds = useMemo(() => {
@@ -207,14 +208,7 @@ export const TemplatesTable = () => {
     ])
   }, [setCrumbs])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load templates',
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error: queryError, description: 'Failed to load templates' })
 
   return (
     <>

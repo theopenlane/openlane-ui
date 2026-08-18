@@ -24,8 +24,8 @@ export const getEvidenceFilterFields = (): FilterField[] => [
   { key: 'statusIn', label: 'Status', type: 'multiselect', options: EvidenceStatusOptions, icon: FilterIcons.Status },
   { key: 'creationDate', label: 'Created', type: 'dateRange', icon: FilterIcons.Date },
   { key: 'renewalDate', label: 'Renewed', type: 'dateRange', icon: FilterIcons.Date },
-  { key: 'scopeNameIn', label: 'Scope', type: 'text', icon: FilterIcons.Scope },
-  { key: 'environmentNameIn', label: 'Environment', type: 'text', icon: FilterIcons.Environment },
+  { key: 'scopeNameIn', label: 'Scope', type: 'text', icon: FilterIcons.Scope, nullableKey: 'scopeName' },
+  { key: 'environmentNameIn', label: 'Environment', type: 'text', icon: FilterIcons.Environment, nullableKey: 'environmentName' },
   { key: 'externalUUIDContainsFold', label: 'External UUID', type: 'text', icon: FilterIcons.ID },
 ]
 

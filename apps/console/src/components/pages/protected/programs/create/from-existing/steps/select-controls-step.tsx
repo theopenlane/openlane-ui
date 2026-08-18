@@ -17,6 +17,7 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
+import { ORG_MANAGED_CONTROLS_WHERE } from '@/constants/standards'
 import { groupControlsByFramework, type WizardValues } from '../from-existing-wizard-config'
 
 const emptySelection: string[] = []
@@ -32,7 +33,7 @@ const SelectControlsStep = ({ sourceProgramName }: SelectControlsStepProps) => {
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
-  const { allControls: orgControls, isLoading } = useAllControlsGroupedWithListFields({ where: { isTrustCenterControl: false, or: [{ systemOwned: false }, { systemOwnedIsNil: true }] } })
+  const { allControls: orgControls, isLoading } = useAllControlsGroupedWithListFields({ where: ORG_MANAGED_CONTROLS_WHERE })
 
   const selectedControlIDs = useWatch({ control, name: 'controlIDs' }) ?? emptySelection
   const selectedControlSet = useMemo(() => new Set(selectedControlIDs), [selectedControlIDs])

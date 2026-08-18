@@ -7,6 +7,7 @@ import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { authStyles } from './auth.styles'
 import { Button } from '@repo/ui/button'
 import Triangle from '@/assets/Triangle'
+import { GLOBAL_BANNER_HEIGHT_VAR } from '@/constants/layout'
 
 export interface AuthLayoutProps {
   children: React.ReactNode
@@ -19,7 +20,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
   const showTriangles = pathname === '/subscriber-verify'
 
   return (
-    <div className={base()}>
+    <div className={base()} style={{ paddingTop: `var(${GLOBAL_BANNER_HEIGHT_VAR}, 0px)` }}>
       {showTriangles && (
         <>
           <Triangle className="hidden md:block md:h-[1000px] lg:h-[1263px] md:-top-40 lg:-top-80 left-[21%] w-auto absolute z-0" />
@@ -29,7 +30,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
       {children}
 
-      <div className={closeButton()}>
+      <div className={closeButton()} style={{ transform: `translateY(var(${GLOBAL_BANNER_HEIGHT_VAR}, 0px))` }}>
         <Link href={OPENLANE_WEBSITE_URL}>
           <Button className="!py-2 !px-1.5 !h-8 bg-transparent" variant="secondaryOutline" icon={<ArrowLeft size={16} />} iconPosition="left">
             Back to Home

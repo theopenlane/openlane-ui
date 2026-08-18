@@ -11,7 +11,7 @@ import { tableKey as defaultTableKey } from './types'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName } from './types'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { useSession } from 'next-auth/react'
 
 const TableComponent = ({
@@ -44,15 +44,13 @@ const TableComponent = ({
     isLoading: fetching,
     data,
     isFetching,
-    isError,
+    error,
   } = useActionPlansWithFilter({
     where: whereFilter ?? undefined,
     orderBy,
     pagination,
     enabled: true,
   })
-
-  const { errorNotification } = useNotification()
 
   const userIds = useMemo(() => {
     if (!items) return []
@@ -79,14 +77,7 @@ const TableComponent = ({
     }
   }, [permission?.roles, setColumnVisibility, canEdit, session])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: `Failed to load ${objectName.toLowerCase()}`,
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}` })
 
   const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 

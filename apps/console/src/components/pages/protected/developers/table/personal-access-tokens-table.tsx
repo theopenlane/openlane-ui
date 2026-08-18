@@ -26,6 +26,7 @@ import { TOKEN_SORT_FIELDS } from '@/components/pages/protected/developers/table
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import PersonalApiKeyDialog, { type EditTokenData } from '@/components/pages/protected/developers/personal-access-token-crud-slideout'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -233,7 +234,7 @@ export const PersonalAccessTokenTable = () => {
 
   const {
     data: orgTokensResponse,
-    isError: isApiTokensResponseError,
+    error: apiTokensError,
     isFetching: isFetchingApiTokens,
     isLoading: isLoadingApiTokens,
   } = useGetApiTokens({
@@ -245,7 +246,7 @@ export const PersonalAccessTokenTable = () => {
 
   const {
     data: personalTokensResponse,
-    isError: isPersonalTokensResponseError,
+    error: personalTokensError,
     isFetching: isFetchingPersonalAccessTokens,
     isLoading: isLoadingPersonalAccessTokens,
   } = useGetPersonalAccessTokens({
@@ -259,16 +260,7 @@ export const PersonalAccessTokenTable = () => {
   const isLoadingActive = isApiTokenPage ? isLoadingApiTokens : isLoadingPersonalAccessTokens
   const isFetchingActive = isApiTokenPage ? isFetchingApiTokens : isFetchingPersonalAccessTokens
   const isFetching = isLoadingActive || isFetchingActive
-  const isAnyError = isApiTokensResponseError || isPersonalTokensResponseError
-
-  useEffect(() => {
-    if (isAnyError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load tokens',
-      })
-    }
-  }, [isAnyError, errorNotification])
+  useQueryErrorNotification({ error: apiTokensError ?? personalTokensError, description: 'Failed to load tokens' })
 
   const paginationMeta = useMemo(() => {
     const source = isApiTokenPage ? (data as GetApiTokensQuery)?.apiTokens : (data as GetPersonalAccessTokensQuery)?.personalAccessTokens

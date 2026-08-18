@@ -9,7 +9,6 @@ import PlateEditor from '@/components/shared/plate/plate-editor'
 import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type Value } from 'platejs'
 import { Info, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { type TFormData } from './use-form-schema'
@@ -62,7 +61,7 @@ export const CreateControlImplementationForm = ({
   }
 
   const onSubmit = async (data: TFormData) => {
-    const details = typeof data.details === 'string' ? data.details || undefined : data.details ? await convertToHtml(data.details as Value) : undefined
+    const details = typeof data.details === 'string' ? data.details || undefined : data.details ? await convertToHtml(data.details) : undefined
 
     const basePayload = {
       ...data,

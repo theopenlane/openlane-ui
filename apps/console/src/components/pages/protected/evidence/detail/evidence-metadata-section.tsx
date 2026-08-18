@@ -179,7 +179,7 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormControl>
-                      <Input variant="medium" {...field} className="w-62.5" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus />
+                      <Input variant="medium" {...field} className="w-62.5" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus={editField === 'source'} />
                     </FormControl>
                     {form.formState.errors.source && <p className="text-red-500 text-sm">{form.formState.errors.source.message}</p>}
                   </FormItem>
@@ -204,7 +204,7 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormControl>
-                      <Input variant="medium" {...field} className="w-62.5" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus />
+                      <Input variant="medium" {...field} className="w-62.5" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus={editField === 'url'} />
                     </FormControl>
                     {form.formState.errors.url && <p className="text-red-500 text-sm">{form.formState.errors.url.message}</p>}
                   </FormItem>
@@ -317,7 +317,7 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormControl>
-                      <Input variant="medium" {...field} value={field.value ?? ''} className="w-62.5" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus />
+                      <Input variant="medium" {...field} value={field.value ?? ''} className="w-62.5" onBlur={onUpdateField} onKeyDown={onKeyDown} autoFocus={editField === 'externalUUID'} />
                     </FormControl>
                     {form.formState.errors.externalUUID && <p className="text-red-500 text-sm">{form.formState.errors.externalUUID.message}</p>}
                   </FormItem>

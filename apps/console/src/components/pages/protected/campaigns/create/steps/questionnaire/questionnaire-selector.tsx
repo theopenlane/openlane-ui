@@ -59,7 +59,7 @@ export const QuestionnaireSelector: React.FC<QuestionnaireSelectorProps> = ({ fo
               {selected.description && <span className="text-xs text-muted-foreground">{selected.description}</span>}
             </div>
             <div className="flex shrink-0 items-center gap-3">
-              <button type="button" className="text-sm text-brand" onClick={() => setDialogOpen(true)}>
+              <button type="button" className="text-sm text-link hover:underline" onClick={() => setDialogOpen(true)}>
                 Change
               </button>
               <button type="button" aria-label="Remove questionnaire" className="text-muted-foreground" onClick={handleClear}>
@@ -87,10 +87,10 @@ export const QuestionnaireSelector: React.FC<QuestionnaireSelectorProps> = ({ fo
           onClick={() => setDialogOpen(true)}
           className="flex w-full flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border p-8 text-center hover:bg-muted/50"
         >
-          <FileText className="text-brand" size={28} />
+          <FileText size={28} />
           <span className="text-sm font-medium">No questionnaire template selected</span>
           <span className="text-xs text-muted-foreground">Participants will only receive the campaign email.</span>
-          <span className="inline-flex items-center gap-1 text-sm text-brand">
+          <span className="inline-flex items-center gap-1 text-sm text-link">
             Click to select a questionnaire template <ArrowRight size={14} />
           </span>
         </button>

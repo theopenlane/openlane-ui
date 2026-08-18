@@ -3,17 +3,20 @@ type GridColumn = { track: string; min: number }
 const GRID_GAP = 12
 const GRID_PADDING = 24
 
+const fixed = (width: number): GridColumn => ({ track: `${width}px`, min: width })
+const flexible = (min: number, max: number | 'fr'): GridColumn => ({ track: `minmax(${min}px, ${max === 'fr' ? '1fr' : `${max}px`})`, min })
+
 const getColumns = (isCustomView: boolean, isSelectionMode: boolean): GridColumn[] => {
   const columns: GridColumn[] = []
-  if (isSelectionMode) columns.push({ track: '20px', min: 20 })
-  columns.push({ track: '16px', min: 16 })
-  columns.push({ track: '110px', min: 110 })
-  columns.push({ track: 'minmax(180px, 1fr)', min: 180 })
-  columns.push({ track: '140px', min: 140 })
-  if (!isCustomView) columns.push({ track: '160px', min: 160 })
-  columns.push({ track: '140px', min: 140 })
-  columns.push({ track: '160px', min: 160 })
-  columns.push({ track: '160px', min: 160 })
+  if (isSelectionMode) columns.push(fixed(20))
+  columns.push(fixed(16))
+  columns.push(fixed(110))
+  columns.push(flexible(180, 'fr'))
+  columns.push(flexible(100, 140))
+  if (!isCustomView) columns.push(flexible(110, 160))
+  columns.push(flexible(100, 140))
+  columns.push(flexible(110, 160))
+  columns.push(flexible(110, 160))
   return columns
 }
 

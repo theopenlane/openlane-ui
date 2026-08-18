@@ -7,8 +7,8 @@ import 'survey-core/survey-core.min.css'
 
 import { useEffect, use } from 'react'
 import { useTheme } from 'next-themes'
-import { lightTheme } from '../theme-light'
-import { darkTheme } from '../theme-dark'
+import { lightTheme } from '@/styles/questionnaire/theme-light'
+import { darkTheme } from '@/styles/questionnaire/theme-dark'
 import { useGetTemplate } from '@/lib/graphql-hooks/template'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 

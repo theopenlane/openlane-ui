@@ -12,7 +12,7 @@ import { type VisibilityState } from '@tanstack/react-table'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useSession } from 'next-auth/react'
@@ -56,7 +56,7 @@ const TasksTable = ({
     isLoading: fetching,
     data,
     isFetching,
-    isError,
+    error,
   } = useTasksWithFilter({
     where: whereFilter,
     orderBy: orderByFilter,
@@ -65,7 +65,6 @@ const TasksTable = ({
   })
 
   const { convertToReadOnly } = usePlateEditor()
-  const { errorNotification } = useNotification()
   const { data: session } = useSession()
 
   const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
@@ -104,14 +103,7 @@ const TasksTable = ({
     }
   }, [permission?.roles, setColumnVisibility, canEdit, session])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load tasks',
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: 'Failed to load tasks' })
 
   const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 

@@ -104,7 +104,7 @@ const QuestionnaireDetailPage = () => {
   const { client } = useGraphQLClient()
   const { errorNotification, successNotification } = useNotification()
   const { assessment, responses, isLoading } = useGetAssessmentDetail({ id, where: EXCLUDE_TEST_RESPONSES })
-  const [deliveryFilters, setDeliveryFilters] = useState<WhereCondition>({})
+  const [deliveryFilters, setDeliveryFilters] = useState<WhereCondition | null>(null)
   const [deliveryTotalCount, setDeliveryTotalCount] = useState(0)
   const [isExportingDelivery, setIsExportingDelivery] = useState(false)
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
@@ -128,7 +128,7 @@ const QuestionnaireDetailPage = () => {
 
   const deliveryWhereFilter = useMemo<AssessmentResponseWhereInput>(
     () => ({
-      ...whereGenerator<AssessmentResponseWhereInput>(deliveryFilters as AssessmentResponseWhereInput, (key, value) => {
+      ...whereGenerator<AssessmentResponseWhereInput>(deliveryFilters as AssessmentResponseWhereInput | null, (key, value) => {
         if (key === 'status') {
           return Array.isArray(value)
             ? ({
@@ -452,6 +452,7 @@ const QuestionnaireDetailPage = () => {
             assessmentId={id}
             jsonconfig={assessment.jsonconfig}
             where={deliveryWhereFilter}
+            enabled={deliveryFilters !== null}
             onTotalCountChange={handleDeliveryTotalCountChange}
             responseDueDuration={assessment?.responseDueDuration}
             canSend={canSend}

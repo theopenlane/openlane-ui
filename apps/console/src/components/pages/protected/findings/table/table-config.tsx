@@ -12,6 +12,7 @@ import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { FindingAssociationSection } from '../create/form/fields/association-section'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 import { Badge } from '@repo/ui/badge'
+import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
 
 export const formId = 'edit' + ObjectNames.FINDING
 
@@ -84,20 +85,8 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
       { value: false, label: 'Unvalidated' },
     ],
   },
-  {
-    key: 'environmentNameIn',
-    label: 'Environment',
-    type: 'multiselect',
-    icon: FilterIcons.Environment,
-    options: enumOptions.environmentOptions,
-  },
-  {
-    key: 'scopeNameIn',
-    label: 'Scope',
-    type: 'multiselect',
-    icon: FilterIcons.Scope,
-    options: enumOptions.scopeOptions,
-  },
+  getEnvironmentFilterField(enumOptions.environmentOptions),
+  getScopeFilterField(enumOptions.scopeOptions),
 ]
 
 export const FINDINGS_SORT_FIELDS = enumToSortFields(FindingOrderField)

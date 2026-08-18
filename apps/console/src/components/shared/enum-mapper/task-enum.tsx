@@ -28,6 +28,24 @@ export const TaskStatusIconMapper: Record<TaskTaskStatus, React.ReactNode> = {
   [TaskTaskStatus.WONT_DO]: <CircleOff height={16} width={16} className="text-wont-do" />,
 }
 
+export const TaskStatusDotMapper: Record<TaskTaskStatus, string> = {
+  [TaskTaskStatus.COMPLETED]: 'bg-completed',
+  [TaskTaskStatus.IN_PROGRESS]: 'bg-in-progress',
+  [TaskTaskStatus.IN_REVIEW]: 'bg-in-review',
+  [TaskTaskStatus.OPEN]: 'bg-open',
+  [TaskTaskStatus.WONT_DO]: 'bg-wont-do',
+}
+
+const TaskStatusRank: Record<TaskTaskStatus, number> = {
+  [TaskTaskStatus.OPEN]: 0,
+  [TaskTaskStatus.IN_PROGRESS]: 1,
+  [TaskTaskStatus.IN_REVIEW]: 2,
+  [TaskTaskStatus.COMPLETED]: 3,
+  [TaskTaskStatus.WONT_DO]: 4,
+}
+
+export const TaskStatusOrder: readonly TaskTaskStatus[] = Object.values(TaskTaskStatus).sort((a, b) => TaskStatusRank[a] - TaskStatusRank[b])
+
 export enum TasksFilterIconName {
   DisplayID = 'DisplayID',
   Title = 'Title',

@@ -7,7 +7,7 @@ import { getColumns } from '@/components/pages/protected/remediations/table/colu
 import { type RemediationsNodeNonNull, useRemediationsWithFilter } from '@/lib/graphql-hooks/remediation'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { REMEDIATIONS_SORT_FIELDS } from './table-config'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
@@ -45,15 +45,13 @@ const TableComponent = ({
     isLoading: fetching,
     data,
     isFetching,
-    isError,
+    error,
   } = useRemediationsWithFilter({
     where: whereFilter,
     orderBy: orderBy,
     pagination,
     enabled: true,
   })
-
-  const { errorNotification } = useNotification()
 
   const userIds = useMemo(() => {
     if (!items) return []
@@ -84,14 +82,7 @@ const TableComponent = ({
     }
   }, [permission?.roles, setColumnVisibility, canEdit, session])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: `Failed to load ${objectName.toLowerCase()}`,
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}` })
 
   const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 

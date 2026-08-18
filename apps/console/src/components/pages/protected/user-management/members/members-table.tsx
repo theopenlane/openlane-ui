@@ -3,7 +3,7 @@
 import { OrderDirection, type OrgMembership, OrgMembershipOrderField, OrgMembershipRole, type OrgMembershipWhereInput, type User, UserAuthProvider } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Copy, Info, KeyRoundIcon, Shield, ShieldOff } from 'lucide-react'
+import { Copy, Info, KeyRoundIcon, Shield, ShieldCheck, ShieldOff } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
@@ -17,6 +17,7 @@ import { MemberActions } from './actions/member-actions'
 import { MembersBulkActions } from './actions/members-bulk-actions'
 import { AdditionalRolesCell } from '@/components/shared/organization-roles/additional-roles-cell'
 import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { Avatar } from '@/components/shared/avatar/avatar'
@@ -33,7 +34,7 @@ import { whereGenerator } from '@/components/shared/table-filter/where-generator
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { toHumanLabel } from '@/utils/strings'
 
-const SSO_EXEMPT_ROLES = [OrgMembershipRole.OWNER, OrgMembershipRole.AUDITOR]
+const SSO_EXEMPT_ROLES = [OrgMembershipRole.OWNER]
 
 const getSsoExemptReason = (member: OrgMembership, exemptDomains: string[]): string | null => {
   if (SSO_EXEMPT_ROLES.includes(member.role)) return 'Exempt due to Owner role'
@@ -42,6 +43,8 @@ const getSsoExemptReason = (member: OrgMembership, exemptDomains: string[]): str
   if (member.ssoExempt) return member.ssoExemptReason || 'Manually marked as SSO exempt'
   return null
 }
+
+const getTfaEnforcedReason = (member: OrgMembership): string => member.tfaEnforcedReason || 'Manually required to configure 2FA'
 
 export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
   providersIn?: UserAuthProvider[]
@@ -59,7 +62,7 @@ export const MembersTable = () => {
   const [selectedIds, setSelectedIds] = useState<{ id: string }[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [, copyToClipboard] = useCopyToClipboard()
-  const { successNotification, errorNotification } = useNotification()
+  const { successNotification } = useNotification()
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.MEMBER)
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.MEMBER, OrgMembershipOrderField, [
@@ -98,7 +101,7 @@ export const MembersTable = () => {
     return result
   }, [filters, debouncedSearch])
 
-  const { members, isError, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
+  const { members, error, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
 
   const { data: orgRoles } = useOrganizationRoles()
   const canEditMembers = canEdit(orgRoles?.roles, sessionData)
@@ -130,14 +133,7 @@ export const MembersTable = () => {
     })
   }
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load members',
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: 'Failed to load members' })
 
   const providerIcon = (provider: UserAuthProvider) => {
     switch (provider) {
@@ -179,6 +175,37 @@ export const MembersTable = () => {
     },
     size: 120,
     maxSize: 120,
+  }
+
+  const tfaColumn: ColumnDef<OrgMembership> = {
+    id: 'tfa',
+    header: '2FA',
+    cell: ({ row }) => {
+      if (row.original.tfaEnforced) {
+        return (
+          <SystemTooltip
+            icon={
+              <span className="cursor-default">
+                <Badge variant="primary" className="gap-1 text-xs pointer-events-none">
+                  <ShieldCheck className="h-3 w-3" />
+                  Enforced
+                </Badge>
+              </span>
+            }
+            content={getTfaEnforcedReason(row.original)}
+          />
+        )
+      }
+
+      return (
+        <Badge variant="select" className="gap-1 text-xs">
+          <ShieldOff className="h-3 w-3" />
+          Not enforced
+        </Badge>
+      )
+    },
+    size: 140,
+    maxSize: 140,
   }
 
   const columns: ColumnDef<OrgMembership>[] = [
@@ -265,6 +292,7 @@ export const MembersTable = () => {
       maxSize: 180,
     },
     ...(ssoEnforced ? [ssoColumn] : []),
+    tfaColumn,
     {
       id: 'actions',
       header: '',
@@ -277,6 +305,7 @@ export const MembersTable = () => {
             memberRole={cell.row.original.role}
             additionalRoles={cell.row.original.additionalRoles}
             memberSSOExempt={cell.row.original.ssoExempt ?? false}
+            memberTFAEnforced={cell.row.original.tfaEnforced ?? false}
           />
         )
       },

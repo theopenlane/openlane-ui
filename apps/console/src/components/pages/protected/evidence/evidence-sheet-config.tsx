@@ -1,6 +1,8 @@
 import { type GetAllMappedControlsQuery, MappedControlMappingSource, type MappedControlWhereInput } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
+export const EDIT_ASSOCIATIONS_PARAM = 'editAssociationsFor'
+
 export const EVIDENCE_ASSOCIATION_FIELDS = [
   'controlObjectiveIDs',
   'subcontrolIDs',
@@ -17,7 +19,7 @@ export const EVIDENCE_ASSOCIATION_FIELDS = [
 export type EvidenceAssociationField = (typeof EVIDENCE_ASSOCIATION_FIELDS)[number]
 
 export type EvidenceEditableField =
-  'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'reviewFrequency' | 'creationDate' | 'renewalDate' | 'tags' | 'externalUUID' | 'scopeName' | 'environmentName'
+  'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'reviewFrequency' | 'creationDate' | 'renewalDate' | 'tags' | 'externalUUID' | 'scopeName' | 'environmentName'
 
 export type CustomEvidenceControl = { __typename?: string; id: string; referenceFramework?: string | null; refCode: string }
 
