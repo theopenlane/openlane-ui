@@ -10,7 +10,7 @@ import { NavigationGuardProvider } from 'next-navigation-guard'
 import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
 import { InitPlugSDK } from '@/providers/chatSdk'
 import { TooltipProvider } from '@repo/ui/tooltip'
-import { enableDevrevChat } from '@repo/dally/auth'
+import { devrevChatEnabled } from '@repo/dally/auth'
 import { WebSocketProvider } from '@/providers/websocket-provider'
 import { NotificationsProvider } from '@/providers/notifications-provider'
 import { NotificationToastContainer } from '@/components/shared/SystemNotification/notification-toast-container'
@@ -96,7 +96,7 @@ const Providers = ({ children }: ProvidersProps) => {
           <WebSocketProvider>
             <NotificationsProvider>
               <BreadcrumbProvider>
-                {enableDevrevChat === 'true' && <InitPlugSDK />}
+                {devrevChatEnabled && <InitPlugSDK />}
                 <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
                   {children}
                 </TooltipProvider>

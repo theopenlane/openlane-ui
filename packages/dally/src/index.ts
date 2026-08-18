@@ -25,7 +25,12 @@ export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_U
 
 export const chatAppId = process.env.NEXT_PUBLIC_CHAT_APP_ID
 
-export const enableDevrevChat = process.env.NEXT_PUBLIC_ENABLE_DEVREV_CHAT
+export const devrevChatEnabled = process.env.NEXT_PUBLIC_ENABLE_DEVREV_CHAT === 'true'
+
+export const announcementBannerEnabled = process.env.NEXT_PUBLIC_ANNOUNCEMENT_BANNER_ENABLED === 'true'
+export const announcementBannerMessage = process.env.NEXT_PUBLIC_ANNOUNCEMENT_BANNER_MESSAGE
+export const announcementBannerLinkUrl = process.env.NEXT_PUBLIC_ANNOUNCEMENT_BANNER_LINK_URL
+export const announcementBannerLinkLabel = process.env.NEXT_PUBLIC_ANNOUNCEMENT_BANNER_LINK_LABEL
 
 export const cname = process.env.NEXT_PUBLIC_CUSTOMDOMAIN_CNAME
 

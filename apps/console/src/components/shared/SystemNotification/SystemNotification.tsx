@@ -1,6 +1,7 @@
 'use client'
 import React, { useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
 import { Bell, CheckCheck } from 'lucide-react'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { NotificationRow } from './notification-row'
@@ -57,7 +58,7 @@ export default function SystemNotificationTracker({ open, onOpenChange }: System
 
         {open &&
           createPortal(
-            <div ref={dropdownRef} className="fixed top-14 right-6 w-100 max-w-[92vw] rounded-2xl border bg-card shadow-xl z-10000">
+            <div ref={dropdownRef} className="fixed right-6 w-100 max-w-[92vw] rounded-2xl border bg-card shadow-xl z-10000" style={{ top: `calc(3.5rem + var(${TOP_BANNER_HEIGHT_VAR}, 0px))` }}>
               <div className="flex flex-col max-h-[70vh]">
                 <div className="flex items-center justify-between p-4 pb-2">
                   <div className="flex items-center gap-2">
