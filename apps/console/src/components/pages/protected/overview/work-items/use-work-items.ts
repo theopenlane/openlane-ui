@@ -10,6 +10,7 @@ import type { Notification } from '@/lib/graphql-hooks/websocket/use-websocket-n
 import { useTasksWithFilter, useUpdateTask } from '@/lib/graphql-hooks/task'
 import { useGetEvidenceListLight } from '@/lib/graphql-hooks/evidence'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { controlOwnedByUserWhere } from '@/lib/control-where'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrgPersistedState } from '@/lib/storage/org-persisted-store'
 import { useNotificationsContext } from '@/providers/notifications-provider'
@@ -68,7 +69,7 @@ export const useWorkItems = () => {
   } = useGetEvidenceListLight({
     where: {
       status: EvidenceEvidenceStatus.REQUESTED,
-      hasControlsWith: [{ hasControlOwnerWith: [{ hasMembersWith: [{ userID: userId }] }] }],
+      hasControlsWith: [controlOwnedByUserWhere(userId ?? '')],
     },
     pagination: DEFAULT_PAGINATION,
     enabled: !!userId,

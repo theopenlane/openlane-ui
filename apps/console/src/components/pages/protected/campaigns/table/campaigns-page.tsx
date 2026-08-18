@@ -26,7 +26,7 @@ import { CreateCampaignSheet } from '@/components/pages/protected/campaigns/crea
 import CampaignsSummary from '@/components/pages/protected/campaigns/summary/campaigns-summary'
 import CampaignsEmptyState from '@/components/pages/protected/campaigns/campaigns-empty/campaigns-empty-state'
 import { useCampaignSummary, type TCampaignSummaryScope } from '@/lib/graphql-hooks/campaign'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 
 const CampaignsPage: React.FC = () => {
@@ -37,7 +37,6 @@ const CampaignsPage: React.FC = () => {
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.CAMPAIGN)
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
-  const { errorNotification } = useNotification()
   const { handleExport } = useFileExport()
 
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.CAMPAIGN, CampaignOrderField, [
@@ -89,14 +88,7 @@ const CampaignsPage: React.FC = () => {
     return merged
   }, [filters, debouncedSearch, summaryScope, scopeFilters])
 
-  useEffect(() => {
-    if (summaryError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load campaign summary',
-      })
-    }
-  }, [summaryError, errorNotification])
+  useQueryErrorNotification({ error: summaryError, description: 'Failed to load campaign summary' })
 
   useEffect(() => {
     setCrumbs([

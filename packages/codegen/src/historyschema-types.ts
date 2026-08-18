@@ -2590,7 +2590,6 @@ export interface AssessmentResponse extends Node {
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  questionnaireTransformError?: Maybe<Scalars['String']['output']>
   /** the number of attempts made to perform email send to the recipient about this assessment, maximum of 5 */
   sendAttempts: Scalars['Int']['output']
   /** when the user started the assessment */

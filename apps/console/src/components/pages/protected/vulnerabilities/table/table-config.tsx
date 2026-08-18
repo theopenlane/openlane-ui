@@ -14,6 +14,7 @@ import { VulnerabilityAssociationSection } from '../create/form/fields/associati
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 import { Badge } from '@repo/ui/badge'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
+import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
 
 export const formId = 'edit' + ObjectNames.VULNERABILITY
 
@@ -104,20 +105,8 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
       { value: false, label: 'Unvalidated' },
     ],
   },
-  {
-    key: 'environmentNameIn',
-    label: 'Environment',
-    type: 'multiselect',
-    icon: FilterIcons.Environment,
-    options: enumOptions.environmentOptions,
-  },
-  {
-    key: 'scopeNameIn',
-    label: 'Scope',
-    type: 'multiselect',
-    icon: FilterIcons.Scope,
-    options: enumOptions.scopeOptions,
-  },
+  getEnvironmentFilterField(enumOptions.environmentOptions),
+  getScopeFilterField(enumOptions.scopeOptions),
   {
     key: 'tagsHas',
     label: 'Tags',

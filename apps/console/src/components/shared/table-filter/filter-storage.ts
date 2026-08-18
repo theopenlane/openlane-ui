@@ -4,10 +4,12 @@ import type { DateRange } from 'react-day-picker'
 import { isValid } from 'date-fns'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { getOrganizationStorageItem, getOrganizationStorageKey, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
+import { isNullFilterValue, type TNullFilterValue } from './null-filter'
 
 export type TNumberRange = { min: number; max: number }
-export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | TNumberRange | undefined
+export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | TNumberRange | TNullFilterValue | undefined
 export type TFilterState = Record<string, TFilterValue>
+export type TFilterStateFor<K extends string> = Partial<Record<string extends K ? never : K, TFilterValue>>
 export type TQuickFilterState = { key: string; condition: TFilterState | Condition } | Record<string, boolean>
 
 const STORAGE_FILTER_PREFIX = 'filters:'
@@ -87,6 +89,17 @@ export const loadQuickFilter = (pageKey: TableKeyValue, quickFilters: TQuickFilt
   }
 }
 
+export const pickDeclaredFilterKeys = (state: TFilterState, declaredKeys: Set<string>, pageKey: TableKeyValue): TFilterState => {
+  if (process.env.NODE_ENV !== 'production') {
+    const unknownKeys = Object.keys(state).filter((key) => !declaredKeys.has(key))
+    if (unknownKeys.length > 0) {
+      console.warn(`[${pageKey}] Ignoring filter keys that are not declared as filter fields: ${unknownKeys.join(', ')}`)
+    }
+  }
+
+  return Object.fromEntries(Object.entries(state).filter(([key]) => declaredKeys.has(key)))
+}
+
 export const loadFilters = (pageKey: TableKeyValue, filterFields?: FilterField[], organizationId?: string): TFilterState | null => {
   const saved = getOrganizationStorageItem(filterKey(pageKey), organizationId)
   if (!saved) {
@@ -105,10 +118,7 @@ export const loadFilters = (pageKey: TableKeyValue, filterFields?: FilterField[]
       return parsed
     }
 
-    const validKeys = filterFields.map((f) => f.key)
-    const filtered = Object.fromEntries(Object.entries(parsed).filter(([key]) => validKeys.includes(key))) as TFilterState
-
-    return validateValues(filtered, filterFields)
+    return validateValues(parsed, filterFields)
   } catch {
     console.warn(`Invalid filters found in storage for ${pageKey}`)
     return null
@@ -123,6 +133,11 @@ const validateValues = (values: TFilterState, filterFields: FilterField[]): TFil
   for (const [key, value] of Object.entries(values)) {
     const field = filterFields.find((f) => f.key === key)
     if (!field) continue
+
+    if (field.nullableKey && isNullFilterValue(value)) {
+      result[key] = value
+      continue
+    }
 
     switch (field.type) {
       case 'text':

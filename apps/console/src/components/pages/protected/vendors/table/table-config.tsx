@@ -10,6 +10,7 @@ import { type EntityFieldProps, type EnumOptions, type EnumCreateHandlers } from
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { EntityAssociationSection } from '../create/form/fields/association-section'
 import { EntityDocumentsSection } from '../create/form/fields/documents-section'
+import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
 
 export const formId = 'edit' + ObjectNames.ENTITY
 
@@ -33,20 +34,8 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
     icon: FilterIcons.Tag,
     options: enumOptions.tagOptions,
   },
-  {
-    key: 'scopeNameIn',
-    label: 'Scope',
-    type: 'multiselect',
-    icon: FilterIcons.Scope,
-    options: enumOptions.scopeOptions,
-  },
-  {
-    key: 'environmentNameIn',
-    label: 'Environment',
-    type: 'multiselect',
-    icon: FilterIcons.Environment,
-    options: enumOptions.environmentOptions,
-  },
+  getScopeFilterField(enumOptions.scopeOptions),
+  getEnvironmentFilterField(enumOptions.environmentOptions),
   {
     key: 'entitySourceTypeNameIn',
     label: 'Source Type',

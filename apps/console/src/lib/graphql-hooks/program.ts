@@ -49,7 +49,7 @@ import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-acces
 
 const EMPTY_PROGRAM_OPTIONS: { label: string; value: string }[] = []
 
-interface UseGetAllProgramsArgs {
+export interface UseGetAllProgramsArgs {
   where?: GetAllProgramsQueryVariables['where']
   orderBy?: GetAllProgramsQueryVariables['orderBy']
   pagination?: TPagination | null
@@ -179,9 +179,9 @@ export const useProgramEvidenceStats = (programId: string | undefined) => {
   })
 }
 
-export const useProgramSelect = ({ where }: { where?: ProgramWhereInput } = {}) => {
+export const useProgramSelect = ({ where, orderBy }: Pick<UseGetAllProgramsArgs, 'where' | 'orderBy'> = {}) => {
   const hasProgramAccess = useHasObjectType(ObjectTypes.PROGRAM)
-  const query = useGetAllPrograms({ where, enabled: hasProgramAccess })
+  const query = useGetAllPrograms({ where, orderBy, enabled: hasProgramAccess })
 
   const programOptions = useMemo(
     () => query.data?.programs?.edges?.flatMap((edge) => (edge?.node?.id && edge?.node?.name ? [{ label: edge.node.name, value: edge.node.id }] : [])) ?? EMPTY_PROGRAM_OPTIONS,
