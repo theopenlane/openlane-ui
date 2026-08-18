@@ -7,14 +7,8 @@ import { MembersTable } from './members-table'
 import { useGetInvites } from '@/lib/graphql-hooks/organization'
 import { OrganizationInvitesTable } from './table/organization-invites-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import MembersInviteSheet from './sidebar/members-invite-sheet'
 
-type TMembersPage = {
-  isMemberSheetOpen: boolean
-  setIsMemberSheetOpen: React.Dispatch<React.SetStateAction<boolean>>
-}
-
-const MembersPage = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMembersPage) => {
+const MembersPage = () => {
   const { inviteCount, inviteRow } = pageStyles()
   const defaultTab = 'members'
   const [activeTab, setActiveTab] = useState(defaultTab)
@@ -60,7 +54,6 @@ const MembersPage = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMembersPage) 
           <OrganizationInvitesTable />
         </TabsContent>
       </Tabs>
-      <MembersInviteSheet isMemberSheetOpen={isMemberSheetOpen} setIsMemberSheetOpen={setIsMemberSheetOpen} />
     </>
   )
 }

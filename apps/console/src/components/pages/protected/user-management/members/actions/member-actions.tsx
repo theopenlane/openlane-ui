@@ -20,9 +20,7 @@ import { OrgMembershipRole } from '@repo/codegen/src/schema'
 import { useRemoveUserFromOrg, useUpdateUserRoleInOrg } from '@/lib/graphql-hooks/member'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { canEdit } from '@/lib/authz/utils.ts'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TransferOwnershipDialog } from '@/components/pages/protected/organization-settings/general-settings/transfer-ownership-dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { toHumanLabel } from '@/utils/strings'
@@ -98,7 +96,6 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
   const queryClient = useQueryClient()
   const { errorNotification, successNotification } = useNotification()
   const { data: userData } = useGetCurrentUser(userId)
-  const { data } = useOrganizationRoles()
 
   const handleDeleteMember = async () => {
     try {
@@ -206,13 +203,9 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
   const { control, handleSubmit } = form
   const selectedRole = useWatch({ control, name: 'role' })
 
-  if (memberUserId === userData?.user.id && memberRole !== OrgMembershipRole.OWNER) {
-    //CANT EDIT YOURSELF IF NOT OWNER
-    return null
-  }
+  const isSelfWithoutOwnership = memberUserId === userData?.user.id && memberRole !== OrgMembershipRole.OWNER
 
-  if (!canEdit(data?.roles, sessionData)) {
-    //MEMBERS CANT EDIT ANYONE
+  if (isSelfWithoutOwnership) {
     return null
   }
 
