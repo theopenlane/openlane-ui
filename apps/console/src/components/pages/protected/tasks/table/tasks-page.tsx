@@ -1,12 +1,12 @@
 'use client'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import TaskTableToolbar from '@/components/pages/protected/tasks/table/task-table-toolbar'
 import { type TOrgMembers, useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { ExportExportFormat, ExportExportType, OrderDirection, type Task, TaskOrderField, type TaskWhereInput } from '@repo/codegen/src/schema'
+import { ExportExportFormat, ExportExportType, OrderDirection, TaskOrderField, type TaskWhereInput } from '@repo/codegen/src/schema'
 import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
-import TaskInfiniteCards from '@/components/pages/protected/tasks/cards/task-infinite-cards.tsx'
+import TaskBoard from '@/components/pages/protected/tasks/board/task-board'
 import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useSearchParams } from 'next/navigation'
@@ -28,7 +28,6 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 const TasksPage: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
   const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.TASK)
-  const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showMyTasks, setShowMyTasks] = useState<boolean>(false)
   const [filters, setFilters] = useState<TaskWhereInput | null>(null)
@@ -200,7 +199,6 @@ const TasksPage: React.FC = () => {
       />
       {activeTab === 'table' ? (
         <TasksTable
-          ref={tableRef}
           orderByFilter={orderByFilter}
           pagination={pagination}
           onPaginationChange={setPagination}
@@ -216,7 +214,7 @@ const TasksPage: React.FC = () => {
           permission={permission}
         />
       ) : (
-        <TaskInfiniteCards ref={tableRef} whereFilter={whereFilter} orderByFilter={orderByFilter} />
+        <TaskBoard whereFilter={whereFilter} orderByFilter={orderByFilter} />
       )}
     </>
   )
