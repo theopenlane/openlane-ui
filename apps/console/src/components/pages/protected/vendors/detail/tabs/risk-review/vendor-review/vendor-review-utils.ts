@@ -9,7 +9,7 @@ export const buildVendorReviewTitle = (vendor: TVendor): string => {
   const name = vendor.name?.trim() || vendor.displayName?.trim() || 'Vendor'
   const cadence = vendor.reviewFrequency && vendor.reviewFrequency !== EntityFrequency.NONE ? `${getEnumLabel(vendor.reviewFrequency)} ` : ''
 
-  return `${name} ${cadence}risk review`
+  return `${name} ${cadence}Risk Review`
 }
 
 const parseRiskScore = (riskScore: VendorReviewFormData['riskScore']): number | null => (riskScore ? Number(riskScore) : null)
