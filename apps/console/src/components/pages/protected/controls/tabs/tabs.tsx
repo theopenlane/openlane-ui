@@ -108,7 +108,7 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
   const hasFindingsRisks = associationCount('findings', 'risks', 'vulnerabilities') > 0
   const hasReviews = associationCount('reviews') > 0
 
-  const hasImplementationData = useHasImplementationData({ publicRepresentation: props.data?.publicRepresentation })
+  const { hasData: hasImplementationData, isLoading: isImplementationDataLoading } = useHasImplementationData({ publicRepresentation: props.data?.publicRepresentation })
 
   const hiddenTabs = useMemo(() => {
     const hidden = new Set<ControlTabValue>()
@@ -116,9 +116,10 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
     if (!hasAssetsScans) hidden.add('assets-scans')
     if (!hasFindingsRisks) hidden.add('findings-risks')
     if (!hasReviews) hidden.add('reviews')
-    if (!hasImplementationData) hidden.add('implementation')
+    // hiding it while the queries are still in flight would flash the tab away and move the default tab
+    if (!hasImplementationData && !isImplementationDataLoading) hidden.add('implementation')
     return hidden
-  }, [hasGuidanceData, hasAssetsScans, hasFindingsRisks, hasReviews, hasImplementationData])
+  }, [hasGuidanceData, hasAssetsScans, hasFindingsRisks, hasReviews, hasImplementationData, isImplementationDataLoading])
 
   const availableTabs = useMemo<ControlTabValue[]>(() => ALL_TABS.filter((tab) => !hiddenTabs.has(tab)), [hiddenTabs])
 

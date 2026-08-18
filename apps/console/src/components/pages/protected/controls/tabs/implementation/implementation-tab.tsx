@@ -61,7 +61,11 @@ export const useHasImplementationData = ({ publicRepresentation }: { publicRepre
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
   const association = controlAssociationFilter(id, subcontrolId)
 
-  const { data: implementationsData } = useGetAllControlImplementations(association)
-  const { data: objectivesData } = useGetAllControlObjectives({ ...association, statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED })
-  return Boolean(publicRepresentation || implementationsData?.controlImplementations?.edges?.length || objectivesData?.controlObjectives?.edges?.length)
+  const { data: implementationsData, isLoading: isImplementationsLoading } = useGetAllControlImplementations(association)
+  const { data: objectivesData, isLoading: isObjectivesLoading } = useGetAllControlObjectives({ ...association, statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED })
+
+  return {
+    hasData: Boolean(publicRepresentation || implementationsData?.controlImplementations?.edges?.length || objectivesData?.controlObjectives?.edges?.length),
+    isLoading: isImplementationsLoading || isObjectivesLoading,
+  }
 }
