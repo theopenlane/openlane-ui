@@ -11,7 +11,9 @@ import { Input } from '@repo/ui/input'
 import { AlertTriangle, Clock, ClipboardCheck, CalendarClock, SearchIcon } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
 import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
-import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { riskRatingFromScore } from '@/lib/vendor-risk-rating'
+import { ReadOnlyField } from '@/components/shared/read-only-field/read-only-field'
 import { useReviewsWithFilter, type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
@@ -72,11 +74,15 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
     ...sharedFieldProps,
     handleUpdate: async (input: UpdateEntityInput) => {
       if ('riskScore' in input && input.riskScore !== undefined) {
-        return handleUpdateField({ riskScore: parseInt(String(input.riskScore), 10) || 0 })
+        const riskScore = parseInt(String(input.riskScore), 10) || 0
+        const derivedRating = riskRatingFromScore(riskScore)
+        return handleUpdateField({ riskScore, ...(derivedRating ? { riskRating: derivedRating } : { clearRiskRating: true }) })
       }
       return handleUpdateField(input)
     },
   }
+
+  const riskRating = riskRatingFromScore(vendor.riskScore) ?? vendor.riskRating ?? null
 
   return (
     <div className="space-y-6">
@@ -129,12 +135,12 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
           </Card>
           <Card>
             <CardContent className="p-4">
-              <TextField name="riskRating" label="Risk Rating" {...sharedFieldProps} />
+              <TextField name="riskScore" label="Risk Score" type="number" {...riskScoreFieldProps} />
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <TextField name="riskScore" label="Risk Score" type="number" {...riskScoreFieldProps} />
+              <ReadOnlyField label="Risk Rating">{riskRating ? getEnumLabel(riskRating) : null}</ReadOnlyField>
             </CardContent>
           </Card>
           <Card>

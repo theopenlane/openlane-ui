@@ -13,10 +13,10 @@ import { TruncatedCell } from '@repo/ui/data-table'
 import { EntityVendorTier, type ReviewReviewStatus } from '@repo/codegen/src/schema'
 
 const TIER_COLORS: Record<string, string> = {
+  critical: 'bg-rose-500/16 text-rose-400 border-rose-500/24',
   high: 'bg-red-500/16 text-red-400 border-red-500/24',
-  critical: 'bg-red-500/16 text-red-400 border-red-500/24',
   medium: 'bg-orange-500/16 text-orange-400 border-orange-500/24',
-  standard: 'bg-orange-500/16 text-orange-400 border-orange-500/24',
+  standard: 'bg-blue-500/16 text-blue-400 border-blue-500/24',
   low: 'bg-green-500/16 text-green-400 border-green-500/24',
 }
 
@@ -37,7 +37,6 @@ export const isHighRiskTier = (tier?: string | null) => {
 export const DEFAULT_VISIBILITY: VisibilityState = {
   category: false,
   source: false,
-  status: false,
   tags: false,
   createdAt: false,
   updatedAt: false,

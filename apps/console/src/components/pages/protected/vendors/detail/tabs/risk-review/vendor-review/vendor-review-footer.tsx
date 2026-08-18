@@ -1,19 +1,23 @@
 'use client'
 
 import React from 'react'
+import { Check } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 
-export type TVendorReviewAction = 'draft' | 'submit' | 'approve'
+export type TVendorReviewAction = 'draft' | 'save' | 'complete' | 'completeAndApprove' | 'approve'
+
+const APPROVE_BUTTON_CLASS = 'border-teal-600 text-teal-600'
 
 type TVendorReviewFooterProps = {
   pendingAction: TVendorReviewAction | null
+  isCreate: boolean
+  isCompleted: boolean
+  isApproved: boolean
   onCancel?: () => void
   onSubmit: (action: TVendorReviewAction) => void
-  submitLabel: string
-  approveLabel: string
 }
 
-const VendorReviewFooter: React.FC<TVendorReviewFooterProps> = ({ pendingAction, onCancel, onSubmit, submitLabel, approveLabel }) => {
+const VendorReviewFooter: React.FC<TVendorReviewFooterProps> = ({ pendingAction, isCreate, isCompleted, isApproved, onCancel, onSubmit }) => {
   const isBusy = pendingAction !== null
 
   return (
@@ -23,15 +27,68 @@ const VendorReviewFooter: React.FC<TVendorReviewFooterProps> = ({ pendingAction,
           Cancel
         </Button>
       )}
-      <Button type="button" variant="secondary" onClick={() => onSubmit('draft')} loading={pendingAction === 'draft'} disabled={isBusy}>
-        Save as Draft
-      </Button>
-      <Button type="button" onClick={() => onSubmit('submit')} loading={pendingAction === 'submit'} disabled={isBusy}>
-        {submitLabel}
-      </Button>
-      <Button type="button" variant="success" onClick={() => onSubmit('approve')} loading={pendingAction === 'approve'} disabled={isBusy}>
-        {approveLabel}
-      </Button>
+
+      {isCreate ? (
+        <>
+          <Button type="button" variant="secondary" onClick={() => onSubmit('draft')} loading={pendingAction === 'draft'} disabled={isBusy}>
+            Save as Draft
+          </Button>
+          <Button type="button" onClick={() => onSubmit('complete')} loading={pendingAction === 'complete'} disabled={isBusy}>
+            Complete
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className={APPROVE_BUTTON_CLASS}
+            icon={<Check size={16} />}
+            iconPosition="left"
+            onClick={() => onSubmit('completeAndApprove')}
+            loading={pendingAction === 'completeAndApprove'}
+            disabled={isBusy}
+          >
+            Complete and Approve
+          </Button>
+        </>
+      ) : (
+        <>
+          {!isCompleted && (
+            <Button type="button" variant="secondary" onClick={() => onSubmit('complete')} loading={pendingAction === 'complete'} disabled={isBusy}>
+              Complete
+            </Button>
+          )}
+          <Button type="button" onClick={() => onSubmit('save')} loading={pendingAction === 'save'} disabled={isBusy}>
+            Save Changes
+          </Button>
+          {!isApproved &&
+            (isCompleted ? (
+              <Button
+                type="button"
+                variant="outline"
+                className={APPROVE_BUTTON_CLASS}
+                icon={<Check size={16} />}
+                iconPosition="left"
+                onClick={() => onSubmit('approve')}
+                loading={pendingAction === 'approve'}
+                disabled={isBusy}
+              >
+                Approve
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                className={APPROVE_BUTTON_CLASS}
+                icon={<Check size={16} />}
+                iconPosition="left"
+                onClick={() => onSubmit('completeAndApprove')}
+                loading={pendingAction === 'completeAndApprove'}
+                disabled={isBusy}
+              >
+                Complete and Approve
+              </Button>
+            ))}
+        </>
+      )}
     </div>
   )
 }

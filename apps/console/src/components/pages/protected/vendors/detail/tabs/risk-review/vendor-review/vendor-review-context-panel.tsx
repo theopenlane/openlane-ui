@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { type EntityQuery } from '@repo/codegen/src/schema'
 import { TIER_OPTIONS, TierBadge } from '@/components/pages/protected/reviews/common/risk-review-config'
 import { ReadOnlyField } from '@/components/shared/read-only-field/read-only-field'
+import { riskRatingFromScore } from '@/lib/vendor-risk-rating'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { getVendorLogoUrl } from '@/lib/vendor-logo'
 import { type VendorReviewFormData } from './use-vendor-review-form-schema'
@@ -25,6 +27,8 @@ const VendorReviewContextPanel: React.FC<TVendorReviewContextPanelProps> = ({ ve
   const { convertToReadOnly } = usePlateEditor()
   const logoUrl = getVendorLogoUrl(vendor.logoFile)
   const description = useMemo(() => (vendor.description ? convertToReadOnly(vendor.description) : null), [vendor.description, convertToReadOnly])
+  const draftRiskScore = form.watch('riskScore')
+  const draftRiskRating = riskRatingFromScore(draftRiskScore)
 
   return (
     <Panel className="p-4 flex flex-col gap-4">
@@ -72,19 +76,6 @@ const VendorReviewContextPanel: React.FC<TVendorReviewContextPanelProps> = ({ ve
             />
             <FormField
               control={form.control}
-              name="riskRating"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Risk Rating</FormLabel>
-                  <FormControl>
-                    <Input {...field} value={field.value ?? ''} placeholder="e.g. Moderate" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="riskScore"
               render={({ field }) => (
                 <FormItem>
@@ -96,12 +87,13 @@ const VendorReviewContextPanel: React.FC<TVendorReviewContextPanelProps> = ({ ve
                 </FormItem>
               )}
             />
+            <ReadOnlyField label="Risk Rating">{draftRiskRating ? getEnumLabel(draftRiskRating) : null}</ReadOnlyField>
           </>
         ) : (
           <>
             <ReadOnlyField label="Risk Tier">{vendor.tier ? <TierBadge tier={vendor.tier} /> : null}</ReadOnlyField>
-            <ReadOnlyField label="Risk Rating">{vendor.riskRating}</ReadOnlyField>
             <ReadOnlyField label="Risk Score">{vendor.riskScore}</ReadOnlyField>
+            <ReadOnlyField label="Risk Rating">{vendor.riskRating ? getEnumLabel(vendor.riskRating) : null}</ReadOnlyField>
           </>
         )}
       </div>

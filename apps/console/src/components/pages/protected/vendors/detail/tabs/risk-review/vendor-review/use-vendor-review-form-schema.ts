@@ -10,7 +10,6 @@ export const vendorReviewSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.custom<Value | string>().optional(),
   tier: z.enum(EntityVendorTier).optional(),
-  riskRating: z.string().optional(),
   riskScore: z
     .string()
     .optional()

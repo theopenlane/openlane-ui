@@ -27,6 +27,12 @@ import VendorReviewFieldsPanel from './vendor-review-fields-panel'
 import VendorReviewFooter, { type TVendorReviewAction } from './vendor-review-footer'
 import { buildVendorReviewDefaults, buildVendorRiskUpdate } from './vendor-review-utils'
 
+const STATUS_BY_ACTION: Partial<Record<TVendorReviewAction, ReviewReviewStatus>> = {
+  draft: ReviewReviewStatus.IN_PROGRESS,
+  complete: ReviewReviewStatus.COMPLETED,
+  completeAndApprove: ReviewReviewStatus.COMPLETED,
+}
+
 type TVendorReviewSheetProps = {
   vendor: EntityQuery['entity']
   review?: ReviewsNodeNonNull
@@ -78,7 +84,9 @@ const VendorReviewSheet: React.FC<TVendorReviewSheetProps> = ({ vendor, review, 
     setPendingAction(action)
 
     const now = new Date().toISOString()
-    const status = action === 'draft' ? ReviewReviewStatus.IN_PROGRESS : ReviewReviewStatus.COMPLETED
+    const nextStatus = STATUS_BY_ACTION[action]
+    const approves = action === 'approve' || action === 'completeAndApprove'
+    const completes = nextStatus === ReviewReviewStatus.COMPLETED
 
     try {
       const descriptionHtml = await plateToHtmlOrNull(formData.description, plateEditorHelper)
@@ -88,10 +96,10 @@ const VendorReviewSheet: React.FC<TVendorReviewSheetProps> = ({ vendor, review, 
       if (existingReviewId) {
         const input: UpdateReviewInput = {
           title: formData.title,
-          status,
+          ...(nextStatus ? { status: nextStatus } : {}),
           ...(descriptionHtml ? { details: descriptionHtml } : savedDescription ? { clearDetails: true } : {}),
-          ...(action === 'approve' ? { approved: true, approvedAt: now } : action === 'draft' ? { approved: false, clearApprovedAt: true } : {}),
-          ...(action === 'draft' ? { clearReviewedAt: true } : review?.reviewedAt ? {} : { reviewedAt: now }),
+          ...(approves ? { approved: true, approvedAt: now } : action === 'draft' ? { approved: false, clearApprovedAt: true } : {}),
+          ...(action === 'draft' ? { clearReviewedAt: true } : completes && !review?.reviewedAt ? { reviewedAt: now } : {}),
           ...(review?.environmentName || !vendor.environmentName ? {} : { environmentName: vendor.environmentName }),
           ...(review?.scopeName || !vendor.scopeName ? {} : { scopeName: vendor.scopeName }),
         }
@@ -100,14 +108,14 @@ const VendorReviewSheet: React.FC<TVendorReviewSheetProps> = ({ vendor, review, 
       } else {
         const input: CreateReviewInput = {
           title: formData.title,
-          status,
-          approved: action === 'approve',
+          status: nextStatus ?? ReviewReviewStatus.IN_PROGRESS,
+          approved: approves,
           entityIDs: [vendor.id],
           reportedAt: now,
           reporter: session?.user?.email ?? undefined,
           reviewerID: session?.user?.userId ?? undefined,
-          ...(action === 'approve' ? { approvedAt: now } : {}),
-          ...(action === 'draft' ? {} : { reviewedAt: now }),
+          ...(approves ? { approvedAt: now } : {}),
+          ...(completes ? { reviewedAt: now } : {}),
           ...(descriptionHtml ? { details: descriptionHtml } : {}),
           ...(formData.tier ? { classification: formData.tier } : {}),
           ...(vendor.environmentName ? { environmentName: vendor.environmentName } : {}),
@@ -131,7 +139,7 @@ const VendorReviewSheet: React.FC<TVendorReviewSheetProps> = ({ vendor, review, 
 
       successNotification({
         title: action === 'draft' ? 'Draft saved' : didCreate ? 'Review created' : 'Review updated',
-        description: action === 'approve' ? 'The review has been saved and approved.' : `The review has been saved as ${getEnumLabel(status)}.`,
+        description: approves ? 'The review has been saved and approved.' : nextStatus ? `The review has been saved as ${getEnumLabel(nextStatus)}.` : 'Your changes have been saved.',
       })
 
       if (isCreate) {
@@ -169,6 +177,7 @@ const VendorReviewSheet: React.FC<TVendorReviewSheetProps> = ({ vendor, review, 
 
   const headerTitle = isCreate ? 'Create Review' : isEditing ? 'Edit Review' : review.title
   const showViewActions = !isCreate && !isEditing
+  const isCompleted = review?.status === ReviewReviewStatus.COMPLETED
 
   return (
     <>
@@ -234,10 +243,11 @@ const VendorReviewSheet: React.FC<TVendorReviewSheetProps> = ({ vendor, review, 
           {isEditing && (
             <VendorReviewFooter
               pendingAction={pendingAction}
+              isCreate={isCreate}
+              isCompleted={isCompleted}
+              isApproved={!!review?.approved}
               onCancel={isCreate ? undefined : () => setIsEditing(false)}
               onSubmit={(action) => form.handleSubmit((formData) => submit(formData, action))()}
-              submitLabel={isCreate ? 'Submit' : 'Save Changes'}
-              approveLabel={isCreate ? 'Submit and Approve' : 'Save and Approve'}
             />
           )}
         </SheetContent>
