@@ -32,6 +32,8 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
+type TSubmitAction = 'save' | 'saveAndUse'
+
 type TProps = {
   onSuccess: () => void
   onSuccessWithId?: (id: string) => void
@@ -42,6 +44,7 @@ type TProps = {
   initialValues?: Partial<CreateTaskFormData>
   hideObjectAssociation?: boolean
   isOpen?: boolean
+  fromTemplate?: boolean
 }
 
 const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
@@ -59,6 +62,8 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const initialAssociations = React.useMemo(() => props.initialData ?? {}, [props.initialData])
   const [associations, setAssociations] = useState<TObjectAssociationMap>(initialAssociations)
   const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
+  const [submittingAction, setSubmittingAction] = useState<TSubmitAction | null>(null)
+  const isTemplate = !props.fromTemplate && !!form.watch('isTemplate')
 
   const { enumOptions: taskKindOptions, onCreateOption: createTaskKind } = useCreatableEnumOptions({
     objectType: 'task',
@@ -84,7 +89,9 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
     membershipId: member?.node?.id,
   }))
 
-  const onSubmitHandler = async (data: CreateTaskFormData) => {
+  const onSubmitHandler = async (data: CreateTaskFormData, action: TSubmitAction) => {
+    setSubmittingAction(action)
+
     try {
       let detailsField: string = ''
 
@@ -92,33 +99,39 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
         detailsField = await plateEditorHelper.convertToHtml(data.details as Value)
       }
 
-      const formData: { input: CreateTaskInput } = {
-        input: {
-          taskKindName: data?.taskKindName,
-          due: data?.due ? new Date(data.due).toISOString() : undefined,
-          title: data?.title,
-          details: detailsField,
-          assigneeID: data?.assigneeID,
-          tags: data?.tags,
-          isTemplate: data?.isTemplate,
-          ...associations,
-        },
+      const input: CreateTaskInput = {
+        taskKindName: data?.taskKindName,
+        due: data?.due ? new Date(data.due).toISOString() : undefined,
+        title: data?.title,
+        details: detailsField,
+        assigneeID: data?.assigneeID,
+        tags: data?.tags,
+        isTemplate: data?.isTemplate,
+        ...associations,
       }
 
-      const res = await createTask(formData)
-      const taskId = res.createTask.task.id
+      const res = await createTask({ input })
+      let createdId = res.createTask.task.id
+
+      if (action === 'saveAndUse') {
+        const usedRes = await createTask({ input: { ...input, isTemplate: false } })
+        createdId = usedRes.createTask.task.id
+      }
+
+      const savedTemplateOnly = action === 'save' && !!data.isTemplate
 
       successNotification({
-        title: 'Task Created',
+        title: savedTemplateOnly ? 'Template Created' : 'Task Created',
         description: (
           <>
-            Task has been successfully created. <ObjectSheetLink id={taskId} kind={ObjectAssociationNodeEnum.TASK} label="View Task" onOpenSheet={openObjectSheet} />
+            {savedTemplateOnly ? 'Template has been successfully created.' : 'Task has been successfully created.'}{' '}
+            <ObjectSheetLink id={createdId} kind={ObjectAssociationNodeEnum.TASK} label={savedTemplateOnly ? 'View Template' : 'View Task'} onOpenSheet={openObjectSheet} />
           </>
         ),
       })
 
       form.reset()
-      props.onSuccessWithId?.(taskId)
+      props.onSuccessWithId?.(createdId)
       props.onSuccess()
       setAssociationResetTrigger((prev) => prev + 1)
     } catch (error) {
@@ -127,6 +140,8 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
         title: 'Error',
         description: errorMessage,
       })
+    } finally {
+      setSubmittingAction(null)
     }
   }
 
@@ -142,7 +157,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
             <div className={props.hideObjectAssociation ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-2 gap-4'}>
               <div className="col-span-1">
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmitHandler)} className="grid grid-cols-1 gap-4">
+                  <form onSubmit={form.handleSubmit((data) => onSubmitHandler(data, 'save'))} className="grid grid-cols-1 gap-4">
                     {/* Category Field */}
                     <InputRow className="w-full">
                       <FormField
@@ -294,26 +309,25 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                       />
                     </InputRow>
 
-                    <InputRow className="w-full">
-                      <FormField
-                        control={form.control}
-                        name="isTemplate"
-                        render={({ field }) => (
-                          <FormItem className="w-full">
-                            <div className="flex items-center gap-2">
-                              <FormControl>
-                                <Switch checked={!!field.value} onCheckedChange={field.onChange} aria-label="Save as template" />
-                              </FormControl>
-                              <FormLabel>Save as template</FormLabel>
-                              <SystemTooltip
-                                icon={<InfoIcon size={14} className="mx-1" />}
-                                content={<p>Templates are hidden from the task list by default and can be used to pre-fill new tasks.</p>}
-                              />
-                            </div>
-                          </FormItem>
-                        )}
-                      />
-                    </InputRow>
+                    {!props.fromTemplate && (
+                      <InputRow className="w-full border-t pt-4">
+                        <FormField
+                          control={form.control}
+                          name="isTemplate"
+                          render={({ field }) => (
+                            <FormItem className="w-full">
+                              <div className="flex items-center gap-2">
+                                <FormControl>
+                                  <Switch checked={!!field.value} onCheckedChange={field.onChange} aria-label="This is a template" />
+                                </FormControl>
+                                <FormLabel>This is a template</FormLabel>
+                              </div>
+                              {field.value && <p className="text-sm text-muted-foreground">Templates can be reused to quickly create tasks later.</p>}
+                            </FormItem>
+                          )}
+                        />
+                      </InputRow>
+                    )}
                   </form>
                 </Form>
               </div>
@@ -344,10 +358,21 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
         </GridRow>
 
         <GridRow columns={1}>
-          <GridCell>
-            <Button variant="primary" onClick={form.handleSubmit(onSubmitHandler)} loading={isSubmitting} disabled={isSubmitting}>
-              {isSubmitting ? 'Submitting...' : 'Create task'}
-            </Button>
+          <GridCell className="flex gap-2">
+            {isTemplate ? (
+              <>
+                <Button variant="secondary" onClick={form.handleSubmit((data) => onSubmitHandler(data, 'save'))} loading={submittingAction === 'save'} disabled={isSubmitting}>
+                  Save as template
+                </Button>
+                <Button variant="primary" onClick={form.handleSubmit((data) => onSubmitHandler(data, 'saveAndUse'))} loading={submittingAction === 'saveAndUse'} disabled={isSubmitting}>
+                  Save as template and use
+                </Button>
+              </>
+            ) : (
+              <Button variant="primary" onClick={form.handleSubmit((data) => onSubmitHandler(data, 'save'))} loading={isSubmitting} disabled={isSubmitting}>
+                {isSubmitting ? 'Submitting...' : 'Create task'}
+              </Button>
+            )}
           </GridCell>
         </GridRow>
       </Grid>

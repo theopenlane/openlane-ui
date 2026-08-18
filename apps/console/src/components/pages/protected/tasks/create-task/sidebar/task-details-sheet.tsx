@@ -73,6 +73,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const { data: associationsData, isLoading: associationsLoading } = useTaskAssociations(id as string)
+  const isTemplate = !!taskData?.isTemplate
   const evidenceFormData = useMemo(() => generateEvidenceFormData(taskData, associationsData), [taskData, associationsData])
   const [createFromTaskMode, setCreateFromTaskMode] = useState<TTaskCopyMode | null>(null)
 
@@ -236,6 +237,9 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
               canDuplicate={!!taskData && !fetching && !associationsLoading}
               sharePath={sharePath}
               onDeleted={handleCloseParams}
+              isTemplate={isTemplate}
+              onTemplateChange={(nextIsTemplate) => handleUpdateField({ isTemplate: nextIsTemplate })}
+              onUseTemplate={() => setCreateFromTaskMode('template')}
             />
           }
         >
@@ -271,7 +275,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
                           </>
                         )}
                       </>
-                      <MarkAsComplete taskData={taskData} />
+                      {!isTemplate && <MarkAsComplete taskData={taskData} />}
                     </div>
                   )}
                   <Properties
@@ -281,6 +285,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
                     setInternalEditing={setInternalEditing}
                     handleUpdate={handleUpdateField}
                     isEditAllowed={isEditAllowed}
+                    isTemplate={isTemplate}
                   />
                   {isEditing && (
                     <Panel className="mt-20">
@@ -330,6 +335,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
           initialValues={copyValues}
           initialData={copyAssociations}
           objectAssociationsDisplayIDs={copyDisplayIDs}
+          fromTemplate={createFromTaskMode === 'template'}
           onSuccessWithId={handleTaskCreatedFromTask}
         />
       )}

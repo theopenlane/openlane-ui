@@ -58,6 +58,7 @@ const CreateTaskFromTemplateDialog: React.FC<TProps> = ({ open, onOpenChange, on
       {preparedTemplate?.initialValues && (
         <CreateTaskDialog
           open
+          fromTemplate
           onOpenChange={closeCreateDialog}
           initialValues={preparedTemplate.initialValues}
           initialData={preparedTemplate.initialData}

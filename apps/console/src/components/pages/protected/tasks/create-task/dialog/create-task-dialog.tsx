@@ -15,6 +15,7 @@ interface Props {
   objectAssociationsDisplayIDs?: string[]
   initialValues?: Partial<CreateTaskFormData>
   hideObjectAssociation?: boolean
+  fromTemplate?: boolean
   trigger?: React.ReactElement
   className?: string
   open?: boolean
@@ -28,6 +29,7 @@ const CreateTaskDialog = ({
   objectAssociationsDisplayIDs,
   initialValues,
   hideObjectAssociation,
+  fromTemplate,
   trigger,
   className,
   open: controlledOpen,
@@ -62,7 +64,7 @@ const CreateTaskDialog = ({
         ))}
       <DialogContent className={hideObjectAssociation ? 'max-w-4xl' : ''}>
         <DialogHeader>
-          <DialogTitle>Create a new Task</DialogTitle>
+          <DialogTitle>{fromTemplate ? 'Create a task from template' : 'Create a new Task'}</DialogTitle>
         </DialogHeader>
         <CreateTaskForm
           defaultSelectedObject={defaultSelectedObject}
@@ -87,6 +89,7 @@ const CreateTaskDialog = ({
           objectAssociationsDisplayIDs={objectAssociationsDisplayIDs}
           initialValues={initialValues}
           hideObjectAssociation={hideObjectAssociation}
+          fromTemplate={fromTemplate}
           isOpen={isOpen}
           onSuccess={handleSuccess}
           onSuccessWithId={onSuccessWithId}
