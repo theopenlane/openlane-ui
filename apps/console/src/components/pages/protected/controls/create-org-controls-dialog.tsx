@@ -13,7 +13,7 @@ import { PlaceholderTextarea } from '@/components/shared/placeholder-textarea/pl
 import { Loader2 } from 'lucide-react'
 import { docsHelpEnabled } from '@repo/dally/ai'
 import { ControlControlSource, ControlControlStatus, MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
-import { useCreateControl, useGetAllControls, useGetControlMinifiedById, useTemplateControlsWithMappings } from '@/lib/graphql-hooks/control'
+import { useAllOrgControls, useCreateControl, useGetControlMinifiedById, useTemplateControlsWithMappings } from '@/lib/graphql-hooks/control'
 import { TEMPLATE_CONTROLS_WHERE } from '@/constants/standards'
 import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
 import { useDocsControlTitles, type DocsControlTitleInput } from '@/hooks/useDocsHelp'
@@ -22,6 +22,7 @@ import { useDocsHelpDrawer } from '@/components/shared/docs-help/docs-help-conte
 import { hasPlaceholderText } from '@/components/shared/plate/plate-utils'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
+import { useDismissible } from '@/hooks/useDismissible'
 import { dismissItem, useDismissedItems } from '@/hooks/useDismissedItems'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
@@ -60,30 +61,35 @@ function useTemplateIndex(enabled: boolean) {
 
 function useResolvedSuggestions(frameworkControl: TCreateOrgControlsTarget | null, existingRefCodes: string[] | undefined, enabled: boolean) {
   const { dismissed } = useDismissedItems(frameworkControl ? dismissedKey(frameworkControl.id) : undefined)
+  // once every suggestion is covered there is nothing to recheck, so this control
+  // stops reading templates and org controls on later visits
+  const { dismissed: settledAll, dismiss: markSettled, isResolved: isSettledResolved } = useDismissible(`suggested-controls-settled:${frameworkControl?.id ?? ''}`)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const organizationName = getOrganizationByID(currentOrgId ?? '')?.node?.displayName
 
-  const templateIndex = useTemplateIndex(enabled && docsHelpEnabled)
+  const active = enabled && docsHelpEnabled && isSettledResolved && !settledAll
+  const templateIndex = useTemplateIndex(active)
   const templates = useMemo(() => templateIndex.get(frameworkControl?.refCode.trim().toLowerCase() ?? '') ?? [], [templateIndex, frameworkControl])
 
-  // existing org controls, to offer mapping instead of creating a duplicate
-  const { data: orgControlsData } = useGetAllControls({
-    where: { referenceFrameworkIsNil: true, systemOwned: false, isTrustCenterControl: false },
-    enabled: enabled && docsHelpEnabled,
-    includeVars: { includeDescription: true },
-  })
+  // existing org controls, to offer mapping instead of creating a duplicate; only
+  // worth reading once this control actually has suggestions to reconcile
+  const { controls: orgControlNodes, isLoading: isOrgControlsLoading } = useAllOrgControls({ enabled: active && templates.length > 0 })
 
   const existingKey = (existingRefCodes ?? []).join('|')
 
   const orgControls: TExistingMatch[] = useMemo(
-    () =>
-      (orgControlsData?.controls?.edges ?? []).flatMap((edge) => (edge?.node?.id && edge.node.refCode ? [{ id: edge.node.id, refCode: edge.node.refCode, description: edge.node.description }] : [])),
-    [orgControlsData],
+    () => orgControlNodes.flatMap((node) => (node.id && node.refCode ? [{ id: node.id, refCode: node.refCode, description: node.description }] : [])),
+    [orgControlNodes],
   )
 
   const rows = useMemo(() => resolveSuggestions(templates, existingKey, orgControls, dismissed, organizationName), [templates, existingKey, orgControls, dismissed, organizationName])
 
-  return { rows, isLoading: false }
+  const settled = active && templates.length > 0 && !isOrgControlsLoading
+  useEffect(() => {
+    if (settled && rows.length === 0) markSettled()
+  }, [settled, rows.length, markSettled])
+
+  return { rows: settledAll ? [] : rows, isLoading: false }
 }
 
 // rows are identified by the template they came from, so editing a ref code
@@ -294,7 +300,7 @@ export function CreateOrgControlsDialog({ open, onOpenChange, frameworkControl, 
         })
       }
 
-      const parts = [newIds.length > 0 ? `Created ${newIds.length} draft control${newIds.length === 1 ? '' : 's'}` : '', existingIds.length > 0 ? `mapped ${existingIds.length} existing` : '']
+      const parts = [newIds.length > 0 ? `Created ${newIds.length} draft control${newIds.length === 1 ? '' : 's'}` : '', existingIds.length > 0 ? `Mapped ${existingIds.length} existing` : '']
         .filter(Boolean)
         .join(', ')
       successNotification({

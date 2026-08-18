@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDismissible } from '@/hooks/useDismissible'
 import { DismissButton, DocsSourceLink, SuggestionRow } from '@/components/shared/docs-help/suggestion-card'
 import { parseDocBullets } from '@/lib/docs-help/parse'
@@ -8,7 +8,7 @@ import { Lightbulb, Link2, Sparkles } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { docsHelpEnabled } from '@repo/dally/ai'
-import { useInternalPolicies, useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
+import { useAllPolicyNames, useInternalPolicies, useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { usePolicyTemplates } from '@/components/pages/protected/policies/suggested-policy-coverage'
@@ -35,8 +35,6 @@ export type TSuggestedPoliciesData = {
 
 const parsePolicies = (section: string): Array<{ name: string; description: string }> => parseDocBullets(section).map((bullet) => ({ name: bullet.label, description: bullet.description }))
 
-const allPoliciesPagination = { page: 1, pageSize: 200, query: { first: 200 } }
-
 type TOrgPolicy = { id: string; name: string; summary?: string | null }
 
 // Names first, then the looser content match, and each policy is claimed by at
@@ -62,25 +60,34 @@ function matchExistingPolicies(rows: Array<{ name: string; description: string }
 }
 
 export function useSuggestedPolicies(control?: TDocsEvidenceControl): TSuggestedPoliciesData | null {
-  const { section, target } = useControlDocsSection(docsHelpEnabled ? control : undefined, 'Policies')
-  const enabled = docsHelpEnabled && !!section && !!control?.controlId
-
-  const { data: policiesData } = useInternalPolicies({ where: {}, enabled, pagination: allPoliciesPagination })
-
-  const { data: linkedPoliciesData } = useInternalPolicies({ where: { hasControlsWith: [{ id: control?.controlId ?? '' }] }, enabled })
-
-  const { dismissed, dismiss } = useDismissible(`suggested-policies-dismissed:${control?.controlId ?? ''}`)
+  const { dismissed, dismiss, isResolved } = useDismissible(`suggested-policies-dismissed:${control?.controlId ?? ''}`)
   const { isDismissed, dismiss: dismissOne } = useDismissedItems(control?.controlId ? `suggested-policy-covered:${control.controlId}` : undefined)
 
-  if (!docsHelpEnabled || !control || !section || !target) return null
+  // a dismissed control asks nothing of the docs or of the policy list
+  const active = docsHelpEnabled && isResolved && !dismissed
+  const { section, target } = useControlDocsSection(active ? control : undefined, 'Policies')
+  const enabled = active && !!section && !!control?.controlId
 
-  const orgPolicies = (policiesData?.internalPolicies?.edges ?? []).flatMap((e) => (e?.node?.id && e.node.name ? [{ id: e.node.id, name: e.node.name, summary: e.node.summary }] : []))
-  const linkedPolicyIds = new Set((linkedPoliciesData?.internalPolicies?.edges ?? []).flatMap((e) => (e?.node?.id ? [e.node.id] : [])))
+  const { policies: orgPolicies, isLoading: isPoliciesLoading } = useAllPolicyNames({ enabled })
+  const { data: linkedPoliciesData, isLoading: isLinkedLoading } = useInternalPolicies({ where: { hasControlsWith: [{ id: control?.controlId ?? '' }] }, enabled })
 
-  const suggestions: TSuggestedPolicy[] = matchExistingPolicies(
-    parsePolicies(section).filter((row) => !isDismissed(row.name)),
-    orgPolicies,
-  ).filter((row) => !row.existingPolicy || !linkedPolicyIds.has(row.existingPolicy.id))
+  const settled = enabled && !isPoliciesLoading && !isLinkedLoading && !!section
+
+  const suggestions = useMemo(() => {
+    if (!settled || !section) return null
+    const linkedPolicyIds = new Set((linkedPoliciesData?.internalPolicies?.edges ?? []).flatMap((e) => (e?.node?.id ? [e.node.id] : [])))
+    return matchExistingPolicies(
+      parsePolicies(section).filter((row) => !isDismissed(row.name)),
+      orgPolicies,
+    ).filter((row) => !row.existingPolicy || !linkedPolicyIds.has(row.existingPolicy.id))
+  }, [settled, section, linkedPoliciesData, orgPolicies, isDismissed])
+
+  // every suggested policy is already linked, so there is nothing left to ask about this control on any future visit
+  useEffect(() => {
+    if (suggestions && suggestions.length === 0 && !dismissed) dismiss()
+  }, [suggestions, dismissed, dismiss])
+
+  if (!docsHelpEnabled || !control || !target || !suggestions) return null
 
   return { controlId: control.controlId, target, suggestions, dismissed, dismiss, dismissOne }
 }

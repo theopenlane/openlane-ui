@@ -8,6 +8,8 @@ import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { docsHelpEnabled } from '@repo/dally/ai'
+import { useGetAllControlObjectives } from '@/lib/graphql-hooks/control-objective'
+import { ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { Callout } from '@/components/shared/callout/callout'
 import { useCreateControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { useNotification } from '@/hooks/useNotification'
@@ -28,10 +30,19 @@ export type TSuggestedObjectiveData = {
   dismiss: () => void
 }
 
-export function useSuggestedObjective(control?: TDocsEvidenceControl): TSuggestedObjectiveData | null {
-  const { section, target } = useControlDocsSection(docsHelpEnabled ? control : undefined, 'Example Control Objectives')
+// enabled: only while a create-objective sheet is actually open for this control
+export function useSuggestedObjective(control?: TDocsEvidenceControl, enabled = true): TSuggestedObjectiveData | null {
+  const { dismissed, dismiss, isResolved } = useDismissible(`objective-suggestion-dismissed:${control?.controlId ?? ''}`)
 
-  const { dismissed, dismiss } = useDismissible(`objective-suggestion-dismissed:${control?.controlId ?? ''}`)
+  // a control that already has an objective gets no suggestion
+  const { data: existingData, isLoading: isExistingLoading } = useGetAllControlObjectives(
+    control?.controlId ? { hasControlsWith: [{ id: control.controlId }], statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED } : {},
+    { enabled: enabled && !!control?.controlId },
+  )
+  const hasExisting = (existingData?.controlObjectives?.edges?.length ?? 0) > 0
+
+  const active = enabled && docsHelpEnabled && isResolved && !dismissed && !isExistingLoading && !hasExisting
+  const { section, target } = useControlDocsSection(active ? control : undefined, 'Example Control Objectives')
 
   const suggestion = section ? parseFirstObjective(section) : null
   if (!docsHelpEnabled || !control || !suggestion || !target) return null

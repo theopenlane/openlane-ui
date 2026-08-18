@@ -522,7 +522,7 @@ export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
         }
         totalCount
       }
-      controlMappings(first: 200) {
+      controlMappings(first: 100) {
         edges {
           node {
             id

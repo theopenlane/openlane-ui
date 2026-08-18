@@ -4868,6 +4868,15 @@ export interface DeleteInternalPolicyMutation {
   deleteInternalPolicy: { deletedID: string }
 }
 
+export type GetInternalPolicyNamesQueryVariables = Exact<{
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetInternalPolicyNamesQuery {
+  internalPolicies: { totalCount: number; pageInfo: { endCursor: any; hasNextPage: boolean }; edges: Array<{ node: { id: string; name: string; summary: string | null } | null } | null> | null }
+}
+
 export type GetInternalPoliciesListQueryVariables = Exact<{
   orderBy?: Array<Types.InternalPolicyOrder> | Types.InternalPolicyOrder | null | undefined
   where?: Types.InternalPolicyWhereInput | null | undefined

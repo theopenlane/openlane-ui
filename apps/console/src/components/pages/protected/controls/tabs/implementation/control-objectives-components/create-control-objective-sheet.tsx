@@ -35,6 +35,7 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
     !isSubcontrol && objectiveControl
       ? { controlId: objectiveControl.id, refCode: objectiveControl.refCode, referenceFramework: objectiveControl.referenceFramework, source: objectiveControl.source }
       : undefined,
+    open && !openedWith,
   )
   const suggestion = !openedWith && objectiveSuggestionData && !objectiveSuggestionData.dismissed ? objectiveSuggestionData.suggestion : null
   const loading = isLoadingControl || isLoadingSubcontrol

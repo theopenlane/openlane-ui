@@ -13,14 +13,14 @@ const frameworkMatches = (docsFramework: string, orgFramework: string) => {
   return shorter.every((t) => longer.includes(t))
 }
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, BookText, Lightbulb, X } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { docsHelpEnabled } from '@repo/dally/ai'
 import { useGetProgramDashboard } from '@/lib/graphql-hooks/program'
-import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
+import { useAllPolicyNames } from '@/lib/graphql-hooks/internal-policy'
 import { useDocsHelpNavigate } from '@/components/shared/docs-help/docs-help-context'
 import { useDismissible } from '@/hooks/useDismissible'
 import { DismissButton } from '@/components/shared/docs-help/suggestion-card'
@@ -84,31 +84,36 @@ export function usePolicyTemplates(enabled: boolean) {
 // Each missing policy can be created with AI or from a Policy Hub template
 export function SuggestedPolicyCoverage() {
   const navigateDocs = useDocsHelpNavigate()
+  // per-org dismissal, persisted so the alert stays gone once waved away
+  const { dismissed, dismiss: handleDismiss, isResolved } = useDismissible('policy-coverage-dismissed')
+  const { isDismissed, dismiss: dismissTopic } = useDismissedItems('policy-coverage-covered')
   const { data: mappingData } = useDocsPolicyMapping(docsHelpEnabled)
   const { data: programsData } = useGetProgramDashboard({ enabled: docsHelpEnabled })
-  // every policy, not just the first page — an unseen policy reads as missing
-  const { data: policiesData } = useInternalPolicies({ where: {}, enabled: docsHelpEnabled, pagination: { page: 1, pageSize: 200, query: { first: 200 } } })
+  // held back until the page's own data is in, then paged through in the background
+  const { policies: orgPolicies, isLoading: isPoliciesLoading } = useAllPolicyNames({ enabled: docsHelpEnabled && isResolved && !dismissed && !!mappingData && !!programsData })
   const { data: templates } = usePolicyTemplates(docsHelpEnabled)
 
   const { createFromTemplate, creatingTemplate } = useCreatePolicyFromTemplate()
   const [showAll, setShowAll] = useState(false)
 
-  // per-org dismissal, persisted so the alert stays gone once waved away
-  const { dismissed, dismiss: handleDismiss } = useDismissible('policy-coverage-dismissed')
-  const { isDismissed, dismiss: dismissTopic } = useDismissedItems('policy-coverage-covered')
-
   const coverage = useMemo(() => {
     const mapping = mappingData?.mapping ?? []
-    if (!mapping.length) return null
+    // until the org's policies are in, everything reads as missing and the card
+    // would flash a full list before emptying itself
+    if (!mapping.length || isPoliciesLoading) return null
 
     const orgFrameworks = [...new Set((programsData?.programs?.edges ?? []).map((e) => e?.node?.frameworkName).filter((f): f is string => !!f))]
-    const orgPolicies = (policiesData?.internalPolicies?.edges ?? []).flatMap((e) => (e?.node?.name ? [{ name: e.node.name, summary: e.node.summary }] : []))
-
     const suggested = mapping.filter((row) => row.frameworks[0] === 'all' || row.frameworks.some((f) => orgFrameworks.some((org) => frameworkMatches(f, org))))
     const missing = suggested.filter((row) => !isDismissed(row.policy) && !orgPolicies.some((policy) => policyCovers(policy, { name: row.policy })))
 
     return { orgFrameworks, total: suggested.length, missing }
-  }, [mappingData, programsData, policiesData, isDismissed])
+  }, [mappingData, programsData, orgPolicies, isPoliciesLoading, isDismissed])
+
+  // nothing missing means nothing to check again, so retire the card rather than
+  // paging every policy in the org on each visit
+  useEffect(() => {
+    if (coverage && coverage.total > 0 && coverage.missing.length === 0) handleDismiss()
+  }, [coverage, handleDismiss])
 
   if (!docsHelpEnabled || dismissed || !coverage || coverage.missing.length === 0) return null
 

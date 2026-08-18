@@ -72,10 +72,10 @@ export function SuggestedControlMappings({
   const { mutateAsync: updatePolicy } = useUpdateInternalPolicy()
   const [busyId, setBusyId] = useState<string | null>(null)
 
-  const { dismissed, dismiss } = useDismissible(`suggested-control-mappings-dismissed:${policyId}`)
+  const { dismissed, dismiss, isResolved } = useDismissible(`suggested-control-mappings-dismissed:${policyId}`)
 
   // the matching Policy Hub template, if any, for its satisfies frontmatter
-  const { data: templates } = usePolicyTemplates(docsHelpEnabled && !dismissed)
+  const { data: templates } = usePolicyTemplates(docsHelpEnabled && isResolved && !dismissed)
   const template = policyName ? findPolicyTemplate(templates, policyName) : undefined
 
   const templateUrl = template?.downloadUrl
@@ -86,7 +86,7 @@ export function SuggestedControlMappings({
       const response = await fetch(templateUrl)
       return parseSatisfiesFrontmatter(await response.text())
     },
-    enabled: !!templateUrl && !dismissed,
+    enabled: !!templateUrl && isResolved && !dismissed,
     staleTime: 60 * 60 * 1000,
     retry: false,
   })
@@ -110,7 +110,7 @@ export function SuggestedControlMappings({
   // controls with the same ref codes, but a policy can't be mapped to those
   const { data: controlsData } = useGetAllControls({
     where: { refCodeIn: wantedRefCodes, systemOwned: false, isTrustCenterControl: false },
-    enabled: docsHelpEnabled && !dismissed && wantedRefCodes.length > 0,
+    enabled: docsHelpEnabled && isResolved && !dismissed && wantedRefCodes.length > 0,
   })
 
   if (!docsHelpEnabled || dismissed || linkedControlsLoading) return null
