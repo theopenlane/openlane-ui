@@ -7,6 +7,7 @@ import { BookText, ChevronDown, X } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Card } from '@repo/ui/cardpanel'
+import { Checkbox } from '@repo/ui/checkbox'
 import { createDocsMarkdownComponents } from '@/components/shared/docs-help/docs-help-content'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import CountBadge from '@/components/shared/count-badge/count-badge'
@@ -64,6 +65,26 @@ export function DismissButton({ onClick, label, tooltip = 'Dismiss All Suggestio
   )
 }
 
+type TChecklistTarget = { id: string; refCode: string; referenceFramework?: string | null }
+
+export function TargetChecklist<T extends TChecklistTarget>({ targets, isSelected, onToggle }: { targets: T[]; isSelected: (target: T) => boolean; onToggle: (target: T) => void }) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pl-1">
+      <span className="text-xs text-muted-foreground">Maps to:</span>
+      {targets.map((target) => (
+        <label key={target.id} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Checkbox checked={isSelected(target)} onCheckedChange={() => onToggle(target)} />
+          <DocsSourceLink
+            label={target.refCode}
+            topic={{ title: [target.referenceFramework, target.refCode].filter(Boolean).join(' '), query: `${target.referenceFramework ?? ''} ${target.refCode}`.trim(), prefer: target.refCode }}
+            size={11}
+          />
+        </label>
+      ))}
+    </div>
+  )
+}
+
 // One suggestion: what it is on the left, what you can do about it on the right
 export function SuggestionRow({ title, description, note, action }: { title: ReactNode; description?: ReactNode; note?: ReactNode; action: ReactNode }) {
   return (
@@ -88,6 +109,8 @@ type SuggestionCardProps = {
   count?: number
   // start collapsed when the content is supplementary
   defaultOpen?: boolean
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
   // rendered to the right of the header, outside the expand target
   actions?: ReactNode
   // shown above the children when expanded
@@ -98,8 +121,13 @@ type SuggestionCardProps = {
 
 // Collapsible card used by every docs-sourced suggestion. The whole header row
 // toggles, up to the actions, so the click target is not just the chevron
-export function SuggestionCard({ title, icon, count, defaultOpen = true, actions, intro, className, children }: SuggestionCardProps) {
-  const [expanded, setExpanded] = useState(defaultOpen)
+export function SuggestionCard({ title, icon, count, defaultOpen = true, open: controlledOpen, onOpenChange, actions, intro, className, children }: SuggestionCardProps) {
+  const [uncontrolledExpanded, setUncontrolledExpanded] = useState(defaultOpen)
+  const expanded = controlledOpen ?? uncontrolledExpanded
+  const setExpanded = (next: boolean) => {
+    if (controlledOpen === undefined) setUncontrolledExpanded(next)
+    onOpenChange?.(next)
+  }
 
   return (
     <Card className={`p-4 ${className ?? ''}`}>

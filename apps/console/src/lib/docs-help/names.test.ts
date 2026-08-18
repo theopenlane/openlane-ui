@@ -65,6 +65,31 @@ describe('policyCovers', () => {
     const data = { name: 'Data Protection', summary: 'How the company classifies data and applies security controls to it in transit and at rest' }
     expect(policyCovers(data, { name: 'Physical Security' })).toBe(false)
   })
+
+  it('does not let a long policy document claim a topic it only mentions in passing', () => {
+    const incidentResponse = {
+      name: 'Incident Response Plan',
+      summary: [
+        'This document establishes the plan for managing information security incidents and events, and offers guidance for employees or incident responders.',
+        'A security event is an observable occurrence relevant to the confidentiality, availability, integrity, or privacy of company controlled data, systems or networks.',
+        'Reporters should act as a good witness. Support shall monitor incident and event tickets and shall assign a ticket severity based on the following categories.',
+        'For critical issues, the response team will follow an iterative response process designed to investigate, contain exploitation, eradicate the threat, recover system and services.',
+        'Upon completion of the investigation, the Privacy Officer shall perform a Risk Assessment to determine if the disclosure constitutes a breach.',
+        'Suspected incidents shall be assessed and classified. Legal and executive staff shall determine any immediate or long term mitigations or remedial actions.',
+      ].join(' '),
+    }
+    const riskManagement = { name: 'Risk Management Standard', description: 'Establishes how risks are identified, assessed, treated and monitored across the organization' }
+    expect(policyCovers(incidentResponse, riskManagement)).toBe(false)
+  })
+
+  it('does not let shared security vocabulary claim an unrelated topic', () => {
+    const vendor = {
+      name: 'Vendor Information Security Policy',
+      summary: 'Establishes the security requirements third party vendors must meet, including how they manage user data, information systems and their own access reviews',
+    }
+    const accessControl = { name: 'Access Control Policy', description: 'Establishes requirements for managing user access to information systems and data' }
+    expect(policyCovers(vendor, accessControl)).toBe(false)
+  })
 })
 
 describe('coverageNote', () => {

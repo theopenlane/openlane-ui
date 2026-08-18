@@ -79,6 +79,7 @@ export const buttonStyles = tv({
         [&.is-active]:bg-active-filter-background
         [&.is-active]:text-active-filter-text
       `,
+      link: 'bg-transparent border-none p-0 h-auto font-medium hover:underline underline-offset-4 disabled:cursor-not-allowed disabled:opacity-50',
       filled: 'bg-button text-button-text ',
       light: 'bg-button-light text-text-dark ',
       outline: 'border-border text-text-paragraph border',

@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { docsHelpEnabled } from '@repo/dally/ai'
 import { ControlControlSource } from '@repo/codegen/src/schema'
 import { useDocsSection } from '@/hooks/useDocsHelp'
@@ -21,6 +22,23 @@ export type TDocsEvidenceRequests = {
   target: Target
 }
 
+type TMappedControlEdges = ReturnType<typeof useGetAllMappedControlsGrouped>['mappedControlEdges']
+
+function findMappedTarget(mappedControlEdges: TMappedControlEdges, controlId?: string): Target | null {
+  for (const edge of mappedControlEdges) {
+    const sides = [edge?.node?.fromControls, edge?.node?.toControls]
+    for (const side of sides) {
+      for (const controlEdge of side?.edges ?? []) {
+        const node = controlEdge?.node
+        if (node && node.id !== controlId && node.referenceFramework && node.refCode) {
+          return { refCode: node.refCode, framework: node.referenceFramework }
+        }
+      }
+    }
+  }
+  return null
+}
+
 export function useFrameworkDocTarget(control?: TDocsEvidenceControl): { target: Target | null; isLoading: boolean } {
   const { controlId, refCode, referenceFramework, source } = control ?? {}
   const isFrameworkControl = source === ControlControlSource.FRAMEWORK && !!referenceFramework && !!refCode
@@ -33,22 +51,11 @@ export function useFrameworkDocTarget(control?: TDocsEvidenceControl): { target:
     maxPages: 1,
   })
 
-  const findMappedTarget = (): Target | null => {
-    for (const edge of mappedControlEdges) {
-      const sides = [edge?.node?.fromControls, edge?.node?.toControls]
-      for (const side of sides) {
-        for (const controlEdge of side?.edges ?? []) {
-          const node = controlEdge?.node
-          if (node && node.id !== controlId && node.referenceFramework && node.refCode) {
-            return { refCode: node.refCode, framework: node.referenceFramework }
-          }
-        }
-      }
-    }
-    return null
-  }
+  const target = useMemo(
+    () => (isFrameworkControl && refCode && referenceFramework ? { refCode, framework: referenceFramework } : findMappedTarget(mappedControlEdges, controlId)),
+    [isFrameworkControl, refCode, referenceFramework, mappedControlEdges, controlId],
+  )
 
-  const target: Target | null = isFrameworkControl && refCode && referenceFramework ? { refCode, framework: referenceFramework } : findMappedTarget()
   return { target, isLoading: mappingsEnabled && mappingsLoading }
 }
 

@@ -69,7 +69,7 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
 
   const docsControl = !isSubcontrol && control ? { controlId: control.id, refCode: control.refCode, referenceFramework: control.referenceFramework, source: control.source } : undefined
 
-  const suggestedPolicies = useSuggestedPolicies(docsControl)
+  const { data: suggestedPolicies } = useSuggestedPolicies(docsControl)
   const documentationAlertCount = suggestedPolicies && !suggestedPolicies.dismissed ? suggestedPolicies.suggestions.length : 0
 
   const testingProcedures = useMemo(() => {

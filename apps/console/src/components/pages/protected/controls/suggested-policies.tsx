@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useDismissible } from '@/hooks/useDismissible'
 import { DismissButton, DocsSourceLink, SuggestionRow } from '@/components/shared/docs-help/suggestion-card'
 import { parseDocBullets } from '@/lib/docs-help/parse'
@@ -21,7 +21,7 @@ import { useControlDocsSection, type TDocsEvidenceControl } from '@/components/p
 type TSuggestedPolicy = {
   name: string
   description: string
-  existingPolicy?: { id: string; name: string }
+  existingPolicy?: { id: string; name: string; summary?: string | null }
 }
 
 export type TSuggestedPoliciesData = {
@@ -50,7 +50,7 @@ function matchExistingPolicies(rows: Array<{ name: string; description: string }
       const hit = orgPolicies.find((policy) => !claimed.has(policy.id) && matches(policy, row))
       if (!hit) continue
       claimed.add(hit.id)
-      row.existingPolicy = { id: hit.id, name: hit.name }
+      row.existingPolicy = { id: hit.id, name: hit.name, summary: hit.summary }
     }
   }
 
@@ -59,22 +59,25 @@ function matchExistingPolicies(rows: Array<{ name: string; description: string }
   return matched
 }
 
-export function useSuggestedPolicies(control?: TDocsEvidenceControl): TSuggestedPoliciesData | null {
+export type TSuggestedPoliciesResult = { data: TSuggestedPoliciesData | null; isLoading: boolean }
+
+export function useSuggestedPolicies(control?: TDocsEvidenceControl): TSuggestedPoliciesResult {
   const { dismissed, dismiss, isResolved } = useDismissible(`suggested-policies-dismissed:${control?.controlId ?? ''}`)
   const { isDismissed, dismiss: dismissOne } = useDismissedItems(control?.controlId ? `suggested-policy-covered:${control.controlId}` : undefined)
 
   // a dismissed control asks nothing of the docs or of the policy list
   const active = docsHelpEnabled && isResolved && !dismissed
-  const { section, target } = useControlDocsSection(active ? control : undefined, 'Policies')
+  const { section, target, isLoading: isSectionLoading } = useControlDocsSection(active ? control : undefined, 'Policies')
   const enabled = active && !!section && !!control?.controlId
 
   const { policies: orgPolicies, isLoading: isPoliciesLoading } = useAllPolicyNames({ enabled })
   const { data: linkedPoliciesData, isLoading: isLinkedLoading } = useInternalPolicies({ where: { hasControlsWith: [{ id: control?.controlId ?? '' }] }, enabled })
 
-  const settled = enabled && !isPoliciesLoading && !isLinkedLoading && !!section
+  const settled = active && !isSectionLoading && (!section || (!isPoliciesLoading && !isLinkedLoading))
 
   const suggestions = useMemo(() => {
-    if (!settled || !section) return null
+    if (!settled) return null
+    if (!section) return []
     const linkedPolicyIds = new Set((linkedPoliciesData?.internalPolicies?.edges ?? []).flatMap((e) => (e?.node?.id ? [e.node.id] : [])))
     return matchExistingPolicies(
       parsePolicies(section).filter((row) => !isDismissed(row.name)),
@@ -82,14 +85,15 @@ export function useSuggestedPolicies(control?: TDocsEvidenceControl): TSuggested
     ).filter((row) => !row.existingPolicy || !linkedPolicyIds.has(row.existingPolicy.id))
   }, [settled, section, linkedPoliciesData, orgPolicies, isDismissed])
 
-  // every suggested policy is already linked, so there is nothing left to ask about this control on any future visit
-  useEffect(() => {
-    if (suggestions && suggestions.length === 0 && !dismissed) dismiss()
-  }, [suggestions, dismissed, dismiss])
+  const isLoading = !isResolved || (active && !suggestions)
 
-  if (!docsHelpEnabled || !control || !target || !suggestions) return null
+  const controlId = control?.controlId
+  const data = useMemo(
+    () => (!docsHelpEnabled || !controlId || !target || !suggestions ? null : { controlId, target, suggestions, dismissed, dismiss, dismissOne }),
+    [controlId, target, suggestions, dismissed, dismiss, dismissOne],
+  )
 
-  return { controlId: control.controlId, target, suggestions, dismissed, dismiss, dismissOne }
+  return { data, isLoading: data ? false : isLoading }
 }
 
 export function SuggestedPolicies({ data }: { data: TSuggestedPoliciesData | null }) {

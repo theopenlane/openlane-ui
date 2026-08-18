@@ -58,9 +58,9 @@ const CreatePolicyForm: React.FC = () => {
     form,
   })
 
-  // deep-links can request auto-mapping the new policy to a control, e.g.
-  // "create & map" from a control's suggested policies
-  const mapControlId = searchParams.get('mapControlId')
+  // deep-links can request auto-mapping the new policy to one or more controls,
+  // e.g. "create & map" from a control's (or a report section's) suggested policies
+  const mapControlIds = searchParams.get('mapControlId')?.split(',').filter(Boolean) ?? []
 
   const onCreateHandler = async (data: CreatePolicyFormData) => {
     try {
@@ -70,7 +70,7 @@ const CreatePolicyForm: React.FC = () => {
           detailsJSON: data.detailsJSON,
           details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
-          ...(mapControlId ? { controlIDs: [...new Set([...(data.controlIDs ?? []), mapControlId])] } : {}),
+          ...(mapControlIds.length ? { controlIDs: [...new Set([...(data.controlIDs ?? []), ...mapControlIds])] } : {}),
         },
       }
 

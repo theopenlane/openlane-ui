@@ -75,7 +75,7 @@ export function Callout({ variant = 'info', title, compact, contentClassName, ic
     <div className={cn('rounded-lg border p-4', compact ? 'py-3' : 'pb-5', v.bg, v.border, v.text, className)} {...props}>
       <div className="flex gap-3">
         <div className={cn('mt-[2px] shrink-0', v.icon)}>{icon ?? <Icon className="h-5 w-5 opacity-90" aria-hidden />}</div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           {title && <div className="mb-1 font-medium">{title}</div>}
           <div
             className={cn(

@@ -18,7 +18,8 @@ export const findPolicyTemplate = (templates: PolicyTemplate[] | undefined, poli
 
 // download the Policy Hub template and create the policy from it, mapping it to
 // the control it was suggested for when there is one
-export function useCreatePolicyFromTemplate(mapControlId?: string) {
+export function useCreatePolicyFromTemplate(mapControlIds?: string | string[]) {
+  const ids = mapControlIds ? (Array.isArray(mapControlIds) ? mapControlIds : [mapControlIds]) : []
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createUploadPolicy } = useCreateUploadInternalPolicy()
@@ -36,8 +37,8 @@ export function useCreatePolicyFromTemplate(mapControlId?: string) {
       const result = await createUploadPolicy({ internalPolicyFile: file })
       const policyId = result.createUploadInternalPolicy.internalPolicy.id
 
-      if (mapControlId) await updatePolicy({ updateInternalPolicyId: policyId, input: { addControlIDs: [mapControlId] } })
-      successNotification({ title: mapControlId ? 'Policy created and mapped' : 'Policy Created', description: `Created from the ${template.name} template` })
+      if (ids.length > 0) await updatePolicy({ updateInternalPolicyId: policyId, input: { addControlIDs: ids } })
+      successNotification({ title: ids.length > 0 ? 'Policy created and mapped' : 'Policy Created', description: `Created from the ${template.name} template` })
       router.push(`/policies/${policyId}/view`)
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
@@ -51,14 +52,15 @@ export function useCreatePolicyFromTemplate(mapControlId?: string) {
 type CreatePolicyMenuItemsProps = {
   policyName: string
   template?: PolicyTemplate
-  mapControlId?: string
+  mapControlId?: string | string[]
   onCreateFromTemplate: (template: PolicyTemplate) => void
 }
 
 // the ways to start a policy from a suggestion, shared by every surface suggesting one
 export function CreatePolicyMenuItems({ policyName, template, mapControlId, onCreateFromTemplate }: CreatePolicyMenuItemsProps) {
   const router = useRouter()
-  const createHref = (generate: boolean) => `/policies/create?name=${encodeURIComponent(policyName)}${generate ? '&generate=true' : ''}${mapControlId ? `&mapControlId=${mapControlId}` : ''}`
+  const mapParam = Array.isArray(mapControlId) ? mapControlId.join(',') : mapControlId
+  const createHref = (generate: boolean) => `/policies/create?name=${encodeURIComponent(policyName)}${generate ? '&generate=true' : ''}${mapParam ? `&mapControlId=${mapParam}` : ''}`
 
   return (
     <>
