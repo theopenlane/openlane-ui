@@ -5,15 +5,19 @@ import { AlertCircle, ChevronDown, Inbox, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
 import { Button } from '@repo/ui/button'
 import { useEvidenceSuggestedActions } from '@/lib/graphql-hooks/evidence'
-import { useControlEvidenceStore } from '../../controls/hooks/useControlEvidenceStore'
-import { useRouter } from 'next/navigation'
+import { EDIT_ASSOCIATIONS_PARAM } from '../evidence-sheet-config'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
-export default function EvidenceSuggestedActions() {
-  const router = useRouter()
+const EvidenceSuggestedActions = () => {
+  const { push } = useSmartRouter()
   const [open, setOpen] = React.useState(false)
 
   const { data } = useEvidenceSuggestedActions()
-  const { setIsEditPreset } = useControlEvidenceStore()
+
+  const openEvidence = (evidenceId: string, extraParams: Record<string, string> = {}) => {
+    setOpen(false)
+    push({ id: evidenceId, ...extraParams })
+  }
 
   const unlinked = data?.unlinked?.edges?.map((e) => e?.node) ?? []
   const needingReview = data?.needingReview?.edges?.map((e) => e?.node) ?? []
@@ -57,7 +61,7 @@ export default function EvidenceSuggestedActions() {
                   variant="secondary"
                   className="h-8 p-2"
                   onClick={() => {
-                    if (ev?.id) router.push(`/evidence?id=${ev?.id}`)
+                    if (ev?.id) openEvidence(ev.id)
                   }}
                   aria-label="Renew evidence"
                 >
@@ -77,7 +81,7 @@ export default function EvidenceSuggestedActions() {
                   variant="secondary"
                   className="h-8 p-2"
                   onClick={() => {
-                    if (ev?.id) router.push(`/evidence?id=${ev?.id}`)
+                    if (ev?.id) openEvidence(ev.id)
                   }}
                   aria-label="Review evidence"
                 >
@@ -98,8 +102,7 @@ export default function EvidenceSuggestedActions() {
                   className="h-8 p-2"
                   aria-label="Add evidence"
                   onClick={() => {
-                    if (ev?.id) router.push(`/evidence?id=${ev?.id}`)
-                    setIsEditPreset(true)
+                    if (ev?.id) openEvidence(ev.id, { [EDIT_ASSOCIATIONS_PARAM]: ev.id })
                   }}
                 >
                   Add
@@ -114,3 +117,5 @@ export default function EvidenceSuggestedActions() {
     </Popover>
   )
 }
+
+export default EvidenceSuggestedActions

@@ -1,13 +1,115 @@
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
-import { type FilterField } from '@/types'
+import { defineFilterFields, type FilterField } from '@/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { FilterIcons, InternalPolicyStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 
-export function usePoliciesFilters(): FilterField[] | null {
-  const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
+type TOption = { value: string; label: string }
+
+export const getPoliciesFilterFields = (groupOptions: TOption[], programOptions: TOption[], enumOptions: TOption[], tagOptions: TOption[], hasProgramAccess: boolean) =>
+  defineFilterFields([
+    {
+      key: 'approverIDIn',
+      label: 'Approver Group',
+      type: 'multiselect',
+      options: groupOptions,
+      icon: FilterIcons.ApproverGroup,
+    },
+    {
+      key: 'hasControlsWith',
+      label: 'Control Ref Code',
+      type: 'text',
+      icon: FilterIcons.Control,
+    },
+    ...getProgramFilterFields(programOptions, hasProgramAccess),
+    {
+      key: 'hasSubcontrolsWith',
+      label: 'Subcontrol Ref Code',
+      type: 'text',
+      icon: FilterIcons.Subcontrol,
+    },
+    {
+      key: 'internalPolicyKindNameIn',
+      label: 'Type',
+      type: 'multiselect',
+      icon: FilterIcons.Type,
+      options: enumOptions,
+    },
+    {
+      key: 'policyTypeIsNil',
+      label: 'Empty Type',
+      type: 'boolean',
+      icon: FilterIcons.Type,
+    },
+    {
+      key: 'reviewDue',
+      label: 'Review Due',
+      type: 'dateRange',
+      icon: FilterIcons.ReviewDue,
+    },
+    {
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
+      options: InternalPolicyStatusFilterOptions,
+      icon: FilterIcons.Status,
+    },
+    {
+      key: 'hasControls',
+      label: 'Linked Controls',
+      icon: FilterIcons.LinkedControls,
+      type: 'radio',
+      radioOptions: [
+        { value: true, label: 'Has linked controls' },
+        { value: false, label: 'No linked controls' },
+      ],
+    },
+    {
+      key: 'hasSubcontrols',
+      label: 'Linked Subcontrols',
+      type: 'radio',
+      radioOptions: [
+        { value: true, label: 'Has linked subcontrols' },
+        { value: false, label: 'No linked subcontrols' },
+      ],
+      icon: FilterIcons.LinkedControls,
+    },
+    {
+      key: 'hasProcedures',
+      label: 'Linked Procedures',
+      type: 'radio',
+      radioOptions: [
+        { value: true, label: 'Has linked procedures' },
+        { value: false, label: 'No linked procedures' },
+      ],
+      icon: FilterIcons.LinkedControls,
+    },
+    {
+      key: 'hasComments',
+      label: 'Has Comments',
+      type: 'radio',
+      icon: FilterIcons.Comments,
+      radioOptions: [
+        { value: true, label: 'Has comments' },
+        { value: false, label: 'No comments' },
+      ],
+    },
+    {
+      key: 'tagsHas',
+      label: 'Tags',
+      type: 'dropdownSearchSingleSelect',
+      icon: FilterIcons.Status,
+      options: tagOptions,
+    },
+  ])
+
+export type TPolicyFilterKey = ReturnType<typeof getPoliciesFilterFields>[number]['key']
+
+export const usePoliciesFilters = (): FilterField[] | null => {
+  const { programOptions, isSuccess: isProgramSuccess, hasProgramAccess } = useProgramSelect()
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
 
   const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
@@ -24,110 +126,9 @@ export function usePoliciesFilters(): FilterField[] | null {
 
   useEffect(() => {
     if (!isProgramSuccess || !isGroupSuccess || !isTypesSuccess || filters) return
-    const newFilters: FilterField[] = [
-      {
-        key: 'approverIDIn',
-        label: 'Approver Group',
-        type: 'multiselect',
-        options: groupOptions,
-        icon: FilterIcons.ApproverGroup,
-      },
-      {
-        key: 'hasControlsWith',
-        label: 'Control Ref Code',
-        type: 'text',
-        icon: FilterIcons.Control,
-      },
-      {
-        key: 'hasProgramsWith',
-        label: 'Program Name',
-        type: 'multiselect',
-        options: programOptions,
-        icon: FilterIcons.ProgramName,
-      },
-      {
-        key: 'hasSubcontrolsWith',
-        label: 'Subcontrol Ref Code',
-        type: 'text',
-        icon: FilterIcons.Subcontrol,
-      },
-      {
-        key: 'internalPolicyKindNameIn',
-        label: 'Type',
-        type: 'multiselect',
-        icon: FilterIcons.Type,
-        options: enumOptions,
-      },
-      {
-        key: 'policyTypeIsNil',
-        label: 'Empty Type',
-        type: 'boolean',
-        icon: FilterIcons.Type,
-      },
-      {
-        key: 'reviewDue',
-        label: 'Review Due',
-        type: 'dateRange',
-        icon: FilterIcons.ReviewDue,
-      },
-      {
-        key: 'statusIn',
-        label: 'Status',
-        type: 'multiselect',
-        options: InternalPolicyStatusFilterOptions,
-        icon: FilterIcons.Status,
-      },
-      {
-        key: 'hasControls',
-        label: 'Linked Controls',
-        icon: FilterIcons.LinkedControls,
-        type: 'radio',
-        radioOptions: [
-          { value: true, label: 'Has linked controls' },
-          { value: false, label: 'No linked controls' },
-        ],
-      },
-      {
-        key: 'hasSubcontrols',
-        label: 'Linked Subcontrols',
-        type: 'radio',
-        radioOptions: [
-          { value: true, label: 'Has linked subcontrols' },
-          { value: false, label: 'No linked subcontrols' },
-        ],
-        icon: FilterIcons.LinkedControls,
-      },
-      {
-        key: 'hasProcedures',
-        label: 'Linked Procedures',
-        type: 'radio',
-        radioOptions: [
-          { value: true, label: 'Has linked procedures' },
-          { value: false, label: 'No linked procedures' },
-        ],
-        icon: FilterIcons.LinkedControls,
-      },
-      {
-        key: 'hasComments',
-        label: 'Has Comments',
-        type: 'radio',
-        icon: FilterIcons.Comments,
-        radioOptions: [
-          { value: true, label: 'Has comments' },
-          { value: false, label: 'No comments' },
-        ],
-      },
-      {
-        key: 'tagsHas',
-        label: 'Tags',
-        type: 'dropdownSearchSingleSelect',
-        icon: FilterIcons.Status,
-        options: tagOptions,
-      },
-    ]
 
-    setFilters(newFilters)
-  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters, isTypesSuccess, enumOptions, tagOptions])
+    setFilters(getPoliciesFilterFields(groupOptions, programOptions, enumOptions, tagOptions, hasProgramAccess))
+  }, [isProgramSuccess, hasProgramAccess, programOptions, isGroupSuccess, groupOptions, filters, isTypesSuccess, enumOptions, tagOptions])
 
   return filters
 }

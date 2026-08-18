@@ -1,4 +1,5 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
 import {
@@ -43,21 +44,25 @@ import {
   type GetProgramDashboardQueryVariables,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
 
-interface UseGetAllProgramsArgs {
+const EMPTY_PROGRAM_OPTIONS: { label: string; value: string }[] = []
+
+export interface UseGetAllProgramsArgs {
   where?: GetAllProgramsQueryVariables['where']
   orderBy?: GetAllProgramsQueryVariables['orderBy']
   pagination?: TPagination | null
   enabled?: boolean
 }
 
-export const useGetAllPrograms = ({ where, orderBy }: UseGetAllProgramsArgs = {}) => {
+export const useGetAllPrograms = ({ where, orderBy, enabled = true }: UseGetAllProgramsArgs = {}) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllProgramsQuery, GetAllProgramsQueryVariables>({
     queryKey: ['programs', { where, orderBy }],
     queryFn: async () => client.request(GET_ALL_PROGRAMS, { where, orderBy }),
-    enabled: true,
+    enabled,
   })
 }
 
@@ -174,12 +179,22 @@ export const useProgramEvidenceStats = (programId: string | undefined) => {
   })
 }
 
-export const useProgramSelect = ({ where }: { where?: ProgramWhereInput }) => {
-  const { data, ...rest } = useGetAllPrograms({ where })
+export const useProgramSelect = ({ where, orderBy }: Pick<UseGetAllProgramsArgs, 'where' | 'orderBy'> = {}) => {
+  const hasProgramAccess = useHasObjectType(ObjectTypes.PROGRAM)
+  const query = useGetAllPrograms({ where, orderBy, enabled: hasProgramAccess })
 
-  const programOptions = data?.programs?.edges?.flatMap((edge) => (edge?.node?.id && edge?.node?.name ? [{ label: edge.node.name, value: edge.node.id }] : [])) || []
+  const programOptions = useMemo(
+    () => query.data?.programs?.edges?.flatMap((edge) => (edge?.node?.id && edge?.node?.name ? [{ label: edge.node.name, value: edge.node.id }] : [])) ?? EMPTY_PROGRAM_OPTIONS,
+    [query.data],
+  )
 
-  return { programOptions, ...rest }
+  return {
+    programOptions,
+    hasProgramAccess,
+    isLoading: hasProgramAccess && query.isLoading,
+    isSuccess: !hasProgramAccess || query.isSuccess,
+    isError: hasProgramAccess && query.isError,
+  }
 }
 
 export const useGetProgramSettings = (programId: string | null) => {

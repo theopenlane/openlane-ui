@@ -18,6 +18,7 @@ import {
   type BulkEditRisksDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditRisks,
+  useModuleFilteredSelectOptions,
   getMappedClearValue,
   InputType,
   bulkEditFieldsSchema,
@@ -68,10 +69,11 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
     field: 'category',
   })
 
-  const allOptionSelects = useMemo(() => {
+  const unfilteredOptionSelects = useMemo(() => {
     if (!groups || !isTypesSuccess || !isCategoriesSuccess) return []
     return getAllSelectOptionsForBulkEditRisks(groups?.filter((g): g is NonNullable<typeof g> => Boolean(g)) ?? [], typeOptions, categoryOptions)
   }, [groups, typeOptions, categoryOptions, isCategoriesSuccess, isTypesSuccess])
+  const allOptionSelects = useModuleFilteredSelectOptions(unfilteredOptionSelects)
 
   const { control, handleSubmit } = form
 

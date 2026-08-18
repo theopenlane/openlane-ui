@@ -21,7 +21,7 @@ import { canEdit } from '@/lib/authz/utils.ts'
 import { useSession } from 'next-auth/react'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { hasStatusCondition } from '@/components/shared/table-filter/has-status-condition'
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
@@ -48,7 +48,6 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const { data: permission } = useOrganizationRoles()
   const { data: session } = useSession()
   const { handleExport } = useFileExport()
-  const { errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.CONTROL, ControlOrderField, [
     {
       field: ControlOrderField.ref_code,
@@ -156,7 +155,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     [convertToReadOnly, setSelectedControls, enumOptions, columnVisibility],
   )
 
-  const { controls, isError, paginationMeta, isLoading, isFetching } = useGetAllControls({
+  const { controls, error, paginationMeta, isLoading, isFetching } = useGetAllControls({
     where: whereWithSearch,
     orderBy,
     pagination,
@@ -164,14 +163,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     enabled: filters !== null,
   })
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load controls',
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: 'Failed to load controls' })
 
   const userIds = useMemo(() => {
     if (!controls) return []

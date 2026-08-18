@@ -1,41 +1,44 @@
-import { type FilterField } from '@/types'
 import { EvidenceOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
 import { EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
+import { defineFilterFields } from '@/types'
 
-export const getEvidenceFilterableFields = (frameworkOptions: { value: string; label: string }[], tagOptions: { value: string; label: string }[]): FilterField[] => [
-  { key: 'name', label: 'Name', type: 'text', icon: FilterIcons.Name },
-  { key: 'description', label: 'Description', type: 'text', icon: FilterIcons.Description },
-  { key: 'isAutomated', label: 'Is Automated', type: 'boolean', icon: FilterIcons.IsAutomated },
-  {
-    key: 'statusIn',
-    label: 'Status',
-    type: 'multiselect',
-    options: EvidenceStatusOptions,
-    icon: FilterIcons.Status,
-  },
-  { key: 'source', label: 'Source', type: 'text', icon: FilterIcons.Description },
-  { key: 'creationDate', label: 'Created', type: 'dateRange', icon: FilterIcons.Date },
-  { key: 'updatedAt', label: 'Updated', type: 'dateRange', icon: FilterIcons.Date },
-  { key: 'renewalDate', label: 'Renewed', type: 'dateRange', icon: FilterIcons.Date },
-  {
-    key: 'satisfiesFramework',
-    label: 'Satisfies',
-    type: 'multiselect',
-    icon: FilterIcons.Status,
-    options: frameworkOptions,
-  },
-  {
-    key: 'tagsHas',
-    label: 'Tags',
-    type: 'dropdownSearchSingleSelect',
-    icon: FilterIcons.Status,
-    options: tagOptions,
-  },
-  { key: 'scopeNameIn', label: 'Scope', type: 'text', icon: FilterIcons.Scope },
-  { key: 'environmentNameIn', label: 'Environment', type: 'text', icon: FilterIcons.Environment },
-  { key: 'externalUUIDContainsFold', label: 'External UUID', type: 'text', icon: FilterIcons.ID },
-]
+export const getEvidenceFilterableFields = (frameworkOptions: { value: string; label: string }[], tagOptions: { value: string; label: string }[]) =>
+  defineFilterFields([
+    { key: 'name', label: 'Name', type: 'text', icon: FilterIcons.Name },
+    { key: 'description', label: 'Description', type: 'text', icon: FilterIcons.Description },
+    { key: 'isAutomated', label: 'Is Automated', type: 'boolean', icon: FilterIcons.IsAutomated },
+    {
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
+      options: EvidenceStatusOptions,
+      icon: FilterIcons.Status,
+    },
+    { key: 'source', label: 'Source', type: 'text', icon: FilterIcons.Description },
+    { key: 'creationDate', label: 'Created', type: 'dateRange', icon: FilterIcons.Date },
+    { key: 'updatedAt', label: 'Updated', type: 'dateRange', icon: FilterIcons.Date },
+    { key: 'renewalDate', label: 'Renewed', type: 'dateRange', icon: FilterIcons.Date },
+    {
+      key: 'satisfiesFramework',
+      label: 'Satisfies',
+      type: 'multiselect',
+      icon: FilterIcons.Status,
+      options: frameworkOptions,
+    },
+    {
+      key: 'tagsHas',
+      label: 'Tags',
+      type: 'dropdownSearchSingleSelect',
+      icon: FilterIcons.Status,
+      options: tagOptions,
+    },
+    { key: 'scopeNameIn', label: 'Scope', type: 'text', icon: FilterIcons.Scope, nullableKey: 'scopeName' },
+    { key: 'environmentNameIn', label: 'Environment', type: 'text', icon: FilterIcons.Environment, nullableKey: 'environmentName' },
+    { key: 'externalUUIDContainsFold', label: 'External UUID', type: 'text', icon: FilterIcons.ID },
+  ])
+
+export type TEvidenceFilterKey = ReturnType<typeof getEvidenceFilterableFields>[number]['key']
 
 export const EVIDENCE_SORTABLE_FIELDS = [
   { key: 'STATUS', label: 'Status' },

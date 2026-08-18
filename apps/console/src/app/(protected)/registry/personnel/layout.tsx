@@ -1,11 +1,4 @@
-import { FeatureEnum } from '@/lib/subscription-plan/feature-enum'
-import { PlanEnum } from '@/lib/subscription-plan/plan-enum'
-import { FeatureGate } from '@/lib/subscription-plan/feature-gate'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { featureGatedLayout } from '@/lib/subscription-plan/feature-gate'
 
-export default function PersonnelLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <FeatureGate feature={FeatureEnum.PERSONNEL} module={PlanEnum.COMPLIANCE_MODULE}>
-      {children}
-    </FeatureGate>
-  )
-}
+export default featureGatedLayout(ObjectTypes.IDENTITY_HOLDER)

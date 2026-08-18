@@ -1,6 +1,7 @@
 import { type LucideIcon } from 'lucide-react'
 import { type ComponentType } from 'react'
 import { type PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
+import { type ObjectTypes } from '@repo/codegen/src/type-names'
 
 // nav icons are either plain lucide icons or self-animating icon components
 // (see components/shared/icons/animated) which carry an `animated` marker
@@ -16,6 +17,7 @@ export interface NavItem {
   children?: NavItem[]
   hidden?: boolean
   plan?: PlanEnum
+  objectType?: ObjectTypes
 }
 
 export interface Separator {
@@ -29,8 +31,8 @@ export interface NavHeading {
   hidden?: boolean
 }
 
-export interface FilterField {
-  key: string
+export interface FilterField<K extends string = string> {
+  key: K
   label: string
   icon: LucideIcon
   type:
@@ -39,7 +41,10 @@ export interface FilterField {
   min?: number // for sliderNumber type
   max?: number // for sliderNumber type
   radioOptions?: { value: string | boolean | undefined; label: string }[] // Specific for tri-state/radio logic
+  nullableKey?: string
 }
+
+export const defineFilterFields = <K extends string>(fields: FilterField<K>[]): FilterField<K>[] => fields
 
 export type ConditionValue =
   | string

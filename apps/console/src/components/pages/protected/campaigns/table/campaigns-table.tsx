@@ -11,7 +11,7 @@ import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { type VisibilityState } from '@tanstack/react-table'
 
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
@@ -47,10 +47,9 @@ const CampaignsTable = ({
   permission,
   defaultSorting,
 }: TCampaignsTableProps) => {
-  const { CampaignsNodes: campaigns, isLoading: fetching, data, isFetching, isError } = useCampaignsWithFilter({ where: whereFilter, orderBy: orderByFilter, pagination, enabled: !!whereFilter })
+  const { CampaignsNodes: campaigns, isLoading: fetching, data, isFetching, error } = useCampaignsWithFilter({ where: whereFilter, orderBy: orderByFilter, pagination, enabled: !!whereFilter })
 
   const { data: session } = useSession()
-  const { errorNotification } = useNotification()
 
   const userIds = useMemo(() => {
     if (!campaigns) return []
@@ -81,14 +80,7 @@ const CampaignsTable = ({
     }
   }, [permission?.roles, session, canEdit, setColumnVisibility])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load campaigns',
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: 'Failed to load campaigns' })
 
   const { userMap, tokenMap, isLoading: fetchingUsers } = useAuthorMaps(userIds)
 

@@ -4,6 +4,7 @@ import { useGetProgramBasicInfo, useGetProgramGroups, useGetProgramMembers } fro
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
 import { ControlControlStatus, ProgramMembershipRole } from '@repo/codegen/src/schema'
+import { ORG_MANAGED_CONTROLS_WHERE } from '@/constants/standards'
 import { auditorValuesFrom, controlCountsByFramework, emptySelections, hasAuditorDetails, suggestedProgramName, type WizardValues } from './from-existing-wizard-config'
 
 type UseFromExistingPrefillArgs = {
@@ -29,12 +30,7 @@ export const useFromExistingPrefill = ({ methods, sourceProgramID, currentUserID
     isPlaceholderData: isSourceControlsPlaceholder,
   } = useAllControlsGroupedWithListFields({
     where: {
-      and: [
-        { hasProgramsWith: [{ id: sourceProgramID }] },
-        { isTrustCenterControl: false },
-        { or: [{ statusNEQ: ControlControlStatus.ARCHIVED }, { statusIsNil: true }] },
-        { or: [{ systemOwned: false }, { systemOwnedIsNil: true }] },
-      ],
+      and: [ORG_MANAGED_CONTROLS_WHERE, { hasProgramsWith: [{ id: sourceProgramID }] }, { or: [{ statusNEQ: ControlControlStatus.ARCHIVED }, { statusIsNil: true }] }],
     },
     enabled: !!sourceProgramID,
   })

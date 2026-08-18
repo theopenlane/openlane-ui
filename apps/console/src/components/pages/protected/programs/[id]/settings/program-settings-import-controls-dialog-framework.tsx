@@ -17,6 +17,10 @@ import { Input } from '@repo/ui/input'
 import { type SelectedItem, type TSharedImportControlsComponentsPropsFrameworks } from '../shared/program-settings-import-controls-shared-props'
 import { getColumnsForImportControlsDialogFramework } from '../program-tasks-table/columns'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { EXCLUDE_SYSTEM_FRAMEWORK_CONTROLS_WHERE, ORG_MANAGED_CONTROLS_WHERE } from '@/constants/standards'
+import { mergeWhere } from '@/lib/merge-where'
+
+const CUSTOM_CONTROLS_WHERE = mergeWhere<ControlWhereInput>([{ referenceFrameworkIsNil: true }, ORG_MANAGED_CONTROLS_WHERE])
 
 const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, selectedFrameworkIds, setSelectedFrameworkIds }: TSharedImportControlsComponentsPropsFrameworks) => {
   const { data } = useGetStandards({})
@@ -39,29 +43,30 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
-  const where: ControlWhereInput = useMemo(() => {
-    const whereFilters: ControlWhereInput[] = []
-    if (selectedFrameworkIds.length > 0) whereFilters.push({ standardIDIn: selectedFrameworkIds })
-    if (debouncedSearchQuery) {
-      whereFilters.push({
-        or: [
-          { refCodeContainsFold: debouncedSearchQuery },
-          { categoryContainsFold: debouncedSearchQuery },
-          { subcategoryContainsFold: debouncedSearchQuery },
-          { descriptionContainsFold: debouncedSearchQuery },
-        ],
-      })
-    }
-    if (whereFilters.length === 0) return {}
-    if (whereFilters.length === 1) return whereFilters[0]
-    return { and: whereFilters }
-  }, [selectedFrameworkIds, debouncedSearchQuery])
+  const where: ControlWhereInput = useMemo(
+    () =>
+      mergeWhere<ControlWhereInput>([
+        { ownerIDIsNil: true, standardIDIn: selectedFrameworkIds },
+        debouncedSearchQuery
+          ? {
+              or: [
+                { refCodeContainsFold: debouncedSearchQuery },
+                { categoryContainsFold: debouncedSearchQuery },
+                { subcategoryContainsFold: debouncedSearchQuery },
+                { descriptionContainsFold: debouncedSearchQuery },
+              ],
+            }
+          : undefined,
+        EXCLUDE_SYSTEM_FRAMEWORK_CONTROLS_WHERE,
+      ]),
+    [selectedFrameworkIds, debouncedSearchQuery],
+  )
 
   const handleToggle = (id: string) => {
     setSelectedFrameworkIds((prev) => (prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]))
   }
-  const { allControls } = useAllControlsGroupedWithListFields({ where: { ...where, ownerIDIsNil: true } as ControlWhereInput, enabled: selectedFrameworkIds.length > 0 })
-  const customControlsData = useAllControlsGroupedWithListFields({ where: { referenceFrameworkIsNil: true } })
+  const { allControls } = useAllControlsGroupedWithListFields({ where, enabled: selectedFrameworkIds.length > 0 })
+  const customControlsData = useAllControlsGroupedWithListFields({ where: CUSTOM_CONTROLS_WHERE })
   const customControls = customControlsData.allControls
   const handleCheckboxShowToggle = () => {
     setShowCheckboxes((prev) => !prev)

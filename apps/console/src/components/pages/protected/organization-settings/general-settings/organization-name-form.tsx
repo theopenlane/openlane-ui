@@ -17,6 +17,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import CopyableText from '@/components/shared/copyable-text/copyable-text'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
@@ -152,6 +153,15 @@ const OrganizationNameForm = () => {
             />
           </form>
         </Form>
+        {currentOrgId && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground">Organization ID</span>
+              <CopyableText value={currentOrgId} variant="chip" aria-label={`Copy organization ID ${currentOrgId}`} />
+            </div>
+            <span className="text-sm text-muted-foreground">Use this ID in the Openlane API and integrations.</span>
+          </div>
+        )}
       </Panel>
       <AvatarUpload fallbackString={currentOrganization?.displayName?.substring(0, 2) || 'N/A'} uploadCallback={handleUploadAvatar} placeholderImage={image} />
     </>

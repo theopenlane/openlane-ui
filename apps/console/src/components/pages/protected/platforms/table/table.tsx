@@ -6,7 +6,7 @@ import { type PlatformWhereInput, type Platform as PlatformFull, type PlatformOr
 import { type PlatformsNodeNonNull, usePlatformsWithFilter } from '@/lib/graphql-hooks/platform'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { PLATFORMS_SORT_FIELDS } from './table-config'
 import { getColumns } from './columns'
 import { type TTableProps } from '@/components/shared/crud-base/page'
@@ -45,7 +45,7 @@ const TableComponent = ({
     isLoading: fetching,
     data,
     isFetching,
-    isError,
+    error,
   } = usePlatformsWithFilter({
     where: whereFilter ?? undefined,
     orderBy,
@@ -53,7 +53,6 @@ const TableComponent = ({
     enabled: true,
   })
 
-  const { errorNotification } = useNotification()
   const { data: session } = useSession()
 
   const userIds = useMemo(() => {
@@ -87,14 +86,7 @@ const TableComponent = ({
     }
   }, [permission?.roles, setColumnVisibility, canEdit, session])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: `Failed to load ${objectName.toLowerCase()}s`,
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}s` })
 
   const { users, isFetching: fetchingUsers } = useGetOrgUserList({
     where: { hasUserWith: [{ idIn: userIds }] },

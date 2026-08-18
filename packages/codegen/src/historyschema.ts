@@ -316,6 +316,14 @@ export interface CreateAssessmentMutation {
   }
 }
 
+export type CreateAssessmentTemplateMutationVariables = Exact<{
+  input: Types.CreateAssessmentTemplateInput
+}>
+
+export interface CreateAssessmentTemplateMutation {
+  createAssessmentTemplate: { template: { id: string; name: string; description: string | null; tags: Array<string> | null } }
+}
+
 export type GetAssessmentByIdMinifiedQueryVariables = Exact<{
   getAssessmentId: string
 }>
@@ -5657,7 +5665,18 @@ export type UpdateUserRoleInOrgMutationVariables = Exact<{
 }>
 
 export interface UpdateUserRoleInOrgMutation {
-  updateOrgMembership: { orgMembership: { id: string; role: Types.OrgMembershipRole; userID: string; organizationID: string; ssoExempt: boolean | null; ssoExemptReason: string | null } }
+  updateOrgMembership: {
+    orgMembership: {
+      id: string
+      role: Types.OrgMembershipRole
+      userID: string
+      organizationID: string
+      ssoExempt: boolean | null
+      ssoExemptReason: string | null
+      tfaEnforced: boolean | null
+      tfaEnforcedReason: string | null
+    }
+  }
 }
 
 export type RemoveUserFromOrgMutationVariables = Exact<{
@@ -5689,6 +5708,8 @@ export interface OrgMembershipsQuery {
         additionalRoles: Array<string> | null
         ssoExempt: boolean | null
         ssoExemptReason: string | null
+        tfaEnforced: boolean | null
+        tfaEnforcedReason: string | null
         user: {
           id: string
           displayName: string
@@ -8243,6 +8264,7 @@ export interface GetStandardDetailsQuery {
     framework: string | null
     governingBody: string | null
     controls: { totalCount: number }
+    controlsWithSubcontrols: { totalCount: number }
     logoFile: { base64: string | null } | null
   }
 }

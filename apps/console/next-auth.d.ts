@@ -1,4 +1,5 @@
 import { type DefaultUser } from 'next-auth'
+import { type PlanEnum } from '@/lib/subscription-plan/plan-enum'
 
 /**
  * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
@@ -12,6 +13,7 @@ declare module 'next-auth' {
       image: string
       isTfaEnabled: boolean
       isOnboarding: boolean
+      modules: PlanEnum[]
       isImpersonation?: boolean
       impersonator?: string | null
       impersonationSessionId?: string | null

@@ -5,7 +5,8 @@ import ProgressBar from './progress-bar'
 import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/internal-policy'
 import { wherePoliciesDashboard } from './dashboard-config'
 import { InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'
-import { isStringArray, loadFilters, saveFilters } from '@/components/shared/table-filter/filter-storage'
+import { isStringArray, loadFilters, saveFilters, type TFilterStateFor } from '@/components/shared/table-filter/filter-storage'
+import { type TPolicyFilterKey } from '@/components/pages/protected/policies/table/table-config'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Button } from '@repo/ui/button'
@@ -28,7 +29,7 @@ const CoverageByType = ({ onTypeClick }: { onTypeClick: () => void }) => {
   })
 
   const handleTypeClick = (type: string) => {
-    const newState = {
+    const newState: TFilterStateFor<TPolicyFilterKey> = {
       approverIDIn: saved.approverIDIn || undefined,
       internalPolicyKindNameIn: type !== 'Unknown' ? [type] : undefined,
     }

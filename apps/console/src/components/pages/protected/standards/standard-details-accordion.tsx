@@ -41,6 +41,7 @@ type TStandardDetailsAccordionProps = {
   setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>
   permission: TPermissionData | undefined
   isLoadingPermission: boolean
+  showSubcontrolsColumn: boolean
 }
 const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
   standardId,
@@ -51,6 +52,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
   setIsDialogOpen,
   permission,
   isLoadingPermission,
+  showSubcontrolsColumn,
 }) => {
   const { data: session } = useSession()
   const pathname = usePathname()
@@ -112,11 +114,12 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
           setSelectedControls,
           controls,
           convertToReadOnly,
+          showSubcontrolsColumn,
         })
         return [category, columns]
       }),
     )
-  }, [groupedControls, selectedControls, setSelectedControls, toggleSelection, convertToReadOnly])
+  }, [groupedControls, selectedControls, setSelectedControls, toggleSelection, convertToReadOnly, showSubcontrolsColumn])
 
   const allSectionKeys = useMemo(() => Object.keys(groupedControls), [groupedControls])
 

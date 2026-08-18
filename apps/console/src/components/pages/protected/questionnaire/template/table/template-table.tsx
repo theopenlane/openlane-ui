@@ -15,6 +15,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -85,7 +86,7 @@ export const TemplatesTable = () => {
 
   const {
     templates,
-    isError,
+    error: queryError,
     isLoading: fetching,
     paginationMeta,
   } = useTemplates({
@@ -207,14 +208,7 @@ export const TemplatesTable = () => {
     ])
   }, [setCrumbs])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load templates',
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error: queryError, description: 'Failed to load templates' })
 
   return (
     <>

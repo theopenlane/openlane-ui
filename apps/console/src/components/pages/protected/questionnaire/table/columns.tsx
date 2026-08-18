@@ -7,7 +7,7 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { MoreHorizontal, Send, Pencil, Eye, Trash2, FileText, Info } from 'lucide-react'
+import { MoreHorizontal, Send, Pencil, Eye, Trash2, FileText, Info, FilePlus } from 'lucide-react'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
@@ -21,10 +21,12 @@ type Params = {
   onEdit?: (assessment: Assessment) => void
   onPreview?: (assessment: Assessment) => void
   onViewDetails?: (assessment: Assessment) => void
+  onCreateTemplate?: (assessment: Assessment) => void
   onDelete?: (assessment: Assessment) => void
   canSendMap?: Record<string, boolean>
   canEdit?: boolean
   canDelete?: boolean
+  canCreateTemplate?: boolean
 }
 
 export const getQuestionnaireColumns = (params?: Params) => {
@@ -220,7 +222,8 @@ export const getQuestionnaireColumns = (params?: Params) => {
         const canSend = !!params?.canSendMap?.[row.original.id]
         const canEditQuestionnaire = !!params?.canEdit && !isSystemOwned
         const canDeleteQuestionnaire = !!params?.canDelete && !isSystemOwned
-        const hasAnyAction = canSend || canEditQuestionnaire || canDeleteQuestionnaire || !!params?.onPreview || !!params?.onViewDetails
+        const canCreateTemplate = !!params?.canCreateTemplate && !isSystemOwned
+        const hasAnyAction = canSend || canEditQuestionnaire || canDeleteQuestionnaire || canCreateTemplate || !!params?.onPreview || !!params?.onViewDetails
 
         if (!hasAnyAction) {
           return null
@@ -255,6 +258,12 @@ export const getQuestionnaireColumns = (params?: Params) => {
                   <Eye className="h-4 w-4" />
                   Preview
                 </DropdownMenuItem>
+                {canCreateTemplate && (
+                  <DropdownMenuItem onClick={() => params?.onCreateTemplate?.(row.original)}>
+                    <FilePlus className="h-4 w-4" />
+                    Create Template
+                  </DropdownMenuItem>
+                )}
                 {canDeleteQuestionnaire && (
                   <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => params?.onDelete?.(row.original)}>
                     <Trash2 className="h-4 w-4" />

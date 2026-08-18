@@ -14,6 +14,7 @@ import { BulkCSVCloneControlDialog } from '../controls/bulk-csv-clone-control-di
 import { BulkCSVCreateControlDialog } from '../controls/bulk-csv-create-control-dialog'
 import { BulkCSVCreateMappedControlDialog } from '../controls/bulk-csv-create-map-control-dialog'
 import { REPORT_FILTER_OPTIONS, type ReportFilterId } from './report-filter-options'
+import ReportFilterCheckbox from './report-filter-checkbox'
 import ReportToolbarAction from './report-toolbar-action'
 import ReportToolbarFilterLabel from './report-toolbar-filter-label'
 import { HIDE_BELOW_1300, HIDE_BELOW_1400, ICON_ONLY_BELOW_1300, TOOLBAR_CONTAINER } from '@/constants/toolbar'
@@ -83,7 +84,15 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
         : `${selectedPrograms.length} programs`
 
   const reportValue =
-    reportFilters.size === 0 ? 'All controls' : reportFilters.size === 1 ? (REPORT_FILTER_OPTIONS.find((o) => reportFilters.has(o.id))?.label ?? 'Custom') : `${reportFilters.size} criteria`
+    reportFilters.size === 0 ? 'All controls' : reportFilters.size === 1 ? (REPORT_FILTER_OPTIONS.find((o) => reportFilters.has(o.id))?.label ?? 'Custom') : `${reportFilters.size} filters`
+
+  const visibleOptions = REPORT_FILTER_OPTIONS.filter((opt) => {
+    if (opt.viewRestriction === 'framework') return !isCustomView
+    if (opt.viewRestriction === 'custom') return isCustomView
+    return true
+  })
+  const scopeOptions = visibleOptions.filter((opt) => opt.scope === 'query')
+  const criteriaOptions = visibleOptions.filter((opt) => opt.scope === 'client')
 
   return (
     <div className={`${TOOLBAR_CONTAINER} flex justify-between items-center gap-2 flex-wrap`}>
@@ -145,16 +154,18 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
               </Button>
             </PopoverTrigger>
             <PopoverContent align="end" className="w-72 p-4 space-y-2">
+              {scopeOptions.length > 0 && (
+                <>
+                  <p className="text-sm font-medium">Report scope:</p>
+                  {scopeOptions.map((opt) => (
+                    <ReportFilterCheckbox key={opt.id} option={opt} checked={reportFilters.has(opt.id)} onToggle={onToggleReportFilter} />
+                  ))}
+                  <div className="border-t border-border" />
+                </>
+              )}
               <p className="text-sm font-medium">Show controls that:</p>
-              {REPORT_FILTER_OPTIONS.filter((opt) => {
-                if (opt.viewRestriction === 'framework') return !isCustomView
-                if (opt.viewRestriction === 'custom') return isCustomView
-                return true
-              }).map((opt) => (
-                <label key={opt.id} className="flex items-center gap-2 text-sm cursor-pointer">
-                  <Checkbox checked={reportFilters.has(opt.id)} onCheckedChange={() => onToggleReportFilter(opt.id)} />
-                  {opt.label}
-                </label>
+              {criteriaOptions.map((opt) => (
+                <ReportFilterCheckbox key={opt.id} option={opt} checked={reportFilters.has(opt.id)} onToggle={onToggleReportFilter} />
               ))}
               {reportFilters.size > 0 && (
                 <Button variant="outline" className="w-full h-8 mt-1" onClick={onClearReportFilters}>

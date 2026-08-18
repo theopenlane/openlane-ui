@@ -2,12 +2,14 @@ import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { FilterIcons } from '@/components/shared/enum-mapper/risk-enum'
 import { type FilterField } from '@/types'
 import { RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
+import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 
 export const getRisksFilterFields = (
   programOptions: { value: string; label: string }[],
   riskKindOptions: { value: string; label: string }[],
   riskCategoryOptions: { value: string; label: string }[],
   tagOptions: { value: string; label: string }[],
+  hasProgramAccess: boolean,
 ): FilterField[] => [
   {
     key: 'riskCategoryNameIn',
@@ -51,13 +53,7 @@ export const getRisksFilterFields = (
     icon: FilterIcons.Status,
   },
 
-  {
-    key: 'hasProgramsWith',
-    label: 'Program Name',
-    type: 'multiselect',
-    options: programOptions,
-    icon: FilterIcons.ProgramName,
-  },
+  ...getProgramFilterFields(programOptions, hasProgramAccess),
   {
     key: 'tagsHas',
     label: 'Tags',

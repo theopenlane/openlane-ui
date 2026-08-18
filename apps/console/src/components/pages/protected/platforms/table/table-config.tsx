@@ -3,6 +3,7 @@ import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { PlatformOrderField } from '@repo/codegen/src/schema'
 import { type EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
+import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
@@ -18,20 +19,8 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
     icon: FilterIcons.Status,
     options: enumOptions.statusOptions,
   },
-  {
-    key: 'scopeNameIn',
-    label: 'Scope',
-    type: 'multiselect',
-    icon: FilterIcons.Scope,
-    options: enumOptions.scopeOptions,
-  },
-  {
-    key: 'environmentNameIn',
-    label: 'Environment',
-    type: 'multiselect',
-    icon: FilterIcons.Environment,
-    options: enumOptions.environmentOptions,
-  },
+  getScopeFilterField(enumOptions.scopeOptions),
+  getEnvironmentFilterField(enumOptions.environmentOptions),
   {
     key: 'containsPii',
     label: 'Contains PII',

@@ -66,13 +66,18 @@ export const useOrgPersistedState = <T>(store: OrgPersistedStore<T>, organizatio
   return { value, isHydrated, setValue }
 }
 
-export const parseStringUnion = <T extends string>(raw: string, isValidValue: (value: string) => value is T): T | null => {
+export const parseString = (raw: string): string | null => {
   try {
     const parsed: unknown = JSON.parse(raw)
-    return typeof parsed === 'string' && isValidValue(parsed) ? parsed : null
+    return typeof parsed === 'string' && parsed.length > 0 ? parsed : null
   } catch {
     return null
   }
+}
+
+export const parseStringUnion = <T extends string>(raw: string, isValidValue: (value: string) => value is T): T | null => {
+  const parsed = parseString(raw)
+  return parsed !== null && isValidValue(parsed) ? parsed : null
 }
 
 export const parseStringArray = (raw: string): string[] | null => {

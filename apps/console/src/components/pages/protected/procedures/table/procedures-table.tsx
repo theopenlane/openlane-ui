@@ -18,7 +18,7 @@ import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport, { type TExportMetadata } from '@/components/shared/export/use-file-export.ts'
 import usePdfExportDialog from '@/components/shared/export/use-pdf-export-dialog.tsx'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { useNotification } from '@/hooks/useNotification'
+import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -37,7 +37,6 @@ export const ProceduresTable = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.PROCEDURE)
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
-  const { errorNotification } = useNotification()
   const { handleExport } = useFileExport()
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.PROCEDURE, ProcedureOrderField, [
     {
@@ -81,7 +80,7 @@ export const ProceduresTable = () => {
     return merged
   }, [filters, debouncedSearch])
 
-  const { procedures, isError, isLoading: fetching, paginationMeta } = useProcedures({ where, orderBy, pagination, enabled: !!filters })
+  const { procedures, error, isLoading: fetching, paginationMeta } = useProcedures({ where, orderBy, pagination, enabled: !!filters })
   const { userMap, tokenMap } = useAuthorMaps(memberIds ?? [])
   const [selectedProcedures, setSelectedProcedures] = useState<{ id: string }[]>([])
   const defaultVisibility: VisibilityState = {
@@ -177,14 +176,7 @@ export const ProceduresTable = () => {
     ])
   }, [setCrumbs])
 
-  useEffect(() => {
-    if (isError) {
-      errorNotification({
-        title: 'Error',
-        description: 'Failed to load procedures',
-      })
-    }
-  }, [isError, errorNotification])
+  useQueryErrorNotification({ error, description: 'Failed to load procedures' })
 
   const handleClearSelectedProcedures = () => {
     setSelectedProcedures([])

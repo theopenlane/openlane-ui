@@ -1,9 +1,5 @@
-import ExposureOverviewPage from '@/components/pages/protected/exposure/overview/exposure-overview-page'
-import { type Metadata } from 'next'
+import { redirect } from 'next/navigation'
 
-export const metadata: Metadata = {
-  title: 'Exposure Overview',
-}
+const ExposurePage = () => redirect('/exposure/overview')
 
-const ExposurePage = () => <ExposureOverviewPage />
 export default ExposurePage
