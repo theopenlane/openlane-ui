@@ -1,7 +1,8 @@
 'use client'
 import { EvidenceTable } from '@/components/pages/protected/evidence/table/evidence-table.tsx'
 import { EvidenceSummaryCard } from '@/components/pages/protected/evidence/chart/evidence-summary-card.tsx'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useGetProgramBasicInfo } from '@/lib/graphql-hooks/program'
 import { BreadcrumbContext, type Crumb } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization.ts'
@@ -18,6 +19,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useSession } from 'next-auth/react'
 import EvidenceProgramFilter from './evidence-program-filter'
 import { useStickyProgramFilter } from './hooks/use-sticky-program-filter'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 const EvidenceDetailsPage = () => {
   const { data: session } = useSession()
@@ -26,7 +28,9 @@ const EvidenceDetailsPage = () => {
   const { data: basicInfoData, isLoading } = useGetProgramBasicInfo(programId)
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
+  const searchParams = useSearchParams()
+  const { replace: replaceParams } = useSmartRouter()
+  const isSheetOpen = searchParams.get('create') === 'true'
 
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const { data: permission } = useOrganizationRoles()
@@ -56,9 +60,7 @@ const EvidenceDetailsPage = () => {
     if (basicInfoData) document.title = `${currentOrganization?.node?.displayName}: Programs - ${basicInfoData.program.name}`
   }, [basicInfoData, currentOrganization?.node?.displayName])
 
-  const handleCreateEvidence = () => {
-    setIsSheetOpen(true)
-  }
+  const setSheetOpen = (open: boolean) => replaceParams({ create: open ? 'true' : null })
 
   if (isRestoringProgramFilter) {
     return <Loading />
@@ -81,13 +83,13 @@ const EvidenceDetailsPage = () => {
               </div>
               {createAllowed && (
                 <div className="shrink-0 h-8 flex items-center">
-                  <Button variant="primary" className="h-8 px-2!" onClick={handleCreateEvidence}>
+                  <Button variant="primary" className="h-8 px-2!" onClick={() => setSheetOpen(true)}>
                     Submit Evidence
                   </Button>
                   <EvidenceCreateSheet
-                    onEvidenceCreateSuccess={() => setIsSheetOpen(false)}
+                    onEvidenceCreateSuccess={() => setSheetOpen(false)}
                     open={isSheetOpen}
-                    onOpenChange={setIsSheetOpen}
+                    onOpenChange={setSheetOpen}
                     allowedObjectTypes={[ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.SCAN, ObjectTypeObjects.TASK]}
                   />
                 </div>

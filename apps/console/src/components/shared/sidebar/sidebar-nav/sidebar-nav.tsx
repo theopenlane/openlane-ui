@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText, Plus, Lock, Ellipsis } from 'lucide-react'
+import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText, Lock, Ellipsis } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Separator as Hr } from '@repo/ui/separator'
 import { Logo } from '@repo/ui/logo'
@@ -12,19 +12,13 @@ import { useSession } from 'next-auth/react'
 import { GlobalSearch } from '@/components/shared/search/search'
 import { OrganizationSelector } from '@/components/shared/organization-selector/organization-selector'
 import Menu from '@/components/shared/menu/menu'
-import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
-import { CreateBtnIcon } from '@/components/shared/enum-mapper/common-enum'
-import { ProgramCreatePrefixIconBtn } from '@/components/shared/enum-mapper/program-enum'
-import { TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum'
+import CreateMenu from '@/components/shared/sidebar/create-menu/create-menu'
 import { CONTRIBUTE_URL, SUPPORT_URL } from '@/constants'
 import { featureUtil } from '@/lib/subscription-plan/plans'
 import { useIsNavItemLocked } from '@/lib/subscription-plan/hooks/use-module-access'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { Button } from '@repo/ui/button'
 import { DOCS_URL } from '@/constants/docs'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
 import { getNavLandingHref } from '@/routes/get-nav-landing-href'
 
@@ -114,8 +108,6 @@ export default function SideNav({
   const isLocked = useIsNavItemLocked()
 
   const sidebarItems = [...navItems, ...footerNavItems]
-  const { data: orgPermission } = useOrganizationRoles()
-  const isCreateProgramAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram, session)
   const billingExpired = featureUtil.hasNoModules(session)
 
   useEffect(() => {
@@ -334,26 +326,7 @@ export default function SideNav({
             <>
               <Hr className="mx-2" />
               <div className={`flex w-full gap-2 px-2 ${!primaryExpanded ? 'flex-col' : ''}`}>
-                <Menu
-                  trigger={
-                    primaryExpanded ? (
-                      <Button variant="primary" className="flex-1">
-                        <Plus size={16} />
-                        <p>Create</p>
-                      </Button>
-                    ) : (
-                      CreateBtnIcon
-                    )
-                  }
-                  side="right"
-                  align="start"
-                  content={
-                    <>
-                      {isCreateProgramAllowed && <Link href="/programs/create/">{ProgramCreatePrefixIconBtn}</Link>}
-                      <CreateTaskDialog trigger={TaskIconPrefixBtn} />
-                    </>
-                  }
-                />
+                <CreateMenu expanded={primaryExpanded} />
                 <GlobalSearch />
               </div>
             </>

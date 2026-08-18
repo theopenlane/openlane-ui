@@ -1,4 +1,4 @@
-import { Slot } from '@radix-ui/react-slot'
+import { Slot, Slottable } from '@radix-ui/react-slot'
 import { buttonStyles, type ButtonProps } from './button.styles'
 import { CheckIcon, LoaderCircle } from 'lucide-react'
 import { cn } from '../../lib/utils'
@@ -35,16 +35,20 @@ const Button = ({
   const ariaLabelText = ariaLabelProp ?? fallbackLabel
   const ariaLabel = descriptiveTooltipText ?? ariaLabelText
 
+  const renderChildWrapper = (content: React.ReactNode) => (
+    <span className={cn(childWrapper(), 'flex items-center gap-2')}>
+      {loading && <LoaderCircle className={cn(loadingIcon(), 'relative!')} size={20} />}
+      {content}
+    </span>
+  )
+
   return (
     <>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <Comp className={cn('button-icon', base(), className)} ref={ref} {...rest} aria-label={ariaLabel}>
-              <span className={cn(childWrapper(), 'flex items-center gap-2')}>
-                {loading && <LoaderCircle className={cn(loadingIcon(), 'relative!')} size={20} />}
-                {children}
-              </span>
+              {asChild ? <Slottable child={children}>{renderChildWrapper}</Slottable> : renderChildWrapper(children)}
 
               {!loading && icon && (
                 <div className={iconOuter()}>
