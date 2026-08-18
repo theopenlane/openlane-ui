@@ -25,7 +25,7 @@ import { DOCS_URL } from '@/constants/docs'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { IMPERSONATION_BANNER_HEIGHT_VAR } from '@/constants/layout'
+import { TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
 import { getNavLandingHref } from '@/routes/get-nav-landing-href'
 
 const SidebarChildLink: React.FC<{ child: NavItem; pathname: string; secondaryExpanded: boolean; router: ReturnType<typeof useRouter>; locked: boolean }> = ({
@@ -302,8 +302,8 @@ export default function SideNav({
     <div
       className="fixed left-0 z-40 flex"
       style={{
-        top: `var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px)`,
-        height: `calc(100vh - var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px))`,
+        top: `var(${TOP_BANNER_HEIGHT_VAR}, 0px)`,
+        height: `calc(100vh - var(${TOP_BANNER_HEIGHT_VAR}, 0px))`,
         width: (primaryExpanded ? PRIMARY_EXPANDED_WIDTH : PRIMARY_WIDTH) + (openPanel ? (secondaryExpanded ? SECONDARY_EXPANDED_WIDTH : SECONDARY_COLLAPSED_WIDTH) : 0),
       }}
     >

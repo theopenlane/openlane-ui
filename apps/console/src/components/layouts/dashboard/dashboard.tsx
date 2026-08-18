@@ -21,7 +21,7 @@ import { SheetNavigationProvider } from '@/providers/sheet-navigation-provider'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import ImpersonationBanner from '@/components/shared/impersonation-banner/impersonation-banner'
-import { IMPERSONATION_BANNER_HEIGHT_VAR } from '@/constants/layout'
+import { GLOBAL_BANNER_HEIGHT_VAR, TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
 import { DashboardContentOffsetProvider } from '@/providers/DashboardContentOffsetContext'
 import { DocsHelpTopicProvider } from '@/components/shared/docs-help/docs-help-context'
 import { DocsHelpTab } from '@/components/shared/docs-help/docs-help-tab'
@@ -69,6 +69,15 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const bannerRef = useRef<HTMLDivElement>(null)
   const bannerHeight = useElementHeight(bannerRef)
 
+  useEffect(() => {
+    const root = document.documentElement
+    root.style.setProperty(TOP_BANNER_HEIGHT_VAR, `calc(var(${GLOBAL_BANNER_HEIGHT_VAR}, 0px) + ${bannerHeight}px)`)
+
+    return () => {
+      root.style.removeProperty(TOP_BANNER_HEIGHT_VAR)
+    }
+  }, [bannerHeight])
+
   const currentActivePanel = [...navItems, ...footerNavItems]
     .filter(isNavItem)
     .find((item) => item.children?.some((child) => pathname === child.href || pathname.startsWith(`${child.href}/`)))
@@ -92,8 +101,8 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
     <DndProvider backend={HTML5Backend}>
       <SheetNavigationProvider>
         <DocsHelpTopicProvider>
-          <div style={{ [IMPERSONATION_BANNER_HEIGHT_VAR]: `${bannerHeight}px` } as React.CSSProperties}>
-            <div ref={bannerRef} className="fixed top-0 left-0 right-0 z-50">
+          <>
+            <div ref={bannerRef} className="fixed left-0 right-0 z-50" style={{ top: `var(${GLOBAL_BANNER_HEIGHT_VAR}, 0px)` }}>
               <ImpersonationBanner />
             </div>
 
@@ -122,12 +131,12 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
               isOrganizationSelected={isOrganizationSelected}
             />
             <div
-              className="flex flex-col overflow-hidden transition-all duration-200"
+              className="flex flex-col overflow-hidden transition-[margin-left] duration-200"
               style={{
                 marginLeft: contentMarginLeft,
                 marginRight: '8px',
-                marginTop: `var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px)`,
-                height: `calc(100vh - var(${IMPERSONATION_BANNER_HEIGHT_VAR}, 0px))`,
+                marginTop: `var(${TOP_BANNER_HEIGHT_VAR}, 0px)`,
+                height: `calc(100vh - var(${TOP_BANNER_HEIGHT_VAR}, 0px))`,
               }}
             >
               <Header />
@@ -141,7 +150,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
               </div>
             </div>
             <DocsHelpTab />
-          </div>
+          </>
         </DocsHelpTopicProvider>
       </SheetNavigationProvider>
     </DndProvider>
