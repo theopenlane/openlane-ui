@@ -6,6 +6,7 @@ import NameField from '../create/form/fields/name-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
 import LinkedVendors from '../create/form/fields/linked-vendors'
+import VendorSelectField from '../create/form/fields/vendor-select-field'
 import { type ContactFieldProps, type EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 
@@ -83,11 +84,7 @@ export const getFieldsToRender = (props: ContactFieldProps, enumOptions: EnumOpt
         handleUpdateField={handleUpdateField}
         enumOptions={enumOptions}
       />
-      {!props.isCreate && (
-        <div className="mt-6">
-          <LinkedVendors data={contactData} isEditAllowed={props.isEditAllowed} />
-        </div>
-      )}
+      <div className="mt-6">{props.isCreate ? <VendorSelectField /> : <LinkedVendors data={contactData} isEditAllowed={props.isEditAllowed} />}</div>
     </div>
   )
 }
