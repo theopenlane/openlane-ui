@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import { MapPin } from 'lucide-react'
 import { type Libraries, useLoadScript } from '@react-google-maps/api'
 import { useFormContext, type FieldValues } from 'react-hook-form'
-import { MapPin } from 'lucide-react'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
@@ -90,7 +90,6 @@ export const AddressField = <TUpdateInput,>({
         if (component.types.includes('country')) country = component.long_name
       })
 
-      // Build a human-readable full address string and store it
       const parts = [line1, city, state, postalCode, country].filter(Boolean)
       const fullAddress = parts.join(', ')
       fieldOnChange(fullAddress)
@@ -130,25 +129,23 @@ export const AddressField = <TUpdateInput,>({
       render={({ field, fieldState }) => (
         <FormItem>
           <div className="flex items-center gap-2 shrink-0">
-            <FormLabel>Address</FormLabel>
+            <FormLabel>
+              Address <span className="text-muted-foreground font-normal">(optional)</span>
+            </FormLabel>
             {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
           </div>
           <FormControl>
             {isFieldEditing ? (
               <div ref={wrapperRef} className="relative w-full">
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  <Input
-                    {...field}
-                    value={field.value ?? ''}
-                    placeholder="Start typing an address..."
-                    className="pl-9"
-                    onChange={(e) => handleInputChange(e.target.value, field.onChange)}
-                    onBlur={handleBlur}
-                    autoFocus={internalEditing === 'address'}
-                    autoComplete="off"
-                  />
-                </div>
+                <Input
+                  {...field}
+                  value={field.value ?? ''}
+                  placeholder="Search address..."
+                  onChange={(e) => handleInputChange(e.target.value, field.onChange)}
+                  onBlur={handleBlur}
+                  autoFocus={internalEditing === 'address'}
+                  autoComplete="off"
+                />
                 {showPredictions && predictions.length > 0 && (
                   <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-md">
                     {predictions.map((prediction) => (
@@ -156,7 +153,6 @@ export const AddressField = <TUpdateInput,>({
                         key={prediction.place_id}
                         className="flex items-start gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-accent transition-colors"
                         onMouseDown={(e) => {
-                          // Use mousedown so it fires before the input blur
                           e.preventDefault()
                           handleSelectPrediction(prediction.place_id, prediction.description, field.onChange)
                         }}

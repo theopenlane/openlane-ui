@@ -2,11 +2,7 @@ import { type FilterField } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import { ContactOrderField, type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
-import NameField from '../create/form/fields/name-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
-import Properties from '../create/form/fields/properties'
-import LinkedVendors from '../create/form/fields/linked-vendors'
-import VendorSelectField from '../create/form/fields/vendor-select-field'
 import { type ContactFieldProps, type EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 
@@ -52,28 +48,6 @@ export const getFieldsToRender = (props: ContactFieldProps, enumOptions: EnumOpt
 
   return (
     <div className="mr-6">
-      <div className="flex flex-row items-center mb-6">
-        <div className="min-w-[300px]">
-          <NameField
-            isEditing={props.isEditing}
-            isEditAllowed={props.isEditAllowed}
-            initialValue={props.isCreate ? '' : (props.data?.fullName ?? '')}
-            internalEditing={props.internalEditing}
-            setInternalEditing={props.setInternalEditing}
-            handleUpdateField={handleUpdateField}
-          />
-        </div>
-        <div className="ml-20 mt-6">
-          <Properties
-            isEditing={props.isEditing}
-            isEditAllowed={props.isEditAllowed}
-            data={contactData}
-            internalEditing={props.internalEditing}
-            setInternalEditing={props.setInternalEditing}
-            handleUpdateField={handleUpdateField}
-          />
-        </div>
-      </div>
       <AdditionalFields
         isEditing={props.isEditing}
         isEditAllowed={props.isEditAllowed}
@@ -84,7 +58,6 @@ export const getFieldsToRender = (props: ContactFieldProps, enumOptions: EnumOpt
         handleUpdateField={handleUpdateField}
         enumOptions={enumOptions}
       />
-      <div className="mt-6">{props.isCreate ? <VendorSelectField /> : <LinkedVendors data={contactData} isEditAllowed={props.isEditAllowed} />}</div>
     </div>
   )
 }
