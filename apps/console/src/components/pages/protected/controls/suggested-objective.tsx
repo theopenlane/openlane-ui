@@ -35,13 +35,13 @@ export function useSuggestedObjective(control?: TDocsEvidenceControl, enabled = 
   const { dismissed, dismiss, isResolved } = useDismissible(`objective-suggestion-dismissed:${control?.controlId ?? ''}`)
 
   // a control that already has an objective gets no suggestion
-  const { data: existingData, isLoading: isExistingLoading } = useGetAllControlObjectives(
+  const { data: existingData, isPending: isExistingPending } = useGetAllControlObjectives(
     control?.controlId ? { hasControlsWith: [{ id: control.controlId }], statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED } : {},
     { enabled: enabled && !!control?.controlId },
   )
-  const hasExisting = (existingData?.controlObjectives?.edges?.length ?? 0) > 0
+  const hasNoExisting = !isExistingPending && (existingData?.controlObjectives?.edges?.length ?? 0) === 0
 
-  const active = enabled && docsHelpEnabled && isResolved && !dismissed && !isExistingLoading && !hasExisting
+  const active = enabled && docsHelpEnabled && isResolved && !dismissed && hasNoExisting
   const { section, target } = useControlDocsSection(active ? control : undefined, 'Example Control Objectives')
 
   const suggestion = section ? parseFirstObjective(section) : null

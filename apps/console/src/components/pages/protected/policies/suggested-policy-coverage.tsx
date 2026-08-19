@@ -87,8 +87,8 @@ export function SuggestedPolicyCoverage() {
   // per-org dismissal, persisted so the alert stays gone once waved away
   const { dismissed, dismiss: handleDismiss, isResolved } = useDismissible('policy-coverage-dismissed')
   const { isDismissed, dismiss: dismissTopic } = useDismissedItems('policy-coverage-covered')
-  const { data: mappingData } = useDocsPolicyMapping(docsHelpEnabled)
-  const { data: programsData } = useGetProgramDashboard({ enabled: docsHelpEnabled })
+  const { data: mappingData, isPending: isMappingPending } = useDocsPolicyMapping(docsHelpEnabled)
+  const { data: programsData, isPending: isProgramsPending } = useGetProgramDashboard({ enabled: docsHelpEnabled })
   // held back until the page's own data is in, then paged through in the background
   const { policies: orgPolicies, isLoading: isPoliciesLoading } = useAllPolicyNames({ enabled: docsHelpEnabled && isResolved && !dismissed && !!mappingData && !!programsData })
   const { data: templates } = usePolicyTemplates(docsHelpEnabled)
@@ -97,17 +97,17 @@ export function SuggestedPolicyCoverage() {
   const [showAll, setShowAll] = useState(false)
 
   const coverage = useMemo(() => {
+    // until every query is in, everything reads as missing and the card would
+    // flash a full list before emptying itself
+    if (isMappingPending || isProgramsPending || isPoliciesLoading) return null
     const mapping = mappingData?.mapping ?? []
-    // until the org's policies are in, everything reads as missing and the card
-    // would flash a full list before emptying itself
-    if (!mapping.length || isPoliciesLoading) return null
 
     const orgFrameworks = [...new Set((programsData?.programs?.edges ?? []).map((e) => e?.node?.frameworkName).filter((f): f is string => !!f))]
     const suggested = mapping.filter((row) => row.frameworks[0] === 'all' || row.frameworks.some((f) => orgFrameworks.some((org) => frameworkMatches(f, org))))
     const missing = suggested.filter((row) => !isDismissed(row.policy) && !orgPolicies.some((policy) => policyCovers(policy, { name: row.policy })))
 
     return { orgFrameworks, total: suggested.length, missing }
-  }, [mappingData, programsData, orgPolicies, isPoliciesLoading, isDismissed])
+  }, [mappingData, programsData, isMappingPending, isProgramsPending, orgPolicies, isPoliciesLoading, isDismissed])
 
   // nothing missing means nothing to check again, so retire the card rather than
   // paging every policy in the org on each visit

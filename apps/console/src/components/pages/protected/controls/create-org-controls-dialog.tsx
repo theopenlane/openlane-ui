@@ -144,9 +144,9 @@ export function CreateOrgControlsFromDocsButton({
   size?: 'sm'
 }) {
   const [open, setOpen] = useState(false)
-  const { rows } = useResolvedSuggestions(frameworkControl, existingRefCodes, true)
+  const { rows, isLoading } = useResolvedSuggestions(frameworkControl, existingRefCodes, true)
 
-  if (!docsHelpEnabled || rows.length === 0) return null
+  if (!docsHelpEnabled || isLoading || rows.length === 0) return null
   return (
     <>
       <Button
