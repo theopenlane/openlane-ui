@@ -6,11 +6,15 @@ import { ContactUserStatus } from '@repo/codegen/src/schema'
 
 const formSchema = z.object({
   fullName: z.string().min(1, 'Full name is required'),
-  email: z.string().email('Valid email is required').optional().or(z.literal('')),
+  email: z.string().email('Must be a valid email').optional().or(z.literal('')),
   company: z.string().optional(),
   title: z.string().optional(),
   address: z.string().optional(),
-  phoneNumber: z.string().optional(),
+  phoneNumber: z
+    .string()
+    .regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number')
+    .optional()
+    .or(z.literal('')),
   status: z.enum(ContactUserStatus).optional(),
   tags: z.array(z.string()).optional(),
   entityIDs: z.array(z.string()).optional(),
