@@ -19,7 +19,7 @@ import { Loading } from '@/components/shared/loading/loading'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
+import { useOrgTablePagination, useOrgTableSort, useOrgTableViewMode } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
@@ -29,7 +29,7 @@ import { resolveTasksWhere } from '@/lib/graphql-hooks/task-where'
 const TasksPage: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
   const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.TASK)
-  const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
+  const [activeTab, setActiveTab] = useOrgTableViewMode(TableKeyEnum.TASK)
   const [showMyTasks, setShowMyTasks] = useState<boolean>(false)
   const [filters, setFilters] = useState<TaskWhereInput | null>(null)
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.TASK)
@@ -134,10 +134,6 @@ const TasksPage: React.FC = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const handleTabChange = (tab: 'table' | 'card') => {
-    setActiveTab(tab)
-  }
-
   const emptyUserMap = {}
   const mappedColumns: { accessorKey: string; header: string; meta: { exportPrefix?: string } }[] = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks, taskKindOptions })
     .filter(
@@ -179,7 +175,8 @@ const TasksPage: React.FC = () => {
     <>
       <TaskTableToolbar
         onFilterChange={setFilters}
-        onTabChange={handleTabChange}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
         handleClearSelectedTasks={handleClearSelectedTasks}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}
@@ -215,7 +212,7 @@ const TasksPage: React.FC = () => {
           permission={permission}
         />
       ) : (
-        <TaskBoard whereFilter={whereFilter} orderByFilter={orderByFilter} />
+        <TaskBoard whereFilter={whereFilter} orderByFilter={orderByFilter} onHasTasksChange={setHasTasks} />
       )}
     </>
   )

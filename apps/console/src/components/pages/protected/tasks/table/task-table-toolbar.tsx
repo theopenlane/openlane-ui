@@ -14,6 +14,7 @@ import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/col
 import { Input } from '@repo/ui/input'
 import { TaskTaskStatus, type TaskWhereInput } from '@repo/codegen/src/schema'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
+import { type TTableViewMode } from '@/hooks/use-org-table-state'
 import { Button } from '@repo/ui/button'
 import { BulkEditTasksDialog } from '../bulk-edit/bulk-edit-tasks'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
@@ -32,7 +33,8 @@ import { getBulkActionFailureDescription } from '@/components/shared/crud-base/b
 
 type TTaskTableToolbarProps = {
   onFilterChange: (filters: TaskWhereInput) => void
-  onTabChange: (tab: 'table' | 'card') => void
+  activeTab: TTableViewMode
+  onTabChange: (tab: TTableViewMode) => void
   handleExport: () => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
@@ -54,7 +56,6 @@ type TTaskTableToolbarProps = {
 
 const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToolbarProps) => {
   const { data: session } = useSession()
-  const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const { orgMembers } = useTaskStore()
   const { programOptions, isSuccess, hasProgramAccess } = useProgramSelect()
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
@@ -184,11 +185,6 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
     setFilterFields(fields)
   }, [orgMembers, programOptions, filterFields, isSuccess, hasProgramAccess, taskKindOptions, isEnumOptionsSuccess])
 
-  const handleTabChange = (tab: 'table' | 'card') => {
-    setActiveTab(tab)
-    props.onTabChange(tab)
-  }
-
   return (
     <>
       <div className="flex items-center gap-2 my-2">
@@ -201,7 +197,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
           variant="searchTable"
           iconPosition="left"
         />
-        <TableCardView activeTab={activeTab} onTabChange={handleTabChange} />
+        <TableCardView activeTab={props.activeTab} onTabChange={props.onTabChange} />
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {props.selectedTasks.length > 0 ? (
             <>

@@ -25,7 +25,7 @@ import { whereGenerator, whereContainsKey } from '@/components/shared/table-filt
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { useGroupsFilters } from './table/table-config'
-import { useOrgTablePagination } from '@/hooks/use-org-table-state'
+import { useOrgTablePagination, useOrgTableViewMode } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
 import Menu from '@/components/shared/menu/menu'
@@ -33,7 +33,7 @@ import { useCreateBulkCSVGroup } from '@/lib/graphql-hooks/group'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const GroupsPage = () => {
-  const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
+  const [activeTab, setActiveTab] = useOrgTableViewMode(TableKeyEnum.GROUP)
   const [whereFilters, setWhereFilters] = useState<GroupWhereInput | null>(null)
   const [orderBy, setOrderBy] = useState<GetAllGroupsQueryVariables['orderBy']>()
   const [searchQuery, setSearchQuery] = useState('')

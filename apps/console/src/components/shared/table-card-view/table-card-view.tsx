@@ -1,8 +1,9 @@
 import { LayoutGrid, Table as TableIcon } from 'lucide-react'
+import { type TTableViewMode } from '@/hooks/use-org-table-state'
 
 type TTableCardViewProps = {
-  onTabChange: (tab: 'table' | 'card') => void
-  activeTab: 'table' | 'card'
+  onTabChange: (tab: TTableViewMode) => void
+  activeTab: TTableViewMode
 }
 
 const TableCardView = ({ onTabChange, activeTab }: TTableCardViewProps) => {
