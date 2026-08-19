@@ -10,17 +10,18 @@ import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { AlertTriangle, Clock, ClipboardCheck, CalendarClock, SearchIcon } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
-import { EntityFrequency, EntityVendorTier, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
-import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
-import { useReviewsWithFilter } from '@/lib/graphql-hooks/review'
+import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
+import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { riskRatingFromScore } from '@/lib/vendor-risk-rating'
+import { ReadOnlyField } from '@/components/shared/read-only-field/read-only-field'
+import { useReviewsWithFilter, type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import type { WhereCondition } from '@/types'
-import { reviewHistoryColumns, isHighRiskTier, mappedReviewColumns, DEFAULT_VISIBILITY, REVIEW_FILTER_FIELDS } from '@/components/pages/protected/reviews/common/risk-review-config'
-import CreateReviewSheet from '@/components/pages/protected/reviews/common/create-review-sheet'
-import ReviewDetailSheet from '@/components/pages/protected/reviews/common/review-detail-sheet'
+import { reviewHistoryColumns, isHighRiskTier, mappedReviewColumns, DEFAULT_VISIBILITY, REVIEW_FILTER_FIELDS, TIER_OPTIONS } from '@/components/pages/protected/reviews/common/risk-review-config'
+import VendorReviewSheet from './vendor-review/vendor-review-sheet'
 import { useHasRecentReview } from '@/components/pages/protected/reviews/hooks/use-has-recent-review'
 
 interface RiskReviewTabProps {
@@ -33,21 +34,21 @@ interface RiskReviewTabProps {
 const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField, canEdit, isEditing }) => {
   const [now] = useState(() => Date.now())
   const [isCreateReviewOpen, setIsCreateReviewOpen] = useState(false)
-  const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null)
+  const [selectedRow, setSelectedRow] = useState<ReviewsNodeNonNull | null>(null)
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_REVIEWS, DEFAULT_VISIBILITY))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_REVIEWS, { ...DEFAULT_VISIBILITY, summary: false }))
   const [filterWhere, setFilterWhere] = useState<WhereCondition | null>(null)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const searchFields = debouncedSearch ? { or: [{ titleContainsFold: debouncedSearch }, { summaryContainsFold: debouncedSearch }, { reporterContainsFold: debouncedSearch }] } : {}
-  const tierOptions = enumToOptions(EntityVendorTier)
+  const searchFields = debouncedSearch ? { or: [{ titleContainsFold: debouncedSearch }, { reporterContainsFold: debouncedSearch }] } : {}
 
   const { reviewsNodes, isLoading } = useReviewsWithFilter({
     where: { hasEntitiesWith: [{ id: vendor.id }], ...filterWhere, ...searchFields },
     enabled: filterWhere !== null,
   })
 
+  const selectedReview = selectedRow ? (reviewsNodes.find((reviewNode) => reviewNode.id === selectedRow.id) ?? selectedRow) : null
   const isHighRisk = isHighRiskTier(vendor.tier)
   const { hasRecentReview, isLoading: isRecentReviewLoading } = useHasRecentReview({
     entityId: vendor.id,
@@ -73,11 +74,15 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
     ...sharedFieldProps,
     handleUpdate: async (input: UpdateEntityInput) => {
       if ('riskScore' in input && input.riskScore !== undefined) {
-        return handleUpdateField({ riskScore: parseInt(String(input.riskScore), 10) || 0 })
+        const riskScore = parseInt(String(input.riskScore), 10) || 0
+        const derivedRating = riskRatingFromScore(riskScore)
+        return handleUpdateField({ riskScore, ...(derivedRating ? { riskRating: derivedRating } : { clearRiskRating: true }) })
       }
       return handleUpdateField(input)
     },
   }
+
+  const riskRating = riskRatingFromScore(vendor.riskScore) ?? vendor.riskRating ?? null
 
   return (
     <div className="space-y-6">
@@ -125,17 +130,17 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4">
-              <SelectField name="tier" label="Risk Tier" options={tierOptions} {...sharedFieldProps} />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <TextField name="riskRating" label="Risk Rating" {...sharedFieldProps} />
+              <SelectField name="tier" label="Risk Tier" options={TIER_OPTIONS} {...sharedFieldProps} />
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <TextField name="riskScore" label="Risk Score" type="number" {...riskScoreFieldProps} />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <ReadOnlyField label="Risk Rating">{riskRating ? getEnumLabel(riskRating) : null}</ReadOnlyField>
             </CardContent>
           </Card>
           <Card>
@@ -163,12 +168,12 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
           noResultsText="No review history available."
-          onRowClick={(row) => setSelectedReviewId(row.id)}
+          onRowClick={(row) => setSelectedRow(row)}
         />
       </div>
 
-      {isCreateReviewOpen && <CreateReviewSheet entityId={vendor.id} onClose={() => setIsCreateReviewOpen(false)} />}
-      {selectedReviewId && <ReviewDetailSheet reviewId={selectedReviewId} onClose={() => setSelectedReviewId(null)} />}
+      {isCreateReviewOpen && <VendorReviewSheet vendor={vendor} canEditVendor={canEdit} onClose={() => setIsCreateReviewOpen(false)} />}
+      {selectedReview && <VendorReviewSheet key={selectedReview.id} vendor={vendor} review={selectedReview} canEditVendor={canEdit} onClose={() => setSelectedRow(null)} />}
     </div>
   )
 }

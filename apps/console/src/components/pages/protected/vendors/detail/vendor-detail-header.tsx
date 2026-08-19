@@ -18,7 +18,7 @@ import { matchProviderByVendorName } from '@/lib/integrations/utils'
 import { useNotification } from '@/hooks/useNotification'
 import type { TAccessRole } from '@/types/authz'
 import type { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
-import { toBase64DataUri } from '@/lib/image-utils'
+import { getVendorLogoUrl } from '@/lib/vendor-logo'
 import Link from 'next/link'
 import { MergeMenuItem } from '@/components/shared/merge-records/merge-menu-item'
 import { vendorMergeConfig } from '@/components/shared/merge-records/configs/vendor-merge-config'
@@ -54,7 +54,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
     [hasIntegration, vendor.name, vendor.displayName, providersData?.providers],
   )
 
-  const logoUrl = vendor.logoFile?.base64 ? toBase64DataUri(vendor.logoFile.base64) : undefined
+  const logoUrl = getVendorLogoUrl(vendor.logoFile)
 
   const handleLogoSelect = async (file: File) => {
     try {

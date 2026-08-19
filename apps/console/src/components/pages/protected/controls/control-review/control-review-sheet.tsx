@@ -36,7 +36,8 @@ import ReviewFieldsPanel from './review-fields-panel'
 import ReviewSummaryPanel from './review-summary-panel'
 import ReviewFindingsPanel from './review-findings-panel'
 import ReviewSheetFooter from './review-sheet-footer'
-import { buildFindingInput, buildLinkedAssociationInput, hasFindingInput, resolveAuditorNotesHtml } from './review-submission'
+import { buildFindingInput, buildLinkedAssociationInput, hasFindingInput } from './review-submission'
+import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 
 type TControlReviewSheetProps = {
   controlId: string
@@ -133,7 +134,7 @@ const ControlReviewSheet: React.FC<TControlReviewSheetProps> = ({ controlId, que
 
     setPendingAction(status)
     try {
-      const auditorNotesHtml = savedCommentRef.current ? null : await resolveAuditorNotesHtml(formData.auditorNotes, plateEditorHelper)
+      const auditorNotesHtml = savedCommentRef.current ? null : await plateToHtmlOrNull(formData.auditorNotes, plateEditorHelper)
 
       const input: UpdateReviewInput = {
         title: formData.title,
