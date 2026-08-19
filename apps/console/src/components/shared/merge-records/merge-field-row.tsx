@@ -3,11 +3,17 @@
 import React from 'react'
 import { cn } from '@repo/ui/lib/utils'
 import { Badge } from '@repo/ui/badge'
+import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Check } from 'lucide-react'
 import { MergeValueDisplay } from './merge-value-display'
 import type { MergeSource, MergeArrayStrategy } from './types'
 import type { ResolvedField } from './use-merge-resolution'
+
+const ARRAY_STRATEGY_OPTIONS: { strategy: MergeArrayStrategy; label: string }[] = [
+  { strategy: 'union', label: 'Combine' },
+  { strategy: 'choose', label: 'Choose one' },
+]
 
 type AliasFoldToggle = {
   label: string
@@ -64,21 +70,18 @@ export const MergeFieldRow = <TRecord,>({ resolved, onPickSource, onToggleArrayS
             </label>
           )}
           {kind === 'merged-array' && onToggleArrayStrategy && !aliasFoldApplied && (
-            <div className="flex items-center gap-1 text-xs">
-              <button
-                type="button"
-                onClick={() => onToggleArrayStrategy('union')}
-                className={cn('px-2 py-0.5 rounded border', arrayStrategy === 'union' ? 'bg-primary text-primary-foreground border-primary' : 'border-muted-foreground/30')}
-              >
-                Union
-              </button>
-              <button
-                type="button"
-                onClick={() => onToggleArrayStrategy('choose')}
-                className={cn('px-2 py-0.5 rounded border', arrayStrategy === 'choose' ? 'bg-primary text-primary-foreground border-primary' : 'border-muted-foreground/30')}
-              >
-                Choose one
-              </button>
+            <div className="flex items-center gap-1">
+              {ARRAY_STRATEGY_OPTIONS.map(({ strategy, label }) => (
+                <Button
+                  key={strategy}
+                  type="button"
+                  variant={arrayStrategy === strategy ? 'primary' : 'secondary'}
+                  aria-pressed={arrayStrategy === strategy}
+                  onClick={() => onToggleArrayStrategy(strategy)}
+                >
+                  {label}
+                </Button>
+              ))}
             </div>
           )}
         </div>
