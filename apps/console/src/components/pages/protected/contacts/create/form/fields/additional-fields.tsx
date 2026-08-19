@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
@@ -7,6 +8,7 @@ import { type InternalEditingType } from '@/components/shared/crud-base/generic-
 import { type EnumOptions } from '../../../table/types'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 import VendorSuggestion from './vendor-suggestion'
+import AddressField from './address-field'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -36,13 +38,12 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-md p-0">Contact Information</CardTitle>
-          <CardDescription className="p-0">Email, phone, and address details for this contact</CardDescription>
+          <CardDescription className="p-0">Email and phone details for this contact</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="email" label="Email" type="email" tooltipContent="The email address for this contact" {...sharedFieldProps} />
+            <TextField name="email" label="Email" type="email" required tooltipContent="The email address for this contact" {...sharedFieldProps} />
             <TextField name="phoneNumber" label="Phone Number" tooltipContent="The phone number for this contact" {...sharedFieldProps} />
-            <TextField name="address" label="Address" tooltipContent="The mailing address for this contact" {...sharedFieldProps} />
           </div>
           {isCreate && <VendorSuggestion />}
         </CardContent>
@@ -72,6 +73,25 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
           <div className="mb-2 grid grid-cols-1 md:grid-cols-2 gap-2">
             <SelectField name="status" label="Status" options={enumOptions.statusOptions} tooltipContent="The current status of this contact" {...sharedFieldProps} />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Address — kept at the bottom since it's less commonly needed */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-md p-0">Address</CardTitle>
+          <CardDescription className="p-0">Mailing address for this contact</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AddressField
+            isEditing={isEditing}
+            isEditAllowed={isEditAllowed}
+            isCreate={isCreate}
+            data={data}
+            internalEditing={internalEditing}
+            setInternalEditing={setInternalEditing}
+            handleUpdate={handleUpdateField}
+          />
         </CardContent>
       </Card>
     </div>
