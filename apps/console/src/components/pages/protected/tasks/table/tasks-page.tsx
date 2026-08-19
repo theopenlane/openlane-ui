@@ -24,6 +24,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { resolveTasksWhere } from '@/lib/graphql-hooks/task-where'
 
 const TasksPage: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
@@ -160,7 +161,7 @@ const TasksPage: React.FC = () => {
 
     handleExport({
       exportType: ExportExportType.TASK,
-      filters: JSON.stringify(whereFilter),
+      filters: JSON.stringify(resolveTasksWhere(whereFilter)),
       fields: mappedColumns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
       format: ExportExportFormat.CSV,
     })

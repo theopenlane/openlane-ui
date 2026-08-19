@@ -20,6 +20,7 @@ export const TASKS_WITH_FILTER = gql`
           taskKindName
           completed
           isSuggested
+          isTemplate
           priority
           source
           sourceKey
@@ -97,6 +98,7 @@ export const TASK = gql`
       taskKindName
       title
       status
+      isTemplate
       tasks {
         id
         title
@@ -182,8 +184,24 @@ export const BULK_DELETE_TASK = gql`
 
 export const GET_OVERDUE_TASK_COUNT = gql`
   query GetOverdueTaskCount($now: DateTime!) {
-    tasks(where: { statusNotIn: [COMPLETED, WONT_DO], dueLT: $now }) {
+    tasks(where: { statusNotIn: [COMPLETED, WONT_DO], dueLT: $now, isTemplate: false }) {
       totalCount
+    }
+  }
+`
+
+export const TASK_TEMPLATES = gql`
+  query TaskTemplates($where: TaskWhereInput, $orderBy: [TaskOrder!], $first: Int) {
+    tasks(where: $where, orderBy: $orderBy, first: $first) {
+      totalCount
+      edges {
+        node {
+          id
+          title
+          taskKindName
+          tags
+        }
+      }
     }
   }
 `

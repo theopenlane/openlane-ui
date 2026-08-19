@@ -111,7 +111,7 @@ export const GET_PROGRAM_DETAILS_BY_ID = gql`
       auditorReady
       auditorWriteComments
       auditorReadComments
-      tasks {
+      tasks(where: { isTemplate: false }) {
         edges {
           node {
             id
@@ -400,7 +400,7 @@ export const GET_PROGRAM_DASHBOARD = gql`
           submittedEvidences: controls(where: { hasEvidenceWith: [{ statusIn: [READY_FOR_AUDITOR, AUDITOR_APPROVED] }] }) {
             totalCount
           }
-          tasks {
+          tasks(where: { isTemplate: false }) {
             edges {
               node {
                 id

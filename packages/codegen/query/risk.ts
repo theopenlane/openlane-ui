@@ -313,7 +313,7 @@ export const GET_RISK_ASSOCIATIONS_TIMELINE = gql`
           }
         }
       }
-      tasks {
+      tasks(where: { isTemplate: false }) {
         edges {
           node {
             id
@@ -402,7 +402,7 @@ export const GET_RISK_ASSOCIATIONS = gql`
           }
         }
       }
-      tasks {
+      tasks(where: { isTemplate: false }) {
         totalCount
         edges {
           node {

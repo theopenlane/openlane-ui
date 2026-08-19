@@ -28,13 +28,14 @@ type PropertiesProps = {
   taskData: TaskQuery['task'] | undefined
   internalEditing: keyof EditTaskFormData | null
   setInternalEditing: (field: keyof EditTaskFormData | null) => void
-  handleUpdate?: (val: UpdateTaskInput) => void
+  handleUpdate?: (val: UpdateTaskInput) => void | Promise<boolean>
   isEditAllowed: boolean
+  isTemplate: boolean
 }
 
 const allProperties = ['assigneeID', 'due', 'status', 'taskKindName', 'tags']
 
-const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEditing, setInternalEditing, handleUpdate, isEditAllowed }) => {
+const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEditing, setInternalEditing, handleUpdate, isEditAllowed, isTemplate }) => {
   const { control, formState, watch, setValue } = useFormContext<EditTaskFormData>()
   const { orgMembers } = useTaskStore()
 
@@ -172,94 +173,98 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
       </div>
 
       {/* Due Date */}
-      <div className="flex items-center gap-4">
-        <CalendarCheck2 className="text-primary" size={16} />
-        <p className="text-sm w-[120px]">Due Date</p>
+      {!isTemplate && (
+        <div className="flex items-center gap-4">
+          <CalendarCheck2 className="text-primary" size={16} />
+          <p className="text-sm w-[120px]">Due Date</p>
 
-        {isEditing || internalEditing === 'due' ? (
-          <Controller
-            name="due"
-            control={control}
-            render={({ field }) => (
-              <div className="w-[250px]" ref={triggerRef}>
-                <CalendarPopover
-                  field={{
-                    ...field,
-                    onChange: (newDate) => {
-                      field.onChange(newDate)
-                      handleUpdate?.({ due: newDate })
-                      setInternalEditing(null)
-                    },
-                  }}
-                  disabledFrom={new Date()}
-                  buttonClassName="w-full flex justify-between items-center"
-                />
-                {formState.errors.due && <p className="text-red-500 text-sm">{formState.errors.due.message as string}</p>}
-              </div>
-            )}
-          />
-        ) : (
-          <HoverPencilWrapper
-            showPencil={isEditAllowed}
-            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}
-            onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('due')}
-          >
-            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('due')}>{formatDate(taskData?.due) || 'No due date'}</p>
-          </HoverPencilWrapper>
-        )}
-      </div>
+          {isEditing || internalEditing === 'due' ? (
+            <Controller
+              name="due"
+              control={control}
+              render={({ field }) => (
+                <div className="w-[250px]" ref={triggerRef}>
+                  <CalendarPopover
+                    field={{
+                      ...field,
+                      onChange: (newDate) => {
+                        field.onChange(newDate)
+                        handleUpdate?.({ due: newDate })
+                        setInternalEditing(null)
+                      },
+                    }}
+                    disabledFrom={new Date()}
+                    buttonClassName="w-full flex justify-between items-center"
+                  />
+                  {formState.errors.due && <p className="text-red-500 text-sm">{formState.errors.due.message as string}</p>}
+                </div>
+              )}
+            />
+          ) : (
+            <HoverPencilWrapper
+              showPencil={isEditAllowed}
+              className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}
+              onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('due')}
+            >
+              <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('due')}>{formatDate(taskData?.due) || 'No due date'}</p>
+            </HoverPencilWrapper>
+          )}
+        </div>
+      )}
 
       {/* Status */}
-      <div className="flex items-center gap-4">
-        <Circle className="text-primary" size={16} />
-        <p className="text-sm w-[120px]">Status</p>
+      {!isTemplate && (
+        <div className="flex items-center gap-4">
+          <Circle className="text-primary" size={16} />
+          <p className="text-sm w-[120px]">Status</p>
 
-        {isEditing || internalEditing === 'status' ? (
-          <Controller
-            name="status"
-            control={control}
-            render={({ field }) => (
-              <div className="w-[250px]" ref={triggerRef}>
-                <Select
-                  value={field.value}
-                  onValueChange={(value) => {
-                    handleUpdate?.({ status: value as TaskTaskStatus })
-                    field.onChange(value)
-                    setInternalEditing(null)
-                  }}
-                >
-                  <SelectTrigger className="w-full">{getEnumLabel(field.value as TaskTaskStatus)}</SelectTrigger>
-                  <SelectContent ref={popoverRef}>
-                    {statusOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {getEnumLabel(option.value as TaskTaskStatus)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {formState.errors.status && <p className="text-red-500 text-sm">{formState.errors.status.message}</p>}
-              </div>
-            )}
-          />
-        ) : (
-          <HoverPencilWrapper
-            showPencil={isEditAllowed}
-            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} flex items-center space-x-2 text-sm pr-5`}
-            onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}
-          >
-            <div className="flex items-center space-x-2" onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}>
-              {taskData?.status ? (
-                <>
-                  {TaskStatusIconMapper[taskData.status]}
-                  <p>{getEnumLabel(taskData.status)}</p>
-                </>
-              ) : (
-                'No status'
+          {isEditing || internalEditing === 'status' ? (
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <div className="w-[250px]" ref={triggerRef}>
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => {
+                      handleUpdate?.({ status: value as TaskTaskStatus })
+                      field.onChange(value)
+                      setInternalEditing(null)
+                    }}
+                  >
+                    <SelectTrigger className="w-full">{getEnumLabel(field.value as TaskTaskStatus)}</SelectTrigger>
+                    <SelectContent ref={popoverRef}>
+                      {statusOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {getEnumLabel(option.value as TaskTaskStatus)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formState.errors.status && <p className="text-red-500 text-sm">{formState.errors.status.message}</p>}
+                </div>
               )}
-            </div>
-          </HoverPencilWrapper>
-        )}
-      </div>
+            />
+          ) : (
+            <HoverPencilWrapper
+              showPencil={isEditAllowed}
+              className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} flex items-center space-x-2 text-sm pr-5`}
+              onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}
+            >
+              <div className="flex items-center space-x-2" onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}>
+                {taskData?.status ? (
+                  <>
+                    {TaskStatusIconMapper[taskData.status]}
+                    <p>{getEnumLabel(taskData.status)}</p>
+                  </>
+                ) : (
+                  'No status'
+                )}
+              </div>
+            </HoverPencilWrapper>
+          )}
+        </div>
+      )}
 
       {/* Task Type */}
       <div className="flex items-center gap-4">

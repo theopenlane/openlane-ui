@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { resolveTasksWhere } from '@/lib/graphql-hooks/task-where'
 import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'
 import { GET_DOCUMENTATION_POLICIES, GET_DOCUMENTATION_PROCEDURES, GET_DOCUMENTATION_TASKS, GET_DOCUMENTATION_PROGRAMS, GET_DOCUMENTATION_RISKS } from '@repo/codegen/query/documentation'
 import type {
@@ -90,10 +91,11 @@ export const useDocumentationProcedures = ({ where, orderBy, pagination, enabled
 type DocTasksQuery = { tasks: Connection<Pick<Task, 'id' | 'title' | 'taskKindName' | 'status' | 'due' | 'updatedAt' | 'assignee'>> }
 export const useDocumentationTasks = ({ where, orderBy, pagination, enabled = true }: UseDocListArgs<TaskWhereInput, TaskOrder>) => {
   const { client } = useGraphQLClient()
+  const effectiveWhere = resolveTasksWhere(where)
 
   const queryResult = useQuery<DocTasksQuery>({
-    queryKey: ['tasks', 'documentation-tab', where, orderBy, pagination?.page, pagination?.pageSize],
-    queryFn: () => client.request(GET_DOCUMENTATION_TASKS, { where, orderBy, ...pagination?.query }),
+    queryKey: ['tasks', 'documentation-tab', effectiveWhere, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: () => client.request(GET_DOCUMENTATION_TASKS, { where: effectiveWhere, orderBy, ...pagination?.query }),
     enabled,
   })
 

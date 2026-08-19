@@ -7,7 +7,7 @@ import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { TaskTaskStatus, type UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
-import useFormSchema, { type CreateTaskFormData, type EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
+import useFormSchema, { type EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
 import { Form } from '@repo/ui/form'
 import { useTask, useTaskAssociations, useUpdateTask } from '@/lib/graphql-hooks/task'
 import { CreateTaskDialog } from '../dialog/create-task-dialog'
@@ -24,7 +24,8 @@ import DetailsField from '../form/fields/details-field'
 import Properties from '../form/fields/properties'
 import Conversation from '../form/fields/conversation'
 import TasksSheetHeader from '../form/fields/header'
-import { buildTaskPayload, generateEvidenceFormData } from '../utils'
+import { buildTaskAssociations, buildTaskPayload, generateEvidenceFormData, type TTaskCopyMode } from '../utils'
+import { useTaskCopyPrefill } from '../../hooks/use-task-copy-prefill'
 import MarkAsComplete from '../form/fields/mark-as-complete'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TasksDetailsSheetSkeleton } from '../../skeleton/tasks-details-sheet-skeleton'
@@ -72,56 +73,13 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const { data: associationsData, isLoading: associationsLoading } = useTaskAssociations(id as string)
+  const isTemplate = !!taskData?.isTemplate
   const evidenceFormData = useMemo(() => generateEvidenceFormData(taskData, associationsData), [taskData, associationsData])
-  const [duplicateOpen, setDuplicateOpen] = useState(false)
+  const [createFromTaskMode, setCreateFromTaskMode] = useState<TTaskCopyMode | null>(null)
 
-  const duplicateInitialValues = useMemo<Partial<CreateTaskFormData> | undefined>(() => {
-    if (!taskData) return undefined
-    return {
-      title: `Copy of ${taskData.title ?? ''}`,
-      taskKindName: taskData.taskKindName ?? undefined,
-      details: taskData.details ?? undefined,
-      assigneeID: taskData.assignee?.id,
-      tags: taskData.tags ?? [],
-      due: taskData.due ? new Date(taskData.due as string) : undefined,
-    }
-  }, [taskData])
+  const { initialValues: copyValues, initialData: copyAssociations, objectAssociationsDisplayIDs: copyDisplayIDs } = useTaskCopyPrefill(taskData, associationsData, createFromTaskMode)
 
-  const duplicateDisplayIDs = useMemo<string[] | undefined>(() => {
-    if (!associationsData?.task) return undefined
-    const t = associationsData.task
-    const ids = [
-      ...(t.controls?.edges?.map((e) => e?.node?.refCode) ?? []),
-      ...(t.subcontrols?.edges?.map((e) => e?.node?.refCode) ?? []),
-      ...(t.programs?.edges?.map((e) => e?.node?.displayID) ?? []),
-      ...(t.procedures?.edges?.map((e) => e?.node?.displayID) ?? []),
-      ...(t.internalPolicies?.edges?.map((e) => e?.node?.displayID) ?? []),
-      ...(t.controlObjectives?.edges?.map((e) => e?.node?.displayID) ?? []),
-      ...(t.risks?.edges?.map((e) => e?.node?.displayID) ?? []),
-      ...(t.groups?.edges?.map((e) => e?.node?.displayID) ?? []),
-    ].filter((v): v is string => !!v)
-    return ids.length > 0 ? ids : undefined
-  }, [associationsData])
-
-  const initialAssociations = useMemo(
-    () => ({
-      programIDs: (associationsData?.task?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      procedureIDs: (associationsData?.task?.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      internalPolicyIDs: (associationsData?.task?.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      controlObjectiveIDs: (associationsData?.task?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      groupIDs: (associationsData?.task?.groups?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
-      subcontrolIDs: (associationsData?.task?.subcontrols?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
-      controlIDs: (associationsData?.task?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
-      riskIDs: (associationsData?.task?.risks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
-      taskIDs: (taskData?.tasks?.map((item) => item?.id).filter(Boolean) as string[]) ?? [],
-    }),
-    [associationsData?.task, taskData],
-  )
-
-  const duplicateAssociations = useMemo(() => {
-    const { taskIDs: _taskIDs, ...rest } = initialAssociations
-    return rest
-  }, [initialAssociations])
+  const initialAssociations = useMemo(() => buildTaskAssociations(associationsData, taskData), [associationsData, taskData])
 
   useEffect(() => {
     setAssociations(initialAssociations)
@@ -150,6 +108,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
         taskKindName: taskData?.taskKindName ?? undefined,
         status: taskData?.status ? Object.values(TaskTaskStatus).find((type) => type === taskData?.status) : undefined,
         tags: taskData?.tags ?? [],
+        isTemplate: taskData.isTemplate ?? false,
       })
     }
   }, [taskData, form])
@@ -189,7 +148,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
     setIsEditing(false)
   }
 
-  const handleDuplicateCreated = (newId: string) => {
+  const handleTaskCreatedFromTask = (newId: string) => {
     setIsEditing(false)
 
     if (onCloseProp) {
@@ -232,7 +191,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
 
   const handleUpdateField = async (input: UpdateTaskInput) => {
     if (!id || isEditing) {
-      return
+      return true
     }
     try {
       await updateTask({ updateTaskId: id, input })
@@ -240,12 +199,14 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
         title: 'Task updated',
         description: 'The task has been successfully updated.',
       })
+      return true
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
         description: errorMessage,
       })
+      return false
     }
   }
 
@@ -272,10 +233,13 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
               title={taskData?.title}
               isEditAllowed={isEditAllowed}
               id={id}
-              onDuplicate={() => setDuplicateOpen(true)}
+              onDuplicate={() => setCreateFromTaskMode('duplicate')}
               canDuplicate={!!taskData && !fetching && !associationsLoading}
               sharePath={sharePath}
               onDeleted={handleCloseParams}
+              isTemplate={isTemplate}
+              onTemplateChange={(nextIsTemplate) => handleUpdateField({ isTemplate: nextIsTemplate })}
+              onUseTemplate={() => setCreateFromTaskMode('template')}
             />
           }
         >
@@ -311,7 +275,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
                           </>
                         )}
                       </>
-                      <MarkAsComplete taskData={taskData} />
+                      {!isTemplate && <MarkAsComplete taskData={taskData} />}
                     </div>
                   )}
                   <Properties
@@ -321,6 +285,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
                     setInternalEditing={setInternalEditing}
                     handleUpdate={handleUpdateField}
                     isEditAllowed={isEditAllowed}
+                    isTemplate={isTemplate}
                   />
                   {isEditing && (
                     <Panel className="mt-20">
@@ -359,14 +324,19 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
           />
         </SheetContent>
       </Sheet>
-      {duplicateOpen && duplicateInitialValues && (
+      {copyValues && (
         <CreateTaskDialog
-          open={duplicateOpen}
-          onOpenChange={setDuplicateOpen}
-          initialValues={duplicateInitialValues}
-          initialData={duplicateAssociations}
-          objectAssociationsDisplayIDs={duplicateDisplayIDs}
-          onSuccessWithId={handleDuplicateCreated}
+          open
+          onOpenChange={(open) => {
+            if (!open) {
+              setCreateFromTaskMode(null)
+            }
+          }}
+          initialValues={copyValues}
+          initialData={copyAssociations}
+          objectAssociationsDisplayIDs={copyDisplayIDs}
+          fromTemplate={createFromTaskMode === 'template'}
+          onSuccessWithId={handleTaskCreatedFromTask}
         />
       )}
     </>

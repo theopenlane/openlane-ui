@@ -11,7 +11,14 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
-const DeleteTaskDialog: React.FC<{ taskName: string; taskId: string; onDeleted: () => void }> = ({ taskName, taskId, onDeleted }) => {
+type TDeleteTaskDialogProps = {
+  taskName: string
+  taskId: string
+  onDeleted: () => void
+  renderTrigger?: (open: () => void) => React.ReactNode
+}
+
+const DeleteTaskDialog: React.FC<TDeleteTaskDialogProps> = ({ taskName, taskId, onDeleted, renderTrigger }) => {
   const { successNotification, errorNotification } = useNotification()
   const { data: permission } = useAccountRoles(ObjectTypes.TASK, taskId)
   const [isOpen, setIsOpen] = useState(false)
@@ -42,9 +49,13 @@ const DeleteTaskDialog: React.FC<{ taskName: string; taskId: string; onDeleted: 
 
   return (
     <>
-      <Button icon={<Trash2 />} iconPosition="left" variant="secondary" onClick={() => setIsOpen(true)}>
-        Delete
-      </Button>
+      {renderTrigger ? (
+        renderTrigger(() => setIsOpen(true))
+      ) : (
+        <Button icon={<Trash2 />} iconPosition="left" variant="secondary" onClick={() => setIsOpen(true)}>
+          Delete
+        </Button>
+      )}
       <ConfirmationDialog
         title={`Delete Task`}
         open={isOpen}

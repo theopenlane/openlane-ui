@@ -389,7 +389,7 @@ export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
         totalCount
       }
 
-      tasks {
+      tasks(where: { isTemplate: false }) {
         edges {
           node {
             id

@@ -8964,6 +8964,7 @@ export interface TasksWithFilterQuery {
         taskKindName: string | null
         completed: string | null
         isSuggested: boolean
+        isTemplate: boolean
         priority: number
         source: string | null
         sourceKey: string | null
@@ -9012,6 +9013,7 @@ export interface TaskQuery {
     taskKindName: string | null
     title: string
     status: Types.TaskTaskStatus
+    isTemplate: boolean
     due: string | null
     displayID: string
     details: string | null
@@ -9080,6 +9082,16 @@ export type GetOverdueTaskCountQueryVariables = Exact<{
 
 export interface GetOverdueTaskCountQuery {
   tasks: { totalCount: number }
+}
+
+export type TaskTemplatesQueryVariables = Exact<{
+  where?: Types.TaskWhereInput | null | undefined
+  orderBy?: Array<Types.TaskOrder> | Types.TaskOrder | null | undefined
+  first?: number | null | undefined
+}>
+
+export interface TaskTemplatesQuery {
+  tasks: { totalCount: number; edges: Array<{ node: { id: string; title: string; taskKindName: string | null; tags: Array<string> | null } | null } | null> | null }
 }
 
 export type GetTaskAssociationsQueryVariables = Exact<{

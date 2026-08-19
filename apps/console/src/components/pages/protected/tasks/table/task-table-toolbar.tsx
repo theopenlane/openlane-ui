@@ -2,7 +2,7 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useMemo, useState } from 'react'
 import { getTasksFilterFields } from '@/components/pages/protected/tasks/table/table-config.ts'
 import { taskDefaultFilterValues } from '@/components/pages/protected/tasks/util/task'
-import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
+import CreateTaskDropdown from '@/components/pages/protected/tasks/create-task/dialog/create-task-dropdown'
 import { type FilterField } from '@/types'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
@@ -126,6 +126,13 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
         key: 'suggested',
         type: 'custom',
         getCondition: () => ({ isSuggested: true }),
+        isActive: false,
+      },
+      {
+        label: 'Templates',
+        key: 'templates',
+        type: 'custom',
+        getCondition: () => ({ isTemplate: true }),
         isActive: false,
       },
     ]
@@ -259,7 +266,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
               {filterFields && (
                 <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableKeyEnum.TASK} quickFilters={quickFilters} defaultFilterValues={taskDefaultFilterValues} />
               )}
-              <CreateTaskDialog />
+              <CreateTaskDropdown />
             </>
           )}
         </div>
