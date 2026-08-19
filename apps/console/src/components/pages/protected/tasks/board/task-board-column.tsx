@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
 import { Card } from '@repo/ui/cardpanel'
 import { cn } from '@repo/ui/lib/utils'
@@ -18,9 +18,10 @@ type TTaskBoardColumnProps = {
   status: TaskTaskStatus
   whereFilter: TaskWhereInput
   orderByFilter: TaskOrder[] | TaskOrder | undefined
+  onHasTasksChange?: (status: TaskTaskStatus, hasTasks: boolean) => void
 }
 
-const TaskBoardColumn = ({ status, whereFilter, orderByFilter }: TTaskBoardColumnProps) => {
+const TaskBoardColumn = ({ status, whereFilter, orderByFilter, onHasTasksChange }: TTaskBoardColumnProps) => {
   const columnWhere = useMemo<TaskWhereInput>(() => ({ ...whereFilter, and: [...(whereFilter.and ?? []), { status }] }), [whereFilter, status])
 
   const { tasks, isError, isLoading, paginationMeta, fetchNextPage } = useTasksWithFilterInfinite({
@@ -32,6 +33,12 @@ const TaskBoardColumn = ({ status, whereFilter, orderByFilter }: TTaskBoardColum
   const handleLoadMore = useCallback(() => {
     fetchNextPage({ cancelRefetch: false })
   }, [fetchNextPage])
+
+  const hasTasks = !isError && paginationMeta.totalCount > 0
+
+  useEffect(() => {
+    onHasTasksChange?.(status, hasTasks)
+  }, [status, hasTasks, onHasTasksChange])
 
   return (
     <Card className="flex flex-col shrink-0 overflow-hidden bg-secondary w-[300px] h-[calc(100vh-236px)]">

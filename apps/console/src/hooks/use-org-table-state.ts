@@ -1,12 +1,14 @@
-import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from 'react'
 import { type SortCondition } from '@repo/ui/data-table'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { useOrganization } from '@/hooks/useOrganization'
 import { getOrganizationStorageItem, removeOrganizationStorageItem, setOrganizationStorageItem } from '@/lib/storage/organization-storage'
+import { createOrgPersistedStore, parseStringUnion, useOrgPersistedState, type OrgPersistedStore } from '@/lib/storage/org-persisted-store'
 
 const SORTING_KEY_PREFIX = 'sorting:'
 const PAGINATION_KEY_PREFIX = 'pagination:'
+const VIEW_MODE_KEY_PREFIX = 'view-mode:'
 
 const readSort = <TField extends string>(
   tableKey: TableKeyValue,
@@ -118,4 +120,31 @@ export const useOrgTablePagination = (fallback: TPagination, tableKey?: TableKey
   }, [setPagination])
 
   return [paginationState, setPagination, resetPagination]
+}
+
+export type TTableViewMode = 'table' | 'card'
+
+const DEFAULT_TABLE_VIEW_MODE: TTableViewMode = 'table'
+
+const isTableViewMode = (value: string): value is TTableViewMode => value === 'table' || value === 'card'
+
+const parseJsonOrLegacyUnquotedViewMode = (raw: string): TTableViewMode | null => parseStringUnion(raw, isTableViewMode) ?? (isTableViewMode(raw) ? raw : null)
+
+const viewModeStores = new Map<TableKeyValue, OrgPersistedStore<TTableViewMode>>()
+
+const getViewModeStore = (tableKey: TableKeyValue): OrgPersistedStore<TTableViewMode> => {
+  const existing = viewModeStores.get(tableKey)
+  if (existing) return existing
+
+  const store = createOrgPersistedStore<TTableViewMode>(`${VIEW_MODE_KEY_PREFIX}${tableKey}`, parseJsonOrLegacyUnquotedViewMode, () => DEFAULT_TABLE_VIEW_MODE)
+  viewModeStores.set(tableKey, store)
+  return store
+}
+
+export const useOrgTableViewMode = (tableKey: TableKeyValue): [TTableViewMode, (next: TTableViewMode) => void] => {
+  const { currentOrgId } = useOrganization()
+  const store = useMemo(() => getViewModeStore(tableKey), [tableKey])
+  const { value, setValue } = useOrgPersistedState(store, currentOrgId)
+
+  return [value, setValue]
 }

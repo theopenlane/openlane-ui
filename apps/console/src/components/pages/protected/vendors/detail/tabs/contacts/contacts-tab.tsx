@@ -5,7 +5,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { useQueryClient } from '@tanstack/react-query'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
-import { useOrgTablePagination } from '@/hooks/use-org-table-state'
+import { useOrgTablePagination, useOrgTableViewMode } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
@@ -44,10 +44,6 @@ interface ContactsTabProps {
   vendorName: string
 }
 
-type ViewMode = 'table' | 'card'
-
-const VIEW_MODE_STORAGE_KEY = 'view-mode:vendor-contacts'
-
 const bulkEditFieldSchema = z.object({
   title: z.string().optional(),
   company: z.string().optional(),
@@ -73,15 +69,7 @@ const DATA_COLUMNS: ColumnDef<ContactNode>[] = [
 const mappedColumns = getMappedColumns(DATA_COLUMNS)
 
 const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVendor, vendorName }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    if (typeof window === 'undefined') return 'table'
-    const stored = localStorage.getItem(VIEW_MODE_STORAGE_KEY)
-    return stored === 'card' ? 'card' : 'table'
-  })
-  const handleViewChange = (tab: 'table' | 'card') => {
-    setViewMode(tab)
-    localStorage.setItem(VIEW_MODE_STORAGE_KEY, tab)
-  }
+  const [viewMode, setViewMode] = useOrgTableViewMode(TableKeyEnum.VENDOR_CONTACTS)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [linkSuggestions, setLinkSuggestions] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -188,7 +176,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
       <div className="flex items-center gap-2 mb-3">
         <Input icon={<SearchIcon size={16} />} placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.currentTarget.value)} variant="searchTable" />
 
-        <TableCardView activeTab={viewMode} onTabChange={handleViewChange} />
+        <TableCardView activeTab={viewMode} onTabChange={setViewMode} />
 
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {selectedContacts.length > 0 ? (
