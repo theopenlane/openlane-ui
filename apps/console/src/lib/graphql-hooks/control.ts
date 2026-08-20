@@ -123,7 +123,7 @@ export const useAllOrgControls = ({ enabled = true }: { enabled?: boolean } = {}
   const { client } = useGraphQLClient()
   const where = { referenceFrameworkIsNil: true, systemOwned: false, isTrustCenterControl: false }
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } = useInfiniteQuery<
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending, isError } = useInfiniteQuery<
     GetAllControlsQuery,
     Error,
     InfiniteData<GetAllControlsQuery>,
@@ -144,7 +144,7 @@ export const useAllOrgControls = ({ enabled = true }: { enabled?: boolean } = {}
 
   const controls = useMemo(() => (data?.pages ?? []).flatMap((page) => (page.controls?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))), [data])
 
-  return { controls, isLoading: enabled && (isPending || hasNextPage || isFetchingNextPage) }
+  return { controls, isLoading: enabled && (isPending || hasNextPage || isFetchingNextPage), isError: enabled && isError }
 }
 
 export const useGetAllControls = ({ where, pagination, orderBy, enabled = true, includeVars }: UseGetAllControlsArgs) => {

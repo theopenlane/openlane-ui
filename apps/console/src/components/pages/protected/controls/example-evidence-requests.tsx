@@ -39,12 +39,16 @@ function findMappedTarget(mappedControlEdges: TMappedControlEdges, controlId?: s
   return null
 }
 
-export function useFrameworkDocTarget(control?: TDocsEvidenceControl): { target: Target | null; isLoading: boolean } {
+export function useFrameworkDocTarget(control?: TDocsEvidenceControl): { target: Target | null; isLoading: boolean; isError: boolean } {
   const { controlId, refCode, referenceFramework, source } = control ?? {}
   const isFrameworkControl = source === ControlControlSource.FRAMEWORK && !!referenceFramework && !!refCode
 
   const mappingsEnabled = docsHelpEnabled && !!controlId && !isFrameworkControl
-  const { mappedControlEdges, isLoading: mappingsLoading } = useGetAllMappedControlsGrouped({
+  const {
+    mappedControlEdges,
+    isLoading: mappingsLoading,
+    isError: mappingsError,
+  } = useGetAllMappedControlsGrouped({
     where: { or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }] },
     enabled: mappingsEnabled,
     pageSize: 100,
@@ -56,7 +60,7 @@ export function useFrameworkDocTarget(control?: TDocsEvidenceControl): { target:
     [isFrameworkControl, refCode, referenceFramework, mappedControlEdges, controlId],
   )
 
-  return { target, isLoading: mappingsEnabled && mappingsLoading }
+  return { target, isLoading: mappingsEnabled && mappingsLoading, isError: mappingsEnabled && mappingsError }
 }
 
 export type TControlDocsSection = {
@@ -64,18 +68,20 @@ export type TControlDocsSection = {
   source: string | null
   target: Target | null
   isLoading: boolean
+  isError: boolean
 }
 
 export function useControlDocsSection(control: TDocsEvidenceControl | undefined, sectionName: string | string[]): TControlDocsSection {
-  const { target, isLoading: targetLoading } = useFrameworkDocTarget(control)
+  const { target, isLoading: targetLoading, isError: targetError } = useFrameworkDocTarget(control)
 
-  const { data, isLoading: sectionLoading } = useDocsSection(target ? `${target.framework} ${target.refCode}` : '', sectionName, docsHelpEnabled && !!target, target?.refCode)
+  const { data, isLoading: sectionLoading, isError: sectionError } = useDocsSection(target ? `${target.framework} ${target.refCode}` : '', sectionName, docsHelpEnabled && !!target, target?.refCode)
 
-  const isLoading = targetLoading || (!!target && sectionLoading)
-  if (!target || !data?.section) return { section: null, source: null, target, isLoading }
+  const isError = targetError || (!!target && !!sectionError)
+  const isLoading = !isError && (targetLoading || (!!target && sectionLoading))
+  if (!target || !data?.section) return { section: null, source: null, target, isLoading, isError }
   const isTargetPage = data.title.toLowerCase().includes(target.refCode.toLowerCase())
-  if (!isTargetPage) return { section: null, source: null, target, isLoading: false }
-  return { section: data.section, source: data.source, target, isLoading: false }
+  if (!isTargetPage) return { section: null, source: null, target, isLoading: false, isError }
+  return { section: data.section, source: data.source, target, isLoading: false, isError }
 }
 
 export function useDocsEvidenceRequests(control?: TDocsEvidenceControl): { requests: TDocsEvidenceRequests | null; isLoading: boolean } {

@@ -12,6 +12,8 @@ export type BatchState = {
   results: Record<string, DocsSectionResult>
   // true while a batch containing this key is in flight
   pending: (key: string) => boolean
+  // true once the batch carrying this key failed — the result will never arrive
+  errored: (key: string) => boolean
   active: boolean
 }
 
@@ -19,5 +21,6 @@ export const DocsSectionBatchContext = createContext<BatchState>({
   request: () => {},
   results: {},
   pending: () => false,
+  errored: () => false,
   active: false,
 })

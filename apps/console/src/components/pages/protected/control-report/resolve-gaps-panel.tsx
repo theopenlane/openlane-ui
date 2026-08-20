@@ -37,15 +37,15 @@ export type TGapControl = TCreateOrgControlsTarget & { referenceFramework: strin
 
 type TPolicyGroup = { name: string; description: string; existingPolicy?: { id: string; name: string; summary?: string | null }; controls: TGapControl[] }
 
-function ControlSuggestionWorker({ target, onResult }: { target: TCreateOrgControlsTarget; onResult: (id: string, rows: TExampleRow[], isLoading: boolean) => void }) {
-  const { rows, isLoading } = useResolvedSuggestions(target, undefined, true)
-  useEffect(() => onResult(target.id, rows, isLoading), [target.id, rows, isLoading, onResult])
+function ControlSuggestionWorker({ target, onResult }: { target: TCreateOrgControlsTarget; onResult: (id: string, rows: TExampleRow[], isLoading: boolean, isError: boolean) => void }) {
+  const { rows, isLoading, isError } = useResolvedSuggestions(target, undefined, true)
+  useEffect(() => onResult(target.id, rows, isLoading, isError), [target.id, rows, isLoading, isError, onResult])
   return null
 }
 
-function PolicySuggestionWorker({ control, onResult }: { control: TDocsEvidenceControl; onResult: (id: string, data: TSuggestedPoliciesData | null, isLoading: boolean) => void }) {
-  const { data, isLoading } = useSuggestedPolicies(control)
-  useEffect(() => onResult(control.controlId, data, isLoading), [control.controlId, data, isLoading, onResult])
+function PolicySuggestionWorker({ control, onResult }: { control: TDocsEvidenceControl; onResult: (id: string, data: TSuggestedPoliciesData | null, isLoading: boolean, isError: boolean) => void }) {
+  const { data, isLoading, isError } = useSuggestedPolicies(control)
+  useEffect(() => onResult(control.controlId, data, isLoading, isError), [control.controlId, data, isLoading, isError, onResult])
   return null
 }
 
@@ -254,25 +254,29 @@ export function useSectionGapGroups(orgGapControls: TGapControl[] = EMPTY_GAP_CO
   const { currentOrgId } = useOrganization()
   const [controlRows, setControlRow] = useAggregated<TExampleRow[]>()
   const [controlLoading, setControlLoading] = useAggregated<boolean>()
+  const [controlError, setControlError] = useAggregated<boolean>()
   const [policyData, setPolicyDatum] = useAggregated<TSuggestedPoliciesData | null>()
   const [policyLoading, setPolicyLoading] = useAggregated<boolean>()
+  const [policyError, setPolicyError] = useAggregated<boolean>()
 
   const [removedControlKeys, setRemovedControlKeys] = useState<Set<string>>(() => new Set())
   const [removedPolicyKeys, setRemovedPolicyKeys] = useState<Set<string>>(() => new Set())
 
   const onControlResult = useCallback(
-    (id: string, rows: TExampleRow[], isLoading: boolean) => {
+    (id: string, rows: TExampleRow[], isLoading: boolean, isError: boolean) => {
       setControlRow(id, rows)
       setControlLoading(id, isLoading)
+      setControlError(id, isError)
     },
-    [setControlRow, setControlLoading],
+    [setControlRow, setControlLoading, setControlError],
   )
   const onPolicyResult = useCallback(
-    (id: string, data: TSuggestedPoliciesData | null, isLoading: boolean) => {
+    (id: string, data: TSuggestedPoliciesData | null, isLoading: boolean, isError: boolean) => {
       setPolicyDatum(id, data)
       setPolicyLoading(id, isLoading)
+      setPolicyError(id, isError)
     },
-    [setPolicyDatum, setPolicyLoading],
+    [setPolicyDatum, setPolicyLoading, setPolicyError],
   )
 
   const controlGroups = useMemo(() => {
@@ -321,6 +325,9 @@ export function useSectionGapGroups(orgGapControls: TGapControl[] = EMPTY_GAP_CO
   const resolvePolicyGroup = (group: TPolicyGroup) => setRemovedPolicyKeys((prev) => new Set([...prev, normalizeName(group.existingPolicy?.name ?? group.name)]))
 
   const isLoading = orgGapControls.some((c) => controlLoading[c.id] !== false) || policyGapControls.some((c) => policyLoading[c.id] !== false)
+  // a suggestion lookup that failed contributes no groups, so a zero count here
+  // means "we could not tell", not "nothing to resolve"
+  const hasError = orgGapControls.some((c) => controlError[c.id]) || policyGapControls.some((c) => policyError[c.id])
   const totalCount = controlGroups.length + policyGroups.length
 
   const workers = (
@@ -345,6 +352,7 @@ export function useSectionGapGroups(orgGapControls: TGapControl[] = EMPTY_GAP_CO
     mapPolicyGroups,
     createPolicyGroups,
     isLoading,
+    hasError,
     totalCount,
     removeControlGroup,
     resolveControlGroup,

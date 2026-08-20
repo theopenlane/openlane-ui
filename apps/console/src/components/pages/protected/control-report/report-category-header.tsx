@@ -36,10 +36,16 @@ const ReportCategoryHeader: React.FC<ReportCategoryHeaderProps> = ({ category, c
 
   useEffect(() => {
     if (shouldCheck && !gaps.isLoading && !gaps.hasError && gaps.totalCount === 0) markEmpty()
-  }, [shouldCheck, gaps.isLoading, gaps.totalCount, markEmpty])
+  }, [shouldCheck, gaps.isLoading, gaps.hasError, gaps.totalCount, markEmpty])
+
+  // a failed lookup cannot say what is or is not a gap: keep the panel out of the
+  // way without dismissing anything, so it comes back on the next load
+  useEffect(() => {
+    if (gaps.hasError) setShowResolveGaps(false)
+  }, [gaps.hasError])
 
   const { dismissed: bannerDismissed, dismiss: dismissBanner } = useDismissible(`resolve-gaps-banner-dismissed:${category || 'General'}`)
-  const showButton = shouldCheck && gaps.totalCount > 0 && !bannerDismissed
+  const showButton = shouldCheck && !gaps.hasError && gaps.totalCount > 0 && !bannerDismissed
 
   const hasSubs = controls.some((c) => (c.subcontrols?.length ?? 0) > 0)
   const allSubsExpanded = controls.filter((c) => (c.subcontrols?.length ?? 0) > 0).every((c) => expandedControls[c.id])
@@ -91,7 +97,7 @@ const ReportCategoryHeader: React.FC<ReportCategoryHeaderProps> = ({ category, c
           </Callout>
         )}
       </div>
-      {(shouldCheck || showResolveGaps) && <ResolveGapsPanel open={showResolveGaps} onOpenChange={setShowResolveGaps} category={category} gaps={gaps} />}
+      {(shouldCheck || showResolveGaps) && !gaps.hasError && <ResolveGapsPanel open={showResolveGaps} onOpenChange={setShowResolveGaps} category={category} gaps={gaps} />}
     </div>
   )
 }

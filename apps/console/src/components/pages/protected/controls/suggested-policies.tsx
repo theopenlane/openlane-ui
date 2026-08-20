@@ -59,7 +59,7 @@ function matchExistingPolicies(rows: Array<{ name: string; description: string }
   return matched
 }
 
-export type TSuggestedPoliciesResult = { data: TSuggestedPoliciesData | null; isLoading: boolean }
+export type TSuggestedPoliciesResult = { data: TSuggestedPoliciesData | null; isLoading: boolean; isError: boolean }
 
 export function useSuggestedPolicies(control?: TDocsEvidenceControl): TSuggestedPoliciesResult {
   const { dismissed, dismiss, isResolved } = useDismissible(`suggested-policies-dismissed:${control?.controlId ?? ''}`)
@@ -67,13 +67,15 @@ export function useSuggestedPolicies(control?: TDocsEvidenceControl): TSuggested
 
   // a dismissed control asks nothing of the docs or of the policy list
   const active = docsHelpEnabled && isResolved && !dismissed
-  const { section, target, isLoading: isSectionLoading } = useControlDocsSection(active ? control : undefined, 'Policies')
+  const { section, target, isLoading: isSectionLoading, isError: isSectionError } = useControlDocsSection(active ? control : undefined, 'Policies')
   const enabled = active && !!section && !!control?.controlId
 
-  const { policies: orgPolicies, isLoading: isPoliciesLoading } = useAllPolicyNames({ enabled })
-  const { data: linkedPoliciesData, isLoading: isLinkedLoading } = useInternalPolicies({ where: { hasControlsWith: [{ id: control?.controlId ?? '' }] }, enabled })
+  const { policies: orgPolicies, isLoading: isPoliciesLoading, isError: isPoliciesError } = useAllPolicyNames({ enabled })
+  const { data: linkedPoliciesData, isLoading: isLinkedLoading, isError: isLinkedError } = useInternalPolicies({ where: { hasControlsWith: [{ id: control?.controlId ?? '' }] }, enabled })
 
-  const settled = active && !isSectionLoading && (!section || (!isPoliciesLoading && !isLinkedLoading))
+  const isError = active && (isSectionError || (enabled && (isPoliciesError || isLinkedError)))
+
+  const settled = active && !isError && !isSectionLoading && (!section || (!isPoliciesLoading && !isLinkedLoading))
 
   const suggestions = useMemo(() => {
     if (!settled) return null
@@ -85,7 +87,7 @@ export function useSuggestedPolicies(control?: TDocsEvidenceControl): TSuggested
     ).filter((row) => !row.existingPolicy || !linkedPolicyIds.has(row.existingPolicy.id))
   }, [settled, section, linkedPoliciesData, orgPolicies, isDismissed])
 
-  const isLoading = !isResolved || (active && !suggestions)
+  const isLoading = !isResolved || (active && !isError && !suggestions)
 
   const controlId = control?.controlId
   const data = useMemo(
@@ -93,7 +95,7 @@ export function useSuggestedPolicies(control?: TDocsEvidenceControl): TSuggested
     [controlId, target, suggestions, dismissed, dismiss, dismissOne],
   )
 
-  return { data, isLoading: data ? false : isLoading }
+  return { data, isLoading: data ? false : isLoading, isError }
 }
 
 export function SuggestedPolicies({ data }: { data: TSuggestedPoliciesData | null }) {

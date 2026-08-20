@@ -105,7 +105,8 @@ export function useDocsSection(query: string, extractSection: string | string[],
 
   if (!batch.active) return solo
   const result = batch.results[key]
-  return { data: result, isLoading: enabled && !!query && !result }
+  const errored = batch.errored(key)
+  return { data: result, isLoading: enabled && !!query && !result && !errored, isError: errored }
 }
 
 export type DocsControlTitleInput = { refCode?: string; description?: string }

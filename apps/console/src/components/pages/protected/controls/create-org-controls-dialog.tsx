@@ -41,7 +41,7 @@ const dismissedKey = (frameworkControl: TCreateOrgControlsTarget) => `suggested-
 const templateIndexKey = (refCode: string, referenceFramework?: string | null) => `${refCode.trim().toLowerCase()}|${(referenceFramework ?? '').trim().toLowerCase()}`
 
 function useTemplateIndex(enabled: boolean) {
-  const { controls, isPending } = useTemplateControlsWithMappings({ where: TEMPLATE_CONTROLS_WHERE, enabled })
+  const { controls, isPending, isError } = useTemplateControlsWithMappings({ where: TEMPLATE_CONTROLS_WHERE, enabled })
 
   const index = useMemo(() => {
     const map = new Map<string, TTemplateControl[]>()
@@ -60,7 +60,7 @@ function useTemplateIndex(enabled: boolean) {
     return map
   }, [controls])
 
-  return { index, isLoading: enabled && isPending }
+  return { index, isLoading: enabled && isPending, isError: enabled && isError }
 }
 
 const NO_ROWS: TExampleRow[] = []
@@ -76,13 +76,13 @@ export function useResolvedSuggestions(frameworkControl: TCreateOrgControlsTarge
   const organizationName = getOrganizationByID(currentOrgId ?? '')?.node?.displayName
 
   const active = enabled && docsHelpEnabled && isSettledResolved && !settledAll
-  const { index: templateIndex, isLoading: isTemplatesLoading } = useTemplateIndex(active)
+  const { index: templateIndex, isLoading: isTemplatesLoading, isError: isTemplatesError } = useTemplateIndex(active)
   const templates = useMemo(
     () => (frameworkControl ? (templateIndex.get(templateIndexKey(frameworkControl.refCode, frameworkControl.referenceFramework)) ?? []) : []),
     [templateIndex, frameworkControl],
   )
 
-  const { controls: orgControlNodes, isLoading: isOrgControlsLoading } = useAllOrgControls({ enabled: active && templates.length > 0 })
+  const { controls: orgControlNodes, isLoading: isOrgControlsLoading, isError: isOrgControlsError } = useAllOrgControls({ enabled: active && templates.length > 0 })
 
   const existingKey = (existingRefCodes ?? []).join('|')
 
@@ -93,13 +93,16 @@ export function useResolvedSuggestions(frameworkControl: TCreateOrgControlsTarge
 
   const rows = useMemo(() => resolveSuggestions(templates, existingKey, orgControls, dismissed, organizationName), [templates, existingKey, orgControls, dismissed, organizationName])
 
-  const settled = active && templates.length > 0 && !isOrgControlsLoading
+  // a failed lookup reads as "nothing to suggest", do not auto dismiss because of an error
+  const isError = active && (isTemplatesError || (templates.length > 0 && isOrgControlsError))
+
+  const settled = active && !isError && templates.length > 0 && !isOrgControlsLoading
   useEffect(() => {
     if (settled && rows.length === 0) markSettled()
   }, [settled, rows.length, markSettled])
 
-  const isLoading = !isSettledResolved || (active && (isTemplatesLoading || (templates.length > 0 && isOrgControlsLoading)))
-  return { rows: settledAll ? NO_ROWS : rows, isLoading }
+  const isLoading = !isSettledResolved || (active && !isError && (isTemplatesLoading || (templates.length > 0 && isOrgControlsLoading)))
+  return { rows: settledAll ? NO_ROWS : rows, isLoading, isError }
 }
 
 export const rowKey = (row: TExampleRow) => row.templateRefCode ?? row.refCode

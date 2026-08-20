@@ -16,6 +16,7 @@ const MAX_PER_REQUEST = 40
 export function DocsSectionBatchProvider({ children }: { children: ReactNode }) {
   const [pendingLookups, setPendingLookups] = useState<DocsSectionLookup[]>([])
   const [results, setResults] = useState<Record<string, DocsSectionResult>>({})
+  const [failedKeys, setFailedKeys] = useState<Set<string>>(() => new Set())
   const requestedRef = useRef<Set<string>>(new Set())
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const queuedRef = useRef<DocsSectionLookup[]>([])
@@ -38,7 +39,7 @@ export function DocsSectionBatchProvider({ children }: { children: ReactNode }) 
   const inFlight = useMemo(() => pendingLookups.filter((lookup) => !(lookup.key in results)), [pendingLookups, results])
   const batchKey = inFlight.map((lookup) => lookup.key).join('|')
 
-  const { data } = useQuery({
+  const { data, isError } = useQuery({
     queryKey: ['docs-help-section-batch', batchKey],
     queryFn: async () => {
       // a screenful of rows asks for more lookups than one request may carry
@@ -75,8 +76,21 @@ export function DocsSectionBatchProvider({ children }: { children: ReactNode }) 
     })
   }, [data])
 
+  // a failed batch never resolves its keys, so record them, callers waiting on
+  // one would otherwise read as loading forever
+  useEffect(() => {
+    if (!isError || inFlight.length === 0) return
+    setFailedKeys((current) => {
+      const missing = inFlight.filter((lookup) => !current.has(lookup.key))
+      return missing.length === 0 ? current : new Set([...current, ...missing.map((lookup) => lookup.key)])
+    })
+  }, [isError, inFlight])
+
   const pendingKeys = useMemo(() => new Set(inFlight.map((lookup) => lookup.key)), [inFlight])
-  const value = useMemo<BatchState>(() => ({ request, results, pending: (key: string) => pendingKeys.has(key), active: true }), [request, results, pendingKeys])
+  const value = useMemo<BatchState>(
+    () => ({ request, results, pending: (key: string) => pendingKeys.has(key), errored: (key: string) => failedKeys.has(key), active: true }),
+    [request, results, pendingKeys, failedKeys],
+  )
 
   return <DocsSectionBatchContext value={value}>{children}</DocsSectionBatchContext>
 }

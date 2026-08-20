@@ -419,7 +419,13 @@ const POLICY_NAMES_PAGE_SIZE = 100
 export const useAllPolicyNames = ({ enabled = true }: { enabled?: boolean } = {}) => {
   const { client } = useGraphQLClient()
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } = useInfiniteQuery<PolicyNamesPage, Error, InfiniteData<PolicyNamesPage>, ['internalPolicies', 'names'], string | null>({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending, isError } = useInfiniteQuery<
+    PolicyNamesPage,
+    Error,
+    InfiniteData<PolicyNamesPage>,
+    ['internalPolicies', 'names'],
+    string | null
+  >({
     queryKey: ['internalPolicies', 'names'],
     queryFn: async ({ pageParam }) => client.request(GET_INTERNAL_POLICY_NAMES, { after: pageParam, first: POLICY_NAMES_PAGE_SIZE }),
     initialPageParam: null,
@@ -434,5 +440,5 @@ export const useAllPolicyNames = ({ enabled = true }: { enabled?: boolean } = {}
 
   const policies = useMemo(() => (data?.pages ?? []).flatMap((page) => (page.internalPolicies.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))), [data])
 
-  return { policies, isLoading: enabled && (isPending || hasNextPage || isFetchingNextPage) }
+  return { policies, isLoading: enabled && (isPending || hasNextPage || isFetchingNextPage), isError: enabled && isError }
 }
