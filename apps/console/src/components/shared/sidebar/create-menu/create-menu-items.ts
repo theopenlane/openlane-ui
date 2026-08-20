@@ -3,7 +3,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { type NavIcon } from '@/types'
 
-export type CreateMenuDialogKey = 'task'
+export type CreateMenuDialogKey = 'task' | 'evidence' | 'contact'
 
 type CreateMenuItemBase = {
   label: string
@@ -19,7 +19,6 @@ export const CREATE_MENU_ITEMS: CreateMenuItem[] = [
     label: 'Task',
     icon: ClipboardCheckIcon,
     dialog: 'task',
-    permission: AccessEnum.CanCreateTask,
   },
   {
     label: 'Program',
@@ -31,7 +30,7 @@ export const CREATE_MENU_ITEMS: CreateMenuItem[] = [
   {
     label: 'Evidence',
     icon: FingerprintIcon,
-    href: '/evidence?create=true',
+    dialog: 'evidence',
     objectType: ObjectTypes.EVIDENCE,
     permission: AccessEnum.CanCreateEvidence,
   },
@@ -66,7 +65,7 @@ export const CREATE_MENU_ITEMS: CreateMenuItem[] = [
   {
     label: 'Contact',
     icon: GalleryVerticalEndIcon,
-    href: '/registry/contacts?create=true',
+    dialog: 'contact',
     objectType: ObjectTypes.CONTACT,
     permission: AccessEnum.CanCreateContact,
   },

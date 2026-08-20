@@ -15,6 +15,8 @@ import { CREATE_MENU_ITEMS, type CreateMenuDialogKey, type CreateMenuItem } from
 
 const DIALOG_COMPONENTS: Record<CreateMenuDialogKey, React.ComponentType<{ open: boolean; onOpenChange: (open: boolean) => void }>> = {
   task: dynamic(() => import('@/components/pages/protected/tasks/create-task/dialog/create-task-dialog').then((mod) => mod.CreateTaskDialog), { ssr: false }),
+  evidence: dynamic(() => import('@/components/pages/protected/evidence/evidence-create-sheet'), { ssr: false }),
+  contact: dynamic(() => import('@/components/pages/protected/contacts/create/contact-create-sheet'), { ssr: false }),
 }
 
 const entryClassName = 'flex items-center space-x-2 justify-start'
