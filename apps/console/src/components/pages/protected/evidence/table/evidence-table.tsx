@@ -39,11 +39,15 @@ export const EvidenceTable = () => {
   const { replace } = useSmartRouter()
   const { successNotification, warningNotification, errorNotification } = useNotification()
 
+  const [selectedEvidence, setSelectedEvidence] = useState<{ id: string }[]>([])
   const notifyBulkUpdateFailure = (outcome: BulkUpdateOutcome) => {
     const notify = outcome.status === 'partial' ? warningNotification : errorNotification
     notify({ title: outcome.title, description: outcome.description })
+
+    if (outcome.failedIDs.length > 0) {
+      setSelectedEvidence((selected) => selected.filter((evidence) => outcome.failedIDs.includes(evidence.id)))
+    }
   }
-  const [selectedEvidence, setSelectedEvidence] = useState<{ id: string }[]>([])
   const { data: permission } = useOrganizationRoles()
   const { isAuditor } = useIsAuditor()
   const { mutateAsync: bulkEditEvidence } = useBulkEditEvidence()
@@ -126,7 +130,13 @@ export const EvidenceTable = () => {
     try {
       setAuditorActionPending(true)
       const result = await bulkEditEvidence({ ids, input: { status: EvidenceEvidenceStatus.AUDITOR_APPROVED } })
-      const outcome = getBulkUpdateOutcome({ requestedCount: ids.length, updatedIDs: result.updateBulkEvidence?.updatedIDs, singular: 'evidence record' })
+      const outcome = getBulkUpdateOutcome({
+        requestedCount: ids.length,
+        updatedIDs: result.updateBulkEvidence?.updatedIDs,
+        notUpdatedIDs: result.updateBulkEvidence?.notUpdatedIDs,
+        error: result.updateBulkEvidence?.error,
+        singular: 'evidence record',
+      })
       if (outcome.status !== 'success') {
         notifyBulkUpdateFailure(outcome)
         return
@@ -146,7 +156,13 @@ export const EvidenceTable = () => {
     try {
       setAuditorActionPending(true)
       const result = await bulkEditEvidence({ ids, input: { status: EvidenceEvidenceStatus.REJECTED, addComment: { text: comment } } })
-      const outcome = getBulkUpdateOutcome({ requestedCount: ids.length, updatedIDs: result.updateBulkEvidence?.updatedIDs, singular: 'evidence record' })
+      const outcome = getBulkUpdateOutcome({
+        requestedCount: ids.length,
+        updatedIDs: result.updateBulkEvidence?.updatedIDs,
+        notUpdatedIDs: result.updateBulkEvidence?.notUpdatedIDs,
+        error: result.updateBulkEvidence?.error,
+        singular: 'evidence record',
+      })
       if (outcome.status !== 'success') {
         notifyBulkUpdateFailure(outcome)
         return

@@ -583,9 +583,9 @@ export const CREATE_CSV_BULK_CONTROL = gql`
 export const UPDATE_CSV_BULK_CONTROL = gql`
   mutation UpdateBulkCSVControl($input: Upload!) {
     updateBulkCSVControl(input: $input) {
-      controls {
-        id
-      }
+      updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `
@@ -856,6 +856,8 @@ export const BULK_EDIT_CONTROL = gql`
   mutation UpdateBulkControl($ids: [ID!]!, $input: UpdateControlInput!) {
     updateBulkControl(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

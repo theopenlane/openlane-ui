@@ -158,6 +158,8 @@ export const BULK_EDIT_TASK = gql`
   mutation UpdateBulkTask($ids: [ID!]!, $input: UpdateTaskInput!) {
     updateBulkTask(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

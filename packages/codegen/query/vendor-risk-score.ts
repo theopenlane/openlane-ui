@@ -105,6 +105,8 @@ export const BULK_EDIT_VENDOR_RISK_SCORE = gql`
   mutation UpdateBulkVendorRiskScore($ids: [ID!]!, $input: UpdateVendorRiskScoreInput!) {
     updateBulkVendorRiskScore(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

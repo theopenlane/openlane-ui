@@ -292,6 +292,8 @@ export const BULK_EDIT_ASSET = gql`
   mutation UpdateBulkAsset($ids: [ID!]!, $input: UpdateAssetInput!) {
     updateBulkAsset(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

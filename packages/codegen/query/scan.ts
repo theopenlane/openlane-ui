@@ -174,6 +174,8 @@ export const BULK_EDIT_SCAN = gql`
   mutation UpdateBulkScan($ids: [ID!]!, $input: UpdateScanInput!) {
     updateBulkScan(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

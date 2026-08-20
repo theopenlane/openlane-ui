@@ -178,6 +178,8 @@ export const BULK_EDIT_REVIEW = gql`
   mutation UpdateBulkReview($ids: [ID!]!, $input: UpdateReviewInput!) {
     updateBulkReview(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

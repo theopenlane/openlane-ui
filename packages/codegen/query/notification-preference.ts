@@ -119,6 +119,8 @@ export const BULK_EDIT_NOTIFICATION_PREFERENCE = gql`
   mutation UpdateBulkNotificationPreference($ids: [ID!]!, $input: UpdateNotificationPreferenceInput!) {
     updateBulkNotificationPreference(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

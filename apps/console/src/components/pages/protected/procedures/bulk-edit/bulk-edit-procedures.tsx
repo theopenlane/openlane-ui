@@ -98,9 +98,19 @@ export const BulkEditProceduresDialog: React.FC<BulkEditProceduresDialogProps> =
         ids: ids,
         input,
       })
-      if (!notifyBulkUpdate({ requestedCount: ids.length, updatedIDs: result.updateBulkProcedure?.updatedIDs, singular: 'procedure' })) return
+      const payload = result.updateBulkProcedure
+      if (
+        !notifyBulkUpdate({
+          requestedCount: ids.length,
+          updatedIDs: payload?.updatedIDs,
+          notUpdatedIDs: payload?.notUpdatedIDs,
+          error: payload?.error,
+          singular: 'procedure',
+          setSelected: setSelectedProcedures,
+        })
+      )
+        return
 
-      setSelectedProcedures([])
       setOpen(false)
     } catch (error: unknown) {
       let errorMessage: string | undefined

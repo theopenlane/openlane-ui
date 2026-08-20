@@ -92,9 +92,19 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
 
     try {
       const result = await bulkEditDocs({ ids, input })
-      if (!notifyBulkUpdate({ requestedCount: ids.length, updatedIDs: result.updateBulkTrustCenterDoc?.trustCenterDocs?.map((doc) => doc.id), singular: 'document' })) return
+      const payload = result.updateBulkTrustCenterDoc
+      if (
+        !notifyBulkUpdate({
+          requestedCount: ids.length,
+          updatedIDs: payload?.updatedIDs,
+          notUpdatedIDs: payload?.notUpdatedIDs,
+          error: payload?.error,
+          singular: 'document',
+          setSelected: setSelectedDocs,
+        })
+      )
+        return
 
-      setSelectedDocs([])
       setOpen(false)
       replace([])
     } catch (error: unknown) {

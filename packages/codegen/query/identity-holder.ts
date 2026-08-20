@@ -215,6 +215,8 @@ export const BULK_EDIT_IDENTITY_HOLDER = gql`
   mutation UpdateBulkIdentityHolder($ids: [ID!]!, $input: UpdateIdentityHolderInput!) {
     updateBulkIdentityHolder(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

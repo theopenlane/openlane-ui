@@ -93,6 +93,8 @@ export const BULK_EDIT_GROUP_SETTING = gql`
   mutation UpdateBulkGroupSetting($ids: [ID!]!, $input: UpdateGroupSettingInput!) {
     updateBulkGroupSetting(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

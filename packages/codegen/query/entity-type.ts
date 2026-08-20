@@ -91,6 +91,8 @@ export const BULK_EDIT_ENTITY_TYPE = gql`
   mutation UpdateBulkEntityType($ids: [ID!]!, $input: UpdateEntityTypeInput!) {
     updateBulkEntityType(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

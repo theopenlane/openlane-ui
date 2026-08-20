@@ -116,6 +116,8 @@ export const BULK_EDIT_EMAIL_TEMPLATE = gql`
   mutation UpdateBulkEmailTemplate($ids: [ID!]!, $input: UpdateEmailTemplateInput!) {
     updateBulkEmailTemplate(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

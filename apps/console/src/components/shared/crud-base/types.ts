@@ -27,4 +27,6 @@ export type BulkDeletePayload = {
 
 export type BulkUpdatePayload = {
   updatedIDs: string[] | null
+  notUpdatedIDs: string[]
+  error?: string | null
 }

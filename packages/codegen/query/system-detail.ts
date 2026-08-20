@@ -139,6 +139,8 @@ export const BULK_EDIT_SYSTEM_DETAIL = gql`
   mutation UpdateBulkSystemDetail($ids: [ID!]!, $input: UpdateSystemDetailInput!) {
     updateBulkSystemDetail(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

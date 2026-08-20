@@ -91,6 +91,8 @@ export const BULK_EDIT_VENDOR_SCORING_CONFIG = gql`
   mutation UpdateBulkVendorScoringConfig($ids: [ID!]!, $input: UpdateVendorScoringConfigInput!) {
     updateBulkVendorScoringConfig(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

@@ -101,9 +101,19 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
         ids: ids,
         input,
       })
-      if (!notifyBulkUpdate({ requestedCount: ids.length, updatedIDs: result.updateBulkInternalPolicy?.updatedIDs, singular: 'policy' })) return
+      const payload = result.updateBulkInternalPolicy
+      if (
+        !notifyBulkUpdate({
+          requestedCount: ids.length,
+          updatedIDs: payload?.updatedIDs,
+          notUpdatedIDs: payload?.notUpdatedIDs,
+          error: payload?.error,
+          singular: 'policy',
+          setSelected: setSelectedPolicies,
+        })
+      )
+        return
 
-      setSelectedPolicies([])
       setOpen(false)
     } catch (error: unknown) {
       let errorMessage: string | undefined
