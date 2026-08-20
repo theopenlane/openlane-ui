@@ -65,7 +65,7 @@
     "qrcode.react": "^4.2.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "react-dropzone": "^19.3.0",
+    "react-dropzone": "^20.0.0",
     "react-easy-crop": "^6.2.3",
     "react-force-graph-2d": "^1.29.1",
     "react-markdown": "^10.1.0",
