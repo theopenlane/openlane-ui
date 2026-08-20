@@ -20,7 +20,7 @@ export function useDismissible(key: string): { dismissed: boolean; dismiss: () =
   // useCallback because this is passed down into card subtrees; a new function each
   // render would defeat any memoization there
   const dismiss = useCallback(() => {
-    setState({ dismissed: true, isResolved: true })
+    setState((current) => (current.dismissed && current.isResolved ? current : { dismissed: true, isResolved: true }))
     setOrganizationStorageItem(key, 'true', currentOrgId)
   }, [key, currentOrgId])
 

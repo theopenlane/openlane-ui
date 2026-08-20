@@ -100,7 +100,7 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
 
   // tabs that only list associated records are hidden when there are none.
   // Subcontrol associations carry a subset of the collections, hence the shape
-  const associations = (isSubcontrol ? subcontrolAssociationsData?.subcontrol : controlAssociationsData?.control) as Record<string, { totalCount?: number | null } | undefined> | undefined
+  const associations = controlAssociationsData?.control as Record<string, { totalCount?: number | null } | undefined> | undefined
   const associationCount = (...names: string[]) => names.reduce((total, name) => total + (associations?.[name]?.totalCount ?? 0), 0)
 
   const hasAssetsScans = associationCount('assets', 'scans') > 0
