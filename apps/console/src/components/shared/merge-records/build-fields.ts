@@ -3,7 +3,7 @@ import { SCHEMA_ENUMS } from '@repo/codegen/src/schema-enums.generated'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import type { MergeEnumOption, MergeFieldConfig, MergeFieldOverride, MergeFieldOverrides, MergeFieldType } from './types'
 
-const humanizeKey = (input: string): string => {
+export const humanizeKey = (input: string): string => {
   if (!input) return ''
   const spaced = input
     .replace(/[_-]+/g, ' ')
