@@ -19,6 +19,7 @@ import EvidenceTableToolbar from '@/components/pages/protected/evidence/table/ev
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
+import { type BulkUpdateOutcome, getBulkUpdateOutcome } from '@/components/shared/crud-base/bulk-action-feedback'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -36,7 +37,12 @@ export const EvidenceTable = () => {
   const { setCrumbs } = use(BreadcrumbContext)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.EVIDENCE)
   const { replace } = useSmartRouter()
-  const { successNotification, errorNotification } = useNotification()
+  const { successNotification, warningNotification, errorNotification } = useNotification()
+
+  const notifyBulkUpdateFailure = (outcome: BulkUpdateOutcome) => {
+    const notify = outcome.status === 'partial' ? warningNotification : errorNotification
+    notify({ title: outcome.title, description: outcome.description })
+  }
   const [selectedEvidence, setSelectedEvidence] = useState<{ id: string }[]>([])
   const { data: permission } = useOrganizationRoles()
   const { isAuditor } = useIsAuditor()
@@ -119,7 +125,12 @@ export const EvidenceTable = () => {
     if (ids.length === 0) return
     try {
       setAuditorActionPending(true)
-      await bulkEditEvidence({ ids, input: { status: EvidenceEvidenceStatus.AUDITOR_APPROVED } })
+      const result = await bulkEditEvidence({ ids, input: { status: EvidenceEvidenceStatus.AUDITOR_APPROVED } })
+      const outcome = getBulkUpdateOutcome({ requestedCount: ids.length, updatedIDs: result.updateBulkEvidence?.updatedIDs, singular: 'evidence record' })
+      if (outcome.status !== 'success') {
+        notifyBulkUpdateFailure(outcome)
+        return
+      }
       successNotification({ title: ids.length > 1 ? `${ids.length} evidences approved` : 'Evidence approved', description: 'Marked as approved by auditor.' })
       setSelectedEvidence([])
     } catch (error) {
@@ -134,7 +145,12 @@ export const EvidenceTable = () => {
     if (ids.length === 0) return
     try {
       setAuditorActionPending(true)
-      await bulkEditEvidence({ ids, input: { status: EvidenceEvidenceStatus.REJECTED, addComment: { text: comment } } })
+      const result = await bulkEditEvidence({ ids, input: { status: EvidenceEvidenceStatus.REJECTED, addComment: { text: comment } } })
+      const outcome = getBulkUpdateOutcome({ requestedCount: ids.length, updatedIDs: result.updateBulkEvidence?.updatedIDs, singular: 'evidence record' })
+      if (outcome.status !== 'success') {
+        notifyBulkUpdateFailure(outcome)
+        return
+      }
       successNotification({ title: 'Changes requested', description: ids.length > 1 ? `Comment added to ${ids.length} evidences.` : 'Your comment was added to the evidence.' })
       setRequestChangesTarget(null)
       setSelectedEvidence([])

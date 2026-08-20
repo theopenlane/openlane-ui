@@ -149,7 +149,8 @@ const RemediationPage: React.FC = () => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateRemediationInput) => {
-      await baseBulkEditMutation.mutateAsync({ ids, input })
+      const result = await baseBulkEditMutation.mutateAsync({ ids, input })
+      return result.updateBulkRemediation
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,

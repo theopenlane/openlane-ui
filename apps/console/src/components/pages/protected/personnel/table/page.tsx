@@ -26,7 +26,19 @@ import {
 } from '@/lib/graphql-hooks/identity-holder'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
-import { type PersonnelSheetConfig, type PersonnelTablePageConfig, objectType, objectName, displayName, tableKey, exportType, orderFieldEnum, defaultSorting, type PersonnelFieldProps } from './types'
+import {
+  type PersonnelSheetConfig,
+  type PersonnelTablePageConfig,
+  objectType,
+  objectName,
+  displayName,
+  displayNamePlural,
+  tableKey,
+  exportType,
+  orderFieldEnum,
+  defaultSorting,
+  type PersonnelFieldProps,
+} from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -186,6 +198,7 @@ const PersonnelPage: React.FC = () => {
     objectType,
     objectName,
     displayName,
+    displayNamePlural,
     tableKey,
     exportType,
     orderFieldEnum,
@@ -206,7 +219,8 @@ const PersonnelPage: React.FC = () => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateIdentityHolderInput) => {
-      await bulkEditMutation.mutateAsync({ ids, input })
+      const result = await bulkEditMutation.mutateAsync({ ids, input })
+      return result.updateBulkIdentityHolder
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,

@@ -1,12 +1,12 @@
 'use client'
 import {
   checkHasFieldsToUpdate,
-  collectAssociationInput,
+  collectBulkEditFieldInput,
+  type BulkEditInputValue,
   type BulkEditEvidenceDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditEvidence,
   useModuleFilteredSelectOptions,
-  getMappedClearValue,
   InputType,
   bulkEditFieldsSchema,
   type BulkEditFieldsFormValues,
@@ -29,6 +29,7 @@ import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/b
 import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-single-object-association'
 import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
 import { getAssociationSelectedCount } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
+import { useBulkUpdateFeedback } from '@/components/shared/crud-base/use-bulk-update-feedback'
 
 type BulkEditEvidenceFormValues = BulkEditFieldsFormValues
 
@@ -36,7 +37,8 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
   const [open, setOpen] = useState(false)
   const [collapsedAssociations, setCollapsedAssociations] = useState<Record<string, boolean>>({})
   const { mutateAsync: bulkEditEvidence } = useBulkEditEvidence()
-  const { errorNotification, successNotification } = useNotification()
+  const { errorNotification } = useNotification()
+  const { notifyBulkUpdate } = useBulkUpdateFeedback()
   const form = useForm<BulkEditEvidenceFormValues>({
     resolver: zodResolver(bulkEditFieldsSchema),
     defaultValues: defaultObject,
@@ -68,34 +70,19 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
 
   const onSubmit = async () => {
     const ids = selectedEvidence.map((evidence) => evidence.id)
-    const input: Record<string, string | string[] | boolean> = {}
+    const input: Record<string, BulkEditInputValue> = {}
     if (watchedFields.length === 0) return
 
     if (ids.length === 0) return
-    watchedFields.forEach((field) => {
-      if (collectAssociationInput(field, input)) return
-
-      const key = field.selectedObject?.name
-      if (!key) return
-
-      if (field?.selectedValue && field?.value) {
-        input[key] = field.selectedValue
-      }
-
-      if (field.selectedObject?.inputType === InputType.Input && !field?.selectedValue) {
-        const clearValue = getMappedClearValue(field.selectedObject?.name)
-        input[clearValue] = true
-      }
-    })
+    watchedFields.forEach((field) => collectBulkEditFieldInput(field, input))
 
     try {
-      await bulkEditEvidence({
+      const result = await bulkEditEvidence({
         ids: ids,
         input,
       })
-      successNotification({
-        title: 'Successfully bulk updated selected evidence.',
-      })
+      if (!notifyBulkUpdate({ requestedCount: ids.length, updatedIDs: result.updateBulkEvidence?.updatedIDs, singular: 'evidence record' })) return
+
       setSelectedEvidence([])
       setOpen(false)
     } catch (error: unknown) {

@@ -189,9 +189,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
                   setSelectedItems={setSelectedContacts}
                   schema={bulkEditFieldSchema}
                   bulkEditMutation={{
-                    mutateAsync: async ({ ids, input }) => {
-                      await bulkEditContacts({ ids, input })
-                    },
+                    mutateAsync: async ({ ids, input }) => (await bulkEditContacts({ ids, input })).updateBulkContact,
                   }}
                   enumOpts={{ statusOptions: statusEnumOptions }}
                   entityType={ObjectTypes.CONTACT}

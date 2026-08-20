@@ -9,6 +9,7 @@ import { Input } from '@repo/ui/input'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown, ChevronRight, ChevronsDownUp, List, Minus, Plus, RotateCcw, SearchIcon, ShieldCheck, SquarePlay, SquarePlus, Star } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
+import { getBulkUpdateOutcome } from '@/components/shared/crud-base/bulk-action-feedback'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@repo/ui/dialog'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
@@ -31,7 +32,7 @@ type FilterTab = 'all' | 'added' | 'not-added' | 'recommended'
 type DraftAction = 'add' | 'remove'
 
 export default function ControlsPage() {
-  const { successNotification, errorNotification } = useNotification()
+  const { successNotification, warningNotification, errorNotification } = useNotification()
   const { setCrumbs } = use(BreadcrumbContext)
   const [activeTab, setActiveTab] = useState<FilterTab>('all')
   const [tabDefaulted, setTabDefaulted] = useState(false)
@@ -195,19 +196,19 @@ export default function ControlsPage() {
       ])
 
       const allUpdatedIds = [...(results[0]?.updateBulkControl?.updatedIDs ?? []), ...(results[1]?.updateBulkControl?.updatedIDs ?? [])]
+      const outcome = getBulkUpdateOutcome({ requestedCount: addIds.length + removeIds.length, updatedIDs: allUpdatedIds, singular: 'control' })
 
-      if (allUpdatedIds.length === 0 && (addIds.length > 0 || removeIds.length > 0)) {
-        errorNotification({
-          title: 'Error publishing',
-          description: 'No controls were updated. Please try again.',
-        })
+      if (outcome.status === 'failure') {
+        errorNotification({ title: 'Error publishing', description: outcome.description })
         return
       }
 
-      successNotification({
-        title: 'Published',
-        description: 'Trust center control selections have been published.',
-      })
+      if (outcome.status === 'partial') {
+        warningNotification({ title: outcome.title, description: outcome.description })
+        return
+      }
+
+      successNotification({ title: 'Published', description: 'Trust center control selections have been published.' })
       setDrafts(new Map())
       setPublishDialogOpen(false)
     } catch (err) {
@@ -216,7 +217,7 @@ export default function ControlsPage() {
         description: parseErrorMessage(err),
       })
     }
-  }, [publishDraftSummary, bulkEditControl, successNotification, errorNotification])
+  }, [publishDraftSummary, bulkEditControl, successNotification, warningNotification, errorNotification])
 
   const isCategoryAllAdded = useCallback(
     (controls: ControlListStandardFieldsFragment[]): boolean => {

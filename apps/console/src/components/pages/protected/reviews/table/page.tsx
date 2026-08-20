@@ -192,7 +192,8 @@ const ReviewPage: React.FC = () => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateReviewInput) => {
-      await bulkEditMutation.mutateAsync({ ids, input })
+      const result = await bulkEditMutation.mutateAsync({ ids, input })
+      return result.updateBulkReview
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,

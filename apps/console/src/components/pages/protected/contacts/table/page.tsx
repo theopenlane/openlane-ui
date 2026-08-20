@@ -119,7 +119,8 @@ const ContactPage: React.FC = () => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateContactInput) => {
-      await bulkEditMutation.mutateAsync({ ids, input })
+      const result = await bulkEditMutation.mutateAsync({ ids, input })
+      return result.updateBulkContact
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,

@@ -223,7 +223,8 @@ const VendorPage: React.FC = () => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateEntityInput) => {
-      await bulkEditMutation.mutateAsync({ ids, input })
+      const result = await bulkEditMutation.mutateAsync({ ids, input })
+      return result.updateBulkEntity
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,

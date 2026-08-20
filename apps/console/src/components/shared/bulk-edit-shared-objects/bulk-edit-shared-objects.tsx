@@ -60,6 +60,7 @@ export interface SelectOptionSelectedObject<T extends string = string> {
   placeholder: string
   options?: Option[]
   inputType: InputType
+  clearable?: boolean
   allowedObjectTypes?: readonly ObjectTypeObjects[]
   objectType?: ObjectTypeObjects
 }
@@ -158,6 +159,7 @@ export const fieldItemSchema = z.object({
       name: z.string(),
       placeholder: z.string(),
       inputType: z.enum(InputType),
+      clearable: z.boolean().optional(),
       options: z
         .array(
           z.object({
@@ -181,28 +183,26 @@ export const bulkEditFieldsSchema = z.object({
 
 export type BulkEditFieldsFormValues = z.infer<typeof bulkEditFieldsSchema>
 
-const clearValueMap: Record<string, string> = {
-  procedureType: 'clearObjectTypes.PROCEDURE',
-  policyType: 'clearPolicyType',
-  riskType: 'clearRiskType',
-  score: 'clearScore',
-  category: 'clearCategory',
-  due: 'clearDue',
-  clearSource: 'clearSource',
-  clearTags: 'clearTags',
+export type BulkEditInputValue = string | string[] | boolean | Date | null
+
+export const buildClearKey = (fieldName: string): string => {
+  const base = fieldName.replace(/ID$/, '')
+  return `clear${base.charAt(0).toUpperCase()}${base.slice(1)}`
 }
 
-export const getMappedClearValue = (key: string): string => {
-  return clearValueMap[key]
+export const isClearableSelect = (selectedObject?: Pick<SelectOptionSelectedObject, 'inputType' | 'clearable'>): boolean => {
+  return selectedObject?.inputType === InputType.Select && Boolean(selectedObject.clearable)
 }
 
 type BulkEditFieldLike = {
-  selectedObject?: { inputType: InputType } | undefined
+  selectedObject?: { name: string; inputType: InputType; clearable?: boolean } | undefined
   selectedValue?: string | string[] | undefined
+  selectedDate?: Date | null | undefined
   selectedAssociations?: Record<string, string[]> | undefined
+  value?: string | undefined
 }
 
-export const collectAssociationInput = (field: BulkEditFieldLike, input: Record<string, string | string[] | boolean>): boolean => {
+const collectAssociationInput = (field: BulkEditFieldLike, input: Record<string, BulkEditInputValue>): boolean => {
   if (field.selectedObject?.inputType !== InputType.ObjectAssociation || !field.selectedAssociations) {
     return false
   }
@@ -214,13 +214,47 @@ export const collectAssociationInput = (field: BulkEditFieldLike, input: Record<
   return true
 }
 
+const isExplicitlyCleared = (field: BulkEditFieldLike): boolean => {
+  const selectedObject = field.selectedObject
+  if (!selectedObject?.clearable) {
+    return false
+  }
+  if (selectedObject.inputType === InputType.Input) {
+    return !field.selectedValue
+  }
+  if (selectedObject.inputType === InputType.Date) {
+    return !field.selectedDate
+  }
+  return selectedObject.inputType === InputType.Select && field.selectedValue === ''
+}
+
+export const collectBulkEditFieldInput = (field: BulkEditFieldLike, input: Record<string, BulkEditInputValue>): void => {
+  if (collectAssociationInput(field, input)) return
+
+  const key = field.selectedObject?.name
+  if (!key) return
+
+  if (field.selectedValue && field.value) {
+    input[key] = field.selectedValue
+    return
+  }
+
+  if (field.selectedDate && field.value) {
+    input[key] = field.selectedDate
+    return
+  }
+
+  if (isExplicitlyCleared(field)) {
+    input[buildClearKey(key)] = true
+  }
+}
+
 export const checkHasFieldsToUpdate = (watchedFields: BulkEditFieldLike[]): boolean => {
-  return watchedFields.some(
-    (field) =>
-      (field.selectedObject && field.selectedValue) ||
-      field.selectedObject?.inputType === InputType.Input ||
-      (field.selectedObject?.inputType === InputType.ObjectAssociation && field.selectedAssociations && Object.values(field.selectedAssociations).some((ids) => ids && ids.length > 0)),
-  )
+  return watchedFields.some((field) => {
+    const probe: Record<string, BulkEditInputValue> = {}
+    collectBulkEditFieldInput(field, probe)
+    return Object.keys(probe).length > 0
+  })
 }
 
 const POLICY_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
@@ -269,6 +303,7 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: BulkEditGroup[], typ
       selectOptionEnum: SelectOptionBulkEditRisks.RiskDelegate,
       name: 'delegateID',
       inputType: InputType.Select,
+      clearable: true,
       placeholder: 'Select delegate',
       options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
@@ -297,6 +332,7 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: BulkEditGroup[], typ
       selectOptionEnum: SelectOptionBulkEditRisks.RiskStakeholder,
       name: 'stakeholderID',
       inputType: InputType.Select,
+      clearable: true,
       placeholder: 'Select stakeholder',
       options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
@@ -311,6 +347,7 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: BulkEditGroup[], typ
       selectOptionEnum: SelectOptionBulkEditRisks.RiskScore,
       name: 'score',
       inputType: InputType.Input,
+      clearable: true,
       placeholder: 'Select score',
     },
     {
@@ -329,6 +366,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: BulkEditGroup[]
       selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureDelegate,
       name: 'delegateID',
       inputType: InputType.Select,
+      clearable: true,
       placeholder: 'Select delegate',
       options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
@@ -350,6 +388,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: BulkEditGroup[]
       selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureApprover,
       name: 'approverID',
       inputType: InputType.Select,
+      clearable: true,
       placeholder: 'Select approver',
       options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
@@ -368,6 +407,7 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: BulkEditGroup[], 
       selectOptionEnum: SelectOptionBulkEditPolicies.PolicyDelegate,
       name: 'delegateID',
       inputType: InputType.Select,
+      clearable: true,
       placeholder: 'Select delegate',
       options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
@@ -389,6 +429,7 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: BulkEditGroup[], 
       selectOptionEnum: SelectOptionBulkEditPolicies.PolicyApprover,
       name: 'approverID',
       inputType: InputType.Select,
+      clearable: true,
       placeholder: 'Select approver',
       options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
@@ -411,6 +452,7 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: BulkEditGroup[
       name: 'controlOwnerID',
       placeholder: 'Select owner',
       inputType: InputType.Select,
+      clearable: true,
       options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
     {
@@ -475,6 +517,7 @@ export const getAllSelectOptionsForBulkEditTasks = (
       name: 'assigneeID',
       placeholder: 'Select assignee',
       inputType: InputType.Select,
+      clearable: true,
       options: membersOptions?.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
     },
     {
@@ -489,6 +532,7 @@ export const getAllSelectOptionsForBulkEditTasks = (
       name: 'due',
       placeholder: 'Select a due date',
       inputType: InputType.Date,
+      clearable: true,
     },
     {
       selectOptionEnum: SelectOptionBulkEditTasks.TaskCategory,
@@ -519,6 +563,7 @@ export const getAllSelectOptionsForBulkEditEvidence = (): SelectOptionSelectedOb
       selectOptionEnum: SelectOptionBulkEditEvidence.Source,
       name: 'source',
       inputType: InputType.Input,
+      clearable: true,
       placeholder: 'Input source',
     },
     {

@@ -111,7 +111,8 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
       await baseBulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateActionPlanInput) => {
-      await baseBulkEditMutation.mutateAsync({ ids, input })
+      const result = await baseBulkEditMutation.mutateAsync({ ids, input })
+      return result.updateBulkActionPlan
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts: {
