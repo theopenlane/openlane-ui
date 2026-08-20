@@ -22,8 +22,8 @@ type Props = {
 }
 
 const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitialData, onPaginationChange, pagination, paginationMeta, isLoading, onRowClick }: Props) => {
-  const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({})
-  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>({})
+  const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>(() => initialData ?? {})
+  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>(() => refCodeInitialData ?? {})
 
   useEffect(() => {
     if (initialData) setSelectedIdsMap(initialData)

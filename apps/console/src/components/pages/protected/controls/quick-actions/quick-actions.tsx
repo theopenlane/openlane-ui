@@ -13,7 +13,6 @@ import type { TObjectAssociationMap } from '@/components/shared/object-associati
 import QuickActionsBar, { type QuickActionItem } from '@/components/shared/crud-base/quick-actions/quick-actions-bar'
 import { useGetControlAssociationsById } from '@/lib/graphql-hooks/control'
 import { useIsAuditor } from '@/lib/graphql-hooks/member'
-import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol'
 import { buildControlEvidenceData, buildEvidenceControlParam, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
 import CreateControlObjectiveSheet from '../tabs/implementation/control-objectives-components/create-control-objective-sheet'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -69,7 +68,6 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
   const controlData = props.kind === 'control' ? props.control : undefined
   const subcontrolData = props.kind === 'subcontrol' ? props.subcontrol : undefined
   const { data: controlAssociationsData } = useGetControlAssociationsById(isSubcontrol ? undefined : controlId)
-  const { data: subcontrolAssociationsData } = useGetSubcontrolAssociationsById(subcontrolId)
 
   const evidenceControlParam = useMemo(() => {
     if (isSubcontrol) return undefined
@@ -78,10 +76,10 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
 
   const evidenceFormData = useMemo(() => {
     if (isSubcontrol) {
-      return buildSubcontrolEvidenceData(subcontrolData ?? null, subcontrolAssociationsData)
+      return buildSubcontrolEvidenceData(subcontrolData ?? null)
     }
     return buildControlEvidenceData(controlData ?? null, controlAssociationsData)
-  }, [controlAssociationsData, controlData, isSubcontrol, subcontrolAssociationsData, subcontrolData])
+  }, [controlAssociationsData, controlData, isSubcontrol, subcontrolData])
 
   const taskInitialData = useMemo<TObjectAssociationMap>(() => {
     if (isSubcontrol) {

@@ -16,7 +16,7 @@ import ReviewsTab from '@/components/pages/protected/controls/tabs/reviews/revie
 import ScrollableTabsList from '@/components/pages/protected/controls/tabs/scrollable-tabs-list'
 import ControlTabsList from '@/components/pages/protected/controls/tabs/control-tabs-list'
 import { useGetControlAssociationsById, type ControlByIdNode } from '@/lib/graphql-hooks/control'
-import { useGetSubcontrolAssociationsById, type SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
+import { type SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
 import { useMappedEntityRefs } from '@/lib/graphql-hooks/use-mapped-entity-refs'
 import { buildControlEvidenceData, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
 import { type UpdateSubcontrolInput, type UpdateControlInput } from '@repo/codegen/src/schema.ts'
@@ -54,7 +54,6 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
   const control = props.kind === 'control' ? props.control : undefined
   const subcontrol = props.kind === 'subcontrol' ? props.subcontrol : undefined
   const { data: controlAssociationsData } = useGetControlAssociationsById(isSubcontrol ? undefined : control?.id)
-  const { data: subcontrolAssociationsData } = useGetSubcontrolAssociationsById(isSubcontrol ? subcontrol?.id : undefined)
 
   const subcontrolIds = useMemo(() => {
     if (isSubcontrol && subcontrol) return [subcontrol.id]
@@ -124,11 +123,11 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
 
   const evidenceFormData = useMemo<TFormEvidenceData>(() => {
     if (isSubcontrol) {
-      return buildSubcontrolEvidenceData(subcontrol ?? null, subcontrolAssociationsData)
+      return buildSubcontrolEvidenceData(subcontrol ?? null)
     }
 
     return buildControlEvidenceData(control ?? null, controlAssociationsData)
-  }, [isSubcontrol, subcontrol, control, subcontrolAssociationsData, controlAssociationsData])
+  }, [isSubcontrol, subcontrol, control, controlAssociationsData])
 
   const handleTabChange = (nextTab: string) => {
     if (!availableTabs.includes(nextTab as ControlTabValue)) {

@@ -8,11 +8,12 @@ import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { type TAssociationItem } from '@/components/shared/object-association/association-items'
 
 interface Props {
   defaultSelectedObject?: ObjectTypeObjects
   initialData?: TObjectAssociationMap
-  objectAssociationsDisplayIDs?: string[]
+  objectAssociationItems?: TAssociationItem[]
   initialValues?: Partial<CreateTaskFormData>
   hideObjectAssociation?: boolean
   fromTemplate?: boolean
@@ -26,7 +27,7 @@ interface Props {
 const CreateTaskDialog = ({
   defaultSelectedObject,
   initialData,
-  objectAssociationsDisplayIDs,
+  objectAssociationItems,
   initialValues,
   hideObjectAssociation,
   fromTemplate,
@@ -86,7 +87,7 @@ const CreateTaskDialog = ({
             ObjectTypeObjects.VULNERABILITY,
           ]}
           initialData={initialData}
-          objectAssociationsDisplayIDs={objectAssociationsDisplayIDs}
+          objectAssociationItems={objectAssociationItems}
           initialValues={initialValues}
           hideObjectAssociation={hideObjectAssociation}
           fromTemplate={fromTemplate}
