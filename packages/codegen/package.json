@@ -5,7 +5,7 @@
     "@graphql-tools/schema": "10.0.38",
     "graphql": "16.14.2",
     "graphql-request": "7.4.0",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.0"
   },
   "devDependencies": {
     "@graphql-codegen/add": "7.1.0",
