@@ -71,7 +71,7 @@
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
-    "@google-cloud/aiplatform": "^6.11.0",
+    "@google-cloud/aiplatform": "^7.0.0",
     "@google-cloud/storage": "^7.21.0",
     "@google/genai": "^2.16.0",
     "@platejs/docx-io": "^53.3.2",
