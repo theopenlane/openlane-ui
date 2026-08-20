@@ -193,10 +193,12 @@ export function useCreateOrgControlsRows({ active, onOpenChange, onCreated, ...p
   const multiMode = !!props.groups
   const frameworkControl = multiMode ? null : props.frameworkControl
   const { rows: fetchedRows, isLoading } = useResolvedSuggestions(frameworkControl, multiMode ? undefined : props.existingRefCodes, active && !multiMode)
-  const resolvedRows = multiMode ? props.groups.map((g) => g.row) : fetchedRows
+  // keep a stable identity, the rows drive effects below
+  const groups = props.groups
+  const resolvedRows = useMemo(() => (groups ? groups.map((g) => g.row) : fetchedRows), [groups, fetchedRows])
   const targetsByRow = useMemo(
-    () => new Map(multiMode ? props.groups.map((g) => [rowKey(g.row), g.controls]) : resolvedRows.map((row) => [rowKey(row), frameworkControl ? [frameworkControl] : []])),
-    [multiMode, props.groups, resolvedRows, frameworkControl],
+    () => new Map(groups ? groups.map((g) => [rowKey(g.row), g.controls]) : resolvedRows.map((row) => [rowKey(row), frameworkControl ? [frameworkControl] : []])),
+    [groups, resolvedRows, frameworkControl],
   )
 
   const { data: frameworkControlData } = useGetControlMinifiedById(multiMode ? undefined : frameworkControl?.id, active && !multiMode)
@@ -260,7 +262,7 @@ export function useCreateOrgControlsRows({ active, onOpenChange, onCreated, ...p
       if (suggested && control.refCode) writtenTitlesRef.current[control.refCode] = suggested
     })
 
-    setPendingTitleKeys([])
+    setPendingTitleKeys((current) => (current.length ? [] : current))
     const requested = new Set(requestedTitles.map((control) => control.refCode))
     setRows((current) =>
       current.map((row) => {

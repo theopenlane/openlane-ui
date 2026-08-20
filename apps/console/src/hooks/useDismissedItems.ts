@@ -32,7 +32,11 @@ export function useDismissedItems(scope?: string) {
   const [dismissed, setDismissed] = useState<string[]>(() => readDismissedItems(scope, currentOrgId))
 
   useEffect(() => {
-    const sync = () => setDismissed(readDismissedItems(scope, currentOrgId))
+    const sync = () =>
+      setDismissed((current) => {
+        const next = readDismissedItems(scope, currentOrgId)
+        return next.length === current.length && next.every((item, index) => item === current[index]) ? current : next
+      })
     sync()
     window.addEventListener(DISMISSED_EVENT, sync)
     return () => window.removeEventListener(DISMISSED_EVENT, sync)
