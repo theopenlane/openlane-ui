@@ -4,7 +4,7 @@ import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import { cn } from '../../lib/utils'
-import { guardToastInteractOutside } from '../../lib/dismissable-outside'
+import { guardInteractOutside } from '../../lib/dismissable-outside'
 import { dialogStyles } from './dialog.styles'
 
 const { overlay, content, header, footer, title, description, close, closeIcon } = dialogStyles()
@@ -48,7 +48,7 @@ function DialogContent({
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay className={overlayClassName} />
-      <DialogPrimitive.Content data-slot="dialog-content" className={cn(content(), className)} onInteractOutside={guardToastInteractOutside(onInteractOutside)} {...props}>
+      <DialogPrimitive.Content data-slot="dialog-content" className={cn(content(), className)} onInteractOutside={guardInteractOutside(onInteractOutside)} {...props}>
         {children}
         {showCloseButton && (
           <DialogPrimitive.Close data-slot="dialog-close" className={cn(close())}>

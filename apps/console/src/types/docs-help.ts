@@ -1,4 +1,4 @@
-export type DocsHelpChunk = { title: string; source: string; text: string }
+export type DocsHelpChunk = { title: string; source: string; text: string; truncated?: boolean }
 
 export type DocsSection = 'platform' | 'developers'
 

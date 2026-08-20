@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useDomainScanNotification } from '@/hooks/useDomainScanNotification'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateOnboarding } from '@/lib/graphql-hooks/onboarding'
-import { buildOnboardingInput, getSelectedFrameworkLabels } from '@/lib/onboarding-questions/submit-mapping'
+import { buildOnboardingInput, getExistingControls, getSelectedFrameworkLabels } from '@/lib/onboarding-questions/submit-mapping'
 import { type OnboardingQuestion, type SubmitStage } from '@/lib/onboarding-questions/types'
 import { setOnboardingFrameworks } from '@/lib/storage/onboarding-frameworks'
 import { setOnboardingTasksPending } from '@/lib/storage/onboarding-tasks-pending'
@@ -85,7 +85,7 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
     const orgId = response.createOnboarding.onboarding.organizationID
     if (!orgId) return null
 
-    setOnboardingFrameworks(getSelectedFrameworkLabels(allQuestions, formValues), orgId)
+    setOnboardingFrameworks(getSelectedFrameworkLabels(allQuestions, formValues), orgId, getExistingControls(formValues))
     setOnboardingTasksPending(orgId)
 
     const switchResponse = await switchOrganization({

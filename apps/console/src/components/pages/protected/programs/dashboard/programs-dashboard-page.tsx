@@ -117,17 +117,18 @@ const ProgramsDashboardPage = () => {
   if (!data?.programs.edges?.length && isSuccess && !search && filterStatus === 'ACTIVE') {
     return (
       <>
-        <PageHeading heading="Programs" />
-
-        <div className="max-w-5xl mx-auto">
-          {hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram, session) ? (
-            <ProgramsCreate disableHeader={true} noPrograms={true} />
-          ) : (
-            <Callout variant="warning" className="max-w-6xl mx-33 mt-10" title="You do not have permission to create a program">
+        {hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram, session) ? (
+          // reuse the create page verbatim so a first-time org sees the same layout it
+          // would get from /programs/create
+          <ProgramsCreate heading="Programs" noPrograms={true} />
+        ) : (
+          <div className="max-w-6xl mx-auto">
+            <PageHeading heading="Programs" />
+            <Callout variant="warning" title="You do not have permission to create a program">
               Reach out to an organization admin to create a program on your behalf or request access for program creation
             </Callout>
-          )}
-        </div>
+          </div>
+        )}
       </>
     )
   }

@@ -1,9 +1,10 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useInfiniteQuery, useMutation, useQuery, type InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useHistoryGraphQLClient } from '@/hooks/useHistoryGraphQLClient'
 import {
   GET_INTERNAL_POLICIES_LIST,
+  GET_INTERNAL_POLICY_NAMES,
   GET_INTERNAL_POLICY_DETAILS_BY_ID,
   CREATE_INTERNAL_POLICY,
   UPDATE_INTERNAL_POLICY,
@@ -400,4 +401,44 @@ export const useGetInternalPolicyHistories = (policyId: string | null | undefine
     historyNodes,
     paginationMeta,
   }
+}
+
+export type TPolicyNameSummary = { id: string; name: string; summary?: string | null }
+
+type PolicyNamesPage = {
+  internalPolicies: {
+    totalCount: number
+    pageInfo: { endCursor?: string | null; hasNextPage: boolean }
+    edges?: Array<{ node?: TPolicyNameSummary | null } | null> | null
+  }
+}
+
+const POLICY_NAMES_PAGE_SIZE = 100
+
+// name and summary for every policy in the org, paged through in full
+export const useAllPolicyNames = ({ enabled = true }: { enabled?: boolean } = {}) => {
+  const { client } = useGraphQLClient()
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending, isError } = useInfiniteQuery<
+    PolicyNamesPage,
+    Error,
+    InfiniteData<PolicyNamesPage>,
+    ['internalPolicies', 'names'],
+    string | null
+  >({
+    queryKey: ['internalPolicies', 'names'],
+    queryFn: async ({ pageParam }) => client.request(GET_INTERNAL_POLICY_NAMES, { after: pageParam, first: POLICY_NAMES_PAGE_SIZE }),
+    initialPageParam: null,
+    getNextPageParam: (lastPage) => (lastPage.internalPolicies.pageInfo.hasNextPage ? (lastPage.internalPolicies.pageInfo.endCursor ?? null) : undefined),
+    enabled,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const policies = useMemo(() => (data?.pages ?? []).flatMap((page) => (page.internalPolicies.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))), [data])
+
+  return { policies, isLoading: enabled && (isPending || hasNextPage || isFetchingNextPage), isError: enabled && isError }
 }

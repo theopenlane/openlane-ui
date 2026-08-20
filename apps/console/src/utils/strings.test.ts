@@ -1,4 +1,4 @@
-import { objectToSnakeCase, pluralizeTypeName } from './strings'
+import { wordTokens, objectToSnakeCase, orgAbbreviation, pluralizeTypeName } from './strings'
 
 describe('objectToSnakeCase', () => {
   it('should convert camelCase to snake_case', () => {
@@ -46,5 +46,47 @@ describe('pluralizeTypeName', () => {
 
   it('should lowercase the first character', () => {
     expect(pluralizeTypeName('Policy')).toMatch(/^[a-z]/)
+  })
+})
+
+describe('orgAbbreviation', () => {
+  it('takes initials from a multi word name', () => {
+    expect(orgAbbreviation('Acme Corp')).toBe('AC')
+  })
+
+  it('uses the opening letters of a single word name', () => {
+    expect(orgAbbreviation('Microsoft')).toBe('MI')
+  })
+
+  it('caps initials at three', () => {
+    expect(orgAbbreviation('Acme Widget Manufacturing Company')).toBe('AWM')
+  })
+
+  it('ignores punctuation between words', () => {
+    expect(orgAbbreviation('Acme, Inc.')).toBe('AI')
+  })
+
+  it('keeps digits that start a name', () => {
+    expect(orgAbbreviation('3M')).toBe('3M')
+  })
+
+  it('is empty when there is nothing to abbreviate', () => {
+    expect(orgAbbreviation('')).toBe('')
+    expect(orgAbbreviation(null)).toBe('')
+    expect(orgAbbreviation('   ')).toBe('')
+  })
+})
+
+describe('wordTokens', () => {
+  it('lowercases and splits on punctuation', () => {
+    expect(wordTokens('Business Continuity (BC/DR)')).toEqual(['business', 'continuity', 'bc', 'dr'])
+  })
+
+  it('drops empty segments', () => {
+    expect(wordTokens('  Access--Control  ')).toEqual(['access', 'control'])
+  })
+
+  it('returns nothing for a string with no word characters', () => {
+    expect(wordTokens('— / —')).toEqual([])
   })
 })

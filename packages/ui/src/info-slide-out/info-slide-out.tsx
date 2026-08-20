@@ -17,6 +17,10 @@ type InfoSlideOutProps = {
   hideClose?: boolean
   /** non-modal leaves the page (and things like chat widgets) interactive while open */
   modal?: boolean
+  /** dimming backdrop; defaults to following `modal` */
+  overlay?: boolean
+  /** class for the backdrop, e.g. bg-transparent for a modal panel that shouldn't dim */
+  overlayClassName?: string
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }
@@ -33,6 +37,8 @@ export function InfoSlideOut({
   edgeHandle,
   hideClose = false,
   modal = true,
+  overlay = modal,
+  overlayClassName,
   open: controlledOpen,
   onOpenChange,
 }: InfoSlideOutProps) {
@@ -56,11 +62,13 @@ export function InfoSlideOut({
             </button>
           )}
       <SheetContent
+        data-info-panel=""
         initialWidth={width}
         minWidth={380}
         resizable={resizable}
         edge={edgeHandle}
-        overlay={modal}
+        overlay={overlay}
+        overlayClassName={overlayClassName}
         onClick={(e) => e.stopPropagation()}
         header={
           <SheetHeader>

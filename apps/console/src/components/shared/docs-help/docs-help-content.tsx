@@ -1,14 +1,16 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
-import { ArrowLeft, ExternalLink, LoaderCircle, SearchIcon, Sparkles } from 'lucide-react'
+import { ArrowLeft, ChevronDown, ExternalLink, LoaderCircle, SearchIcon, Sparkles } from 'lucide-react'
 import ReactMarkdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Callout } from '@/components/shared/callout/callout'
 import { DOCS_URL } from '@/constants/docs'
-import { useDocsHelp } from '@/hooks/useDocsHelp'
+import { useDocsFullPage, useDocsHelp } from '@/hooks/useDocsHelp'
+import { DocsFaqSection, stripFaqSection, useDocsFaq } from './docs-faq'
+import { toHumanLabel } from '@/utils/strings'
 import type { DocsHelpChunk, DocsSection } from '@/types/docs-help'
 
 const DOCS_HOST = new URL(DOCS_URL).host
@@ -71,11 +73,11 @@ const resolveDocsUrl = (href: string | undefined, base: string): URL | null => {
   }
 }
 
-const createDocsMarkdownComponents = (base: string | undefined, onDocLink: (text: string, path: string) => void): Components => ({
+export const createDocsMarkdownComponents = (base: string | undefined, onDocLink?: (text: string, path: string) => void): Components => ({
   a: ({ href, children, ...props }) => {
     const resolved = resolveDocsUrl(href, base || DOCS_URL)
 
-    if (resolved && resolved.host === DOCS_HOST) {
+    if (resolved && resolved.host === DOCS_HOST && onDocLink) {
       const path = resolved.pathname
       const text = Array.isArray(children) ? children.filter((child) => typeof child === 'string').join('') : typeof children === 'string' ? children : ''
       return (
@@ -99,6 +101,23 @@ const createDocsMarkdownComponents = (base: string | undefined, onDocLink: (text
     )
   },
 })
+
+// Where in the docs a result came from, as a breadcrumb of its parent path
+// ("Platform › Standards › SOC 2"). Page titles alone repeat across framework
+// pages, so results are indistinguishable without it
+export function docsBreadcrumb(source?: string | null): string {
+  if (!source) return ''
+  try {
+    const segments = new URL(source).pathname.split('/').filter(Boolean)
+    return segments
+      .slice(0, -1)
+      .filter((segment) => segment !== 'docs')
+      .map(toHumanLabel)
+      .join(' › ')
+  } catch {
+    return ''
+  }
+}
 
 const withHardBreaks = (text: string): string =>
   text
@@ -134,13 +153,24 @@ export const DocsHelpContent = ({ query, prefer, intro, section, enabled }: Docs
   const isSearching = isFetching && !!asked?.fromSearch
 
   const openSupport = usePlugSupportWidget()
+  // follows the panel: hopping to another doc page swaps in that page's FAQ
+  const faq = useDocsFaq(activeQuery, activePrefer, enabled)
+  const hasFaq = !!faq
+
+  // retrieval hands back a fixed-size chunk, so the shown text can stop
+  // mid-sentence; the rest of the page loads on demand
+  const [expandedSource, setExpandedSource] = useState<string | null>(null)
+  const { data: fullPage, isLoading: fullPageLoading } = useDocsFullPage(activeQuery, expandedSource, enabled, activePrefer)
+  const isExpanded = !!best?.source && expandedSource === best.source && !!fullPage
 
   const handleDocLink = useCallback((text: string, path: string) => {
+    setExpandedSource(null)
     setAsked({ query: buildLinkQuery(text, path), prefer: path })
   }, [])
 
   const selectRelated = useCallback(
     (chunk: DocsHelpChunk) => {
+      setExpandedSource(null)
       setAsked({
         query: chunk.title || chunk.source,
         prefer: docPathOf(chunk.source),
@@ -153,7 +183,9 @@ export const DocsHelpContent = ({ query, prefer, intro, section, enabled }: Docs
   const submitFollowUp = (e: FormEvent) => {
     e.preventDefault()
     const trimmed = followUp.trim()
-    if (trimmed) setAsked({ query: trimmed, fromSearch: true })
+    if (!trimmed) return
+    setExpandedSource(null)
+    setAsked({ query: trimmed, fromSearch: true })
   }
 
   const backToTopic = () => {
@@ -164,7 +196,13 @@ export const DocsHelpContent = ({ query, prefer, intro, section, enabled }: Docs
   const related = useMemo(() => (chunks ?? []).slice(1).filter((chunk) => chunk.source), [chunks])
   const introComponents = useMemo(() => createDocsMarkdownComponents(undefined, handleDocLink), [handleDocLink])
   const bodyComponents = useMemo(() => createDocsMarkdownComponents(best?.source, handleDocLink), [best?.source, handleDocLink])
-  const bodyText = useMemo(() => (best ? withHardBreaks(best.text) : ''), [best])
+  const bodyText = useMemo(() => {
+    if (!best) return ''
+    const text = isExpanded ? fullPage : best.text
+    // whenever the FAQ renders as question rows, drop any FAQ section from the
+    // body — matching on source is too fragile to rely on
+    return withHardBreaks(hasFaq ? stripFaqSection(text) : text)
+  }, [best, hasFaq, isExpanded, fullPage])
 
   return (
     <div className="flex flex-col gap-4 pt-1">
@@ -236,12 +274,28 @@ export const DocsHelpContent = ({ query, prefer, intro, section, enabled }: Docs
       {best && (
         <div className="flex flex-col gap-2">
           <h4 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">From the docs</h4>
-          {best.title && <p className="text-sm font-medium">{best.title}</p>}
+          {best.title && (
+            <div>
+              <p className="text-sm font-medium">{best.title}</p>
+              {docsBreadcrumb(best.source) && <p className="text-xs text-muted-foreground">{docsBreadcrumb(best.source)}</p>}
+            </div>
+          )}
           <div className="prose prose-sm dark:prose-invert max-w-none text-sm text-muted-foreground">
             <ReactMarkdown remarkPlugins={[remarkGfm]} components={bodyComponents}>
               {bodyText}
             </ReactMarkdown>
           </div>
+          {best.truncated && !isExpanded && (
+            <button
+              type="button"
+              disabled={fullPageLoading}
+              onClick={() => setExpandedSource(best.source)}
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-border py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+            >
+              <ChevronDown size={14} />
+              {fullPageLoading ? 'Loading…' : 'Read more'}
+            </button>
+          )}
           {best.source && (
             <a
               href={best.source}
@@ -256,13 +310,16 @@ export const DocsHelpContent = ({ query, prefer, intro, section, enabled }: Docs
         </div>
       )}
 
+      {faq && <DocsFaqSection entries={faq.entries} components={createDocsMarkdownComponents(faq.source, handleDocLink)} />}
+
       {related.length > 0 && (
         <div className="flex flex-col gap-2 border-t border-border pt-4">
           <h4 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Also relevant</h4>
           <div className="flex flex-col gap-1.5">
             {related.map((chunk) => (
-              <button key={chunk.source} type="button" onClick={() => selectRelated(chunk)} className="self-start text-left text-sm text-[var(--color-info)] hover:underline underline-offset-4">
-                {chunk.title || chunk.source}
+              <button key={chunk.source} type="button" onClick={() => selectRelated(chunk)} className="flex items-baseline gap-1.5 text-left">
+                {docsBreadcrumb(chunk.source) && <span className="min-w-0 truncate text-xs text-muted-foreground">{docsBreadcrumb(chunk.source)} ›</span>}
+                <span className="shrink-0 text-sm text-[var(--color-info)] hover:underline underline-offset-4">{chunk.title || chunk.source}</span>
               </button>
             ))}
           </div>

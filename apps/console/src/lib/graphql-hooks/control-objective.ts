@@ -13,12 +13,13 @@ import {
   type UpdateControlObjectiveMutationVariables,
 } from '@repo/codegen/src/schema'
 
-export const useGetAllControlObjectives = (where?: GetAllControlObjectivesQueryVariables['where']) => {
+export const useGetAllControlObjectives = (where?: GetAllControlObjectivesQueryVariables['where'], options?: { enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllControlObjectivesQuery>({
     queryKey: ['controlObjectives', where],
     queryFn: () => client.request(GET_ALL_CONTROL_OBJECTIVES, { where }),
+    enabled: options?.enabled,
   })
 }
 

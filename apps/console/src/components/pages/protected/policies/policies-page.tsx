@@ -21,6 +21,7 @@ import { useInternalPoliciesCount } from '@/lib/graphql-hooks/internal-policy'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useSession } from 'next-auth/react'
+import { SuggestedPolicyCoverage } from '@/components/pages/protected/policies/suggested-policy-coverage'
 
 type TPoliciesPageProps = {
   active: 'dashboard' | 'table'
@@ -132,6 +133,8 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
           </div>
         )}
       </div>
+
+      <SuggestedPolicyCoverage />
 
       {!fetching && totalCount === 0 ? <PoliciesEmptyState /> : active === 'dashboard' ? <PoliciesDashboard setActive={setActive} fetching={fetching} /> : <PoliciesTable />}
     </div>

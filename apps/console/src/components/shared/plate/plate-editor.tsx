@@ -34,6 +34,7 @@ export type TPlateEditorProps = {
   readonly?: boolean
   isCreate?: boolean
   toolbarClassName?: string
+  containerClassName?: string
   onExportPdf?: () => void
   ref?: Ref<PlateEditorRef>
 }
@@ -56,6 +57,7 @@ const PlateEditor = ({
   readonly,
   isCreate,
   toolbarClassName,
+  containerClassName,
   onExportPdf,
   ref,
 }: TPlateEditorProps) => {
@@ -247,6 +249,7 @@ const PlateEditor = ({
       }}
     >
       <EditorContainer
+        className={containerClassName}
         variant={readonly ? 'readonly' : styleVariant}
         onClick={() => {
           // @ts-expect-error fix bad typing from platejs

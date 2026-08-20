@@ -2192,6 +2192,29 @@ export interface InsertControlPlateCommentMutation {
   }
 }
 
+export type GetTemplateControlsWithMappingsQueryVariables = Exact<{
+  where?: Types.ControlWhereInput | null | undefined
+  after?: any
+  first?: number | null | undefined
+}>
+
+export interface GetTemplateControlsWithMappingsQuery {
+  controls: {
+    pageInfo: { hasNextPage: boolean; endCursor: any }
+    edges: Array<{
+      node: {
+        id: string
+        refCode: string
+        title: string | null
+        category: string | null
+        subcategory: string | null
+        description: string | null
+        relatedControls: Array<{ id: string; refCode: string; referenceFramework: string | null }> | null
+      } | null
+    } | null> | null
+  }
+}
+
 export type CustomTypeEnumFieldsFragment = { id: string; name: string; color: string | null; objectType: string; description: string | null; field: string; systemOwned: boolean | null }
 
 export type GetCustomTypeEnumsQueryVariables = Exact<{
@@ -4802,6 +4825,15 @@ export type DeleteInternalPolicyMutationVariables = Exact<{
 
 export interface DeleteInternalPolicyMutation {
   deleteInternalPolicy: { deletedID: string }
+}
+
+export type GetInternalPolicyNamesQueryVariables = Exact<{
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface GetInternalPolicyNamesQuery {
+  internalPolicies: { totalCount: number; pageInfo: { endCursor: any; hasNextPage: boolean }; edges: Array<{ node: { id: string; name: string; summary: string | null } | null } | null> | null }
 }
 
 export type GetInternalPoliciesListQueryVariables = Exact<{

@@ -37,3 +37,8 @@ export const ORG_MANAGED_CONTROLS_WHERE: ControlWhereInput = {
 
 export const isSystemStandardRecord = ({ systemOwned, framework }: { systemOwned?: boolean | null; framework?: string | null }): boolean =>
   Boolean(systemOwned && framework && OPENLANE_SYSTEM_FRAMEWORKS.some((systemFramework) => systemFramework === framework))
+
+export const TEMPLATE_CONTROLS_WHERE: ControlWhereInput = {
+  systemOwned: true,
+  referenceFramework: OPENLANE_BASELINE_STANDARD.shortName,
+}

@@ -12,14 +12,15 @@ import { ControlObjectiveControlSource } from '@repo/codegen/src/schema'
 import { useCreateControlObjective, useDeleteControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Info, Trash2 } from 'lucide-react'
+import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
+import { Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { type TFormData } from './use-form-schema'
 import { VersionBump } from '@/lib/enums/revision-enum'
-import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { Callout } from '@/components/shared/callout/callout'
 
 const controlSourceLabels: Record<ControlObjectiveControlSource, string> = {
   [ControlObjectiveControlSource.FRAMEWORK]: 'Framework',
@@ -31,22 +32,28 @@ export const CreateControlObjectiveForm = ({
   onSuccess,
   onClose,
   defaultValues,
+  suggestedValues,
   form,
 }: {
   onSuccess: () => void
   onClose: () => void
   defaultValues?: Partial<TFormData>
+  // seeded from the docs when creating
+  suggestedValues?: { name?: string; desiredOutcome?: string }
   form: UseFormReturn<TFormData>
 }) => {
   const { id, subcontrolId } = useParams()
   const { successNotification, errorNotification } = useNotification()
   const isEditing = !!defaultValues
+  const isSuggested = !isEditing && !!suggestedValues
   const { convertToHtml } = usePlateEditor()
   const {
     handleSubmit,
     control,
     formState: { errors },
   } = form
+
+  const onDesiredOutcomeChange = usePlateHydration(form, 'desiredOutcome', defaultValues?.desiredOutcome ?? suggestedValues?.desiredOutcome)
 
   const { mutate: createObjective } = useCreateControlObjective()
   const { mutate: updateObjective } = useUpdateControlObjective()
@@ -135,13 +142,14 @@ export const CreateControlObjectiveForm = ({
       </div>
       <SheetHeader>{!isEditing && <SheetTitle className="text-left">Control Objective</SheetTitle>}</SheetHeader>
       {!isEditing && (
-        <Alert>
-          <Info className="h-4 w-4" />
-          <AlertTitle>Describe the goal this control is intended to achieve.</AlertTitle>
-          <AlertDescription>
-            <p>Focus on the risk it addresses, the outcome it supports, and how it contributes to your overall security or compliance posture.</p>
-          </AlertDescription>
-        </Alert>
+        <Callout variant="info" title="Not sure what to write?">
+          Describe the goal this control is intended to achieve. Focus on the risk it addresses, the outcome it supports, and how it contributes to your overall security or compliance posture.
+        </Callout>
+      )}
+      {isSuggested && (
+        <Callout variant="recommendation" title="Suggested">
+          The name and desired outcome below are prefilled starter suggestions. You should review and customize them for your organization before saving
+        </Callout>
       )}
       <div className="p-4 border rounded-lg">
         <div className="border-b flex items-center pb-2.5">
@@ -156,7 +164,11 @@ export const CreateControlObjectiveForm = ({
 
         <div className="border-b flex items-center py-2.5">
           <Label className="self-start whitespace-nowrap min-w-36">Desired outcome</Label>
-          <Controller control={control} name="desiredOutcome" render={({ field }) => <PlateEditor initialValue={defaultValues?.desiredOutcome} onChange={(val) => field.onChange(val)} />} />
+          <Controller
+            control={control}
+            name="desiredOutcome"
+            render={({ field }) => <PlateEditor initialValue={defaultValues?.desiredOutcome ?? suggestedValues?.desiredOutcome} onChange={(val) => onDesiredOutcomeChange(val, field.onChange)} />}
+          />
         </div>
 
         <div className="border-b flex items-center py-2.5">

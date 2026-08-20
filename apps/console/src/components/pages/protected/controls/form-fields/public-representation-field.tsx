@@ -43,6 +43,8 @@ const PublicRepresentationField: React.FC<PublicRepresentationFieldProps> = ({ i
         name="publicRepresentation"
         render={({ field }) => (
           <PlateEditor
+            variant="minimal"
+            containerClassName="min-h-[150px]"
             userData={userData}
             initialValue={initialValue}
             onChange={(val) => {

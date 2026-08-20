@@ -22,6 +22,9 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { Label } from '@repo/ui/label'
+import { BookText } from 'lucide-react'
+import { docsHelpEnabled } from '@repo/dally/ai'
+import { useDocsHelpNavigate } from '@/components/shared/docs-help/docs-help-context'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -44,6 +47,7 @@ type FormValues = z.infer<typeof formSchema>
 
 const BasicInformation = () => {
   const { data: session } = useSession()
+  const navigateDocs = useDocsHelpNavigate()
   const { id } = useParams<{ id: string }>()
   const { data } = useGetProgramBasicInfo(id)
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
@@ -187,7 +191,19 @@ const BasicInformation = () => {
           {/* Type */}
           <div className="flex border-b pb-3 items-center">
             <Label className="block w-32 shrink-0">Type</Label>
-            <CustomTypeEnumValue value={program?.programKindName || ''} options={enumOptions ?? []} placeholder="-" />
+            <div className="flex w-full flex-wrap items-center gap-3">
+              <CustomTypeEnumValue value={program?.programKindName || ''} options={enumOptions ?? []} placeholder="-" />
+              {docsHelpEnabled && program?.programKindName === 'Gap Analysis' && (
+                <button
+                  type="button"
+                  onClick={() => navigateDocs({ title: 'Gap Analysis', query: 'gap analysis', prefer: 'gapanalysis' })}
+                  className="inline-flex items-center gap-1.5 text-sm text-[var(--color-info)] hover:underline underline-offset-4"
+                >
+                  What is a gap analysis?
+                  <BookText size={12} />
+                </button>
+              )}
+            </div>
           </div>
           {/* Framework */}
           <FrameworkField form={form} program={program} isEditing={isEditing} isEditAllowed={isEditAllowed} standardOptionsNormalized={standardOptionsNormalized} name="frameworkName" /> {/* Tags */}

@@ -9,7 +9,7 @@ import { InfoSlideOut } from '@repo/ui/info-slide-out'
 import { docsHelpEnabled } from '@repo/dally/ai'
 import { DocsHelpContent } from './docs-help-content'
 import { docsHelpQuery } from './docs-help-query'
-import { useDocsHelpTopic, type DocsHelpTopic } from './docs-help-context'
+import { useDocsHelpDrawer, useDocsHelpEphemeralTopic, useDocsHelpTopic, type DocsHelpTopic } from './docs-help-context'
 
 const INTROS = {
   dashboard: 'This is your Compliance Home dashboard. Use it to get a snapshot of your compliance posture and quickly access your most important work.',
@@ -23,7 +23,7 @@ const INTROS = {
 
 const ROUTE_TOPICS: [string, DocsHelpTopic][] = [
   ['/dashboard', { title: 'Home', query: docsHelpQuery('list', 'the dashboard'), intro: INTROS.dashboard, prefer: 'Platform Overview' }],
-  ['/controls', { title: 'Controls', query: docsHelpQuery('list', 'controls'), intro: INTROS.controls }],
+  ['/controls', { title: 'Controls', query: docsHelpQuery('list', 'controls'), prefer: 'Controls Overview', intro: INTROS.controls }],
   ['/controls/create-control', { title: 'Create a Control', query: docsHelpQuery('create', 'a control'), prefer: 'Writing Controls', intro: INTROS.controls }],
   ['/controls/create-subcontrol', { title: 'Create a Subcontrol', query: docsHelpQuery('create', 'a subcontrol'), prefer: 'Writing Controls', intro: INTROS.controls }],
   ['/programs', { title: 'Programs', query: docsHelpQuery('list', 'compliance programs'), intro: INTROS.programs }],
@@ -35,6 +35,7 @@ const ROUTE_TOPICS: [string, DocsHelpTopic][] = [
   ['/standards', { title: 'Standards Catalog', query: docsHelpQuery('list', 'standards and frameworks') }],
   ['/exposure/reviews', { title: 'Reviews', query: docsHelpQuery('list', 'risk review'), prefer: 'reviews' }],
   ['/exposure/triage', { title: 'Triage Queue', query: docsHelpQuery('list', 'vulnerabilities'), prefer: 'vulnerabilities' }],
+  ['/trust-center/frameworks', { title: 'Trust Center - Frameworks', query: docsHelpQuery('list', 'trust center frameworks') }],
   ['/organization-settings/authentication', { title: 'Authentication', query: docsHelpQuery('list', 'authentication and single sign-on') }],
   ['/user-management', { title: 'User Management', query: docsHelpQuery('list', 'members groups and roles') }],
 ]
@@ -95,7 +96,7 @@ const AnimatedBookText = ({ hovered, size = 14 }: { hovered: boolean; size?: num
 const DocsTabButton = ({ onClick, label, className }: { onClick: () => void; label: string; className: string }) => {
   const [hovered, setHovered] = useState(false)
   return (
-    <button type="button" onClick={onClick} aria-label={label} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className={className}>
+    <button type="button" data-info-panel="" onClick={onClick} aria-label={label} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className={className}>
       <AnimatedBookText hovered={hovered} />
       <span style={{ writingMode: 'vertical-rl' }}>Docs</span>
     </button>
@@ -103,47 +104,65 @@ const DocsTabButton = ({ onClick, label, className }: { onClick: () => void; lab
 }
 
 export const DocsHelpTab = () => {
-  const [open, setOpen] = useState(false)
+  // open state lives in context so in-page links can open the drawer too
+  const { open, setOpen, modal } = useDocsHelpDrawer()
+  const { ephemeralTopic, setEphemeralTopic } = useDocsHelpEphemeralTopic()
   const [showClosedTab, setShowClosedTab] = useState(true)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pathname = usePathname()
   const override = useDocsHelpTopic()
 
+  // one-off topics don't survive closing the drawer or navigating away
+  useEffect(() => {
+    if (!open) setEphemeralTopic(null)
+  }, [open, setEphemeralTopic])
+  useEffect(() => {
+    setEphemeralTopic(null)
+  }, [pathname, setEphemeralTopic])
+
   const [body, setBody] = useState<HTMLElement | null>(null)
   useEffect(() => setBody(document.body), [])
 
+  // in-page links open the drawer through the context, bypassing any close handler
+  useEffect(() => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+    if (open) {
+      setShowClosedTab(false)
+      return
+    }
+    closeTimerRef.current = setTimeout(() => setShowClosedTab(true), CLOSE_ANIMATION_MS)
+  }, [open])
+
   useEffect(() => () => clearTimeout(closeTimerRef.current ?? undefined), [])
 
-  const topic = useMemo(() => override ?? topicForPath(pathname ?? '/'), [override, pathname])
+  const topic = useMemo(() => ephemeralTopic ?? override ?? topicForPath(pathname ?? '/'), [ephemeralTopic, override, pathname])
 
   if (!docsHelpEnabled) return null
-
-  const handleOpenChange = (next: boolean) => {
-    setOpen(next)
-    if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
-    if (next) {
-      setShowClosedTab(false)
-    } else {
-      closeTimerRef.current = setTimeout(() => setShowClosedTab(true), CLOSE_ANIMATION_MS)
-    }
-  }
 
   return (
     <InfoSlideOut
       title={topic.title}
       open={open}
-      onOpenChange={handleOpenChange}
+      onOpenChange={setOpen}
       width={660}
       resizable
       hideClose
-      modal={false}
+      // modal only over a sheet or dialog, where it has to take the scroll lock to
+      // be scrollable; the backdrop is transparent so it never dims what's behind
+      modal={modal}
+      overlayClassName="bg-transparent"
       icon={<BookText size={20} className="self-center" />}
       trigger={(openPanel) =>
         showClosedTab && body
-          ? createPortal(<DocsTabButton onClick={openPanel} label={`Open docs help for ${topic.title}`} className={`fixed right-0 top-1/2 z-40 -translate-y-1/2 ${TAB_CLASSES}`} />, body)
+          ? // above sheets and dialogs (z-50) so the tab stays reachable over any slide-out, and
+            // pointer-events-auto keeps it clickable when a modal layer sets body pointer-events: none
+            createPortal(
+              <DocsTabButton onClick={openPanel} label={`Open docs help for ${topic.title}`} className={`fixed right-0 top-1/2 z-[60] -translate-y-1/2 pointer-events-auto ${TAB_CLASSES}`} />,
+              body,
+            )
           : null
       }
-      edgeHandle={<DocsTabButton onClick={() => handleOpenChange(false)} label="Close docs help" className={TAB_CLASSES} />}
+      edgeHandle={<DocsTabButton onClick={() => setOpen(false)} label="Close docs help" className={TAB_CLASSES} />}
     >
       <DocsHelpContent key={topic.query} query={topic.query} prefer={topic.prefer} intro={topic.intro} section={pathname?.startsWith('/developers') ? 'developers' : 'platform'} enabled={open} />
     </InfoSlideOut>

@@ -11,18 +11,21 @@ import CreateControlReviewSheet from '@/components/pages/protected/controls/quic
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/create-control-implementation-sheet'
 import type { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import QuickActionsBar, { type QuickActionItem } from '@/components/shared/crud-base/quick-actions/quick-actions-bar'
+import { Globe } from 'lucide-react'
 import { useGetControlAssociationsById } from '@/lib/graphql-hooks/control'
 import { useIsAuditor } from '@/lib/graphql-hooks/member'
 import { buildControlEvidenceData, buildEvidenceControlParam, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
 import CreateControlObjectiveSheet from '../tabs/implementation/control-objectives-components/create-control-objective-sheet'
+import PublicRepresentationDialog from '@/components/pages/protected/controls/public-representation-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
-const EDIT_RESTRICTED_IDS = new Set(['add-implementation', 'add-objective', 'create-subcontrol', 'map-control'])
+const EDIT_RESTRICTED_IDS = new Set(['add-implementation', 'add-objective', 'create-subcontrol', 'map-control', 'add-public-representation'])
 
 type ControlLike = {
   id?: string | null
   referenceFramework?: string | null
   refCode?: string | null
+  publicRepresentation?: string | null
   controlObjectives?: {
     edges?: Array<{ node?: { id?: string | null; displayID?: string | null } | null } | null> | null
   } | null
@@ -32,6 +35,7 @@ type SubcontrolLike = {
   id?: string | null
   referenceFramework?: string | null
   refCode?: string | null
+  publicRepresentation?: string | null
   controlObjectives?: {
     edges?: Array<{ node?: { id?: string | null; displayID?: string | null } | null } | null> | null
   } | null
@@ -60,6 +64,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
   const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
   const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)
   const [showCreateReviewSheet, setShowCreateReviewSheet] = useState(false)
+  const [showPublicRepresentationDialog, setShowPublicRepresentationDialog] = useState(false)
 
   const { isAuditor } = useIsAuditor()
   const isSubcontrol = props.kind === 'subcontrol'
@@ -89,36 +94,38 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
     return { controlIDs: controlId ? [controlId] : [] }
   }, [isSubcontrol, controlId, subcontrolId])
 
+  const hasPublicRepresentation = !!(isSubcontrol ? subcontrolData?.publicRepresentation : controlData?.publicRepresentation)
+
   const actions = useMemo<QuickActionItem[]>(() => {
     const baseActions: QuickActionItem[] = [
       {
         id: 'add-implementation',
-        label: 'Add Implementation',
+        label: 'Implementation',
         icon: <PlusSquare size={16} />,
         onClick: () => setShowCreateImplementationSheet(true),
       },
       {
         id: 'add-objective',
-        label: 'Add Objective',
+        label: 'Objective',
         icon: <Target size={16} />,
         onClick: () => setShowCreateObjectiveSheet(true),
       },
       {
         id: 'upload-evidence',
-        label: isAuditor ? 'Request Evidence' : 'Upload Evidence',
+        label: 'Evidence',
         icon: <Upload size={16} />,
         onClick: () => setIsEvidenceSheetOpen(true),
       },
       {
         id: 'create-task',
-        label: 'Create Task',
+        label: 'Task',
         icon: <CheckCircle2 size={16} />,
       },
       ...(isAuditor
         ? [
             {
               id: 'create-review',
-              label: 'Create Review',
+              label: 'Review',
               icon: <ClipboardCheck size={16} />,
               onClick: () => setShowCreateReviewSheet(true),
             },
@@ -135,6 +142,16 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
           icon: <GitBranch size={16} />,
           href: `/controls/${controlId}/${subcontrolId}/map-control`,
         },
+        ...(hasPublicRepresentation
+          ? []
+          : [
+              {
+                id: 'add-public-representation',
+                label: 'Public Representation',
+                icon: <Globe size={16} />,
+                onClick: () => setShowPublicRepresentationDialog(true),
+              },
+            ]),
       ]
     }
 
@@ -142,7 +159,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
       ...baseActions,
       {
         id: 'create-subcontrol',
-        label: 'Create Subcontrol',
+        label: 'Subcontrol',
         icon: <PlusSquare size={16} />,
         href: `/controls/${controlId}/create-subcontrol`,
       },
@@ -152,8 +169,18 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
         icon: <GitBranch size={16} />,
         href: `/controls/${controlId}/map-control`,
       },
+      ...(hasPublicRepresentation
+        ? []
+        : [
+            {
+              id: 'add-public-representation',
+              label: 'Public Representation',
+              icon: <Globe size={16} />,
+              onClick: () => setShowPublicRepresentationDialog(true),
+            },
+          ]),
     ]
-  }, [isSubcontrol, controlId, subcontrolId, isAuditor])
+  }, [isSubcontrol, controlId, subcontrolId, isAuditor, hasPublicRepresentation])
 
   const filteredActions = useMemo(() => {
     if (props.canEdit) return actions
@@ -166,7 +193,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
         <CreateTaskDialog
           key={action.id}
           trigger={
-            <Button type="button" variant="secondary" className="h-8 px-3" icon={action.icon} iconPosition="left">
+            <Button type="button" variant="secondary" className="h-8 shrink-0 whitespace-nowrap px-3" icon={action.icon} iconPosition="left">
               {action.label}
             </Button>
           }
@@ -190,7 +217,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
       }
       return (
         <Link key={action.id} href={action.href}>
-          <Button type="button" variant="secondary" className="h-8 px-3" icon={action.icon} iconPosition="left">
+          <Button type="button" variant="secondary" className="h-8 shrink-0 whitespace-nowrap px-3" icon={action.icon} iconPosition="left">
             {action.label}
           </Button>
         </Link>
@@ -207,7 +234,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
     }
 
     return (
-      <Button key={action.id} type="button" variant="secondary" className="h-8 px-3" icon={action.icon} iconPosition="left" onClick={action.onClick}>
+      <Button key={action.id} type="button" variant="secondary" className="h-8 shrink-0 whitespace-nowrap px-3" icon={action.icon} iconPosition="left" onClick={action.onClick}>
         {action.label}
       </Button>
     )
@@ -249,6 +276,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
       />
       <CreateControlImplementationSheet open={showCreateImplementationSheet} onOpenChange={setShowCreateImplementationSheet} />
       <CreateControlObjectiveSheet open={showCreateObjectiveSheet} onOpenChange={setShowCreateObjectiveSheet} />
+      {showPublicRepresentationDialog && <PublicRepresentationDialog open onOpenChange={setShowPublicRepresentationDialog} controlId={controlId} subcontrolId={subcontrolId} />}
       {isAuditor && <CreateControlReviewSheet open={showCreateReviewSheet} onOpenChange={setShowCreateReviewSheet} controlId={controlId} subcontrolId={subcontrolId} />}
     </div>
   )

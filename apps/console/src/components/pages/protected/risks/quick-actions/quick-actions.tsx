@@ -85,7 +85,7 @@ const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
         <CreateTaskDialog
           key={action.id}
           trigger={
-            <Button type="button" variant="secondary" className="h-8 px-3" icon={action.icon} iconPosition="left">
+            <Button type="button" variant="secondary" className="h-8 shrink-0 whitespace-nowrap px-3" icon={action.icon} iconPosition="left">
               {action.label}
             </Button>
           }
@@ -109,7 +109,7 @@ const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
       }
       return (
         <Link key={action.id} href={action.href}>
-          <Button type="button" variant="secondary" className="h-8 px-3" icon={action.icon} iconPosition="left">
+          <Button type="button" variant="secondary" className="h-8 shrink-0 whitespace-nowrap px-3" icon={action.icon} iconPosition="left">
             {action.label}
           </Button>
         </Link>
@@ -126,7 +126,7 @@ const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
     }
 
     return (
-      <Button key={action.id} type="button" variant="secondary" className="h-8 px-3" icon={action.icon} iconPosition="left" onClick={action.onClick}>
+      <Button key={action.id} type="button" variant="secondary" className="h-8 shrink-0 whitespace-nowrap px-3" icon={action.icon} iconPosition="left" onClick={action.onClick}>
         {action.label}
       </Button>
     )

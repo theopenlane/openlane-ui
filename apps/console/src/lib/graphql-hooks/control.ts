@@ -21,6 +21,7 @@ import {
   CLONE_CSV_BULK_CONTROL,
   GET_CONTROLS_BY_REFCODE,
   GET_CONTROL_RELATED_CONTROLS,
+  GET_TEMPLATE_CONTROLS_WITH_MAPPINGS,
   GET_CONTROL_COMMENTS,
   UPDATE_CONTROL_COMMENT,
   CREATE_CSV_BULK_MAPPED_CONTROL,
@@ -46,6 +47,7 @@ import {
   type GetAllControlsQuery,
   type GetAllControlsQueryVariables,
   type GetControlByIdMinifiedQuery,
+  type GetTemplateControlsWithMappingsQuery,
   type GetControlByIdMinifiedQueryVariables,
   type GetControlByIdQuery,
   type GetControlCategoriesQuery,
@@ -111,6 +113,38 @@ type UseGetAllControlsArgs = {
   orderBy?: GetAllControlsQueryVariables['orderBy']
   enabled?: boolean
   includeVars?: Record<string, boolean>
+}
+
+const ORG_CONTROLS_PAGE_SIZE = 100
+
+// every custom control in the org, paged in full: a control missed here reads as
+// absent and the suggestion surfaces offer to create one that already exists
+export const useAllOrgControls = ({ enabled = true }: { enabled?: boolean } = {}) => {
+  const { client } = useGraphQLClient()
+  const where = { referenceFrameworkIsNil: true, systemOwned: false, isTrustCenterControl: false }
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending, isError } = useInfiniteQuery<
+    GetAllControlsQuery,
+    Error,
+    InfiniteData<GetAllControlsQuery>,
+    ['controls', 'org-custom'],
+    string | null
+  >({
+    queryKey: ['controls', 'org-custom'],
+    queryFn: async ({ pageParam }) => client.request(GET_ALL_CONTROLS, { where, after: pageParam, first: ORG_CONTROLS_PAGE_SIZE, includeDescription: true }),
+    initialPageParam: null,
+    getNextPageParam: (lastPage) => (lastPage.controls?.pageInfo?.hasNextPage ? (lastPage.controls?.pageInfo?.endCursor ?? null) : undefined),
+    enabled,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const controls = useMemo(() => (data?.pages ?? []).flatMap((page) => (page.controls?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))), [data])
+
+  return { controls, isLoading: enabled && (isPending || hasNextPage || isFetchingNextPage), isError: enabled && isError }
 }
 
 export const useGetAllControls = ({ where, pagination, orderBy, enabled = true, includeVars }: UseGetAllControlsArgs) => {
@@ -681,4 +715,35 @@ export const useGetExistingOrgControls = ({ refCodeIn, referenceFrameworkIn, ena
       }),
     enabled: enabled && refCodeIn.length > 0,
   })
+}
+
+export type TemplateControlWithMappings = NonNullable<NonNullable<NonNullable<GetTemplateControlsWithMappingsQuery['controls']['edges']>[number]>['node']>
+
+const TEMPLATE_CONTROLS_PAGE_SIZE = 100
+
+export const useTemplateControlsWithMappings = ({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, ...rest } = useInfiniteQuery<
+    GetTemplateControlsWithMappingsQuery,
+    Error,
+    InfiniteData<GetTemplateControlsWithMappingsQuery>,
+    ['controls', 'template-mappings', ControlWhereInput | undefined],
+    string | null
+  >({
+    queryKey: ['controls', 'template-mappings', where],
+    queryFn: async ({ pageParam }) => client.request(GET_TEMPLATE_CONTROLS_WITH_MAPPINGS, { where, after: pageParam, first: TEMPLATE_CONTROLS_PAGE_SIZE }),
+    initialPageParam: null,
+    getNextPageParam: (lastPage) => (lastPage.controls?.pageInfo?.hasNextPage ? (lastPage.controls?.pageInfo?.endCursor ?? null) : undefined),
+    enabled,
+    staleTime: 60 * 60 * 1000, // the template standard changes on release, not in session
+  })
+
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const controls = useMemo(() => (data?.pages ?? []).flatMap((page) => (page.controls?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))), [data])
+
+  return { ...rest, controls }
 }

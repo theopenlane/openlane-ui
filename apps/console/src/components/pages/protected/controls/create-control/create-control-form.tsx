@@ -57,6 +57,10 @@ import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { type Value } from 'platejs'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { docsHelpQuery } from '@/components/shared/docs-help/docs-help-query'
+import { useDocsHelpNavigate } from '@/components/shared/docs-help/docs-help-context'
+import { docsHelpEnabled } from '@repo/dally/ai'
+import { BookText } from 'lucide-react'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -93,6 +97,7 @@ export default function CreateControlForm() {
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
   const dropdownRef = useClickOutside(() => setOpen(false))
+  const navigateDocs = useDocsHelpNavigate()
   const searchRef = useRef(null)
 
   const initialValues = {
@@ -359,7 +364,25 @@ export default function CreateControlForm() {
   return (
     <FormProvider {...form}>
       <form onSubmit={(event) => handleSubmit(onSubmit)(event)} className="space-y-6">
-        <div className="text-2xl font-semibold">{isCreateSubcontrol ? 'Create Subcontrol' : 'Create Control'}</div>
+        <div className="flex flex-wrap items-baseline gap-3">
+          <div className="text-2xl font-semibold">{isCreateSubcontrol ? 'Create Subcontrol' : 'Create Control'}</div>
+          {docsHelpEnabled && (
+            <button
+              type="button"
+              onClick={() =>
+                navigateDocs({
+                  title: isCreateSubcontrol ? 'Create a Subcontrol' : 'Create a Control',
+                  query: docsHelpQuery('create', isCreateSubcontrol ? 'a subcontrol' : 'a control'),
+                  prefer: 'Writing Controls',
+                })
+              }
+              className="text-sm text-[var(--color-info)] hover:underline underline-offset-4"
+            >
+              Not sure what to write?
+              <BookText size={12} className="ml-1.5 inline align-[-0.1em]" />
+            </button>
+          )}
+        </div>
 
         <div className="flex gap-12">
           <div className="w-[55%]">
