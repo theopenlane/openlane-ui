@@ -37,3 +37,18 @@ export const deriveOrgCoverage = (related?: RelatedControlItem[] | null): OrgCov
     orgControlRefs: orgRefs.map((r) => ({ id: r.id, refCode: r.refCode, status: r.status })),
   }
 }
+
+// a framework control (never a custom one) with neither org coverage nor a
+// linked policy; what the section's "Resolve gaps" panel offers to fix
+const isFrameworkControl = (control: ControlReportItem): boolean => !!control.referenceFramework && control.referenceFramework !== 'CUSTOM'
+
+export const hasOrgCoverageGap = (control: ControlReportItem): boolean => {
+  if (!isFrameworkControl(control)) return false
+  const coverage = deriveOrgCoverage(control.relatedControls)
+  return !coverage || coverage.activeCount === 0
+}
+
+export const hasPolicyGap = (control: ControlReportItem): boolean => {
+  if (!isFrameworkControl(control)) return false
+  return (control.linkedPolicies?.internalPolicies?.length ?? 0) === 0
+}

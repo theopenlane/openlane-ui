@@ -9,6 +9,7 @@ import { GITHUB_API_BASE, POLICY_DIRECTORIES, POLICY_HUB_REPO_URL, POLICY_REPO }
 import { formatFileName } from './naming'
 import Link from 'next/link'
 import { CancelButton } from '../cancel-button.tsx/cancel-button'
+import { wordTokens } from '@/utils/strings'
 
 type GitHubItem = {
   name: string
@@ -22,13 +23,20 @@ type PolicyTemplateBrowserProps = {
   isOpen: boolean
   onClose: () => void
   onFileSelect: (file: TUploadedFile) => void
+  /** prefill the search box, e.g. with a suggested policy name */
+  initialSearch?: string
 }
 
-export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyTemplateBrowserProps) => {
+export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect, initialSearch }: PolicyTemplateBrowserProps) => {
   const [items, setItems] = useState<GitHubItem[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(initialSearch ?? '')
+
+  // reset the prefill each time the browser opens for a new suggestion
+  useEffect(() => {
+    if (isOpen) setSearch(initialSearch ?? '')
+  }, [isOpen, initialSearch])
 
   // Preview state
   const [previewItem, setPreviewItem] = useState<GitHubItem | null>(null)
@@ -118,8 +126,13 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyT
     }
   }
 
-  // Filter items by search (case-insensitive substring match)
-  const filteredItems = items.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
+  // Filter items by search: every word must appear in the name, so
+  // "Asset Management" matches asset_management_policy.md
+  const searchTokens = wordTokens(search)
+  const filteredItems = items.filter((item) => {
+    const name = item.name.toLowerCase()
+    return searchTokens.every((token) => name.includes(token))
+  })
 
   if (!isOpen) return null
 

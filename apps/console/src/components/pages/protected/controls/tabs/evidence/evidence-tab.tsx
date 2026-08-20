@@ -1,13 +1,14 @@
 import React from 'react'
 import ControlEvidenceTable from './evidence-table'
-import { Card } from '@repo/ui/cardpanel'
 import type { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { useGetEvidenceListLight } from '@/lib/graphql-hooks/evidence'
+import { ExampleEvidenceRequestsCard, useDocsEvidenceRequests, useDocsExampleEvidence, type TDocsEvidenceControl } from '@/components/pages/protected/controls/example-evidence-requests'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { EvidenceOrderField, OrderDirection, type EvidenceOrder, type EvidenceWhereInput } from '@repo/codegen/src/schema'
 import type { EntityRef } from '@/lib/graphql-hooks/use-mapped-entity-refs'
+import { SuggestionCard } from '@/components/shared/docs-help/suggestion-card'
 
 type EvidenceRequestItem = {
   evidenceRequestID?: string | null
@@ -22,6 +23,7 @@ interface EvidenceTabProps {
   evidenceFormData: TFormEvidenceData
   evidenceRequests?: EvidenceRequestItem[] | string | null
   subcontrolIds?: string[]
+  docsControl?: TDocsEvidenceControl
   mappedControlRefs?: EntityRef[]
   mappedSubcontrolRefs?: EntityRef[]
 }
@@ -43,8 +45,10 @@ const buildAssociationFilter = (controlId?: string, subcontrolIds?: string[], ma
   return { or: conditions }
 }
 
-const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, evidenceRequests, subcontrolIds, mappedControlRefs = [], mappedSubcontrolRefs = [] }) => {
-  const hasEvidenceRequests = Array.isArray(evidenceRequests) ? evidenceRequests.length > 0 : !!evidenceRequests
+const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, evidenceRequests, subcontrolIds, docsControl, mappedControlRefs = [], mappedSubcontrolRefs = [] }) => {
+  const { requests: docsEvidenceRequests, isLoading: docsLoading } = useDocsEvidenceRequests(docsControl)
+  const { requests: docsExampleEvidence, isLoading: exampleEvidenceLoading } = useDocsExampleEvidence(docsControl)
+  const hasEvidenceRequests = !!docsEvidenceRequests || (Array.isArray(evidenceRequests) ? evidenceRequests.length > 0 : !!evidenceRequests)
 
   const baselineWhere = React.useMemo<EvidenceWhereInput>(() => {
     if (evidenceFormData.subcontrolID) {
@@ -65,17 +69,15 @@ const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, evidenceReq
 
   const hasEvidenceRows = (paginationMeta?.totalCount ?? 0) > 0
 
-  const renderEvidenceRequests = () => {
-    if (!hasEvidenceRequests) return null
-
+  const renderOwnEvidenceRequests = () => {
     if (Array.isArray(evidenceRequests)) {
       return (
         <ul className="rich-text text-sm text-muted-foreground">
           {(evidenceRequests as EvidenceRequestItem[]).map((item, i) => (
-            <li key={i}>
-              <p className="font-medium">{item.documentationType ?? item.documentationArtifact ?? item.evidenceRequestID ?? 'Untitled'}</p>
-              <div className="rich-text" dangerouslySetInnerHTML={{ __html: item.description ?? item.artifactDescription ?? '' }} />
-            </li>
+            <React.Fragment key={i}>
+              <p className="font-semibold mb-0!">{item.documentationType ?? item.documentationArtifact ?? item.evidenceRequestID ?? 'Untitled'}</p>
+              <div className="rich-text mt-0! mb-4!" dangerouslySetInnerHTML={{ __html: item.description ?? item.artifactDescription ?? '' }} />
+            </React.Fragment>
           ))}
         </ul>
       )
@@ -84,21 +86,32 @@ const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, evidenceReq
     return <div className="rich-text text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: String(evidenceRequests) }} />
   }
 
-  if (isLoading) {
+  const requestsCard =
+    docsLoading || !hasEvidenceRequests ? null : docsEvidenceRequests ? (
+      <ExampleEvidenceRequestsCard requests={docsEvidenceRequests} defaultOpen={false} />
+    ) : (
+      <SuggestionCard title="Example Evidence Requests" defaultOpen={false}>
+        <div className="mt-2">{renderOwnEvidenceRequests()}</div>
+      </SuggestionCard>
+    )
+
+  const isDuplicateSection = !!docsExampleEvidence && docsExampleEvidence.section === docsEvidenceRequests?.section
+  const exampleEvidenceCard =
+    exampleEvidenceLoading || !docsExampleEvidence || isDuplicateSection ? null : <ExampleEvidenceRequestsCard requests={docsExampleEvidence} title="Example Evidence" defaultOpen={false} />
+
+  if (isLoading || (!hasEvidenceRows && (docsLoading || exampleEvidenceLoading))) {
     return <TableSkeleton />
   }
 
-  if (!hasEvidenceRows && !hasEvidenceRequests) {
+  if (!hasEvidenceRows && !requestsCard && !exampleEvidenceCard) {
     return <EmptyTabState description="To begin documenting evidence for this control, add supporting files or links. Once added, they'll appear here." />
   }
 
-  if (!hasEvidenceRows && hasEvidenceRequests) {
+  if (!hasEvidenceRows) {
     return (
       <div className="space-y-6">
-        <Card className="p-4">
-          <h3 className="text-base font-semibold mb-2">Evidence Items</h3>
-          {renderEvidenceRequests()}
-        </Card>
+        {requestsCard}
+        {exampleEvidenceCard}
       </div>
     )
   }
@@ -106,12 +119,8 @@ const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, evidenceReq
   return (
     <div className="space-y-6">
       <ControlEvidenceTable control={evidenceFormData} subcontrolIds={subcontrolIds} mappedControlRefs={mappedControlRefs} mappedSubcontrolRefs={mappedSubcontrolRefs} />
-      {hasEvidenceRequests && (
-        <Card className="p-4">
-          <h3 className="text-base font-semibold mb-2">Evidence Items</h3>
-          {renderEvidenceRequests()}
-        </Card>
-      )}
+      {requestsCard}
+      {exampleEvidenceCard}
     </div>
   )
 }

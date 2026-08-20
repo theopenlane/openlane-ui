@@ -19,6 +19,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ObjectiveItem } from './objective-item'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { controlAssociationFilter } from '@/lib/graphql-hooks/control-association'
 import CreateControlObjectiveSheet from './create-control-objective-sheet'
 import { useSession } from 'next-auth/react'
 
@@ -46,7 +47,7 @@ const ControlObjectivePage = () => {
   const createAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanCreateControlObjective, session)
 
   const { data, isLoading } = useGetAllControlObjectives({
-    ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),
+    ...controlAssociationFilter(id, subcontrolId),
     ...(archivedChecked ? {} : { statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED }),
   })
 

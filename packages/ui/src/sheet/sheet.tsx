@@ -4,7 +4,7 @@ import * as React from 'react'
 import * as SheetPrimitive from '@radix-ui/react-dialog'
 import { XIcon } from 'lucide-react'
 import { cn } from '../../lib/utils'
-import { guardToastInteractOutside } from '../../lib/dismissable-outside'
+import { guardInteractOutside } from '../../lib/dismissable-outside'
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
@@ -40,6 +40,7 @@ type TSheetContentProps = {
   edge?: React.ReactNode
   /** render the dimming backdrop; disable for non-modal drawers that leave the page interactive */
   overlay?: boolean
+  overlayClassName?: string
 }
 
 function SheetContent({
@@ -52,6 +53,7 @@ function SheetContent({
   header,
   edge,
   overlay = true,
+  overlayClassName,
   ref,
   onInteractOutside,
   ...props
@@ -101,7 +103,7 @@ function SheetContent({
 
   return (
     <SheetPortal>
-      {overlay && <SheetOverlay />}
+      {overlay && <SheetOverlay className={overlayClassName} />}
       <SheetPrimitive.Content
         style={{
           width,
@@ -117,7 +119,7 @@ function SheetContent({
           side === 'bottom' && 'data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t',
           className,
         )}
-        onInteractOutside={guardToastInteractOutside(onInteractOutside)}
+        onInteractOutside={guardInteractOutside(onInteractOutside)}
         {...props}
       >
         <div onMouseDown={onMouseDown} className={cn('absolute top-0 bottom-0 h-full z-10 w-3 bg-transparent', side === 'right' ? '-left-1 cursor-ew-resize' : '-right-1 cursor-ew-resize')} />

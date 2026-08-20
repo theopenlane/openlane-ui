@@ -22,9 +22,13 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Menu from '@/components/shared/menu/menu.tsx'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type TAssociationItem } from '@/components/shared/object-association/association-items'
+import { getAssociationDisplayName } from '@/components/shared/object-association/utils'
 import CreateItemsFromPolicyToolbar from './create-items-from-policy-toolbar'
+import { SuggestedControlMappings } from '@/components/pages/protected/policies/suggested-control-mappings'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -56,6 +60,10 @@ type TViewPolicyPage = {
 
 type TabValue = 'policy' | 'procedures' | 'history'
 
+// how long to wait for the backend's own control mapping after a create
+const MAPPING_SETTLE_INTERVAL_MS = 1500
+const MAPPING_SETTLE_ATTEMPTS = 6
+
 const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { data: session } = useSession()
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
@@ -80,8 +88,43 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const [dataInitialized, setDataInitialized] = useState(false)
   const initialDetailsCanonicalRef = useRef<string | null>(null)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
-  const { data: assocData } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
+  const { data: assocData, isLoading: assocLoading } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
+
+  // the backend maps controls asynchronously after the policy is created, so
+  // the first read on arrival can legitimately come back empty. Re-read for a
+  // few seconds until the mappings land, then stop and drop the flag so a
+  // later reload behaves normally
+  const searchParams = useSearchParams()
+  const justCreated = searchParams?.get('created') === '1'
+  const [settlingMappings, setSettlingMappings] = useState(justCreated)
+  const mappedControlCount = assocData?.internalPolicy?.controls?.edges?.length ?? 0
+
+  useEffect(() => {
+    if (!justCreated || !settlingMappings) return
+
+    if (mappedControlCount > 0) {
+      setSettlingMappings(false)
+      router.replace(`/policies/${policyId}/view`)
+      return
+    }
+
+    let attempts = 0
+    const timer = setInterval(() => {
+      attempts += 1
+      queryClient.invalidateQueries({ queryKey: ['internalPolicies', policyId, 'associations'] })
+      // give up rather than poll forever; the policy may simply map to nothing
+      if (attempts >= MAPPING_SETTLE_ATTEMPTS) {
+        setSettlingMappings(false)
+        router.replace(`/policies/${policyId}/view`)
+      }
+    }, MAPPING_SETTLE_INTERVAL_MS)
+
+    return () => clearInterval(timer)
+  }, [justCreated, settlingMappings, mappedControlCount, policyId, queryClient, router])
   const { data: discussionData } = useGetPolicyDiscussionById(policyId)
+  const policyAssociationInitialData = useMemo<TObjectAssociationMap>(() => ({ internalPolicyIDs: [policyId] }), [policyId])
+  const policyAssociationName = policy ? getAssociationDisplayName(policy, 'policies') : ''
+  const policyAssociationItems = useMemo<TAssociationItem[]>(() => (policyAssociationName ? [{ id: policyId, name: policyAssociationName, kind: 'policies' }] : []), [policyId, policyAssociationName])
   const plateEditorHelper = usePlateEditor()
   const [activeTab, setActiveTab] = useState<TabValue>('policy')
   const isExternalReference = policy?.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
@@ -304,10 +347,10 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       ) : (
         <div className="flex gap-2 justify-end">
           <CreateItemsFromPolicyToolbar
-            initialData={{ internalPolicyIDs: [policyId] }}
+            initialData={policyAssociationInitialData}
             handleCreateNewPolicy={handleCreateNewPolicy}
             handleCreateNewProcedure={handleCreateNewProcedure}
-            objectAssociationsDisplayIDs={policy?.name ? [policy?.name] : []}
+            objectAssociationItems={policyAssociationItems}
           />
           {!editAllowed && !deleteAllowed ? (
             <></>
@@ -377,6 +420,19 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
   const mainContent = (
     <div className="p-2">
+      {/* above the title: the plate toolbar is pulled up onto the title row
+          with a fixed -mt-40, so anything between the title and the editor
+          displaces it */}
+      {!isEditing && editAllowed && (
+        <SuggestedControlMappings
+          policyId={policy.id}
+          policyName={policy.name}
+          policyDetailsHtml={policy.details}
+          linkedControlIds={(assocData?.internalPolicy?.controls?.edges ?? []).flatMap((edge) => (edge?.node?.id ? [edge.node.id] : []))}
+          linkedControlsLoading={assocLoading || settlingMappings}
+        />
+      )}
+
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={policy.name} editAllowed={editAllowed} />
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} variant="underline">

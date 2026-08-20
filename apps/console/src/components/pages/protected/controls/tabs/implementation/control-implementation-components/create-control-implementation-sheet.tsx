@@ -6,6 +6,7 @@ import { CreateControlImplementationForm } from './form/create-control-implement
 import { ControlImplementationDocumentStatus, type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import useFormSchema from './form/use-form-schema'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
+import { useRetainedWhileOpen } from '@/hooks/useRetainedWhileOpen'
 
 type CreateControlImplementationSheetProps = {
   open: boolean
@@ -17,16 +18,18 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const { form } = useFormSchema()
 
+  const openedWith = useRetainedWhileOpen(open, editData)
+
   const normalizedValues = useMemo(() => {
-    return editData
+    return openedWith
       ? {
-          id: editData.id,
-          details: editData.details ?? '',
-          status: editData.status ?? ControlImplementationDocumentStatus.DRAFT,
-          implementationDate: editData.implementationDate ? new Date(editData.implementationDate) : undefined,
+          id: openedWith.id,
+          details: openedWith.details ?? '',
+          status: openedWith.status ?? ControlImplementationDocumentStatus.DRAFT,
+          implementationDate: openedWith.implementationDate ? new Date(openedWith.implementationDate) : undefined,
         }
       : undefined
-  }, [editData])
+  }, [openedWith])
 
   useEffect(() => {
     if (!open) return
@@ -50,7 +53,6 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
 
   const handleConfirmClose = () => {
     setShowCancelDialog(false)
-    form.reset()
     onOpenChange(false)
   }
 

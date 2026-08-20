@@ -934,7 +934,7 @@ export const ASSOCIATION_SECTION_CONFIG = {
 
 export type AssociationSectionKey = keyof typeof ASSOCIATION_SECTION_CONFIG
 
-type TAssociationRoot = Partial<Record<(typeof ASSOCIATION_SECTION_CONFIG)[AssociationSectionKey]['dataField'], TConnectionLike | null>>
+export type TAssociationRoot = Partial<Record<(typeof ASSOCIATION_SECTION_CONFIG)[AssociationSectionKey]['dataField'], TConnectionLike | null>>
 
 export const buildAssociationSections = (sectionKeys: readonly AssociationSectionKey[], root: TAssociationRoot | undefined): Section =>
   sectionKeys.reduce<Section>((sections, key) => {

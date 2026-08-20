@@ -61,3 +61,6 @@ dist/
 
 # codex empty file
 .codex
+
+# local only by generate, not committed
+packages/codegen/src/schema.graphql

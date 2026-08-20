@@ -62,7 +62,7 @@ const CreateTaskFromTemplateDialog: React.FC<TProps> = ({ open, onOpenChange, on
           onOpenChange={closeCreateDialog}
           initialValues={preparedTemplate.initialValues}
           initialData={preparedTemplate.initialData}
-          objectAssociationsDisplayIDs={preparedTemplate.objectAssociationsDisplayIDs}
+          objectAssociationItems={preparedTemplate.objectAssociationItems}
           onSuccessWithId={onSuccessWithId}
         />
       )}

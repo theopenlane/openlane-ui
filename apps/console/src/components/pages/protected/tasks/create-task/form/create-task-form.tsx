@@ -23,6 +23,8 @@ import { Panel, PanelHeader } from '@repo/ui/panel'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { type ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
+import { isAssociationItemSelected, removeAssociationItem, type TAssociationItem } from '@/components/shared/object-association/association-items'
+import { hasAssociationChanges } from '@/components/shared/object-association/utils'
 import { type Value } from 'platejs'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
@@ -40,7 +42,7 @@ type TProps = {
   defaultSelectedObject?: ObjectTypeObjects
   allowedObjectTypes?: ObjectTypeObjects[]
   initialData?: TObjectAssociationMap
-  objectAssociationsDisplayIDs?: string[]
+  objectAssociationItems?: TAssociationItem[]
   initialValues?: Partial<CreateTaskFormData>
   hideObjectAssociation?: boolean
   isOpen?: boolean
@@ -61,6 +63,8 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
 
   const initialAssociations = React.useMemo(() => props.initialData ?? {}, [props.initialData])
   const [associations, setAssociations] = useState<TObjectAssociationMap>(initialAssociations)
+  const [associationSeed, setAssociationSeed] = useState<TObjectAssociationMap>(initialAssociations)
+  const appliedInitialAssociationsRef = React.useRef<TObjectAssociationMap | null>(null)
   const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
   const [submittingAction, setSubmittingAction] = useState<TSubmitAction | null>(null)
   const isTemplate = !props.fromTemplate && !!form.watch('isTemplate')
@@ -69,6 +73,20 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
     objectType: 'task',
     field: 'kind',
   })
+
+  const headsUpItems = React.useMemo(() => (props.objectAssociationItems ?? []).filter((item) => isAssociationItemSelected(associations, item)), [props.objectAssociationItems, associations])
+
+  const seedAssociations = (next: TObjectAssociationMap) => {
+    setAssociationSeed(next)
+    setAssociations(next)
+  }
+
+  const handleRemoveAssociationItem = (item: TAssociationItem) => seedAssociations(removeAssociationItem(associations, item))
+
+  const resetAssociations = () => {
+    seedAssociations(initialAssociations)
+    setAssociationResetTrigger((prev) => prev + 1)
+  }
 
   const tagValues: Option[] = React.useMemo(() => {
     if (!props.isOpen || !props.initialValues) return []
@@ -82,6 +100,14 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
       form.setValue('details', props.initialValues.details)
     }
   }, [form, props.initialValues, props.isOpen])
+
+  useEffect(() => {
+    if (appliedInitialAssociationsRef.current && !hasAssociationChanges(appliedInitialAssociationsRef.current, initialAssociations)) return
+
+    appliedInitialAssociationsRef.current = initialAssociations
+    setAssociationSeed(initialAssociations)
+    setAssociations(initialAssociations)
+  }, [initialAssociations])
 
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
     value: member?.node?.user?.id,
@@ -131,9 +157,9 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
       })
 
       form.reset()
+      resetAssociations()
       props.onSuccessWithId?.(createdId)
       props.onSuccess()
-      setAssociationResetTrigger((prev) => prev + 1)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -336,18 +362,19 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                   <Panel>
                     <PanelHeader heading="Object association" noBorder />
                     <p>Associating objects will allow users with access to the object to see the created task.</p>
-                    {props.objectAssociationsDisplayIDs && (
+                    {headsUpItems.length > 0 && (
                       <HeadsUpDisplay
-                        accordionLabel={'Show programs linked to this task'}
-                        descriptionText={'This requested task you are creating will be automatically linked to the associated task. We have pre-selected the object association below'}
-                        displayIDs={props.objectAssociationsDisplayIDs}
-                      ></HeadsUpDisplay>
+                        subject="task"
+                        descriptionText="The task you are creating will automatically be linked to the objects below. We pre-selected them for you — remove any you do not need."
+                        items={headsUpItems}
+                        onRemove={handleRemoveAssociationItem}
+                      />
                     )}
                     <ObjectAssociation
                       key={associationResetTrigger}
                       defaultSelectedObject={props.defaultSelectedObject}
                       allowedObjectTypes={props.allowedObjectTypes}
-                      initialData={initialAssociations}
+                      initialData={associationSeed}
                       onIdChange={setAssociations}
                     />
                   </Panel>

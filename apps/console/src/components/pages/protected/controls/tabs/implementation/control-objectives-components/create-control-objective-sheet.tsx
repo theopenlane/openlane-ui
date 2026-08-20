@@ -4,10 +4,12 @@ import { Sheet, SheetContent } from '@repo/ui/sheet'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { CreateControlObjectiveForm } from './form/create-control-objective-form'
+import { useSuggestedObjective } from '@/components/pages/protected/controls/suggested-objective'
 import { ControlObjectiveControlSource, type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import useFormSchema from './form/use-form-schema'
 import { VersionBump } from '@/lib/enums/revision-enum'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
+import { useRetainedWhileOpen } from '@/hooks/useRetainedWhileOpen'
 import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 
@@ -24,24 +26,36 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
   const isSubcontrol = !!subcontrolId
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(isSubcontrol ? null : (id ?? null))
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(subcontrolId ?? null)
+
+  const openedWith = useRetainedWhileOpen(open, editData)
+
+  // the docs suggestion belongs here too, where the objective is actually written
+  const objectiveControl = controlData?.control
+  const objectiveSuggestionData = useSuggestedObjective(
+    !isSubcontrol && objectiveControl
+      ? { controlId: objectiveControl.id, refCode: objectiveControl.refCode, referenceFramework: objectiveControl.referenceFramework, source: objectiveControl.source }
+      : undefined,
+    open && !openedWith,
+  )
+  const suggestion = !openedWith && objectiveSuggestionData && !objectiveSuggestionData.dismissed ? objectiveSuggestionData.suggestion : null
   const loading = isLoadingControl || isLoadingSubcontrol
 
   const normalizedValues = useMemo(() => {
-    if (!editData) return undefined
-    const RevisionBump: VersionBump | undefined = editData.status === ControlObjectiveObjectiveStatus.DRAFT ? VersionBump.DRAFT : undefined
+    if (!openedWith) return undefined
+    const RevisionBump: VersionBump | undefined = openedWith.status === ControlObjectiveObjectiveStatus.DRAFT ? VersionBump.DRAFT : undefined
     return {
-      id: editData.id,
-      name: editData.name ?? '',
-      desiredOutcome: editData.desiredOutcome ?? '',
-      status: editData.status ?? ControlObjectiveObjectiveStatus.DRAFT,
-      source: editData.source ?? ControlObjectiveControlSource.USER_DEFINED,
-      controlObjectiveType: editData.controlObjectiveType ?? '',
-      category: editData.category ?? '',
-      subcategory: editData.subcategory ?? '',
-      revision: editData.revision ?? '',
+      id: openedWith.id,
+      name: openedWith.name ?? '',
+      desiredOutcome: openedWith.desiredOutcome ?? '',
+      status: openedWith.status ?? ControlObjectiveObjectiveStatus.DRAFT,
+      source: openedWith.source ?? ControlObjectiveControlSource.USER_DEFINED,
+      controlObjectiveType: openedWith.controlObjectiveType ?? '',
+      category: openedWith.category ?? '',
+      subcategory: openedWith.subcategory ?? '',
+      revision: openedWith.revision ?? '',
       RevisionBump,
     }
-  }, [editData])
+  }, [openedWith])
 
   useEffect(() => {
     if (!open) return
@@ -55,8 +69,10 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
       source: ControlObjectiveControlSource.USER_DEFINED,
       category: subcontrolData?.subcontrol?.category || controlData?.control?.category || '',
       subcategory: subcontrolData?.subcontrol?.subcategory || controlData?.control?.subcategory || '',
+      name: suggestion?.name ?? '',
+      desiredOutcome: suggestion?.desiredOutcome ?? '',
     })
-  }, [open, form, normalizedValues, loading, controlData, subcontrolData])
+  }, [open, form, normalizedValues, loading, controlData, subcontrolData, suggestion])
 
   const handleClose = () => {
     if (form.formState.isDirty) {
@@ -68,7 +84,6 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
 
   const handleConfirmClose = () => {
     setShowCancelDialog(false)
-    form.reset()
     onOpenChange(false)
   }
 
@@ -93,7 +108,13 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
             }
           }}
         >
-          <CreateControlObjectiveForm form={form} onSuccess={() => onOpenChange(false)} onClose={handleClose} defaultValues={normalizedValues} />
+          <CreateControlObjectiveForm
+            form={form}
+            onSuccess={() => onOpenChange(false)}
+            onClose={handleClose}
+            defaultValues={normalizedValues}
+            suggestedValues={suggestion ? { name: suggestion.name, desiredOutcome: suggestion.desiredOutcome } : undefined}
+          />
         </SheetContent>
       </Sheet>
       <CancelDialog isOpen={showCancelDialog} onConfirm={handleConfirmClose} onCancel={() => setShowCancelDialog(false)} />

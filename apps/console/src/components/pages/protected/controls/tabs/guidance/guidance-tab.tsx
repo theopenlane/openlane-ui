@@ -9,6 +9,7 @@ import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { useNotification } from '@/hooks/useNotification'
 import ActivityAccordionTrigger from '@/components/shared/crud-base/tabs/activity-accordion-trigger'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 
 interface ImplementationGuidance {
   referenceId: string
@@ -66,6 +67,11 @@ const GuidanceTab: React.FC<GuidanceTabProps> = ({
   const referenceItems = useMemo(() => {
     return (references ?? []).filter((item) => item.name.length > 0)
   }, [references])
+
+  const taskInitialData = useMemo<TObjectAssociationMap | undefined>(() => {
+    if (isSubcontrol) return subcontrolId ? { subcontrolIDs: [subcontrolId] } : undefined
+    return controlId ? { controlIDs: [controlId] } : undefined
+  }, [isSubcontrol, subcontrolId, controlId])
 
   const sortedObjectives = useMemo(() => {
     if (!assessmentObjectives?.length) return []
@@ -159,7 +165,6 @@ const GuidanceTab: React.FC<GuidanceTabProps> = ({
       label: 'Testing procedures',
       hasData: !!testingProcedures?.length,
       render: () => {
-        const initialData = isSubcontrol ? (subcontrolId ? { subcontrolIDs: [subcontrolId] } : undefined) : controlId ? { controlIDs: [controlId] } : undefined
         const defaultSelectedObject = isSubcontrol ? ObjectTypeObjects.SUB_CONTROL : ObjectTypeObjects.CONTROL
 
         return (
@@ -178,7 +183,7 @@ const GuidanceTab: React.FC<GuidanceTabProps> = ({
                     </ul>
                     <CreateTaskDialog
                       defaultSelectedObject={defaultSelectedObject}
-                      initialData={initialData}
+                      initialData={taskInitialData}
                       initialValues={{ title, details }}
                       hideObjectAssociation
                       trigger={

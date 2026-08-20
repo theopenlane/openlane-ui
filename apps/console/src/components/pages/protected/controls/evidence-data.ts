@@ -1,10 +1,9 @@
 import type { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
-import { getEdgeIds, getEdgeNames, getEdgeDisplayIds } from '@/components/shared/object-association/utils'
+import { getEdgeIds, getEdgeNames } from '@/components/shared/object-association/utils'
 
 type EdgeNode = {
   id?: string | null
   name?: string | null
-  displayID?: string | null
 }
 
 type Edge = { node?: EdgeNode | null } | null
@@ -52,12 +51,10 @@ export const buildControlEvidenceData = (control: ControlLike, associationsData?
       programIDs: getEdgeIds(programEdges),
       controlObjectiveIDs: getEdgeIds(controlObjectiveEdges),
     },
-    objectAssociationsDisplayIDs: [...getEdgeDisplayIds(programEdges), ...getEdgeDisplayIds(controlObjectiveEdges), ...(control?.refCode ? [control.refCode] : [])],
   }
 }
 
-export const buildSubcontrolEvidenceData = (subcontrol: SubcontrolLike, associationsData?: { subcontrol?: { tasks?: { edges?: Edge[] | null } | null } | null }): TFormEvidenceData => {
-  const taskEdges = associationsData?.subcontrol?.tasks?.edges
+export const buildSubcontrolEvidenceData = (subcontrol: SubcontrolLike): TFormEvidenceData => {
   const controlObjectiveEdges = subcontrol?.controlObjectives?.edges as Edge[] | null | undefined
 
   return {
@@ -71,6 +68,5 @@ export const buildSubcontrolEvidenceData = (subcontrol: SubcontrolLike, associat
       subcontrolIDs: subcontrol?.id ? [subcontrol.id] : [],
       controlObjectiveIDs: getEdgeIds(controlObjectiveEdges),
     },
-    objectAssociationsDisplayIDs: [...getEdgeDisplayIds(taskEdges), ...getEdgeDisplayIds(controlObjectiveEdges), ...(subcontrol?.refCode ? [subcontrol.refCode] : [])],
   }
 }

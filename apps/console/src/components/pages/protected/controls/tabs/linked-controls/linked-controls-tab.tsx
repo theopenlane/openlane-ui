@@ -15,6 +15,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { QuickMapControlDialog } from './quick-map-control-dialog'
 import ParentControlCard from './parent-control-card'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
+import { CreateOrgControlsFromDocsButton, type TCreateOrgControlsTarget } from '@/components/pages/protected/controls/create-org-controls-dialog'
 
 export type LinkedControlsTabProps = {
   controlId?: string
@@ -22,9 +23,10 @@ export type LinkedControlsTabProps = {
   parentControlId?: string
   refCode: string
   canEdit?: boolean
+  frameworkControl?: TCreateOrgControlsTarget
 }
 
-const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcontrolId, parentControlId, refCode, canEdit = false }) => {
+const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcontrolId, parentControlId, refCode, canEdit = false, frameworkControl }) => {
   const isSubcontrolMode = !!subcontrolId
   const pathname = usePathname()
 
@@ -263,7 +265,10 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
         implementedCount={implementedOrgControlsCount}
         action={
           controlId && !isSubcontrolMode ? (
-            <QuickMapControlDialog controlId={controlId} refCode={refCode} alreadyMappedControlIds={directlyMappedOrgControlIds} />
+            <div className="flex items-center gap-2">
+              {frameworkControl && <CreateOrgControlsFromDocsButton frameworkControl={frameworkControl} existingRefCodes={customMappedControls.map((row) => row.refCode).filter(Boolean)} />}
+              <QuickMapControlDialog controlId={controlId} refCode={refCode} alreadyMappedControlIds={directlyMappedOrgControlIds} />
+            </div>
           ) : isSubcontrolMode && subcontrolId ? (
             <QuickMapControlDialog subcontrolId={subcontrolId} refCode={refCode} alreadyMappedControlIds={directlyMappedOrgControlIds} />
           ) : undefined

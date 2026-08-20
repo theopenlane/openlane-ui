@@ -5,6 +5,7 @@ import { AIKit } from '@repo/ui/components/editor/plugins/ai-kit.tsx'
 import { AlignKit } from '@repo/ui/components/editor/plugins/align-kit.tsx'
 import { AutoformatKit } from '@repo/ui/components/editor/plugins/autoformat-kit.tsx'
 import { BasicBlocksKit } from '@repo/ui/components/editor/plugins/basic-blocks-kit.tsx'
+import { TemplatePlaceholderKit } from '@repo/ui/components/editor/plugins/template-placeholder-kit.tsx'
 import { BasicMarksKit } from '@repo/ui/components/editor/plugins/basic-marks-kit.tsx'
 import { BlockMenuKit } from '@repo/ui/components/editor/plugins/block-menu-kit.tsx'
 import { BlockPlaceholderKit } from '@repo/ui/components/editor/plugins/block-placeholder-kit.tsx'
@@ -44,6 +45,7 @@ import { DocxExportKit } from './plugins/docx-export-kit.tsx'
 import { PdfExportKit } from './plugins/pdf-export-kit.tsx'
 
 export const EditorKit = [
+  ...TemplatePlaceholderKit,
   /*
   Copilot kit needs to be manually implemented
   ...CopilotKit, */

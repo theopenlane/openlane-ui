@@ -19,7 +19,40 @@ export const toUpperSnakeCase = (input: string): string => {
  * Words that should always be fully uppercased regardless of how they appear
  * in the raw input (e.g. api_token → API Token, ssoAuthorization → SSO Authorization)
  */
-const ACRONYMS = new Set(['api', 'sso', 'oauth', 'id', 'ids', 'url', 'uri', 'ui', 'ux', 'sdk', 'pat', 'nda', 'ip', 'mfa', 'totp', 'dns'])
+const ACRONYMS = new Set([
+  'api',
+  'sso',
+  'oauth',
+  'id',
+  'ids',
+  'url',
+  'uri',
+  'ui',
+  'ux',
+  'sdk',
+  'pat',
+  'nda',
+  'ip',
+  'mfa',
+  'totp',
+  'dns',
+  // compliance frameworks, which show up in doc paths and framework names
+  'soc',
+  'nist',
+  'csf',
+  'iso',
+  'iec',
+  'pci',
+  'dss',
+  'hipaa',
+  'gdpr',
+  'ccpa',
+  'sox',
+  'cmmc',
+  'grc',
+  'saml',
+  'scim',
+])
 
 export function toHumanLabel(input: string): string {
   if (!input) return ''
@@ -71,6 +104,33 @@ export function pluralizeTypeName(name: string): string {
   return lc + 's'
 }
 
+// Short prefix for an organization's own ref codes, so a template control
+// adopted from OL Baseline reads as theirs: "Acme Corp" -> AC, "Microsoft" -> MI.
+// Empty when there is nothing to abbreviate, so callers can keep their default
+export const orgAbbreviation = (name?: string | null): string => {
+  const words = (name ?? '')
+    .replace(/[^a-zA-Z0-9]+/g, ' ')
+    .split(' ')
+    .filter(Boolean)
+
+  if (words.length === 0) return ''
+  // a single word has no initials to take, so use its opening letters
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
+  return words
+    .slice(0, 3)
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase()
+}
+
 export const pluralize = (count: number, singular: string, plural?: string): string => (count === 1 ? singular : (plural ?? pluralizeTypeName(singular)))
 
 export const pluralizeWithCount = (count: number, singular: string, plural?: string): string => `${count} ${pluralize(count, singular, plural)}`
+
+// lowercased words, punctuation dropped: the shared basis for name matching,
+// similarity scoring and word-by-word search filters
+export const wordTokens = (value: string): string[] =>
+  value
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)

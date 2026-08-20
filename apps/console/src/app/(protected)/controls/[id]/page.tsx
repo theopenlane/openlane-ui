@@ -7,7 +7,6 @@ import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussi
 import { useQueryClient } from '@tanstack/react-query'
 import { FormProvider, useForm } from 'react-hook-form'
 import { type Value } from 'platejs'
-import { InfoIcon } from 'lucide-react'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field.tsx'
 import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card.tsx'
@@ -49,6 +48,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSetDocsHelpTopic } from '@/components/shared/docs-help/docs-help-context'
 import { docsHelpQuery } from '@/components/shared/docs-help/docs-help-query'
+import { Callout } from '@/components/shared/callout/callout.tsx'
 
 interface FormValues {
   refCode: string
@@ -369,20 +369,19 @@ const ControlDetailsPage: React.FC = () => {
         </div>
       </div>
       {isEditing && isSourceFramework && (
-        <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
-          <InfoIcon size={14} className="mt-1 shrink-0" />
+        <Callout variant="warning">
           <p>
-            This control was created via a reference framework and the details are not editable. If you need to edit it, consider{' '}
+            This control was created from a published framework and some details such as the description and category are <b>not</b> editable. If you need to edit it, consider{' '}
             <Link className="text-blue-500" href={`/controls/${id}/create-subcontrol`}>
               creating a subcontrol
             </Link>
             &nbsp;or&nbsp;
             <Link className="text-blue-500" href={`/controls/create-control?mapControlId=${id}`}>
-              creating a new control
+              creating a new organization control
             </Link>
             &nbsp;and linking it.
           </p>
-        </div>
+        </Callout>
       )}
       <DescriptionField
         isEditing={isEditing}

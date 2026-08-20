@@ -36,10 +36,20 @@ const readStringArray = (values: Record<string, unknown>, key: string): string[]
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
 }
 
+// boolean questions answer as a boolean, but a yes/no field answers as text
 const readBoolean = (values: Record<string, unknown>, key: string): boolean | undefined => {
   const value = values[key]
-  return typeof value === 'boolean' ? value : undefined
+  if (typeof value === 'boolean') return value
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase()
+    if (['true', 'yes', 'y'].includes(normalized)) return true
+    if (['false', 'no', 'n', 'none'].includes(normalized)) return false
+  }
+  return undefined
 }
+
+// whether the org said it already has controls, for callers outside the payload
+export const getExistingControls = (values: Record<string, unknown>): boolean | undefined => readBoolean(values, 'has_existing_controls')
 
 const readOtherable = (values: Record<string, unknown>, key: string, otherKey: string): string => {
   const value = readString(values, key)

@@ -30,7 +30,7 @@ import { getEdgeIds, getEdgeNodes } from '@/components/shared/object-association
 import { UploadedEvidenceSection } from '@/components/pages/protected/controls/quick-actions/uploaded-evidence-section'
 import useControlReviewFormSchema, { CONTROL_REVIEW_DEFAULT_VALUES, type ControlReviewFormData } from './use-control-review-form-schema'
 import { useControlReviewContext } from './use-control-review-context'
-import ControlContextPanel from './control-context-panel'
+import ControlContextPanel from '@/components/pages/protected/controls/control-context-panel'
 import RelatedControlsSelector from './related-controls-selector'
 import ReviewFieldsPanel from './review-fields-panel'
 import ReviewSummaryPanel from './review-summary-panel'
