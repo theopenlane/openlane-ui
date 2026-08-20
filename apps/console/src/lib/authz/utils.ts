@@ -40,5 +40,3 @@ export const isImpersonation = (session?: Session | null) => {
 
   return isImpersonation
 }
-
-export const isSupportSession = (session?: Session | null) => !!session?.user?.isSupport

@@ -1,6 +1,6 @@
 import { useSession } from 'next-auth/react'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { canEdit, hasPermission, isSupportSession } from '@/lib/authz/utils'
+import { canEdit, hasPermission, isImpersonation } from '@/lib/authz/utils'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 export type TOrgMemberPermissions = {
@@ -15,7 +15,7 @@ export const useOrgMemberPermissions = (): TOrgMemberPermissions => {
   const { data: session } = useSession()
   const { data: orgPermission, isLoading } = useOrganizationRoles()
 
-  if (isSupportSession(session)) {
+  if (isImpersonation(session)) {
     return { isLoading: false, canManageMembers: false, canInviteMembers: false, canInviteAdmins: false, canInvite: false }
   }
 

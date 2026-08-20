@@ -240,7 +240,6 @@ export const config = {
           isOnboarding: token.isOnboarding ?? false,
           modules: decodedToken?.modules ?? [],
           isImpersonation: tokenType === 'support' || !!impersonatorId,
-          isSupport: tokenType === 'support',
           impersonator: impersonatorId ?? null,
           impersonationSessionId: impersonationSessionId ?? null,
         }
