@@ -151,7 +151,8 @@ const ScanPage: React.FC = () => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateScanInput) => {
-      await bulkEditMutation.mutateAsync({ ids, input })
+      const result = await bulkEditMutation.mutateAsync({ ids, input })
+      return result.updateBulkScan
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,

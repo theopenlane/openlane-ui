@@ -32,7 +32,7 @@ import { type TQuickFilter } from '@/components/shared/table-filter/table-filter
 import { type User } from '@repo/codegen/src/schema'
 import { type AuthorToken } from '@/lib/authors'
 import { MergeModeProvider } from '@/components/shared/merge-records/merge-mode-context'
-import type { BulkDeletePayload, ViewEditMode, CreateMode } from './types'
+import type { BulkDeletePayload, BulkUpdatePayload, ViewEditMode, CreateMode } from './types'
 import { type Session } from 'next-auth'
 
 type TOrderByInput = { field: string; direction?: OrderDirection }[] | undefined
@@ -74,6 +74,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   objectType: ObjectTypes
   objectName: ObjectNames
   displayName?: string
+  displayNamePlural?: string
 
   // Table configuration
   tableKey: TableKeyValue
@@ -135,7 +136,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   // Bulk operations
   onBulkDelete: (ids: string[]) => Promise<BulkDeletePayload>
   onBulkCreate?: (file: File) => Promise<void>
-  onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<void>
+  onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<BulkUpdatePayload>
   bulkEditFormSchema?: ZodObject<ZodRawShape>
   bulkEditFieldLabels?: Record<string, string>
   enumOpts?: EnumOptionsGeneric
@@ -161,6 +162,7 @@ export function GenericTablePage<
   const {
     objectType,
     displayName,
+    displayNamePlural,
     tableKey,
     exportType,
     orderFieldEnum,
@@ -376,6 +378,7 @@ export function GenericTablePage<
       <ToolbarToUse
         entityType={objectType}
         displayName={displayName}
+        displayNamePlural={displayNamePlural}
         onFilterChange={handleFilterChange}
         handleClearSelected={handleClearSelected}
         handleExport={handleExportFile}
@@ -396,7 +399,7 @@ export function GenericTablePage<
         setSelectedItems={setSelectedItems}
         onBulkDelete={onBulkDelete}
         onBulkCreate={onBulkCreate}
-        onBulkEdit={onBulkEdit as unknown as (ids: string[], data: TUpdateInput) => Promise<void>}
+        onBulkEdit={onBulkEdit}
         bulkEditFormSchema={config.bulkEditFormSchema}
         bulkEditFieldLabels={config.bulkEditFieldLabels}
         enumOpts={config.enumOpts}

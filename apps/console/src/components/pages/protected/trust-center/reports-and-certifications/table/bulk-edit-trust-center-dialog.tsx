@@ -9,6 +9,7 @@ import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useNotification } from '@/hooks/useNotification'
+import { useBulkUpdateFeedback } from '@/components/shared/crud-base/use-bulk-update-feedback'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ClientError } from 'graphql-request'
 import { useBulkUpdateTrustCenterDocs } from '@/lib/graphql-hooks/trust-center-doc'
@@ -45,7 +46,8 @@ type Props = {
 export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, setSelectedDocs }) => {
   const [open, setOpen] = useState(false)
   const { mutateAsync: bulkEditDocs } = useBulkUpdateTrustCenterDocs()
-  const { successNotification, errorNotification } = useNotification()
+  const { errorNotification } = useNotification()
+  const { notifyBulkUpdate } = useBulkUpdateFeedback()
   const { enumOptions: categoryOptions, onCreateOption: createCategory } = useCreatableEnumOptions({
     objectType: objectToSnakeCase(ObjectTypes.TRUST_CENTER_DOC),
     field: 'kind',
@@ -89,8 +91,9 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
     })
 
     try {
-      await bulkEditDocs({ ids, input })
-      successNotification({ title: 'Successfully updated selected documents.' })
+      const result = await bulkEditDocs({ ids, input })
+      if (!notifyBulkUpdate({ requestedCount: ids.length, updatedIDs: result.updateBulkTrustCenterDoc?.trustCenterDocs?.map((doc) => doc.id), singular: 'document' })) return
+
       setSelectedDocs([])
       setOpen(false)
       replace([])
@@ -129,7 +132,6 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
             <div className="flex flex-col gap-4 mt-4">
               {fields.map((item, index) => (
                 <div key={item.id} className="flex items-start gap-2">
-                  {/* Field Selector */}
                   <Select
                     value={watchedFields[index]?.value || undefined}
                     onValueChange={(value) => {
@@ -154,7 +156,6 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
                     </SelectContent>
                   </Select>
 
-                  {/* Value Input */}
                   {watchedFields[index]?.value === SelectOptionBulkEditTrustCenterDocs.CATEGORY && (
                     <Controller
                       control={control}
@@ -202,7 +203,6 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
                 </div>
               ))}
 
-              {/* Add New Field Button */}
               {fields.length < Object.keys(SelectOptionBulkEditTrustCenterDocs).length && (
                 <Button icon={<Plus />} onClick={() => append({ value: undefined })} iconPosition="left" variant="secondary">
                   Add Field
