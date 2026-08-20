@@ -395,7 +395,7 @@ export function ResolveGapsPanel({ open, onOpenChange, category, gaps }: Resolve
   const isExpanded = (key: string) => expandedSections[key] ?? visibleSectionCount <= 1
 
   const createReview = useCreateOrgControlsRows({
-    active: isExpanded('create-controls'),
+    active: open && isExpanded('create-controls'),
     onOpenChange: setSectionExpanded('create-controls'),
     onCreated: (_ids, only) => {
       const resolved = only ? createControlGroups.filter((group) => rowKey(group.row) === rowKey(only)) : createControlGroups

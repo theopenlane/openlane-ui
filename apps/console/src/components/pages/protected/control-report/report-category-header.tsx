@@ -35,7 +35,7 @@ const ReportCategoryHeader: React.FC<ReportCategoryHeaderProps> = ({ category, c
   const gaps = useSectionGapGroups(shouldCheck ? orgGapControls : undefined, shouldCheck ? policyGapControls : undefined)
 
   useEffect(() => {
-    if (shouldCheck && !gaps.isLoading && gaps.totalCount === 0) markEmpty()
+    if (shouldCheck && !gaps.isLoading && !gaps.hasError && gaps.totalCount === 0) markEmpty()
   }, [shouldCheck, gaps.isLoading, gaps.totalCount, markEmpty])
 
   const { dismissed: bannerDismissed, dismiss: dismissBanner } = useDismissible(`resolve-gaps-banner-dismissed:${category || 'General'}`)
