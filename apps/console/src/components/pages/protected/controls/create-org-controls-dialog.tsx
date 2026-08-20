@@ -102,7 +102,10 @@ export function useResolvedSuggestions(frameworkControl: TCreateOrgControlsTarge
   }, [settled, rows.length, markSettled])
 
   const isLoading = !isSettledResolved || (active && !isError && (isTemplatesLoading || (templates.length > 0 && isOrgControlsLoading)))
-  return { rows: settledAll ? NO_ROWS : rows, isLoading, isError }
+  // ref codes are prefixed from the controls the org already has, so rows built
+  // before that list is in carry the org-name fallback prefix instead and a
+  // row keeps the code it was first seeded with
+  return { rows: settledAll || isLoading ? NO_ROWS : rows, isLoading, isError }
 }
 
 export const rowKey = (row: TExampleRow) => row.templateRefCode ?? row.refCode
