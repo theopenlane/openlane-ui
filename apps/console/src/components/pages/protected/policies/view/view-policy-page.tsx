@@ -24,6 +24,9 @@ import { canDelete, canEdit } from '@/lib/authz/utils'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useRouter } from 'next/navigation'
 import Menu from '@/components/shared/menu/menu.tsx'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type TAssociationItem } from '@/components/shared/object-association/association-items'
+import { getAssociationDisplayName } from '@/components/shared/object-association/utils'
 import CreateItemsFromPolicyToolbar from './create-items-from-policy-toolbar'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
@@ -82,6 +85,9 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
   const { data: assocData } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
   const { data: discussionData } = useGetPolicyDiscussionById(policyId)
+  const policyAssociationInitialData = useMemo<TObjectAssociationMap>(() => ({ internalPolicyIDs: [policyId] }), [policyId])
+  const policyAssociationName = policy ? getAssociationDisplayName(policy, 'policies') : ''
+  const policyAssociationItems = useMemo<TAssociationItem[]>(() => (policyAssociationName ? [{ id: policyId, name: policyAssociationName, kind: 'policies' }] : []), [policyId, policyAssociationName])
   const plateEditorHelper = usePlateEditor()
   const [activeTab, setActiveTab] = useState<TabValue>('policy')
   const isExternalReference = policy?.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
@@ -304,10 +310,10 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       ) : (
         <div className="flex gap-2 justify-end">
           <CreateItemsFromPolicyToolbar
-            initialData={{ internalPolicyIDs: [policyId] }}
+            initialData={policyAssociationInitialData}
             handleCreateNewPolicy={handleCreateNewPolicy}
             handleCreateNewProcedure={handleCreateNewProcedure}
-            objectAssociationsDisplayIDs={policy?.name ? [policy?.name] : []}
+            objectAssociationItems={policyAssociationItems}
           />
           {!editAllowed && !deleteAllowed ? (
             <></>

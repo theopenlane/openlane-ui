@@ -11,5 +11,4 @@ export type TFormEvidenceData = {
   referenceFramework?: Record<string, string>
   subcontrolReferenceFramework?: Record<string, string>
   objectAssociations: TObjectAssociationMap
-  objectAssociationsDisplayIDs?: string[]
 }

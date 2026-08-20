@@ -4,7 +4,8 @@ import { type TObjectAssociationMap } from '@/components/shared/object-associati
 import { capitalizeFirstLetter } from '@/lib/auth/utils/strings'
 import { type Value } from 'platejs'
 import { type GetTaskAssociationsQuery, type TaskQuery } from '@repo/codegen/src/schema'
-import { asAssociationsData, buildInitialAssociationIds, getEdgeDisplayIds, getEdgeValues } from '@/components/shared/object-association/utils'
+import { buildAssociationIds, buildAssociationItems, type TAssociationItem } from '@/components/shared/object-association/association-items'
+import { type AssociationSectionKey } from '@/components/shared/object-association/object-association-config'
 
 export type TTaskCopyMode = 'duplicate' | 'template'
 
@@ -49,47 +50,16 @@ export const buildTaskPayload = async (
   }
 }
 
-export const TASK_ASSOCIATION_CONFIG = {
-  dataRootField: 'task',
-  initialDataKeys: {
-    programIDs: 'programs',
-    procedureIDs: 'procedures',
-    internalPolicyIDs: 'internalPolicies',
-    controlObjectiveIDs: 'controlObjectives',
-    groupIDs: 'groups',
-    subcontrolIDs: 'subcontrols',
-    controlIDs: 'controls',
-    riskIDs: 'risks',
-  },
-} as const
+export const TASK_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'programs', 'procedures', 'policies', 'controlObjectives', 'risks', 'groups'] as const satisfies readonly AssociationSectionKey[]
 
-export const buildTaskCopyAssociations = (associationData: GetTaskAssociationsQuery | undefined): TObjectAssociationMap =>
-  buildInitialAssociationIds(TASK_ASSOCIATION_CONFIG, asAssociationsData(associationData))
+export const buildTaskCopyAssociations = (associationData: GetTaskAssociationsQuery | undefined): TObjectAssociationMap => buildAssociationIds(TASK_ASSOCIATION_SECTIONS, associationData?.task)
 
 export const buildTaskAssociations = (associationData: GetTaskAssociationsQuery | undefined, taskData: TaskQuery['task'] | undefined): TObjectAssociationMap => ({
   ...buildTaskCopyAssociations(associationData),
   taskIDs: (taskData?.tasks ?? []).flatMap((item) => (item?.id ? [item.id] : [])),
 })
 
-export const buildTaskAssociationDisplayIDs = (associationData: GetTaskAssociationsQuery | undefined): string[] | undefined => {
-  const task = associationData?.task
-  if (!task) {
-    return undefined
-  }
-
-  const displayIDs = [
-    ...getEdgeValues(task.controls?.edges, 'refCode'),
-    ...getEdgeValues(task.subcontrols?.edges, 'refCode'),
-    ...getEdgeDisplayIds(task.programs?.edges),
-    ...getEdgeDisplayIds(task.procedures?.edges),
-    ...getEdgeDisplayIds(task.internalPolicies?.edges),
-    ...getEdgeDisplayIds(task.controlObjectives?.edges),
-    ...getEdgeDisplayIds(task.risks?.edges),
-    ...getEdgeDisplayIds(task.groups?.edges),
-  ]
-
-  return displayIDs.length > 0 ? displayIDs : undefined
-}
+export const buildTaskAssociationItems = (associationData: GetTaskAssociationsQuery | undefined): TAssociationItem[] => buildAssociationItems(TASK_ASSOCIATION_SECTIONS, associationData?.task)
 
 export const buildTaskFormValues = (taskData: TaskQuery['task'] | undefined, mode: TTaskCopyMode): Partial<CreateTaskFormData> | undefined => {
   if (!taskData) {
@@ -128,11 +98,5 @@ export const generateEvidenceFormData = (taskData: TaskQuery['task'] | undefined
       programIDs: associationData?.task?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
       taskIDs: taskData.id ? [taskData.id] : [],
     },
-    objectAssociationsDisplayIDs: [
-      ...(associationData?.task?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || []),
-      ...(associationData?.task?.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || []),
-      ...(associationData?.task?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || []),
-      taskData.displayID,
-    ],
   }
 }

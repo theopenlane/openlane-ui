@@ -6,7 +6,7 @@
 
 @custom-variant dark (&:is(.dark *));
 @source "../../../packages/ui/src/**/*.{js,ts,jsx,tsx}";
-@source inline("border-controls border-subcontrols border-controlObjectives border-policies border-procedures border-programs border-tasks border-risks border-evidences border-groups border-scans border-campaigns border-assets border-entities border-identityHolders border-reviews border-findings border-remediations");
+@source inline("border-controls border-subcontrols border-controlObjectives border-policies border-procedures border-programs border-tasks border-risks border-evidences border-groups border-scans border-campaigns border-assets border-entities border-identityHolders border-reviews border-findings border-remediations border-vulnerabilities border-actionPlans");
 
 @variant dark (&:where(.dark, .dark *));
 

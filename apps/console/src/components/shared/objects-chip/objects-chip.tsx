@@ -4,7 +4,7 @@ type TObjectsChipProps = {
   name: string
   objectType: string
   removable?: boolean
-  onRemove?: (objectType: string) => void
+  onRemove?: () => void
   onClick?: () => void
 }
 
@@ -18,15 +18,18 @@ const ObjectsChip = ({ name, objectType, removable, onRemove, onClick }: TObject
     >
       {name}
       {removable && onRemove && (
-        <XIcon
-          size={12}
-          className="cursor-pointer ml-1"
+        <button
+          type="button"
+          aria-label={`Remove ${name}`}
+          className="cursor-pointer ml-1 bg-transparent"
           onClick={(e) => {
             e.stopPropagation()
             e.preventDefault()
-            onRemove(objectType)
+            onRemove()
           }}
-        />
+        >
+          <XIcon size={12} />
+        </button>
       )}
     </div>
   )

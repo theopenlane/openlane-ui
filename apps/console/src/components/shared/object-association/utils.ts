@@ -13,7 +13,6 @@ export const getEdgeValues = <T extends Record<string, unknown>, K extends keyof
 
 export const getEdgeIds = (edges: TEdgeNode<{ id?: string | null }>[] | null | undefined): string[] => getEdgeValues(edges, 'id') as string[]
 export const getEdgeNames = (edges: TEdgeNode<{ name?: string | null }>[] | null | undefined): string[] => getEdgeValues(edges, 'name') as string[]
-export const getEdgeDisplayIds = (edges: TEdgeNode<{ displayID?: string | null }>[] | null | undefined): string[] => getEdgeValues(edges, 'displayID') as string[]
 
 export type TAssociationDisplayModel = {
   name: string
@@ -142,6 +141,12 @@ export const getAssociationDiffs = <TFieldKey extends string>(
   }
 
   return { added, removed }
+}
+
+export const hasAssociationChanges = <TFieldKey extends string>(initial: TObjectAssociationMap<TFieldKey>, current: TObjectAssociationMap<TFieldKey>): boolean => {
+  const { added, removed } = getAssociationDiffs(initial, current)
+
+  return Object.keys(added).length > 0 || Object.keys(removed).length > 0
 }
 
 export const getAssociationInput = <TFieldKey extends string>(initialData: TObjectAssociationMap<TFieldKey>, associations: TObjectAssociationMap<TFieldKey>): TAssociationUpdateInput<TFieldKey> => {

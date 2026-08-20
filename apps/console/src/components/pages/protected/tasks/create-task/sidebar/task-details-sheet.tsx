@@ -77,7 +77,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const evidenceFormData = useMemo(() => generateEvidenceFormData(taskData, associationsData), [taskData, associationsData])
   const [createFromTaskMode, setCreateFromTaskMode] = useState<TTaskCopyMode | null>(null)
 
-  const { initialValues: copyValues, initialData: copyAssociations, objectAssociationsDisplayIDs: copyDisplayIDs } = useTaskCopyPrefill(taskData, associationsData, createFromTaskMode)
+  const { initialValues: copyValues, initialData: copyAssociations, objectAssociationItems: copyAssociationItems } = useTaskCopyPrefill(taskData, associationsData, createFromTaskMode)
 
   const initialAssociations = useMemo(() => buildTaskAssociations(associationsData, taskData), [associationsData, taskData])
 
@@ -334,7 +334,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
           }}
           initialValues={copyValues}
           initialData={copyAssociations}
-          objectAssociationsDisplayIDs={copyDisplayIDs}
+          objectAssociationItems={copyAssociationItems}
           fromTemplate={createFromTaskMode === 'template'}
           onSuccessWithId={handleTaskCreatedFromTask}
         />

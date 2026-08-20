@@ -6,6 +6,7 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type TAssociationItem } from '@/components/shared/object-association/association-items'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useSession } from 'next-auth/react'
 
@@ -13,10 +14,10 @@ type TCreateItemsFromPolityProps = {
   handleCreateNewPolicy: () => void
   handleCreateNewProcedure: () => void
   initialData?: TObjectAssociationMap
-  objectAssociationsDisplayIDs?: string[]
+  objectAssociationItems?: TAssociationItem[]
 }
 
-const CreateItemsFromPolicyToolbar: React.FC<TCreateItemsFromPolityProps> = ({ handleCreateNewPolicy, handleCreateNewProcedure, initialData, objectAssociationsDisplayIDs }) => {
+const CreateItemsFromPolicyToolbar: React.FC<TCreateItemsFromPolityProps> = ({ handleCreateNewPolicy, handleCreateNewProcedure, initialData, objectAssociationItems }) => {
   const { data: permission } = useOrganizationRoles()
   const { data: session } = useSession()
   return (
@@ -46,7 +47,7 @@ const CreateItemsFromPolicyToolbar: React.FC<TCreateItemsFromPolityProps> = ({ h
                   <span>Task</span>
                 </button>
               }
-              objectAssociationsDisplayIDs={objectAssociationsDisplayIDs}
+              objectAssociationItems={objectAssociationItems}
             />
           </>
         }
