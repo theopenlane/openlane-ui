@@ -99,6 +99,8 @@ export const BULK_EDIT_CHECK_RESULT = gql`
   mutation UpdateBulkCheckResult($ids: [ID!]!, $input: UpdateCheckResultInput!) {
     updateBulkCheckResult(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

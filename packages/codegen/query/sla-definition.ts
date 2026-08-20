@@ -93,6 +93,8 @@ export const BULK_EDIT_SLA_DEFINITION = gql`
   mutation UpdateBulkSlaDefinition($ids: [ID!]!, $input: UpdateSLADefinitionInput!) {
     updateBulkSLADefinition(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

@@ -109,6 +109,8 @@ export const BULK_EDIT_TRUST_CENTER_FAQ = gql`
   mutation UpdateBulkTrustCenterFAQ($ids: [ID!]!, $input: UpdateTrustCenterFAQInput!) {
     updateBulkTrustCenterFAQ(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

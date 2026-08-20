@@ -81,9 +81,19 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
         ids: ids,
         input,
       })
-      if (!notifyBulkUpdate({ requestedCount: ids.length, updatedIDs: result.updateBulkEvidence?.updatedIDs, singular: 'evidence record' })) return
+      const payload = result.updateBulkEvidence
+      if (
+        !notifyBulkUpdate({
+          requestedCount: ids.length,
+          updatedIDs: payload?.updatedIDs,
+          notUpdatedIDs: payload?.notUpdatedIDs,
+          error: payload?.error,
+          singular: 'evidence record',
+          setSelected: setSelectedEvidence,
+        })
+      )
+        return
 
-      setSelectedEvidence([])
       setOpen(false)
     } catch (error: unknown) {
       let errorMessage: string | undefined

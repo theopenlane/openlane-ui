@@ -139,6 +139,8 @@ export const BULK_EDIT_RISK = gql`
   mutation UpdateBulkRisk($ids: [ID!]!, $input: UpdateRiskInput!) {
     updateBulkRisk(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

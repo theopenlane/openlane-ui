@@ -118,7 +118,7 @@ const BulkEditRecordsDialog: React.FC<BulkEditRecordsDialogProps> = ({ selectedI
 
     try {
       const result = await onBulkEdit(ids, input)
-      if (!notifyBulkUpdate({ requestedCount: ids.length, updatedIDs: result.updatedIDs, singular })) return
+      if (!notifyBulkUpdate({ requestedCount: ids.length, updatedIDs: result.updatedIDs, notUpdatedIDs: result.notUpdatedIDs, error: result.error, singular })) return
 
       onClearSelectedItems()
       setOpen(false)

@@ -100,9 +100,19 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
         ids: ids,
         input,
       })
-      if (!notifyBulkUpdate({ requestedCount: ids.length, updatedIDs: result.updateBulkTask?.updatedIDs, singular: 'task' })) return
+      const payload = result.updateBulkTask
+      if (
+        !notifyBulkUpdate({
+          requestedCount: ids.length,
+          updatedIDs: payload?.updatedIDs,
+          notUpdatedIDs: payload?.notUpdatedIDs,
+          error: payload?.error,
+          singular: 'task',
+          setSelected: setSelectedTasks,
+        })
+      )
+        return
 
-      setSelectedTasks([])
       setOpen(false)
     } catch (error: unknown) {
       let errorMessage: string | undefined

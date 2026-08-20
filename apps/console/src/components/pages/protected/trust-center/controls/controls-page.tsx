@@ -196,15 +196,22 @@ export default function ControlsPage() {
       ])
 
       const allUpdatedIds = [...(results[0]?.updateBulkControl?.updatedIDs ?? []), ...(results[1]?.updateBulkControl?.updatedIDs ?? [])]
-      const outcome = getBulkUpdateOutcome({ requestedCount: addIds.length + removeIds.length, updatedIDs: allUpdatedIds, singular: 'control' })
+      const allNotUpdatedIds = [...(results[0]?.updateBulkControl?.notUpdatedIDs ?? []), ...(results[1]?.updateBulkControl?.notUpdatedIDs ?? [])]
+      const outcome = getBulkUpdateOutcome({
+        requestedCount: addIds.length + removeIds.length,
+        updatedIDs: allUpdatedIds,
+        notUpdatedIDs: allNotUpdatedIds,
+        error: results[0]?.updateBulkControl?.error ?? results[1]?.updateBulkControl?.error,
+        singular: 'control',
+      })
 
-      if (outcome.status === 'failure') {
-        errorNotification({ title: 'Error publishing', description: outcome.description })
-        return
-      }
+      if (outcome.status !== 'success') {
+        const notify = outcome.status === 'partial' ? warningNotification : errorNotification
+        notify({ title: outcome.status === 'partial' ? outcome.title : 'Error publishing', description: outcome.description })
 
-      if (outcome.status === 'partial') {
-        warningNotification({ title: outcome.title, description: outcome.description })
+        if (outcome.failedIDs.length > 0) {
+          setDrafts((prev) => new Map([...prev].filter(([controlId]) => outcome.failedIDs.includes(controlId))))
+        }
         return
       }
 

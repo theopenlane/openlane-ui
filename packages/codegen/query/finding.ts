@@ -317,6 +317,8 @@ export const BULK_EDIT_FINDING = gql`
   mutation UpdateBulkFinding($ids: [ID!]!, $input: UpdateFindingInput!) {
     updateBulkFinding(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

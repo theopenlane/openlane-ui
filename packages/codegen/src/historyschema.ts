@@ -189,7 +189,7 @@ export type UpdateBulkActionPlanMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkActionPlanMutation {
-  updateBulkActionPlan: { updatedIDs: Array<string> | null }
+  updateBulkActionPlan: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type AssessmentResponsesWithFilterQueryVariables = Exact<{
@@ -666,7 +666,7 @@ export type UpdateBulkAssetMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkAssetMutation {
-  updateBulkAsset: { updatedIDs: Array<string> | null }
+  updateBulkAsset: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type CampaignTargetsWithFilterQueryVariables = Exact<{
@@ -1075,7 +1075,7 @@ export type UpdateBulkCheckResultMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkCheckResultMutation {
-  updateBulkCheckResult: { updatedIDs: Array<string> | null }
+  updateBulkCheckResult: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type GetContactsQueryVariables = Exact<{
@@ -1203,7 +1203,7 @@ export type UpdateBulkContactMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkContactMutation {
-  updateBulkContact: { updatedIDs: Array<string> | null }
+  updateBulkContact: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type ControlImplementationFieldsFragment = {
@@ -1736,7 +1736,7 @@ export type UpdateBulkCsvControlMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkCsvControlMutation {
-  updateBulkCSVControl: { controls: Array<{ id: string }> | null }
+  updateBulkCSVControl: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type CreateBulkCsvMappedControlMutationVariables = Exact<{
@@ -2023,7 +2023,7 @@ export type UpdateBulkControlMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkControlMutation {
-  updateBulkControl: { updatedIDs: Array<string> | null }
+  updateBulkControl: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type GetSubcontrolIdsByControlQueryVariables = Exact<{
@@ -3003,7 +3003,7 @@ export type UpdateBulkEmailTemplateMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkEmailTemplateMutation {
-  updateBulkEmailTemplate: { updatedIDs: Array<string> | null }
+  updateBulkEmailTemplate: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type EntityTypesWithFilterQueryVariables = Exact<{
@@ -3078,7 +3078,7 @@ export type UpdateBulkEntityTypeMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkEntityTypeMutation {
-  updateBulkEntityType: { updatedIDs: Array<string> | null }
+  updateBulkEntityType: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type EntitiesWithFilterQueryVariables = Exact<{
@@ -3288,7 +3288,7 @@ export type UpdateBulkEntityMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkEntityMutation {
-  updateBulkEntity: { updatedIDs: Array<string> | null }
+  updateBulkEntity: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type GetEntityFilesPaginatedQueryVariables = Exact<{
@@ -3811,7 +3811,7 @@ export type UpdateBulkEvidenceMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkEvidenceMutation {
-  updateBulkEvidence: { updatedIDs: Array<string> | null }
+  updateBulkEvidence: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type CreateExportMutationVariables = Exact<{
@@ -4175,7 +4175,7 @@ export type UpdateBulkFindingMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkFindingMutation {
-  updateBulkFinding: { updatedIDs: Array<string> | null }
+  updateBulkFinding: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type GetFindingAssociationsTimelineQueryVariables = Exact<{
@@ -4270,7 +4270,7 @@ export type UpdateBulkGroupSettingMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkGroupSettingMutation {
-  updateBulkGroupSetting: { updatedIDs: Array<string> | null }
+  updateBulkGroupSetting: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type GetAllGroupsQueryVariables = Exact<{
@@ -4446,6 +4446,36 @@ export type CreateBulkCsvGroupMutationVariables = Exact<{
 
 export interface CreateBulkCsvGroupMutation {
   createBulkCSVGroup: { groups: Array<{ id: string }> | null }
+}
+
+export type GroupsExportQueryVariables = Exact<{
+  where?: Types.GroupWhereInput | null | undefined
+  orderBy?: Array<Types.GroupOrder> | Types.GroupOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  includePermissions: boolean
+}>
+
+export interface GroupsExportQuery {
+  groups: {
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        id: string
+        name: string
+        displayName: string
+        description: string | null
+        tags: Array<string> | null
+        createdAt: any
+        createdBy: string | null
+        updatedAt: any
+        updatedBy: string | null
+        setting: { visibility: Types.GroupSettingVisibility } | null
+        members: { totalCount: number; edges: Array<{ node: { role: Types.GroupMembershipRole; user: { id: string; displayName: string } } | null } | null> | null }
+        permissions?: { totalCount: number; edges: Array<{ node: { id: string; name: string | null; objectType: string; permissions: Types.Permission } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
 }
 
 export type DirectoryMembershipConnectionFieldsFragment = {
@@ -4628,7 +4658,7 @@ export type UpdateBulkIdentityHolderMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkIdentityHolderMutation {
-  updateBulkIdentityHolder: { updatedIDs: Array<string> | null }
+  updateBulkIdentityHolder: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type GetIdentityHolderFilesPaginatedQueryVariables = Exact<{
@@ -5102,7 +5132,7 @@ export type UpdateBulkInternalPolicyMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkInternalPolicyMutation {
-  updateBulkInternalPolicy: { updatedIDs: Array<string> | null }
+  updateBulkInternalPolicy: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type CreateUploadInternalPolicyMutationVariables = Exact<{
@@ -5433,6 +5463,32 @@ export interface OrgMembershipsByIdsQuery {
   orgMemberships: { edges: Array<{ node: { user: { id: string; displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } } | null } | null> | null }
 }
 
+export type OrgMembershipsExportQueryVariables = Exact<{
+  where?: Types.OrgMembershipWhereInput | null | undefined
+  orderBy?: Array<Types.OrgMembershipOrder> | Types.OrgMembershipOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface OrgMembershipsExportQuery {
+  orgMemberships: {
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        id: string
+        createdAt: any
+        role: Types.OrgMembershipRole
+        additionalRoles: Array<string> | null
+        ssoExempt: boolean | null
+        ssoExemptReason: string | null
+        tfaEnforced: boolean | null
+        tfaEnforcedReason: string | null
+        user: { id: string; displayName: string; email: string; authProvider: Types.UserAuthProvider }
+      } | null
+    } | null> | null
+  }
+}
+
 export type NarrativesWithFilterQueryVariables = Exact<{
   where?: Types.NarrativeWhereInput | null | undefined
   orderBy?: Array<Types.NarrativeOrder> | Types.NarrativeOrder | null | undefined
@@ -5581,7 +5637,7 @@ export type UpdateBulkNotificationPreferenceMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkNotificationPreferenceMutation {
-  updateBulkNotificationPreference: { updatedIDs: Array<string> | null }
+  updateBulkNotificationPreference: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type NotificationTemplatesWithFilterQueryVariables = Exact<{
@@ -5712,7 +5768,7 @@ export type UpdateBulkNotificationTemplateMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkNotificationTemplateMutation {
-  updateBulkNotificationTemplate: { updatedIDs: Array<string> | null }
+  updateBulkNotificationTemplate: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type MarkNotificationsAsReadMutationVariables = Exact<{
@@ -6236,7 +6292,7 @@ export type UpdateBulkProcedureMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkProcedureMutation {
-  updateBulkProcedure: { updatedIDs: Array<string> | null }
+  updateBulkProcedure: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type GetAllProceduresWithDetailsQueryVariables = Exact<{ [key: string]: never }>
@@ -6946,7 +7002,7 @@ export type UpdateBulkRemediationMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkRemediationMutation {
-  updateBulkRemediation: { updatedIDs: Array<string> | null }
+  updateBulkRemediation: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type ReviewsWithFilterQueryVariables = Exact<{
@@ -7083,7 +7139,7 @@ export type UpdateBulkReviewMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkReviewMutation {
-  updateBulkReview: { updatedIDs: Array<string> | null }
+  updateBulkReview: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type DeleteBulkReviewMutationVariables = Exact<{
@@ -7301,7 +7357,7 @@ export type UpdateBulkRiskMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkRiskMutation {
-  updateBulkRisk: { updatedIDs: Array<string> | null }
+  updateBulkRisk: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type CreateBulkCsvRiskMutationVariables = Exact<{
@@ -7621,7 +7677,7 @@ export type UpdateBulkScanMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkScanMutation {
-  updateBulkScan: { updatedIDs: Array<string> | null }
+  updateBulkScan: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type GetScanAssociationsQueryVariables = Exact<{
@@ -7761,7 +7817,7 @@ export type UpdateBulkSlaDefinitionMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkSlaDefinitionMutation {
-  updateBulkSLADefinition: { updatedIDs: Array<string> | null }
+  updateBulkSLADefinition: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type GetAllStandardsQueryVariables = Exact<{
@@ -8019,7 +8075,7 @@ export type UpdateBulkSubcontrolMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkSubcontrolMutation {
-  updateBulkSubcontrol: { updatedIDs: Array<string> | null }
+  updateBulkSubcontrol: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type DeleteSubcontrolMutationVariables = Exact<{
@@ -8458,7 +8514,7 @@ export type UpdateBulkSystemDetailMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkSystemDetailMutation {
-  updateBulkSystemDetail: { updatedIDs: Array<string> | null }
+  updateBulkSystemDetail: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type GetTagsQueryVariables = Exact<{ [key: string]: never }>
@@ -8650,7 +8706,7 @@ export type UpdateBulkTaskMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkTaskMutation {
-  updateBulkTask: { updatedIDs: Array<string> | null }
+  updateBulkTask: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type UpdateTaskCommentMutationVariables = Exact<{
@@ -9060,7 +9116,7 @@ export type BulkUpdateTrustCenterDocMutationVariables = Exact<{
 }>
 
 export interface BulkUpdateTrustCenterDocMutation {
-  updateBulkTrustCenterDoc: { trustCenterDocs: Array<{ id: string }> | null }
+  updateBulkTrustCenterDoc: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type GetTrustCenterEntitiesQueryVariables = Exact<{
@@ -9202,7 +9258,7 @@ export type UpdateBulkTrustCenterFaqMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkTrustCenterFaqMutation {
-  updateBulkTrustCenterFAQ: { updatedIDs: Array<string> | null }
+  updateBulkTrustCenterFAQ: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type GetTrustCenterNdaFilesQueryVariables = Exact<{
@@ -9733,7 +9789,7 @@ export type UpdateBulkVendorRiskScoreMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkVendorRiskScoreMutation {
-  updateBulkVendorRiskScore: { updatedIDs: Array<string> | null }
+  updateBulkVendorRiskScore: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type VendorScoringConfigsWithFilterQueryVariables = Exact<{
@@ -9808,7 +9864,7 @@ export type UpdateBulkVendorScoringConfigMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkVendorScoringConfigMutation {
-  updateBulkVendorScoringConfig: { updatedIDs: Array<string> | null }
+  updateBulkVendorScoringConfig: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type VulnerabilitiesCountQueryVariables = Exact<{
@@ -10013,7 +10069,7 @@ export type UpdateBulkVulnerabilityMutationVariables = Exact<{
 }>
 
 export interface UpdateBulkVulnerabilityMutation {
-  updateBulkVulnerability: { updatedIDs: Array<string> | null }
+  updateBulkVulnerability: { updatedIDs: Array<string> | null; notUpdatedIDs: Array<string>; error: string | null }
 }
 
 export type GetVulnerabilityAssociationsTimelineQueryVariables = Exact<{

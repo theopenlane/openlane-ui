@@ -110,9 +110,19 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
         ids: ids,
         input,
       })
-      if (!notifyBulkUpdate({ requestedCount: ids.length, updatedIDs: result.updateBulkRisk?.updatedIDs, singular: 'risk' })) return
+      const payload = result.updateBulkRisk
+      if (
+        !notifyBulkUpdate({
+          requestedCount: ids.length,
+          updatedIDs: payload?.updatedIDs,
+          notUpdatedIDs: payload?.notUpdatedIDs,
+          error: payload?.error,
+          singular: 'risk',
+          setSelected: setSelectedRisks,
+        })
+      )
+        return
 
-      setSelectedRisks([])
       setOpen(false)
     } catch (error: unknown) {
       let errorMessage: string | undefined

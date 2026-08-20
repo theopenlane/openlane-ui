@@ -129,6 +129,8 @@ export const BULK_EDIT_NOTIFICATION_TEMPLATE = gql`
   mutation UpdateBulkNotificationTemplate($ids: [ID!]!, $input: UpdateNotificationTemplateInput!) {
     updateBulkNotificationTemplate(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

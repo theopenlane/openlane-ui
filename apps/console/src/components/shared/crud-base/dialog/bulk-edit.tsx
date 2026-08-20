@@ -181,9 +181,19 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
 
     try {
       const result = await bulkEditMutation.mutateAsync({ ids, input })
-      if (!notifyBulkUpdate({ requestedCount: ids.length, updatedIDs: result.updatedIDs, singular: entityLabel.toLowerCase() || 'record', plural: displayNamePlural?.toLowerCase() })) return
+      if (
+        !notifyBulkUpdate({
+          requestedCount: ids.length,
+          updatedIDs: result.updatedIDs,
+          notUpdatedIDs: result.notUpdatedIDs,
+          error: result.error,
+          singular: entityLabel.toLowerCase() || 'record',
+          plural: displayNamePlural?.toLowerCase(),
+          setSelected: setSelectedItems,
+        })
+      )
+        return
 
-      setSelectedItems([])
       handleOpenChange(false)
     } catch (error: unknown) {
       let errorMessage: string | undefined

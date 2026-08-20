@@ -14,6 +14,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { IMPORT_CONTROL_DOCS_URL } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { getBulkUpdateErrorDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 
 type BulkCSVUpdateControlDialogProps = {
   trigger?: React.ReactElement<
@@ -30,7 +31,7 @@ type BulkCSVUpdateControlDialogProps = {
 const BulkCSVUpdateControlDialog: React.FC<BulkCSVUpdateControlDialogProps> = ({ trigger, open: openProp, onOpenChange }) => {
   const [isOpen, setIsOpen, isControlled] = useControllableOpen({ open: openProp, onOpenChange })
   const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
-  const { successNotification, errorNotification } = useNotification()
+  const { successNotification, warningNotification, errorNotification } = useNotification()
   const { mutateAsync: updateBulkControl, isPending: isSubmitting } = useUpdateBulkCSVControl()
 
   const handleFileUpload = async () => {
@@ -39,10 +40,30 @@ const BulkCSVUpdateControlDialog: React.FC<BulkCSVUpdateControlDialogProps> = ({
     }
 
     try {
-      await updateBulkControl({ input: uploadedFile.file ?? new File([], '') })
+      const result = await updateBulkControl({ input: uploadedFile.file ?? new File([], '') })
+      const payload = result.updateBulkCSVControl
+      const updatedCount = payload?.updatedIDs?.length ?? 0
+      const skippedCount = payload?.notUpdatedIDs?.length ?? 0
+
+      if (updatedCount === 0) {
+        errorNotification({
+          title: 'No controls were updated',
+          description: getBulkUpdateErrorDescription(payload?.error),
+        })
+        return
+      }
+
+      if (skippedCount > 0) {
+        warningNotification({
+          title: `Only ${updatedCount} of ${updatedCount + skippedCount} controls were updated`,
+          description: getBulkUpdateErrorDescription(payload?.error),
+        })
+        return
+      }
+
       successNotification({
         title: 'Controls Updated',
-        description: `Controls have been successfully updated`,
+        description: `${updatedCount} ${updatedCount === 1 ? 'control has' : 'controls have'} been successfully updated`,
       })
       setIsOpen(false)
     } catch (error) {

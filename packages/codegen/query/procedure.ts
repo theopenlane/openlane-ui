@@ -27,6 +27,8 @@ export const BULK_EDIT_PROCEDURE = gql`
   mutation UpdateBulkProcedure($ids: [ID!]!, $input: UpdateProcedureInput!) {
     updateBulkProcedure(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `
