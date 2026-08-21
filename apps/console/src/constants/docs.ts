@@ -18,3 +18,4 @@ export const TASK_IMPORT_EXAMPLES_DOCS_URL = `${PLATFORM_DOCS_URL}/automation/ta
 export const EVIDENCE_DOCS_URL = `${DOCS_URL}/docs/category/evidence`
 export const GROUP_PERMISSIONS_DOCS_URL = `${PLATFORM_DOCS_URL}/basics/groups/permissions`
 export const PROGRAM_DOCS_URL = `${COMPLIANCE_MANAGEMENT_DOCS_URL}/programs/overview`
+export const PERMISSIONS_MODEL_DOCS_URL = `${PLATFORM_DOCS_URL}/settings/authorization/overview`

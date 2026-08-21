@@ -26,7 +26,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TransferOwnershipDialog } from '@/components/pages/protected/organization-settings/general-settings/transfer-ownership-dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { toHumanLabel } from '@/utils/strings'
-import { RoleInfoSlideOut } from '@/components/shared/role-info-slide-out/role-info-slide-out'
+import { RoleInfoCallout } from '@/components/shared/organization-roles/role-info-callout'
 import { UserRoleIconMapper } from '@/components/shared/enum-mapper/user-role-enum'
 import { ManageAdditionalRolesDialog } from '@/components/shared/organization-roles/manage-additional-roles-dialog'
 import { SuperAdminRoleWarning } from '@/components/shared/organization-roles/super-admin-role-warning'
@@ -338,7 +338,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName, 
             </Form>
           </div>
           {selectedRole === OrgMembershipRole.SUPER_ADMIN && <SuperAdminRoleWarning />}
-          <RoleInfoSlideOut />
+          <RoleInfoCallout />
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
               <CancelButton />

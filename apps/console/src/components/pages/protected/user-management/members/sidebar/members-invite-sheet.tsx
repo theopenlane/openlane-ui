@@ -36,7 +36,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { RoleInfoSlideOut } from '@/components/shared/role-info-slide-out/role-info-slide-out'
+import { RoleInfoCallout } from '@/components/shared/organization-roles/role-info-callout'
 import { SuperAdminRoleWarning } from '@/components/shared/organization-roles/super-admin-role-warning'
 import useMembersInviteFormSchema, { type MembersInviteFormData } from './use-members-invite-form-schema'
 import { MultiEmailInput } from './multi-email-input'
@@ -238,7 +238,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
                       )}
                     />
                     {selectedRole === InviteRole.SUPER_ADMIN && <SuperAdminRoleWarning />}
-                    <RoleInfoSlideOut />
+                    <RoleInfoCallout />
                   </div>
                 </div>
               </div>

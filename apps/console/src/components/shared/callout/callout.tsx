@@ -1,4 +1,3 @@
-// components/Callout.tsx
 import * as React from 'react'
 import { Info, AlertTriangle, AlertCircle, CheckCircle2, LightbulbIcon, Sparkles } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
@@ -63,11 +62,10 @@ export interface CalloutProps extends Omit<React.HTMLAttributes<HTMLDivElement>,
   title?: React.ReactNode
   compact?: boolean
   contentClassName?: string
-  icon?: React.ReactNode // optional override
-  link?: string
+  icon?: React.ReactNode
 }
 
-export function Callout({ variant = 'info', title, compact, contentClassName, icon, className, children, ...props }: CalloutProps) {
+export const Callout = ({ variant = 'info', title, compact, contentClassName, icon, className, children, ...props }: CalloutProps) => {
   const v = variantToVars[variant]
   const Icon = v.iconEl
 
