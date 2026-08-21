@@ -1,21 +1,15 @@
 'use client'
 
-import React from 'react'
-import { Controller, type UseFormReturn } from 'react-hook-form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { type UseFormReturn } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
-import { Label } from '@repo/ui/label'
-import PlateEditor from '@/components/shared/plate/plate-editor'
 import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
 import { Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { type TFormData } from './use-form-schema'
-import { CalendarPopover } from '@repo/ui/calendar-popover'
+import { ControlImplementationFields } from './control-implementation-fields'
 import { useCreateControlImplementation, useDeleteControlImplementation, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementation'
-import { ControlImplementationStatusOptions } from '@/components/shared/enum-mapper/control-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { Callout } from '@/components/shared/callout/callout'
@@ -38,9 +32,7 @@ export const CreateControlImplementationForm = ({
   const isEditing = !!defaultValues
   const isSubcontrol = !!subcontrolId
   const { convertToHtml } = usePlateEditor()
-  const { handleSubmit, control } = form
-
-  const onDetailsChange = usePlateHydration(form, 'details', defaultValues?.details)
+  const { handleSubmit } = form
 
   const { mutate: createImplementation } = useCreateControlImplementation()
   const { mutate: updateImplementation } = useUpdateControlImplementation()
@@ -117,65 +109,32 @@ export const CreateControlImplementationForm = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="flex justify-end gap-2">
-        {isEditing ? (
-          <>
-            <SaveButton />
-            <CancelButton onClick={onClose}></CancelButton>
-            <Button variant="destructive" className="h-8 px-4!" icon={<Trash2 />} iconPosition="left" type="button" onClick={handleDelete}>
-              Delete
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button className="h-8 px-4!">Create</Button>
-            <CancelButton onClick={onClose}></CancelButton>
-          </>
-        )}
-      </div>
-      <SheetHeader>{!isEditing && <SheetTitle className="text-left">Control Implementation</SheetTitle>}</SheetHeader>
+      <SheetHeader className="flex-row items-center">
+        {!isEditing && <SheetTitle className="text-left text-lg">Control Implementation</SheetTitle>}
+        <div className="ml-auto flex gap-2">
+          {isEditing ? (
+            <>
+              <SaveButton />
+              <CancelButton onClick={onClose}></CancelButton>
+              <Button variant="destructive" className="h-8 px-4!" icon={<Trash2 />} iconPosition="left" type="button" onClick={handleDelete}>
+                Delete
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button className="h-8 px-4!">Create</Button>
+              <CancelButton onClick={onClose}></CancelButton>
+            </>
+          )}
+        </div>
+      </SheetHeader>
       {!isEditing && (
         <Callout variant="info" title="Not sure what to write?">
           Add details about how this control is implemented in your environment. Include relevant tools, processes, teams involved, and how effectiveness is ensured.{' '}
           <DocsSourceLink label="Read more" topic={{ title: 'Control Implementation', query: docsHelpQuery('create', 'a control implementation'), prefer: 'Control Implementation' }} />
         </Callout>
       )}
-      <div className="p-4 border rounded-lg">
-        <div className="border-b flex items-center py-2.5">
-          <Label className="self-start whitespace-nowrap min-w-36">Details</Label>
-          <Controller control={control} name="details" render={({ field }) => <PlateEditor initialValue={defaultValues?.details} onChange={(val) => onDetailsChange(val, field.onChange)} />} />
-        </div>
-
-        <div className="border-b flex items-center py-2.5">
-          <Label className="min-w-36">Status</Label>
-          <Controller
-            name="status"
-            control={control}
-            render={({ field }) => {
-              return (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-60">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ControlImplementationStatusOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )
-            }}
-          />
-        </div>
-        <div className="flex items-center py-2.5">
-          <Label className="min-w-36">Date Implemented</Label>
-          <div className="w-48">
-            <Controller name="implementationDate" control={control} render={({ field }) => <CalendarPopover field={field} disabledFrom={new Date()} defaultToday />} />
-          </div>
-        </div>
-      </div>
+      <ControlImplementationFields form={form} detailsInitialValue={defaultValues?.details} />
     </form>
   )
 }

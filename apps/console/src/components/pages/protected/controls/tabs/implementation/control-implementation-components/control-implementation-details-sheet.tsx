@@ -2,12 +2,7 @@
 
 import React, { useState, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Controller } from 'react-hook-form'
 import { ChevronDown, ChevronRight } from 'lucide-react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Label } from '@repo/ui/label'
-import PlateEditor from '@/components/shared/plate/plate-editor'
-import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { type ControlImplementationFieldsFragment, type UpdateControlImplementationInput } from '@repo/codegen/src/schema'
 import { useGetControlImplementationById, useUpdateControlImplementation, useDeleteControlImplementation } from '@/lib/graphql-hooks/control-implementation'
 import { ControlImplementationCard } from './control-implementation-card'
@@ -15,9 +10,8 @@ import { LinkControlsModal } from './link-controls-modal'
 import { GenericDetailsSheet, type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import useFormSchema, { type TFormData } from './form/use-form-schema'
-import { ControlImplementationStatusOptions } from '@/components/shared/enum-mapper/control-enum'
+import { ControlImplementationFields } from './form/control-implementation-fields'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type Value } from 'platejs'
 
 type Props = {
   queryParamKey?: string
@@ -74,7 +68,7 @@ const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'c
 
   const buildPayload = useCallback(
     async (formData: TFormData): Promise<UpdateControlImplementationInput> => {
-      const details = formData.details ? await plateEditorHelper.convertToHtml(formData.details as Value) : undefined
+      const details = typeof formData.details === 'string' ? formData.details || undefined : formData.details ? await plateEditorHelper.convertToHtml(formData.details) : undefined
       return {
         details,
         status: formData.status,
@@ -87,48 +81,7 @@ const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'c
   const renderFields = useCallback(
     ({ isEditing, data, isFormInitialized }: RenderFieldsProps<ControlImplementationFieldsFragment, UpdateControlImplementationInput>) => {
       if (!isEditing) return null
-      const { control } = form
-      return (
-        <div className="p-4 border rounded-lg">
-          <div className="border-b flex items-center py-2.5">
-            <Label className="self-start whitespace-nowrap min-w-36">Details</Label>
-            <Controller
-              control={control}
-              name="details"
-              render={({ field }) => <PlateEditor initialValue={isFormInitialized ? (data?.details ?? undefined) : undefined} onChange={(val) => field.onChange(val)} />}
-            />
-          </div>
-
-          <div className="border-b flex items-center py-2.5">
-            <Label className="min-w-36">Status</Label>
-            <Controller
-              name="status"
-              control={control}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-60">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ControlImplementationStatusOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-
-          <div className="flex items-center py-2.5">
-            <Label className="min-w-36">Date Implemented</Label>
-            <div className="w-48">
-              <Controller name="implementationDate" control={form.control} render={({ field }) => <CalendarPopover field={field} disabledFrom={new Date()} defaultToday />} />
-            </div>
-          </div>
-        </div>
-      )
+      return <ControlImplementationFields form={form} detailsInitialValue={isFormInitialized ? (data?.details ?? undefined) : undefined} />
     },
     [form],
   )
