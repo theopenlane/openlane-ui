@@ -21,12 +21,22 @@ type Props<TRecord, TUpdateInput> = {
   onOpenChange: (open: boolean) => void
   config: MergeConfig<TRecord, TUpdateInput>
   primaryId: string
+  initialSecondaryId?: string
+  initialSecondaryLabel?: string
   onMergeComplete?: () => void
 }
 
-export const MergeRecordsSheet = <TRecord extends object, TUpdateInput>({ open, onOpenChange, config, primaryId, onMergeComplete }: Props<TRecord, TUpdateInput>) => {
-  const [secondaryId, setSecondaryId] = useState<string | null>(null)
-  const [secondaryLabelCache, setSecondaryLabelCache] = useState<string>('')
+export const MergeRecordsSheet = <TRecord extends object, TUpdateInput>({
+  open,
+  onOpenChange,
+  config,
+  primaryId,
+  initialSecondaryId,
+  initialSecondaryLabel,
+  onMergeComplete,
+}: Props<TRecord, TUpdateInput>) => {
+  const [secondaryId, setSecondaryId] = useState<string | null>(initialSecondaryId ?? null)
+  const [secondaryLabelCache, setSecondaryLabelCache] = useState<string>(initialSecondaryLabel ?? '')
   const [step, setStep] = useState<'select' | 'preview'>('select')
   const [isMerging, setIsMerging] = useState(false)
 

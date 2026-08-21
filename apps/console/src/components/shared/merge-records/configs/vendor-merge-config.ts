@@ -35,6 +35,8 @@ const excludeFields = [
 
 const schemaExcludeFields = ['internalOwnerGroupID', 'internalOwnerUserID', 'reviewedByGroupID', 'reviewedByUserID'] as const
 
+export const getVendorLabel = (record: Pick<Vendor, 'id' | 'name' | 'displayName'>) => record.displayName || record.name || record.id
+
 const useFetchVendor = (id: string | null) => {
   const { data, isLoading, error } = useEntity(id ?? undefined)
   return { data: (data?.entity ?? null) as Vendor | null, isLoading, error }
@@ -97,5 +99,5 @@ export const vendorMergeConfig: MergeConfig<Vendor, UpdateEntityInput, 'Entity'>
   useSearchRecords: useSearchVendors,
   toUpdateInput: (resolved) => ({ ...resolved }) as UpdateEntityInput,
   invalidateKeys: [['entities']],
-  getDisplayName: (record) => record.displayName || record.name || record.id,
+  getDisplayName: getVendorLabel,
 }

@@ -14,6 +14,9 @@ import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
 import { isUlid } from '@/lib/validators'
 import { useSession } from 'next-auth/react'
+import { canDelete } from '@/lib/authz/utils'
+import { useMergeDragDrop } from '@/components/shared/merge-records/use-merge-drag-drop'
+import { assetMergeConfig, getAssetLabel } from '@/components/shared/merge-records/configs/asset-merge-config'
 
 const TableComponent = ({
   onSortChange,
@@ -77,14 +80,23 @@ const TableComponent = ({
     }
   }, [hastItems, onHasChange])
 
+  const canEditRows = canEdit(permission?.roles, session)
+
   useEffect(() => {
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles, session),
+        select: canEditRows,
       }))
     }
-  }, [permission?.roles, setColumnVisibility, canEdit, session])
+  }, [permission?.roles, setColumnVisibility, canEditRows])
+
+  const { rowDragDrop, mergeSheet } = useMergeDragDrop({
+    config: assetMergeConfig,
+    enabled: canEditRows && canDelete(permission?.roles),
+    getRowLabel: getAssetLabel,
+    onMergeComplete: (mergedAwayId) => setSelectedItems((prev) => prev.filter((item) => item.id !== mergedAwayId)),
+  })
 
   useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}` })
 
@@ -93,28 +105,32 @@ const TableComponent = ({
   const columns = useMemo(() => getColumns({ userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems }), [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems])
 
   return (
-    <DataTable<AssetsNodeNonNull, Asset>
-      columns={columns}
-      sortFields={ASSETS_SORT_FIELDS}
-      onSortChange={onSortChange}
-      data={items}
-      loading={fetching || fetchingUsers}
-      sorting={orderBy}
-      onRowClick={(item) => {
-        replace({ id: item.id })
-      }}
-      rowHref={rowHref}
-      pagination={pagination}
-      onPaginationChange={onPaginationChange}
-      paginationMeta={{
-        totalCount: data?.assets.totalCount,
-        pageInfo: data?.assets?.pageInfo,
-        isLoading: isFetching,
-      }}
-      columnVisibility={columnVisibility}
-      setColumnVisibility={setColumnVisibility}
-      tableKey={tableKey}
-    />
+    <>
+      <DataTable<AssetsNodeNonNull, Asset>
+        columns={columns}
+        sortFields={ASSETS_SORT_FIELDS}
+        onSortChange={onSortChange}
+        data={items}
+        loading={fetching || fetchingUsers}
+        sorting={orderBy}
+        onRowClick={(item) => {
+          replace({ id: item.id })
+        }}
+        rowHref={rowHref}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        paginationMeta={{
+          totalCount: data?.assets.totalCount,
+          pageInfo: data?.assets?.pageInfo,
+          isLoading: isFetching,
+        }}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
+        tableKey={tableKey}
+        rowDragDrop={rowDragDrop}
+      />
+      {mergeSheet}
+    </>
   )
 }
 
