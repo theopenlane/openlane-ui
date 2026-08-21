@@ -1,6 +1,5 @@
-import { useNotification } from '@/hooks/useNotification'
 import { type TAccessRole, type TPermissionData, type TScopesResponse } from '@/types/authz'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, type UseQueryResult } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { objectToSnakeCase } from '../../utils/strings'
@@ -16,8 +15,17 @@ export const readPermissionResponse = async <T>(res: Response, fallbackError: st
 
 export const shouldRetryPermission = (failureCount: number): boolean => !getIsSessionInvalid() && failureCount < 5
 
+export const usePermissionQueryErrorLog = <TData>({ isError, error }: Pick<UseQueryResult<TData, Error>, 'isError' | 'error'>, context: string) => {
+  useEffect(() => {
+    if (!isError) {
+      return
+    }
+
+    console.error(`${context}:`, error)
+  }, [isError, error, context])
+}
+
 export const useAccountRoles = (objectType: string, id?: string | number | null, enabled: boolean = true) => {
-  const { errorNotification } = useNotification()
   const fetchWithRetry = useFetchWithRetry()
   const { data: session } = useSession()
   const isImpersonation = !!session?.user?.isImpersonation
@@ -40,19 +48,13 @@ export const useAccountRoles = (objectType: string, id?: string | number | null,
       return permission
     },
   })
-  useEffect(() => {
-    if (resp.isError && !getIsSessionInvalid()) {
-      errorNotification({
-        title: 'Error occurred while fetching account roles',
-        description: 'Please refresh the page',
-      })
-    }
-  }, [resp.isError, errorNotification])
+
+  usePermissionQueryErrorLog(resp, 'Failed to fetch account roles')
+
   return resp
 }
 
 export const useOrganizationRoles = () => {
-  const { errorNotification } = useNotification()
   const fetchWithRetry = useFetchWithRetry()
   const { data: session } = useSession()
   const isImpersonation = !!session?.user?.isImpersonation
@@ -66,19 +68,13 @@ export const useOrganizationRoles = () => {
       return readPermissionResponse<TPermissionData>(res, 'Failed to fetch organization roles')
     },
   })
-  useEffect(() => {
-    if (resp.isError && !getIsSessionInvalid()) {
-      errorNotification({
-        title: 'Error occurred while fetching organization roles',
-        description: 'Please refresh the page',
-      })
-    }
-  }, [resp.isError, errorNotification])
+
+  usePermissionQueryErrorLog(resp, 'Failed to fetch organization roles')
+
   return resp
 }
 
 export const useScopes = () => {
-  const { errorNotification } = useNotification()
   const fetchWithRetry = useFetchWithRetry()
 
   const resp = useQuery<TScopesResponse>({
@@ -90,14 +86,7 @@ export const useScopes = () => {
     },
   })
 
-  useEffect(() => {
-    if (resp.isError && !getIsSessionInvalid()) {
-      errorNotification({
-        title: 'Error occurred while fetching scopes',
-        description: 'Please refresh the page',
-      })
-    }
-  }, [resp.isError, errorNotification])
+  usePermissionQueryErrorLog(resp, 'Failed to fetch scopes')
 
   return resp
 }
@@ -115,7 +104,6 @@ type UseAccountRolesManyParams = {
 }
 
 export const useAccountRolesMany = ({ objectType, ids, enabled = true }: UseAccountRolesManyParams) => {
-  const { errorNotification } = useNotification()
   const fetchWithRetry = useFetchWithRetry()
   const { data: session } = useSession()
   const isImpersonation = !!session?.user?.isImpersonation
@@ -136,14 +124,7 @@ export const useAccountRolesMany = ({ objectType, ids, enabled = true }: UseAcco
     },
   })
 
-  useEffect(() => {
-    if (resp.isError && !getIsSessionInvalid()) {
-      errorNotification({
-        title: 'Error occurred while fetching account roles',
-        description: 'Please refresh the page',
-      })
-    }
-  }, [resp.isError, errorNotification])
+  usePermissionQueryErrorLog(resp, 'Failed to fetch account roles for multiple objects')
 
   return resp
 }
