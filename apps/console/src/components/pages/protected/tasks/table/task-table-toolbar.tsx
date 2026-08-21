@@ -197,7 +197,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
           variant="searchTable"
           iconPosition="left"
         />
-        <TableCardView activeTab={props.activeTab} onTabChange={props.onTabChange} />
+        <TableCardView activeTab={props.activeTab} onTabChange={props.onTabChange} cardLabel="Board" />
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {props.selectedTasks.length > 0 ? (
             <>
