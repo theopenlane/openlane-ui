@@ -29,6 +29,8 @@ const excludeFields = [
 
 const schemaExcludeFields = ['internalOwnerGroupID', 'internalOwnerUserID'] as const
 
+export const getPersonnelLabel = (record: Pick<Personnel, 'id' | 'fullName' | 'email'>) => record.fullName || record.email || record.id
+
 const useFetchPersonnel = (id: string | null) => {
   const { data, isLoading, error } = useIdentityHolder(id ?? undefined)
   return { data: (data?.identityHolder ?? null) as Personnel | null, isLoading, error }
@@ -167,7 +169,7 @@ export const personnelMergeConfig: MergeConfig<Personnel, UpdateIdentityHolderIn
   useSearchRecords: useSearchPersonnel,
   toUpdateInput: (resolved) => ({ ...resolved }) as UpdateIdentityHolderInput,
   invalidateKeys: [['identityHolders']],
-  getDisplayName: (record) => record.fullName || record.email || record.id,
+  getDisplayName: getPersonnelLabel,
   emailAliasFold: {
     emailKey: 'email',
     aliasesKey: 'emailAliases',

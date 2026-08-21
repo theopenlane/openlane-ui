@@ -13,6 +13,9 @@ import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
 import { isUlid } from '@/lib/validators'
 import { useSession } from 'next-auth/react'
+import { canDelete } from '@/lib/authz/utils'
+import { useMergeDragDrop } from '@/components/shared/merge-records/use-merge-drag-drop'
+import { contactMergeConfig, getContactLabel } from '@/components/shared/merge-records/configs/contact-merge-config'
 
 const TableComponent = ({
   onSortChange,
@@ -73,14 +76,23 @@ const TableComponent = ({
     }
   }, [hasItems, onHasChange])
 
+  const canEditRows = canEdit(permission?.roles, session)
+
   useEffect(() => {
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
-        select: canEdit(permission.roles, session),
+        select: canEditRows,
       }))
     }
-  }, [permission?.roles, setColumnVisibility, canEdit, session])
+  }, [permission?.roles, setColumnVisibility, canEditRows])
+
+  const { rowDragDrop, mergeSheet } = useMergeDragDrop({
+    config: contactMergeConfig,
+    enabled: canEditRows && canDelete(permission?.roles),
+    getRowLabel: getContactLabel,
+    onMergeComplete: (mergedAwayId) => setSelectedItems((prev) => prev.filter((item) => item.id !== mergedAwayId)),
+  })
 
   useQueryErrorNotification({ error, description: `Failed to load ${objectName.toLowerCase()}` })
 
@@ -89,28 +101,32 @@ const TableComponent = ({
   const columns = useMemo(() => getColumns({ userMap, tokenMap, selectedItems, setSelectedItems }), [userMap, tokenMap, selectedItems, setSelectedItems])
 
   return (
-    <DataTable<ContactsNodeNonNull, Contact>
-      columns={columns}
-      sortFields={CONTACTS_SORT_FIELDS}
-      onSortChange={onSortChange}
-      data={items}
-      loading={fetching || fetchingUsers}
-      sorting={orderBy}
-      onRowClick={(item) => {
-        replace({ id: item.id })
-      }}
-      rowHref={rowHref}
-      pagination={pagination}
-      onPaginationChange={onPaginationChange}
-      paginationMeta={{
-        totalCount: data?.contacts?.totalCount,
-        pageInfo: data?.contacts?.pageInfo,
-        isLoading: isFetching,
-      }}
-      columnVisibility={columnVisibility}
-      setColumnVisibility={setColumnVisibility}
-      tableKey={tableKey}
-    />
+    <>
+      <DataTable<ContactsNodeNonNull, Contact>
+        columns={columns}
+        sortFields={CONTACTS_SORT_FIELDS}
+        onSortChange={onSortChange}
+        data={items}
+        loading={fetching || fetchingUsers}
+        sorting={orderBy}
+        onRowClick={(item) => {
+          replace({ id: item.id })
+        }}
+        rowHref={rowHref}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        paginationMeta={{
+          totalCount: data?.contacts?.totalCount,
+          pageInfo: data?.contacts?.pageInfo,
+          isLoading: isFetching,
+        }}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
+        tableKey={tableKey}
+        rowDragDrop={rowDragDrop}
+      />
+      {mergeSheet}
+    </>
   )
 }
 

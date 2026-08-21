@@ -33,6 +33,8 @@ const schemaExcludeFields = [
   'sourcePlatformID',
 ] as const
 
+export const getAssetLabel = (record: Pick<Asset, 'id' | 'name' | 'displayName'>) => record.displayName || record.name || record.id
+
 const useFetchAsset = (id: string | null) => {
   const { data, isLoading, error } = useAsset(id ?? undefined)
   return { data: (data?.asset ?? null) as Asset | null, isLoading, error }
@@ -73,7 +75,7 @@ const useSearchAssets = (search: string, excludeId: string) => {
     () =>
       assetsNodes.map((n) => ({
         id: n.id,
-        label: n.displayName || n.name || n.id,
+        label: getAssetLabel(n),
         sublabel: n.identifier ?? undefined,
       })),
     [assetsNodes],
@@ -95,5 +97,5 @@ export const assetMergeConfig: MergeConfig<Asset, UpdateAssetInput, 'Asset'> = {
   useSearchRecords: useSearchAssets,
   toUpdateInput: (resolved) => ({ ...resolved }) as UpdateAssetInput,
   invalidateKeys: [['assets']],
-  getDisplayName: (record) => record.displayName || record.name || record.id,
+  getDisplayName: getAssetLabel,
 }

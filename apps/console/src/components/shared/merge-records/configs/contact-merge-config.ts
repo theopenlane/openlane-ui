@@ -13,6 +13,8 @@ const fieldOverrides: MergeFieldOverrides<Contact> = {
 
 const schemaExcludeFields = ['integrationID'] as const
 
+export const getContactLabel = (record: Pick<Contact, 'id' | 'fullName' | 'email'>) => record.fullName || record.email || record.id
+
 const useFetchContact = (id: string | null) => {
   const { data, isLoading, error } = useContact(id ?? undefined)
   return { data: (data?.contact ?? null) as Contact | null, isLoading, error }
@@ -53,7 +55,7 @@ const useSearchContacts = (search: string, excludeId: string) => {
     () =>
       contactsNodes.map((n) => ({
         id: n.id,
-        label: n.fullName || n.email || n.id,
+        label: getContactLabel(n),
         sublabel: n.email && n.fullName ? n.email : undefined,
       })),
     [contactsNodes],
@@ -74,5 +76,5 @@ export const contactMergeConfig: MergeConfig<Contact, UpdateContactInput, 'Conta
   useSearchRecords: useSearchContacts,
   toUpdateInput: (resolved) => ({ ...resolved }) as UpdateContactInput,
   invalidateKeys: [['contacts']],
-  getDisplayName: (record) => record.fullName || record.email || record.id,
+  getDisplayName: getContactLabel,
 }
