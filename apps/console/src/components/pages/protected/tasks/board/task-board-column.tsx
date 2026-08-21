@@ -41,7 +41,7 @@ const TaskBoardColumn = ({ status, whereFilter, orderByFilter, onHasTasksChange 
   }, [status, hasTasks, onHasTasksChange])
 
   return (
-    <Card className="flex flex-col shrink-0 overflow-hidden bg-secondary w-[300px] h-[calc(100vh-236px)]">
+    <Card className="flex flex-col flex-1 min-w-[300px] overflow-hidden bg-secondary h-[calc(100vh-236px)]">
       <div className={cn('flex items-center gap-2 py-3 border-b shrink-0', COLUMN_PADDING)}>
         <span className={cn('h-2 w-2 rounded-full shrink-0', TaskStatusDotMapper[status])} />
         <span className="font-medium truncate">{getEnumLabel(status)}</span>
