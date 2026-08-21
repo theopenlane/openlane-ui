@@ -3,8 +3,7 @@
 import React from 'react'
 import { BookOpen, SquarePlus } from 'lucide-react'
 import { Button } from '@repo/ui/button'
-import { docsHelpEnabled } from '@repo/dally/ai'
-import { useDocsHelpNavigate } from '@/components/shared/docs-help/docs-help-context'
+import { DocsLink } from '@/components/shared/docs-help/docs-link'
 import { PLATFORM_DOCS_URL } from '@/constants/docs'
 
 type TPlatformsEmptyStateProps = {
@@ -231,26 +230,14 @@ const BoundaryDiagram: React.FC = () => (
 
 const LEARN_MORE_CLASSES = 'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-sm font-medium text-diagram-accent hover:underline underline-offset-4'
 
-/** opens the embedded docs drawer on the platforms topic, falling back to the docs site when docs help is off */
-const LearnMoreLink: React.FC = () => {
-  const navigateDocs = useDocsHelpNavigate()
+const PLATFORMS_TOPIC = { title: 'Platforms', query: 'platforms registry system description trust boundary', prefer: 'platforms' }
 
-  if (!docsHelpEnabled) {
-    return (
-      <a className={LEARN_MORE_CLASSES} href={`${PLATFORM_DOCS_URL}/registry/platforms`} target="_blank" rel="noreferrer">
-        <BookOpen size={14} />
-        Learn more
-      </a>
-    )
-  }
-
-  return (
-    <button type="button" className={LEARN_MORE_CLASSES} onClick={() => navigateDocs({ title: 'Platforms', query: 'platforms registry system description trust boundary', prefer: 'platforms' })}>
-      <BookOpen size={14} />
-      Learn more
-    </button>
-  )
-}
+const LearnMoreLink: React.FC = () => (
+  <DocsLink topic={PLATFORMS_TOPIC} href={`${PLATFORM_DOCS_URL}/registry/platforms`} className={LEARN_MORE_CLASSES}>
+    <BookOpen size={14} />
+    Learn more
+  </DocsLink>
+)
 
 const PlatformsEmptyState: React.FC<TPlatformsEmptyStateProps> = ({ onCreate }) => (
   <div className="flex flex-col gap-6">
