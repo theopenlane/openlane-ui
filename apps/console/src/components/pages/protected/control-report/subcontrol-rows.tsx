@@ -1,21 +1,21 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import Link from 'next/link'
 import { TriangleAlert } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type ControlReportItem, type ControlReportSubcontrolItem } from '@/lib/graphql-hooks/control'
-import { CONTROL_STATUS_STYLES } from '@/components/shared/enum-mapper/control-enum'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Checkbox } from '@repo/ui/checkbox'
+import { cn } from '@repo/ui/lib/utils'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { TruncatedCell } from '@repo/ui/data-table'
 import ControlChip from '../controls/map-controls/shared/control-chip'
+import RefCodeCell from './ref-code-cell'
+import LinkedPolicyChip from './linked-policy-chip'
 import OrgCoverageCell from './org-coverage-cell'
 import EvidenceCoverageCell from './evidence-coverage-cell'
 import ReportShowMore from './report-show-more'
-import { getGridCols } from './control-report-grid'
+import { GRID_ROW_CLASS, getGridCols } from './control-report-grid'
 import { deriveOrgCoverage, getOrgRelatedControls, getFrameworkRelatedControls } from './report-coverage'
 
 type ControlOwner = ControlReportItem['controlOwner']
@@ -35,14 +35,13 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
   const { convertToReadOnly } = usePlateEditor()
   const descriptionNode = useMemo(() => (sub.description ? convertToReadOnly(sub.description, 0) : <span className="italic">No description</span>), [sub.description, convertToReadOnly])
 
-  const subStatusStyle = sub.status ? CONTROL_STATUS_STYLES[sub.status] : null
   const orgCoverage = deriveOrgCoverage(sub.relatedControls)
   const policies = sub.linkedPolicies?.internalPolicies ?? []
   const orgRefs = getOrgRelatedControls(sub.relatedControls)
   const frameworkRefs = getFrameworkRelatedControls(sub.relatedControls)
 
   return (
-    <div className="grid gap-x-3 px-3 py-1.5 items-start border-t border-border/30" style={{ gridTemplateColumns: gridCols }}>
+    <div className={cn(GRID_ROW_CLASS, 'px-3 py-1.5 items-start border-t border-border/30')} style={{ gridTemplateColumns: gridCols }}>
       {isSelectionMode && (
         <div className="flex items-center pt-0.5" onClick={(e) => e.stopPropagation()}>
           <Checkbox checked={selected} onCheckedChange={(v) => onSelect(sub.id, !!v)} aria-label="Select row" />
@@ -51,16 +50,7 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
 
       <div />
 
-      <div style={{ paddingLeft: 18 }}>
-        <Link href={`/controls/${controlId}/${sub.id}`} className="text-brand hover:underline text-xs whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-          {sub.refCode}
-        </Link>
-        {subStatusStyle && (
-          <span className="mt-1 block text-[10px] px-1.5 py-0.5 rounded-full w-fit" style={{ backgroundColor: subStatusStyle.bg, color: subStatusStyle.color }}>
-            {getEnumLabel(sub.status ?? undefined)}
-          </span>
-        )}
-      </div>
+      <RefCodeCell href={`/controls/${controlId}/${sub.id}`} refCode={sub.refCode} status={sub.status} className="pl-[18px] text-xs font-normal" />
 
       <TruncatedCell portal lineClamp={2} className="text-xs text-muted-foreground leading-relaxed">
         {descriptionNode}
@@ -88,12 +78,12 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
       </div>
 
       {!isCustomView && (
-        <div>
+        <div className="overflow-hidden">
           <OrgCoverageCell data={orgCoverage} />
         </div>
       )}
 
-      <div onClick={(e) => e.stopPropagation()}>
+      <div className="overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <EvidenceCoverageCell data={sub.evidenceStatus} primaryControlId={`${controlId}/${sub.id}`} />
       </div>
 
@@ -101,18 +91,11 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
         {policies.length === 0 ? (
           <span className="text-xs italic text-muted-foreground">None linked</span>
         ) : (
-          <ReportShowMore
-            items={policies}
-            renderItem={(p) => (
-              <Link key={p.id} href={`/policies/${p.id}/view`} target="_blank" rel="noopener noreferrer">
-                <span className="inline-block rounded bg-muted px-1.5 py-0.5 text-xs hover:bg-accent cursor-pointer">{p.name}</span>
-              </Link>
-            )}
-          />
+          <ReportShowMore items={policies} renderItem={(p) => <LinkedPolicyChip key={p.id} id={p.id} name={p.name} />} />
         )}
       </div>
 
-      <div className="flex flex-wrap gap-1.5 min-w-0" onClick={(e) => e.stopPropagation()}>
+      <div className="flex flex-wrap gap-1.5 min-w-0 overflow-hidden" onClick={(e) => e.stopPropagation()}>
         {isCustomView ? (
           <ReportShowMore
             items={frameworkRefs}

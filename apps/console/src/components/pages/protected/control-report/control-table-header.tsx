@@ -2,7 +2,8 @@
 
 import React from 'react'
 import { Checkbox } from '@repo/ui/checkbox'
-import { getGridCols } from './control-report-grid'
+import { cn } from '@repo/ui/lib/utils'
+import { GRID_ROW_CLASS, getGridCols } from './control-report-grid'
 
 type ControlTableHeaderProps = {
   isCustomView: boolean
@@ -16,7 +17,7 @@ const ControlTableHeader: React.FC<ControlTableHeaderProps> = ({ isCustomView, i
   const allSelected = allIds.length > 0 && allIds.every((id) => selectedIds.has(id))
   const someSelected = allIds.some((id) => selectedIds.has(id)) && !allSelected
   return (
-    <div className="grid gap-x-3 px-3 py-2 text-xs font-medium text-muted-foreground border-b" style={{ gridTemplateColumns: getGridCols(isCustomView, isSelectionMode) }}>
+    <div className={cn(GRID_ROW_CLASS, 'px-3 py-2 text-xs font-medium text-muted-foreground border-b')} style={{ gridTemplateColumns: getGridCols(isCustomView, isSelectionMode) }}>
       {isSelectionMode && (
         <div className="flex items-center">
           <Checkbox checked={allSelected ? true : someSelected ? 'indeterminate' : false} onCheckedChange={(v) => onSelectAll(v ? allIds : [])} aria-label="Select all" />

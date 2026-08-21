@@ -1,21 +1,21 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import Link from 'next/link'
 import { ChevronRight, TriangleAlert } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type ControlReportItem } from '@/lib/graphql-hooks/control'
-import { CONTROL_STATUS_STYLES } from '@/components/shared/enum-mapper/control-enum'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Checkbox } from '@repo/ui/checkbox'
+import { cn } from '@repo/ui/lib/utils'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { TruncatedCell } from '@repo/ui/data-table'
 import ControlChip from '../controls/map-controls/shared/control-chip'
+import RefCodeCell from './ref-code-cell'
+import LinkedPolicyChip from './linked-policy-chip'
 import OrgCoverageCell from './org-coverage-cell'
 import EvidenceCoverageCell from './evidence-coverage-cell'
 import ReportShowMore from './report-show-more'
-import { getGridCols } from './control-report-grid'
+import { GRID_ROW_CLASS, getGridCols } from './control-report-grid'
 import { deriveOrgCoverage, getOrgRelatedControls, getFrameworkRelatedControls } from './report-coverage'
 
 type ControlRowProps = {
@@ -38,14 +38,18 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
   )
 
   const orgCoverage = deriveOrgCoverage(control.relatedControls)
-  const controlStatusStyle = control.status ? CONTROL_STATUS_STYLES[control.status] : null
   const linkedPolicies = control.linkedPolicies?.internalPolicies ?? []
   const orgRefs = getOrgRelatedControls(control.relatedControls)
   const frameworkRefs = getFrameworkRelatedControls(control.relatedControls)
 
   return (
     <div
-      className={`grid gap-x-3 px-3 py-2.5 items-start border-b last:border-b-0 transition-colors ${expanded ? 'bg-background-secondary' : 'hover:bg-muted/30'} ${hasSubcontrols ? 'cursor-pointer' : ''}`}
+      className={cn(
+        GRID_ROW_CLASS,
+        'px-3 py-2.5 items-start border-b last:border-b-0 transition-colors',
+        expanded ? 'bg-background-secondary' : 'hover:bg-muted/30',
+        hasSubcontrols && 'cursor-pointer',
+      )}
       style={{ gridTemplateColumns: gridCols }}
       onClick={hasSubcontrols ? () => onToggle(control.id) : undefined}
     >
@@ -59,16 +63,7 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
         {hasSubcontrols && <ChevronRight size={13} className={`text-muted-foreground transition-transform duration-150 ${expanded ? 'rotate-90' : ''}`} />}
       </div>
 
-      <div onClick={(e) => e.stopPropagation()}>
-        <Link href={`/controls/${control.id}`} className="text-brand hover:underline font-medium text-sm whitespace-nowrap">
-          {control.refCode}
-        </Link>
-        {controlStatusStyle && (
-          <span className="mt-1 block text-[10px] px-1.5 py-0.5 rounded-full w-fit" style={{ backgroundColor: controlStatusStyle.bg, color: controlStatusStyle.color }}>
-            {getEnumLabel(control.status ?? undefined)}
-          </span>
-        )}
-      </div>
+      <RefCodeCell href={`/controls/${control.id}`} refCode={control.refCode} status={control.status} />
 
       <TruncatedCell portal lineClamp={2} className="text-sm leading-relaxed text-foreground">
         {descriptionNode}
@@ -96,12 +91,12 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
       </div>
 
       {!isCustomView && (
-        <div>
+        <div className="overflow-hidden">
           <OrgCoverageCell data={orgCoverage} />
         </div>
       )}
 
-      <div onClick={(e) => e.stopPropagation()}>
+      <div className="overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <EvidenceCoverageCell data={control.evidenceStatus} primaryControlId={control.id} />
       </div>
 
@@ -109,26 +104,19 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
         {linkedPolicies.length === 0 ? (
           <span className="text-xs italic text-muted-foreground">None linked</span>
         ) : (
-          <ReportShowMore
-            items={linkedPolicies}
-            renderItem={(p) => (
-              <Link key={p.id} href={`/policies/${p.id}/view`} target="_blank" rel="noopener noreferrer">
-                <span className="inline-block rounded bg-muted px-1.5 py-0.5 text-xs hover:bg-accent cursor-pointer">{p.name}</span>
-              </Link>
-            )}
-          />
+          <ReportShowMore items={linkedPolicies} renderItem={(p) => <LinkedPolicyChip key={p.id} id={p.id} name={p.name} />} />
         )}
       </div>
 
       {isCustomView ? (
-        <div className="flex flex-wrap gap-1.5 min-w-0" onClick={(e) => e.stopPropagation()}>
+        <div className="flex flex-wrap gap-1.5 min-w-0 overflow-hidden" onClick={(e) => e.stopPropagation()}>
           <ReportShowMore
             items={frameworkRefs}
             renderItem={(ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode, referenceFramework: ref.referenceFramework }} hideStandard />}
           />
         </div>
       ) : (
-        <div className="flex flex-wrap gap-1.5 min-w-0" onClick={(e) => e.stopPropagation()}>
+        <div className="flex flex-wrap gap-1.5 min-w-0 overflow-hidden" onClick={(e) => e.stopPropagation()}>
           <ReportShowMore items={orgRefs} renderItem={(ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode }} hideStandard hideHexagon />} />
         </div>
       )}
