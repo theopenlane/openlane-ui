@@ -10,10 +10,12 @@ import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useSession } from 'next-auth/react'
 import MembersInviteSheet from '@/components/pages/protected/user-management/members/sidebar/members-invite-sheet'
+import { useOrgMemberPermissions } from '@/lib/authz/use-org-member-permissions'
 
-export default function TeamSetupStep() {
+const TeamSetupStep = () => {
   const [showInviteForm, setShowInviteForm] = useState(false)
   const { data } = useSession()
+  const { canInvite } = useOrgMemberPermissions()
   const { groupOptions } = useGroupSelect()
   const whereNotCurrentUser = { not: { userID: data?.user?.userId } }
   const { userOptions } = useUserSelect({ where: whereNotCurrentUser })
@@ -25,7 +27,7 @@ export default function TeamSetupStep() {
           <h2 className="text-lg font-medium">Team setup</h2>
           <p className="text-sm text-muted-foreground">Want to invite team members now?</p>
         </div>
-        {showInviteForm && (
+        {canInvite && showInviteForm && (
           <>
             <Button type="button" variant="secondary" size="md" iconPosition="left" onClick={() => setIsMemberSheetOpen(true)}>
               Invite member
@@ -74,6 +76,8 @@ export default function TeamSetupStep() {
     </div>
   )
 }
+
+export default TeamSetupStep
 
 type AddSelectDropdownProps = {
   fieldName: string

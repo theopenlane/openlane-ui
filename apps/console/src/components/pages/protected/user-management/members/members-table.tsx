@@ -26,8 +26,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDateSince } from '@/utils/date'
 import { UserRoleIconMapper } from '@/components/shared/enum-mapper/user-role-enum'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
+import { useOrgMemberPermissions } from '@/lib/authz/use-org-member-permissions'
 import MembersTableToolbar from '@/components/pages/protected/user-management/members/members-table-toolbar.tsx'
 import { MEMBERS_SORT_FIELDS } from './table/table-config'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
@@ -103,8 +102,7 @@ export const MembersTable = () => {
 
   const { members, error, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
 
-  const { data: orgRoles } = useOrganizationRoles()
-  const canEditMembers = canEdit(orgRoles?.roles, sessionData)
+  const { canManageMembers } = useOrgMemberPermissions()
   const currentUserId = sessionData?.user?.userId
 
   const isMemberSelectable = useCallback((member: OrgMembership) => !!currentUserId && member.user?.id !== currentUserId, [currentUserId])
@@ -208,8 +206,25 @@ export const MembersTable = () => {
     maxSize: 140,
   }
 
+  const actionsColumn: ColumnDef<OrgMembership> = {
+    id: 'actions',
+    header: '',
+    cell: ({ cell }) => (
+      <MemberActions
+        memberName={cell.row.original.user?.displayName}
+        memberId={cell.row.original.id}
+        memberUserId={cell.row.original.user?.id}
+        memberRole={cell.row.original.role}
+        additionalRoles={cell.row.original.additionalRoles}
+        memberSSOExempt={cell.row.original.ssoExempt ?? false}
+        memberTFAEnforced={cell.row.original.tfaEnforced ?? false}
+      />
+    ),
+    size: 80,
+  }
+
   const columns: ColumnDef<OrgMembership>[] = [
-    ...(canEditMembers ? [selectColumn] : []),
+    ...(canManageMembers ? [selectColumn] : []),
     {
       accessorKey: 'user.displayName',
       header: 'Name',
@@ -293,24 +308,7 @@ export const MembersTable = () => {
     },
     ...(ssoEnforced ? [ssoColumn] : []),
     tfaColumn,
-    {
-      id: 'actions',
-      header: '',
-      cell: ({ cell }) => {
-        return (
-          <MemberActions
-            memberName={cell.row.original.user?.displayName}
-            memberId={cell.row.original.id}
-            memberUserId={cell.row.original.user?.id}
-            memberRole={cell.row.original.role}
-            additionalRoles={cell.row.original.additionalRoles}
-            memberSSOExempt={cell.row.original.ssoExempt ?? false}
-            memberTFAEnforced={cell.row.original.tfaEnforced ?? false}
-          />
-        )
-      },
-      size: 80,
-    },
+    ...(canManageMembers ? [actionsColumn] : []),
   ]
 
   return (
@@ -325,10 +323,10 @@ export const MembersTable = () => {
               setSearchTerm(inputVal)
               resetPagination()
             }}
-            hideFilter={canEditMembers && selectedMembers.length > 0}
+            hideFilter={canManageMembers && selectedMembers.length > 0}
           />
         </div>
-        {canEditMembers && selectedMembers.length > 0 && <MembersBulkActions selectedMembers={selectedMembers} onClear={() => setSelectedIds([])} />}
+        {canManageMembers && selectedMembers.length > 0 && <MembersBulkActions selectedMembers={selectedMembers} onClear={() => setSelectedIds([])} />}
       </div>
 
       <DataTable

@@ -26,21 +26,18 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { groupTableForInvitesColumns } from '../table/columns'
 import { type VisibilityState } from '@tanstack/react-table'
-import { hasPermission, canEdit } from '@/lib/authz/utils.ts'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { toHumanLabel } from '@/utils/strings'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useOrgMemberPermissions } from '@/lib/authz/use-org-member-permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { RoleInfoSlideOut } from '@/components/shared/role-info-slide-out/role-info-slide-out'
 import { SuperAdminRoleWarning } from '@/components/shared/organization-roles/super-admin-role-warning'
 import useMembersInviteFormSchema, { type MembersInviteFormData } from './use-members-invite-form-schema'
 import { MultiEmailInput } from './multi-email-input'
-import { useSession } from 'next-auth/react'
 
 type TMembersInviteSheet = {
   isMemberSheetOpen: boolean
@@ -56,15 +53,11 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.MEMBERS_INVITE_SHEET)
   const [selectedGroups, setSelectedGroups] = useState<AllGroupsPaginatedFieldsFragment[]>([])
   const [isEmailInputValid, setIsEmailInputValid] = useState(true)
-  const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()
-  const { data: session } = useSession()
+  const { canManageMembers, canInviteAdmins, canInviteMembers, isLoading: isLoadingPermission } = useOrgMemberPermissions()
   const columnVisibility = useMemo<VisibilityState>(() => {
-    if (isLoadingPermission) return { check: true }
-    return { check: canEdit(permission?.roles, session) }
-  }, [isLoadingPermission, permission, session])
-
-  const canInviteAdmins = hasPermission(permission?.roles, AccessEnum.CanInviteAdmins, session)
-  const canInviteMembers = hasPermission(permission?.roles, AccessEnum.CanInviteMembers, session)
+    const hiddenGroupPicker: VisibilityState = { check: false }
+    return isLoadingPermission || canManageMembers ? {} : hiddenGroupPicker
+  }, [isLoadingPermission, canManageMembers])
 
   const [orderBy, setOrderBy] = useState<GetAllGroupsPaginatedQueryVariables['orderBy']>([
     {

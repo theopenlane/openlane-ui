@@ -7,14 +7,8 @@ import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { type WizardValues } from '../advanced-setup-wizard-config'
 import { useSession } from 'next-auth/react'
-import MembersInviteSheet from '@/components/pages/protected/user-management/members/sidebar/members-invite-sheet'
 
-type AdvancedSetupStep4Props = {
-  isMemberSheetOpen: boolean
-  setIsMemberSheetOpen: React.Dispatch<React.SetStateAction<boolean>>
-}
-
-const AdvancedSetupStep4: React.FC<AdvancedSetupStep4Props> = ({ isMemberSheetOpen, setIsMemberSheetOpen }: AdvancedSetupStep4Props) => {
+const AdvancedSetupStep4 = () => {
   const { control } = useFormContext<WizardValues>()
   const { data } = useSession()
   const { groups, groupOptions } = useGroupSelect()
@@ -28,7 +22,6 @@ const AdvancedSetupStep4: React.FC<AdvancedSetupStep4Props> = ({ isMemberSheetOp
         <h2 className="text-lg font-medium">Add Team Members</h2>
         <p className="text-sm text-muted-foreground">Assign program admins and members, or bring in groups with edit or view access. This keeps ownership clear and collaboration easy.</p>
       </div>
-      <MembersInviteSheet isMemberSheetOpen={isMemberSheetOpen} setIsMemberSheetOpen={setIsMemberSheetOpen} />
       {/* Tips card */}
       <div className="p-4 rounded-md border border-tip-border bg-tip-background">
         <div className="flex gap-2 items-start mb-3">

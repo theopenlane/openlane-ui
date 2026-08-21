@@ -14,6 +14,7 @@ import { pageStyles } from '../page.styles'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useNotification } from '@/hooks/useNotification'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { useOrgMemberPermissions } from '@/lib/authz/use-org-member-permissions'
 
 export type InviteNode = {
   __typename?: 'Invite' | undefined
@@ -35,6 +36,7 @@ export const InvitesColumns = () => {
   const { copyIcon, nameRow } = pageStyles()
   const [, copyToClipboard] = useCopyToClipboard()
   const { successNotification } = useNotification()
+  const { canInvite } = useOrgMemberPermissions()
 
   const handleCopy = (text: string) => {
     copyToClipboard(text)
@@ -42,6 +44,14 @@ export const InvitesColumns = () => {
       title: 'Copied to clipboard',
       variant: 'success',
     })
+  }
+
+  const actionsColumn: ColumnDef<InviteNode> = {
+    id: 'actions',
+    header: '',
+    cell: ({ row }) => <InviteActions inviteId={row.original.id} recipient={row.original.recipient} role={row.original.role} />,
+    minSize: 90,
+    size: 90,
   }
 
   const columns: ColumnDef<InviteNode>[] = [
@@ -106,16 +116,7 @@ export const InvitesColumns = () => {
       minSize: 180,
       size: 180,
     },
-    {
-      id: 'actions',
-      header: '',
-      cell: ({ row }) => {
-        const invite = row.original
-        return <InviteActions inviteId={invite.id} recipient={invite.recipient} role={invite.role} />
-      },
-      minSize: 90,
-      size: 90,
-    },
+    ...(canInvite ? [actionsColumn] : []),
   ]
 
   return { columns }

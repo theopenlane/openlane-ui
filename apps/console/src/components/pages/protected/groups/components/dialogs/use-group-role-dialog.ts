@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useGetGroupDetails } from '@/lib/graphql-hooks/group'
-import { canEdit } from '@/lib/authz/utils'
+import { canEdit, isImpersonation } from '@/lib/authz/utils'
 import { useSession } from 'next-auth/react'
 
 export const useGroupRoleDialog = () => {
@@ -21,6 +21,6 @@ export const useGroupRoleDialog = () => {
     selectedGroup,
     groupName: groupName ?? undefined,
     currentRoleNames: data?.group?.additionalRoles ?? [],
-    disabled: !!isManaged || !canEdit(orgPermission?.roles, session),
+    disabled: !!isManaged || isImpersonation(session) || !canEdit(orgPermission?.roles, session),
   }
 }

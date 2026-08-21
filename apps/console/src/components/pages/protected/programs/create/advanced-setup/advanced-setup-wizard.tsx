@@ -35,6 +35,8 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import SelectCategoryStep from '../shared/steps/select-category-step'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { PROGRAM_KIND } from '../shared/program-kind'
+import { useOrgMemberPermissions } from '@/lib/authz/use-org-member-permissions'
+import MembersInviteSheet from '@/components/pages/protected/user-management/members/sidebar/members-invite-sheet'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -51,6 +53,7 @@ const AdvancedSetupWizard = () => {
   const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [isMemberSheetOpen, setIsMemberSheetOpen] = useState(false)
+  const { canInvite } = useOrgMemberPermissions()
 
   const { useStepper } = defineStepper([
     { id: '0', label: 'Select a Program Type', schema: step1Schema },
@@ -226,7 +229,7 @@ const AdvancedSetupWizard = () => {
                 1: () => <AdvancedSetupStep2 defaultFramework={defaultFrameworks[0]} />,
                 2: () => <SelectCategoryStep />,
                 3: () => <AdvancedSetupStep3 />,
-                4: () => <AdvancedSetupStep4 isMemberSheetOpen={isMemberSheetOpen} setIsMemberSheetOpen={setIsMemberSheetOpen} />,
+                4: () => <AdvancedSetupStep4 />,
                 5: () => <AdvancedSetupStep5 />,
               })}
 
@@ -240,12 +243,15 @@ const AdvancedSetupWizard = () => {
               </div>
             </div>
             <div className="flex flex-col items-center">
-              {stepper.current.id === '4' && (
-                <div className="w-full flex justify-end">
-                  <Button variant="secondary" type="button" onClick={() => setIsMemberSheetOpen(true)} iconPosition="left">
-                    Invite member
-                  </Button>
-                </div>
+              {stepper.current.id === '4' && canInvite && (
+                <>
+                  <div className="w-full flex justify-end">
+                    <Button variant="secondary" type="button" onClick={() => setIsMemberSheetOpen(true)} iconPosition="left">
+                      Invite member
+                    </Button>
+                  </div>
+                  <MembersInviteSheet isMemberSheetOpen={isMemberSheetOpen} setIsMemberSheetOpen={setIsMemberSheetOpen} />
+                </>
               )}
               <AdvancedSetupFormSummary summaryData={summaryData} />
             </div>
