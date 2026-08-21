@@ -1,8 +1,7 @@
-import { CirclePlus, Cog, FilePlus, Folder, FolderCheck, FolderClock, FolderInput, FolderOutput } from 'lucide-react'
+import { Cog, Folder, FolderCheck, FolderClock, FolderInput, FolderOutput } from 'lucide-react'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema.ts'
 import React from 'react'
 import Link from 'next/link'
-import { Button } from '@repo/ui/button'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const ProgramIconMapper: Record<ProgramProgramStatus, React.ReactNode> = {
@@ -28,20 +27,6 @@ export const ProgramStatusFilterOptions = Object.entries(ProgramProgramStatus).m
     .replace(/\b\w/g, (c) => c.toUpperCase()),
   value,
 }))
-
-export const ProgramCreateIconBtn = (
-  <div className="flex items-center space-x-2">
-    <CirclePlus size={16} strokeWidth={2} />
-    <span>Program</span>
-  </div>
-)
-
-export const ProgramCreatePrefixIconBtn = (
-  <Button size="sm" variant="transparent" className="flex items-center space-x-2 justify-start">
-    <FilePlus size={16} strokeWidth={2} />
-    <span>Create Program</span>
-  </Button>
-)
 
 export const ProgramSettingsIconBtn = ({ programId }: { programId: string }) => (
   <Link className="flex" href={`/programs/${programId}/settings`}>

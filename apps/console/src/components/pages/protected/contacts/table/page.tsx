@@ -16,6 +16,7 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { MergeHeaderButton } from '@/components/shared/merge-records/merge-menu-item'
 import { contactMergeConfig } from '@/components/shared/merge-records/configs/contact-merge-config'
 import { useCanEditObject } from '@/components/shared/crud-base/use-object-permission'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
 
 const ContactPage: React.FC = () => {
@@ -123,6 +124,7 @@ const ContactPage: React.FC = () => {
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
+    createPermission: AccessEnum.CanCreateContact,
   }
 
   return <GenericTablePage {...tableConfig} />
