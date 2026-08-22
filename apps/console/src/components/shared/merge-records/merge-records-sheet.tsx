@@ -79,7 +79,7 @@ export const MergeRecordsSheet = <TRecord extends object, TUpdateInput, TEntity 
     primaryId,
     update,
     del,
-    readLatestAddInput: edgeTransfer.readLatestAddInput,
+    readLatestEdgeInputs: edgeTransfer.readLatestEdgeInputs,
     onFinished: () => {
       handleReset()
       onMergeComplete?.()

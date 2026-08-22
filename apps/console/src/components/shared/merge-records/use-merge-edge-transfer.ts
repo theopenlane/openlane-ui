@@ -10,14 +10,23 @@ import type { MergeEdgeTransferCount } from './types'
 
 export type MergeAddKeysFor<TEntity extends MergeableTypeName> = (typeof MERGEABLE_EDGES_BY_TYPE)[TEntity][number]['addKey']
 
+export type MergeRemoveKeysFor<TEntity extends MergeableTypeName> = Exclude<(typeof MERGEABLE_EDGES_BY_TYPE)[TEntity][number]['removeKey'], null>
+
 export type MergeEdgeAddInput<TEntity extends MergeableTypeName> = Partial<Record<MergeAddKeysFor<TEntity>, string[]>>
+
+export type MergeEdgeRemoveInput<TEntity extends MergeableTypeName> = Partial<Record<MergeRemoveKeysFor<TEntity>, string[]>>
+
+export type MergeEdgeInputs<TEntity extends MergeableTypeName> = {
+  addInput: MergeEdgeAddInput<TEntity>
+  removeInput: MergeEdgeRemoveInput<TEntity>
+}
 
 export type MergeEdgeTransferResult<TEntity extends MergeableTypeName> = {
   counts: MergeEdgeTransferCount[]
   isLoading: boolean
   error: unknown
   hasAclEdges: boolean
-  readLatestAddInput: () => Promise<MergeEdgeAddInput<TEntity>>
+  readLatestEdgeInputs: () => Promise<MergeEdgeInputs<TEntity>>
 }
 
 type Args<TEntity extends MergeableTypeName> = {
@@ -57,29 +66,31 @@ export const useMergeEdgeTransfer = <TEntity extends MergeableTypeName>({ entity
     refetchOnMount: 'always',
   })
 
-  const toAddInput = useCallback(
+  const toEdgeInputs = useCallback(
     (edgeIds: Map<string, string[]>) => {
       const addInput: Record<string, string[]> = {}
+      const removeInput: Record<string, string[]> = {}
       const counts: MergeEdgeTransferCount[] = []
 
       for (const descriptor of transferableEdges) {
         const ids = (edgeIds.get(descriptor.name) ?? []).filter((id) => id !== primaryId)
         if (ids.length === 0) continue
         addInput[descriptor.addKey] = ids
+        if (descriptor.removeKey) removeInput[descriptor.removeKey] = ids
         counts.push({ key: descriptor.name, label: humanizeKey(descriptor.name), count: ids.length })
       }
 
-      return { addInput: addInput as MergeEdgeAddInput<TEntity>, counts }
+      return { addInput: addInput as MergeEdgeAddInput<TEntity>, removeInput: removeInput as MergeEdgeRemoveInput<TEntity>, counts }
     },
     [primaryId, transferableEdges],
   )
 
-  const counts = useMemo(() => (data ? toAddInput(data).counts : []), [data, toAddInput])
+  const counts = useMemo(() => (data ? toEdgeInputs(data).counts : []), [data, toEdgeInputs])
 
-  const readLatestAddInput = useCallback(
-    async () => toAddInput(await queryClient.fetchQuery({ queryKey, queryFn: readEdgeIds, staleTime: 0, gcTime: 0 })).addInput,
-    [queryClient, queryKey, readEdgeIds, toAddInput],
-  )
+  const readLatestEdgeInputs = useCallback(async () => {
+    const { addInput, removeInput } = toEdgeInputs(await queryClient.fetchQuery({ queryKey, queryFn: readEdgeIds, staleTime: 0, gcTime: 0 }))
+    return { addInput, removeInput }
+  }, [queryClient, queryKey, readEdgeIds, toEdgeInputs])
 
   const unreadableType = secondaryId !== null && queryField === null
 
@@ -88,6 +99,6 @@ export const useMergeEdgeTransfer = <TEntity extends MergeableTypeName>({ entity
     isLoading: secondaryId !== null && !unreadableType && edgeNames.length > 0 && (isFetching || isPlaceholderData),
     error: unreadableType ? new Error(`Linked records cannot be read for ${entityType}.`) : error,
     hasAclEdges: allEdges.some((descriptor) => descriptor.acl),
-    readLatestAddInput,
+    readLatestEdgeInputs,
   }
 }
