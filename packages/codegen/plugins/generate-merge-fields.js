@@ -19,6 +19,7 @@
 
 const fs = require('fs')
 const path = require('path')
+const { pluralizeTypeName } = require('./lib')
 
 const introspectionPath = path.join(__dirname, '..', 'src', 'introspectionschema.json')
 const mergeFieldsOutputPath = path.join(__dirname, '..', 'src', 'merge-fields.generated.ts')
@@ -173,6 +174,83 @@ for (const type of schema.types) {
 
 typeNames.sort()
 
+const typeByName = new Map(schema.types.map((t) => [t.name, t]))
+
+const connectionTypeNames = new Set()
+for (const type of schema.types) {
+  if (type.kind === 'OBJECT' && Array.isArray(type.fields) && type.fields.some((f) => f.name === 'edges')) connectionTypeNames.add(type.name)
+}
+
+const lowerLeadingAcronym = (name) => name.replace(/^([A-Z]+)(?=[A-Z][a-z]|$)/, (run) => run.toLowerCase())
+
+const pluralCandidates = (singular) => {
+  const acronymAware = lowerLeadingAcronym(singular)
+  const base = singular.charAt(0).toLowerCase() + singular.slice(1)
+  return [...new Set([pluralizeTypeName(singular), pluralizeTypeName(acronymAware), acronymAware, base + 's', base, base.replace(/y$/, 'ies')])]
+}
+
+const PERMISSION_EDGE_NAMES = new Set(['groups', 'editors', 'viewers', 'blockedGroups'])
+const PERMISSION_EDGE_SUFFIX = /(?:Editors|Viewers|BlockedGroups|Creators|Manager)$/
+
+const grantsPermissions = (connectionName) => PERMISSION_EDGE_NAMES.has(connectionName) || PERMISSION_EDGE_SUFFIX.test(connectionName)
+
+const queryType = typeByName.get(schema.queryType ? schema.queryType.name : 'Query')
+const queryFieldByTypeName = new Map()
+if (queryType && Array.isArray(queryType.fields)) {
+  for (const field of queryType.fields) {
+    if (!Array.isArray(field.args) || field.args.length !== 1 || field.args[0].name !== 'id') continue
+    const { leafKind, leafName } = unwrapType(field.type)
+    if (leafKind !== 'OBJECT' || queryFieldByTypeName.has(leafName)) continue
+    queryFieldByTypeName.set(leafName, field.name)
+  }
+}
+
+const edgesByType = {}
+const unpairedAddKeys = []
+const ambiguousPairs = []
+
+for (const typeName of typeNames) {
+  const type = typeByName.get(typeName)
+  const writableFields = writableFieldsByInputName.get(`Update${typeName}Input`)
+
+  const connectionFields = new Map()
+  for (const field of type.fields) {
+    const { leafKind, leafName } = unwrapType(field.type)
+    if (leafKind !== 'OBJECT' || !connectionTypeNames.has(leafName)) continue
+    connectionFields.set(field.name, leafName)
+  }
+
+  const descriptors = []
+  for (const addKey of writableFields) {
+    const match = /^add(.+)IDs$/.exec(addKey)
+    if (!match) continue
+
+    const candidates = pluralCandidates(match[1]).filter((candidate) => connectionFields.has(candidate))
+    if (candidates.length === 0) {
+      unpairedAddKeys.push(`${typeName}.${addKey}`)
+      continue
+    }
+
+    const expectedConnectionType = `${match[1]}Connection`
+    const byNodeType = candidates.find((candidate) => connectionFields.get(candidate) === expectedConnectionType)
+    const connectionName = byNodeType ?? candidates[0]
+    if (candidates.length > 1 && !byNodeType) ambiguousPairs.push(`${typeName}.${addKey} → ${candidates.join('|')}`)
+
+    const duplicate = descriptors.find((descriptor) => descriptor.name === connectionName)
+    if (duplicate) {
+      throw new Error(
+        `[generate-merge-fields] ${typeName}.${addKey} and ${typeName}.${duplicate.addKey} both resolve to the connection field '${connectionName}'; the pairing heuristic needs a tie-breaker.`,
+      )
+    }
+
+    const removeKey = `remove${match[1]}IDs`
+    descriptors.push({ name: connectionName, addKey, removeKey: writableFields.has(removeKey) ? removeKey : null, acl: grantsPermissions(connectionName) })
+  }
+
+  descriptors.sort((a, b) => a.name.localeCompare(b.name))
+  edgesByType[typeName] = descriptors
+}
+
 // ─── schema-enums.generated.ts ────────────────────────────────────────────────
 
 const enumsLines = []
@@ -270,10 +348,52 @@ lines.push('} as const satisfies Record<MergeableTypeName, readonly MergeFieldDe
 lines.push('')
 lines.push("export type MergeableFieldNamesFor<T extends MergeableTypeName> = (typeof MERGEABLE_FIELDS_BY_TYPE)[T][number]['name']")
 lines.push('')
+lines.push('export type MergeEdgeDescriptor = {')
+lines.push('  readonly name: string')
+lines.push('  readonly addKey: string')
+lines.push('  readonly removeKey: string | null')
+lines.push('  readonly acl: boolean')
+lines.push('}')
+lines.push('')
+lines.push('export const MERGEABLE_EDGES_BY_TYPE = {')
+for (const typeName of typeNames) {
+  const descriptors = edgesByType[typeName]
+  if (descriptors.length === 0) {
+    lines.push(`  ${JSON.stringify(typeName)}: [],`)
+    continue
+  }
+  lines.push(`  ${JSON.stringify(typeName)}: [`)
+  for (const d of descriptors) {
+    lines.push(`    { name: ${JSON.stringify(d.name)}, addKey: ${JSON.stringify(d.addKey)}, removeKey: ${JSON.stringify(d.removeKey)}, acl: ${d.acl} },`)
+  }
+  lines.push('  ],')
+}
+lines.push('} as const satisfies Record<MergeableTypeName, readonly MergeEdgeDescriptor[]>')
+lines.push('')
+lines.push("export type MergeableEdgeNamesFor<T extends MergeableTypeName> = (typeof MERGEABLE_EDGES_BY_TYPE)[T][number]['name']")
+lines.push('')
+lines.push('export const SINGLE_RECORD_QUERY_FIELD_BY_TYPE = {')
+for (const typeName of typeNames) {
+  const queryField = queryFieldByTypeName.get(typeName) || null
+  lines.push(`  ${JSON.stringify(typeName)}: ${queryField ? JSON.stringify(queryField) : 'null'},`)
+}
+lines.push('} as const satisfies Record<MergeableTypeName, string | null>')
+lines.push('')
 
 fs.writeFileSync(mergeFieldsOutputPath, lines.join('\n'))
+
+if (unpairedAddKeys.length > 0) {
+  console.warn(
+    `[generate-merge-fields] ${unpairedAddKeys.length} add*IDs input field(s) have no readable connection field and cannot be transferred on merge (e.g. ${unpairedAddKeys.sort().slice(0, 3).join(', ')}).`,
+  )
+}
+
+if (ambiguousPairs.length > 0) {
+  console.warn(`[generate-merge-fields] ${ambiguousPairs.length} add*IDs field(s) matched several connection fields with no node-type agreement: ${ambiguousPairs.sort().join(', ')}.`)
+}
 
 if (unknownScalars.size > 0) {
   console.warn(`[generate-merge-fields] Unknown scalar(s) defaulted to 'string': ${[...unknownScalars].sort().join(', ')}. ` + 'Add a mapping in SCALAR_KIND_BY_NAME if a more specific kind applies.')
 }
-console.log(`Generated merge-fields.generated.ts (${typeNames.length} types) and schema-enums.generated.ts (${enumNames.length} enums)`)
+const edgeCount = typeNames.reduce((total, name) => total + edgesByType[name].length, 0)
+console.log(`Generated merge-fields.generated.ts (${typeNames.length} types, ${edgeCount} edges) and schema-enums.generated.ts (${enumNames.length} enums)`)

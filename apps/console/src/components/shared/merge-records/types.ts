@@ -1,5 +1,5 @@
 import type React from 'react'
-import type { MergeableFieldNamesFor, MergeableTypeName } from '@repo/codegen/src/merge-fields.generated'
+import type { MergeableEdgeNamesFor, MergeableFieldNamesFor, MergeableTypeName } from '@repo/codegen/src/merge-fields.generated'
 
 export type MergeSource = 'primary' | 'secondary'
 
@@ -53,14 +53,14 @@ export type MergeEmailAliasFoldConfig<TRecord> = {
 }
 
 export type MergeEdgeTransferCount = {
+  key: string
   label: string
   count: number
 }
 
 export type MergePreSaveExtrasResult<TUpdateInput> = {
-  data: Partial<TUpdateInput> | null
+  data: Partial<TUpdateInput>
   counts: MergeEdgeTransferCount[]
-  isLoading: boolean
 }
 
 export type MergeConfig<TRecord, TUpdateInput, TEntity extends MergeableTypeName = MergeableTypeName> = {
@@ -70,6 +70,7 @@ export type MergeConfig<TRecord, TUpdateInput, TEntity extends MergeableTypeName
   fieldOverrides?: MergeFieldOverrides<TRecord>
   excludeFields?: ReadonlyArray<Extract<keyof TRecord, string>>
   schemaExcludeFields?: ReadonlyArray<MergeableFieldNamesFor<TEntity>>
+  excludeEdges?: ReadonlyArray<MergeableEdgeNamesFor<TEntity>>
   useFetchRecord: (id: string | null) => MergeFetchHookResult<TRecord>
   useUpdate: () => MergeUpdateMutation<TUpdateInput>
   useDelete: () => MergeDeleteMutation
@@ -78,6 +79,6 @@ export type MergeConfig<TRecord, TUpdateInput, TEntity extends MergeableTypeName
   invalidateKeys?: unknown[][]
   getDisplayName?: (record: TRecord) => string
   emailAliasFold?: MergeEmailAliasFoldConfig<TRecord>
-  usePreSaveInputExtras?: (args: { primaryId: string; secondaryId: string | null; primary: TRecord | null | undefined }) => MergePreSaveExtrasResult<TUpdateInput>
+  preSaveInputExtras?: (args: { primary: TRecord; secondary: TRecord }) => MergePreSaveExtrasResult<TUpdateInput>
   deleteSecondaryFirst?: boolean
 }
