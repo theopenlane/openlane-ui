@@ -2,8 +2,8 @@
 
 import React, { useCallback, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowDownUp, ArrowUpDown, X } from 'lucide-react'
-import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
+import { ArrowDownUp, ArrowUpDown } from 'lucide-react'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { useDeleteNote, useGetControlComments, useUpdateControl, useUpdateControlComment } from '@/lib/graphql-hooks/control'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useNotification } from '@/hooks/useNotification'
@@ -15,6 +15,7 @@ import { resolveAuthor } from '@/lib/authors'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import type { TComments } from '@/components/shared/comments/types/TComments'
 import type { TCommentData } from '@/components/shared/comments/types/TCommentData'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 
 type RequestInfoSheetProps = {
   controlId: string | null
@@ -109,17 +110,7 @@ const RequestInfoSheet: React.FC<RequestInfoSheetProps> = ({ controlId, refCode,
       <SheetContent
         minWidth={480}
         className="flex flex-col"
-        header={
-          <SheetHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-2xl leading-8 font-medium">Request Info</span>
-                {refCode && <span className="text-sm text-muted-foreground">{refCode}</span>}
-              </div>
-              <X aria-label="Close request info sheet" size={20} className="cursor-pointer" onClick={onClose} />
-            </div>
-          </SheetHeader>
-        }
+        header={<SlideoutHeader title="Request Info" aboveTitle={refCode ? <span className="text-sm text-muted-foreground">{refCode}</span> : undefined} onClose={onClose} />}
       >
         <p className="text-sm text-muted-foreground mb-4">Leave a comment on this control to request information from its owner.</p>
         <div className="flex justify-between items-end mb-2">

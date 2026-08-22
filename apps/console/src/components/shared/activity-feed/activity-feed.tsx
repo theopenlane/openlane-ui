@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { formatDate } from '@/utils/date'
 import { Shield } from 'lucide-react'
 import Link from 'next/link'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetTrigger } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { ACTIVITY_FEED_PREVIEW_LIMIT, ActivityFeedCard, ActivityFeedRowsSkeleton, DEFAULT_ACTIVITY_FEED_TITLE } from './activity-feed-card'
 import ViewVulnerabilitySheet from '@/components/pages/protected/vulnerabilities/view-vulnerability-sheet'
@@ -16,6 +16,7 @@ import { searchTypeIcons } from '@/components/shared/search/search-config'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { toHumanLabel } from '@/utils/strings'
 import type { ActivityItem } from './use-recent-activity-items'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 
 const CREATED_ACTIVITY_TYPES = new Set<string>([ObjectTypes.INTERNAL_POLICY, ObjectTypes.CONTROL])
 
@@ -72,6 +73,12 @@ type Props = {
 
 const ActivityFeed = ({ activityItems, allActivityItems = activityItems, title = DEFAULT_ACTIVITY_FEED_TITLE, isLoading = false }: Props) => {
   const [viewItem, setViewItem] = useState<ActivityItem | null>(null)
+  const [isSeeAllOpen, setIsSeeAllOpen] = useState(false)
+
+  const handleViewItem = (item: ActivityItem) => {
+    setIsSeeAllOpen(false)
+    setViewItem(item)
+  }
   const preview = activityItems.slice(0, ACTIVITY_FEED_PREVIEW_LIMIT)
 
   const renderPreview = () => {
@@ -95,7 +102,7 @@ const ActivityFeed = ({ activityItems, allActivityItems = activityItems, title =
     return (
       <div className="flex-1">
         {preview.map((item) => (
-          <ActivityRow key={`${item.type}-${item.id}`} item={item} onLabelClick={setViewItem} />
+          <ActivityRow key={`${item.type}-${item.id}`} item={item} onLabelClick={handleViewItem} />
         ))}
       </div>
     )
@@ -110,20 +117,17 @@ const ActivityFeed = ({ activityItems, allActivityItems = activityItems, title =
       return <p className="text-sm text-muted-foreground">No recent activity in the last 30 days.</p>
     }
 
-    return allActivityItems.map((item) => <ActivityRow key={`${item.type}-${item.id}`} item={item} onLabelClick={setViewItem} />)
+    return allActivityItems.map((item) => <ActivityRow key={`${item.type}-${item.id}`} item={item} onLabelClick={handleViewItem} />)
   }
 
   const seeAll = (
-    <Sheet>
+    <Sheet open={isSeeAllOpen} onOpenChange={setIsSeeAllOpen}>
       <SheetTrigger asChild>
         <Button variant="transparent" size="sm" className="text-xs">
           See all
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-120 sm:max-w-120">
-        <SheetHeader>
-          <SheetTitle>All {title} (30 days)</SheetTitle>
-        </SheetHeader>
+      <SheetContent side="right" className="w-120 sm:max-w-120" header={<SlideoutHeader title={`All ${title} (30 days)`} onClose={() => setIsSeeAllOpen(false)} />}>
         <div className="mt-4 overflow-y-auto flex-1">{renderAll()}</div>
       </SheetContent>
     </Sheet>

@@ -1,10 +1,7 @@
 'use client'
 
 import React, { useCallback, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
-import { ChevronDown, ChevronRight, ExternalLink, PanelRightClose } from 'lucide-react'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { DocumentStatusBadge } from '@/components/shared/enum-mapper/policy-enum'
 import PlateEditor from '@/components/shared/plate/plate-editor'
@@ -24,6 +21,7 @@ import { type Value } from 'platejs'
 import { type Group, type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
 import { resolveAuthor } from '@/lib/authors'
 import { GenericDetailsSheet, type RenderFieldsProps, type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
+import { SlideoutPreviewHeader } from '@/components/shared/crud-base/slideout-preview-header'
 import IntegrationDocumentView from '@/components/pages/protected/policies/view/fields/integration-document-view'
 import ExternalReferenceView from '@/components/pages/protected/policies/view/fields/external-reference-view'
 import { useForm } from 'react-hook-form'
@@ -35,7 +33,6 @@ type Props = {
 }
 
 export const ViewPolicySheet: React.FC<Props> = ({ policyId, onClose }) => {
-  const router = useRouter()
   const [detailsOpen, setDetailsOpen] = useState(true)
   const form = useForm()
   const normalizeData = useCallback(() => ({}), [])
@@ -112,34 +109,7 @@ export const ViewPolicySheet: React.FC<Props> = ({ policyId, onClose }) => {
     [deleteNote, queryClient, policyId, errorNotification],
   )
 
-  const renderHeader = useCallback(
-    ({ close }: RenderHeaderProps) => (
-      <SheetHeader>
-        <SheetTitle className="sr-only">Policy</SheetTitle>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <PanelRightClose size={16} className="cursor-pointer" onClick={close} />
-          </div>
-          <div className="flex items-center gap-2 mr-6">
-            <Button
-              variant="secondary"
-              icon={<ExternalLink />}
-              iconPosition="left"
-              onClick={() => {
-                if (policyId) {
-                  close()
-                  router.push(`/policies/${policyId}/view`)
-                }
-              }}
-            >
-              Open Full
-            </Button>
-          </div>
-        </div>
-      </SheetHeader>
-    ),
-    [policyId, router],
-  )
+  const renderHeader = useCallback(({ close }: RenderHeaderProps) => <SlideoutPreviewHeader title="Policy" close={close} fullPagePath={policyId ? `/policies/${policyId}/view` : null} />, [policyId])
 
   const renderFields = useCallback(
     ({ data: p }: RenderFieldsProps<InternalPolicyByIdFragment, never>) => {

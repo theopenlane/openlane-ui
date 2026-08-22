@@ -4,12 +4,12 @@ import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
-import { SheetTitle } from '@repo/ui/sheet'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { type EditTaskFormData } from '../../../hooks/use-form-schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import { cn } from '@repo/ui/lib/utils'
 
 type TitleFieldProps = {
   isEditing: boolean
@@ -63,7 +63,7 @@ const TitleField: React.FC<TitleFieldProps> = ({ isEditing, isEditAllowed = true
   const isCurrentlyEditing = isEditing || internalEditing === 'title'
 
   return (
-    <SheetTitle onDoubleClick={handleDoubleClick} className={isEditAllowed ? 'cursor-pointer w-fit' : 'cursor-not-allowed'}>
+    <div onDoubleClick={handleDoubleClick} className={cn('text-foreground font-semibold', isEditAllowed ? 'cursor-pointer w-fit' : 'cursor-not-allowed')}>
       {isCurrentlyEditing ? (
         <FormField
           control={control}
@@ -86,7 +86,7 @@ const TitleField: React.FC<TitleFieldProps> = ({ isEditing, isEditAllowed = true
           {initialValue || 'No title'}
         </HoverPencilWrapper>
       )}
-    </SheetTitle>
+    </div>
   )
 }
 

@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import type { Node } from '@xyflow/react'
-import { PanelRightClose, Trash2 } from 'lucide-react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
@@ -17,6 +16,8 @@ import type { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
 import { toHumanLabel } from '@/utils/strings'
 import { CELConditionBuilder } from '@/components/workflows/cel-condition-builder'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
+import { deleteMenuAction, SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
 import { TargetSelector } from '@/components/pages/protected/workflows/wizard/components/target-selector'
 import { buildTargetKey, normalizeTargets, getTargetLabel } from '@/components/pages/protected/workflows/wizard/utils'
 import type { Target, WorkflowAction, WorkflowActionParams, WorkflowActionType, WorkflowCondition, WorkflowNodeData, WorkflowTrigger, WorkflowTriggerOperation } from '@/types/workflow'
@@ -202,43 +203,16 @@ export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }
     )
   }
 
+  const nodeHeading = `Edit ${nodeType ? toHumanLabel(nodeType) : ''}`.trim()
+
   return (
     <>
       <Sheet open={!!node} onOpenChange={(open) => !open && handleSheetClose()}>
-        <SheetContent className="w-100 sm:w-135 overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle className="sr-only">
-              Edit {nodeType?.charAt(0).toUpperCase()}
-              {nodeType?.slice(1)}
-            </SheetTitle>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <PanelRightClose aria-label="Close panel" size={16} className="cursor-pointer" onClick={handleSheetClose} />
-                <span className="text-lg">
-                  Edit {nodeType?.charAt(0).toUpperCase()}
-                  {nodeType?.slice(1)}
-                </span>
-              </div>
-              <div className="flex justify-end gap-2 mr-6">
-                <Button variant="secondary" onClick={handleSave} disabled={Boolean(paramsError)}>
-                  Save
-                </Button>
-                <Button icon={<Trash2 size={16} />} iconPosition="left" variant="secondary" onClick={() => setShowDeleteConfirm(true)}>
-                  Delete
-                </Button>
-                <ConfirmationDialog
-                  open={showDeleteConfirm}
-                  onOpenChange={setShowDeleteConfirm}
-                  onConfirm={handleDelete}
-                  title="Delete node?"
-                  description="This will permanently remove this node from the workflow."
-                  confirmationText="Delete"
-                  confirmationTextVariant="destructive"
-                  showInput={false}
-                />
-              </div>
-            </div>
-          </SheetHeader>
+        <SheetContent
+          className="w-100 sm:w-135"
+          header={<SlideoutHeader title={nodeHeading} onClose={handleSheetClose} menuActions={[deleteMenuAction(() => setShowDeleteConfirm(true))]} />}
+          footer={<SlideoutFormFooter onSave={handleSave} onCancel={handleSheetClose} disabled={Boolean(paramsError)} />}
+        >
           {localData && (
             <div className="mt-6 space-y-4">
               {triggerData && (
@@ -441,6 +415,19 @@ export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }
           )}
         </SheetContent>
       </Sheet>
+
+      {!!node && (
+        <ConfirmationDialog
+          open={showDeleteConfirm}
+          onOpenChange={setShowDeleteConfirm}
+          onConfirm={handleDelete}
+          title="Delete node?"
+          description="This will permanently remove this node from the workflow."
+          confirmationText="Delete"
+          confirmationTextVariant="destructive"
+          showInput={false}
+        />
+      )}
 
       <CancelDialog
         isOpen={showCancelDialog}

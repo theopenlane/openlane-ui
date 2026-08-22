@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useId, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { useNotification } from '@/hooks/useNotification'
@@ -13,6 +13,8 @@ import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { canEdit, canDelete } from '@/lib/authz/utils'
 import { useObjectPermissionRoles } from './use-object-permission'
 import { GenericSheetHeader } from './header'
+import { type SlideoutMenuAction } from './slideout-header'
+import { SlideoutFormFooter } from './slideout-footer'
 import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
 import type { BulkDeletePayload } from './types'
@@ -36,14 +38,6 @@ export interface RenderFieldsProps<TData, TUpdateInput> {
 
 export interface RenderHeaderProps {
   close: () => void
-  isEditing: boolean
-  isPending: boolean
-  isCreate: boolean
-  setIsEditing: (value: boolean) => void
-  name?: string | null
-  isEditAllowed: boolean
-  handleCancelEdit: () => void
-  formId: string
 }
 
 export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData> {
@@ -84,9 +78,10 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   renderFields?: (props: RenderFieldsProps<TData, TUpdateInput>) => React.ReactNode
   renderHeader?: (props: RenderHeaderProps) => React.ReactNode
   extraContent?: React.ReactNode
-  extraHeaderActions?: React.ReactNode
+  extraMenuActions?: SlideoutMenuAction[]
   overrideContent?: React.ReactNode
   overrideHeader?: React.ReactNode
+  overrideFooter?: React.ReactNode
   minWidth?: string | number
   initialWidth?: string | number
 }
@@ -96,7 +91,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
 ) {
   const [isEditing, setIsEditing] = useState(false)
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
-  const [showCancelDialog, setShowCancelDialog] = useState(false)
+  const [pendingDiscard, setPendingDiscard] = useState<'close' | 'edit' | null>(null)
   const [isFormInitialized, setIsFormInitialized] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
@@ -112,14 +107,14 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     buildPayload,
     onSaved,
     normalizeData,
-    getName,
-    formId = 'editForm',
+    formId: formIdOverride,
     renderHeader,
     renderFields,
     extraContent,
-    extraHeaderActions,
+    extraMenuActions,
     overrideContent,
     overrideHeader,
+    overrideFooter,
     onClose,
     entityId: entityIdOverride,
     isCreateMode,
@@ -127,7 +122,11 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     minWidth: minWidthOverride,
     initialWidth: initialWidthOverride,
   } = config
+  const generatedFormId = useId()
+  const formId = formIdOverride ?? generatedFormId
+
   const { reset } = form
+  const { isDirty } = form.formState
   const queryClient = useQueryClient()
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
@@ -172,36 +171,49 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     setIsFormInitialized(false)
   }, [data, isCreate, id, normalizeData, reset])
 
+  const closeSheet = () => {
+    setIsFormInitialized(false)
+    setIsOpen(false)
+    onClose?.()
+  }
+
+  const exitEditMode = () => {
+    setIsEditing(false)
+    reset()
+  }
+
   const handleSheetClose = () => {
-    if (isEditing && isFormInitialized && form.formState.isDirty) {
-      setShowCancelDialog(true)
+    if (isEditing && isFormInitialized && isDirty) {
+      setPendingDiscard('close')
       return
     }
 
     onClose?.()
   }
 
-  const handleConfirmClose = () => {
-    setIsFormInitialized(false)
-    setIsOpen(false)
-    setShowCancelDialog(false)
-
-    onClose?.()
-  }
-
   const handleCancelEdit = () => {
-    if (isFormInitialized && form.formState.isDirty) {
-      setShowCancelDialog(true)
-
+    if (isFormInitialized && isDirty) {
+      setPendingDiscard(isCreate ? 'close' : 'edit')
       return
     }
 
     if (isCreate) {
       onClose?.()
     } else {
-      setIsEditing(false)
-      reset()
+      exitEditMode()
     }
+  }
+
+  const handleConfirmDiscard = () => {
+    const intent = pendingDiscard
+    setPendingDiscard(null)
+
+    if (intent === 'edit') {
+      exitEditMode()
+      return
+    }
+
+    closeSheet()
   }
 
   const runPostSave = async (params: { formData: TFormData; created: TCreateData | null; entityId: string | null }): Promise<boolean> => {
@@ -297,6 +309,10 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
         }
       : undefined
 
+  const isSavePending = (updateMutation?.isPending || createMutation?.isPending) ?? false
+  const isContentLoading = isFetching && !isCreate
+  const showFormFooter = !overrideContent && !isContentLoading && ((isCreate && !!createMutation) || (isEditing && !!updateMutation))
+
   const handleUpdateField = async (input: TUpdateInput) => {
     if (!id || isEditing || !updateMutation) {
       return
@@ -321,7 +337,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
       <Sheet
         open={isOpen}
         onOpenChange={(open) => {
-          if (!open && !showCancelDialog) {
+          if (!open && !pendingDiscard) {
             handleSheetClose()
           }
         }}
@@ -329,10 +345,10 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
         <SheetContent
           key={isCreate ? 'create' : id}
           onEscapeKeyDown={(e) => {
-            if (internalEditing || form.formState.isDirty) {
+            if (internalEditing || isDirty) {
               e.preventDefault()
-              if (form.formState.isDirty) {
-                setShowCancelDialog(true)
+              if (isDirty) {
+                setPendingDiscard('close')
               }
             } else {
               handleSheetClose()
@@ -342,42 +358,36 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
           className="flex flex-col "
           minWidth={minWidthOverride ?? '40vw'}
           initialWidth={initialWidthOverride ?? '60vw'}
+          footer={
+            overrideFooter ? (
+              overrideFooter
+            ) : showFormFooter ? (
+              <SlideoutFormFooter formId={formId} onCancel={handleCancelEdit} isPending={isSavePending} saveLabel={isCreate ? 'Create' : 'Save'} savingLabel={isCreate ? 'Creating...' : 'Saving...'} />
+            ) : undefined
+          }
           header={
             overrideHeader ? (
               overrideHeader
             ) : renderHeader ? (
-              renderHeader({
-                close: handleSheetClose,
-                isEditing,
-                isPending: (updateMutation?.isPending || createMutation?.isPending) ?? false,
-                isCreate,
-                setIsEditing,
-                name: data && getName ? getName(data) : null,
-                isEditAllowed,
-                handleCancelEdit,
-                formId,
-              })
+              renderHeader({ close: handleSheetClose })
             ) : (
               <GenericSheetHeader
                 close={handleSheetClose}
                 isEditing={isEditing}
-                isPending={(updateMutation?.isPending || createMutation?.isPending) ?? false}
                 isCreate={isCreate}
                 setIsEditing={setIsEditing}
                 entityType={objectType}
                 displayName={displayName}
                 isEditAllowed={isEditAllowed}
-                handleCancelEdit={handleCancelEdit}
-                formId={formId}
                 onDelete={handleDelete}
                 entityId={id}
                 basePath={basePath}
-                extraActions={extraHeaderActions}
+                extraMenuActions={extraMenuActions}
               />
             )
           }
         >
-          {isFetching && !isCreate ? (
+          {isContentLoading ? (
             <GenericDetailsSheetSkeleton />
           ) : overrideContent ? (
             overrideContent
@@ -411,7 +421,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
           )}
         </SheetContent>
       </Sheet>
-      <CancelDialog isOpen={showCancelDialog} onConfirm={handleConfirmClose} onCancel={() => setShowCancelDialog(false)} />
+      <CancelDialog isOpen={!!pendingDiscard} onConfirm={handleConfirmDiscard} onCancel={() => setPendingDiscard(null)} />
     </>
   )
 }

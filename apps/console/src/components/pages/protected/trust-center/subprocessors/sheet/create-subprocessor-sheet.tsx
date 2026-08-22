@@ -5,10 +5,7 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PanelRightClose } from 'lucide-react'
-
-import { Button } from '@repo/ui/button'
-import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetHeader } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetTrigger } from '@repo/ui/sheet'
 
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -19,7 +16,8 @@ import { DescriptionField } from './form-fields/description-field'
 import { LogoField } from './form-fields/logo-field'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { TagsField } from './form-fields/tags-field'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
 import { type CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 
 const schema = z
@@ -140,24 +138,10 @@ export const CreateSubprocessorSheet = ({ onCreateSuccess, trigger, open: contro
     <Sheet open={resolvedOpen} onOpenChange={handleOpenChange}>
       {trigger && <SheetTrigger asChild>{trigger}</SheetTrigger>}
 
-      <SheetContent>
-        <SheetHeader>
-          <div className="flex items-center justify-between">
-            <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleClose} />
-
-            <div className="flex justify-end gap-2">
-              <CancelButton onClick={handleClose}></CancelButton>
-              <Button iconPosition="left" type="button" form="subprocessor-form" onClick={handleSubmit(onSubmit)} disabled={isSubmitting || isSubmitDisabled}>
-                {isSubmitting ? 'Creating...' : 'Create'}
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-start">
-            <SheetTitle className="text-2xl mb-6">Create Subprocessor</SheetTitle>
-          </div>
-        </SheetHeader>
-
+      <SheetContent
+        header={<SlideoutHeader title="Create Subprocessor" onClose={handleClose} />}
+        footer={<SlideoutFormFooter onSave={handleSubmit(onSubmit)} onCancel={handleClose} isPending={isSubmitting} disabled={isSubmitDisabled} saveLabel="Create" savingLabel="Creating..." />}
+      >
         <FormProvider {...formMethods}>
           <form id="subprocessor-form" className="space-y-6">
             <NameField isEditing />
