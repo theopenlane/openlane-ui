@@ -1,12 +1,13 @@
 'use client'
 
-import React, { useRef } from 'react'
+import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { type Value } from 'platejs'
 import PlateEditor from '@/components/shared/plate/plate-editor'
+import { usePlateChangeGuard } from '@/components/shared/plate/use-plate-change-guard'
 import { type EditVendorFormData } from '../../../hooks/use-form-schema'
 
 type DescriptionFieldProps = {
@@ -18,7 +19,7 @@ type DescriptionFieldProps = {
 
 const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate, initialValue, isFormInitialized }) => {
   const { control, formState } = useFormContext<EditVendorFormData>()
-  const hasInitializedRef = useRef(false)
+  const shouldPropagateChange = usePlateChangeGuard(isEditing || isCreate, isFormInitialized)
 
   return isEditing || isCreate ? (
     <FormField
@@ -33,11 +34,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate
           <FormControl>
             <PlateEditor
               onChange={(val) => {
-                if (!hasInitializedRef.current && isFormInitialized) {
-                  hasInitializedRef.current = true
-                  return
-                }
-                if (hasInitializedRef.current && isFormInitialized) {
+                if (shouldPropagateChange()) {
                   field.onChange(val)
                 }
               }}

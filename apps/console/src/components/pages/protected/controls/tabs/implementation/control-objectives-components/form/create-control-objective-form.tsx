@@ -4,41 +4,32 @@ import React from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { ControlObjectiveControlSource } from '@repo/codegen/src/schema'
-import { useCreateControlObjective, useDeleteControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
+import { useCreateControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { usePlateHydration } from '@/components/shared/plate/usePlateHydration'
-import { Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type TFormData } from './use-form-schema'
 import { VersionBump } from '@/lib/enums/revision-enum'
-import { ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { ControlObjectiveSourceOptions, ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { Callout } from '@/components/shared/callout/callout'
 
-const controlSourceLabels: Record<ControlObjectiveControlSource, string> = {
-  [ControlObjectiveControlSource.FRAMEWORK]: 'Framework',
-  [ControlObjectiveControlSource.IMPORTED]: 'Imported',
-  [ControlObjectiveControlSource.TEMPLATE]: 'Template',
-  [ControlObjectiveControlSource.USER_DEFINED]: 'User Defined',
-}
+const versionBumpOptions = enumToOptions(VersionBump)
+
 export const CreateControlObjectiveForm = ({
+  formId,
   onSuccess,
-  onClose,
   defaultValues,
   suggestedValues,
   form,
 }: {
+  formId: string
   onSuccess: () => void
-  onClose: () => void
-  defaultValues?: Partial<TFormData>
-  // seeded from the docs when creating
+  defaultValues?: Partial<TFormData> & { id: string }
   suggestedValues?: { name?: string; desiredOutcome?: string }
   form: UseFormReturn<TFormData>
 }) => {
@@ -55,26 +46,8 @@ export const CreateControlObjectiveForm = ({
 
   const onDesiredOutcomeChange = usePlateHydration(form, 'desiredOutcome', defaultValues?.desiredOutcome ?? suggestedValues?.desiredOutcome)
 
-  const { mutate: createObjective } = useCreateControlObjective()
-  const { mutate: updateObjective } = useUpdateControlObjective()
-  const { mutate: deleteObjective } = useDeleteControlObjective()
-
-  const handleDelete = () => {
-    if (defaultValues?.id) {
-      deleteObjective(
-        { deleteControlObjectiveId: defaultValues.id },
-        {
-          onSuccess: () => {
-            successNotification({ title: 'Control Objective deleted' })
-            onSuccess()
-          },
-          onError: () => {
-            errorNotification({ title: 'Delete failed', description: 'Could not delete objective. Please try again.' })
-          },
-        },
-      )
-    }
-  }
+  const { mutateAsync: createObjective } = useCreateControlObjective()
+  const { mutateAsync: updateObjective } = useUpdateControlObjective()
 
   const onSubmit = async (data: TFormData) => {
     const desiredOutcome = typeof data.desiredOutcome === 'string' ? data.desiredOutcome || undefined : data.desiredOutcome ? await convertToHtml(data.desiredOutcome) : undefined
@@ -91,56 +64,22 @@ export const CreateControlObjectiveForm = ({
       ...(subcontrolId ? { subcontrolIDs: [subcontrolId as string] } : { controlIDs: [id as string] }),
     }
 
-    if (isEditing) {
-      updateObjective(
-        {
-          updateControlObjectiveId: defaultValues.id || '',
-          input: basePayload,
-        },
-        {
-          onSuccess: () => {
-            successNotification({ title: 'Control Objective updated' })
-            onSuccess()
-          },
-          onError: () => {
-            errorNotification({ title: 'Update failed', description: 'Could not update objective. Please try again.' })
-          },
-        },
-      )
-    } else {
-      createObjective(creationPayload, {
-        onSuccess: () => {
-          successNotification({ title: 'Control Objective created' })
-          onSuccess()
-        },
-        onError: () => {
-          errorNotification({ title: 'Create failed', description: 'Could not create objective. Please try again.' })
-        },
-      })
+    try {
+      if (isEditing) {
+        await updateObjective({ updateControlObjectiveId: defaultValues.id, input: basePayload })
+        successNotification({ title: 'Control Objective updated' })
+      } else {
+        await createObjective(creationPayload)
+        successNotification({ title: 'Control Objective created' })
+      }
+      onSuccess()
+    } catch (error) {
+      errorNotification({ title: isEditing ? 'Update failed' : 'Create failed', description: parseErrorMessage(error) })
     }
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="flex justify-end gap-2">
-        {isEditing ? (
-          <>
-            <SaveButton />
-            <CancelButton onClick={onClose}></CancelButton>
-            <Button variant="destructive" className="h-8 px-4!" icon={<Trash2 />} iconPosition="left" type="button" onClick={handleDelete}>
-              Delete
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button variant="secondary" className="h-8 px-4!">
-              Create
-            </Button>
-            <CancelButton onClick={onClose}></CancelButton>
-          </>
-        )}
-      </div>
-      <SheetHeader>{!isEditing && <SheetTitle className="text-left">Control Objective</SheetTitle>}</SheetHeader>
+    <form id={formId} onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {!isEditing && (
         <Callout variant="info" title="Not sure what to write?">
           Describe the goal this control is intended to achieve. Focus on the risk it addresses, the outcome it supports, and how it contributes to your overall security or compliance posture.
@@ -206,9 +145,9 @@ export const CreateControlObjectiveForm = ({
                   <SelectValue placeholder="Select source" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(ControlObjectiveControlSource).map(([key, value]) => (
-                    <SelectItem key={key} value={value}>
-                      {controlSourceLabels[value]}
+                  {ControlObjectiveSourceOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -248,9 +187,9 @@ export const CreateControlObjectiveForm = ({
                       <SelectValue placeholder="Select revision type" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(VersionBump).map(([key, value]) => (
-                        <SelectItem key={key} value={value}>
-                          {value.charAt(0) + value.slice(1).toLowerCase()}
+                      {versionBumpOptions.map(({ value, label }) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
                         </SelectItem>
                       ))}
                     </SelectContent>

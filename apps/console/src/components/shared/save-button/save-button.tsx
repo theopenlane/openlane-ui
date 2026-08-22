@@ -1,4 +1,5 @@
-import { Button } from '@repo/ui/button'
+import { Button, type ButtonVariants } from '@repo/ui/button'
+import { cn } from '@repo/ui/lib/utils'
 import { SaveIcon } from 'lucide-react'
 type SaveButtonProps = {
   onClick?: React.MouseEventHandler<HTMLButtonElement>
@@ -9,41 +10,12 @@ type SaveButtonProps = {
   isSaving?: boolean
   form?: string
   className?: string
-  variant?:
-    | 'primary'
-    | 'secondary'
-    | 'secondaryOutline'
-    | 'icon'
-    | 'iconButton'
-    | 'sidebar'
-    | 'transparent'
-    | 'tag'
-    | 'filled'
-    | 'light'
-    | 'outline'
-    | 'outlineLight'
-    | 'outlineInput'
-    | 'outlineInputPadding'
-    | 'redOutline'
-    | 'white'
-    | 'success'
-    | 'destructive'
-    | 'back'
+  variant?: ButtonVariants['variant']
 }
 
-export const SaveButton = ({
-  onClick,
-  title = 'Save Changes',
-  savingTitle = 'Saving Changes...',
-  type = 'submit',
-  disabled,
-  isSaving = false,
-  form,
-  className,
-  variant = 'primary',
-}: SaveButtonProps) => {
+export const SaveButton = ({ onClick, title = 'Save', savingTitle = 'Saving...', type = 'submit', disabled, isSaving = false, form, className, variant = 'primary' }: SaveButtonProps) => {
   return (
-    <Button disabled={disabled} form={form} onClick={onClick} variant={variant} type={type} iconPosition="left" className={`h-8 px-2 ${className}`} icon={<SaveIcon />}>
+    <Button disabled={disabled} form={form} onClick={onClick} variant={variant} type={type} iconPosition="left" className={cn('h-8 px-2', className)} icon={<SaveIcon size={16} />}>
       {isSaving ? savingTitle : title}
     </Button>
   )

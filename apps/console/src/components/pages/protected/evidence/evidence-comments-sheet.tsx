@@ -10,7 +10,6 @@ import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { resolveAuthor } from '@/lib/authors'
 import Skeleton from '@/components/shared/skeleton/skeleton'
-import { SheetTitle } from '@repo/ui/sheet'
 import { useQueryClient } from '@tanstack/react-query'
 import { ArrowDownUp, ArrowUpDown } from 'lucide-react'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -108,7 +107,6 @@ const EvidenceCommentSheet: React.FC<TEvidenceCommentSheetProps> = ({ evidenceId
 
   return (
     <div className="p-4 w-full h-full overflow-y-auto">
-      <SheetTitle />
       <div className="flex justify-between items-end mb-2">
         <p className="text-lg font-semibold">Comments</p>
         <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>

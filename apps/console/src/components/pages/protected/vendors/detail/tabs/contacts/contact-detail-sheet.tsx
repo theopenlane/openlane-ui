@@ -1,11 +1,12 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { FormField, FormItem, FormLabel, FormControl, Form } from '@repo/ui/form'
-import { SaveButton } from '@/components/shared/save-button/save-button'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
 import { useNotification } from '@/hooks/useNotification'
 import { useContact, useUpdateContact } from '@/lib/graphql-hooks/contact'
 import { ContactUserStatus, type UpdateContactInput } from '@repo/codegen/src/schema'
@@ -15,6 +16,7 @@ import { LoaderCircle } from 'lucide-react'
 import useContactFormSchema, { type AddContactFormData } from './use-contact-form-schema'
 
 const STATUS_OPTIONS = enumToOptions(ContactUserStatus)
+const CONTACT_FORM_ID = 'edit-contact-form'
 
 interface ContactDetailSheetProps {
   contactId: string
@@ -70,20 +72,24 @@ const ContactDetailSheet: React.FC<ContactDetailSheetProps> = ({ contactId, onCl
     }
   }
 
+  const contactHeading = contact?.fullName ?? 'Contact Details'
+
   return (
     <Sheet open onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" className="flex flex-col overflow-y-auto" minWidth="35vw">
-        <SheetHeader>
-          <SheetTitle>{contact?.fullName ?? 'Contact Details'}</SheetTitle>
-        </SheetHeader>
-
+      <SheetContent
+        side="right"
+        className="flex flex-col overflow-y-auto"
+        minWidth="35vw"
+        header={<SlideoutHeader title={contactHeading} onClose={onClose} />}
+        footer={canEdit && !isLoading ? <SlideoutFormFooter formId={CONTACT_FORM_ID} onCancel={onClose} isPending={isPending} /> : undefined}
+      >
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <LoaderCircle className="animate-spin" size={20} />
           </div>
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 p-4">
+            <form id={CONTACT_FORM_ID} onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 p-4">
               <FormField
                 control={form.control}
                 name="fullName"
@@ -190,12 +196,6 @@ const ContactDetailSheet: React.FC<ContactDetailSheetProps> = ({ contactId, onCl
                   </FormItem>
                 )}
               />
-
-              {canEdit && (
-                <div className="flex justify-end pt-4">
-                  <SaveButton disabled={isPending} isSaving={isPending} title="Save Changes" savingTitle="Saving..." />
-                </div>
-              )}
             </form>
           </Form>
         )}
