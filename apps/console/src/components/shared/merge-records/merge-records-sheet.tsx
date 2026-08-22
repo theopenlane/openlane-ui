@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useEffect, useState, useMemo } from 'react'
-import { Sheet, SheetContent, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
-import { ArrowLeft, ArrowRightLeft, Loader2, X } from 'lucide-react'
+import { ArrowRightLeft, Loader2 } from 'lucide-react'
 import { SecondaryRecordPicker } from './secondary-record-picker'
 import { MergeFieldRow } from './merge-field-row'
 import { MergeFinalPreview } from './merge-final-preview'
@@ -15,6 +15,8 @@ import { buildMergeFields } from './build-fields'
 import { MERGEABLE_FIELDS_BY_TYPE, type MergeableTypeName } from '@repo/codegen/src/merge-fields.generated'
 import { useMergeEdgeTransfer } from './use-merge-edge-transfer'
 import type { MergeConfig } from './types'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type Props<TRecord, TUpdateInput, TEntity extends MergeableTypeName> = {
   open: boolean
@@ -120,18 +122,35 @@ export const MergeRecordsSheet = <TRecord extends object, TUpdateInput, TEntity 
           initialWidth="55vw"
           minWidth="40vw"
           header={
-            <div className="flex items-center justify-between px-1 py-2">
-              <div className="flex items-center gap-2">
-                <ArrowRightLeft size={18} />
-                <SheetTitle className="text-lg">Merge {config.labelSingular}</SheetTitle>
-              </div>
-              <Button type="button" variant="transparent" onClick={handleClose} aria-label="Close" className="h-8 px-2">
-                <X size={16} />
-              </Button>
-            </div>
+            <SlideoutHeader
+              title={
+                <span className="flex items-center gap-2">
+                  <ArrowRightLeft size={18} />
+                  Merge {config.labelSingular}
+                </span>
+              }
+              onBack={step === 'preview' ? () => setStep('select') : undefined}
+              backDisabled={isMerging}
+              onClose={handleClose}
+            />
+          }
+          footer={
+            <>
+              <CancelButton onClick={handleClose} disabled={isMerging} />
+              {step === 'select' ? (
+                <Button type="button" disabled={!canSelectSecondary || isMerging} onClick={() => setStep('preview')}>
+                  Preview record
+                </Button>
+              ) : (
+                <Button type="button" variant="destructive" disabled={!canMerge || isMerging} onClick={confirmMerge}>
+                  {isMerging && <Loader2 size={14} className="mr-2 animate-spin" />}
+                  Confirm merge
+                </Button>
+              )}
+            </>
           }
         >
-          <div className="flex flex-col gap-6 p-1 pb-24">
+          <div className="flex flex-col gap-6 p-1">
             <section className="space-y-3">
               <h3 className="text-sm font-semibold">Records</h3>
               <div className="grid grid-cols-2 gap-3">
@@ -221,29 +240,6 @@ export const MergeRecordsSheet = <TRecord extends object, TUpdateInput, TEntity 
 
             {!loadingBothSides && secondaryId && primary && secondary && (
               <MergeTransferSummary counts={transferCounts} isLoading={edgeTransfer.isLoading} error={edgeTransfer.error} hasAclEdges={edgeTransfer.hasAclEdges} />
-            )}
-          </div>
-
-          <div className="sticky bottom-0 left-0 right-0 bg-background border-t px-4 py-3 flex items-center justify-end gap-2">
-            {step === 'select' ? (
-              <>
-                <Button type="button" variant="secondary" onClick={handleClose} disabled={isMerging}>
-                  Cancel
-                </Button>
-                <Button type="button" disabled={!canSelectSecondary || isMerging} onClick={() => setStep('preview')}>
-                  Preview record
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button type="button" variant="secondary" onClick={() => setStep('select')} disabled={isMerging} icon={<ArrowLeft size={14} />} iconPosition="left">
-                  Back
-                </Button>
-                <Button type="button" variant="destructive" disabled={!canMerge || isMerging} onClick={confirmMerge}>
-                  {isMerging && <Loader2 size={14} className="mr-2 animate-spin" />}
-                  Confirm merge
-                </Button>
-              </>
             )}
           </div>
         </SheetContent>

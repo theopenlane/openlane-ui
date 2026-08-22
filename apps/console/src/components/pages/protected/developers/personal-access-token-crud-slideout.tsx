@@ -2,7 +2,7 @@
 
 import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState } from 'react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetTrigger } from '@repo/ui/sheet'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Button } from '@repo/ui/button'
@@ -22,11 +22,11 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { buildOrganizationsInput } from './utils'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import useFormSchema, { type TokenFormData } from './hooks/use-form-schema'
 import { useSSOAuthorize } from './hooks/sso'
 import { Callout } from '@/components/shared/callout/callout'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
 
 export type EditTokenData = {
   id: string
@@ -301,16 +301,15 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
     </Form>
   )
 
+  const requestClose = () => {
+    // Block dismissal (×, overlay click, Escape) until the copy confirmation is checked
+    if (step === STEP.CREATED && !confirmationChecked) return
+    handleOpenChange(false)
+    setTimeout(resetDataToDefault, 300)
+  }
+
   return (
-    <Sheet
-      open={open}
-      onOpenChange={(nextOpen) => {
-        // Block dismissal (×, overlay click, Escape) until the copy confirmation is checked
-        if (!nextOpen && step === STEP.CREATED && !confirmationChecked) return
-        handleOpenChange(nextOpen)
-        if (!nextOpen) setTimeout(resetDataToDefault, 300)
-      }}
-    >
+    <Sheet open={open} onOpenChange={(nextOpen) => (nextOpen ? handleOpenChange(true) : requestClose())}>
       {!isControlled && (
         <SheetTrigger asChild>
           {triggerText ? (
@@ -327,13 +326,25 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
       )}
 
       {!isEditMode && step === STEP.CREATED ? (
-        <SheetContent initialWidth={700}>
-          <SheetHeader>
-            <SheetTitle className="text-2xl font-semibold">Token created</SheetTitle>
-            <Callout variant="warning" title="Heads up!" className="mt-2" compact>
-              Copy your access token now, as you will not be able to see this again
-            </Callout>
-          </SheetHeader>
+        <SheetContent
+          initialWidth={700}
+          header={<SlideoutHeader title="Token created" onClose={confirmationChecked ? requestClose : undefined} />}
+          footer={
+            <div className="flex gap-3 w-full">
+              {showSSOButton && (
+                <Button type="button" disabled={!confirmationChecked || isAuthorizingSSO} variant="secondary" onClick={() => handleSSOAuthorize()}>
+                  {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for SSO'}
+                </Button>
+              )}
+              <Button type="button" variant="primary" disabled={!confirmationChecked || isAuthorizingSSO} className="flex-1" onClick={requestClose}>
+                Done
+              </Button>
+            </div>
+          }
+        >
+          <Callout variant="warning" title="Heads up!" className="mt-2" compact>
+            Copy your access token now, as you will not be able to see this again
+          </Callout>
 
           <div className="space-y-4 py-4">
             <div {...activatable(handleCopyToken)} className="flex items-center justify-between w-full cursor-pointer">
@@ -346,47 +357,29 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
               </Label>
             </div>
           </div>
-
-          <SheetFooter>
-            <div className="flex gap-3 w-full">
-              {showSSOButton && (
-                <Button disabled={!confirmationChecked || isAuthorizingSSO} variant="secondary" onClick={() => handleSSOAuthorize()}>
-                  {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for SSO'}
-                </Button>
-              )}
-              <SheetClose asChild>
-                <Button variant="primary" disabled={!confirmationChecked || isAuthorizingSSO} className="flex-1">
-                  Close
-                </Button>
-              </SheetClose>
-            </div>
-          </SheetFooter>
         </SheetContent>
       ) : (
-        <SheetContent initialWidth={700}>
-          <SheetHeader>
-            <SheetTitle className="text-xl font-semibold pb-4">{isEditMode ? 'Edit token' : 'Create new token'}</SheetTitle>
-          </SheetHeader>
-
-          {renderForm()}
-
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-secondary border-t">
-            {isEditMode ? (
-              <div className="flex gap-2 w-full">
-                {showSSOButton && (
-                  <Button disabled={isAuthorizingSSO} variant="secondary" onClick={() => handleSSOAuthorize()}>
+        <SheetContent
+          initialWidth={700}
+          header={<SlideoutHeader title={isEditMode ? 'Edit token' : 'Create new token'} onClose={requestClose} />}
+          footer={
+            <SlideoutFormFooter
+              formId="token-form"
+              onCancel={requestClose}
+              isPending={isSubmitting}
+              saveLabel={isEditMode ? 'Save' : 'Create Token'}
+              savingLabel={isEditMode ? 'Saving...' : 'Creating...'}
+              secondaryActions={
+                isEditMode && showSSOButton ? (
+                  <Button type="button" disabled={isAuthorizingSSO} variant="secondary" onClick={() => handleSSOAuthorize()}>
                     {isAuthorizingSSO ? 'Authorizing...' : 'Authorize for SSO'}
                   </Button>
-                )}
-                <CancelButton onClick={() => handleOpenChange(false)} />
-                <SaveButton form="token-form" isSaving={isSubmitting} disabled={isSubmitting} />
-              </div>
-            ) : (
-              <Button form="token-form" variant="primary" className="w-full" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create Token'}
-              </Button>
-            )}
-          </div>
+                ) : undefined
+              }
+            />
+          }
+        >
+          {renderForm()}
         </SheetContent>
       )}
     </Sheet>

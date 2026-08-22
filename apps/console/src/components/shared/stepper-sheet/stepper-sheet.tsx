@@ -1,10 +1,13 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { ArrowLeft, SaveIcon, X } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { Badge } from '@repo/ui/badge'
 
 export interface StepperStep {
@@ -98,39 +101,30 @@ export function StepperSheet({
             handleClose()
           }}
           header={
-            <SheetHeader>
-              <SheetTitle className="sr-only">{title}</SheetTitle>
-              <div className="flex flex-col gap-4">
-                {showBreadcrumb && <div className="text-sm text-muted-foreground">{breadcrumbContent ?? breadcrumb}</div>}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-lg font-semibold">{title}</h2>
-                    <Badge variant="outline" className="font-mono text-xs">
-                      STEP {currentStep + 1} OF {totalSteps}
-                    </Badge>
-                  </div>
-                  <button type="button" onClick={handleClose} className="cursor-pointer mr-6">
-                    <X size={16} />
-                  </button>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="secondary" onClick={handleClose} disabled={isSaving || isCompleting}>
-                    Cancel
-                  </Button>
-                  <Button variant="secondary" onClick={onSaveDraft} disabled={isSaving || isCompleting} icon={<SaveIcon size={16} />} iconPosition="left">
-                    {isSaving ? 'Saving...' : 'Save Draft'}
-                  </Button>
-                  {!isFirstStep && (
-                    <Button variant="outline" onClick={() => onStepChange(currentStep - 1)} disabled={isSaving || isCompleting} icon={<ArrowLeft size={16} />} iconPosition="left">
-                      Previous
-                    </Button>
-                  )}
-                  <Button variant="primary" onClick={handleNext} disabled={!canProceed || isSaving || isCompleting}>
-                    {isLastStep ? (isCompleting ? 'Saving...' : completeLabel) : 'Next'}
-                  </Button>
-                </div>
-              </div>
-            </SheetHeader>
+            <SlideoutHeader
+              title={title}
+              aboveTitle={showBreadcrumb ? <div className="text-sm text-muted-foreground">{breadcrumbContent ?? breadcrumb}</div> : undefined}
+              titleAdornment={
+                <Badge variant="outline" className="font-mono text-xs">
+                  STEP {currentStep + 1} OF {totalSteps}
+                </Badge>
+              }
+              onClose={handleClose}
+            />
+          }
+          footer={
+            <>
+              <CancelButton onClick={handleClose} disabled={isSaving || isCompleting} />
+              <SaveButton type="button" variant="secondary" onClick={onSaveDraft} disabled={isSaving || isCompleting} isSaving={isSaving} title="Save Draft" savingTitle="Saving..." />
+              {!isFirstStep && (
+                <Button variant="outline" onClick={() => onStepChange(currentStep - 1)} disabled={isSaving || isCompleting} icon={<ArrowLeft size={16} />} iconPosition="left">
+                  Previous
+                </Button>
+              )}
+              <Button type="button" variant="primary" onClick={handleNext} disabled={!canProceed || isSaving || isCompleting}>
+                {isLastStep ? (isCompleting ? 'Saving...' : completeLabel) : 'Next'}
+              </Button>
+            </>
           }
         >
           {step && (

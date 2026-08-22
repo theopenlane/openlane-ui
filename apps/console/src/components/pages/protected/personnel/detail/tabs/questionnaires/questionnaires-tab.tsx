@@ -10,8 +10,7 @@ import { useAssessmentResponsesWithFilter, useAssessmentResponse, useCreateAsses
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { Badge } from '@repo/ui/badge'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { PanelRightClose } from 'lucide-react'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { computeDueDate, formatDate } from '@/utils/date'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import CollapsibleSection from '@/components/shared/collapsible-section/collapsible-section'
@@ -19,6 +18,7 @@ import AssessmentResponseView, { countAnswered } from '@/components/pages/protec
 import { useNotification } from '@/hooks/useNotification'
 import { useCanSendQuestionnaire } from '@/lib/authz/use-can-send-questionnaire'
 import ResponseStateCard from './response-state-card'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 
 interface AssessmentsTabProps {
   personnelId: string
@@ -157,15 +157,7 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
       />
 
       <Sheet open={!!selectedResponseId} onOpenChange={(open) => !open && setSelectedResponseId(null)}>
-        <SheetContent className="sm:max-w-lg overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle className="sr-only">Assessment Response</SheetTitle>
-            <div className="flex items-center gap-2">
-              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => setSelectedResponseId(null)} />
-              <span className="text-lg">Assessment Response</span>
-            </div>
-          </SheetHeader>
-
+        <SheetContent className="sm:max-w-lg overflow-y-auto" header={<SlideoutHeader title="Assessment Response" onClose={() => setSelectedResponseId(null)} />}>
           {isDetailLoading ? (
             <div className="p-4 text-muted-foreground">Loading...</div>
           ) : response ? (

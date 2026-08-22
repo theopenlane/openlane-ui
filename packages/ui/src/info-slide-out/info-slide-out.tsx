@@ -1,8 +1,9 @@
 'use client'
 
 import * as React from 'react'
-import { ExternalLink, InfoIcon, PanelRightClose } from 'lucide-react'
+import { ExternalLink, InfoIcon, X } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../sheet/sheet'
+import { Button } from '../button/button'
 
 type InfoSlideOutProps = {
   title: string
@@ -72,17 +73,15 @@ export function InfoSlideOut({
         onClick={(e) => e.stopPropagation()}
         header={
           <SheetHeader>
-            {!hideClose && (
-              <div className="flex items-center justify-between pb-1">
-                <PanelRightClose aria-label="Close info panel" size={16} className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors" onClick={() => setOpen(false)} />
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-stretch gap-2 min-w-0">
+                {icon}
+                <div className="flex flex-col justify-center min-w-0">
+                  <SheetTitle className="text-xl font-medium text-text-header">{title}</SheetTitle>
+                  {subtitle ? <span className="text-xs text-muted-foreground">{subtitle}</span> : null}
+                </div>
               </div>
-            )}
-            <div className="flex items-stretch gap-2">
-              {icon}
-              <div className="flex flex-col justify-center">
-                <SheetTitle className="text-xl font-medium text-text-header">{title}</SheetTitle>
-                {subtitle ? <span className="text-xs text-muted-foreground">{subtitle}</span> : null}
-              </div>
+              {!hideClose && <Button variant="secondary" size="icon-sm" icon={<X size={16} />} descriptiveTooltipText="Close" onClick={handleClose} />}
             </div>
           </SheetHeader>
         }
