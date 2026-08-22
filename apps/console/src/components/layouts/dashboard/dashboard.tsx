@@ -25,6 +25,7 @@ import { GLOBAL_BANNER_HEIGHT_VAR, TOP_BANNER_HEIGHT_VAR } from '@/constants/lay
 import { DashboardContentOffsetProvider } from '@/providers/DashboardContentOffsetContext'
 import { DocsHelpTopicProvider } from '@/components/shared/docs-help/docs-help-context'
 import { DocsHelpTab } from '@/components/shared/docs-help/docs-help-tab'
+import { PINNED_PANEL_WIDTH_VAR } from '@repo/ui/info-slide-out'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -131,10 +132,10 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
               isOrganizationSelected={isOrganizationSelected}
             />
             <div
-              className="flex flex-col overflow-hidden transition-[margin-left] duration-200"
+              className="flex flex-col overflow-hidden transition-[margin-left,margin-right] duration-200"
               style={{
                 marginLeft: contentMarginLeft,
-                marginRight: '8px',
+                marginRight: `calc(8px + var(${PINNED_PANEL_WIDTH_VAR}, 0px))`,
                 marginTop: `var(${TOP_BANNER_HEIGHT_VAR}, 0px)`,
                 height: `calc(100vh - var(${TOP_BANNER_HEIGHT_VAR}, 0px))`,
               }}
