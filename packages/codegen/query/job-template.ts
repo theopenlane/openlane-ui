@@ -101,6 +101,8 @@ export const BULK_EDIT_JOB_TEMPLATE = gql`
   mutation UpdateBulkJobTemplate($ids: [ID!]!, $input: UpdateJobTemplateInput!) {
     updateBulkJobTemplate(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

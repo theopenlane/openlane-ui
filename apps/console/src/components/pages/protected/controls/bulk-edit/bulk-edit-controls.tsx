@@ -13,7 +13,8 @@ import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
 import { useBulkEditControl } from '@/lib/graphql-hooks/control'
 import {
-  collectAssociationInput,
+  collectBulkEditFieldInput,
+  type BulkEditInputValue,
   type BulkEditControlsDialogProps,
   defaultObject,
   SelectOptionBulkEditControls,
@@ -29,28 +30,29 @@ import { EditableSelectFromQuery } from '../propereties-card/fields/editable-sel
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
-import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
 import { objectToSnakeCase } from '@/utils/strings'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-single-object-association'
 import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
+import { BulkEditValueSelect } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-value-select'
+import { useBulkUpdateFeedback } from '@/components/shared/crud-base/use-bulk-update-feedback'
+import { type BulkUpdatePayload } from '@/components/shared/crud-base/types'
 import { getAssociationSelectedCount } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 
 type BulkEditControlsFormValues = BulkEditFieldsFormValues
 type BulkEditSelection = { id: string; refCode: string }
-type BulkEditInputValue = string | string[]
 type BulkEditInput = Record<string, BulkEditInputValue>
 
 type BulkEditRecordsDialogProps = {
   selectedItems: BulkEditSelection[]
   allOptionSelects: SelectOptionSelectedObject[]
   onCreateType?: (value: string) => Promise<void>
-  onBulkEdit: (ids: string[], input: BulkEditInput) => Promise<void>
+  onBulkEdit: (ids: string[], input: BulkEditInput) => Promise<BulkUpdatePayload>
   onClearSelectedItems: () => void
-  successTitle: string
   errorTitle: string
+  singular: string
 }
 
 const useBulkEditOptionData = () => {
@@ -68,10 +70,11 @@ const useBulkEditOptionData = () => {
   return { groups, enumOptions, createControlType }
 }
 
-const BulkEditRecordsDialog: React.FC<BulkEditRecordsDialogProps> = ({ selectedItems, allOptionSelects, onCreateType, onBulkEdit, onClearSelectedItems, successTitle, errorTitle }) => {
+const BulkEditRecordsDialog: React.FC<BulkEditRecordsDialogProps> = ({ selectedItems, allOptionSelects, onCreateType, onBulkEdit, onClearSelectedItems, errorTitle, singular }) => {
   const [open, setOpen] = useState(false)
   const [collapsedAssociations, setCollapsedAssociations] = useState<Record<string, boolean>>({})
-  const { errorNotification, successNotification } = useNotification()
+  const { errorNotification } = useNotification()
+  const { notifyBulkUpdate } = useBulkUpdateFeedback()
   const form = useForm<BulkEditControlsFormValues>({
     resolver: zodResolver(bulkEditFieldsSchema),
     defaultValues: defaultObject,
@@ -102,25 +105,21 @@ const BulkEditRecordsDialog: React.FC<BulkEditRecordsDialogProps> = ({ selectedI
     if (ids.length === 0) return
 
     watchedFields.forEach((field) => {
-      if (collectAssociationInput(field, input)) return
-
       const key = field.selectedObject?.name
-      if (!key) return
-      if (field.selectedValue && field.value) {
-        input[key] = field.selectedValue
+      if (key && field.selectedObject?.inputType === InputType.TypeAhead) {
+        const value = form.getValues(key as Path<BulkEditControlsFormValues>)
+        if (typeof value === 'string' && value.trim() !== '') {
+          input[key] = value
+        }
         return
       }
-      const value = form.getValues(key as Path<BulkEditControlsFormValues>)
-      if (typeof value === 'string' && value.trim() !== '') {
-        input[key] = value
-      }
+      collectBulkEditFieldInput(field, input)
     })
 
     try {
-      await onBulkEdit(ids, input)
-      successNotification({
-        title: successTitle,
-      })
+      const result = await onBulkEdit(ids, input)
+      if (!notifyBulkUpdate({ requestedCount: ids.length, updatedIDs: result.updatedIDs, notUpdatedIDs: result.notUpdatedIDs, error: result.error, singular })) return
+
       onClearSelectedItems()
       setOpen(false)
     } catch (error) {
@@ -201,32 +200,16 @@ const BulkEditRecordsDialog: React.FC<BulkEditRecordsDialogProps> = ({ selectedI
                               }
                             />
                           ) : (
-                            <Select
+                            <BulkEditValueSelect
+                              selectedObject={item.selectedObject}
                               value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                              onValueChange={(value) =>
+                              onChange={(value) =>
                                 update(index, {
                                   ...item,
                                   selectedValue: value,
                                 })
                               }
-                            >
-                              <SelectTrigger className="w-60">
-                                <SelectValue placeholder={item.selectedObject?.placeholder}>
-                                  <CustomTypeEnumValue
-                                    value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                                    options={item.selectedObject?.options || []}
-                                    placeholder={item.selectedObject?.placeholder}
-                                  />
-                                </SelectValue>
-                              </SelectTrigger>
-                              <SelectContent>
-                                {(item.selectedObject?.options || []).map((option) => (
-                                  <SelectItem key={option.value} value={option.value}>
-                                    <CustomTypeEnumOptionChip option={option} />
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            />
                           )}
                         </div>
                       )}
@@ -323,11 +306,12 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
       allOptionSelects={allOptionSelects}
       onCreateType={createControlType}
       onBulkEdit={async (ids, input) => {
-        await bulkEditControl({ ids, input })
+        const result = await bulkEditControl({ ids, input })
+        return result.updateBulkControl
       }}
       onClearSelectedItems={clearSelectedControls}
-      successTitle="Successfully bulk updated selected controls."
       errorTitle="Failed to bulk edit control. Please try again."
+      singular="control"
     />
   )
 }

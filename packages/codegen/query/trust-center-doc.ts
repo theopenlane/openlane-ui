@@ -107,9 +107,9 @@ export const BULK_DELETE_TRUST_CENTER_DOC = gql`
 export const BULK_UPDATE_TRUST_CENTER_DOC = gql`
   mutation BulkUpdateTrustCenterDoc($ids: [ID!]!, $input: UpdateTrustCenterDocInput!) {
     updateBulkTrustCenterDoc(ids: $ids, input: $input) {
-      trustCenterDocs {
-        id
-      }
+      updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

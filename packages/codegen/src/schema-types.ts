@@ -160,6 +160,10 @@ export interface ApiTokenBulkUpdatePayload {
   __typename?: 'APITokenBulkUpdatePayload'
   /** Updated apiTokens */
   apiTokens?: Maybe<Array<ApiToken>>
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated apiTokens */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -708,6 +712,10 @@ export interface ActionPlanBulkUpdatePayload {
   __typename?: 'ActionPlanBulkUpdatePayload'
   /** Updated actionPlans */
   actionPlans?: Maybe<Array<ActionPlan>>
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated actionPlans */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -2644,6 +2652,10 @@ export interface AssetBulkUpdatePayload {
   __typename?: 'AssetBulkUpdatePayload'
   /** Updated assets */
   assets?: Maybe<Array<Asset>>
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated assets */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -4907,7 +4919,7 @@ export interface CheckResultBulkDeletePayload {
   /** Error returned when the bulk delete is only partially applied */
   error?: Maybe<Scalars['String']['output']>
   /** IDs of checkResults that were not deleted */
-  notDeletedIDs?: Maybe<Array<Scalars['ID']['output']>>
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkCheckResult mutation */
@@ -4915,6 +4927,10 @@ export interface CheckResultBulkUpdatePayload {
   __typename?: 'CheckResultBulkUpdatePayload'
   /** Updated checkResults */
   checkResults?: Maybe<Array<CheckResult>>
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated checkResults */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -5355,6 +5371,10 @@ export interface ContactBulkUpdatePayload {
   __typename?: 'ContactBulkUpdatePayload'
   /** Updated contacts */
   contacts?: Maybe<Array<Contact>>
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated contacts */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -6151,6 +6171,10 @@ export interface ControlBulkUpdatePayload {
   __typename?: 'ControlBulkUpdatePayload'
   /** Updated controls */
   controls?: Maybe<Array<Control>>
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated controls */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -6455,6 +6479,10 @@ export interface ControlImplementationBulkUpdatePayload {
   __typename?: 'ControlImplementationBulkUpdatePayload'
   /** Updated controlImplementations */
   controlImplementations?: Maybe<Array<ControlImplementation>>
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated controlImplementations */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -6961,6 +6989,10 @@ export interface ControlObjectiveBulkUpdatePayload {
   __typename?: 'ControlObjectiveBulkUpdatePayload'
   /** Updated controlObjectives */
   controlObjectives?: Maybe<Array<ControlObjective>>
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated controlObjectives */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -12387,6 +12419,10 @@ export interface CustomDomainBulkUpdatePayload {
   __typename?: 'CustomDomainBulkUpdatePayload'
   /** Updated customDomains */
   customDomains?: Maybe<Array<CustomDomain>>
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated customDomains */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -13212,6 +13248,10 @@ export interface DnsVerificationBulkUpdatePayload {
   __typename?: 'DNSVerificationBulkUpdatePayload'
   /** Updated dnsVerifications */
   dnsVerifications?: Maybe<Array<DnsVerification>>
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated dnsVerifications */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -16312,6 +16352,10 @@ export interface DocumentDataBulkUpdatePayload {
   __typename?: 'DocumentDataBulkUpdatePayload'
   /** Updated documentDatas */
   documentData?: Maybe<Array<DocumentData>>
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated documentDatas */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -16715,6 +16759,10 @@ export interface EmailTemplateBulkUpdatePayload {
   __typename?: 'EmailTemplateBulkUpdatePayload'
   /** Updated emailTemplates */
   emailTemplates?: Maybe<Array<EmailTemplate>>
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated emailTemplates */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -17688,6 +17736,10 @@ export interface EntityBulkUpdatePayload {
   __typename?: 'EntityBulkUpdatePayload'
   /** Updated entitys */
   entities?: Maybe<Array<Entity>>
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated entitys */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -17851,6 +17903,10 @@ export interface EntityTypeBulkUpdatePayload {
   __typename?: 'EntityTypeBulkUpdatePayload'
   /** Updated entityTypes */
   entityTypes?: Maybe<Array<EntityType>>
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated entityTypes */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -19141,8 +19197,12 @@ export interface EventBulkDeletePayload {
 /** Return response for updateBulkEvent mutation */
 export interface EventBulkUpdatePayload {
   __typename?: 'EventBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
   /** Updated events */
   events?: Maybe<Array<Event>>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated events */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -19562,8 +19622,12 @@ export interface EvidenceBulkDeletePayload {
 /** Return response for updateBulkEvidence mutation */
 export interface EvidenceBulkUpdatePayload {
   __typename?: 'EvidenceBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
   /** Updated evidences */
   evidences?: Maybe<Array<Evidence>>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated evidence */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -21509,8 +21573,12 @@ export interface FindingBulkDeletePayload {
 /** Return response for updateBulkFinding mutation */
 export interface FindingBulkUpdatePayload {
   __typename?: 'FindingBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
   /** Updated findings */
   findings?: Maybe<Array<Finding>>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated findings */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -23271,8 +23339,12 @@ export interface GroupBulkDeletePayload {
 /** Return response for updateBulkGroup mutation */
 export interface GroupBulkUpdatePayload {
   __typename?: 'GroupBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
   /** Updated groups */
   groups?: Maybe<Array<Group>>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated groups */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -23367,8 +23439,12 @@ export interface GroupMembershipBulkDeletePayload {
 /** Return response for updateBulkGroupMembership mutation */
 export interface GroupMembershipBulkUpdatePayload {
   __typename?: 'GroupMembershipBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
   /** Updated groupMemberships */
   groupMemberships?: Maybe<Array<GroupMembership>>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated groupMemberships */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -23699,8 +23775,12 @@ export interface GroupSettingBulkDeletePayload {
 /** Return response for updateBulkGroupSetting mutation */
 export interface GroupSettingBulkUpdatePayload {
   __typename?: 'GroupSettingBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
   /** Updated groupSettings */
   groupSettings?: Maybe<Array<GroupSetting>>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated groupSettings */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -24415,8 +24495,12 @@ export interface HushBulkDeletePayload {
 /** Return response for updateBulkHush mutation */
 export interface HushBulkUpdatePayload {
   __typename?: 'HushBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
   /** Updated hushs */
   hushes?: Maybe<Array<Hush>>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated hushs */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -25018,8 +25102,12 @@ export interface IdentityHolderBulkDeletePayload {
 /** Return response for updateBulkIdentityHolder mutation */
 export interface IdentityHolderBulkUpdatePayload {
   __typename?: 'IdentityHolderBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
   /** Updated identityHolders */
   identityHolders?: Maybe<Array<IdentityHolder>>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated identityHolders */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -26850,8 +26938,12 @@ export interface InternalPolicyBulkDeletePayload {
 /** Return response for updateBulkInternalPolicy mutation */
 export interface InternalPolicyBulkUpdatePayload {
   __typename?: 'InternalPolicyBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
   /** Updated internalPolicys */
   internalPolicies?: Maybe<Array<InternalPolicy>>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated internalPolicys */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -27561,8 +27653,12 @@ export interface InviteBulkDeletePayload {
 /** Return response for updateBulkInvite mutation */
 export interface InviteBulkUpdatePayload {
   __typename?: 'InviteBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
   /** Updated invites */
   invites?: Maybe<Array<Invite>>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated invites */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -29036,8 +29132,12 @@ export interface JobTemplateBulkDeletePayload {
 /** Return response for updateBulkJobTemplate mutation */
 export interface JobTemplateBulkUpdatePayload {
   __typename?: 'JobTemplateBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
   /** Updated jobTemplates */
   jobTemplates?: Maybe<Array<JobTemplate>>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated jobTemplates */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -29364,8 +29464,12 @@ export interface MappableDomainBulkDeletePayload {
 /** Return response for updateBulkMappableDomain mutation */
 export interface MappableDomainBulkUpdatePayload {
   __typename?: 'MappableDomainBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
   /** Updated mappableDomains */
   mappableDomains?: Maybe<Array<MappableDomain>>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated mappableDomains */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -29661,8 +29765,12 @@ export interface MappedControlBulkDeletePayload {
 /** Return response for updateBulkMappedControl mutation */
 export interface MappedControlBulkUpdatePayload {
   __typename?: 'MappedControlBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
   /** Updated mappedControls */
   mappedControls?: Maybe<Array<MappedControl>>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated mappedControls */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -34063,8 +34171,12 @@ export interface NarrativeBulkDeletePayload {
 /** Return response for updateBulkNarrative mutation */
 export interface NarrativeBulkUpdatePayload {
   __typename?: 'NarrativeBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
   /** Updated narratives */
   narratives?: Maybe<Array<Narrative>>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated narratives */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
@@ -34902,6 +35014,10 @@ export interface NotificationPreferenceBulkDeletePayload {
 /** Return response for updateBulkNotificationPreference mutation */
 export interface NotificationPreferenceBulkUpdatePayload {
   __typename?: 'NotificationPreferenceBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated notificationPreferences */
   notificationPreferences?: Maybe<Array<NotificationPreference>>
   /** IDs of the updated notificationPreferences */
@@ -35404,6 +35520,10 @@ export interface NotificationTemplateBulkDeletePayload {
 /** Return response for updateBulkNotificationTemplate mutation */
 export interface NotificationTemplateBulkUpdatePayload {
   __typename?: 'NotificationTemplateBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated notificationTemplates */
   notificationTemplates?: Maybe<Array<NotificationTemplate>>
   /** IDs of the updated notificationTemplates */
@@ -36043,6 +36163,10 @@ export interface OrgMembershipBulkDeletePayload {
 /** Return response for updateBulkOrgMembership mutation */
 export interface OrgMembershipBulkUpdatePayload {
   __typename?: 'OrgMembershipBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated orgMemberships */
   orgMemberships?: Maybe<Array<OrgMembership>>
   /** IDs of the updated orgMemberships */
@@ -38362,6 +38486,10 @@ export interface OrganizationSettingBulkDeletePayload {
 /** Return response for updateBulkOrganizationSetting mutation */
 export interface OrganizationSettingBulkUpdatePayload {
   __typename?: 'OrganizationSettingBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated organizationSettings */
   organizationSettings?: Maybe<Array<OrganizationSetting>>
   /** IDs of the updated organizationSettings */
@@ -41556,6 +41684,10 @@ export interface ProcedureBulkDeletePayload {
 /** Return response for updateBulkProcedure mutation */
 export interface ProcedureBulkUpdatePayload {
   __typename?: 'ProcedureBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated procedures */
   procedures?: Maybe<Array<Procedure>>
   /** IDs of the updated procedures */
@@ -42461,6 +42593,10 @@ export interface ProgramBulkDeletePayload {
 /** Return response for updateBulkProgram mutation */
 export interface ProgramBulkUpdatePayload {
   __typename?: 'ProgramBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated programs */
   programs?: Maybe<Array<Program>>
   /** IDs of the updated programs */
@@ -42538,6 +42674,10 @@ export interface ProgramMembershipBulkDeletePayload {
 /** Return response for updateBulkProgramMembership mutation */
 export interface ProgramMembershipBulkUpdatePayload {
   __typename?: 'ProgramMembershipBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated programMemberships */
   programMemberships?: Maybe<Array<ProgramMembership>>
   /** IDs of the updated programMemberships */
@@ -45591,6 +45731,10 @@ export interface RemediationBulkDeletePayload {
 /** Return response for updateBulkRemediation mutation */
 export interface RemediationBulkUpdatePayload {
   __typename?: 'RemediationBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated remediations */
   remediations?: Maybe<Array<Remediation>>
   /** IDs of the updated remediations */
@@ -46527,6 +46671,10 @@ export interface ReviewBulkDeletePayload {
 /** Return response for updateBulkReview mutation */
 export interface ReviewBulkUpdatePayload {
   __typename?: 'ReviewBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated reviews */
   reviews?: Maybe<Array<Review>>
   /** IDs of the updated reviews */
@@ -47451,6 +47599,10 @@ export interface RiskBulkDeletePayload {
 /** Return response for updateBulkRisk mutation */
 export interface RiskBulkUpdatePayload {
   __typename?: 'RiskBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated risks */
   risks?: Maybe<Array<Risk>>
   /** IDs of the updated risks */
@@ -48238,6 +48390,10 @@ export interface SlaDefinitionBulkDeletePayload {
 /** Return response for updateBulkSLADefinition mutation */
 export interface SlaDefinitionBulkUpdatePayload {
   __typename?: 'SLADefinitionBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated slaDefinitions */
   slaDefinitions?: Maybe<Array<SlaDefinition>>
   /** IDs of the updated slaDefinitions */
@@ -48692,6 +48848,10 @@ export interface ScanBulkDeletePayload {
 /** Return response for updateBulkScan mutation */
 export interface ScanBulkUpdatePayload {
   __typename?: 'ScanBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated scans */
   scans?: Maybe<Array<Scan>>
   /** IDs of the updated scans */
@@ -49332,6 +49492,10 @@ export interface ScheduledJobBulkDeletePayload {
 /** Return response for updateBulkScheduledJob mutation */
 export interface ScheduledJobBulkUpdatePayload {
   __typename?: 'ScheduledJobBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated scheduledJobs */
   scheduledJobs?: Maybe<Array<ScheduledJob>>
   /** IDs of the updated scheduledJobs */
@@ -50786,6 +50950,10 @@ export interface SubcontrolBulkDeletePayload {
 /** Return response for updateBulkSubcontrol mutation */
 export interface SubcontrolBulkUpdatePayload {
   __typename?: 'SubcontrolBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated subcontrols */
   subcontrols?: Maybe<Array<Subcontrol>>
   /** IDs of the updated subcontrols */
@@ -51559,6 +51727,10 @@ export interface SubprocessorBulkDeletePayload {
 /** Return response for updateBulkSubprocessor mutation */
 export interface SubprocessorBulkUpdatePayload {
   __typename?: 'SubprocessorBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated subprocessors */
   subprocessors?: Maybe<Array<Subprocessor>>
   /** IDs of the updated subprocessors */
@@ -52293,6 +52465,10 @@ export interface SystemDetailBulkDeletePayload {
 /** Return response for updateBulkSystemDetail mutation */
 export interface SystemDetailBulkUpdatePayload {
   __typename?: 'SystemDetailBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated systemDetails */
   systemDetails?: Maybe<Array<SystemDetail>>
   /** IDs of the updated systemDetails */
@@ -53353,6 +53529,10 @@ export interface TaskBulkDeletePayload {
 /** Return response for updateBulkTask mutation */
 export interface TaskBulkUpdatePayload {
   __typename?: 'TaskBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated tasks */
   tasks?: Maybe<Array<Task>>
   /** IDs of the updated tasks */
@@ -54041,6 +54221,10 @@ export interface TemplateBulkDeletePayload {
 /** Return response for updateBulkTemplate mutation */
 export interface TemplateBulkUpdatePayload {
   __typename?: 'TemplateBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated templates */
   templates?: Maybe<Array<Template>>
   /** IDs of the updated templates */
@@ -54690,6 +54874,10 @@ export interface TrustCenterComplianceBulkDeletePayload {
 /** Return response for updateBulkTrustCenterCompliance mutation */
 export interface TrustCenterComplianceBulkUpdatePayload {
   __typename?: 'TrustCenterComplianceBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated trustCenterCompliances */
   trustCenterCompliances?: Maybe<Array<TrustCenterCompliance>>
   /** IDs of the updated trustCenterCompliances */
@@ -54992,6 +55180,10 @@ export interface TrustCenterDocBulkDeletePayload {
 /** Return response for updateBulkTrustCenterDoc mutation */
 export interface TrustCenterDocBulkUpdatePayload {
   __typename?: 'TrustCenterDocBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated trust center docs */
   trustCenterDocs?: Maybe<Array<TrustCenterDoc>>
   /** IDs of the updated trust center docs */
@@ -55669,6 +55861,10 @@ export interface TrustCenterFaqBulkDeletePayload {
 /** Return response for updateBulkTrustCenterFAQ mutation */
 export interface TrustCenterFaqBulkUpdatePayload {
   __typename?: 'TrustCenterFAQBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated trustCenterFAQs */
   trustCenterFAQs?: Maybe<Array<TrustCenterFaq>>
   /** IDs of the updated trustCenterFAQs */
@@ -57128,6 +57324,10 @@ export interface TrustCenterSubprocessorBulkDeletePayload {
 /** Return response for updateBulkTrustCenterSubprocessor mutation */
 export interface TrustCenterSubprocessorBulkUpdatePayload {
   __typename?: 'TrustCenterSubprocessorBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** Updated trustCenterSubprocessors */
   trustCenterSubprocessors?: Maybe<Array<TrustCenterSubprocessor>>
   /** IDs of the updated trustCenterSubprocessors */
@@ -65182,6 +65382,10 @@ export interface UserSettingBulkDeletePayload {
 /** Return response for updateBulkUserSetting mutation */
 export interface UserSettingBulkUpdatePayload {
   __typename?: 'UserSettingBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated userSettings */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
   /** Updated userSettings */
@@ -65885,6 +66089,10 @@ export interface VendorRiskScoreBulkDeletePayload {
 /** Return response for updateBulkVendorRiskScore mutation */
 export interface VendorRiskScoreBulkUpdatePayload {
   __typename?: 'VendorRiskScoreBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated vendorRiskScores */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
   /** Updated vendorRiskScores */
@@ -66315,6 +66523,10 @@ export interface VendorScoringConfigBulkDeletePayload {
 /** Return response for updateBulkVendorScoringConfig mutation */
 export interface VendorScoringConfigBulkUpdatePayload {
   __typename?: 'VendorScoringConfigBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated vendorScoringConfigs */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
   /** Updated vendorScoringConfigs */
@@ -66874,6 +67086,10 @@ export interface VulnerabilityBulkDeletePayload {
 /** Return response for updateBulkVulnerability mutation */
 export interface VulnerabilityBulkUpdatePayload {
   __typename?: 'VulnerabilityBulkUpdatePayload'
+  /** Error message when the bulk update did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not updated */
+  notUpdatedIDs: Array<Scalars['ID']['output']>
   /** IDs of the updated vulnerabilities */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
   /** Updated vulnerabilities */

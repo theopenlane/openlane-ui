@@ -611,6 +611,8 @@ export const BULK_EDIT_EVIDENCE = gql`
   mutation UpdateBulkEvidence($ids: [ID!]!, $input: UpdateEvidenceInput!) {
     updateBulkEvidence(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

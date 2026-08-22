@@ -193,7 +193,8 @@ const VulnerabilityPage: React.FC = () => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateVulnerabilityInput) => {
-      await baseBulkEditMutation.mutateAsync({ ids, input })
+      const result = await baseBulkEditMutation.mutateAsync({ ids, input })
+      return result.updateBulkVulnerability
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,

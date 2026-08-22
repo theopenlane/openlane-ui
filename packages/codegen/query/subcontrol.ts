@@ -266,6 +266,8 @@ export const BULK_EDIT_SUBCONTROL = gql`
   mutation UpdateBulkSubcontrol($ids: [ID!]!, $input: UpdateSubcontrolInput!) {
     updateBulkSubcontrol(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `
