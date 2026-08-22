@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { type ZodObject, type ZodRawShape } from 'zod'
-import { DownloadIcon, LoaderCircle, PlusCircle, SearchIcon, Upload } from 'lucide-react'
+import { ArrowRightLeft, DownloadIcon, LoaderCircle, PlusCircle, SearchIcon, Upload } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
 import { type VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
@@ -29,6 +29,8 @@ import type { BulkDeletePayload, CreateMode } from '../types'
 import { getBulkActionFailureDescription } from '../bulk-action-feedback'
 import { type Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
+import { useMergeMode } from '@/components/shared/merge-records/merge-mode-context'
+import { cn } from '@repo/ui/lib/utils'
 
 type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInput> = {
   entityType: ObjectTypes
@@ -66,11 +68,19 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   defaultFilterValues?: TFilterState
 }
 
+const MenuAction = ({ icon, label, onSelect }: { icon: React.ReactNode; label: string; onSelect: () => void }) => (
+  <button type="button" className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer" onClick={onSelect}>
+    {icon}
+    <span>{label}</span>
+  </button>
+)
+
 function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput>(props: GenericTableToolbarProps<T, TWhereInput, TUpdateInput>) {
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isBulkEditDialogOpen, setIsBulkEditDialogOpen] = useState(false)
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
   const { data: session } = useSession()
+  const { available: mergeAvailable, active: mergeModeActive, setActive: setMergeModeActive } = useMergeMode()
 
   const { successNotification, errorNotification } = useNotification()
   const { replace } = useSmartRouter()
@@ -139,126 +149,136 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
           iconPosition="left"
         />
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {props.selectedItems.length > 0 ? (
-            <>
-              {props.canEdit(props.permission?.roles, session) && props.onBulkEdit && props.bulkEditFormSchema && (
-                <>
-                  <GenericBulkEditDialog<T, TUpdateInput>
-                    open={isBulkEditDialogOpen}
-                    onOpenChange={setIsBulkEditDialogOpen}
-                    selectedItems={props.selectedItems}
-                    setSelectedItems={props.setSelectedItems}
-                    schema={props.bulkEditFormSchema as ZodObject<ZodRawShape>}
-                    bulkEditMutation={{
-                      mutateAsync: async ({ ids, input }) => {
-                        await props.onBulkEdit?.(ids, input as TUpdateInput)
-                      },
-                    }}
-                    enumOpts={props.enumOpts}
-                    entityType={props.entityType}
-                    displayName={props.displayName}
-                    responsibilityFields={props.responsibilityFields}
-                    fieldLabels={props.bulkEditFieldLabels}
-                  />
-                </>
-              )}
-              {props.canEdit(props.permission?.roles, session) && props.onBulkDelete && (
-                <>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => {
-                      setIsBulkDeleteDialogOpen(true)
-                    }}
-                  >
-                    {props.selectedItems && props.selectedItems.length > 0 ? `Bulk Delete (${props.selectedItems.length})` : 'Bulk Delete'}
-                  </Button>
-                </>
-              )}
-              {props.canEdit(props.permission?.roles, session) && props.onBulkDelete && (
-                <>
-                  <ConfirmationDialog
-                    open={isBulkDeleteDialogOpen}
-                    onOpenChange={setIsBulkDeleteDialogOpen}
-                    onConfirm={handleBulkDelete}
-                    title={`Delete selected ${entityLabelPlural.toLowerCase()}?`}
-                    description={<>This action cannot be undone. This will permanently delete selected {entityLabelPlural.toLowerCase()}.</>}
-                    confirmationText="Delete"
-                    confirmationTextVariant="destructive"
-                    showInput={false}
-                  />
-                  <CancelButton
-                    onClick={() => {
-                      props.handleClearSelected()
-                    }}
-                  ></CancelButton>
-                </>
-              )}
-            </>
-          ) : (
-            <>
-              <Menu
-                closeOnSelect={true}
-                content={(close) => (
+          <span role="status" aria-live="polite" className="text-sm text-text-informational">
+            {mergeModeActive ? 'Merge mode: drag a record onto the one you want to keep.' : ''}
+          </span>
+          {mergeModeActive && <CancelButton title="Exit merge mode" onClick={() => setMergeModeActive(false)} />}
+          <div className={cn('flex flex-row items-center gap-2', mergeModeActive && 'hidden')}>
+            {props.selectedItems.length > 0 ? (
+              <>
+                {props.canEdit(props.permission?.roles, session) && props.onBulkEdit && props.bulkEditFormSchema && (
                   <>
-                    {props.onBulkCreate && (
-                      <button
-                        type="button"
-                        className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                        onClick={() => {
-                          setIsBulkUploadOpen(true)
-                          close()
-                        }}
-                      >
-                        <Upload size={16} strokeWidth={2} />
-                        <span>Bulk Upload</span>
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                      onClick={() => {
-                        props.handleExport()
-                        close()
+                    <GenericBulkEditDialog<T, TUpdateInput>
+                      open={isBulkEditDialogOpen}
+                      onOpenChange={setIsBulkEditDialogOpen}
+                      selectedItems={props.selectedItems}
+                      setSelectedItems={props.setSelectedItems}
+                      schema={props.bulkEditFormSchema as ZodObject<ZodRawShape>}
+                      bulkEditMutation={{
+                        mutateAsync: async ({ ids, input }) => {
+                          await props.onBulkEdit?.(ids, input as TUpdateInput)
+                        },
                       }}
-                    >
-                      <DownloadIcon size={16} strokeWidth={2} />
-                      <span>Export</span>
-                    </button>
+                      enumOpts={props.enumOpts}
+                      entityType={props.entityType}
+                      displayName={props.displayName}
+                      responsibilityFields={props.responsibilityFields}
+                      fieldLabels={props.bulkEditFieldLabels}
+                    />
                   </>
                 )}
-              />
-
-              {props.onBulkCreate && (
-                <GenericBulkCSVCreateDialog
-                  entityType={props.entityType}
-                  displayName={props.displayName}
-                  onBulkCreate={props.onBulkCreate}
-                  open={isBulkUploadOpen}
-                  onOpenChange={setIsBulkUploadOpen}
+                {props.canEdit(props.permission?.roles, session) && props.onBulkDelete && (
+                  <>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => {
+                        setIsBulkDeleteDialogOpen(true)
+                      }}
+                    >
+                      {props.selectedItems && props.selectedItems.length > 0 ? `Bulk Delete (${props.selectedItems.length})` : 'Bulk Delete'}
+                    </Button>
+                  </>
+                )}
+                {props.canEdit(props.permission?.roles, session) && props.onBulkDelete && (
+                  <>
+                    <ConfirmationDialog
+                      open={isBulkDeleteDialogOpen}
+                      onOpenChange={setIsBulkDeleteDialogOpen}
+                      onConfirm={handleBulkDelete}
+                      title={`Delete selected ${entityLabelPlural.toLowerCase()}?`}
+                      description={<>This action cannot be undone. This will permanently delete selected {entityLabelPlural.toLowerCase()}.</>}
+                      confirmationText="Delete"
+                      confirmationTextVariant="destructive"
+                      showInput={false}
+                    />
+                    <CancelButton
+                      onClick={() => {
+                        props.handleClearSelected()
+                      }}
+                    ></CancelButton>
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                <Menu
+                  closeOnSelect={true}
+                  content={(close) => (
+                    <>
+                      {mergeAvailable && (
+                        <MenuAction
+                          icon={<ArrowRightLeft size={16} strokeWidth={2} />}
+                          label="Merge records"
+                          onSelect={() => {
+                            setMergeModeActive(true)
+                            close()
+                          }}
+                        />
+                      )}
+                      {props.onBulkCreate && (
+                        <MenuAction
+                          icon={<Upload size={16} strokeWidth={2} />}
+                          label="Bulk Upload"
+                          onSelect={() => {
+                            setIsBulkUploadOpen(true)
+                            close()
+                          }}
+                        />
+                      )}
+                      <MenuAction
+                        icon={<DownloadIcon size={16} strokeWidth={2} />}
+                        label="Export"
+                        onSelect={() => {
+                          props.handleExport()
+                          close()
+                        }}
+                      />
+                    </>
+                  )}
                 />
-              )}
 
-              {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
-                <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={props.storageKey} />
-              )}
-              {props.filterFields && (
-                <TableFilter
-                  filterFields={props.filterFields}
-                  quickFilters={props.quickFilters}
-                  onFilterChange={props.onFilterChange as (whereCondition: WhereCondition) => void}
-                  pageKey={props.storageKey}
-                  additionalActiveFilterCount={props.additionalActiveFilterCount}
-                  defaultFilterValues={props.defaultFilterValues}
-                />
-              )}
-              {shouldShowCreationButton && (
-                <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet}>
-                  Create
-                </Button>
-              )}
-            </>
-          )}
+                {props.onBulkCreate && (
+                  <GenericBulkCSVCreateDialog
+                    entityType={props.entityType}
+                    displayName={props.displayName}
+                    onBulkCreate={props.onBulkCreate}
+                    open={isBulkUploadOpen}
+                    onOpenChange={setIsBulkUploadOpen}
+                  />
+                )}
+
+                {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
+                  <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={props.storageKey} />
+                )}
+                {props.filterFields && (
+                  <TableFilter
+                    filterFields={props.filterFields}
+                    quickFilters={props.quickFilters}
+                    onFilterChange={props.onFilterChange as (whereCondition: WhereCondition) => void}
+                    pageKey={props.storageKey}
+                    additionalActiveFilterCount={props.additionalActiveFilterCount}
+                    defaultFilterValues={props.defaultFilterValues}
+                  />
+                )}
+                {shouldShowCreationButton && (
+                  <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet}>
+                    Create
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </>

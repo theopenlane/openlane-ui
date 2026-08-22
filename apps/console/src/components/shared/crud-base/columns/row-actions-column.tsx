@@ -6,6 +6,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from '@repo/ui/button'
 import { MoreHorizontal } from 'lucide-react'
 
+export const ROW_ACTIONS_COLUMN_ID = 'actions'
+
 type RowAction<T> = {
   label: string
   icon?: React.ReactNode
@@ -19,7 +21,7 @@ type RowActionsColumnOptions<T> = {
 
 export function createRowActionsColumn<T>({ actions }: RowActionsColumnOptions<T>): ColumnDef<T> {
   return {
-    id: 'actions',
+    id: ROW_ACTIONS_COLUMN_ID,
     header: '',
     size: 50,
     cell: ({ row }) => (

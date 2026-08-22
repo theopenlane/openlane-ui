@@ -3,6 +3,8 @@ import { type ColumnDef, type Row } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import React from 'react'
 
+export const SELECT_COLUMN_ID = 'select'
+
 function buildSelectColumn<T extends { id: string }>(
   selectedItems: { id: string }[],
   setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>,
@@ -11,7 +13,7 @@ function buildSelectColumn<T extends { id: string }>(
   const canSelect = (item: T) => (isSelectable ? isSelectable(item) : true)
 
   return {
-    id: 'select',
+    id: SELECT_COLUMN_ID,
     header: ({ table }) => {
       const currentPageItems = table
         .getRowModel()

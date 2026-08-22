@@ -1,11 +1,16 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import type { RowDragDropConfig } from '@repo/ui/data-table'
 import { MergeRecordsSheet } from './merge-records-sheet'
+import { useMergeMode } from './merge-mode-context'
+import { SELECT_COLUMN_ID } from '@/components/shared/crud-base/columns/select-column'
+import { ROW_ACTIONS_COLUMN_ID } from '@/components/shared/crud-base/columns/row-actions-column'
 import type { MergeConfig } from './types'
 
 type MergePair = { dropId: number; primaryId: string; secondaryId: string; secondaryLabel: string }
+
+const MERGE_MODE_HIDDEN_COLUMN_IDS = [SELECT_COLUMN_ID, ROW_ACTIONS_COLUMN_ID] as const
 
 type UseMergeDragDropArgs<TRow extends { id: string }, TRecord extends object, TUpdateInput> = {
   config: MergeConfig<TRecord, TUpdateInput>
@@ -22,6 +27,12 @@ export const useMergeDragDrop = <TRow extends { id: string }, TRecord extends ob
 }: UseMergeDragDropArgs<TRow, TRecord, TUpdateInput>) => {
   const [pair, setPair] = useState<MergePair | null>(null)
   const [open, setOpen] = useState(false)
+  const { active: mergeMode, registerAvailability } = useMergeMode()
+
+  useEffect(() => {
+    registerAvailability(enabled)
+    return () => registerAvailability(false)
+  }, [enabled, registerAvailability])
 
   const rowDragDrop = useMemo<RowDragDropConfig<TRow> | undefined>(() => {
     if (!enabled) return undefined
@@ -29,13 +40,15 @@ export const useMergeDragDrop = <TRow extends { id: string }, TRecord extends ob
       getRowId: (row) => row.id,
       getRowLabel,
       dropHint: `Drop onto another ${config.labelSingular} to merge into it`,
+      exclusive: mergeMode,
+      exclusiveHiddenColumnIds: MERGE_MODE_HIDDEN_COLUMN_IDS,
       onDrop: (source, target) => {
         if (source.id === target.id) return
         setPair((prev) => ({ dropId: (prev?.dropId ?? 0) + 1, primaryId: target.id, secondaryId: source.id, secondaryLabel: getRowLabel(source) }))
         setOpen(true)
       },
     }
-  }, [enabled, getRowLabel, config.labelSingular])
+  }, [enabled, getRowLabel, config.labelSingular, mergeMode])
 
   const mergeSheet = pair ? (
     <MergeRecordsSheet

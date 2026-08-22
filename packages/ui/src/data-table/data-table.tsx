@@ -32,14 +32,14 @@ import {
   type CollisionDetection,
   type DragEndEvent,
   type DragStartEvent,
+  type Modifier,
   type PointerActivationConstraint,
-  type PointerSensorProps,
   PointerSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
 import { SortableContext, horizontalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+import { CSS, getEventCoordinates } from '@dnd-kit/utilities'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table/table'
 import { Button } from '../button/button'
@@ -65,6 +65,8 @@ export type RowDragDropConfig<TData> = {
   getRowLabel: (row: TData) => string
   onDrop: (source: TData, target: TData) => void
   dropHint?: string
+  exclusive?: boolean
+  exclusiveHiddenColumnIds?: readonly string[]
 }
 
 const ROW_DRAG_TYPE = 'data-table-row'
@@ -73,18 +75,9 @@ const ROW_DRAG_ID_PREFIX = 'row-drag:'
 
 const ROW_DRAG_IGNORED_TARGETS = 'button, a, input, select, textarea, label, [role="checkbox"], [role="menuitem"], [data-no-row-drag]'
 
-const COLUMN_DRAG_ACTIVATION: PointerActivationConstraint = { distance: 5 }
-
-const ROW_DRAG_ACTIVATION: PointerActivationConstraint = { delay: 250, tolerance: 5 }
+const DRAG_ACTIVATION: PointerActivationConstraint = { distance: 5 }
 
 const isRowDragId = (id: unknown) => typeof id === 'string' && id.startsWith(ROW_DRAG_ID_PREFIX)
-
-class TableDragSensor extends PointerSensor {
-  constructor(props: PointerSensorProps) {
-    const activationConstraint = isRowDragId(props.active) ? ROW_DRAG_ACTIVATION : COLUMN_DRAG_ACTIVATION
-    super({ ...props, options: { ...props.options, activationConstraint } })
-  }
-}
 
 type RowDragPayload<TData> = { type: typeof ROW_DRAG_TYPE; row: TData }
 
@@ -93,6 +86,33 @@ type RowDragData<TData> = RowDragPayload<TData> | Record<string, unknown> | null
 const isRowDragPayload = <TData,>(data: RowDragData<TData>): data is RowDragPayload<TData> => !!data && data.type === ROW_DRAG_TYPE && 'row' in data
 
 const readRowPayload = <TData,>(data: RowDragData<TData>): TData | null => (isRowDragPayload<TData>(data) ? data.row : null)
+
+const ROW_DRAG_OVERLAY_CURSOR_OFFSET_X = -15
+
+const ROW_DRAG_OVERLAY_CURSOR_OFFSET_Y = -27.5
+
+const snapOverlayToCursor: Modifier = ({ activatorEvent, transform }) => {
+  const activationCoordinates = activatorEvent ? getEventCoordinates(activatorEvent) : null
+  if (!activationCoordinates) return transform
+  return {
+    ...transform,
+    x: activationCoordinates.x + transform.x + ROW_DRAG_OVERLAY_CURSOR_OFFSET_X,
+    y: activationCoordinates.y + transform.y + ROW_DRAG_OVERLAY_CURSOR_OFFSET_Y,
+  }
+}
+
+const ROW_DRAG_OVERLAY_MODIFIERS = [snapOverlayToCursor]
+
+const setRowDraggingCursor = (dragging: boolean) => {
+  if (typeof document === 'undefined') return
+  if (dragging) {
+    document.body.dataset.rowDragging = 'true'
+  } else {
+    delete document.body.dataset.rowDragging
+  }
+}
+
+const ROW_DRAG_OVERLAY_STYLE = { top: 0, left: 0, width: 'auto', height: 'auto' }
 
 const tableCollisionDetection: CollisionDetection = (args) => {
   if (!isRowDragId(args.active.id)) {
@@ -141,7 +161,8 @@ export function getInitialColumnOrder(tableKey: TableKeyValue): string[] {
     const stored = localStorage.getItem(`${STORAGE_COLUMN_ORDER_KEY_PREFIX}${tableKey}`)
     if (stored) {
       try {
-        return JSON.parse(stored)
+        const parsed: unknown = JSON.parse(stored)
+        if (Array.isArray(parsed) && parsed.every((id) => typeof id === 'string')) return parsed
       } catch {}
     }
   }
@@ -281,7 +302,7 @@ function SortableHeaderCell<TData>({ header, sortField, sorting, handleSortChang
           </div>
         </div>
       )}
-      {!isLastHeader && (
+      {!isLastHeader && header.column.getCanResize() && (
         <div
           onDoubleClick={() => header.column.resetSize()}
           onMouseDown={header.getResizeHandler()}
@@ -333,13 +354,35 @@ export function DataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = useState({})
   const [columnOrder, setColumnOrder] = useState<string[]>(() => (tableKey ? getInitialColumnOrder(tableKey) : []))
 
-  const sensors = useSensors(useSensor(TableDragSensor))
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: DRAG_ACTIVATION }))
+
+  const isExclusiveRowDrag = !!rowDragDrop?.exclusive
+  const exclusiveHiddenColumnIds = rowDragDrop?.exclusiveHiddenColumnIds
+
+  const effectiveColumnVisibility = useMemo(() => {
+    if (!isExclusiveRowDrag || !exclusiveHiddenColumnIds?.length) return columnVisibility
+    const visibility: VisibilityState = { ...columnVisibility }
+    for (const id of exclusiveHiddenColumnIds) visibility[id] = false
+    return visibility
+  }, [columnVisibility, isExclusiveRowDrag, exclusiveHiddenColumnIds])
+
+  const wasExclusiveRowDragRef = useRef(isExclusiveRowDrag)
+  const preExclusiveColumnSizesRef = useRef<Record<string, number> | null>(null)
 
   const [draggedRow, setDraggedRow] = useState<TData | null>(null)
 
-  const handleDragStart = useCallback((event: DragStartEvent) => setDraggedRow(readRowPayload<TData>(event.active.data.current)), [])
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    const row = readRowPayload<TData>(event.active.data.current)
+    setRowDraggingCursor(!!row)
+    setDraggedRow(row)
+  }, [])
 
-  const handleDragCancel = useCallback(() => setDraggedRow(null), [])
+  const handleDragCancel = useCallback(() => {
+    setRowDraggingCursor(false)
+    setDraggedRow(null)
+  }, [])
+
+  useEffect(() => () => setRowDraggingCursor(false), [])
 
   const currentPage = pagination?.page || 1
   const currentPageSize = pagination?.pageSize || 10
@@ -410,7 +453,7 @@ export function DataTable<TData, TValue>({
       window.removeEventListener('resize', checkScroll)
       ro.disconnect()
     }
-  }, [columnVisibility, pageInfo])
+  }, [effectiveColumnVisibility, pageInfo])
 
   const enhancedColumns = useMemo(() => {
     return columns.map((col) => {
@@ -472,7 +515,7 @@ export function DataTable<TData, TValue>({
     enableColumnResizing: true,
     state: {
       columnFilters,
-      columnVisibility,
+      columnVisibility: effectiveColumnVisibility,
       columnOrder,
       rowSelection,
       columnSizing: columnSizes,
@@ -496,6 +539,7 @@ export function DataTable<TData, TValue>({
 
     const source = readRowPayload<TData>(active.data.current)
     if (source) {
+      setRowDraggingCursor(false)
       setDraggedRow(null)
       const target = readRowPayload<TData>(over?.data.current)
       if (target) rowDragDrop?.onDrop(source, target)
@@ -521,7 +565,15 @@ export function DataTable<TData, TValue>({
     const visibleCols = getVisibleColumnInfos(table)
     if (visibleCols.length === 0) return
 
-    const redistributed = redistributeColumnWidths(visibleCols, columnSizesRef.current, containerWidth, fixedMaxColumns)
+    const exclusiveRowDragChanged = wasExclusiveRowDragRef.current !== isExclusiveRowDrag
+    wasExclusiveRowDragRef.current = isExclusiveRowDrag
+
+    if (exclusiveRowDragChanged && isExclusiveRowDrag) {
+      preExclusiveColumnSizesRef.current = columnSizesRef.current
+    }
+
+    const baseSizing = exclusiveRowDragChanged && !isExclusiveRowDrag ? (preExclusiveColumnSizesRef.current ?? {}) : columnSizesRef.current
+    const redistributed = redistributeColumnWidths(visibleCols, baseSizing, containerWidth, fixedMaxColumns)
 
     const changed = visibleCols.some((col) => {
       const prev = columnSizesRef.current[col.id] ?? col.defSize
@@ -533,7 +585,10 @@ export function DataTable<TData, TValue>({
       setColumnSizes(redistributed)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [containerWidth, columnVisibility])
+  }, [containerWidth, effectiveColumnVisibility, isExclusiveRowDrag])
+
+  const bodyOnRowClick = isExclusiveRowDrag ? undefined : onRowClick
+  const bodyRowHref = isExclusiveRowDrag ? undefined : rowHref
 
   const columnSizingInfo = table.getState().columnSizingInfo
 
@@ -695,8 +750,8 @@ export function DataTable<TData, TValue>({
                 {columnSizingInfo.isResizingColumn ? (
                   <MemoizedDataTableBody
                     table={table}
-                    onRowClick={onRowClick}
-                    rowHref={rowHref}
+                    onRowClick={bodyOnRowClick}
+                    rowHref={bodyRowHref}
                     loading={loading}
                     noDataMarkup={noDataMarkup}
                     noResultsText={noResultsText}
@@ -706,8 +761,8 @@ export function DataTable<TData, TValue>({
                 ) : (
                   <DataTableBodyContent
                     table={table}
-                    onRowClick={onRowClick}
-                    rowHref={rowHref}
+                    onRowClick={bodyOnRowClick}
+                    rowHref={bodyRowHref}
                     loading={loading}
                     noDataMarkup={noDataMarkup}
                     noResultsText={noResultsText}
@@ -717,7 +772,7 @@ export function DataTable<TData, TValue>({
                 )}
               </Table>
               {rowDragDrop && (
-                <DragOverlay dropAnimation={null}>
+                <DragOverlay dropAnimation={null} modifiers={ROW_DRAG_OVERLAY_MODIFIERS} style={ROW_DRAG_OVERLAY_STYLE}>
                   {draggedRow && (
                     <div className="pointer-events-none flex max-w-xs items-center gap-2 rounded-md border bg-popover px-3 py-2 shadow-lg">
                       <GripVertical size={14} className="shrink-0 text-muted-foreground" />
@@ -764,6 +819,8 @@ type DataRowProps<TData, TValue> = {
 type RowDragState = {
   setRef: (node: HTMLTableRowElement | null) => void
   rowProps: React.HTMLAttributes<HTMLTableRowElement>
+  handle: ReactElement | null
+  isExclusive: boolean
   isDragging: boolean
   isOver: boolean
 }
@@ -818,22 +875,36 @@ const DataRowContent = memo(function DataRowContent<TData, TValue>({ row, isExpa
           row.index % 2 === 1 && 'bg-table-secondary',
           'hover:bg-table-row-bg-hover',
           isClickable && 'cursor-pointer',
+          dragState && 'group/row',
+          dragState?.isExclusive && 'cursor-grab active:cursor-grabbing [&_a]:pointer-events-none [&_button]:pointer-events-none',
           dragState?.isDragging && 'opacity-40',
           dragState?.isOver && 'bg-primary-muted! even:bg-primary-muted! outline-2 -outline-offset-2 outline-primary',
         )}
         data-state={row.getIsSelected() && 'selected'}
       >
-        {visibleCells.map((cell) => {
+        {visibleCells.map((cell, cellIndex) => {
           const widthVar = `var(--col-${cssVarKey(cell.column.id)})`
           const content = flexRender(cell.column.columnDef.cell, cell.getContext())
+          const isDragAnchor = !!dragState?.handle && cellIndex === 0
           return (
             <TableCell
               variant="data"
               key={cell.id}
-              className={cn('truncate', (cell.column.columnDef.meta as CustomColumnDef<TData, TValue>['meta'])?.className)}
+              className={
+                isDragAnchor
+                  ? cn((cell.column.columnDef.meta as CustomColumnDef<TData, TValue>['meta'])?.className, 'relative overflow-visible')
+                  : cn('truncate', (cell.column.columnDef.meta as CustomColumnDef<TData, TValue>['meta'])?.className)
+              }
               style={{ width: widthVar, minWidth: widthVar, maxWidth: widthVar }}
             >
-              {content}
+              {isDragAnchor ? (
+                <>
+                  {dragState.handle}
+                  <span className="block truncate">{content}</span>
+                </>
+              ) : (
+                content
+              )}
             </TableCell>
           )
         })}
@@ -854,7 +925,7 @@ const DraggableDataRow = <TData, TValue>({ rowDragDrop, ...props }: DataRowProps
   const dragId = `${ROW_DRAG_ID_PREFIX}${rowDragDrop.getRowId(record)}`
   const payload = useMemo(() => ({ type: ROW_DRAG_TYPE, row: record }), [record])
 
-  const { listeners, setNodeRef: setDragNodeRef, isDragging } = useDraggable({ id: dragId, data: payload })
+  const { attributes, listeners, setNodeRef: setDragNodeRef, setActivatorNodeRef, isDragging } = useDraggable({ id: dragId, data: payload })
   const { setNodeRef: setDropNodeRef, isOver } = useDroppable({ id: dragId, data: payload })
 
   const setRef = useCallback(
@@ -873,7 +944,38 @@ const DraggableDataRow = <TData, TValue>({ rowDragDrop, ...props }: DataRowProps
     [listeners],
   )
 
-  const dragState = useMemo(() => ({ setRef, rowProps: { onPointerDown: handlePointerDown }, isDragging, isOver }), [setRef, handlePointerDown, isDragging, isOver])
+  const { dropHint, exclusive } = rowDragDrop
+
+  const handle = useMemo(
+    () =>
+      exclusive ? null : (
+        <button
+          type="button"
+          {...attributes}
+          ref={setActivatorNodeRef}
+          tabIndex={-1}
+          {...listeners}
+          onClick={(event) => event.stopPropagation()}
+          onAuxClick={(event) => event.stopPropagation()}
+          aria-hidden="true"
+          title={dropHint}
+          className={cn(
+            'absolute -top-2.5 left-2 z-20 flex items-center gap-1 rounded-full border bg-popover py-0.5 pl-1 pr-2 text-xs leading-none shadow-sm',
+            'touch-none text-muted-foreground cursor-grab active:cursor-grabbing hover:text-text-header transition-opacity',
+            'opacity-0 pointer-events-none group-hover/row:opacity-100 group-hover/row:pointer-events-auto [@media(hover:none)]:opacity-100 [@media(hover:none)]:pointer-events-auto',
+          )}
+        >
+          <GripVertical size={12} />
+          Merge
+        </button>
+      ),
+    [attributes, listeners, setActivatorNodeRef, dropHint, exclusive],
+  )
+
+  const dragState = useMemo(
+    () => ({ setRef, rowProps: exclusive ? { onPointerDown: handlePointerDown } : {}, handle, isExclusive: !!exclusive, isDragging, isOver }),
+    [setRef, handlePointerDown, handle, exclusive, isDragging, isOver],
+  )
 
   return <DataRowContent {...props} dragState={dragState} />
 }
@@ -954,6 +1056,8 @@ const MemoizedDataTableBody = memo(DataTableBodyContent, (prev, next) => {
     prev.table.options.data === next.table.options.data &&
     prev.table.getState().columnOrder === next.table.getState().columnOrder &&
     prev.renderExpandedRow === next.renderExpandedRow &&
-    prev.rowDragDrop === next.rowDragDrop
+    prev.rowDragDrop === next.rowDragDrop &&
+    prev.onRowClick === next.onRowClick &&
+    prev.rowHref === next.rowHref
   )
 }) as typeof DataTableBodyContent
