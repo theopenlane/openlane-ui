@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -21,7 +21,8 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { ASSET_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
-import { MergeHeaderButton } from '@/components/shared/merge-records/merge-menu-item'
+import { MergeRecordsSheet } from '@/components/shared/merge-records/merge-records-sheet'
+import { mergeMenuAction } from '@/components/shared/crud-base/slideout-header'
 import { assetMergeConfig } from '@/components/shared/merge-records/configs/asset-merge-config'
 import { useCanEditObject } from '@/components/shared/crud-base/use-object-permission'
 
@@ -35,6 +36,7 @@ const AssetPage: React.FC = () => {
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
+  const [isMergeOpen, setIsMergeOpen] = useState(false)
   const isCreate = searchParams.get('create') === 'true'
   const scanId = searchParams.get('scanId')
   const { data, isLoading } = useAsset(id || undefined)
@@ -200,7 +202,7 @@ const AssetPage: React.FC = () => {
     normalizeData,
     getName,
     renderFields: (props: AssetFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
-    extraHeaderActions: id && !isCreate && canEditAsset ? <MergeHeaderButton primaryId={id} config={assetMergeConfig} /> : undefined,
+    extraMenuActions: id && !isCreate && canEditAsset ? [mergeMenuAction(() => setIsMergeOpen(true))] : undefined,
   }
 
   const tableConfig: AssetTablePageConfig = {
@@ -241,7 +243,12 @@ const AssetPage: React.FC = () => {
     },
   }
 
-  return <GenericTablePage {...tableConfig} />
+  return (
+    <>
+      <GenericTablePage {...tableConfig} />
+      {id && canEditAsset && <MergeRecordsSheet open={isMergeOpen} onOpenChange={setIsMergeOpen} config={assetMergeConfig} primaryId={id} />}
+    </>
+  )
 }
 
 export default AssetPage

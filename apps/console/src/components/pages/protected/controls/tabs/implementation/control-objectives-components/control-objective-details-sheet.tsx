@@ -9,23 +9,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@repo/ui/label'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { ControlObjectiveControlSource, ControlObjectiveObjectiveStatus, type ControlObjectiveFieldsFragment, type UpdateControlObjectiveInput } from '@repo/codegen/src/schema'
-import { toHumanLabel } from '@/utils/strings'
 import { useGetControlObjectiveById, useUpdateControlObjective, useDeleteControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { ControlObjectiveCard } from './control-objective-card'
 import { LinkControlsModal } from './link-controls-modal'
 import { GenericDetailsSheet, type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import useFormSchema, { type TFormData } from './form/use-form-schema'
-import { ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
+import { ControlObjectiveSourceOptions, ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
 import { VersionBump } from '@/lib/enums/revision-enum'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 type Props = {
   queryParamKey?: string
   entityId?: string | null
   onClose?: () => void
 }
+
+const versionBumpOptions = enumToOptions(VersionBump)
 
 const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'controlObjectiveId', entityId: entityIdProp, onClose: onCloseProp }) => {
   const router = useRouter()
@@ -158,9 +160,9 @@ const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'contro
                     <SelectValue placeholder="Select source" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(ControlObjectiveControlSource).map(([key, value]) => (
-                      <SelectItem key={key} value={value}>
-                        {toHumanLabel(value)}
+                    {ControlObjectiveSourceOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -199,9 +201,9 @@ const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'contro
                       <SelectValue placeholder="Select revision type" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(VersionBump).map(([key, value]) => (
-                        <SelectItem key={key} value={value}>
-                          {value.charAt(0) + value.slice(1).toLowerCase()}
+                      {versionBumpOptions.map(({ value, label }) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
                         </SelectItem>
                       ))}
                     </SelectContent>

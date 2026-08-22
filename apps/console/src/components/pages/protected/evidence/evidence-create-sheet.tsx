@@ -1,8 +1,8 @@
 'use client'
-import React, { useCallback, useEffect, useState } from 'react'
-import { InfoIcon, X } from 'lucide-react'
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { InfoIcon } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import useFormSchema, { type CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import useFormSchema, { type CreateEvidenceFormData, type CreateEvidenceFormInput } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
@@ -19,7 +19,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { type TUploadedFile } from './upload/types/TUploadedFile'
 import { useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { type CustomEvidenceControl, EVIDENCE_ASSOCIATION_FIELDS } from './evidence-sheet-config'
 import { EvidenceDocsExamples } from './evidence-docs-examples'
@@ -37,6 +37,8 @@ import { useIsAuditor } from '@/lib/graphql-hooks/member'
 import EvidenceLinkedControlsPanel from './panels/evidence-linked-controls-panel'
 import EvidenceAdditionalDetails from './create/evidence-additional-details'
 import { EVIDENCE_AUDITOR_REQUEST_MODE, EVIDENCE_CREATE_MODE } from './create/evidence-create-mode'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
 
 const statusOptions = enumToOptions(EvidenceEvidenceStatus)
 
@@ -60,6 +62,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   controlParam,
 }: TEvidenceCreateSheetProps) => {
   const { form } = useFormSchema()
+  const { isDirty } = form.formState
   const { isAuditor } = useIsAuditor()
   const mode = isAuditor ? EVIDENCE_AUDITOR_REQUEST_MODE : EVIDENCE_CREATE_MODE
   const { successNotification, errorNotification } = useNotification()
@@ -79,10 +82,12 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const { tagOptions } = useGetTags()
 
   const { convertToHtml } = usePlateEditor()
+  const evidenceCreateFormId = useId()
+  const hasAppliedPrefillRef = useRef(false)
 
   useEffect(() => {
     if (open && mode.defaultStatus && !form.getValues('status')) {
-      form.setValue('status', mode.defaultStatus)
+      form.reset({ ...form.getValues(), status: mode.defaultStatus })
     }
   }, [open, mode.defaultStatus, form])
 
@@ -178,42 +183,48 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
   // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleInitialValue = useCallback(() => {
-    if (formData) {
-      if (controlParam && controlParam.length) {
-        const newEvidenceControls: CustomEvidenceControl[] = []
-        const newEvidenceSubcontrols: CustomEvidenceControl[] = []
+    if (!formData) {
+      return
+    }
 
-        controlParam.forEach((control) => {
-          if (control.__typename === ObjectTypes.CONTROL) {
-            newEvidenceControls.push(control)
-          } else {
-            newEvidenceSubcontrols.push(control)
-          }
-        })
+    if (controlParam && controlParam.length) {
+      const newEvidenceControls: CustomEvidenceControl[] = []
+      const newEvidenceSubcontrols: CustomEvidenceControl[] = []
 
-        setEvidenceControls(newEvidenceControls)
-        setEvidenceSubcontrols(newEvidenceSubcontrols)
-      }
-
-      form.setValue('name', `Evidence for ${formData.displayID}`)
-      for (const key of EVIDENCE_ASSOCIATION_FIELDS) {
-        const value = formData.objectAssociations[key]
-        if (value) {
-          form.setValue(key, value)
+      controlParam.forEach((control) => {
+        if (control.__typename === ObjectTypes.CONTROL) {
+          newEvidenceControls.push(control)
+        } else {
+          newEvidenceSubcontrols.push(control)
         }
-      }
+      })
 
-      if (formData?.tags) {
-        form.setValue('tags', formData.tags)
-      }
-      if (formData && formData.objectAssociations) {
-        form.setValue('controlIDs', formData.objectAssociations.controlIDs ? formData.objectAssociations.controlIDs : [])
-        form.setValue('programIDs', formData.objectAssociations.programIDs ? formData.objectAssociations.programIDs : [])
-        form.setValue('subcontrolIDs', formData.objectAssociations.subcontrolIDs ? formData.objectAssociations.subcontrolIDs : [])
+      setEvidenceControls(newEvidenceControls)
+      setEvidenceSubcontrols(newEvidenceSubcontrols)
+    }
 
-        setAssociationProgramsRefMap(formData.programDisplayIDs ? formData.programDisplayIDs : [])
+    const prefill: Partial<CreateEvidenceFormInput> = { name: `Evidence for ${formData.displayID}` }
+
+    for (const key of EVIDENCE_ASSOCIATION_FIELDS) {
+      const value = formData.objectAssociations[key]
+      if (value) {
+        prefill[key] = value
       }
     }
+
+    if (formData.tags) {
+      prefill.tags = formData.tags
+    }
+
+    if (formData.objectAssociations) {
+      prefill.controlIDs = formData.objectAssociations.controlIDs ?? []
+      prefill.programIDs = formData.objectAssociations.programIDs ?? []
+      prefill.subcontrolIDs = formData.objectAssociations.subcontrolIDs ?? []
+
+      setAssociationProgramsRefMap(formData.programDisplayIDs ? formData.programDisplayIDs : [])
+    }
+
+    form.reset({ ...form.getValues(), ...prefill })
   }, [form, formData, controlParam])
 
   const { suggestedControlsMap, isLoading: isSuggestionsLoading } = useEvidenceSuggestedControls({
@@ -223,20 +234,43 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   })
 
   useEffect(() => {
-    handleInitialValue()
-  }, [handleInitialValue])
-
-  const handleOnOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen) {
-      setIsDiscardDialogOpen(true)
-    } else {
-      onOpenChange?.(true)
+    if (!open) {
+      hasAppliedPrefillRef.current = false
+      return
     }
+
+    if (hasAppliedPrefillRef.current || !formData) {
+      return
+    }
+
+    hasAppliedPrefillRef.current = true
     handleInitialValue()
+  }, [open, formData, handleInitialValue])
+
+  const discardAndClose = () => {
+    setIsDiscardDialogOpen(false)
+    onOpenChange(false)
+    setEvidenceSubcontrols(null)
+    setEvidenceControls(null)
+    form.reset()
   }
 
   const handleSheetClose = () => {
-    setIsDiscardDialogOpen(true)
+    if (isDirty) {
+      setIsDiscardDialogOpen(true)
+      return
+    }
+
+    discardAndClose()
+  }
+
+  const handleOnOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      handleSheetClose()
+      return
+    }
+
+    onOpenChange?.(true)
   }
 
   const handleEvidenceObjectIdsChange = useCallback((updatedMap: TObjectAssociationMap) => {
@@ -246,7 +280,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const handleUploadedFiles = (evidenceFiles: TUploadedFile[]) => {
     const evidenceFilesFiltered = evidenceFiles?.filter((item) => item.type === 'file')
     if (evidenceFilesFiltered) {
-      form.setValue('evidenceFiles', evidenceFilesFiltered)
+      form.setValue('evidenceFiles', evidenceFilesFiltered, { shouldDirty: evidenceFilesFiltered.length > 0 })
     }
   }
 
@@ -254,29 +288,37 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
     setResetEvidenceFiles(false)
   }
 
+  const evidenceHeading =
+    controlParam && controlParam.length > 0
+      ? `Evidence for ${Array.from(new Set(controlParam.map((c) => c.refCode))).join(', ')}`
+      : `Evidence ${formData?.displayID ? 'for ' + formData.displayID : ''}`.trim()
+
   return (
     <Sheet open={open} onOpenChange={handleOnOpenChange}>
       <SheetContent
         side="right"
         className="bg-secondary flex flex-col"
         minWidth={470}
-        header={
-          <SheetHeader className="mb-5">
-            <div className="flex items-center justify-between">
-              <span className="text-2xl leading-8 font-medium">
-                {controlParam && controlParam?.length > 0 ? (
-                  <span className="text-2xl leading-8 font-medium whitespace-nowrap">{`Evidence for ${Array.from(new Set(controlParam.map((c) => c.refCode))).join(', ')}`}</span>
-                ) : (
-                  <span className="text-2xl leading-8 font-medium">{`Evidence ${formData?.displayID ? 'for ' + formData.displayID : ''}`}</span>
-                )}
-              </span>
-              <X aria-label="Close sheet" size={20} className="cursor-pointer" onClick={handleSheetClose} />
-            </div>
-          </SheetHeader>
+        header={<SlideoutHeader title={evidenceHeading} onClose={handleSheetClose} />}
+        footer={
+          <SlideoutFormFooter
+            formId={evidenceCreateFormId}
+            onCancel={handleSheetClose}
+            isPending={isPending}
+            saveLabel={mode.submitLabel}
+            savingLabel="Submitting..."
+            secondaryActions={
+              mode.showSaveAsDraft ? (
+                <Button type="button" variant="secondary" onClick={handleSaveAsDraft} loading={isPending} disabled={isPending}>
+                  Save as draft
+                </Button>
+              ) : undefined
+            }
+          />
         }
       >
         <Form {...form}>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <form id={evidenceCreateFormId} onSubmit={handleSubmit} className="flex flex-col gap-6">
             <EvidenceDocsExamples control={controlParam?.[0]} />
             <InputRow className="w-full">
               <FormField
@@ -395,30 +437,9 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
               defaultSelectedObject={defaultSelectedObject}
               formData={formData}
             />
-
-            <div className="flex justify-end gap-3">
-              {mode.showSaveAsDraft && (
-                <Button type="button" variant="secondary" onClick={handleSaveAsDraft} loading={isPending} disabled={isPending}>
-                  Save as draft
-                </Button>
-              )}
-              <Button type="submit" loading={isPending} disabled={isPending}>
-                {isPending ? 'Submitting...' : mode.submitLabel}
-              </Button>
-            </div>
           </form>
         </Form>
-        <CancelDialog
-          isOpen={isDiscardDialogOpen}
-          onConfirm={() => {
-            setIsDiscardDialogOpen(false)
-            onOpenChange(false)
-            setEvidenceSubcontrols(null)
-            setEvidenceControls(null)
-            form.reset()
-          }}
-          onCancel={() => setIsDiscardDialogOpen(false)}
-        />
+        <CancelDialog isOpen={isDiscardDialogOpen} onConfirm={discardAndClose} onCancel={() => setIsDiscardDialogOpen(false)} />
       </SheetContent>
     </Sheet>
   )

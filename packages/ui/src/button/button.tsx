@@ -1,5 +1,5 @@
 import { Slot, Slottable } from '@radix-ui/react-slot'
-import { buttonStyles, type ButtonProps } from './button.styles'
+import { buttonStyles, type ButtonProps, type ButtonVariants } from './button.styles'
 import { CheckIcon, LoaderCircle } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
@@ -77,3 +77,4 @@ const Button = ({
 }
 
 export { Button, buttonStyles }
+export type { ButtonVariants }

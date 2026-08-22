@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react'
 import { ArrowRightLeft } from 'lucide-react'
-import { Button } from '@repo/ui/button'
 import { MergeRecordsSheet } from './merge-records-sheet'
 import type { MergeConfig } from './types'
 
@@ -20,18 +19,6 @@ export const MergeMenuItem = <TRecord extends object, TUpdateInput>({ primaryId,
         <ArrowRightLeft size={16} strokeWidth={2} />
         <span>Merge with…</span>
       </button>
-      <MergeRecordsSheet open={open} onOpenChange={setOpen} config={config} primaryId={primaryId} onMergeComplete={onMergeComplete} />
-    </>
-  )
-}
-
-export const MergeHeaderButton = <TRecord extends object, TUpdateInput>({ primaryId, config, onMergeComplete }: Props<TRecord, TUpdateInput>) => {
-  const [open, setOpen] = useState(false)
-  return (
-    <>
-      <Button icon={<ArrowRightLeft size={16} />} iconPosition="left" variant="secondary" onClick={() => setOpen(true)}>
-        Merge
-      </Button>
       <MergeRecordsSheet open={open} onOpenChange={setOpen} config={config} primaryId={primaryId} onMergeComplete={onMergeComplete} />
     </>
   )

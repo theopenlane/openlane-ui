@@ -1,7 +1,7 @@
 import { Archive, Circle, FilePen } from 'lucide-react'
-import { ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema.ts'
+import { ControlObjectiveControlSource, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema.ts'
 import React from 'react'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 export const ControlObjectiveIconMapper: Record<ControlObjectiveObjectiveStatus, React.ReactNode> = {
   [ControlObjectiveObjectiveStatus.DRAFT]: <FilePen height={16} width={16} />,
@@ -9,17 +9,8 @@ export const ControlObjectiveIconMapper: Record<ControlObjectiveObjectiveStatus,
   [ControlObjectiveObjectiveStatus.ARCHIVED]: <Archive height={16} width={16} />,
 }
 
-// Status options for select dropdowns
-export const ControlObjectiveStatusOptions = Object.values(ControlObjectiveObjectiveStatus).map((status) => ({
-  label: getEnumLabel(status),
-  value: status,
-}))
+export const ControlObjectiveStatusOptions = enumToOptions(ControlObjectiveObjectiveStatus)
 
-// Status options for table filters
-export const ControlObjectiveStatusFilterOptions = Object.entries(ControlObjectiveObjectiveStatus).map(([key, value]) => ({
-  label: key
-    .replace(/_/g, ' ')
-    .toLowerCase()
-    .replace(/\b\w/g, (c) => c.toUpperCase()),
-  value,
-}))
+export const ControlObjectiveSourceOptions = enumToOptions(ControlObjectiveControlSource)
+
+export const ControlObjectiveStatusFilterOptions = enumToOptions(ControlObjectiveObjectiveStatus)

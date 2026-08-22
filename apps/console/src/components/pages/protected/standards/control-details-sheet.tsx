@@ -1,11 +1,9 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { useGetControlById } from '@/lib/graphql-hooks/control'
-import { LinkIcon, PanelRightClose } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import { Button } from '@repo/ui/button'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { useGetAllMappedControlsGrouped } from '@/lib/graphql-hooks/mapped-control'
 import { type GroupedControls, type RelatedNode } from '../controls/shared/related-node'
@@ -17,6 +15,7 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
+import { copyLinkMenuAction, SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 
 const ControlDetailsSheet = () => {
   const searchParams = useSearchParams()
@@ -159,24 +158,16 @@ const ControlDetailsSheet = () => {
     })
   })
 
+  const controlHeading = data?.control.title ? `${data.control.refCode} ${data.control.title}` : (data?.control.refCode ?? 'Control')
+
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent
         side="right"
         className="flex flex-col"
         onOpenAutoFocus={(e) => e.preventDefault()}
-        header={
-          <SheetHeader>
-            <div className="flex items-center justify-between">
-              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
-              <Button className="h-8 p-2" icon={<LinkIcon />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
-                Copy link
-              </Button>
-            </div>
-          </SheetHeader>
-        }
+        header={<SlideoutHeader title={controlHeading} onClose={() => handleOpenChange(false)} menuActions={[copyLinkMenuAction(handleCopyLink)]} />}
       >
-        <SheetTitle className="text-2xl text-start">{data?.control.title ? `${data?.control.refCode} ${data.control.title}` : data?.control.refCode}</SheetTitle>
         <div className="flex flex-col gap-8">
           {data?.control.description && (
             <div

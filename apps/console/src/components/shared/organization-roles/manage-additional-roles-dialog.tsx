@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
@@ -10,6 +9,7 @@ import { Search } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useNotification } from '@/hooks/useNotification'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 import { useAssignOrganizationRoles, useOrganizationResponsibilityRoles, useRemoveOrganizationRoles } from '@/lib/query-hooks/organization-roles'
 import { type OrganizationRoleSubjectType } from '@/types/organization-roles'
 
@@ -168,9 +168,14 @@ export const ManageAdditionalRolesDialog = ({ open, onOpenChange, subjectType, s
 
         <DialogFooter>
           <CancelButton onClick={() => handleOpenChange(false)} />
-          <Button type="button" variant="primary" onClick={handleSave} disabled={!canSave || isPending}>
-            {isRemoveMode ? 'Remove Roles' : 'Save Changes'}
-          </Button>
+          <SaveButton
+            type="button"
+            onClick={handleSave}
+            disabled={!canSave || isPending}
+            isSaving={isPending}
+            title={isRemoveMode ? 'Remove Roles' : 'Save'}
+            savingTitle={isRemoveMode ? 'Removing...' : 'Saving...'}
+          />
         </DialogFooter>
       </DialogContent>
     </Dialog>

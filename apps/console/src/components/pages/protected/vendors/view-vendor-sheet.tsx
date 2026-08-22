@@ -1,14 +1,11 @@
 'use client'
 
 import React, { useCallback, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
-import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
-import { ExternalLink, PanelRightClose } from 'lucide-react'
 import { useEntity } from '@/lib/graphql-hooks/entity'
 import { EntityEntityStatus, EntityFrequency, EntityVendorTier, type UpdateEntityInput } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { GenericDetailsSheet, type GenericDetailsSheetConfig, type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
+import { SlideoutPreviewHeader } from '@/components/shared/crud-base/slideout-preview-header'
 import { type EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
 import { normalizeEntityData } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
@@ -24,7 +21,6 @@ type Props = {
 }
 
 const ViewVendorSheet: React.FC<Props> = ({ entityId, onClose }) => {
-  const router = useRouter()
   const { form } = useFormSchema()
   const { data, isLoading } = useEntity(entityId || undefined)
 
@@ -83,32 +79,8 @@ const ViewVendorSheet: React.FC<Props> = ({ entityId, onClose }) => {
   )
 
   const renderHeader = useCallback(
-    ({ close }: RenderHeaderProps) => (
-      <SheetHeader>
-        <SheetTitle className="sr-only">Vendor</SheetTitle>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <PanelRightClose size={16} className="cursor-pointer" onClick={close} />
-          </div>
-          <div className="flex items-center gap-2 mr-6">
-            <Button
-              variant="secondary"
-              icon={<ExternalLink />}
-              iconPosition="left"
-              onClick={() => {
-                if (entityId) {
-                  close()
-                  router.push(`/registry/vendors/${entityId}`)
-                }
-              }}
-            >
-              Open Full
-            </Button>
-          </div>
-        </div>
-      </SheetHeader>
-    ),
-    [entityId, router],
+    ({ close }: RenderHeaderProps) => <SlideoutPreviewHeader title="Vendor" close={close} fullPagePath={entityId ? `/registry/vendors/${entityId}` : null} />,
+    [entityId],
   )
 
   const renderFields = useCallback(
