@@ -2,7 +2,6 @@
 
 import React, { useMemo, useRef } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
-import { Tag } from 'lucide-react'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
 import { type ContactFormData } from '../../../hooks/use-form-schema'
@@ -95,43 +94,46 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
   )
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-4">
-        <Tag className="text-primary" size={16} />
-        <p className="text-sm w-[120px]">Tags</p>
+    <div className="flex flex-col gap-1 w-full">
+      <div className="flex items-center mb-1">
+        <span className="font-medium text-sm">
+          Tags <span className="text-muted-foreground font-normal">(optional)</span>
+        </span>
+      </div>
 
-        {isEditing || internalEditing === 'tags' ? (
-          <Controller
-            name="tags"
-            control={control}
-            render={({ field }) => (
-              <div className="w-[250px]" ref={triggerRef}>
-                <MultipleSelector
-                  options={tagOptions}
-                  hideClearAllButton
-                  placeholder="Add tag..."
-                  creatable
-                  commandProps={{ className: 'w-full' }}
-                  value={tagValues}
-                  onChange={(selectedOptions) => {
-                    const newTags = selectedOptions.map((opt) => opt.value)
-                    field.onChange(newTags)
-                  }}
-                />
-                {formState.errors.tags && <p className="text-red-500 text-sm">{formState.errors.tags.message}</p>}
-              </div>
-            )}
-          />
-        ) : (
+      {isEditing || internalEditing === 'tags' ? (
+        <Controller
+          name="tags"
+          control={control}
+          render={({ field }) => (
+            <div className="w-full" ref={triggerRef}>
+              <MultipleSelector
+                options={tagOptions}
+                hideClearAllButton
+                placeholder="Add tags..."
+                creatable
+                commandProps={{ className: 'w-full' }}
+                value={tagValues}
+                onChange={(selectedOptions) => {
+                  const newTags = selectedOptions.map((opt) => opt.value)
+                  field.onChange(newTags)
+                }}
+              />
+              {formState.errors.tags && <p className="text-red-500 text-sm mt-1">{formState.errors.tags.message}</p>}
+            </div>
+          )}
+        />
+      ) : (
+        <div className="min-h-[40px] flex items-center border border-transparent">
           <HoverPencilWrapper
             showPencil={isEditAllowed}
-            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} pr-5`}
+            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} w-full`}
             onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('tags')}
           >
             <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('tags')}>{renderTags()}</div>
           </HoverPencilWrapper>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
