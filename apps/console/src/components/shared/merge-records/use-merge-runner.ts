@@ -6,18 +6,25 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import type { MergeableTypeName } from '@repo/codegen/src/merge-fields.generated'
 import type { MergeConfig } from './types'
-import type { MergeEdgeAddInput } from './use-merge-edge-transfer'
+import type { MergeEdgeInputs } from './use-merge-edge-transfer'
 
 type Args<TRecord, TUpdateInput, TEntity extends MergeableTypeName> = {
   config: MergeConfig<TRecord, TUpdateInput, TEntity>
   primaryId: string
   update: { mutateAsync: (vars: { id: string; input: TUpdateInput }) => Promise<unknown> }
   del: { mutateAsync: (id: string) => Promise<unknown> }
-  readLatestAddInput: () => Promise<MergeEdgeAddInput<TEntity>>
+  readLatestEdgeInputs: () => Promise<MergeEdgeInputs<TEntity>>
   onFinished: () => void
 }
 
-export const useMergeRunner = <TRecord, TUpdateInput, TEntity extends MergeableTypeName>({ config, primaryId, update, del, readLatestAddInput, onFinished }: Args<TRecord, TUpdateInput, TEntity>) => {
+export const useMergeRunner = <TRecord, TUpdateInput, TEntity extends MergeableTypeName>({
+  config,
+  primaryId,
+  update,
+  del,
+  readLatestEdgeInputs,
+  onFinished,
+}: Args<TRecord, TUpdateInput, TEntity>) => {
   const [isMerging, setIsMerging] = useState(false)
   const queryClient = useQueryClient()
   const { successNotification, errorNotification, warningNotification } = useNotification()
@@ -37,24 +44,41 @@ export const useMergeRunner = <TRecord, TUpdateInput, TEntity extends MergeableT
         onFinished()
       }
 
-      let edgeInput: MergeEdgeAddInput<TEntity>
+      let edgeInputs: MergeEdgeInputs<TEntity>
       try {
-        edgeInput = await readLatestAddInput()
+        edgeInputs = await readLatestEdgeInputs()
       } catch (error) {
         setIsMerging(false)
         errorNotification({ title: 'Merge failed', description: `Could not re-read the linked records on the secondary ${config.labelSingular}: ${parseErrorMessage(error)}` })
         return
       }
 
-      const hasEdges = Object.keys(edgeInput).length > 0
+      const hasEdges = Object.keys(edgeInputs.addInput).length > 0
 
       if (hasEdges) {
+        if (Object.keys(edgeInputs.removeInput).length > 0) {
+          try {
+            await update.mutateAsync({ id: secondaryId, input: edgeInputs.removeInput as TUpdateInput })
+          } catch (error) {
+            setIsMerging(false)
+            invalidate()
+            errorNotification({
+              title: 'Merge failed',
+              description: `The linked records could not be unlinked from the secondary ${config.labelSingular}: ${parseErrorMessage(error)}. Nothing was changed or deleted.`,
+            })
+            return
+          }
+        }
+
         try {
-          await update.mutateAsync({ id: primaryId, input: edgeInput as TUpdateInput })
+          await update.mutateAsync({ id: primaryId, input: edgeInputs.addInput as TUpdateInput })
         } catch (error) {
           setIsMerging(false)
           invalidate()
-          errorNotification({ title: 'Merge failed', description: `The linked records could not be moved to the primary ${config.labelSingular}: ${parseErrorMessage(error)}. Nothing was deleted.` })
+          errorNotification({
+            title: 'Merge failed',
+            description: `The linked records were unlinked from the secondary ${config.labelSingular} but could not be moved to the primary: ${parseErrorMessage(error)}. Nothing was deleted; re-link them manually.`,
+          })
           return
         }
       }
@@ -115,7 +139,7 @@ export const useMergeRunner = <TRecord, TUpdateInput, TEntity extends MergeableT
 
       finish()
     },
-    [config, del, errorNotification, onFinished, primaryId, queryClient, readLatestAddInput, successNotification, update, warningNotification],
+    [config, del, errorNotification, onFinished, primaryId, queryClient, readLatestEdgeInputs, successNotification, update, warningNotification],
   )
 
   return { isMerging, runMerge }

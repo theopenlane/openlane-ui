@@ -243,7 +243,8 @@ for (const typeName of typeNames) {
       )
     }
 
-    descriptors.push({ name: connectionName, addKey, acl: grantsPermissions(connectionName) })
+    const removeKey = `remove${match[1]}IDs`
+    descriptors.push({ name: connectionName, addKey, removeKey: writableFields.has(removeKey) ? removeKey : null, acl: grantsPermissions(connectionName) })
   }
 
   descriptors.sort((a, b) => a.name.localeCompare(b.name))
@@ -350,6 +351,7 @@ lines.push('')
 lines.push('export type MergeEdgeDescriptor = {')
 lines.push('  readonly name: string')
 lines.push('  readonly addKey: string')
+lines.push('  readonly removeKey: string | null')
 lines.push('  readonly acl: boolean')
 lines.push('}')
 lines.push('')
@@ -362,7 +364,7 @@ for (const typeName of typeNames) {
   }
   lines.push(`  ${JSON.stringify(typeName)}: [`)
   for (const d of descriptors) {
-    lines.push(`    { name: ${JSON.stringify(d.name)}, addKey: ${JSON.stringify(d.addKey)}, acl: ${d.acl} },`)
+    lines.push(`    { name: ${JSON.stringify(d.name)}, addKey: ${JSON.stringify(d.addKey)}, removeKey: ${JSON.stringify(d.removeKey)}, acl: ${d.acl} },`)
   }
   lines.push('  ],')
 }
