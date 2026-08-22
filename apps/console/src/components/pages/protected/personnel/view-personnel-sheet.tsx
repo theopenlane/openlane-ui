@@ -1,14 +1,11 @@
 'use client'
 
 import React, { useCallback, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
-import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
-import { ExternalLink, PanelRightClose } from 'lucide-react'
 import { useIdentityHolder, type IdentityHoldersNodeNonNull } from '@/lib/graphql-hooks/identity-holder'
 import { IdentityHolderUserStatus, IdentityHolderIdentityHolderType, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { GenericDetailsSheet, type GenericDetailsSheetConfig, type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
+import { SlideoutPreviewHeader } from '@/components/shared/crud-base/slideout-preview-header'
 import { normalizeEntityData } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
@@ -26,7 +23,6 @@ const statusOptions = enumToOptions(IdentityHolderUserStatus)
 const identityHolderTypeOptions = enumToOptions(IdentityHolderIdentityHolderType)
 
 const ViewPersonnelSheet: React.FC<Props> = ({ identityHolderId, onClose }) => {
-  const router = useRouter()
   const { form } = useFormSchema()
   const { data, isLoading } = useIdentityHolder(identityHolderId || undefined)
 
@@ -62,32 +58,8 @@ const ViewPersonnelSheet: React.FC<Props> = ({ identityHolderId, onClose }) => {
   )
 
   const renderHeader = useCallback(
-    ({ close }: RenderHeaderProps) => (
-      <SheetHeader>
-        <SheetTitle className="sr-only">Personnel</SheetTitle>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <PanelRightClose size={16} className="cursor-pointer" onClick={close} />
-          </div>
-          <div className="flex items-center gap-2 mr-6">
-            <Button
-              variant="secondary"
-              icon={<ExternalLink />}
-              iconPosition="left"
-              onClick={() => {
-                if (identityHolderId) {
-                  close()
-                  router.push(`/registry/personnel/${identityHolderId}`)
-                }
-              }}
-            >
-              Open in Full
-            </Button>
-          </div>
-        </div>
-      </SheetHeader>
-    ),
-    [identityHolderId, router],
+    ({ close }: RenderHeaderProps) => <SlideoutPreviewHeader title="Personnel" close={close} fullPagePath={identityHolderId ? `/registry/personnel/${identityHolderId}` : null} />,
+    [identityHolderId],
   )
 
   const renderFields = useCallback(

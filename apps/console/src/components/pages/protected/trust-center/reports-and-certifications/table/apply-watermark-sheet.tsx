@@ -4,9 +4,9 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { ChevronDown, Droplet, InfoIcon, PanelRightClose, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
+import { ChevronDown, Droplet, InfoIcon } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
@@ -16,8 +16,8 @@ import { useUpdateTrustCenterWatermarkConfig } from '@/lib/graphql-hooks/trust-c
 import { TrustCenterWatermarkConfigFont } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontOptions } from '@/components/shared/enum-mapper/trust-center-enum'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
 
 type WatermarkConfigUI = {
   id?: string
@@ -42,50 +42,73 @@ type ApplyWatermarkSheetProps = {
 }
 
 const DEFAULT_WATERMARK_COLOR = '#000000'
+const DEFAULT_WATERMARK_TYPE = WatermarkTypeEnum.TEXT
+const DEFAULT_WATERMARK_FONT = TrustCenterWatermarkConfigFont.COURIER
+
+const toWatermarkBaseline = (config: WatermarkConfigUI) => ({
+  text: config?.text ?? '',
+  fontSize: config?.fontSize ?? 24,
+  color: normalizeHexColor(config?.color) ?? DEFAULT_WATERMARK_COLOR,
+  opacity: config?.opacity ?? 0.2,
+  rotation: config?.rotation ?? -45,
+})
 
 const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
-  const { id, text, fontSize, color, opacity, rotation } = watermarkConfig ?? {}
+  const { id } = watermarkConfig ?? {}
+  const baseline = useMemo(() => toWatermarkBaseline(watermarkConfig), [watermarkConfig])
 
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
 
-  const [wmText, setWmText] = useState(text ?? '')
-  const [wmFontSize, setWmFontSize] = useState(fontSize ?? 24)
+  const [wmText, setWmText] = useState(baseline.text)
+  const [wmFontSize, setWmFontSize] = useState(baseline.fontSize)
 
-  const [wmColor, setWmColor] = useState(() => normalizeHexColor(color) ?? DEFAULT_WATERMARK_COLOR)
+  const [wmColor, setWmColor] = useState(baseline.color)
 
-  const [wmOpacity, setWmOpacity] = useState(opacity ?? 0.2)
-  const [wmRotation, setWmRotation] = useState(rotation ?? -45)
+  const [wmOpacity, setWmOpacity] = useState(baseline.opacity)
+  const [wmRotation, setWmRotation] = useState(baseline.rotation)
   const [sheetOpen, setSheetOpen] = useState<boolean>(false)
-  const [selected, setSelected] = useState<WatermarkTypeEnum>(WatermarkTypeEnum.TEXT)
+  const [selected, setSelected] = useState<WatermarkTypeEnum>(DEFAULT_WATERMARK_TYPE)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const { mutateAsync: updateWatermark, isPending: updating } = useUpdateTrustCenterWatermarkConfig()
   const { successNotification, errorNotification } = useNotification()
-  const [selectedFont, setSelectedFont] = useState<TrustCenterWatermarkConfigFont>(TrustCenterWatermarkConfigFont.COURIER)
+  const [selectedFont, setSelectedFont] = useState<TrustCenterWatermarkConfigFont>(DEFAULT_WATERMARK_FONT)
   const [disableWatermarkConfig, setDisableWatermarkConfig] = useState<boolean>(false)
   useEffect(() => {
-    if (!watermarkConfig) {
-      setUploadedFile(null)
-      setWmText('')
-      setWmFontSize(24)
-      setWmColor(DEFAULT_WATERMARK_COLOR)
-      setWmOpacity(0.2)
-      setWmRotation(-45)
-      return
-    }
-    const { text, fontSize, color, opacity, rotation } = watermarkConfig
-    setWmText(text ?? '')
-    setWmFontSize(fontSize ?? 24)
-    setWmColor(normalizeHexColor(color) ?? DEFAULT_WATERMARK_COLOR)
-    setWmOpacity(opacity ?? 0.2)
-    setWmRotation(rotation ?? -45)
-  }, [watermarkConfig])
+    setUploadedFile(null)
+    setWmText(baseline.text)
+    setWmFontSize(baseline.fontSize)
+    setWmColor(baseline.color)
+    setWmOpacity(baseline.opacity)
+    setWmRotation(baseline.rotation)
+  }, [baseline])
 
   useEffect(() => {
     setDisableWatermarkConfig(selected === WatermarkTypeEnum.DISABLE_WATERMARK_CONFIG)
   }, [selected])
 
+  const isWatermarkDirty =
+    !!uploadedFile ||
+    selected !== DEFAULT_WATERMARK_TYPE ||
+    selectedFont !== DEFAULT_WATERMARK_FONT ||
+    wmText !== baseline.text ||
+    wmFontSize !== baseline.fontSize ||
+    wmColor !== baseline.color ||
+    wmOpacity !== baseline.opacity ||
+    wmRotation !== baseline.rotation
+
+  const discardAndClose = () => {
+    setIsDiscardDialogOpen(false)
+    setUploadedFile(null)
+    setSheetOpen(false)
+  }
+
   const handleSheetClose = () => {
-    setIsDiscardDialogOpen(true)
+    if (isWatermarkDirty) {
+      setIsDiscardDialogOpen(true)
+      return
+    }
+
+    discardAndClose()
   }
 
   const handleUpload = (uploaded: TUploadedFile) => {
@@ -135,27 +158,17 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
         Watermark
       </Button>
 
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+      <Sheet open={sheetOpen} onOpenChange={(open) => (open ? setSheetOpen(true) : handleSheetClose())}>
         <SheetContent
-          header={
-            <SheetHeader>
-              <div className="flex items-center justify-between">
-                <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleSheetClose} />
-
-                <div className="flex justify-end gap-2">
-                  <X aria-label="Close sheet" size={20} className="cursor-pointer" onClick={handleSheetClose} />
-                </div>
-              </div>
-              <div className="flex items-center justify-between my-5">
-                <SheetTitle>
-                  <p className="text-2xl leading-8 font-medium">Watermark Document</p>
-                </SheetTitle>
-                <div className="flex items-center gap-2">
-                  <CancelButton onClick={handleSheetClose}></CancelButton>
-                  <SaveButton onClick={handleApplyWatermark} title={disableWatermarkConfig ? (updating ? 'Saving...' : 'Save') : updating ? 'Applying...' : 'Apply watermark'} />
-                </div>
-              </div>
-            </SheetHeader>
+          header={<SlideoutHeader title="Watermark Document" onClose={handleSheetClose} />}
+          footer={
+            <SlideoutFormFooter
+              onSave={handleApplyWatermark}
+              onCancel={handleSheetClose}
+              isPending={updating}
+              saveLabel={disableWatermarkConfig ? 'Save' : 'Apply watermark'}
+              savingLabel={disableWatermarkConfig ? 'Saving...' : 'Applying...'}
+            />
           }
         >
           <div className="flex flex-col justify-baseline gap-5">
@@ -310,15 +323,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
             </div>
           </div>
 
-          <CancelDialog
-            isOpen={isDiscardDialogOpen}
-            onConfirm={() => {
-              setIsDiscardDialogOpen(false)
-              setUploadedFile(null)
-              setSheetOpen(false)
-            }}
-            onCancel={() => setIsDiscardDialogOpen(false)}
-          />
+          <CancelDialog isOpen={isDiscardDialogOpen} onConfirm={discardAndClose} onCancel={() => setIsDiscardDialogOpen(false)} />
         </SheetContent>
       </Sheet>
     </>

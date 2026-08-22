@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import * as SheetPrimitive from '@radix-ui/react-dialog'
-import { XIcon } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { guardInteractOutside } from '../../lib/dismissable-outside'
 
@@ -37,6 +36,7 @@ type TSheetContentProps = {
   initialWidth?: number | string
   resizable?: boolean
   header?: React.ReactNode
+  footer?: React.ReactNode
   edge?: React.ReactNode
   /** render the dimming backdrop; disable for non-modal drawers that leave the page interactive */
   overlay?: boolean
@@ -51,6 +51,7 @@ function SheetContent({
   initialWidth = 825,
   resizable = true,
   header,
+  footer,
   edge,
   overlay = true,
   overlayClassName,
@@ -126,11 +127,13 @@ function SheetContent({
 
         {edge && <div className={cn('absolute top-1/2 z-20 -translate-y-1/2', side === 'right' ? 'left-0 -translate-x-full' : 'right-0 translate-x-full')}>{edge}</div>}
 
-        {header && <SheetHeader className="sticky top-0 z-10">{header}</SheetHeader>}
+        {header && <SheetHeader>{header}</SheetHeader>}
 
         <div className="flex-1 overflow-y-auto">
           <div className="flex flex-col h-full">{children}</div>
         </div>
+
+        {footer && <SheetFooter>{footer}</SheetFooter>}
       </SheetPrimitive.Content>
     </SheetPortal>
   )
@@ -141,7 +144,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<'div'>) {
 }
 
 function SheetFooter({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div data-slot="sheet-footer" className={cn('mt-auto flex flex-col gap-2 p-4', className)} {...props} />
+  return <div data-slot="sheet-footer" className={cn('flex shrink-0 flex-row items-center justify-end gap-2 border-t pt-3', className)} {...props} />
 }
 
 function SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Title>) {
