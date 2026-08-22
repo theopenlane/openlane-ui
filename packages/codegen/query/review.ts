@@ -114,8 +114,16 @@ export const REVIEW = gql`
           node {
             __typename
             id
+            controlID
             refCode
             referenceFramework
+          }
+        }
+      }
+      vendorEntities: entities(first: 1, where: { hasEntityTypeWith: [{ name: "vendor" }] }) {
+        edges {
+          node {
+            id
           }
         }
       }
