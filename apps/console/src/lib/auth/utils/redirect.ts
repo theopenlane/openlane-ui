@@ -37,6 +37,12 @@ export const sanitizeLoginRedirect = (redirect?: string | null, fallback = DEFAU
   return parsed.path
 }
 
+const isRootRedirectPath = (path: string) => {
+  const parsed = parseRedirectPath(path)
+
+  return !parsed || parsed.pathname === DEFAULT_REDIRECT_PATH
+}
+
 export const buildLoginRedirect = (redirect?: string | null, fallback = DEFAULT_REDIRECT_PATH) => {
   if (!redirect) {
     return LOGIN_PATH
@@ -44,7 +50,7 @@ export const buildLoginRedirect = (redirect?: string | null, fallback = DEFAULT_
 
   const sanitized = sanitizeLoginRedirect(redirect, fallback)
 
-  if (sanitized === fallback && redirect !== fallback) {
+  if (sanitized === fallback || isRootRedirectPath(sanitized)) {
     return LOGIN_PATH
   }
 
