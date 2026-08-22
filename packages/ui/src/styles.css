@@ -967,6 +967,10 @@
 .animate-custom-pulse {
   animation: custom-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+body[data-row-dragging],
+body[data-row-dragging] * {
+  cursor: grabbing !important;
+}
 
 :root {
   --highlight: oklch(0.852 0.199 91.936);
