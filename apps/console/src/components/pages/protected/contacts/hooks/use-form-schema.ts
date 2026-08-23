@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ContactUserStatus } from '@repo/codegen/src/schema'
+import { isPlausiblePhoneNumber } from '@/lib/validators'
 
 const formSchema = z.object({
   fullName: z.string({ error: (issue) => (issue.input === undefined ? 'Full name is required' : 'Full name must be a string') }).min(1, 'Full name is required'),
@@ -13,11 +14,7 @@ const formSchema = z.object({
   company: z.string().optional(),
   title: z.string().optional(),
   address: z.string().optional(),
-  phoneNumber: z
-    .string()
-    .regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number')
-    .optional()
-    .or(z.literal('')),
+  phoneNumber: z.string().refine(isPlausiblePhoneNumber, { error: 'Enter a valid phone number' }).optional(),
   status: z.enum(ContactUserStatus).optional(),
   tags: z.array(z.string()).optional(),
   entityIDs: z.array(z.string()).optional(),

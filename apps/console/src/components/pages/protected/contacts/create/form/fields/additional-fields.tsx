@@ -77,7 +77,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
           <TextField name="email" label="Email" type="email" placeholder="name@company.com" required tooltipContent="The email address for this contact" {...sharedFieldProps} />
           <TextField
             name="phoneNumber"
-            placeholder="(555) 123-4567"
+            type="tel"
+            placeholder="e.g. +1 (303) 456-7890"
             label={
               <>
                 Phone number <span className="text-muted-foreground font-normal">(optional)</span>
