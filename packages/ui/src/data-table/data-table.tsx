@@ -823,7 +823,6 @@ type DataRowProps<TData extends RowData> = {
 type RowDragState = {
   setRef: (node: HTMLTableRowElement | null) => void
   rowProps: React.HTMLAttributes<HTMLTableRowElement>
-  handle: ReactElement | null
   isExclusive: boolean
   isDragging: boolean
   isOver: boolean
@@ -879,36 +878,22 @@ const DataRowContent = memo(function DataRowContent<TData extends RowData>({ row
           row.index % 2 === 1 && 'bg-table-secondary',
           'hover:bg-table-row-bg-hover',
           isClickable && 'cursor-pointer',
-          dragState && 'group/row',
           dragState?.isExclusive && 'cursor-grab active:cursor-grabbing [&_a]:pointer-events-none [&_button]:pointer-events-none',
           dragState?.isDragging && 'opacity-40',
           dragState?.isOver && 'bg-primary-muted! even:bg-primary-muted! outline-2 -outline-offset-2 outline-primary',
         )}
         data-state={row.getIsSelected() && 'selected'}
       >
-        {visibleCells.map((cell, cellIndex) => {
+        {visibleCells.map((cell) => {
           const widthVar = `var(--col-${cssVarKey(cell.column.id)})`
-          const content = flexRender(cell.column.columnDef.cell, cell.getContext())
-          const isDragAnchor = !!dragState?.handle && cellIndex === 0
           return (
             <TableCell
               variant="data"
               key={cell.id}
-              className={
-                isDragAnchor
-                  ? cn((cell.column.columnDef.meta as CustomColumnDef<TData>['meta'])?.className, 'relative overflow-visible')
-                  : cn('truncate', (cell.column.columnDef.meta as CustomColumnDef<TData>['meta'])?.className)
-              }
+              className={cn('truncate', (cell.column.columnDef.meta as CustomColumnDef<TData>['meta'])?.className)}
               style={{ width: widthVar, minWidth: widthVar, maxWidth: widthVar }}
             >
-              {isDragAnchor ? (
-                <>
-                  {dragState.handle}
-                  <span className="block truncate">{content}</span>
-                </>
-              ) : (
-                content
-              )}
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </TableCell>
           )
         })}
@@ -929,7 +914,7 @@ const DraggableDataRow = <TData extends RowData>({ rowDragDrop, ...props }: Data
   const dragId = `${ROW_DRAG_ID_PREFIX}${rowDragDrop.getRowId(record)}`
   const payload = useMemo(() => ({ type: ROW_DRAG_TYPE, row: record }), [record])
 
-  const { attributes, listeners, setNodeRef: setDragNodeRef, setActivatorNodeRef, isDragging } = useDraggable({ id: dragId, data: payload })
+  const { listeners, setNodeRef: setDragNodeRef, isDragging } = useDraggable({ id: dragId, data: payload })
   const { setNodeRef: setDropNodeRef, isOver } = useDroppable({ id: dragId, data: payload })
 
   const setRef = useCallback(
@@ -948,37 +933,11 @@ const DraggableDataRow = <TData extends RowData>({ rowDragDrop, ...props }: Data
     [listeners],
   )
 
-  const { dropHint, exclusive } = rowDragDrop
-
-  const handle = useMemo(
-    () =>
-      exclusive ? null : (
-        <button
-          type="button"
-          {...attributes}
-          ref={setActivatorNodeRef}
-          tabIndex={-1}
-          {...listeners}
-          onClick={(event) => event.stopPropagation()}
-          onAuxClick={(event) => event.stopPropagation()}
-          aria-hidden="true"
-          title={dropHint}
-          className={cn(
-            'absolute -top-2.5 left-2 z-20 flex items-center gap-1 rounded-full border bg-popover py-0.5 pl-1 pr-2 text-xs leading-none shadow-sm',
-            'touch-none text-muted-foreground cursor-grab active:cursor-grabbing hover:text-text-header transition-opacity',
-            'opacity-0 pointer-events-none group-hover/row:opacity-100 group-hover/row:pointer-events-auto [@media(hover:none)]:opacity-100 [@media(hover:none)]:pointer-events-auto',
-          )}
-        >
-          <GripVertical size={12} />
-          Merge
-        </button>
-      ),
-    [attributes, listeners, setActivatorNodeRef, dropHint, exclusive],
-  )
+  const { exclusive } = rowDragDrop
 
   const dragState = useMemo(
-    () => ({ setRef, rowProps: exclusive ? { onPointerDown: handlePointerDown } : {}, handle, isExclusive: !!exclusive, isDragging, isOver }),
-    [setRef, handlePointerDown, handle, exclusive, isDragging, isOver],
+    () => ({ setRef, rowProps: exclusive ? { onPointerDown: handlePointerDown } : {}, isExclusive: !!exclusive, isDragging, isOver }),
+    [setRef, handlePointerDown, exclusive, isDragging, isOver],
   )
 
   return <DataRowContent {...props} dragState={dragState} />
