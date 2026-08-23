@@ -1,6 +1,7 @@
 import type { VertexRagServiceClient } from '@google-cloud/aiplatform'
 import type { GoogleGenAI } from '@google/genai'
 import type { Storage } from '@google-cloud/storage'
+import type { DocsHelpChunk } from '@/types/docs-help'
 
 export type GoogleServiceAccountCredentials = { client_email: string; private_key: string; project_id?: string }
 
@@ -21,3 +22,13 @@ export type PublicRepresentationInput = {
 }
 
 export type DocsPolicyMappingRow = { policy: string; frameworks: string[] }
+
+export type DocsRetrievedContext = { text: string; sourceUri?: string }
+
+export type DocsProvider = {
+  retrieve: (query: string, topK?: number) => Promise<DocsRetrievedContext[]>
+  pageText: (sourceUri: string) => Promise<string | null>
+  summarize: (chunks: DocsHelpChunk[], query: string, signal: AbortSignal) => Promise<string>
+  controlTitles: (controls: DocsControlTitleInput[]) => Promise<string[]>
+  publicRepresentation: (input: PublicRepresentationInput) => Promise<string>
+}
