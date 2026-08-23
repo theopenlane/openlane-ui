@@ -1,14 +1,11 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { Badge } from '@repo/ui/badge'
-import { Check, Laptop, Building2, X } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { Laptop, Building2 } from 'lucide-react'
+import { SearchableItemSelect } from '@/components/shared/searchable-item-select'
 import { useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { type EditPlatformFormData } from '../../hooks/use-form-schema'
@@ -30,48 +27,12 @@ interface MultiSelectProps {
 
 const MultiSelectField: React.FC<MultiSelectProps> = ({ fieldName, oppositeFieldName, disabledReason, label, placeholder, items, isLoading, icon }) => {
   const form = useFormContext<EditPlatformFormData>()
-  const [open, setOpen] = useState(false)
-  const [searchText, setSearchText] = useState('')
-  const [cache, setCache] = useState<Map<string, ItemInfo>>(() => new Map())
 
   const watchedIDs = form.watch(fieldName) as string[] | undefined
   const selectedIds = useMemo(() => watchedIDs ?? [], [watchedIDs])
 
   const watchedOppositeIDs = form.watch(oppositeFieldName ?? fieldName) as string[] | undefined
   const oppositeSelectedIds = useMemo(() => new Set(oppositeFieldName ? (watchedOppositeIDs ?? []) : []), [oppositeFieldName, watchedOppositeIDs])
-
-  useEffect(() => {
-    setCache((prev) => {
-      const next = new Map(prev)
-      let changed = false
-      for (const item of items) {
-        if (!next.has(item.id)) {
-          next.set(item.id, item)
-          changed = true
-        }
-      }
-      return changed ? next : prev
-    })
-  }, [items])
-
-  const selectedItems = useMemo(() => selectedIds.map((id) => cache.get(id)).filter(Boolean) as ItemInfo[], [selectedIds, cache])
-
-  const filteredItems = useMemo(() => items.filter((item) => item.name.toLowerCase().includes(searchText.toLowerCase())), [items, searchText])
-
-  const toggle = (item: ItemInfo) => {
-    const current = (form.getValues(fieldName) as string[]) ?? []
-    if (current.includes(item.id)) {
-      form.setValue(fieldName, current.filter((id) => id !== item.id) as never)
-    } else {
-      setCache((prev) => new Map(prev).set(item.id, item))
-      form.setValue(fieldName, [...current, item.id] as never)
-    }
-  }
-
-  const remove = (itemId: string) => {
-    const current = (form.getValues(fieldName) as string[]) ?? []
-    form.setValue(fieldName, current.filter((id) => id !== itemId) as never)
-  }
 
   return (
     <FormField
@@ -81,72 +42,27 @@ const MultiSelectField: React.FC<MultiSelectProps> = ({ fieldName, oppositeField
         <FormItem>
           <FormLabel className="block">{label}</FormLabel>
           <FormControl>
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <div className="flex min-h-10 w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-md border bg-input px-3 py-2 text-sm">
-                  {selectedItems.length > 0 ? (
-                    selectedItems.map((item) => (
-                      <Badge key={item.id} variant="outline" className="flex items-center gap-1 pr-1">
-                        <span>{item.name}</span>
-                        <X
-                          className="h-3 w-3 cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            remove(item.id)
-                          }}
-                        />
-                      </Badge>
-                    ))
-                  ) : (
-                    <span className="text-muted-foreground">{placeholder}</span>
-                  )}
-                </div>
-              </PopoverTrigger>
-              <PopoverContent className="w-(--radix-popover-trigger-width) min-w-(--radix-popover-trigger-width) border bg-input! p-0" side="bottom" align="start" sideOffset={4}>
-                <Command shouldFilter={false}>
-                  <CommandInput placeholder="Search..." value={searchText} onValueChange={setSearchText} />
-                  <CommandList>
-                    <CommandEmpty>{isLoading ? 'Loading...' : 'No results found.'}</CommandEmpty>
-                    {filteredItems.length > 0 && (
-                      <CommandGroup>
-                        {filteredItems.map((item) => {
-                          const isSelected = selectedIds.includes(item.id)
-                          const isDisabled = oppositeSelectedIds.has(item.id)
-                          const row = (
-                            <CommandItem
-                              value={item.id}
-                              disabled={isDisabled}
-                              onSelect={() => {
-                                if (!isDisabled) toggle(item)
-                              }}
-                            >
-                              <div className={cn('mr-2 flex h-4 w-4 items-center justify-center rounded-sm border', isSelected ? 'border-primary bg-primary text-primary-foreground' : 'opacity-50')}>
-                                {isSelected && <Check className="h-3 w-3" />}
-                              </div>
-                              <span className="mr-2 text-muted-foreground">{icon}</span>
-                              <span>{item.name}</span>
-                            </CommandItem>
-                          )
-                          if (!isDisabled) return <React.Fragment key={item.id}>{row}</React.Fragment>
-                          return (
-                            <TooltipProvider key={item.id} delayDuration={150}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div>{row}</div>
-                                </TooltipTrigger>
-                                <TooltipContent side="top" align="center" sideOffset={-4}>
-                                  {disabledReason ?? 'Already selected in the opposite list'}
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )
-                        })}
-                      </CommandGroup>
-                    )}
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <SearchableItemSelect
+              selectedIds={selectedIds}
+              onSelectedIdsChange={(ids) => form.setValue(fieldName, ids as never)}
+              items={items}
+              isLoading={isLoading}
+              icon={icon}
+              placeholder={placeholder}
+              disabledIds={oppositeSelectedIds}
+              renderDisabledItem={(row, id) => (
+                <TooltipProvider key={id} delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>{row}</div>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" align="center" sideOffset={-4}>
+                      {disabledReason ?? 'Already selected in the opposite list'}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            />
           </FormControl>
         </FormItem>
       )}

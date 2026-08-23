@@ -21,7 +21,7 @@ const VendorSuggestion: React.FC = () => {
   if (matches.length === 0) return null
 
   const toggle = (id: string) => {
-    const next = entityIDs.includes(id) ? entityIDs.filter((x) => x !== id) : [...entityIDs, id]
+    const next = entityIDs.includes(id) ? [] : [id]
     setValue('entityIDs', next, { shouldDirty: true })
   }
 
