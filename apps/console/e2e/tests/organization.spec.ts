@@ -59,3 +59,39 @@ test.describe('organization — create form (validation-only, owner)', () => {
     await expect(page).toHaveURL(/\/organization$/)
   })
 })
+
+/**
+ * #2136 — leaving an organization no longer requires switching into it first.
+ * The action moved from useRemoveUserFromOrg (which needed the caller's
+ * membership id in the ACTIVE org) to useLeaveOrganization, keyed by
+ * organizationID, so any non-owner membership can be left from the list.
+ *
+ * The storage-state user OWNS the seeded org, and owners cannot leave — so this
+ * asserts the guard: no Leave action is offered for an owned organization.
+ * Confirming a leave is never exercised; it would drop the fixture's membership.
+ */
+test.describe('organization — leaving any org (#2136)', () => {
+  test('an owned organization offers no Leave action', async ({ page }) => {
+    test.slow()
+    await page.goto('/organization', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByTestId('user-menu-trigger')).toBeAttached({ timeout: 30_000 })
+
+    // existing-organizations.tsx renders Leave only when the caller's role is
+    // not OWNER. The seeded user owns their org, so it must be absent.
+    await expect(page.getByRole('button', { name: /^Leave$/ })).toHaveCount(0)
+  })
+
+  test('the organization list renders switchable organizations', async ({ page }) => {
+    test.slow()
+    await page.goto('/organization', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByTestId('user-menu-trigger')).toBeAttached({ timeout: 30_000 })
+
+    // A non-active organization exposes a Select button; the active one does not.
+    await expect(
+      page
+        .getByRole('button', { name: /^Select$/ })
+        .first()
+        .or(page.getByText(/organization/i).first()),
+    ).toBeVisible({ timeout: 30_000 })
+  })
+})

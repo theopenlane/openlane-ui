@@ -1,4 +1,13 @@
-import { test, expect } from '../fixtures/auth'
+import { test, expect, authFile, readManifest } from '../fixtures/auth'
+
+/**
+ * The org global-setup creates is deliberately empty, so its trust-center
+ * routes are unprovisioned. These specs therefore run against the demo org
+ * seeded by harmonize, which has a real trust center with data.
+ *
+ * They skip cleanly in environments without that seed.
+ */
+const requireDemoOrg = () => test.skip(!readManifest().hasDemoSession, 'no demo-org session — trust center is unprovisioned in the e2e org')
 
 // Trust-center routes are wrapped by a layout component that calls
 // useGetTrustCenter() and renders an ErrorPage when no TrustCenter
@@ -63,5 +72,81 @@ test.describe('trust-center — content routes are gated (no in-app TrustCenter 
     await expect(page.getByText(/We ran into an unexpected issue/i)).toBeVisible({ timeout: 15_000 })
     await page.getByRole('button', { name: /Back to Dashboard/i }).click()
     await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15_000 })
+  })
+})
+
+/**
+ * #1948 — trust center subscribers. The /trust-center/subscribers page itself is
+ * covered in new-routes.spec.ts; this pins the other half of the commit, the
+ * subprocessors page's opt-in switch for notifying subscribers when
+ * subprocessors change (notifySubscribersOnSubprocessorChange).
+ *
+ * Read-only: the switch is asserted but never toggled — flipping it would change
+ * a real notification setting on the shared org.
+ */
+test.describe('trust-center — subprocessor change notifications (#1948)', () => {
+  test.use({ storageState: authFile('demo') })
+
+  test('the subprocessors page offers the subscriber-notification switch', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await page.goto('/trust-center/subprocessors', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    await expect(page.getByText('Email subscribers when subprocessors change', { exact: true })).toBeVisible({ timeout: 30_000 })
+    await expect(page.getByRole('switch').first()).toBeVisible({ timeout: 15_000 })
+  })
+})
+
+/**
+ * ISS-1917 — the trust center controls page gained a "Recommended" filter tab.
+ * The recommendation used to come from a separate useGetMappedControls query
+ * (OTS framework → approved target); it is now derived inline from each
+ * control's own relatedControls, so the tab count comes from the already-loaded
+ * list rather than a second round-trip.
+ *
+ * Read-only: tabs are switched but no control is added or published.
+ */
+test.describe('trust-center — recommended controls tab (ISS-1917)', () => {
+  test.use({ storageState: authFile('demo') })
+
+  test('the controls page offers all four filter tabs with counts', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await page.goto('/trust-center/controls', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    for (const label of [/^All \(\d+\)$/, /^Added \(\d+\)$/, /^Not Added \(\d+\)$/, /^Recommended \(\d+\)$/]) {
+      await expect(page.getByRole('tab', { name: label })).toBeVisible({ timeout: 30_000 })
+    }
+  })
+
+  test('selecting Recommended activates that filter', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await page.goto('/trust-center/controls', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    const recommended = page.getByRole('tab', { name: /^Recommended \(\d+\)$/ })
+    await expect(recommended).toBeVisible({ timeout: 30_000 })
+    await recommended.click()
+
+    await expect(recommended).toHaveAttribute('aria-selected', 'true', { timeout: 15_000 })
+    await expect(page.getByRole('tab', { name: /^All \(\d+\)$/ })).toHaveAttribute('aria-selected', 'false')
+  })
+})
+
+/**
+ * #2058 — the NDA requests table gained an "Approved By" column (rendered
+ * through AuthorDisplay, so it resolves users / tokens / the support and
+ * integration identities), shown alongside the approved/signed date columns.
+ */
+test.describe('trust-center — NDA requests table (#2058)', () => {
+  test.use({ storageState: authFile('demo') })
+
+  test('the NDA requests table exposes its column menu', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await page.goto('/trust-center/NDAs', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByTestId('user-menu-trigger')).toBeAttached({ timeout: 30_000 })
+
+    await expect(page.getByPlaceholder('Search...')).toBeVisible({ timeout: 30_000 })
   })
 })

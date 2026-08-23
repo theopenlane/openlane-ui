@@ -34,7 +34,7 @@ test.describe('procedures — table tooling', () => {
     await expect(page.getByRole('heading', { level: 2, name: /^Procedures$/ })).toBeVisible({ timeout: 20_000 })
 
     // Shared TableFilter (useProceduresFilters) — mirrors policies-crud.
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
   })
 })

@@ -162,7 +162,7 @@ test.describe('user-management — groups toolbar', () => {
     // groups-page.tsx renders TableFilter (trigger "Filter") with quickFilters.
     await page
       .getByRole('main')
-      .getByRole('button', { name: /^Filter$/ })
+      .getByRole('button', { name: /^Filter/ })
       .first()
       .click()
 
@@ -239,5 +239,160 @@ test.describe('user-management — member row actions (throwaway member)', () =>
 
     await expect(page.getByText('Member deleted successfully').first()).toBeVisible({ timeout: 15_000 })
     await expect(page.getByText(email)).toHaveCount(0, { timeout: 15_000 })
+  })
+})
+
+/**
+ * ISS-2428 — pressing Tab in the invite email field committed a second chip for
+ * an address already in the list. Both call sites now share isDuplicateEmail /
+ * dedupeEmails (unit-tested in lib/validators.test.ts), the input surfaces a
+ * "This email is already added." message, and members-invite-sheet.tsx disables
+ * Invite while the input is in an invalid state.
+ *
+ * Dialog-only: no invite is ever submitted, so the shared org gains no members.
+ */
+test.describe('user-management — duplicate invite emails (ISS-2428)', () => {
+  const openInviteSheet = async (page: Page) => {
+    await page.goto('/user-management/members', { waitUntil: 'domcontentloaded' })
+    await page.getByRole('button', { name: /^invite member$/i }).click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible({ timeout: 15_000 })
+    return dialog
+  }
+
+  test('Tab does not add a second chip for an address already in the list', async ({ page }) => {
+    test.slow()
+    const dialog = await openInviteSheet(page)
+    const email = `dupe-${Date.now().toString(36)}@e2e.invalid`
+
+    const input = dialog.getByRole('textbox').first()
+    await input.fill(email)
+    await input.press('Enter')
+    await expect(dialog.getByText(email)).toHaveCount(1, { timeout: 10_000 })
+
+    // The reported bug: Tab re-committed the same address as a new chip.
+    await input.fill(email)
+    await input.press('Tab')
+
+    await expect(dialog.getByText(email)).toHaveCount(1)
+    await expect(dialog.getByText('This email is already added.')).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('a case-differing duplicate is rejected too', async ({ page }) => {
+    test.slow()
+    const dialog = await openInviteSheet(page)
+    const email = `case-${Date.now().toString(36)}@e2e.invalid`
+
+    const input = dialog.getByRole('textbox').first()
+    await input.fill(email)
+    await input.press('Enter')
+    await expect(dialog.getByText(email)).toHaveCount(1, { timeout: 10_000 })
+
+    await input.fill(email.toUpperCase())
+    await input.press('Enter')
+
+    await expect(dialog.getByText('This email is already added.')).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('the Invite button is disabled while the email input is invalid', async ({ page }) => {
+    test.slow()
+    const dialog = await openInviteSheet(page)
+
+    const input = dialog.getByRole('textbox').first()
+    await input.fill('not-an-email')
+    await input.press('Enter')
+
+    await expect(dialog.getByText('Your email is invalid.')).toBeVisible({ timeout: 10_000 })
+    await expect(dialog.getByRole('button', { name: /^invite$/i })).toBeDisabled()
+  })
+})
+
+/**
+ * #2132 — AUDITOR became assignable from the members table. It had been filtered
+ * out of ASSIGNABLE_BASE_ROLES alongside OWNER, so audit access could not be
+ * granted through the UI at all. The same commit narrowed SSO_EXEMPT_ROLES to
+ * OWNER only, so auditors are no longer SSO-exempt.
+ *
+ * Menu-OPEN only: no member's role is changed.
+ */
+test.describe('user-management — auditor is assignable (#2132)', () => {
+  test('the invite role picker offers Auditor', async ({ page }) => {
+    test.slow()
+    await page.goto('/user-management/members', { waitUntil: 'domcontentloaded' })
+    await page.getByRole('button', { name: /^invite member$/i }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible({ timeout: 15_000 })
+
+    // members-invite-sheet.tsx renders a role select; Auditor must be offered.
+    const roleSelect = dialog.getByRole('combobox').first()
+    await expect(roleSelect).toBeVisible({ timeout: 15_000 })
+    await roleSelect.click()
+
+    await expect(page.getByRole('option', { name: /Auditor/i })).toBeVisible({ timeout: 15_000 })
+  })
+})
+
+/**
+ * #2081 — 2FA can now be enforced PER USER, independently of the org-wide
+ * setting. The member row menu offers "Mark as 2FA Enforced" (which opens a
+ * dialog asking for a reason) or "Remove 2FA Enforcement" when already set.
+ *
+ * Menu-OPEN only: enforcing 2FA on a seeded member would force an MFA
+ * enrolment and break that fixture's logins.
+ */
+test.describe('user-management — per-user 2FA enforcement (#2081)', () => {
+  test('the member actions menu offers per-user 2FA enforcement', async ({ page }) => {
+    test.slow()
+    await page.goto('/user-management/members', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Members$/ })).toBeVisible({ timeout: 30_000 })
+
+    // member-actions.tsx hangs the row actions off an icon-only DropdownMenu
+    // trigger with no accessible name, and the icon is not wrapped in a
+    // <button> — click the icon itself and let the event reach the trigger.
+    //
+    // Not every row offers the 2FA entry (the signed-in owner cannot enforce it
+    // on themselves), so walk the rows until one does.
+    const triggers = page.locator('tbody .lucide-ellipsis')
+    await expect(triggers.first()).toBeVisible({ timeout: 30_000 })
+
+    const entry = page.getByText(/(Mark as 2FA Enforced|Remove 2FA Enforcement)/)
+    const rowCount = await triggers.count()
+    let found = false
+
+    for (let i = 0; i < rowCount && !found; i++) {
+      await triggers.nth(i).click()
+      found = await entry.isVisible({ timeout: 5_000 }).catch(() => false)
+      if (!found) await page.keyboard.press('Escape')
+    }
+
+    expect(found).toBe(true)
+  })
+
+  test('marking a member 2FA-enforced asks for a reason before applying', async ({ page }) => {
+    test.slow()
+    await page.goto('/user-management/members', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Members$/ })).toBeVisible({ timeout: 30_000 })
+
+    const triggers = page.locator('tbody .lucide-ellipsis')
+    await expect(triggers.first()).toBeVisible({ timeout: 30_000 })
+
+    const mark = page.getByText(/Mark as 2FA Enforced/)
+    const rowCount = await triggers.count()
+    let opened = false
+
+    for (let i = 0; i < rowCount && !opened; i++) {
+      await triggers.nth(i).click()
+      opened = await mark.isVisible({ timeout: 5_000 }).catch(() => false)
+      if (!opened) await page.keyboard.press('Escape')
+    }
+
+    test.skip(!opened, 'no member offers the Mark as 2FA Enforced action')
+    await mark.click()
+
+    // The dialog explains the effect and collects a reason. Never confirmed.
+    const dialog = page.getByRole('dialog').or(page.getByRole('alertdialog')).first()
+    await expect(dialog).toBeVisible({ timeout: 15_000 })
+    await expect(dialog.getByText(/will be required to configure multi-factor authentication/)).toBeVisible({ timeout: 10_000 })
   })
 })

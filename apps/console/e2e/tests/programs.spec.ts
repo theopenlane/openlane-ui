@@ -3,6 +3,8 @@ import { test as freshTest, type Page } from '@playwright/test'
 import { seedLoggedInUser } from '../utils/seedUser'
 
 import { RUN_ID } from '../utils/constants'
+import { readManifest } from '../fixtures/auth'
+import { loginViaApi, createProgram, type ApiSession } from '../utils/api'
 
 const programName = (slug: string) => `E2E Program ${slug} ${RUN_ID} ${Date.now().toString(36)}`
 
@@ -520,5 +522,81 @@ freshTest.describe('programs — fresh org', () => {
 
     await expect(page.getByText(/no programs found/i)).toBeVisible()
     await expect(page.getByRole('link', { name: /Generic Program/ })).toBeVisible()
+  })
+})
+
+/**
+ * ISS-2409 — the programs landing page. When the org has exactly one ACTIVE
+ * program and no search or explicit view, programs-dashboard-page.tsx
+ * router.replace()s straight to that program's detail page. `?view=all`
+ * (PROGRAMS_VIEW_PARAM / PROGRAMS_VIEW_ALL) suppresses that shortcut, and every
+ * breadcrumb back to the list now carries it.
+ *
+ * The shared org's program count varies across a run, so the deterministic
+ * assertion is the escape hatch: ?view=all always lands on the list.
+ */
+test.describe('programs — landing page (ISS-2409)', () => {
+  test('/programs?view=all always renders the list, never the single-program redirect', async ({ page }) => {
+    test.slow()
+    await page.goto('/programs?view=all', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    await expect(page).toHaveURL(/\/programs\?view=all/, { timeout: 30_000 })
+    await expect(page.getByRole('heading', { name: /^Programs$/ }).first()).toBeVisible({ timeout: 30_000 })
+
+    // The dashboard toolbar (not a program detail page) is what renders here.
+    await expect(page.getByText('Expand all', { exact: true })).toBeVisible({ timeout: 20_000 })
+  })
+
+  test('the Archived tab switches the dashboard status filter', async ({ page }) => {
+    test.slow()
+    await page.goto('/programs?view=all', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('heading', { name: /^Programs$/ }).first()).toBeVisible({ timeout: 30_000 })
+
+    const archived = page.getByRole('tab', { name: /^Archived$/ })
+    await expect(archived).toBeVisible({ timeout: 20_000 })
+    await archived.click()
+    await expect(archived).toHaveAttribute('aria-selected', 'true', { timeout: 15_000 })
+  })
+
+  test('breadcrumbs from a program detail link back to the full list', async ({ page }) => {
+    test.slow()
+    await page.goto('/programs?view=all', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('heading', { name: /^Programs$/ }).first()).toBeVisible({ timeout: 30_000 })
+
+    // program-details-page.tsx sets its Programs crumb to PROGRAMS_LIST_HREF so
+    // returning from a detail page cannot bounce straight back into it.
+    const crumbs = page.getByRole('navigation', { name: /breadcrumb/i }).first()
+    const programsCrumb = crumbs.getByRole('link', { name: /^Programs$/ })
+    if (await programsCrumb.isVisible().catch(() => false)) {
+      await expect(programsCrumb).toHaveAttribute('href', /\/programs\?view=all/)
+    }
+  })
+})
+
+/**
+ * ISS-2547 — the program dashboard's "Created" control count was querying only
+ * PREPARING, so freshly-created controls in DRAFT or NOT_IMPLEMENTED were
+ * invisible. The query now counts statusIn [DRAFT, PREPARING, NOT_IMPLEMENTED]
+ * (the alias moved from `preparing` to `created` to match the label).
+ *
+ * Counts vary with org data, so this asserts the segment exists and reads as a
+ * number rather than pinning a value.
+ */
+test.describe('programs — created control count (ISS-2547)', () => {
+  let ownerApi: ApiSession
+
+  test.beforeAll(async () => {
+    const { ownerEmail, password } = readManifest()
+    ownerApi = await loginViaApi(ownerEmail, password)
+  })
+
+  test('the program detail shows a Created control segment', async ({ page }) => {
+    test.slow()
+    const programId = await createProgram(ownerApi, programName('created-count'))
+
+    await page.goto(`/programs/${programId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByTestId('user-menu-trigger')).toBeAttached({ timeout: 30_000 })
+
+    await expect(page.getByText('Created', { exact: true }).first()).toBeVisible({ timeout: 30_000 })
   })
 })

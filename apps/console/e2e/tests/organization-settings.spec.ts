@@ -1,13 +1,13 @@
+import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 
 // Logged in as the storage-state Owner (global-setup). Owner-only settings pages.
 const SUBROUTES: Array<{ path: string; heading: RegExp }> = [
-  { path: '/organization-settings', heading: /^Organization settings$/ },
+  { path: '/organization-settings', heading: /^Organization Settings$/ },
   { path: '/organization-settings/general-settings', heading: /^General$/ },
   { path: '/organization-settings/custom-data', heading: /^Custom Data$/ },
   { path: '/organization-settings/billing', heading: /^Billing$/ },
   { path: '/organization-settings/authentication', heading: /^Authentication$/ },
-  { path: '/organization-settings/integrations', heading: /^Integrations$/ },
   { path: '/organization-settings/logs', heading: /^Audit Logs$/ },
   { path: '/organization-settings/subscribers', heading: /^Subscribers$/ },
 ]
@@ -159,17 +159,6 @@ test.describe('organization-settings — custom data (owner)', () => {
   })
 })
 
-test.describe('organization-settings — integrations marketplace (owner)', () => {
-  test('the marketplace shows the All / Installed filter tabs', async ({ page }) => {
-    await page.goto('/organization-settings/integrations', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('heading', { level: 2, name: /^Integrations$/ })).toBeVisible({ timeout: 20_000 })
-
-    // integrations-toolbar.tsx renders Radix tabs labelled "All (N)" / "Installed (N)".
-    await expect(page.getByRole('tab', { name: /^All \(\d+\)$/ })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('tab', { name: /^Installed \(\d+\)$/ })).toBeVisible()
-  })
-})
-
 test.describe('organization-settings — billing (owner)', () => {
   test('billing page renders the Billing Settings section with Address + Email', async ({ page }) => {
     await page.goto('/organization-settings/billing', { waitUntil: 'domcontentloaded' })
@@ -252,20 +241,6 @@ test.describe('organization-settings — read-only flows (owner)', () => {
     await expect(page.getByText(/Display name must be at least 2 characters/i)).toBeVisible({ timeout: 10_000 })
   })
 
-  test('integrations marketplace switches to the Coming Soon tab', async ({ page }) => {
-    test.slow()
-    await page.goto('/organization-settings/integrations', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('heading', { level: 2, name: /^Integrations$/ })).toBeVisible({ timeout: 20_000 })
-
-    // integrations-toolbar.tsx: underline Radix tabs "All (N)" / "Coming Soon (N)" /
-    // "Installed (N)" + a "Search integrations..." box.
-    const comingSoon = page.getByRole('tab', { name: /^Coming Soon \(\d+\)$/ })
-    await expect(comingSoon).toBeVisible({ timeout: 15_000 })
-    await comingSoon.click()
-    await expect(comingSoon).toHaveAttribute('data-state', 'active', { timeout: 10_000 })
-    await expect(page.getByPlaceholder('Search integrations...')).toBeVisible()
-  })
-
   test('subscribers page renders its search toolbar', async ({ page }) => {
     await page.goto('/organization-settings/subscribers', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^Subscribers$/ })).toBeVisible({ timeout: 20_000 })
@@ -287,55 +262,19 @@ test.describe('organization-settings — read-only flows (owner)', () => {
 })
 
 /**
- * Integrations marketplace + Subscribers additive/dialog-OPEN coverage.
+ * Subscribers additive/dialog-OPEN coverage. The integrations marketplace moved
+ * to /automation/integrations and is covered in integrations.spec.ts.
  *
  * The "webhook" surface in this codebase is the one-time secret panel rendered
  * AFTER an integration connect completes (webhook-details-section.tsx) — there is
  * no standalone webhook create/list/delete CRUD under org-settings, so a webhook
- * lifecycle test is not authorable here. The closest non-destructive flows are:
- * the integrations marketplace search (client filters the grid → empty state) and
- * navigating into an integration definition detail page (read-only), plus the
- * subscribers bulk-upload dialog + filter menu (dialog-OPEN, no mutation). All of
- * these are side-effect-free on the shared org.
+ * lifecycle test is not authorable here. The subscribers bulk-upload dialog +
+ * filter menu are dialog-OPEN only, so they stay side-effect-free on the shared org.
  *
- * Selectors grounded in integrations-page.tsx + integrations-grid.tsx +
- * available-integration-card.tsx + integration-definition-page.tsx +
- * subscribers-table-toolbar.tsx + bulk-csv-create-subscriber-dialog.tsx +
- * table-filter.tsx (subscriber filter fields).
+ * Selectors grounded in subscribers-table-toolbar.tsx +
+ * bulk-csv-create-subscriber-dialog.tsx + table-filter.tsx (subscriber filter fields).
  */
-test.describe('organization-settings — integrations & subscribers (owner)', () => {
-  test('marketplace search with no match shows the empty-state message', async ({ page }) => {
-    test.slow()
-    await page.goto('/organization-settings/integrations', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('heading', { level: 2, name: /^Integrations$/ })).toBeVisible({ timeout: 20_000 })
-
-    // Wait for the providers to render so the grid is populated before filtering.
-    await expect(page.getByRole('tab', { name: /^All \(\d+\)$/ })).toBeVisible({ timeout: 15_000 })
-
-    // integrations-grid.tsx filters client-side; a nonsense query yields the
-    // "No integrations match your search." empty state. No mutation.
-    await page.getByPlaceholder('Search integrations...').fill('zzz-nonexistent-provider-zzz')
-    await expect(page.getByText('No integrations match your search.')).toBeVisible({ timeout: 10_000 })
-  })
-
-  test('navigating an integration card opens its definition detail page (read-only)', async ({ page }) => {
-    test.slow()
-    await page.goto('/organization-settings/integrations', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('heading', { level: 2, name: /^Integrations$/ })).toBeVisible({ timeout: 20_000 })
-    await expect(page.getByRole('tab', { name: /^All \(\d+\)$/ })).toBeVisible({ timeout: 15_000 })
-
-    // available-integration-card.tsx renders a footer "View" / "Manage" button per
-    // active provider that router.push-es to /integrations/[id]. Clicking the first
-    // navigates without mutating anything.
-    const viewButton = page.getByRole('button', { name: /^(View|Manage)$/ }).first()
-    await expect(viewButton).toBeVisible({ timeout: 15_000 })
-    await viewButton.click()
-
-    // integration-definition-page.tsx renders an "Integrations" back button.
-    await expect(page).toHaveURL(/\/organization-settings\/integrations\/[^/]+$/, { timeout: 15_000 })
-    await expect(page.getByRole('button', { name: /^Integrations$/ })).toBeVisible({ timeout: 15_000 })
-  })
-
+test.describe('organization-settings — subscribers (owner)', () => {
   test('subscribers bulk-upload dialog opens with the CSV format callout', async ({ page }) => {
     await page.goto('/organization-settings/subscribers', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^Subscribers$/ })).toBeVisible({ timeout: 20_000 })
@@ -363,7 +302,7 @@ test.describe('organization-settings — integrations & subscribers (owner)', ()
 
     // table-filter.tsx: a "Filter" DropdownMenu trigger reveals the configured
     // SUBSCRIBERS_FILTER_FIELDS (Email / Active / Verified). Read-only.
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     const menu = page.getByRole('menu')
     await expect(menu).toBeVisible({ timeout: 10_000 })
     await expect(menu.getByText('Email', { exact: true })).toBeVisible()
@@ -480,5 +419,88 @@ test.describe('organization-settings — authentication SSO edit form (owner)', 
     // Cancel discards the edit form back to the overview — no mutation occurred.
     await page.getByRole('button', { name: /^Cancel$/ }).click()
     await expect(page.getByRole('button', { name: /^(Configure SSO|Edit Configuration)$/ })).toBeVisible({ timeout: 10_000 })
+  })
+})
+
+/**
+ * #1957 (SSO exemption + Openlane support access) added two panels to
+ * /organization-settings/authentication:
+ *
+ *  - support-access.tsx: an "Openlane Support Access" card with an
+ *    Enabled/Disabled badge and an Enable/Revoke toggle button.
+ *  - sso.tsx: an "Exempt Domains" DomainListEditor whose entries are saved
+ *    immediately, guarded client-side by isValidDomain (unit-tested in
+ *    utils/strings.test.ts).
+ *
+ * Support access is never toggled here — enabling it would grant real support
+ * engineers access to the shared seeded org. The exempt-domain test drives only
+ * the client-side rejection path, which returns before any mutation.
+ */
+test.describe('organization-settings — support access (#1957)', () => {
+  test('the Openlane Support Access panel renders with a status badge and toggle', async ({ page }) => {
+    test.slow()
+    await page.goto('/organization-settings/authentication', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Authentication$/ })).toBeVisible({ timeout: 20_000 })
+
+    await expect(page.getByText('Openlane Support Access', { exact: true })).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByText(/Allow Openlane support engineers to temporarily access your organization/)).toBeVisible()
+
+    // Badge reads "● Enabled" / "● Disabled"; the button mirrors it.
+    await expect(page.getByText(/^● (Enabled|Disabled)$/).first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('button', { name: /^(Enable Access|Revoke Access)$/ })).toBeVisible()
+  })
+})
+
+test.describe('organization-settings — SSO exempt domains (#1957)', () => {
+  // sso.tsx renders the exempt-domain editor only when isSSOConfigured. The
+  // shared seeded org has no IdP wired up, so these skip unless a run happens to
+  // have SSO configured — they exist so the surface is asserted wherever it IS
+  // reachable, rather than silently going uncovered.
+  const openExemptSection = async (page: Page) => {
+    await page.goto('/organization-settings/authentication', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Authentication$/ })).toBeVisible({ timeout: 20_000 })
+    const heading = page.getByText('Exempt Domains', { exact: true })
+    // Give the SSO config query time to resolve before deciding.
+    await page.waitForTimeout(2_000)
+    return heading.isVisible().catch(() => false)
+  }
+
+  test('the Exempt Domains editor renders with its owner-exemption note', async ({ page }) => {
+    test.slow()
+    test.skip(!(await openExemptSection(page)), 'org has no SSO configured — exempt-domain editor not rendered')
+
+    await expect(page.getByText(/exempt from SSO enforcement\. Changes are saved immediately\./)).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/automatically exempt from SSO enforcement/)).toBeVisible()
+  })
+
+  test('an invalid exempt domain is rejected client-side without saving', async ({ page }) => {
+    test.slow()
+    test.skip(!(await openExemptSection(page)), 'org has no SSO configured — exempt-domain editor not rendered')
+
+    // addExemptDomain returns before saveDomains when isValidDomain fails, so
+    // this never mutates the org. The exempt editor is the last domain editor on
+    // the page (allowed-domains renders above it).
+    const input = page.getByPlaceholder('example.com').last()
+    await input.fill('not-a-domain')
+    await page.getByRole('button', { name: /^Add$/ }).last().click()
+
+    await expect(page.getByText('"not-a-domain" is not a valid domain')).toBeVisible({ timeout: 10_000 })
+  })
+})
+
+/**
+ * ISS-2756 — the org settings page surfaces a copy-able Organization ID for use
+ * in the API and integrations, rendered through the shared CopyableText chip
+ * with an accessible "Copy organization ID …" label.
+ */
+test.describe('organization-settings — copyable org id (ISS-2756)', () => {
+  test('the settings page shows the Organization ID with a copy control', async ({ page }) => {
+    test.slow()
+    await page.goto('/organization-settings/general-settings', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^General$/ })).toBeVisible({ timeout: 30_000 })
+
+    await expect(page.getByText('Organization ID', { exact: true })).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByText('Use this ID in the Openlane API and integrations.')).toBeVisible()
+    await expect(page.getByRole('button', { name: /^Copy organization ID / })).toBeVisible({ timeout: 15_000 })
   })
 })

@@ -9,7 +9,7 @@
     "debug": "next build --debug --experimental-debug-memory-usage",
     "start": "next start -p 3001",
     "lint": "eslint .",
-    "test": "bun test",
+    "test": "bun test src",
     "e2e": "playwright test",
     "e2e:sharded": "bash e2e/run-sharded.sh",
     "e2e:ui": "playwright test --ui",

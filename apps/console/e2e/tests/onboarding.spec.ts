@@ -2,8 +2,25 @@ import { expect, test } from '@playwright/test'
 
 import { PASSWORD, RUN_ID } from '../utils/constants'
 import { loginViaForm } from '../utils/login'
-import { completeOnboarding, ensureOnboardingRoute } from '../utils/onboarding'
+import { backButton, companyNameInput, completeOnboarding, ensureOnboardingRoute, nextButton } from '../utils/onboarding'
 import { registerAndVerify } from '../utils/registerUser'
+
+/**
+ * The wizard is now backend-driven: /api/onboarding/questions returns the steps
+ * and questions (core's internal/onboarding/onboarding.yaml), and
+ * dynamic-step.tsx / dynamic-field.tsx render them. Consequences for this suite:
+ *
+ *  - Field ids are question KEYS (`company_name`, `company_domains`,
+ *    `company_sector`, `user_role`, …), not the old camelCase ids.
+ *  - Step headings are the backend step titles: Company Info → User Info →
+ *    Compliance Setup → Starting Point → Support Preferences → the trial card.
+ *  - The footer's forward button is labelled with the NEXT step's title, so the
+ *    helpers target it by its ArrowRight icon instead.
+ *  - `company_name` is the only required question, and onboarding-page.tsx
+ *    pre-fills it from the user's email domain. Advance is blocked by DISABLING
+ *    the forward button (isNextDisabled), not by letting a click through to an
+ *    error.
+ */
 
 // Onboarding is one-shot per account, so every test that completes the
 // wizard needs a fresh user. We *also* need a unique email DOMAIN per
@@ -38,35 +55,48 @@ test.describe('onboarding', () => {
     await completeOnboarding(page, { companyName })
 
     await expect(page).toHaveURL(/\/dashboard/)
-    // Org name only appears in the (collapsed) sidebar org-switcher on the
-    // dashboard, which renders it as an image-only button by default. We
-    // could expand the sidebar and assert on the dropdown, but the URL
-    // transition is sufficient evidence that onboarding succeeded.
   })
 
-  test('step 1 blocks advance when companyName is empty', async ({ page }) => {
+  test('the company name is pre-filled from the user email domain', async ({ page }) => {
+    const email = await freshUser('prefill')
+    await loginViaForm(page, email, PASSWORD)
+    await ensureOnboardingRoute(page)
+
+    // onboarding-page.tsx derives the name from the domain's first label,
+    // splitting on - / _ and title-casing each word.
+    const expected = email
+      .split('@')[1]
+      .split('.')[0]
+      .split(/[-_]+/)
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+
+    await expect(companyNameInput(page)).toHaveValue(expected, { timeout: 15_000 })
+  })
+
+  test('clearing the company name disables advance', async ({ page }) => {
     const email = await freshUser('empty')
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    // Don't type anything — companyName starts empty.
-    await page.getByRole('button', { name: /^User Info$/ }).click()
+    await companyNameInput(page).fill('')
 
-    // Should still be on Step 1 (header reads "Company Info").
+    // company_name is the step's only required key → isNextDisabled flips true.
+    await expect(nextButton(page)).toBeDisabled({ timeout: 10_000 })
     await expect(page.getByRole('heading', { name: /^Company Info$/ })).toBeVisible()
-    await expect(page.getByText(/Company name requires at least 3 characters/i)).toBeVisible()
   })
 
-  test('step 1 blocks advance when companyName is shorter than 3 characters', async ({ page }) => {
+  test('a company name shorter than 3 characters shows a validation error', async ({ page }) => {
     const email = await freshUser('short')
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    await page.locator('#companyName').fill('ab')
-    await page.getByRole('button', { name: /^User Info$/ }).click()
+    await companyNameInput(page).fill('ab')
 
-    await expect(page.getByRole('heading', { name: /^Company Info$/ })).toBeVisible()
-    await expect(page.getByText(/Company name requires at least 3 characters/i)).toBeVisible()
+    // build-schema.ts: z.string().min(3, 'Company name requires at least 3 characters')
+    await expect(page.getByText(/Company name requires at least 3 characters/i)).toBeVisible({ timeout: 10_000 })
+    await expect(nextButton(page)).toBeDisabled()
   })
 
   test('back button preserves entered data', async ({ page }) => {
@@ -75,14 +105,14 @@ test.describe('onboarding', () => {
     await ensureOnboardingRoute(page)
 
     const companyName = 'Back Button Test'
-    await page.locator('#companyName').fill(companyName)
-    await page.getByRole('button', { name: /^User Info$/ }).click()
+    await companyNameInput(page).fill(companyName)
+    await nextButton(page).click()
 
     await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
-    await page.getByRole('button', { name: /^Company Info$/ }).click()
+    await backButton(page).click()
 
     await expect(page.getByRole('heading', { name: /^Company Info$/ })).toBeVisible()
-    await expect(page.locator('#companyName')).toHaveValue(companyName)
+    await expect(companyNameInput(page)).toHaveValue(companyName)
   })
 
   test('user email domain is auto-added as a domain chip', async ({ page }) => {
@@ -90,7 +120,6 @@ test.describe('onboarding', () => {
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    // The domain part of the email — for our seeded users this is openlane.test.
     const domain = email.split('@')[1]
     await expect(page.getByText(domain).first()).toBeVisible()
   })
@@ -108,213 +137,188 @@ test.describe('onboarding', () => {
     await expect(page.getByRole('heading', { name: /^Company Info$/ })).toBeVisible()
   })
 
-  test('manually-added valid domain renders as a chip', async ({ page }) => {
+  test('a manually-added valid domain renders as a chip', async ({ page }) => {
     const email = await freshUser('domain-add')
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    await page.locator('#domains').fill('acme.example')
-    await page.getByRole('button', { name: /^Add Domain$/i }).click()
+    // multi-input-field.tsx commits the draft on Enter/Tab/blur — there is no
+    // "Add Domain" button any more.
+    await page.locator('#company_domains').fill('acme.example')
+    await page.locator('#company_domains').press('Enter')
 
     await expect(page.getByText('acme.example')).toBeVisible()
   })
 
-  test('manually-added invalid domain triggers a native alert', async ({ page }) => {
+  test('a manually-added invalid domain shows an inline format error', async ({ page }) => {
     const email = await freshUser('domain-bad')
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    // The component calls window.alert() for invalid input. Native
-    // alert() blocks the JS thread until dismissed, which means the
-    // click() promise won't resolve unless we dismiss in the handler.
-    // page.once('dialog', ...) attached BEFORE the click both dismisses
-    // and gives us the message to assert on.
-    let dialogMessage = ''
-    page.once('dialog', async (dialog) => {
-      dialogMessage = dialog.message()
-      await dialog.dismiss()
-    })
+    // The old window.alert() path is gone; the field renders the error inline
+    // and refuses to add the chip.
+    await page.locator('#company_domains').fill('not-a-domain')
+    await page.locator('#company_domains').press('Enter')
 
-    await page.locator('#domains').fill('not-a-domain')
-    await page.getByRole('button', { name: /^Add Domain$/i }).click()
-
-    expect(dialogMessage).toMatch(/invalid domain/i)
+    await expect(page.getByText('Invalid domain format. Example: acme.com')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText('not-a-domain', { exact: true })).toHaveCount(0)
   })
 
-  test('removing all domain chips blocks advance (zod requires ≥1 domain)', async ({ page }) => {
-    const email = await freshUser('no-domain')
+  test('a domain chip can be removed via its Remove control', async ({ page }) => {
+    const email = await freshUser('domain-remove')
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    await page.locator('#companyName').fill('No Domain Co')
-
-    // Remove the auto-added user-domain chip. The chip is a <Badge>
-    // containing the domain text plus an icon-only close button — the
-    // close button has no accessible name, so reach it via the badge.
+    // Domains are optional now, so removing the auto-added chip must NOT block
+    // advance — it just empties the list.
     const domain = email.split('@')[1]
-    const chip = page.getByText(domain, { exact: true }).locator('..')
-    await chip.getByRole('button').click()
+    await expect(page.getByText(domain, { exact: true })).toBeVisible({ timeout: 15_000 })
+
+    await page.getByRole('button', { name: `Remove ${domain}` }).click()
     await expect(page.getByText(domain, { exact: true })).toHaveCount(0)
-
-    await page.getByRole('button', { name: /^User Info$/ }).click()
-
-    await expect(page.getByRole('heading', { name: /^Company Info$/ })).toBeVisible()
-    await expect(page.getByText(/Please enter at least one domain/i)).toBeVisible()
+    await expect(nextButton(page)).toBeEnabled()
   })
 
-  test('Step 2 values persist when navigating forward then back from Step 3', async ({ page }) => {
-    const email = await freshUser('step2-back')
-    await loginViaForm(page, email, PASSWORD)
-    await ensureOnboardingRoute(page)
-
-    await page.locator('#companyName').fill('Step2 Persistence Test')
-    await page.getByRole('button', { name: /^User Info$/ }).click()
-
-    const role = 'Compliance Manager'
-    await page.locator('#role').fill(role)
-    await page.getByRole('button', { name: /^Compliance Info$/ }).click()
-    await expect(page.getByRole('heading', { name: /^Compliance Info$/ })).toBeVisible()
-
-    await page.getByRole('button', { name: /^User Info$/ }).click()
-    await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
-    await expect(page.locator('#role')).toHaveValue(role)
-  })
-
-  test('refresh mid-wizard wipes form state (in-memory only)', async ({ page }) => {
-    // Documents current product behavior: the wizard holds form state in
-    // useForm/useRef with no persistence layer, so a hard refresh resets
-    // it. If the product team adds a draft-save mechanism, flip this.
-    const email = await freshUser('refresh')
-    await loginViaForm(page, email, PASSWORD)
-    await ensureOnboardingRoute(page)
-
-    await page.locator('#companyName').fill('Will Be Wiped')
-
-    await page.reload()
-    await ensureOnboardingRoute(page)
-
-    await expect(page.locator('#companyName')).toHaveValue('')
-  })
-
-  test('step 1 sector "Other (Please Specify)" reveals the custom sector input', async ({ page }) => {
+  test('the sector "Other" option reveals the "Please specify" input', async ({ page }) => {
     const email = await freshUser('sector-other')
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    // step-1.tsx has several Selects (company size, sector, …). The Company
-    // Sector trigger shows the placeholder "Choose"; target it specifically.
-    // Choosing "Other (Please Specify)" reveals a "Please Specify" label + the
-    // #otherSector input.
-    await page.getByRole('combobox').filter({ hasText: 'Choose' }).click()
-    await page.getByRole('option', { name: 'Other (Please Specify)' }).click()
+    // dynamic-field.tsx renders selects as Radix comboboxes labelled by the
+    // question label; company_sector_other depends on company_sector === other.
+    await page.getByLabel('Company Sector').click()
+    await page.getByRole('option', { name: 'Other', exact: true }).click()
 
-    await expect(page.getByText('Please Specify', { exact: true })).toBeVisible({ timeout: 10_000 })
-    await expect(page.locator('#otherSector')).toBeVisible()
+    await expect(page.getByText('Please specify', { exact: true })).toBeVisible({ timeout: 10_000 })
+    await expect(page.locator('#company_sector_other')).toBeVisible()
   })
 
-  test('step 2 (User Info) shows the "exit and use general template" shortcut', async ({ page }) => {
-    const email = await freshUser('exit-link')
-    await loginViaForm(page, email, PASSWORD)
-    await ensureOnboardingRoute(page)
-
-    // Advance Step 1 → Step 2: the next button is labelled with the next step's
-    // name ("User Info"), per onboarding-page.tsx.
-    await page.locator('#companyName').fill(`E2E Co ${Date.now().toString(36)}`)
-    await page.getByRole('button', { name: /^User Info$/ }).click()
-
-    // onboarding-page.tsx renders the exit shortcut only on the 2nd step.
-    await expect(page.getByText(/Exit the onboarding process/)).toBeVisible({ timeout: 10_000 })
-    await expect(page.getByText(/use general template for my account/)).toBeVisible()
-  })
-})
-
-test.describe('onboarding — optional fields', () => {
-  test('step 1 company-size selection persists across forward/back navigation', async ({ page }) => {
+  test('the company-size selection persists across forward/back navigation', async ({ page }) => {
     const email = await freshUser('size')
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    await page.locator('#companyName').fill('Company Size Co')
+    await companyNameInput(page).fill('Company Size Co')
 
-    // step-1.tsx: the Company Size field is a label + Radix Select trigger.
-    // Scope to the field container so the trigger handle stays valid after
-    // its text changes from the placeholder to the chosen label.
-    const sizeTrigger = () => page.getByText('Company Size', { exact: true }).locator('..').getByRole('combobox').first()
+    const sizeTrigger = () => page.getByLabel('Company Size')
     await sizeTrigger().click()
-    await page.getByRole('option', { name: /11-50 employees/ }).click()
-    await expect(sizeTrigger()).toContainText(/11-50 employees/)
+    await page.getByRole('option', { name: '11-50', exact: true }).click()
+    await expect(sizeTrigger()).toContainText('11-50')
 
-    // Advance to Step 2, then back. The trigger should still show the choice.
-    await page.getByRole('button', { name: /^User Info$/ }).click()
+    await nextButton(page).click()
     await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
-    await page.getByRole('button', { name: /^Company Info$/ }).click()
+    await backButton(page).click()
 
-    await expect(sizeTrigger()).toContainText(/11-50 employees/)
+    await expect(sizeTrigger()).toContainText('11-50')
   })
 
-  test('step 2 department selection persists when navigating to Step 3 and back', async ({ page }) => {
+  test('the User Info department selection persists across forward/back navigation', async ({ page }) => {
     const email = await freshUser('dept')
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    await page.locator('#companyName').fill('Department Co')
-    await page.getByRole('button', { name: /^User Info$/ }).click()
+    await companyNameInput(page).fill('Department Co')
+    await nextButton(page).click()
     await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
 
-    // step-2.tsx: Department field is a label + Radix Select trigger. Scope to
-    // the field container so the handle survives the trigger's text change.
-    const deptTrigger = () => page.getByText('Department', { exact: true }).locator('..').getByRole('combobox').first()
+    const deptTrigger = () => page.getByLabel('Department')
     await deptTrigger().click()
-    await page.getByRole('option', { name: /^Infosec$/ }).click()
-    await expect(deptTrigger()).toContainText(/Infosec/)
+    await page.getByRole('option', { name: 'Security', exact: true }).click()
+    await expect(deptTrigger()).toContainText('Security')
 
-    await page.getByRole('button', { name: /^Compliance Info$/ }).click()
-    await expect(page.getByRole('heading', { name: /^Compliance Info$/ })).toBeVisible()
-    await page.getByRole('button', { name: /^User Info$/ }).click()
+    await nextButton(page).click()
+    await expect(page.getByRole('heading', { name: /^Compliance Setup$/ })).toBeVisible()
+    await backButton(page).click()
 
-    await expect(deptTrigger()).toContainText(/Infosec/)
+    await expect(deptTrigger()).toContainText('Security')
   })
 
-  test('step 3 compliance toggle flips on and stays on across back/forward', async ({ page }) => {
-    const email = await freshUser('toggle')
+  test('a Starting Point boolean answer persists across back/forward', async ({ page }) => {
+    const email = await freshUser('boolean')
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    await page.locator('#companyName').fill('Toggle Co')
-    await page.getByRole('button', { name: /^User Info$/ }).click()
-    await page.getByRole('button', { name: /^Compliance Info$/ }).click()
-    await expect(page.getByRole('heading', { name: /^Compliance Info$/ })).toBeVisible()
-
-    // step-3.tsx renders one Switch per question. The first is the
-    // risk-assessment toggle, default unchecked.
-    const riskToggle = page.getByRole('switch').first()
-    await expect(riskToggle).toHaveAttribute('aria-checked', 'false')
-    await riskToggle.click()
-    await expect(riskToggle).toHaveAttribute('aria-checked', 'true')
-
-    // Back to Step 2 and forward again — the toggle holds its on state.
-    await page.getByRole('button', { name: /^User Info$/ }).click()
+    await companyNameInput(page).fill('Boolean Co')
+    await nextButton(page).click()
     await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
-    await page.getByRole('button', { name: /^Compliance Info$/ }).click()
+    await nextButton(page).click()
+    await expect(page.getByRole('heading', { name: /^Compliance Setup$/ })).toBeVisible()
+    await nextButton(page).click()
+    await expect(page.getByRole('heading', { name: /^Starting Point$/ })).toBeVisible()
 
-    await expect(page.getByRole('switch').first()).toHaveAttribute('aria-checked', 'true')
+    // boolean-field.tsx renders a Yes/No RadioGroup with ids
+    // `<key>-true` / `<key>-false`.
+    const yes = page.locator('#has_existing_controls-true')
+    await yes.click()
+    await expect(yes).toBeChecked()
+
+    await backButton(page).click()
+    await expect(page.getByRole('heading', { name: /^Compliance Setup$/ })).toBeVisible()
+    await nextButton(page).click()
+
+    await expect(page.locator('#has_existing_controls-true')).toBeChecked()
   })
 
-  test('early-exit link on Step 2 submits onboarding and lands on /dashboard', async ({ page }) => {
+  test('the exit shortcut appears after the first step and submits onboarding', async ({ page }) => {
     test.slow()
     const email = await freshUser('early-exit')
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    await page.locator('#companyName').fill(`Early Exit Co ${Date.now().toString(36)}`)
-    await page.getByRole('button', { name: /^User Info$/ }).click()
+    // onboarding-page.tsx renders the exit shortcut whenever currentIndex > 0.
+    await expect(page.getByText(/Exit the onboarding process/)).toHaveCount(0)
+
+    await companyNameInput(page).fill(`Early Exit Co ${Date.now().toString(36)}`)
+    await nextButton(page).click()
     await expect(page.getByRole('heading', { name: /^User Info$/ })).toBeVisible()
 
-    // onboarding-page.tsx wires the exit shortcut's onClick to
-    // methods.handleSubmit(onSubmit) — clicking it skips Step 3 and submits
-    // with whatever's filled so far, then routes to /dashboard.
-    await page.getByText(/Exit the onboarding process/).click()
+    await expect(page.getByText(/Exit the onboarding process/)).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/use general template for my account/)).toBeVisible()
 
+    // exitOnboarding submits whatever is filled so far and router.push('/')es.
+    await page.getByText(/Exit the onboarding process/).click()
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 })
+  })
+
+  test('refresh mid-wizard wipes form state (in-memory only)', async ({ page }) => {
+    // Documents current product behavior: the wizard holds form state in
+    // useForm with no persistence layer, so a hard refresh resets it — back to
+    // the domain-derived default rather than what was typed.
+    const email = await freshUser('refresh')
+    await loginViaForm(page, email, PASSWORD)
+    await ensureOnboardingRoute(page)
+
+    await companyNameInput(page).fill('Will Be Wiped')
+
+    await page.reload()
+    await ensureOnboardingRoute(page)
+
+    await expect(companyNameInput(page)).not.toHaveValue('Will Be Wiped', { timeout: 15_000 })
+  })
+})
+
+/**
+ * ISS-2466 — the (protected) layout prefixes document.title with the active
+ * organization's display name ("{Org} | {Page}"). A user who has not finished
+ * onboarding is still in their auto-created PERSONAL org, whose name is derived
+ * from their own account — leaking it into the browser tab looked like a bug.
+ *
+ * getOrgDisplayNameForRequest now returns null for a personalOrg, so the layout
+ * falls back to the generic "Openlane | {Page}" template.
+ */
+test.describe('onboarding — document title (ISS-2466)', () => {
+  test('a mid-onboarding user gets the generic Openlane title, not their personal org name', async ({ page }) => {
+    const email = await freshUser('title')
+    await loginViaForm(page, email, PASSWORD)
+    await ensureOnboardingRoute(page)
+
+    // onboarding/page.tsx sets metadata.title 'Onboarding'; the layout template
+    // supplies the prefix.
+    await expect(page).toHaveTitle(/^Openlane \| Onboarding$/, { timeout: 20_000 })
+
+    // The personal org is named after the user, so the local-part must not leak
+    // into the tab title.
+    const localPart = email.split('@')[0]
+    await expect(page).not.toHaveTitle(new RegExp(localPart, 'i'))
   })
 })

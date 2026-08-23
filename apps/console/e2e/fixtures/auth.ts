@@ -23,9 +23,17 @@ import type { AuthManifest } from '../global-setup'
 
 export type Role = 'owner' | 'admin' | 'member' | 'readonly'
 
+/**
+ * The demo organization seeded by harmonize. Unlike the org global-setup
+ * creates, it has a provisioned trust center — so specs covering trust-center
+ * surfaces run against it. Guard with `readManifest().hasDemoSession`, which is
+ * false in environments without the demo seed.
+ */
+export type AuthProfile = Role | 'demo'
+
 const AUTH_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '.auth')
 
-export const authFile = (role: Role): string => path.join(AUTH_DIR, `${role}.json`)
+export const authFile = (profile: AuthProfile): string => path.join(AUTH_DIR, `${profile}.json`)
 
 /** Read the run manifest (emails, shared org id) written by global-setup. */
 export const readManifest = (): AuthManifest => JSON.parse(readFileSync(path.join(AUTH_DIR, 'manifest.json'), 'utf-8')) as AuthManifest

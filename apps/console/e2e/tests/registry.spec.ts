@@ -1,3 +1,5 @@
+import type { Page } from '@playwright/test'
+
 import { test, expect } from '../fixtures/auth'
 
 import { RUN_ID } from '../utils/constants'
@@ -26,6 +28,22 @@ test.describe('registry — list pages render', () => {
   }
 })
 
+/**
+ * The vendor create wizard's step COUNT is not fixed — ISS-2410 added a
+ * "Security" step between Ownership and Documents, and the old hard-coded three
+ * "Next" clicks silently stopped short of the final step. Advance until the
+ * StepDialog swaps Next for its "Create" submit (step-dialog.tsx renders one or
+ * the other on stepper.isLast) instead of counting steps.
+ */
+const advanceToLastStep = async (dialog: ReturnType<Page['getByRole']>) => {
+  const next = dialog.getByRole('button', { name: /^next$/i })
+  for (let step = 0; step < 10; step++) {
+    if (!(await next.isVisible().catch(() => false))) break
+    await next.click()
+  }
+  await expect(dialog.getByRole('button', { name: /^create$/i })).toBeVisible({ timeout: 10_000 })
+}
+
 test.describe('registry — vendor create wizard', () => {
   test('happy path — name-only step wizard creates a vendor visible on /registry/vendors', async ({ page }) => {
     await page.goto('/registry/vendors')
@@ -44,12 +62,9 @@ test.describe('registry — vendor create wizard', () => {
     const name = vendorName('create')
     await dialog.getByLabel(/^Vendor Name/).fill(name)
 
-    // Step 2 — Logo (empty schema). Step 3 — Ownership (responsibility
-    // fields are .optional().nullable()). Step 4 — Documents (contactIDs
-    // optional). Click Next three times to reach the last step.
-    await dialog.getByRole('button', { name: /^next$/i }).click()
-    await dialog.getByRole('button', { name: /^next$/i }).click()
-    await dialog.getByRole('button', { name: /^next$/i }).click()
+    // Every later step is optional (Logo, Ownership, Security, Documents all
+    // have fully-optional schemas), so walk straight through to the submit.
+    await advanceToLastStep(dialog)
 
     // The last step's submit button reads "Create" (SaveButton with
     // title="Create"). Pending state shows "Creating...".
@@ -73,9 +88,7 @@ test.describe('registry — vendor create wizard', () => {
     await expect(dialog).toBeVisible({ timeout: 10_000 })
     const name = vendorName('detail')
     await dialog.getByLabel(/^Vendor Name/).fill(name)
-    await dialog.getByRole('button', { name: /^next$/i }).click()
-    await dialog.getByRole('button', { name: /^next$/i }).click()
-    await dialog.getByRole('button', { name: /^next$/i }).click()
+    await advanceToLastStep(dialog)
     await dialog.getByRole('button', { name: /^create$/i }).click()
     await expect(dialog).toBeHidden({ timeout: 30_000 })
 
@@ -131,7 +144,7 @@ test.describe('registry — vendor list controls', () => {
     await page.goto('/registry/vendors', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await expect(page.getByRole('heading', { level: 2, name: /^Vendors$/ })).toBeVisible({ timeout: 20_000 })
 
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     // vendors/table/table-config.tsx getFilterFields → accordion triggers
     // labelled by the FilterField.label string.
     for (const label of ['Status', 'Scope', 'Source Type', 'Relationship State', 'Security Questionnaire Status']) {
@@ -173,5 +186,103 @@ test.describe('registry — vendor list controls', () => {
     await expect(header).toHaveAttribute('aria-sort', 'none')
     await header.getByText('Display Name').click()
     await expect(header).toHaveAttribute('aria-sort', /ascending|descending/, { timeout: 10_000 })
+  })
+})
+
+/**
+ * ISS-2410 — the vendor create wizard gained a "Security" step between
+ * Ownership and Documents (vendor-create-steps.tsx), holding two cards:
+ * "Compliance and Risk" (Has SOC 2 + a SOC 2 Period End calendar) and
+ * "Security Features" (SSO Enforced, MFA Supported, MFA Enforced).
+ *
+ * Every field on the step is optional, so this asserts the step renders and its
+ * checkboxes are interactive, then creates through it to prove the added step
+ * does not block the happy path.
+ */
+test.describe('registry — vendor create Security step (ISS-2410)', () => {
+  const openWizardAtSecurity = async (page: Page, name: string) => {
+    await page.goto('/registry/vendors')
+    await page
+      .getByRole('main')
+      .getByRole('button', { name: /^create$/i })
+      .click()
+
+    const dialog = page.getByRole('dialog', { name: /create vendor/i })
+    await expect(dialog).toBeVisible({ timeout: 10_000 })
+    await dialog.getByLabel(/^Vendor Name/).fill(name)
+
+    // Vendor Info → Logo → Ownership → Security.
+    const next = dialog.getByRole('button', { name: /^next$/i })
+    for (let step = 0; step < 6; step++) {
+      if (
+        await dialog
+          .getByText('Security Features', { exact: true })
+          .isVisible()
+          .catch(() => false)
+      )
+        break
+      await next.click()
+    }
+    return dialog
+  }
+
+  test('the Security step renders both cards and all security toggles', async ({ page }) => {
+    test.slow()
+    const dialog = await openWizardAtSecurity(page, vendorName('security-render'))
+
+    await expect(dialog.getByText('Compliance and Risk', { exact: true })).toBeVisible({ timeout: 15_000 })
+    await expect(dialog.getByText('Security Features', { exact: true })).toBeVisible()
+
+    await expect(dialog.getByText('Has SOC 2', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('SOC 2 Period End', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('SSO Enforced', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('MFA Supported', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('MFA Enforced', { exact: true })).toBeVisible()
+  })
+
+  test('a vendor can be created with the security toggles set', async ({ page }) => {
+    test.slow()
+    const name = vendorName('security-create')
+    const dialog = await openWizardAtSecurity(page, name)
+    await expect(dialog.getByText('Security Features', { exact: true })).toBeVisible({ timeout: 15_000 })
+
+    // CheckboxField renders a labelled checkbox per flag; all are optional.
+    const soc2 = dialog.getByRole('checkbox').first()
+    await soc2.click()
+    await expect(soc2).toBeChecked()
+
+    await advanceToLastStep(dialog)
+    await dialog.getByRole('button', { name: /^create$/i }).click()
+
+    await expect(dialog).toBeHidden({ timeout: 30_000 })
+    await expect(page.getByRole('cell').filter({ hasText: name }).first()).toBeVisible({ timeout: 15_000 })
+  })
+})
+
+/**
+ * ISS-2525 — vendor creation went domain-first: the "Vendor domain" field moved
+ * ABOVE Vendor Name on step 1 and gained a description explaining that a domain
+ * lets the app prefill the rest (logo lookup, name auto-fill).
+ */
+test.describe('registry — vendor create is domain-first (ISS-2525)', () => {
+  test('step 1 leads with the Vendor domain field and its prefill hint', async ({ page }) => {
+    test.slow()
+    await page.goto('/registry/vendors')
+    await page
+      .getByRole('main')
+      .getByRole('button', { name: /^create$/i })
+      .click()
+
+    const dialog = page.getByRole('dialog', { name: /create vendor/i })
+    await expect(dialog).toBeVisible({ timeout: 15_000 })
+
+    await expect(dialog.getByText('Vendor domain', { exact: true })).toBeVisible({ timeout: 15_000 })
+    await expect(dialog.getByText(/We'll use this to find vendor details and prefill what we can\./)).toBeVisible()
+    await expect(dialog.getByPlaceholder('example.com')).toBeVisible()
+
+    // Domain is now rendered before the name field.
+    const domainBox = await dialog.getByText('Vendor domain', { exact: true }).boundingBox()
+    const nameBox = await dialog.getByLabel(/^Vendor Name/).boundingBox()
+    expect(domainBox && nameBox && domainBox.y < nameBox.y).toBe(true)
   })
 })

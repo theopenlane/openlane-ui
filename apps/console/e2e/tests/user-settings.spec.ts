@@ -45,26 +45,24 @@ test.describe('user-settings — profile forms (owner)', () => {
     await expect(page.getByText('Display name', { exact: true })).toBeVisible()
   })
 
-  test('delete-account dialog enforces the typed DELETE gate (cancel-only)', async ({ page }) => {
+  test('delete-account is blocked for an org owner', async ({ page }) => {
     await page.goto('/user-settings/profile', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^My profile$/ })).toBeVisible({ timeout: 20_000 })
 
-    // delete-user-section.tsx: "Delete User Account" button → ConfirmationDialog
-    // (showInput → must type DELETE). We assert the gate and CANCEL — never
-    // confirm (that would delete the seeded Owner and break all fixtures).
-    await page.getByRole('button', { name: /^Delete User Account$/ }).click()
+    // delete-user-section.tsx now gates deletion on ownership: isDeleteDisabled
+    // is true while the user owns an organization, and the button is wrapped in
+    // a tooltip explaining why. The storage-state user IS the Owner, so the
+    // dialog is unreachable here — which also keeps the seeded fixtures safe.
+    await expect(page.getByText('Delete Your Account', { exact: true })).toBeVisible({ timeout: 15_000 })
 
-    const dialog = page.getByRole('alertdialog')
-    await expect(dialog).toBeVisible({ timeout: 10_000 })
-    const confirm = dialog.getByRole('button', { name: /^Delete$/ })
-    await expect(confirm).toBeDisabled()
+    const deleteButton = page.getByRole('button', { name: /^Delete account$/ })
+    await expect(deleteButton).toBeVisible({ timeout: 15_000 })
+    await expect(deleteButton).toBeDisabled()
 
-    // Typing the wrong text keeps it disabled; we never enable+confirm it.
-    await dialog.getByRole('textbox').fill('nope')
-    await expect(confirm).toBeDisabled()
-
-    await dialog.getByRole('button', { name: /^Cancel$/ }).click()
-    await expect(dialog).toBeHidden({ timeout: 10_000 })
+    // The disabled button is wrapped in a tooltip explaining the way out.
+    await page.getByText('Delete Your Account', { exact: true }).hover()
+    await deleteButton.hover({ force: true })
+    await expect(page.getByText(/You must transfer ownership or delete all organizations you own/)).toBeVisible({ timeout: 10_000 })
   })
 })
 
@@ -108,9 +106,9 @@ test.describe('user-settings — security & default-org panels (owner)', () => {
     await page.goto('/user-settings/profile', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^My profile$/ })).toBeVisible({ timeout: 20_000 })
 
-    // passkeys-section.tsx PanelHeader "Passkeys and security keys" + the
+    // passkeys-section.tsx PanelHeader "Passkeys and Security Keys" + the
     // primary button (label varies: "Add passkey" vs "Add another Passkey").
-    await expect(page.getByText('Passkeys and security keys', { exact: true })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText('Passkeys and Security Keys', { exact: true })).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('button', { name: /^Add (passkey|another Passkey)$/ })).toBeVisible()
   })
 })

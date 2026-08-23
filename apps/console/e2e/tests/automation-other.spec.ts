@@ -8,7 +8,7 @@ const SUBROUTES: Array<{ path: string; heading: RegExp }> = [
   { path: '/automation/questionnaires', heading: /^Questionnaires$/ },
   { path: '/automation/questionnaires/templates', heading: /^Templates$/ },
   { path: '/automation/campaigns', heading: /^Campaigns$/ },
-  { path: '/automation/communications', heading: /^Communications$/ },
+  { path: '/automation/email-templates', heading: /^Email Templates$/ },
   // Empty workflows shows "Create your first workflow" instead of a
   // "Workflows" heading. Match either to stay green across both states
   // — note the regex matches singular "workflow" too.
@@ -98,20 +98,24 @@ test.describe('automation — campaigns create', () => {
   })
 })
 
-test.describe('automation — communications tabs', () => {
-  test('communications page toggles between Email and Notification template tabs', async ({ page }) => {
-    await page.goto('/automation/communications', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('heading', { level: 2, name: /^Communications$/ })).toBeVisible({ timeout: 20_000 })
+test.describe('automation — email templates status filter', () => {
+  test('the status filter switches between All, Active and Inactive', async ({ page }) => {
+    await page.goto('/automation/email-templates', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Email Templates$/ })).toBeVisible({ timeout: 20_000 })
 
-    // communications-page.tsx Radix tabs: "Email Templates" / "Notification Templates".
-    const email = page.getByRole('tab', { name: /Email Templates/ })
-    const notification = page.getByRole('tab', { name: /Notification Templates/ })
-    await expect(email).toBeVisible()
-    await expect(notification).toBeVisible()
+    // email-templates-tab.tsx renders the status filter as Radix tabs,
+    // defaulting to "all".
+    const all = page.getByRole('tab', { name: /^All$/ })
+    const active = page.getByRole('tab', { name: /^Active$/ })
+    const inactive = page.getByRole('tab', { name: /^Inactive$/ })
+    await expect(all).toBeVisible()
+    await expect(active).toBeVisible()
+    await expect(inactive).toBeVisible()
+    await expect(all).toHaveAttribute('aria-selected', 'true')
 
-    await notification.click()
-    await expect(notification).toHaveAttribute('aria-selected', 'true', { timeout: 10_000 })
-    await expect(email).toHaveAttribute('aria-selected', 'false')
+    await inactive.click()
+    await expect(inactive).toHaveAttribute('aria-selected', 'true', { timeout: 10_000 })
+    await expect(all).toHaveAttribute('aria-selected', 'false')
   })
 })
 

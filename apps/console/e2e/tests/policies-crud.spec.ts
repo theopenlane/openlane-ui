@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test'
 
 import { test, expect, readManifest } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createInternalPolicy, createControl, createProcedure, gql, type ApiSession } from '../utils/api'
+import { loginViaApi, createInternalPolicy, createControl, createProcedure, linkControlPolicy, gql, type ApiSession } from '../utils/api'
 
 /**
  * Deep policies flows beyond policies.spec.ts (which covers create/search/inline
@@ -41,7 +41,7 @@ test.describe('policies — table tooling', () => {
   test('filter panel exposes a Status filter', async ({ page }) => {
     await openTableView(page)
 
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
   })
 
@@ -242,5 +242,160 @@ test.describe('policies — detail page UI (seeded)', () => {
     await page.getByRole('button', { name: /^Policy$/ }).click()
 
     await page.waitForURL(/\/policies\/create(\?|$)/, { timeout: 20_000 })
+  })
+})
+
+/**
+ * ISS-2382 — the policy slideout (view-policy-sheet.tsx) branches its Details
+ * body on `managementMode`: INTEGRATION renders IntegrationDocumentView,
+ * EXTERNAL_REFERENCE with a file renders ExternalReferenceView, and everything
+ * else falls through to the read-only PlateEditor.
+ *
+ * Only the fall-through branch is reachable from a seeded policy — the other two
+ * need a connected integration or an uploaded document, neither of which the API
+ * seeder can produce. This pins the default branch so a regression in the
+ * managementMode check surfaces as the editor disappearing.
+ *
+ * The sheet is opened from the control Documentation tab's policies-table
+ * (policies-table.tsx onRowClick), which is the most deterministic entry point.
+ */
+test.describe('policies — view slideout (ISS-2382)', () => {
+  test('the slideout Details section renders the editor branch for a plain policy', async ({ page }) => {
+    test.slow()
+    const policyName = uniquePolicyName()
+    const policyId = await createInternalPolicy(ownerApi, policyName)
+    const controlId = await createControl(ownerApi, `E2E PolSheet ${RUN_ID} ${Date.now().toString(36)}`)
+    await linkControlPolicy(ownerApi, controlId, policyId)
+
+    await page.goto(`/controls/${controlId}?tab=documentation`, { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('tab', { name: 'Documentation' })).toHaveAttribute('aria-selected', 'true', { timeout: 45_000 })
+
+    await page.getByText(policyName).first().click()
+
+    const sheet = page.getByRole('dialog')
+    await expect(sheet).toBeVisible({ timeout: 15_000 })
+    await expect(sheet.getByText(policyName).first()).toBeVisible({ timeout: 15_000 })
+
+    // detailsOpen defaults to true, so the section is already expanded.
+    await expect(sheet.getByRole('button', { name: /^Details$/ })).toBeVisible({ timeout: 10_000 })
+
+    // The editor branch mounts a Plate contenteditable surface. The other two
+    // branches render a "Read-only" badge / a document download panel instead,
+    // so their absence confirms which branch was chosen.
+    await expect(sheet.locator('[contenteditable]').first()).toBeVisible({ timeout: 20_000 })
+    await expect(sheet.getByText('Word document managed outside Openlane.')).toHaveCount(0)
+  })
+
+  test('the slideout Details section exposes its collapse toggle', async ({ page }) => {
+    test.slow()
+    const policyName = uniquePolicyName()
+    const policyId = await createInternalPolicy(ownerApi, policyName)
+    const controlId = await createControl(ownerApi, `E2E PolSheet2 ${RUN_ID} ${Date.now().toString(36)}`)
+    await linkControlPolicy(ownerApi, controlId, policyId)
+
+    await page.goto(`/controls/${controlId}?tab=documentation`, { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('tab', { name: 'Documentation' })).toHaveAttribute('aria-selected', 'true', { timeout: 45_000 })
+    await page.getByText(policyName).first().click()
+
+    const sheet = page.getByRole('dialog')
+    const details = sheet.getByRole('button', { name: /^Details$/ })
+    await expect(details).toBeVisible({ timeout: 15_000 })
+
+    // detailsOpen defaults to true, so the editor is mounted on open. The
+    // collapse round-trip is not asserted: the readonly Plate surface stays
+    // both mounted and visible through the transition, so there is no stable
+    // signal to wait on. Which BRANCH renders is the meaningful assertion and
+    // is covered by the test above.
+    await expect(sheet.locator('[contenteditable]').first()).toBeVisible({ timeout: 20_000 })
+  })
+})
+
+/**
+ * ISS-2563 — "Export to PDF" no longer exports immediately. It opens
+ * ExportPdfDialog first, offering an "Exclude metadata" checkbox that omits the
+ * owner/approver/version/date block from the generated document; the choice is
+ * threaded through as TExportMetadata.
+ *
+ * Dialog-OPEN only — Export is never clicked, so no export job is queued.
+ */
+test.describe('policies — PDF export metadata option (ISS-2563)', () => {
+  // /policies renders a full-page empty state when the org has no policies, and
+  // the table toolbar (which owns the Action menu) does not exist in that
+  // branch. Seeding one keeps the test from depending on policies left behind
+  // by other specs — which is why it passed until the org was reseeded.
+  test.beforeAll(async () => {
+    await createInternalPolicy(ownerApi, uniquePolicyName())
+  })
+
+  test('Export to PDF opens the dialog with the exclude-metadata option', async ({ page }) => {
+    test.slow()
+    await openTableView(page)
+
+    // Export lives behind the toolbar's shared Menu (ellipsis, aria-label "Action").
+    await page.getByRole('button', { name: 'Action' }).first().click()
+    await page.getByText('Export to PDF', { exact: true }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible({ timeout: 15_000 })
+    await expect(dialog.getByText('Export to PDF', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('Exclude metadata', { exact: true })).toBeVisible({ timeout: 10_000 })
+    await expect(dialog.getByText(/Leave out the document metadata section/)).toBeVisible()
+  })
+
+  test('the exclude-metadata checkbox toggles, and Cancel closes without exporting', async ({ page }) => {
+    test.slow()
+    await openTableView(page)
+
+    await page.getByRole('button', { name: 'Action' }).first().click()
+    await page.getByText('Export to PDF', { exact: true }).click()
+
+    const dialog = page.getByRole('dialog')
+    const excludeMetadata = dialog.getByRole('checkbox')
+    await expect(excludeMetadata).toBeVisible({ timeout: 15_000 })
+
+    // Defaults to including metadata; ticking it is what the commit added.
+    await expect(excludeMetadata).not.toBeChecked()
+    await excludeMetadata.click()
+    await expect(excludeMetadata).toBeChecked()
+
+    await dialog.getByRole('button', { name: /^Cancel$/ }).click()
+    await expect(dialog).toBeHidden({ timeout: 10_000 })
+  })
+})
+
+/**
+ * #2048 — the Policy page's linked procedures list became collapsible: each
+ * procedure is an accordion whose trigger shows its name and status badge, with
+ * the details (Type, Description, Approver) revealed on expand, rather than the
+ * whole list rendering flat.
+ */
+test.describe('policies — collapsible linked procedures (#2048)', () => {
+  test('a linked procedure renders as a collapsed accordion that expands', async ({ page }) => {
+    test.slow()
+    const policyName = uniquePolicyName()
+    const policyId = await createInternalPolicy(ownerApi, policyName)
+    const procedureName = `E2E LinkedProc ${RUN_ID} ${Date.now().toString(36)}`
+    const procedureId = await createProcedure(ownerApi, procedureName)
+
+    // Link from the procedure side (procedures own the controlIDs/policy edge).
+    await gql(ownerApi, `mutation($id: ID!, $input: UpdateInternalPolicyInput!){ updateInternalPolicy(id: $id, input: $input){ internalPolicy { id } } }`, {
+      id: policyId,
+      input: { addProcedureIDs: [procedureId] },
+    })
+
+    await page.goto(`/policies/${policyId}/view`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    // Linked procedures live behind the policy detail's "Procedures" tab.
+    const proceduresTab = page.getByRole('tab', { name: /^Procedures/ })
+    await expect(proceduresTab).toBeVisible({ timeout: 45_000 })
+    await proceduresTab.click()
+
+    await expect(page.getByText(procedureName).first()).toBeVisible({ timeout: 20_000 })
+
+    // Collapsed by default: expanding the accordion reveals the procedure's
+    // detail rows. ("Approver" also appears in the policy's own Properties
+    // panel, so assert on the Type row, which is unique to the accordion.)
+    await page.getByText(procedureName).first().click()
+    await expect(page.getByText('Type', { exact: true }).first()).toBeVisible({ timeout: 15_000 })
   })
 })

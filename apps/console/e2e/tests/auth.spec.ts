@@ -349,3 +349,50 @@ test.describe('auth — supplemental form pages', () => {
     await expect(page).toHaveURL(/\/login\?token=garbage-token/, { timeout: 15_000 })
   })
 })
+
+/**
+ * ISS-2475 — the login screen used to keep offering "Continue with SSO" for a
+ * device that had once used SSO, even when webfinger said the email's org does
+ * not enforce it. login.tsx now resolves the control in three layers:
+ * availability (webfinger + last-used), a default, and an explicit user
+ * preference set by the "Switch to..." links.
+ *
+ * The e2e users are password-only, so the assertable contract is: a non-SSO
+ * email lands on the password field with no SSO button and no switch link.
+ */
+test.describe('auth — login method selection (ISS-2475)', () => {
+  // Own registered user: ssoTestEmail above is scoped to its describe block.
+  let ssoTestEmail: string
+
+  test.beforeAll(async () => {
+    ssoTestEmail = emailFor(`ssoswitch-${Date.now().toString(36)}`)
+    await registerAndVerify({ email: ssoTestEmail })
+  })
+
+  test('a non-SSO email shows the password field and no SSO affordances', async ({ page }) => {
+    await page.goto('/login')
+
+    const webfingerResponse = page.waitForResponse(/\/api\/auth\/webfinger/)
+    await page.getByPlaceholder(/Enter your email/i).fill(ssoTestEmail)
+    await webfingerResponse
+
+    await expect(page.locator('input[name="password"]')).toBeAttached({ timeout: 15_000 })
+
+    // ssoAvailable is false once webfinger rules SSO out, so neither the SSO
+    // button nor the "Switch to SSO" link may render.
+    await expect(page.getByRole('button', { name: /Continue with SSO/i })).toHaveCount(0)
+    await expect(page.getByText(/Switch to SSO/i)).toHaveCount(0)
+  })
+
+  test('the password screen offers no redundant "Switch to password" link', async ({ page }) => {
+    await page.goto('/login')
+
+    const webfingerResponse = page.waitForResponse(/\/api\/auth\/webfinger/)
+    await page.getByPlaceholder(/Enter your email/i).fill(ssoTestEmail)
+    await webfingerResponse
+    await expect(page.locator('input[name="password"]')).toBeAttached({ timeout: 15_000 })
+
+    // showSwitchToPassword requires the SSO button to be showing; it is not.
+    await expect(page.getByText(/Switch to password/i)).toHaveCount(0)
+  })
+})

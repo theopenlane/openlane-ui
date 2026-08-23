@@ -53,7 +53,7 @@ test.describe('exposure — risks', () => {
 
     // risks-table-toolbar.tsx → shared TableFilter; getRisksFilterFields has a
     // "Status" field (statusIn).
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
   })
 
@@ -175,7 +175,7 @@ test.describe('exposure — risk detail (seeded)', () => {
 // (scanner-fed, no seedable data), so only the pages that expose it are covered.
 const EXPOSURE_FILTER_PAGES = [
   { path: '/exposure/remediations', heading: /^Remediations$/, field: 'Title' },
-  { path: '/exposure/reviews', heading: /^Reviews$/, field: 'State' },
+  { path: '/exposure/reviews', heading: /^Reviews$/, field: 'Status' },
 ]
 
 test.describe('exposure — sub-page filters', () => {
@@ -184,7 +184,7 @@ test.describe('exposure — sub-page filters', () => {
       await page.goto(path, { waitUntil: 'domcontentloaded' })
       await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible({ timeout: 20_000 })
 
-      await page.getByRole('button', { name: /^Filter$/ }).click()
+      await page.getByRole('button', { name: /^Filter/ }).click()
       await expect(page.getByText(field, { exact: true }).first()).toBeVisible({ timeout: 10_000 })
     })
   }
@@ -248,7 +248,7 @@ test.describe('exposure — scanner sub-pages (toolbar + create)', () => {
     await expect(page.getByRole('heading', { level: 2, name: /^Scans$/ })).toBeVisible({ timeout: 20_000 })
 
     // table-config.tsx getFilterFields → 'Scan Type' is a scans-specific field.
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     await expect(page.getByText('Scan Type', { exact: true }).first()).toBeVisible({ timeout: 10_000 })
   })
 })
@@ -622,5 +622,125 @@ test.describe('exposure — reviews create + detail', () => {
     const detailSheet = page.getByRole('dialog')
     await expect(detailSheet).toBeVisible({ timeout: 15_000 })
     await expect(detailSheet.getByText(title).first()).toBeVisible({ timeout: 10_000 })
+  })
+})
+
+/**
+ * ISS-2395 — the exposure overview charts count OPEN items only. The severity
+ * chart's rows were relabelled ("Vulnerabilities" → "Open Vulnerabilities") and
+ * every drill-through now persists an open-scoped filter before navigating:
+ * securityLevelIn + open:true for vulns/findings, impactIn + statusIn
+ * ['OPEN','IDENTIFIED'] for risks (exposure-severity-chart.tsx).
+ *
+ * Counts depend on org data, so these assert the labels and the persisted filter
+ * shape rather than any number.
+ */
+test.describe('exposure — open-only severity chart (ISS-2395)', () => {
+  test('the severity chart rows are labelled as Open-scoped', async ({ page }) => {
+    test.slow()
+    await page.goto('/exposure/overview', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Exposure Overview$/ })).toBeVisible({ timeout: 20_000 })
+
+    await expect(page.getByText('Open Vulnerabilities', { exact: true })).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByText('Open Findings', { exact: true })).toBeVisible()
+    await expect(page.getByText('Open Risks', { exact: true })).toBeVisible()
+  })
+
+  test('the critical-counts panel still exposes Critical and High drill-throughs', async ({ page }) => {
+    test.slow()
+    await page.goto('/exposure/overview', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Exposure Overview$/ })).toBeVisible({ timeout: 20_000 })
+
+    // exposure-critical-counts.tsx keeps the bare entity labels under a
+    // "Critical Exposure" panel; only the underlying filters became open-scoped.
+    await expect(page.getByText('Critical Exposure', { exact: true })).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByText('Critical', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText('High', { exact: true }).first()).toBeVisible()
+  })
+
+  test('a Critical drill-through persists an open-scoped filter and lands on the table', async ({ page }) => {
+    test.slow()
+    await page.goto('/exposure/overview', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByText('Critical Exposure', { exact: true })).toBeVisible({ timeout: 20_000 })
+
+    // The first "Critical" chip belongs to the Vulnerabilities row, which
+    // saves { securityLevelIn: ['CRITICAL'], open: true } before routing.
+    await page.getByText('Critical', { exact: true }).first().click()
+    await page.waitForURL(/\/exposure\/(vulnerabilities|findings|risks)(\?|$)/, { timeout: 20_000 })
+
+    // filter-storage.ts persists the drill-through filter to localStorage under
+    // an org-scoped key; assert the open scope reached storage rather than
+    // re-deriving the exact key.
+    const stored = await page.evaluate(() => {
+      const out: string[] = []
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (!key) continue
+        const value = localStorage.getItem(key)
+        if (value && (value.includes('securityLevelIn') || value.includes('impactIn'))) out.push(value)
+      }
+      return out
+    })
+
+    expect(stored.length).toBeGreaterThan(0)
+    expect(stored.some((value) => value.includes('"open":true') || value.includes('OPEN'))).toBe(true)
+  })
+})
+
+/**
+ * ISS-2396 — Reviews replaced the free-text `state` field with the
+ * `ReviewReviewStatus` enum. The table column became "Status" (rendered through
+ * getEnumLabel), the filter field became a multiselect over the enum options,
+ * and the detail form's TextField became a SelectField.
+ *
+ * getEnumLabel turns ALL_CAPS into title case, so the options read
+ * "Open" / "In progress" / "In review" / "Completed" / "Wont do".
+ */
+test.describe('exposure — review status enum (ISS-2396)', () => {
+  test('the reviews Status filter is a multiselect over the enum values', async ({ page }) => {
+    test.slow()
+    await page.goto('/exposure/reviews', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Reviews$/ })).toBeVisible({ timeout: 20_000 })
+
+    await page.getByRole('button', { name: /^Filter/ }).click()
+
+    // TableFilter renders its fields inside a role=menu popover; the page also
+    // has a "Status" column header, so the click must be scoped to the menu.
+    const filterMenu = page.getByRole('menu')
+    await expect(filterMenu).toBeVisible({ timeout: 15_000 })
+    await filterMenu.getByText('Status', { exact: true }).click()
+
+    // enumToOptions(ReviewReviewStatus) → one option per enum member.
+    await expect(page.getByText(/^Open$/i).first()).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/^In progress$/i).first()).toBeVisible()
+  })
+
+  test('the reviews Columns menu offers Status, not the removed State column', async ({ page }) => {
+    test.slow()
+    await page.goto('/exposure/reviews', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Reviews$/ })).toBeVisible({ timeout: 20_000 })
+
+    await page.getByRole('button', { name: /^Columns$/ }).click()
+    const menu = page.getByRole('menu')
+    await expect(menu).toBeVisible({ timeout: 10_000 })
+
+    await expect(menu.getByText('Status', { exact: true })).toBeVisible({ timeout: 10_000 })
+    await expect(menu.getByText('State', { exact: true })).toHaveCount(0)
+  })
+})
+
+/**
+ * ISS-2465 — vulnerabilities gained an "External ID" text filter
+ * (externalIDContainsFold) so scanner-imported records can be looked up by the
+ * id the scanner assigned them.
+ */
+test.describe('exposure — vulnerability External ID filter (ISS-2465)', () => {
+  test('the vulnerabilities filter menu exposes an External ID field', async ({ page }) => {
+    test.slow()
+    await page.goto('/exposure/vulnerabilities', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Vulnerabilities$/ })).toBeVisible({ timeout: 20_000 })
+
+    await page.getByRole('button', { name: /^Filter/ }).click()
+    await expect(page.getByText('External ID', { exact: true }).first()).toBeVisible({ timeout: 15_000 })
   })
 })

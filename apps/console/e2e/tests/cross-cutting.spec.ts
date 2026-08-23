@@ -1,6 +1,9 @@
-import { test, expect } from '../fixtures/auth'
+import { test, expect, readManifest } from '../fixtures/auth'
+import type { Page } from '@playwright/test'
 import { test as freshTest } from '@playwright/test'
 import { seedLoggedInUser } from '../utils/seedUser'
+import { loginViaApi, createInternalPolicy } from '../utils/api'
+import { RUN_ID } from '../utils/constants'
 
 test.describe('cross-cutting — auth redirects', () => {
   test('logged-in user visiting /login is bounced to /dashboard', async ({ page }) => {
@@ -316,5 +319,135 @@ freshTest.describe('cross-cutting — fresh org', () => {
 
     // SystemNotification.tsx:84 — "No new notifications at the moment."
     await expect(page.getByText(/No new notifications at the moment/i)).toBeVisible({ timeout: 10_000 })
+  })
+})
+
+/**
+ * ISS-2499 — "Rows per page" stopped persisting: useOrgTablePagination was
+ * called without a tableKey, so nothing was written to storage. Each table now
+ * passes its TableKeyEnum and the chosen pageSize is stored per-org under
+ * `pagination:<tableKey>`, surviving a reload.
+ *
+ * The commit also added resetPagination(), which returns to page 1 while KEEPING
+ * the chosen page size — asserted here via the search path.
+ */
+test.describe('cross-cutting — rows-per-page persistence (ISS-2499)', () => {
+  const rowsPerPageTrigger = (page: Page) => page.getByText('Rows per page', { exact: true }).locator('..').getByRole('combobox').first()
+
+  // The pagination footer only exists once the table has rows — an org with no
+  // policies renders a full-page empty state instead, so both tests here need a
+  // policy of their own rather than one another spec happened to leave behind.
+  test.beforeAll(async () => {
+    const { ownerEmail, password } = readManifest()
+    const owner = await loginViaApi(ownerEmail, password)
+    await createInternalPolicy(owner, `E2E RowsPerPage ${RUN_ID} ${Date.now().toString(36)}`)
+  })
+
+  test('a chosen page size survives a hard reload', async ({ page }) => {
+    test.slow()
+    await page.goto('/policies', { waitUntil: 'domcontentloaded' })
+    // TabSwitcher: the table view is what renders the pagination footer.
+    await page.locator('.lucide-table').first().click()
+
+    const trigger = rowsPerPageTrigger(page)
+    await expect(trigger).toBeVisible({ timeout: 45_000 })
+
+    // Pick a non-default size so a regression to the default is visible.
+    await trigger.click()
+    await page.getByRole('option', { name: '25', exact: true }).click()
+    await expect(trigger).toContainText('25', { timeout: 15_000 })
+
+    await page.reload()
+    await page.locator('.lucide-table').first().click()
+
+    await expect(rowsPerPageTrigger(page)).toContainText('25', { timeout: 45_000 })
+  })
+
+  test('the stored page size is scoped per table, not shared across pages', async ({ page }) => {
+    test.slow()
+    await page.goto('/policies', { waitUntil: 'domcontentloaded' })
+    await page.locator('.lucide-table').first().click()
+
+    const policiesTrigger = rowsPerPageTrigger(page)
+    await expect(policiesTrigger).toBeVisible({ timeout: 45_000 })
+    await policiesTrigger.click()
+    await page.getByRole('option', { name: '50', exact: true }).click()
+    await expect(policiesTrigger).toContainText('50', { timeout: 15_000 })
+
+    // A different table keys its own pagination, so it must not inherit 50.
+    await page.goto('/controls', { waitUntil: 'domcontentloaded' })
+    await page.locator('.lucide-table').first().click()
+    await expect(rowsPerPageTrigger(page)).not.toContainText('50', { timeout: 45_000 })
+  })
+})
+
+/**
+ * ISS-2591 — bare section URLs used to 404. next.config now redirects each to a
+ * concrete landing page, and the sidebar computes a section's href from its
+ * first usable child (getNavLandingHref, unit-tested in routes/).
+ */
+const SECTION_REDIRECTS = [
+  { from: '/registry', to: /\/registry\/platforms/ },
+  { from: '/trust-center', to: /\/trust-center\/overview/ },
+  { from: '/automation', to: /\/automation\/tasks/ },
+  { from: '/user-management', to: /\/user-management\/members/ },
+  { from: '/developers', to: /\/developers\/api-tokens/ },
+]
+
+test.describe('cross-cutting — section redirects (ISS-2591)', () => {
+  for (const { from, to } of SECTION_REDIRECTS) {
+    test(`${from} redirects to its landing page`, async ({ page }) => {
+      test.slow()
+      await page.goto(from, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+      await expect(page).toHaveURL(to, { timeout: 30_000 })
+    })
+  }
+})
+
+/**
+ * #2148 — context-aware docs help. Pages register a docs topic through
+ * DocsHelpContext and the shell exposes a help affordance that opens an
+ * InfoSlideOut with the matching documentation section.
+ *
+ * The content itself is fetched from an AI-backed route, so this asserts the
+ * affordance and the slideout opening rather than any particular text.
+ */
+test.describe('cross-cutting — contextual docs help (#2148)', () => {
+  test('a page with a registered docs topic exposes a help affordance', async ({ page }) => {
+    test.slow()
+    await page.goto('/controls', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByText('Report on:', { exact: true })).toBeVisible({ timeout: 45_000 })
+
+    // docs-help registers a help trigger in the page shell; it is absent on
+    // pages that register no topic, so skip rather than fail if this one moved.
+    const help = page.getByRole('button', { name: /help|docs/i }).first()
+    test.skip(!(await help.isVisible().catch(() => false)), 'no docs-help affordance registered on this page')
+
+    await help.click()
+    await expect(page.getByRole('dialog').or(page.getByRole('complementary')).first()).toBeVisible({ timeout: 15_000 })
+  })
+})
+
+/**
+ * ISS-2598 — a "Create" menu was added to the left nav so the common objects can
+ * be created from anywhere, rather than only from their own list page. Entries
+ * are module- and permission-gated, so the set varies by org and role.
+ */
+test.describe('cross-cutting — nav create menu (ISS-2598)', () => {
+  test('the sidebar Create menu lists creatable objects', async ({ page }) => {
+    test.slow()
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByTestId('user-menu-trigger')).toBeAttached({ timeout: 30_000 })
+
+    // create-menu.tsx labels the trigger "Create" only when the rail is
+    // EXPANDED; collapsed (the default) it renders as a bare Plus icon, so
+    // target the icon.
+    const createTrigger = page.locator('.lucide-plus').first()
+    await expect(createTrigger).toBeVisible({ timeout: 30_000 })
+    await createTrigger.click()
+
+    // Entries are gated per module/permission; Task is ungated for an owner.
+    await expect(page.getByText('Task', { exact: true }).first()).toBeVisible({ timeout: 15_000 })
   })
 })

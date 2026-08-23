@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test'
 
 import { test, expect, readManifest } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createEvidence, createControl, linkControlEvidence, type ApiSession } from '../utils/api'
+import { loginViaApi, createEvidence, createControl, createProgram, linkControlEvidence, type ApiSession } from '../utils/api'
 import { uploadFiles, SAMPLE_PDF, SAMPLE_DISALLOWED } from '../utils/files'
 
 /**
@@ -122,7 +122,7 @@ test.describe('evidence — table tooling', () => {
     await expect(page.getByRole('heading', { name: 'Evidence Center', exact: true })).toBeVisible({ timeout: 20_000 })
 
     // Shared TableFilter; getEvidenceFilterableFields includes a "Status" field.
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
   })
 
@@ -352,5 +352,237 @@ test.describe('evidence — inline edit (seeded)', () => {
     // handleUpdateField (single-field inline commit) toasts "Field updated
     // successfully" — distinct from the full-form save's "Evidence Updated".
     await expect(page.getByText(/^Field updated successfully$/).first()).toBeVisible({ timeout: 20_000 })
+  })
+})
+
+/**
+ * ISS-2443 — every table's Created/Updated By cell moved from UserCell (a plain
+ * userMap lookup) to AuthorCell, backed by useAuthorMaps which resolves users
+ * AND api tokens, plus the Openlane Support / Integrations subject ids.
+ *
+ * resolveAuthor's branch table is unit-tested in lib/authors.test.ts. What that
+ * cannot catch is the wiring: if a table forgets to thread tokenMap/userMap
+ * through, every row silently renders the "Deleted user" fallback instead. This
+ * seeds a record as the Owner and asserts the cell resolves to a real name.
+ */
+test.describe('evidence — author attribution (ISS-2443)', () => {
+  test('a seeded record resolves Created by to a real author, not a fallback label', async ({ page }) => {
+    test.slow()
+    const name = uniqueEvidenceName()
+    await createEvidence(ownerApi, name)
+
+    await page.goto('/evidence', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 1, name: /^Evidence Center$/ })).toBeVisible({ timeout: 30_000 })
+
+    // 'Created by' is hidden by default (evidence-table.tsx createdBy: false),
+    // so enable it through the Columns menu first.
+    await page.getByRole('button', { name: /^Columns$/ }).click()
+    await page.getByRole('menu').getByText('Created by', { exact: true }).click()
+    await page.keyboard.press('Escape')
+
+    await page.getByPlaceholder(/^Search$/).fill(name)
+    const row = page.getByRole('row').filter({ hasText: name })
+    await expect(row).toBeVisible({ timeout: 20_000 })
+
+    // The Owner created it, so the author must resolve through userMap — never
+    // the deleted/unknown fallbacks that a broken map would produce.
+    await expect(row.getByText('Deleted user')).toHaveCount(0)
+    await expect(row.getByText('Unknown', { exact: true })).toHaveCount(0)
+  })
+})
+
+/**
+ * ISS-2531 — the evidence slideout was restructured into panels: the linked
+ * controls and linked programs relationships each became their own accordion
+ * with a RelationsAccordionTrigger carrying a CountBadge, and the empty state
+ * reads "No controls linked yet" rather than an empty list.
+ */
+test.describe('evidence — slideout relationship panels (ISS-2531)', () => {
+  test('the detail sheet shows the Linked Control(s) panel with a count', async ({ page }) => {
+    test.slow()
+    const name = uniqueEvidenceName()
+    const id = await createEvidence(ownerApi, name)
+
+    await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    const sheet = page.getByRole('dialog')
+    await expect(sheet).toBeVisible({ timeout: 30_000 })
+    await expect(sheet.getByText('Linked controls', { exact: true })).toBeVisible({ timeout: 20_000 })
+    await expect(sheet.getByText('Linked programs', { exact: true })).toBeVisible()
+  })
+
+  test('a linked control appears in the panel instead of the empty state', async ({ page }) => {
+    test.slow()
+    const name = uniqueEvidenceName()
+    const evidenceId = await createEvidence(ownerApi, name)
+    const refCode = `E2E-EVPANEL-${RUN_ID}-${Date.now().toString(36)}`
+    const controlId = await createControl(ownerApi, refCode)
+    await linkControlEvidence(ownerApi, controlId, evidenceId)
+
+    await page.goto(`/evidence?id=${evidenceId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    const sheet = page.getByRole('dialog')
+    await expect(sheet.getByText('Linked controls', { exact: true })).toBeVisible({ timeout: 30_000 })
+
+    // With a link present the panel must not render its empty state.
+    await expect(sheet.getByText('no controls linked', { exact: true })).toHaveCount(0)
+  })
+})
+
+/**
+ * ISS-2584 — the evidence slideout always rendered a "Collection procedure"
+ * panel, even when the field was an EMPTY Plate value (which is not the same as
+ * absent — an empty document is a non-null array of blank nodes). The panel now
+ * renders only while editing or when isPlateValueEmpty says there is real
+ * content.
+ */
+test.describe('evidence — collection procedure panel (ISS-2584)', () => {
+  test('a seeded record with no collection procedure hides the panel', async ({ page }) => {
+    test.slow()
+    const name = uniqueEvidenceName()
+    const id = await createEvidence(ownerApi, name)
+
+    await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    const sheet = page.getByRole('dialog')
+    await expect(sheet).toBeVisible({ timeout: 30_000 })
+    // Wait for real content so the assertion is not racing an unrendered sheet.
+    await expect(sheet.getByText('Linked controls', { exact: true })).toBeVisible({ timeout: 30_000 })
+
+    await expect(sheet.getByText('Collection procedure', { exact: true })).toHaveCount(0)
+  })
+
+  test('entering edit mode reveals the collection procedure field', async ({ page }) => {
+    test.slow()
+    const name = uniqueEvidenceName()
+    const id = await createEvidence(ownerApi, name)
+
+    await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    const sheet = page.getByRole('dialog')
+    await expect(sheet.getByRole('button', { name: 'Edit evidence' })).toBeVisible({ timeout: 30_000 })
+    await sheet.getByRole('button', { name: 'Edit evidence' }).click()
+
+    // isEditingProcedure short-circuits the emptiness check. Nothing is saved.
+    await expect(sheet.getByText('Collection procedure', { exact: true })).toBeVisible({ timeout: 20_000 })
+  })
+})
+
+/**
+ * ISS-2724 — editing evidence used to re-SUBMIT it: the update omitted `status`,
+ * and the backend auto-advances the status when an update leaves it out, so a
+ * plain text edit silently moved the record along its workflow.
+ *
+ * The fix pins the CURRENT status on every save — except MISSING_ARTIFACT, which
+ * is left out so the backend can clear it once an artifact arrives. The Save
+ * button also lost its overridable label so an edit reads as "Save", not "Submit".
+ *
+ * This test edits a seeded record and asserts the status is unchanged afterwards.
+ */
+test.describe('evidence — editing saves without re-submitting (ISS-2724)', () => {
+  test('an edit updates the record and leaves its status alone', async ({ page }) => {
+    test.slow()
+    const name = uniqueEvidenceName()
+    const id = await createEvidence(ownerApi, name)
+
+    await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const sheet = page.getByRole('dialog')
+    await expect(sheet.getByRole('button', { name: 'Edit evidence' })).toBeVisible({ timeout: 30_000 })
+
+    // Capture the status chip before editing.
+    const statusBefore = await sheet
+      .getByText(/^(Draft|Requested|Submitted|In Review|Ready|Approved|Rejected|Needs Renewal|Missing Artifact)$/)
+      .first()
+      .textContent()
+
+    await sheet.getByRole('button', { name: 'Edit evidence' }).click()
+
+    // The action reads "Save Changes", not Submit — an edit is not a submission.
+    const save = sheet.getByRole('button', { name: /^Save Changes$/ })
+    await expect(save).toBeVisible({ timeout: 20_000 })
+
+    const description = sheet.getByRole('textbox').first()
+    await description.fill(`edited ${Date.now().toString(36)}`)
+    await save.click()
+
+    await expect(page.getByText('Evidence Updated').first()).toBeVisible({ timeout: 20_000 })
+
+    // The status must survive the edit — omitting it lets the backend advance it.
+    await expect(sheet.getByText(statusBefore ?? 'Draft', { exact: true }).first()).toBeVisible({ timeout: 20_000 })
+  })
+})
+
+/**
+ * ISS-2723 — opening evidence to VIEW it landed in edit mode. A global zustand
+ * store (useControlEvidenceStore.isEditPreset) leaked "the last thing I did was
+ * edit" across sheet opens; it was deleted in favour of local editRequested
+ * state plus an explicit ?editAssociationsFor= param for the one flow that
+ * really does want to open editing.
+ */
+test.describe('evidence — view opens read-only (ISS-2723)', () => {
+  test('opening a record via ?id= shows the Edit action, meaning it is not already editing', async ({ page }) => {
+    test.slow()
+    const name = uniqueEvidenceName()
+    const id = await createEvidence(ownerApi, name)
+
+    await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    const sheet = page.getByRole('dialog')
+    await expect(sheet).toBeVisible({ timeout: 30_000 })
+
+    // The Edit pencil is only rendered while NOT editing; in edit mode the
+    // header swaps to Save/Cancel.
+    await expect(sheet.getByRole('button', { name: 'Edit evidence' })).toBeVisible({ timeout: 20_000 })
+    await expect(sheet.getByRole('button', { name: /^Save Changes$/ })).toHaveCount(0)
+  })
+
+  test('editing then reopening a different record does not carry edit mode over', async ({ page }) => {
+    test.slow()
+    const firstId = await createEvidence(ownerApi, uniqueEvidenceName())
+    const secondId = await createEvidence(ownerApi, uniqueEvidenceName())
+
+    await page.goto(`/evidence?id=${firstId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const sheet = page.getByRole('dialog')
+    await expect(sheet.getByRole('button', { name: 'Edit evidence' })).toBeVisible({ timeout: 30_000 })
+    await sheet.getByRole('button', { name: 'Edit evidence' }).click()
+    await expect(sheet.getByRole('button', { name: /^Save Changes$/ })).toBeVisible({ timeout: 20_000 })
+
+    // The old global store made this second record open in edit mode too.
+    await page.goto(`/evidence?id=${secondId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(sheet.getByRole('button', { name: 'Edit evidence' })).toBeVisible({ timeout: 30_000 })
+    await expect(sheet.getByRole('button', { name: /^Save Changes$/ })).toHaveCount(0)
+  })
+})
+
+/**
+ * ISS-2712 — the evidence center's program filter is now sticky per organization
+ * (evidenceProgramFilterStore, built on createOrgPersistedStore which is
+ * unit-tested in lib/storage/org-persisted-store.test.ts). Choosing a program
+ * writes ?programId= and, on a later visit with no param, the stored choice is
+ * restored — but only if it is still one of the org's active programs.
+ */
+test.describe('evidence — sticky program filter (ISS-2712)', () => {
+  test('choosing a program sets the url param and survives a fresh visit', async ({ page }) => {
+    test.slow()
+    await createProgram(ownerApi, `E2E StickyProg ${RUN_ID} ${Date.now().toString(36)}`)
+
+    await page.goto('/evidence', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('heading', { level: 1, name: /^Evidence Center$/ })).toBeVisible({ timeout: 30_000 })
+
+    const programFilter = page.getByRole('button', { name: /^Filter by:/ })
+    await expect(programFilter).toBeVisible({ timeout: 30_000 })
+    await programFilter.click()
+
+    // The menu lists "All programs" plus one entry per active program.
+    await expect(page.getByText('All programs', { exact: true })).toBeVisible({ timeout: 15_000 })
+    const firstProgram = page.getByRole('menuitem').nth(1)
+    await expect(firstProgram).toBeVisible({ timeout: 15_000 })
+    await firstProgram.click()
+
+    await expect(page).toHaveURL(/[?&]programId=/, { timeout: 20_000 })
+
+    // Revisit without the param — the stored choice is restored.
+    await page.goto('/evidence', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page).toHaveURL(/[?&]programId=/, { timeout: 30_000 })
   })
 })

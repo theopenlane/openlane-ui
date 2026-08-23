@@ -42,6 +42,11 @@ export interface AuthManifest {
   // A control seeded in the shared org, for detail-page view/edit gating specs.
   sharedControlId: string
   sharedControlRefCode: string
+  // Whether the optional demo-org session (demo.json) was captured. The demo
+  // org is seeded by harmonize and — unlike the e2e org this setup creates —
+  // has a provisioned trust center, so specs covering trust-center surfaces
+  // use it. Absent in environments without the demo seed.
+  hasDemoSession: boolean
 }
 
 // Console-side role -> backend OrgMembershipRole. "readonly" maps to AUDITOR,
@@ -107,6 +112,28 @@ const canReuseAuth = (): boolean => {
   return Date.now() - statSync(manifestPath).mtimeMs < REUSE_WINDOW_MS
 }
 
+// Credentials seeded by harmonize (config/taskfiles/user-demo-all.example.yaml).
+const DEMO_EMAIL = process.env.E2E_DEMO_EMAIL ?? 'peter.parker@theopenlane.io'
+const DEMO_PASSWORD = process.env.E2E_DEMO_PASSWORD ?? 'mattisthebest!'
+
+const captureDemoSession = async (): Promise<boolean> => {
+  const browser = await chromium.launch()
+  try {
+    const context = await browser.newContext({ baseURL: BASE_URL })
+    const page = await context.newPage()
+    await loginViaForm(page, DEMO_EMAIL, DEMO_PASSWORD)
+    await page.waitForURL(/\/dashboard/, { timeout: 30_000 })
+    await saveAuthState(context, 'demo')
+    console.log('[global-setup] captured demo-org session for trust-center specs')
+    return true
+  } catch {
+    console.log('[global-setup] no demo-org session (demo seed absent) — trust-center specs will skip')
+    return false
+  } finally {
+    await browser.close()
+  }
+}
+
 const globalSetup = async (_config: FullConfig): Promise<void> => {
   mkdirSync(AUTH_DIR, { recursive: true })
 
@@ -157,6 +184,12 @@ const globalSetup = async (_config: FullConfig): Promise<void> => {
     roleEmails[role] = await seedRoleUser({ role, ownerApi, sharedOrgId: shared.id })
   }
 
+  // The e2e org this setup creates is deliberately empty, which leaves
+  // trust-center routes unprovisioned. harmonize seeds a demo org that HAS a
+  // trust center, so capture that session too when those credentials work.
+  // Best-effort: environments without the demo seed simply skip those specs.
+  const hasDemoSession = await captureDemoSession()
+
   const manifest: AuthManifest = {
     runId: RUN_ID,
     ownerEmail,
@@ -166,6 +199,7 @@ const globalSetup = async (_config: FullConfig): Promise<void> => {
     roleEmails,
     sharedControlId,
     sharedControlRefCode,
+    hasDemoSession,
   }
   writeFileSync(path.join(AUTH_DIR, 'manifest.json'), JSON.stringify(manifest, null, 2))
 }

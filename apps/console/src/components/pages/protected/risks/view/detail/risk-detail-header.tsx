@@ -58,19 +58,10 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
         className={'text-2xl font-semibold h-auto py-1 min-w-180'}
-        onBlur={async () => {
-          if (localValue !== originalValueRef.current) {
-            setValue(field, localValue)
-            await handleUpdateField({ [field]: localValue })
-          }
-          setInlineEditing(null)
-        }}
+        onBlur={() => handleBlur(field)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') e.currentTarget.blur()
-          if (e.key === 'Escape') {
-            setValue(field, originalValueRef.current)
-            setInlineEditing(null)
-          }
+          if (e.key === 'Escape') handleEscape(field)
         }}
       />
     )

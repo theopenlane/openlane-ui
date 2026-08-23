@@ -1,7 +1,20 @@
 import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 
-// Logged in as the storage-state Owner (global-setup). Pure render checks.
+/**
+ * Logged in as the storage-state Owner (global-setup).
+ *
+ * The dashboard is assembled by dashboard-page.tsx into dashboard-page-shell.tsx
+ * as four slots: header (welcome + DashboardActions "Quick actions"), overview,
+ * main (DashboardTasksAndSuggestions → "Your Work") and aside (ActivityFeed →
+ * "Recent Activity").
+ *
+ * The overview slot is CONDITIONAL: until the setup checklist is finished it
+ * renders DashboardSetupChecklist ("Finish Setup"); once complete — and only
+ * with the compliance module — it renders DashboardComplianceOverview
+ * ("Compliance Overview"). Specs that need one or the other branch assert the
+ * branch they are in rather than assuming a fixed layout.
+ */
 test.describe('dashboard — render', () => {
   test('/dashboard renders the "Welcome, ..." headline for an onboarded user', async ({ page }) => {
     await page.goto('/dashboard')
@@ -17,169 +30,181 @@ test.describe('dashboard — render', () => {
     // Assert attached (not visible) — it's a zero-size div until hydration.
     await expect(page.getByTestId('user-menu-trigger')).toBeAttached({ timeout: 15_000 })
   })
-})
 
-test.describe('dashboard — overview cards & navigation', () => {
-  test('compliance overview + action cards render their widgets', async ({ page }) => {
+  test('the header renders the welcome subtitle and the Quick actions bar', async ({ page }) => {
     await page.goto('/dashboard')
 
     const main = page.getByRole('main')
-
     await expect(main.getByText('Welcome,', { exact: false })).toBeVisible({ timeout: 15_000 })
-    await expect(main.getByText("Here's what's happening in your organization.")).toBeVisible()
+    await expect(main.getByText("Here's what's happening in your organization today")).toBeVisible()
 
-    // DashboardComplianceOverview section + its two metric groups.
-    await expect(main.getByText('Compliance Overview')).toBeVisible()
-    await expect(main.getByRole('heading', { name: 'Controls & Evidence' })).toBeVisible()
-    await expect(main.getByRole('heading', { name: 'Risks & Tasks' })).toBeVisible()
-
-    // DashboardActions cards.
-    await expect(main.getByText('View All Controls')).toBeVisible()
-    await expect(main.getByText('View My Tasks')).toBeVisible()
-    await expect(main.getByText('Review / Edit Policies')).toBeVisible()
+    // DashboardActions.tsx renders a "Quick actions" label followed by buttons.
+    await expect(main.getByText('Quick actions', { exact: true })).toBeVisible()
+    await expect(main.getByRole('button', { name: 'View my tasks' })).toBeVisible()
+    await expect(main.getByRole('button', { name: 'Review policies' })).toBeVisible()
   })
 
-  test('"View All Controls" action card navigates to /controls', async ({ page }) => {
-    await page.goto('/dashboard')
+  test('the work-items and activity cards render alongside the overview slot', async ({ page }) => {
+    test.slow()
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
-    await page.getByRole('main').getByText('View All Controls').click()
-    await expect(page).toHaveURL(/\/controls/, { timeout: 30_000 })
+    const main = page.getByRole('main')
+
+    // work-items-card.tsx CardTitle, always rendered.
+    await expect(main.getByText('Your Work', { exact: true })).toBeVisible({ timeout: 30_000 })
+
+    // activity-feed-card.tsx DEFAULT_ACTIVITY_FEED_TITLE.
+    await expect(main.getByText('Recent Activity', { exact: true })).toBeVisible({ timeout: 30_000 })
+
+    // The overview slot resolves to exactly one of the two branches.
+    const setup = main.getByText('Finish Setup', { exact: true })
+    const overview = main.getByText('Compliance Overview', { exact: true })
+    await expect(setup.or(overview).first()).toBeVisible({ timeout: 30_000 })
   })
+})
 
-  test('"View My Tasks" action card navigates to tasks with showMyTasks filter', async ({ page }) => {
-    await page.goto('/dashboard')
+// DashboardActions.tsx quick-action buttons are router.push navigations. The
+// storage-state Owner holds CanCreateRisk, so the risk action reads
+// "Log new risk" and routes to the risk create form.
+test.describe('dashboard — quick action navigation', () => {
+  test('"View my tasks" navigates to tasks with the showMyTasks filter', async ({ page }) => {
+    test.slow()
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
-    await page.getByRole('main').getByText('View My Tasks').click()
+    await page.getByRole('main').getByRole('button', { name: 'View my tasks' }).click()
     await expect(page).toHaveURL(/\/automation\/tasks\?showMyTasks=true/, { timeout: 30_000 })
   })
 
-  test('compliance overview "Controls" metric navigates to /controls', async ({ page }) => {
-    await page.goto('/dashboard')
-
-    // "Controls • Not Implemented" is a <p>; the clickable count div is its next sibling.
-    const label = page.getByRole('paragraph').filter({ hasText: 'Not Implemented' })
-    await label.locator('xpath=following-sibling::div[1]').click()
-    await expect(page).toHaveURL(/\/controls/, { timeout: 30_000 })
-  })
-
-  test('suggested actions section renders its recommended items', async ({ page }) => {
-    await page.goto('/dashboard')
-
-    const main = page.getByRole('main')
-    await expect(main.getByText('Suggested Actions')).toBeVisible({ timeout: 15_000 })
-    await expect(main.getByText('Import your policies & procedures')).toBeVisible()
-    await expect(main.getByText('Invite your team')).toBeVisible()
-    await expect(main.getByText('Secure your organization')).toBeVisible()
-
-    // View Documentation / Contact Support side cards.
-    await expect(main.getByText('View Documentation')).toBeVisible()
-    await expect(main.getByText('Contact Support')).toBeVisible()
-  })
-})
-
-// DashboardActions cards (DashboardActions.tsx). The storage-state Owner has
-// CanCreateRisk, so the second card reads "Create New Risk" and routes to the
-// risk create form; the policies card routes to /policies. Both are router.push
-// navigations to clean URLs.
-test.describe('dashboard — action card navigation', () => {
-  test('"Create New Risk" action card navigates to the risk create form', async ({ page }) => {
+  test('"Review policies" navigates to /policies', async ({ page }) => {
     test.slow()
     await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
-    // Owner holds CanCreateRisk → the card label is "Create New Risk".
-    await page.getByRole('main').getByText('Create New Risk').click()
-    await expect(page).toHaveURL(/\/exposure\/risks\/create/, { timeout: 30_000 })
-  })
-
-  test('"Review / Edit Policies" action card navigates to /policies', async ({ page }) => {
-    test.slow()
-    await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
-
-    await page.getByRole('main').getByText('Review / Edit Policies').click()
+    await page.getByRole('main').getByRole('button', { name: 'Review policies' }).click()
     await expect(page).toHaveURL(/\/policies(\?|$|\/)/, { timeout: 30_000 })
   })
-})
 
-// Compliance overview metric counts (DashboardComplianceOverview.tsx). Each
-// metric label is a <p> and the clickable count div is its next sibling. The
-// click persists a filter to localStorage and navigates to a CLEAN url (no
-// query params) — so we assert the destination path, not a query string.
-test.describe('dashboard — compliance overview metric navigation', () => {
-  const clickMetric = async (page: Page, labelText: string): Promise<void> => {
-    const label = page.getByRole('paragraph').filter({ hasText: labelText })
-    await label.locator('xpath=following-sibling::div[1]').click()
-  }
-
-  test('"Evidence • Items Missing" metric navigates to /evidence', async ({ page }) => {
+  test('"Add evidence" navigates to /evidence', async ({ page }) => {
     test.slow()
     await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
-    await clickMetric(page, 'Items Missing')
+    await page.getByRole('main').getByRole('button', { name: 'Add evidence' }).click()
     await expect(page).toHaveURL(/\/evidence/, { timeout: 30_000 })
   })
 
-  test('"Tasks • Overdue" metric navigates to /automation/tasks', async ({ page }) => {
+  test('"Log new risk" navigates to the risk create form', async ({ page }) => {
     test.slow()
     await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
-    await clickMetric(page, 'Overdue')
+    // Owner holds CanCreateRisk → the action reads "Log new risk".
+    await page.getByRole('main').getByRole('button', { name: 'Log new risk' }).click()
+    await expect(page).toHaveURL(/\/exposure\/risks\/create/, { timeout: 30_000 })
+  })
+})
+
+/**
+ * Compliance overview metric tiles (DashboardComplianceOverview.tsx). Each tile
+ * is a clickable div holding a label <p> and a subtitle <p>; clicking persists a
+ * filter to localStorage and navigates to a CLEAN url (no query params), so we
+ * assert the destination path.
+ *
+ * The card only renders once the setup checklist is complete, so each test skips
+ * itself when the dashboard is still showing "Finish Setup".
+ */
+test.describe('dashboard — compliance overview metric navigation', () => {
+  const openOverview = async (page: Page): Promise<boolean> => {
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const overview = page.getByRole('main').getByText('Compliance Overview', { exact: true })
+    const setup = page.getByRole('main').getByText('Finish Setup', { exact: true })
+    await expect(overview.or(setup).first()).toBeVisible({ timeout: 30_000 })
+    return overview.isVisible()
+  }
+
+  const clickTile = async (page: Page, subtitle: string): Promise<void> => {
+    // The subtitle <p> is the second child of the tile's text column; the tile
+    // itself is the clickable ancestor two levels up.
+    await page.getByText(subtitle, { exact: true }).locator('xpath=../..').click()
+  }
+
+  test('the "Controls / Not Implemented" tile navigates to /controls', async ({ page }) => {
+    test.slow()
+    test.skip(!(await openOverview(page)), 'setup checklist still in progress — compliance overview not rendered')
+
+    await clickTile(page, 'Not Implemented')
+    await expect(page).toHaveURL(/\/controls/, { timeout: 30_000 })
+  })
+
+  test('the "Evidence / Items Missing" tile navigates to /evidence', async ({ page }) => {
+    test.slow()
+    test.skip(!(await openOverview(page)), 'setup checklist still in progress — compliance overview not rendered')
+
+    await clickTile(page, 'Items Missing')
+    await expect(page).toHaveURL(/\/evidence/, { timeout: 30_000 })
+  })
+
+  test('the "Tasks / Overdue" tile navigates to /automation/tasks', async ({ page }) => {
+    test.slow()
+    test.skip(!(await openOverview(page)), 'setup checklist still in progress — compliance overview not rendered')
+
+    await clickTile(page, 'Overdue')
     await expect(page).toHaveURL(/\/automation\/tasks/, { timeout: 30_000 })
   })
 
-  test('"Risks • Pending Review" metric navigates to /exposure/risks', async ({ page }) => {
+  test('the "Risks / Pending Review" tile navigates to /exposure/risks', async ({ page }) => {
     test.slow()
-    await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    test.skip(!(await openOverview(page)), 'setup checklist still in progress — compliance overview not rendered')
 
-    await clickMetric(page, 'Pending Review')
+    await clickTile(page, 'Pending Review')
     await expect(page).toHaveURL(/\/exposure\/risks/, { timeout: 30_000 })
   })
 })
 
-// Suggested actions (DashboardSuggestedActions.tsx). "Import your policies &
-// procedures" opens the CreatePolicyUploadDialog ("Import Existing Policy(s)").
-// "Invite your team" / "Secure your organization" are router.push navigations.
-test.describe('dashboard — suggested actions interactions', () => {
-  test('"Import your policies & procedures" opens the Import Existing Policy(s) dialog', async ({ page }) => {
-    await page.goto('/dashboard')
-
-    await page.getByRole('main').getByText('Import your policies & procedures').click()
-    await expect(page.getByRole('dialog', { name: /Import Existing Policy\(s\)/i })).toBeVisible({ timeout: 10_000 })
-  })
-
-  test('"Invite your team" navigates to the members page', async ({ page }) => {
+/**
+ * The setup checklist branch (DashboardSetupChecklist.tsx) renders a progress
+ * summary plus "View Docs" / "Contact Us" external help links. Skipped once the
+ * org has finished onboarding and the compliance overview replaces it.
+ */
+test.describe('dashboard — setup checklist branch', () => {
+  test('the checklist shows its progress summary and external help links', async ({ page }) => {
     test.slow()
     await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
-    await page.getByRole('main').getByText('Invite your team').click()
-    await expect(page).toHaveURL(/\/user-management\/members/, { timeout: 30_000 })
-  })
+    const main = page.getByRole('main')
+    const setup = main.getByText('Finish Setup', { exact: true })
+    const overview = main.getByText('Compliance Overview', { exact: true })
+    await expect(setup.or(overview).first()).toBeVisible({ timeout: 30_000 })
+    test.skip(!(await setup.isVisible()), 'setup already complete — compliance overview rendered instead')
 
-  test('"Secure your organization" navigates to organization authentication settings', async ({ page }) => {
-    test.slow()
-    await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(main.getByText(/^\d+ of \d+ completed$/)).toBeVisible()
+    await expect(main.getByText('Complete these tasks to get the most out of Openlane')).toBeVisible()
 
-    await page.getByRole('main').getByText('Secure your organization').click()
-    await expect(page).toHaveURL(/\/organization-settings\/authentication/, { timeout: 30_000 })
+    const docs = main.getByRole('link', { name: /View Docs/i })
+    await expect(docs).toHaveAttribute('target', '_blank')
+    await expect(main.getByRole('link', { name: /Contact Us/i })).toHaveAttribute('target', '_blank')
   })
 })
 
-// Documentation / Support side cards (DashboardViewDocumentation.tsx,
-// DashboardContactSupport.tsx) are external anchor links opening in a new tab —
-// assert the href/target rather than following the navigation.
-test.describe('dashboard — external resource links', () => {
-  test('"View Documentation" card links out to the docs site in a new tab', async ({ page }) => {
-    await page.goto('/dashboard')
+/**
+ * ISS-2614 — the work-items "Group by" choice is now persisted per organization
+ * (createOrgPersistedStore, unit-tested in lib/storage/org-persisted-store.test.ts)
+ * so it survives a reload instead of resetting to Type every visit.
+ */
+test.describe('dashboard — sticky work-item grouping (ISS-2614)', () => {
+  test('the Group by choice survives a reload', async ({ page }) => {
+    test.slow()
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('main').getByText('Your Work', { exact: true })).toBeVisible({ timeout: 45_000 })
 
-    const docsLink = page.getByRole('main').getByRole('link', { name: /Documentation/i })
-    await expect(docsLink).toHaveAttribute('href', /theopenlane\.io/, { timeout: 15_000 })
-    await expect(docsLink).toHaveAttribute('target', '_blank')
-  })
+    // filter-bar.tsx renders the GROUP_BY_OPTIONS as variant="tag" buttons; the
+    // active one carries `is-active`. The bar only shows when there is work.
+    const kind = page.getByRole('button', { name: /^Kind$/ })
+    test.skip(!(await kind.isVisible().catch(() => false)), 'no work items — the group-by filter bar is not rendered')
 
-  test('"Contact Support" card links out to the support site in a new tab', async ({ page }) => {
-    await page.goto('/dashboard')
+    await kind.click()
+    await expect(kind).toHaveClass(/is-active/, { timeout: 15_000 })
 
-    const supportLink = page.getByRole('main').getByRole('link', { name: /Contact Support/i })
-    await expect(supportLink).toHaveAttribute('href', /https?:\/\//, { timeout: 15_000 })
-    await expect(supportLink).toHaveAttribute('target', '_blank')
+    await page.reload()
+    await expect(page.getByRole('main').getByText('Your Work', { exact: true })).toBeVisible({ timeout: 45_000 })
+
+    await expect(page.getByRole('button', { name: /^Kind$/ })).toHaveClass(/is-active/, { timeout: 30_000 })
   })
 })

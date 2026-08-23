@@ -372,7 +372,7 @@ test.describe('developers — API token filter panel', () => {
   test('Filter panel exposes Name and Expires At fields', async ({ page }) => {
     await page.goto('/developers/api-tokens')
 
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     await expect(page.getByText('Name', { exact: true }).first()).toBeVisible({ timeout: 10_000 })
     await expect(page.getByText('Expires At', { exact: true }).first()).toBeVisible()
   })
@@ -385,7 +385,7 @@ test.describe('developers — API token filter panel', () => {
     await createApiTokenInList(page, tokenName)
     await expect(page.getByRole('main').getByRole('row').filter({ hasText: tokenName })).toBeVisible({ timeout: 15_000 })
 
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     // Expand the Name accordion section then type the token name.
     await page
       .getByRole('button', { name: /^Name$/ })
@@ -589,5 +589,56 @@ test.describe('developers — API token view all scopes modal', () => {
     // Close the modal (Escape) and clean up the token.
     await page.keyboard.press('Escape')
     await deleteTokenRow(page, tokenName, /delete api token/i)
+  })
+})
+
+/**
+ * #2077 — the scopes selector gained read-only / read/write / full-access
+ * presets, so a token no longer has to be scoped object by object.
+ * buildPresetScopes / getActivePresetKey are unit-tested in scope-presets.test.ts;
+ * this pins that the buttons reach the UI and drive the selection.
+ *
+ * Dialog-OPEN only — no token is created.
+ */
+const presetButton = (page: Page, label: 'Read only' | 'Read & write' | 'Full access') => page.getByRole('button').filter({ hasText: new RegExp(`^${label}$`) })
+
+test.describe('developers — scope presets (#2077)', () => {
+  test('the create-token dialog offers all three scope presets', async ({ page }) => {
+    test.slow()
+    await page.goto('/developers/api-tokens')
+    await page
+      .getByRole('main')
+      .getByRole('button', { name: /^create$/i })
+      .click()
+
+    const dialog = page.getByRole('dialog', { name: /create new token/i })
+    await expect(dialog).toBeVisible({ timeout: 15_000 })
+
+    // The preset buttons carry a descriptiveTooltipText, and Button turns that
+    // into the aria-label — so their accessible name is the DESCRIPTION, not the
+    // visible label. Matching on visible text is the only stable handle here.
+    await expect(presetButton(page, 'Read only')).toBeVisible({ timeout: 15_000 })
+    await expect(presetButton(page, 'Read & write')).toBeVisible()
+    await expect(presetButton(page, 'Full access')).toBeVisible()
+  })
+
+  test('choosing the Read only preset selects scopes without creating a token', async ({ page }) => {
+    test.slow()
+    await page.goto('/developers/api-tokens')
+    await page
+      .getByRole('main')
+      .getByRole('button', { name: /^create$/i })
+      .click()
+
+    await expect(page.getByRole('dialog', { name: /create new token/i })).toBeVisible({ timeout: 15_000 })
+    const readOnly = presetButton(page, 'Read only')
+    await expect(readOnly).toBeVisible({ timeout: 15_000 })
+    await readOnly.click()
+
+    // activePresetKey is DERIVED from the selected scopes (getActivePresetKey),
+    // so the button marking itself active is proof the form value now holds
+    // exactly the read scopes — a stronger check than counting checkboxes, whose
+    // groups are collapsed and therefore not in the DOM.
+    await expect(readOnly).toHaveClass(/(^|\s)is-active(\s|$)/, { timeout: 15_000 })
   })
 })

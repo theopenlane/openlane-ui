@@ -67,7 +67,7 @@ test.describe('registry — assets', () => {
     await page.goto('/registry/assets', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^Assets$/ })).toBeVisible({ timeout: 20_000 })
 
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     await expect(page.getByText('Asset Type').first()).toBeVisible({ timeout: 10_000 })
   })
 })
@@ -100,7 +100,7 @@ test.describe('registry — contacts', () => {
     await page.goto('/registry/contacts', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^Contacts$/ })).toBeVisible({ timeout: 20_000 })
 
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
   })
 })
@@ -185,7 +185,7 @@ test.describe('registry — sub-page filters', () => {
       await page.goto(path, { waitUntil: 'domcontentloaded', timeout: 180_000 })
       await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible({ timeout: 20_000 })
 
-      await page.getByRole('button', { name: /^Filter$/ }).click()
+      await page.getByRole('button', { name: /^Filter/ }).click()
       await expect(page.getByText(field, { exact: true }).first()).toBeVisible({ timeout: 10_000 })
     })
   }
@@ -541,7 +541,7 @@ test.describe('registry — assets filter by type', () => {
     // Confirm both are present before filtering (search-free; small org).
     await page.getByPlaceholder(/^Search$/).fill('E2E')
 
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     // table-filter.tsx: open the "Asset Type" accordion, then click the
     // "Device" option (a <li> with onClick in the multiselect list), then
     // "View Results". Click the listitem (which carries the handler) and
@@ -711,5 +711,139 @@ test.describe('registry — personnel view + delete + bulk', () => {
     await confirm.getByRole('button', { name: /^Delete$/ }).click()
 
     await expect(page.getByRole('cell').filter({ hasText: name })).toHaveCount(0, { timeout: 20_000 })
+  })
+})
+
+/**
+ * ISS-2459 — contacts can now be linked to vendors from both sides:
+ *
+ *  - the contact detail sheet gains a "Linked Vendors" card (linked-vendors.tsx)
+ *    with a vendor search popover; it renders only outside create mode
+ *  - the contact CREATE form instead shows VendorSuggestion, which proposes
+ *    vendors matching the contact email's domain (getEmailDomain, unit-tested in
+ *    utils/strings.test.ts)
+ *  - the vendor detail Contacts tab gains suggested contacts by the same rule
+ *
+ * Read-only: the popover is opened but no link is committed.
+ */
+test.describe('registry — contact linked vendors (ISS-2459)', () => {
+  test('the contact detail sheet shows the Linked Vendors card', async ({ page }) => {
+    test.slow()
+    const fullName = `E2E LinkVend ${RUN_ID} ${Date.now().toString(36)}`
+    const id = await createContact(ownerApi, fullName)
+
+    await page.goto(`/registry/contacts?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    const sheet = page.getByRole('dialog')
+    await expect(sheet).toBeVisible({ timeout: 30_000 })
+    await expect(sheet.getByText('Linked Vendors', { exact: true })).toBeVisible({ timeout: 20_000 })
+
+    // A freshly seeded contact has none.
+    await expect(sheet.getByText('No vendors linked', { exact: true })).toBeVisible({ timeout: 15_000 })
+  })
+
+  test('the Linked Vendors card opens a vendor search popover', async ({ page }) => {
+    test.slow()
+    const fullName = `E2E LinkVend2 ${RUN_ID} ${Date.now().toString(36)}`
+    const id = await createContact(ownerApi, fullName)
+    await createVendor(ownerApi, `E2E LinkVendCo ${RUN_ID} ${Date.now().toString(36)}`)
+
+    await page.goto(`/registry/contacts?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const sheet = page.getByRole('dialog')
+    await expect(sheet.getByText('Linked Vendors', { exact: true })).toBeVisible({ timeout: 30_000 })
+
+    // The card's "Link Vendor" trigger opens a Command popover. Nothing is
+    // selected, so no link is created.
+    await sheet.getByRole('button', { name: /^Link Vendor$/ }).click()
+
+    await expect(page.getByPlaceholder('Search vendors...')).toBeVisible({ timeout: 15_000 })
+  })
+})
+
+/**
+ * #2014 — system details gained many-to-many edges to platforms and programs.
+ * The list picked up chip columns for both and matching multiselect filters
+ * (the edge→chip flattening helpers are unit-tested in
+ * object-association/__tests__).
+ */
+test.describe('registry — system detail platform/program edges (#2014)', () => {
+  test('the system details filter menu exposes Platforms and Programs', async ({ page }) => {
+    test.slow()
+    await page.goto('/registry/system-details', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^System Details$/ })).toBeVisible({ timeout: 30_000 })
+
+    await page.getByRole('button', { name: /^Filter/ }).click()
+    await expect(page.getByText(/^Platforms?$/).first()).toBeVisible({ timeout: 15_000 })
+  })
+
+  test('the system details Columns menu offers the new edge columns', async ({ page }) => {
+    test.slow()
+    await page.goto('/registry/system-details', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^System Details$/ })).toBeVisible({ timeout: 30_000 })
+
+    await page.getByRole('button', { name: /^Columns$/ }).click()
+    const menu = page.getByRole('menu')
+    await expect(menu).toBeVisible({ timeout: 10_000 })
+    await expect(menu.getByText(/^Platforms?$/).first()).toBeVisible({ timeout: 10_000 })
+  })
+})
+
+/**
+ * ISS-2528 — system details bulk edit gained Platforms/Programs association
+ * fields (splitting the schema into a value part and an association part, and
+ * switching the option sources to the *IDs variants), plus date-field sizing.
+ *
+ * Dialog-OPEN only: rows are selected to surface Bulk Edit but nothing is saved.
+ */
+test.describe('registry — system details bulk edit associations (ISS-2528)', () => {
+  test('the bulk edit dialog offers Platforms and Programs alongside the value fields', async ({ page }) => {
+    test.slow()
+    await page.goto('/registry/system-details', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^System Details$/ })).toBeVisible({ timeout: 30_000 })
+
+    const firstRowCheckbox = page.getByRole('row').nth(1).getByRole('checkbox').first()
+    await firstRowCheckbox.waitFor({ state: 'visible', timeout: 20_000 }).catch(() => {})
+    test.skip(!(await firstRowCheckbox.isVisible().catch(() => false)), 'no system details seeded in this org')
+    await firstRowCheckbox.check()
+
+    await page.getByRole('button', { name: /^Bulk Edit/ }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible({ timeout: 15_000 })
+
+    // GenericBulkEditDialog does not list the editable fields in the dialog
+    // body — it renders a "Select field..." picker whose SelectContent holds
+    // them, so the association fields only exist once that select is opened.
+    await dialog.getByRole('combobox').first().click()
+
+    const options = page.getByRole('option')
+    await expect(options.filter({ hasText: /^Platforms$/ })).toBeVisible({ timeout: 15_000 })
+    await expect(options.filter({ hasText: /^Programs$/ })).toBeVisible()
+  })
+})
+
+/**
+ * ISS-2573 — the vendor Risk Review tab warns when a HIGH-risk vendor has no
+ * recent review. "Recent" is derived from the vendor's review frequency
+ * (useHasRecentReview maps MONTHLY→1 … TRIENNIALLY→36 months, defaulting to
+ * YEARLY, with NONE meaning no cutoff at all), checking both the vendor's own
+ * lastReviewedAt and any review record inside that window.
+ *
+ * A seeded vendor carries no risk rating, so the warning branch is unreachable;
+ * this pins the negative — the banner must not appear by default — which is what
+ * an inverted isHighRisk or a broken recency check would break.
+ */
+test.describe('registry — vendor high-risk review warning (ISS-2573)', () => {
+  test('a plain seeded vendor shows the Risk summary without the high-risk banner', async ({ page }) => {
+    test.slow()
+    const name = `E2E RiskWarn ${RUN_ID} ${Date.now().toString(36)}`
+    const vendorId = await createVendor(ownerApi, name)
+
+    await page.goto(`/registry/vendors/${vendorId}?tab=risk-review`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('tab', { name: 'Risk Review' })).toBeVisible({ timeout: 45_000 })
+    await page.getByRole('tab', { name: 'Risk Review' }).click()
+
+    await expect(page.getByRole('heading', { name: /^Risk summary$/ })).toBeVisible({ timeout: 30_000 })
+    await expect(page.getByText('High risk vendor - immediate action required')).toHaveCount(0)
   })
 })

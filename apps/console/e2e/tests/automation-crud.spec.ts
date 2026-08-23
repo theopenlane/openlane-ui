@@ -5,8 +5,8 @@ import { loginViaApi, createCampaign, createQuestionnaire, createTemplate, type 
 
 /**
  * Deep automation flows beyond automation-other.spec.ts (subroute renders +
- * survey editors mount): campaign list tooling, communications template
- * create-sheets, questionnaire summary/tabs. Runs as the storage-state Owner.
+ * survey editors mount): campaign list tooling, email template editor
+ * routing, questionnaire summary/tabs. Runs as the storage-state Owner.
  * List-tooling + dialog-open flows need no seeded data (toolbars render anyway);
  * campaign detail/search/bulk are seeded via the createCampaign API helper.
  */
@@ -35,37 +35,41 @@ test.describe('automation — campaigns list tooling', () => {
     await expect(page.getByRole('button', { name: /^Create Campaign$/ })).toBeVisible({ timeout: 20_000 })
 
     // table-config.ts getCampaignFilterFields → Name / Status / Type / Due Date.
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     await expect(page.getByText('Status', { exact: true }).first()).toBeVisible({ timeout: 10_000 })
   })
 
-  test('the Create Campaign stepper step 1 has Campaign Name + Questionnaire fields', async ({ page }) => {
+  test('the Create Campaign stepper step 1 has Campaign Name + questionnaire selector', async ({ page }) => {
     await page.goto('/automation/campaigns', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await page.getByRole('button', { name: /^Create Campaign$/ }).click()
 
-    // create-campaign-sheet.tsx step 1 (QuestionnaireStep): "Campaign Name" input
-    // + a "Questionnaire" selector.
+    // create-campaign-sheet.tsx step 1 is "Campaign Details" (QuestionnaireStep):
+    // a Campaign Name input, a Description textarea, and the optional
+    // questionnaire-template picker (questionnaire-selector.tsx).
     const sheet = page.getByRole('dialog')
     await expect(sheet).toBeVisible({ timeout: 10_000 })
     await expect(sheet.getByText('Campaign Name')).toBeVisible({ timeout: 10_000 })
-    await expect(sheet.getByText('Questionnaire', { exact: true }).first()).toBeVisible()
+    await expect(sheet.getByPlaceholder('Enter a campaign name')).toBeVisible()
+    await expect(sheet.getByText(/^Select Questionnaire Template/)).toBeVisible()
   })
 })
 
 test.describe('automation — campaign create stepper', () => {
-  test('the stepper opens on step 1 of 3 with the questionnaire selector', async ({ page }) => {
+  test('the stepper opens on step 1 of 3 with the empty questionnaire picker', async ({ page }) => {
     await page.goto('/automation/campaigns', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await page.getByRole('button', { name: /^Create Campaign$/ }).click()
 
     const sheet = page.getByRole('dialog')
     await expect(sheet).toBeVisible({ timeout: 10_000 })
-    // stepper-sheet.tsx renders a "STEP n OF total" badge; QuestionnaireStep's
-    // Select uses the "Select one from the list" placeholder.
+
+    // stepper-sheet.tsx renders a "STEP n OF total" badge. The step COUNT is
+    // dynamic in create-campaign-sheet.tsx: picking a questionnaire template
+    // drops the Email Template step, leaving 2. With none picked it is 3.
     await expect(sheet.getByText(/STEP 1 OF 3/)).toBeVisible({ timeout: 10_000 })
-    await expect(sheet.getByText('Select one from the list')).toBeVisible()
+    await expect(sheet.getByText('No questionnaire template selected')).toBeVisible()
   })
 
-  test('Next advances from the Questionnaire step to the Targets step', async ({ page }) => {
+  test('Next advances from the Campaign Details step to the Targets step', async ({ page }) => {
     await page.goto('/automation/campaigns', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await page.getByRole('button', { name: /^Create Campaign$/ }).click()
 
@@ -79,20 +83,20 @@ test.describe('automation — campaign create stepper', () => {
     await expect(sheet.getByRole('button', { name: /^Previous$/ })).toBeVisible()
   })
 
-  test('the stepper header exposes Save Draft and Launch Now actions', async ({ page }) => {
+  test('the stepper header exposes Save Draft and the final Create Campaign action', async ({ page }) => {
     await page.goto('/automation/campaigns', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await page.getByRole('button', { name: /^Create Campaign$/ }).click()
 
     const sheet = page.getByRole('dialog')
     await expect(sheet).toBeVisible({ timeout: 10_000 })
 
-    // create-campaign-sheet.tsx passes completeLabel="Launch Now"; "Save Draft"
-    // is always present. Step through to the last step to surface Launch Now.
+    // create-campaign-sheet.tsx passes completeLabel="Create Campaign";
+    // "Save Draft" is always present. Step to the last step to surface it.
     await expect(sheet.getByRole('button', { name: /^Save Draft$/ })).toBeVisible({ timeout: 10_000 })
     await sheet.getByRole('button', { name: /^Next$/ }).click()
     await sheet.getByRole('button', { name: /^Next$/ }).click()
     await expect(sheet.getByText(/STEP 3 OF 3/)).toBeVisible({ timeout: 10_000 })
-    await expect(sheet.getByRole('button', { name: /^Launch Now$/ })).toBeVisible({ timeout: 10_000 })
+    await expect(sheet.getByRole('button', { name: /^Create Campaign$/ })).toBeVisible({ timeout: 10_000 })
   })
 })
 
@@ -118,8 +122,7 @@ test.describe('automation — campaigns (seeded)', () => {
     const id = await createCampaign(ownerApi, name)
 
     await page.goto(`/automation/campaigns/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    // campaign-detail-page.tsx sets the breadcrumb to the campaign name and a
-    // draft campaign renders the "Start Campaign" action.
+    // campaign-detail-page.tsx sets the breadcrumb to the campaign name.
     await expect(page.getByText(name).first()).toBeVisible({ timeout: 45_000 })
   })
 
@@ -140,14 +143,14 @@ test.describe('automation — campaigns (seeded)', () => {
     await expect(page.getByRole('button', { name: /^Bulk Delete/ })).toBeVisible({ timeout: 10_000 })
   })
 
-  test('a draft campaign detail page exposes the Start Campaign action', async ({ page }) => {
+  test('a draft campaign detail page exposes the Launch action', async ({ page }) => {
     test.slow()
     const id = await createCampaign(ownerApi, uniqueCampaignName())
 
     await page.goto(`/automation/campaigns/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
     // A freshly-seeded campaign is in DRAFT, so campaign-detail-page.tsx renders
-    // the "Start Campaign" primary action (not "Complete Campaign").
-    await expect(page.getByRole('button', { name: /^Start Campaign$/ })).toBeVisible({ timeout: 45_000 })
+    // the "Launch" primary action (the old Start/Complete pair is gone).
+    await expect(page.getByRole('button', { name: /^Launch$/ })).toBeVisible({ timeout: 45_000 })
   })
 
   test('deleting a campaign from the actions menu redirects to the list', async ({ page }) => {
@@ -155,54 +158,58 @@ test.describe('automation — campaigns (seeded)', () => {
     const id = await createCampaign(ownerApi, uniqueCampaignName())
 
     await page.goto(`/automation/campaigns/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    await expect(page.getByRole('button', { name: /^Start Campaign$/ })).toBeVisible({ timeout: 45_000 })
+    await expect(page.getByRole('button', { name: /^Launch$/ })).toBeVisible({ timeout: 45_000 })
 
     // The shared Menu (ellipsis, descriptiveTooltipText "Action") holds a
-    // destructive "Delete Campaign" item; handleDeleteCampaign redirects to the list.
+    // destructive "Delete campaign" item. It opens a ConfirmationDialog whose
+    // confirm button is labelled by confirmationText ("Delete campaign"); no
+    // typed gate (showInput is not set). Confirming redirects to the list.
     await page.getByRole('button', { name: 'Action' }).click()
-    await page.getByRole('button', { name: /^Delete Campaign$/ }).click()
+    await page.getByRole('button', { name: /^Delete campaign$/ }).click()
+
+    const dialog = page.getByRole('alertdialog')
+    await expect(dialog).toBeVisible({ timeout: 10_000 })
+    await dialog.getByRole('button', { name: /^Delete campaign$/ }).click()
+
     await page.waitForURL(/\/automation\/campaigns(\?|$)/, { timeout: 20_000 })
   })
 })
 
-test.describe('automation — communications templates', () => {
-  test('Create Email Template opens the email template sheet', async ({ page }) => {
-    await page.goto('/automation/communications', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('tab', { name: 'Email Templates' })).toBeVisible({ timeout: 20_000 })
+test.describe('automation — email templates', () => {
+  test('Create Email Template opens the editor page with its name field', async ({ page }) => {
+    await page.goto('/automation/email-templates', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Email Templates$/ })).toBeVisible({ timeout: 20_000 })
 
-    // email-templates-tab.tsx "Create Email Template" → email-template-sheet.tsx
-    // (breadcrumb "Communications / Create Email Template" inside the sheet).
+    // email-templates-tab.tsx "Create Email Template" routes to
+    // /automation/email-templates/editor (email-template-editor-page.tsx).
     await page.getByRole('button', { name: /^Create Email Template$/ }).click()
-    await expect(page.getByRole('dialog').getByText('Create Email Template').first()).toBeVisible({ timeout: 10_000 })
+    await page.waitForURL(/\/automation\/email-templates\/editor(\?|$)/, { timeout: 20_000 })
 
-    // email-template-sheet.tsx form fields.
+    await expect(page.getByRole('heading', { level: 2, name: /^Create Email Template$/ })).toBeVisible({ timeout: 20_000 })
     await expect(page.getByPlaceholder('e.g. Welcome Email')).toBeVisible()
-    await expect(page.getByPlaceholder('e.g. welcome-email')).toBeVisible()
-    await expect(page.getByPlaceholder('Describe the purpose of this template...')).toBeVisible()
+
+    // Save Draft stays disabled until a name and a template key are chosen.
+    await expect(page.getByRole('button', { name: /^Save Draft$/ })).toBeDisabled()
   })
 
-  test('Create Notification Template opens the notification template sheet', async ({ page }) => {
-    await page.goto('/automation/communications', { waitUntil: 'domcontentloaded' })
+  test('the editor returns to the list when cancelled', async ({ page }) => {
+    await page.goto('/automation/email-templates/editor', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Create Email Template$/ })).toBeVisible({ timeout: 20_000 })
 
-    // Switch to the Notification Templates tab, then open its create sheet.
-    await page.getByRole('tab', { name: 'Notification Templates' }).click()
-    await page.getByRole('button', { name: /^Create Notification Template$/ }).click()
-    await expect(page.getByRole('dialog').getByText('Create Notification Template').first()).toBeVisible({ timeout: 10_000 })
-
-    // notification-template-sheet.tsx form fields (name/key + topic pattern).
-    await expect(page.getByPlaceholder('e.g. Campaign Reminder Notification')).toBeVisible()
-    await expect(page.getByPlaceholder('e.g. campaign-reminder-notif')).toBeVisible()
-    await expect(page.getByPlaceholder('e.g. campaign.reminder')).toBeVisible()
+    await page.getByRole('button', { name: /^Cancel$/ }).click()
+    await page.waitForURL(/\/automation\/email-templates(\?|$)/, { timeout: 20_000 })
+    await expect(page.getByRole('heading', { level: 2, name: /^Email Templates$/ })).toBeVisible({ timeout: 20_000 })
   })
 
-  test('email templates tab exposes search + active/inactive status filter', async ({ page }) => {
-    await page.goto('/automation/communications', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('tab', { name: 'Email Templates' })).toBeVisible({ timeout: 20_000 })
+  test('the email templates list exposes search + active/inactive status filter', async ({ page }) => {
+    await page.goto('/automation/email-templates', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Email Templates$/ })).toBeVisible({ timeout: 20_000 })
 
     await expect(page.getByPlaceholder('Search email templates...')).toBeVisible({ timeout: 15_000 })
-    // The status filter is a 3-way All / Active / Inactive control.
-    await expect(page.getByText('Active', { exact: true }).first()).toBeVisible()
-    await expect(page.getByText('Inactive', { exact: true }).first()).toBeVisible()
+    // The status filter is a 3-way All / Active / Inactive tab control.
+    await expect(page.getByRole('tab', { name: /^All$/ })).toBeVisible()
+    await expect(page.getByRole('tab', { name: /^Active$/ })).toBeVisible()
+    await expect(page.getByRole('tab', { name: /^Inactive$/ })).toBeVisible()
   })
 })
 
@@ -414,20 +421,35 @@ test.describe('automation — campaign detail inline edits (seeded)', () => {
     await expect(page.getByText('Campaign updated').first()).toBeVisible({ timeout: 15_000 })
   })
 
-  test('completing a campaign from the active state surfaces the completed toast', async ({ page }) => {
+  test('a draft campaign with no content or recipients cannot be launched', async ({ page }) => {
     test.slow()
     const id = await createCampaign(ownerApi, uniqueCampaignName())
 
     await page.goto(`/automation/campaigns/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    // DRAFT → start the campaign (status ACTIVE), which swaps the primary action
-    // to "Complete Campaign" (handleCompleteCampaign → "Campaign completed").
-    await page.getByRole('button', { name: /^Start Campaign$/ }).click()
-    await expect(page.getByText('Campaign started').first()).toBeVisible({ timeout: 15_000 })
 
-    const complete = page.getByRole('button', { name: /^Complete Campaign$/ })
-    await expect(complete).toBeVisible({ timeout: 15_000 })
-    await complete.click()
-    await expect(page.getByText('Campaign completed').first()).toBeVisible({ timeout: 15_000 })
+    // The Start/Complete lifecycle was replaced by a launch flow: a DRAFT
+    // campaign shows a primary "Launch" button gated by getLaunchBlockedReason
+    // (campaign-detail-page.tsx). A freshly seeded campaign has neither a
+    // template nor recipients, so the button stays disabled.
+    const launch = page.getByRole('button', { name: /^Launch$/ })
+    await expect(launch).toBeVisible({ timeout: 45_000 })
+    await expect(launch).toBeDisabled()
+  })
+
+  test('the campaign action menu exposes the cancel and delete entries', async ({ page }) => {
+    test.slow()
+    const id = await createCampaign(ownerApi, uniqueCampaignName())
+
+    await page.goto(`/automation/campaigns/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    // The shared Menu (menu.tsx) default trigger is an ellipsis button with
+    // aria-label "Action". A non-terminal campaign can be canceled or deleted;
+    // "Send reminder" only appears once the campaign is ACTIVE. Dialog-OPEN
+    // only — nothing is mutated.
+    await page.getByRole('button', { name: 'Action' }).click()
+    await expect(page.getByRole('button', { name: /^Cancel campaign$/ })).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('button', { name: /^Delete campaign$/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /^Send test email$/ })).toBeVisible()
   })
 })
 
@@ -437,7 +459,7 @@ test.describe('automation — questionnaires list tooling (seeded)', () => {
     await expect(page.getByRole('tab', { name: 'Questionnaires' })).toBeVisible({ timeout: 20_000 })
 
     // getQuestionnaireFilterFields → Tags / Type / Template / Due Date / Updated At / Created At.
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     await expect(page.getByText('Type', { exact: true }).first()).toBeVisible({ timeout: 10_000 })
   })
 
@@ -523,7 +545,7 @@ test.describe('automation — questionnaire templates list', () => {
   test('the templates filter panel exposes Environment and Scope fields', async ({ page }) => {
     await gotoTemplates(page)
     // useTemplateFilters → Environment / Scope / System Owned / Updated At / Created At.
-    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await page.getByRole('button', { name: /^Filter/ }).click()
     await expect(page.getByText('Environment', { exact: true }).first()).toBeVisible({ timeout: 10_000 })
     await expect(page.getByText('Scope', { exact: true }).first()).toBeVisible()
   })
@@ -592,5 +614,34 @@ test.describe('automation — questionnaire templates list', () => {
     await expect(dialog).toBeVisible({ timeout: 10_000 })
     await dialog.getByRole('button', { name: /^Delete$/ }).click()
     await expect(page.getByText('Template deleted successfully').first()).toBeVisible({ timeout: 15_000 })
+  })
+})
+
+/**
+ * ISS-2560 — the campaigns page moved from cards to a proper table with the
+ * shared toolbar (search, Columns, Filter) and org-persisted sort/pagination
+ * under TableKeyEnum.CAMPAIGN.
+ */
+test.describe('automation — campaigns table view (ISS-2560)', () => {
+  test('the campaigns page renders the shared table toolbar', async ({ page }) => {
+    test.slow()
+    await createCampaign(ownerApi, uniqueCampaignName())
+
+    await page.goto('/automation/campaigns', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('button', { name: /^Create Campaign$/ })).toBeVisible({ timeout: 30_000 })
+
+    await expect(page.getByPlaceholder('Search')).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByRole('button', { name: /^Columns$/ })).toBeVisible()
+  })
+
+  test('a seeded campaign appears as a table row', async ({ page }) => {
+    test.slow()
+    const name = uniqueCampaignName()
+    await createCampaign(ownerApi, name)
+
+    await page.goto('/automation/campaigns', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await page.getByPlaceholder('Search').fill(name)
+
+    await expect(page.getByRole('row').filter({ hasText: name })).toBeVisible({ timeout: 20_000 })
   })
 })
