@@ -57,7 +57,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium">Status</span>
             <div className="w-[140px]">
-              <SelectField name="status" label="" options={enumOptions.statusOptions} useCustomDisplay={true} placeholder="Select status..." triggerClassName="h-8 text-sm" {...sharedFieldProps} />
+              <SelectField name="status" label="Status" options={enumOptions.statusOptions} useCustomDisplay={true} placeholder="Select status" triggerClassName="h-8 text-sm" {...sharedFieldProps} />
             </div>
           </div>
         </div>
