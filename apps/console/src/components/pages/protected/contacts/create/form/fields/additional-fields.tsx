@@ -55,9 +55,17 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium">Status</span>
             <div className="w-[140px]">
-              <SelectField name="status" label="Status" options={enumOptions.statusOptions} useCustomDisplay={true} placeholder="Select status" triggerClassName="h-8 text-sm" {...sharedFieldProps} />
+               <SelectField
+                name="status"
+                label="Status"
+                options={enumOptions.statusOptions}
+                useCustomDisplay={true}
+                placeholder="Select status"
+                triggerClassName="h-8 text-sm"
+                labelClassName="text-sm font medium mb-0"
+                {...sharedFieldProps}
+              />
             </div>
           </div>
         </div>
@@ -79,7 +87,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
             name="phoneNumber"
             type="tel"
             placeholder="e.g. +1 (303) 456-7890"
-            label={
+            label="Phone number"
               <>
                 Phone number <span className="text-muted-foreground font-normal">(optional)</span>
               </>
@@ -101,10 +109,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
             <TextField
               name="title"
               placeholder="e.g. Account Manager, CTO"
-              label={
-                <>
-                  Title / role <span className="text-muted-foreground font-normal">(optional)</span>
-                </>
+              label="Title / role"
               }
               tooltipContent="The job title or role of this contact"
               {...sharedFieldProps}
@@ -112,11 +117,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
             <TextField
               name="company"
               placeholder="e.g. Finance, Operations"
-              label={
-                <>
-                  Department <span className="text-muted-foreground font-normal">(optional)</span>
-                </>
-              }
+              label="Department"
               tooltipContent="The department or company this contact is associated with"
               {...sharedFieldProps}
             />
@@ -124,7 +125,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         </div>
       </SectionCard>
 
-      <SectionCard title="Additional details" description="More context for this contact (optional)">
+      <SectionCard title="Additional details" description="More context for this contact">
         <AddressField {...sharedFieldProps} />
       </SectionCard>
     </div>
