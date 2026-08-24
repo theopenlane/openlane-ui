@@ -1,8 +1,9 @@
 import { type Page } from '@playwright/test'
 
-import { test, expect, readManifest } from '../fixtures/auth'
+import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createAsset, createContact, createVendor, gql, type ApiSession } from '../utils/api'
+import { createAsset, createContact, createVendor, createSystemDetail, gql, type ApiSession, getOwnerApi } from '../utils/api'
+import { uniqueName } from '../utils/unique'
 
 /**
  * Deep registry flows beyond registry.spec.ts (list render + vendor create on
@@ -11,8 +12,6 @@ import { loginViaApi, createAsset, createContact, createVendor, gql, type ApiSes
  */
 
 let ownerApi: ApiSession
-let counter = 0
-const uniqueName = (prefix: string) => `${prefix} ${RUN_ID} ${Date.now().toString(36)}-${counter++}`
 
 // createAsset (utils/api.ts) only sets `name`; the Asset Type filter needs a
 // typed row, so seed one inline through the same /query client with assetType.
@@ -34,8 +33,7 @@ const openCreateSheet = async (page: Page) => {
 }
 
 test.beforeAll(async () => {
-  const { ownerEmail, password } = readManifest()
-  ownerApi = await loginViaApi(ownerEmail, password)
+  ownerApi = await getOwnerApi()
 })
 
 test.describe('registry — assets', () => {
@@ -67,7 +65,7 @@ test.describe('registry — assets', () => {
     await page.goto('/registry/assets', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^Assets$/ })).toBeVisible({ timeout: 20_000 })
 
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText('Asset Type').first()).toBeVisible({ timeout: 10_000 })
   })
 })
@@ -100,7 +98,7 @@ test.describe('registry — contacts', () => {
     await page.goto('/registry/contacts', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^Contacts$/ })).toBeVisible({ timeout: 20_000 })
 
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
   })
 })
@@ -185,7 +183,7 @@ test.describe('registry — sub-page filters', () => {
       await page.goto(path, { waitUntil: 'domcontentloaded', timeout: 180_000 })
       await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible({ timeout: 20_000 })
 
-      await page.getByRole('button', { name: /^Filter/ }).click()
+      await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
       await expect(page.getByText(field, { exact: true }).first()).toBeVisible({ timeout: 10_000 })
     })
   }
@@ -541,7 +539,7 @@ test.describe('registry — assets filter by type', () => {
     // Confirm both are present before filtering (search-free; small org).
     await page.getByPlaceholder(/^Search$/).fill('E2E')
 
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     // table-filter.tsx: open the "Asset Type" accordion, then click the
     // "Device" option (a <li> with onClick in the multiselect list), then
     // "View Results". Click the listitem (which carries the handler) and
@@ -772,7 +770,7 @@ test.describe('registry — system detail platform/program edges (#2014)', () =>
     await page.goto('/registry/system-details', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^System Details$/ })).toBeVisible({ timeout: 30_000 })
 
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText(/^Platforms?$/).first()).toBeVisible({ timeout: 15_000 })
   })
 
@@ -796,15 +794,24 @@ test.describe('registry — system detail platform/program edges (#2014)', () =>
  * Dialog-OPEN only: rows are selected to surface Bulk Edit but nothing is saved.
  */
 test.describe('registry — system details bulk edit associations (ISS-2528)', () => {
+  let seededSystemDetailName: string
+
+  test.beforeAll(async () => {
+    seededSystemDetailName = uniqueName('E2E SysDetail bulk')
+    await createSystemDetail(await getOwnerApi(), seededSystemDetailName)
+  })
+
   test('the bulk edit dialog offers Platforms and Programs alongside the value fields', async ({ page }) => {
     test.slow()
     await page.goto('/registry/system-details', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^System Details$/ })).toBeVisible({ timeout: 30_000 })
 
-    const firstRowCheckbox = page.getByRole('row').nth(1).getByRole('checkbox').first()
-    await firstRowCheckbox.waitFor({ state: 'visible', timeout: 20_000 }).catch(() => {})
-    test.skip(!(await firstRowCheckbox.isVisible().catch(() => false)), 'no system details seeded in this org')
-    await firstRowCheckbox.check()
+    // Seed the row this test operates on rather than skipping when the shared
+    // org happens to have none, then search for it so pagination can't bury it.
+    await page.getByPlaceholder(/^Search$/).fill(seededSystemDetailName)
+    const row = page.getByRole('row').filter({ hasText: seededSystemDetailName })
+    await expect(row).toBeVisible({ timeout: 20_000 })
+    await row.getByRole('checkbox').first().check()
 
     await page.getByRole('button', { name: /^Bulk Edit/ }).click()
 

@@ -3,10 +3,20 @@ import { test as freshTest, type Page } from '@playwright/test'
 import { seedLoggedInUser } from '../utils/seedUser'
 
 import { RUN_ID } from '../utils/constants'
-import { readManifest } from '../fixtures/auth'
-import { loginViaApi, createProgram, type ApiSession } from '../utils/api'
+import { createProgram, type ApiSession, getOwnerApi } from '../utils/api'
+import { uniqueName } from '../utils/unique'
 
-const programName = (slug: string) => `E2E Program ${slug} ${RUN_ID} ${Date.now().toString(36)}`
+const programName = (slug: string) => uniqueName(`E2E Program ${slug}`)
+
+const trustServiceCategory = (page: Page, name: string) => page.locator(`#trust-service-category-${name.replace(/\s+/g, '-').toLowerCase()}`)
+
+const selectProgramType = async (page: Page, label: string): Promise<void> => {
+  const picker = page
+    .locator('div')
+    .filter({ has: page.getByRole('heading', { name: 'Select a Program Type' }) })
+    .last()
+  await picker.getByText(label, { exact: true }).click()
+}
 
 test.describe('programs — create wizard entry', () => {
   test('/programs/create shows all 5 template cards (Quickstart + Custom)', async ({ page }) => {
@@ -152,10 +162,10 @@ test.describe('programs — SOC 2 wizard', () => {
     const warning = page.getByText(/No categories selected/i)
     await expect(warning).toBeHidden()
 
-    await page.getByRole('button', { name: 'Security', exact: true }).click()
+    await trustServiceCategory(page, 'Security').click()
     await expect(warning).toBeVisible({ timeout: 10_000 })
 
-    await page.getByRole('button', { name: 'Security', exact: true }).click()
+    await trustServiceCategory(page, 'Security').click()
     await expect(warning).toBeHidden({ timeout: 10_000 })
   })
 
@@ -314,7 +324,7 @@ test.describe('programs — advanced-setup wizard', () => {
   test('step 1 — General Information requires a Program Name', async ({ page }) => {
     await page.goto('/programs/create/advanced-setup')
     await expect(page.getByRole('heading', { name: 'Select a Program Type' })).toBeVisible({ timeout: 15_000 })
-    await page.getByText('Other', { exact: true }).click()
+    await selectProgramType(page, 'Other')
     await page.getByRole('button', { name: /^continue$/i }).click()
 
     await expect(page.getByRole('heading', { name: 'General Information' })).toBeVisible({ timeout: 10_000 })
@@ -325,7 +335,7 @@ test.describe('programs — advanced-setup wizard', () => {
   test('step 1 — the Framework program type requires a framework selection', async ({ page }) => {
     await page.goto('/programs/create/advanced-setup')
     await expect(page.getByRole('heading', { name: 'Select a Program Type' })).toBeVisible({ timeout: 15_000 })
-    await page.getByText('Framework', { exact: true }).click()
+    await selectProgramType(page, 'Framework')
     await page.getByRole('button', { name: /^continue$/i }).click()
 
     await expect(page.getByRole('heading', { name: 'General Information' })).toBeVisible({ timeout: 10_000 })
@@ -337,7 +347,7 @@ test.describe('programs — advanced-setup wizard', () => {
   test('selecting a non-SOC 2 program type skips the categories step', async ({ page }) => {
     await page.goto('/programs/create/advanced-setup')
     await expect(page.getByRole('heading', { name: 'Select a Program Type' })).toBeVisible({ timeout: 15_000 })
-    await page.getByText('Other', { exact: true }).click()
+    await selectProgramType(page, 'Other')
     await page.getByRole('button', { name: /^continue$/i }).click()
 
     await page.getByPlaceholder('Program Test').fill(programName('adv-skip'))
@@ -351,7 +361,7 @@ test.describe('programs — advanced-setup wizard', () => {
     await page.goto('/programs/create/advanced-setup')
     await expect(page.getByRole('heading', { name: 'Select a Program Type' })).toBeVisible({ timeout: 15_000 })
 
-    await page.getByText('Other', { exact: true }).click()
+    await selectProgramType(page, 'Other')
     await page.getByRole('button', { name: /^continue$/i }).click()
 
     await expect(page.getByRole('heading', { name: 'General Information' })).toBeVisible({ timeout: 10_000 })
@@ -383,7 +393,7 @@ test.describe('programs — advanced-setup date validation', () => {
   const advanceToGeneralInfo = async (page: Page) => {
     await page.goto('/programs/create/advanced-setup')
     await expect(page.getByRole('heading', { name: 'Select a Program Type' })).toBeVisible({ timeout: 20_000 })
-    await page.getByText('Other', { exact: true }).click()
+    await selectProgramType(page, 'Other')
     await page.getByRole('button', { name: /^continue$/i }).click()
     await expect(page.getByRole('heading', { name: 'General Information' })).toBeVisible({ timeout: 10_000 })
   }
@@ -424,7 +434,7 @@ test.describe('programs — advanced-setup SOC 2 categories step', () => {
   const advanceToCategories = async (page: Page) => {
     await page.goto('/programs/create/advanced-setup')
     await expect(page.getByRole('heading', { name: 'Select a Program Type' })).toBeVisible({ timeout: 20_000 })
-    await page.getByText('Framework', { exact: true }).click()
+    await selectProgramType(page, 'Framework')
     await page.getByRole('button', { name: /^continue$/i }).click()
 
     await expect(page.getByRole('heading', { name: 'General Information' })).toBeVisible({ timeout: 10_000 })
@@ -446,10 +456,10 @@ test.describe('programs — advanced-setup SOC 2 categories step', () => {
     const warning = page.getByText(/No categories selected/i)
     await expect(warning).toBeHidden()
 
-    await page.getByRole('button', { name: 'Security', exact: true }).click()
+    await trustServiceCategory(page, 'Security').click()
     await expect(warning).toBeVisible({ timeout: 10_000 })
 
-    await page.getByRole('button', { name: 'Security', exact: true }).click()
+    await trustServiceCategory(page, 'Security').click()
     await expect(warning).toBeHidden({ timeout: 10_000 })
   })
 
@@ -457,9 +467,9 @@ test.describe('programs — advanced-setup SOC 2 categories step', () => {
     test.slow()
     await advanceToCategories(page)
 
-    const security = page.getByRole('button', { name: 'Security', exact: true })
-    const availability = page.getByRole('button', { name: 'Availability', exact: true })
-    const privacy = page.getByRole('button', { name: 'Privacy', exact: true })
+    const security = trustServiceCategory(page, 'Security')
+    const availability = trustServiceCategory(page, 'Availability')
+    const privacy = trustServiceCategory(page, 'Privacy')
 
     await expect(security).toBeVisible()
     await availability.click()
@@ -475,7 +485,7 @@ test.describe('programs — advanced-setup step navigation', () => {
     test.slow()
     await page.goto('/programs/create/advanced-setup')
     await expect(page.getByRole('heading', { name: 'Select a Program Type' })).toBeVisible({ timeout: 20_000 })
-    await page.getByText('Other', { exact: true }).click()
+    await selectProgramType(page, 'Other')
     await page.getByRole('button', { name: /^continue$/i }).click()
 
     await expect(page.getByRole('heading', { name: 'General Information' })).toBeVisible({ timeout: 10_000 })
@@ -495,7 +505,7 @@ test.describe('programs — advanced-setup step navigation', () => {
     test.slow()
     await page.goto('/programs/create/advanced-setup')
     await expect(page.getByRole('heading', { name: 'Select a Program Type' })).toBeVisible({ timeout: 20_000 })
-    await page.getByText('Other', { exact: true }).click()
+    await selectProgramType(page, 'Other')
     await page.getByRole('button', { name: /^continue$/i }).click()
 
     await expect(page.getByRole('heading', { name: 'General Information' })).toBeVisible({ timeout: 10_000 })
@@ -520,7 +530,9 @@ freshTest.describe('programs — fresh org', () => {
 
     await page.goto('/programs')
 
-    await expect(page.getByText(/no programs found/i)).toBeVisible()
+    // programs-dashboard-page.tsx renders ProgramsCreate with heading="Programs"
+    // and noPrograms when the org has none — the template picker IS the empty state.
+    await expect(page.getByRole('heading', { level: 1, name: /^Programs$/ })).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('link', { name: /Generic Program/ })).toBeVisible()
   })
 })
@@ -586,8 +598,7 @@ test.describe('programs — created control count (ISS-2547)', () => {
   let ownerApi: ApiSession
 
   test.beforeAll(async () => {
-    const { ownerEmail, password } = readManifest()
-    ownerApi = await loginViaApi(ownerEmail, password)
+    ownerApi = await getOwnerApi()
   })
 
   test('the program detail shows a Created control segment', async ({ page }) => {

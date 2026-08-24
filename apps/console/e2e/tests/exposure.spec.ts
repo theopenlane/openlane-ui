@@ -1,8 +1,8 @@
 import { test, expect } from '../fixtures/auth'
 
-import { RUN_ID } from '../utils/constants'
+import { uniqueName } from '../utils/unique'
 
-const riskName = (slug: string) => `E2E Risk ${slug} ${RUN_ID} ${Date.now().toString(36)}`
+const riskName = (slug: string) => uniqueName(`E2E Risk ${slug}`)
 
 // Each exposure subroute uses the same PageHeading pattern (heading
 // rendered as <h2> by @repo/ui/page-heading). One smoke test per

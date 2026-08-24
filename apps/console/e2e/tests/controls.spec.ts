@@ -2,9 +2,9 @@ import { test, expect } from '../fixtures/auth'
 import { test as freshTest } from '@playwright/test'
 import { seedLoggedInUser } from '../utils/seedUser'
 
-import { RUN_ID } from '../utils/constants'
+import { uniqueRef } from '../utils/unique'
 
-const refCodeFor = (slug: string) => `E2E-${slug}-${RUN_ID}-${Date.now().toString(36)}`
+const refCodeFor = (slug: string) => uniqueRef(`E2E-${slug}`)
 
 test.describe('controls — create + view', () => {
   test('required validation — submitting without a Ref Code stays on create-control and shows the inline error', async ({ page }) => {
@@ -132,7 +132,9 @@ test.describe('controls — create + view', () => {
     const statusTrigger = page.getByTestId('control-status-trigger')
     await expect(statusTrigger).toContainText(/^Not Implemented$/)
 
-    const statusSelect = page.getByRole('combobox')
+    // Scoped testid, not getByRole('combobox') — the detail page also renders
+    // rows-per-page selects in the linked-controls tables (strict-mode clash).
+    const statusSelect = page.getByTestId('control-status-select')
     await expect(async () => {
       await statusTrigger.dblclick()
       await expect(statusSelect).toBeVisible({ timeout: 2_000 })

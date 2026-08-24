@@ -12,11 +12,12 @@ test.describe('notifications — page render', () => {
   test('/notifications renders the All / Unread filter toggle', async ({ page }) => {
     await page.goto('/notifications')
 
-    // Two unbadged segmented-control buttons in the header — "All" and
-    // "Unread". (A topic filter also exposes an "All" button, so scope to the
-    // first — the header segmented-control toggle.)
+    // Two segmented-control buttons in the header — "All" and "Unread". The
+    // Unread button carries an unread-count badge inside it, so its accessible
+    // name is "Unread <n>" whenever the org has unread notifications. (A topic
+    // filter also exposes an "All" button, so scope to the first.)
     await expect(page.getByRole('button', { name: /^All$/ }).first()).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('button', { name: /^Unread$/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /^Unread/ })).toBeVisible()
   })
 
   test('/notifications renders the Filters panel with topic options', async ({ page }) => {

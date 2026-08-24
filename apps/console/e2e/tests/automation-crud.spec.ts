@@ -1,7 +1,8 @@
 import type { Page } from '@playwright/test'
-import { test, expect, readManifest } from '../fixtures/auth'
+import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createCampaign, createQuestionnaire, createTemplate, type ApiSession } from '../utils/api'
+import { createCampaign, createQuestionnaire, createTemplate, type ApiSession, getOwnerApi } from '../utils/api'
+import { uniqueName } from '../utils/unique'
 
 /**
  * Deep automation flows beyond automation-other.spec.ts (subroute renders +
@@ -12,12 +13,10 @@ import { loginViaApi, createCampaign, createQuestionnaire, createTemplate, type 
  */
 
 let ownerApi: ApiSession
-let counter = 0
-const uniqueCampaignName = () => `E2E Campaign ${RUN_ID} ${Date.now().toString(36)}-${counter++}`
+const uniqueCampaignName = () => uniqueName('E2E Campaign')
 
 test.beforeAll(async () => {
-  const { ownerEmail, password } = readManifest()
-  ownerApi = await loginViaApi(ownerEmail, password)
+  ownerApi = await getOwnerApi()
 })
 
 test.describe('automation — campaigns list tooling', () => {
@@ -35,7 +34,7 @@ test.describe('automation — campaigns list tooling', () => {
     await expect(page.getByRole('button', { name: /^Create Campaign$/ })).toBeVisible({ timeout: 20_000 })
 
     // table-config.ts getCampaignFilterFields → Name / Status / Type / Due Date.
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText('Status', { exact: true }).first()).toBeVisible({ timeout: 10_000 })
   })
 
@@ -354,17 +353,11 @@ test.describe('automation — questionnaire send dialog (viewer)', () => {
 
 test.describe('automation — campaign detail inline edits (seeded)', () => {
   /**
-   * campaign-detail-page.tsx renders editable property fields (name TextField,
-   * Status/Type SelectFields, Due Date DateField) that persist on
-   * blur/selection via handleUpdateField → updateCampaign → "Campaign updated"
-   * toast. Each edit is exercised on its own freshly-seeded DRAFT campaign so
-   * the flows are independent and additive.
+   * campaign-detail-page.tsx still renders the campaign name as an inline
+   * TextField that persists on blur via handleUpdateField → updateCampaign →
+   * "Campaign updated" toast. Each edit runs against its own freshly-seeded
+   * DRAFT campaign so the flows are independent and additive.
    */
-  const properties = (page: Page) =>
-    page
-      .locator('div')
-      .filter({ has: page.getByRole('heading', { name: 'Properties' }) })
-      .last()
 
   test('editing the campaign name inline persists and surfaces the updated toast', async ({ page }) => {
     test.slow()
@@ -389,37 +382,11 @@ test.describe('automation — campaign detail inline edits (seeded)', () => {
     await expect(page.getByText('Campaign updated').first()).toBeVisible({ timeout: 15_000 })
   })
 
-  test('editing the campaign Status dropdown persists and surfaces the updated toast', async ({ page }) => {
-    test.slow()
-    const id = await createCampaign(ownerApi, uniqueCampaignName())
-
-    await page.goto(`/automation/campaigns/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    const props = properties(page)
-    // A fresh campaign is DRAFT; clicking the Status value swaps the div for a
-    // Radix Select trigger (combobox). Opening it surfaces the options portal.
-    await expect(props.getByText('Draft').first()).toBeVisible({ timeout: 45_000 })
-    await props.getByText('Draft').first().click()
-    await props.getByRole('combobox').click()
-
-    await page.getByRole('option', { name: 'Scheduled' }).click()
-    await expect(page.getByText('Campaign updated').first()).toBeVisible({ timeout: 15_000 })
-  })
-
-  test('editing the campaign Type dropdown persists and surfaces the updated toast', async ({ page }) => {
-    test.slow()
-    const id = await createCampaign(ownerApi, uniqueCampaignName())
-
-    await page.goto(`/automation/campaigns/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    const props = properties(page)
-    // A fresh campaign defaults to a Questionnaire type; click it, open the
-    // combobox, and switch to Custom to drive the persist path.
-    await expect(props.getByText('Questionnaire').first()).toBeVisible({ timeout: 45_000 })
-    await props.getByText('Questionnaire').first().click()
-    await props.getByRole('combobox').click()
-
-    await page.getByRole('option', { name: 'Custom' }).click()
-    await expect(page.getByText('Campaign updated').first()).toBeVisible({ timeout: 15_000 })
-  })
+  // The campaign detail redesign made the Properties panel read-only: Status
+  // moved to a header badge and Type renders as plain text (campaign-detail-page.tsx
+  // sidebarContent). The inline Status/Type dropdown edits they covered no longer
+  // exist, so those two tests were removed rather than retargeted at a weaker
+  // render-only assertion. Status transitions are covered by the Launch specs.
 
   test('a draft campaign with no content or recipients cannot be launched', async ({ page }) => {
     test.slow()
@@ -459,7 +426,7 @@ test.describe('automation — questionnaires list tooling (seeded)', () => {
     await expect(page.getByRole('tab', { name: 'Questionnaires' })).toBeVisible({ timeout: 20_000 })
 
     // getQuestionnaireFilterFields → Tags / Type / Template / Due Date / Updated At / Created At.
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText('Type', { exact: true }).first()).toBeVisible({ timeout: 10_000 })
   })
 
@@ -545,7 +512,7 @@ test.describe('automation — questionnaire templates list', () => {
   test('the templates filter panel exposes Environment and Scope fields', async ({ page }) => {
     await gotoTemplates(page)
     // useTemplateFilters → Environment / Scope / System Owned / Updated At / Created At.
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText('Environment', { exact: true }).first()).toBeVisible({ timeout: 10_000 })
     await expect(page.getByText('Scope', { exact: true }).first()).toBeVisible()
   })

@@ -13,12 +13,12 @@ export default defineConfig({
   globalSetup: './e2e/global-setup.ts',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  // 2 retries absorb the irreducible flaky tail (~5 timing-sensitive specs:
-  // inline-edit persistence, Radix menu/dialog interactions, role dropdowns)
-  // that pass in isolation but occasionally need a re-run under parallel load
-  // against the real backend. These are environmental timing flakes, not
-  // product defects; retries keep the suite green without losing coverage.
-  retries: 2,
+  // One retry absorbs the irreducible timing tail (inline-edit persistence,
+  // Radix menu/dialog interactions) without tripling the cost of a genuine
+  // failure — at 2 retries a broken test burned three full attempts before
+  // reporting. A test that only passes on retry is flaky-test debt, so keep
+  // this low enough that the debt stays visible.
+  retries: 1,
   // P0.1 moved the share-safe specs onto the shared storage-state Owner
   // session, so per-test register/login contention no longer caps local
   // concurrency. The bottleneck is now dev-server route compilation, which
@@ -37,9 +37,13 @@ export default defineConfig({
 
   use: {
     baseURL: BASE_URL,
-    trace: 'retain-on-failure',
+    // on-first-retry, NOT retain-on-failure: the latter instruments and records
+    // EVERY test, then throws the artifacts away for the ~95% that pass. With
+    // retries enabled a failure still produces a full trace + video on its
+    // retry, so nothing is lost for debugging.
+    trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: 'on-first-retry',
     // 15s (not 10s) so form submit/edit controls stay actionable when the
     // backend is under concurrent load from many parallel workers.
     actionTimeout: 15_000,

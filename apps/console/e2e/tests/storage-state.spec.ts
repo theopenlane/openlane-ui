@@ -1,4 +1,4 @@
-import { test, expect, authFile, type Role } from '../fixtures/auth'
+import { test, expect, type Role } from '../fixtures/auth'
 
 /**
  * Verifies the storage-state auth layer from global-setup. If this fails, every
@@ -34,7 +34,7 @@ test.describe('storage state — owner', () => {
 // role-specific permission behaviour is asserted in the feature specs.
 for (const role of ['admin', 'member', 'readonly'] as Role[]) {
   test.describe(`storage state — ${role}`, () => {
-    test.use({ storageState: authFile(role) })
+    test.use({ authProfile: role })
 
     test('reaches /dashboard in the shared org without logging in', async ({ page }) => {
       await page.goto('/dashboard')

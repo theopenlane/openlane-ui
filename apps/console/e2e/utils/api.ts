@@ -1,3 +1,7 @@
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import { API_BASE, PASSWORD, RUN_ID } from './constants'
 
 /**
@@ -158,6 +162,9 @@ export const createContact = (sess: ApiSession, fullName: string): Promise<strin
 export const createCampaign = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createCampaign', 'CreateCampaignInput', 'campaign', { name })
 
 /** Create a registry platform (only `name` required). */
+/** Create a system detail (only `systemName` required). */
+export const createSystemDetail = (sess: ApiSession, systemName: string): Promise<string> => seedEntity(sess, 'createSystemDetail', 'CreateSystemDetailInput', 'systemDetail', { systemName })
+
 export const createPlatform = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createPlatform', 'CreatePlatformInput', 'platform', { name })
 
 /** Minimal SurveyJS definition for a seeded questionnaire template. */
@@ -218,6 +225,26 @@ export const linkProcedureControl = async (sess: ApiSession, procedureId: string
   if (!res.data?.updateProcedure?.procedure?.id) throw new Error(`linkProcedureControl failed: ${JSON.stringify(res.errors)}`)
 }
 
+/**
+ * The shared Owner's API session, logged in once per worker process.
+ *
+ * Every CRUD spec opens a `test.beforeAll` to get this session, but under
+ * `fullyParallel` a beforeAll runs once per worker GROUP, not once per file —
+ * so a full run was re-issuing the same login dozens of times for a token that
+ * never differs. Memoising on the module (one instance per worker process)
+ * collapses that to one login per worker.
+ */
+let ownerApiPromise: Promise<ApiSession> | null = null
+
+export const getOwnerApi = (): Promise<ApiSession> => {
+  if (!ownerApiPromise) {
+    const manifestPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '.auth', 'manifest.json')
+    const { ownerEmail, password } = JSON.parse(readFileSync(manifestPath, 'utf-8')) as { ownerEmail: string; password: string }
+    ownerApiPromise = loginViaApi(ownerEmail, password)
+  }
+  return ownerApiPromise
+}
+
 /** Create a fresh non-personal organization owned by the caller. */
 export const createSharedOrg = async (sess: ApiSession, name: string): Promise<string> => {
   const res = await gql<{ createOrganization: { organization: { id: string } } }>(sess, `mutation($input: CreateOrganizationInput!){ createOrganization(input: $input){ organization { id } } }`, {
@@ -226,6 +253,30 @@ export const createSharedOrg = async (sess: ApiSession, name: string): Promise<s
   const id = res.data?.createOrganization?.organization?.id
   if (!id) throw new Error(`createSharedOrg failed: ${JSON.stringify(res.errors)}`)
   return id
+}
+
+/**
+ * Mark every onboarding suggested-task in the caller's org COMPLETED.
+ *
+ * dashboard-page.tsx swaps the setup checklist for the compliance overview only
+ * when useSetupChecklist reports isComplete (`completedCount === totalCount`).
+ * The shared org is created by walking the real onboarding wizard, which seeds
+ * five suggested tasks, so it always renders the checklist — leaving every
+ * compliance-overview spec to skip itself. Completing them once in global-setup
+ * makes that branch deterministic instead.
+ */
+export const completeOnboardingTasks = async (sess: ApiSession): Promise<number> => {
+  const res = await gql<{ tasks: { edges: Array<{ node: { id: string; status: string } }> } }>(
+    sess,
+    `query($where: TaskWhereInput){ tasks(where: $where, first: 100){ edges { node { id status } } } }`,
+    // SuggestedTaskSource.ONBOARDING — the wire value, not the TS key.
+    { where: { isSuggested: true, source: 'openlane_onboarding' } },
+  )
+  const pending = (res.data?.tasks?.edges ?? []).map((e) => e.node).filter((t) => t.status !== 'COMPLETED')
+  for (const task of pending) {
+    await gql(sess, `mutation($id: ID!, $input: UpdateTaskInput!){ updateTask(id: $id, input: $input){ task { id } } }`, { id: task.id, input: { status: 'COMPLETED' } })
+  }
+  return pending.length
 }
 
 export type SeedRole = 'ADMIN' | 'MEMBER' | 'AUDITOR'

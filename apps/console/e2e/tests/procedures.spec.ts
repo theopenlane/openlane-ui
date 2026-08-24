@@ -3,9 +3,10 @@ import { test as freshTest, type Locator, type Page } from '@playwright/test'
 import { seedLoggedInUser } from '../utils/seedUser'
 
 import { RUN_ID } from '../utils/constants'
+import { uniqueName } from '../utils/unique'
 
-const procedureName = (slug: string) => `E2E Procedure ${slug} ${RUN_ID} ${Date.now().toString(36)}`
-const policyName = (slug: string) => `E2E Policy ${slug} ${RUN_ID} ${Date.now().toString(36)}`
+const procedureName = (slug: string) => uniqueName(`E2E Procedure ${slug}`)
+const policyName = (slug: string) => uniqueName(`E2E Policy ${slug}`)
 
 const openAssociationDialog = async (page: Page) => {
   await page.getByRole('button', { name: /^add association objects$/i }).click()

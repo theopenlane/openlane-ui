@@ -1,13 +1,14 @@
 import { chromium, type BrowserContext, type FullConfig } from '@playwright/test'
-import { existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { BASE_URL, PASSWORD, RUN_ID, emailFor } from './utils/constants'
 import { registerAndVerify } from './utils/registerUser'
 import { loginViaForm } from './utils/login'
+import { saveStorageState } from './utils/session'
 import { completeOnboarding } from './utils/onboarding'
-import { loginViaApi, getSharedOrgs, getSelf, addOrgMember, memberSeesOrg, setDefaultOrg, createControl, type ApiSession, type SeedRole } from './utils/api'
+import { loginViaApi, getSharedOrgs, getSelf, addOrgMember, memberSeesOrg, setDefaultOrg, createControl, completeOnboardingTasks, type ApiSession, type SeedRole } from './utils/api'
 
 /**
  * Runs once per `playwright test` invocation. Seeds the Owner user, drives the
@@ -21,16 +22,7 @@ import { loginViaApi, getSharedOrgs, getSelf, addOrgMember, memberSeesOrg, setDe
 
 export const AUTH_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '.auth')
 
-const SAVED_SESSION_TTL_MS = 2 * 60 * 60 * 1000
-
-const saveAuthState = async (context: BrowserContext, role: string): Promise<void> => {
-  const state = await context.storageState()
-  const minExpiry = Math.floor((Date.now() + SAVED_SESSION_TTL_MS) / 1000)
-  for (const cookie of state.cookies) {
-    if (cookie.expires > 0 && cookie.expires < minExpiry) cookie.expires = minExpiry
-  }
-  writeFileSync(path.join(AUTH_DIR, `${role}.json`), JSON.stringify(state, null, 2))
-}
+const saveAuthState = (context: BrowserContext, role: string): Promise<void> => saveStorageState(context, path.join(AUTH_DIR, `${role}.json`))
 
 export interface AuthManifest {
   runId: string
@@ -97,19 +89,62 @@ const seedRoleUser = async ({ role, ownerApi, sharedOrgId }: SeedRoleArgs): Prom
   return email
 }
 
-// Reuse an existing .auth set if it's recent enough that the captured sessions
-// (refresh tokens live ~60 min) are still valid. Keeps the per-invocation cost
-// to a one-time ~40s seed instead of paying it every run. Force a re-seed with
-// E2E_RESEED=1 (e.g. after wiping the backend DB).
-const REUSE_WINDOW_MS = 30 * 60 * 1000
+// Every run seeds fresh sessions by default.
+//
+// The old behaviour reused .auth for 30 minutes on the strength of the
+// manifest's mtime alone, which is not evidence of anything: auth.ts's signOut
+// event POSTs /v1/logout and revokes the access + refresh tokens SERVER-SIDE.
+// All workers share one captured session, so a single test that trips the
+// session-expired modal revokes it for the whole run — and a stale .auth set
+// then poisons every subsequent run inside the reuse window too. Both failure
+// modes look like mass flakiness and cost hours to diagnose.
+//
+// A fresh seed costs ~40s against a full-suite runtime of several minutes, so
+// paying it every time is the right default. Opt into reuse with
+// E2E_REUSE_AUTH=1 for tight iteration on a single spec; that path proves the
+// session actually works rather than trusting a timestamp.
 const ROLE_FILES = ['owner', 'admin', 'member', 'readonly']
 
-const canReuseAuth = (): boolean => {
-  if (process.env.E2E_RESEED) return false
-  const manifestPath = path.join(AUTH_DIR, 'manifest.json')
-  if (!existsSync(manifestPath)) return false
+/**
+ * Reaching /dashboard proves nothing on its own: middleware.ts decides you are
+ * logged in from the AuthJS session alone, so a REVOKED core session still
+ * renders the shell. The probe therefore requires real authenticated data back
+ * from core, and no session-expired modal.
+ */
+const capturedSessionWorks = async (): Promise<boolean> => {
+  const browser = await chromium.launch()
+  try {
+    for (const role of ROLE_FILES) {
+      const context = await browser.newContext({ baseURL: BASE_URL, storageState: path.join(AUTH_DIR, `${role}.json`) })
+      const page = await context.newPage()
+      await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 30_000 })
+      await page.waitForURL(/\/dashboard/, { timeout: 15_000 })
+
+      const authed = await page.evaluate(async () => {
+        const res = await fetch('/api/onboarding/questions')
+        return res.ok
+      })
+      const expired = await page
+        .getByText('Session expired')
+        .isVisible()
+        .catch(() => false)
+      await context.close()
+      if (!authed || expired) return false
+    }
+    return true
+  } catch {
+    return false
+  } finally {
+    await browser.close()
+  }
+}
+
+const canReuseAuth = async (): Promise<boolean> => {
+  if (process.env.E2E_REUSE_AUTH !== '1') return false
+  if (process.env.E2E_RESEED === '1') return false
+  if (!existsSync(path.join(AUTH_DIR, 'manifest.json'))) return false
   if (!ROLE_FILES.every((r) => existsSync(path.join(AUTH_DIR, `${r}.json`)))) return false
-  return Date.now() - statSync(manifestPath).mtimeMs < REUSE_WINDOW_MS
+  return capturedSessionWorks()
 }
 
 // Credentials seeded by harmonize (config/taskfiles/user-demo-all.example.yaml).
@@ -137,8 +172,8 @@ const captureDemoSession = async (): Promise<boolean> => {
 const globalSetup = async (_config: FullConfig): Promise<void> => {
   mkdirSync(AUTH_DIR, { recursive: true })
 
-  if (canReuseAuth()) {
-    console.log('[global-setup] reusing existing e2e/.auth (set E2E_RESEED=1 to force a fresh seed)')
+  if (await canReuseAuth()) {
+    console.log('[global-setup] E2E_REUSE_AUTH set and the captured session still works — reusing e2e/.auth')
     return
   }
 
@@ -173,11 +208,16 @@ const globalSetup = async (_config: FullConfig): Promise<void> => {
   await setDefaultOrg(ownerApi0, ownerSelf.settingId, shared.id)
   const ownerApi = await loginViaApi(ownerEmail)
 
-  // 4. Seed a control in the shared org for detail-page gating specs.
+  // 4. Clear the onboarding checklist so /dashboard renders the compliance
+  //    overview branch deterministically (see completeOnboardingTasks).
+  const completed = await completeOnboardingTasks(ownerApi)
+  console.log(`[global-setup] completed ${completed} onboarding checklist task(s)`)
+
+  // 5. Seed a control in the shared org for detail-page gating specs.
   const sharedControlRefCode = `E2E-CTRL-${RUN_ID}`
   const sharedControlId = await createControl(ownerApi, sharedControlRefCode)
 
-  // 5. Seed admin / member / readonly into the shared org and save their state.
+  // 6. Seed admin / member / readonly into the shared org and save their state.
   const roles = ['admin', 'member', 'readonly'] as const
   const roleEmails = {} as AuthManifest['roleEmails']
   for (const role of roles) {

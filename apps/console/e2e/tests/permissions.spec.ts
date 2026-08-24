@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 
-import { test, expect, authFile, readManifest, type Role } from '../fixtures/auth'
+import { test, expect, readManifest, type Role } from '../fixtures/auth'
 import { loginViaApi, createInternalPolicy, createProcedure, createRisk, createEvidence, createControl, createProgram } from '../utils/api'
 
 /**
@@ -30,7 +30,7 @@ const CANNOT_CREATE_CONTENT: Role[] = ['member', 'readonly']
 
 for (const role of CANNOT_CREATE_CONTENT) {
   test.describe(`permissions — ${role} cannot create content`, () => {
-    test.use({ storageState: authFile(role) })
+    test.use({ authProfile: role })
 
     for (const { area, url } of CONTENT_CREATE_PAGES) {
       test(`${role} is blocked from the ${area} create page`, async ({ page }) => {
@@ -46,7 +46,7 @@ for (const role of CANNOT_CREATE_CONTENT) {
 
 for (const role of CAN_CREATE_CONTENT) {
   test.describe(`permissions — ${role} can create content`, () => {
-    test.use({ storageState: authFile(role) })
+    test.use({ authProfile: role })
 
     for (const { area, url } of CONTENT_CREATE_PAGES) {
       test(`${role} sees the ${area} create form, not the protected page`, async ({ page }) => {
@@ -67,7 +67,7 @@ const evidenceHeading = (page: Page) => page.getByRole('heading', { name: /^Evid
 
 for (const role of ['owner', 'admin', 'readonly'] as Role[]) {
   test.describe(`permissions — ${role} can submit evidence`, () => {
-    test.use({ storageState: authFile(role) })
+    test.use({ authProfile: role })
 
     test(`${role} sees the Submit Evidence CTA on /evidence`, async ({ page }) => {
       await page.goto('/evidence', { waitUntil: 'domcontentloaded' })
@@ -78,7 +78,7 @@ for (const role of ['owner', 'admin', 'readonly'] as Role[]) {
 }
 
 test.describe('permissions — member cannot submit evidence', () => {
-  test.use({ storageState: authFile('member') })
+  test.use({ authProfile: 'member' })
 
   test('member does not see the Submit Evidence CTA on /evidence', async ({ page }) => {
     await page.goto('/evidence', { waitUntil: 'domcontentloaded' })
@@ -98,7 +98,7 @@ const membersHeading = (page: Page) => page.getByRole('heading', { name: /^Membe
 const memberActions = (page: Page) => page.getByTestId('member-actions-trigger')
 
 test.describe('permissions — owner can manage members', () => {
-  test.use({ storageState: authFile('owner') })
+  test.use({ authProfile: 'owner' })
 
   test('owner sees member row actions on /user-management/members', async ({ page }) => {
     await page.goto('/user-management/members', { waitUntil: 'domcontentloaded' })
@@ -109,7 +109,7 @@ test.describe('permissions — owner can manage members', () => {
 
 for (const role of ['member', 'readonly'] as Role[]) {
   test.describe(`permissions — ${role} cannot manage members`, () => {
-    test.use({ storageState: authFile(role) })
+    test.use({ authProfile: role })
 
     test(`${role} sees no member row actions on /user-management/members`, async ({ page }) => {
       await page.goto('/user-management/members', { waitUntil: 'domcontentloaded' })
@@ -130,7 +130,7 @@ const editControlButton = (page: Page) => page.getByRole('button', { name: 'Edit
 
 for (const role of ['member', 'readonly'] as Role[]) {
   test.describe(`permissions — ${role} has no Edit affordance on a control`, () => {
-    test.use({ storageState: authFile(role) })
+    test.use({ authProfile: role })
 
     test(`${role} sees no Edit button on the control detail`, async ({ page }) => {
       const { sharedControlId } = readManifest()
@@ -143,7 +143,7 @@ for (const role of ['member', 'readonly'] as Role[]) {
 }
 
 test.describe('permissions — owner can edit a control', () => {
-  test.use({ storageState: authFile('owner') })
+  test.use({ authProfile: 'owner' })
 
   test('owner sees the Edit button on the control detail', async ({ page }) => {
     const { sharedControlId } = readManifest()
@@ -158,7 +158,7 @@ test.describe('permissions — owner can edit a control', () => {
 const controlActionsMenu = (page: Page) => page.getByTestId('control-actions-menu')
 
 test.describe('permissions — owner can delete a control', () => {
-  test.use({ storageState: authFile('owner') })
+  test.use({ authProfile: 'owner' })
 
   test('owner can reach the Delete action via the control actions menu', async ({ page }) => {
     const { sharedControlId } = readManifest()
@@ -171,7 +171,7 @@ test.describe('permissions — owner can delete a control', () => {
 
 for (const role of ['member', 'readonly'] as Role[]) {
   test.describe(`permissions — ${role} has no Delete affordance on a control`, () => {
-    test.use({ storageState: authFile(role) })
+    test.use({ authProfile: role })
 
     test(`${role} sees no control actions menu`, async ({ page }) => {
       const { sharedControlId } = readManifest()
@@ -210,7 +210,7 @@ test.describe('permissions — detail edit/delete gating', () => {
 
   for (const { entity, menu, view } of DETAIL_GATES) {
     test.describe(`owner can edit/delete a ${entity}`, () => {
-      test.use({ storageState: authFile('owner') })
+      test.use({ authProfile: 'owner' })
 
       test(`owner sees the ${entity} actions menu`, async ({ page }) => {
         await page.goto(view(), { waitUntil: 'domcontentloaded' })
@@ -220,7 +220,7 @@ test.describe('permissions — detail edit/delete gating', () => {
 
     for (const role of ['member', 'readonly'] as Role[]) {
       test.describe(`${role} has no edit/delete affordance on a ${entity}`, () => {
-        test.use({ storageState: authFile(role) })
+        test.use({ authProfile: role })
 
         test(`${role} sees no ${entity} actions menu`, async ({ page }) => {
           await page.goto(view(), { waitUntil: 'domcontentloaded' })
@@ -242,23 +242,27 @@ test.describe('permissions — detail edit/delete gating', () => {
  * /controls/create-control gate above.
  */
 test.describe('permissions — standards control import (ISS-2413)', () => {
-  const gotoFirstStandard = async (page: Page): Promise<boolean> => {
+  // The catalog is backend-seeded and standards.spec.ts asserts against it, so a
+  // missing card is a failure, not a reason to skip. This used to call
+  // `isVisible()` — which does NOT auto-wait — on a page that had only just
+  // reached domcontentloaded, so it reported "no standards" on every cold load
+  // and silently skipped all four gating tests.
+  const gotoFirstStandard = async (page: Page): Promise<void> => {
     await page.goto('/standards', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     const first = page.locator('a[href^="standards/"]').first()
-    if (!(await first.isVisible().catch(() => false))) return false
+    await expect(first).toBeVisible({ timeout: 30_000 })
     const href = await first.getAttribute('href')
-    if (!href) return false
+    expect(href).toBeTruthy()
     await page.goto(`/${href}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    return true
   }
 
   for (const role of ['owner', 'admin'] as Role[]) {
     test.describe(`${role} can import controls from a standard`, () => {
-      test.use({ storageState: authFile(role) })
+      test.use({ authProfile: role })
 
       test(`${role} sees the Add Controls button`, async ({ page }) => {
         test.slow()
-        test.skip(!(await gotoFirstStandard(page)), 'no standards available in this org')
+        await gotoFirstStandard(page)
 
         await expect(page.getByRole('button', { name: /^Add Controls/ })).toBeVisible({ timeout: 30_000 })
       })
@@ -267,11 +271,11 @@ test.describe('permissions — standards control import (ISS-2413)', () => {
 
   for (const role of ['member', 'readonly'] as Role[]) {
     test.describe(`${role} cannot import controls from a standard`, () => {
-      test.use({ storageState: authFile(role) })
+      test.use({ authProfile: role })
 
       test(`${role} sees no Add Controls button`, async ({ page }) => {
         test.slow()
-        test.skip(!(await gotoFirstStandard(page)), 'no standards available in this org')
+        await gotoFirstStandard(page)
 
         // Wait for the authenticated shell so the absence is a real assertion
         // rather than a race against hydration.
@@ -304,7 +308,7 @@ const AUDITOR_HIDDEN_NAV = [
 
 test.describe('permissions — auditor sidebar (#1941)', () => {
   test.describe('auditor', () => {
-    test.use({ storageState: authFile('readonly') })
+    test.use({ authProfile: 'readonly' })
 
     test('auditor sees the Auditor Dashboard nav entry', async ({ page }) => {
       test.slow()
@@ -326,7 +330,7 @@ test.describe('permissions — auditor sidebar (#1941)', () => {
   })
 
   test.describe('owner', () => {
-    test.use({ storageState: authFile('owner') })
+    test.use({ authProfile: 'owner' })
 
     test('owner does NOT see the Auditor Dashboard nav entry', async ({ page }) => {
       test.slow()
@@ -360,7 +364,7 @@ test.describe('permissions — auditor sidebar (#1941)', () => {
  */
 test.describe('permissions — auditor can create reviews (#1941)', () => {
   test.describe('auditor', () => {
-    test.use({ storageState: authFile('readonly') })
+    test.use({ authProfile: 'readonly' })
 
     test('auditor sees the Create button on /exposure/reviews', async ({ page }) => {
       test.slow()
@@ -397,7 +401,7 @@ test.describe('permissions — auditor can edit evidence (ISS-2452)', () => {
   })
 
   test.describe('auditor', () => {
-    test.use({ storageState: authFile('readonly') })
+    test.use({ authProfile: 'readonly' })
 
     test('auditor sees the Edit evidence action in the detail sheet', async ({ page }) => {
       test.slow()
@@ -410,7 +414,7 @@ test.describe('permissions — auditor can edit evidence (ISS-2452)', () => {
   })
 
   test.describe('member', () => {
-    test.use({ storageState: authFile('member') })
+    test.use({ authProfile: 'member' })
 
     test('member sees no Edit evidence action', async ({ page }) => {
       test.slow()
@@ -451,7 +455,7 @@ test.describe('permissions — auditor evidence + review UI (ISS-2430/2431)', ()
   })
 
   test.describe('auditor', () => {
-    test.use({ storageState: authFile('readonly') })
+    test.use({ authProfile: 'readonly' })
 
     test('auditor sees the per-row Approve action on the evidence table', async ({ page }) => {
       test.slow()
@@ -477,7 +481,7 @@ test.describe('permissions — auditor evidence + review UI (ISS-2430/2431)', ()
   })
 
   test.describe('owner', () => {
-    test.use({ storageState: authFile('owner') })
+    test.use({ authProfile: 'owner' })
 
     test('owner sees no per-row Approve action on the evidence table', async ({ page }) => {
       test.slow()
@@ -510,7 +514,7 @@ test.describe('permissions — auditor evidence + review UI (ISS-2430/2431)', ()
  */
 test.describe('permissions — auditor dashboard content (ISS-2433)', () => {
   test.describe('auditor', () => {
-    test.use({ storageState: authFile('readonly') })
+    test.use({ authProfile: 'readonly' })
 
     test('the dashboard renders its audit stat cards', async ({ page }) => {
       test.slow()
@@ -567,7 +571,7 @@ test.describe('permissions — auditor dashboard export (ISS-2637)', () => {
   })
 
   test.describe('auditor', () => {
-    test.use({ storageState: authFile('readonly') })
+    test.use({ authProfile: 'readonly' })
 
     test('the controls table offers Export Controls alongside the evidence actions', async ({ page }) => {
       test.slow()
@@ -597,7 +601,7 @@ test.describe('permissions — auditor dashboard export (ISS-2637)', () => {
  */
 test.describe('permissions — member management affordances (ISS-2713)', () => {
   test.describe('owner', () => {
-    test.use({ storageState: authFile('owner') })
+    test.use({ authProfile: 'owner' })
 
     test('owner sees the invite affordance on the members page', async ({ page }) => {
       test.slow()
@@ -610,7 +614,7 @@ test.describe('permissions — member management affordances (ISS-2713)', () => 
 
   for (const role of ['member', 'readonly'] as Role[]) {
     test.describe(`${role}`, () => {
-      test.use({ storageState: authFile(role) })
+      test.use({ authProfile: role })
 
       test(`${role} sees no invite affordance`, async ({ page }) => {
         test.slow()

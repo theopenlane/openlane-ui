@@ -2,7 +2,7 @@ import type { Locator, Page } from '@playwright/test'
 
 import { test, expect, readManifest } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createGroup, getSelf, addOrgMember, memberSeesOrg, type ApiSession } from '../utils/api'
+import { loginViaApi, createGroup, getSelf, addOrgMember, memberSeesOrg, type ApiSession, getOwnerApi } from '../utils/api'
 import { registerAndVerify } from '../utils/registerUser'
 
 /**
@@ -24,8 +24,7 @@ let counter = 0
 const uniqueGroupName = () => `E2E GrpCRUD ${RUN_ID} ${Date.now().toString(36)}-${counter++}`
 
 test.beforeAll(async () => {
-  const { ownerEmail, password } = readManifest()
-  ownerApi = await loginViaApi(ownerEmail, password)
+  ownerApi = await getOwnerApi()
 })
 
 /**
@@ -162,7 +161,7 @@ test.describe('user-management — groups toolbar', () => {
     // groups-page.tsx renders TableFilter (trigger "Filter") with quickFilters.
     await page
       .getByRole('main')
-      .getByRole('button', { name: /^Filter/ })
+      .getByRole('button', { name: /^Filter( \d+)?$/ })
       .first()
       .click()
 

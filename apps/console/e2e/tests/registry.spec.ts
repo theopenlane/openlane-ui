@@ -2,9 +2,9 @@ import type { Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
 
-import { RUN_ID } from '../utils/constants'
+import { uniqueName } from '../utils/unique'
 
-const vendorName = (slug: string) => `E2E Vendor ${slug} ${RUN_ID} ${Date.now().toString(36)}`
+const vendorName = (slug: string) => uniqueName(`E2E Vendor ${slug}`)
 
 // Each registry subroute renders its name as an <h2> (PageHeading from
 // @repo/ui or a literal h2 in the platforms case). One smoke per
@@ -144,7 +144,7 @@ test.describe('registry — vendor list controls', () => {
     await page.goto('/registry/vendors', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await expect(page.getByRole('heading', { level: 2, name: /^Vendors$/ })).toBeVisible({ timeout: 20_000 })
 
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     // vendors/table/table-config.tsx getFilterFields → accordion triggers
     // labelled by the FilterField.label string.
     for (const label of ['Status', 'Scope', 'Source Type', 'Relationship State', 'Security Questionnaire Status']) {
@@ -255,6 +255,10 @@ test.describe('registry — vendor create Security step (ISS-2410)', () => {
     await dialog.getByRole('button', { name: /^create$/i }).click()
 
     await expect(dialog).toBeHidden({ timeout: 30_000 })
+
+    // The shared org's vendor list is paginated and concurrently appended to by
+    // other workers, so search the unique name instead of scanning page 1.
+    await page.getByPlaceholder(/^Search$/).fill(name)
     await expect(page.getByRole('cell').filter({ hasText: name }).first()).toBeVisible({ timeout: 15_000 })
   })
 })

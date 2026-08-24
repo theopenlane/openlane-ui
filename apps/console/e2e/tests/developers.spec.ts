@@ -372,7 +372,7 @@ test.describe('developers — API token filter panel', () => {
   test('Filter panel exposes Name and Expires At fields', async ({ page }) => {
     await page.goto('/developers/api-tokens')
 
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText('Name', { exact: true }).first()).toBeVisible({ timeout: 10_000 })
     await expect(page.getByText('Expires At', { exact: true }).first()).toBeVisible()
   })
@@ -385,7 +385,7 @@ test.describe('developers — API token filter panel', () => {
     await createApiTokenInList(page, tokenName)
     await expect(page.getByRole('main').getByRole('row').filter({ hasText: tokenName })).toBeVisible({ timeout: 15_000 })
 
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     // Expand the Name accordion section then type the token name.
     await page
       .getByRole('button', { name: /^Name$/ })
@@ -401,7 +401,7 @@ test.describe('developers — API token filter panel', () => {
     // the saved name filter (the Filter trigger gains an active-count badge once
     // a filter is applied, so match it by its leading "Filter" label).
     await deleteTokenRow(page, tokenName, /delete api token/i)
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await page.getByRole('button', { name: /^Reset filters$/ }).click()
     await page.keyboard.press('Escape')
   })

@@ -1,8 +1,9 @@
 import type { Page } from '@playwright/test'
 
-import { test, expect, readManifest } from '../fixtures/auth'
+import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createInternalPolicy, createControl, createProcedure, linkControlPolicy, gql, type ApiSession } from '../utils/api'
+import { createInternalPolicy, createControl, createProcedure, linkControlPolicy, gql, type ApiSession, getOwnerApi } from '../utils/api'
+import { uniqueName } from '../utils/unique'
 
 /**
  * Deep policies flows beyond policies.spec.ts (which covers create/search/inline
@@ -15,12 +16,10 @@ import { loginViaApi, createInternalPolicy, createControl, createProcedure, link
  */
 
 let ownerApi: ApiSession
-let counter = 0
-const uniquePolicyName = () => `E2E PolCRUD ${RUN_ID} ${Date.now().toString(36)}-${counter++}`
+const uniquePolicyName = () => uniqueName('E2E PolCRUD')
 
 test.beforeAll(async () => {
-  const { ownerEmail, password } = readManifest()
-  ownerApi = await loginViaApi(ownerEmail, password)
+  ownerApi = await getOwnerApi()
 })
 
 const openTableView = async (page: Page) => {
@@ -41,7 +40,7 @@ test.describe('policies — table tooling', () => {
   test('filter panel exposes a Status filter', async ({ page }) => {
     await openTableView(page)
 
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
   })
 

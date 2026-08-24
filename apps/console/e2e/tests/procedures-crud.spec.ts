@@ -1,6 +1,6 @@
-import { test, expect, readManifest } from '../fixtures/auth'
+import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createProcedure, createControl, linkProcedureControl, type ApiSession } from '../utils/api'
+import { createProcedure, createControl, linkProcedureControl, type ApiSession, getOwnerApi } from '../utils/api'
 
 /**
  * Deep procedures flows beyond procedures.spec.ts (create/search/inline edit/
@@ -16,8 +16,7 @@ let counter = 0
 const uniqueProcedureName = () => `E2E ProcCRUD ${RUN_ID} ${Date.now().toString(36)}-${counter++}`
 
 test.beforeAll(async () => {
-  const { ownerEmail, password } = readManifest()
-  ownerApi = await loginViaApi(ownerEmail, password)
+  ownerApi = await getOwnerApi()
 })
 
 test.describe('procedures — table tooling', () => {
@@ -34,7 +33,7 @@ test.describe('procedures — table tooling', () => {
     await expect(page.getByRole('heading', { level: 2, name: /^Procedures$/ })).toBeVisible({ timeout: 20_000 })
 
     // Shared TableFilter (useProceduresFilters) — mirrors policies-crud.
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
   })
 })

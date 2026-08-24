@@ -1,5 +1,7 @@
 import type { Page } from '@playwright/test'
+import { test as freshTest } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
+import { seedLoggedInUser } from '../utils/seedUser'
 
 /**
  * Logged in as the storage-state Owner (global-setup).
@@ -107,16 +109,17 @@ test.describe('dashboard — quick action navigation', () => {
  * filter to localStorage and navigates to a CLEAN url (no query params), so we
  * assert the destination path.
  *
- * The card only renders once the setup checklist is complete, so each test skips
- * itself when the dashboard is still showing "Finish Setup".
+ * The card only renders once the setup checklist is complete; global-setup
+ * completes the shared org's checklist so this branch is deterministic.
  */
 test.describe('dashboard — compliance overview metric navigation', () => {
-  const openOverview = async (page: Page): Promise<boolean> => {
+  // global-setup completes the shared org's onboarding checklist, so
+  // useSetupChecklist reports isComplete and dashboard-page.tsx renders the
+  // compliance overview. These tests used to skip themselves whenever the
+  // checklist branch showed instead, which meant they never ran at all.
+  const openOverview = async (page: Page): Promise<void> => {
     await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    const overview = page.getByRole('main').getByText('Compliance Overview', { exact: true })
-    const setup = page.getByRole('main').getByText('Finish Setup', { exact: true })
-    await expect(overview.or(setup).first()).toBeVisible({ timeout: 30_000 })
-    return overview.isVisible()
+    await expect(page.getByRole('main').getByText('Compliance Overview', { exact: true })).toBeVisible({ timeout: 30_000 })
   }
 
   const clickTile = async (page: Page, subtitle: string): Promise<void> => {
@@ -127,7 +130,7 @@ test.describe('dashboard — compliance overview metric navigation', () => {
 
   test('the "Controls / Not Implemented" tile navigates to /controls', async ({ page }) => {
     test.slow()
-    test.skip(!(await openOverview(page)), 'setup checklist still in progress — compliance overview not rendered')
+    await openOverview(page)
 
     await clickTile(page, 'Not Implemented')
     await expect(page).toHaveURL(/\/controls/, { timeout: 30_000 })
@@ -135,7 +138,7 @@ test.describe('dashboard — compliance overview metric navigation', () => {
 
   test('the "Evidence / Items Missing" tile navigates to /evidence', async ({ page }) => {
     test.slow()
-    test.skip(!(await openOverview(page)), 'setup checklist still in progress — compliance overview not rendered')
+    await openOverview(page)
 
     await clickTile(page, 'Items Missing')
     await expect(page).toHaveURL(/\/evidence/, { timeout: 30_000 })
@@ -143,7 +146,7 @@ test.describe('dashboard — compliance overview metric navigation', () => {
 
   test('the "Tasks / Overdue" tile navigates to /automation/tasks', async ({ page }) => {
     test.slow()
-    test.skip(!(await openOverview(page)), 'setup checklist still in progress — compliance overview not rendered')
+    await openOverview(page)
 
     await clickTile(page, 'Overdue')
     await expect(page).toHaveURL(/\/automation\/tasks/, { timeout: 30_000 })
@@ -151,7 +154,7 @@ test.describe('dashboard — compliance overview metric navigation', () => {
 
   test('the "Risks / Pending Review" tile navigates to /exposure/risks', async ({ page }) => {
     test.slow()
-    test.skip(!(await openOverview(page)), 'setup checklist still in progress — compliance overview not rendered')
+    await openOverview(page)
 
     await clickTile(page, 'Pending Review')
     await expect(page).toHaveURL(/\/exposure\/risks/, { timeout: 30_000 })
@@ -160,19 +163,28 @@ test.describe('dashboard — compliance overview metric navigation', () => {
 
 /**
  * The setup checklist branch (DashboardSetupChecklist.tsx) renders a progress
- * summary plus "View Docs" / "Contact Us" external help links. Skipped once the
- * org has finished onboarding and the compliance overview replaces it.
+ * summary plus "View Docs" / "Contact Us" external help links. Needs a fresh
+ * wizard-onboarded org, since the shared org's checklist is completed up front.
  */
-test.describe('dashboard — setup checklist branch', () => {
-  test('the checklist shows its progress summary and external help links', async ({ page }) => {
-    test.slow()
-    await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+freshTest.describe('dashboard — setup checklist branch', () => {
+  freshTest('the checklist shows its progress summary and external help links', async ({ page }) => {
+    freshTest.slow()
+    // Needs an org that still has pending onboarding tasks, which only the real
+    // wizard produces — the shared org's checklist is completed in global-setup.
+    await seedLoggedInUser(page, 'dash-checklist', { viaWizard: true })
 
     const main = page.getByRole('main')
     const setup = main.getByText('Finish Setup', { exact: true })
-    const overview = main.getByText('Compliance Overview', { exact: true })
-    await expect(setup.or(overview).first()).toBeVisible({ timeout: 30_000 })
-    test.skip(!(await setup.isVisible()), 'setup already complete — compliance overview rendered instead')
+
+    // Core generates the onboarding tasks asynchronously after the wizard
+    // submits, and the app only picks them up on an ORGANIZATION_READY
+    // notification or a refetch. Until they land, totalCount is 0, which
+    // useSetupChecklist reads as "complete" and renders the overview instead.
+    // Reload until the checklist branch appears rather than racing that window.
+    await expect(async () => {
+      await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+      await expect(setup).toBeVisible({ timeout: 10_000 })
+    }).toPass({ timeout: 120_000 })
 
     await expect(main.getByText(/^\d+ of \d+ completed$/)).toBeVisible()
     await expect(main.getByText('Complete these tasks to get the most out of Openlane')).toBeVisible()

@@ -4,6 +4,7 @@ import { test as freshTest } from '@playwright/test'
 import { seedLoggedInUser } from '../utils/seedUser'
 import { loginViaApi, createInternalPolicy } from '../utils/api'
 import { RUN_ID } from '../utils/constants'
+import { openCreateTaskDialog } from '../utils/tasks'
 
 test.describe('cross-cutting — auth redirects', () => {
   test('logged-in user visiting /login is bounced to /dashboard', async ({ page }) => {
@@ -73,13 +74,7 @@ test.describe('cross-cutting — dropdown dismissal', () => {
 
   test('Escape closes the create-task dialog (non-destructive)', async ({ page }) => {
     await page.goto('/automation/tasks')
-    await page
-      .getByRole('main')
-      .getByRole('button', { name: /^create$/i })
-      .click()
-
-    const dialog = page.getByRole('dialog')
-    await expect(dialog).toBeVisible({ timeout: 10_000 })
+    const dialog = await openCreateTaskDialog(page)
 
     await page.keyboard.press('Escape')
 
@@ -310,15 +305,18 @@ freshTest.describe('cross-cutting — fresh org', () => {
     await expect(page).toHaveURL(/\/login(\?|$)/)
   })
 
-  freshTest('opening the Notifications panel on a fresh org shows the empty-state copy', async ({ page }) => {
-    await seedLoggedInUser(page, 'cc-bell-empty')
+  freshTest('opening the Notifications panel on a fresh org surfaces the org-ready notification', async ({ page }) => {
+    await seedLoggedInUser(page, 'cc-bell-ready')
 
     await page.goto('/dashboard')
 
     await page.getByRole('button', { name: /^notifications$/i }).click()
 
-    // SystemNotification.tsx:84 — "No new notifications at the moment."
-    await expect(page.getByText(/No new notifications at the moment/i)).toBeVisible({ timeout: 10_000 })
+    // Completing onboarding emits an "Organization ready" notification, so a
+    // freshly-seeded org lands in the populated branch of SystemNotification.tsx,
+    // never the "No new notifications at the moment." empty state.
+    await expect(page.getByText('Organization ready').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('link', { name: /^View All$/ })).toBeVisible()
   })
 })
 

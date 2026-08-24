@@ -2,9 +2,10 @@ import { test, expect } from '../fixtures/auth'
 import { test as freshTest } from '@playwright/test'
 import { seedLoggedInUser } from '../utils/seedUser'
 
-import { RUN_ID } from '../utils/constants'
+import { openSubmitEvidenceSheet, saveEvidenceAsDraft } from '../utils/evidence'
+import { uniqueName } from '../utils/unique'
 
-const evidenceName = (slug: string) => `E2E Evidence ${slug} ${RUN_ID} ${Date.now().toString(36)}`
+const evidenceName = (slug: string) => uniqueName(`E2E Evidence ${slug}`)
 
 test.describe('evidence — list page', () => {
   test('/evidence renders the Evidence Center heading and Submit Evidence CTA for an owner', async ({ page }) => {
@@ -43,26 +44,34 @@ test.describe('evidence — list page', () => {
     await expect(dialog.getByText(/^Name must be at least 2 characters$/)).toBeVisible({ timeout: 10_000 })
   })
 
-  test('happy path — fill name only, submit for review, lands on /evidence?id=<id>', async ({ page }) => {
+  test('happy path — fill name only, save as draft, opens the detail slideout in place', async ({ page }) => {
     await page.goto('/evidence')
-    await page.getByRole('button', { name: /^submit evidence$/i }).click()
+    const dialog = await openSubmitEvidenceSheet(page)
 
-    const dialog = page.getByRole('dialog')
-    await expect(dialog).toBeVisible({ timeout: 10_000 })
-
-    // Name (zod min 2 chars) is the only required field — creationDate
-    // defaults to today via CalendarPopover, renewalDate defaults to
-    // +365d, no file is required. The Input is wired through
-    // react-hook-form's `{...field}` spread, so the DOM `name` attr is
-    // "name" and the FormLabel ("Evidence name") is not htmlFor-linked.
+    // Name (zod min 2 chars) is the only required field for a DRAFT —
+    // creationDate defaults to today via CalendarPopover, renewalDate defaults
+    // to +365d, no file is required. The Input is wired through react-hook-form's
+    // `{...field}` spread, so the DOM `name` attr is "name" and the FormLabel
+    // ("Evidence name") is not htmlFor-linked.
     const name = evidenceName('create')
     await dialog.locator('input[name="name"]').fill(name)
 
+    await saveEvidenceAsDraft(page, dialog)
+
+    await expect(page.getByRole('dialog').getByText(name).first()).toBeVisible({ timeout: 20_000 })
+  })
+
+  test('Submit for review is gated on linking at least one control', async ({ page }) => {
+    await page.goto('/evidence')
+    const dialog = await openSubmitEvidenceSheet(page)
+
+    await dialog.locator('input[name="name"]').fill(evidenceName('needs-control'))
     await dialog.getByRole('button', { name: /^submit for review$/i }).click()
 
-    // Default success path (no defaultSelectedObject) calls
-    // router.push(`/evidence?id=<id>`) — see evidence-create-sheet.tsx.
-    await page.waitForURL(/\/evidence\?id=/, { timeout: 30_000 })
+    // EVIDENCE_CREATE_MODE.requireLinkedControls → handleSubmit sets a manual
+    // controlIDs error and returns before createEvidence, so the sheet stays open.
+    await expect(dialog.getByText(/Link at least one control before submitting for review/i)).toBeVisible({ timeout: 10_000 })
+    await expect(dialog).toBeVisible()
   })
 
   test('search by name filters server-side — second evidence disappears when first name is typed', async ({ page }) => {
@@ -70,12 +79,9 @@ test.describe('evidence — list page', () => {
     const b = evidenceName('search-b')
     for (const name of [a, b]) {
       await page.goto('/evidence')
-      await page.getByRole('button', { name: /^submit evidence$/i }).click()
-      const dialog = page.getByRole('dialog')
-      await expect(dialog).toBeVisible({ timeout: 10_000 })
+      const dialog = await openSubmitEvidenceSheet(page)
       await dialog.locator('input[name="name"]').fill(name)
-      await dialog.getByRole('button', { name: /^submit for review$/i }).click()
-      await page.waitForURL(/\/evidence\?id=/, { timeout: 30_000 })
+      await saveEvidenceAsDraft(page, dialog)
     }
 
     await page.goto('/evidence')
@@ -92,18 +98,13 @@ test.describe('evidence — list page', () => {
 
   test('newly created evidence appears in the list on /evidence', async ({ page }) => {
     await page.goto('/evidence')
-    await page.getByRole('button', { name: /^submit evidence$/i }).click()
-
-    const dialog = page.getByRole('dialog')
-    await expect(dialog).toBeVisible({ timeout: 10_000 })
+    const dialog = await openSubmitEvidenceSheet(page)
 
     const name = evidenceName('listed')
     await dialog.locator('input[name="name"]').fill(name)
-    await dialog.getByRole('button', { name: /^submit for review$/i }).click()
+    await saveEvidenceAsDraft(page, dialog)
 
-    await page.waitForURL(/\/evidence\?id=/, { timeout: 30_000 })
-
-    // Drop the ?id query so the detail sheet doesn't cover the list,
+    // Reload so the auto-opened detail slideout doesn't cover the list,
     // then confirm the just-created name shows up. The Name column
     // renders the evidence name inside an EvidenceFileChip <p>.
     await page.goto('/evidence')

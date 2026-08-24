@@ -1,4 +1,4 @@
-import { test, expect, authFile, readManifest } from '../fixtures/auth'
+import { test, expect, readManifest } from '../fixtures/auth'
 
 /**
  * The org global-setup creates is deliberately empty, so its trust-center
@@ -85,7 +85,7 @@ test.describe('trust-center — content routes are gated (no in-app TrustCenter 
  * a real notification setting on the shared org.
  */
 test.describe('trust-center — subprocessor change notifications (#1948)', () => {
-  test.use({ storageState: authFile('demo') })
+  test.use({ authProfile: 'demo' })
 
   test('the subprocessors page offers the subscriber-notification switch', async ({ page }) => {
     test.slow()
@@ -107,7 +107,7 @@ test.describe('trust-center — subprocessor change notifications (#1948)', () =
  * Read-only: tabs are switched but no control is added or published.
  */
 test.describe('trust-center — recommended controls tab (ISS-1917)', () => {
-  test.use({ storageState: authFile('demo') })
+  test.use({ authProfile: 'demo' })
 
   test('the controls page offers all four filter tabs with counts', async ({ page }) => {
     test.slow()
@@ -139,7 +139,7 @@ test.describe('trust-center — recommended controls tab (ISS-1917)', () => {
  * integration identities), shown alongside the approved/signed date columns.
  */
 test.describe('trust-center — NDA requests table (#2058)', () => {
-  test.use({ storageState: authFile('demo') })
+  test.use({ authProfile: 'demo' })
 
   test('the NDA requests table exposes its column menu', async ({ page }) => {
     test.slow()

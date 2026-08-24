@@ -1,9 +1,9 @@
 import type { Page } from '@playwright/test'
 
-import { test, expect, readManifest } from '../fixtures/auth'
+import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
+import { uniqueRef } from '../utils/unique'
 import {
-  loginViaApi,
   createControl,
   createInternalPolicy,
   createProcedure,
@@ -13,6 +13,7 @@ import {
   linkControlProcedure,
   linkControlEvidence,
   type ApiSession,
+  getOwnerApi,
 } from '../utils/api'
 
 /**
@@ -25,12 +26,10 @@ import {
  */
 
 let ownerApi: ApiSession
-let counter = 0
-const uniqueRefCode = () => `E2E-CTLCRUD-${RUN_ID}-${Date.now().toString(36)}-${counter++}`
+const uniqueRefCode = () => uniqueRef('E2E-CTLCRUD')
 
 test.beforeAll(async () => {
-  const { ownerEmail, password } = readManifest()
-  ownerApi = await loginViaApi(ownerEmail, password)
+  ownerApi = await getOwnerApi()
 })
 
 const editControlButton = (page: Page) => page.getByRole('button', { name: 'Edit control' })
@@ -89,7 +88,9 @@ test.describe('controls — owner edit + delete (seeded)', () => {
     await expect(editControlButton(page)).toBeVisible({ timeout: 45_000 })
 
     const statusTrigger = page.getByTestId('control-status-trigger')
-    const statusSelect = page.getByRole('combobox')
+    // Scoped testid, not getByRole('combobox') — the detail page also renders
+    // rows-per-page selects in the linked-controls tables (strict-mode clash).
+    const statusSelect = page.getByTestId('control-status-select')
     await expect(async () => {
       await statusTrigger.dblclick()
       await expect(statusSelect).toBeVisible({ timeout: 2_000 })
@@ -189,17 +190,18 @@ test.describe('controls — detail tabs (seeded)', () => {
     await expect(editControlButton(page)).toBeVisible({ timeout: 45_000 })
 
     // control-tabs-list.tsx renders a Radix TabsTrigger (role=tab) per tab. The
-    // active tab is fully URL-controlled (tabs.tsx: onValueChange →
-    // router.replace(?tab=…) → re-render), so wait for the URL to commit before
-    // asserting the controlled aria-selected state flips.
+    // active tab is URL-controlled (tabs.tsx: onValueChange → router.replace),
+    // except that the fallback tab clears the param instead of setting it.
     const linked = page.getByRole('tab', { name: 'Linked Controls' })
     const evidence = page.getByRole('tab', { name: 'Evidence' })
     await expect(linked).toBeVisible({ timeout: 15_000 })
     await expect(evidence).toBeVisible()
 
     await linked.click()
-    await page.waitForURL(/[?&]tab=linked-controls/, { timeout: 15_000 })
     await expect(linked).toHaveAttribute('aria-selected', 'true', { timeout: 15_000 })
+    // tabs.tsx updateTabParam DELETES ?tab= for the fallback tab (implementation
+    // is hidden on a bare custom control, so Linked Controls is the fallback).
+    await expect.poll(() => new URL(page.url()).searchParams.get('tab'), { timeout: 15_000 }).toBeNull()
 
     await evidence.click()
     await page.waitForURL(/[?&]tab=evidence/, { timeout: 15_000 })
@@ -426,7 +428,7 @@ test.describe('controls — linked controls status filter (ISS-2418)', () => {
     await expect(page.getByRole('tab', { name: 'Linked Controls' })).toHaveAttribute('aria-selected', 'true', { timeout: 45_000 })
 
     await page
-      .getByRole('button', { name: /^Filter/ })
+      .getByRole('button', { name: /^Filter( \d+)?$/ })
       .first()
       .click()
     const statusMenu = page.getByRole('menu')
@@ -538,7 +540,7 @@ test.describe('controls — draft status (#1983)', () => {
     await expect(page.getByRole('tab', { name: 'Linked Controls' })).toHaveAttribute('aria-selected', 'true', { timeout: 45_000 })
 
     await page
-      .getByRole('button', { name: /^Filter/ })
+      .getByRole('button', { name: /^Filter( \d+)?$/ })
       .first()
       .click()
     const draftMenu = page.getByRole('menu')

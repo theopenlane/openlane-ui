@@ -1,8 +1,9 @@
 import { type Page } from '@playwright/test'
 
-import { test, expect, readManifest } from '../fixtures/auth'
+import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createProgram, createControl, gql, type ApiSession } from '../utils/api'
+import { createProgram, createControl, gql, type ApiSession, getOwnerApi } from '../utils/api'
+import { uniqueName, uniqueRef } from '../utils/unique'
 
 /**
  * Deep program flows beyond programs.spec.ts (wizard/template picker/create on
@@ -12,12 +13,10 @@ import { loginViaApi, createProgram, createControl, gql, type ApiSession } from 
  */
 
 let ownerApi: ApiSession
-let counter = 0
-const uniqueProgramName = () => `E2E ProgCRUD ${RUN_ID} ${Date.now().toString(36)}-${counter++}`
+const uniqueProgramName = () => uniqueName('E2E ProgCRUD')
 
 test.beforeAll(async () => {
-  const { ownerEmail, password } = readManifest()
-  ownerApi = await loginViaApi(ownerEmail, password)
+  ownerApi = await getOwnerApi()
 })
 
 test.describe('programs — list', () => {
@@ -601,7 +600,7 @@ test.describe('programs — settings groups + import (seeded)', () => {
     // Source program that actually owns a control + the destination program.
     const sourceName = uniqueProgramName()
     const sourceId = await createProgram(ownerApi, sourceName)
-    const controlId = await createControl(ownerApi, `E2E-IMP-${RUN_ID}-${counter++}`)
+    const controlId = await createControl(ownerApi, uniqueRef('E2E-IMP'))
     await linkControlProgram(controlId, sourceId)
 
     const destId = await createProgram(ownerApi, uniqueProgramName())

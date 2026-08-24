@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "test": "bun test src",
     "e2e": "playwright test",
+    "e2e:full": "bash e2e/run-prod-suite.sh",
     "e2e:sharded": "bash e2e/run-sharded.sh",
     "e2e:ui": "playwright test --ui",
     "e2e:headed": "playwright test --headed",

@@ -1,4 +1,4 @@
-import { test, expect, authFile, readManifest } from '../fixtures/auth'
+import { test, expect, readManifest } from '../fixtures/auth'
 
 /**
  * Coverage for routes added to the console after this branch was cut. Each is a
@@ -97,7 +97,7 @@ test.describe('programs — clone-a-program wizard', () => {
 
 test.describe('trust center — subscribers', () => {
   // The e2e org has no trust center; the harmonize-seeded demo org does.
-  test.use({ storageState: authFile('demo') })
+  test.use({ authProfile: 'demo' })
 
   test('/trust-center/subscribers renders the allow-subscribers panel and search', async ({ page }) => {
     test.slow()

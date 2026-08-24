@@ -1,6 +1,7 @@
-import { test, expect, readManifest } from '../fixtures/auth'
+import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createRisk, type ApiSession } from '../utils/api'
+import { createRisk, type ApiSession, getOwnerApi } from '../utils/api'
+import { uniqueName } from '../utils/unique'
 
 /**
  * Deep exposure/risk flows beyond exposure.spec.ts (create/search/validation on
@@ -13,12 +14,10 @@ import { loginViaApi, createRisk, type ApiSession } from '../utils/api'
  */
 
 let ownerApi: ApiSession
-let counter = 0
-const uniqueRiskName = () => `E2E RiskCRUD ${RUN_ID} ${Date.now().toString(36)}-${counter++}`
+const uniqueRiskName = () => uniqueName('E2E RiskCRUD')
 
 test.beforeAll(async () => {
-  const { ownerEmail, password } = readManifest()
-  ownerApi = await loginViaApi(ownerEmail, password)
+  ownerApi = await getOwnerApi()
 })
 
 test.describe('exposure — create risk validation', () => {
@@ -53,7 +52,7 @@ test.describe('exposure — risks', () => {
 
     // risks-table-toolbar.tsx → shared TableFilter; getRisksFilterFields has a
     // "Status" field (statusIn).
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
   })
 
@@ -184,7 +183,7 @@ test.describe('exposure — sub-page filters', () => {
       await page.goto(path, { waitUntil: 'domcontentloaded' })
       await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible({ timeout: 20_000 })
 
-      await page.getByRole('button', { name: /^Filter/ }).click()
+      await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
       await expect(page.getByText(field, { exact: true }).first()).toBeVisible({ timeout: 10_000 })
     })
   }
@@ -215,7 +214,7 @@ test.describe('exposure — scanner sub-pages (toolbar + create)', () => {
     // table-config.tsx getFilterFields → first field label is 'Security Level'.
     // The Filter button's accessible name includes an active-filter count badge
     // ("Filter 1") because DEFAULT_FILTER_VALUES = { open: true }, so match on prefix.
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText('Security Level', { exact: true }).first()).toBeVisible({ timeout: 10_000 })
   })
 
@@ -248,7 +247,7 @@ test.describe('exposure — scanner sub-pages (toolbar + create)', () => {
     await expect(page.getByRole('heading', { level: 2, name: /^Scans$/ })).toBeVisible({ timeout: 20_000 })
 
     // table-config.tsx getFilterFields → 'Scan Type' is a scans-specific field.
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText('Scan Type', { exact: true }).first()).toBeVisible({ timeout: 10_000 })
   })
 })
@@ -472,6 +471,10 @@ test.describe('exposure — risk detail inline edits (seeded)', () => {
     test.slow()
     const id = await createRisk(ownerApi, uniqueRiskName())
 
+    // quick-actions-bar.tsx measures the container and pushes whatever does not
+    // fit into a MoreHorizontal popover, so the default 1280px viewport hides
+    // "Create Task". Pin a width that fits all five owner actions inline.
+    await page.setViewportSize({ width: 1700, height: 900 })
     await page.goto(`/exposure/risks/${id}`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('button', { name: 'Edit risk' })).toBeVisible({ timeout: 45_000 })
 
@@ -702,7 +705,7 @@ test.describe('exposure — review status enum (ISS-2396)', () => {
     await page.goto('/exposure/reviews', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^Reviews$/ })).toBeVisible({ timeout: 20_000 })
 
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
 
     // TableFilter renders its fields inside a role=menu popover; the page also
     // has a "Status" column header, so the click must be scoped to the menu.
@@ -740,7 +743,7 @@ test.describe('exposure — vulnerability External ID filter (ISS-2465)', () => 
     await page.goto('/exposure/vulnerabilities', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^Vulnerabilities$/ })).toBeVisible({ timeout: 20_000 })
 
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText('External ID', { exact: true }).first()).toBeVisible({ timeout: 15_000 })
   })
 })

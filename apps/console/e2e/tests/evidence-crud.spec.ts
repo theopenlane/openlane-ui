@@ -1,9 +1,11 @@
 import type { Page } from '@playwright/test'
 
-import { test, expect, readManifest } from '../fixtures/auth'
+import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createEvidence, createControl, createProgram, linkControlEvidence, type ApiSession } from '../utils/api'
+import { createEvidence, createControl, createProgram, linkControlEvidence, type ApiSession, getOwnerApi } from '../utils/api'
 import { uploadFiles, SAMPLE_PDF, SAMPLE_DISALLOWED } from '../utils/files'
+import { saveEvidenceAsDraft } from '../utils/evidence'
+import { uniqueName } from '../utils/unique'
 
 /**
  * Deep evidence flows beyond evidence.spec.ts (create/search/validation on fresh
@@ -15,12 +17,10 @@ import { uploadFiles, SAMPLE_PDF, SAMPLE_DISALLOWED } from '../utils/files'
  */
 
 let ownerApi: ApiSession
-let counter = 0
-const uniqueEvidenceName = () => `E2E EvCRUD ${RUN_ID} ${Date.now().toString(36)}-${counter++}`
+const uniqueEvidenceName = () => uniqueName('E2E EvCRUD')
 
 test.beforeAll(async () => {
-  const { ownerEmail, password } = readManifest()
-  ownerApi = await loginViaApi(ownerEmail, password)
+  ownerApi = await getOwnerApi()
 })
 
 const openSubmitSheet = async (page: Page) => {
@@ -55,16 +55,16 @@ test.describe('evidence — file upload', () => {
     await expect(dialog.getByText(/sample\.exe/i)).toHaveCount(0)
   })
 
-  test('submitting evidence with a name + file lands on the detail view', async ({ page }) => {
+  test('saving evidence with a name + file opens the detail slideout in place', async ({ page }) => {
     const dialog = await openSubmitSheet(page)
     await expect(dialog).toBeVisible({ timeout: 15_000 })
 
     const name = uniqueEvidenceName()
     await dialog.locator('input[name="name"]').fill(name)
     await uploadFiles(page, SAMPLE_PDF, dialog.locator('input[type="file"]'))
-    await dialog.getByRole('button', { name: /^submit for review$/i }).click()
+    await saveEvidenceAsDraft(page, dialog)
 
-    await page.waitForURL(/\/evidence\?id=/, { timeout: 30_000 })
+    await expect(page.getByRole('dialog').getByText(name).first()).toBeVisible({ timeout: 20_000 })
   })
 })
 
@@ -122,7 +122,7 @@ test.describe('evidence — table tooling', () => {
     await expect(page.getByRole('heading', { name: 'Evidence Center', exact: true })).toBeVisible({ timeout: 20_000 })
 
     // Shared TableFilter; getEvidenceFilterableFields includes a "Status" field.
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
   })
 
@@ -243,7 +243,9 @@ test.describe('evidence — export', () => {
     await expect(page.getByRole('heading', { name: 'Evidence Center', exact: true })).toBeVisible({ timeout: 20_000 })
 
     // evidence-table-toolbar.tsx hosts Export inside the Ellipsis ("Action") Menu.
-    await page.getByRole('main').getByRole('button', { name: 'Action' }).click()
+    // exact: true — the evidence toolbar also renders a "Suggested actions"
+    // button, which a substring match on "Action" would collide with.
+    await page.getByRole('main').getByRole('button', { name: 'Action', exact: true }).click()
     await page.getByText('Export', { exact: true }).click()
 
     const dialog = page.getByRole('dialog')
@@ -343,9 +345,13 @@ test.describe('evidence — inline edit (seeded)', () => {
     // evidence-details-sheet.tsx: double-clicking the Description value swaps it
     // for an editable Textarea (id="description"); blurring commits via
     // handleUpdateField → "Evidence Updated" toast.
-    await sheet.getByText('no description provided').dblclick()
     const textarea = sheet.locator('#description')
-    await expect(textarea).toBeVisible({ timeout: 10_000 })
+    // The double-click can land before evidence-overview-section.tsx resolves
+    // editAllowed, which silently no-ops handleEdit — retry until edit mode sticks.
+    await expect(async () => {
+      await sheet.getByText('no description provided').dblclick()
+      await expect(textarea).toBeVisible({ timeout: 2_000 })
+    }).toPass({ timeout: 20_000 })
     await textarea.fill(`E2E inline ${RUN_ID} ${Date.now().toString(36)}`)
     await textarea.blur()
 

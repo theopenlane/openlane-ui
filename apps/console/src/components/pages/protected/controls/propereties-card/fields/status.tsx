@@ -111,7 +111,7 @@ export const Status = ({
                   field.onChange(val)
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger data-testid="control-status-select">
                   <SelectValue>{field.value === 'NULL' ? '-' : getEnumLabel(field.value as ControlControlStatus)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent ref={popoverRef}>

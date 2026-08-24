@@ -184,13 +184,13 @@ test.describe('organization-settings — general settings (owner)', () => {
 })
 
 test.describe('organization-settings — authentication (owner)', () => {
-  test('shows the Allowed Domains + SSO Configuration sections', async ({ page }) => {
+  test('shows the Allowed Domains + Single Sign-On sections', async ({ page }) => {
     await page.goto('/organization-settings/authentication', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^Authentication$/ })).toBeVisible({ timeout: 20_000 })
 
-    // allowed-domains.tsx PanelHeader + sso.tsx <h3>SSO Configuration</h3>.
+    // allowed-domains.tsx PanelHeader + sso.tsx <h3>Single Sign-On (SSO)</h3>.
     await expect(page.getByRole('heading', { name: 'Allowed domains' })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('heading', { name: 'SSO Configuration' }).first()).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Single Sign-On (SSO)' }).first()).toBeVisible()
   })
 
   test('an invalid allowed-domain shows a validation error (no mutation)', async ({ page }) => {
@@ -206,7 +206,7 @@ test.describe('organization-settings — authentication (owner)', () => {
 
   test('Configure/Edit SSO switches into the SSO edit form (no mutation)', async ({ page }) => {
     await page.goto('/organization-settings/authentication', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('heading', { name: 'SSO Configuration' }).first()).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByRole('heading', { name: 'Single Sign-On (SSO)' }).first()).toBeVisible({ timeout: 20_000 })
 
     // sso.tsx SSOOverview button reads "Configure SSO" (unconfigured) or
     // "Edit Configuration" (configured); both flip viewMode to the edit form
@@ -302,7 +302,7 @@ test.describe('organization-settings — subscribers (owner)', () => {
 
     // table-filter.tsx: a "Filter" DropdownMenu trigger reveals the configured
     // SUBSCRIBERS_FILTER_FIELDS (Email / Active / Verified). Read-only.
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     const menu = page.getByRole('menu')
     await expect(menu).toBeVisible({ timeout: 10_000 })
     await expect(menu.getByText('Email', { exact: true })).toBeVisible()
@@ -392,7 +392,7 @@ test.describe('organization-settings — general settings dialogs (owner)', () =
 test.describe('organization-settings — authentication SSO edit form (owner)', () => {
   test('SSO edit form: opening the Identity Provider select lists providers (no mutation)', async ({ page }) => {
     await page.goto('/organization-settings/authentication', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('heading', { name: 'SSO Configuration' }).first()).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByRole('heading', { name: 'Single Sign-On (SSO)' }).first()).toBeVisible({ timeout: 20_000 })
 
     await page.getByRole('button', { name: /^(Configure SSO|Edit Configuration)$/ }).click()
     await expect(page.getByText('Identity Provider', { exact: true })).toBeVisible({ timeout: 10_000 })
@@ -406,7 +406,7 @@ test.describe('organization-settings — authentication SSO edit form (owner)', 
 
   test('SSO edit form: the Client ID field accepts input (form-state only, no save)', async ({ page }) => {
     await page.goto('/organization-settings/authentication', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('heading', { name: 'SSO Configuration' }).first()).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByRole('heading', { name: 'Single Sign-On (SSO)' }).first()).toBeVisible({ timeout: 20_000 })
 
     await page.getByRole('button', { name: /^(Configure SSO|Edit Configuration)$/ }).click()
     await expect(page.getByText('Client ID', { exact: true })).toBeVisible({ timeout: 10_000 })

@@ -315,7 +315,7 @@ test.describe('user management — members table filter (shared org)', () => {
     // The trigger is a secondary Button reading "Filter" (table-filter.tsx).
     await page
       .getByRole('main')
-      .getByRole('button', { name: /^Filter/ })
+      .getByRole('button', { name: /^Filter( \d+)?$/ })
       .first()
       .click()
 
@@ -334,7 +334,7 @@ test.describe('user management — members table filter (shared org)', () => {
 
     await page
       .getByRole('main')
-      .getByRole('button', { name: /^Filter/ })
+      .getByRole('button', { name: /^Filter( \d+)?$/ })
       .first()
       .click()
 

@@ -10,9 +10,14 @@ End-to-end tests for the Openlane console app, using **Playwright**.
 
 `e2e/global-setup.ts` runs automatically and seeds four users into **one shared
 org**, saving each session to `e2e/.auth/<role>.json` plus a `manifest.json`
-(emails + shared org id). It's idempotent — a recent `.auth` set is reused
-instead of re-seeding every run (~40s once per ~30 min). Force a fresh seed with
-`E2E_RESEED=1` (e.g. after wiping the backend DB):
+(emails + shared org id). **Every run seeds fresh sessions** (~40s). Opt into
+reuse with `E2E_REUSE_AUTH=1`, which is only honoured after a probe proves the
+captured sessions still return authenticated data from core.
+
+On top of that, **each Playwright worker logs its own profiles in** rather than
+replaying the captured state. That matters because `auth.ts`'s signOut event
+POSTs `/v1/logout` and revokes tokens _server-side_: with one shared session, a
+single test tripping the session-expired modal killed every worker in the run.
 
 | Role     | Backend role | Storage state         |
 | -------- | ------------ | --------------------- |
@@ -102,7 +107,8 @@ Two prerequisites for either mode:
 All commands run from `apps/console`.
 
 ```bash
-bun run e2e                 # all tests, chromium
+bun run e2e:full            # RECOMMENDED for a full run — builds, serves, runs, tears down
+bun run e2e                 # all tests against whatever is already on :3001
 bun run e2e -- --grep auth  # filter by title
 bun run e2e tests/tasks.spec.ts          # one file
 bun run e2e -- --last-failed             # re-run only previous failures
@@ -128,8 +134,20 @@ start the dev server itself.)
 ### Mode B — production build (fast, recommended for full runs)
 
 A `next build` + `next start` server has **no compile tax and no memory
-degradation**, so a full run is ~6 min. Over HTTP `localhost` it needs two
-test-only env flags (both **default-off**, so production deploys are unaffected):
+degradation**, so a full run is a small fraction of Mode A's. `bun run e2e:full`
+(`e2e/run-prod-suite.sh`) does the whole dance for you — build, serve, run, tear
+down — and serves on **:3004** so it never fights a `next dev` already on :3001:
+
+```bash
+bun run e2e:full                             # everything
+E2E_SKIP_BUILD=1 bun run e2e:full            # reuse the last build
+bun run e2e:full tests/tasks.spec.ts         # pass through to playwright
+```
+
+> The build needs several GB of RAM and a few minutes.
+
+Doing it by hand is still fine. Over HTTP `localhost` it needs two test-only env
+flags (both **default-off**, so production deploys are unaffected):
 
 ```bash
 COOKIE_PLAYWRIGHT_INSECURE=true bun run build
@@ -152,19 +170,21 @@ bun run e2e
 
 ### Environment variables
 
-| Variable                         | Default                  | Purpose                                                                                                                                       |
-| -------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `COOKIE_PLAYWRIGHT_INSECURE`     | off                      | **Mode B only.** Dev-style insecure cookies so a prod build works over HTTP localhost.                                                        |
-| `AUTH_TRUST_HOST`                | off                      | **Mode B only.** Make Auth.js trust `localhost` in a prod build.                                                                              |
-| `E2E_WORKERS`                    | `8`                      | Local parallel worker count (CI is always 1). 16-core box handles ~12.                                                                        |
-| `E2E_RESEED`                     | off                      | Force `global-setup` to re-seed the shared org / storage state (e.g. after wiping the backend DB). Otherwise a recent `.auth/` set is reused. |
-| `E2E_RUN_ID`                     | timestamp                | Pin the per-run id so all users/emails in one invocation match.                                                                               |
-| `E2E_BASE_URL` / `E2E_PORT`      | `http://localhost:3001`  | Console URL / port under test.                                                                                                                |
-| `E2E_API_BASE`                   | `http://localhost:17608` | Backend (core) base URL.                                                                                                                      |
-| `E2E_EMAIL_DOMAIN`               | `e2e-${runId}.invalid`   | Per-run email domain for seeded users.                                                                                                        |
-| `PLAYWRIGHT_USE_WEBSERVER`       | off                      | Let Playwright start the dev server via `webServer` config (Mode A).                                                                          |
-| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | (from `.env`)            | If set, login gates on reCAPTCHA; the login helper shims it. Build-time inlined.                                                              |
-| `CI`                             | off                      | Forces `workers: 1`, `retries: 2`, `forbidOnly`.                                                                                              |
+| Variable                         | Default                  | Purpose                                                                                                                                                                                     |
+| -------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `COOKIE_PLAYWRIGHT_INSECURE`     | off                      | **Mode B only.** Dev-style insecure cookies so a prod build works over HTTP localhost.                                                                                                      |
+| `AUTH_TRUST_HOST`                | off                      | **Mode B only.** Make Auth.js trust `localhost` in a prod build.                                                                                                                            |
+| `E2E_WORKERS`                    | `8`                      | Local parallel worker count (CI is always 1). 16-core box handles ~12.                                                                                                                      |
+| `E2E_RESEED`                     | off                      | Legacy no-op alias — seeding is already fresh every run.                                                                                                                                    |
+| `E2E_REUSE_AUTH`                 | off                      | Set to `1` to reuse `.auth/` between runs for tight iteration. Honoured only if a probe proves the captured sessions still work.                                                            |
+| `E2E_RUN_ID`                     | timestamp                | Pin the per-run id so all users/emails in one invocation match.                                                                                                                             |
+| `E2E_BASE_URL` / `E2E_PORT`      | `http://localhost:3001`  | Console URL / port under test. `e2e:full` defaults `E2E_PORT` to `3004`. **Must be 3001 or 3004** — core's CORS `alloworigins` allows no other origin, and the browser calls core directly. |
+| `E2E_API_BASE`                   | `http://localhost:17608` | Backend (core) base URL.                                                                                                                                                                    |
+| `E2E_EMAIL_DOMAIN`               | `e2e-${runId}.invalid`   | Per-run email domain for seeded users.                                                                                                                                                      |
+| `E2E_SKIP_BUILD`                 | off                      | **`e2e:full` only.** Reuse the existing production build instead of rebuilding.                                                                                                             |
+| `PLAYWRIGHT_USE_WEBSERVER`       | off                      | Let Playwright start the dev server via `webServer` config (Mode A).                                                                                                                        |
+| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | (from `.env`)            | If set, login gates on reCAPTCHA; the login helper shims it. Build-time inlined.                                                                                                            |
+| `CI`                             | off                      | Forces `workers: 1`, `retries: 2`, `forbidOnly`.                                                                                                                                            |
 
 `E2E_SHARD_SIZE` and `E2E_RSS_LIMIT_MB` tune `bun run e2e:sharded` (see
 `run-sharded.sh`).

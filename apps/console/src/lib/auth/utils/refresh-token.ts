@@ -9,6 +9,17 @@ export interface Tokens {
 
 export type RefreshResult = { status: 'ok'; tokens: Tokens } | { status: 'rejected' } | { status: 'unavailable'; retryAfterMs: number }
 
+/**
+ * Only these mean "this refresh credential is dead".
+ *
+ * `rejected` is destructive: it ends in the session-expired modal, which signs
+ * out and revokes the tokens and server session. So it is an ALLOWLIST, not a
+ * list of retryable statuses — anything unrecognised (403 from a CSRF or policy
+ * failure, a 404/405 from a bad deploy, a proxy error) must stay recoverable
+ * rather than log a live user out.
+ */
+const REJECTED_REFRESH_STATUSES = new Set([400, 401])
+
 export const fetchNewAccessToken = async (refreshToken: string): Promise<RefreshResult> => {
   let response: Response
 
@@ -22,24 +33,24 @@ export const fetchNewAccessToken = async (refreshToken: string): Promise<Refresh
     return { status: 'unavailable', retryAfterMs: parseRetryAfter(null) }
   }
 
-  if (response.status === 429 || response.status >= 500) {
-    console.error(`Refresh endpoint unavailable. Status: ${response.status}`)
-    return { status: 'unavailable', retryAfterMs: parseRetryAfter(response.headers.get('retry-after')) }
-  }
-
   if (!response.ok) {
     console.error(`Failed to refresh access token. Status: ${response.status}`)
-    return { status: 'rejected' }
+
+    return REJECTED_REFRESH_STATUSES.has(response.status) ? { status: 'rejected' } : { status: 'unavailable', retryAfterMs: parseRetryAfter(response.headers.get('retry-after')) }
   }
 
   try {
-    const data = await response.json()
+    const data: { access_token?: string; refresh_token?: string } = await response.json()
 
-    if (!data?.access_token) {
-      return { status: 'rejected' }
+    // A 2xx with no access token is a malformed response, not proof the
+    // credential is dead — stay recoverable.
+    if (!data.access_token) {
+      return { status: 'unavailable', retryAfterMs: parseRetryAfter(response.headers.get('retry-after')) }
     }
 
-    return { status: 'ok', tokens: { accessToken: data.access_token, refreshToken: data.refresh_token } }
+    // Core does not necessarily rotate the refresh token; keep the one we sent
+    // rather than storing undefined.
+    return { status: 'ok', tokens: { accessToken: data.access_token, refreshToken: data.refresh_token || refreshToken } }
   } catch (error) {
     console.error('Refresh token response was not valid JSON:', error)
     return { status: 'unavailable', retryAfterMs: parseRetryAfter(null) }

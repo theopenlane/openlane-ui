@@ -1,17 +1,18 @@
-import { test, expect, readManifest } from '../fixtures/auth'
+import { test, expect } from '../fixtures/auth'
 import { test as freshTest } from '@playwright/test'
 import { seedLoggedInUser } from '../utils/seedUser'
 
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createTask, type ApiSession } from '../utils/api'
+import { createTask, type ApiSession, getOwnerApi } from '../utils/api'
+import { openCreateTaskDialog } from '../utils/tasks'
+import { uniqueName } from '../utils/unique'
 
-const taskTitle = (slug: string) => `E2E Task ${slug} ${RUN_ID} ${Date.now().toString(36)}`
+const taskTitle = (slug: string) => uniqueName(`E2E Task ${slug}`)
 
 let ownerApi: ApiSession
 
 test.beforeAll(async () => {
-  const { ownerEmail, password } = readManifest()
-  ownerApi = await loginViaApi(ownerEmail, password)
+  ownerApi = await getOwnerApi()
 })
 
 test.describe('tasks — list + create', () => {
@@ -23,13 +24,7 @@ test.describe('tasks — list + create', () => {
 
   test('required validation — submitting Create task with blank title shows the inline error', async ({ page }) => {
     await page.goto('/automation/tasks')
-    await page
-      .getByRole('main')
-      .getByRole('button', { name: /^create$/i })
-      .click()
-
-    const dialog = page.getByRole('dialog')
-    await expect(dialog).toBeVisible({ timeout: 10_000 })
+    const dialog = await openCreateTaskDialog(page)
 
     // Schema in tasks/hooks/use-form-schema.ts:
     // title.min(2, 'Title must be at least 2 characters'). Submitting
@@ -45,13 +40,7 @@ test.describe('tasks — list + create', () => {
     // Toolbar has a default-trigger "Create" button (CreateTaskDialog
     // without a custom trigger renders one). Scope to the dialog
     // trigger by also waiting for the dialog title that follows.
-    await page
-      .getByRole('main')
-      .getByRole('button', { name: /^create$/i })
-      .click()
-
-    const dialog = page.getByRole('dialog')
-    await expect(dialog).toBeVisible()
+    const dialog = await openCreateTaskDialog(page)
     await expect(dialog.getByText(/Create a new Task/i)).toBeVisible()
 
     const title = taskTitle('create')
@@ -72,12 +61,7 @@ test.describe('tasks — list + create', () => {
     const a = taskTitle('search-a')
     const b = taskTitle('search-b')
     for (const title of [a, b]) {
-      await page
-        .getByRole('main')
-        .getByRole('button', { name: /^create$/i })
-        .click()
-      const dialog = page.getByRole('dialog')
-      await expect(dialog).toBeVisible({ timeout: 10_000 })
+      const dialog = await openCreateTaskDialog(page)
       await dialog.getByLabel(/^Title$/).fill(title)
       await dialog.getByRole('button', { name: /^create task$/i }).click()
       await expect(dialog).toBeHidden({ timeout: 15_000 })
@@ -92,13 +76,13 @@ test.describe('tasks — list + create', () => {
     await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible()
   })
 
-  test('toggle to Card view via TableCardView — table no longer rendered', async ({ page }) => {
+  test('toggle to Board view via TableCardView — table no longer rendered', async ({ page }) => {
     await page.goto('/automation/tasks')
 
-    // TableCardView renders two clickable divs with aria-label "Table
-    // view" / "Card view". Click "Card view" → TasksPage swaps to
-    // <TaskInfiniteCards />, which has no <table> element.
-    await page.getByLabel(/^Card view$/).click()
+    // TableCardView renders two buttons with aria-label "Table view" / "<cardLabel>
+    // view"; task-table-toolbar.tsx passes cardLabel="Board". Click it → TasksPage
+    // swaps to <TaskInfiniteCards />, which has no <table> element.
+    await page.getByLabel(/^Board view$/).click()
 
     // After switch, the data-table grid no longer renders. tanstack-table
     // marks rows with role=row inside its table; a card-only view should
@@ -126,7 +110,7 @@ test.describe('tasks — list + create', () => {
     // task-table-toolbar.tsx renders the shared TableFilter once its async
     // filterFields (org members / programs / kinds) resolve; getTasksFilterFields
     // includes a "Status" field.
-    const filterButton = page.getByRole('button', { name: /^Filter/ })
+    const filterButton = page.getByRole('button', { name: /^Filter( \d+)?$/ })
     await expect(filterButton).toBeVisible({ timeout: 20_000 })
     await filterButton.click()
     await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
@@ -134,14 +118,10 @@ test.describe('tasks — list + create', () => {
 
   test('the full create-task dialog exposes the rich fields', async ({ page }) => {
     await page.goto('/automation/tasks')
-    await page
-      .getByRole('main')
-      .getByRole('button', { name: /^create$/i })
-      .click()
+    const dialog = await openCreateTaskDialog(page)
 
     // create-task-form.tsx FormLabels (beyond the required Title): Details,
     // Assign team member, Due date.
-    const dialog = page.getByRole('dialog')
     await expect(dialog.getByText('Create a new Task')).toBeVisible({ timeout: 10_000 })
     await expect(dialog.getByText('Title', { exact: true })).toBeVisible()
     await expect(dialog.getByText('Details', { exact: true })).toBeVisible()
@@ -152,12 +132,7 @@ test.describe('tasks — list + create', () => {
   test('bulk delete — selecting a task row, clicking Bulk Delete, confirming removes the row', async ({ page }) => {
     await page.goto('/automation/tasks')
 
-    await page
-      .getByRole('main')
-      .getByRole('button', { name: /^create$/i })
-      .click()
-    const dialog = page.getByRole('dialog')
-    await expect(dialog).toBeVisible({ timeout: 10_000 })
+    const dialog = await openCreateTaskDialog(page)
     const title = taskTitle('bulk-del')
     await dialog.getByLabel(/^Title$/).fill(title)
     await dialog.getByRole('button', { name: /^create task$/i }).click()
@@ -185,12 +160,7 @@ test.describe('tasks — list + create', () => {
   test('selecting a task row reveals the Bulk Edit dialog trigger', async ({ page }) => {
     await page.goto('/automation/tasks')
 
-    await page
-      .getByRole('main')
-      .getByRole('button', { name: /^create$/i })
-      .click()
-    const dialog = page.getByRole('dialog')
-    await expect(dialog).toBeVisible({ timeout: 10_000 })
+    const dialog = await openCreateTaskDialog(page)
     const title = taskTitle('bulk')
     await dialog.getByLabel(/^Title$/).fill(title)
     await dialog.getByRole('button', { name: /^create task$/i }).click()
@@ -222,12 +192,7 @@ test.describe('tasks — list + create', () => {
     const a = `E2E Task ${token}-a`
     const b = `E2E Task ${token}-b`
     for (const t of [a, b]) {
-      await page
-        .getByRole('main')
-        .getByRole('button', { name: /^create$/i })
-        .click()
-      const dialog = page.getByRole('dialog')
-      await expect(dialog).toBeVisible({ timeout: 10_000 })
+      const dialog = await openCreateTaskDialog(page)
       await dialog.getByLabel(/^Title$/).fill(t)
       await dialog.getByRole('button', { name: /^create task$/i }).click()
       await expect(dialog).toBeHidden({ timeout: 15_000 })
@@ -249,12 +214,7 @@ test.describe('tasks — list + create', () => {
   test('clicking a task row opens the details sheet with the task title visible', async ({ page }) => {
     await page.goto('/automation/tasks')
 
-    await page
-      .getByRole('main')
-      .getByRole('button', { name: /^create$/i })
-      .click()
-    const dialog = page.getByRole('dialog')
-    await expect(dialog).toBeVisible({ timeout: 10_000 })
+    const dialog = await openCreateTaskDialog(page)
 
     const title = taskTitle('detail')
     await dialog.getByLabel(/^Title$/).fill(title)
@@ -282,12 +242,7 @@ test.describe('tasks — list + create', () => {
   test('after create, the new task is visible in the table on /automation/tasks', async ({ page }) => {
     await page.goto('/automation/tasks')
 
-    await page
-      .getByRole('main')
-      .getByRole('button', { name: /^create$/i })
-      .click()
-    const dialog = page.getByRole('dialog')
-    await expect(dialog).toBeVisible({ timeout: 10_000 })
+    const dialog = await openCreateTaskDialog(page)
 
     const title = taskTitle('listed')
     await dialog.getByLabel(/^Title$/).fill(title)
@@ -337,7 +292,7 @@ test.describe('tasks — detail sheet (seeded)', () => {
     await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible({ timeout: 20_000 })
 
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     const completed = page.getByRole('button', { name: /^Completed$/ })
     await expect(completed).toBeVisible({ timeout: 10_000 })
 
@@ -419,7 +374,7 @@ test.describe('tasks — quick filters', () => {
       // resolve (org members/programs/kinds) — slow under parallel load. Toggle-
       // safe open: only click Filter if the quick button isn't already shown.
       await expect(async () => {
-        if (!(await quick.isVisible())) await page.getByRole('button', { name: /^Filter/ }).click()
+        if (!(await quick.isVisible())) await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
         await expect(quick).toBeVisible({ timeout: 3_000 })
       }).toPass({ timeout: 25_000 })
 
@@ -494,7 +449,7 @@ test.describe('tasks — status filter defaults (ISS-2454)', () => {
     await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible({ timeout: 30_000 })
 
-    await page.getByRole('button', { name: /^Filter/ }).click()
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
 
     // TableFilter renders its fields in a role=menu popover, with the Status
     // field already EXPANDED — clicking it would collapse the options rather
@@ -601,8 +556,11 @@ test.describe('tasks — card view is sticky (ISS-2715 / ISS-2776)', () => {
     // table-card-view.tsx renders the switch as two BUTTONS (not Radix tabs),
     // named by aria-label ("Board view" / "Table view"); the active one is
     // marked with the bg-btn-secondary class rather than aria-selected.
+    // task-table-toolbar.tsx renders TableCardView unconditionally, so the
+    // switch missing IS the regression this test exists to catch — assert it
+    // rather than skipping on it.
     const boardButton = page.getByRole('button', { name: 'Board view' })
-    test.skip(!(await boardButton.isVisible().catch(() => false)), 'card view switch not rendered on this page')
+    await expect(boardButton).toBeVisible({ timeout: 20_000 })
 
     await boardButton.click()
     await expect(boardButton).toHaveClass(/bg-btn-secondary/, { timeout: 15_000 })

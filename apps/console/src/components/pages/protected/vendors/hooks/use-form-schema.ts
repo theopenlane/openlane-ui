@@ -83,6 +83,7 @@ const useFormSchema = () => {
     form: useForm<EditVendorFormData>({
       resolver: zodResolver(formSchema),
       defaultValues: {
+        name: '',
         spendCurrency: 'USD',
         billingModel: 'Monthly',
       },
