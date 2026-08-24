@@ -15,7 +15,7 @@ import { useRef } from 'react'
 
 interface TextFieldProps<TUpdateInput> {
   name: string
-  label: React.ReactNode
+  label: string
   isEditing: boolean
   isEditAllowed: boolean
   isCreate?: boolean
