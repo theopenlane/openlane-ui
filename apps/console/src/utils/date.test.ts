@@ -1,4 +1,4 @@
-import { formatTimeSince, formatDateSince, formatDateTime, formatDate } from './date'
+import { formatTimeSince, formatDateSince, formatDateTime, formatDate, isPastDate, formatDateTimeWithZone, formatTimeZoneLabel, getBrowserTimeZone } from './date'
 
 describe('formatTimeSince', () => {
   beforeEach(() => {
@@ -145,5 +145,81 @@ describe('formatDate', () => {
   it('should handle undefined date input', () => {
     const result = formatDate(undefined)
     expect(result).toBe('-')
+  })
+})
+
+// ISS-2409 — the program landing page marks overdue audit periods with
+// isPastDate. Empty input must read as "not past" rather than falling through to
+// an Invalid Date comparison (which would be false anyway, but only by accident).
+describe('isPastDate', () => {
+  it('returns false for undefined, null and empty input', () => {
+    expect(isPastDate(undefined)).toBe(false)
+    expect(isPastDate(null)).toBe(false)
+    expect(isPastDate('')).toBe(false)
+  })
+
+  it('returns true for a date in the past', () => {
+    expect(isPastDate('2000-01-01T00:00:00.000Z')).toBe(true)
+  })
+
+  it('returns false for a date in the future', () => {
+    const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    expect(isPastDate(future)).toBe(false)
+  })
+
+  it('handles a date-only string', () => {
+    expect(isPastDate('1999-12-31')).toBe(true)
+  })
+})
+
+/**
+ * ISS-2657 — campaign launch scheduling gained a timezone selector, so scheduled
+ * times must be shown WITH their zone. A bare "March 3, 2026 9:00 AM" is
+ * ambiguous once a campaign can be scheduled from another zone.
+ */
+describe('formatDateTimeWithZone', () => {
+  it('falls back for empty input', () => {
+    expect(formatDateTimeWithZone(undefined)).toBe('-')
+    expect(formatDateTimeWithZone(null)).toBe('-')
+    expect(formatDateTimeWithZone('')).toBe('-')
+  })
+
+  it('honours a custom fallback', () => {
+    expect(formatDateTimeWithZone('', 'Not scheduled')).toBe('Not scheduled')
+  })
+
+  it('renders a date, a time and a parenthesised zone abbreviation', () => {
+    const formatted = formatDateTimeWithZone('2026-03-03T09:00:00.000Z')
+
+    expect(formatted).toMatch(/^[A-Z][a-z]+ \d{1,2}, \d{4} \d{1,2}:\d{2} (AM|PM)/)
+    expect(formatted).toMatch(/\([^)]+\)$/)
+  })
+
+  it('always includes a zone, unlike the plain formatter', () => {
+    const iso = '2026-03-03T09:00:00.000Z'
+
+    expect(formatDateTimeWithZone(iso)).not.toBe(formatDateTime(iso))
+  })
+})
+
+describe('formatTimeZoneLabel', () => {
+  const when = new Date('2026-03-03T09:00:00.000Z')
+
+  it('prefixes a GMT offset and humanises underscores', () => {
+    expect(formatTimeZoneLabel('America/New_York', when)).toMatch(/^\(GMT[+-]\d{2}:\d{2}\) America\/New York$/)
+  })
+
+  it('renders UTC with a zero offset', () => {
+    expect(formatTimeZoneLabel('UTC', when)).toBe('(GMT+00:00) UTC')
+  })
+
+  it('falls back to the bare zone name when the offset cannot be resolved', () => {
+    expect(formatTimeZoneLabel('Not/AZone', when)).toBe('Not/AZone')
+  })
+})
+
+describe('getBrowserTimeZone', () => {
+  it('returns a non-empty IANA zone name', () => {
+    expect(getBrowserTimeZone()).toMatch(/\S/)
   })
 })

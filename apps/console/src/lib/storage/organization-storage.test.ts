@@ -83,3 +83,77 @@ describe('organization storage legacy fallback', () => {
     expect(store.has(getOrganizationStorageKey(KEY))).toBe(false)
   })
 })
+
+/**
+ * The shipped cases cover key construction and the legacy-key retirement rules.
+ * These add the property the feature actually exists for — one org's stored
+ * state must never be visible to another — plus the throw-safe path, since
+ * localStorage access itself raises in private mode / blocked-cookie contexts.
+ */
+describe('cross-organization isolation', () => {
+  beforeEach(() => store.clear())
+
+  it('keeps values written under different organizations separate', () => {
+    setOrganizationStorageItem(KEY, 'controls-for-org-123', ORG_ID)
+    setOrganizationStorageItem(KEY, 'controls-for-org-456', OTHER_ORG_ID)
+
+    expect(getOrganizationStorageItem(KEY, ORG_ID)).toBe('controls-for-org-123')
+    expect(getOrganizationStorageItem(KEY, OTHER_ORG_ID)).toBe('controls-for-org-456')
+  })
+
+  it('does not leak a value into an organization that never wrote one', () => {
+    setOrganizationStorageItem(KEY, 'only-org-123', ORG_ID)
+
+    expect(getOrganizationStorageItem(KEY, OTHER_ORG_ID)).toBeNull()
+  })
+
+  it('removing one organization value leaves the other intact', () => {
+    setOrganizationStorageItem(KEY, 'a', ORG_ID)
+    setOrganizationStorageItem(KEY, 'b', OTHER_ORG_ID)
+
+    removeOrganizationStorageItem(KEY, ORG_ID)
+
+    expect(getOrganizationStorageItem(KEY, ORG_ID)).toBeNull()
+    expect(getOrganizationStorageItem(KEY, OTHER_ORG_ID)).toBe('b')
+  })
+
+  it('treats the unresolved organization as its own scope', () => {
+    // A render before the org id resolves must not read or clobber a real org's value.
+    setOrganizationStorageItem(KEY, 'resolved', ORG_ID)
+    setOrganizationStorageItem(KEY, 'unresolved', undefined)
+
+    expect(getOrganizationStorageItem(KEY, ORG_ID)).toBe('resolved')
+    expect(getOrganizationStorageItem(KEY, undefined)).toBe('unresolved')
+  })
+})
+
+describe('when localStorage itself throws', () => {
+  const workingLocalStorage = globals.localStorage
+
+  beforeEach(() => {
+    globals.localStorage = {
+      getItem: () => {
+        throw new Error('SecurityError')
+      },
+      setItem: () => {
+        throw new Error('SecurityError')
+      },
+      removeItem: () => {
+        throw new Error('SecurityError')
+      },
+    }
+  })
+
+  afterEach(() => {
+    globals.localStorage = workingLocalStorage
+  })
+
+  it('reads null instead of propagating', () => {
+    expect(getOrganizationStorageItem(KEY, ORG_ID)).toBeNull()
+  })
+
+  it('swallows write and remove failures', () => {
+    expect(() => setOrganizationStorageItem(KEY, 'x', ORG_ID)).not.toThrow()
+    expect(() => removeOrganizationStorageItem(KEY, ORG_ID)).not.toThrow()
+  })
+})
