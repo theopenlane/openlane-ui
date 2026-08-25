@@ -59,7 +59,7 @@ import { type Value } from 'platejs'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { docsHelpQuery } from '@/components/shared/docs-help/docs-help-query'
 import { useDocsHelpNavigate } from '@/components/shared/docs-help/docs-help-context'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import { BookText } from 'lucide-react'
 
 export default function CreateControlForm() {
@@ -366,7 +366,7 @@ export default function CreateControlForm() {
       <form onSubmit={(event) => handleSubmit(onSubmit)(event)} className="space-y-6">
         <div className="flex flex-wrap items-baseline gap-3">
           <div className="text-2xl font-semibold">{isCreateSubcontrol ? 'Create Subcontrol' : 'Create Control'}</div>
-          {docsHelpEnabled && (
+          {docsHelpAvailable && (
             <button
               type="button"
               onClick={() =>

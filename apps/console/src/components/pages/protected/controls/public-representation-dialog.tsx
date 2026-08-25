@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Button } from '@repo/ui/button'
 import { Globe, Loader2, Sparkles } from 'lucide-react'
 import { type Value } from 'platejs'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/control'
@@ -131,7 +131,7 @@ const PublicRepresentationDialog: React.FC<PublicRepresentationDialogProps> = ({
         <PlateEditor key={draft ?? 'initial'} variant="minimal" initialValue={value} onChange={setValue} containerClassName="min-h-[150px]" placeholder="Write the public wording for this control" />
 
         <DialogFooter className="justify-between">
-          {docsHelpEnabled && (
+          {docsHelpAvailable && (
             <Button
               type="button"
               variant="secondary"

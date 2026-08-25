@@ -23,7 +23,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { Label } from '@repo/ui/label'
 import { BookText } from 'lucide-react'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import { useDocsHelpNavigate } from '@/components/shared/docs-help/docs-help-context'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
@@ -193,7 +193,7 @@ const BasicInformation = () => {
             <Label className="block w-32 shrink-0">Type</Label>
             <div className="flex w-full flex-wrap items-center gap-3">
               <CustomTypeEnumValue value={program?.programKindName || ''} options={enumOptions ?? []} placeholder="-" />
-              {docsHelpEnabled && program?.programKindName === 'Gap Analysis' && (
+              {docsHelpAvailable && program?.programKindName === 'Gap Analysis' && (
                 <button
                   type="button"
                   onClick={() => navigateDocs({ title: 'Gap Analysis', query: 'gap analysis', prefer: 'gapanalysis' })}

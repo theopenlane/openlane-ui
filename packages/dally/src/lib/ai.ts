@@ -12,8 +12,12 @@ export const ragCorpusID = process.env.GOOGLE_RAG_CORPUS_ID || ''
 // different region than the suggestions corpus
 export const docsRagCorpusID = process.env.GOOGLE_DOCS_RAG_CORPUS_ID || ''
 export const docsAIRegion = process.env.GOOGLE_DOCS_AI_REGION || googleAIRegion
-// client-visible switch for the "need help" trigger
+export const docsHelpDemo = process.env.NEXT_PUBLIC_DOCS_HELP_DEMO === 'true' && process.env.NODE_ENV !== 'production'
+
 export const docsHelpEnabled = aiEnabled && process.env.NEXT_PUBLIC_DOCS_HELP_ENABLED === 'true'
+
+// client-visible switch for the "need help" trigger
+export const docsHelpAvailable = docsHelpEnabled || docsHelpDemo
 
 // this is used for non-tuned model ai such as from the editor, all chat and generated policies use the fine tuned model
 export const geminiModelName = process.env.GOOGLE_AI_MODEL_NAME || 'gemini-2.5-flash'

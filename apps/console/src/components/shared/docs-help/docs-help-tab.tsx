@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { BookText } from 'lucide-react'
 import { motion } from 'motion/react'
 import { InfoSlideOut } from '@repo/ui/info-slide-out'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import { DocsHelpContent } from './docs-help-content'
 import { docsHelpQuery } from './docs-help-query'
 import { useDocsHelpDrawer, useDocsHelpEphemeralTopic, useDocsHelpTopic, type DocsHelpTopic } from './docs-help-context'
@@ -137,7 +137,7 @@ export const DocsHelpTab = () => {
 
   const topic = useMemo(() => ephemeralTopic ?? override ?? topicForPath(pathname ?? '/'), [ephemeralTopic, override, pathname])
 
-  if (!docsHelpEnabled) return null
+  if (!docsHelpAvailable) return null
 
   return (
     <InfoSlideOut
