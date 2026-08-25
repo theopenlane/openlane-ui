@@ -1,6 +1,6 @@
 import { test, expect, readManifest } from '../fixtures/auth'
 import { uniqueName } from '../utils/unique'
-import { SAMPLE_PDF, uploadFiles } from '../utils/files'
+import { SAMPLE_PDF, SAMPLE_PNG, uploadFiles } from '../utils/files'
 import type { Locator, Page } from '@playwright/test'
 
 const requireDemoOrg = () => test.skip(!readManifest().hasDemoSession, 'no demo-org session — trust center is unprovisioned in the e2e org')
@@ -394,5 +394,98 @@ test.describe('trust-center — subprocessors (seeded demo org)', () => {
 
     await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByRole('menu', { name: 'Filter' }).getByRole('button', { name: 'Reset filters' })).toBeVisible({ timeout: 15_000 })
+  })
+})
+
+test.describe('trust-center — customer logos (seeded demo org)', () => {
+  test.use({ authProfile: 'demo' })
+
+  const addCustomer = async (page: Page, name: string) => {
+    await page.getByPlaceholder('Enter company name...').fill(name)
+    await uploadFiles(page, SAMPLE_PNG, page.locator('input[type="file"]').first())
+    await page.getByRole('button', { name: 'Add Customer' }).click()
+    await expect(toast(page, 'Customer added')).toBeVisible({ timeout: 60_000 })
+    await expect(page.getByRole('button', { name: `Delete ${name}` })).toBeVisible({ timeout: 30_000 })
+  }
+
+  const removeCustomer = async (page: Page, name: string) => {
+    await page.getByRole('button', { name: `Delete ${name}` }).click()
+    const dialog = page.getByRole('alertdialog')
+    await expect(dialog.getByText('Delete Customer')).toBeVisible({ timeout: 15_000 })
+    await dialog.getByRole('button', { name: /^Delete$/ }).click()
+    await expect(toast(page, 'Customer removed')).toBeVisible({ timeout: 30_000 })
+  }
+
+  test('a customer logo can be added and removed again', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/customer-logos')
+
+    const name = uniqueName('E2E Customer')
+    await addCustomer(page, name)
+    await removeCustomer(page, name)
+
+    await expect(page.getByRole('button', { name: `Delete ${name}` })).toBeHidden({ timeout: 30_000 })
+  })
+
+  test('adding a customer without a name surfaces the required-field error', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/customer-logos')
+
+    await expect(page.getByPlaceholder('Enter company name...')).toBeVisible({ timeout: 30_000 })
+    await page.getByRole('button', { name: 'Add Customer' }).click()
+
+    await expect(page.getByText('Customer name is required')).toBeVisible({ timeout: 15_000 })
+    await expect(toast(page, 'Customer added')).toBeHidden()
+  })
+
+  test('the customer link can be edited after the logo is added', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/customer-logos')
+
+    const name = uniqueName('E2E Customer Link')
+    await addCustomer(page, name)
+
+    await page.getByRole('button', { name: `Edit URL for ${name}` }).click()
+    await expect(page.getByText(`Edit ${name}`, { exact: true })).toBeVisible({ timeout: 15_000 })
+
+    await page.getByPlaceholder('https://example.com').last().fill('https://e2e.example.com')
+    await page.getByRole('button', { name: 'Save Changes' }).click()
+
+    await expect(toast(page, 'Customer updated')).toBeVisible({ timeout: 30_000 })
+
+    await removeCustomer(page, name)
+  })
+})
+
+test.describe('trust-center — branding (seeded demo org)', () => {
+  test.use({ authProfile: 'demo' })
+
+  test('the Published branding tab renders the settings read-only', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/branding')
+
+    const securityContact = page.getByPlaceholder('security@company.com')
+    await expect(securityContact).toBeVisible({ timeout: 30_000 })
+
+    await page.getByRole('tab', { name: 'Published' }).click()
+
+    await expect(securityContact).toBeHidden({ timeout: 15_000 })
+    await expect(page.getByRole('tab', { name: 'Published' })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  test('switching back to Preview restores the editable branding fields', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/branding')
+
+    await page.getByRole('tab', { name: 'Published' }).click()
+    await expect(page.getByPlaceholder('security@company.com')).toBeHidden({ timeout: 15_000 })
+
+    await page.getByRole('tab', { name: 'Preview' }).click()
+    await expect(page.getByPlaceholder('security@company.com')).toBeVisible({ timeout: 15_000 })
   })
 })
