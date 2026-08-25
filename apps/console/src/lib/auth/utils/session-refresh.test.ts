@@ -3,18 +3,10 @@ import { resetSessionProbe } from './session-health'
 import { clearTokens, setAuthoritativeTokens } from './session-tokens'
 
 /**
- * A 401 must never trigger a refresh that the backend is guaranteed to reject.
- *
  * Core issues refresh tokens with `nbf = accessTokenExp - 15m`, so for most of a
- * session's life /v1/refresh cannot succeed. The reactive 401 path used to call
- * it anyway; refresh-token.ts reads that predictable failure as `rejected`,
- * which raises session-expired, whose modal calls signOut(), whose NextAuth
- * event POSTs /v1/logout and REVOKES the tokens and session server-side. One
- * unrelated 401 could therefore destroy a valid session — and, when a session is
- * shared (as in the e2e suite), everyone else's too.
- *
- * recoverTokensAfterUnauthorized keeps the useful half of that path — adopting a
- * token another tab or request already obtained — and gates only the network
+ * session's life /v1/refresh cannot succeed and the old reactive 401 path read
+ * that predictable failure as a dead credential. recoverTokensAfterUnauthorized
+ * still adopts a token another tab already obtained, but gates the network
  * refresh on the token actually being due.
  */
 

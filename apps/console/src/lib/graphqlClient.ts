@@ -152,10 +152,9 @@ export const useFetchWithRetry = () => {
 
     let response = await makeRequest()
 
-    // Retry a 401 only when recovery actually produced a different access token.
-    // recoverTokensAfterUnauthorized reconciles newer tokens first and refuses to
-    // call /v1/refresh before the token is due, so an unrelated 401 no longer
-    // escalates into a session-destroying logout.
+    // Retry a 401 only when recovery produced a different access token.
+    // recoverTokensAfterUnauthorized refuses to call /v1/refresh before the
+    // token is due, so an unrelated 401 no longer escalates into a logout.
     if (response.status === 401 && !getIsSessionInvalid()) {
       const recovered = await recoverTokensAfterUnauthorized(current)
 

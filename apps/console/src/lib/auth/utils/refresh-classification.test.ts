@@ -3,13 +3,9 @@ import { probeSession, resetSessionProbe } from './session-health'
 
 /**
  * `rejected` and `signed-out` are destructive verdicts: they end at the
- * session-expired modal, which signs out and revokes the tokens and the server
- * session. Anything that is merely an infrastructure answer — a 403 from a CSRF
- * or policy failure, a 404/405 from a bad deploy, a proxy 5xx, a truncated body
- * — must stay `unavailable` so a live user is not logged out by a blip.
- *
- * So both classifiers are allowlists for the destructive outcome, and these
- * tests pin the allowlist rather than the (open-ended) recoverable set.
+ * session-expired modal, which revokes the tokens and the server session. Both
+ * classifiers are therefore allowlists, and these tests pin the allowlist
+ * rather than the open-ended recoverable set.
  */
 
 const globals = globalThis as unknown as { fetch: typeof fetch }

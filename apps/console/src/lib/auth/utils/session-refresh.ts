@@ -5,25 +5,18 @@ import { probeSession, SessionUnavailableError } from './session-health'
 import { notifySessionExpired } from './session-status'
 import { getKnownTokens, getTokenGeneration, setAuthoritativeTokens, type TokenState } from './session-tokens'
 
-// Web Locks key, not a duration. The lock namespace is per-origin and shared across tabs, so an
-// exclusive hold means five open tabs produce one /v1/refresh instead of five. The name is a
-// browser-global string, hence the openlane- prefix. Serializing is only half the job: the
-// generation check inside the lock is what makes queued waiters adopt the winner's tokens
-// instead of minting their own. Degrades to an unsynchronized run() where locks are unavailable.
+// Web Locks key, not a duration: the namespace is browser-global (hence the prefix) and shared
+// across tabs, so an exclusive hold means five open tabs produce one /v1/refresh. The generation
+// check inside the lock makes queued waiters adopt the winner's tokens instead of minting their
+// own; it degrades to an unsynchronized run() where locks are unavailable.
 const SESSION_REFRESH_LOCK = 'openlane-session-refresh'
 
 interface RefreshOptions {
   /**
-   * Only hit /v1/refresh when the current token has actually reached refreshAt.
-   *
-   * Core issues refresh tokens with `nbf = accessTokenExp + refreshoverlap`
-   * (-15m), so a refresh attempted earlier is rejected BY DESIGN. That is fine
-   * for the proactive path, which only fires at refreshAt. The reactive 401
-   * path has no such guarantee: a 401 raised for any non-token reason would
-   * trigger a doomed refresh, and refresh-token.ts classifies that rejection as
-   * `rejected` -> notifySessionExpired() -> the modal's signOut() -> POST
-   * /v1/logout, which revokes the tokens and deletes the session server-side.
-   * A single unrelated 401 could therefore destroy a perfectly good session.
+   * Core issues refresh tokens with `nbf = accessTokenExp - 15m`, so a refresh
+   * attempted earlier is rejected by design. The proactive path only fires at
+   * refreshAt; the reactive 401 path needs this gate, or an unrelated 401
+   * escalates into a logout that revokes the session server-side.
    */
   networkOnlyIfDue?: boolean
 }
@@ -113,9 +106,7 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
  * Recover from a 401 without ever refreshing before the token is due.
  *
  * Returns the token state to retry with, or null when nothing changed and the
- * caller should surface the 401 as-is. Reconciliation (adopting a newer token
- * another tab or request already obtained) always runs; only the network
- * refresh is gated.
+ * caller should surface the 401 as-is.
  */
 export const recoverTokensAfterUnauthorized = async (failedTokens: TokenState): Promise<TokenState | null> => {
   const known = getKnownTokens()

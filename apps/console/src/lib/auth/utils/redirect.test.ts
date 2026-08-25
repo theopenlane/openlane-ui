@@ -1,14 +1,10 @@
 import { buildLoginRedirect, sanitizeLoginRedirect } from './redirect'
 
 /**
- * #2193 — the login URL stopped carrying `?redirect=/` when the target is just
- * the root, since that param does nothing.
- *
- * The rest of this module is open-redirect protection, which had no coverage at
- * all. A post-login redirect is attacker-influenceable, so the refusals are the
+ * A post-login redirect is attacker-influenceable, so the refusals are the
  * security boundary: anything that is not a same-site absolute path must fall
- * back rather than be followed. `//evil.com` is the classic bypass — it is a
- * protocol-relative URL, not a path, despite starting with a slash.
+ * back rather than be followed. `//evil.com` is the classic bypass — a
+ * protocol-relative URL, not a path, despite the leading slash.
  */
 describe('sanitizeLoginRedirect — accepted targets', () => {
   test('keeps a same-site absolute path', () => {
@@ -66,7 +62,7 @@ describe('buildLoginRedirect', () => {
   })
 
   test('omits the param when the target is the root', () => {
-    // The point of this commit: ?redirect=/ carries no information.
+    // ?redirect=/ carries no information.
     expect(buildLoginRedirect('/')).toBe('/login')
   })
 

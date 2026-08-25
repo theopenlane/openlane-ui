@@ -1,14 +1,10 @@
 import { clearSsoTokenAuthorization, readSsoTokenAuthorization, setSsoTokenAuthorization } from './sso-token-storage'
 
 /**
- * ISS-2680 — authorizing an API token for SSO always redirected back to the
- * personal-access-tokens page, because the token TYPE was not round-tripped
- * across the SSO hop. It is now stashed in localStorage and read back on return.
- *
- * This is parsed from storage that survives a redirect, so it has to be
- * defensive: unparseable JSON, a missing or unrecognised tokenType, and a
- * throwing localStorage (private mode) all yield null rather than sending the
- * user to the wrong page or crashing the callback.
+ * The token type is not round-tripped across the SSO hop, so it is stashed in
+ * localStorage and read back on return. That storage survives a redirect and is
+ * not trustworthy, so unparseable JSON, a missing or unrecognised tokenType and
+ * a throwing localStorage all yield null.
  */
 
 const store = new Map<string, string>()

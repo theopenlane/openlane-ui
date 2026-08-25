@@ -34,13 +34,9 @@ const SessionExpiredModal = ({ open }: SessionExpiredModalProps) => {
       return
     }
 
-    // The modal is a terminal state: reaching it means the console cannot
-    // establish a renewable session, so the session is torn down server-side
-    // (auth.ts events.signOut -> POST /v1/logout) rather than only cleared
-    // locally. That is only safe because the paths that raise it are now
-    // narrow — refresh-token.ts and session-health.ts classify infrastructure
-    // failures as `unavailable`, so a transient 401/403/5xx can no longer end
-    // up here. The ref keeps a rerender from revoking twice.
+    // Reaching this modal is terminal: the session is torn down server-side
+    // (auth.ts events.signOut -> POST /v1/logout), not just cleared locally.
+    // The ref keeps a rerender from revoking twice.
     if (!automaticSignOutStartedRef.current) {
       automaticSignOutStartedRef.current = true
       markSessionExpired()

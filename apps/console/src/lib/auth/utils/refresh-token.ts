@@ -10,13 +10,9 @@ export interface Tokens {
 export type RefreshResult = { status: 'ok'; tokens: Tokens } | { status: 'rejected' } | { status: 'unavailable'; retryAfterMs: number }
 
 /**
- * Only these mean "this refresh credential is dead".
- *
- * `rejected` is destructive: it ends in the session-expired modal, which signs
- * out and revokes the tokens and server session. So it is an ALLOWLIST, not a
- * list of retryable statuses — anything unrecognised (403 from a CSRF or policy
- * failure, a 404/405 from a bad deploy, a proxy error) must stay recoverable
- * rather than log a live user out.
+ * `rejected` is destructive: it ends in the session-expired modal, which
+ * revokes the tokens and server session. So this is an allowlist — anything
+ * unrecognised stays recoverable rather than logging a live user out.
  */
 const REJECTED_REFRESH_STATUSES = new Set([400, 401])
 
