@@ -195,45 +195,6 @@ bun run e2e
 `E2E_SHARD_SIZE` and `E2E_RSS_LIMIT_MB` tune `bun run e2e:sharded` (see
 `run-sharded.sh`).
 
-## CI
-
-Two workflows cover this suite:
-
-| Workflow                               | Trigger                                 | What it does                                                                                                                                              |
-| -------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/workflows/console-checks.yml` | every pull request + push to `main`     | Console type-check, unit tests (`apps/console/src` + `packages`), E2E type-check, `playwright test --list`. No backend needed, fails in ~1 min.           |
-| `.github/workflows/console-e2e.yml`    | every pull request, `workflow_dispatch` | The full suite, **sharded across 4 parallel jobs**, each with its own `theopenlane/core` stack. A fifth job merges the blob reports into one HTML report. |
-
-`console-checks` fails fast: it catches broken specs (type errors, duplicate
-titles, unresolvable imports) in about a minute without any backend, so a typo
-never costs four full E2E shards.
-
-`console-e2e` runs the real suite on every PR. Design and tuning rationale lives
-in [`CI_SHARDING_PLAN.md`](CI_SHARDING_PLAN.md). Notes if you touch it:
-
-- **On CI the reporter is `blob`, not `html`.** Each shard emits a blob report;
-  the `merge-reports` job combines them into the HTML report and the GitHub
-  annotations. Do not "restore" the `github`/`html` reporters to the shard jobs
-  — that breaks the merge and leaves you with four partial reports.
-- **Every shard brings up its own core stack.** GitHub-hosted runners cannot
-  share a service between matrix jobs. That is why shards are data-isolated for
-  free, and why `next build` and the ~40s seed are paid four times.
-- Shard balance is even (181/181/181/180 of 723) because `fullyParallel` splits
-  at the test level. Turning it off would split by file and wreck that.
-- **Port 3001, not 3004.** `core/config/config-dev.example.yaml` lists only
-  `http://localhost:3001` under `server.cors.alloworigins`. The browser calls
-  core directly, so any other origin silently fails every GraphQL POST with no
-  error in either log. The local `.config.yaml` many of us run also allows 3004
-  — CI does not.
-- Core's runtime config is **not** committed in that repo; the workflow copies
-  `config/config-dev.example.yaml` to `config/.config.yaml`.
-
-Local commits never run E2E: the pre-commit hook type-checks `apps/console`
-(whose `tsconfig.json` excludes `e2e`) and runs `bun test apps/console/src
-packages`, which is path-scoped so Playwright `.spec.ts` files are never
-collected. E2E type errors are caught by `console-checks` in CI, or locally on
-demand with `bun run e2e:typecheck`.
-
 ## Test users
 
 Each test run creates a fresh set of users via the backend register-and-verify
