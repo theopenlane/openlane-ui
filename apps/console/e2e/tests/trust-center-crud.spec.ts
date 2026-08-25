@@ -74,7 +74,7 @@ test.describe('trust-center — updates content (seeded demo org)', () => {
     await deleteUpdate(page, title)
   })
 
-  test('publishing without a description is blocked and keeps the typed title', async ({ page }) => {
+  test('publishing without a description surfaces the required-field error', async ({ page }) => {
     test.slow()
     requireDemoOrg()
     await openTrustCenterPage(page, '/trust-center/updates')
@@ -83,8 +83,21 @@ test.describe('trust-center — updates content (seeded demo org)', () => {
     await page.getByPlaceholder('Add a title').fill(title)
     await page.getByRole('button', { name: 'Publish Update' }).click()
 
-    await expect(page.getByPlaceholder('Add a title')).toHaveValue(title, { timeout: 15_000 })
+    await expect(page.getByText('Update text is required')).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByPlaceholder('Add a title')).toHaveValue(title)
     await expect(page.getByText(title, { exact: true })).toBeHidden()
+  })
+
+  test('publishing without a title surfaces the required-field error', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/updates')
+
+    await page.getByPlaceholder('Write an update...').fill('A body with no title.')
+    await page.getByRole('button', { name: 'Publish Update' }).click()
+
+    await expect(page.getByText('Title is required')).toBeVisible({ timeout: 15_000 })
+    await expect(toast(page, 'Update published')).toBeHidden()
   })
 
   test('the character counter tracks the description length', async ({ page }) => {
