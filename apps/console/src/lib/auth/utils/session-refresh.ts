@@ -12,6 +12,22 @@ import { getKnownTokens, getTokenGeneration, setAuthoritativeTokens, type TokenS
 // instead of minting their own. Degrades to an unsynchronized run() where locks are unavailable.
 const SESSION_REFRESH_LOCK = 'openlane-session-refresh'
 
+interface RefreshOptions {
+  /**
+   * Only hit /v1/refresh when the current token has actually reached refreshAt.
+   *
+   * Core issues refresh tokens with `nbf = accessTokenExp + refreshoverlap`
+   * (-15m), so a refresh attempted earlier is rejected BY DESIGN. That is fine
+   * for the proactive path, which only fires at refreshAt. The reactive 401
+   * path has no such guarantee: a 401 raised for any non-token reason would
+   * trigger a doomed refresh, and refresh-token.ts classifies that rejection as
+   * `rejected` -> notifySessionExpired() -> the modal's signOut() -> POST
+   * /v1/logout, which revokes the tokens and deletes the session server-side.
+   * A single unrelated 401 could therefore destroy a perfectly good session.
+   */
+  networkOnlyIfDue?: boolean
+}
+
 type TokenPersister = (tokens: { accessToken: string; refreshToken: string }) => Promise<unknown>
 
 let persistTokens: TokenPersister | null = null
@@ -28,7 +44,7 @@ const withRefreshLock = async <T>(run: () => Promise<T>): Promise<T> => {
   return run()
 }
 
-export const refreshTokens = async (refreshToken: string): Promise<TokenState> => {
+export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = false }: RefreshOptions = {}): Promise<TokenState> => {
   const observedGeneration = getTokenGeneration()
 
   return withRefreshLock(async () => {
@@ -51,9 +67,21 @@ export const refreshTokens = async (refreshToken: string): Promise<TokenState> =
 
     const cookieAccessToken = probe.session.user?.accessToken
     const cookieRefreshToken = probe.session.user?.refreshToken
+    const known = getKnownTokens()
 
-    if (cookieAccessToken && cookieRefreshToken && cookieRefreshToken !== refreshToken) {
+    // Compare BOTH tokens: keying off the refresh token alone assumes every
+    // rotation replaces it, which is not guaranteed.
+    if (cookieAccessToken && cookieRefreshToken && (cookieAccessToken !== known?.accessToken || cookieRefreshToken !== known?.refreshToken)) {
       return setAuthoritativeTokens(cookieAccessToken, cookieRefreshToken)
+    }
+
+    // Re-read after reconciliation: a concurrent request may have installed a
+    // newer token while this one was in flight, and it is THAT token's timing
+    // that decides whether a refresh is legal.
+    const refreshCandidate = getKnownTokens()
+
+    if (networkOnlyIfDue && refreshCandidate && Date.now() < refreshCandidate.refreshAt) {
+      return refreshCandidate
     }
 
     const result = await fetchNewAccessToken(cookieRefreshToken ?? refreshToken)
@@ -79,4 +107,30 @@ export const refreshTokens = async (refreshToken: string): Promise<TokenState> =
 
     return adopted
   })
+}
+
+/**
+ * Recover from a 401 without ever refreshing before the token is due.
+ *
+ * Returns the token state to retry with, or null when nothing changed and the
+ * caller should surface the 401 as-is. Reconciliation (adopting a newer token
+ * another tab or request already obtained) always runs; only the network
+ * refresh is gated.
+ */
+export const recoverTokensAfterUnauthorized = async (failedTokens: TokenState): Promise<TokenState | null> => {
+  const known = getKnownTokens()
+
+  if (known && known.accessToken !== failedTokens.accessToken) {
+    return known
+  }
+
+  const refreshToken = known?.refreshToken || failedTokens.refreshToken
+
+  if (!refreshToken) {
+    return null
+  }
+
+  const recovered = await refreshTokens(refreshToken, { networkOnlyIfDue: true })
+
+  return recovered.accessToken === failedTokens.accessToken ? null : recovered
 }
