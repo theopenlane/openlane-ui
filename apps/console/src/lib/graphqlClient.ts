@@ -8,9 +8,9 @@ import { useSession } from 'next-auth/react'
 import { useCallback, useEffect, useRef } from 'react'
 import { fetchCSRFToken } from './auth/utils/secure-fetch'
 import { probeSession, SessionUnavailableError } from './auth/utils/session-health'
-import { refreshTokens, setTokenPersister } from './auth/utils/session-refresh'
+import { recoverTokensAfterUnauthorized, refreshTokens, setTokenPersister } from './auth/utils/session-refresh'
 import { getIsSessionInvalid, notifySessionExpired } from './auth/utils/session-status'
-import { getKnownTokens, getUsableTokens, observeSessionTokens, setAuthoritativeTokens, type TokenState } from './auth/utils/session-tokens'
+import { getUsableTokens, observeSessionTokens, setAuthoritativeTokens, type TokenState } from './auth/utils/session-tokens'
 
 export { getIsSessionInvalid, markSessionExpired } from './auth/utils/session-status'
 
@@ -152,12 +152,19 @@ export const useFetchWithRetry = () => {
 
     let response = await makeRequest()
 
-    const retryRefreshToken = getKnownTokens()?.refreshToken || refreshToken
+    // Retry a 401 only when recovery actually produced a different access token.
+    // recoverTokensAfterUnauthorized reconciles newer tokens first and refuses to
+    // call /v1/refresh before the token is due, so an unrelated 401 no longer
+    // escalates into a session-destroying logout.
+    if (response.status === 401 && !getIsSessionInvalid()) {
+      const recovered = await recoverTokensAfterUnauthorized(current)
 
-    if (response.status === 401 && retryRefreshToken && !getIsSessionInvalid()) {
-      const refreshed = await refreshTokens(retryRefreshToken)
-      headers.set('Authorization', `Bearer ${refreshed.accessToken}`)
-      response = await makeRequest()
+      // Re-check the latch: a concurrent expiry may have landed while recovery
+      // was in flight, and retrying then would be pointless.
+      if (recovered && !getIsSessionInvalid()) {
+        headers.set('Authorization', `Bearer ${recovered.accessToken}`)
+        response = await makeRequest()
+      }
     }
 
     return response
