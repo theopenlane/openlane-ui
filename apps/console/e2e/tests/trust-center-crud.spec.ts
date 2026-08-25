@@ -313,3 +313,86 @@ test.describe('trust-center — documents (seeded demo org)', () => {
     }
   })
 })
+
+test.describe('trust-center — subprocessors (seeded demo org)', () => {
+  test.use({ authProfile: 'demo' })
+
+  const openCreateMenu = async (page: Page) => {
+    await page.getByRole('button', { name: /^Create$/ }).click()
+    await expect(page.getByRole('menuitem', { name: 'Custom subprocessor' })).toBeVisible({ timeout: 15_000 })
+  }
+
+  test('the Create menu offers both adding an existing subprocessor and a custom one', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/subprocessors')
+
+    await openCreateMenu(page)
+    await expect(page.getByRole('menuitem', { name: 'Add subprocessor' })).toBeVisible()
+  })
+
+  test('the custom subprocessor sheet keeps Create disabled until a logo is supplied', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/subprocessors')
+
+    await openCreateMenu(page)
+    await page.getByRole('menuitem', { name: 'Custom subprocessor' }).click()
+
+    const sheet = page.getByRole('dialog')
+    await expect(sheet.getByText('Create Subprocessor', { exact: true })).toBeVisible({ timeout: 30_000 })
+
+    await sheet.getByPlaceholder('Subprocessor name').fill(uniqueName('E2E Subprocessor'))
+
+    const create = sheet.getByRole('button', { name: /^Create$/ })
+    await expect(create).toBeDisabled()
+
+    await sheet.getByText('Enter URL', { exact: true }).click()
+    await sheet.getByPlaceholder('https://example.com/logo.png').fill('https://example.com/logo.png')
+    await expect(create).toBeEnabled({ timeout: 15_000 })
+  })
+
+  test('a logo URL that is not a URL is rejected', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/subprocessors')
+
+    await openCreateMenu(page)
+    await page.getByRole('menuitem', { name: 'Custom subprocessor' }).click()
+
+    const sheet = page.getByRole('dialog')
+    await sheet.getByPlaceholder('Subprocessor name').fill(uniqueName('E2E Subprocessor Invalid'))
+    await sheet.getByText('Enter URL', { exact: true }).click()
+    await sheet.getByPlaceholder('https://example.com/logo.png').fill('not-a-url')
+    await sheet.getByRole('button', { name: /^Create$/ }).click()
+
+    await expect(page.getByText('Please enter a valid URL')).toBeVisible({ timeout: 15_000 })
+    await expect(toast(page, 'Subprocessor Created')).toBeHidden()
+  })
+
+  test('the Add to Trust Center dialog opens from the Create menu', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/subprocessors')
+
+    await openCreateMenu(page)
+    await page.getByRole('menuitem', { name: 'Add subprocessor' }).click()
+
+    await expect(page.getByRole('heading', { name: 'Add to Trust Center' })).toBeVisible({ timeout: 30_000 })
+  })
+
+  test('the subprocessors toolbar exposes search, columns and filters', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/subprocessors')
+
+    await expect(page.getByPlaceholder('Search subprocessors...')).toBeVisible({ timeout: 30_000 })
+
+    await page.getByRole('button', { name: /^Columns$/ }).click()
+    await expect(page.getByRole('checkbox').first()).toBeVisible({ timeout: 15_000 })
+    await page.keyboard.press('Escape')
+
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
+    await expect(page.getByRole('menu', { name: 'Filter' }).getByRole('button', { name: 'Reset filters' })).toBeVisible({ timeout: 15_000 })
+  })
+})
