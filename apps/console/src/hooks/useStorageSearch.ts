@@ -5,7 +5,7 @@ import { getOrganizationStorageItem, removeOrganizationStorageItem, setOrganizat
 
 export const STORAGE_SEARCH_KEY_PREFIX = 'table-search:'
 
-export const SEARCH_TERM_TTL_MS = 8 * 60 * 60 * 1000
+export const SEARCH_TERM_TTL_MS = 8 * 60 * 60 * 1000 // 8 hours
 
 type StoredSearchTerm = {
   value: string
