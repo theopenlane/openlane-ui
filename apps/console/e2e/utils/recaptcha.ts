@@ -36,5 +36,5 @@ export const installRecaptchaShim = async (page: Page): Promise<void> => {
   // Block Google's real reCAPTCHA bundle. If it loads it overwrites our
   // window.grecaptcha stub with the real invisible widget, whose .execute()
   // can hang — making login non-deterministic. Aborting these keeps our stub.
-  await page.route(/https:\/\/(www\.google\.com|www\.gstatic\.com)\/recaptcha\//, (route) => route.abort())
+  await page.route(/^https:\/\/(www\.google\.com|www\.gstatic\.com)\/recaptcha\//, (route) => route.abort())
 }
