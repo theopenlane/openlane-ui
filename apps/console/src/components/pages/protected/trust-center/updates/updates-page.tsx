@@ -242,12 +242,12 @@ export default function UpdatesSection() {
                             <p className="text-muted-foreground text-sm">{formatDate(post.updatedAt)}</p>
                             <div className="flex gap-3">
                               {canEditTc && (
-                                <button className="text-muted-foreground" onClick={() => startEditing(post.id, post.text, post.title ?? '')} disabled={!!editingPostId}>
+                                <button aria-label="Edit update" className="text-muted-foreground" onClick={() => startEditing(post.id, post.text, post.title ?? '')} disabled={!!editingPostId}>
                                   <Pencil size={16} />
                                 </button>
                               )}
                               {canEditTc && (
-                                <button className="text-muted-foreground " onClick={() => setPostToDelete(post.id)} disabled={!!editingPostId}>
+                                <button aria-label="Delete update" className="text-muted-foreground " onClick={() => setPostToDelete(post.id)} disabled={!!editingPostId}>
                                   <Trash2 size={16} />
                                 </button>
                               )}
