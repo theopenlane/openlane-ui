@@ -152,6 +152,7 @@ export default function UpdatesSection() {
                       <FormControl>
                         <Input placeholder="Add a title" className="bg-background" {...field} />
                       </FormControl>
+                      {createForm.formState.errors.title && <p className="text-red-500 text-sm">{createForm.formState.errors.title.message}</p>}
                     </FormItem>
                   )}
                 />
@@ -165,6 +166,7 @@ export default function UpdatesSection() {
                       <FormControl>
                         <Textarea placeholder="Write an update..." className="min-h-30 bg-background" {...field} />
                       </FormControl>
+                      {createForm.formState.errors.text && <p className="text-red-500 text-sm">{createForm.formState.errors.text.message}</p>}
                     </FormItem>
                   )}
                 />
@@ -221,8 +223,10 @@ export default function UpdatesSection() {
                         <div className="space-y-3">
                           <Label>Title</Label>
                           <Input autoFocus className="bg-background text-sm" {...editForm.register('title')} />
+                          {editForm.formState.errors.title && <p className="text-red-500 text-sm">{editForm.formState.errors.title.message}</p>}
                           <Label>Description</Label>
                           <Textarea autoFocus className="min-h-25 bg-background text-sm" {...editForm.register('text')} />
+                          {editForm.formState.errors.text && <p className="text-red-500 text-sm">{editForm.formState.errors.text.message}</p>}
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <Keyboard size={16} />
@@ -242,12 +246,12 @@ export default function UpdatesSection() {
                             <p className="text-muted-foreground text-sm">{formatDate(post.updatedAt)}</p>
                             <div className="flex gap-3">
                               {canEditTc && (
-                                <button className="text-muted-foreground" onClick={() => startEditing(post.id, post.text, post.title ?? '')} disabled={!!editingPostId}>
+                                <button aria-label="Edit update" className="text-muted-foreground" onClick={() => startEditing(post.id, post.text, post.title ?? '')} disabled={!!editingPostId}>
                                   <Pencil size={16} />
                                 </button>
                               )}
                               {canEditTc && (
-                                <button className="text-muted-foreground " onClick={() => setPostToDelete(post.id)} disabled={!!editingPostId}>
+                                <button aria-label="Delete update" className="text-muted-foreground " onClick={() => setPostToDelete(post.id)} disabled={!!editingPostId}>
                                   <Trash2 size={16} />
                                 </button>
                               )}

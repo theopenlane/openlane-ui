@@ -20,6 +20,7 @@ const ObjectsChip = ({ name, objectType, removable, onRemove, onClick }: TObject
       {removable && onRemove && (
         <button
           type="button"
+          data-testid="objects-chip-remove"
           aria-label={`Remove ${name}`}
           className="cursor-pointer ml-1 bg-transparent"
           onClick={(e) => {
