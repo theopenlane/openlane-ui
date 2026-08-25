@@ -1,0 +1,5 @@
+.test-results/
+playwright-report/
+.auth/
+blob-report/
+test-results.xml
