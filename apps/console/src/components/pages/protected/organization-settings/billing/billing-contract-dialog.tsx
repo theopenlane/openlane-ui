@@ -1,7 +1,7 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { type Libraries, useLoadScript } from '@react-google-maps/api'
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -14,15 +14,17 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const libraries: Libraries = ['places']
 
+const PREDICTION_DEBOUNCE_MS = 250
+
 const BillingContactDialog = () => {
   const queryClient = useQueryClient()
   const { currentOrgId } = useOrganization()
   const { data: setting } = useGetOrganizationSetting(currentOrgId)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const { successNotification, errorNotification } = useNotification()
+  const [open, setOpen] = useState(false)
   const [fullName, setFullName] = useState('')
-  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
-  const [placeService, setPlaceService] = useState<google.maps.places.AutocompleteService | null>(null)
+  const [predictions, setPredictions] = useState<google.maps.places.PlacePrediction[]>([])
   const [showPredictions, setShowPredictions] = useState<boolean>(false)
   const wrapperRef = useClickOutside(() => setShowPredictions(false))
   const { isLoaded } = useLoadScript({
@@ -39,55 +41,92 @@ const BillingContactDialog = () => {
   })
 
   const inputRef = useRef<HTMLInputElement | null>(null)
+  const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null)
+  const requestIdRef = useRef(0)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => {
-    if (isLoaded) {
-      setPlaceService(new google.maps.places.AutocompleteService())
-    }
-  }, [isLoaded])
+  const fetchSuggestions = useCallback(
+    async (input: string) => {
+      if (!isLoaded || !input.trim()) {
+        setPredictions([])
+        return
+      }
+
+      if (!sessionTokenRef.current) {
+        sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
+      }
+
+      const requestId = ++requestIdRef.current
+
+      try {
+        const { suggestions } = await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+          input,
+          includedPrimaryTypes: ['geocode'],
+          sessionToken: sessionTokenRef.current,
+        })
+
+        if (requestId !== requestIdRef.current) return
+
+        setPredictions(suggestions.map((suggestion) => suggestion.placePrediction).filter((prediction): prediction is google.maps.places.PlacePrediction => !!prediction))
+      } catch {
+        if (requestId === requestIdRef.current) {
+          setPredictions([])
+        }
+      }
+    },
+    [isLoaded],
+  )
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setShowPredictions(true)
-    if (!placeService) return
 
-    placeService.getPlacePredictions({ input: value, types: ['geocode'] }, (results) => {
-      setPredictions(results || [])
-    })
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
+    debounceRef.current = setTimeout(() => fetchSuggestions(value), PREDICTION_DEBOUNCE_MS)
   }
 
-  const handleSelectPrediction = (placeId: string, description: string) => {
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current)
+      }
+    }
+  }, [])
+
+  const handleSelectPrediction = async (prediction: google.maps.places.PlacePrediction) => {
     setPredictions([])
+    setShowPredictions(false)
 
-    const placesService = new google.maps.places.PlacesService(document.createElement('div'))
-    placesService.getDetails({ placeId }, (place) => {
-      if (!place || !place.address_components) return
+    try {
+      const place = prediction.toPlace()
+      await place.fetchFields({ fields: ['addressComponents'] })
 
-      const line1 = description.split(',')[0]
-      const line2 = ''
-      let city = ''
-      let state = ''
-      let postalCode = ''
-      let country = ''
+      const components = place.addressComponents ?? []
+      const component = (type: string, short = false) => {
+        const match = components.find((item) => item.types.includes(type))
+        return (short ? match?.shortText : match?.longText) ?? ''
+      }
 
-      place.address_components.forEach((component) => {
-        if (component.types.includes('locality')) {
-          city = component.long_name
-        }
-        if (component.types.includes('administrative_area_level_1')) {
-          state = component.short_name
-        }
-        if (component.types.includes('postal_code')) {
-          postalCode = component.long_name
-        }
-        if (component.types.includes('country')) {
-          country = component.long_name
-        }
+      const street = [component('street_number'), component('route')].filter(Boolean).join(' ')
+
+      setAddress({
+        line1: street || prediction.mainText?.text || prediction.text.text,
+        line2: '',
+        city: component('locality') || component('postal_town') || component('sublocality_level_1'),
+        state: component('administrative_area_level_1', true),
+        postalCode: component('postal_code'),
+        country: component('country'),
       })
-
-      setAddress({ line1, line2, city, state, postalCode, country })
-      setShowPredictions(false)
-    })
+    } catch {
+      errorNotification({
+        title: 'Error',
+        description: 'Could not load the details for the selected address, please fill it in manually.',
+      })
+    } finally {
+      sessionTokenRef.current = null
+    }
   }
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,6 +151,7 @@ const BillingContactDialog = () => {
       successNotification({
         title: `Successfully saved your billing address!`,
       })
+      setOpen(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -132,7 +172,7 @@ const BillingContactDialog = () => {
   }, [setting])
 
   return (
-    <Dialog aria-describedby={undefined}>
+    <Dialog open={open} onOpenChange={setOpen} aria-describedby={undefined}>
       <DialogTrigger asChild>
         <h1 className="text-brand text-sm font-medium cursor-pointer">Edit</h1>
       </DialogTrigger>
@@ -162,8 +202,8 @@ const BillingContactDialog = () => {
               {showPredictions && predictions.length > 0 && (
                 <div className="absolute z-10 bg-panel border rounded-sm shadow-md w-full">
                   {predictions.map((prediction) => (
-                    <p key={prediction.place_id} onClick={() => handleSelectPrediction(prediction.place_id, prediction.description)} className="p-2 cursor-pointer">
-                      {prediction.description}
+                    <p key={prediction.placeId} onClick={() => handleSelectPrediction(prediction)} className="p-2 cursor-pointer">
+                      {prediction.text.text}
                     </p>
                   ))}
                 </div>
@@ -197,9 +237,7 @@ const BillingContactDialog = () => {
           </div>
 
           <DialogFooter>
-            <DialogClose asChild>
-              <SaveButton className="w-full" isSaving={isPending} disabled={isPending} />
-            </DialogClose>
+            <SaveButton className="w-full" isSaving={isPending} disabled={isPending} />
           </DialogFooter>
         </form>
       </DialogContent>
