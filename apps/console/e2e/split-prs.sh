@@ -7,7 +7,7 @@ set -euo pipefail
 #   e2e/split/console-unit-tests       (from origin/main)
 #   e2e/split/playwright-suite         (stacked on auth-session-hardening)
 #
-# Usage:  bash apps/console/e2e/plans/split-prs.sh [SRC_REF]
+# Usage:  bash apps/console/e2e/split-prs.sh [SRC_REF]
 #
 # SRC_REF defaults to HEAD and must contain every change to be split, so commit
 # any work in progress on feat-playwright-e2e first. The working tree must be
