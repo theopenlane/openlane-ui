@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="hr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>E2E — Prijedlozi za popravak / poboljšanje</title>
+    <style>
+      :root {
+        --bg: #0f1115; --card: #181b22; --card2: #1f232c; --txt: #e6e8ee; --muted: #9aa3b2;
+        --fix: #e5484d; --improve: #f0a020; --remove: #6e7681; --ok: #30a46c; --border: #2a2f3a; --code: #11141a;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--txt); font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+      .wrap { max-width: 1040px; margin: 0 auto; padding: 40px 24px 80px; }
+      h1 { font-size: 28px; margin: 0 0 4px; }
+      h2 { font-size: 20px; margin: 40px 0 14px; padding-top: 18px; border-top: 1px solid var(--border); }
+      .sub { color: var(--muted); margin: 0 0 24px; }
+      .note { background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin: 18px 0; color: var(--muted); }
+      .note strong { color: var(--txt); }
+      .card { background: var(--card); border: 1px solid var(--border); border-left-width: 4px; border-radius: 10px; padding: 16px 20px; margin: 14px 0; }
+      .card.fix { border-left-color: var(--fix); }
+      .card.improve { border-left-color: var(--improve); }
+      .card.remove { border-left-color: var(--remove); }
+      .card .id { color: var(--muted); font-size: 12.5px; font-family: ui-monospace, monospace; }
+      .card h3 { margin: 6px 0 8px; font-size: 15.5px; }
+      .rec { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 800; letter-spacing: .03em; margin-bottom: 8px; }
+      .rec.fix { background: rgba(229,72,77,.16); color: #ff7b7f; }
+      .rec.improve { background: rgba(240,160,32,.16); color: #f5bd5a; }
+      .rec.remove { background: rgba(110,118,129,.2); color: #aab2bf; }
+      .label { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; margin: 10px 0 3px; }
+      pre { background: var(--code); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; overflow-x: auto; font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: #c9d1e3; margin: 4px 0; }
+      ul { margin: 4px 0 6px; padding-left: 20px; }
+      li { margin: 3px 0; }
+      a { color: #6cb6ff; }
+      code { color: #cdd3df; }
+      table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13.5px; }
+      th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+      th { color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>E2E — Prijedlozi: popraviti / poboljšati / ukloniti</h1>
+      <p class="sub">Za svaki od 13 padajućih testova iz <a href="./report.html">report.html</a>. Oznake: <span class="rec fix">POPRAVITI</span> (bug u testu/aplikaciji) · <span class="rec improve">POBOLJŠATI</span> (stabilizirati, okolinski/timing) · <span class="rec remove">UKLONITI</span> (test ne nosi dovoljno vrijednosti).</p>
+
+      <div class="note">
+        <strong>Najveći učinak prvo.</strong> 6 padova (Grupa A) nestaje samo ako se riješi <em>brzina</em> — vidi <a href="./plan.md">plan.md → Priority 0</a>. Od 7 stvarnih, jedna sitna izmjena rješava dva odjednom (#10 + #11: zamijeniti krhki <code>.lucide-ellipsis-vertical</code> selektor). Nijedan test ne preporučujem trajno ukloniti — svi pokrivaju stvaran tok.
+      </div>
+
+      <h2>Sažetak preporuka</h2>
+      <table>
+        <thead><tr><th>Test</th><th>Preporuka</th><th>Akcija u jednoj rečenici</th></tr></thead>
+        <tbody>
+          <tr><td>#1, #12 — webfinger (auth login)</td><td><span class="rec improve">POBOLJŠATI</span></td><td>Zagrijati <code>/api/auth/webfinger</code> prije login testova ili dignuti 10s timeout; korijenski rješava prod-build.</td></tr>
+          <tr><td>#3, #4, #5, #13 — workflows rute</td><td><span class="rec improve">POBOLJŠATI</span></td><td>Zagrijati te 3 teške rute jednom po serveru ili pokretati pod prod-buildom; nije bug.</td></tr>
+          <tr><td>#2 — Notification Templates tab</td><td><span class="rec fix">POPRAVITI</span></td><td>Provjeriti stvarni UI <code>/automation/communications</code> i uskladiti selektor taba.</td></tr>
+          <tr><td>#6 — group Members/Permissions toggle</td><td><span class="rec fix">POPRAVITI</span></td><td>Uskladiti selektor „Permissions" sa stvarnim labelom ili dodati <code>data-testid</code>.</td></tr>
+          <tr><td>#7, #8 — throwaway član ne vidljiv</td><td><span class="rec improve">POBOLJŠATI</span></td><td>Pričekati propagaciju članstva (poll) prije UI provjere, pa reload liste.</td></tr>
+          <tr><td>#9 — duplicate invite poruka</td><td><span class="rec fix">POPRAVITI</span></td><td>Provjeriti stvarno ponašanje invite sheeta i uskladiti tekst/asercij.</td></tr>
+          <tr><td>#10, #11 — ellipsis akcijski meni</td><td><span class="rec fix">POPRAVITI</span></td><td>Zamijeniti CSS-class selektor s <code>getByRole('button')</code>/<code>data-testid</code> (dodati testid u app).</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Grupa A — okolinski (stabilizirati, ne bug)</h2>
+
+      <div class="card improve">
+        <span class="rec improve">POBOLJŠATI</span>
+        <div class="id">#1 + #12 · auth.spec.ts:54, :64 · webfinger 10s timeout</div>
+        <h3>Login helper pukne dok čeka cold-compile webfinger rute</h3>
+        <div class="label">Što napraviti</div>
+        <ul>
+          <li>U sharded/seed koraku <strong>zagrijati</strong> <code>/api/auth/webfinger</code> jednim pozivom prije login testova (kao što se već zagrijava <code>/login</code>).</li>
+          <li>Ili u <code>login.ts</code> dignuti <code>waitForResponse</code> timeout s 10s na npr. 30s <em>samo</em> za prvi poziv (cold compile).</li>
+          <li>Korijenski popravak: prod-build server (bez kompajliranja) — <a href="./plan.md">P0.5</a>.</li>
+        </ul>
+        <div class="label">Ne raditi</div>
+        <p>Ne uklanjati — ovo su ključni auth testovi (enumeracija korisnika, redirect nakon logina).</p>
+      </div>
+
+      <div class="card improve">
+        <span class="rec improve">POBOLJŠATI</span>
+        <div class="id">#3 + #4 + #5 + #13 · automation-other.spec.ts · workflows rute · goto 60s</div>
+        <h3>Teške workflow rute probiju 60s cold-compile</h3>
+        <div class="label">Što napraviti</div>
+        <ul>
+          <li>Dodati korak „warm" koji jednom posjeti <code>/automation/workflows</code>, <code>/wizard</code>, <code>/instances</code>, <code>/templates</code> nakon (re)starta dev servera — sharded runner je idealno mjesto (vidi <a href="./plan.md">P0.4</a>).</li>
+          <li>Ili grupirati ove pure-render smoke testove i pokretati ih <strong>pod prod-buildom</strong> gdje compile ne postoji.</li>
+          <li>Kratkoročno: za ovaj <code>describe</code> blok dignuti <code>navigationTimeout</code> na 90s.</li>
+        </ul>
+        <div class="label">Napomena</div>
+        <p>Ovo su najslabiji (samo provjeravaju da se heading prikaže). Ako maintenance poraste, kandidati su za <strong>konsolidaciju</strong> u jedan parametrizirani smoke, ali zasad ih vrijedi zadržati jer hvataju routing/render lomove.</p>
+      </div>
+
+      <h2>Grupa B — stvarni problemi (popraviti)</h2>
+
+      <div class="card fix">
+        <span class="rec fix">POPRAVITI</span>
+        <div class="id">#2 · automation-crud.spec.ts:139</div>
+        <h3>Tab „Notification Templates" se ne nađe</h3>
+        <div class="label">Što napraviti</div>
+        <ul>
+          <li>Otvoriti <code>/automation/communications</code> u pregledniku i provjeriti stvarni element taba (uloga i točan tekst).</li>
+          <li>Uskladiti <code>getByRole('tab', { name: ... })</code> sa stvarnim labelom; ako tab više nije Radix <code>tab</code>, koristiti <code>getByText</code>/<code>data-testid</code>.</li>
+          <li>Ako tab/sheet stvarno više ne postoji → ovo je <strong>regres u aplikaciji</strong>: prijaviti, ne maskirati test.</li>
+        </ul>
+      </div>
+
+      <div class="card fix">
+        <span class="rec fix">POPRAVITI</span>
+        <div class="id">#6 · user-management-crud.spec.ts:99</div>
+        <h3>„Permissions" toggle u group sheetu se ne nađe</h3>
+        <div class="label">Što napraviti</div>
+        <ul>
+          <li>Provjeriti group sheet — „Members" se nalazi, „Permissions" ne. Vidjeti je li label promijenjen ili toggle uklonjen.</li>
+          <li>Uskladiti selektor sa stvarnim tekstom ili (bolje) dodati <code>data-testid="group-permissions-toggle"</code> u komponentu i ciljati po njemu.</li>
+        </ul>
+      </div>
+
+      <div class="card improve">
+        <span class="rec improve">POBOLJŠATI</span>
+        <div class="id">#7 + #8 · user-management-crud.spec.ts:144, :159</div>
+        <h3>Throwaway član se ne pojavi u listi (kašnjenje propagacije)</h3>
+        <div class="label">Što napraviti</div>
+        <ul>
+          <li>Nakon <code>createOrgMembership</code> (preko API-ja), <strong>pollati</strong> dok članstvo ne postane vidljivo (npr. preko API upita liste članova) prije nego se ode na UI — README već spominje FGA propagation lag i polling member sessiona; proširiti isti pristup na vidljivost članstva.</li>
+          <li>Na UI strani: nakon <code>fill(email)</code> dodati <code>reload()</code> + čekanje, jer lista možda ne refeča automatski.</li>
+          <li>Alternativa: ne kreirati člana preko API-ja nego kroz UI invite-accept tok (sporije, ali bez race-a).</li>
+        </ul>
+        <div class="label">Zašto „poboljšati", a ne „popraviti"</div>
+        <p>Aplikacija vjerojatno radi ispravno — test pretpostavlja trenutnu konzistentnost koje nema. Riječ je o pouzdanosti setupa.</p>
+      </div>
+
+      <div class="card fix">
+        <span class="rec fix">POPRAVITI</span>
+        <div class="id">#9 · user-management.spec.ts:195</div>
+        <h3>Poruka „This email is already added." se ne pojavi</h3>
+        <div class="label">Što napraviti</div>
+        <ul>
+          <li>Ručno unijeti isti email dvaput u invite sheet i vidjeti stvarno ponašanje (koja poruka, ako ikoja).</li>
+          <li>Ako je tekst promijenjen → uskladiti regex. Ako se duplikat sad tiho ignorira → promijeniti asercij na stvarni signal (npr. da je i dalje samo jedan chip).</li>
+          <li>Ako poruke više nema, a treba je biti → <strong>regres</strong>: prijaviti.</li>
+        </ul>
+      </div>
+
+      <div class="card fix">
+        <span class="rec fix">POPRAVITI</span>
+        <div class="id">#10 + #11 · user-management.spec.ts:439, :462 · jedan popravak za oba</div>
+        <h3>Krhki selektor <code>.lucide-ellipsis-vertical</code> za akcijski meni reda</h3>
+        <div class="label">Što napraviti</div>
+        <ul>
+          <li>U komponenti reda (invite/member) dodati <code>data-testid="row-actions-trigger"</code> na gumb koji otvara meni.</li>
+          <li>U oba testa zamijeniti <code>row.locator('.lucide-ellipsis-vertical')</code> s <code>row.getByTestId('row-actions-trigger')</code> (ili <code>getByRole('button', { name: /actions/i })</code>).</li>
+          <li>Ovo je u skladu s pravilom iz README-a: izbjegavati CSS-class selektore, koristiti role/testid.</li>
+        </ul>
+        <div class="label">Učinak</div>
+        <p>Jedna izmjena u aplikaciji + dvije linije u testovima rješava oba pada i sprječava buduće lomove kad se ikona promijeni.</p>
+      </div>
+
+      <h2>Treba li išta ukloniti?</h2>
+      <div class="card remove">
+        <span class="rec remove">UKLONITI — ništa (zasad)</span>
+        <h3>Nijedan test nije suvišan</h3>
+        <p class="why">Svih 13 pokrivaju stvarne tokove (auth, komunikacije, grupe, članovi, pozivnice, workflow rute). Jedini realni kandidat za <strong>konsolidaciju</strong> (ne brisanje) su 4 workflow render-smoke testa (#3/#4/#5/#13) — mogli bi se spojiti u jedan parametrizirani smoke ako maintenance poraste. Brisati bilo što tek nakon što P0 ubrza suite i vidimo koji su testovi i dalje nestabilni.</p>
+      </div>
+
+      <div class="note" style="margin-top:30px">
+        <strong>Redoslijed rada (preporuka):</strong>
+        <ul>
+          <li>1) P0 ubrzavanje (<a href="./plan.md">plan.md</a>) → ukloni 6 okolinskih padova „besplatno".</li>
+          <li>2) #10 + #11 — dodaj <code>data-testid</code> na row-actions trigger (jedan zahvat, dva testa).</li>
+          <li>3) #2, #6, #9 — provjeri stvarni UI i uskladi selektore (ili prijavi regres ako je app kriv).</li>
+          <li>4) #7, #8 — dodaj polling propagacije članstva u setup.</li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
