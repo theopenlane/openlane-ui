@@ -12,7 +12,7 @@ import { Input } from '@repo/ui/input'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { PlaceholderTextarea } from '@/components/shared/placeholder-textarea/placeholder-textarea'
 import { Loader2 } from 'lucide-react'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import { ControlControlSource, ControlControlStatus, MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
 import { useAllOrgControls, useCreateControl, useGetControlMinifiedById, useTemplateControlsWithMappings } from '@/lib/graphql-hooks/control'
 import { TEMPLATE_CONTROLS_WHERE } from '@/constants/standards'
@@ -75,7 +75,7 @@ export function useResolvedSuggestions(frameworkControl: TCreateOrgControlsTarge
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const organizationName = getOrganizationByID(currentOrgId ?? '')?.node?.displayName
 
-  const active = enabled && docsHelpEnabled && isSettledResolved && !settledAll
+  const active = enabled && docsHelpAvailable && isSettledResolved && !settledAll
   const { index: templateIndex, isLoading: isTemplatesLoading, isError: isTemplatesError } = useTemplateIndex(active)
   const templates = useMemo(
     () => (frameworkControl ? (templateIndex.get(templateIndexKey(frameworkControl.refCode, frameworkControl.referenceFramework)) ?? []) : []),
@@ -152,7 +152,7 @@ export function CreateOrgControlsFromDocsButton({
   const [open, setOpen] = useState(false)
   const { rows, isLoading } = useResolvedSuggestions(frameworkControl, existingRefCodes, true)
 
-  if (!docsHelpEnabled || isLoading || rows.length === 0) return null
+  if (!docsHelpAvailable || isLoading || rows.length === 0) return null
   return (
     <>
       <Button
@@ -253,7 +253,7 @@ export function useCreateOrgControlsRows({ active, onOpenChange, onCreated, ...p
     return [...automatic, ...requestedTitles.filter((control) => control.refCode && !seen.has(control.refCode))]
   }, [resolvedRows, requestedTitles])
 
-  const { data: suggestedTitles } = useDocsControlTitles(titleTargets, active && docsHelpEnabled)
+  const { data: suggestedTitles } = useDocsControlTitles(titleTargets, active && docsHelpAvailable)
 
   useEffect(() => {
     if (!suggestedTitles?.length) return

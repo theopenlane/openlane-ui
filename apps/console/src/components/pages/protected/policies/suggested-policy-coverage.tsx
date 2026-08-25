@@ -18,7 +18,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, BookText, Lightbulb, X } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import { useGetProgramDashboard } from '@/lib/graphql-hooks/program'
 import { useAllPolicyNames } from '@/lib/graphql-hooks/internal-policy'
 import { useDocsHelpNavigate } from '@/components/shared/docs-help/docs-help-context'
@@ -87,16 +87,16 @@ export function SuggestedPolicyCoverage() {
   // per-org dismissal, persisted so the alert stays gone once waved away
   const { dismissed, dismiss: handleDismiss, isResolved } = useDismissible('policy-coverage-dismissed')
   const { isDismissed, dismiss: dismissTopic } = useDismissedItems('policy-coverage-covered')
-  const { data: mappingData, isPending: isMappingPending, isError: isMappingError } = useDocsPolicyMapping(docsHelpEnabled)
-  const { data: programsData, isPending: isProgramsPending, isError: isProgramsError } = useGetProgramDashboard({ enabled: docsHelpEnabled })
+  const { data: mappingData, isPending: isMappingPending, isError: isMappingError } = useDocsPolicyMapping(docsHelpAvailable)
+  const { data: programsData, isPending: isProgramsPending, isError: isProgramsError } = useGetProgramDashboard({ enabled: docsHelpAvailable })
   // held back until the page's own data is in, then paged through in the background
   const {
     policies: orgPolicies,
     isLoading: isPoliciesLoading,
     isError: isPoliciesError,
-  } = useAllPolicyNames({ enabled: docsHelpEnabled && isResolved && !dismissed && !!mappingData && !!programsData })
+  } = useAllPolicyNames({ enabled: docsHelpAvailable && isResolved && !dismissed && !!mappingData && !!programsData })
   const hasError = isMappingError || isProgramsError || isPoliciesError
-  const { data: templates } = usePolicyTemplates(docsHelpEnabled)
+  const { data: templates } = usePolicyTemplates(docsHelpAvailable)
 
   const { createFromTemplate, creatingTemplate } = useCreatePolicyFromTemplate()
   const [showAll, setShowAll] = useState(false)
@@ -121,7 +121,7 @@ export function SuggestedPolicyCoverage() {
     if (coverage && coverage.total > 0 && coverage.missing.length === 0) handleDismiss()
   }, [coverage, handleDismiss])
 
-  if (!docsHelpEnabled || dismissed || !coverage || coverage.missing.length === 0) return null
+  if (!docsHelpAvailable || dismissed || !coverage || coverage.missing.length === 0) return null
 
   const covered = coverage.total - coverage.missing.length
   const COLLAPSED_COUNT = 6

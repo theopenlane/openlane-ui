@@ -7,7 +7,7 @@ import { parseDocBullets } from '@/lib/docs-help/parse'
 import { Lightbulb, Link2, Sparkles } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import { useAllPolicyNames, useInternalPolicies, useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -66,7 +66,7 @@ export function useSuggestedPolicies(control?: TDocsEvidenceControl): TSuggested
   const { isDismissed, dismiss: dismissOne } = useDismissedItems(control?.controlId ? `suggested-policy-covered:${control.controlId}` : undefined)
 
   // a dismissed control asks nothing of the docs or of the policy list
-  const active = docsHelpEnabled && isResolved && !dismissed
+  const active = docsHelpAvailable && isResolved && !dismissed
   const { section, target, isLoading: isSectionLoading, isError: isSectionError } = useControlDocsSection(active ? control : undefined, 'Policies')
   const enabled = active && !!section && !!control?.controlId
 
@@ -91,7 +91,7 @@ export function useSuggestedPolicies(control?: TDocsEvidenceControl): TSuggested
 
   const controlId = control?.controlId
   const data = useMemo(
-    () => (!docsHelpEnabled || !controlId || !target || !suggestions ? null : { controlId, target, suggestions, dismissed, dismiss, dismissOne }),
+    () => (!docsHelpAvailable || !controlId || !target || !suggestions ? null : { controlId, target, suggestions, dismissed, dismiss, dismissOne }),
     [controlId, target, suggestions, dismissed, dismiss, dismissOne],
   )
 

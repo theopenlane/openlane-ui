@@ -7,7 +7,7 @@ import { BookText, Check, Sparkles, X } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import { useGetAllControlObjectives } from '@/lib/graphql-hooks/control-objective'
 import { ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { Callout } from '@/components/shared/callout/callout'
@@ -41,11 +41,11 @@ export function useSuggestedObjective(control?: TDocsEvidenceControl, enabled = 
   )
   const hasNoExisting = !isExistingPending && (existingData?.controlObjectives?.edges?.length ?? 0) === 0
 
-  const active = enabled && docsHelpEnabled && isResolved && !dismissed && hasNoExisting
+  const active = enabled && docsHelpAvailable && isResolved && !dismissed && hasNoExisting
   const { section, target } = useControlDocsSection(active ? control : undefined, 'Example Control Objectives')
 
   const suggestion = section ? parseFirstObjective(section) : null
-  if (!docsHelpEnabled || !control || !suggestion || !target) return null
+  if (!docsHelpAvailable || !control || !suggestion || !target) return null
   return { control, suggestion, target, dismissed, dismiss }
 }
 

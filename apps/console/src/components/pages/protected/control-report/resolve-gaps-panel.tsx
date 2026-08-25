@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { GitBranch, Link2, Loader2, PanelRightClose, PencilLine } from 'lucide-react'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import { ControlControlSource, MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
 import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
@@ -217,7 +217,7 @@ function PolicyMapRow({ group, onRemove, onMapped }: { group: TPolicyGroup; onRe
 }
 
 function PolicyCreateRow({ group, onRemove }: { group: TPolicyGroup; onRemove: () => void }) {
-  const { data: templates } = usePolicyTemplates(docsHelpEnabled)
+  const { data: templates } = usePolicyTemplates(docsHelpAvailable)
   const { selected, toggle } = useStaggeredSelection(group.controls)
   const { createFromTemplate, creatingTemplate } = useCreatePolicyFromTemplate([...selected])
   const template = findPolicyTemplate(templates, group.name)
