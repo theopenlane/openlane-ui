@@ -319,7 +319,7 @@
         <div>
           <b>Whether losing ~45 tests is acceptable.</b>
           <span>Including all onboarding coverage, which our own priority list marks as Tier&nbsp;0,
-          in exchange for five gained. This is the argument that we think should decide it.</span>
+          in exchange for no coverage gained. This is the argument that we think should decide it.</span>
         </div>
       </li>
     </ol>
@@ -342,14 +342,6 @@
       The alternative is to point the tests at the <b>production</b> backend, using the Vercel preview
       deployment that every pull request already gets. That would test the real build against real
       data.
-    </p>
-    <p>
-      One correction to a figure that circulated earlier in this discussion: the trust centre is
-      <b>not</b> untested. All eleven trust-centre tests pass on a developer machine, verified in a
-      fresh run — the local seed data includes an organization with a trust centre configured. Seven
-      of them assert the error page that an organization <em>without</em> a trust centre should see,
-      and need no seed at all. Only four depend on that seeded organization, so the throwaway backend
-      in CI would skip four tests, not the twelve quoted before.
     </p>
   </section>
 
@@ -486,16 +478,13 @@ alloworigins:
           <tr><td>Onboarding — the entire file, Tier&nbsp;0 in our own priority list</td><td>Cannot run</td><td class="num">17</td></tr>
           <tr><td>Fresh-organization blocks across nine files</td><td>Cannot run</td><td class="num">18</td></tr>
           <tr><td>Sign-up and email verification</td><td>Cannot run</td><td class="num">~10</td></tr>
-          <tr><td>Trust centre — only the tests needing a seeded organization</td><td>Gained</td><td class="num">+5</td></tr>
         </tbody>
       </table>
     </div>
     <p>
-      Net, moving to production <b>loses roughly 40 tests and gains five</b>. And those five have a
-      cheaper fix that works everywhere: the backend already exposes a <code>createTrustCenter</code>
-      mutation with no required fields, so the suite can create its own trust centre instead of
-      relying on seed data that happens to be present on the machine running it. That closes the gap
-      under option C too, at no cost and with no production changes.
+      Net, moving to production <b>loses roughly 45 tests and gains no coverage at all</b>. Everything
+      the production backend would exercise, the throwaway backend already exercises — the only
+      difference is that the throwaway one can also create the fresh users these 45 tests need.
     </p>
   </section>
 
@@ -535,13 +524,10 @@ alloworigins:
 
   <div class="verdict">
     <p class="eyebrow">Recommendation</p>
-    <h2>Stay on the throwaway backend, and seed the trust centre ourselves</h2>
+    <h2>Stay on the throwaway backend</h2>
     <p>
-      Option C is already built and green. Adding a <code>createTrustCenter</code> seeder closes the
-      only gap production was going to fill — all five tests of it — costs nothing, changes nothing
-      on production, and removes the suite's one dependency on seed data that has to already exist on
-      the machine running it.
-    </p>
+      Option C is already built and green, costs nothing, and changes nothing on production. Moving to
+      production would cost 45 tests — including every onboarding test — and buy no coverage back.</p>
     <p>
       If verification against the real backend is still wanted afterwards, we would add it as
       <b>option B on a schedule</b> — once a day on <code>main</code>, serialised, running only the

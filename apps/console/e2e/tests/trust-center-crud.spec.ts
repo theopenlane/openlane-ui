@@ -1,5 +1,6 @@
 import { test, expect, readManifest } from '../fixtures/auth'
 import { uniqueName } from '../utils/unique'
+import { SAMPLE_PDF, uploadFiles } from '../utils/files'
 import type { Locator, Page } from '@playwright/test'
 
 const requireDemoOrg = () => test.skip(!readManifest().hasDemoSession, 'no demo-org session — trust center is unprovisioned in the e2e org')
@@ -212,5 +213,103 @@ test.describe('trust-center — FAQ content (seeded demo org)', () => {
     await deleteFaq(page, question)
 
     await expect(page.getByText(question, { exact: true })).toBeHidden({ timeout: 30_000 })
+  })
+})
+
+test.describe('trust-center — documents (seeded demo org)', () => {
+  test.use({ authProfile: 'demo' })
+
+  const openCreateSheet = async (page: Page) => {
+    await page.getByRole('button', { name: 'New Document' }).click()
+    const sheet = page.getByRole('dialog')
+    await expect(sheet.getByPlaceholder('Document title')).toBeVisible({ timeout: 30_000 })
+    return sheet
+  }
+
+  const CATEGORY = 'E2E Category'
+
+  const fillDocumentForm = async (page: Page, sheet: Locator, title: string) => {
+    await sheet.getByPlaceholder('Document title').fill(title)
+
+    await sheet.getByRole('combobox').first().click()
+    await page.getByPlaceholder('Search category...').fill(CATEGORY)
+    await page
+      .getByRole('option', { name: CATEGORY })
+      .or(page.getByText(`Create "${CATEGORY}"`))
+      .first()
+      .click()
+
+    await sheet
+      .getByRole('combobox')
+      .filter({ hasText: /^(Not visible|Publicly visible|Protected)$/ })
+      .first()
+      .click()
+    await page.getByRole('option', { name: /publicly visible/i }).click()
+  }
+
+  test('the New Document sheet keeps Create disabled until a file is attached', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/documents')
+
+    const sheet = await openCreateSheet(page)
+    await fillDocumentForm(page, sheet, uniqueName('E2E Doc Gating'))
+
+    const create = sheet.getByRole('button', { name: /^Create$/ })
+    await expect(create).toBeDisabled()
+
+    await uploadFiles(page, SAMPLE_PDF, sheet.locator('input[type="file"]').first())
+    await expect(create).toBeEnabled({ timeout: 30_000 })
+  })
+
+  test('a document can be uploaded, found by search, opened and deleted', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/documents')
+
+    const title = uniqueName('E2E Doc')
+    const sheet = await openCreateSheet(page)
+    await fillDocumentForm(page, sheet, title)
+    await uploadFiles(page, SAMPLE_PDF, sheet.locator('input[type="file"]').first())
+
+    await sheet.getByRole('button', { name: /^Create$/ }).click()
+    await expect(toast(page, 'Document Uploaded')).toBeVisible({ timeout: 60_000 })
+
+    await page.getByPlaceholder('Search documents...').fill(title)
+    const row = page.getByRole('row', { name: new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) })
+    await expect(row).toBeVisible({ timeout: 30_000 })
+
+    await row.click()
+    const detail = page.getByRole('dialog')
+    await expect(detail.getByRole('button', { name: 'Delete document' })).toBeVisible({ timeout: 30_000 })
+
+    await detail.getByRole('button', { name: 'Delete document' }).click()
+    const dialog = page.getByRole('alertdialog')
+    await expect(dialog.getByText('Delete Document')).toBeVisible({ timeout: 15_000 })
+    await dialog.getByRole('button', { name: /^Delete$/ }).click()
+
+    await expect(row).toBeHidden({ timeout: 30_000 })
+  })
+
+  test('the Columns menu lists toggleable document columns', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/documents')
+
+    await page.getByRole('button', { name: /^Columns$/ }).click()
+    await expect(page.getByRole('checkbox').first()).toBeVisible({ timeout: 15_000 })
+  })
+
+  test('the filter menu exposes the document filter fields', async ({ page }) => {
+    test.slow()
+    requireDemoOrg()
+    await openTrustCenterPage(page, '/trust-center/documents')
+
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
+
+    const menu = page.getByRole('menu', { name: 'Filter' })
+    for (const field of ['Category', 'Visibility', 'Standard Name']) {
+      await expect(menu.getByRole('button', { name: field })).toBeVisible({ timeout: 15_000 })
+    }
   })
 })
