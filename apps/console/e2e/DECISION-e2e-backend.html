@@ -1,0 +1,562 @@
+<title>Testing Against Production</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ground: #f7f8f9;
+    --surface: #ffffff;
+    --sunken: #eef0f2;
+    --ink: #16191d;
+    --ink-soft: #3d4650;
+    --muted: #5a6472;
+    --rule: #d9dee3;
+    --rule-strong: #b9c2cb;
+    --accent: #1f6f6b;
+    --accent-soft: #e2efee;
+    --risk: #a33a2a;
+    --risk-soft: #f7e9e6;
+    --caution: #8a6a1f;
+    --caution-soft: #f7f0dd;
+    --safe: #2f6b45;
+    --safe-soft: #e6f0e9;
+
+    --measure: 68ch;
+    --s1: 0.375rem;
+    --s2: 0.75rem;
+    --s3: 1.25rem;
+    --s4: 2rem;
+    --s5: 3.25rem;
+    --s6: 5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --ground: #101317;
+      --surface: #171b20;
+      --sunken: #1d2229;
+      --ink: #e7eaee;
+      --ink-soft: #c3cad2;
+      --muted: #98a2b0;
+      --rule: #2a3138;
+      --rule-strong: #3d4650;
+      --accent: #4fb3ac;
+      --accent-soft: #16302f;
+      --risk: #e0705c;
+      --risk-soft: #33201c;
+      --caution: #d6a84a;
+      --caution-soft: #302716;
+      --safe: #64b382;
+      --safe-soft: #16291f;
+    }
+  }
+
+  :root[data-theme='dark'] {
+    --ground: #101317;
+    --surface: #171b20;
+    --sunken: #1d2229;
+    --ink: #e7eaee;
+    --ink-soft: #c3cad2;
+    --muted: #98a2b0;
+    --rule: #2a3138;
+    --rule-strong: #3d4650;
+    --accent: #4fb3ac;
+    --accent-soft: #16302f;
+    --risk: #e0705c;
+    --risk-soft: #33201c;
+    --caution: #d6a84a;
+    --caution-soft: #302716;
+    --safe: #64b382;
+    --safe-soft: #16291f;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16.5px;
+    line-height: 1.62;
+    margin: 0;
+    padding: var(--s5) var(--s3) var(--s6);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: var(--measure);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s5);
+  }
+
+  h1, h2, h3 { font-family: 'Newsreader', Georgia, serif; font-weight: 600; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(2.1rem, 5.5vw, 2.9rem); line-height: 1.12; letter-spacing: -0.015em; }
+  h2 { font-size: 1.6rem; line-height: 1.2; }
+  h3 { font-size: 1.15rem; line-height: 1.3; }
+  p { margin: 0; }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  header { display: flex; flex-direction: column; gap: var(--s3); }
+  .standfirst { font-size: 1.16rem; color: var(--ink-soft); max-width: 60ch; }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2) var(--s4);
+    padding-top: var(--s3);
+    border-top: 1px solid var(--rule);
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .meta b { font-weight: 500; color: var(--ink-soft); }
+
+  section { display: flex; flex-direction: column; gap: var(--s3); }
+  section > p, section > ul, section > ol { max-width: var(--measure); }
+
+  .sec-head { display: flex; flex-direction: column; gap: var(--s1); }
+
+  ul, ol { margin: 0; padding-left: 1.35em; display: flex; flex-direction: column; gap: var(--s2); }
+  li::marker { color: var(--muted); }
+
+  code, .mono {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.87em;
+  }
+  p code, li code, td code, th code {
+    background: var(--sunken);
+    padding: 0.12em 0.36em;
+    border-radius: 3px;
+  }
+
+  pre {
+    margin: 0;
+    background: var(--sunken);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: var(--s3);
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.83rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+
+  .callout {
+    border-left: 3px solid var(--risk);
+    background: var(--risk-soft);
+    padding: var(--s3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s2);
+    border-radius: 0 4px 4px 0;
+  }
+  .callout .eyebrow { color: var(--risk); }
+  .callout strong { color: var(--risk); font-weight: 600; }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  thead th {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+    background: var(--sunken);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .option {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s2);
+    padding-top: var(--s3);
+    border-top: 1px solid var(--rule-strong);
+  }
+  .option-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2); }
+  .option-head h3 { flex: 1 1 auto; }
+
+  .chip {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2em 0.55em;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .chip-risk { background: var(--risk-soft); color: var(--risk); }
+  .chip-caution { background: var(--caution-soft); color: var(--caution); }
+  .chip-safe { background: var(--safe-soft); color: var(--safe); }
+  .chip-accent { background: var(--accent-soft); color: var(--accent); }
+
+  .spec {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: var(--s1) var(--s3);
+    font-size: 0.9rem;
+    margin-top: var(--s1);
+  }
+  .spec dt {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 0.35em;
+  }
+  .spec dd { margin: 0; color: var(--ink-soft); }
+
+  .asks { counter-reset: ask; list-style: none; padding: 0; gap: var(--s3); }
+  .asks li {
+    counter-increment: ask;
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: var(--s3);
+    align-items: start;
+  }
+  .asks li::before {
+    content: counter(ask);
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    border: 1px solid var(--rule-strong);
+    border-radius: 3px;
+    text-align: center;
+    padding: 0.15em 0;
+    line-height: 1.4;
+  }
+  .asks b { font-weight: 600; display: block; }
+  .asks span { color: var(--ink-soft); font-size: 0.94rem; }
+
+  .verdict {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: var(--s4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s3);
+  }
+  .verdict h2 { font-size: 1.35rem; }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: var(--s3);
+    font-size: 0.82rem;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s1);
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @media (max-width: 34rem) {
+    .spec { grid-template-columns: 1fr; gap: 0.15rem var(--s2); }
+    .spec dd { margin-bottom: var(--s2); }
+  }
+</style>
+
+<div class="page">
+
+  <header>
+    <p class="eyebrow">Decision memo · Engineering</p>
+    <h1>Testing Against Production</h1>
+    <p class="standfirst">
+      We want the end-to-end test suite to run on every pull request. Doing that against the
+      production backend would require opening production to a new browser origin — and the only
+      way to do it cheaply is not safe. This memo lays out what we found and asks for four decisions.
+    </p>
+    <div class="meta">
+      <span><b>Repository</b> openlane-ui</span>
+      <span><b>Branch</b> feat-playwright-e2e</span>
+      <span><b>Status</b> awaiting decision</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">The ask</p>
+      <h2>What we need you to decide</h2>
+    </div>
+    <ol class="asks">
+      <li>
+        <div>
+          <b>Which option we build.</b>
+          <span>Three are on the table. One costs $100/month, one is free but serialises pull
+          requests, one changes nothing on production at all.</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <b>Whether CI may create and delete organizations on production.</b>
+          <span>Required for the production options. A single permanent test organization degrades
+          the suite over time — we have measured this.</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <b>Whether four permanent test accounts may exist on production.</b>
+          <span>One per role, and who holds the credentials.</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <b>Whether losing ~45 tests is acceptable.</b>
+          <span>Including all onboarding coverage, which our own priority list marks as Tier&nbsp;0,
+          in exchange for five gained. This is the argument that we think should decide it.</span>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Context</p>
+      <h2>Where things stand</h2>
+    </div>
+    <p>
+      The suite is 723 tests across 36 files. A full local run is currently
+      <b>714 passed, 0 failed, 3 flaky, 6 skipped in 9.8 minutes</b>. CI is built and ready: four
+      parallel shards on every pull request, each bringing up its own throwaway backend from the
+      published <code>theopenlane/core</code> image, plus a job that merges the four reports into one.
+      Local commits never run E2E, so day-to-day work is unaffected.
+    </p>
+    <p>
+      The open question is where the backend comes from. Today each shard runs a disposable one.
+      The alternative is to point the tests at the <b>production</b> backend, using the Vercel preview
+      deployment that every pull request already gets. That would test the real build against real
+      data.
+    </p>
+    <p>
+      One correction to a figure that circulated earlier in this discussion: the trust centre is
+      <b>not</b> untested. All eleven trust-centre tests pass on a developer machine, verified in a
+      fresh run — the local seed data includes an organization with a trust centre configured. Seven
+      of them assert the error page that an organization <em>without</em> a trust centre should see,
+      and need no seed at all. Only four depend on that seeded organization, so the throwaway backend
+      in CI would skip four tests, not the twelve quoted before.
+    </p>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Finding</p>
+      <h2>The cheap version of this is not safe</h2>
+    </div>
+    <p>
+      The browser calls the API directly, so production would have to list the preview deployment's
+      origin in its CORS allow-list. Preview URLs look like
+      <code>openlane-ui-git-&lt;branch&gt;-openlane.vercel.app</code> and change with every branch, so
+      the obvious move is a wildcard such as <code>https://*openlane.vercel.app</code>.
+    </p>
+    <p>
+      That does not work the way it looks. The API compiles allow-list entries into anchored regular
+      expressions, turning <code>*</code> into <code>.*</code>:
+    </p>
+    <pre>pattern := regexp.QuoteMeta(origin)
+pattern = strings.ReplaceAll(pattern, "\\*", ".*")
+pattern = "^" + pattern + "$"
+
+// https://*openlane.vercel.app
+//   compiles to  ^https://.*openlane\.vercel\.app$
+//   which matches  evil-openlane.vercel.app</pre>
+    <div class="callout">
+      <p class="eyebrow">Why this is exploitable</p>
+      <p>
+        <code>vercel.app</code> is on the Public Suffix List precisely because its subdomains are
+        user-controlled and mutually untrusted. Anyone can register a Vercel team whose slug ends in
+        <em>openlane</em> and deploy to a hostname that satisfies the pattern. Credentials stay
+        enabled for wildcard patterns — they are only disabled for a literal <code>*</code>.
+      </p>
+      <p>
+        <strong>The result: a page controlled by someone else, visited by any logged-in Openlane
+        user, could make authenticated requests to the production API as that user and read the
+        responses.</strong> CSRF protection does not help, because an allowed origin can request a
+        CSRF token for itself.
+      </p>
+    </div>
+    <p>
+      Narrowing the pattern does not fix it — <code>*-openlane.vercel.app</code> is satisfied by a
+      team slug of <code>anything-openlane</code>. No wildcard over <code>vercel.app</code> is safe.
+      Whatever we do, it has to be on a domain we control.
+    </p>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">The choice</p>
+      <h2>Three options</h2>
+    </div>
+
+    <div class="option">
+      <div class="option-head">
+        <h3>A · Vercel Preview Deployment Suffix</h3>
+        <span class="chip chip-caution">$100 / month</span>
+      </div>
+      <p>
+        A paid Vercel feature that puts every preview deployment on our own domain, so the CORS entry
+        becomes <code>https://*.preview.theopenlane.io</code> — a wildcard, but only over hostnames we
+        control. Pull requests keep running in parallel.
+      </p>
+      <dl class="spec">
+        <dt>Cost</dt><dd>$100 per month, ongoing</dd>
+        <dt>Prod CORS</dt><dd>Wildcard over our own domain</dd>
+        <dt>Parallel PRs</dt><dd>Yes</dd>
+      </dl>
+    </div>
+
+    <div class="option">
+      <div class="option-head">
+        <h3>B · One fixed alias</h3>
+        <span class="chip chip-accent">free</span>
+      </div>
+      <p>
+        Add a single subdomain to the Vercel project, and have CI point it at the pull request's
+        deployment just before the tests run. Production then allows exactly one origin — no
+        wildcard, no pattern matching, the tightest possible change:
+      </p>
+      <pre>vercel alias set &lt;deployment-url&gt; e2e.preview.theopenlane.io
+
+# production CORS
+alloworigins:
+  - https://e2e.preview.theopenlane.io</pre>
+      <p>
+        The alias is global, so only one pull request can be tested at a time. GitHub keeps one run
+        going and one waiting; a third displaces the one that was waiting, so during busy periods
+        some pull requests need their run started again by hand.
+      </p>
+      <dl class="spec">
+        <dt>Cost</dt><dd>None</dd>
+        <dt>Prod CORS</dt><dd>One exact origin — narrower than option A</dd>
+        <dt>Parallel PRs</dt><dd>No, one at a time</dd>
+      </dl>
+    </div>
+
+    <div class="option">
+      <div class="option-head">
+        <h3>C · Keep the throwaway backend</h3>
+        <span class="chip chip-safe">built and working</span>
+      </div>
+      <p>
+        What we have now. Every shard starts its own backend, runs its quarter of the suite and throws
+        it away. Production is never involved, so none of the questions in this memo apply. The one
+        thing it cannot check is the Vercel build artefact itself — the same code, built by CI instead
+        of by Vercel.
+      </p>
+      <dl class="spec">
+        <dt>Cost</dt><dd>None</dd>
+        <dt>Prod CORS</dt><dd>Unchanged</dd>
+        <dt>Parallel PRs</dt><dd>Yes</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">The arithmetic</p>
+      <h2>Production costs us more tests than it gains</h2>
+    </div>
+    <p>
+      Production runs with developer mode off, as it should. Our setup creates a fresh set of users
+      for every run by registering them through the API and reading back the verification token —
+      something the backend only returns in developer mode. Against production that is impossible, so
+      every test that needs a brand-new user cannot run.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Coverage</th><th>Against production</th><th class="num">Tests</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Onboarding — the entire file, Tier&nbsp;0 in our own priority list</td><td>Cannot run</td><td class="num">17</td></tr>
+          <tr><td>Fresh-organization blocks across nine files</td><td>Cannot run</td><td class="num">18</td></tr>
+          <tr><td>Sign-up and email verification</td><td>Cannot run</td><td class="num">~10</td></tr>
+          <tr><td>Trust centre — only the tests needing a seeded organization</td><td>Gained</td><td class="num">+5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Net, moving to production <b>loses roughly 40 tests and gains five</b>. And those five have a
+      cheaper fix that works everywhere: the backend already exposes a <code>createTrustCenter</code>
+      mutation with no required fields, so the suite can create its own trust centre instead of
+      relying on seed data that happens to be present on the machine running it. That closes the gap
+      under option C too, at no cost and with no production changes.
+    </p>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">If we go to production anyway</p>
+      <h2>What options A and B would require</h2>
+    </div>
+    <ul>
+      <li>
+        <b>A fresh organization for every run, not one permanent one.</b> We measured this on a shared
+        organization that had accumulated months of test data: three tests passed in 14 seconds
+        against a fresh organization, while twenty failed against the reused one. Records pile up,
+        list pages slow down, tests start failing for reasons unrelated to the code. Both the create
+        and delete operations exist in the API, so each run can clean up after itself.
+      </li>
+      <li>
+        <b>Four permanent accounts, one per role.</b> Our largest spec file is 59 tests checking what
+        each role may and may not do, and 30 further places switch role mid-suite. Without developer
+        mode we cannot create those users per run, so they have to exist permanently and be added to
+        each run's fresh organization.
+      </li>
+      <li>
+        <b>Credentials as repository secrets.</b> Pull requests from forks do not receive secrets, so
+        E2E would not run on outside contributions.
+      </li>
+      <li>
+        <b>Destructive operations against production.</b> The suite creates and deletes records,
+        including bulk deletes. Contained to the run's own organization, but happening on production.
+      </li>
+      <li>
+        <b>Real invitation emails.</b> The user-management tests send invitations, which on production
+        means real email delivery.
+      </li>
+    </ul>
+  </section>
+
+  <div class="verdict">
+    <p class="eyebrow">Recommendation</p>
+    <h2>Stay on the throwaway backend, and seed the trust centre ourselves</h2>
+    <p>
+      Option C is already built and green. Adding a <code>createTrustCenter</code> seeder closes the
+      only gap production was going to fill — all five tests of it — costs nothing, changes nothing
+      on production, and removes the suite's one dependency on seed data that has to already exist on
+      the machine running it.
+    </p>
+    <p>
+      If verification against the real backend is still wanted afterwards, we would add it as
+      <b>option B on a schedule</b> — once a day on <code>main</code>, serialised, running only the
+      tests that do not need user registration. At that cadence the serialisation and the missing 45
+      tests stop mattering, because the full suite still runs on every pull request under option C.
+    </p>
+    <p>
+      We would only recommend paying for option A if previews on our own domain are wanted for
+      reasons beyond testing.
+    </p>
+  </div>
+
+  <footer>
+    <p>Prepared for project-owner review. Every figure here was measured or read from source rather than estimated, except the ~10 sign-up tests, which is a count of affected assertions rather than whole test cases.</p>
+    <p>Supporting detail lives in <span class="mono">apps/console/e2e/CI_SHARDING_PLAN.md</span> and <span class="mono">apps/console/e2e/README.md</span>.</p>
+  </footer>
+
+</div>
