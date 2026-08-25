@@ -11,6 +11,9 @@ export const setSessionCookie = async (session: string) => {
 
   if (useInsecureCookies) {
     cookieStore.set(`${sessionCookieName}`, session, {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
       expires,
     })
   } else {

@@ -12,7 +12,6 @@ interface MenuProps {
   side?: 'top' | 'right' | 'bottom' | 'left'
   closeOnSelect?: boolean
   className?: string
-  /** Applied to the default trigger button for stable e2e selection. */
   triggerTestId?: string
 }
 

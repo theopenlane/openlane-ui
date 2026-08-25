@@ -19,18 +19,24 @@ replaying the captured state. That matters because `auth.ts`'s signOut event
 POSTs `/v1/logout` and revokes tokens _server-side_: with one shared session, a
 single test tripping the session-expired modal killed every worker in the run.
 
-| Role     | Backend role | Storage state         |
+| Profile  | Backend role | Seeded state          |
 | -------- | ------------ | --------------------- |
-| Owner    | OWNER        | `.auth/owner.json`    |
-| Admin    | ADMIN        | `.auth/admin.json`    |
-| Member   | MEMBER       | `.auth/member.json`   |
-| ReadOnly | AUDITOR      | `.auth/readonly.json` |
+| owner    | OWNER        | `.auth/owner.json`    |
+| admin    | ADMIN        | `.auth/admin.json`    |
+| member   | MEMBER       | `.auth/member.json`   |
+| readonly | AUDITOR      | `.auth/readonly.json` |
+
+Switch role with the **`authProfile`** test option — never with
+`storageState: authFile(...)`. `authProfile` routes through the worker-scoped
+`sessionFor` fixture, which gives each worker its own login; pinning
+`storageState` directly replays one shared session and reintroduces the
+cross-worker logout cascade described above.
 
 ```ts
-import { test, expect } from '../fixtures/auth' // logged in as Owner by default
+import { test, expect } from '../fixtures/auth' // logged in as owner by default
 
 test.describe('as readonly', () => {
-  test.use({ storageState: authFile('readonly') }) // switch role
+  test.use({ authProfile: 'readonly' }) // switch role
   test('...', async ({ page }) => { ... })
 })
 ```
@@ -184,10 +190,36 @@ bun run e2e
 | `E2E_SKIP_BUILD`                 | off                      | **`e2e:full` only.** Reuse the existing production build instead of rebuilding.                                                                                                             |
 | `PLAYWRIGHT_USE_WEBSERVER`       | off                      | Let Playwright start the dev server via `webServer` config (Mode A).                                                                                                                        |
 | `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | (from `.env`)            | If set, login gates on reCAPTCHA; the login helper shims it. Build-time inlined.                                                                                                            |
-| `CI`                             | off                      | Forces `workers: 1`, `retries: 2`, `forbidOnly`.                                                                                                                                            |
+| `CI`                             | off                      | Enables `forbidOnly` + the `github` reporter and drops the default worker count to 4. `retries` is `1` everywhere (see `playwright.config.ts`).                                             |
 
 `E2E_SHARD_SIZE` and `E2E_RSS_LIMIT_MB` tune `bun run e2e:sharded` (see
 `run-sharded.sh`).
+
+## CI
+
+Two workflows cover this suite:
+
+| Workflow                               | Trigger                                         | What it does                                                                                                                              |
+| -------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/console-checks.yml` | every pull request + push to `main`             | Console type-check, unit tests (`apps/console/src` + `packages`), E2E type-check, `playwright test --list`. No backend needed.            |
+| `.github/workflows/console-e2e.yml`    | `workflow_dispatch`, or a PR labelled **`e2e`** | Brings up the `theopenlane/core` stack from its published image, builds the console, runs the full Mode B suite, uploads the HTML report. |
+
+`console-checks` is the always-on gate: it catches broken specs (type errors,
+duplicate titles, unresolvable imports) in about a minute without any backend.
+
+`console-e2e` is opt-in because it needs the whole core stack. Notes if you
+touch it:
+
+- **Port 3001, not 3004.** `core/config/config-dev.example.yaml` lists only
+  `http://localhost:3001` under `server.cors.alloworigins`. The browser calls
+  core directly, so any other origin silently fails every GraphQL POST with no
+  error in either log. The local `.config.yaml` many of us run also allows 3004
+  — CI does not.
+- Core's runtime config is **not** committed in that repo; the workflow copies
+  `config/config-dev.example.yaml` to `config/.config.yaml`.
+- The suite is not sharded. One job at 4 workers is the current shape; shard
+  with Playwright's own `--shard=i/N` across jobs only when wall time justifies
+  it, and give each shard its own `E2E_RUN_ID` so the seeded orgs stay isolated.
 
 ## Test users
 
@@ -209,10 +241,11 @@ Password for everyone: `mattisthebest1234` (matches the backend default).
 
 Two-tier:
 
-1. **Storage state** — `e2e/global-setup.ts` registers + verifies + logs in
+1. **Seeded profiles** — `e2e/global-setup.ts` registers + verifies + logs in
    each role once per `playwright test` invocation, saving cookies to
-   `e2e/.auth/<role>.json`. Most specs use `test.use({ storageState })` to
-   skip the login UI.
+   `e2e/.auth/<role>.json`. Most specs use `test.use({ authProfile })` to
+   skip the login UI; the worker-scoped `sessionFor` fixture then logs that
+   profile in once per worker so no two workers share a server session.
 2. **Login spec** — `tests/auth.spec.ts` exercises the real login UI without
    storage state.
 

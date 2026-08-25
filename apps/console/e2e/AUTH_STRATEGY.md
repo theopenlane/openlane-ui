@@ -1,8 +1,10 @@
 # E2E Auth & Fixture Strategy
 
-> **Status:** answered. All open questions from the initial draft have concrete
-> answers based on backend code at `~/projects/openlane/core` (commit at time
-> of writing).
+> **Status:** the backend findings below are still accurate. **Two sections have
+> been superseded by the implementation** — see the `SUPERSEDED` callouts under
+> "Specs declare `storageState`" and "Test organization". The authoritative
+> description of how auth works today is [`README.md`](README.md) plus
+> `fixtures/auth.ts`.
 
 ## Goals
 
@@ -45,8 +47,15 @@ Most specs assume the user is already authenticated. Playwright's
     register-then-verify backend dance (see helper below), then logs in via
     the UI.
 - Either way, the resulting cookies are saved to `e2e/.auth/<role>.json`.
-- Specs declare `test.use({ storageState: '.auth/owner.json' })` (or use a
-  custom fixture — see below) to skip the login UI entirely.
+- Specs declare `test.use({ authProfile: 'owner' })` to skip the login UI.
+
+> **SUPERSEDED:** an earlier draft had specs pin `storageState` to a captured
+> `.auth/<role>.json` file directly. They must not. Replaying one captured
+> session across all workers made `/v1/logout` from any single test revoke the
+> tokens and delete the server session for the whole run. The `authProfile`
+> option resolves through the worker-scoped `sessionFor` fixture, which logs
+> each profile in once per worker; the `.auth/*.json` files are now seeding
+> output and probe input, not what specs attach to.
 
 ```ts
 // e2e/utils/registerUser.ts — idempotent backend register+verify.
@@ -154,10 +163,16 @@ share the same set of users.
 
 ## Test organization
 
-There is no shared "e2e-test-org" — each Owner registers and gets a fresh
-personal organization. Specs that need a multi-org setup invite the other
-test users (Admin / Member / ReadOnly) into the Owner's org via the regular
-invite flow.
+> **SUPERSEDED:** there **is** a shared org. `global-setup.ts` creates one org
+> per run and adds every role to it with `createOrgMembership` (plus a
+> `defaultOrgID` so each role's login lands there), instead of each Owner
+> keeping a private personal org. Specs that need a pristine org opt out with
+> the fresh-user pattern (`freshTest`) described in `README.md`.
+
+Consequences of the shared org: mutating specs run against data other specs can
+see, so additive creates are fine but destructive operations must target rows
+the spec created itself, and list assertions must search for a unique name
+rather than assume page 1.
 
 Mutating tests must use unique names: `e2e-${runId}-${test-name}-${counter}`.
 
