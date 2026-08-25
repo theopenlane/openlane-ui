@@ -53,7 +53,8 @@
         "AI_SYSTEM_INSTRUCTION",
         "CONTROL_FRAMEWORK_INSTRUCTION",
         "FLAGS",
-        "FLAGS_SECRET"
+        "FLAGS_SECRET",
+        "NEXT_PUBLIC_DOCS_HELP_DEMO"
       ],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "storybook-static/**"]
     },

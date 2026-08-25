@@ -10,18 +10,18 @@ export const lookupSection = async (docs: DocsProvider, lookup: SectionLookup, s
   if (cached) return cached
 
   const contexts = await docs.retrieve(lookup.query, DEEP_RETRIEVAL_TOP_K)
+  const parsed = contexts.map((context) => ({ chunk: parseChunk(context.text), sourceUri: context.sourceUri }))
   const ranked = rankChunks(dedupeBySource(contexts.map((context) => context.text)), lookup.prefer, section)
   const top = ranked[0]
   if (!top?.source) return { section: '', title: '', source: '' }
 
-  const sourceUri = contexts.find((context) => parseChunk(context.text).source === top.source)?.sourceUri
+  const sourceUri = parsed.find(({ chunk }) => chunk.source === top.source)?.sourceUri
   const stored = sourceUri ? await docs.pageText(sourceUri) : null
   const pageText = stored
     ? parseChunk(stored).text
-    : contexts
-        .map((context) => parseChunk(context.text))
-        .filter((chunk) => chunk.source === top.source)
-        .map((chunk) => chunk.text)
+    : parsed
+        .filter(({ chunk }) => chunk.source === top.source)
+        .map(({ chunk }) => chunk.text)
         .join('\n\n')
 
   const result = { section: extractMarkdownSection(pageText, lookup.extractSection) ?? '', title: top.title, source: top.source }

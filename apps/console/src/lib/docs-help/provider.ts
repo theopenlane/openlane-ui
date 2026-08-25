@@ -1,7 +1,6 @@
 import { docsHelpDemo } from '@repo/dally/ai'
 import { corpusLocation, fetchGcsFile, getClients } from '@/lib/docs-help/clients'
 import { generateControlTitles, generatePublicRepresentation, summarizeChunks } from '@/lib/docs-help/ai'
-import { demoDocsProvider } from '@/lib/docs-help/demo'
 import type { DocsHelpClients, DocsProvider, DocsRetrievedContext } from '@/lib/docs-help/types'
 
 const vertexProvider = (clients: DocsHelpClients): DocsProvider => ({
@@ -9,7 +8,7 @@ const vertexProvider = (clients: DocsHelpClients): DocsProvider => ({
     const { parent, ragCorpus } = corpusLocation()
     const [response] = await clients.rag.retrieveContexts({
       parent,
-      query: topK ? { text: query, ragRetrievalConfig: { topK } } : { text: query },
+      query: topK !== undefined ? { text: query, ragRetrievalConfig: { topK } } : { text: query },
       vertexRagStore: { ragResources: [{ ragCorpus }] },
     })
     return (response.contexts?.contexts ?? []).flatMap((context) => (context?.text ? [{ text: context.text, sourceUri: context.sourceUri ?? undefined }] : []))
@@ -20,8 +19,9 @@ const vertexProvider = (clients: DocsHelpClients): DocsProvider => ({
   publicRepresentation: (input) => generatePublicRepresentation(clients.genAI, input),
 })
 
-export const getDocsProvider = (): DocsProvider | null => {
+export const getDocsProvider = async (): Promise<DocsProvider | null> => {
+  if (docsHelpDemo) return (await import('@/lib/docs-help/demo')).demoDocsProvider
+
   const clients = getClients()
-  if (clients) return vertexProvider(clients)
-  return docsHelpDemo ? demoDocsProvider : null
+  return clients ? vertexProvider(clients) : null
 }

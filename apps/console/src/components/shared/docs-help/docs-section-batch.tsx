@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import { DocsSectionBatchContext, type BatchState, type DocsSectionLookup, type DocsSectionResult } from './docs-section-batch-context'
 
 // wait for the rest of a screenful of rows to register before firing
@@ -61,7 +61,7 @@ export function DocsSectionBatchProvider({ children }: { children: ReactNode }) 
       }
       return { results: merged }
     },
-    enabled: docsHelpEnabled && inFlight.length > 0,
+    enabled: docsHelpAvailable && inFlight.length > 0,
     staleTime: 5 * 60 * 1000,
     retry: false,
     placeholderData: undefined,
