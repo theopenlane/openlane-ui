@@ -1,7 +1,24 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local", "**/.env", ".env"],
-  "globalEnv": ["TZ"],
+  "globalEnv": [
+    "TZ",
+    "CI",
+
+    // Playwright E2E
+    "E2E_API_BASE",
+    "E2E_BASE_URL",
+    "E2E_PORT",
+    "E2E_RUN_ID",
+    "E2E_EMAIL_DOMAIN",
+    "E2E_RESEED",
+    "E2E_REUSE_AUTH",
+    "E2E_DEMO_EMAIL",
+    "E2E_DEMO_PASSWORD",
+    "E2E_WORKERS",
+    "COOKIE_PLAYWRIGHT_INSECURE",
+    "PLAYWRIGHT_USE_WEBSERVER"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
