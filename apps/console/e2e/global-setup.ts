@@ -1,5 +1,5 @@
 import { chromium, type BrowserContext, type FullConfig } from '@playwright/test'
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { chmodSync, existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -170,7 +170,8 @@ const captureDemoSession = async (): Promise<boolean> => {
 }
 
 const globalSetup = async (_config: FullConfig): Promise<void> => {
-  mkdirSync(AUTH_DIR, { recursive: true })
+  mkdirSync(AUTH_DIR, { recursive: true, mode: 0o700 })
+  chmodSync(AUTH_DIR, 0o700)
 
   if (await canReuseAuth()) {
     console.log('[global-setup] E2E_REUSE_AUTH set and the captured session still works — reusing e2e/.auth')
@@ -241,7 +242,9 @@ const globalSetup = async (_config: FullConfig): Promise<void> => {
     sharedControlRefCode,
     hasDemoSession,
   }
-  writeFileSync(path.join(AUTH_DIR, 'manifest.json'), JSON.stringify(manifest, null, 2))
+  const manifestPath = path.join(AUTH_DIR, 'manifest.json')
+  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), { mode: 0o600 })
+  chmodSync(manifestPath, 0o600)
 }
 
 export default globalSetup

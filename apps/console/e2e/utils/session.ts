@@ -1,5 +1,5 @@
 import type { Browser, BrowserContext } from '@playwright/test'
-import { writeFileSync } from 'node:fs'
+import { chmodSync, writeFileSync } from 'node:fs'
 
 import { BASE_URL } from './constants'
 import { loginViaForm } from './login'
@@ -23,7 +23,8 @@ export const saveStorageState = async (context: BrowserContext, outPath: string)
   for (const cookie of state.cookies) {
     if (cookie.expires > 0 && cookie.expires < minExpiry) cookie.expires = minExpiry
   }
-  writeFileSync(outPath, JSON.stringify(state, null, 2))
+  writeFileSync(outPath, JSON.stringify(state, null, 2), { mode: 0o600 })
+  chmodSync(outPath, 0o600)
 }
 
 /**
