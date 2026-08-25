@@ -7,6 +7,7 @@ import remarkGfm from 'remark-gfm'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Callout } from '@/components/shared/callout/callout'
+import { docsHelpDemo } from '@repo/dally/ai'
 import { DOCS_URL } from '@/constants/docs'
 import { useDocsFullPage, useDocsHelp } from '@/hooks/useDocsHelp'
 import { DocsFaqSection, stripFaqSection, useDocsFaq } from './docs-faq'
@@ -92,6 +93,10 @@ export const createDocsMarkdownComponents = (base: string | undefined, onDocLink
           {children}
         </a>
       )
+    }
+
+    if (docsHelpDemo && resolved?.host === DOCS_HOST) {
+      return <span {...props}>{children}</span>
     }
 
     return (
@@ -296,17 +301,20 @@ export const DocsHelpContent = ({ query, prefer, intro, section, enabled }: Docs
               {fullPageLoading ? 'Loading…' : 'Read more'}
             </button>
           )}
-          {best.source && (
-            <a
-              href={best.source}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-info)] hover:underline underline-offset-4"
-            >
-              View documentation
-              <ExternalLink size={12} />
-            </a>
-          )}
+          {best.source &&
+            (docsHelpDemo ? (
+              <span className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground">Demo content — not from the live documentation</span>
+            ) : (
+              <a
+                href={best.source}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-info)] hover:underline underline-offset-4"
+              >
+                View documentation
+                <ExternalLink size={12} />
+              </a>
+            ))}
         </div>
       )}
 

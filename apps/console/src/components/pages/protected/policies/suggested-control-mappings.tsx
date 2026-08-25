@@ -6,7 +6,7 @@ import { Lightbulb, Link2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { DismissButton, SuggestionCard, SuggestionRow } from '@/components/shared/docs-help/suggestion-card'
 import { useDismissible } from '@/hooks/useDismissible'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification'
@@ -75,7 +75,7 @@ export function SuggestedControlMappings({
   const { dismissed, dismiss, isResolved } = useDismissible(`suggested-control-mappings-dismissed:${policyId}`)
 
   // the matching Policy Hub template, if any, for its satisfies frontmatter
-  const { data: templates } = usePolicyTemplates(docsHelpEnabled && isResolved && !dismissed)
+  const { data: templates } = usePolicyTemplates(docsHelpAvailable && isResolved && !dismissed)
   const template = policyName ? findPolicyTemplate(templates, policyName) : undefined
 
   const templateUrl = template?.downloadUrl
@@ -110,10 +110,10 @@ export function SuggestedControlMappings({
   // controls with the same ref codes, but a policy can't be mapped to those
   const { data: controlsData } = useGetAllControls({
     where: { refCodeIn: wantedRefCodes, systemOwned: false, isTrustCenterControl: false },
-    enabled: docsHelpEnabled && isResolved && !dismissed && wantedRefCodes.length > 0,
+    enabled: docsHelpAvailable && isResolved && !dismissed && wantedRefCodes.length > 0,
   })
 
-  if (!docsHelpEnabled || dismissed || linkedControlsLoading) return null
+  if (!docsHelpAvailable || dismissed || linkedControlsLoading) return null
 
   const linked = new Set(linkedControlIds)
   const templateSet = new Set((templateRefCodes ?? []).map(normalizeRef))

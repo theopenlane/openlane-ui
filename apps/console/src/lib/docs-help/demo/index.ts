@@ -1,6 +1,6 @@
 import type { DocsControlTitleInput, DocsProvider, DocsRetrievedContext, PublicRepresentationInput } from '@/lib/docs-help/types'
 import type { DocsHelpChunk } from '@/types/docs-help'
-import { DEFAULT_REPRESENTATION_TARGET, REPRESENTATION_LENGTH_MULTIPLIER } from '@/lib/docs-help/constants'
+import { DEFAULT_REPRESENTATION_TARGET, DEFAULT_RETRIEVAL_TOP_K, REPRESENTATION_LENGTH_MULTIPLIER } from '@/lib/docs-help/constants'
 import { dropRunawaySentences } from '@/lib/docs-help/ai'
 import { htmlToText, stripInlineMarkdown } from '@/lib/docs-help/parse'
 import { DEVELOPER_PAGES, PLATFORM_PAGES, demoPageSource, type DemoDocsPage } from '@/lib/docs-help/demo/corpus'
@@ -10,8 +10,6 @@ const RETRIEVAL_LATENCY_MS = 180
 const GENERATION_LATENCY_MS = 400
 
 const EXCERPT_CHARS = 1200
-
-const DEFAULT_TOP_K = 8
 
 const SUMMARY_PREFIX = 'Demo summary — '
 
@@ -27,7 +25,7 @@ const WEIGHT_BODY = 1
 
 const STOP_WORDS = new Set(['a', 'an', 'and', 'are', 'can', 'do', 'does', 'for', 'how', 'i', 'in', 'is', 'my', 'of', 'on', 'or', 'the', 'to', 'what', 'with'])
 
-const FALLBACK_PATHS = ['/docs/platform/overview', '/docs/platform/compliance-management/controls/overview', '/docs/platform/compliance-management/programs/overview']
+const FALLBACK_PATHS = ['/docs/platform/overview', '/docs/platform/compliance-management/controls/overview', '/docs/platform/compliance-management/programs/overview', '/docs/developers/api/overview']
 
 const ALL_PAGES: DemoDocsPage[] = [...PLATFORM_PAGES, ...FRAMEWORK_CONTROL_PAGES, ...DEVELOPER_PAGES]
 
@@ -40,7 +38,7 @@ const tokenize = (value: string): string[] =>
 
 const singular = (word: string): string => {
   if (word.endsWith('ies') && word.length > 4) return `${word.slice(0, -3)}y`
-  if (word.endsWith('sses')) return word.slice(0, -2)
+  if (/(?:s|x|z|ch|sh)es$/.test(word) && word.length > 4) return word.slice(0, -2)
   if (word.endsWith('s') && !word.endsWith('ss') && word.length > 3) return word.slice(0, -1)
   return word
 }
@@ -93,13 +91,30 @@ const INDEX: IndexedPage[] = ALL_PAGES.map(indexPage)
 const BY_SOURCE = new Map(INDEX.map((entry) => [entry.source, entry]))
 const FALLBACK = FALLBACK_PATHS.flatMap((path) => INDEX.filter((entry) => entry.page.path === path))
 
+if (FALLBACK.length !== FALLBACK_PATHS.length) {
+  throw new Error(`docs-help demo: FALLBACK_PATHS has entries missing from the corpus (${FALLBACK.length}/${FALLBACK_PATHS.length} resolved)`)
+}
+
 const scoreOf = (entry: IndexedPage, searchTerms: string[]): number => searchTerms.reduce((total, term) => total + (entry.weights.get(term) ?? 0), 0)
 
-const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+const pause = (ms: number, signal?: AbortSignal): Promise<void> =>
+  ms <= 0 || signal?.aborted
+    ? Promise.resolve()
+    : new Promise((resolve) => {
+        const timer = setTimeout(resolve, ms)
+        signal?.addEventListener(
+          'abort',
+          () => {
+            clearTimeout(timer)
+            resolve()
+          },
+          { once: true },
+        )
+      })
 
 const search = (query: string, topK: number): IndexedPage[] => {
   const searchTerms = queryTerms(query)
-  if (searchTerms.length === 0) return FALLBACK
+  if (searchTerms.length === 0) return FALLBACK.slice(0, topK)
 
   const scored = INDEX.map((entry) => ({ entry, score: scoreOf(entry, searchTerms) }))
     .filter(({ score }) => score > 0)
@@ -107,7 +122,7 @@ const search = (query: string, topK: number): IndexedPage[] => {
     .slice(0, topK)
     .map(({ entry }) => entry)
 
-  return scored.length ? scored : FALLBACK
+  return scored.length ? scored : FALLBACK.slice(0, topK)
 }
 
 const proseOf = (text: string): string =>
@@ -159,20 +174,28 @@ const lowerFirst = (value: string): string => (value ? value.charAt(0).toLowerCa
 
 const withoutTrailingStop = (value: string): string => value.replace(/[.\s]+$/, '')
 
-export const demoDocsProvider: DocsProvider = {
+const LEADING_SUBJECT = /^(the\s+(organization|organisation|company|entity|team)|we|it)\b/i
+
+const asOrganizationSentence = (value: string): string => {
+  const trimmed = withoutTrailingStop(value)
+  if (!trimmed) return ''
+  return LEADING_SUBJECT.test(trimmed) ? `${trimmed}.` : `The organization ${lowerFirst(trimmed)}.`
+}
+
+export const createDemoDocsProvider = (retrievalMs = RETRIEVAL_LATENCY_MS, generationMs = GENERATION_LATENCY_MS): DocsProvider => ({
   retrieve: async (query: string, topK?: number): Promise<DocsRetrievedContext[]> => {
-    await pause(RETRIEVAL_LATENCY_MS)
-    return search(query, topK ?? DEFAULT_TOP_K).map((entry) => ({ text: entry.excerpt, sourceUri: entry.source }))
+    await pause(retrievalMs)
+    return search(query, topK ?? DEFAULT_RETRIEVAL_TOP_K).map((entry) => ({ text: entry.excerpt, sourceUri: entry.source }))
   },
 
   pageText: async (sourceUri: string): Promise<string | null> => {
-    await pause(RETRIEVAL_LATENCY_MS)
+    await pause(retrievalMs)
     return BY_SOURCE.get(sourceUri)?.raw ?? null
   },
 
   summarize: async (chunks: DocsHelpChunk[], query: string, signal: AbortSignal): Promise<string> => {
     if (chunks.length === 0) return ''
-    await pause(GENERATION_LATENCY_MS)
+    await pause(generationMs, signal)
     if (signal.aborted) return ''
 
     const body = firstSentences(proseOf(chunks[0].text), SUMMARY_SENTENCES)
@@ -183,21 +206,22 @@ export const demoDocsProvider: DocsProvider = {
   },
 
   controlTitles: async (controls: DocsControlTitleInput[]): Promise<string[]> => {
-    await pause(GENERATION_LATENCY_MS)
+    await pause(generationMs)
     return controls.map((control) => titleFromDescription(control.description))
   },
 
   publicRepresentation: async (input: PublicRepresentationInput): Promise<string> => {
-    await pause(GENERATION_LATENCY_MS)
+    await pause(generationMs)
 
-    const requirement = firstSentences(htmlToText(input.description ?? ''), 1)
+    const descriptionText = htmlToText(input.description ?? '')
+    const requirement = firstSentences(descriptionText, 1)
     const implementation = firstSentences(htmlToText(input.implementations?.[0] ?? ''), 1)
     const objective = firstSentences(htmlToText(input.objectives?.[0] ?? ''), 1)
     const control = [input.referenceFramework, input.refCode].filter(Boolean).join(' ')
 
     const parts = [
       implementation
-        ? `The organization ${lowerFirst(withoutTrailingStop(implementation))}.`
+        ? asOrganizationSentence(implementation)
         : requirement
           ? `The organization maintains controls to ensure ${lowerFirst(withoutTrailingStop(requirement))}.`
           : 'The organization maintains documented controls covering this requirement.',
@@ -206,7 +230,9 @@ export const demoDocsProvider: DocsProvider = {
       'Supporting evidence is retained and reviewed on a defined schedule.',
     ].filter(Boolean)
 
-    const target = requirement.length || DEFAULT_REPRESENTATION_TARGET
+    const target = descriptionText.length || DEFAULT_REPRESENTATION_TARGET
     return dropRunawaySentences(parts.join(' '), target * REPRESENTATION_LENGTH_MULTIPLIER)
   },
-}
+})
+
+export const demoDocsProvider: DocsProvider = createDemoDocsProvider()

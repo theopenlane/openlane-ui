@@ -4,7 +4,7 @@ import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { ChevronDown } from 'lucide-react'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import { useDocsSection } from '@/hooks/useDocsHelp'
 import type { Components } from 'react-markdown'
 
@@ -52,7 +52,7 @@ export function parseFaq(markdown: string): FaqEntry[] {
 // The FAQ for a docs topic. FAQs are written per object ("controls",
 // "policies"), not per record, so this takes the page's docs topic
 export function useDocsFaq(query: string, prefer?: string, enabled = true) {
-  const { data } = useDocsSection(query, FAQ_HEADINGS, docsHelpEnabled && enabled, prefer)
+  const { data } = useDocsSection(query, FAQ_HEADINGS, docsHelpAvailable && enabled, prefer)
   if (!data?.section) return null
   const entries = parseFaq(data.section)
   return entries.length ? { entries, source: data.source } : null

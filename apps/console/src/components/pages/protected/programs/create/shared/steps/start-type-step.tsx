@@ -4,7 +4,7 @@ import { BookText, Rocket, SearchCheck } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
 import { useFormContext, Controller, useWatch } from 'react-hook-form'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import { useOrganization } from '@/hooks/useOrganization'
 import { getOnboardingNeedsControls } from '@/lib/storage/onboarding-frameworks'
 import { useDocsHelpNavigate } from '@/components/shared/docs-help/docs-help-context'
@@ -27,7 +27,7 @@ export default function StartTypeStep() {
       <div>
         <h2 className="text-lg font-semibold">How do you want to get started?</h2>
         <p className="text-sm text-muted-foreground">Choose the path that best matches your current readiness. You can switch later if your needs change.</p>
-        {docsHelpEnabled && (
+        {docsHelpAvailable && (
           <button
             type="button"
             onClick={() => navigateDocs({ title: 'Gap Analysis', query: 'gap analysis', prefer: 'gapanalysis' })}

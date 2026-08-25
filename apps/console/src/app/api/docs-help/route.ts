@@ -60,7 +60,7 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const docs = getDocsProvider()
+  const docs = await getDocsProvider()
   if (!docs) {
     return NextResponse.json({ error: 'Docs help is not enabled' }, { status: 503 })
   }
