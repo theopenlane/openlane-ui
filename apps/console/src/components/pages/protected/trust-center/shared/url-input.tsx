@@ -27,15 +27,15 @@ function UrlInput({ value, onChange, disabled, className, verifiedStatus, hasCop
   const blocked = value ? isBlockedDomain(value) : false
   return (
     <div className={clsx('flex flex-col gap-1', className)}>
-      <div className={clsx('flex items-center border rounded-md w-full', blocked && 'border-red-500')}>
-        <p className="px-3 py-2 text-sm select-none">https://</p>
-        <Input className="rounded-none h-8" maxWidth value={value} placeholder={placeholder ?? 'trust.yourcompany.com'} onChange={(e) => onChange?.(e.target.value)} disabled={disabled} />
+      <div className={clsx('flex h-10 items-stretch border rounded-md w-full', blocked && 'border-red-500')}>
+        <p className="flex items-center px-3 text-sm select-none">https://</p>
+        <Input className="rounded-none h-full" maxWidth value={value} placeholder={placeholder ?? 'trust.yourcompany.com'} onChange={(e) => onChange?.(e.target.value)} disabled={disabled} />
         {hasCopyButton ? (
-          <a href={value} rel={'noreferrer'} target="_blank">
+          <a className="flex" href={value} rel={'noreferrer'} target="_blank">
             <Button
               type="button"
               variant="secondary"
-              className="flex items-center justify-center h-8 gap-1 rounded-l-none"
+              className="h-full items-center justify-center gap-1 rounded-l-none"
               icon={<ExternalLink size={14} />}
               disabled={!value}
               iconPosition="center"
