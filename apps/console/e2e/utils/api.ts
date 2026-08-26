@@ -121,7 +121,7 @@ export const getSharedOrgs = async (sess: ApiSession): Promise<Array<{ id: strin
 // data instead of clicking through the create UI.
 type CreateResult = Record<string, Record<string, { id: string }>>
 
-const seedEntity = async (sess: ApiSession, mutationField: string, inputType: string, payloadField: string, input: Record<string, unknown>): Promise<string> => {
+export const seedEntity = async (sess: ApiSession, mutationField: string, inputType: string, payloadField: string, input: Record<string, unknown>): Promise<string> => {
   const res = await gql<CreateResult>(sess, `mutation($input: ${inputType}!){ ${mutationField}(input: $input){ ${payloadField} { id } } }`, { input })
   const id = res.data?.[mutationField]?.[payloadField]?.id
   if (!id) throw new Error(`${mutationField} failed: ${JSON.stringify(res.errors)}`)
@@ -129,7 +129,8 @@ const seedEntity = async (sess: ApiSession, mutationField: string, inputType: st
 }
 
 /** Create a control (only `refCode` required). */
-export const createControl = (sess: ApiSession, refCode: string): Promise<string> => seedEntity(sess, 'createControl', 'CreateControlInput', 'control', { refCode })
+export const createControl = (sess: ApiSession, refCode: string, extra: Record<string, unknown> = {}): Promise<string> =>
+  seedEntity(sess, 'createControl', 'CreateControlInput', 'control', { refCode, ...extra })
 
 /** Create an internal policy (only `name` required). */
 export const createInternalPolicy = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createInternalPolicy', 'CreateInternalPolicyInput', 'internalPolicy', { name })
@@ -141,7 +142,46 @@ export const createProcedure = (sess: ApiSession, name: string): Promise<string>
 export const createProgram = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createProgram', 'CreateProgramInput', 'program', { name })
 
 /** Create a risk (only `name` required). */
-export const createRisk = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createRisk', 'CreateRiskInput', 'risk', { name })
+export const createRisk = (sess: ApiSession, name: string, extra: Record<string, unknown> = {}): Promise<string> => seedEntity(sess, 'createRisk', 'CreateRiskInput', 'risk', { name, ...extra })
+
+/** Create an exposure finding (identified by displayName; externalID is the API key). */
+export const createFinding = (sess: ApiSession, displayName: string, extra: Record<string, unknown> = {}): Promise<string> =>
+  seedEntity(sess, 'createFinding', 'CreateFindingInput', 'finding', { displayName, ...extra })
+
+export const deleteFinding = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteFinding(id: $id){ deletedID } }`, { id })
+}
+
+/** Create an exposure scan (only `target` required). */
+export const createScan = (sess: ApiSession, target: string, extra: Record<string, unknown> = {}): Promise<string> => seedEntity(sess, 'createScan', 'CreateScanInput', 'scan', { target, ...extra })
+
+export const deleteScan = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteScan(id: $id){ deletedID } }`, { id })
+}
+
+/** Create a remediation (identified by `title`). */
+export const createRemediation = (sess: ApiSession, title: string, extra: Record<string, unknown> = {}): Promise<string> =>
+  seedEntity(sess, 'createRemediation', 'CreateRemediationInput', 'remediation', { title, ...extra })
+
+export const deleteRemediation = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteRemediation(id: $id){ deletedID } }`, { id })
+}
+
+/** Create a vulnerability (only `externalID` required). */
+export const createVulnerability = (sess: ApiSession, displayName: string, externalID: string, extra: Record<string, unknown> = {}): Promise<string> =>
+  seedEntity(sess, 'createVulnerability', 'CreateVulnerabilityInput', 'vulnerability', { displayName, externalID, ...extra })
+
+export const deleteVulnerability = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteVulnerability(id: $id){ deletedID } }`, { id })
+}
+
+/** Create an action plan (`name` and `title` both required). */
+export const createActionPlan = (sess: ApiSession, name: string, extra: Record<string, unknown> = {}): Promise<string> =>
+  seedEntity(sess, 'createActionPlan', 'CreateActionPlanInput', 'actionPlan', { name, title: name, ...extra })
+
+export const deleteActionPlan = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteActionPlan(id: $id){ deletedID } }`, { id })
+}
 
 /** Create a task (only `title` required). */
 export const createTask = (sess: ApiSession, title: string): Promise<string> => seedEntity(sess, 'createTask', 'CreateTaskInput', 'task', { title })
@@ -163,9 +203,73 @@ export const createCampaign = (sess: ApiSession, name: string): Promise<string> 
 
 /** Create a registry platform (only `name` required). */
 /** Create a system detail (only `systemName` required). */
-export const createSystemDetail = (sess: ApiSession, systemName: string): Promise<string> => seedEntity(sess, 'createSystemDetail', 'CreateSystemDetailInput', 'systemDetail', { systemName })
+export const createSystemDetail = (sess: ApiSession, systemName: string, extra: Record<string, unknown> = {}): Promise<string> =>
+  seedEntity(sess, 'createSystemDetail', 'CreateSystemDetailInput', 'systemDetail', { systemName, ...extra })
+
+export const deleteSystemDetail = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteSystemDetail(id: $id){ deletedID } }`, { id })
+}
 
 export const createPlatform = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createPlatform', 'CreatePlatformInput', 'platform', { name })
+
+export const createControlObjective = (sess: ApiSession, name: string, controlIDs: string[], status?: string): Promise<string> =>
+  seedEntity(sess, 'createControlObjective', 'CreateControlObjectiveInput', 'controlObjective', { name, controlIDs, ...(status ? { status } : {}) })
+
+export const deleteControlObjective = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteControlObjective(id: $id){ deletedID } }`, { id })
+}
+
+export const createMappedControl = (sess: ApiSession, fromControlID: string, toControlID: string, mappingType = 'EQUAL'): Promise<string> =>
+  seedEntity(sess, 'createMappedControl', 'CreateMappedControlInput', 'mappedControl', {
+    mappingType,
+    confidence: 80,
+    fromControlIDs: [fromControlID],
+    toControlIDs: [toControlID],
+  })
+
+export const deleteMappedControl = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteMappedControl(id: $id){ deletedID } }`, { id })
+}
+
+export const deleteProgram = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteProgram(id: $id){ deletedID } }`, { id })
+}
+
+export const createSubcontrol = (sess: ApiSession, refCode: string, controlID: string): Promise<string> =>
+  seedEntity(sess, 'createSubcontrol', 'CreateSubcontrolInput', 'subcontrol', { refCode, controlID })
+
+export const deleteControl = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteControl(id: $id){ deletedID } }`, { id })
+}
+
+export const deleteSubcontrol = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteSubcontrol(id: $id){ deletedID } }`, { id })
+}
+
+export const createReview = (sess: ApiSession, title: string): Promise<string> => seedEntity(sess, 'createReview', 'CreateReviewInput', 'review', { title })
+
+export const deleteReview = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteReview(id: $id){ deletedID } }`, { id })
+}
+
+export const createTagDefinition = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createTagDefinition', 'CreateTagDefinitionInput', 'tagDefinition', { name })
+
+export const deleteTagDefinition = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteTagDefinition(id: $id){ deletedID } }`, { id })
+}
+
+export const createCustomTypeEnum = (sess: ApiSession, name: string, field: string, objectType = ''): Promise<string> =>
+  seedEntity(sess, 'createCustomTypeEnum', 'CreateCustomTypeEnumInput', 'customTypeEnum', { name, field, objectType })
+
+export const deleteCustomTypeEnum = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteCustomTypeEnum(id: $id){ deletedID } }`, { id })
+}
+
+export const createSubscriber = (sess: ApiSession, email: string): Promise<string> => seedEntity(sess, 'createSubscriber', 'CreateSubscriberInput', 'subscriber', { email })
+
+export const deleteSubscriber = async (sess: ApiSession, email: string): Promise<void> => {
+  await gql(sess, `mutation($email: String!){ deleteSubscriber(email: $email){ email } }`, { email })
+}
 
 /** Minimal SurveyJS definition for a seeded questionnaire template. */
 const MINIMAL_SURVEY = { pages: [{ name: 'page1', elements: [{ type: 'text', name: 'q1', title: 'Question 1' }] }] }
@@ -187,11 +291,11 @@ export const createQuestionnaire = async (sess: ApiSession, name: string): Promi
  * the console's vendor create flow). Uses the extra entityTypeName arg, so it
  * can't go through the generic seedEntity helper.
  */
-export const createVendor = async (sess: ApiSession, name: string): Promise<string> => {
+export const createVendor = async (sess: ApiSession, name: string, displayName?: string): Promise<string> => {
   const res = await gql<{ createEntity: { entity: { id: string } } }>(
     sess,
     `mutation($input: CreateEntityInput!, $entityTypeName: String){ createEntity(input: $input, entityTypeName: $entityTypeName){ entity { id } } }`,
-    { input: { name }, entityTypeName: 'vendor' },
+    { input: { name, ...(displayName ? { displayName } : {}) }, entityTypeName: 'vendor' },
   )
   const id = res.data?.createEntity?.entity?.id
   if (!id) throw new Error(`createVendor failed: ${JSON.stringify(res.errors)}`)

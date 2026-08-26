@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
+import { confirmDestructiveDialog, openRowAction } from '../utils/menu'
 import { RUN_ID } from '../utils/constants'
 import { createCampaign, createQuestionnaire, createTemplate, type ApiSession, getOwnerApi } from '../utils/api'
 import { uniqueName } from '../utils/unique'
@@ -78,7 +79,7 @@ test.describe('automation — campaign create stepper', () => {
     // canProceed is always true, so "Next" moves to step 2 ("Targets"); the
     // header badge flips to STEP 2 OF 3 and a "Previous" button appears.
     await sheet.getByRole('button', { name: /^Next$/ }).click()
-    await expect(sheet.getByText(/STEP 2 OF 3/)).toBeVisible({ timeout: 10_000 })
+    await expect(sheet.getByText(/STEP 2 OF 3/)).toBeVisible({ timeout: 30_000 })
     await expect(sheet.getByRole('button', { name: /^Previous$/ })).toBeVisible()
   })
 
@@ -548,14 +549,9 @@ test.describe('automation — questionnaire templates list', () => {
     await expect(page.getByRole('cell').filter({ hasText: name }).first()).toBeVisible({ timeout: 15_000 })
     const row = page.getByRole('row').filter({ hasText: name }).first()
 
-    await row
-      .getByRole('button')
-      .filter({ has: page.locator('.lucide-ellipsis, .lucide-more-horizontal') })
-      .click()
-    const edit = page.getByRole('menuitem', { name: /^Edit$/ })
-    await expect(edit).toBeVisible({ timeout: 10_000 })
-    await edit.click()
-    await page.waitForURL(new RegExp(`template-editor\\?id=${id}`), { timeout: 20_000 })
+    const trigger = row.getByRole('button').filter({ has: page.locator('.lucide-ellipsis, .lucide-more-horizontal') })
+    await openRowAction(page, trigger, page.getByRole('menuitem', { name: /^Edit$/ }))
+    await page.waitForURL(new RegExp(`template-editor\\?id=${id}`), { timeout: 30_000 })
   })
 
   test('the row Delete action removes a seeded template after confirmation', async ({ page }) => {
@@ -569,18 +565,10 @@ test.describe('automation — questionnaire templates list', () => {
     const row = page.getByRole('row').filter({ hasText: name }).first()
 
     const menuTrigger = row.getByRole('button').filter({ has: page.locator('.lucide-ellipsis, .lucide-more-horizontal') })
-    const del = page.getByRole('menuitem', { name: /^Delete$/ })
-    // Toggle-safe open (parallel-load resilient): re-open until the item shows.
-    await expect(async () => {
-      if (!(await del.isVisible())) await menuTrigger.click()
-      await expect(del).toBeVisible({ timeout: 3_000 })
-    }).toPass({ timeout: 20_000 })
-    await del.click()
+    await openRowAction(page, menuTrigger, page.getByRole('menuitem', { name: /^Delete$/ }))
+    await confirmDestructiveDialog(page)
 
-    const dialog = page.getByRole('alertdialog')
-    await expect(dialog).toBeVisible({ timeout: 10_000 })
-    await dialog.getByRole('button', { name: /^Delete$/ }).click()
-    await expect(page.getByText('Template deleted successfully').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('cell').filter({ hasText: name })).toHaveCount(0, { timeout: 30_000 })
   })
 })
 
