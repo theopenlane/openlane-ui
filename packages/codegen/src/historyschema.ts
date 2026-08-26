@@ -1066,7 +1066,7 @@ export type DeleteBulkCheckResultMutationVariables = Exact<{
 }>
 
 export interface DeleteBulkCheckResultMutation {
-  deleteBulkCheckResult: { deletedIDs: Array<string>; notDeletedIDs: Array<string> | null; error: string | null }
+  deleteBulkCheckResult: { deletedIDs: Array<string>; notDeletedIDs: Array<string>; error: string | null }
 }
 
 export type UpdateBulkCheckResultMutationVariables = Exact<{
@@ -7368,7 +7368,8 @@ export interface ReviewQuery {
     updatedAt: any
     updatedBy: string | null
     controls: { edges: Array<{ node: { __typename: 'Control'; id: string; refCode: string; referenceFramework: string | null } | null } | null> | null }
-    subcontrols: { edges: Array<{ node: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework: string | null } | null } | null> | null }
+    subcontrols: { edges: Array<{ node: { __typename: 'Subcontrol'; id: string; controlID: string; refCode: string; referenceFramework: string | null } | null } | null> | null }
+    vendorEntities: { edges: Array<{ node: { id: string } | null } | null> | null }
     comments: { edges: Array<{ node: { id: string; displayID: string; text: string; createdAt: any; createdBy: string | null; updatedAt: any; updatedBy: string | null } | null } | null> | null }
   }
 }

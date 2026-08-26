@@ -10,7 +10,7 @@ import { ACTIVITY_FEED_PREVIEW_LIMIT, ActivityFeedCard, ActivityFeedRowsSkeleton
 import ViewVulnerabilitySheet from '@/components/pages/protected/vulnerabilities/view-vulnerability-sheet'
 import ViewFindingSheet from '@/components/pages/protected/findings/view-finding-sheet'
 import ViewScanSheet from '@/components/pages/protected/scans/view-scan-sheet'
-import ViewReviewSheet from '@/components/pages/protected/reviews/view-review-sheet'
+import ReviewSheetResolver from '@/components/pages/protected/reviews/common/review-sheet-resolver'
 import ViewRiskSheet from '@/components/pages/protected/risks/view-risk-sheet'
 import { searchTypeIcons } from '@/components/shared/search/search-config'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -138,7 +138,7 @@ const ActivityFeed = ({ activityItems, allActivityItems = activityItems, title =
       <ViewVulnerabilitySheet entityId={viewItem?.type === ObjectTypes.VULNERABILITY ? viewItem.id : null} onClose={() => setViewItem(null)} />
       <ViewFindingSheet entityId={viewItem?.type === ObjectTypes.FINDING ? viewItem.id : null} onClose={() => setViewItem(null)} />
       <ViewScanSheet entityId={viewItem?.type === ObjectTypes.SCAN ? viewItem.id : null} onClose={() => setViewItem(null)} />
-      <ViewReviewSheet entityId={viewItem?.type === ObjectTypes.REVIEW ? viewItem.id : null} onClose={() => setViewItem(null)} />
+      <ReviewSheetResolver reviewId={viewItem?.type === ObjectTypes.REVIEW ? viewItem.id : null} onClose={() => setViewItem(null)} />
       <ViewRiskSheet entityId={viewItem?.type === ObjectTypes.RISK ? viewItem.id : null} onClose={() => setViewItem(null)} />
     </>
   )

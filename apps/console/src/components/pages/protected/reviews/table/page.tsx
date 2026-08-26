@@ -28,7 +28,7 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { REVIEW_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
-import ViewReviewSheet from '../view-review-sheet'
+import ReviewSheetResolver from '../common/review-sheet-resolver'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const ReviewPage: React.FC = () => {
@@ -202,7 +202,7 @@ const ReviewPage: React.FC = () => {
   return (
     <>
       <GenericTablePage {...tableConfig} />
-      <ViewReviewSheet entityId={isCreate ? null : id} onClose={handleCloseViewSheet} />
+      <ReviewSheetResolver reviewId={isCreate ? null : id} onClose={handleCloseViewSheet} />
     </>
   )
 }
