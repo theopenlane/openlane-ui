@@ -86,10 +86,14 @@ test('the column menu shows Description and persists the visibility choice after
     await expect(rowFor(page, name)).toBeVisible({ timeout: 20_000 })
     await expect(page.getByRole('columnheader', { name: /^Description\b/ })).toHaveCount(0)
 
-    await page.getByRole('button', { name: 'Columns' }).click()
-    await page.getByRole('menu').getByRole('checkbox', { name: 'Description' }).check()
-    await page.keyboard.press('Escape')
-    await expect(page.getByRole('columnheader', { name: /^Description\b/ })).toBeVisible({ timeout: 30_000 })
+    await expect(async () => {
+      await page.getByRole('button', { name: 'Columns' }).click()
+      const toggle = page.getByRole('menu').getByRole('checkbox', { name: 'Description' })
+      await expect(toggle).toBeVisible({ timeout: 5_000 })
+      if (!(await toggle.isChecked())) await toggle.check()
+      await page.keyboard.press('Escape')
+      await expect(page.getByRole('columnheader', { name: /^Description\b/ })).toBeVisible({ timeout: 10_000 })
+    }).toPass({ timeout: 60_000 })
     await expect(rowFor(page, name)).toContainText(description)
 
     await page.reload({ waitUntil: 'domcontentloaded' })

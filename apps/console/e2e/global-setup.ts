@@ -79,12 +79,36 @@ const seedRoleUser = async ({ role, ownerApi, sharedOrgId }: SeedRoleArgs): Prom
   const browser = await chromium.launch()
   const context = await browser.newContext({ baseURL: BASE_URL })
   const page = await context.newPage()
-  await loginViaForm(page, email, PASSWORD)
-  // Having two orgs (personal + shared), the user skips onboarding and lands
-  // on /dashboard scoped to the shared org.
-  await page.waitForURL(/\/dashboard/, { timeout: 30_000 })
-  await saveAuthState(context, role)
-  await browser.close()
+
+  try {
+    // Having two orgs (personal + shared), the user skips onboarding and lands
+    // on /dashboard scoped to the shared org. Two things can go wrong here, and
+    // a throw kills the whole run before a single test executes: the session
+    // cookie is written a beat after login, so middleware may still be bouncing;
+    // and the login itself can fail outright under load, which leaves us on
+    // /login where re-navigating is futile. Re-drive whichever applies.
+    for (let attempt = 0; attempt < 12; attempt += 1) {
+      if (/\/dashboard/.test(page.url())) break
+
+      if (attempt === 0 || /\/login/.test(page.url())) {
+        await loginViaForm(page, email, PASSWORD).catch(() => {})
+        await page.waitForURL(/\/dashboard|\/onboarding/, { timeout: 20_000 }).catch(() => {})
+      } else {
+        await page.goto('/dashboard', { waitUntil: 'domcontentloaded' }).catch(() => {})
+      }
+
+      if (/\/dashboard/.test(page.url())) break
+      await page.waitForTimeout(2_500)
+    }
+
+    if (!/\/dashboard/.test(page.url())) {
+      throw new Error(`global-setup: ${role} (${email}) never reached /dashboard (stuck at ${page.url()})`)
+    }
+
+    await saveAuthState(context, role)
+  } finally {
+    await browser.close()
+  }
 
   return email
 }

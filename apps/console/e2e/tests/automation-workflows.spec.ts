@@ -178,6 +178,7 @@ test('selecting two workflows and confirming bulk delete removes both after relo
     await bulkDelete.click()
     await confirmDestructiveDialog(page)
 
+    for (const name of names) await expect.poll(async () => findWorkflowDefinitionId(ownerApi, name), { timeout: 45_000 }).toBeFalsy()
     await expectAbsentAfterReload(page, prefix, names)
   } finally {
     for (const id of ids) await deleteWorkflowDefinition(ownerApi, id)
@@ -196,6 +197,7 @@ test('a workflow row action deletes one definition and the deletion persists', a
     await openRowAction(page, row.getByRole('button', { name: 'Row actions' }), page.getByRole('menuitem', { name: 'Delete', exact: true }))
     await confirmDestructiveDialog(page)
 
+    await expect.poll(async () => findWorkflowDefinitionId(ownerApi, name), { timeout: 45_000 }).toBeFalsy()
     await expectAbsentAfterReload(page, name, [name])
   } finally {
     await deleteWorkflowDefinition(ownerApi, id)
