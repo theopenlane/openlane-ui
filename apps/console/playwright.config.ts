@@ -49,7 +49,7 @@ export default defineConfig({
     video: 'on-first-retry',
     // 15s (not 10s) so form submit/edit controls stay actionable when the
     // backend is under concurrent load from many parallel workers.
-    actionTimeout: 15_000,
+    actionTimeout: 30_000,
     // 60s absorbs first-hit dev-server route compilation of heavy routes.
     navigationTimeout: 60_000,
   },

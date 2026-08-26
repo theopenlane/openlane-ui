@@ -26,3 +26,9 @@ export const uploadFiles = async (page: Page, files: string | string[], input?: 
   const target = input ?? page.locator('input[type="file"]').first()
   await target.setInputFiles(files)
 }
+
+export const inlineCsv = (name: string, rows: string): { name: string; mimeType: string; buffer: Buffer } => ({
+  name,
+  mimeType: 'text/csv',
+  buffer: Buffer.from(rows, 'utf-8'),
+})

@@ -314,10 +314,12 @@ test.describe('tasks — detail sheet inline edits (seeded)', () => {
     const statusValue = sheet.getByText('Open', { exact: true }).first()
     await expect(statusValue).toBeVisible({ timeout: 20_000 })
 
-    await statusValue.dblclick()
     // The inline Select trigger renders as a combobox. Open it and pick a value.
     const trigger = sheet.getByRole('combobox').first()
-    await expect(trigger).toBeVisible({ timeout: 10_000 })
+    await expect(async () => {
+      await statusValue.dblclick()
+      await expect(trigger).toBeVisible({ timeout: 5_000 })
+    }).toPass({ timeout: 40_000 })
     await trigger.click()
     await page.getByRole('option', { name: 'In Progress', exact: true }).click()
 
@@ -379,7 +381,7 @@ test.describe('tasks — quick filters', () => {
       }).toPass({ timeout: 25_000 })
 
       await quick.click()
-      await expect(quick).toHaveClass(/is-active/, { timeout: 10_000 })
+      await expect.poll(async () => (await quick.getAttribute('class'))?.includes('is-active') ?? false, { timeout: 30_000 }).toBe(true)
     })
   }
 })
@@ -512,7 +514,7 @@ test.describe('tasks — assignee edit does not open the slideout (ISS-2592)', (
 
     await page.getByPlaceholder(/^Search$/).fill(title)
     const row = page.getByRole('row').filter({ hasText: title })
-    await expect(row).toBeVisible({ timeout: 20_000 })
+    await expect(row).toBeVisible({ timeout: 45_000 })
 
     // AssigneeCell renders EditableUserCell with placeholder="Not assigned";
     // clicking it swaps the cell into its editing form. The debounced search

@@ -42,7 +42,10 @@ test.describe('journey — evidence submission gate', () => {
     await saveEvidenceAsDraft(page, dialog)
 
     await page.goto('/evidence', { waitUntil: 'domcontentloaded', timeout: 180_000 })
-    await page.getByPlaceholder(/search/i).first().fill(name)
+    await page
+      .getByPlaceholder(/search/i)
+      .first()
+      .fill(name)
     await expect(page.getByRole('row', { name: new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) })).toBeVisible({ timeout: 30_000 })
   })
 })
@@ -75,7 +78,10 @@ test.describe('journey — a new control gains an objective and an implementatio
     await page.goto(`/controls/${controlId}/control-objectives`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await expect(page.getByRole('button', { name: /^Create$/ }).first()).toBeVisible({ timeout: 60_000 })
 
-    await page.getByRole('button', { name: /^Create$/ }).first().click()
+    await page
+      .getByRole('button', { name: /^Create$/ })
+      .first()
+      .click()
     const sheet = page.getByRole('dialog')
     await expect(sheet.getByRole('button', { name: /^Create$/ })).toBeVisible({ timeout: 30_000 })
     await sheet.getByRole('textbox').first().fill(uniqueName('E2E Journey Objective'))
