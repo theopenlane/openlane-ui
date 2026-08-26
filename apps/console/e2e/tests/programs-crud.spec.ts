@@ -439,6 +439,7 @@ test.describe('programs — settings assignment (seeded)', () => {
     await assignUserByName(page, 'e2e-admin')
 
     const row = page.getByRole('row', { name: /e2e-admin/ })
+    await expect(row).toBeVisible({ timeout: 30_000 })
     await row.getByRole('button').last().click()
     await page.getByRole('menuitem', { name: 'Edit role' }).click()
 

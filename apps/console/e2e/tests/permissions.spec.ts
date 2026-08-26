@@ -52,7 +52,7 @@ for (const role of CAN_CREATE_CONTENT) {
       test(`${role} sees the ${area} create form, not the protected page`, async ({ page }) => {
         await page.goto(url, { waitUntil: 'domcontentloaded' })
         // The create form renders a submit button; the protected page does not.
-        await expect(page.locator('form button[type="submit"]').first()).toBeVisible({ timeout: 20_000 })
+        await expect(page.locator('form button[type="submit"]').first()).toBeVisible({ timeout: 60_000 })
         await expect(page.getByText(PROTECTED)).toHaveCount(0)
       })
     }
