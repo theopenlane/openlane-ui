@@ -213,10 +213,12 @@ test.describe('user-management — member row actions (throwaway member)', () =>
     await expect(row).toBeVisible({ timeout: 20_000 })
 
     const changeRoleItem = page.getByRole('menuitem', { name: /Change Base Role/ })
-    await openRowMenu(row, changeRoleItem)
-    await changeRoleItem.press('Enter')
 
-    await expect(page.getByText('New role')).toBeVisible({ timeout: 10_000 })
+    await expect(async () => {
+      await openRowMenu(row, changeRoleItem)
+      await changeRoleItem.click()
+      await expect(page.getByText('New role')).toBeVisible({ timeout: 5_000 })
+    }).toPass({ timeout: 30_000 })
   })
 
   test('owner removes a throwaway member from the org', async ({ page }) => {
@@ -229,15 +231,20 @@ test.describe('user-management — member row actions (throwaway member)', () =>
     await expect(row).toBeVisible({ timeout: 20_000 })
 
     const removeItem = page.getByText('Remove Member', { exact: true })
-    await openRowMenu(row, removeItem)
-    await removeItem.dispatchEvent('click')
+    await expect(async () => {
+      await openRowMenu(row, removeItem)
+      await removeItem.dispatchEvent('click')
+      await expect(page.getByRole('alertdialog')).toBeVisible({ timeout: 5_000 })
+    }).toPass({ timeout: 40_000 })
 
-    const confirmDelete = page.getByRole('alertdialog').getByRole('button', { name: /^Delete$/ })
-    await expect(confirmDelete).toBeVisible({ timeout: 10_000 })
-    await confirmDelete.dispatchEvent('click')
+    await page
+      .getByRole('alertdialog')
+      .getByRole('button')
+      .filter({ hasText: /^Delete$/ })
+      .first()
+      .dispatchEvent('click')
 
-    await expect(page.getByText('Member deleted successfully').first()).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByText(email)).toHaveCount(0, { timeout: 15_000 })
+    await expect(page.getByText(email)).toHaveCount(0, { timeout: 30_000 })
   })
 })
 

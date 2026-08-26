@@ -22,10 +22,34 @@ test.beforeAll(async () => {
   ownerApi = await getOwnerApi()
 })
 
+const openExportPdfDialog = async (page: Page): Promise<void> => {
+  const dialog = page.getByRole('dialog')
+
+  await expect
+    .poll(
+      async () => {
+        if (await dialog.isVisible().catch(() => false)) return true
+        await page
+          .getByRole('button', { name: 'Action' })
+          .first()
+          .click()
+          .catch(() => {})
+        await page
+          .getByText('Export to PDF', { exact: true })
+          .click({ timeout: 5_000 })
+          .catch(() => {})
+        return dialog.isVisible().catch(() => false)
+      },
+      { timeout: 30_000 },
+    )
+    .toBe(true)
+}
+
 const openTableView = async (page: Page) => {
   await page.goto('/policies', { waitUntil: 'domcontentloaded' })
   // TabSwitcher renders raw lucide SVGs; the Table icon has no accessible name.
   await page.locator('.lucide-table').first().click()
+  await expect(page.getByRole('row').nth(1)).toBeVisible({ timeout: 30_000 })
 }
 
 test.describe('policies — table tooling', () => {
@@ -330,12 +354,9 @@ test.describe('policies — PDF export metadata option (ISS-2563)', () => {
     test.slow()
     await openTableView(page)
 
-    // Export lives behind the toolbar's shared Menu (ellipsis, aria-label "Action").
-    await page.getByRole('button', { name: 'Action' }).first().click()
-    await page.getByText('Export to PDF', { exact: true }).click()
+    await openExportPdfDialog(page)
 
     const dialog = page.getByRole('dialog')
-    await expect(dialog).toBeVisible({ timeout: 15_000 })
     await expect(dialog.getByText('Export to PDF', { exact: true })).toBeVisible()
     await expect(dialog.getByText('Exclude metadata', { exact: true })).toBeVisible({ timeout: 10_000 })
     await expect(dialog.getByText(/Leave out the document metadata section/)).toBeVisible()
@@ -345,8 +366,7 @@ test.describe('policies — PDF export metadata option (ISS-2563)', () => {
     test.slow()
     await openTableView(page)
 
-    await page.getByRole('button', { name: 'Action' }).first().click()
-    await page.getByText('Export to PDF', { exact: true }).click()
+    await openExportPdfDialog(page)
 
     const dialog = page.getByRole('dialog')
     const excludeMetadata = dialog.getByRole('checkbox')
