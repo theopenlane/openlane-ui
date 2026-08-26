@@ -69,10 +69,11 @@ export const completeOnboarding = async (page: Page, opts: OnboardingOptions = {
   // still reports isOnboarding — and the session update lands a beat after the
   // push. Navigating to /dashboard explicitly sidesteps that race; poll because
   // the first attempt can still land before the new session cookie is set.
-  for (let attempt = 0; attempt < 20; attempt++) {
-    await page.waitForTimeout(1_500)
+  for (let attempt = 0; attempt < 25; attempt++) {
+    if (page.url().includes('/dashboard')) return
     await page.goto('/dashboard', { waitUntil: 'domcontentloaded' }).catch(() => {})
     if (page.url().includes('/dashboard')) return
+    await page.waitForTimeout(2_000)
   }
 
   throw new Error(`completeOnboarding: never reached /dashboard (stuck at ${page.url()})`)

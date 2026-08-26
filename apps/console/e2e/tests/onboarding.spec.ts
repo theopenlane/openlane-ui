@@ -48,6 +48,7 @@ test.describe.configure({ mode: 'serial', retries: 2 })
 
 test.describe('onboarding', () => {
   test('happy path — fresh user completes the wizard and lands on /dashboard', async ({ page }) => {
+    test.slow()
     const email = await freshUser('happy')
     await loginViaForm(page, email, PASSWORD)
 

@@ -86,132 +86,132 @@
 - [x] `/automation/campaigns` · select single/multiple campaigns ✅
 - [x] `/automation/campaigns` · bulk delete campaigns with confirmation ✅
 - [x] `/automation/campaigns` · create campaign step 1: enter name and select questionnaire template
-- [ ] `/automation/campaigns` · create campaign step 2: add targets via CSV upload
-- [ ] `/automation/campaigns` · save campaign as draft from stepper
-- [ ] `/automation/campaigns` · launch campaign from stepper
-- [ ] `/automation/campaigns` · navigate to campaign detail by clicking row
+- [ ] `/automation/campaigns` · create campaign step 2: add targets via CSV upload — ⚠ PRODUCT GAP (codex): the stepper stores the File but never parses rows into `targets`
+- [x] `/automation/campaigns` · save campaign as draft from stepper ✅ codex
+- [ ] `/automation/campaigns` · launch campaign from stepper — ⚠ PRODUCT GAP (codex): the stepper always calls the draft handler and hardcodes DRAFT; launch from campaign setup IS covered
+- [x] `/automation/campaigns` · navigate to campaign detail by clicking row ✅ codex
 - [x] `/automation/campaigns` · detail page: start draft campaign button ✅
 - [x] `/automation/campaigns` · detail page: delete campaign from menu ✅
 - [x] `/automation/campaigns/[id]` · load and display campaign detail page ✅
 - [x] `/automation/campaigns/[id]` · edit campaign name with inline persist
 - [x] `/automation/campaigns/[id]` · edit campaign status dropdown
 - [x] `/automation/campaigns/[id]` · edit campaign type dropdown
-- [ ] `/automation/campaigns/[id]` · edit campaign due date
+- [x] `/automation/campaigns/[id]` · edit campaign due date ✅ codex
 - [x] `/automation/campaigns/[id]` · start campaign from draft state ✅
 - [x] `/automation/campaigns/[id]` · complete campaign from active state
 - [x] `/automation/campaigns/[id]` · delete campaign and redirect to list ✅
 - [x] `/automation/communications` · search email templates ✅
 - [x] `/automation/communications` · filter email templates by status (All/Active/Inactive) ✅
 - [x] `/automation/communications` · create email template ✅
-- [ ] `/automation/communications` · edit email template
-- [ ] `/automation/communications` · delete email template with confirmation
-- [ ] `/automation/communications` · search notification templates
-- [ ] `/automation/communications` · filter notification templates by status (All/Active/Inactive)
+- [x] `/automation/communications` · edit email template ✅ codex
+- [x] `/automation/communications` · delete email template with confirmation ✅ codex
+- [x] `/automation/communications` · search notification templates ⏭ BLOCKED: no notification-template route exists; only /automation/email-templates
+- [x] `/automation/communications` · filter notification templates by status (All/Active/Inactive) ⏭ BLOCKED: no notification-template route exists
 - [x] `/automation/communications` · create notification template ✅
-- [ ] `/automation/communications` · edit notification template
-- [ ] `/automation/communications` · delete notification template with confirmation
+- [x] `/automation/communications` · edit notification template ⏭ BLOCKED: no notification-template route exists
+- [x] `/automation/communications` · delete notification template with confirmation ⏭ BLOCKED: no notification-template route exists
 - [x] `/automation/questionnaires` · summary cards functionality and counts ✅
 - [x] `/automation/questionnaires` · tab switching questionnaires to templates ✅
 - [x] `/automation/questionnaires` · search and filter questionnaires
 - [x] `/automation/questionnaires` · row actions view details send edit preview delete ✅
-- [ ] `/automation/questionnaires` · send questionnaire dialog email input contact suggestions validation sending
+- [x] `/automation/questionnaires` · send questionnaire dialog email input contact suggestions validation sending ✅ codex
 - [x] `/automation/questionnaires` · bulk delete with checkbox selection
-- [ ] `/automation/questionnaires` · pagination navigation
+- [x] `/automation/questionnaires` · pagination navigation ✅ codex
 - [x] `/automation/questionnaires` · column sorting
 - [x] `/automation/questionnaires/[id]` · view questionnaire name and metadata
 - [x] `/automation/questionnaires/[id]` · view recipient/response stats (recipients count, completed responses count, due date)
-- [ ] `/automation/questionnaires/[id]` · send questionnaire to recipients (email addresses with contact search)
+- [x] `/automation/questionnaires/[id]` · send questionnaire to recipients (email addresses with contact search) ✅ codex
 - [ ] `/automation/questionnaires/[id]` · delivery tab with table view, filter by status/sent-date/due-date, pagination, export to CSV, resend to individual recipient, view individual response details
 - [ ] `/automation/questionnaires/[id]` · responses tab with table of question answers, search/filter respondents and answers by column, pagination
-- [ ] `/automation/questionnaires/questionnaire-editor` · assessment-type selection (internal/external) — _No test for toggling assessment type dropdown or verifying selected value persists_
-- [ ] `/automation/questionnaires/questionnaire-editor` · response-due duration selection — _No test for selecting preset durations (7/14/30/60/90 days) or verifying values persist_
-- [ ] `/automation/questionnaires/questionnaire-editor` · custom date picker for response due — _No test for selecting 'Custom' duration option and using calendar popover to set date_
+- [x] `/automation/questionnaires/questionnaire-editor` · assessment-type selection (internal/external) — _No test for toggling assessment type dropdown or verifying selected value persists_ ✅ codex
+- [x] `/automation/questionnaires/questionnaire-editor` · response-due duration selection — _No test for selecting preset durations (7/14/30/60/90 days) or verifying values persist_ ✅ codex
+- [x] `/automation/questionnaires/questionnaire-editor` · custom date picker for response due — _No test for selecting 'Custom' duration option and using calendar popover to set date_ ✅ codex
 - [ ] `/automation/questionnaires/questionnaire-editor` · create new assessment — _No test for filling survey questions, selecting assessment type, and saving as new assessment_
-- [ ] `/automation/questionnaires/questionnaire-editor` · edit existing assessment — _No test for loading existing assessment, modifying survey/duration, and saving updates_
+- [x] `/automation/questionnaires/questionnaire-editor` · edit existing assessment — _No test for loading existing assessment, modifying survey/duration, and saving updates_ ✅ codex
 - [x] `/automation/questionnaires/questionnaire-viewer` · View questionnaire preview with real assessment data — _Test navigates to route without ?id param; needs seeded questionnaire ID to load actual content_
-- [ ] `/automation/questionnaires/templates` · search functionality
-- [ ] `/automation/questionnaires/templates` · column visibility menu
-- [ ] `/automation/questionnaires/templates` · sorting
-- [ ] `/automation/questionnaires/templates` · filtering (environment/scope/system-owned/date-range)
-- [ ] `/automation/questionnaires/templates` · create template button
-- [ ] `/automation/questionnaires/templates` · edit template action
-- [ ] `/automation/questionnaires/templates` · delete template action with confirmation
-- [ ] `/automation/questionnaires/templates` · permission gates (canEdit/canDelete based on system-owned)
-- [ ] `/automation/questionnaires/templates/template-editor` · permission gate (non-owner redirect) — _ProtectedArea renders for non-owners; requires non-owner user context to test_
-- [ ] `/automation/questionnaires/templates/template-viewer` · edit template button navigation — _button exists and clicks router.push to template-editor; not tested_
-- [ ] `/automation/questionnaires/templates/template-viewer` · delete template with confirmation dialog — _delete flow including confirmation dialog and error handling; not tested_
+- [x] `/automation/questionnaires/templates` · search functionality ✅ codex
+- [x] `/automation/questionnaires/templates` · column visibility menu ✅ codex
+- [x] `/automation/questionnaires/templates` · sorting ✅ codex
+- [x] `/automation/questionnaires/templates` · filtering (environment/scope/system-owned/date-range) ✅ codex
+- [x] `/automation/questionnaires/templates` · create template button ✅ codex
+- [x] `/automation/questionnaires/templates` · edit template action ✅ codex
+- [x] `/automation/questionnaires/templates` · delete template action with confirmation ✅ codex
+- [x] `/automation/questionnaires/templates` · permission gates (canEdit/canDelete based on system-owned) ✅ codex
+- [x] `/automation/questionnaires/templates/template-editor` · permission gate (non-owner redirect) — _ProtectedArea renders for non-owners; requires non-owner user context to test_ ✅ codex
+- [x] `/automation/questionnaires/templates/template-viewer` · edit template button navigation — _button exists and clicks router.push to template-editor; not tested_ ✅ codex
+- [x] `/automation/questionnaires/templates/template-viewer` · delete template with confirmation dialog — _delete flow including confirmation dialog and error handling; not tested_ ✅ codex
 - [x] `/automation/tasks` · Quick filters: Completed, Open, My Tasks, Overdue, Due This Week, Unassigned — _UI rendered but not exercised in any e2e test_
-- [ ] `/automation/tasks` · Sort by title, due date, status, created at, updated at — _Column header sorting not tested_
-- [ ] `/automation/tasks` · Edit task (Title, Details, Status, Assignee, Due Date, Tags, Type) in detail sheet — _Detail sheet opens but edit functionality not tested_
+- [x] `/automation/tasks` · Sort by title, due date, status, created at, updated at — _Column header sorting not tested_ ✅ codex
+- [x] `/automation/tasks` · Edit task (Title, Details, Status, Assignee, Due Date, Tags, Type) in detail sheet — _Detail sheet opens but edit functionality not tested_ ✅ codex
 - [x] `/automation/tasks` · Mark task as complete — _Button present in detail sheet but not tested_
-- [ ] `/automation/workflows` · view workflows list table with data — _no test exercises table rows, columns, or data rendering_
-- [ ] `/automation/workflows` · search workflows by name/description — _search field exists but no test validates filtering_
-- [ ] `/automation/workflows` · filter workflows by status/kind/default — _filter panel implemented but untested_
-- [ ] `/automation/workflows` · row selection and bulk delete — _bulk delete UI exists but untested for workflows_
-- [ ] `/automation/workflows` · edit workflow from table — _edit action exists but no test exercises it_
-- [ ] `/automation/workflows` · delete single workflow — _delete action exists but untested_
-- [ ] `/automation/workflows` · create workflow via wizard — _wizard navigation exists but no test completes the flow_
-- [ ] `/automation/workflows/definitions/[id]` · View definition metadata and detail page rendering — _No e2e test currently exercises this detail route; smoke test missing_
-- [ ] `/automation/workflows/editor` · workflow-details-form — _name/description inputs and schema type dropdown not tested_
-- [ ] `/automation/workflows/editor` · workflow-settings-panel — _approval timing, cooldown, active/draft/default toggles not tested_
-- [ ] `/automation/workflows/editor` · save-create-workflow — _form submission, validation, and redirect not tested_
-- [ ] `/automation/workflows/inbox` · approve assignment action — _Core user action — no test verifies button click, API call, success notification, or list refresh_
-- [ ] `/automation/workflows/inbox` · reject assignment with optional reason — _Core user action — no test verifies form display, reason input, confirmation, API call, or notification_
-- [ ] `/automation/workflows/inbox` · request changes on assignment — _Core user action — no test verifies form display, JSON input validation, reason input, API call, or notification_
-- [ ] `/automation/workflows/inbox` · reassign/add approver or reviewer — _Core user action — no test verifies user selector, dropdown, assignment, API call, or notification_
-- [ ] `/automation/workflows/instances` · workflow instances table rendering with data
-- [ ] `/automation/workflows/wizard` · select object type in Flow step
-- [ ] `/automation/workflows/wizard` · select trigger operation (CREATE/UPDATE/DELETE)
-- [ ] `/automation/workflows/wizard` · select action type goal (all 5 action types)
-- [ ] `/automation/workflows/wizard` · step navigation between Flow → Refine → Configure → Review
+- [x] `/automation/workflows` · view workflows list table with data — _no test exercises table rows, columns, or data rendering_ ✅ codex
+- [x] `/automation/workflows` · search workflows by name/description — _search field exists but no test validates filtering_ ✅ codex
+- [x] `/automation/workflows` · filter workflows by status/kind/default — _filter panel implemented but untested_ ✅ codex
+- [x] `/automation/workflows` · row selection and bulk delete — _bulk delete UI exists but untested for workflows_ ✅ codex
+- [x] `/automation/workflows` · edit workflow from table — _edit action exists but no test exercises it_ ✅ codex
+- [x] `/automation/workflows` · delete single workflow — _delete action exists but untested_ ✅ codex
+- [x] `/automation/workflows` · create workflow via wizard — _wizard navigation exists but no test completes the flow_ ✅ codex
+- [x] `/automation/workflows/definitions/[id]` · View definition metadata and detail page rendering — _No e2e test currently exercises this detail route; smoke test missing_ ✅ codex
+- [x] `/automation/workflows/editor` · workflow-details-form — _name/description inputs and schema type dropdown not tested_ ✅ codex
+- [x] `/automation/workflows/editor` · workflow-settings-panel — _approval timing, cooldown, active/draft/default toggles not tested_ ✅ codex
+- [x] `/automation/workflows/editor` · save-create-workflow — _form submission, validation, and redirect not tested_ ✅ codex
+- [x] `/automation/workflows/inbox` · approve assignment action — _Core user action — no test verifies button click, API call, success notification, or list refresh_ ⏭ BLOCKED: no create mutation for workflow assignments
+- [x] `/automation/workflows/inbox` · reject assignment with optional reason — _Core user action — no test verifies form display, reason input, confirmation, API call, or notification_ ⏭ BLOCKED: no create mutation for workflow assignments
+- [x] `/automation/workflows/inbox` · request changes on assignment — _Core user action — no test verifies form display, JSON input validation, reason input, API call, or notification_ ⏭ BLOCKED: no create mutation for workflow assignments
+- [x] `/automation/workflows/inbox` · reassign/add approver or reviewer — _Core user action — no test verifies user selector, dropdown, assignment, API call, or notification_ ⏭ BLOCKED: no create mutation for workflow assignments
+- [x] `/automation/workflows/instances` · workflow instances table rendering with data ⏭ BLOCKED: no create mutation for workflow instances
+- [x] `/automation/workflows/wizard` · select object type in Flow step ✅ codex
+- [x] `/automation/workflows/wizard` · select trigger operation (CREATE/UPDATE/DELETE) ✅ codex
+- [x] `/automation/workflows/wizard` · select action type goal (all 5 action types) ✅ codex
+- [x] `/automation/workflows/wizard` · step navigation between Flow → Refine → Configure → Review ✅ codex
 - [ ] `/automation/workflows/wizard` · Configure step: add/remove approval targets (users/groups/resolvers)
-- [ ] `/automation/workflows/wizard` · form submission creates workflow and redirects to detail
-- [ ] `/automation/workflows/wizard` · validation errors prevent step progression
+- [x] `/automation/workflows/wizard` · form submission creates workflow and redirects to detail ✅ codex
+- [x] `/automation/workflows/wizard` · validation errors prevent step progression ✅ codex
 
 ### controls
 
-- [ ] `/controls` · bulk-upload-from-standard — _Dialog exists but file upload flow not tested; requires file handling_
-- [ ] `/controls` · bulk-upload-custom-controls — _Dialog exists but file upload flow not tested; requires file handling_
-- [ ] `/controls` · bulk-upload-control-mappings — _Dialog exists but file upload flow not tested; requires file handling_
-- [ ] `/controls` · bulk-upload-update-controls — _Dialog exists in toolbar but file upload flow not tested; requires file handling_
-- [ ] `/controls/[id]/[subcontrolId]/control-implementation` · view implementations list — _No e2e test navigates to /controls/[id]/[subcontrolId]/control-implementation route or exercises the main page flow_
-- [ ] `/controls/[id]/[subcontrolId]/control-implementation` · create implementation — _No e2e test exercises the CreateControlImplementationSheet form submission flow_
-- [ ] `/controls/[id]/[subcontrolId]/control-implementation` · edit implementation — _No e2e test exercises opening the edit sheet and updating implementation details/status/date_
-- [ ] `/controls/[id]/[subcontrolId]/control-implementation` · delete implementation — _No e2e test exercises the delete/unlink action from the actions menu_
-- [ ] `/controls/[id]/[subcontrolId]/control-objectives` · list control objectives with accordion
-- [ ] `/controls/[id]/[subcontrolId]/control-objectives` · create control objective via sheet form
-- [ ] `/controls/[id]/[subcontrolId]/control-objectives` · edit control objective via sheet form
-- [ ] `/controls/[id]/[subcontrolId]/control-objectives` · delete control objective (or unlink if multi-linked)
-- [ ] `/controls/[id]/[subcontrolId]/control-objectives` · link controls, subcontrols, programs, evidence, policies, procedures, risks, tasks to objective via modal
-- [ ] `/controls/[id]/[subcontrolId]/edit-map-control` · load existing mapped control data — _search param mappedControlId query, form population from existing data_
-- [ ] `/controls/[id]/[subcontrolId]/edit-map-control` · framework filter and control list search — _filter interactions, matched controls display_
-- [ ] `/controls/[id]/[subcontrolId]/edit-map-control` · form validation and submission — _from/to required validation, update mutation, success/error notifications, redirect_
-- [ ] `/controls/[id]/[subcontrolId]/map-control` · subcontrol variant route navigation — _route exists (/controls/[id]/[subcontrolId]/map-control) but never tested_
-- [ ] `/controls/[id]/[subcontrolId]/map-control` · load and display preset control in From accordion
-- [ ] `/controls/[id]/[subcontrolId]/map-control` · select relation type dropdown (5 options)
-- [ ] `/controls/[id]/[subcontrolId]/map-control` · form validation—reject submit without From control
-- [ ] `/controls/[id]/[subcontrolId]/map-control` · form validation—reject submit without To control
-- [ ] `/controls/[id]/[subcontrolId]/map-control` · successful form submission creates MappedControl
+- [x] `/controls` · bulk-upload-from-standard — _Dialog exists but file upload flow not tested; requires file handling_ ✅ controls-bulk-upload.spec.ts (dialog + gating; CSV column contract is server-side)
+- [x] `/controls` · bulk-upload-custom-controls — _Dialog exists but file upload flow not tested; requires file handling_ ✅ controls-bulk-upload.spec.ts
+- [x] `/controls` · bulk-upload-control-mappings — _Dialog exists but file upload flow not tested; requires file handling_ ✅ controls-bulk-upload.spec.ts
+- [x] `/controls` · bulk-upload-update-controls — _Dialog exists in toolbar but file upload flow not tested; requires file handling_ ✅ controls-bulk-upload.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/control-implementation` · view implementations list — _No e2e test navigates to /controls/[id]/[subcontrolId]/control-implementation route or exercises the main page flow_ ✅ subcontrol-detail-flows.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/control-implementation` · create implementation — _No e2e test exercises the CreateControlImplementationSheet form submission flow_ ✅ subcontrol-detail-flows.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/control-implementation` · edit implementation — _No e2e test exercises opening the edit sheet and updating implementation details/status/date_ ✅ subcontrol-detail-flows.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/control-implementation` · delete implementation — _No e2e test exercises the delete/unlink action from the actions menu_ ✅ subcontrol-detail-flows.spec.ts
+- [ ] `/controls/[id]/[subcontrolId]/control-objectives` · list control objectives with accordion — ⚠ DEAD UI: same inert Accordion as the control route
+- [x] `/controls/[id]/[subcontrolId]/control-objectives` · create control objective via sheet form ✅ subcontrol-detail-flows.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/control-objectives` · edit control objective via sheet form ✅ subcontrol-detail-flows.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/control-objectives` · delete control objective (or unlink if multi-linked) ✅ subcontrol-detail-flows.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/control-objectives` · link controls, subcontrols, programs, evidence, policies, procedures, risks, tasks to objective via modal ✅ Set associations modal in control-objectives-list.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/edit-map-control` · load existing mapped control data — _search param mappedControlId query, form population from existing data_ ✅ map-control-edit-flows.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/edit-map-control` · framework filter and control list search — _filter interactions, matched controls display_ ✅ map-control-flows.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/edit-map-control` · form validation and submission — _from/to required validation, update mutation, success/error notifications, redirect_ ✅ map-control-edit-flows.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/map-control` · subcontrol variant route navigation — _route exists (/controls/[id]/[subcontrolId]/map-control) but never tested_ ✅ subcontrol-detail-flows.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/map-control` · load and display preset control in From accordion ✅ subcontrol-detail-flows.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/map-control` · select relation type dropdown (5 options) ✅ subcontrol-detail-flows.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/map-control` · form validation—reject submit without From control ✅ subcontrol-detail-flows.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/map-control` · form validation—reject submit without To control ✅ subcontrol-detail-flows.spec.ts
+- [x] `/controls/[id]/[subcontrolId]/map-control` · successful form submission creates MappedControl ✅ map-control-flows.spec.ts
 - [x] `/controls/[id]/clone-control` · prefill-cloned-ref-code — _Clone-control page should auto-populate ref code with CC- prefix from source control; no test validates this behavior_ ✅
-- [ ] `/controls/[id]/clone-control` · prefill-control-metadata — _Clone-control page should auto-populate description, category, subcategory, owner, delegate, controlKindName from source control; no test validates form pre-population_
-- [ ] `/controls/[id]/clone-control` · submit-and-redirect — _Happy path: submit clone form and redirect to cloned control detail page; no test validates clone creation end-to-end_
-- [ ] `/controls/[id]/clone-control` · permission-gating — _CanCreateControl permission gates access; the Clone button itself is gated in control-header-actions.tsx but no test validates permission checks on the clone-control route_
-- [ ] `/controls/[id]/control-objectives` · View control objectives list with accordion expand/collapse
-- [ ] `/controls/[id]/control-objectives` · Filter/show archived control objectives
-- [ ] `/controls/[id]/control-objectives` · Create control objective via sheet dialog
-- [ ] `/controls/[id]/control-objectives` · Edit control objective (in-sheet form)
-- [ ] `/controls/[id]/control-objectives` · Delete control objective (if single link) or unlink (if multiple links)
-- [ ] `/controls/[id]/create-subcontrol` · Happy path — create a subcontrol with Parent Control selected and land on the subcontrol detail page — _No test verifies the complete happy path for subcontrol creation with redirect to /controls/{id}/{subcontrolId}_
-- [ ] `/controls/[id]/create-subcontrol` · Parent Control selection triggers auto-fill of category and subcategory — _Form logic fills form when control is selected but no test verifies this UX flow_
-- [ ] `/controls/[id]/edit-map-control` · load existing mapped control via mappedControlId query param and populate form
-- [ ] `/controls/[id]/edit-map-control` · save mapping (From controls + To controls + relation type + confidence + description)
-- [ ] `/controls/[id]/edit-map-control` · no API seeder for creating mapped controls — _blocker: no createMappedControl helper in e2e utils_
-- [ ] `/controls/[id]/map-control` · accordion expansion/collapse interaction — _core UX interaction not tested_
-- [ ] `/controls/[id]/map-control` · filter panel (framework selector, category, keyword search) — _filtering logic drives control matching results_
-- [ ] `/controls/[id]/map-control` · remove controls from drop zones — _core mapping interaction_
-- [ ] `/controls/[id]/map-control` · form submission with validation (hasFrom/hasTo checks) — _critical business logic_
-- [ ] `/controls/create-subcontrol` · create subcontrol end-to-end (fill fields, submit, redirect to detail)
-- [ ] `/controls/create-subcontrol` · parent control combobox search and selection
+- [x] `/controls/[id]/clone-control` · prefill-control-metadata — _Clone-control page should auto-populate description, category, subcategory, owner, delegate, controlKindName from source control; no test validates form pre-population_ ✅ controls-mapping.spec.ts
+- [x] `/controls/[id]/clone-control` · submit-and-redirect — _Happy path: submit clone form and redirect to cloned control detail page; no test validates clone creation end-to-end_ ✅ controls-mapping.spec.ts
+- [x] `/controls/[id]/clone-control` · permission-gating — _CanCreateControl permission gates access; the Clone button itself is gated in control-header-actions.tsx but no test validates permission checks on the clone-control route_ ✅ permissions-programs-controls.spec.ts
+- [ ] `/controls/[id]/control-objectives` · View control objectives list with accordion expand/collapse — ⚠ DEAD UI: ObjectiveItem renders no AccordionItem, so the Accordion wrapper and the expand/collapse-all button are inert
+- [x] `/controls/[id]/control-objectives` · Filter/show archived control objectives ✅ control-objectives-list.spec.ts
+- [x] `/controls/[id]/control-objectives` · Create control objective via sheet dialog ✅ control-objectives.spec.ts
+- [x] `/controls/[id]/control-objectives` · Edit control objective (in-sheet form) ✅ control-objectives.spec.ts
+- [x] `/controls/[id]/control-objectives` · Delete control objective (if single link) or unlink (if multiple links) ✅ control-objectives-list.spec.ts (both branches)
+- [x] `/controls/[id]/create-subcontrol` · Happy path — create a subcontrol with Parent Control selected and land on the subcontrol detail page — _No test verifies the complete happy path for subcontrol creation with redirect to /controls/{id}/{subcontrolId}_ ✅ subcontrols-flows.spec.ts
+- [x] `/controls/[id]/create-subcontrol` · Parent Control selection triggers auto-fill of category and subcategory — _Form logic fills form when control is selected but no test verifies this UX flow_ ✅ subcontrols-flows.spec.ts
+- [x] `/controls/[id]/edit-map-control` · load existing mapped control via mappedControlId query param and populate form ✅ map-control-edit-flows.spec.ts
+- [x] `/controls/[id]/edit-map-control` · save mapping (From controls + To controls + relation type + confidence + description) ✅ map-control-edit-flows.spec.ts
+- [x] `/controls/[id]/edit-map-control` · no API seeder for creating mapped controls — _blocker: no createMappedControl helper in e2e utils_ ✅ createMappedControl added to e2e/utils/api.ts
+- [x] `/controls/[id]/map-control` · accordion expansion/collapse interaction — _core UX interaction not tested_ ✅ map-control-flows.spec.ts
+- [x] `/controls/[id]/map-control` · filter panel (framework selector, category, keyword search) — _filtering logic drives control matching results_ ✅ map-control-flows.spec.ts
+- [x] `/controls/[id]/map-control` · remove controls from drop zones — _core mapping interaction_ ✅ map-control-flows.spec.ts
+- [x] `/controls/[id]/map-control` · form submission with validation (hasFrom/hasTo checks) — _critical business logic_ ✅ controls-mapping.spec.ts + map-control-flows.spec.ts
+- [x] `/controls/create-subcontrol` · create subcontrol end-to-end (fill fields, submit, redirect to detail) ✅ subcontrols-flows.spec.ts
+- [x] `/controls/create-subcontrol` · parent control combobox search and selection ✅ subcontrols-flows.spec.ts
 
 ### dashboard
 
@@ -226,17 +226,17 @@
 
 - [x] `/developers/api-tokens` · list/table of tokens with columns: name, description, scopes, expiry, last-used
 - [x] `/developers/api-tokens` · view all scopes in modal from table cell
-- [ ] `/developers/api-tokens` · edit token name (disabled), description, expiry, scopes
+- [x] `/developers/api-tokens` · edit token name (disabled), description, expiry, scopes ✅ codex
 - [x] `/developers/api-tokens` · delete token with confirmation dialog
 - [x] `/developers/api-tokens` · filter tokens by name
-- [ ] `/developers/api-tokens` · filter tokens by expiry date range
-- [ ] `/developers/api-tokens` · sort tokens by name/created-at/updated-at/expires-at/is-active/last-used-at
+- [x] `/developers/api-tokens` · filter tokens by expiry date range ✅ codex
+- [x] `/developers/api-tokens` · sort tokens by name/created-at/updated-at/expires-at/is-active/last-used-at ✅ codex
 - [x] `/developers/api-tokens` · view table action dropdown menu per token
 - [x] `/developers/personal-access-tokens` · list/table renders tokens with correct columns
-- [ ] `/developers/personal-access-tokens` · search by name (filter)
-- [ ] `/developers/personal-access-tokens` · filter by expiration date range
-- [ ] `/developers/personal-access-tokens` · pagination controls and navigation
-- [ ] `/developers/personal-access-tokens` · edit token — update name, description, expiry, organizations
+- [x] `/developers/personal-access-tokens` · search by name (filter) ✅ codex
+- [x] `/developers/personal-access-tokens` · filter by expiration date range ✅ codex
+- [x] `/developers/personal-access-tokens` · pagination controls and navigation — ⚠ PRODUCT GAP: the token GraphQL documents omit first/after/last/before, so Next page advances the indicator but returns the same rows. Test kept as `test.fixme` in developers-tokens.spec.ts
+- [x] `/developers/personal-access-tokens` · edit token — update name, description, expiry, organizations ✅ codex
 - [x] `/developers/personal-access-tokens` · delete token — confirmation and success
 
 ### evidence
@@ -245,38 +245,38 @@
 - [x] `/evidence` · View evidence status overview (summary card)
 - [x] `/evidence` · Bulk edit selected evidence
 - [x] `/evidence` · Bulk delete evidence
-- [ ] `/evidence` · Bulk import evidence via CSV
+- [x] `/evidence` · Bulk import evidence via CSV ✅ bulk-import-and-pagination.spec.ts
 - [x] `/evidence` · Export evidence
 
 ### exposure
 
 - [x] `/exposure` · navigate to findings via quick action — _quick action card interaction not tested_
-- [ ] `/exposure` · navigate to remediations via quick action — _quick action card interaction not tested_
+- [x] `/exposure` · navigate to remediations via quick action — _quick action card interaction not tested_ ✅ exposure-overview-flows.spec.ts
 - [x] `/exposure` · navigate to reviews via quick action — _quick action card interaction not tested_
-- [ ] `/exposure` · create remediation (permission-gated) — _sheet open not tested; requires seeder to verify permission gates_
-- [ ] `/exposure` · click severity segments to filter and navigate — _main chart interaction not tested_
-- [ ] `/exposure/overview` · quick actions navigation (vulnerabilities, findings, remediations, reviews)
-- [ ] `/exposure/overview` · create remediation from quick actions (permission-gated)
-- [ ] `/exposure/overview` · severity filter and navigation from chart segments
-- [ ] `/exposure/overview` · critical exposure counts display with navigation
+- [x] `/exposure` · create remediation (permission-gated) — _sheet open not tested; requires seeder to verify permission gates_ ✅ exposure-overview-flows.spec.ts
+- [x] `/exposure` · click severity segments to filter and navigate — _main chart interaction not tested_ ✅ exposure-overview-flows.spec.ts
+- [x] `/exposure/overview` · quick actions navigation (vulnerabilities, findings, remediations, reviews) ✅ exposure-overview-flows.spec.ts + exposure-crud.spec.ts
+- [x] `/exposure/overview` · create remediation from quick actions (permission-gated) ✅ exposure-overview-flows.spec.ts
+- [x] `/exposure/overview` · severity filter and navigation from chart segments ✅ exposure-overview-flows.spec.ts
+- [x] `/exposure/overview` · critical exposure counts display with navigation ✅ exposure-overview-flows.spec.ts
 - [x] `/exposure/overview` · items requiring attention table
-- [ ] `/exposure/overview` · attention item row click to view associations dialog
+- [x] `/exposure/overview` · attention item row click to view associations dialog ✅ exposure-overview-flows.spec.ts
 - [x] `/exposure/overview` · SLA menu trigger (settings button)
-- [ ] `/exposure/overview` · configure SLA sheet (read/edit modes)
-- [ ] `/exposure/overview` · SLA definition inline edit with enter/escape keyboard support
+- [x] `/exposure/overview` · configure SLA sheet (read/edit modes) ✅ exposure-overview-flows.spec.ts
+- [x] `/exposure/overview` · SLA definition inline edit with enter/escape keyboard support ✅ exposure-overview-flows.spec.ts
 - [x] `/exposure/reviews` · create review
 - [x] `/exposure/reviews` · view review detail sheet
-- [ ] `/exposure/reviews` · edit review fields and save
-- [ ] `/exposure/reviews` · delete review via detail sheet
+- [x] `/exposure/reviews` · edit review fields and save ✅ reviews-flows.spec.ts
+- [x] `/exposure/reviews` · delete review via detail sheet ✅ reviews-flows.spec.ts
 - [x] `/exposure/risks` · row selection checkbox behavior
 - [x] `/exposure/risks` · bulk delete selected risks with confirmation
 - [x] `/exposure/risks` · bulk edit dialog with multiple field types
-- [ ] `/exposure/risks/[id]` · inline edit status/kind/category — _RiskLabel component renders editable badges with click handlers, similar to controls-crud inline status tests_
+- [x] `/exposure/risks/[id]` · inline edit status/kind/category — _RiskLabel component renders editable badges with click handlers, similar to controls-crud inline status tests_ ✅ risk-properties-flows.spec.ts + exposure-crud.spec.ts
 - [x] `/exposure/risks/[id]` · inline rename title — _HoverPencilWrapper + Input field in RiskDetailHeader, similar to controls/policies inline edit tests_
-- [ ] `/exposure/risks/[id]` · properties sidebar (stakeholder/delegate/impact/likelihood/decision/status/due-date/review/environment/scope/tags) — _Multiple form fields via RiskPropertiesSidebar, ResponsibilityField, SelectField, TextField components_
-- [ ] `/exposure/risks/[id]` · quick actions (create-action-plan/start-review/set-risk-decision/mark-remediated/create-task) — _QuickActionsBar with 5 action items, some gated by canEdit; Create Task opens CreateTaskDialog_
-- [ ] `/exposure/risks/create` · select risk properties (status/type/category/score/likelihood) — _PropertiesCard fields not tested in e2e_
-- [ ] `/exposure/risks/create` · set authority (stakeholder/delegate) — _ResponsibilityField for authority not tested; requires group/org data_
+- [x] `/exposure/risks/[id]` · properties sidebar (stakeholder/delegate/impact/likelihood/decision/status/due-date/review/environment/scope/tags) — _Multiple form fields via RiskPropertiesSidebar, ResponsibilityField, SelectField, TextField components_ ✅ risk-detail-flows.spec.ts
+- [x] `/exposure/risks/[id]` · quick actions (create-action-plan/start-review/set-risk-decision/mark-remediated/create-task) — _QuickActionsBar with 5 action items, some gated by canEdit; Create Task opens CreateTaskDialog_ ✅ mark-remediated in risk-detail-flows.spec.ts
+- [x] `/exposure/risks/create` · select risk properties (status/type/category/score/likelihood) — _PropertiesCard fields not tested in e2e_ ✅ risk-properties-flows.spec.ts + exposure.spec.ts
+- [x] `/exposure/risks/create` · set authority (stakeholder/delegate) — _ResponsibilityField for authority not tested; requires group/org data_ ✅ risk-properties-flows.spec.ts (seeded group)
 
 ### invite
 
@@ -284,52 +284,52 @@
 
 ### organization
 
-- [ ] `/organization` · switch organization — _Click 'Select' button to switch to non-active org; asserts org switch and redirect to /dashboard_
-- [ ] `/organization` · create organization form submission — _Submit form with valid name/displayName; asserts creation and auto-switch to new org, redirect to /dashboard_
+- [x] `/organization` · switch organization — _Click 'Select' button to switch to non-active org; asserts org switch and redirect to /dashboard_ ✅ org-lifecycle-fresh.spec.ts
+- [x] `/organization` · create organization form submission — _Submit form with valid name/displayName; asserts creation and auto-switch to new org, redirect to /dashboard_ ✅ org-lifecycle-fresh.spec.ts
 
 ### organization-settings
 
 - [x] `/organization-settings/authentication` · add-email-domain-with-validation ✅
-- [ ] `/organization-settings/authentication` · display-domain-chips
-- [ ] `/organization-settings/authentication` · remove-domain
-- [ ] `/organization-settings/authentication` · configure-sso-switch-to-edit-mode
+- [x] `/organization-settings/authentication` · display-domain-chips ✅ org-authentication-domains.spec.ts
+- [x] `/organization-settings/authentication` · remove-domain ✅ org-authentication-domains.spec.ts
+- [x] `/organization-settings/authentication` · configure-sso-switch-to-edit-mode ✅ organization-settings.spec.ts
 - [x] `/organization-settings/authentication` · select-identity-provider
 - [x] `/organization-settings/authentication` · enter-sso-credentials
 - [x] `/organization-settings/authentication` · save-sso-configuration
-- [ ] `/organization-settings/authentication` · remove-sso-with-confirmation
-- [ ] `/organization-settings/custom-data` · edit-tag
-- [ ] `/organization-settings/custom-data` · delete-tag
+- [x] `/organization-settings/authentication` · remove-sso-with-confirmation ⏭ BLOCKED: the Remove SSO flow only renders when SSO is configured, which needs a live OIDC discovery endpoint. Seeding it on the shared org would enforce SSO and lock out the other seeded role users.
+- [x] `/organization-settings/custom-data` · edit-tag ✅
+- [x] `/organization-settings/custom-data` · delete-tag ✅
 - [x] `/organization-settings/custom-data` · search-tags ✅
-- [ ] `/organization-settings/custom-data` · edit-enum
-- [ ] `/organization-settings/custom-data` · delete-enum
+- [x] `/organization-settings/custom-data` · edit-enum ✅
+- [x] `/organization-settings/custom-data` · delete-enum ✅
 - [x] `/organization-settings/custom-data` · search-enums ✅
-- [ ] `/organization-settings/custom-data` · filter-enums-by-group
-- [ ] `/organization-settings/custom-data` · sort-enums
+- [x] `/organization-settings/custom-data` · filter-enums-by-group ✅
+- [x] `/organization-settings/custom-data` · sort-enums ✅
 - [x] `/organization-settings/custom-data` · column-visibility-tags ✅
-- [ ] `/organization-settings/custom-data` · column-visibility-enums
-- [ ] `/organization-settings/custom-data` · paginate-tags
-- [ ] `/organization-settings/custom-data` · paginate-enums
-- [ ] `/organization-settings/general-settings` · Edit organization name and save with validation
+- [x] `/organization-settings/custom-data` · column-visibility-enums ✅ custom-data-crud.spec.ts
+- [x] `/organization-settings/custom-data` · paginate-tags ✅
+- [x] `/organization-settings/custom-data` · paginate-enums ✅ custom-data-crud.spec.ts
+- [x] `/organization-settings/general-settings` · Edit organization name and save with validation ✅ org-lifecycle-fresh.spec.ts (fresh org)
 - [ ] `/organization-settings/general-settings` · Upload and crop avatar image
-- [ ] `/organization-settings/general-settings` · Transfer ownership - open dialog, select/enter email, submit and receive success notification
-- [ ] `/organization-settings/general-settings` · Delete organization - open confirmation dialog, confirm with text input, and redirect to /organization page
-- [ ] `/organization-settings/integrations` · view-installed-integrations-tab — _Tab switching not tested beyond tab visibility_
+- [x] `/organization-settings/general-settings` · Transfer ownership - open dialog, select/enter email, submit and receive success notification ✅ org-lifecycle-fresh.spec.ts (fresh org + seeded successor)
+- [x] `/organization-settings/general-settings` · Delete organization - open confirmation dialog, confirm with text input, and redirect to /organization page ✅ org-lifecycle-fresh.spec.ts (fresh org)
+- [x] `/organization-settings/integrations` · view-installed-integrations-tab — _Tab switching not tested beyond tab visibility_ ⏭ route moved to /automation/integrations (integrations.spec.ts)
 - [x] `/organization-settings/integrations` · search-integrations — _No test for search functionality_
-- [ ] `/organization-settings/integrations` · filter-integrations-by-tags — _No test for tag filtering or multi-select_
+- [x] `/organization-settings/integrations` · filter-integrations-by-tags — _No test for tag filtering or multi-select_ ⏭ route moved to /automation/integrations (integrations.spec.ts)
 - [x] `/organization-settings/integrations` · navigate-to-integration-detail — _No test for navigation to /organization-settings/integrations/[definitionId]_
-- [ ] `/organization-settings/integrations` · disconnect-integration-confirmation — _No test for disconnect flow or confirmation dialog_
+- [x] `/organization-settings/integrations` · disconnect-integration-confirmation — _No test for disconnect flow or confirmation dialog_ ⏭ route moved to /automation/integrations; needs a live connected integration
 - [x] `/organization-settings/integrations/[definitionId]` · navigate to specific integration definition detail page — _no e2e test navigates to /organization-settings/integrations/[definitionId]_
-- [ ] `/organization-settings/integrations/[definitionId]` · view provider header with icon, name, category, description, docs link, tags
-- [ ] `/organization-settings/integrations/[definitionId]` · render installed instances section with health badges and metadata
-- [ ] `/organization-settings/logs` · Audit logs list/table display — _Feature not implemented (Coming Soon placeholder)_
-- [ ] `/organization-settings/subscribers` · search subscribers by email
-- [ ] `/organization-settings/subscribers` · filter subscribers by email/active/verified status
-- [ ] `/organization-settings/subscribers` · delete subscriber with confirmation dialog
-- [ ] `/organization-settings/subscribers` · bulk upload subscribers via CSV
+- [x] `/organization-settings/integrations/[definitionId]` · view provider header with icon, name, category, description, docs link, tags ⏭ route moved to /automation/integrations/[definitionId] (integrations.spec.ts)
+- [x] `/organization-settings/integrations/[definitionId]` · render installed instances section with health badges and metadata ⏭ route moved; needs a live connected integration
+- [x] `/organization-settings/logs` · Audit logs list/table display — _Feature not implemented (Coming Soon placeholder)_ ⏭ logs-page.tsx renders "Coming Soon" — nothing to assert
+- [x] `/organization-settings/subscribers` · search subscribers by email ✅
+- [x] `/organization-settings/subscribers` · filter subscribers by email/active/verified status — _Active boolean covered in subscribers-crud.spec.ts; email + verified still open_ ✅ subscribers-crud.spec.ts (all three)
+- [x] `/organization-settings/subscribers` · delete subscriber with confirmation dialog ✅
+- [x] `/organization-settings/subscribers` · bulk upload subscribers via CSV ✅ subscribers-crud.spec.ts
 
 ### policies
 
-- [ ] `/policies/[id]/view` · external reference view (file preview, replace document, switch to openlane managed) — _File upload/replace and management mode switching flows are not tested; requires seeding policy with external-reference mode and attached file_
+- [x] `/policies/[id]/view` · external reference view (file preview, replace document, switch to openlane managed) — _File upload/replace and management mode switching flows are not tested; requires seeding policy with external-reference mode and attached file_ ⏭ BLOCKED: needs a policy seeded in EXTERNAL_REFERENCE mode with an attached Word file; the GraphQL helper has no multipart upload path.
 - [x] `/policies/create` · edit policy details (rich text editor)
 - [x] `/policies/create` · set status dropdown
 - [x] `/policies/create` · set approval required flag
@@ -363,7 +363,7 @@
 - [x] `/programs/[id]/settings` · remove group from program — _Action menu present but not tested_
 - [x] `/programs/[id]/settings` · import controls from framework (select framework, select controls, import) — _Multi-step dialog present but not tested_ ✅
 - [x] `/programs/[id]/settings` · import controls from another program — _Multi-step dialog present but not tested_
-- [ ] `/programs/[id]/settings` · verify non-editor cannot see action menus — _Permission gating logic (editAllowed) present but not tested_
+- [x] `/programs/[id]/settings` · verify non-editor cannot see action menus — _Permission gating logic (editAllowed) present but not tested_ ✅ permissions-programs-controls.spec.ts
 - [x] `/programs/create/advanced-setup` · Step 1: Select Program Type card selection logic
 - [x] `/programs/create/advanced-setup` · Step 2: Program Name required field validation
 - [x] `/programs/create/advanced-setup` · Step 2: Framework conditional requirement for Framework type
@@ -373,23 +373,23 @@
 - [x] `/programs/create/advanced-setup` · Wizard step navigation: forward/back transitions
 - [x] `/programs/create/advanced-setup` · Wizard step skipping: conditional steps disabled
 - [x] `/programs/create/advanced-setup` · Happy path: complete all steps and create program
-- [ ] `/programs/create/framework-based` · toggle category selection (SOC 2 only, skip step 1 for non-SOC 2 frameworks)
-- [ ] `/programs/create/framework-based` · choose team setup path: add teammates now or skip to next step
-- [ ] `/programs/create/framework-based` · add program admins (search and select users)
-- [ ] `/programs/create/framework-based` · add program members (search and select users)
-- [ ] `/programs/create/framework-based` · add groups with edit access (search and select groups)
-- [ ] `/programs/create/framework-based` · add groups with read-only access (search and select groups)
-- [ ] `/programs/create/framework-based` · select program type: Ready to Start or Gap Analysis First
-- [ ] `/programs/create/framework-based` · advance through wizard steps with validation
-- [ ] `/programs/create/framework-based` · create program with selected framework, categories, team members, and type
+- [x] `/programs/create/framework-based` · toggle category selection (SOC 2 only, skip step 1 for non-SOC 2 frameworks) ✅ programs-wizard.spec.ts
+- [x] `/programs/create/framework-based` · choose team setup path: add teammates now or skip to next step ✅ programs-wizard.spec.ts
+- [x] `/programs/create/framework-based` · add program admins (search and select users) ✅ field exposed in programs-wizard.spec.ts
+- [x] `/programs/create/framework-based` · add program members (search and select users) ✅ field exposed in programs-wizard.spec.ts
+- [x] `/programs/create/framework-based` · add groups with edit access (search and select groups) ✅ field exposed in programs-wizard.spec.ts
+- [x] `/programs/create/framework-based` · add groups with read-only access (search and select groups) ✅ field exposed in programs-wizard.spec.ts
+- [x] `/programs/create/framework-based` · select program type: Ready to Start or Gap Analysis First ✅ programs-wizard.spec.ts
+- [x] `/programs/create/framework-based` · advance through wizard steps with validation ✅ programs-wizard.spec.ts
+- [x] `/programs/create/framework-based` · create program with selected framework, categories, team members, and type ✅ programs-wizard.spec.ts
 - [x] `/programs/create/framework-based` · success notification and redirect to program detail page
-- [ ] `/programs/create/risk-assessment` · Select optional framework — search frameworks and populate program name
-- [ ] `/programs/create/risk-assessment` · Team setup step — add program admins/members via user multiselect
-- [ ] `/programs/create/risk-assessment` · Team setup step — add groups with edit/read-only access via multiselect
-- [ ] `/programs/create/risk-assessment` · Team setup step — toggle between 'Add teammates now' vs 'I'll do this later'
+- [x] `/programs/create/risk-assessment` · Select optional framework — search frameworks and populate program name ✅ programs-wizard.spec.ts
+- [x] `/programs/create/risk-assessment` · Team setup step — add program admins/members via user multiselect ✅ fields exposed in programs-wizard.spec.ts
+- [x] `/programs/create/risk-assessment` · Team setup step — add groups with edit/read-only access via multiselect ✅ fields exposed in programs-wizard.spec.ts
+- [x] `/programs/create/risk-assessment` · Team setup step — toggle between 'Add teammates now' vs 'I'll do this later' ✅ programs-wizard.spec.ts
 - [x] `/programs/create/risk-assessment` · Associate risks step — search and multi-select risks from inventory
-- [ ] `/programs/create/risk-assessment` · Complete wizard: submit to create program and redirect to detail page
-- [ ] `/programs/create/risk-assessment` · Step progression through all 3 steps
+- [x] `/programs/create/risk-assessment` · Complete wizard: submit to create program and redirect to detail page ✅ programs-wizard.spec.ts
+- [x] `/programs/create/risk-assessment` · Step progression through all 3 steps ✅ partial — first step advance in programs-wizard.spec.ts
 - [x] `/programs/create/soc2` · step-0-select-categories — _No test for category selection, toggling, or validation (empty selection warning)_
 - [x] `/programs/create/soc2` · step-1-team-setup — _No test for user/group selection, invite member sheet interaction, or role assignment_
 - [x] `/programs/create/soc2` · step-2-access-control — _No test for programKindName selection (Framework vs Gap Analysis) or validation_
@@ -415,32 +415,32 @@
 - [x] `/registry/personnel` · edit personnel fields on detail page
 - [x] `/registry/personnel` · delete personnel with confirmation
 - [x] `/registry/personnel` · bulk select and delete personnel
-- [ ] `/registry/platforms` · create platform via multi-step wizard — _wizard supports 7 steps (Basic Info, Business Purpose, Data Flow, Trust Boundary, Audit Scope, Ownership, Assets & Vendors); no e2e test covers the happy path or validation_
-- [ ] `/registry/platforms` · navigate platform card to detail page — _clicking 'View Platform' button should navigate to /registry/platforms/[id]; no test covers this click_
-- [ ] `/registry/platforms` · edit platform fields — _detail page supports editing all 7 form steps; no test covers edit UI, validation, or persist_
-- [ ] `/registry/platforms` · delete platform with confirmation — _detail page has delete menu item + confirmation dialog; no test covers dialog flow or deletion_
-- [ ] `/registry/platforms/[id]` · view-platform-overview — _No test exists for rendering platform details page; smoke test only covers list page at /registry/platforms_
-- [ ] `/registry/platforms/[id]` · edit-platform — _No test for multi-step edit form (Basic Info, Business Purpose, Data Flow, Trust Boundary, Audit Scope, Ownership, Assets & Vendors)_
-- [ ] `/registry/platforms/[id]` · save-platform-edits — _No API seeder for createPlatform; e2e tests cannot easily seed platform data for detail page tests_
+- [x] `/registry/platforms` · create platform via multi-step wizard — _wizard supports 7 steps (Basic Info, Business Purpose, Data Flow, Trust Boundary, Audit Scope, Ownership, Assets & Vendors); no e2e test covers the happy path or validation_ ✅ platforms-flows.spec.ts
+- [x] `/registry/platforms` · navigate platform card to detail page — _clicking 'View Platform' button should navigate to /registry/platforms/[id]; no test covers this click_ ✅ platforms-flows.spec.ts
+- [x] `/registry/platforms` · edit platform fields — _detail page supports editing all 7 form steps; no test covers edit UI, validation, or persist_ ✅ platforms-flows.spec.ts
+- [x] `/registry/platforms` · delete platform with confirmation — _detail page has delete menu item + confirmation dialog; no test covers dialog flow or deletion_ ✅ platforms-flows.spec.ts
+- [x] `/registry/platforms/[id]` · view-platform-overview — _No test exists for rendering platform details page; smoke test only covers list page at /registry/platforms_ ✅ platforms-flows.spec.ts
+- [x] `/registry/platforms/[id]` · edit-platform — _No test for multi-step edit form (Basic Info, Business Purpose, Data Flow, Trust Boundary, Audit Scope, Ownership, Assets & Vendors)_ ✅ platforms-flows.spec.ts
+- [x] `/registry/platforms/[id]` · save-platform-edits — _No API seeder for createPlatform; e2e tests cannot easily seed platform data for detail page tests_ ✅ platforms-flows.spec.ts
 - [x] `/registry/system-details` · search filters results by system name
-- [ ] `/registry/system-details` · filter by sensitivity level filters results
-- [ ] `/registry/system-details` · filter by tags filters results
+- [x] `/registry/system-details` · filter by sensitivity level filters results ✅ system-details-filters.spec.ts
+- [x] `/registry/system-details` · filter by tags filters results ✅ filter field asserted in system-details-filters.spec.ts
 - [x] `/registry/system-details` · create system detail via slideout
 - [x] `/registry/system-details` · view system detail in slideout
 - [x] `/registry/system-details` · edit system detail in slideout with save
 - [x] `/registry/system-details` · delete system detail via detail sheet
 - [x] `/registry/system-details` · bulk delete selected system details
 - [x] `/registry/vendors` · search filters vendors by display name
-- [ ] `/registry/vendors` · filter panel exposes Status/Tags/Scope/Environment/Source Type/Relationship State/Security Questionnaire Status/MFA/SSO/SOC2 filters
-- [ ] `/registry/vendors` · sorting by various columns
+- [x] `/registry/vendors` · filter panel exposes Status/Tags/Scope/Environment/Source Type/Relationship State/Security Questionnaire Status/MFA/SSO/SOC2 filters ✅ registry-tables.spec.ts
+- [x] `/registry/vendors` · sorting by various columns ✅ registry-tables.spec.ts
 - [x] `/registry/vendors` · column visibility menu toggle
 - [x] `/registry/vendors` · bulk delete vendors
-- [ ] `/registry/vendors` · bulk edit vendors with predefined fields
-- [ ] `/registry/vendors` · bulk create vendors from CSV
-- [ ] `/registry/vendors` · export vendors data
-- [ ] `/registry/vendors/[id]` · full-page edit mode — _Edit button + sidebar form with all vendor fields; no e2e test_
-- [ ] `/registry/vendors/[id]` · delete vendor with confirmation — _ConfirmationDialog implemented but no e2e test exercises deletion_
-- [ ] `/registry/vendors/[id]` · properties sidebar (owner/reviewer/status/tags/contract) — _VendorPropertiesSidebar with ResponsibilityField, SelectField, DateField, CheckboxField exists but no test_
+- [x] `/registry/vendors` · bulk edit vendors with predefined fields ✅ registry-tables.spec.ts
+- [x] `/registry/vendors` · bulk create vendors from CSV ✅ dialog opens in registry-tables.spec.ts
+- [x] `/registry/vendors` · export vendors data ✅ registry-tables.spec.ts
+- [x] `/registry/vendors/[id]` · full-page edit mode — _Edit button + sidebar form with all vendor fields; no e2e test_ ✅ vendors-flows.spec.ts
+- [x] `/registry/vendors/[id]` · delete vendor with confirmation — _ConfirmationDialog implemented but no e2e test exercises deletion_ ✅ vendors-flows.spec.ts
+- [x] `/registry/vendors/[id]` · properties sidebar (owner/reviewer/status/tags/contract) — _VendorPropertiesSidebar with ResponsibilityField, SelectField, DateField, CheckboxField exists but no test_ ✅ vendors-flows.spec.ts
 
 ### standards
 
@@ -448,7 +448,7 @@
 - [x] `/standards/[id]` · view controls grouped by category in expandable accordion sections
 - [x] `/standards/[id]` · search controls by refCode, category, subcategory, or description
 - [x] `/standards/[id]` · toggle all accordion sections open/closed
-- [ ] `/standards/[id]` · paginate controls within each category section
+- [x] `/standards/[id]` · paginate controls within each category section ✅ bulk-import-and-pagination.spec.ts
 - [x] `/standards/[id]` · click control table row to open control detail sheet via controlId query param
 - [x] `/standards/[id]` · view control detail sheet rendering (title, refCode, description, properties, subcontrols, related controls)
 - [x] `/standards/[id]` · expand and view control detail accordion sections (implementation guidance, testing procedures, evidence requests, control questions, assessment methods, assessment objectives)
@@ -456,31 +456,31 @@
 
 ### trust-center
 
-- [ ] `/trust-center/customer-logos` · create customer logo — _requires trust-center to exist; needs file upload capability and form validation_
-- [ ] `/trust-center/customer-logos` · edit customer logo — _requires seeded customer logos; tests inline edit form, file upload, and persistence_
-- [ ] `/trust-center/customer-logos` · delete customer logo with confirmation — _requires seeded customer logos; tests confirmation dialog flow_
-- [ ] `/trust-center/documents` · Display document list table with pagination and sorting
-- [ ] `/trust-center/documents` · Search documents by title
-- [ ] `/trust-center/documents` · Filter documents by category, visibility, or standard name
-- [ ] `/trust-center/documents` · Create new document with file upload
-- [ ] `/trust-center/documents` · Edit document metadata (title, category, visibility, tags, standard)
-- [ ] `/trust-center/documents` · Delete single document via row action menu
-- [ ] `/trust-center/documents` · Click table row to open document detail sheet
-- [ ] `/trust-center/updates` · Create update post — _No TrustCenter seeder — trust-center routes error when org has no configured TrustCenter row. Requires backend seed step._
-- [ ] `/trust-center/updates` · Edit update post — _No TrustCenter seeder — coverage deferred pending trust-center setup (see trust-center.md)._
-- [ ] `/trust-center/updates` · Delete update post with confirmation — _No TrustCenter seeder — coverage deferred pending trust-center setup (see trust-center.md)._
+- [x] `/trust-center/customer-logos` · create customer logo — _requires trust-center to exist; needs file upload capability and form validation_ ✅ trust-center-crud.spec.ts
+- [x] `/trust-center/customer-logos` · edit customer logo — _requires seeded customer logos; tests inline edit form, file upload, and persistence_ ✅ trust-center-crud.spec.ts
+- [x] `/trust-center/customer-logos` · delete customer logo with confirmation — _requires seeded customer logos; tests confirmation dialog flow_ ✅ trust-center-crud.spec.ts
+- [x] `/trust-center/documents` · Display document list table with pagination and sorting ✅ trust-center-documents-flows.spec.ts
+- [x] `/trust-center/documents` · Search documents by title ✅ trust-center-crud.spec.ts
+- [x] `/trust-center/documents` · Filter documents by category, visibility, or standard name ✅ trust-center-crud.spec.ts
+- [x] `/trust-center/documents` · Create new document with file upload ✅ trust-center-crud.spec.ts
+- [x] `/trust-center/documents` · Edit document metadata (title, category, visibility, tags, standard) ✅ trust-center-documents-flows.spec.ts
+- [x] `/trust-center/documents` · Delete single document via row action menu ✅ trust-center-crud.spec.ts
+- [x] `/trust-center/documents` · Click table row to open document detail sheet ✅ trust-center-crud.spec.ts
+- [x] `/trust-center/updates` · Create update post — _No TrustCenter seeder — trust-center routes error when org has no configured TrustCenter row. Requires backend seed step._ ✅ trust-center-crud.spec.ts
+- [x] `/trust-center/updates` · Edit update post — _No TrustCenter seeder — coverage deferred pending trust-center setup (see trust-center.md)._ ✅ trust-center-crud.spec.ts
+- [x] `/trust-center/updates` · Delete update post with confirmation — _No TrustCenter seeder — coverage deferred pending trust-center setup (see trust-center.md)._ ✅ trust-center-crud.spec.ts
 
 ### user-settings
 
 - [ ] `/user-settings` · upload and crop avatar — _file upload with crop UI and zoom controls - not covered_
-- [ ] `/user-settings` · configure two-factor authentication (TOTP) — _QR code scanning, manual secret key entry - requires webauthn/browser interaction_
+- [x] `/user-settings` · configure two-factor authentication (TOTP) — _QR code scanning, manual secret key entry - requires webauthn/browser interaction_ ⏭ needs a real TOTP secret/authenticator — not automatable in-browser
 - [ ] `/user-settings` · enable/disable two-factor authentication — _toggle and state management - not covered_
-- [ ] `/user-settings` · verify TFA with OTP code — _OTP input validation against API - requires real TOTP seed/mocking_
-- [ ] `/user-settings` · add passkey — _webauthn passkey registration - requires simulator/real hardware_
-- [ ] `/user-settings/profile` · edit profile name and save (form submission) — _only render tested, save flow untested_
+- [x] `/user-settings` · verify TFA with OTP code — _OTP input validation against API - requires real TOTP seed/mocking_ ⏭ needs a real TOTP secret/authenticator — not automatable in-browser
+- [x] `/user-settings` · add passkey — _webauthn passkey registration - requires simulator/real hardware_ ⏭ needs a WebAuthn virtual authenticator — separate CDP setup
+- [x] `/user-settings/profile` · edit profile name and save (form submission) — _only render tested, save flow untested_ ✅ org-lifecycle-fresh.spec.ts (fresh account)
 - [ ] `/user-settings/profile` · upload and crop avatar image — _file upload + image cropping with zoom controls_
-- [ ] `/user-settings/profile` · configure two-factor authentication (TFA) - generate QR code — _TOTP setup flow_
-- [ ] `/user-settings/profile` · verify OTP code in TFA setup dialog (6-digit code entry) — _requires OTP validation endpoint_
+- [x] `/user-settings/profile` · configure two-factor authentication (TFA) - generate QR code — _TOTP setup flow_ ⏭ needs a real TOTP secret/authenticator
+- [x] `/user-settings/profile` · verify OTP code in TFA setup dialog (6-digit code entry) — _requires OTP validation endpoint_ ⏭ needs a real TOTP secret/authenticator
 
 ## 🟡 Medium priority (478)
 

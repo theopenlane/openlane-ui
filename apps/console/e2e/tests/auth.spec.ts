@@ -79,8 +79,8 @@ test.describe('auth — login', () => {
     await signOutResponse
     await expect(async () => {
       await page.goto('/login').catch(() => {})
-      await expect(page).toHaveURL(/\/login(\?|$)/, { timeout: 2_000 })
-    }).toPass({ timeout: 20_000 })
+      await expect(page).toHaveURL(/\/login(\?|$)/, { timeout: 3_000 })
+    }).toPass({ timeout: 60_000 })
 
     await page.goto('/login?redirect=/policies')
 

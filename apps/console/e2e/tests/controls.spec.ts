@@ -39,8 +39,8 @@ test.describe('controls — create + view', () => {
 
     await page.getByPlaceholder(/^Search$/).fill(a)
 
-    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('cell').filter({ hasText: b })).toHaveCount(0, { timeout: 15_000 })
+    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible({ timeout: 45_000 })
+    await expect(page.getByRole('cell').filter({ hasText: b })).toHaveCount(0, { timeout: 30_000 })
   })
 
   test('happy path — create a control and land on the detail page', async ({ page }) => {

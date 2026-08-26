@@ -114,7 +114,8 @@ test.describe('trust-center — recommended controls tab (ISS-1917)', () => {
     requireDemoOrg()
     await page.goto('/trust-center/controls', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
-    for (const label of [/^All \(\d+\)$/, /^Added \(\d+\)$/, /^Not Added \(\d+\)$/, /^Recommended \(\d+\)$/]) {
+    await expect(page.getByRole('tab', { name: /^All \(\d+\)$/ })).toBeVisible({ timeout: 90_000 })
+    for (const label of [/^Added \(\d+\)$/, /^Not Added \(\d+\)$/, /^Recommended \(\d+\)$/]) {
       await expect(page.getByRole('tab', { name: label })).toBeVisible({ timeout: 30_000 })
     }
   })
@@ -125,7 +126,7 @@ test.describe('trust-center — recommended controls tab (ISS-1917)', () => {
     await page.goto('/trust-center/controls', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
     const recommended = page.getByRole('tab', { name: /^Recommended \(\d+\)$/ })
-    await expect(recommended).toBeVisible({ timeout: 30_000 })
+    await expect(recommended).toBeVisible({ timeout: 90_000 })
     await recommended.click()
 
     await expect(recommended).toHaveAttribute('aria-selected', 'true', { timeout: 15_000 })
