@@ -126,6 +126,7 @@ test.describe('onboarding', () => {
   })
 
   test('completed user can still reach /onboarding (product currently allows re-entry)', async ({ page }) => {
+    test.slow()
     // NOTE: this documents current behavior, not a feature. The wizard has
     // no guard against re-entry after onboarding has already been completed.
     // If the product team adds a redirect, flip this assertion.
