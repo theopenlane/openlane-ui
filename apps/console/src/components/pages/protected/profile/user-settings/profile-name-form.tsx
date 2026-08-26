@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormItem, FormField, FormControl, FormMessage, FormLabel } from '@repo/ui/form'
 import { z } from 'zod'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useNotification } from '@/hooks/useNotification'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
@@ -18,6 +18,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 
 const ProfileNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
+  const hydratedRef = useRef(false)
   const { isPending: isSubmitting, mutateAsync: updateUserName } = useUpdateUser()
   const { successNotification, errorNotification } = useNotification()
 
@@ -74,14 +75,15 @@ const ProfileNameForm = () => {
   }
 
   useEffect(() => {
-    if (userData) {
-      form.reset({
-        firstName: userData.user.firstName ?? '',
-        lastName: userData.user.lastName ?? '',
-        displayName: userData?.user.displayName ?? '',
-        email: userData?.user.email ?? '',
-      })
-    }
+    if (!userData || hydratedRef.current || form.formState.isDirty) return
+
+    hydratedRef.current = true
+    form.reset({
+      firstName: userData.user.firstName ?? '',
+      lastName: userData.user.lastName ?? '',
+      displayName: userData.user.displayName ?? '',
+      email: userData.user.email ?? '',
+    })
   }, [userData, form])
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Copy, PanelRightClose, Pencil, Save, Trash2 } from 'lucide-react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
@@ -68,6 +68,7 @@ export const CreateDocumentSheet: React.FC = () => {
   const isDeleteAllowed = canDelete(permission?.roles)
 
   const [isEditing, setIsEditing] = useState(false)
+  const prefilledDocumentRef = useRef<string | null>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [open, setOpen] = useState(isCreateMode || !!documentId)
@@ -136,7 +137,7 @@ export const CreateDocumentSheet: React.FC = () => {
             trustCenterDocKindName: data.category,
             visibility: data.visibility,
             tags: data.tags ?? [],
-            ...(data.standardID != null ? { standardID: data.standardID } : { clearStandard: true }),
+            ...(data.standardID ? { standardID: data.standardID } : { clearStandard: true }),
           },
           updateTrustCenterDocId: documentId ?? '',
           trustCenterDocFile: data.file,
@@ -157,7 +158,7 @@ export const CreateDocumentSheet: React.FC = () => {
             tags: data.tags ?? [],
             trustCenterID,
             watermarkingEnabled: isWatermarkEnabled,
-            standardID: data.standardID,
+            standardID: data.standardID || undefined,
           },
           trustCenterDocFile: data.file,
         })
@@ -213,8 +214,12 @@ export const CreateDocumentSheet: React.FC = () => {
 
   useEffect(() => {
     if (isEditMode && documentData?.trustCenterDoc) {
+      if (prefilledDocumentRef.current === documentId) return
+
+      prefilledDocumentRef.current = documentId
       prefillForm()
     } else if (!isEditMode) {
+      prefilledDocumentRef.current = null
       reset({
         title: '',
         category: '',
@@ -223,7 +228,7 @@ export const CreateDocumentSheet: React.FC = () => {
         file: undefined,
       })
     }
-  }, [isEditMode, documentData, reset, open, prefillForm])
+  }, [isEditMode, documentData, documentId, reset, prefillForm])
 
   useEffect(() => {
     if (documentId || isCreateMode) setOpen(true)
