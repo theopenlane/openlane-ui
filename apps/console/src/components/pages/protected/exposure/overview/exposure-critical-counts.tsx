@@ -80,6 +80,7 @@ const ExposureCriticalCounts = ({ counts, isLoading }: Props) => {
                 ) : (
                   <div className="space-y-2">
                     <button
+                      aria-label={`Critical ${label}`}
                       className="flex items-center justify-between w-full rounded-md px-2 py-1 -mx-2 hover:bg-secondary transition-colors cursor-pointer"
                       onClick={() => handleClick(tableKey, href, critFilter)}
                     >
@@ -90,6 +91,7 @@ const ExposureCriticalCounts = ({ counts, isLoading }: Props) => {
                       <span className="text-2xl font-bold text-destructive">{data.critical}</span>
                     </button>
                     <button
+                      aria-label={`High ${label}`}
                       className="flex items-center justify-between w-full rounded-md px-2 py-1 -mx-2 hover:bg-secondary transition-colors cursor-pointer"
                       onClick={() => handleClick(tableKey, href, highFilter)}
                     >

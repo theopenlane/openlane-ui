@@ -166,7 +166,7 @@ export const ProgramSettingsUsers = () => {
               return (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="secondary" className="w-8 h-7 !p-0">
+                    <Button variant="secondary" aria-label="Program member actions" className="w-8 h-7 !p-0">
                       <EllipsisVertical />
                     </Button>
                   </DropdownMenuTrigger>

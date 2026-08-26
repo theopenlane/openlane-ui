@@ -61,6 +61,7 @@ const ColumnVisibilityMenu: React.FC<TColumnVisibilityMenuProps> = ({ mappedColu
           .map((column) => (
             <div key={column.accessorKey} className="flex items-center gap-x-3 p-1">
               <Checkbox
+                aria-label={column.header}
                 className="capitalize h-4 w-4 text-sm"
                 stroke={2}
                 checked={columnVisibility[column.accessorKey] !== false}

@@ -186,10 +186,10 @@ const ControlObjectivePage = () => {
         </div>
         <div className="flex gap-4 items-center">
           <div className="flex gap-2 items-center">
-            <Checkbox checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} />
+            <Checkbox aria-label="Show archived" checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} />
             <p>Show archived</p>
           </div>
-          <Button type="button" className="h-8 !px-2" variant="secondary" onClick={toggleAll}>
+          <Button type="button" aria-label="Expand or collapse all objectives" className="h-8 !px-2" variant="secondary" onClick={toggleAll}>
             <div className="flex">
               <List size={16} />
               <ChevronsDownUp size={16} />
@@ -232,9 +232,9 @@ const ControlObjectivePage = () => {
       </div>
       <div className="flex gap-4 items-center">
         <div className="flex gap-2 items-center">
-          <Checkbox checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} /> <p>Show archived</p>
+          <Checkbox aria-label="Show archived" checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} /> <p>Show archived</p>
         </div>
-        <Button type="button" className="h-8 !px-2" variant="secondary" onClick={toggleAll}>
+        <Button type="button" aria-label="Expand or collapse all objectives" className="h-8 !px-2" variant="secondary" onClick={toggleAll}>
           <div className="flex">
             <List size={16} />
             <ChevronsDownUp size={16} />
