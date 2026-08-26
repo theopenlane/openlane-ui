@@ -237,8 +237,8 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
             <FormProvider {...formMethods}>
               <form key={enumData?.customTypeEnum?.id || 'create'} className="p-6 space-y-6">
                 <div className="space-y-2">
-                  <Label>Name</Label>
-                  <Input {...formMethods.register('name')} disabled={isPending || isEditMode} placeholder="" />
+                  <Label htmlFor="custom-enum-name">Name</Label>
+                  <Input id="custom-enum-name" {...formMethods.register('name')} disabled={isPending || isEditMode} />
                   {errors.name && <p className="text-destructive text-xs font-medium">{errors.name.message}</p>}
                 </div>
 
@@ -298,8 +298,8 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Description</Label>
-                  <Textarea {...formMethods.register('description')} disabled={isPending} placeholder="Description..." className="min-h-[100px]" />
+                  <Label htmlFor="custom-enum-description">Description</Label>
+                  <Textarea id="custom-enum-description" {...formMethods.register('description')} disabled={isPending} placeholder="Description..." className="min-h-[100px]" />
                   {errors.description && <p className="text-destructive text-xs font-medium">{errors.description.message}</p>}
                 </div>
               </form>

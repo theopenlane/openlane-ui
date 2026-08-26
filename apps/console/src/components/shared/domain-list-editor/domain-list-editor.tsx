@@ -12,6 +12,7 @@ type DomainListEditorProps = {
   error?: string | null
   isPending?: boolean
   placeholder?: string
+  inputLabel?: string
   addLabel?: string
   addOnEnter?: boolean
 }
@@ -25,6 +26,7 @@ export const DomainListEditor = ({
   error,
   isPending,
   placeholder = 'example.com',
+  inputLabel = 'Domain',
   addLabel = 'Add',
   addOnEnter = false,
 }: DomainListEditorProps) => {
@@ -33,6 +35,7 @@ export const DomainListEditor = ({
       <div className="flex items-center gap-2">
         <Input
           variant="medium"
+          aria-label={inputLabel}
           placeholder={placeholder}
           value={newDomain}
           onChange={(e) => onNewDomainChange(e.target.value)}
@@ -59,7 +62,7 @@ export const DomainListEditor = ({
           {domains.map((domain) => (
             <div key={domain} className="flex items-center gap-1 bg-btn-secondary px-2 py-0.5 rounded-sm border border-muted text-sm font-mono">
               {domain}
-              <button type="button" disabled={isPending} onClick={() => onRemove(domain)} className="ml-1">
+              <button type="button" aria-label={`Remove ${domain}`} disabled={isPending} onClick={() => onRemove(domain)} className="ml-1">
                 <Trash2 size={12} className="text-muted-foreground hover:text-destructive" />
               </button>
             </div>

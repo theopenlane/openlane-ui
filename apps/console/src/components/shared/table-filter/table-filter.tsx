@@ -381,7 +381,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
               {field.options?.length ? (
                 field.options.map((opt) => (
                   <li key={opt.value} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm" onClick={() => handleToggle(opt.value)}>
-                    <Checkbox checked={selected.includes(opt.value)} className="accent-primary" />
+                    <Checkbox aria-label={opt.label} checked={selected.includes(opt.value)} className="accent-primary" />
                     <span>{opt.label}</span>
                   </li>
                 ))
@@ -396,12 +396,19 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
 
         case 'radio':
           return (
-            <div className="flex flex-col gap-1">
+            <div role="radiogroup" aria-label={field.label} className="flex flex-col gap-1">
               {field.radioOptions?.map((opt) => (
-                <label key={String(opt.value)} className={cn('flex items-center gap-2 rounded-md cursor-pointer text-sm transition-colors')} onClick={() => handleChange(field.key, opt.value)}>
+                <button
+                  key={String(opt.value)}
+                  type="button"
+                  role="radio"
+                  aria-checked={val === opt.value}
+                  className={cn('flex items-center gap-2 rounded-md cursor-pointer text-sm transition-colors bg-transparent text-left')}
+                  onClick={() => handleChange(field.key, opt.value)}
+                >
                   <div className="relative flex h-4 w-4 items-center justify-center rounded-full border border-primary">{val === opt.value && <div className="h-2 w-2 rounded-full bg-primary" />}</div>
                   {opt.label}
-                </label>
+                </button>
               ))}
             </div>
           )

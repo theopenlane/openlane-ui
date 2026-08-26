@@ -22,6 +22,7 @@ function buildSelectColumn<T extends { id: string }>(
       return (
         <div onClick={(e) => e.stopPropagation()}>
           <Checkbox
+            aria-label="Select all rows on this page"
             checked={allSelected}
             onCheckedChange={(checked: boolean) => {
               const newSelections = checked
@@ -45,6 +46,7 @@ function buildSelectColumn<T extends { id: string }>(
       return (
         <div onClick={(e) => e.stopPropagation()}>
           <Checkbox
+            aria-label="Select row"
             checked={isChecked}
             onCheckedChange={() => {
               setSelectedItems((prev) => {

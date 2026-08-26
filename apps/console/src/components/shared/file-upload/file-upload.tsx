@@ -13,6 +13,7 @@ type TProps = {
   acceptedFileTypesShort: string[]
   multipleFiles: boolean
   acceptedFilesClass?: string
+  inputLabel?: string
   note?: string
 }
 
@@ -101,7 +102,7 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
           'border-primary bg-muted/50 ring-1 ring-primary/30': isDragActive,
         })}
       >
-        <input {...getInputProps()} />
+        <input {...getInputProps()} aria-label={props.inputLabel ?? `Upload ${props.acceptedFileTypesShort.join(', ')} file`} />
 
         <div className="flex flex-col items-center gap-3">
           <div className="w-14 h-14 rounded-md bg-border border border-muted flex items-center justify-center">

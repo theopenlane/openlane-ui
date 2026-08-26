@@ -59,7 +59,7 @@ export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpires
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="secondary" className="-mr-2">
+          <Button variant="secondary" className="-mr-2" aria-label={`Token actions for ${tokenName}`}>
             <MoreHorizontal className="h-4 w-4 text-brand" />
           </Button>
         </DropdownMenuTrigger>

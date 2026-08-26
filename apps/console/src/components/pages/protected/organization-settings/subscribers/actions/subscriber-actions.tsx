@@ -38,14 +38,17 @@ export const SubscriberActions = ({ subscriberEmail }: SubscriberActionsProps) =
   return (
     <>
       <div className="flex items-center gap-2">
-        <Trash2
-          size={ICON_SIZE}
+        <button
+          type="button"
+          aria-label={`Delete subscriber ${subscriberEmail}`}
+          className="cursor-pointer bg-transparent"
           onClick={(e) => {
             e.stopPropagation()
             setIsDeleteDialogOpen(true)
           }}
-          className={`cursor-pointer`}
-        />
+        >
+          <Trash2 size={ICON_SIZE} />
+        </button>
       </div>
 
       <ConfirmationDialog

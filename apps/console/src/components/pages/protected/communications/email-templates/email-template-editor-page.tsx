@@ -163,7 +163,7 @@ export const EmailTemplateEditorPage: React.FC = () => {
           <div className="flex flex-col gap-6 min-w-0">
             <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
               <span className="text-sm font-semibold">Active</span>
-              <Switch checked={active} onCheckedChange={setActive} />
+              <Switch aria-label="Active" checked={active} onCheckedChange={setActive} />
             </div>
 
             <EditorCard title="Basic">
