@@ -106,6 +106,8 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       procedureKindName: procedure.procedureKindName ?? '',
       reviewDue: procedure.reviewDue ? new Date(procedure.reviewDue as string) : undefined,
       reviewFrequency: procedure.reviewFrequency ?? ProcedureFrequency.YEARLY,
+      approverID: procedure.approver?.id ?? undefined,
+      delegateID: procedure.delegate?.id ?? undefined,
       ...procedureAssociations,
     })
 
@@ -297,14 +299,14 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
             <div className="flex justify-between items-center">
               <SaveButton disabled={isSubmitting} title={isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Save Procedure'} />
               <div className="flex items-center gap-2">
-                <Switch checked={createMultiple} onCheckedChange={setCreateMultiple} />
+                <Switch aria-label="Create another procedure" checked={createMultiple} onCheckedChange={setCreateMultiple} />
                 <span>Create multiple</span>
               </div>
             </div>
           </div>
 
           <div className="shrink-0 w-[380px] space-y-4">
-            <AuthorityCard form={form} isEditing={true} inputClassName="w-[162px]" editAllowed={true} isCreate={true} />
+            <AuthorityCard form={form} isEditing={true} inputClassName="w-[162px]" editAllowed={true} isCreate={true} approver={procedure?.approver} delegate={procedure?.delegate} />
             <StatusCard form={form} metadata={metadata} />
             <TagsCard form={form} />
           </div>
