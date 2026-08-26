@@ -287,3 +287,8 @@ implementation checklist.
 See `plans/00-priorities.md` for the global priority order.
 
 In short: auth → onboarding → policies/controls/programs CRUD → tasks → the rest.
+
+## Backend defects
+
+Bugs this suite reproduces but cannot fix live in [`CORE-ISSUES.md`](./CORE-ISSUES.md).
+Where a test works around one, the workaround links back to its entry.
