@@ -16,10 +16,6 @@ test.afterAll(async () => {
   if (riskId) await gql(ownerApi, `mutation($id: ID!){ deleteRisk(id: $id){ deletedID } }`, { id: riskId })
 })
 
-// Seeded with a priority on purpose: an action plan whose priority is NULL
-// cannot be updated at all (core rejects it in the history validator). See
-// CORE-1 in e2e/CORE-ISSUES.md — drop this once core is fixed, so the
-// NULL-priority path is covered again.
 const findActionPlanId = async (sess: ApiSession, name: string): Promise<string | undefined> => {
   const res = await gql<{ actionPlans: { edges: Array<{ node: { id: string } }> } }>(sess, `query($n: String!){ actionPlans(where: { nameContainsFold: $n }, first: 1){ edges { node { id } } } }`, {
     n: name,
