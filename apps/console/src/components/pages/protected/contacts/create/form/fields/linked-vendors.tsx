@@ -57,8 +57,8 @@ const LinkedVendors: React.FC<LinkedVendorsProps> = ({ data, isEditAllowed }) =>
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        {isEditAllowed && contactId && (
+      {isEditAllowed && contactId && (
+        <div className="flex justify-end">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button type="button" variant="secondary" size="md" icon={<Plus size={16} strokeWidth={2} />} iconPosition="left">
@@ -84,8 +84,8 @@ const LinkedVendors: React.FC<LinkedVendorsProps> = ({ data, isEditAllowed }) =>
               </Command>
             </PopoverContent>
           </Popover>
-        )}
-      </div>
+        </div>
+      )}
 
       {linkedVendors.length > 0 ? (
         <div className="space-y-2">
