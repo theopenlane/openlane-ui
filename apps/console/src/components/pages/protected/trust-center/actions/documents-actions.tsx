@@ -11,7 +11,7 @@ import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { useSession } from 'next-auth/react'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canDelete, canEdit } from '@/lib/authz/utils'
+import { canEdit } from '@/lib/authz/utils'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type DocumentActionsProps = {
@@ -31,8 +31,9 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const { data: session } = useSession()
   const { data: permission } = useAccountRoles(ObjectTypes.TRUST_CENTER_DOC, documentId)
+  // core guards both mutations with CheckEditAccess, and CheckEditAccess runs
+  // the edit check on delete operations too, so one capability covers both.
   const isEditAllowed = canEdit(permission?.roles, session)
-  const isDeleteAllowed = canDelete(permission?.roles)
 
   const handleDeleteDocument = async () => {
     try {
@@ -124,7 +125,7 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
         </DropdownMenuTrigger>
 
         <DropdownMenuContent className="min-w-[15px] bg-homepage-card-item border border-switch-bg-inactive">
-          {isDeleteAllowed && (
+          {isEditAllowed && (
             <DropdownMenuItem
               onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => e.stopPropagation()}

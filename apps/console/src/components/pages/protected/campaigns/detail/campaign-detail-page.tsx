@@ -42,7 +42,7 @@ import RecipientsTable from './recipients-table'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { useSession } from 'next-auth/react'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canDelete, canEdit } from '@/lib/authz/utils'
+import { canEdit } from '@/lib/authz/utils'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { DateField } from '@/components/shared/crud-base/form-fields/date-field'
@@ -87,8 +87,10 @@ const CampaignDetailPage: React.FC = () => {
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { data: session } = useSession()
   const { data: campaignPermission } = useAccountRoles(ObjectTypes.CAMPAIGN, campaignId)
+  // core's Campaign policy is CheckCreateAccess + CheckEditAccess, and
+  // CheckEditAccess runs CheckAccessForEdit for delete operations too — so
+  // deleting a campaign needs can_edit on the object, not can_delete.
   const canEditCampaign = canEdit(campaignPermission?.roles, session)
-  const canDeleteCampaign = canDelete(campaignPermission?.roles)
   const { data, isLoading } = useCampaign(campaignId)
   const { emailTemplateOptions, isLoading: emailTemplatesLoading } = useCampaignEmailTemplateSelect({ ensureId: data?.campaign?.emailTemplateID })
   const { mutateAsync: updateCampaign, isPending: isUpdating } = useUpdateCampaign()
@@ -383,7 +385,7 @@ const CampaignDetailPage: React.FC = () => {
                 <span>Cancel campaign</span>
               </Button>
             )}
-            {canDeleteCampaign && (
+            {canEditCampaign && (
               <Button
                 variant="transparent"
                 className="flex justify-start space-x-2"
