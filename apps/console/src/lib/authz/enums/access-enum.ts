@@ -39,7 +39,6 @@ export enum AccessEnum {
   CanCreateTask = 'can_create_task',
   CanCreateCampaign = 'can_create_campaign',
   CanCreateEmailTemplate = 'can_create_email_template',
-  CanCreateCustomDomain = 'can_create_custom_domain',
   CanCreateWorkflowDefinition = 'can_create_workflow_definition',
   CanCreateTrustCenterFaq = 'can_create_trust_center_faq',
   CanCreateSubscriber = 'can_create_subscriber',
