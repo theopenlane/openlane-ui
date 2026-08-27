@@ -6,6 +6,10 @@ import { useDeleteSubscriber } from '@/lib/graphql-hooks/subscriber'
 import { useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 type SubscriberActionsProps = {
   subscriberEmail: string
@@ -14,6 +18,9 @@ type SubscriberActionsProps = {
 const ICON_SIZE = 16
 
 export const SubscriberActions = ({ subscriberEmail }: SubscriberActionsProps) => {
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRoles()
+  const isDeleteAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanDeleteSubscriber, session)
   const { mutateAsync: deleteSubscriber } = useDeleteSubscriber()
   const { successNotification, errorNotification } = useNotification()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -33,6 +40,10 @@ export const SubscriberActions = ({ subscriberEmail }: SubscriberActionsProps) =
     } finally {
       setIsDeleteDialogOpen(false)
     }
+  }
+
+  if (!isDeleteAllowed) {
+    return null
   }
 
   return (

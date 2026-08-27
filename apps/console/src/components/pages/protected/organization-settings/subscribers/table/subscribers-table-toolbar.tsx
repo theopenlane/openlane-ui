@@ -7,6 +7,10 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import BulkCSVCreateSubscriberDialog from '@/components/pages/protected/organization-settings/subscribers/bulk-csv-create-subscriber-dialog.tsx'
 import { type SubscriberWhereInput } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 type TProps = {
   onFilterChange: (filters: SubscriberWhereInput) => void
@@ -18,6 +22,9 @@ type TProps = {
 
 const SubscribersTableToolbar: React.FC<TProps> = ({ searching, searchTerm, onFilterChange, setSearchTerm, handleExport }) => {
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canCreateSubscriber = hasPermission(orgPermission?.roles, AccessEnum.CanCreateSubscriber, session)
 
   return (
     <>
@@ -46,17 +53,19 @@ const SubscribersTableToolbar: React.FC<TProps> = ({ searching, searchTerm, onFi
                 <DownloadIcon size={16} strokeWidth={2} />
                 <span>Export</span>
               </button>
-              <button
-                type="button"
-                className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                onClick={() => {
-                  setIsBulkUploadOpen(true)
-                  close()
-                }}
-              >
-                <Upload size={16} strokeWidth={2} />
-                <span>Bulk Upload</span>
-              </button>
+              {canCreateSubscriber && (
+                <button
+                  type="button"
+                  className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                  onClick={() => {
+                    setIsBulkUploadOpen(true)
+                    close()
+                  }}
+                >
+                  <Upload size={16} strokeWidth={2} />
+                  <span>Bulk Upload</span>
+                </button>
+              )}
             </>
           )}
         />

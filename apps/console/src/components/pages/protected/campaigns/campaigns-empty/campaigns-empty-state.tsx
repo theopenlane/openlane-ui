@@ -4,7 +4,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 
 type TCampaignsEmptyStateProps = {
-  onCreateCampaign: () => void
+  onCreateCampaign?: () => void
 }
 
 const CampaignsEmptyState: React.FC<TCampaignsEmptyStateProps> = ({ onCreateCampaign }) => (
@@ -16,9 +16,11 @@ const CampaignsEmptyState: React.FC<TCampaignsEmptyStateProps> = ({ onCreateCamp
       <h3 className="text-lg font-semibold">You haven&apos;t created any campaigns yet</h3>
       <p className="mt-1 text-sm text-muted-foreground">Campaigns help you collect information, deliver training, and automate recurring outreach.</p>
     </div>
-    <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={onCreateCampaign}>
-      Create your first campaign
-    </Button>
+    {onCreateCampaign && (
+      <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={onCreateCampaign}>
+        Create your first campaign
+      </Button>
+    )}
   </Card>
 )
 

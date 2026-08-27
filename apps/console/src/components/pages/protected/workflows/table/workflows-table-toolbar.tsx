@@ -14,6 +14,8 @@ import { useNotification } from '@/hooks/useNotification'
 import { useDeleteWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { getFilterFields } from './table-config'
 import { tableKey } from './types'
@@ -56,6 +58,7 @@ const WorkflowsTableToolbar: React.FC<WorkflowsTableToolbarProps> = ({
   const filterFields = getFilterFields()
   const quickFilters: TQuickFilter[] = [{ label: 'Active', key: 'active', type: 'boolean', isActive: false }]
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
+  const canCreateWorkflowDefinition = hasPermission(permission?.roles, AccessEnum.CanCreateWorkflowDefinition, session)
   const { successNotification, errorNotification } = useNotification()
   const deleteMutation = useDeleteWorkflowDefinition()
 
@@ -118,25 +121,27 @@ const WorkflowsTableToolbar: React.FC<WorkflowsTableToolbarProps> = ({
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={tableKey} />
               )}
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={tableKey} quickFilters={quickFilters} />}
-              <Menu
-                trigger={
-                  <Button variant="primary" className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
-                    Create
-                  </Button>
-                }
-                content={
-                  <>
-                    <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={() => router.push('/automation/workflows/wizard')}>
-                      <Wand2 size={16} strokeWidth={2} />
-                      <span>Wizard</span>
-                    </button>
-                    <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={() => router.push('/automation/workflows/editor')}>
-                      <FileCode size={16} strokeWidth={2} />
-                      <span>Editor</span>
-                    </button>
-                  </>
-                }
-              />
+              {canCreateWorkflowDefinition && (
+                <Menu
+                  trigger={
+                    <Button variant="primary" className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
+                      Create
+                    </Button>
+                  }
+                  content={
+                    <>
+                      <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={() => router.push('/automation/workflows/wizard')}>
+                        <Wand2 size={16} strokeWidth={2} />
+                        <span>Wizard</span>
+                      </button>
+                      <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={() => router.push('/automation/workflows/editor')}>
+                        <FileCode size={16} strokeWidth={2} />
+                        <span>Editor</span>
+                      </button>
+                    </>
+                  }
+                />
+              )}
             </>
           )}
         </div>

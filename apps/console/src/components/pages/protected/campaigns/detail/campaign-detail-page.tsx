@@ -40,6 +40,10 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import CampaignRunsTable from './campaign-runs-table'
 import RecipientsTable from './recipients-table'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
+import { useSession } from 'next-auth/react'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { canDelete, canEdit } from '@/lib/authz/utils'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { DateField } from '@/components/shared/crud-base/form-fields/date-field'
 
@@ -81,6 +85,10 @@ const CampaignDetailPage: React.FC = () => {
   const params = useParams<{ id: string }>()
   const campaignId = params.id
   const { setCrumbs } = React.use(BreadcrumbContext)
+  const { data: session } = useSession()
+  const { data: campaignPermission } = useAccountRoles(ObjectTypes.CAMPAIGN, campaignId)
+  const canEditCampaign = canEdit(campaignPermission?.roles, session)
+  const canDeleteCampaign = canDelete(campaignPermission?.roles)
   const { data, isLoading } = useCampaign(campaignId)
   const { emailTemplateOptions, isLoading: emailTemplatesLoading } = useCampaignEmailTemplateSelect({ ensureId: data?.campaign?.emailTemplateID })
   const { mutateAsync: updateCampaign, isPending: isUpdating } = useUpdateCampaign()
@@ -272,7 +280,7 @@ const CampaignDetailPage: React.FC = () => {
   const status = campaign.status
   const launched = !!campaign.launchedAt
   const isDraft = status === CampaignCampaignStatus.DRAFT
-  const isEditable = isDraft
+  const isEditable = isDraft && canEditCampaign
   const hasQuestionnaire = !!campaign.templateID
   const hasEmailTemplate = !!campaign.emailTemplateID
   const hasCampaignContent = hasQuestionnaire || hasEmailTemplate
@@ -280,9 +288,9 @@ const CampaignDetailPage: React.FC = () => {
   const campaignTypeLabel = campaign.campaignType ? getEnumLabel(campaign.campaignType) : '—'
   const launchBlockedReason = getLaunchBlockedReason({ hasCampaignContent, isFetchingRecipients, hasRecipientsError, recipientCount: stats.total })
   const isTerminalStatus = CAMPAIGN_TERMINAL_STATUSES.includes(status)
-  const canCancel = !isTerminalStatus
-  const canEditRecurrence = !isTerminalStatus
-  const canSendReminder = status === CampaignCampaignStatus.ACTIVE
+  const canCancel = !isTerminalStatus && canEditCampaign
+  const canEditRecurrence = !isTerminalStatus && canEditCampaign
+  const canSendReminder = status === CampaignCampaignStatus.ACTIVE && canEditCampaign
   const lockBanner =
     !isDraft &&
     {
@@ -323,7 +331,7 @@ const CampaignDetailPage: React.FC = () => {
     },
   }
 
-  const launchButton = isDraft && (
+  const launchButton = isDraft && canEditCampaign && (
     <Button variant="primary" icon={<Rocket size={14} />} iconPosition="left" onClick={() => setLaunchDialogOpen(true)} disabled={isLaunching || !!launchBlockedReason} className="h-8">
       Launch
     </Button>
@@ -335,17 +343,19 @@ const CampaignDetailPage: React.FC = () => {
         closeOnSelect
         content={(close) => (
           <>
-            <Button
-              variant="transparent"
-              className="flex justify-start space-x-2"
-              onClick={() => {
-                setTestDialogOpen(true)
-                close()
-              }}
-            >
-              <Mail size={16} strokeWidth={2} />
-              <span>Send test email</span>
-            </Button>
+            {canEditCampaign && (
+              <Button
+                variant="transparent"
+                className="flex justify-start space-x-2"
+                onClick={() => {
+                  setTestDialogOpen(true)
+                  close()
+                }}
+              >
+                <Mail size={16} strokeWidth={2} />
+                <span>Send test email</span>
+              </Button>
+            )}
             {canSendReminder && (
               <Button
                 variant="transparent"
@@ -373,17 +383,19 @@ const CampaignDetailPage: React.FC = () => {
                 <span>Cancel campaign</span>
               </Button>
             )}
-            <Button
-              variant="transparent"
-              className="flex justify-start space-x-2"
-              onClick={() => {
-                setDeleteDialogOpen(true)
-                close()
-              }}
-            >
-              <Trash2 size={16} strokeWidth={2} />
-              <span>Delete campaign</span>
-            </Button>
+            {canDeleteCampaign && (
+              <Button
+                variant="transparent"
+                className="flex justify-start space-x-2"
+                onClick={() => {
+                  setDeleteDialogOpen(true)
+                  close()
+                }}
+              >
+                <Trash2 size={16} strokeWidth={2} />
+                <span>Delete campaign</span>
+              </Button>
+            )}
           </>
         )}
       />
@@ -558,7 +570,7 @@ const CampaignDetailPage: React.FC = () => {
         />
       </div>
 
-      {isDraft ? (
+      {isEditable ? (
         <CampaignSetupView
           hasEmailTemplate={hasEmailTemplate}
           emailTemplateName={emailTemplateName}
