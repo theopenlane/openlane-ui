@@ -13,7 +13,9 @@ import { Button } from '@repo/ui/button'
 import { SquarePlus } from 'lucide-react'
 
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { canEdit } from '@/lib/authz/utils'
+import { canEdit, hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useSession } from 'next-auth/react'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
@@ -37,6 +39,8 @@ const CampaignsPage: React.FC = () => {
   const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.CAMPAIGN)
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
+  const canCreateCampaign = hasPermission(permission?.roles, AccessEnum.CanCreateCampaign, session)
   const { handleExport } = useFileExport()
 
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.CAMPAIGN, CampaignOrderField, [
@@ -144,14 +148,16 @@ const CampaignsPage: React.FC = () => {
         heading="Campaigns"
         subheading="Create and manage questionnaires, acknowledgements, and recurring outreach."
         actions={
-          <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={() => setIsCreateSheetOpen(true)}>
-            Create Campaign
-          </Button>
+          canCreateCampaign ? (
+            <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={() => setIsCreateSheetOpen(true)}>
+              Create Campaign
+            </Button>
+          ) : undefined
         }
       />
       {summary &&
         (summary.totalCampaignCount === 0 ? (
-          <CampaignsEmptyState onCreateCampaign={() => setIsCreateSheetOpen(true)} />
+          <CampaignsEmptyState onCreateCampaign={canCreateCampaign ? () => setIsCreateSheetOpen(true) : undefined} />
         ) : (
           <CampaignsSummary summary={summary} activeScope={summaryScope} onScopeChange={handleScopeChange} />
         ))}

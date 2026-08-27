@@ -2,6 +2,7 @@ import React from 'react'
 import { type QueryClient } from '@tanstack/react-query'
 import { type Group } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useCanEditRows } from '@/lib/authz/use-can-edit-rows'
 import { type EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
 import { useUpdateControl } from '@/lib/graphql-hooks/control'
 import EditableGroupCell from '@/components/shared/editable-group-cell/editable-group-cell'
@@ -12,6 +13,7 @@ type TDelegateCellProps = {
 }
 
 const DelegateCell: React.FC<TDelegateCellProps> = ({ delegate, controlId }) => {
+  const canEdit = useCanEditRows()
   const { mutateAsync: updateControl } = useUpdateControl()
 
   const handleSubmitData = async (data: EditableFieldFormData, helpers: { queryClient: QueryClient; notifySuccess: () => void; notifyError: (msg: string) => void }) => {
@@ -30,7 +32,7 @@ const DelegateCell: React.FC<TDelegateCellProps> = ({ delegate, controlId }) => 
     }
   }
 
-  return <EditableGroupCell label="Control" entity={delegate} onSubmitData={handleSubmitData} placeholder="No delegate" />
+  return <EditableGroupCell label="Control" entity={delegate} onSubmitData={handleSubmitData} placeholder="No delegate" canEdit={canEdit} />
 }
 
 export default DelegateCell

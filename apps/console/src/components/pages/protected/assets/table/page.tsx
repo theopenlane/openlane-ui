@@ -1,5 +1,6 @@
 'use client'
 
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import React, { useCallback, useMemo } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -205,6 +206,7 @@ const AssetPage: React.FC = () => {
 
   const tableConfig: AssetTablePageConfig = {
     objectType,
+    createPermission: AccessEnum.CanCreateAsset,
     objectName,
     tableKey,
     exportType,

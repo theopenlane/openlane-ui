@@ -1,5 +1,6 @@
 'use client'
 
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import React from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { type ScansNodeNonNull, useScan, useCreateScan, useUpdateScan, useCreateBulkCSVScan, useBulkEditScan, useBulkDeleteScan } from '@/lib/graphql-hooks/scan'
@@ -132,6 +133,7 @@ const ScanPage: React.FC = () => {
 
   const tableConfig: ScanTablePageConfig = {
     objectType,
+    createPermission: AccessEnum.CanCreateScan,
     objectName,
     tableKey,
     orderFieldEnum,

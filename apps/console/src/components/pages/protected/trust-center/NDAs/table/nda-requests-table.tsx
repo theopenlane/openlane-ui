@@ -18,10 +18,10 @@ import { resolveAuthor } from '@/lib/authors'
 
 type NdaRequestsTableProps = {
   requireApproval: boolean
-  canRevoke: boolean
+  canManageRequests: boolean
 }
 
-const NdaRequestsTable = ({ requireApproval, canRevoke }: NdaRequestsTableProps) => {
+const NdaRequestsTable = ({ requireApproval, canManageRequests }: NdaRequestsTableProps) => {
   const [activeTab, setActiveTab] = useState<'requested' | 'approved' | 'signed'>('requested')
   const [searchTerm, setSearchTerm] = useState('')
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
@@ -96,10 +96,10 @@ const NdaRequestsTable = ({ requireApproval, canRevoke }: NdaRequestsTableProps)
   const columns = useMemo(
     () =>
       getNdaRequestColumns({
-        showActions: requireApproval && activeTab === 'requested',
+        showActions: canManageRequests && requireApproval && activeTab === 'requested',
         showApprovedOn: requireApproval && activeTab === 'approved',
         showSignedOn: activeTab === 'signed',
-        showSelect: activeTab === 'signed' && canRevoke,
+        showSelect: activeTab === 'signed' && canManageRequests,
         selectedRows,
         setSelectedRows,
         onApprove: async (id) => {
@@ -149,7 +149,7 @@ const NdaRequestsTable = ({ requireApproval, canRevoke }: NdaRequestsTableProps)
         actionLoadingId,
         actionLoadingType,
       }),
-    [activeTab, actionLoadingId, actionLoadingType, canRevoke, errorNotification, requireApproval, selectedRows, successNotification, updateNdaRequest],
+    [activeTab, actionLoadingId, actionLoadingType, canManageRequests, errorNotification, requireApproval, selectedRows, successNotification, updateNdaRequest],
   )
 
   const handleSearchTermChange = (value: string) => {
@@ -268,6 +268,7 @@ const NdaRequestsTable = ({ requireApproval, canRevoke }: NdaRequestsTableProps)
         approveAllLoading={approveAllLoading}
         approveAllDisabled={requests.length === 0}
         requireApproval={requireApproval}
+        canManageRequests={canManageRequests}
         selectedCount={selectedRows.length}
         onRevokeAccessRequest={() => setRevokeDialogOpen(true)}
         revokeLoading={revokeLoading}
