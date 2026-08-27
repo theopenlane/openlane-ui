@@ -9,6 +9,8 @@ import { cn } from '@repo/ui/lib/utils'
 
 export type SearchableItem = { id: string; name: string }
 
+const noDisabledIds: ReadonlySet<string> = new Set()
+
 interface SearchableItemSelectProps {
   selectedIds: string[]
   onSelectedIdsChange: (ids: string[]) => void
@@ -21,7 +23,7 @@ interface SearchableItemSelectProps {
   multiple?: boolean
   onSearchTextChange?: (value: string) => void
   filterItems?: boolean
-  disabledIds?: Set<string>
+  disabledIds?: ReadonlySet<string>
   renderDisabledItem?: (item: React.ReactNode, id: string) => React.ReactNode
 }
 
@@ -37,7 +39,7 @@ export const SearchableItemSelect: React.FC<SearchableItemSelectProps> = ({
   multiple = true,
   onSearchTextChange,
   filterItems = true,
-  disabledIds = new Set(),
+  disabledIds = noDisabledIds,
   renderDisabledItem,
 }) => {
   const [open, setOpen] = useState(false)
