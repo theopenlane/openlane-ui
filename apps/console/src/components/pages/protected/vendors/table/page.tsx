@@ -1,5 +1,6 @@
 'use client'
 
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import React, { useCallback, useMemo, useState } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
@@ -199,6 +200,7 @@ const VendorPage: React.FC = () => {
 
   const tableConfig: EntityTablePageConfig = {
     objectType,
+    createPermission: AccessEnum.CanCreateEntity,
     objectName,
     displayName,
     tableKey,

@@ -98,7 +98,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
   )
 
   const createDropdown = () => {
-    if (includeQuestionnaireCreation === 'true' && hasPermission(permission?.roles, AccessEnum.CanCreateTemplate, session)) {
+    if (includeQuestionnaireCreation === 'true' && hasPermission(permission?.roles, AccessEnum.CanCreateAssessment, session)) {
       return <CreateDropdown />
     }
   }

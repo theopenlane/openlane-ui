@@ -6,6 +6,10 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { Check, CircleCheckBig, CopyPlus, Eye, FilePen, LoaderCircle, Mail, MoreHorizontal, Pencil, SearchIcon, SquarePlus, Trash2 } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { Badge } from '@repo/ui/badge'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
@@ -61,6 +65,10 @@ export const EmailTemplatesTab: React.FC = () => {
   const { userMap, tokenMap } = useAuthorMaps(userIds)
 
   const previewTemplate = useMemo(() => emailTemplatesNodes.find((t) => t.id === previewId), [emailTemplatesNodes, previewId])
+
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canCreateEmailTemplate = hasPermission(orgPermission?.roles, AccessEnum.CanCreateEmailTemplate, session)
 
   const handleCreate = () => router.push(EDITOR_PATH)
   const handleEdit = (id: string) => router.push(`${EDITOR_PATH}?id=${id}`)
@@ -132,9 +140,11 @@ export const EmailTemplatesTab: React.FC = () => {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={handleCreate}>
-            Create Email Template
-          </Button>
+          {canCreateEmailTemplate && (
+            <Button variant="primary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={handleCreate}>
+              Create Email Template
+            </Button>
+          )}
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 'use client'
 
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import React from 'react'
 import { useSearchParams } from 'next/navigation'
 import { type Value } from 'platejs'
@@ -152,6 +153,7 @@ const SystemDetailPage: React.FC = () => {
 
   const tableConfig: SystemDetailTablePageConfig = {
     objectType,
+    createPermission: AccessEnum.CanCreateSystemDetail,
     objectName,
     tableKey,
     exportType,

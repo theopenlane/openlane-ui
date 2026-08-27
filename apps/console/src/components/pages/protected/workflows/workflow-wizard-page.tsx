@@ -20,6 +20,10 @@ import { RulesStep } from './wizard/steps/rules-step'
 import { ConfigureStep } from './wizard/steps/configure-step'
 import { ReviewStep } from './wizard/steps/review-step'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const { useStepper } = defineStepper([
   { id: 'flow', label: 'Flow' },
@@ -33,6 +37,9 @@ type WorkflowWizardPageProps = {
 }
 
 const WorkflowWizardPage = ({ embedded = false }: WorkflowWizardPageProps) => {
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canCreateWorkflowDefinition = hasPermission(orgPermission?.roles, AccessEnum.CanCreateWorkflowDefinition, session)
   const stepper = useStepper()
   const { setCrumbs } = React.use(BreadcrumbContext)
 
@@ -169,9 +176,11 @@ const WorkflowWizardPage = ({ embedded = false }: WorkflowWizardPageProps) => {
               Back
             </Button>
           )}
-          <Button type="button" variant="primary" onClick={handleNext} disabled={!canContinue || baseCreateMutation.isPending} loading={baseCreateMutation.isPending}>
-            {stepper.isLast ? 'Create workflow' : 'Continue'}
-          </Button>
+          {canCreateWorkflowDefinition && (
+            <Button type="button" variant="primary" onClick={handleNext} disabled={!canContinue || baseCreateMutation.isPending} loading={baseCreateMutation.isPending}>
+              {stepper.isLast ? 'Create workflow' : 'Continue'}
+            </Button>
+          )}
         </div>
       </div>
     </div>

@@ -24,9 +24,10 @@ type EditableUserCellProps = {
     },
   ) => Promise<void>
   placeholder?: string
+  canEdit?: boolean
 }
 
-const EditableUserCell: React.FC<EditableUserCellProps> = ({ label, entity, onSubmitData, placeholder = 'No value' }) => {
+const EditableUserCell: React.FC<EditableUserCellProps> = ({ label, entity, onSubmitData, placeholder = 'No value', canEdit = true }) => {
   const { form } = useEditableFieldFormSchema()
   const [isEditing, setIsEditing] = useState(false)
   const { successNotification, errorNotification } = useNotification()
@@ -72,11 +73,15 @@ const EditableUserCell: React.FC<EditableUserCellProps> = ({ label, entity, onSu
     <div className="flex items-center space-x-1">
       {!isEditing ? (
         <div
-          onClick={(e) => {
-            e.stopPropagation()
-            setIsEditing(true)
-          }}
-          className="flex items-center cursor-pointer"
+          onClick={
+            canEdit
+              ? (e) => {
+                  e.stopPropagation()
+                  setIsEditing(true)
+                }
+              : undefined
+          }
+          className={canEdit ? 'flex items-center cursor-pointer' : 'flex items-center'}
         >
           <div className="flex items-center space-x-1 relative">
             <Avatar entity={entity} className="w-[28px] h-[28px]" />
@@ -90,7 +95,7 @@ const EditableUserCell: React.FC<EditableUserCellProps> = ({ label, entity, onSu
                 </>
               )}
             </p>
-            <span className="absolute bottom-[-5px] left-0 right-0 border-b-2 border-dashed dark:!border-separator-edit-dark border-separator-edit pointer-events-none" />
+            {canEdit && <span className="absolute bottom-[-5px] left-0 right-0 border-b-2 border-dashed dark:!border-separator-edit-dark border-separator-edit pointer-events-none" />}
           </div>
         </div>
       ) : (

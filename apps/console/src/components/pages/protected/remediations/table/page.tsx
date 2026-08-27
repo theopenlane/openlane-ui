@@ -1,5 +1,6 @@
 'use client'
 
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import {
@@ -128,6 +129,7 @@ const RemediationPage: React.FC = () => {
 
   const tableConfig: RemediationTablePageConfig = {
     objectType,
+    createPermission: AccessEnum.CanCreateRemediation,
     objectName,
     tableKey,
     exportType,

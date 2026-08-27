@@ -134,7 +134,7 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
         )}
       </div>
 
-      <SuggestedPolicyCoverage />
+      {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && <SuggestedPolicyCoverage />}
 
       {!fetching && totalCount === 0 ? <PoliciesEmptyState /> : active === 'dashboard' ? <PoliciesDashboard setActive={setActive} fetching={fetching} /> : <PoliciesTable />}
     </div>

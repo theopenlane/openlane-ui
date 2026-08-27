@@ -6,6 +6,7 @@ import EditableGroupCell from '@/components/shared/editable-group-cell/editable-
 import { type QueryClient } from '@tanstack/react-query'
 import { type EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useCanEditRows } from '@/lib/authz/use-can-edit-rows'
 
 type TOwnerCellProps = {
   owner?: Group | null
@@ -13,6 +14,7 @@ type TOwnerCellProps = {
 }
 
 const OwnerCell: React.FC<TOwnerCellProps> = ({ owner, controlId }) => {
+  const canEdit = useCanEditRows()
   const { mutateAsync: updateControl } = useUpdateControl()
 
   const handleSubmitData = async (data: EditableFieldFormData, helpers: { queryClient: QueryClient; notifySuccess: () => void; notifyError: (msg: string) => void }) => {
@@ -31,7 +33,7 @@ const OwnerCell: React.FC<TOwnerCellProps> = ({ owner, controlId }) => {
     }
   }
 
-  return <EditableGroupCell label="Control" entity={owner} onSubmitData={handleSubmitData} placeholder="No owner" />
+  return <EditableGroupCell label="Control" entity={owner} onSubmitData={handleSubmitData} placeholder="No owner" canEdit={canEdit} />
 }
 
 export default OwnerCell

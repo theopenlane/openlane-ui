@@ -10,6 +10,10 @@ import { Callout } from '@/components/shared/callout/callout'
 import { DismissButton } from '@/components/shared/docs-help/suggestion-card'
 import { hasOrgCoverageGap, hasPolicyGap } from './report-coverage'
 import { ResolveGapsPanel, useSectionGapGroups, type TGapControl } from './resolve-gaps-panel'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 type ReportCategoryHeaderProps = {
   category: string
@@ -25,12 +29,15 @@ const toGapControl = (control: ControlReportItem): TGapControl => ({ id: control
 
 const ReportCategoryHeader: React.FC<ReportCategoryHeaderProps> = ({ category, controls, isOpen, expandedControls, accentColor, onToggleOpen, onToggleCategorySubcontrols }) => {
   const [showResolveGaps, setShowResolveGaps] = useState(false)
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canResolveGaps = hasPermission(orgPermission?.roles, AccessEnum.CanCreateMappedControl, session)
   const orgGapControls = useMemo(() => controls.filter(hasOrgCoverageGap).map(toGapControl), [controls])
   const policyGapControls = useMemo(() => controls.filter(hasPolicyGap).map(toGapControl), [controls])
   const hasCheapGap = orgGapControls.length + policyGapControls.length > 0
 
   const { dismissed: confirmedEmpty, dismiss: markEmpty, isResolved: isEmptyCheckResolved } = useDismissible(`resolve-gaps-empty:${category || 'General'}`)
-  const shouldCheck = hasCheapGap && isEmptyCheckResolved && !confirmedEmpty
+  const shouldCheck = canResolveGaps && hasCheapGap && isEmptyCheckResolved && !confirmedEmpty
 
   const gaps = useSectionGapGroups(shouldCheck ? orgGapControls : undefined, shouldCheck ? policyGapControls : undefined)
 
