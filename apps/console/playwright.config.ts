@@ -1,7 +1,10 @@
 import { defineConfig, devices } from '@playwright/test'
+import { SEGMENT_NAMES, assertSegmentsCoverAllSpecs, segmentTestMatch } from './e2e/segments'
 
 const PORT = process.env.E2E_PORT ?? '3001'
 const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`
+
+assertSegmentsCoverAllSpecs()
 
 export default defineConfig({
   testDir: './e2e/tests',
@@ -54,13 +57,16 @@ export default defineConfig({
     navigationTimeout: 60_000,
   },
 
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    // Add firefox / webkit later once chromium suite is stable.
-  ],
+  // One project per product segment, so a failing area can be re-run on its own
+  // (`bun run e2e --project=controls`) instead of paying for the whole suite.
+  // Segments are declared in e2e/segments.ts; the assert below fails the config
+  // if a spec file is unassigned or double-assigned, so a new spec can never
+  // silently drop out of every segment.
+  projects: SEGMENT_NAMES.map((name) => ({
+    name,
+    testMatch: segmentTestMatch(name),
+    use: { ...devices['Desktop Chrome'] },
+  })),
 
   // Optional: have Playwright start the dev server itself.
   // Enable by setting PLAYWRIGHT_USE_WEBSERVER=1.

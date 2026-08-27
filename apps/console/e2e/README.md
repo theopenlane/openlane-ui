@@ -123,7 +123,46 @@ bun run e2e:headed          # visible browser
 bun run e2e:report          # open the HTML report from the last run
 bun run e2e:typecheck       # tsc the e2e project (no run)
 bun run e2e:sharded         # self-managing sharded runner (restarts server on bloat)
+bun run e2e --project=controls           # one segment (see below)
 ```
+
+### Segments
+
+The suite is split into 13 Playwright projects by product area, so a failing
+area can be re-run on its own instead of paying for all 1098 tests.
+
+| Segment        | Files | Tests | Covers                                                               |
+| -------------- | ----: | ----: | -------------------------------------------------------------------- |
+| `permissions`  |     3 |   177 | permission matrix, role gating                                       |
+| `automation`   |    10 |   144 | campaigns, questionnaires, templates, workflows, tasks               |
+| `admin`        |    11 |   135 | org settings, user management, developers, integrations, custom data |
+| `controls`     |    13 |   101 | controls, subcontrols, objectives, mapping, standards                |
+| `exposure`     |     9 |    94 | risks, findings, vulnerabilities, action plans, reviews              |
+| `documents`    |     8 |    79 | policies, procedures                                                 |
+| `registry`     |     7 |    79 | vendors, assets, personnel, platforms, system details                |
+| `programs`     |     3 |    74 | programs list, CRUD, wizard                                          |
+| `platform`     |     8 |    71 | dashboard, search, notifications, cross-cutting, table prefs         |
+| `auth`         |     6 |    69 | login, onboarding, org lifecycle, public routes, user settings       |
+| `evidence`     |     2 |    37 | evidence list and CRUD                                               |
+| `trust-center` |     3 |    37 | trust center, documents, NDAs                                        |
+| `smoke`        |     1 |     1 | single sanity check                                                  |
+
+```bash
+bun run e2e --project=controls                  # one segment
+bun run e2e --project=evidence --project=smoke  # several
+bun run e2e:segment controls                    # shorthand for the above
+bun run e2e --project=admin --grep delete       # filter inside a segment
+bun run e2e --project=permissions --shard=1/4   # still composes with sharding
+```
+
+A typo prints the full list of valid names, so there is nothing to memorise.
+
+Membership lives in [`segments.ts`](./segments.ts). Every spec must belong to
+**exactly one** segment — `playwright.config.ts` calls
+`assertSegmentsCoverAllSpecs()` at load, so an unassigned or double-assigned
+spec fails every Playwright command with a message naming the file. That is
+deliberate: it makes it impossible for a new spec to quietly stop running.
+When you add a spec, add it to a segment in the same commit.
 
 ### Mode A — dev server (simplest, slowest)
 
