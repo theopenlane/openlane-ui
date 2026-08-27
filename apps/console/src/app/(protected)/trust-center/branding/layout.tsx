@@ -1,9 +1,8 @@
 'use client'
 
 import React from 'react'
-import PermissionGate from '@/components/shared/protected-area/permission-gate'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import TrustCenterEditorGate from '@/components/shared/protected-area/trust-center-editor-gate'
 
-const Layout = ({ children }: { children: React.ReactNode }) => <PermissionGate permission={AccessEnum.CanEdit}>{children}</PermissionGate>
+const Layout = ({ children }: { children: React.ReactNode }) => <TrustCenterEditorGate>{children}</TrustCenterEditorGate>
 
 export default Layout
