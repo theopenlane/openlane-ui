@@ -18,6 +18,11 @@ const PLAN_NAMES: Record<PlanEnum, string> = {
   [PlanEnum.RISK_MANAGEMENT_ADDON]: 'Risk Management',
 }
 
+const FREE_MODULES: Partial<Record<PlanEnum, string>> = {
+  [PlanEnum.BASE_MODULE]: 'Base',
+  [PlanEnum.REGISTRY_MODULE]: 'Registry', // TODO: (sfunk: back this out once things are updated)
+}
+
 export const arePlanChecksDisabled = () => process.env.NEXT_PUBLIC_ENABLE_PLAN === 'false'
 
 export const featureUtil = {
@@ -55,6 +60,10 @@ export const featureUtil = {
     return requiredModules.length === 0 || requiredModules.some((module) => userModules.includes(module))
   },
 
+  isFreeModule: (module: PlanEnum): boolean => {
+    return module in FREE_MODULES
+  },
+
   hasNoModules: (session: Session | null): boolean => {
     if (!session) {
       return false
@@ -69,8 +78,10 @@ export const featureUtil = {
       return false
     }
 
-    const modules = session.user?.modules ?? []
+    const modules: PlanEnum[] = session.user?.modules ?? []
 
-    return modules.length === 0
+    // treat an org with only free modules the same as having no modules
+    // TODO: (sfunk) update to just base module when registry is cleared out
+    return modules.every((module) => module in FREE_MODULES)
   },
 }
