@@ -43,8 +43,6 @@ export enum AccessEnum {
   CanCreateWorkflowDefinition = 'can_create_workflow_definition',
   CanCreateTrustCenterFaq = 'can_create_trust_center_faq',
   CanCreateSubscriber = 'can_create_subscriber',
-  CanDeleteTrustCenterSubprocessor = 'can_delete_trust_center_subprocessor',
-  CanDeleteSubscriber = 'can_delete_subscriber',
   CanCreateAssessment = 'can_create_assessment',
   CanEditWorkflowDefinition = 'can_edit_workflow_definition',
   CanCreateFinding = 'can_create_finding',
