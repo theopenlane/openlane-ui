@@ -414,9 +414,12 @@ const GATED_ROUTES: RouteGate[] = [
   { permission: 'CanEdit (org settings)', granted: ['owner', 'admin'], url: '/organization-settings/authentication' },
   { permission: 'CanCreateTrustCenterFaq', granted: ['owner', 'admin'], url: '/trust-center/faqs' },
   { permission: 'CanCreateSubscriber', granted: ['owner', 'admin'], url: '/trust-center/subscribers' },
-  { permission: 'CanCreateCustomDomain', granted: ['owner', 'admin'], url: '/trust-center/domain' },
-  { permission: 'CanEdit (trust center branding)', granted: ['owner', 'admin'], url: '/trust-center/branding' },
-  { permission: 'CanEdit (customer logos)', granted: ['owner', 'admin'], url: '/trust-center/customer-logos' },
+  // domain follows CheckOrgWriteAccess (org can_edit); branding and customer
+  // logos follow AllowIfTrustCenterEditor (can_edit on the trust center object,
+  // which owner and admin reach through parent_editor).
+  { permission: 'CanEdit (custom domain)', granted: ['owner', 'admin'], url: '/trust-center/domain' },
+  { permission: 'TrustCenterEditor (branding)', granted: ['owner', 'admin'], url: '/trust-center/branding' },
+  { permission: 'TrustCenterEditor (customer logos)', granted: ['owner', 'admin'], url: '/trust-center/customer-logos' },
 ]
 
 for (const role of ROLES) {
