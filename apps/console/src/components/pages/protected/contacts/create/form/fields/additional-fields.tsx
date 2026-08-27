@@ -56,7 +56,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
           </div>
           <div className="flex items-center gap-3">
             <div className="w-[140px]">
-               <SelectField
+              <SelectField
                 name="status"
                 label="Status"
                 options={enumOptions.statusOptions}
@@ -83,18 +83,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
             {...sharedFieldProps}
           />
           <TextField name="email" label="Email" type="email" placeholder="name@company.com" required tooltipContent="The email address for this contact" {...sharedFieldProps} />
-          <TextField
-            name="phoneNumber"
-            type="tel"
-            placeholder="e.g. +1 (303) 456-7890"
-            label="Phone number"
-              <>
-                Phone number <span className="text-muted-foreground font-normal">(optional)</span>
-              </>
-            }
-            tooltipContent="The phone number for this contact"
-            {...sharedFieldProps}
-          />
+          <TextField name="phoneNumber" type="tel" placeholder="e.g. +1 (303) 456-7890" label="Phone number" tooltipContent="The phone number for this contact" {...sharedFieldProps} />
           <Properties isEditing={isEditing} isEditAllowed={isEditAllowed} data={data} internalEditing={internalEditing} setInternalEditing={setInternalEditing} handleUpdateField={handleUpdateField} />
         </div>
       </SectionCard>
@@ -106,21 +95,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
             {isCreate ? <VendorSelectField /> : <LinkedVendors data={data} isEditAllowed={isEditAllowed} />}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <TextField
-              name="title"
-              placeholder="e.g. Account Manager, CTO"
-              label="Title / role"
-              }
-              tooltipContent="The job title or role of this contact"
-              {...sharedFieldProps}
-            />
-            <TextField
-              name="company"
-              placeholder="e.g. Finance, Operations"
-              label="Department"
-              tooltipContent="The department or company this contact is associated with"
-              {...sharedFieldProps}
-            />
+            <TextField name="title" placeholder="e.g. Account Manager, CTO" label="Title / role" tooltipContent="The job title or role of this contact" {...sharedFieldProps} />
+            <TextField name="company" placeholder="e.g. Finance, Operations" label="Department" tooltipContent="The department or company this contact is associated with" {...sharedFieldProps} />
           </div>
         </div>
       </SectionCard>
