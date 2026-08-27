@@ -7,22 +7,7 @@ import { Building2 } from 'lucide-react'
 import { SearchableItemSelect } from '@/components/shared/searchable-item-select'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { type ContactFormData } from '../../../hooks/use-form-schema'
-
-interface VendorSearchStateInput {
-  searchText: string
-  isSearchSettled: boolean
-  isLoading: boolean
-  isPlaceholderData: boolean
-}
-
-export const getVendorSearchState = ({ searchText, isSearchSettled, isLoading, isPlaceholderData }: VendorSearchStateInput) => {
-  const hasSearch = searchText.trim().length > 0
-
-  return {
-    canShowResults: hasSearch && isSearchSettled && !isLoading && !isPlaceholderData,
-    isPending: hasSearch && (isLoading || !isSearchSettled || isPlaceholderData),
-  }
-}
+import { getVendorSearchState } from './vendor-search-state'
 
 const VendorSelectField: React.FC = () => {
   const form = useFormContext<ContactFormData>()
@@ -30,12 +15,13 @@ const VendorSelectField: React.FC = () => {
   const [searchText, setSearchText] = useState('')
   const debouncedSearch = useDebounce(searchText, 300).trim()
   const isSearchSettled = searchText.trim() === debouncedSearch
-  const { vendorNodes, isLoading, isPlaceholderData } = useVendorsWithFilter({
+  const { vendorNodes, isLoading, isPlaceholderData, isError } = useVendorsWithFilter({
     where: debouncedSearch ? { or: [{ displayNameContainsFold: debouncedSearch }, { nameContainsFold: debouncedSearch }] } : undefined,
     enabled: debouncedSearch.length > 0,
   })
   const vendors = useMemo(() => vendorNodes.map((vendor) => ({ id: vendor.id, name: vendor.displayName ?? vendor.name ?? vendor.id })), [vendorNodes])
-  const searchState = getVendorSearchState({ searchText, isSearchSettled, isLoading, isPlaceholderData })
+  const searchState = getVendorSearchState({ searchText, isSearchSettled, isLoading, isPlaceholderData, isError })
+  const emptyMessage = isError ? 'Could not load vendors. Try again.' : debouncedSearch ? 'No vendors found.' : 'Type to search vendors.'
 
   return (
     <SearchableItemSelect
@@ -46,7 +32,7 @@ const VendorSelectField: React.FC = () => {
       icon={<Building2 className="h-4 w-4" />}
       placeholder="Select a vendor..."
       searchPlaceholder="Search vendors..."
-      emptyMessage={debouncedSearch ? 'No vendors found.' : 'Type to search vendors.'}
+      emptyMessage={emptyMessage}
       multiple={false}
       onSearchTextChange={setSearchText}
       filterItems={false}
