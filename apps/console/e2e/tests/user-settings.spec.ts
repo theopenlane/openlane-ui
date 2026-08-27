@@ -59,9 +59,12 @@ test.describe('user-settings — profile forms (owner)', () => {
     await expect(deleteButton).toBeVisible({ timeout: 15_000 })
     await expect(deleteButton).toBeDisabled()
 
-    // The disabled button is wrapped in a tooltip explaining the way out.
-    await page.getByText('Delete Your Account', { exact: true }).hover()
-    await deleteButton.hover({ force: true })
+    // Hover the wrapper, not the button: a disabled button swallows pointer
+    // events, so hover({ force: true }) on it only surfaces the tooltip about
+    // half the time under load. delete-user-section.tsx wraps the button in a
+    // span precisely so the tooltip has something hoverable — measured 6/6 in
+    // parallel against 3/6 for the forced hover.
+    await page.locator('span.cursor-not-allowed').filter({ has: deleteButton }).hover()
     await expect(page.getByText(/You must transfer ownership or delete all organizations you own/)).toBeVisible({ timeout: 10_000 })
   })
 })

@@ -5,7 +5,7 @@ import { inlineCsv } from '../utils/files'
 
 const openEvidence = async (page: Page) => {
   await page.goto('/evidence', { waitUntil: 'domcontentloaded', timeout: 180_000 })
-  await expect(page.getByRole('button', { name: 'Action' })).toBeVisible({ timeout: 60_000 })
+  await expect(page.getByRole('button', { name: 'Action', exact: true })).toBeVisible({ timeout: 60_000 })
 }
 
 const openFirstStandard = async (page: Page) => {
@@ -21,7 +21,7 @@ test.describe('evidence — bulk CSV import', () => {
     test.slow()
     await openEvidence(page)
 
-    await page.getByRole('button', { name: 'Action' }).click()
+    await page.getByRole('button', { name: 'Action', exact: true }).click()
     await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
 
     const dialog = page.getByRole('dialog')
@@ -34,7 +34,7 @@ test.describe('evidence — bulk CSV import', () => {
     test.slow()
     await openEvidence(page)
 
-    await page.getByRole('button', { name: 'Action' }).click()
+    await page.getByRole('button', { name: 'Action', exact: true }).click()
     await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
 
     const dialog = page.getByRole('dialog')
@@ -49,7 +49,7 @@ test.describe('evidence — bulk CSV import', () => {
     test.slow()
     await openEvidence(page)
 
-    await page.getByRole('button', { name: 'Action' }).click()
+    await page.getByRole('button', { name: 'Action', exact: true }).click()
     await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
 
     const dialog = page.getByRole('dialog')

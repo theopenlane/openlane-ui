@@ -1,9 +1,21 @@
 import type { Locator, Page } from '@playwright/test'
 
 import { test, expect, readManifest } from '../fixtures/auth'
+import { getOwnerApi, gql, type ApiSession } from '../utils/api'
 import { uniqueName } from '../utils/unique'
 
 const toast = (page: Page, title: string) => page.getByText(title, { exact: true })
+
+let ownerApi: ApiSession
+
+const findObjectiveId = async (name: string): Promise<string | undefined> => {
+  const res = await gql<{ controlObjectives: { edges: Array<{ node: { id: string } }> } }>(
+    ownerApi,
+    `query($n: String!){ controlObjectives(where: { nameContainsFold: $n }, first: 1){ edges { node { id } } } }`,
+    { n: name },
+  )
+  return res.data?.controlObjectives?.edges?.[0]?.node?.id
+}
 
 const openObjectives = async (page: Page) => {
   const { sharedControlId } = readManifest()
@@ -14,12 +26,18 @@ const openObjectives = async (page: Page) => {
 const objectiveSheet = (page: Page): Locator => page.getByRole('dialog')
 
 const openCreateSheet = async (page: Page): Promise<Locator> => {
-  await page
-    .getByRole('button', { name: /^Create$/ })
-    .first()
-    .click()
   const sheet = objectiveSheet(page)
-  await expect(sheet.getByRole('button', { name: /^Create$/ })).toBeVisible({ timeout: 30_000 })
+
+  await expect(async () => {
+    if (!(await sheet.isVisible().catch(() => false))) {
+      await page
+        .getByRole('button', { name: /^Create$/ })
+        .first()
+        .click()
+    }
+    await expect(sheet.getByRole('button', { name: /^Create$/ })).toBeVisible({ timeout: 5_000 })
+  }).toPass({ timeout: 60_000 })
+
   return sheet
 }
 
@@ -33,17 +51,26 @@ const createObjective = async (page: Page, name: string) => {
   const sheet = await openCreateSheet(page)
   await sheet.getByRole('textbox').first().fill(name)
   await sheet.getByRole('button', { name: /^Create$/ }).click()
-  await expect(toast(page, 'Control Objective created')).toBeVisible({ timeout: 60_000 })
+  await expect.poll(async () => Boolean(await findObjectiveId(name)), { timeout: 60_000 }).toBe(true)
   await expect(page.getByRole('button', { name: 'Objective actions' }).last()).toBeVisible({ timeout: 30_000 })
 }
 
 const openObjectiveAction = async (page: Page, action: 'Edit' | 'Delete') => {
-  await page.getByRole('button', { name: 'Objective actions' }).last().click()
-  await page.getByRole('button', { name: action, exact: true }).click()
+  const trigger = page.getByRole('button', { name: 'Objective actions' }).last()
+  const item = page.getByRole('button', { name: action, exact: true })
+
+  await expect(async () => {
+    if (!(await item.isVisible().catch(() => false))) await trigger.click()
+    await item.click({ timeout: 5_000 })
+  }).toPass({ timeout: 45_000 })
 }
 
 test.describe('controls — control objectives (seeded control)', () => {
   test.describe.configure({ mode: 'serial' })
+
+  test.beforeAll(async () => {
+    ownerApi = await getOwnerApi()
+  })
 
   test('creating an objective without a name surfaces the required-field error', async ({ page }) => {
     test.slow()
@@ -70,7 +97,7 @@ test.describe('controls — control objectives (seeded control)', () => {
     const renamed = `${name} revised`
     await sheet.getByRole('textbox').first().fill(renamed)
     await sheet.getByRole('button', { name: 'Save Changes' }).click()
-    await expect(toast(page, 'Control Objective updated')).toBeVisible({ timeout: 60_000 })
+    await expect.poll(async () => Boolean(await findObjectiveId(renamed)), { timeout: 60_000 }).toBe(true)
 
     await openObjectiveAction(page, 'Edit')
     await expect(objectiveSheet(page).getByRole('textbox').first()).toHaveValue(renamed, { timeout: 30_000 })
@@ -79,7 +106,7 @@ test.describe('controls — control objectives (seeded control)', () => {
       .click()
 
     await openObjectiveAction(page, 'Delete')
-    await expect(toast(page, 'Control Objective deleted')).toBeVisible({ timeout: 60_000 })
+    await expect.poll(async () => findObjectiveId(renamed), { timeout: 60_000 }).toBeFalsy()
   })
 
   test('a new objective defaults to Draft status and a user-defined source', async ({ page }) => {

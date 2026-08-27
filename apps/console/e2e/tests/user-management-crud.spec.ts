@@ -1,6 +1,7 @@
 import type { Locator, Page } from '@playwright/test'
 
 import { test, expect, readManifest } from '../fixtures/auth'
+import { confirmDestructiveDialog } from '../utils/menu'
 import { RUN_ID } from '../utils/constants'
 import { loginViaApi, createGroup, getSelf, addOrgMember, memberSeesOrg, type ApiSession, getOwnerApi } from '../utils/api'
 import { registerAndVerify } from '../utils/registerUser'
@@ -196,11 +197,14 @@ test.describe('user-management — groups toolbar', () => {
 test.describe('user-management — member row actions (throwaway member)', () => {
   const memberRow = (page: Page, email: string) => page.getByRole('row', { name: new RegExp(email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) })
 
-  const openRowMenu = async (row: Locator, item: Locator) => {
-    await expect(async () => {
-      await row.getByTestId('member-actions-trigger').click()
-      await expect(item).toBeVisible({ timeout: 2_000 })
-    }).toPass({ timeout: 20_000 })
+  // Nesting a toPass inside another starves the outer budget: the inner loop can
+  // burn it on a single attempt. Keep one retry level and cap every step, so the
+  // outer budget buys whole attempts rather than fractions of one.
+  const openRowMenuItem = async (row: Locator, item: Locator) => {
+    if (!(await item.isVisible().catch(() => false))) {
+      await row.getByTestId('member-actions-trigger').click({ timeout: 5_000 })
+    }
+    await expect(item).toBeVisible({ timeout: 5_000 })
   }
 
   test('owner changes a throwaway member’s role via the Change Role dialog', async ({ page }) => {
@@ -215,10 +219,10 @@ test.describe('user-management — member row actions (throwaway member)', () =>
     const changeRoleItem = page.getByRole('menuitem', { name: /Change Base Role/ })
 
     await expect(async () => {
-      await openRowMenu(row, changeRoleItem)
-      await changeRoleItem.click()
+      await openRowMenuItem(row, changeRoleItem)
+      await changeRoleItem.click({ timeout: 5_000 })
       await expect(page.getByText('New role')).toBeVisible({ timeout: 5_000 })
-    }).toPass({ timeout: 30_000 })
+    }).toPass({ timeout: 45_000 })
   })
 
   test('owner removes a throwaway member from the org', async ({ page }) => {
@@ -230,19 +234,19 @@ test.describe('user-management — member row actions (throwaway member)', () =>
     const row = memberRow(page, email)
     await expect(row).toBeVisible({ timeout: 20_000 })
 
+    // Confirming has to sit inside the retry cycle: a refetch that lands between
+    // the dialog opening and the confirm click unmounts the dialog, which used to
+    // fail hard. Re-entering is safe because the row check short-circuits once the
+    // member is actually gone.
     const removeItem = page.getByText('Remove Member', { exact: true })
     await expect(async () => {
-      await openRowMenu(row, removeItem)
+      if ((await row.count()) === 0) return
+      await openRowMenuItem(row, removeItem)
       await removeItem.dispatchEvent('click')
       await expect(page.getByRole('alertdialog')).toBeVisible({ timeout: 5_000 })
-    }).toPass({ timeout: 40_000 })
-
-    await page
-      .getByRole('alertdialog')
-      .getByRole('button')
-      .filter({ hasText: /^Delete$/ })
-      .first()
-      .dispatchEvent('click')
+      await confirmDestructiveDialog(page)
+      await expect(row).toHaveCount(0, { timeout: 10_000 })
+    }).toPass({ timeout: 60_000 })
 
     await expect(page.getByText(email)).toHaveCount(0, { timeout: 30_000 })
   })
