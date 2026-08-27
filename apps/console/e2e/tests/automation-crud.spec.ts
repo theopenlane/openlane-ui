@@ -414,10 +414,14 @@ test.describe('automation — campaign detail inline edits (seeded)', () => {
     // aria-label "Action". A non-terminal campaign can be canceled or deleted;
     // "Send reminder" only appears once the campaign is ACTIVE. Dialog-OPEN
     // only — nothing is mutated.
-    await page.getByRole('button', { name: 'Action' }).click()
-    await expect(page.getByRole('button', { name: /^Cancel campaign$/ })).toBeVisible({ timeout: 10_000 })
-    await expect(page.getByRole('button', { name: /^Delete campaign$/ })).toBeVisible()
-    await expect(page.getByRole('button', { name: /^Send test email$/ })).toBeVisible()
+    await page.getByRole('button', { name: 'Action', exact: true }).click()
+
+    // Scope to the opened menu: the draft setup view carries its own buttons for
+    // the same actions, so page-wide locators match two elements each.
+    const actionMenu = page.getByRole('menu')
+    await expect(actionMenu.getByRole('button', { name: /^Cancel campaign$/ })).toBeVisible({ timeout: 10_000 })
+    await expect(actionMenu.getByRole('button', { name: /^Delete campaign$/ })).toBeVisible()
+    await expect(actionMenu.getByRole('button', { name: /^Send test email$/ })).toBeVisible()
   })
 })
 

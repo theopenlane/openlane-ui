@@ -442,10 +442,9 @@ for (const role of ROLES) {
   })
 }
 
-// can_create_subscriber resolves through can_edit (owner + admin), but
-// can_delete_subscriber is `[service, user] or full_access` and full_access is
-// `super_admin or owner` — so a plain admin cannot delete. The two affordances
-// live behind different relations on the same page.
+// Both affordances resolve to org can_edit (owner + admin). can_delete_subscriber
+// exists in the FGA model but core never consults it: the Subscriber policy
+// guards non-create mutations with CheckOrgWriteAccess, which is can_edit.
 test.describe('permissions matrix — subscribers', () => {
   let ownerApi: ApiSession
   let seededEmail: string
@@ -467,7 +466,7 @@ test.describe('permissions matrix — subscribers', () => {
 
   for (const role of ROLES) {
     const canCreate = role === 'owner' || role === 'admin'
-    const canDeleteSubscriber = role === 'owner'
+    const canDeleteSubscriber = role === 'owner' || role === 'admin'
 
     test.describe(role, () => {
       test.use({ seededRole: role })
@@ -485,7 +484,7 @@ test.describe('permissions matrix — subscribers', () => {
         }
       })
 
-      test(`CanDeleteSubscriber: ${role} ${canDeleteSubscriber ? 'sees' : 'does not see'} the row delete`, async ({ page }) => {
+      test(`CanEdit (subscribers): ${role} ${canDeleteSubscriber ? 'sees' : 'does not see'} the row delete`, async ({ page }) => {
         test.slow()
         await openSubscribers(page)
         await page.getByPlaceholder('Search').fill(seededEmail)
