@@ -8,8 +8,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { canEdit } from '@/lib/authz/utils'
 
 type SubscriberActionsProps = {
   subscriberEmail: string
@@ -20,7 +19,10 @@ const ICON_SIZE = 16
 export const SubscriberActions = ({ subscriberEmail }: SubscriberActionsProps) => {
   const { data: session } = useSession()
   const { data: orgPermission } = useOrganizationRoles()
-  const isDeleteAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanDeleteSubscriber, session)
+  // core's Subscriber policy guards non-create mutations with
+  // CheckOrgWriteAccess, which is org can_edit — can_delete_subscriber is never
+  // consulted for this mutation, so gating on it locked out admins.
+  const isDeleteAllowed = canEdit(orgPermission?.roles, session)
   const { mutateAsync: deleteSubscriber } = useDeleteSubscriber()
   const { successNotification, errorNotification } = useNotification()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
