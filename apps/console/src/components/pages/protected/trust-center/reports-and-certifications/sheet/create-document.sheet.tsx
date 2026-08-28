@@ -23,8 +23,7 @@ import { TagsField } from './form-fields/tags-field'
 import { FileField } from './form-fields/file-field'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { Label } from '@repo/ui/label'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canDelete, canEdit } from '@/lib/authz/utils'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 import { Switch } from '@repo/ui/switch'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -32,11 +31,6 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { StandardField } from './form-fields/standard-field'
 import { Callout } from '@/components/shared/callout/callout'
 import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-nda-request'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { useSession } from 'next-auth/react'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -55,17 +49,13 @@ type FormData = z.infer<typeof schema>
 export const CreateDocumentSheet: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const isCreateMode = searchParams.get('create') === 'true'
+  const isCreateRequested = searchParams.get('create') === 'true'
   const documentId = searchParams.get('id')
   const isEditMode = !!documentId
 
-  const { data: permission } = useAccountRoles(ObjectTypes.TRUST_CENTER_DOC, documentId)
-  const { data: orgPermission } = useOrganizationRoles()
-  const { data: session } = useSession()
-
-  const isEditAllowed = canEdit(permission?.roles, session)
-  const canCreateDoc = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument, session)
-  const isDeleteAllowed = canDelete(permission?.roles)
+  const { allowed: isEditAllowed } = useCanEditTrustCenter()
+  const isDeleteAllowed = isEditAllowed
+  const isCreateMode = isCreateRequested && isEditAllowed
 
   const [isEditing, setIsEditing] = useState(false)
   const prefilledDocumentRef = useRef<string | null>(null)
@@ -340,7 +330,7 @@ export const CreateDocumentSheet: React.FC = () => {
         <FormProvider {...formMethods}>
           <form id="document-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
             <TitleField isEditing={isEditing || isCreateMode} />
-            <CategoryField isEditing={isEditing || isCreateMode} isCreateAllowed={isEditAllowed || canCreateDoc} />
+            <CategoryField isEditing={isEditing || isCreateMode} isCreateAllowed={isEditAllowed} />
             <VisibilityField isEditing={isEditing || isCreateMode} />
             {isCreateMode && visibilityValue === TrustCenterDocTrustCenterDocumentVisibility.PROTECTED && !hasNdaTemplate && (
               <Callout variant="warning" compact>

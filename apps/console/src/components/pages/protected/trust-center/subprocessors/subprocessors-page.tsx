@@ -36,11 +36,8 @@ import { Button } from '@repo/ui/button'
 import { Code } from 'lucide-react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit, hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 import SubprocessorsModeToggle, { type SubprocessorMode } from './SubprocessorsModeToggle'
-import { useSession } from 'next-auth/react'
 
 const SubprocessorsPage = () => {
   const router = useRouter()
@@ -70,15 +67,11 @@ const SubprocessorsPage = () => {
   const { setCrumbs } = use(BreadcrumbContext)
 
   const { successNotification, errorNotification } = useNotification()
-  const { data: orgPermission } = useOrganizationRoles()
-  const { data: session } = useSession()
-  const canCreateSubprocessor = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterSubprocessor, session)
+  const { allowed: canEditSubprocessor } = useCanEditTrustCenter()
 
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterNode = trustCenterData?.trustCenters?.edges?.[0]?.node
   const trustCenterID = trustCenterNode?.id ?? ''
-  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
-  const canEditSubprocessor = canEdit(tcPermission?.roles, session)
   const slug = trustCenterNode?.slug ?? ''
   const savedSubprocessorURL = trustCenterNode?.subprocessorURL ?? ''
   const [subprocessorURL, setSubprocessorURL] = useState(savedSubprocessorURL)
@@ -114,6 +107,7 @@ const SubprocessorsPage = () => {
   }
 
   const handleSaveSubprocessorURL = async () => {
+    if (!canEditSubprocessor) return
     const trimmed = subprocessorURL.trim()
     if (trimmed === savedSubprocessorURL) return
 
@@ -228,7 +222,7 @@ const SubprocessorsPage = () => {
   }
 
   const handleSelectMode = (next: SubprocessorMode) => {
-    if (next === mode) return
+    if (!canEditSubprocessor || next === mode) return
 
     if (next === 'link') {
       setMode('link')
@@ -298,7 +292,7 @@ const SubprocessorsPage = () => {
           )}
         </div>
 
-        <SubprocessorsModeToggle value={mode} onChange={handleSelectMode} />
+        {canEditSubprocessor && <SubprocessorsModeToggle value={mode} onChange={handleSelectMode} />}
 
         {mode === 'manage' ? (
           <>
@@ -318,7 +312,7 @@ const SubprocessorsPage = () => {
               setSelectedRows={setSelectedRows}
               onExport={handleExportFile}
               exportEnabled={trustCenterSubprocessors.length > 0}
-              canCreateSubprocessor={canCreateSubprocessor}
+              canCreateSubprocessor={canEditSubprocessor}
               canEditSubprocessor={canEditSubprocessor}
             />
 
@@ -342,6 +336,7 @@ const SubprocessorsPage = () => {
                 type="url"
                 placeholder="https://example.com/subprocessors"
                 value={subprocessorURL}
+                disabled={!canEditSubprocessor}
                 onChange={(e) => setSubprocessorURL(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
@@ -350,7 +345,9 @@ const SubprocessorsPage = () => {
                   }
                 }}
               />
-              <SaveButton onClick={handleSaveSubprocessorURL} disabled={isSavingURL || subprocessorURL.trim() === savedSubprocessorURL} isSaving={isSavingURL} className="h-9! w-56 px-5!" />
+              {canEditSubprocessor && (
+                <SaveButton onClick={handleSaveSubprocessorURL} disabled={isSavingURL || subprocessorURL.trim() === savedSubprocessorURL} isSaving={isSavingURL} className="h-9! w-56 px-5!" />
+              )}
             </div>
             <p className="text-sm text-muted-foreground">Customers will be redirected to this URL instead of seeing a list in your Trust Center.</p>
           </div>

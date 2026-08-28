@@ -20,10 +20,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { Input } from '@repo/ui/input'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { useSession } from 'next-auth/react'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 
 const formSchema = z.object({
   title: z.string().min(1, 'Title is required').max(280),
@@ -41,9 +38,7 @@ export default function UpdatesSection() {
   const { successNotification, errorNotification } = useNotification()
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
-  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
-  const { data: session } = useSession()
-  const canEditTc = canEdit(tcPermission?.roles, session)
+  const { allowed: canEditTc } = useCanEditTrustCenter()
 
   const { data: postsData } = useGetTrustCenterPosts({ trustCenterId: trustCenterID })
   const posts = postsData?.trustCenter?.posts?.edges ?? []

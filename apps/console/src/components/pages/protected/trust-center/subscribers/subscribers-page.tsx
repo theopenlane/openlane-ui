@@ -12,9 +12,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useGetAllSubscribers, useDeleteSubscriber, useUpdateSubscriber } from '@/lib/graphql-hooks/subscriber'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit as canEditTrustCenter } from '@/lib/authz/utils'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SubscriberOrderField, OrderDirection } from '@repo/codegen/src/schema'
@@ -39,8 +37,7 @@ const SubscribersPage = () => {
   const trustCenterSetting = trustCenterData?.trustCenters?.edges?.[0]?.node?.setting
   const allowSubscribers = trustCenterSetting?.allowSubscribers !== false
 
-  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
-  const canEdit = canEditTrustCenter(tcPermission?.roles)
+  const { allowed: canManageSubscribers } = useCanEditTrustCenter()
   const { updateTrustCenterSetting, isPending: isUpdatingSetting } = useHandleUpdateSetting()
 
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -91,7 +88,10 @@ const SubscribersPage = () => {
     }
   }
 
-  const columns = useMemo(() => getSubscriberColumns({ canEdit, onUnsubscribe: handleUnsubscribe, onDelete: setDeleteEmail }), [canEdit, handleUnsubscribe, setDeleteEmail])
+  const columns = useMemo(
+    () => getSubscriberColumns({ canEdit: canManageSubscribers, onUnsubscribe: handleUnsubscribe, onDelete: setDeleteEmail }),
+    [canManageSubscribers, handleUnsubscribe, setDeleteEmail],
+  )
 
   useEffect(() => {
     setCrumbs([
@@ -123,7 +123,7 @@ const SubscribersPage = () => {
                   input: { allowSubscribers: checked },
                 })
               }}
-              disabled={isUpdatingSetting || !trustCenterSetting?.id || !canEdit}
+              disabled={isUpdatingSetting || !trustCenterSetting?.id || !canManageSubscribers}
             />
           </div>
         </CardContent>

@@ -538,7 +538,7 @@ const CampaignDetailPage: React.FC = () => {
             name="name"
             label=""
             isEditing={false}
-            isEditAllowed
+            isEditAllowed={canEditCampaign}
             isCreate={false}
             data={campaign}
             internalEditing={internalEditing}
@@ -561,7 +561,7 @@ const CampaignDetailPage: React.FC = () => {
           name="description"
           label=""
           isEditing={false}
-          isEditAllowed
+          isEditAllowed={canEditCampaign}
           isCreate={false}
           data={campaign}
           internalEditing={internalEditing}

@@ -8,6 +8,8 @@ import { type VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { Input } from '@repo/ui/input'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
+import { hasPermission } from '@/lib/authz/utils'
+import { type AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -61,7 +63,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   bulkEditFieldLabels?: Record<string, string>
   createMode?: CreateMode
   hideCreate?: boolean
-  createPermission?: TAccessRole
+  createPermission?: AccessEnum
   additionalActiveFilterCount?: number
   defaultFilterValues?: TFilterState
 }
@@ -78,7 +80,8 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
 
   const entityLabel = props.displayName ?? props.entityType.charAt(0).toUpperCase() + props.entityType.slice(1).toLowerCase()
   const entityLabelPlural = `${entityLabel}s`
-  const shouldShowCreationButton = !props.hideCreate && (props.createPermission ? props.permission?.roles.includes(props.createPermission) : props.canEdit(props.permission?.roles, session))
+  const canCreate = props.createPermission ? hasPermission(props.permission?.roles, props.createPermission, session) : props.canEdit(props.permission?.roles, session)
+  const shouldShowCreationButton = !props.hideCreate && canCreate
 
   const openCreateSheet = () => {
     if (props.createMode?.type === 'full-page') {

@@ -11,20 +11,16 @@ import { ChevronDown, ChevronRight, ChevronsDownUp, List, Minus, Plus, RotateCcw
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@repo/ui/dialog'
-import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 import { type ControlWhereInput, type ControlListStandardFieldsFragment, ControlTrustCenterControlVisibility, ControlControlImplementationStatus, ControlControlStatus } from '@repo/codegen/src/schema'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useAllControlsGroupedWithListFields, useBulkEditControl } from '@/lib/graphql-hooks/control'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useSystemStandard, useCloneControls } from '@/lib/graphql-hooks/standard'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { ControlCategoryIcon } from '@/components/shared/control-category-icon-mapper/control-category-icon-mapper'
-import { useSession } from 'next-auth/react'
 import { OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/standards'
 
 type FilterTab = 'all' | 'added' | 'not-added' | 'recommended'
@@ -41,18 +37,13 @@ export default function ControlsPage() {
   const [publishDialogOpen, setPublishDialogOpen] = useState(false)
   const [openSections, setOpenSections] = useState<string[]>([])
 
-  const { data: trustCenterData } = useGetTrustCenter()
-  const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
-  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
-  const { data: session } = useSession()
-  const canEditTc = canEdit(tcPermission?.roles, session)
+  const { allowed: canEditTc, isLoading: isLoadingTrustCenterAccess } = useCanEditTrustCenter()
 
   useEffect(() => {
-    if (tabDefaulted) return
-    if (!tcPermission) return
+    if (tabDefaulted || isLoadingTrustCenterAccess) return
     if (!canEditTc) setActiveTab('added')
     setTabDefaulted(true)
-  }, [tcPermission, canEditTc, tabDefaulted])
+  }, [canEditTc, isLoadingTrustCenterAccess, tabDefaulted])
 
   const { mutateAsync: bulkEditControl, isPending: isBulkEditing } = useBulkEditControl()
   const { queryClient } = useGraphQLClient()
