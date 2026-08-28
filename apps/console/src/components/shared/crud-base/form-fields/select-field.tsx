@@ -27,6 +27,8 @@ interface SelectFieldProps<TUpdateInput> {
   icon?: React.ReactNode
   layout?: 'vertical' | 'horizontal'
   labelClassName?: string
+  triggerClassName?: string
+  placeholder?: string
   renderValue?: (value: string) => React.ReactNode
 }
 
@@ -47,6 +49,8 @@ export const SelectField = <TUpdateInput,>({
   icon,
   layout = 'vertical',
   labelClassName,
+  triggerClassName,
+  placeholder = 'Select',
   renderValue,
 }: SelectFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
@@ -97,13 +101,9 @@ export const SelectField = <TUpdateInput,>({
                   }}
                 >
                   <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue>
-                        {useCustomDisplay ? (
-                          <CustomTypeEnumValue value={field.value} options={options} placeholder="Select" />
-                        ) : (
-                          <span>{options.find((opt) => opt.value === field.value)?.label || 'Select'}</span>
-                        )}
+                    <SelectTrigger className={cn('w-full', triggerClassName)}>
+                      <SelectValue placeholder={placeholder}>
+                        {field.value ? useCustomDisplay ? <CustomTypeEnumValue value={field.value} options={options} /> : <span>{options.find((opt) => opt.value === field.value)?.label}</span> : null}
                       </SelectValue>
                     </SelectTrigger>
                   </FormControl>

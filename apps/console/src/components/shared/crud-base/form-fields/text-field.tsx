@@ -36,6 +36,7 @@ interface TextFieldProps<TUpdateInput> {
   multiline?: boolean
   displaySuffix?: React.ReactNode
   formatDisplayValue?: (value: string) => React.ReactNode
+  required?: boolean
 }
 
 export const TextField = <TUpdateInput,>({
@@ -61,6 +62,7 @@ export const TextField = <TUpdateInput,>({
   multiline = false,
   displaySuffix,
   formatDisplayValue,
+  required = false,
 }: TextFieldProps<TUpdateInput>) => {
   const { control, getValues, formState } = useFormContext()
 
@@ -162,7 +164,10 @@ export const TextField = <TUpdateInput,>({
         <FormItem className={cn(className, layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : '')}>
           <div className="flex items-center gap-2 shrink-0">
             {icon}
-            <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>{label}</FormLabel>
+            <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>
+              {label}
+              {required && <span className="text-red-500 ml-0.5">*</span>}
+            </FormLabel>
             {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
           </div>
           <FormControl>

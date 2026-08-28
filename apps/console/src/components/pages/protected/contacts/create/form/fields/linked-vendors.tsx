@@ -4,7 +4,6 @@ import React, { useMemo, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Building2, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
@@ -57,13 +56,9 @@ const LinkedVendors: React.FC<LinkedVendorsProps> = ({ data, isEditAllowed }) =>
   const unlinkVendor = (vendorId: string) => mutateLink({ removeEntityIDs: [vendorId] }, 'Vendor unlinked', 'The vendor has been unlinked from this contact.')
 
   return (
-    <Card>
-      <CardHeader className="pb-2 flex flex-row items-start justify-between">
-        <div>
-          <CardTitle className="text-md p-0">Linked Vendors</CardTitle>
-          <CardDescription className="p-0">Vendors this contact is associated with</CardDescription>
-        </div>
-        {isEditAllowed && contactId && (
+    <div className="space-y-4">
+      {isEditAllowed && contactId && (
+        <div className="flex justify-end">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button type="button" variant="secondary" size="md" icon={<Plus size={16} strokeWidth={2} />} iconPosition="left">
@@ -89,30 +84,29 @@ const LinkedVendors: React.FC<LinkedVendorsProps> = ({ data, isEditAllowed }) =>
               </Command>
             </PopoverContent>
           </Popover>
-        )}
-      </CardHeader>
-      <CardContent>
-        {linkedVendors.length > 0 ? (
-          <div className="space-y-2">
-            {linkedVendors.map((v) => (
-              <div key={v.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-2 text-sm">
-                <span className="flex items-center gap-2">
-                  <Building2 size={14} className="text-muted-foreground" />
-                  {v.displayName || v.name}
-                </span>
-                {isEditAllowed && (
-                  <button type="button" onClick={() => unlinkVendor(v.id)} disabled={isPending} className="text-muted-foreground hover:text-destructive transition-colors">
-                    <Trash2 size={14} />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm italic text-muted-foreground">No vendors linked</p>
-        )}
-      </CardContent>
-    </Card>
+        </div>
+      )}
+
+      {linkedVendors.length > 0 ? (
+        <div className="space-y-2">
+          {linkedVendors.map((v) => (
+            <div key={v.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-2 text-sm">
+              <span className="flex items-center gap-2">
+                <Building2 size={14} className="text-muted-foreground" />
+                {v.displayName || v.name}
+              </span>
+              {isEditAllowed && (
+                <button type="button" onClick={() => unlinkVendor(v.id)} disabled={isPending} className="text-muted-foreground hover:text-destructive transition-colors">
+                  <Trash2 size={14} />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm italic text-muted-foreground">No vendors linked</p>
+      )}
+    </div>
   )
 }
 
