@@ -4,6 +4,7 @@ import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
 import { createAsset, createContact, createVendor, createSystemDetail, gql, type ApiSession, getOwnerApi } from '../utils/api'
 import { uniqueName } from '../utils/unique'
+import { expectMutationOk } from '../utils/mutations'
 
 /**
  * Deep registry flows beyond registry.spec.ts (list render + vendor create on
@@ -209,7 +210,7 @@ test.describe('registry — entity CRUD', () => {
 
     const sheet = await openCreateSheet(page)
     await sheet.getByRole('button', { name: /^Create$/ }).click()
-    await expect(sheet.getByRole('textbox').first()).toBeFocused({ timeout: 10_000 })
+    await expect(sheet.getByText(/required|Invalid input/i).first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('deleting a seeded asset from the detail sheet confirms and removes it', async ({ page }) => {
@@ -249,7 +250,7 @@ test.describe('registry — entity CRUD', () => {
 
     const sheet = await openCreateSheet(page)
     await sheet.getByRole('button', { name: /^Create$/ }).click()
-    await expect(sheet.getByRole('textbox').first()).toBeFocused({ timeout: 10_000 })
+    await expect(sheet.getByText(/required|Invalid input/i).first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('deleting a seeded contact from the detail sheet confirms and removes it', async ({ page }) => {
@@ -293,7 +294,7 @@ test.describe('registry — entity CRUD', () => {
 
     const sheet = await openCreateSheet(page)
     await sheet.getByRole('button', { name: /^Create$/ }).click()
-    await expect(sheet.getByRole('textbox').first()).toBeFocused({ timeout: 10_000 })
+    await expect(sheet.getByText(/required|Invalid input/i).first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('creating a system detail via the slideout shows the success confirmation', async ({ page }) => {
@@ -317,7 +318,7 @@ test.describe('registry — entity CRUD', () => {
 
     const sheet = await openCreateSheet(page)
     await sheet.getByRole('button', { name: /^Create$/ }).click()
-    await expect(sheet.getByRole('textbox').first()).toBeFocused({ timeout: 10_000 })
+    await expect(sheet.getByText(/required|Invalid input/i).first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('editing a seeded asset and saving shows the updated confirmation', async ({ page }) => {
@@ -852,5 +853,57 @@ test.describe('registry — vendor high-risk review warning (ISS-2573)', () => {
 
     await expect(page.getByRole('heading', { name: /^Risk summary$/ })).toBeVisible({ timeout: 30_000 })
     await expect(page.getByText('High risk vendor - immediate action required')).toHaveCount(0)
+  })
+})
+
+test.describe('vendors — contacts and risk review forms', () => {
+  test('a contact is added to a vendor from the Contacts tab', async ({ page }) => {
+    test.slow()
+    const vendorId = await createVendor(ownerApi, uniqueName('E2E Vendor contacts'))
+
+    try {
+      const contactName = uniqueName('E2E Vendor contact')
+
+      await page.goto(`/registry/vendors/${vendorId}?tab=contacts`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+      await page
+        .getByRole('button', { name: /^Add Contact$/ })
+        .first()
+        .click()
+
+      const dialog = page.getByRole('dialog')
+      await expect(dialog.getByText('Add Contact')).toBeVisible({ timeout: 30_000 })
+      await dialog.getByRole('textbox').first().fill(contactName)
+
+      await expectMutationOk(page, 'CreateContact', async () => {
+        await dialog
+          .getByRole('button', { name: /^(Add|Save|Create)/ })
+          .last()
+          .click()
+      })
+      await expect(page.getByText(contactName).first()).toBeVisible({ timeout: 30_000 })
+    } finally {
+      await gql(ownerApi, `mutation($id: ID!){ deleteEntity(id: $id){ deletedID } }`, { id: vendorId })
+    }
+  })
+
+  test('a vendor risk review is submitted from the Risk Review tab', async ({ page }) => {
+    test.slow()
+    const vendorId = await createVendor(ownerApi, uniqueName('E2E Vendor review'))
+
+    try {
+      await page.goto(`/registry/vendors/${vendorId}?tab=risk-review`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+      const trigger = page.getByRole('button', { name: /Review|Assess/ }).first()
+      await expect(trigger).toBeVisible({ timeout: 30_000 })
+      await trigger.click()
+
+      const sheet = page.getByRole('dialog')
+      await expect(sheet).toBeVisible({ timeout: 30_000 })
+
+      await expectMutationOk(page, 'UpdateEntity', async () => {
+        await sheet.getByRole('button', { name: /^Save/ }).first().click()
+      })
+    } finally {
+      await gql(ownerApi, `mutation($id: ID!){ deleteEntity(id: $id){ deletedID } }`, { id: vendorId })
+    }
   })
 })

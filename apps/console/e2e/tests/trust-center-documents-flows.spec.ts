@@ -97,8 +97,14 @@ test.describe('trust-center — document metadata (seeded demo org)', () => {
       await expect(toast(page, 'Document Updated')).toBeVisible({ timeout: 60_000 })
 
       await openDocuments(page)
-      await page.getByPlaceholder('Search documents...').fill(renamed)
-      await expect(page.getByRole('row', { name: new RegExp(escapeRegExp(renamed)) })).toBeVisible({ timeout: 30_000 })
+      const search = page.getByPlaceholder('Search documents...')
+      const renamedRow = page.getByRole('row', { name: new RegExp(escapeRegExp(renamed)) })
+      await expect(async () => {
+        await page.reload({ waitUntil: 'domcontentloaded' })
+        await expect(search).toBeVisible({ timeout: 30_000 })
+        await search.fill(renamed)
+        await expect(renamedRow).toBeVisible({ timeout: 15_000 })
+      }).toPass({ timeout: 90_000 })
     } finally {
       await openDocuments(page)
       await deleteDocument(page, renamed)

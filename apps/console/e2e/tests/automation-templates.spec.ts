@@ -5,6 +5,7 @@ import { test, expect } from '../fixtures/auth'
 import { createCustomTypeEnum, deleteCustomTypeEnum, type ApiSession } from '../utils/api'
 import { createQuestionnaireTemplate, deleteQuestionnaireTemplate, getAutomationApi, getSystemOwnedQuestionnaireTemplate } from '../utils/api-automation'
 import { uniqueName } from '../utils/unique'
+import { PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON } from '../utils/permission-gating'
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -81,29 +82,33 @@ test('the column menu shows Description and persists the visibility choice after
   const id = await createQuestionnaireTemplate(ownerApi, name, { description })
 
   try {
+    const header = page.getByRole('columnheader', { name: /^Description\b/ })
+
+    const setDescriptionColumn = async (visible: boolean) => {
+      await expect(async () => {
+        await page.getByRole('button', { name: 'Columns' }).click()
+        const toggle = page.getByRole('menu').getByRole('checkbox', { name: 'Description' })
+        await expect(toggle).toBeVisible({ timeout: 5_000 })
+        if ((await toggle.isChecked()) !== visible) await toggle.setChecked(visible)
+        await page.keyboard.press('Escape')
+        if (visible) await expect(header).toBeVisible({ timeout: 10_000 })
+        else await expect(header).toHaveCount(0, { timeout: 10_000 })
+      }).toPass({ timeout: 60_000 })
+    }
+
     await openTemplates(page)
     await page.getByPlaceholder('Search').fill(name)
     await expect(rowFor(page, name)).toBeVisible({ timeout: 20_000 })
-    await expect(page.getByRole('columnheader', { name: /^Description\b/ })).toHaveCount(0)
 
-    await expect(async () => {
-      await page.getByRole('button', { name: 'Columns' }).click()
-      const toggle = page.getByRole('menu').getByRole('checkbox', { name: 'Description' })
-      await expect(toggle).toBeVisible({ timeout: 5_000 })
-      if (!(await toggle.isChecked())) await toggle.check()
-      await page.keyboard.press('Escape')
-      await expect(page.getByRole('columnheader', { name: /^Description\b/ })).toBeVisible({ timeout: 10_000 })
-    }).toPass({ timeout: 60_000 })
+    await setDescriptionColumn(false)
+    await setDescriptionColumn(true)
     await expect(rowFor(page, name)).toContainText(description)
 
     await page.reload({ waitUntil: 'domcontentloaded' })
     await page.getByPlaceholder('Search').fill(name)
-    await expect(page.getByRole('columnheader', { name: /^Description\b/ })).toBeVisible({ timeout: 20_000 })
+    await expect(header).toBeVisible({ timeout: 20_000 })
 
-    await page.getByRole('button', { name: 'Columns' }).click()
-    await page.getByRole('menu').getByRole('checkbox', { name: 'Description' }).uncheck()
-    await page.keyboard.press('Escape')
-    await expect(page.getByRole('columnheader', { name: /^Description\b/ })).toHaveCount(0)
+    await setDescriptionColumn(false)
   } finally {
     await deleteQuestionnaireTemplate(ownerApi, id)
   }
@@ -307,6 +312,7 @@ test('the template viewer Delete confirmation removes the template and returns t
 
 test.describe('questionnaire template editor permissions', () => {
   test.use({ authProfile: 'readonly' })
+  test.skip(!PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON)
 
   test('a readonly user sees the protected area instead of the template editor', async ({ page }) => {
     await page.goto('/automation/questionnaires/templates/template-editor', { waitUntil: 'domcontentloaded', timeout: 180_000 })

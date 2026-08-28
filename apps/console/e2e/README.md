@@ -123,7 +123,46 @@ bun run e2e:headed          # visible browser
 bun run e2e:report          # open the HTML report from the last run
 bun run e2e:typecheck       # tsc the e2e project (no run)
 bun run e2e:sharded         # self-managing sharded runner (restarts server on bloat)
+bun run e2e --project=controls           # one segment (see below)
 ```
+
+### Segments
+
+The suite is split into 13 Playwright projects by product area, so a failing
+area can be re-run on its own instead of paying for all 1098 tests.
+
+| Segment        | Files | Tests | Covers                                                               |
+| -------------- | ----: | ----: | -------------------------------------------------------------------- |
+| `permissions`  |     3 |   177 | permission matrix, role gating                                       |
+| `automation`   |    10 |   144 | campaigns, questionnaires, templates, workflows, tasks               |
+| `admin`        |    11 |   135 | org settings, user management, developers, integrations, custom data |
+| `controls`     |    13 |   101 | controls, subcontrols, objectives, mapping, standards                |
+| `exposure`     |     9 |    94 | risks, findings, vulnerabilities, action plans, reviews              |
+| `documents`    |     8 |    79 | policies, procedures                                                 |
+| `registry`     |     7 |    79 | vendors, assets, personnel, platforms, system details                |
+| `programs`     |     3 |    74 | programs list, CRUD, wizard                                          |
+| `platform`     |     8 |    71 | dashboard, search, notifications, cross-cutting, table prefs         |
+| `auth`         |     6 |    69 | login, onboarding, org lifecycle, public routes, user settings       |
+| `evidence`     |     2 |    37 | evidence list and CRUD                                               |
+| `trust-center` |     3 |    37 | trust center, documents, NDAs                                        |
+| `smoke`        |     1 |     1 | single sanity check                                                  |
+
+```bash
+bun run e2e --project=controls                  # one segment
+bun run e2e --project=evidence --project=smoke  # several
+bun run e2e:segment controls                    # shorthand for the above
+bun run e2e --project=admin --grep delete       # filter inside a segment
+bun run e2e --project=permissions --shard=1/4   # still composes with sharding
+```
+
+A typo prints the full list of valid names, so there is nothing to memorise.
+
+Membership lives in [`segments.ts`](./segments.ts). Every spec must belong to
+**exactly one** segment — `playwright.config.ts` calls
+`assertSegmentsCoverAllSpecs()` at load, so an unassigned or double-assigned
+spec fails every Playwright command with a message naming the file. That is
+deliberate: it makes it impossible for a new spec to quietly stop running.
+When you add a spec, add it to a segment in the same commit.
 
 ### Mode A — dev server (simplest, slowest)
 
@@ -195,6 +234,45 @@ bun run e2e
 `E2E_SHARD_SIZE` and `E2E_RSS_LIMIT_MB` tune `bun run e2e:sharded` (see
 `run-sharded.sh`).
 
+## CI
+
+Two workflows cover this suite:
+
+| Workflow                               | Trigger                                 | What it does                                                                                                                                              |
+| -------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/console-checks.yml` | every pull request + push to `main`     | Console type-check, unit tests (`apps/console/src` + `packages`), E2E type-check, `playwright test --list`. No backend needed, fails in ~1 min.           |
+| `.github/workflows/console-e2e.yml`    | every pull request, `workflow_dispatch` | The full suite, **sharded across 4 parallel jobs**, each with its own `theopenlane/core` stack. A fifth job merges the blob reports into one HTML report. |
+
+`console-checks` fails fast: it catches broken specs (type errors, duplicate
+titles, unresolvable imports) in about a minute without any backend, so a typo
+never costs four full E2E shards.
+
+`console-e2e` runs the real suite on every PR. Design and tuning rationale lives
+in [`CI_SHARDING_PLAN.md`](CI_SHARDING_PLAN.md). Notes if you touch it:
+
+- **On CI the reporter is `blob`, not `html`.** Each shard emits a blob report;
+  the `merge-reports` job combines them into the HTML report and the GitHub
+  annotations. Do not "restore" the `github`/`html` reporters to the shard jobs
+  — that breaks the merge and leaves you with four partial reports.
+- **Every shard brings up its own core stack.** GitHub-hosted runners cannot
+  share a service between matrix jobs. That is why shards are data-isolated for
+  free, and why `next build` and the ~40s seed are paid four times.
+- Shard balance is even (181/181/181/180 of 723) because `fullyParallel` splits
+  at the test level. Turning it off would split by file and wreck that.
+- **Port 3001, not 3004.** `core/config/config-dev.example.yaml` lists only
+  `http://localhost:3001` under `server.cors.alloworigins`. The browser calls
+  core directly, so any other origin silently fails every GraphQL POST with no
+  error in either log. The local `.config.yaml` many of us run also allows 3004
+  — CI does not.
+- Core's runtime config is **not** committed in that repo; the workflow copies
+  `config/config-dev.example.yaml` to `config/.config.yaml`.
+
+Local commits never run E2E: the pre-commit hook type-checks `apps/console`
+(whose `tsconfig.json` excludes `e2e`) and runs `bun test apps/console/src
+packages`, which is path-scoped so Playwright `.spec.ts` files are never
+collected. E2E type errors are caught by `console-checks` in CI, or locally on
+demand with `bun run e2e:typecheck`.
+
 ## Test users
 
 Each test run creates a fresh set of users via the backend register-and-verify
@@ -248,3 +326,8 @@ implementation checklist.
 See `plans/00-priorities.md` for the global priority order.
 
 In short: auth → onboarding → policies/controls/programs CRUD → tasks → the rest.
+
+## Backend defects
+
+Bugs this suite reproduces but cannot fix live in [`CORE-ISSUES.md`](./CORE-ISSUES.md).
+Where a test works around one, the workaround links back to its entry.
