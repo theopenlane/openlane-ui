@@ -1,5 +1,6 @@
 'use client'
 
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import React, { useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -110,6 +111,7 @@ const PlatformPage: React.FC = () => {
 
   const tableConfig: PlatformTablePageConfig = {
     objectType,
+    createPermission: AccessEnum.CanCreatePlatform,
     objectName,
     displayName,
     tableKey,

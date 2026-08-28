@@ -2,6 +2,7 @@ import React from 'react'
 import { type QueryClient } from '@tanstack/react-query'
 import { type Group } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useCanEditRows } from '@/lib/authz/use-can-edit-rows'
 import { type EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
 import EditableGroupCell from '@/components/shared/editable-group-cell/editable-group-cell'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
@@ -12,6 +13,7 @@ type TApproverCellProps = {
 }
 
 const ApproverCell: React.FC<TApproverCellProps> = ({ approver, policyId }) => {
+  const canEdit = useCanEditRows()
   const { mutateAsync: updatePolicy } = useUpdateInternalPolicy()
 
   const handleSubmitData = async (data: EditableFieldFormData, helpers: { queryClient: QueryClient; notifySuccess: () => void; notifyError: (msg: string) => void }) => {
@@ -30,7 +32,7 @@ const ApproverCell: React.FC<TApproverCellProps> = ({ approver, policyId }) => {
     }
   }
 
-  return <EditableGroupCell label="Policy" entity={approver} onSubmitData={handleSubmitData} placeholder="No approver" />
+  return <EditableGroupCell label="Policy" entity={approver} onSubmitData={handleSubmitData} placeholder="No approver" canEdit={canEdit} />
 }
 
 export default ApproverCell
