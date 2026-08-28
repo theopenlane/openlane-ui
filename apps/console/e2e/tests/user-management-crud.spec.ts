@@ -1,8 +1,10 @@
 import type { Locator, Page } from '@playwright/test'
 
 import { test, expect, readManifest } from '../fixtures/auth'
+import { confirmDestructiveDialog } from '../utils/menu'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createGroup, getSelf, addOrgMember, memberSeesOrg, type ApiSession, getOwnerApi } from '../utils/api'
+import { loginViaApi, createGroup, getSelf, addOrgMember, memberSeesOrg, roleOf, type ApiSession, getOwnerApi } from '../utils/api'
+import { expectMutationOk } from '../utils/mutations'
 import { registerAndVerify } from '../utils/registerUser'
 
 /**
@@ -196,11 +198,14 @@ test.describe('user-management — groups toolbar', () => {
 test.describe('user-management — member row actions (throwaway member)', () => {
   const memberRow = (page: Page, email: string) => page.getByRole('row', { name: new RegExp(email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) })
 
-  const openRowMenu = async (row: Locator, item: Locator) => {
-    await expect(async () => {
-      await row.getByTestId('member-actions-trigger').click()
-      await expect(item).toBeVisible({ timeout: 2_000 })
-    }).toPass({ timeout: 20_000 })
+  // Nesting a toPass inside another starves the outer budget: the inner loop can
+  // burn it on a single attempt. Keep one retry level and cap every step, so the
+  // outer budget buys whole attempts rather than fractions of one.
+  const openRowMenuItem = async (row: Locator, item: Locator) => {
+    if (!(await item.isVisible().catch(() => false))) {
+      await row.getByTestId('member-actions-trigger').click({ timeout: 5_000 })
+    }
+    await expect(item).toBeVisible({ timeout: 5_000 })
   }
 
   test('owner changes a throwaway member’s role via the Change Role dialog', async ({ page }) => {
@@ -215,10 +220,21 @@ test.describe('user-management — member row actions (throwaway member)', () =>
     const changeRoleItem = page.getByRole('menuitem', { name: /Change Base Role/ })
 
     await expect(async () => {
-      await openRowMenu(row, changeRoleItem)
-      await changeRoleItem.click()
+      await openRowMenuItem(row, changeRoleItem)
+      await changeRoleItem.click({ timeout: 5_000 })
       await expect(page.getByText('New role')).toBeVisible({ timeout: 5_000 })
-    }).toPass({ timeout: 30_000 })
+    }).toPass({ timeout: 45_000 })
+
+    const dialog = page.getByRole('alertdialog')
+    await dialog.getByRole('combobox').first().click()
+    await page.getByRole('option', { name: 'Admin', exact: true }).click()
+
+    await expectMutationOk(page, 'UpdateUserRoleInOrg', async () => {
+      await dialog.getByRole('button', { name: /^Change Role$/ }).click()
+    })
+
+    await expect(page.getByText('Role changed successfully')).toBeVisible({ timeout: 30_000 })
+    await expect.poll(async () => roleOf(ownerApi, sharedOrgId, email), { timeout: 60_000 }).toBe('ADMIN')
   })
 
   test('owner removes a throwaway member from the org', async ({ page }) => {
@@ -230,19 +246,19 @@ test.describe('user-management — member row actions (throwaway member)', () =>
     const row = memberRow(page, email)
     await expect(row).toBeVisible({ timeout: 20_000 })
 
+    // Confirming has to sit inside the retry cycle: a refetch that lands between
+    // the dialog opening and the confirm click unmounts the dialog, which used to
+    // fail hard. Re-entering is safe because the row check short-circuits once the
+    // member is actually gone.
     const removeItem = page.getByText('Remove Member', { exact: true })
     await expect(async () => {
-      await openRowMenu(row, removeItem)
+      if ((await row.count()) === 0) return
+      await openRowMenuItem(row, removeItem)
       await removeItem.dispatchEvent('click')
       await expect(page.getByRole('alertdialog')).toBeVisible({ timeout: 5_000 })
-    }).toPass({ timeout: 40_000 })
-
-    await page
-      .getByRole('alertdialog')
-      .getByRole('button')
-      .filter({ hasText: /^Delete$/ })
-      .first()
-      .dispatchEvent('click')
+      await confirmDestructiveDialog(page)
+      await expect(row).toHaveCount(0, { timeout: 10_000 })
+    }).toPass({ timeout: 60_000 })
 
     await expect(page.getByText(email)).toHaveCount(0, { timeout: 30_000 })
   })
@@ -383,22 +399,32 @@ test.describe('user-management — per-user 2FA enforcement (#2081)', () => {
     const triggers = page.locator('tbody .lucide-ellipsis')
     await expect(triggers.first()).toBeVisible({ timeout: 30_000 })
 
-    const mark = page.getByText(/Mark as 2FA Enforced/)
-    const rowCount = await triggers.count()
-    let opened = false
-
-    for (let i = 0; i < rowCount && !opened; i++) {
-      await triggers.nth(i).click()
-      opened = await mark.isVisible({ timeout: 5_000 }).catch(() => false)
-      if (!opened) await page.keyboard.press('Escape')
-    }
-
-    test.skip(!opened, 'no member offers the Mark as 2FA Enforced action')
-    await mark.click()
-
-    // The dialog explains the effect and collects a reason. Never confirmed.
+    const mark = page.getByText(/Mark as 2FA Enforced/).first()
     const dialog = page.getByRole('dialog').or(page.getByRole('alertdialog')).first()
-    await expect(dialog).toBeVisible({ timeout: 15_000 })
-    await expect(dialog.getByText(/will be required to configure multi-factor authentication/)).toBeVisible({ timeout: 10_000 })
+    const reason = dialog.getByText(/will be required to configure multi-factor authentication/)
+    let offered = false
+
+    await expect(async () => {
+      if (await reason.isVisible().catch(() => false)) return
+      await page.keyboard.press('Escape')
+
+      const rowCount = await triggers.count()
+      expect(rowCount, 'the members table rendered no row menus').toBeGreaterThan(0)
+
+      for (let i = 0; i < rowCount; i++) {
+        await triggers.nth(i).click({ timeout: 5_000 })
+        if (!(await mark.isVisible({ timeout: 2_000 }).catch(() => false))) {
+          await page.keyboard.press('Escape')
+          continue
+        }
+        offered = true
+        await mark.click({ timeout: 5_000 })
+        await expect(reason).toBeVisible({ timeout: 10_000 })
+        return
+      }
+    }).toPass({ timeout: 90_000 })
+
+    test.skip(!offered, 'no member offers the Mark as 2FA Enforced action')
+    await expect(reason).toBeVisible({ timeout: 10_000 })
   })
 })

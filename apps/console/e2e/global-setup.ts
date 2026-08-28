@@ -8,7 +8,21 @@ import { registerAndVerify } from './utils/registerUser'
 import { loginViaForm } from './utils/login'
 import { saveStorageState } from './utils/session'
 import { completeOnboarding } from './utils/onboarding'
-import { loginViaApi, getSharedOrgs, getSelf, addOrgMember, memberSeesOrg, setDefaultOrg, createControl, completeOnboardingTasks, type ApiSession, type SeedRole } from './utils/api'
+import {
+  loginViaApi,
+  getSharedOrgs,
+  getSelf,
+  addOrgMember,
+  memberSeesOrg,
+  setDefaultOrg,
+  createControl,
+  createSubprocessor,
+  createStandard,
+  getTrustCenterId,
+  completeOnboardingTasks,
+  type ApiSession,
+  type SeedRole,
+} from './utils/api'
 
 /**
  * Runs once per `playwright test` invocation. Seeds the Owner user, drives the
@@ -34,11 +48,13 @@ export interface AuthManifest {
   // A control seeded in the shared org, for detail-page view/edit gating specs.
   sharedControlId: string
   sharedControlRefCode: string
-  // Whether the optional demo-org session (demo.json) was captured. The demo
-  // org is seeded by harmonize and — unlike the e2e org this setup creates —
-  // has a provisioned trust center, so specs covering trust-center surfaces
-  // use it. Absent in environments without the demo seed.
+  // Whether the trust-center org session (demo.json) is available. That org is
+  // provisioned by this setup (or supplied via E2E_DEMO_EMAIL) and — unlike the
+  // e2e org, which deliberately has none — holds a TrustCenter row, so specs
+  // covering trust-center surfaces run against it.
   hasDemoSession: boolean
+  demoEmail?: string
+  demoPassword?: string
 }
 
 // Console-side role -> backend OrgMembershipRole. "readonly" maps to AUDITOR,
@@ -171,11 +187,20 @@ const canReuseAuth = async (): Promise<boolean> => {
   return capturedSessionWorks()
 }
 
-// Credentials seeded by harmonize (config/taskfiles/user-demo-all.example.yaml).
+let demoEmail: string | undefined
+let demoPassword: string | undefined
+
 const DEMO_EMAIL = process.env.E2E_DEMO_EMAIL ?? 'peter.parker@theopenlane.io'
 const DEMO_PASSWORD = process.env.E2E_DEMO_PASSWORD ?? 'mattisthebest!'
 
-const captureDemoSession = async (): Promise<boolean> => {
+const seedTrustCenterFixtures = async (email: string, password: string): Promise<void> => {
+  const api = await loginViaApi(email, password)
+  await getTrustCenterId(api)
+  await createSubprocessor(api, `E2E Subprocessor ${RUN_ID}`)
+  await createStandard(api, `E2E Framework ${RUN_ID}`)
+}
+
+const captureExternalDemoSession = async (): Promise<boolean> => {
   const browser = await chromium.launch()
   try {
     const context = await browser.newContext({ baseURL: BASE_URL })
@@ -183,10 +208,13 @@ const captureDemoSession = async (): Promise<boolean> => {
     await loginViaForm(page, DEMO_EMAIL, DEMO_PASSWORD)
     await page.waitForURL(/\/dashboard/, { timeout: 30_000 })
     await saveAuthState(context, 'demo')
-    console.log('[global-setup] captured demo-org session for trust-center specs')
+    await seedTrustCenterFixtures(DEMO_EMAIL, DEMO_PASSWORD)
+    demoEmail = DEMO_EMAIL
+    demoPassword = DEMO_PASSWORD
+    console.log(`[global-setup] using the seeded trust-center org (${DEMO_EMAIL})`)
     return true
-  } catch {
-    console.log('[global-setup] no demo-org session (demo seed absent) — trust-center specs will skip')
+  } catch (err) {
+    console.log(`[global-setup] no seeded trust-center org for ${DEMO_EMAIL} (${String(err).slice(0, 160)}) — trust-center specs will skip`)
     return false
   } finally {
     await browser.close()
@@ -249,11 +277,11 @@ const globalSetup = async (_config: FullConfig): Promise<void> => {
     roleEmails[role] = await seedRoleUser({ role, ownerApi, sharedOrgId: shared.id })
   }
 
-  // The e2e org this setup creates is deliberately empty, which leaves
-  // trust-center routes unprovisioned. harmonize seeds a demo org that HAS a
-  // trust center, so capture that session too when those credentials work.
-  // Best-effort: environments without the demo seed simply skip those specs.
-  const hasDemoSession = await captureDemoSession()
+  // Trust centers are created by the backend seeder, never by the console or
+  // these tests, so trust-center specs run against the seeded org rather than
+  // the deliberately-empty e2e org (whose missing trust center trust-center.spec.ts
+  // asserts). Absent that seed, those specs skip.
+  const hasDemoSession = await captureExternalDemoSession()
 
   const manifest: AuthManifest = {
     runId: RUN_ID,
@@ -265,6 +293,8 @@ const globalSetup = async (_config: FullConfig): Promise<void> => {
     sharedControlId,
     sharedControlRefCode,
     hasDemoSession,
+    demoEmail,
+    demoPassword,
   }
   const manifestPath = path.join(AUTH_DIR, 'manifest.json')
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), { mode: 0o600 })

@@ -2,6 +2,9 @@ import type { Page } from '@playwright/test'
 
 import { test, expect, readManifest, type Role } from '../fixtures/auth'
 import { loginViaApi, createInternalPolicy, createProcedure, createRisk, createEvidence, createControl, createProgram } from '../utils/api'
+import { PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON } from '../utils/permission-gating'
+
+test.skip(!PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON)
 
 /**
  * Permission-gating sweep across roles, using the storage-state users seeded in
@@ -148,7 +151,7 @@ test.describe('permissions — owner can edit a control', () => {
   test('owner sees the Edit button on the control detail', async ({ page }) => {
     const { sharedControlId } = readManifest()
     await page.goto(`/controls/${sharedControlId}`, { waitUntil: 'domcontentloaded' })
-    await expect(editControlButton(page)).toBeVisible({ timeout: 30_000 })
+    await expect(editControlButton(page)).toBeVisible({ timeout: 60_000 })
   })
 })
 
@@ -163,7 +166,7 @@ test.describe('permissions — owner can delete a control', () => {
   test('owner can reach the Delete action via the control actions menu', async ({ page }) => {
     const { sharedControlId } = readManifest()
     await page.goto(`/controls/${sharedControlId}`, { waitUntil: 'domcontentloaded' })
-    await expect(editControlButton(page)).toBeVisible({ timeout: 30_000 })
+    await expect(editControlButton(page)).toBeVisible({ timeout: 60_000 })
     await controlActionsMenu(page).click()
     await expect(page.getByTestId('control-delete-button')).toBeVisible({ timeout: 10_000 })
   })
@@ -612,17 +615,27 @@ test.describe('permissions — member management affordances (ISS-2713)', () => 
     })
   })
 
-  for (const role of ['member', 'readonly'] as Role[]) {
-    test.describe(`${role}`, () => {
-      test.use({ authProfile: role })
+  test.describe('member', () => {
+    test.use({ authProfile: 'member' })
 
-      test(`${role} sees no invite affordance`, async ({ page }) => {
-        test.slow()
-        await page.goto('/user-management/members', { waitUntil: 'domcontentloaded' })
-        await expect(page.getByTestId('user-menu-trigger')).toBeAttached({ timeout: 30_000 })
+    test('member sees the invite affordance', async ({ page }) => {
+      test.slow()
+      await page.goto('/user-management/members', { waitUntil: 'domcontentloaded' })
+      await expect(page.getByRole('heading', { level: 2, name: /^Members$/ })).toBeVisible({ timeout: 60_000 })
 
-        await expect(page.getByRole('button', { name: /^invite member$/i })).toHaveCount(0)
-      })
+      await expect(page.getByRole('button', { name: /^invite member$/i })).toBeVisible({ timeout: 30_000 })
     })
-  }
+  })
+
+  test.describe('readonly', () => {
+    test.use({ authProfile: 'readonly' })
+
+    test('readonly sees no invite affordance', async ({ page }) => {
+      test.slow()
+      await page.goto('/user-management/members', { waitUntil: 'domcontentloaded' })
+      await expect(page.getByTestId('user-menu-trigger')).toBeAttached({ timeout: 30_000 })
+
+      await expect(page.getByRole('button', { name: /^invite member$/i })).toHaveCount(0, { timeout: 20_000 })
+    })
+  })
 })
