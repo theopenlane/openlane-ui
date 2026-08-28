@@ -151,6 +151,13 @@ export function getInitialColumnOrder(tableKey: TableKeyValue): string[] {
 const normalizeKey = (key: string) => key.replace(/_/g, '').toLowerCase()
 const cssVarKey = (id: string) => id.replace(/[^a-zA-Z0-9_-]/g, '')
 
+const resolveColumnId = <TData, TValue>(col: CustomColumnDef<TData, TValue>): string => {
+  if (col.id) return col.id
+  const accessorKey = 'accessorKey' in col && typeof col.accessorKey === 'string' ? col.accessorKey : undefined
+  if (accessorKey) return accessorKey.replace(/\./g, '_')
+  return typeof col.header === 'string' ? col.header : ''
+}
+
 interface VisibleColumnInfo {
   id: string
   defSize: number
@@ -205,6 +212,9 @@ function redistributeColumnWidths(visibleColumns: VisibleColumnInfo[], currentSi
   return sizes
 }
 
+const DEFAULT_COLUMN_MIN_SIZE = 60
+const DEFAULT_COLUMN_MAX_SIZE = 4000
+
 const AUTO_MIN_SIZE_CHAR_WIDTH = 8
 const AUTO_MIN_SIZE_PADDING = 24
 const AUTO_MIN_SIZE_SORT_ICON = 24
@@ -214,7 +224,7 @@ function calcHeaderTextMinSize(header: unknown, hasSortField: boolean): number |
   if (typeof header !== 'string') return undefined
   const textWidth = (header.length + 2) * AUTO_MIN_SIZE_CHAR_WIDTH + AUTO_MIN_SIZE_PADDING
   const sortWidth = hasSortField ? AUTO_MIN_SIZE_SORT_ICON : 0
-  return Math.max(60, textWidth + sortWidth + AUTO_MIN_SIZE_GRIP_ICON)
+  return Math.max(DEFAULT_COLUMN_MIN_SIZE, textWidth + sortWidth + AUTO_MIN_SIZE_GRIP_ICON)
 }
 
 const NON_REORDERABLE_COLUMNS = new Set(['select'])
@@ -415,15 +425,14 @@ export function DataTable<TData, TValue>({
   const enhancedColumns = useMemo(() => {
     return columns.map((col) => {
       if (col.minSize != null) return col
-      const colId = (col as any).id ?? (col as any).accessorKey ?? ''
-      const hasSortField = sortFields?.some((sf) => normalizeKey(sf.key) === normalizeKey(colId)) ?? false
+      const hasSortField = sortFields?.some((sf) => normalizeKey(sf.key) === normalizeKey(resolveColumnId(col))) ?? false
       const autoMinSize = calcHeaderTextMinSize(col.header, hasSortField)
       if (autoMinSize == null) return col
       return { ...col, minSize: autoMinSize }
     })
   }, [columns, sortFields])
 
-  const fixedMaxColumns = useMemo(() => new Set(enhancedColumns.filter((col) => (col as any).maxSize != null).map((col) => (col as any).id ?? (col as any).accessorKey ?? '')), [enhancedColumns])
+  const fixedMaxColumns = useMemo(() => new Set(enhancedColumns.filter((col) => col.maxSize != null).map(resolveColumnId)), [enhancedColumns])
 
   const tableRef = useRef<TanstackTable<TData> | null>(null)
   const containerWidthRef = useRef(0)
@@ -434,8 +443,8 @@ export function DataTable<TData, TValue>({
       tbl.getVisibleLeafColumns().map((col) => ({
         id: col.id,
         defSize: (col.columnDef.size as number) ?? 150,
-        minSize: (col.columnDef.minSize as number) ?? 60,
-        maxSize: (col.columnDef.maxSize as number) ?? 800,
+        minSize: (col.columnDef.minSize as number) ?? DEFAULT_COLUMN_MIN_SIZE,
+        maxSize: (col.columnDef.maxSize as number) ?? DEFAULT_COLUMN_MAX_SIZE,
       })),
     [],
   )
@@ -449,7 +458,8 @@ export function DataTable<TData, TValue>({
         if (!tbl || cw <= 0) return rawNext
 
         const visibleCols = getVisibleColumnInfos(tbl)
-        return redistributeColumnWidths(visibleCols, rawNext, cw, fixedMaxColumns)
+        const clamped = Object.fromEntries(visibleCols.map((col) => [col.id, Math.min(Math.max(rawNext[col.id] ?? col.defSize, col.minSize), col.maxSize)]))
+        return redistributeColumnWidths(visibleCols, clamped, cw, fixedMaxColumns)
       })
     },
     [fixedMaxColumns, getVisibleColumnInfos],
@@ -482,8 +492,8 @@ export function DataTable<TData, TValue>({
       },
     },
     defaultColumn: {
-      minSize: 60,
-      maxSize: 800,
+      minSize: DEFAULT_COLUMN_MIN_SIZE,
+      maxSize: DEFAULT_COLUMN_MAX_SIZE,
     },
   })
 
