@@ -9,7 +9,15 @@
     "debug": "next build --debug --experimental-debug-memory-usage",
     "start": "next start -p 3001",
     "lint": "eslint .",
-    "test": "bun test"
+    "test": "bun test src",
+    "e2e": "playwright test",
+    "e2e:segment": "playwright test --project",
+    "e2e:full": "bash e2e/run-prod-suite.sh",
+    "e2e:sharded": "bash e2e/run-sharded.sh",
+    "e2e:ui": "playwright test --ui",
+    "e2e:headed": "playwright test --headed",
+    "e2e:report": "playwright show-report",
+    "e2e:typecheck": "tsc -p e2e/tsconfig.json --noEmit"
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "^5.0.47",
@@ -83,6 +91,7 @@
   "devDependencies": {
     "@headlessui/react": "^2.2.10",
     "@next/eslint-plugin-next": "16.3.0",
+    "@playwright/test": "^1.59.1",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@tailwindcss/container-queries": "^0.1.1",

@@ -9,6 +9,10 @@ import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { useSession } from 'next-auth/react'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type DocumentActionsProps = {
   documentId: string
@@ -25,6 +29,11 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
   const queryClient = useQueryClient()
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const { data: session } = useSession()
+  const { data: permission } = useAccountRoles(ObjectTypes.TRUST_CENTER_DOC, documentId)
+  // core guards both mutations with CheckEditAccess, and CheckEditAccess runs
+  // the edit check on delete operations too, so one capability covers both.
+  const isEditAllowed = canEdit(permission?.roles, session)
 
   const handleDeleteDocument = async () => {
     try {
@@ -116,38 +125,42 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
         </DropdownMenuTrigger>
 
         <DropdownMenuContent className="min-w-[15px] bg-homepage-card-item border border-switch-bg-inactive">
-          <DropdownMenuItem
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => e.stopPropagation()}
-            onSelect={(e) => {
-              e.preventDefault()
-              setIsDeleteDialogOpen(true)
-            }}
-            className="flex items-center gap-2"
-          >
-            <Trash2 size={16} />
-            Delete
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => e.stopPropagation()}
-            onSelect={(e) => {
-              e.preventDefault()
-            }}
-            className="flex items-center gap-2"
-          >
-            <div className="flex items-center gap-2">
-              <Droplet size={16} />
-              <label className="text-sm">Watermark</label>
-              <Switch
-                checked={isWatermarkEnabled}
-                onCheckedChange={(checked) => {
-                  setIsWatermarkEnabled(checked)
-                  handleToggleWatermarkEnabled(checked)
-                }}
-              />
-            </div>
-          </DropdownMenuItem>
+          {isEditAllowed && (
+            <DropdownMenuItem
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+              onSelect={(e) => {
+                e.preventDefault()
+                setIsDeleteDialogOpen(true)
+              }}
+              className="flex items-center gap-2"
+            >
+              <Trash2 size={16} />
+              Delete
+            </DropdownMenuItem>
+          )}
+          {isEditAllowed && (
+            <DropdownMenuItem
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+              onSelect={(e) => {
+                e.preventDefault()
+              }}
+              className="flex items-center gap-2"
+            >
+              <div className="flex items-center gap-2">
+                <Droplet size={16} />
+                <label className="text-sm">Watermark</label>
+                <Switch
+                  checked={isWatermarkEnabled}
+                  onCheckedChange={(checked) => {
+                    setIsWatermarkEnabled(checked)
+                    handleToggleWatermarkEnabled(checked)
+                  }}
+                />
+              </div>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
       <div onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>

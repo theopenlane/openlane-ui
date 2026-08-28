@@ -4,7 +4,7 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import { Dialog, DialogContent } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Timer } from 'lucide-react'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { addHours, differenceInMilliseconds } from 'date-fns'
 import { signOut } from 'next-auth/react'
 import { markSessionExpired } from '@/lib/graphqlClient'
@@ -17,20 +17,36 @@ interface SessionExpiredModalProps {
 const SessionExpiredModal = ({ open }: SessionExpiredModalProps) => {
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const automaticSignOutStartedRef = useRef(false)
+
+  const signoutNoRedirect = async () => {
+    await signOut({ redirect: false })
+  }
 
   const handleSignOut = useCallback(async () => {
     const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`
     await signOut({ redirect: true, redirectTo: buildLoginRedirect(currentUrl) })
   }, [pathname, searchParams])
 
-  const signoutNoRedirect = async () => {
-    await signOut({ redirect: false })
-  }
-
   useEffect(() => {
-    if (!open) return
-    markSessionExpired()
-    signoutNoRedirect()
+    if (!open) {
+      automaticSignOutStartedRef.current = false
+      return
+    }
+
+    // The modal is a terminal state: reaching it means the console cannot
+    // establish a renewable session, so the session is torn down server-side
+    // (auth.ts events.signOut -> POST /v1/logout) rather than only cleared
+    // locally. That is only safe because the paths that raise it are now
+    // narrow — refresh-token.ts and session-health.ts classify infrastructure
+    // failures as `unavailable`, so a transient 401/403/5xx can no longer end
+    // up here. The ref keeps a rerender from revoking twice.
+    if (!automaticSignOutStartedRef.current) {
+      automaticSignOutStartedRef.current = true
+      markSessionExpired()
+      void signoutNoRedirect()
+    }
+
     const now = new Date()
     const expireAt = addHours(now, 2)
     const timeoutDuration = differenceInMilliseconds(expireAt, now)

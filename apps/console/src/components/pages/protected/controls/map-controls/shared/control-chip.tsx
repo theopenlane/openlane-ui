@@ -86,26 +86,32 @@ const ControlChip: React.FC<ControlChipProps> = ({
       )}
       <span>{control.refCode || ''}</span>
       {removable && onRemove && (
-        <XIcon
-          size={12}
-          className="cursor-pointer ml-1"
+        <button
+          type="button"
+          aria-label={`Remove ${control.refCode || 'control'}`}
+          className="cursor-pointer ml-1 bg-transparent"
           onClick={(e) => {
             e.stopPropagation()
             e.preventDefault()
             onRemove(control)
           }}
-        />
+        >
+          <XIcon size={12} />
+        </button>
       )}
       {canAdd && onAdd && (
-        <Plus
-          size={12}
-          className="cursor-pointer ml-1"
+        <button
+          type="button"
+          aria-label={`Add ${control.refCode || 'control'}`}
+          className="cursor-pointer ml-1 bg-transparent"
           onClick={(e) => {
             e.stopPropagation()
             e.preventDefault()
             onAdd(control)
           }}
-        />
+        >
+          <Plus size={12} />
+        </button>
       )}
     </Badge>
   )

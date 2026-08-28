@@ -181,7 +181,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
               {showMenu && (
                 <Menu
                   trigger={
-                    <Button type="button" variant="secondary" className="h-8 px-2">
+                    <Button type="button" variant="secondary" className="h-8 px-2" aria-label="Vendor actions">
                       <MoreHorizontal size={16} />
                     </Button>
                   }

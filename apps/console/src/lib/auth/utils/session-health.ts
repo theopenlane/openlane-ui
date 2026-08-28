@@ -38,12 +38,11 @@ const runProbe = async (): Promise<SessionProbeResult> => {
     return { status: 'unavailable', retryAfterMs: DEFAULT_RETRY_MS }
   }
 
-  if (response.status === 429 || response.status >= 500) {
-    return { status: 'unavailable', retryAfterMs: parseRetryAfter(response.headers.get('retry-after')) }
-  }
-
+  // Any non-OK response is an infrastructure answer, not evidence about the
+  // session — treating it as signed-out fed the destructive expiry path. A real
+  // signed-out session is a 200 whose body carries no access token (below).
   if (!response.ok) {
-    return { status: 'signed-out' }
+    return { status: 'unavailable', retryAfterMs: parseRetryAfter(response.headers.get('retry-after')) }
   }
 
   try {

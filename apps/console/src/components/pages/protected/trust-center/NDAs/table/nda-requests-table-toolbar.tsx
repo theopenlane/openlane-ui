@@ -21,6 +21,7 @@ type Props = {
   approveAllLoading?: boolean
   approveAllDisabled?: boolean
   requireApproval: boolean
+  canManageRequests: boolean
   selectedCount?: number
   onRevokeAccessRequest?: () => void
   revokeLoading?: boolean
@@ -37,11 +38,12 @@ const NdaRequestsTableToolbar: React.FC<Props> = ({
   approveAllLoading,
   approveAllDisabled,
   requireApproval,
+  canManageRequests,
   selectedCount = 0,
   onRevokeAccessRequest,
   revokeLoading,
 }) => {
-  const showApproveAll = requireApproval && activeTab === 'requested'
+  const showApproveAll = canManageRequests && requireApproval && activeTab === 'requested'
   const showRevokeAccess = activeTab === 'signed' && selectedCount > 0
 
   return (

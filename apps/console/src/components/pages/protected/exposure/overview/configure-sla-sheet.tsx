@@ -109,10 +109,10 @@ const ConfigureSlaSheet = ({ isOpen, onClose, readOnly = false }: Props) => {
                         autoFocus
                       />
                       <span className="text-sm text-muted-foreground">days</span>
-                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => handleSave(def.id)} disabled={isPending}>
+                      <Button size="sm" variant="outline" aria-label={`Save SLA days for ${severityName}`} className="h-8 w-8 p-0" onClick={() => handleSave(def.id)} disabled={isPending}>
                         {isPending ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} className="text-success" />}
                       </Button>
-                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={handleCancel} disabled={isPending}>
+                      <Button size="sm" variant="outline" aria-label={`Cancel SLA edit for ${severityName}`} className="h-8 w-8 p-0" onClick={handleCancel} disabled={isPending}>
                         <X size={14} />
                       </Button>
                     </>
@@ -120,7 +120,7 @@ const ConfigureSlaSheet = ({ isOpen, onClose, readOnly = false }: Props) => {
                     <>
                       <span className="text-sm font-medium tabular-nums">{def.slaDays != null ? `${def.slaDays} days` : <span className="text-muted-foreground">—</span>}</span>
                       {!readOnly && (
-                        <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => handleEdit(def.id, def.slaDays)}>
+                        <Button size="sm" variant="outline" aria-label={`Edit SLA days for ${severityName}`} className="h-8 w-8 p-0" onClick={() => handleEdit(def.id, def.slaDays)}>
                           <Pencil size={14} className="text-muted-foreground" />
                         </Button>
                       )}

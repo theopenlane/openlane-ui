@@ -15,9 +15,10 @@ type RowAction<T> = {
 
 type RowActionsColumnOptions<T> = {
   actions: RowAction<T>[]
+  label?: string
 }
 
-export function createRowActionsColumn<T>({ actions }: RowActionsColumnOptions<T>): ColumnDef<T> {
+export function createRowActionsColumn<T>({ actions, label = 'Row actions' }: RowActionsColumnOptions<T>): ColumnDef<T> {
   return {
     id: 'actions',
     header: '',
@@ -26,7 +27,7 @@ export function createRowActionsColumn<T>({ actions }: RowActionsColumnOptions<T
       <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" className="h-8 w-8 p-0">
+            <Button variant="secondary" aria-label={label} className="h-8 w-8 p-0">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

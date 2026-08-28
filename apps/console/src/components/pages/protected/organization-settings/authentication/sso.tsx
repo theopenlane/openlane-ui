@@ -832,6 +832,7 @@ const SSOPage = () => {
                             setNewJitDomain(value)
                             if (jitDomainError) setJitDomainError(null)
                           }}
+                          inputLabel="JIT provisioning domain"
                           onAdd={addJitDomain}
                           onRemove={removeJitDomain}
                           error={jitDomainError}
@@ -857,6 +858,7 @@ const SSOPage = () => {
                       setNewExemptDomain(value)
                       if (exemptDomainError) setExemptDomainError(null)
                     }}
+                    inputLabel="SSO exempt domain"
                     onAdd={addExemptDomain}
                     onRemove={removeExemptDomain}
                     error={exemptDomainError}

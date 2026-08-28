@@ -388,17 +388,17 @@ export default function CreateControlForm() {
           <div className="w-[55%]">
             {/* Ref Code */}
             <div>
-              <Label>
+              <Label htmlFor="control-ref-code">
                 Ref Code <span className="text-destructive">*</span>
               </Label>
               {errors?.refCode && <p className="text-destructive text-sm mt-1">{errors.refCode.message}</p>}
-              <Controller name="refCode" control={control} rules={{ required: true }} render={({ field }) => <Input {...field} />} />
+              <Controller name="refCode" control={control} rules={{ required: true }} render={({ field }) => <Input id="control-ref-code" {...field} />} />
             </div>
 
             {/* Title */}
             <div className="mt-4">
-              <Label>Title</Label>
-              <Controller name="title" control={control} render={({ field }) => <Input {...field} value={field.value ?? ''} />} />
+              <Label htmlFor="control-title">Title</Label>
+              <Controller name="title" control={control} render={({ field }) => <Input id="control-title" {...field} value={field.value ?? ''} />} />
             </div>
 
             {isCreateSubcontrol && (
