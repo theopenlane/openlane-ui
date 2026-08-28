@@ -148,6 +148,7 @@ const GroupsMembersTable = () => {
 
         return (
           <button
+            aria-label={`Remove ${user.name} from group`}
             disabled={!!isManaged || !canEdit(permission?.roles, session) || isDeleting}
             type="button"
             onClick={() => handleDelete(user.id)}

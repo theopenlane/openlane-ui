@@ -54,7 +54,9 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
                       field.onChange(value)
                     }}
                   >
-                    <SelectTrigger aria-label="Status" className="w-full">{statusOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>
+                    <SelectTrigger aria-label="Status" className="w-full">
+                      {statusOptions.find((item) => item.value === field.value)?.label}
+                    </SelectTrigger>
                     <SelectContent>
                       {statusOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
@@ -84,7 +86,9 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
               render={({ field }) => (
                 <>
                   <Select value={String(field.value ?? false)} onValueChange={(value) => field.onChange(value === 'true')}>
-                    <SelectTrigger aria-label="Approval Required" className="w-full">{String(field.value ?? false)}</SelectTrigger>
+                    <SelectTrigger aria-label="Approval Required" className="w-full">
+                      {String(field.value ?? false)}
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="true">True</SelectItem>
                       <SelectItem value="false">False</SelectItem>
@@ -116,7 +120,9 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
                       field.onChange(value)
                     }}
                   >
-                    <SelectTrigger aria-label="Reviewing Frequency" className="w-full">{reviewFrequencyOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>
+                    <SelectTrigger aria-label="Reviewing Frequency" className="w-full">
+                      {reviewFrequencyOptions.find((item) => item.value === field.value)?.label}
+                    </SelectTrigger>
                     <SelectContent>
                       {reviewFrequencyOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
