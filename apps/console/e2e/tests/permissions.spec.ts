@@ -2,6 +2,9 @@ import type { Page } from '@playwright/test'
 
 import { test, expect, readManifest, type Role } from '../fixtures/auth'
 import { loginViaApi, createInternalPolicy, createProcedure, createRisk, createEvidence, createControl, createProgram } from '../utils/api'
+import { PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON } from '../utils/permission-gating'
+
+test.skip(!PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON)
 
 /**
  * Permission-gating sweep across roles, using the storage-state users seeded in

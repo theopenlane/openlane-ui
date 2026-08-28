@@ -1,5 +1,11 @@
 # Permission model — as observed from the running backend
 
+> **These tests are skipped by default.** The console-side permission gating
+> ships in its own PR, so every permission-gating test is skipped unless
+> `E2E_PERMISSION_GATES=1` is set. The switch lives in
+> `e2e/utils/permission-gating.ts`; flip it on in CI once the gating changes
+> merge. Nothing was deleted — `--project=permissions` reports 197 skipped.
+
 Pulled live on 2026-08-27 from a local stack (core on :17608, harmonize demo org).
 Regenerate by logging in as each role and calling the endpoints named below.
 

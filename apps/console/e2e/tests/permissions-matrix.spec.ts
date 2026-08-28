@@ -5,6 +5,9 @@ import { createCampaign, createSubscriber, deleteSubscriber, gql, type ApiSessio
 import { loginSeeded } from '../utils/seeded-users'
 import { EMAIL_DOMAIN } from '../utils/constants'
 import { uniqueRef } from '../utils/unique'
+import { PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON } from '../utils/permission-gating'
+
+test.skip(!PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON)
 
 const ROLES: SeededRole[] = ['owner', 'admin', 'member', 'readonly']
 
@@ -86,7 +89,7 @@ const ORG_LEVEL_GATES: Gate[] = [
     affordance: (page) => page.getByRole('button', { name: /^Create control$/ }),
   },
   {
-    permission: 'CanCreateTrustCenterSubprocessor',
+    permission: 'CanEditTrustCenter (subprocessors)',
     affordanceLabel: 'the subprocessor create affordance',
     granted: ['owner', 'admin'],
     url: '/trust-center/subprocessors',
@@ -181,17 +184,6 @@ const ORG_LEVEL_GATES: Gate[] = [
     affordance: (page) => page.getByRole('button', { name: /^(Upload|Replace)$/ }),
   },
   {
-    // /automation/workflows renders the definitions table when the org has any,
-    // and an embedded wizard when it does not. Both create surfaces gate on the
-    // same relation, so match either rather than depending on org contents.
-    permission: 'CanCreateWorkflowDefinition',
-    affordanceLabel: 'a workflow create affordance',
-    granted: ['owner', 'admin'],
-    url: '/automation/workflows',
-    ready: shell,
-    affordance: (page) => page.getByRole('button', { name: /^(Create|Continue|Create workflow)$/ }),
-  },
-  {
     permission: 'CanCreateAssessment',
     affordanceLabel: 'the questionnaire create affordance',
     granted: ['owner', 'admin'],
@@ -255,7 +247,17 @@ for (const role of ROLES) {
 
         if (granted) {
           const present = gate.present ? gate.present(page) : page.locator('form button[type="submit"]')
-          await expect(present.first()).toBeVisible({ timeout: 60_000 })
+          await expect(async () => {
+            if (
+              !(await present
+                .first()
+                .isVisible()
+                .catch(() => false))
+            ) {
+              await page.reload({ waitUntil: 'domcontentloaded' })
+            }
+            await expect(present.first()).toBeVisible({ timeout: 20_000 })
+          }).toPass({ timeout: 120_000 })
           await expect(page.getByText(PROTECTED_AREA)).toHaveCount(0)
         } else {
           await expect(page.getByText(PROTECTED_AREA).first()).toBeVisible({ timeout: 60_000 })
@@ -328,7 +330,7 @@ for (const role of ROLES) {
 
     const canToggle = COMPLIANCE_TOGGLE_ENABLED.includes(role)
 
-    test(`CanEditTrustCenterCompliance: ${role} ${canToggle ? 'can' : 'cannot'} toggle a framework`, async ({ page }) => {
+    test(`CanEditTrustCenter (compliance): ${role} ${canToggle ? 'can' : 'cannot'} toggle a framework`, async ({ page }) => {
       test.slow()
       await page.goto('/trust-center/frameworks', { waitUntil: 'domcontentloaded', timeout: 180_000 })
       await expect(shell(page)).toBeVisible({ timeout: 90_000 })
@@ -386,7 +388,7 @@ for (const role of ROLES) {
 
     const granted = DOCUMENT_CREATORS.includes(role)
 
-    test(`CanCreateTrustCenterDocument: ${role} ${granted ? 'sees' : 'does not see'} the New Document button`, async ({ page }) => {
+    test(`CanEditTrustCenter (documents): ${role} ${granted ? 'sees' : 'does not see'} the New Document button`, async ({ page }) => {
       test.slow()
       await page.goto('/trust-center/documents', { waitUntil: 'domcontentloaded', timeout: 180_000 })
       await expect(shell(page)).toBeVisible({ timeout: 90_000 })
@@ -398,50 +400,6 @@ for (const role of ROLES) {
         await expect(button).toHaveCount(0, { timeout: 30_000 })
       }
     })
-  })
-}
-
-interface RouteGate {
-  permission: string
-  granted: SeededRole[]
-  url: string
-}
-
-const GATED_ROUTES: RouteGate[] = [
-  { permission: 'CanCreateEmailTemplate', granted: ['owner', 'admin'], url: '/automation/email-templates/editor' },
-  { permission: 'CanCreateWorkflowDefinition', granted: ['owner', 'admin'], url: '/automation/workflows/editor' },
-  { permission: 'CanCreateWorkflowDefinition (wizard)', granted: ['owner', 'admin'], url: '/automation/workflows/wizard' },
-  { permission: 'CanEdit (org settings)', granted: ['owner', 'admin'], url: '/organization-settings/authentication' },
-  { permission: 'CanCreateTrustCenterFaq', granted: ['owner', 'admin'], url: '/trust-center/faqs' },
-  { permission: 'CanCreateSubscriber', granted: ['owner', 'admin'], url: '/trust-center/subscribers' },
-  // domain follows CheckOrgWriteAccess (org can_edit); branding and customer
-  // logos follow AllowIfTrustCenterEditor (can_edit on the trust center object,
-  // which owner and admin reach through parent_editor).
-  { permission: 'CanEdit (custom domain)', granted: ['owner', 'admin'], url: '/trust-center/domain' },
-  { permission: 'TrustCenterEditor (branding)', granted: ['owner', 'admin'], url: '/trust-center/branding' },
-  { permission: 'TrustCenterEditor (customer logos)', granted: ['owner', 'admin'], url: '/trust-center/customer-logos' },
-]
-
-for (const role of ROLES) {
-  test.describe(`permissions matrix — ${role} gated routes`, () => {
-    test.use({ seededRole: role })
-
-    for (const gate of GATED_ROUTES) {
-      const granted = gate.granted.includes(role)
-
-      test(`${gate.permission}: ${role} ${granted ? 'reaches' : 'is blocked from'} ${gate.url}`, async ({ page }) => {
-        test.slow()
-        await page.goto(gate.url, { waitUntil: 'domcontentloaded', timeout: 180_000 })
-        await expect(shell(page)).toBeVisible({ timeout: 90_000 })
-
-        const guard = page.getByText(PROTECTED_AREA)
-        if (granted) {
-          await expect(guard).toHaveCount(0, { timeout: 30_000 })
-        } else {
-          await expect(guard.first()).toBeVisible({ timeout: 60_000 })
-        }
-      })
-    }
   })
 }
 

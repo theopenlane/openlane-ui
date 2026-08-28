@@ -3,7 +3,8 @@ import type { Locator, Page } from '@playwright/test'
 import { test, expect, readManifest } from '../fixtures/auth'
 import { confirmDestructiveDialog } from '../utils/menu'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createGroup, getSelf, addOrgMember, memberSeesOrg, type ApiSession, getOwnerApi } from '../utils/api'
+import { loginViaApi, createGroup, getSelf, addOrgMember, memberSeesOrg, roleOf, type ApiSession, getOwnerApi } from '../utils/api'
+import { expectMutationOk } from '../utils/mutations'
 import { registerAndVerify } from '../utils/registerUser'
 
 /**
@@ -223,6 +224,17 @@ test.describe('user-management — member row actions (throwaway member)', () =>
       await changeRoleItem.click({ timeout: 5_000 })
       await expect(page.getByText('New role')).toBeVisible({ timeout: 5_000 })
     }).toPass({ timeout: 45_000 })
+
+    const dialog = page.getByRole('alertdialog')
+    await dialog.getByRole('combobox').first().click()
+    await page.getByRole('option', { name: 'Admin', exact: true }).click()
+
+    await expectMutationOk(page, 'UpdateUserRoleInOrg', async () => {
+      await dialog.getByRole('button', { name: /^Change Role$/ }).click()
+    })
+
+    await expect(page.getByText('Role changed successfully')).toBeVisible({ timeout: 30_000 })
+    await expect.poll(async () => roleOf(ownerApi, sharedOrgId, email), { timeout: 60_000 }).toBe('ADMIN')
   })
 
   test('owner removes a throwaway member from the org', async ({ page }) => {
@@ -387,22 +399,32 @@ test.describe('user-management — per-user 2FA enforcement (#2081)', () => {
     const triggers = page.locator('tbody .lucide-ellipsis')
     await expect(triggers.first()).toBeVisible({ timeout: 30_000 })
 
-    const mark = page.getByText(/Mark as 2FA Enforced/)
-    const rowCount = await triggers.count()
-    let opened = false
-
-    for (let i = 0; i < rowCount && !opened; i++) {
-      await triggers.nth(i).click()
-      opened = await mark.isVisible({ timeout: 5_000 }).catch(() => false)
-      if (!opened) await page.keyboard.press('Escape')
-    }
-
-    test.skip(!opened, 'no member offers the Mark as 2FA Enforced action')
-    await mark.click()
-
-    // The dialog explains the effect and collects a reason. Never confirmed.
+    const mark = page.getByText(/Mark as 2FA Enforced/).first()
     const dialog = page.getByRole('dialog').or(page.getByRole('alertdialog')).first()
-    await expect(dialog).toBeVisible({ timeout: 15_000 })
-    await expect(dialog.getByText(/will be required to configure multi-factor authentication/)).toBeVisible({ timeout: 10_000 })
+    const reason = dialog.getByText(/will be required to configure multi-factor authentication/)
+    let offered = false
+
+    await expect(async () => {
+      if (await reason.isVisible().catch(() => false)) return
+      await page.keyboard.press('Escape')
+
+      const rowCount = await triggers.count()
+      expect(rowCount, 'the members table rendered no row menus').toBeGreaterThan(0)
+
+      for (let i = 0; i < rowCount; i++) {
+        await triggers.nth(i).click({ timeout: 5_000 })
+        if (!(await mark.isVisible({ timeout: 2_000 }).catch(() => false))) {
+          await page.keyboard.press('Escape')
+          continue
+        }
+        offered = true
+        await mark.click({ timeout: 5_000 })
+        await expect(reason).toBeVisible({ timeout: 10_000 })
+        return
+      }
+    }).toPass({ timeout: 90_000 })
+
+    test.skip(!offered, 'no member offers the Mark as 2FA Enforced action')
+    await expect(reason).toBeVisible({ timeout: 10_000 })
   })
 })

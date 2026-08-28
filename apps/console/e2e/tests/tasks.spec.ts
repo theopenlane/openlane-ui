@@ -3,7 +3,8 @@ import { test as freshTest } from '@playwright/test'
 import { seedLoggedInUser } from '../utils/seedUser'
 
 import { RUN_ID } from '../utils/constants'
-import { createTask, type ApiSession, getOwnerApi } from '../utils/api'
+import { createTask, readField, type ApiSession, getOwnerApi } from '../utils/api'
+import { bulkEditAndSave, selectFirstMatchingRow } from '../utils/mutations'
 import { openCreateTaskDialog } from '../utils/tasks'
 import { uniqueName } from '../utils/unique'
 
@@ -609,5 +610,20 @@ test.describe('tasks — templates (ISS-2714)', () => {
 
     // An ordinary task is visible; templates are filtered out by default.
     await expect(page.getByRole('row').filter({ hasText: title })).toBeVisible({ timeout: 20_000 })
+  })
+})
+
+test.describe('tasks — bulk edit applies', () => {
+  test('bulk editing a selected task persists the new status', async ({ page }) => {
+    test.slow()
+    const title = uniqueName('E2E TaskBulk')
+    const id = await createTask(ownerApi, title)
+
+    await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded' })
+    await selectFirstMatchingRow(page, title)
+
+    const chosen = await bulkEditAndSave({ page, field: 'Status', operationName: 'UpdateBulkTask' })
+
+    await expect.poll(async () => readField(ownerApi, 'task', id, 'status'), { timeout: 60_000 }).toBe(chosen.toUpperCase().replace(/ /g, '_'))
   })
 })

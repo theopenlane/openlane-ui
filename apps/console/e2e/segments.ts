@@ -12,6 +12,7 @@ export const SEGMENTS: Record<string, string[]> = {
   permissions: ['permissions-matrix.spec.ts', 'permissions-programs-controls.spec.ts', 'permissions.spec.ts'],
 
   controls: [
+    'comments-flows.spec.ts',
     'control-implementations.spec.ts',
     'control-objectives-list.spec.ts',
     'control-objectives.spec.ts',
@@ -67,7 +68,18 @@ export const SEGMENTS: Record<string, string[]> = {
     'risk-properties-flows.spec.ts',
   ],
 
-  registry: ['platforms-flows.spec.ts', 'registry-crud.spec.ts', 'registry-flows.spec.ts', 'registry-tables.spec.ts', 'registry.spec.ts', 'system-details-filters.spec.ts', 'vendors-flows.spec.ts'],
+  registry: [
+    'bulk-csv-imports.spec.ts',
+    'bulk-edit-dialogs.spec.ts',
+    'documents-and-evidence-flows.spec.ts',
+    'platforms-flows.spec.ts',
+    'registry-crud.spec.ts',
+    'registry-flows.spec.ts',
+    'registry-tables.spec.ts',
+    'registry.spec.ts',
+    'system-details-filters.spec.ts',
+    'vendors-flows.spec.ts',
+  ],
 
   'trust-center': ['trust-center-crud.spec.ts', 'trust-center-documents-flows.spec.ts', 'trust-center.spec.ts'],
 
@@ -93,6 +105,7 @@ export const SEGMENTS: Record<string, string[]> = {
     'journeys.spec.ts',
     'new-routes.spec.ts',
     'notifications.spec.ts',
+    'remaining-mutations.spec.ts',
     'table-preferences.spec.ts',
   ],
 }

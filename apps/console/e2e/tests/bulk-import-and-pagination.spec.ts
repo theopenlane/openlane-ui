@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
 import { inlineCsv } from '../utils/files'
+import { uploadCsvAndAssert } from '../utils/mutations'
 
 const openEvidence = async (page: Page) => {
   await page.goto('/evidence', { waitUntil: 'domcontentloaded', timeout: 180_000 })
@@ -99,5 +100,34 @@ test.describe('standards — per-category control pagination', () => {
     await openFirstStandard(page)
 
     await expect(page.getByRole('button', { name: 'Expand or collapse all domains' })).toBeVisible({ timeout: 60_000 })
+  })
+})
+
+test.describe('evidence — bulk CSV import submits', () => {
+  test('uploading an evidence CSV creates the record it names', async ({ page }) => {
+    test.slow()
+    const name = `E2E-EVIDENCE-BULK-${Date.now().toString(36)}`
+    await openEvidence(page)
+
+    await page.getByRole('button', { name: 'Action', exact: true }).click()
+    await page.getByRole('button', { name: /^Bulk Upload$/ }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByRole('heading', { name: /^Bulk Upload$/ })).toBeVisible({ timeout: 30_000 })
+
+    await uploadCsvAndAssert({
+      page,
+      dialog,
+      fileName: 'evidence.csv',
+      rows: `Name,Description\n${name},seeded by e2e\n`,
+      operationName: 'CreateBulkCSVEvidence',
+      expectToast: 'Evidence Created',
+    })
+
+    await page
+      .getByPlaceholder(/Search/i)
+      .first()
+      .fill(name)
+    await expect(page.getByRole('row').filter({ hasText: name }).first()).toBeVisible({ timeout: 60_000 })
   })
 })

@@ -5,6 +5,7 @@ import { RUN_ID } from '../utils/constants'
 import { uniqueRef } from '../utils/unique'
 import {
   createControl,
+  createSubcontrol,
   createInternalPolicy,
   createProcedure,
   createEvidence,
@@ -15,6 +16,7 @@ import {
   type ApiSession,
   getOwnerApi,
 } from '../utils/api'
+import { confirmDestructive, expectMutationOk } from '../utils/mutations'
 
 /**
  * Deep controls flows beyond controls.spec.ts (create/search/inline edit on
@@ -722,5 +724,61 @@ test.describe('controls — no duplicate list query (ISS-2752)', () => {
     // query firing twice — once against the initial `{}` filter and again once
     // the real filters resolved — so assert no variable set repeats.
     expect(new Set(variableSets).size).toBe(variableSets.length)
+  })
+})
+
+test.describe('controls — bulk delete applies', () => {
+  test('confirming Bulk Delete removes the selected control', async ({ page }) => {
+    test.slow()
+    const refCode = uniqueRefCode()
+    await createControl(ownerApi, refCode)
+
+    await page.goto('/controls', { waitUntil: 'domcontentloaded' })
+    await page.locator('.lucide-table').first().click()
+    await page.getByPlaceholder(/^Search$/).fill(refCode)
+
+    const row = page.getByRole('row').filter({ hasText: refCode })
+    await expect(row).toBeVisible({ timeout: 30_000 })
+    await row.getByRole('checkbox').first().check()
+
+    await page.getByRole('button', { name: /^Bulk Delete/ }).click()
+    await confirmDestructive(page, 'DeleteBulkControl')
+
+    await expect(page.getByRole('row').filter({ hasText: refCode })).toHaveCount(0, { timeout: 60_000 })
+  })
+})
+
+test.describe('controls — remaining form submits', () => {
+  test('the subcontrol detail form saves an edited description', async ({ page }) => {
+    test.slow()
+    const controlId = await createControl(ownerApi, uniqueRefCode())
+    const subcontrolId = await createSubcontrol(ownerApi, uniqueRefCode(), controlId)
+    const description = `edited by e2e ${Date.now().toString(36)}`
+
+    await page.goto(`/controls/${controlId}/${subcontrolId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await page.getByRole('button', { name: 'Edit control' }).click()
+
+    const editor = page.locator('[contenteditable="true"]').first()
+    await expect(editor).toBeVisible({ timeout: 30_000 })
+    await editor.click()
+    await editor.fill(description)
+
+    await expectMutationOk(page, 'UpdateSubcontrol', async () => {
+      await page.getByRole('button', { name: /^Save/ }).first().click()
+    })
+  })
+
+  test('the procedure slideout opens from the control Documentation tab', async ({ page }) => {
+    test.slow()
+    const controlId = await createControl(ownerApi, uniqueRefCode())
+    const procedureName = uniqueRefCode().replace('E2E-', 'E2E Procedure ')
+    const procedureId = await createProcedure(ownerApi, procedureName)
+    await linkControlProcedure(ownerApi, controlId, procedureId)
+
+    await page.goto(`/controls/${controlId}?tab=documentation`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await page.getByText(procedureName, { exact: true }).first().click()
+
+    const sheet = page.getByRole('dialog')
+    await expect(sheet.getByText(procedureName).first()).toBeVisible({ timeout: 30_000 })
   })
 })
