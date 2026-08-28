@@ -7,8 +7,8 @@ type DomainListEditorProps = {
   domains: string[]
   newDomain: string
   onNewDomainChange: (value: string) => void
-  onAdd: () => void
-  onRemove: (domain: string) => void
+  onAdd?: () => void
+  onRemove?: (domain: string) => void
   error?: string | null
   isPending?: boolean
   placeholder?: string
@@ -44,15 +44,17 @@ export const DomainListEditor = ({
               ? (e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault()
-                    onAdd()
+                    onAdd?.()
                   }
                 }
               : undefined
           }
         />
-        <Button type="button" variant="secondary" icon={<Plus />} iconPosition="left" loading={isPending} onClick={onAdd}>
-          {addLabel}
-        </Button>
+        {onAdd && (
+          <Button type="button" variant="secondary" icon={<Plus />} iconPosition="left" loading={isPending} onClick={onAdd}>
+            {addLabel}
+          </Button>
+        )}
       </div>
 
       {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
@@ -62,9 +64,11 @@ export const DomainListEditor = ({
           {domains.map((domain) => (
             <div key={domain} className="flex items-center gap-1 bg-btn-secondary px-2 py-0.5 rounded-sm border border-muted text-sm font-mono">
               {domain}
-              <button type="button" aria-label={`Remove ${domain}`} disabled={isPending} onClick={() => onRemove(domain)} className="ml-1">
-                <Trash2 size={12} className="text-muted-foreground hover:text-destructive" />
-              </button>
+              {onRemove && (
+                <button type="button" aria-label={`Remove ${domain}`} disabled={isPending} onClick={() => onRemove(domain)} className="ml-1">
+                  <Trash2 size={12} className="text-muted-foreground hover:text-destructive" />
+                </button>
+              )}
             </div>
           ))}
         </div>

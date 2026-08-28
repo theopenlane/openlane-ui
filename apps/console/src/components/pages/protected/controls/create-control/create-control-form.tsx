@@ -61,6 +61,7 @@ import { docsHelpQuery } from '@/components/shared/docs-help/docs-help-query'
 import { useDocsHelpNavigate } from '@/components/shared/docs-help/docs-help-context'
 import { docsHelpEnabled } from '@repo/dally/ai'
 import { BookText } from 'lucide-react'
+import { buildControlEntityInput } from './build-control-input'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -159,15 +160,12 @@ export default function CreateControlForm() {
           : buildAssociationPayload(CONTROL_ASSOCIATION_CONFIG.associationKeys, data, true, {}),
         FINDING_CONTROL_JOIN_KEY_ON_CONTROL,
       )
-      const nonAssociationData = Object.fromEntries(Object.entries(data).filter(([key]) => !allAssociationKeys.has(key)))
-
-      const entityInput = {
-        ...nonAssociationData,
+      const entityInput = buildControlEntityInput({
+        data,
+        associationKeys: allAssociationKeys,
         description: await convertToHtml(data.descriptionJSON as Value),
         descriptionJSON: data.descriptionJSON,
-        referenceID: data.referenceID || undefined,
-        auditorReferenceID: data.auditorReferenceID || undefined,
-      }
+      })
 
       const commonInput = { ...entityInput, ...associationInputs }
 
