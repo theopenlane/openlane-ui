@@ -12,8 +12,6 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { ManagementRow } from './management-row'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canDelete } from '@/lib/authz/utils'
 
 const DELETE_ORGANIZATION_DESCRIPTION = 'Permanently delete this organization and all associated data. This action cannot be undone.'
 
@@ -22,8 +20,6 @@ type OrganizationDeleteProps = {
 }
 
 const OrganizationDelete = ({ onLoadingChange }: OrganizationDeleteProps) => {
-  const { data: orgPermission } = useOrganizationRoles()
-  const isDeleteAllowed = canDelete(orgPermission?.roles)
   const { successNotification, errorNotification } = useNotification()
   const { push } = useRouter()
   const queryClient = useQueryClient()
@@ -84,10 +80,6 @@ const OrganizationDelete = ({ onLoadingChange }: OrganizationDeleteProps) => {
         description: errorMessage,
       })
     }
-  }
-
-  if (!isDeleteAllowed) {
-    return null
   }
 
   return (

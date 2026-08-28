@@ -25,7 +25,7 @@ interface SortableFaqCardProps {
 }
 
 export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDelete, editForm, isUpdating, onSaveEdit, onCancelEdit, canEdit }: SortableFaqCardProps) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: faq.id })
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: faq.id, disabled: !canEdit })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -56,7 +56,7 @@ export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDele
             </div>
           ) : (
             <div className="flex gap-3">
-              <button className="cursor-grab touch-none text-muted-foreground hover:text-foreground shrink-0 mt-1" {...attributes} {...listeners}>
+              <button aria-label="Reorder FAQ" className="cursor-grab touch-none text-muted-foreground hover:text-foreground shrink-0 mt-1" {...attributes} {...listeners}>
                 <GripVertical size={16} />
               </button>
               <div className="flex flex-col flex-1 min-w-0">
@@ -71,12 +71,12 @@ export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDele
                 <div className="flex justify-end mt-1">
                   <div className="flex gap-3">
                     {canEdit && (
-                      <button className="text-muted-foreground" onClick={() => onStartEdit(faq)} disabled={!!editingId}>
+                      <button aria-label="Edit FAQ" className="text-muted-foreground" onClick={() => onStartEdit(faq)} disabled={!!editingId}>
                         <Pencil size={16} />
                       </button>
                     )}
                     {canEdit && (
-                      <button className="text-muted-foreground" onClick={() => onDelete(faq.id)} disabled={!!editingId}>
+                      <button aria-label="Delete FAQ" className="text-muted-foreground" onClick={() => onDelete(faq.id)} disabled={!!editingId}>
                         <Trash2 size={16} />
                       </button>
                     )}

@@ -13,10 +13,7 @@ import { toBase64DataUri } from '@/lib/image-utils'
 import CreateCustomerLogo from './create-customer-logo'
 import CustomerLogoCard from './customer-logo-card'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { useSession } from 'next-auth/react'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 
 export default function CustomerLogosPage() {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -27,9 +24,7 @@ export default function CustomerLogosPage() {
 
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
-  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
-  const { data: session } = useSession()
-  const canEditTc = canEdit(tcPermission?.roles, session)
+  const { allowed: canEditTc } = useCanEditTrustCenter()
   const { entities } = useGetTrustCenterEntities({})
   const { mutateAsync: deleteEntity } = useDeleteTrustCenterEntity()
   const { mutateAsync: updateEntity } = useUpdateTrustCenterEntity()

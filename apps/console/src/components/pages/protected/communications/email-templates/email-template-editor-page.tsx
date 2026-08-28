@@ -10,6 +10,10 @@ import { SaveIcon } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useCreateEmailTemplate, useUpdateEmailTemplate, useEmailTemplate, useEmailTemplateCatalog, usePreviewEmailTemplateHtml } from '@/lib/graphql-hooks/email-template'
 import { useNotification } from '@/hooks/useNotification'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit, hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EmailTemplateNotificationTemplateFormat, EmailTemplateTemplateContext } from '@repo/codegen/src/schema'
 import { EmailTemplateBasicFields } from './email-template-basic-fields'
@@ -48,6 +52,9 @@ export const EmailTemplateEditorPage: React.FC = () => {
   const { mutateAsync: createEmailTemplate, isPending: isCreating } = useCreateEmailTemplate()
   const { mutateAsync: updateEmailTemplate, isPending: isUpdating } = useUpdateEmailTemplate()
   const { successNotification, errorNotification } = useNotification()
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canSave = isEditMode ? canEdit(orgPermission?.roles, session) : hasPermission(orgPermission?.roles, AccessEnum.CanCreateEmailTemplate, session)
   const [, copyToClipboard] = useCopyToClipboard()
 
   const isPending = isCreating || isUpdating
@@ -150,9 +157,11 @@ export const EmailTemplateEditorPage: React.FC = () => {
           <Button variant="secondary" onClick={handleCancel} disabled={isPending}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSave} disabled={isPending || !name.trim() || !selectedKey} icon={<SaveIcon size={16} />} iconPosition="left">
-            {isPending ? 'Saving...' : isEditMode ? 'Save Changes' : 'Save Draft'}
-          </Button>
+          {canSave && (
+            <Button variant="primary" onClick={handleSave} disabled={isPending || !name.trim() || !selectedKey} icon={<SaveIcon size={16} />} iconPosition="left">
+              {isPending ? 'Saving...' : isEditMode ? 'Save Changes' : 'Save Draft'}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -163,7 +172,7 @@ export const EmailTemplateEditorPage: React.FC = () => {
           <div className="flex flex-col gap-6 min-w-0">
             <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
               <span className="text-sm font-semibold">Active</span>
-              <Switch checked={active} onCheckedChange={setActive} />
+              <Switch aria-label="Active" checked={active} onCheckedChange={setActive} />
             </div>
 
             <EditorCard title="Basic">

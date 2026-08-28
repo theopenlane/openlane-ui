@@ -24,22 +24,19 @@ import { StandardDialog } from './create-framework-dialog/create-framework-dialo
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Label } from '@repo/ui/label'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit, hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 import { type StandardWhereInput } from '@repo/codegen/src/schema'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
 
 export default function FrameworksPage() {
   const { successNotification, errorNotification } = useNotification()
   const { setCrumbs } = use(BreadcrumbContext)
   const { currentOrgId } = useOrganization()
-  const { data: session, status: sessionStatus } = useSession()
+  const { status: sessionStatus } = useSession()
 
   const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -50,9 +47,7 @@ export default function FrameworksPage() {
   const { mutateAsync: deleteStandard } = useDeleteStandard()
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
-  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
-  const canEditTc = canEdit(tcPermission?.roles, session)
-  const canEditCompliance = hasPermission(tcPermission?.roles, AccessEnum.CanEditTrustCenterCompliance, session)
+  const { allowed: canEditTc } = useCanEditTrustCenter()
 
   const { compliances, isError: compliancesError, isFetched: compliancesFetched } = useGetTrustCenterCompliances()
   const baseWhere: StandardWhereInput = {
@@ -237,7 +232,7 @@ export default function FrameworksPage() {
                     <StandardDialog
                       resetPagination={resetPagination}
                       trigger={
-                        <button>
+                        <button aria-label={`Edit ${standard.shortName}`}>
                           <PencilIcon size={16} className="text-muted-foreground" />
                         </button>
                       }
@@ -249,6 +244,7 @@ export default function FrameworksPage() {
                       <Tooltip delayDuration={0}>
                         <TooltipTrigger asChild>
                           <button
+                            aria-label={`Delete ${standard.shortName}`}
                             disabled={defaultIsAssociated}
                             className="disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={() => {
@@ -278,7 +274,7 @@ export default function FrameworksPage() {
 
           <div className="flex" onClick={(e) => e.stopPropagation()}>
             <div className="flex gap-3">
-              <Switch disabled={!canEditCompliance && !canEditTc} checked={isAssociated} onCheckedChange={(checked) => handleToggle(standard.id, checked)} />
+              <Switch disabled={!canEditTc} checked={isAssociated} onCheckedChange={(checked) => handleToggle(standard.id, checked)} />
             </div>
           </div>
         </CardContent>

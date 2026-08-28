@@ -14,10 +14,7 @@ import { DnsRecords } from './dns-records'
 import { PageHeading } from '@repo/ui/page-heading'
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
 import { normalizeUrl } from '@/utils/normalizeUrl'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { useSession } from 'next-auth/react'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 
 const DomainSettingsPage = () => {
   const { data, isLoading, error, refetch } = useGetTrustCenter()
@@ -39,9 +36,7 @@ const DomainSettingsPage = () => {
   }, [setCrumbs])
 
   const trustCenter = data?.trustCenters?.edges?.[0]?.node
-  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenter?.id)
-  const { data: session } = useSession()
-  const canEditTc = canEdit(tcPermission?.roles, session)
+  const { allowed: canManageDomain } = useCanEditTrustCenter()
   const setting = trustCenter?.setting
 
   useEffect(() => {
@@ -221,7 +216,7 @@ const DomainSettingsPage = () => {
       return (
         <div className="flex w-full gap-2">
           <UrlInput value={inputValue} onChange={setInputValue} className="flex-1" />
-          {canEditTc && (
+          {canManageDomain && (
             <Button
               onClick={handleCreateCustomDomain}
               variant="secondary"
@@ -259,12 +254,21 @@ const DomainSettingsPage = () => {
             </div>
           ) : (
             <div className="flex gap-2">
-              {canEditTc && (
+              {canManageDomain && (
                 <Button variant="secondary" className=" flex items-center justify-center gap-2 px-4" icon={<Pencil size={16} />} iconPosition="left" onClick={() => setEditing(true)}>
                   Edit
                 </Button>
               )}
-              {canEditTc && <Button onClick={handleDeleteCustomDomain} variant="secondary" className=" flex items-center justify-center" icon={<Trash2 size={14} />} iconPosition="center" />}
+              {canManageDomain && (
+                <Button
+                  aria-label="Delete custom domain"
+                  onClick={handleDeleteCustomDomain}
+                  variant="secondary"
+                  className=" flex items-center justify-center"
+                  icon={<Trash2 size={14} />}
+                  iconPosition="center"
+                />
+              )}
               {dnsVerification?.dnsVerificationStatus && (
                 <>
                   <Button onClick={handleCopyDefaultCname} variant="secondary" className="flex items-center justify-center  gap-1" icon={<Copy size={14} />} iconPosition="left"></Button>
@@ -343,7 +347,9 @@ const DomainSettingsPage = () => {
             </div>
           </CardContent>
         </Card>
-        {trustCenter.customDomain?.cnameRecord && <DnsRecords onVerify={verify} cnameName={cnameName} dnsVerification={dnsVerification} isVerifying={isValidating} countdown={verificationCountDown} />}
+        {trustCenter.customDomain?.cnameRecord && (
+          <DnsRecords onVerify={canManageDomain ? verify : undefined} cnameName={cnameName} dnsVerification={dnsVerification} isVerifying={isValidating} countdown={verificationCountDown} />
+        )}
         <div className="grid gap-10 text-sm text-text-informational mt-6">
           <ul className="list-disc list-inside space-y-1">
             <li>DNS changes can take 2&ndash;72 minutes to propagate depending on your provider</li>

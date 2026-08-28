@@ -14,6 +14,9 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { useUpdateOrganizationSetting, useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Label } from '@repo/ui/label'
@@ -63,28 +66,16 @@ const StatusAlert = ({ tone, message, onClose }: { tone: 'warning' | 'success' |
 const SSOOverview = ({
   setting,
   slugName,
-  onEdit,
   onRemove,
   showRemoveDialog,
   setShowRemoveDialog,
-  onTestSSO,
-  isTestingSSO,
-  onToggleEnforcement,
-  isTogglingEnforcement,
-  hideHeader,
   defaultShowDetails,
 }: {
   setting: OrganizationSetting | undefined
   slugName?: string | null
-  onEdit: () => void
   onRemove: () => void
   showRemoveDialog: boolean
   setShowRemoveDialog: (show: boolean) => void
-  onTestSSO: () => void
-  isTestingSSO: boolean
-  onToggleEnforcement: (enforced: boolean) => void
-  isTogglingEnforcement: boolean
-  hideHeader?: boolean
   defaultShowDetails?: boolean
 }) => {
   const isSSOConfigured = setting?.identityProvider && setting.identityProvider !== 'NONE'
@@ -102,59 +93,6 @@ const SSOOverview = ({
 
   return (
     <div className="space-y-4">
-      {!hideHeader && (
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-medium">SSO Configuration</h3>
-            <p className="text-sm text-muted-foreground">{isSSOConfigured ? 'Single Sign-On is configured for your organization' : 'No SSO provider configured yet'}</p>
-          </div>
-          <div className="flex gap-2">
-            {isSSOConfigured && !setting?.identityProviderAuthTested && (
-              <Button variant="filled" size="sm" onClick={onTestSSO} loading={isTestingSSO} disabled={isTestingSSO} className="bg-orange-600 hover:bg-orange-700 text-white">
-                {isTestingSSO ? 'Testing...' : 'Verify SSO connection'}
-              </Button>
-            )}
-            {isSSOConfigured && setting?.identityProviderAuthTested && (
-              <Button
-                variant={setting.identityProviderLoginEnforced ? 'destructive' : 'primary'}
-                size="sm"
-                onClick={() => onToggleEnforcement(!setting.identityProviderLoginEnforced)}
-                loading={isTogglingEnforcement}
-                disabled={isTogglingEnforcement}
-              >
-                {setting.identityProviderLoginEnforced ? 'Remove Enforcement' : 'Enforce SSO'}
-              </Button>
-            )}
-            {isSSOConfigured && !setting?.identityProviderLoginEnforced && (
-              <Button variant="destructive" size="sm" onClick={() => setShowRemoveDialog(true)}>
-                Remove SSO
-              </Button>
-            )}
-            {isSSOConfigured ? (
-              <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="secondary" size="sm" className="h-8 w-8 p-0">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onSelect={onEdit}>
-                    <Pencil className="h-4 w-4 mr-2" /> Edit Configuration
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={onTestSSO} disabled={isTestingSSO}>
-                    <RefreshCw className="h-4 w-4 mr-2" /> {isTestingSSO ? 'Testing...' : 'Re-test Connection'}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button variant="secondary" onClick={onEdit}>
-                Configure SSO
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
-
       {isSSOConfigured && (
         <div>
           <button type="button" onClick={() => setShowDetails((v) => !v)} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 mb-2">
@@ -254,6 +192,9 @@ const SSOPage = () => {
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const { currentOrgId } = useOrganization()
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canManageSso = canEdit(orgPermission?.roles, session)
 
   const { data: orgSettingData } = useGetOrganizationSetting(currentOrgId || '')
   const currentSetting = orgSettingData?.organization?.setting as OrganizationSetting | undefined
@@ -464,6 +405,7 @@ const SSOPage = () => {
   }
 
   const handleEdit = () => {
+    if (!canManageSso) return
     setViewMode('edit')
   }
 
@@ -627,7 +569,7 @@ const SSOPage = () => {
                   )}
                 </div>
               </div>
-              {viewMode === 'overview' && (
+              {viewMode === 'overview' && canManageSso && (
                 <div className="flex gap-2 shrink-0 mt-1">
                   {isSSOConfigured && !currentSetting?.identityProviderAuthTested && (
                     <Button variant="filled" size="sm" onClick={handleTestSSO} loading={isTestingSSO} disabled={isTestingSSO} className="bg-orange-600 hover:bg-orange-700 text-white">
@@ -686,15 +628,9 @@ const SSOPage = () => {
                 <SSOOverview
                   setting={currentSetting}
                   slugName={orgSlugName}
-                  onEdit={handleEdit}
                   onRemove={handleRemoveSSO}
                   showRemoveDialog={showRemoveDialog}
                   setShowRemoveDialog={setShowRemoveDialog}
-                  onTestSSO={handleTestSSO}
-                  isTestingSSO={isTestingSSO}
-                  onToggleEnforcement={handleToggleEnforcement}
-                  isTogglingEnforcement={isTogglingEnforcement}
-                  hideHeader
                   defaultShowDetails={isSuccess}
                 />
               ) : (
@@ -832,6 +768,7 @@ const SSOPage = () => {
                             setNewJitDomain(value)
                             if (jitDomainError) setJitDomainError(null)
                           }}
+                          inputLabel="JIT provisioning domain"
                           onAdd={addJitDomain}
                           onRemove={removeJitDomain}
                           error={jitDomainError}
@@ -857,6 +794,7 @@ const SSOPage = () => {
                       setNewExemptDomain(value)
                       if (exemptDomainError) setExemptDomainError(null)
                     }}
+                    inputLabel="SSO exempt domain"
                     onAdd={addExemptDomain}
                     onRemove={removeExemptDomain}
                     error={exemptDomainError}

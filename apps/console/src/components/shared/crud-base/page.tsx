@@ -8,7 +8,8 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { useDebounce } from '@uidotdev/usehooks'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
-import { canEdit } from '@/lib/authz/utils.ts'
+import { canEdit, hasPermission } from '@/lib/authz/utils.ts'
+import { useSession } from 'next-auth/react'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
@@ -27,6 +28,7 @@ import { GenericTableToolbar } from '@/components/shared/crud-base/table/table-t
 import { type ResponsibilityFieldsMap } from '@/components/shared/crud-base/dialog/bulk-edit'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
+import { type AccessEnum } from '@/lib/authz/enums/access-enum'
 import { type FilterField } from '@/types'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type User } from '@repo/codegen/src/schema'
@@ -118,7 +120,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
     responsibilityFields?: ResponsibilityFieldsMap
     createMode?: CreateMode
     hideCreate?: boolean
-    createPermission?: TAccessRole
+    createPermission?: AccessEnum
     additionalActiveFilterCount?: number
     defaultFilterValues?: TFilterState
     quickFilters?: TQuickFilter[]
@@ -143,7 +145,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   additionalWhereFilter?: Partial<TWhereInput>
   defaultFilterValues?: TFilterState
   hideCreate?: boolean
-  createPermission?: TAccessRole
+  createPermission?: AccessEnum
   hideBreadcrumbs?: boolean
 }
 
@@ -186,7 +188,7 @@ export function GenericTablePage<
   const router = useRouter()
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
-  const isCreate = searchParams.get('create') === 'true'
+  const isCreateRequested = searchParams.get('create') === 'true'
 
   const [searchQuery, setSearchQuery] = useStorageSearch(objectType)
   const { setCrumbs } = React.use(BreadcrumbContext)
@@ -200,6 +202,8 @@ export function GenericTablePage<
   const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
 
   const { data: permission } = useOrganizationRoles()
+  const { data: session } = useSession()
+  const isCreate = isCreateRequested && (!config.createPermission || hasPermission(permission?.roles, config.createPermission, session))
 
   const debouncedSearch = useDebounce(searchQuery, 300)
   const searching = searchQuery !== debouncedSearch

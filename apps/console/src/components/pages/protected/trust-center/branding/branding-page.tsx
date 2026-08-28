@@ -2,6 +2,7 @@
 
 import { type TrustCenterPreviewSetting, type TrustCenterSetting, useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
 import { PageHeading } from '@repo/ui/page-heading'
 import { use, useEffect, useMemo, useState } from 'react'
@@ -35,6 +36,7 @@ const BrandPage: React.FC = () => {
 
   const { data, isLoading, error } = useGetTrustCenter()
   const trustCenter = data?.trustCenters?.edges?.[0]?.node
+  const { allowed: canEditTc } = useCanEditTrustCenter()
   const cnameRecord = trustCenter?.previewDomain?.cnameRecord
 
   const setting: TrustCenterSetting = trustCenter?.setting
@@ -216,7 +218,7 @@ const BrandPage: React.FC = () => {
   if (isLoading) return <TrustCenterSkeleton />
   if (error || !setting) return <div className="p-6 text-red-600">Error loading settings.</div>
 
-  const isReadOnly = activeTab === 'published'
+  const isReadOnly = activeTab === 'published' || !canEditTc
   return (
     <FormProvider {...methods}>
       <form onSubmit={(e) => e.preventDefault()} className="w-full flex justify-center py-4">
@@ -225,9 +227,9 @@ const BrandPage: React.FC = () => {
           <BrandingHeader
             cnameRecord={cnameRecord}
             hasChanges={hasPreviewDifference?.any}
-            onPreview={handleSubmit((v) => onSubmit(v, 'preview'))}
-            onRevert={handleRevert}
-            onPublish={() => setIsConfirmationDialogOpen(true)}
+            onPreview={canEditTc ? handleSubmit((v) => onSubmit(v, 'preview')) : undefined}
+            onRevert={canEditTc ? handleRevert : undefined}
+            onPublish={canEditTc ? () => setIsConfirmationDialogOpen(true) : undefined}
           />
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'preview' | 'published')} className="w-full">
             <TabsList className="grid w-full max-w-[400px] grid-cols-2">
