@@ -24,10 +24,7 @@ import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-ki
 import type { FaqFormValues } from './hooks/use-form-schema'
 import { CreateFaqForm } from './create-faq-form'
 import { SortableFaqCard } from './sortable-faq-card'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { useSession } from 'next-auth/react'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 
 export default function FaqsPage() {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -38,9 +35,7 @@ export default function FaqsPage() {
   const { successNotification, errorNotification } = useNotification()
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
-  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
-  const { data: session } = useSession()
-  const canEditTc = canEdit(tcPermission?.roles, session)
+  const { allowed: canEditTc } = useCanEditTrustCenter()
 
   const { trustCenterFaqsNodes } = useTrustCenterFaqsWithFilter({
     where: { hasTrustCenterWith: [{ id: trustCenterID }] },
@@ -127,7 +122,7 @@ export default function FaqsPage() {
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
-    if (!over || active.id === over.id) return
+    if (!canEditTc || !over || active.id === over.id) return
 
     const oldIndex = orderedFaqs.findIndex((f) => f.id === active.id)
     const newIndex = orderedFaqs.findIndex((f) => f.id === over.id)

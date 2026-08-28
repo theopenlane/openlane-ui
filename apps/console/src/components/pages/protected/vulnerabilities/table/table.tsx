@@ -54,7 +54,6 @@ const TableComponent = ({
   const [dismissRow, setDismissRow] = useState<VulnerabilitiesNodeNonNull | null>(null)
   const { data: orgPermission } = useOrganizationRoles()
   const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
-  const canCreateTask = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTask, session)
   const canEditVulnerability = canEdit(permission?.roles, session)
   const { mutateAsync: updateVulnerability, isPending: isDismissing } = useUpdateVulnerability()
 
@@ -159,11 +158,11 @@ const TableComponent = ({
         setSelectedItems,
         onTrackRemediation: canCreateRemediation ? handleTrackRemediation : undefined,
         onOpenRemediation: handleOpenRemediation,
-        onCreateTask: canCreateTask ? handleCreateTask : undefined,
+        onCreateTask: handleCreateTask,
         onDismiss: canEditVulnerability ? handleDismiss : undefined,
         slaDaysByLevel,
       }),
-    [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, canCreateRemediation, canCreateTask, canEditVulnerability, handleOpenRemediation, slaDaysByLevel],
+    [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, canCreateRemediation, canEditVulnerability, handleOpenRemediation, slaDaysByLevel],
   )
 
   const createTaskInitialValues = useMemo(() => {

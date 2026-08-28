@@ -50,7 +50,6 @@ const TableComponent = ({
   const [trackRemediationRow, setTrackRemediationRow] = useState<FindingsNodeNonNull | null>(null)
   const { data: orgPermission } = useOrganizationRoles()
   const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation, session)
-  const canCreateTask = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTask, session)
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -134,10 +133,10 @@ const TableComponent = ({
         setSelectedItems,
         onTrackRemediation: canCreateRemediation ? handleTrackRemediation : undefined,
         onOpenRemediation: handleOpenRemediation,
-        onCreateTask: canCreateTask ? handleCreateTask : undefined,
+        onCreateTask: handleCreateTask,
         slaDaysByLevel,
       }),
-    [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, handleOpenRemediation, canCreateRemediation, canCreateTask, slaDaysByLevel],
+    [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems, handleOpenRemediation, canCreateRemediation, slaDaysByLevel],
   )
 
   const createTaskInitialValues = useMemo(() => {

@@ -4,6 +4,9 @@ import React, { useEffect, useState, use } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationSetting, useUpdateOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -19,6 +22,9 @@ const AllowedDomains = () => {
   const { data, isLoading } = useGetOrganizationSetting(currentOrgId)
   const { mutateAsync: update, isPending } = useUpdateOrganizationSetting()
   const { successNotification, errorNotification } = useNotification()
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canManage = canEdit(orgPermission?.roles, session)
   const [newDomain, setNewDomain] = useState('')
   const [inputError, setInputError] = useState<string | null>(null)
   const queryClient = useQueryClient()
@@ -100,10 +106,12 @@ const AllowedDomains = () => {
               <p className="text-sm text-muted-foreground">Automatically allow users with verified email addresses from approved domains to join this organization.</p>
               <Badge variant={allowAutoJoin ? 'green' : 'secondary'}>{allowAutoJoin ? '● Enabled' : '● Disabled'}</Badge>
             </div>
-            <Button variant={allowAutoJoin ? 'destructive' : 'secondary'} onClick={() => onSwitchChange(!allowAutoJoin)} disabled={domainCount === 0} className="shrink-0">
-              <Lock className="h-4 w-4 mr-2" />
-              {allowAutoJoin ? 'Disable Auto Join' : 'Enable Auto Join'}
-            </Button>
+            {canManage && (
+              <Button variant={allowAutoJoin ? 'destructive' : 'secondary'} onClick={() => onSwitchChange(!allowAutoJoin)} disabled={domainCount === 0} className="shrink-0">
+                <Lock className="h-4 w-4 mr-2" />
+                {allowAutoJoin ? 'Disable Auto Join' : 'Enable Auto Join'}
+              </Button>
+            )}
           </div>
 
           <div className="mt-6 border-t pt-4">
@@ -119,8 +127,8 @@ const AllowedDomains = () => {
                 setNewDomain(value)
                 if (inputError) setInputError(null)
               }}
-              onAdd={saveChanges}
-              onRemove={removeDomain}
+              onAdd={canManage ? saveChanges : undefined}
+              onRemove={canManage ? removeDomain : undefined}
               error={inputError}
               isPending={isPending}
               inputLabel="Allowed domain"

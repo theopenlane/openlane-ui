@@ -14,33 +14,21 @@ import { Switch } from '@repo/ui/switch'
 import { Label } from '@repo/ui/label'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useHandleUpdateSetting } from '../branding/helpers/useHandleUpdateSetting'
-import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit, hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 import NdaRequestsTable from './table/nda-requests-table.tsx'
 import { NdaApprovalGroupCard } from './components/nda-approval-group-card'
-import { ObjectTypes } from '@repo/codegen/src/type-names.ts'
 import { type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'
-import { useSession } from 'next-auth/react'
 
 const NDAsPage = () => {
   const { latestFile, isLoading, latestTemplate } = useGetTrustCenterNDAFiles()
   const { setCrumbs } = use(BreadcrumbContext)
   const { data: trustCenterData } = useGetTrustCenter()
   const { updateTrustCenterSetting, isPending: isUpdatingSetting } = useHandleUpdateSetting()
-  const { data: session } = useSession()
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
-  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenter?.id)
-  const canEditTc = canEdit(tcPermission?.roles, session)
-  const { data: orgPermission } = useOrganizationRoles()
-  // can_edit_trust_center_nda_request lives on the organization type, so it can
-  // only ever match the org-roles response — querying it against the trust center
-  // object (as this page did) made the gate permanently false. Keep it as its own
-  // capability, at its own scope, OR-ed with generic trust-center edit.
-  const canManageNdaRequests = canEditTc || hasPermission(orgPermission?.roles, AccessEnum.CanEditTrustCenterNdaRequest, session)
+  const { allowed: canEditTc } = useCanEditTrustCenter()
   const trustCenterSetting = trustCenter?.setting
   const ndaApprovalRequired = !!trustCenterSetting?.ndaApprovalRequired
 
@@ -213,7 +201,7 @@ const NDAsPage = () => {
             <h3 className="text-lg font-medium">NDA Requests</h3>
           </div>
 
-          <NdaRequestsTable requireApproval={ndaApprovalRequired} canManageRequests={canManageNdaRequests} />
+          <NdaRequestsTable requireApproval={ndaApprovalRequired} canManageRequests={canEditTc} />
         </div>
       </div>
     </div>

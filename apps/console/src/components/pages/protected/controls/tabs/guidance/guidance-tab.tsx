@@ -4,10 +4,6 @@ import React, { useMemo } from 'react'
 import { Accordion, AccordionContent, AccordionItem } from '@radix-ui/react-accordion'
 import { Card } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { CopyIcon, PlusCircle } from 'lucide-react'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
@@ -63,10 +59,6 @@ const GuidanceTab: React.FC<GuidanceTabProps> = ({
   isSubcontrol,
 }) => {
   const { successNotification, errorNotification } = useNotification()
-
-  const { data: session } = useSession()
-  const { data: orgPermission } = useOrganizationRoles()
-  const canCreateTask = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTask, session)
 
   const filteredQuestions = useMemo(() => {
     return (controlQuestions ?? []).filter((q) => q.trim().length > 0)
@@ -189,19 +181,17 @@ const GuidanceTab: React.FC<GuidanceTabProps> = ({
                         <li key={i}>{p.trim()}</li>
                       ))}
                     </ul>
-                    {canCreateTask && (
-                      <CreateTaskDialog
-                        defaultSelectedObject={defaultSelectedObject}
-                        initialData={taskInitialData}
-                        initialValues={{ title, details }}
-                        hideObjectAssociation
-                        trigger={
-                          <Button type="button" variant="secondary" className="h-8 px-3 shrink-0" icon={<PlusCircle size={14} />} iconPosition="left">
-                            Create Task
-                          </Button>
-                        }
-                      />
-                    )}
+                    <CreateTaskDialog
+                      defaultSelectedObject={defaultSelectedObject}
+                      initialData={taskInitialData}
+                      initialValues={{ title, details }}
+                      hideObjectAssociation
+                      trigger={
+                        <Button type="button" variant="secondary" className="h-8 px-3 shrink-0" icon={<PlusCircle size={14} />} iconPosition="left">
+                          Create Task
+                        </Button>
+                      }
+                    />
                   </div>
                 </Card>
               )

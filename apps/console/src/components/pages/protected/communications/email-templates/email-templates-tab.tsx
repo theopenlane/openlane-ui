@@ -8,7 +8,7 @@ import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { hasPermission } from '@/lib/authz/utils'
+import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { Badge } from '@repo/ui/badge'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
@@ -69,6 +69,7 @@ export const EmailTemplatesTab: React.FC = () => {
   const { data: session } = useSession()
   const { data: orgPermission } = useOrganizationRoles()
   const canCreateEmailTemplate = hasPermission(orgPermission?.roles, AccessEnum.CanCreateEmailTemplate, session)
+  const canEditEmailTemplate = canEdit(orgPermission?.roles, session)
 
   const handleCreate = () => router.push(EDITOR_PATH)
   const handleEdit = (id: string) => router.push(`${EDITOR_PATH}?id=${id}`)
@@ -199,9 +200,11 @@ export const EmailTemplatesTab: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  <Button variant="secondary" size="sm" className="px-2 py-2" onClick={() => handleEdit(template.id)} aria-label="Edit template">
-                    <Pencil size={14} />
-                  </Button>
+                  {canEditEmailTemplate && (
+                    <Button variant="secondary" size="sm" className="px-2 py-2" onClick={() => handleEdit(template.id)} aria-label="Edit template">
+                      <Pencil size={14} />
+                    </Button>
+                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="secondary" size="sm" className="px-2 py-2" aria-label="More actions">
@@ -209,28 +212,34 @@ export const EmailTemplatesTab: React.FC = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="min-w-48 border shadow-md">
-                      <DropdownMenuItem onClick={() => handleToggleActive(template.id, template.active)}>
-                        <CircleCheckBig className="h-4 w-4" />
-                        {template.active ? 'Disable' : 'Mark Active'}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDuplicate(template)}>
-                        <CopyPlus className="h-4 w-4" />
-                        Duplicate
-                      </DropdownMenuItem>
+                      {canEditEmailTemplate && (
+                        <DropdownMenuItem onClick={() => handleToggleActive(template.id, template.active)}>
+                          <CircleCheckBig className="h-4 w-4" />
+                          {template.active ? 'Disable' : 'Mark Active'}
+                        </DropdownMenuItem>
+                      )}
+                      {canCreateEmailTemplate && (
+                        <DropdownMenuItem onClick={() => handleDuplicate(template)}>
+                          <CopyPlus className="h-4 w-4" />
+                          Duplicate
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem onClick={() => setPreviewId(template.id)}>
                         <Eye className="h-4 w-4" />
                         Preview
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => {
-                          setDeleteTargetId(template.id)
-                          setDeleteDialogOpen(true)
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
+                      {canEditEmailTemplate && (
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => {
+                            setDeleteTargetId(template.id)
+                            setDeleteDialogOpen(true)
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

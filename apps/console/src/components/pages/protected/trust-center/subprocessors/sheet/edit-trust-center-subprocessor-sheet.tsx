@@ -24,9 +24,7 @@ import { NameField } from './form-fields/name-field'
 import { DescriptionField } from './form-fields/description-field'
 import { LogoField } from './form-fields/logo-field'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
-import { useSession } from 'next-auth/react'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 
 const schema = z.object({
   category: z.string().min(1, 'Category is required'),
@@ -51,9 +49,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
 
   const { mutateAsync: updateTCSubprocessor } = useUpdateTrustCenterSubprocessor()
   const { mutateAsync: updateSubprocessor } = useUpdateSubprocessor()
-  const { data: orgPermission } = useOrganizationRoles()
-  const { data: session } = useSession()
-  const canEditOrg = canEdit(orgPermission?.roles, session)
+  const { allowed: canEditOrg } = useCanEditTrustCenter()
 
   const { data } = useGetTrustCenterSubprocessorByID({ trustCenterSubprocessorId: trustCenterSubprocessorId || '' })
 
@@ -209,7 +205,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
                 >
                   Copy link
                 </Button>
-                <SaveButton isSaving={isSubmitting} form="tc-subprocessor-form" />
+                {isEditable && <SaveButton isSaving={isSubmitting} form="tc-subprocessor-form" />}
               </div>
             </div>
           </div>
@@ -220,7 +216,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
             <NameField isEditing={false} />
             <DescriptionField isEditing={isEditable} />
             <CountriesField isEditing />
-            <CategoryField isEditing isCreateAllowed={canEditOrg} />
+            <CategoryField isEditing={isEditable} isCreateAllowed={canEditOrg} />
             <LogoField onFileUpload={handleLogoUpload} isEditing={isEditable} />
           </form>
         </FormProvider>
