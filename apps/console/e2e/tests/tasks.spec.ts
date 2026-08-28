@@ -3,7 +3,8 @@ import { test as freshTest } from '@playwright/test'
 import { seedLoggedInUser } from '../utils/seedUser'
 
 import { RUN_ID } from '../utils/constants'
-import { createTask, type ApiSession, getOwnerApi } from '../utils/api'
+import { createTask, readField, type ApiSession, getOwnerApi } from '../utils/api'
+import { bulkEditAndSave, selectFirstMatchingRow } from '../utils/mutations'
 import { openCreateTaskDialog } from '../utils/tasks'
 import { uniqueName } from '../utils/unique'
 
@@ -520,20 +521,22 @@ test.describe('tasks — assignee edit does not open the slideout (ISS-2592)', (
     // clicking it swaps the cell into its editing form. The debounced search
     // refetch above can remount the cell and drop that local editing state, so
     // the click is retried until the form actually appears.
+    // Options are portalled to the document body, outside the row, so a refetch
+    // that remounts the cell takes the open dropdown with it. Open-then-pick has
+    // to retry as one cycle; splitting it lets a remount land in the gap.
     const combobox = row.getByRole('combobox').first()
+    const option = page.getByRole('option').nth(1)
     await expect(async () => {
       if (!(await combobox.isVisible().catch(() => false))) {
         await row.getByText('Not assigned', { exact: true }).click({ timeout: 5_000 })
       }
       await expect(combobox).toBeVisible({ timeout: 3_000 })
+      if ((await option.count()) === 0) {
+        await combobox.click({ timeout: 5_000 })
+      }
+      await expect(option).toBeVisible({ timeout: 5_000 })
+      await option.click({ timeout: 5_000 })
     }).toPass({ timeout: 45_000 })
-
-    await combobox.click()
-
-    // Options are portalled to the document body, outside the row.
-    const option = page.getByRole('option').nth(1)
-    await expect(option).toBeVisible({ timeout: 15_000 })
-    await option.click()
 
     // The bug: this used to bubble to the row and open the task sheet.
     await expect(page.getByRole('dialog')).toHaveCount(0)
@@ -607,5 +610,20 @@ test.describe('tasks — templates (ISS-2714)', () => {
 
     // An ordinary task is visible; templates are filtered out by default.
     await expect(page.getByRole('row').filter({ hasText: title })).toBeVisible({ timeout: 20_000 })
+  })
+})
+
+test.describe('tasks — bulk edit applies', () => {
+  test('bulk editing a selected task persists the new status', async ({ page }) => {
+    test.slow()
+    const title = uniqueName('E2E TaskBulk')
+    const id = await createTask(ownerApi, title)
+
+    await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded' })
+    await selectFirstMatchingRow(page, title)
+
+    const chosen = await bulkEditAndSave({ page, field: 'Status', operationName: 'UpdateBulkTask' })
+
+    await expect.poll(async () => readField(ownerApi, 'task', id, 'status'), { timeout: 60_000 }).toBe(chosen.toUpperCase().replace(/ /g, '_'))
   })
 })

@@ -4,6 +4,7 @@ import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import type { ApiSession } from '../utils/api'
 import {
+  createAssessment,
   createAutomationCampaign,
   createEmailTemplate,
   createQuestionnaireTemplate,
@@ -13,6 +14,7 @@ import {
   findAutomationCampaignId,
   getAutomationApi,
 } from '../utils/api-automation'
+import { expectMutationOk } from '../utils/mutations'
 import { inlineCsv } from '../utils/files'
 import { uniqueName, uniqueRef } from '../utils/unique'
 
@@ -170,4 +172,63 @@ test('editing a questionnaire campaign due date persists after reload', async ({
     await deleteAutomationCampaign(ownerApi, id)
     await deleteQuestionnaireTemplate(ownerApi, templateId)
   }
+})
+
+test.describe('campaigns — recipient management', () => {
+  test('recipients can be added and removed on an existing campaign', async ({ page }) => {
+    test.slow()
+    const name = uniqueName('E2E Campaign recipients')
+    const campaignId = await createAutomationCampaign(ownerApi, name)
+    const recipient = `${uniqueRef('campaign-recipient').toLowerCase()}@example.invalid`
+
+    await page.goto(`/automation/campaigns/${campaignId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    await page
+      .getByRole('button', { name: /Add recipients/i })
+      .first()
+      .click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByText('Add recipients')).toBeVisible({ timeout: 30_000 })
+
+    await dialog.getByRole('tab', { name: 'Manual' }).click()
+    const manualInput = dialog.getByPlaceholder('Type an email and press Enter...')
+    await manualInput.fill(recipient)
+    await manualInput.press('Enter')
+
+    await expectMutationOk(page, 'CreateBulkCampaignTarget', async () => {
+      await dialog.getByRole('button', { name: /^Add \d+ recipient/ }).click()
+    })
+    await expect(page.getByText(recipient, { exact: true })).toBeVisible({ timeout: 30_000 })
+
+    await page.getByRole('button', { name: `Remove ${recipient}` }).click()
+    const confirm = page.getByRole('alertdialog')
+    await expect(confirm.getByText('Remove recipient')).toBeVisible({ timeout: 30_000 })
+
+    await expectMutationOk(page, 'DeleteCampaignTarget', async () => {
+      await confirm.getByRole('button', { name: /^Remove$/ }).click()
+    })
+    await expect(page.getByText('Recipient removed').first()).toBeVisible({ timeout: 30_000 })
+  })
+})
+
+test.describe('campaigns — test email and reminders', () => {
+  test('the Send Test Email dialog queues a test send', async ({ page }) => {
+    test.slow()
+    const name = uniqueName('E2E Campaign testemail')
+    const assessmentId = await createAssessment(ownerApi, uniqueName('E2E Campaign testemail assessment'))
+    const campaignId = await createAutomationCampaign(ownerApi, name, { assessmentID: assessmentId, campaignType: 'QUESTIONNAIRE' })
+
+    await page.goto(`/automation/campaigns/${campaignId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await page.getByRole('button', { name: 'Action' }).first().click()
+    await page.getByRole('button', { name: 'Send test email' }).last().click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByRole('heading', { name: 'Send Test Email' })).toBeVisible({ timeout: 30_000 })
+    await dialog.getByPlaceholder('you@example.com').fill(`${uniqueRef('testmail').toLowerCase()}@example.invalid`)
+
+    await expectMutationOk(page, 'SendCampaignTestEmail', async () => {
+      await dialog.getByRole('button', { name: /^Send Test Email$/ }).click()
+    })
+    await expect(page.getByText('Test email sent').first()).toBeVisible({ timeout: 30_000 })
+  })
 })

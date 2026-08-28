@@ -4,6 +4,7 @@ import { confirmDestructiveDialog, openRowAction } from '../utils/menu'
 import { RUN_ID } from '../utils/constants'
 import { createCampaign, createQuestionnaire, createTemplate, type ApiSession, getOwnerApi } from '../utils/api'
 import { uniqueName } from '../utils/unique'
+import { expectMutationOk } from '../utils/mutations'
 
 /**
  * Deep automation flows beyond automation-other.spec.ts (subroute renders +
@@ -414,10 +415,14 @@ test.describe('automation — campaign detail inline edits (seeded)', () => {
     // aria-label "Action". A non-terminal campaign can be canceled or deleted;
     // "Send reminder" only appears once the campaign is ACTIVE. Dialog-OPEN
     // only — nothing is mutated.
-    await page.getByRole('button', { name: 'Action' }).click()
-    await expect(page.getByRole('button', { name: /^Cancel campaign$/ })).toBeVisible({ timeout: 10_000 })
-    await expect(page.getByRole('button', { name: /^Delete campaign$/ })).toBeVisible()
-    await expect(page.getByRole('button', { name: /^Send test email$/ })).toBeVisible()
+    await page.getByRole('button', { name: 'Action', exact: true }).click()
+
+    // Scope to the opened menu: the draft setup view carries its own buttons for
+    // the same actions, so page-wide locators match two elements each.
+    const actionMenu = page.getByRole('menu')
+    await expect(actionMenu.getByRole('button', { name: /^Cancel campaign$/ })).toBeVisible({ timeout: 10_000 })
+    await expect(actionMenu.getByRole('button', { name: /^Delete campaign$/ })).toBeVisible()
+    await expect(actionMenu.getByRole('button', { name: /^Send test email$/ })).toBeVisible()
   })
 })
 
@@ -598,5 +603,50 @@ test.describe('automation — campaigns table view (ISS-2560)', () => {
     await page.getByPlaceholder('Search').fill(name)
 
     await expect(page.getByRole('row').filter({ hasText: name })).toBeVisible({ timeout: 20_000 })
+  })
+})
+
+test.describe('automation — remaining submits', () => {
+  test('an email template created in the editor persists', async ({ page }) => {
+    test.slow()
+    const name = uniqueName('E2E EmailTemplate create')
+
+    await page.goto('/automation/email-templates/editor', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await page.getByPlaceholder('e.g. Welcome Email').fill(name)
+
+    const save = page.getByRole('button', { name: /^Save Draft$/ })
+    await expect(save).toBeEnabled({ timeout: 30_000 })
+
+    await expectMutationOk(page, 'CreateEmailTemplate', async () => {
+      await save.click()
+    })
+    await expect(page.getByText('Email template created')).toBeVisible({ timeout: 30_000 })
+  })
+})
+
+test.describe('questionnaires — create from template', () => {
+  test('a questionnaire is created from an existing template', async ({ page }) => {
+    test.slow()
+    const templateName = uniqueName('E2E FromTemplate source')
+    await createTemplate(ownerApi, templateName)
+
+    await page.goto('/automation/questionnaires', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await page
+      .getByRole('button', { name: /^Create$/ })
+      .first()
+      .click()
+    await page.getByRole('menuitem', { name: /From Template/i }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible({ timeout: 30_000 })
+    await dialog.getByRole('combobox').first().click()
+    await page.getByRole('option', { name: templateName, exact: true }).click()
+
+    await expectMutationOk(page, 'CreateAssessment', async () => {
+      await dialog
+        .getByRole('button', { name: /^(Create|Continue|Use)/ })
+        .last()
+        .click()
+    })
   })
 })

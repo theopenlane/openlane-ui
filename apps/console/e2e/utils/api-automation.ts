@@ -58,6 +58,7 @@ export type CampaignSeedOptions = {
   status?: 'DRAFT' | 'SCHEDULED' | 'ACTIVE' | 'COMPLETED' | 'CANCELED'
   templateID?: string
   emailTemplateID?: string
+  assessmentID?: string
   dueDate?: string
 }
 
@@ -227,6 +228,7 @@ export const createAutomationCampaign = (session: ApiSession, name: string, opti
     status: options.status ?? 'DRAFT',
     templateID: options.templateID,
     emailTemplateID: options.emailTemplateID,
+    assessmentID: options.assessmentID,
     dueDate: options.dueDate,
   })
 

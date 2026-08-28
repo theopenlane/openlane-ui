@@ -2,8 +2,10 @@ import type { Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { createInternalPolicy, createControl, createProcedure, linkControlPolicy, gql, type ApiSession, getOwnerApi } from '../utils/api'
+import { createInternalPolicy, createControl, createProcedure, linkControlPolicy, gql, readField, type ApiSession, getOwnerApi } from '../utils/api'
 import { uniqueName } from '../utils/unique'
+import { bulkEditAndSave, confirmDestructive, selectFirstMatchingRow } from '../utils/mutations'
+import { deleteFirstComment, editFirstComment, postComment } from '../utils/comments'
 
 /**
  * Deep policies flows beyond policies.spec.ts (which covers create/search/inline
@@ -416,5 +418,56 @@ test.describe('policies — collapsible linked procedures (#2048)', () => {
     // panel, so assert on the Type row, which is unique to the accordion.)
     await page.getByText(procedureName).first().click()
     await expect(page.getByText('Type', { exact: true }).first()).toBeVisible({ timeout: 15_000 })
+  })
+})
+
+test.describe('policies — bulk actions apply', () => {
+  test('bulk editing a selected policy persists the new status', async ({ page }) => {
+    test.slow()
+    const name = uniquePolicyName()
+    const id = await createInternalPolicy(ownerApi, name)
+
+    await openTableView(page)
+    await selectFirstMatchingRow(page, name)
+
+    const before = await readField(ownerApi, 'internalPolicy', id, 'status')
+    await bulkEditAndSave({ page, field: 'Status', operationName: 'UpdateBulkInternalPolicy' })
+
+    await expect.poll(async () => readField(ownerApi, 'internalPolicy', id, 'status'), { timeout: 60_000 }).not.toBe(before)
+  })
+
+  test('bulk deleting a selected policy removes it from the list', async ({ page }) => {
+    test.slow()
+    const name = uniquePolicyName()
+    await createInternalPolicy(ownerApi, name)
+
+    await openTableView(page)
+    await selectFirstMatchingRow(page, name)
+
+    await page.getByRole('button', { name: /^Bulk Delete/ }).click()
+    await confirmDestructive(page, 'DeleteBulkInternalPolicy')
+
+    await expect(page.getByRole('row').filter({ hasText: name })).toHaveCount(0, { timeout: 60_000 })
+  })
+})
+
+test.describe('policies — comments round-trip', () => {
+  test('a comment can be posted, edited and deleted from the policy sheet', async ({ page }) => {
+    test.slow()
+    const policyName = uniquePolicyName()
+    const policyId = await createInternalPolicy(ownerApi, policyName)
+    const controlId = await createControl(ownerApi, `E2E PolComment ${RUN_ID} ${Date.now().toString(36)}`)
+    await linkControlPolicy(ownerApi, controlId, policyId)
+    const body = `E2E policy comment ${RUN_ID} ${Date.now().toString(36)}`
+    const edited = `${body} edited`
+
+    await page.goto(`/controls/${controlId}?tab=documentation`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('tab', { name: 'Documentation' })).toHaveAttribute('aria-selected', 'true', { timeout: 45_000 })
+    await page.getByText(policyName).first().click()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 30_000 })
+
+    await postComment(page, page, 'InsertInternalPolicyComment', body)
+    await editFirstComment(page, 'UpdatePolicyComment', edited)
+    await deleteFirstComment(page, 'DeleteNote', edited)
   })
 })

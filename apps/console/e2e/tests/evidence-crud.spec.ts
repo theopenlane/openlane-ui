@@ -2,7 +2,9 @@ import type { Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { createEvidence, createControl, createProgram, linkControlEvidence, type ApiSession, getOwnerApi } from '../utils/api'
+import { createEvidence, createControl, createProgram, linkControlEvidence, readField, type ApiSession, getOwnerApi } from '../utils/api'
+import { bulkEditAndSave, selectFirstMatchingRow } from '../utils/mutations'
+import { deleteFirstComment, editFirstComment, postComment } from '../utils/comments'
 import { uploadFiles, SAMPLE_PDF, SAMPLE_DISALLOWED } from '../utils/files'
 import { saveEvidenceAsDraft } from '../utils/evidence'
 import { uniqueName } from '../utils/unique'
@@ -590,5 +592,38 @@ test.describe('evidence — sticky program filter (ISS-2712)', () => {
     // Revisit without the param — the stored choice is restored.
     await page.goto('/evidence', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await expect(page).toHaveURL(/[?&]programId=/, { timeout: 30_000 })
+  })
+})
+
+test.describe('evidence — bulk edit applies', () => {
+  test('bulk editing a selected evidence record persists the new status', async ({ page }) => {
+    test.slow()
+    const name = uniqueName('E2E EvidenceBulk')
+    const id = await createEvidence(ownerApi, name)
+
+    await page.goto('/evidence', { waitUntil: 'domcontentloaded' })
+    await selectFirstMatchingRow(page, name)
+
+    const chosen = await bulkEditAndSave({ page, field: 'Status', operationName: 'UpdateBulkEvidence' })
+
+    await expect.poll(async () => readField(ownerApi, 'evidence', id, 'status'), { timeout: 60_000 }).toBe(chosen.toUpperCase().replace(/ /g, '_'))
+  })
+})
+
+test.describe('evidence — comments round-trip', () => {
+  test('a comment can be posted, edited and deleted from the comments sheet', async ({ page }) => {
+    test.slow()
+    const id = await createEvidence(ownerApi, uniqueEvidenceName())
+    const body = `E2E comment ${RUN_ID} ${Date.now().toString(36)}`
+    const edited = `${body} edited`
+
+    await page.goto(`/evidence?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('button', { name: 'Delete evidence' })).toBeVisible({ timeout: 30_000 })
+    await page.getByRole('button', { name: /View & Add Comments/ }).click()
+    await expect(page.getByText(/Newest at top/).first()).toBeVisible({ timeout: 30_000 })
+
+    await postComment(page, page, 'UpdateEvidence', body)
+    await editFirstComment(page, 'UpdateEvidenceComment', edited)
+    await deleteFirstComment(page, 'DeleteNote', edited)
   })
 })

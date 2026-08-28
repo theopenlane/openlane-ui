@@ -1,7 +1,10 @@
 import { defineConfig, devices } from '@playwright/test'
+import { SEGMENT_NAMES, assertSegmentsCoverAllSpecs, segmentTestMatch } from './e2e/segments'
 
 const PORT = process.env.E2E_PORT ?? '3001'
 const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`
+
+assertSegmentsCoverAllSpecs()
 
 export default defineConfig({
   testDir: './e2e/tests',
@@ -23,9 +26,12 @@ export default defineConfig({
   // session, so per-test register/login contention no longer caps local
   // concurrency. The bottleneck is now dev-server route compilation, which
   // parallelises across workers. Default to 8 locally; override with
-  // E2E_WORKERS to tune for the machine. CI runs serially (one worker).
-  workers: process.env.CI ? 1 : Number(process.env.E2E_WORKERS ?? 8),
-  reporter: process.env.CI ? [['github'], ['html', { outputFolder: './e2e/playwright-report', open: 'never' }]] : [['list'], ['html', { outputFolder: './e2e/playwright-report', open: 'never' }]],
+  // E2E_WORKERS to tune for the machine. CI defaults lower because a hosted
+  // runner has far fewer cores than a dev box, but it is no longer clamped to
+  // a single worker — serialising 700+ tests puts the suite past any usable
+  // CI budget. Override with E2E_WORKERS in both environments.
+  workers: Number(process.env.E2E_WORKERS ?? (process.env.CI ? 4 : 8)),
+  reporter: process.env.CI ? [['blob', { outputDir: './e2e/blob-report' }]] : [['list'], ['html', { outputFolder: './e2e/playwright-report', open: 'never' }]],
 
   // Default per-test timeout. Most specs use seedLoggedInUser, which
   // burns 10–15s on register + verify + login + onboarding. The dev server also
@@ -51,13 +57,16 @@ export default defineConfig({
     navigationTimeout: 60_000,
   },
 
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    // Add firefox / webkit later once chromium suite is stable.
-  ],
+  // One project per product segment, so a failing area can be re-run on its own
+  // (`bun run e2e --project=controls`) instead of paying for the whole suite.
+  // Segments are declared in e2e/segments.ts; the assert below fails the config
+  // if a spec file is unassigned or double-assigned, so a new spec can never
+  // silently drop out of every segment.
+  projects: SEGMENT_NAMES.map((name) => ({
+    name,
+    testMatch: segmentTestMatch(name),
+    use: { ...devices['Desktop Chrome'] },
+  })),
 
   // Optional: have Playwright start the dev server itself.
   // Enable by setting PLAYWRIGHT_USE_WEBSERVER=1.

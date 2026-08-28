@@ -3,6 +3,9 @@ import type { Page } from '@playwright/test'
 import { test, expect, readManifest, type Role } from '../fixtures/auth'
 import { createProgram, getOwnerApi, type ApiSession } from '../utils/api'
 import { uniqueName } from '../utils/unique'
+import { PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON } from '../utils/permission-gating'
+
+test.skip(!PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON)
 
 const PROTECTED = /protected area/i
 

@@ -265,7 +265,8 @@ export const deleteCustomTypeEnum = async (sess: ApiSession, id: string): Promis
   await gql(sess, `mutation($id: ID!){ deleteCustomTypeEnum(id: $id){ deletedID } }`, { id })
 }
 
-export const createSubscriber = (sess: ApiSession, email: string): Promise<string> => seedEntity(sess, 'createSubscriber', 'CreateSubscriberInput', 'subscriber', { email })
+export const createSubscriber = (sess: ApiSession, email: string, trustCenterID?: string): Promise<string> =>
+  seedEntity(sess, 'createSubscriber', 'CreateSubscriberInput', 'subscriber', { email, ...(trustCenterID ? { trustCenterID } : {}) })
 
 export const deleteSubscriber = async (sess: ApiSession, email: string): Promise<void> => {
   await gql(sess, `mutation($email: String!){ deleteSubscriber(email: $email){ email } }`, { email })
@@ -347,6 +348,18 @@ export const getOwnerApi = (): Promise<ApiSession> => {
     ownerApiPromise = loginViaApi(ownerEmail, password)
   }
   return ownerApiPromise
+}
+
+let demoApiPromise: Promise<ApiSession> | null = null
+
+export const getDemoApi = (): Promise<ApiSession> => {
+  if (!demoApiPromise) {
+    const manifestPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '.auth', 'manifest.json')
+    const { demoEmail, demoPassword, password } = JSON.parse(readFileSync(manifestPath, 'utf-8')) as { demoEmail?: string; demoPassword?: string; password: string }
+    if (!demoEmail) throw new Error('getDemoApi: manifest has no demoEmail — the trust-center org was not provisioned')
+    demoApiPromise = loginViaApi(demoEmail, demoPassword ?? password)
+  }
+  return demoApiPromise
 }
 
 /** Create a fresh non-personal organization owned by the caller. */
@@ -455,4 +468,71 @@ export const memberSeesOrg = async (member: ApiSession, organizationID: string, 
     await sleep(delayMs)
   }
   return false
+}
+
+export const createSubprocessor = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createSubprocessor', 'CreateSubprocessorInput', 'subprocessor', { name })
+
+export const readField = async (sess: ApiSession, queryField: string, id: string, field: string): Promise<string | null> => {
+  const res = await gql<Record<string, Record<string, string> | null>>(sess, `query($id: ID!){ ${queryField}(id: $id){ ${field} } }`, { id })
+  const node = res.data?.[queryField]
+  return node ? ((node[field] as string) ?? null) : null
+}
+
+export const roleOf = async (sess: ApiSession, organizationID: string, email: string): Promise<string | null> => {
+  const res = await gql<{ orgMemberships: { edges: Array<{ node: { role: string; user: { email: string } | null } | null }> } }>(
+    sess,
+    `query($orgId: String!){ orgMemberships(where: { organizationID: $orgId }, first: 200){ edges { node { role user { email } } } } }`,
+    { orgId: organizationID },
+  )
+  const found = (res.data?.orgMemberships?.edges ?? []).find((e) => e.node?.user?.email === email)
+  return found?.node?.role ?? null
+}
+
+export const createStandard = (sess: ApiSession, name: string, framework?: string): Promise<string> =>
+  seedEntity(sess, 'createStandard', 'CreateStandardInput', 'standard', { name, ...(framework ? { framework } : {}) })
+
+export const createTrustCenterSubprocessor = (sess: ApiSession, trustCenterID: string, subprocessorID: string, category: string, countries: string[]): Promise<string> =>
+  seedEntity(sess, 'createTrustCenterSubprocessor', 'CreateTrustCenterSubprocessorInput', 'trustCenterSubprocessor', {
+    trustCenterID,
+    subprocessorID,
+    trustCenterSubprocessorKindName: category,
+    countries,
+  })
+
+export const getTrustCenterId = async (sess: ApiSession): Promise<string> => {
+  const res = await gql<{ trustCenters: { edges: Array<{ node: { id: string } }> } }>(sess, `{ trustCenters(first: 1) { edges { node { id } } } }`)
+  const id = res.data?.trustCenters?.edges?.[0]?.node?.id
+  if (!id) throw new Error('getTrustCenterId: org has no trust center')
+  return id
+}
+
+export const createIdentityHolder = (sess: ApiSession, fullName: string, email: string): Promise<string> =>
+  seedEntity(sess, 'createIdentityHolder', 'CreateIdentityHolderInput', 'identityHolder', { fullName, email })
+
+export const getFirstStandardWithControl = async (sess: ApiSession): Promise<{ shortName: string; refCode: string } | null> => {
+  const res = await gql<{ standards: { edges: Array<{ node: { shortName: string; controls: { edges: Array<{ node: { refCode: string } }> } } }> } }>(
+    sess,
+    `{ standards(first: 10) { edges { node { shortName controls(first: 1) { edges { node { refCode } } } } } } }`,
+  )
+  for (const edge of res.data?.standards?.edges ?? []) {
+    const refCode = edge.node.controls?.edges?.[0]?.node?.refCode
+    if (edge.node.shortName && refCode) return { shortName: edge.node.shortName, refCode }
+  }
+  return null
+}
+
+export const deletePlatform = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deletePlatform(id: $id){ deletedID } }`, { id })
+}
+
+export const readTrustCenterSecurityContact = async (sess: ApiSession): Promise<string | null> => {
+  const res = await gql<{ trustCenters: { edges: Array<{ node: { setting: { securityContact: string | null } | null } }> } }>(
+    sess,
+    `{ trustCenters(first: 1) { edges { node { setting { securityContact } } } } }`,
+  )
+  return res.data?.trustCenters?.edges?.[0]?.node?.setting?.securityContact ?? null
+}
+
+export const deleteStandard = async (sess: ApiSession, id: string): Promise<void> => {
+  await gql(sess, `mutation($id: ID!){ deleteStandard(id: $id){ deletedID } }`, { id })
 }

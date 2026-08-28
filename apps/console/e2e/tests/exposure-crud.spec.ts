@@ -2,6 +2,7 @@ import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
 import { createRisk, type ApiSession, getOwnerApi } from '../utils/api'
 import { uniqueName } from '../utils/unique'
+import { expectMutationOk } from '../utils/mutations'
 
 /**
  * Deep exposure/risk flows beyond exposure.spec.ts (create/search/validation on
@@ -745,5 +746,32 @@ test.describe('exposure — vulnerability External ID filter (ISS-2465)', () => 
 
     await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
     await expect(page.getByText('External ID', { exact: true }).first()).toBeVisible({ timeout: 15_000 })
+  })
+})
+
+test.describe('reviews — create submits', () => {
+  test('a review created through the sheet is persisted', async ({ page }) => {
+    test.slow()
+    const title = uniqueName('E2E Review create')
+
+    await page.goto('/exposure/reviews', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await page
+      .getByRole('button', { name: /^Create$/ })
+      .first()
+      .click()
+
+    const sheet = page.getByRole('dialog')
+    await expect(sheet.getByRole('heading', { name: 'Create Review' })).toBeVisible({ timeout: 30_000 })
+    await sheet.getByRole('textbox').first().fill(title)
+
+    await expectMutationOk(page, 'CreateReview', async () => {
+      await sheet.getByRole('button', { name: /^Create$/ }).click()
+    })
+
+    await page
+      .getByPlaceholder(/Search/i)
+      .first()
+      .fill(title)
+    await expect(page.getByRole('row').filter({ hasText: title }).first()).toBeVisible({ timeout: 60_000 })
   })
 })

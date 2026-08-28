@@ -5,6 +5,7 @@ import { test, expect } from '../fixtures/auth'
 import type { ApiSession } from '../utils/api'
 import { createAssessment, createContactWithEmail, deleteAssessment, deleteContact, findAssessmentId, getAutomationApi } from '../utils/api-automation'
 import { uniqueName, uniqueRef } from '../utils/unique'
+import { expectMutationOk } from '../utils/mutations'
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -252,4 +253,34 @@ test('the questionnaire editor creates a named internal assessment with a persis
     const id = await findAssessmentId(ownerApi, name)
     if (id) await deleteAssessment(ownerApi, id)
   }
+})
+
+test.describe('questionnaires — delivery recipient delete', () => {
+  test('a delivery recipient can be removed from the questionnaire', async ({ page }) => {
+    test.slow()
+    const name = uniqueName('E2E Questionnaire delivery')
+    const assessmentId = await createAssessment(ownerApi, name)
+    const recipient = `${uniqueRef('delivery').toLowerCase()}@example.invalid`
+
+    await page.goto(`/automation/questionnaires/${assessmentId}?tab=delivery`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    await page.getByRole('button', { name: /^Send/ }).first().click()
+    const sendDialog = page.getByRole('dialog')
+    await sendDialog.getByRole('textbox').first().fill(recipient)
+    await sendDialog.getByRole('textbox').first().press('Enter')
+    await sendDialog.getByRole('button', { name: /^Send/ }).click()
+    await expect(page.getByText(recipient, { exact: true })).toBeVisible({ timeout: 60_000 })
+
+    const row = page.getByRole('row').filter({ hasText: recipient }).first()
+    await row.getByRole('button', { name: 'Open delivery actions' }).click()
+    await page.getByRole('menuitem', { name: /^Delete$/ }).click()
+
+    const confirm = page.getByRole('alertdialog')
+    await expect(confirm).toBeVisible({ timeout: 30_000 })
+
+    await expectMutationOk(page, 'DeleteAssessmentResponse', async () => {
+      await confirm.getByRole('button', { name: /^Delete$/ }).click()
+    })
+    await expect(page.getByText('Recipient deleted')).toBeVisible({ timeout: 30_000 })
+  })
 })

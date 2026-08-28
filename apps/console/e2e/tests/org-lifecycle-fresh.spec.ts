@@ -1,10 +1,11 @@
 import type { Page } from '@playwright/test'
 import { test, expect } from '@playwright/test'
 
-import { addOrgMember, getSelf, loginViaApi } from '../utils/api'
+import { addOrgMember, createSharedOrg, getOwnerApi, getSelf, loginViaApi, roleOf } from '../utils/api'
 import { PASSWORD, RUN_ID } from '../utils/constants'
 import { registerAndVerify } from '../utils/registerUser'
-import { seedLoggedInUser } from '../utils/seedUser'
+import { seedLoggedInUser, seedNonOwnerMember } from '../utils/seedUser'
+import { expectMutationOk } from '../utils/mutations'
 import { uniqueName } from '../utils/unique'
 
 const openGeneralSettings = async (page: Page, marker: ReturnType<Page['getByText']>): Promise<void> => {
@@ -176,5 +177,132 @@ test.describe('user settings — profile on a fresh account', () => {
     await page.reload({ waitUntil: 'domcontentloaded' })
     await expect(page.getByLabel('First name', { exact: true })).toHaveValue(firstName, { timeout: 60_000 })
     await expect(page.getByLabel('Last name', { exact: true })).toHaveValue(lastName, { timeout: 60_000 })
+  })
+})
+
+test.describe('organization — non-owner member', () => {
+  test('a member can leave the shared organization', async ({ page }) => {
+    test.slow()
+    const { email, orgId } = await seedNonOwnerMember(page, 'leave')
+
+    await page.goto('/organization', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Existing organizations$/ })).toBeVisible({ timeout: 30_000 })
+
+    await page
+      .getByRole('button', { name: /^Leave$/ })
+      .first()
+      .click()
+
+    const dialog = page.getByRole('alertdialog')
+    await expect(dialog.getByText('Leave Organization')).toBeVisible({ timeout: 30_000 })
+    await dialog.getByRole('button', { name: /^Leave$/ }).click()
+
+    await expect(page.getByText('Successfully left organization').first()).toBeVisible({ timeout: 30_000 })
+
+    const ownerApi = await getOwnerApi()
+    await expect.poll(async () => roleOf(ownerApi, orgId, email), { timeout: 60_000 }).toBeNull()
+  })
+
+  test('a member who owns no organization can delete their account', async ({ page }) => {
+    test.slow()
+    const { email, orgId } = await seedNonOwnerMember(page, 'selfdelete')
+
+    await page.goto('/user-settings/profile', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^My profile$/ })).toBeVisible({ timeout: 30_000 })
+
+    const deleteButton = page.getByRole('button', { name: /^Delete account$/ })
+    await expect(deleteButton).toBeEnabled({ timeout: 30_000 })
+    await deleteButton.click()
+
+    const dialog = page.getByRole('alertdialog')
+    await expect(dialog.getByText('Delete Your Account')).toBeVisible({ timeout: 30_000 })
+
+    const confirm = dialog.getByRole('button', { name: /^Delete$/ })
+    await expect(confirm).toBeDisabled()
+    await dialog.getByRole('textbox').fill('DELETE')
+    await expect(confirm).toBeEnabled({ timeout: 15_000 })
+    await confirm.click()
+
+    const ownerApi = await getOwnerApi()
+    await expect.poll(async () => roleOf(ownerApi, orgId, email), { timeout: 60_000 }).toBeNull()
+  })
+})
+
+test.describe('user-settings — two-factor and default org (fresh user)', () => {
+  test('Configure provisions a TFA setting and opens the QR dialog', async ({ page }) => {
+    test.slow()
+    await seedLoggedInUser(page, 'tfa')
+
+    await page.goto('/user-settings/profile', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^My profile$/ })).toBeVisible({ timeout: 30_000 })
+    await expect(page.getByText('A second factor method has not been setup for your account.')).toBeVisible({ timeout: 30_000 })
+
+    await expectMutationOk(page, 'CreateTFASetting', async () => {
+      await page.getByRole('button', { name: /^Configure$/ }).click()
+    })
+
+    await expect(page.getByRole('heading', { name: 'Scan this QR Code' })).toBeVisible({ timeout: 30_000 })
+  })
+
+  test('choosing a default organization and saving persists it', async ({ page }) => {
+    test.slow()
+    const { email } = await seedLoggedInUser(page, 'defaultorg')
+
+    const api = await loginViaApi(email)
+    await createSharedOrg(api, uniqueName('E2E Second Org'))
+
+    await page.goto('/user-settings/profile', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const panel = page.locator('form').filter({ hasText: 'Default Organization' }).first()
+    const trigger = panel.getByRole('combobox').first()
+    await expect(trigger).toBeVisible({ timeout: 30_000 })
+
+    const current = (await trigger.innerText()).trim()
+    await trigger.click()
+
+    const options = page.getByRole('option')
+    await expect(options.first()).toBeVisible({ timeout: 30_000 })
+    const labels = (await options.allInnerTexts()).map((t) => t.trim())
+    const different = labels.find((label) => label && label !== current)
+    expect(different, 'the user needs a second organization to switch to').toBeTruthy()
+    await page
+      .getByRole('option', { name: different ?? '', exact: true })
+      .first()
+      .click()
+
+    await expectMutationOk(page, 'UpdateUserSetting', async () => {
+      await panel
+        .getByRole('button', { name: /^Save$/ })
+        .last()
+        .click()
+    })
+
+    await expect(page.getByText('Default organization updated successfully!').first()).toBeVisible({ timeout: 30_000 })
+  })
+})
+
+test.describe('organization — general settings name (fresh org)', () => {
+  test('renaming the organization from general settings persists', async ({ page }) => {
+    test.slow()
+    await seedLoggedInUser(page, 'orgname')
+    const renamed = uniqueName('E2E Renamed Org')
+
+    await page.goto('/organization-settings/general-settings', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const nameField = page.locator('input[name="displayName"]').first()
+    await expect(async () => {
+      if (!(await nameField.isVisible().catch(() => false))) {
+        await page.reload({ waitUntil: 'domcontentloaded' })
+      }
+      await expect(nameField).toBeVisible({ timeout: 20_000 })
+    }).toPass({ timeout: 120_000 })
+    await nameField.fill(renamed)
+
+    await expectMutationOk(page, 'UpdateOrganization', async () => {
+      await page.getByRole('button', { name: /^Save/ }).first().click()
+    })
+
+    await expect(async () => {
+      await page.reload({ waitUntil: 'domcontentloaded' })
+      await expect(nameField).toHaveValue(renamed, { timeout: 20_000 })
+    }).toPass({ timeout: 120_000 })
   })
 })

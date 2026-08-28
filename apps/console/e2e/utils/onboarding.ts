@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test'
+import { expect, type Page } from '@playwright/test'
 
 interface OnboardingOptions {
   companyName?: string
@@ -7,11 +7,12 @@ interface OnboardingOptions {
 export const ensureOnboardingRoute = async (page: Page): Promise<void> => {
   await page.waitForFunction(() => window.location.pathname.startsWith('/onboarding') || window.location.pathname.startsWith('/dashboard'), undefined, { timeout: 30_000 })
 
-  if (new URL(page.url()).pathname.startsWith('/dashboard')) {
-    await page.goto('/onboarding')
-  }
-
-  await page.waitForURL(/\/onboarding/, { timeout: 15_000 })
+  await expect(async () => {
+    if (!new URL(page.url()).pathname.startsWith('/onboarding')) {
+      await page.goto('/onboarding', { waitUntil: 'domcontentloaded' })
+    }
+    await expect(page).toHaveURL(/\/onboarding/, { timeout: 10_000 })
+  }).toPass({ timeout: 60_000 })
 }
 
 /**

@@ -1,6 +1,8 @@
 import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { createProcedure, createControl, linkProcedureControl, type ApiSession, getOwnerApi } from '../utils/api'
+import { createProcedure, createControl, linkProcedureControl, readField, type ApiSession, getOwnerApi } from '../utils/api'
+import { bulkEditAndSave, selectFirstMatchingRow } from '../utils/mutations'
+import { deleteFirstComment, editFirstComment, postComment } from '../utils/comments'
 
 /**
  * Deep procedures flows beyond procedures.spec.ts (create/search/inline edit/
@@ -229,5 +231,42 @@ test.describe('procedures — detail page UI (seeded)', () => {
     const sheet = page.getByRole('dialog')
     await expect(sheet.getByText(/^Manage permission$/)).toBeVisible({ timeout: 10_000 })
     await expect(sheet.getByText(/^Group list$/)).toBeVisible({ timeout: 10_000 })
+  })
+})
+
+test.describe('procedures — bulk edit applies', () => {
+  test('bulk editing a selected procedure persists the new status', async ({ page }) => {
+    test.slow()
+    const name = uniqueProcedureName()
+    const id = await createProcedure(ownerApi, name)
+
+    await page.goto('/procedures', { waitUntil: 'domcontentloaded' })
+    await selectFirstMatchingRow(page, name)
+
+    const before = await readField(ownerApi, 'procedure', id, 'status')
+    await bulkEditAndSave({ page, field: 'Status', operationName: 'UpdateBulkProcedure' })
+
+    await expect.poll(async () => readField(ownerApi, 'procedure', id, 'status'), { timeout: 60_000 }).not.toBe(before)
+  })
+})
+
+test.describe('procedures — comments round-trip', () => {
+  test('a comment can be posted, edited and deleted from the procedure sheet', async ({ page }) => {
+    test.slow()
+    const procedureName = uniqueProcedureName()
+    const procedureId = await createProcedure(ownerApi, procedureName)
+    const controlId = await createControl(ownerApi, `E2E ProcComment ${RUN_ID} ${Date.now().toString(36)}`)
+    await linkProcedureControl(ownerApi, procedureId, controlId)
+    const body = `E2E procedure comment ${RUN_ID} ${Date.now().toString(36)}`
+    const edited = `${body} edited`
+
+    await page.goto(`/controls/${controlId}?tab=documentation`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('tab', { name: 'Documentation' })).toHaveAttribute('aria-selected', 'true', { timeout: 45_000 })
+    await page.getByText(procedureName).first().click()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 30_000 })
+
+    await postComment(page, page, 'InsertProcedureComment', body)
+    await editFirstComment(page, 'UpdateProcedureComment', edited)
+    await deleteFirstComment(page, 'DeleteNote', edited)
   })
 })
