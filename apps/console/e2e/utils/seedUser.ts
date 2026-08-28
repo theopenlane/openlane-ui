@@ -1,10 +1,11 @@
 import type { Page } from '@playwright/test'
 
-import { createSharedOrg, getSelf, getSharedOrgs, loginViaApi, setDefaultOrg } from './api'
+import { addOrgMember, createSharedOrg, getOwnerApi, getSelf, getSharedOrgs, loginViaApi, memberSeesOrg, setDefaultOrg } from './api'
 import { PASSWORD, RUN_ID } from './constants'
 import { loginViaForm } from './login'
 import { completeOnboarding } from './onboarding'
 import { registerAndVerify } from './registerUser'
+import { readManifest } from '../fixtures/auth'
 
 /**
  * Create a brand-new user with their own pristine organization and log them in
@@ -57,4 +58,28 @@ export const seedLoggedInUser = async (page: Page, slug: string, opts: SeedUserO
   await page.waitForURL(/\/dashboard/, { timeout: 30_000 })
 
   return { email, orgId }
+}
+
+export const seedNonOwnerMember = async (page: Page, slug: string): Promise<{ email: string; orgId: string }> => {
+  const { sharedOrgId, ownerEmail } = readManifest()
+  const allowedDomain = ownerEmail.split('@')[1]
+
+  const email = `e2e-${slug}-${RUN_ID}-${Date.now().toString(36)}@${allowedDomain}`
+  await registerAndVerify({ email })
+
+  const memberApi = await loginViaApi(email)
+  const { id: userId, settingId } = await getSelf(memberApi)
+
+  const ownerApi = await getOwnerApi()
+  await addOrgMember(ownerApi, sharedOrgId, userId, 'MEMBER')
+  if (!(await memberSeesOrg(memberApi, sharedOrgId))) {
+    throw new Error(`seedNonOwnerMember: ${email} never showed membership in ${sharedOrgId}`)
+  }
+
+  await setDefaultOrg(memberApi, settingId, sharedOrgId)
+
+  await loginViaForm(page, email, PASSWORD)
+  await page.waitForURL(/\/dashboard/, { timeout: 30_000 })
+
+  return { email, orgId: sharedOrgId }
 }

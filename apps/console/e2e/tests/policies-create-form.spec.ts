@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import { createCustomTypeEnum, createGroup, createInternalPolicy, deleteCustomTypeEnum, getOwnerApi, gql, type ApiSession } from '../utils/api'
 import { inlineCsv } from '../utils/files'
+import { expectMutationOk, uploadCsvAndAssert } from '../utils/mutations'
 import { uniqueName } from '../utils/unique'
 
 const deletePolicy = async (sess: ApiSession, id: string): Promise<void> => {
@@ -206,5 +207,60 @@ test.describe('policies — table toolbar', () => {
     await page.getByText('Import existing document', { exact: true }).click()
 
     await expect(page.getByRole('dialog').getByRole('heading', { name: /Import Existing Policy/ })).toBeVisible({ timeout: 30_000 })
+  })
+})
+
+test.describe('policies — bulk upload submits', () => {
+  test('uploading a policies CSV creates the policy it names', async ({ page }) => {
+    test.slow()
+    const name = `E2E-POLICY-BULK-${Date.now().toString(36)}`
+    await openPolicies(page)
+
+    await page.getByRole('button', { name: 'Action' }).click()
+    await page.getByText('Bulk upload', { exact: true }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByRole('heading', { name: /^Bulk upload$/ })).toBeVisible({ timeout: 30_000 })
+
+    await uploadCsvAndAssert({
+      page,
+      dialog,
+      fileName: 'policies.csv',
+      rows: `Name,Details\n${name},seeded by e2e\n`,
+      operationName: 'CreateBulkCSVInternalPolicy',
+      expectToast: 'Policies Created',
+    })
+
+    await page.keyboard.press('Escape')
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.locator('.lucide-table').first().click()
+    await page.getByPlaceholder(/^Search$/).fill(name)
+    await expect(page.getByRole('row').filter({ hasText: name }).first()).toBeVisible({ timeout: 60_000 })
+  })
+})
+
+test.describe('policies — import existing document submits', () => {
+  test('uploading a document through Import creates a policy', async ({ page }) => {
+    test.slow()
+    await openPolicies(page)
+
+    await page.getByRole('button', { name: 'Action' }).click()
+    await page.getByText('Import existing document', { exact: true }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByRole('heading', { name: /Import Existing Policy/ })).toBeVisible({ timeout: 30_000 })
+
+    await dialog
+      .locator('input[type="file"]')
+      .first()
+      .setInputFiles({ name: 'policy.md', mimeType: 'text/markdown', buffer: Buffer.from('# E2E policy\n\nseeded by e2e\n', 'utf-8') })
+
+    const upload = dialog.getByRole('button', { name: /^Upload Files$/ })
+    await expect(upload).toBeEnabled({ timeout: 30_000 })
+
+    await expectMutationOk(page, 'CreateUploadInternalPolicy', async () => {
+      await upload.click()
+    })
+    await expect(page.getByText('Policy Created').first()).toBeVisible({ timeout: 60_000 })
   })
 })

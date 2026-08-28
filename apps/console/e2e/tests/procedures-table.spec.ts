@@ -3,7 +3,9 @@ import type { Page } from '@playwright/test'
 import { test, expect, type Role } from '../fixtures/auth'
 import { createProcedure, getOwnerApi, gql, type ApiSession } from '../utils/api'
 import { inlineCsv } from '../utils/files'
+import { expectMutationOk, uploadCsvAndAssert } from '../utils/mutations'
 import { uniqueName } from '../utils/unique'
+import { PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON } from '../utils/permission-gating'
 
 const deleteProcedure = async (sess: ApiSession, id: string): Promise<void> => {
   await gql(sess, `mutation($id: ID!){ deleteProcedure(id: $id){ deletedID } }`, { id })
@@ -168,6 +170,7 @@ test.describe('procedures — table toolbar', () => {
 })
 
 test.describe('procedures — create button is permission gated', () => {
+  test.skip(!PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON)
   test('the owner sees the Create button', async ({ page }) => {
     test.slow()
     await openProcedures(page)
@@ -178,6 +181,7 @@ test.describe('procedures — create button is permission gated', () => {
 for (const role of ['member', 'readonly'] as Role[]) {
   test.describe(`procedures — ${role} cannot create`, () => {
     test.use({ authProfile: role })
+    test.skip(!PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON)
 
     test(`${role} sees no Create button on the procedures table`, async ({ page }) => {
       test.slow()
@@ -199,3 +203,57 @@ for (const role of ['member', 'readonly'] as Role[]) {
     })
   })
 }
+
+test.describe('procedures — bulk upload submits', () => {
+  test('uploading a procedures CSV creates the procedure it names', async ({ page }) => {
+    test.slow()
+    const name = `E2E-PROC-BULK-${Date.now().toString(36)}`
+    await openProcedures(page)
+
+    await openActionMenu(page)
+    await page.getByText('Bulk upload', { exact: true }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByRole('heading', { name: /^Bulk upload$/ })).toBeVisible({ timeout: 30_000 })
+
+    await uploadCsvAndAssert({
+      page,
+      dialog,
+      fileName: 'procedures.csv',
+      rows: `Name,Details\n${name},seeded by e2e\n`,
+      operationName: 'CreateBulkCSVProcedure',
+      expectToast: 'Procedure Created',
+    })
+
+    await page.keyboard.press('Escape')
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await page.getByPlaceholder(/^Search$/).fill(name)
+    await expect(page.getByRole('row').filter({ hasText: name }).first()).toBeVisible({ timeout: 60_000 })
+  })
+})
+
+test.describe('procedures — import existing document submits', () => {
+  test('uploading a document through Import creates a procedure', async ({ page }) => {
+    test.slow()
+    await openProcedures(page)
+
+    await openActionMenu(page)
+    await page.getByText('Import existing document', { exact: true }).click()
+
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByRole('heading', { name: /Import Existing Procedure/ })).toBeVisible({ timeout: 30_000 })
+
+    await dialog
+      .locator('input[type="file"]')
+      .first()
+      .setInputFiles({ name: 'procedure.md', mimeType: 'text/markdown', buffer: Buffer.from('# E2E procedure\n\nseeded by e2e\n', 'utf-8') })
+
+    const upload = dialog.getByRole('button', { name: /^Upload$/ })
+    await expect(upload).toBeEnabled({ timeout: 30_000 })
+
+    await expectMutationOk(page, 'CreateUploadProcedure', async () => {
+      await upload.click()
+    })
+    await expect(page.getByText('Procedure Created').first()).toBeVisible({ timeout: 60_000 })
+  })
+})

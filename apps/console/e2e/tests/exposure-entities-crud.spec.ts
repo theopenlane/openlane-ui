@@ -105,7 +105,7 @@ const openDetailSheet = async (page: Page, entity: EntityConfig, id: string): Pr
   return sheet
 }
 
-const searchRow = async (page: Page, entity: EntityConfig, name: string): Promise<Locator> => {
+const searchRow = async (page: Page, name: string): Promise<Locator> => {
   await page.getByPlaceholder(/^Search/).fill(name)
   const row = page.getByRole('row').filter({ hasText: name }).first()
   await expect(row).toBeVisible({ timeout: 30_000 })
@@ -147,14 +147,19 @@ for (const entity of ENTITIES) {
 
         try {
           const sheet = await openDetailSheet(page, entity, id)
-          await sheet
+          const editButton = sheet
             .locator('button')
             .filter({ hasText: /^Edit$/ })
             .first()
-            .click()
-
           const primary = sheet.getByRole('textbox').first()
-          await expect(primary).toBeEditable({ timeout: 30_000 })
+
+          await expect(async () => {
+            if (!(await primary.isEditable().catch(() => false))) {
+              await editButton.click()
+            }
+            await expect(primary).toBeEditable({ timeout: 10_000 })
+          }).toPass({ timeout: 60_000 })
+
           await primary.fill(renamed)
           await sheet.getByRole('button', { name: /^Save( Changes)?$/ }).click()
 
@@ -200,7 +205,7 @@ for (const entity of ENTITIES) {
 
         try {
           await openList(page, entity)
-          const row = await searchRow(page, entity, name)
+          const row = await searchRow(page, name)
           await row.getByRole('checkbox').first().check()
 
           await page.getByRole('button', { name: /^Bulk Edit/ }).click()
@@ -237,7 +242,7 @@ for (const entity of ENTITIES) {
 
         try {
           await openList(page, entity)
-          const row = await searchRow(page, entity, name)
+          const row = await searchRow(page, name)
           await row.getByRole('checkbox').first().check()
 
           await page.getByRole('button', { name: /^Bulk Delete/ }).click()
@@ -266,7 +271,7 @@ for (const entity of ENTITIES) {
 
         const sheet = page.getByRole('dialog')
         await expect(sheet).toBeVisible({ timeout: 30_000 })
-        await entity.fillCreateFormMissingRequired!(sheet, name)
+        await entity.fillCreateFormMissingRequired?.(sheet, name)
         await sheet.getByRole('button', { name: /^Create$/ }).click()
 
         await expect(sheet).toBeVisible({ timeout: 10_000 })
