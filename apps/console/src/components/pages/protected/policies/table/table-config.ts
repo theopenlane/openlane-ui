@@ -37,6 +37,7 @@ export const getPoliciesFilterFields = (groupOptions: TOption[], programOptions:
       type: 'multiselect',
       icon: FilterIcons.Type,
       options: enumOptions,
+      nullableKey: 'internalPolicyKindName',
     },
     {
       key: 'policyTypeIsNil',
