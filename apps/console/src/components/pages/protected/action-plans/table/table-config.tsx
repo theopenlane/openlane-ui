@@ -1,7 +1,7 @@
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
-import { type ActionPlanQuery, ActionPlanOrderField, ActionPlanDocumentStatus, ActionPlanPriority } from '@repo/codegen/src/schema'
+import { type ActionPlanQuery, ActionPlanOrderField, ActionPlanDocumentStatus, ActionPlanPriority, type ActionPlanWhereInput } from '@repo/codegen/src/schema'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { type ActionPlanFieldProps } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
@@ -19,40 +19,41 @@ export const breadcrumbs = [
 const statusOptions = enumToOptions(ActionPlanDocumentStatus)
 const priorityOptions = enumToOptions(ActionPlanPriority)
 
-export const getFilterFields = (): FilterField[] => [
-  {
-    key: 'nameContainsFold',
-    label: 'Name',
-    type: 'text',
-    icon: FilterIcons.Source,
-  },
-  {
-    key: 'titleContainsFold',
-    label: 'Title',
-    type: 'text',
-    icon: FilterIcons.Source,
-  },
-  {
-    key: 'statusIn',
-    label: 'Status',
-    type: 'multiselect',
-    icon: FilterIcons.Status,
-    options: statusOptions,
-  },
-  {
-    key: 'priorityIn',
-    label: 'Priority',
-    type: 'multiselect',
-    icon: FilterIcons.Status,
-    options: priorityOptions,
-  },
-  {
-    key: 'sourceContainsFold',
-    label: 'Source',
-    type: 'text',
-    icon: FilterIcons.Source,
-  },
-]
+export const getFilterFields = () =>
+  defineFilterFields<ActionPlanWhereInput>()([
+    {
+      key: 'nameContainsFold',
+      label: 'Name',
+      type: 'text',
+      icon: FilterIcons.Source,
+    },
+    {
+      key: 'titleContainsFold',
+      label: 'Title',
+      type: 'text',
+      icon: FilterIcons.Source,
+    },
+    {
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
+      icon: FilterIcons.Status,
+      options: statusOptions,
+    },
+    {
+      key: 'priorityIn',
+      label: 'Priority',
+      type: 'multiselect',
+      icon: FilterIcons.Status,
+      options: priorityOptions,
+    },
+    {
+      key: 'sourceContainsFold',
+      label: 'Source',
+      type: 'text',
+      icon: FilterIcons.Source,
+    },
+  ])
 
 export const ACTION_PLANS_SORT_FIELDS = enumToSortFields(ActionPlanOrderField)
 

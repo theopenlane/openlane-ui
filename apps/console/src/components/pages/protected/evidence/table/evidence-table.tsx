@@ -26,6 +26,7 @@ import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { canEdit } from '@/lib/authz/utils'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { mapEvidenceFilterKey } from './table-config'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export const EvidenceTable = () => {
@@ -54,17 +55,7 @@ export const EvidenceTable = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const where = useMemo(() => {
-    const result = whereGenerator<EvidenceWhereInput>(filters, (key, value) => {
-      if (key === 'satisfiesFramework' && Array.isArray(value) && value.length > 0) {
-        return {
-          or: [{ hasControlsWith: [{ standardIDIn: value }] }, { hasSubcontrolsWith: [{ hasControlWith: [{ standardIDIn: value }] }] }],
-        }
-      }
-
-      const nextWhere: EvidenceWhereInput = {}
-      Object.assign(nextWhere, { [key]: value })
-      return nextWhere
-    })
+    const result = whereGenerator<EvidenceWhereInput>(filters, mapEvidenceFilterKey)
 
     return {
       ...result,

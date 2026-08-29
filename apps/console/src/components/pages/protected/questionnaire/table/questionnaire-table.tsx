@@ -18,6 +18,7 @@ import { resolveAuthorName } from '@/lib/authors'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { mapQuestionnaireFilterKey } from './table-config'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { canDelete, canEdit, hasPermission } from '@/lib/authz/utils.ts'
@@ -76,13 +77,7 @@ export const QuestionnairesTable = () => {
       nameContainsFold: debouncedSearch,
     }
 
-    const generated = whereGenerator<AssessmentWhereInput>(filters, (key, value) => {
-      if (key.startsWith('dueDate')) {
-        return { hasAssessmentResponsesWith: [{ [key]: value }] } as AssessmentWhereInput
-      }
-
-      return { [key]: value } as AssessmentWhereInput
-    })
+    const generated = whereGenerator<AssessmentWhereInput>(filters, mapQuestionnaireFilterKey)
 
     return { ...base, ...generated }
   }, [filters, debouncedSearch])

@@ -1,5 +1,6 @@
+import { type ControlWhereInput, type EvidenceEvidenceStatus, type ReviewReviewStatus } from '@repo/codegen/src/schema'
 import { FileCheck2 } from 'lucide-react'
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { ReviewStatusOptions } from '@/components/shared/enum-mapper/review-enum'
 import { EvidenceStatusFilterOptions } from '@/components/shared/enum-mapper/evidence-enum'
@@ -10,36 +11,39 @@ type TOption = { value: string; label: string }
 
 export const AUDITOR_CONTROL_EXPORT_FIELDS = ['refCode', 'title', 'description', 'category', 'subcategory', 'status', 'referenceFramework', 'controlOwner.name', 'internalPolicies.name']
 
-export const getAuditorDashboardFilterFields = (frameworkOptions: TOption[], ownerOptions: TOption[]): FilterField[] => [
-  {
-    key: 'standardIDIn',
-    label: 'Framework',
-    type: 'multiselect',
-    options: [...frameworkOptions, { value: 'CUSTOM', label: 'CUSTOM' }],
-    icon: FilterIcons.Standard,
-  },
-  {
-    key: 'reviewStatusIn',
-    label: 'Review Status',
-    type: 'multiselect',
-    options: ReviewStatusOptions,
-    icon: FilterIcons.Status,
-  },
-  {
-    key: 'evidenceStatusIn',
-    label: 'Evidence Status',
-    type: 'multiselect',
-    options: EvidenceStatusFilterOptions,
-    icon: FileCheck2,
-  },
-  {
-    key: 'controlOwnerIDIn',
-    label: 'Owner',
-    type: 'multiselect',
-    options: ownerOptions,
-    icon: FilterIcons.Owners,
-  },
-]
+export const AUDITOR_DASHBOARD_REMAPPED_FILTER_KEYS = ['reviewStatusIn', 'evidenceStatusIn'] as const
+
+export const getAuditorDashboardFilterFields = (frameworkOptions: TOption[], ownerOptions: TOption[]) =>
+  defineFilterFields<ControlWhereInput, (typeof AUDITOR_DASHBOARD_REMAPPED_FILTER_KEYS)[number]>()([
+    {
+      key: 'standardIDIn',
+      label: 'Framework',
+      type: 'multiselect',
+      options: [...frameworkOptions, { value: 'CUSTOM', label: 'CUSTOM' }],
+      icon: FilterIcons.Standard,
+    },
+    {
+      key: 'reviewStatusIn',
+      label: 'Review Status',
+      type: 'multiselect',
+      options: ReviewStatusOptions,
+      icon: FilterIcons.Status,
+    },
+    {
+      key: 'evidenceStatusIn',
+      label: 'Evidence Status',
+      type: 'multiselect',
+      options: EvidenceStatusFilterOptions,
+      icon: FileCheck2,
+    },
+    {
+      key: 'controlOwnerIDIn',
+      label: 'Owner',
+      type: 'multiselect',
+      options: ownerOptions,
+      icon: FilterIcons.Owners,
+    },
+  ])
 
 export const getAuditorDashboardQuickFilters = (programId: string): TQuickFilter[] => [
   {
@@ -71,3 +75,22 @@ export const getAuditorDashboardQuickFilters = (programId: string): TQuickFilter
     isActive: false,
   },
 ]
+
+export const createAuditorControlsFilterMapper =
+  (programId: string) =>
+  (key: string, value: unknown): ControlWhereInput => {
+    if (key === 'standardIDIn' && Array.isArray(value) && value.includes('CUSTOM')) {
+      const namedStandards = value.filter((id) => id !== 'CUSTOM')
+      return { or: [...(namedStandards.length > 0 ? [{ standardIDIn: namedStandards }] : []), { referenceFrameworkIsNil: true }] }
+    }
+
+    if (key === 'reviewStatusIn') {
+      return { hasReviewsWith: [{ statusIn: value as ReviewReviewStatus[], hasProgramsWith: [{ id: programId }] }] }
+    }
+
+    if (key === 'evidenceStatusIn') {
+      return { hasEvidenceWith: [{ statusIn: value as EvidenceEvidenceStatus[], hasProgramsWith: [{ id: programId }] }] }
+    }
+
+    return { [key]: value }
+  }

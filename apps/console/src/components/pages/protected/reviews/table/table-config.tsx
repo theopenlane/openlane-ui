@@ -1,8 +1,8 @@
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import NameField from '../create/form/fields/name-field'
-import { type ReviewQuery, ReviewOrderField } from '@repo/codegen/src/schema'
+import { type ReviewQuery, ReviewOrderField, type ReviewWhereInput } from '@repo/codegen/src/schema'
 import DescriptionField from '../create/form/fields/description-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
@@ -22,52 +22,53 @@ export const breadcrumbs = [
   { label: 'Reviews', href: '/exposure/reviews' },
 ]
 
-export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
-  {
-    key: 'statusIn',
-    label: 'Status',
-    type: 'multiselect',
-    icon: FilterIcons.Status,
-    options: enumOptions.statusOptions,
-  },
-  {
-    key: 'categoryContainsFold',
-    label: 'Category',
-    type: 'text',
-    icon: FilterIcons.Category,
-  },
-  {
-    key: 'reporterContainsFold',
-    label: 'Reporter',
-    type: 'text',
-    icon: FilterIcons.Assignee,
-  },
-  {
-    key: 'approved',
-    label: 'Approved',
-    type: 'radio',
-    icon: FilterIcons.Access,
-    radioOptions: [
-      { value: true, label: 'Approved' },
-      { value: false, label: 'Not Approved' },
-    ],
-  },
-  {
-    key: 'sourceContainsFold',
-    label: 'Source',
-    type: 'text',
-    icon: FilterIcons.Source,
-  },
-  getEnvironmentFilterField(enumOptions.environmentOptions),
-  getScopeFilterField(enumOptions.scopeOptions),
-  {
-    key: 'tagsHas',
-    label: 'Tags',
-    type: 'dropdownSearchSingleSelect',
-    icon: FilterIcons.Status,
-    options: enumOptions.tagOptions,
-  },
-]
+export const getFilterFields = (enumOptions: EnumOptions) =>
+  defineFilterFields<ReviewWhereInput>()([
+    {
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
+      icon: FilterIcons.Status,
+      options: enumOptions.statusOptions,
+    },
+    {
+      key: 'categoryContainsFold',
+      label: 'Category',
+      type: 'text',
+      icon: FilterIcons.Category,
+    },
+    {
+      key: 'reporterContainsFold',
+      label: 'Reporter',
+      type: 'text',
+      icon: FilterIcons.Assignee,
+    },
+    {
+      key: 'approved',
+      label: 'Approved',
+      type: 'radio',
+      icon: FilterIcons.Access,
+      radioOptions: [
+        { value: true, label: 'Approved' },
+        { value: false, label: 'Not Approved' },
+      ],
+    },
+    {
+      key: 'sourceContainsFold',
+      label: 'Source',
+      type: 'text',
+      icon: FilterIcons.Source,
+    },
+    getEnvironmentFilterField(enumOptions.environmentOptions),
+    getScopeFilterField(enumOptions.scopeOptions),
+    {
+      key: 'tagsHas',
+      label: 'Tags',
+      type: 'dropdownSearchSingleSelect',
+      icon: FilterIcons.Status,
+      options: enumOptions.tagOptions,
+    },
+  ])
 
 export const REVIEWS_SORT_FIELDS = enumToSortFields(ReviewOrderField)
 

@@ -5,6 +5,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { ViewProcedureSheet } from '@/components/pages/protected/procedures/view-procedure-sheet'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { mapDocumentationProceduresFilterKey } from './documentation-filter-mappers'
 import { useProceduresFilters } from '@/components/pages/protected/procedures/table/table-config'
 import { SetControlAssociationDialog } from '@/components/pages/protected/controls/set-control-association-dialog'
 import { useDocumentationProcedures } from '@/lib/graphql-hooks/documentation'
@@ -53,15 +54,7 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
       nameContainsFold: debouncedSearch,
     }
 
-    const result = whereGenerator<ProcedureWhereInput>(filters as ProcedureWhereInput, (key, value) => {
-      if (key === 'hasControlsWith') {
-        return { hasControlsWith: [{ refCodeContainsFold: value as string }] } as ProcedureWhereInput
-      }
-      if (key === 'hasSubcontrolsWith') {
-        return { hasSubcontrolsWith: [{ refCodeContainsFold: value as string }] } as ProcedureWhereInput
-      }
-      return { [key]: value } as ProcedureWhereInput
-    })
+    const result = whereGenerator<ProcedureWhereInput>(filters as ProcedureWhereInput, mapDocumentationProceduresFilterKey)
 
     const hasStatusCondition = (obj: ProcedureWhereInput): boolean => {
       if ('status' in obj || 'statusNEQ' in obj || 'statusIn' in obj || 'statusNotIn' in obj) return true

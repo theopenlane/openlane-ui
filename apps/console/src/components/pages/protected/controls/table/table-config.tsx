@@ -1,5 +1,5 @@
-import { type FilterField } from '@/types'
-import { type ControlControlStatus, type ControlListFieldsFragment, ControlOrderField, type Entity, type Group, type User } from '@repo/codegen/src/schema.ts'
+import { defineFilterFields } from '@/types'
+import { type ControlControlStatus, type ControlListFieldsFragment, ControlOrderField, type Entity, type Group, type User, type ControlWhereInput } from '@repo/codegen/src/schema.ts'
 import { type AuthorToken } from '@/lib/authors'
 import { type ColumnDef, type Row } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
@@ -32,77 +32,78 @@ export const getControlsFilterFields = (
   typeOptions: { value: string; label: string }[],
   tagOptions: { value: string; label: string }[],
   hasProgramAccess: boolean,
-): FilterField[] => [
-  { key: 'refCodeContainsFold', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
-  { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
-  { key: 'subcategoryContainsFold', label: 'Subcategory', type: 'text', icon: FilterIcons.Subcategory },
-  {
-    key: 'statusIn',
-    label: 'Status',
-    type: 'multiselect',
-    options: ControlStatusFilterOptions,
-    icon: FilterIcons.Status,
-  },
-  {
-    key: 'standardIDIn',
-    label: 'Standard',
-    type: 'multiselect',
-    options: [
-      ...standardOptions,
-      {
-        value: 'CUSTOM',
-        label: 'CUSTOM',
-      },
-    ],
-    icon: FileQuestion,
-  },
-  {
-    key: 'controlOwnerIDIn',
-    label: 'Owner',
-    type: 'multiselect',
-    options: groups.map((group) => ({
-      value: group.value,
-      label: group.label,
-    })),
-    icon: FilterIcons.Owners,
-  },
-  ...getProgramFilterFields(programOptions, hasProgramAccess),
-  {
-    key: 'controlKindNameIn',
-    label: 'Control Type',
-    type: 'multiselect',
-    options: typeOptions,
-    icon: FilterIcons.Type,
-  },
-  {
-    key: 'hasInternalPolicies',
-    label: 'Linked Policies',
-    type: 'radio',
-    icon: FilterIcons.LinkedPolicies,
-    radioOptions: [
-      { value: true, label: 'Has linked policies' },
-      { value: false, label: 'No linked policies' },
-    ],
-  },
-  {
-    key: 'hasComments',
-    label: 'Has Comments',
-    type: 'radio',
-    icon: FilterIcons.Comments,
-    radioOptions: [
-      { value: true, label: 'Has comments' },
-      { value: false, label: 'No comments' },
-    ],
-  },
-  {
-    key: 'tagsHas',
-    label: 'Tags',
-    type: 'dropdownSearchSingleSelect',
-    icon: FilterIcons.Tag,
-    options: tagOptions,
-  },
-  { key: 'sourceNameContainsFold', label: 'Source Name', type: 'text', icon: FilterIcons.Source },
-]
+) =>
+  defineFilterFields<ControlWhereInput>()([
+    { key: 'refCodeContainsFold', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
+    { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
+    { key: 'subcategoryContainsFold', label: 'Subcategory', type: 'text', icon: FilterIcons.Subcategory },
+    {
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
+      options: ControlStatusFilterOptions,
+      icon: FilterIcons.Status,
+    },
+    {
+      key: 'standardIDIn',
+      label: 'Standard',
+      type: 'multiselect',
+      options: [
+        ...standardOptions,
+        {
+          value: 'CUSTOM',
+          label: 'CUSTOM',
+        },
+      ],
+      icon: FileQuestion,
+    },
+    {
+      key: 'controlOwnerIDIn',
+      label: 'Owner',
+      type: 'multiselect',
+      options: groups.map((group) => ({
+        value: group.value,
+        label: group.label,
+      })),
+      icon: FilterIcons.Owners,
+    },
+    ...getProgramFilterFields(programOptions, hasProgramAccess),
+    {
+      key: 'controlKindNameIn',
+      label: 'Control Type',
+      type: 'multiselect',
+      options: typeOptions,
+      icon: FilterIcons.Type,
+    },
+    {
+      key: 'hasInternalPolicies',
+      label: 'Linked Policies',
+      type: 'radio',
+      icon: FilterIcons.LinkedPolicies,
+      radioOptions: [
+        { value: true, label: 'Has linked policies' },
+        { value: false, label: 'No linked policies' },
+      ],
+    },
+    {
+      key: 'hasComments',
+      label: 'Has Comments',
+      type: 'radio',
+      icon: FilterIcons.Comments,
+      radioOptions: [
+        { value: true, label: 'Has comments' },
+        { value: false, label: 'No comments' },
+      ],
+    },
+    {
+      key: 'tagsHas',
+      label: 'Tags',
+      type: 'dropdownSearchSingleSelect',
+      icon: FilterIcons.Tag,
+      options: tagOptions,
+    },
+    { key: 'sourceNameContainsFold', label: 'Source Name', type: 'text', icon: FilterIcons.Source },
+  ])
 
 export const CONTROLS_SORT_FIELDS = [
   { key: 'created_at', label: 'Created At' },
@@ -521,4 +522,13 @@ export const getControlColumns = ({ convertToReadOnly, userMap, tokenMap, select
       cell: LinkedProceduresCell,
     },
   ]
+}
+
+export const mapControlsFilterKey = (key: string, value: unknown): ControlWhereInput => {
+  if (key === 'standardIDIn' && Array.isArray(value) && value.includes('CUSTOM')) {
+    const namedStandards = value.filter((id) => id !== 'CUSTOM')
+    return { or: [...(namedStandards.length > 0 ? [{ standardIDIn: namedStandards }] : []), { referenceFrameworkIsNil: true }] }
+  }
+
+  return { [key]: value }
 }

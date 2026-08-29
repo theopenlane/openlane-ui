@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { type ColumnDef } from '@tanstack/react-table'
-import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility, type TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
+import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility, type TrustCenterDocWatermarkStatus, type TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 
 type GqlFile = {
   presignedURL?: string | null
@@ -152,7 +152,7 @@ export const TRUST_CENTER_DOCS_SORT_FIELDS = [
 ]
 
 import { AlertTriangle, Eye, FileQuestion, Folder } from 'lucide-react'
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { NDAUploadDialog } from '../../NDAs/components/NDA-upload-dialog'
 import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
@@ -164,7 +164,7 @@ import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import StandardChip from '../../../standards/shared/standard-chip'
 
-export const trustCenterDocsFilterFields: FilterField[] = [
+export const trustCenterDocsFilterFields = defineFilterFields<TrustCenterDocWhereInput>()([
   {
     key: 'trustCenterDocKindNameContainsFold',
     label: 'Category',
@@ -184,4 +184,12 @@ export const trustCenterDocsFilterFields: FilterField[] = [
     type: 'text',
     icon: FileQuestion,
   },
-]
+])
+
+export const mapTrustCenterDocFilterKey = (key: string, value: unknown): TrustCenterDocWhereInput => {
+  if (key === 'hasStandardWith') {
+    return { hasStandardWith: [{ shortNameContainsFold: value as string }] }
+  }
+
+  return { [key]: value }
+}

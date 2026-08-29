@@ -1,7 +1,7 @@
 import { FilterIcons } from '@/components/shared/enum-mapper/groups-enum'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
-import { type FilterField } from '@/types'
-import { GroupOrderField } from '@repo/codegen/src/schema.ts'
+import { defineFilterFields, type FilterField } from '@/types'
+import { GroupOrderField, type GroupWhereInput } from '@repo/codegen/src/schema.ts'
 import { useEffect, useState } from 'react'
 
 export const GROUP_SORT_FIELDS: { key: GroupOrderField; label: string }[] = [
@@ -11,6 +11,20 @@ export const GROUP_SORT_FIELDS: { key: GroupOrderField; label: string }[] = [
   { key: GroupOrderField.name, label: 'Name' },
 ]
 
+type TOption = { value: string; label: string }
+
+export const getGroupsFilterFields = (userOptions: TOption[]) =>
+  defineFilterFields<GroupWhereInput>()([
+    {
+      key: 'hasMembersWith',
+      label: 'Member',
+      type: 'dropdownUserSearch',
+      icon: FilterIcons.Owners,
+      options: userOptions,
+    },
+    { key: 'isManaged', label: 'Include System Managed', type: 'boolean', icon: FilterIcons.SystemOwned },
+  ])
+
 export function useGroupsFilters(): FilterField[] | null {
   const [filters, setFilters] = useState<FilterField[] | null>(null)
   const { userOptions } = useUserSelect({})
@@ -18,19 +32,10 @@ export function useGroupsFilters(): FilterField[] | null {
   useEffect(() => {
     if (!userOptions || userOptions.length === 0 || filters) return
 
-    const newFilters: FilterField[] = [
-      {
-        key: 'hasMembersWith',
-        label: 'Member',
-        type: 'dropdownUserSearch',
-        icon: FilterIcons.Owners,
-        options: userOptions,
-      },
-      { key: 'isManaged', label: 'Include System Managed', type: 'boolean', icon: FilterIcons.SystemOwned },
-    ]
-
-    setFilters(newFilters)
+    setFilters(getGroupsFilterFields(userOptions))
   }, [userOptions, filters])
 
   return filters
 }
+
+export const mapGroupsFilterKey = (key: string, value: unknown): GroupWhereInput => ({ [key]: value })

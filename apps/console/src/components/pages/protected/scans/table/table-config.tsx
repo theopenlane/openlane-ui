@@ -1,8 +1,8 @@
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import TargetField from '../create/form/fields/title-field'
-import { type ScanQuery, ScanOrderField } from '@repo/codegen/src/schema'
+import { type ScanQuery, ScanOrderField, type ScanWhereInput } from '@repo/codegen/src/schema'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { type ScanFieldProps, type EnumOptions, type EnumCreateHandlers } from './types'
@@ -17,30 +17,31 @@ export const breadcrumbs = [
   { label: 'Scans', href: '/exposure/scans' },
 ]
 
-export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
-  {
-    key: 'targetContainsFold',
-    label: 'Target',
-    type: 'text',
-    icon: FilterIcons.Source,
-  },
-  {
-    key: 'statusIn',
-    label: 'Status',
-    type: 'multiselect',
-    icon: FilterIcons.Status,
-    options: enumOptions.statusOptions,
-  },
-  {
-    key: 'scanTypeIn',
-    label: 'Scan Type',
-    type: 'multiselect',
-    icon: FilterIcons.Category,
-    options: enumOptions.scanTypeOptions,
-  },
-  getEnvironmentFilterField(enumOptions.environmentOptions),
-  getScopeFilterField(enumOptions.scopeOptions),
-]
+export const getFilterFields = (enumOptions: EnumOptions) =>
+  defineFilterFields<ScanWhereInput>()([
+    {
+      key: 'targetContainsFold',
+      label: 'Target',
+      type: 'text',
+      icon: FilterIcons.Source,
+    },
+    {
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
+      icon: FilterIcons.Status,
+      options: enumOptions.statusOptions,
+    },
+    {
+      key: 'scanTypeIn',
+      label: 'Scan Type',
+      type: 'multiselect',
+      icon: FilterIcons.Category,
+      options: enumOptions.scanTypeOptions,
+    },
+    getEnvironmentFilterField(enumOptions.environmentOptions),
+    getScopeFilterField(enumOptions.scopeOptions),
+  ])
 
 export const SCANS_SORT_FIELDS = enumToSortFields(ScanOrderField)
 

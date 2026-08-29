@@ -5,10 +5,11 @@ import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
 import { Building2, Calendar, CheckCheck, Mail, XIcon } from 'lucide-react'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import React from 'react'
 import { AuthorDisplay } from '@/components/shared/user-display/author-cell'
 import { type ResolvedAuthor } from '@/lib/authors'
+import { type TrustCenterNdaRequestWhereInput } from '@repo/codegen/src/schema'
 
 export type NdaRequestRow = {
   id: string
@@ -120,7 +121,7 @@ export const getNdaRequestColumns = ({
   return columns
 }
 
-export const ndaRequestsFilterFields: FilterField[] = [
+export const ndaRequestsFilterFields = defineFilterFields<TrustCenterNdaRequestWhereInput>()([
   {
     key: 'companyNameContainsFold',
     label: 'Company Name',
@@ -139,4 +140,4 @@ export const ndaRequestsFilterFields: FilterField[] = [
     type: 'text',
     icon: Mail,
   },
-]
+])

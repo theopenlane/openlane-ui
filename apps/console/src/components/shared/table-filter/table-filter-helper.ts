@@ -1,5 +1,5 @@
 import { type TFilterState } from './filter-storage'
-import { addDays, format, isSameDay, isValid, startOfDay } from 'date-fns'
+import { addDays, isSameDay, isValid, startOfDay } from 'date-fns'
 import type { DateRange } from 'react-day-picker'
 import { type Condition, type FilterField, type WhereCondition } from '@/types'
 import { getNullFilterCondition, isNullFilterValue } from './null-filter'
@@ -13,7 +13,7 @@ export type TQuickFilter = {
   type: 'custom' | 'boolean'
 }
 
-export const DateFormatStorage = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+export const toUtcDayStart = (date: Date | number): string => startOfDay(date).toISOString()
 
 export const handleDateEQOperator = (value: Date | string, field: string) => {
   const date = value instanceof Date ? value : new Date(value)
@@ -22,8 +22,8 @@ export const handleDateEQOperator = (value: Date | string, field: string) => {
     return []
   }
 
-  const start = format(startOfDay(date), DateFormatStorage)
-  const end = format(startOfDay(addDays(date, 1)), DateFormatStorage)
+  const start = toUtcDayStart(date)
+  const end = toUtcDayStart(addDays(date, 1))
   return [{ [`${field}GTE`]: start }, { [`${field}LT`]: end }]
 }
 
@@ -33,13 +33,13 @@ export const handleDateRangeOperator = (range: DateRange, field: string): Condit
   if (!range.from && !range.to) return conditions
 
   if (!range.from && range.to) {
-    const end = format(startOfDay(addDays(range.to, 1)), DateFormatStorage)
+    const end = toUtcDayStart(addDays(range.to, 1))
     conditions.push({ [`${field}LT`]: end })
     return conditions
   }
 
   if (range.from && !range.to) {
-    const start = format(startOfDay(range.from), DateFormatStorage)
+    const start = toUtcDayStart(range.from)
     conditions.push({ [`${field}GTE`]: start })
     return conditions
   }
@@ -48,12 +48,12 @@ export const handleDateRangeOperator = (range: DateRange, field: string): Condit
     const startDate = range.from < range.to ? range.from : range.to
     const endDate = range.from < range.to ? range.to : range.from
     if (isSameDay(range.from, range.to)) {
-      const start = format(startOfDay(startDate), DateFormatStorage)
-      const end = format(startOfDay(addDays(startDate, 1)), DateFormatStorage)
+      const start = toUtcDayStart(startDate)
+      const end = toUtcDayStart(addDays(startDate, 1))
       conditions.push({ [`${field}GTE`]: start }, { [`${field}LT`]: end })
     } else {
-      const start = format(startOfDay(startDate), DateFormatStorage)
-      const end = format(startOfDay(addDays(endDate, 1)), DateFormatStorage)
+      const start = toUtcDayStart(startDate)
+      const end = toUtcDayStart(addDays(endDate, 1))
       conditions.push({ [`${field}GTE`]: start }, { [`${field}LT`]: end })
     }
   }

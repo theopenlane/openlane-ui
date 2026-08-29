@@ -1,13 +1,13 @@
+import { defineFilterFields } from '@/types'
 import React from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { Task } from '@repo/codegen/src/schema'
-import { TaskTaskStatus } from '@repo/codegen/src/schema'
+import { TaskTaskStatus, type TaskWhereInput } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { TaskFilterIcons, TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { formatDate } from '@/utils/date'
-import type { FilterField } from '@/types'
 import type { TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
@@ -15,42 +15,43 @@ export type ActivityTaskRow = Pick<Task, 'id' | 'title' | 'taskKindName' | 'stat
 
 type TaskKindOption = { label: string; value: string }
 
-export const getActivityTaskFilterFields = (taskKindOptions: TaskKindOption[] = [], orgMembers: TOrgMembers[] = []): FilterField[] => [
-  {
-    key: 'taskKindNameIn',
-    label: 'Type',
-    type: 'multiselect',
-    options: taskKindOptions,
-    icon: TaskFilterIcons.Type,
-  },
-  {
-    key: 'due',
-    label: 'Due Date',
-    type: 'dateRange',
-    icon: TaskFilterIcons.DueDate,
-  },
-  {
-    key: 'statusIn',
-    label: 'Status',
-    type: 'multiselect',
-    options: enumToOptions(TaskTaskStatus),
-    icon: TaskFilterIcons.Status,
-  },
-  {
-    key: 'assignerIDIn',
-    label: 'Assigner',
-    type: 'multiselect',
-    options: orgMembers,
-    icon: TaskFilterIcons.Assigner,
-  },
-  {
-    key: 'assigneeIDIn',
-    label: 'Assignee',
-    type: 'multiselect',
-    options: orgMembers,
-    icon: TaskFilterIcons.Assignee,
-  },
-]
+export const getActivityTaskFilterFields = (taskKindOptions: TaskKindOption[] = [], orgMembers: TOrgMembers[] = []) =>
+  defineFilterFields<TaskWhereInput>()([
+    {
+      key: 'taskKindNameIn',
+      label: 'Type',
+      type: 'multiselect',
+      options: taskKindOptions,
+      icon: TaskFilterIcons.Type,
+    },
+    {
+      key: 'due',
+      label: 'Due Date',
+      type: 'dateRange',
+      icon: TaskFilterIcons.DueDate,
+    },
+    {
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
+      options: enumToOptions(TaskTaskStatus),
+      icon: TaskFilterIcons.Status,
+    },
+    {
+      key: 'assignerIDIn',
+      label: 'Assigner',
+      type: 'multiselect',
+      options: orgMembers,
+      icon: TaskFilterIcons.Assigner,
+    },
+    {
+      key: 'assigneeIDIn',
+      label: 'Assignee',
+      type: 'multiselect',
+      options: orgMembers,
+      icon: TaskFilterIcons.Assignee,
+    },
+  ])
 
 export const getActivityTaskColumns = (taskKindOptions: TaskKindOption[] = [], onTaskOpen?: (taskId: string) => void): ColumnDef<ActivityTaskRow>[] => [
   {

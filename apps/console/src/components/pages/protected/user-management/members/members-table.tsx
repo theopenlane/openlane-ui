@@ -30,6 +30,7 @@ import { useOrgMemberPermissions } from '@/lib/authz/use-org-member-permissions'
 import MembersTableToolbar from '@/components/pages/protected/user-management/members/members-table-toolbar.tsx'
 import { MEMBERS_SORT_FIELDS } from './table/table-config'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { mapMembersFilterKey } from './table/table-config'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { toHumanLabel } from '@/utils/strings'
 
@@ -77,15 +78,7 @@ export const MembersTable = () => {
       and: [...(filters?.and ?? []), ...(debouncedSearch.trim() ? [{ hasUserWith: [{ displayNameContainsFold: debouncedSearch }] }] : [])],
     }
 
-    const result = whereGenerator<OrgMembershipWhereInput>(filtersWithSearch, (key, value) => {
-      if (key === 'authProviderIn') {
-        return {
-          hasUserWith: [{ authProviderIn: value as UserAuthProvider[] }],
-        }
-      }
-
-      return { [key]: value } as OrgMembershipWhereInput
-    })
+    const result = whereGenerator<OrgMembershipWhereInput>(filtersWithSearch, mapMembersFilterKey)
 
     if (Array.isArray(result.and)) {
       const userClauses = result.and.filter((e) => Array.isArray(e.hasUserWith)) as Array<{ hasUserWith: Array<Record<string, unknown>> }>

@@ -44,7 +44,39 @@ export interface FilterField<K extends string = string> {
   nullableKey?: string
 }
 
-export const defineFilterFields = <K extends string>(fields: FilterField<K>[]): FilterField<K>[] => fields
+export type WhereInputKey<TWhereInput> = Extract<keyof TWhereInput, string>
+
+type SchemaFilterKey<TWhereInput> = WhereInputKey<TWhereInput>
+
+type PairedBaseKey<TWhereInput, TLower extends string, TUpper extends string> = {
+  [K in SchemaFilterKey<TWhereInput>]: K extends `${infer TBase}${TLower}` ? (`${TBase}${TUpper}` extends SchemaFilterKey<TWhereInput> ? TBase : never) : never
+}[SchemaFilterKey<TWhereInput>]
+
+export type DateFilterKey<TWhereInput> = PairedBaseKey<TWhereInput, 'GTE', 'LT'>
+export type RangeFilterKey<TWhereInput> = PairedBaseKey<TWhereInput, 'GTE', 'LTE'>
+export type NullableFilterKey<TWhereInput> = PairedBaseKey<TWhereInput, 'IsNil', 'NotNil'>
+
+type FilterFieldShape<TWhereInput> = Omit<FilterField, 'key' | 'type' | 'nullableKey'> & {
+  nullableKey?: NullableFilterKey<TWhereInput>
+}
+
+export type FilterFieldFor<TWhereInput, TSynthetic extends string = never> =
+  | (FilterFieldShape<TWhereInput> & {
+      type: 'text' | 'select' | 'boolean' | 'radio' | 'multiselect' | 'sliderNumber' | 'dropdownUserSearch' | 'dropdownSearchMultiselect' | 'dropdownSearchSingleSelect'
+      key: SchemaFilterKey<TWhereInput> | TSynthetic
+    })
+  | (FilterFieldShape<TWhereInput> & {
+      type: 'date' | 'dateRange'
+      key: DateFilterKey<TWhereInput> | TSynthetic
+    })
+  | (FilterFieldShape<TWhereInput> & {
+      type: 'sliderRange'
+      key: RangeFilterKey<TWhereInput> | TSynthetic
+    })
+
+export const defineFilterFields =
+  <TWhereInput, TSynthetic extends string = never>() =>
+  <const TFields extends readonly FilterFieldFor<TWhereInput, TSynthetic>[]>(fields: TFields): TFields[number][] => [...fields]
 
 export type ConditionValue =
   | string

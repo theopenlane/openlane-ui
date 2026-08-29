@@ -1,10 +1,10 @@
+import { defineFilterFields } from '@/types'
 import React from 'react'
 import Link from 'next/link'
 import type { ColumnDef } from '@tanstack/react-table'
 import { CircleDot, Folder, FolderTree, Layers, Tag } from 'lucide-react'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { SubcontrolControlStatus } from '@repo/codegen/src/schema'
-import type { FilterField } from '@/types'
+import { SubcontrolControlStatus, type SubcontrolWhereInput } from '@repo/codegen/src/schema'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 
@@ -58,38 +58,39 @@ export const getSubcontrolsColumns = ({ controlId, convertToReadOnly }: GetSubco
   },
 ]
 
-export const getSubcontrolsFilterFields = (typeOptions: string[], sourceOptions: string[]): FilterField[] => [
-  {
-    key: 'subcontrolKindNameIn',
-    label: 'Type',
-    type: 'multiselect',
-    icon: Tag,
-    options: typeOptions.map((value) => ({ value, label: getEnumLabel(value) })),
-  },
-  {
-    key: 'sourceIn',
-    label: 'Source',
-    type: 'multiselect',
-    icon: Layers,
-    options: sourceOptions.map((value) => ({ value, label: getEnumLabel(value) })),
-  },
-  {
-    key: 'statusIn',
-    label: 'Status',
-    type: 'multiselect',
-    icon: CircleDot,
-    options: enumToOptions(SubcontrolControlStatus),
-  },
-  {
-    key: 'categoryContainsFold',
-    label: 'Category',
-    type: 'text',
-    icon: Folder,
-  },
-  {
-    key: 'subcategoryContainsFold',
-    label: 'Subcategory',
-    type: 'text',
-    icon: FolderTree,
-  },
-]
+export const getSubcontrolsFilterFields = (typeOptions: string[], sourceOptions: string[]) =>
+  defineFilterFields<SubcontrolWhereInput>()([
+    {
+      key: 'subcontrolKindNameIn',
+      label: 'Type',
+      type: 'multiselect',
+      icon: Tag,
+      options: typeOptions.map((value) => ({ value, label: getEnumLabel(value) })),
+    },
+    {
+      key: 'sourceIn',
+      label: 'Source',
+      type: 'multiselect',
+      icon: Layers,
+      options: sourceOptions.map((value) => ({ value, label: getEnumLabel(value) })),
+    },
+    {
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
+      icon: CircleDot,
+      options: enumToOptions(SubcontrolControlStatus),
+    },
+    {
+      key: 'categoryContainsFold',
+      label: 'Category',
+      type: 'text',
+      icon: Folder,
+    },
+    {
+      key: 'subcategoryContainsFold',
+      label: 'Subcategory',
+      type: 'text',
+      icon: FolderTree,
+    },
+  ])

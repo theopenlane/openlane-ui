@@ -2,12 +2,12 @@
 
 import { type ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { SubprocessorsFilterIcons } from '@/components/shared/enum-mapper/subprocessors-enum'
 import { CountryFlag } from '@repo/ui/country-flag'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
-import { type User } from '@repo/codegen/src/schema'
+import { type User, type TrustCenterSubprocessorWhereInput } from '@repo/codegen/src/schema'
 import { type AuthorToken } from '@/lib/authors'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { createRowActionsColumn } from '@/components/shared/crud-base/columns/row-actions-column'
@@ -200,12 +200,13 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
   return { columns, mappedColumns }
 }
 
-export const getSubprocessorsFilterFields = (enumOptions: { value: string; label: string }[]): FilterField[] => [
-  {
-    key: 'trustCenterSubprocessorKindNameIn',
-    label: 'Category',
-    type: 'multiselect',
-    options: enumOptions,
-    icon: SubprocessorsFilterIcons.Category,
-  },
-]
+export const getSubprocessorsFilterFields = (enumOptions: { value: string; label: string }[]) =>
+  defineFilterFields<TrustCenterSubprocessorWhereInput>()([
+    {
+      key: 'trustCenterSubprocessorKindNameIn',
+      label: 'Category',
+      type: 'multiselect',
+      options: enumOptions,
+      icon: SubprocessorsFilterIcons.Category,
+    },
+  ])

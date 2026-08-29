@@ -3,6 +3,7 @@
   "globalDependencies": ["**/.env.*local", "**/.env", ".env"],
   "globalEnv": [
     "CI",
+    "TZ",
 
     // Playwright E2E
     "E2E_API_BASE",

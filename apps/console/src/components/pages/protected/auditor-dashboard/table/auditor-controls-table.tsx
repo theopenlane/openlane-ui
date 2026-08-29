@@ -18,6 +18,7 @@ import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { createAuditorControlsFilterMapper } from './table-config'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import CreateControlReviewSheet from '@/components/pages/protected/controls/quick-actions/create-control-review-sheet'
@@ -65,19 +66,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
   }, [queryClient])
 
   const where: ControlWhereInput = useMemo(() => {
-    const generated = whereGenerator<ControlWhereInput>(filters, (key, value) => {
-      if (key === 'standardIDIn' && Array.isArray(value) && value.includes('CUSTOM')) {
-        const normalStandards = value.filter((id) => id !== 'CUSTOM')
-        return { or: [...(normalStandards.length > 0 ? [{ standardIDIn: normalStandards }] : []), { referenceFrameworkIsNil: true }] }
-      }
-      if (key === 'reviewStatusIn') {
-        return { hasReviewsWith: [{ statusIn: value, hasProgramsWith: [{ id: programId }] }] } as ControlWhereInput
-      }
-      if (key === 'evidenceStatusIn') {
-        return { hasEvidenceWith: [{ statusIn: value, hasProgramsWith: [{ id: programId }] }] } as ControlWhereInput
-      }
-      return { [key]: value } as ControlWhereInput
-    })
+    const generated = whereGenerator<ControlWhereInput>(filters, createAuditorControlsFilterMapper(programId))
 
     const base: ControlWhereInput = { hasProgramsWith: [{ id: programId }], ...generated }
     if (debouncedSearch) {

@@ -23,6 +23,7 @@ import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { mapControlsFilterKey } from './table-config'
 import { hasStatusCondition } from '@/components/shared/table-filter/has-status-condition'
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
@@ -96,18 +97,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const whereFilter = useMemo(() => {
     const base: ControlWhereInput = {}
 
-    const result = whereGenerator<ControlWhereInput>(filters, (key, value) => {
-      // Special case: CUSTOM pseudo-standard
-      if (key === 'standardIDIn' && Array.isArray(value) && value.includes('CUSTOM')) {
-        const normalStandards = value.filter((id) => id !== 'CUSTOM')
-
-        return {
-          or: [...(normalStandards.length > 0 ? [{ standardIDIn: normalStandards }] : []), { referenceFrameworkIsNil: true }],
-        }
-      }
-
-      return { [key]: value } as ControlWhereInput
-    })
+    const result = whereGenerator<ControlWhereInput>(filters, mapControlsFilterKey)
 
     // Automatically exclude archived unless overridden
     if (!hasStatusCondition(result)) {

@@ -1,5 +1,6 @@
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { defineFilterFields, type FilterField } from '@/types'
+import { type InternalPolicyWhereInput } from '@repo/codegen/src/schema'
 import { useEffect, useMemo, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { FilterIcons, InternalPolicyStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
@@ -10,7 +11,7 @@ import { getProgramFilterFields } from '@/components/shared/table-filter/program
 type TOption = { value: string; label: string }
 
 export const getPoliciesFilterFields = (groupOptions: TOption[], programOptions: TOption[], enumOptions: TOption[], tagOptions: TOption[], hasProgramAccess: boolean) =>
-  defineFilterFields([
+  defineFilterFields<InternalPolicyWhereInput>()([
     {
       key: 'approverIDIn',
       label: 'Approver Group',
@@ -37,12 +38,7 @@ export const getPoliciesFilterFields = (groupOptions: TOption[], programOptions:
       type: 'multiselect',
       icon: FilterIcons.Type,
       options: enumOptions,
-    },
-    {
-      key: 'policyTypeIsNil',
-      label: 'Empty Type',
-      type: 'boolean',
-      icon: FilterIcons.Type,
+      nullableKey: 'internalPolicyKindName',
     },
     {
       key: 'reviewDue',
@@ -142,3 +138,15 @@ export const INTERNAL_POLICIES_SORT_FIELDS = [
   { key: 'created_at', label: 'Created At' },
   { key: 'updated_at', label: 'Last Updated' },
 ]
+
+export const mapPoliciesFilterKey = (key: string, value: unknown): InternalPolicyWhereInput => {
+  if (key === 'hasControlsWith') {
+    return { hasControlsWith: [{ refCodeContainsFold: value as string }] }
+  }
+
+  if (key === 'hasSubcontrolsWith') {
+    return { hasSubcontrolsWith: [{ refCodeContainsFold: value as string }] }
+  }
+
+  return { [key]: value }
+}

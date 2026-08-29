@@ -29,7 +29,7 @@ import { type ResponsibilityFieldsMap } from '@/components/shared/crud-base/dial
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { type AccessEnum } from '@/lib/authz/enums/access-enum'
-import { type FilterField } from '@/types'
+import { type FilterField, type WhereInputKey } from '@/types'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type User } from '@repo/codegen/src/schema'
 import { type AuthorToken } from '@/lib/authors'
@@ -86,7 +86,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   defaultVisibility: VisibilityState
   filterFields?: FilterField[] | undefined
   quickFilters?: TQuickFilter[]
-  searchFields?: string[]
+  searchFields?: WhereInputKey<TWhereInput>[]
 
   // Breadcrumbs
   breadcrumbs: Array<{ label: string; href: string }>
