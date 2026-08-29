@@ -41,11 +41,7 @@ import { MEMBERS_FILTER_FIELDS, mapMembersFilterKey, INVITES_FILTER_FIELDS } fro
 import { REVIEW_FILTER_FIELDS } from '@/components/pages/protected/reviews/common/risk-review-config'
 import { TOKEN_FILTER_FIELDS } from '@/components/pages/protected/developers/table/table-config'
 import { deliveryFilterFields, mapDeliveryFilterKey } from '@/components/pages/protected/questionnaire/delivery-filter-config'
-import {
-  DOCUMENTATION_POLICIES_IGNORED_FILTER_KEYS,
-  mapDocumentationPoliciesFilterKey,
-  mapDocumentationProceduresFilterKey,
-} from '@/components/pages/protected/controls/tabs/documentation/documentation-filter-mappers'
+import { withoutControlScopedFilters } from '@/components/pages/protected/controls/tabs/documentation/documentation-filter-fields'
 
 const schema = buildClientSchema(introspection satisfies { __schema: unknown } as IntrospectionQuery)
 
@@ -108,7 +104,6 @@ type Suite = {
   whereInput: string
   fields: FilterField[]
   mapper?: FilterKeyMapper
-  inertKeys?: readonly string[]
 }
 
 const passThrough: FilterKeyMapper = (key, value) => ({ [key]: value })
@@ -143,7 +138,7 @@ const suites: Suite[] = [
   { page: 'standards', whereInput: 'StandardWhereInput', fields: getStandardsFilterFields() },
   { page: 'system-details', whereInput: 'SystemDetailWhereInput', fields: getSystemDetailFilterFields(emptyEnumOptions(), true) },
   { page: 'tasks', whereInput: 'TaskWhereInput', fields: getTasksFilterFields([], noOptions, noOptions, true) },
-  { page: 'trust-center/ndas', whereInput: 'TrustCenterNdaRequestWhereInput', fields: ndaRequestsFilterFields },
+  { page: 'trust-center/ndas', whereInput: 'TrustCenterNDARequestWhereInput', fields: ndaRequestsFilterFields },
   { page: 'trust-center/reports', whereInput: 'TrustCenterDocWhereInput', fields: trustCenterDocsFilterFields, mapper: mapTrustCenterDocFilterKey },
   { page: 'trust-center/subprocessors', whereInput: 'TrustCenterSubprocessorWhereInput', fields: getSubprocessorsFilterFields(noOptions) },
   { page: 'user-management/invites', whereInput: 'InviteWhereInput', fields: INVITES_FILTER_FIELDS },
@@ -154,15 +149,14 @@ const suites: Suite[] = [
   {
     page: 'controls/documentation/policies',
     whereInput: 'InternalPolicyWhereInput',
-    fields: getPoliciesFilterFields(noOptions, noOptions, noOptions, noOptions, true),
-    mapper: mapDocumentationPoliciesFilterKey,
-    inertKeys: DOCUMENTATION_POLICIES_IGNORED_FILTER_KEYS,
+    fields: withoutControlScopedFilters(getPoliciesFilterFields(noOptions, noOptions, noOptions, noOptions, true)) ?? [],
+    mapper: mapPoliciesFilterKey,
   },
   {
     page: 'controls/documentation/procedures',
     whereInput: 'ProcedureWhereInput',
-    fields: getProceduresFilterFields(noOptions, noOptions, noOptions, noOptions, true),
-    mapper: mapDocumentationProceduresFilterKey,
+    fields: withoutControlScopedFilters(getProceduresFilterFields(noOptions, noOptions, noOptions, noOptions, true)) ?? [],
+    mapper: mapProceduresFilterKey,
   },
   { page: 'questionnaire/delivery', whereInput: 'AssessmentResponseWhereInput', fields: deliveryFilterFields, mapper: mapDeliveryFilterKey },
 ]
@@ -210,16 +204,15 @@ const producesNoPredicate = (where: object): boolean => {
 }
 
 describe('a filter that is offered actually reaches the query', () => {
-  for (const { page, whereInput, fields, mapper, inertKeys } of suites) {
+  for (const { page, whereInput, fields, mapper } of suites) {
     if (snapshotIsMissing(whereInput)) continue
 
     const mapKey = mapper ?? passThrough
-    const declaredInert = new Set(inertKeys ?? [])
 
-    test(`${page} swallows only the keys it declares inert`, () => {
+    test(`${page} sends a predicate for every filter it offers`, () => {
       const swallowed = fields.filter((field) => producesNoPredicate(buildWhere(field, sampleValue(field, whereInput), mapKey))).map((field) => field.key)
 
-      expect(swallowed.sort()).toEqual([...declaredInert].sort())
+      expect(swallowed).toEqual([])
     })
   }
 })

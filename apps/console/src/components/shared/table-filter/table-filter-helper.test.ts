@@ -50,13 +50,13 @@ describe('toUtcDayStart', () => {
 describe('handleDateEQOperator', () => {
   test('brackets the selected day as a half open interval', () => {
     withTimeZone('Europe/Zagreb', () => {
-      expect(handleDateEQOperator(new Date(2026, 7, 29, 15, 30), 'createdAt')).toEqual([{ createdAtGTE: '2026-08-28T22:00:00.000Z' }, { createdAtLT: '2026-08-29T22:00:00.000Z' }])
+      expect(handleDateEQOperator(new Date(2026, 7, 29, 15, 30), 'createdAt')).toEqual([{ createdAtGTE: '2026-08-28T22:00:00.000Z', createdAtLT: '2026-08-29T22:00:00.000Z' }])
     })
   })
 
   test('accepts an ISO string', () => {
     withTimeZone('UTC', () => {
-      expect(handleDateEQOperator('2026-08-29T15:30:00.000Z', 'createdAt')).toEqual([{ createdAtGTE: '2026-08-29T00:00:00.000Z' }, { createdAtLT: '2026-08-30T00:00:00.000Z' }])
+      expect(handleDateEQOperator('2026-08-29T15:30:00.000Z', 'createdAt')).toEqual([{ createdAtGTE: '2026-08-29T00:00:00.000Z', createdAtLT: '2026-08-30T00:00:00.000Z' }])
     })
   })
 
@@ -86,8 +86,7 @@ describe('handleDateRangeOperator', () => {
   test('includes the whole of the final day', () => {
     withTimeZone('UTC', () => {
       expect(handleDateRangeOperator({ from: new Date(2026, 7, 29), to: new Date(2026, 8, 2) }, 'createdAt')).toEqual([
-        { createdAtGTE: '2026-08-29T00:00:00.000Z' },
-        { createdAtLT: '2026-09-03T00:00:00.000Z' },
+        { createdAtGTE: '2026-08-29T00:00:00.000Z', createdAtLT: '2026-09-03T00:00:00.000Z' },
       ])
     })
   })
@@ -95,15 +94,14 @@ describe('handleDateRangeOperator', () => {
   test('normalises a reversed range', () => {
     withTimeZone('UTC', () => {
       const reversed = handleDateRangeOperator({ from: new Date(2026, 8, 2), to: new Date(2026, 7, 29) }, 'createdAt')
-      expect(reversed).toEqual([{ createdAtGTE: '2026-08-29T00:00:00.000Z' }, { createdAtLT: '2026-09-03T00:00:00.000Z' }])
+      expect(reversed).toEqual([{ createdAtGTE: '2026-08-29T00:00:00.000Z', createdAtLT: '2026-09-03T00:00:00.000Z' }])
     })
   })
 
   test('spans a single day when both ends fall on it', () => {
     withTimeZone('Europe/Zagreb', () => {
       expect(handleDateRangeOperator({ from: new Date(2026, 7, 29, 1), to: new Date(2026, 7, 29, 23) }, 'createdAt')).toEqual([
-        { createdAtGTE: '2026-08-28T22:00:00.000Z' },
-        { createdAtLT: '2026-08-29T22:00:00.000Z' },
+        { createdAtGTE: '2026-08-28T22:00:00.000Z', createdAtLT: '2026-08-29T22:00:00.000Z' },
       ])
     })
   })
@@ -163,10 +161,10 @@ describe('getWhereCondition', () => {
   test('maps date and dateRange through the day boundary helpers', () => {
     withTimeZone('UTC', () => {
       expect(run([field('createdAt', 'date')], { createdAt: new Date(2026, 7, 29) })).toEqual({
-        and: [{ createdAtGTE: '2026-08-29T00:00:00.000Z' }, { createdAtLT: '2026-08-30T00:00:00.000Z' }],
+        and: [{ createdAtGTE: '2026-08-29T00:00:00.000Z', createdAtLT: '2026-08-30T00:00:00.000Z' }],
       })
       expect(run([field('createdAt', 'dateRange')], { createdAt: { from: new Date(2026, 7, 29), to: new Date(2026, 7, 31) } })).toEqual({
-        and: [{ createdAtGTE: '2026-08-29T00:00:00.000Z' }, { createdAtLT: '2026-09-01T00:00:00.000Z' }],
+        and: [{ createdAtGTE: '2026-08-29T00:00:00.000Z', createdAtLT: '2026-09-01T00:00:00.000Z' }],
       })
     })
   })

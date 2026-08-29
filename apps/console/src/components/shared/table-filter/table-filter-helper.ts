@@ -24,7 +24,7 @@ export const handleDateEQOperator = (value: Date | string, field: string) => {
 
   const start = toUtcDayStart(date)
   const end = toUtcDayStart(addDays(date, 1))
-  return [{ [`${field}GTE`]: start }, { [`${field}LT`]: end }]
+  return [{ [`${field}GTE`]: start, [`${field}LT`]: end }]
 }
 
 export const handleDateRangeOperator = (range: DateRange, field: string): Condition[] => {
@@ -47,15 +47,9 @@ export const handleDateRangeOperator = (range: DateRange, field: string): Condit
   if (range.from && range.to) {
     const startDate = range.from < range.to ? range.from : range.to
     const endDate = range.from < range.to ? range.to : range.from
-    if (isSameDay(range.from, range.to)) {
-      const start = toUtcDayStart(startDate)
-      const end = toUtcDayStart(addDays(startDate, 1))
-      conditions.push({ [`${field}GTE`]: start }, { [`${field}LT`]: end })
-    } else {
-      const start = toUtcDayStart(startDate)
-      const end = toUtcDayStart(addDays(endDate, 1))
-      conditions.push({ [`${field}GTE`]: start }, { [`${field}LT`]: end })
-    }
+    const start = toUtcDayStart(startDate)
+    const end = toUtcDayStart(addDays(isSameDay(range.from, range.to) ? startDate : endDate, 1))
+    conditions.push({ [`${field}GTE`]: start, [`${field}LT`]: end })
   }
   return conditions
 }

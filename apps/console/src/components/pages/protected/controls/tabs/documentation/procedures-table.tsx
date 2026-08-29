@@ -5,8 +5,8 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { ViewProcedureSheet } from '@/components/pages/protected/procedures/view-procedure-sheet'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
-import { mapDocumentationProceduresFilterKey } from './documentation-filter-mappers'
-import { useProceduresFilters } from '@/components/pages/protected/procedures/table/table-config'
+import { withoutControlScopedFilters } from './documentation-filter-fields'
+import { mapProceduresFilterKey, useProceduresFilters } from '@/components/pages/protected/procedures/table/table-config'
 import { SetControlAssociationDialog } from '@/components/pages/protected/controls/set-control-association-dialog'
 import { useDocumentationProcedures } from '@/lib/graphql-hooks/documentation'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
@@ -46,7 +46,7 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
   const debouncedSearch = useDebounce(search, 300)
   const [filters, setFilters] = useState<WhereCondition>({})
   const filterFields = useProceduresFilters()
-  const filteredFields = useMemo(() => filterFields?.filter((field) => field.key !== 'hasControlsWith' && field.key !== 'hasSubcontrolsWith') ?? null, [filterFields])
+  const filteredFields = useMemo(() => withoutControlScopedFilters(filterFields), [filterFields])
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
   const where = useMemo(() => {
@@ -54,7 +54,7 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
       nameContainsFold: debouncedSearch,
     }
 
-    const result = whereGenerator<ProcedureWhereInput>(filters as ProcedureWhereInput, mapDocumentationProceduresFilterKey)
+    const result = whereGenerator<ProcedureWhereInput>(filters as ProcedureWhereInput, mapProceduresFilterKey)
 
     const hasStatusCondition = (obj: ProcedureWhereInput): boolean => {
       if ('status' in obj || 'statusNEQ' in obj || 'statusIn' in obj || 'statusNotIn' in obj) return true
