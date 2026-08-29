@@ -21,7 +21,8 @@ import { Check, ChevronDown, ChevronRight, X } from 'lucide-react'
 import { buildMembershipList, resolveSingleEntityVendor, type MembershipList, type MembershipVendor } from '@/lib/directory-memberships/group-memberships'
 import { MembershipList as MembershipListTable } from '@/components/shared/directory-memberships/membership-list'
 import { DirectoryMembershipDirectoryMembershipRole, type DirectoryMembershipWhereInput } from '@repo/codegen/src/schema'
-import type { FilterField, WhereCondition } from '@/types'
+import type { WhereCondition } from '@/types'
+import { defineFilterFields } from '@/types'
 
 interface LinkedAccountsTabProps {
   personnelId: string
@@ -41,7 +42,7 @@ type DirectoryAccountRow = {
 
 const roleOptions = enumToOptions(DirectoryMembershipDirectoryMembershipRole)
 
-const MEMBERSHIP_FILTER_FIELDS: FilterField[] = [
+const MEMBERSHIP_FILTER_FIELDS = defineFilterFields<DirectoryMembershipWhereInput>()([
   {
     key: 'roleIn',
     label: 'Role',
@@ -49,7 +50,7 @@ const MEMBERSHIP_FILTER_FIELDS: FilterField[] = [
     icon: FilterIcons.Access,
     options: roleOptions,
   },
-]
+])
 
 const getMfaBadge = (mfaState: string) => {
   switch (mfaState) {

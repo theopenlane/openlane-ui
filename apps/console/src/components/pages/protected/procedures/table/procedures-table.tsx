@@ -20,6 +20,7 @@ import usePdfExportDialog from '@/components/shared/export/use-pdf-export-dialog
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { mapProceduresFilterKey } from './table-config'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
@@ -48,17 +49,7 @@ export const ProceduresTable = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const where = useMemo(() => {
-    const result = whereGenerator<ProcedureWhereInput>(filters, (key, value) => {
-      if (key === 'hasControlsWith') {
-        return { hasControlsWith: [{ refCodeContainsFold: value as string }] } as ProcedureWhereInput
-      }
-
-      if (key === 'hasSubcontrolsWith') {
-        return { hasSubcontrolsWith: [{ refCodeContainsFold: value as string }] } as ProcedureWhereInput
-      }
-
-      return { [key]: value } as ProcedureWhereInput
-    })
+    const result = whereGenerator<ProcedureWhereInput>(filters, mapProceduresFilterKey)
 
     const hasStatusCondition = (obj: ProcedureWhereInput): boolean => {
       if ('status' in obj || 'statusNEQ' in obj || 'statusIn' in obj || 'statusNotIn' in obj) return true

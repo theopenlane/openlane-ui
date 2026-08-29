@@ -1,8 +1,8 @@
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import TitleField from '../create/form/fields/title-field'
-import { type RemediationQuery, RemediationOrderField } from '@repo/codegen/src/schema'
+import { type RemediationQuery, RemediationOrderField, type RemediationWhereInput } from '@repo/codegen/src/schema'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { type RemediationFieldProps, type EnumOptions, type EnumCreateHandlers } from './types'
@@ -18,34 +18,35 @@ export const breadcrumbs = [
   { label: 'Remediations', href: '/exposure/remediations' },
 ]
 
-export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
-  {
-    key: 'titleContainsFold',
-    label: 'Title',
-    type: 'text',
-    icon: FilterIcons.Source,
-  },
-  {
-    key: 'stateContainsFold',
-    label: 'State',
-    type: 'text',
-    icon: FilterIcons.Status,
-  },
-  {
-    key: 'sourceContainsFold',
-    label: 'Source',
-    type: 'text',
-    icon: FilterIcons.Source,
-  },
-  {
-    key: 'externalIDContainsFold',
-    label: 'External ID',
-    type: 'text',
-    icon: FilterIcons.ID,
-  },
-  getEnvironmentFilterField(enumOptions.environmentOptions),
-  getScopeFilterField(enumOptions.scopeOptions),
-]
+export const getFilterFields = (enumOptions: EnumOptions) =>
+  defineFilterFields<RemediationWhereInput>()([
+    {
+      key: 'titleContainsFold',
+      label: 'Title',
+      type: 'text',
+      icon: FilterIcons.Source,
+    },
+    {
+      key: 'stateContainsFold',
+      label: 'State',
+      type: 'text',
+      icon: FilterIcons.Status,
+    },
+    {
+      key: 'sourceContainsFold',
+      label: 'Source',
+      type: 'text',
+      icon: FilterIcons.Source,
+    },
+    {
+      key: 'externalIDContainsFold',
+      label: 'External ID',
+      type: 'text',
+      icon: FilterIcons.ID,
+    },
+    getEnvironmentFilterField(enumOptions.environmentOptions),
+    getScopeFilterField(enumOptions.scopeOptions),
+  ])
 
 export const REMEDIATIONS_SORT_FIELDS = enumToSortFields(RemediationOrderField)
 

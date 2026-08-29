@@ -1,8 +1,8 @@
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import NameField from '../create/form/fields/name-field'
-import { AssetAssetType, type AssetQuery, AssetSourceType, AssetOrderField } from '@repo/codegen/src/schema'
+import { AssetAssetType, type AssetQuery, AssetSourceType, AssetOrderField, type AssetWhereInput } from '@repo/codegen/src/schema'
 import DescriptionField from '../create/form/fields/description-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
@@ -21,101 +21,102 @@ export const breadcrumbs = [
   { label: 'Assets', href: '/assets' },
 ]
 
-export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
-  {
-    key: 'assetTypeIn',
-    label: 'Asset Type',
-    type: 'multiselect',
-    icon: FilterIcons.Type,
-    options: enumToOptions(AssetAssetType),
-  },
-  {
-    key: 'subtypeNameIn',
-    label: 'Subtype',
-    type: 'multiselect',
-    options: enumOptions.assetSubtypeOptions,
-    icon: FilterIcons.Subcategory,
-  },
-  {
-    key: 'sourceTypeIn',
-    label: 'Source Type',
-    type: 'multiselect',
-    icon: FilterIcons.Source,
-    options: enumToOptions(AssetSourceType),
-  },
-  {
-    key: 'containsPii',
-    label: 'Contains PII',
-    type: 'radio',
-    icon: FilterIcons.ID,
-    radioOptions: [
-      { value: true, label: 'Has PII' },
-      { value: false, label: 'No PII' },
-    ],
-  },
-  {
-    key: 'accessModelNameIn',
-    label: 'Access Model',
-    type: 'multiselect',
-    options: enumOptions.accessModelOptions,
-    icon: FilterIcons.Access,
-  },
-  {
-    key: 'dataClassificationNameIn',
-    label: 'Data Classification',
-    type: 'multiselect',
-    options: enumOptions.assetDataClassificationOptions,
-    icon: FilterIcons.Category,
-  },
-  {
-    key: 'costCenterNameContains',
-    label: 'Cost Center',
-    type: 'text',
-    icon: FilterIcons.Team,
-  },
-  {
-    key: 'criticalityNameIn',
-    label: 'Criticality',
-    type: 'multiselect',
-    icon: FilterIcons.Criticality,
-    options: enumOptions.criticalityOptions,
-  },
-  {
-    key: 'encryptionStatusNameIn',
-    label: 'Encryption Status',
-    type: 'multiselect',
-    icon: FilterIcons.Security,
-    options: enumOptions.encryptionStatusOptions,
-  },
-  getEnvironmentFilterField(enumOptions.environmentOptions),
-  getScopeFilterField(enumOptions.scopeOptions),
-  {
-    key: 'physicalLocationContains',
-    label: 'Physical Location',
-    type: 'text',
-    icon: FilterIcons.Location,
-  },
-  {
-    key: 'securityTierNameIn',
-    label: 'Security Tier',
-    type: 'multiselect',
-    icon: FilterIcons.Tier,
-    options: enumOptions.securityTierOptions,
-  },
-  {
-    key: 'regionNameContains',
-    label: 'Region',
-    type: 'text',
-    icon: FilterIcons.Region,
-  },
-  {
-    key: 'tagsHas',
-    label: 'Tags',
-    type: 'dropdownSearchSingleSelect',
-    icon: FilterIcons.Status,
-    options: enumOptions.tagOptions,
-  },
-]
+export const getFilterFields = (enumOptions: EnumOptions) =>
+  defineFilterFields<AssetWhereInput>()([
+    {
+      key: 'assetTypeIn',
+      label: 'Asset Type',
+      type: 'multiselect',
+      icon: FilterIcons.Type,
+      options: enumToOptions(AssetAssetType),
+    },
+    {
+      key: 'assetSubtypeNameIn',
+      label: 'Subtype',
+      type: 'multiselect',
+      options: enumOptions.assetSubtypeOptions,
+      icon: FilterIcons.Subcategory,
+    },
+    {
+      key: 'sourceTypeIn',
+      label: 'Source Type',
+      type: 'multiselect',
+      icon: FilterIcons.Source,
+      options: enumToOptions(AssetSourceType),
+    },
+    {
+      key: 'containsPii',
+      label: 'Contains PII',
+      type: 'radio',
+      icon: FilterIcons.ID,
+      radioOptions: [
+        { value: true, label: 'Has PII' },
+        { value: false, label: 'No PII' },
+      ],
+    },
+    {
+      key: 'accessModelNameIn',
+      label: 'Access Model',
+      type: 'multiselect',
+      options: enumOptions.accessModelOptions,
+      icon: FilterIcons.Access,
+    },
+    {
+      key: 'assetDataClassificationNameIn',
+      label: 'Data Classification',
+      type: 'multiselect',
+      options: enumOptions.assetDataClassificationOptions,
+      icon: FilterIcons.Category,
+    },
+    {
+      key: 'costCenterContains',
+      label: 'Cost Center',
+      type: 'text',
+      icon: FilterIcons.Team,
+    },
+    {
+      key: 'criticalityNameIn',
+      label: 'Criticality',
+      type: 'multiselect',
+      icon: FilterIcons.Criticality,
+      options: enumOptions.criticalityOptions,
+    },
+    {
+      key: 'encryptionStatusNameIn',
+      label: 'Encryption Status',
+      type: 'multiselect',
+      icon: FilterIcons.Security,
+      options: enumOptions.encryptionStatusOptions,
+    },
+    getEnvironmentFilterField(enumOptions.environmentOptions),
+    getScopeFilterField(enumOptions.scopeOptions),
+    {
+      key: 'physicalLocationContains',
+      label: 'Physical Location',
+      type: 'text',
+      icon: FilterIcons.Location,
+    },
+    {
+      key: 'securityTierNameIn',
+      label: 'Security Tier',
+      type: 'multiselect',
+      icon: FilterIcons.Tier,
+      options: enumOptions.securityTierOptions,
+    },
+    {
+      key: 'regionContains',
+      label: 'Region',
+      type: 'text',
+      icon: FilterIcons.Region,
+    },
+    {
+      key: 'tagsHas',
+      label: 'Tags',
+      type: 'dropdownSearchSingleSelect',
+      icon: FilterIcons.Status,
+      options: enumOptions.tagOptions,
+    },
+  ])
 
 export const ASSETS_SORT_FIELDS = enumToSortFields(AssetOrderField)
 export const visibilityFields = {

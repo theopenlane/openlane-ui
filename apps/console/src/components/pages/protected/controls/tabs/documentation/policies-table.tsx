@@ -5,6 +5,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { ViewPolicySheet } from '@/components/pages/protected/policies/view-policy-sheet'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { mapDocumentationPoliciesFilterKey } from './documentation-filter-mappers'
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config'
 import { SetControlAssociationDialog } from '@/components/pages/protected/controls/set-control-association-dialog'
 import { useDocumentationPolicies } from '@/lib/graphql-hooks/documentation'
@@ -53,12 +54,7 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds,
       nameContainsFold: debouncedSearch,
     }
 
-    const result = whereGenerator<InternalPolicyWhereInput>(filters as InternalPolicyWhereInput, (key, value) => {
-      if (key === 'hasControlsWith' || key === 'hasSubcontrolsWith') {
-        return {} as InternalPolicyWhereInput
-      }
-      return { [key]: value }
-    })
+    const result = whereGenerator<InternalPolicyWhereInput>(filters as InternalPolicyWhereInput, mapDocumentationPoliciesFilterKey)
 
     const hasStatusCondition = (obj: InternalPolicyWhereInput): boolean => {
       if ('status' in obj || 'statusNEQ' in obj || 'statusIn' in obj || 'statusNotIn' in obj) return true

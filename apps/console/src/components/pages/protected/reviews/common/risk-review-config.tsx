@@ -1,3 +1,4 @@
+import { defineFilterFields } from '@/types'
 import React from 'react'
 import { type ColumnDef, type VisibilityState } from '@repo/ui/table-types'
 import { Badge } from '@repo/ui/badge'
@@ -8,9 +9,8 @@ import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import type { FilterField } from '@/types'
 import { TruncatedCell } from '@repo/ui/data-table'
-import { EntityVendorTier, type ReviewReviewStatus } from '@repo/codegen/src/schema'
+import { EntityVendorTier, type ReviewReviewStatus, type ReviewWhereInput } from '@repo/codegen/src/schema'
 
 const TIER_COLORS: Record<string, string> = {
   critical: 'bg-rose-500/16 text-rose-400 border-rose-500/24',
@@ -42,11 +42,11 @@ export const DEFAULT_VISIBILITY: VisibilityState = {
   updatedAt: false,
 }
 
-export const REVIEW_FILTER_FIELDS: FilterField[] = [
+export const REVIEW_FILTER_FIELDS = defineFilterFields<ReviewWhereInput>()([
   { key: 'classificationContainsFold', label: 'Risk Tier', type: 'text', icon: FilterIcons.Tier },
   { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
   { key: 'sourceContainsFold', label: 'Source', type: 'text', icon: FilterIcons.Source },
-]
+])
 
 export const reviewHistoryColumns: ColumnDef<ReviewsNodeNonNull>[] = [
   {

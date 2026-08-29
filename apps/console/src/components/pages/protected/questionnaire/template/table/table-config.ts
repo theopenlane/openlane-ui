@@ -1,6 +1,6 @@
 import { Globe, Tag, Shield, CalendarPlus, History, type LucideIcon } from 'lucide-react'
-import { type FilterField } from '@/types'
-import { OrderDirection, TemplateOrderField } from '@repo/codegen/src/schema.ts'
+import { defineFilterFields, type FilterField } from '@/types'
+import { OrderDirection, TemplateOrderField, type TemplateWhereInput } from '@repo/codegen/src/schema.ts'
 import { useMemo } from 'react'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 
@@ -12,13 +12,33 @@ const TemplateFilterIcons = {
   CreatedAt: History,
 } satisfies Record<string, LucideIcon>
 
+type TOption = { value: string; label: string }
+
+export const getTemplateFilterFields = (environmentOptions: TOption[], scopeOptions: TOption[]) =>
+  defineFilterFields<TemplateWhereInput>()([
+    { key: 'environmentNameIn', label: 'Environment', type: 'multiselect', icon: TemplateFilterIcons.Environment, options: environmentOptions, nullableKey: 'environmentName' },
+    { key: 'scopeNameIn', label: 'Scope', type: 'multiselect', icon: TemplateFilterIcons.Scope, options: scopeOptions, nullableKey: 'scopeName' },
+    {
+      key: 'systemOwned',
+      label: 'System Owned',
+      type: 'radio',
+      icon: TemplateFilterIcons.SystemOwned,
+      radioOptions: [
+        { value: true, label: 'System owned' },
+        { value: false, label: 'Not system owned' },
+      ],
+    },
+    { key: 'updatedAt', label: 'Updated At', type: 'dateRange', icon: TemplateFilterIcons.UpdatedAt },
+    { key: 'createdAt', label: 'Created At', type: 'dateRange', icon: TemplateFilterIcons.CreatedAt },
+  ])
+
 export function useTemplateFilters(): FilterField[] | undefined {
   const { data: environmentData, isSuccess: isEnvironmentSuccess } = useGetCustomTypeEnums({
-    where: { objectType: 'global', field: 'environment' },
+    where: { objectType: null, field: 'environment' },
   })
 
   const { data: scopeData, isSuccess: isScopeSuccess } = useGetCustomTypeEnums({
-    where: { objectType: 'global', field: 'scope' },
+    where: { objectType: null, field: 'scope' },
   })
 
   return useMemo(() => {
@@ -27,22 +47,7 @@ export function useTemplateFilters(): FilterField[] | undefined {
     const environmentOptions = environmentData?.customTypeEnums?.edges?.map((edge) => ({ value: edge?.node?.name ?? '', label: edge?.node?.name ?? '' })).filter((o) => o.value) ?? []
     const scopeOptions = scopeData?.customTypeEnums?.edges?.map((edge) => ({ value: edge?.node?.name ?? '', label: edge?.node?.name ?? '' })).filter((o) => o.value) ?? []
 
-    return [
-      { key: 'environmentNameIn', label: 'Environment', type: 'multiselect', icon: TemplateFilterIcons.Environment, options: environmentOptions, nullableKey: 'environmentName' },
-      { key: 'scopeNameIn', label: 'Scope', type: 'multiselect', icon: TemplateFilterIcons.Scope, options: scopeOptions, nullableKey: 'scopeName' },
-      {
-        key: 'systemOwned',
-        label: 'System Owned',
-        type: 'radio',
-        icon: TemplateFilterIcons.SystemOwned,
-        radioOptions: [
-          { value: true, label: 'System owned' },
-          { value: false, label: 'Not system owned' },
-        ],
-      },
-      { key: 'updatedAt', label: 'Updated At', type: 'dateRange', icon: TemplateFilterIcons.UpdatedAt },
-      { key: 'createdAt', label: 'Created At', type: 'dateRange', icon: TemplateFilterIcons.CreatedAt },
-    ] satisfies FilterField[]
+    return getTemplateFilterFields(environmentOptions, scopeOptions)
   }, [isEnvironmentSuccess, isScopeSuccess, environmentData, scopeData])
 }
 

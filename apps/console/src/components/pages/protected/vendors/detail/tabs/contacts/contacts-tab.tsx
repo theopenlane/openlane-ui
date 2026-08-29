@@ -20,7 +20,7 @@ import { useContactsWithFilter, useCreateBulkCSVContact, useBulkEditContact } fr
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
-import { ContactUserStatus, type UpdateContactInput } from '@repo/codegen/src/schema'
+import { ContactUserStatus, type UpdateContactInput, type ContactWhereInput } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
 import { GenericBulkEditDialog } from '@/components/shared/crud-base/dialog/bulk-edit'
@@ -32,11 +32,12 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { z } from 'zod'
-import type { FilterField, WhereCondition } from '@/types'
+import type { WhereCondition } from '@/types'
 import ContactCard, { StatusCell, type ContactNode } from './contact-card'
 import AddContactDialog from './add-contact-dialog'
 import ContactDetailSheet from './contact-detail-sheet'
 import { useSuggestedContacts } from './use-suggested-contacts'
+import { defineFilterFields } from '@/types'
 
 interface ContactsTabProps {
   vendorId: string
@@ -52,10 +53,10 @@ const bulkEditFieldSchema = z.object({
 
 const statusEnumOptions = enumToOptions(ContactUserStatus)
 
-const CONTACT_FILTER_FIELDS: FilterField[] = [
+const CONTACT_FILTER_FIELDS = defineFilterFields<ContactWhereInput>()([
   { key: 'statusIn', label: 'Status', type: 'multiselect', icon: FilterIcons.Status, options: statusEnumOptions },
   { key: 'titleContainsFold', label: 'Title', type: 'text', icon: FilterIcons.Title },
-]
+])
 
 const DATA_COLUMNS: ColumnDef<ContactNode>[] = [
   { accessorKey: 'fullName', header: 'Name', size: 150, cell: ({ row }) => <span className="block truncate">{row.original.fullName ?? '-'}</span> },

@@ -1,10 +1,11 @@
+import { type PersonalAccessTokenWhereInput } from '@repo/codegen/src/schema'
 import { FilterIcons } from '@/components/shared/enum-mapper/tokens-enum'
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 
-export const TOKEN_FILTER_FIELDS: FilterField[] = [
+export const TOKEN_FILTER_FIELDS = defineFilterFields<PersonalAccessTokenWhereInput>()([
   { key: 'nameContainsFold', label: 'Name', type: 'text', icon: FilterIcons.Name },
   { key: 'expiresAt', label: 'Expires At', type: 'dateRange', icon: FilterIcons.ExpiresAt },
-]
+])
 
 export const TOKEN_SORT_FIELDS = [
   {

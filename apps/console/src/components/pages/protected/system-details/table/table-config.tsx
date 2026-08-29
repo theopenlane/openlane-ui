@@ -1,10 +1,10 @@
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 import { type CustomEnumOption } from '@/components/shared/crud-base/page'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { ObjectNames } from '@repo/codegen/src/type-names'
-import { type SystemDetailQuery, SystemDetailOrderField, type UpdateSystemDetailInput } from '@repo/codegen/src/schema'
+import { type SystemDetailQuery, SystemDetailOrderField, type UpdateSystemDetailInput, type SystemDetailWhereInput } from '@repo/codegen/src/schema'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import NameField from '../create/form/fields/name-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
@@ -19,30 +19,31 @@ export const breadcrumbs = [
   { label: 'System Details', href: '/registry/system-details' },
 ]
 
-export const getFilterFields = (enumOptions: EnumOptions, hasProgramAccess: boolean): FilterField[] => [
-  {
-    key: 'sensitivityLevelIn',
-    label: 'Sensitivity Level',
-    type: 'multiselect',
-    icon: FilterIcons.Security,
-    options: enumOptions.sensitivityLevelOptions,
-  },
-  {
-    key: 'tagsHas',
-    label: 'Tags',
-    type: 'dropdownSearchSingleSelect',
-    icon: FilterIcons.Tag,
-    options: enumOptions.tagOptions,
-  },
-  {
-    key: 'hasPlatformsWith',
-    label: 'Platforms',
-    type: 'multiselect',
-    icon: FilterIcons.Platform,
-    options: enumOptions.platformIDsOptions,
-  },
-  ...getProgramFilterFields(enumOptions.programIDsOptions, hasProgramAccess, 'Programs'),
-]
+export const getFilterFields = (enumOptions: EnumOptions, hasProgramAccess: boolean) =>
+  defineFilterFields<SystemDetailWhereInput>()([
+    {
+      key: 'sensitivityLevelIn',
+      label: 'Sensitivity Level',
+      type: 'multiselect',
+      icon: FilterIcons.Security,
+      options: enumOptions.sensitivityLevelOptions,
+    },
+    {
+      key: 'tagsHas',
+      label: 'Tags',
+      type: 'dropdownSearchSingleSelect',
+      icon: FilterIcons.Tag,
+      options: enumOptions.tagOptions,
+    },
+    {
+      key: 'hasPlatformsWith',
+      label: 'Platforms',
+      type: 'multiselect',
+      icon: FilterIcons.Platform,
+      options: enumOptions.platformIDsOptions,
+    },
+    ...getProgramFilterFields(enumOptions.programIDsOptions, hasProgramAccess, 'Programs'),
+  ])
 
 export const getPlatformQuickFilters = (platformOptions: CustomEnumOption[]): TQuickFilter[] =>
   platformOptions.map(({ value, label }) => ({

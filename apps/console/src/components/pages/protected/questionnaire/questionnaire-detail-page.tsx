@@ -13,10 +13,10 @@ import { EXCLUDE_TEST_RESPONSES, useAssessmentRecipientsTotalCount, useAssessmen
 import { computeDueDate, formatDate, isPastDate } from '@/utils/date'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import { FilterIcons, QuestionnaireFilterIconName } from '@/components/shared/enum-mapper/questionnaire-enum'
-import { AssessmentResponseAssessmentResponseStatus } from '@repo/codegen/src/schema'
+import type { AssessmentResponseAssessmentResponseStatus } from '@repo/codegen/src/schema'
 import type { AssessmentResponseWhereInput, GetAssessmentDetailQuery, GetAssessmentDetailQueryVariables } from '@repo/codegen/src/schema'
-import type { FilterField, WhereCondition } from '@/types'
+import type { WhereCondition } from '@/types'
+import { deliveryFilterFields, mapDeliveryFilterKey } from './delivery-filter-config'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { AISummaryCard } from './ai-summary-card'
 import { DeliveryTab } from './delivery-tab/delivery-tab'
@@ -27,7 +27,6 @@ import { SendQuestionnaireDialog } from './dialog/send-questionnaire-dialog'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 import { renderAnswer } from './utils/render-answer'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
-import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { GET_ASSESSMENT_DETAIL } from '@repo/codegen/query/assessment'
 import { useNotification } from '@/hooks/useNotification'
@@ -45,28 +44,6 @@ type DetailTabValue = 'delivery' | 'responses'
 const DEFAULT_TAB: DetailTabValue = 'delivery'
 const TAB_QUERY_PARAM = 'tab'
 const VALID_TABS: DetailTabValue[] = ['delivery', 'responses']
-
-const deliveryFilterFields: FilterField[] = [
-  {
-    key: 'status',
-    label: 'Status',
-    type: 'multiselect',
-    icon: FilterIcons[QuestionnaireFilterIconName.Status],
-    options: enumToOptions(AssessmentResponseAssessmentResponseStatus),
-  },
-  {
-    key: 'assignedAt',
-    label: 'Sent Date',
-    type: 'dateRange',
-    icon: FilterIcons[QuestionnaireFilterIconName.SentDate],
-  },
-  {
-    key: 'dueDate',
-    label: 'Due Date',
-    type: 'dateRange',
-    icon: FilterIcons[QuestionnaireFilterIconName.DueDate],
-  },
-]
 
 type StatCardProps = {
   icon: LucideIcon
@@ -128,19 +105,7 @@ const QuestionnaireDetailPage = () => {
 
   const deliveryWhereFilter = useMemo<AssessmentResponseWhereInput>(
     () => ({
-      ...whereGenerator<AssessmentResponseWhereInput>(deliveryFilters as AssessmentResponseWhereInput | null, (key, value) => {
-        if (key === 'status') {
-          return Array.isArray(value)
-            ? ({
-                statusIn: value as AssessmentResponseAssessmentResponseStatus[],
-              } as AssessmentResponseWhereInput)
-            : ({
-                status: value as AssessmentResponseAssessmentResponseStatus,
-              } as AssessmentResponseWhereInput)
-        }
-
-        return { [key]: value } as AssessmentResponseWhereInput
-      }),
+      ...whereGenerator<AssessmentResponseWhereInput>(deliveryFilters as AssessmentResponseWhereInput | null, mapDeliveryFilterKey),
       ...EXCLUDE_TEST_RESPONSES,
     }),
     [deliveryFilters],
