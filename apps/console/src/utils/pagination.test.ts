@@ -2,11 +2,8 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import { sliceByPagination } from './pagination'
 
 /**
- * #2078 — client-side pagination for lists the API returns whole. The page
- * number is 1-BASED, which is the easy thing to get wrong: page 1 must start at
- * index 0, not pageSize. The Math.max guard means a page of 0 or a negative page
- * (which a stale stored pagination can produce) clamps to the first slice rather
- * than reading backwards off the array.
+ * #2078 — client-side pagination for lists the API returns whole. Pages are 1-based, and the
+ * Math.max guard stops a stale stored page of 0 or negative from reading backwards off the array.
  */
 
 const page = (page: number, pageSize: number): TPagination => ({ page, pageSize, query: { first: pageSize } }) as TPagination

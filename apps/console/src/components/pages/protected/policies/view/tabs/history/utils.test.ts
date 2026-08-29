@@ -1,13 +1,9 @@
 import { getRevisionKind, makeGroupResolver, parseRevision, toPlateValue } from './utils'
 
 /**
- * ISS-2256 — the policy history diff printed raw group ULIDs for Approver and
- * Delegate. makeGroupResolver maps an id to its group name, falling back to the
- * id when the name is not loaded yet, and passing null/undefined straight
- * through so an unset field still diffs as empty rather than as the string
- * "undefined".
- *
- * parseRevision / getRevisionKind back the major-vs-minor badge on the same tab.
+ * ISS-2256 — the policy history diff printed raw group ULIDs for Approver and Delegate.
+ * makeGroupResolver maps id to name, passing null through so an unset field diffs as empty
+ * rather than as the string "undefined".
  */
 describe('makeGroupResolver', () => {
   const map = new Map([['01HXGROUP0000000000000000A', 'Security Team']])

@@ -2,14 +2,8 @@ import { CampaignFrequency } from '@repo/codegen/src/schema'
 import { buildRecurrenceUpdateInput, describeCampaignRecurrence, describeRecurrence, toRecurrenceValues, type CampaignRecurrenceSource, type CampaignRecurrenceValues } from './campaign-recurrence'
 
 /**
- * #2110 — recurring campaigns. Three pieces of pure logic here:
- *
- *  - toRecurrenceValues turns a possibly-null campaign into safe form defaults,
- *    coercing NONE / zero / negative values rather than showing them
- *  - buildRecurrenceUpdateInput must emit clearRecurrenceEndAt when the end date
- *    is removed; omitting the key would silently keep the old end date
- *  - describeRecurrence collapses frequency × interval into a human phrase, and
- *    has to fold whole years ("Every 2 years", not "Every 24 months")
+ * #2110 — recurring campaigns. buildRecurrenceUpdateInput must emit clearRecurrenceEndAt when
+ * the end date is removed; omitting the key silently keeps the old one.
  */
 
 const source = (over: Partial<CampaignRecurrenceSource> = {}): CampaignRecurrenceSource =>

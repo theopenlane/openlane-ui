@@ -1,13 +1,9 @@
 import { dedupeEmails, isDuplicateEmail, isUlid, isValidEmail, normalizeEmail } from './validators'
 
 /**
- * ISS-2428 — pressing Tab in the invite email input added a duplicate chip,
- * because the two call sites hand-rolled their own case-insensitive comparison
- * and one of them compared un-normalised strings. The comparison is now a single
- * shared helper.
- *
- * Case and surrounding whitespace are the whole point: "User@Acme.com " and
- * "user@acme.com" are the same invitee.
+ * ISS-2428 — pressing Tab in the invite email input added a duplicate chip, because the two call
+ * sites hand-rolled their own comparison and one of them compared un-normalised strings. Case and
+ * surrounding whitespace are the whole point.
  */
 describe('normalizeEmail', () => {
   test('lowercases and trims', () => {

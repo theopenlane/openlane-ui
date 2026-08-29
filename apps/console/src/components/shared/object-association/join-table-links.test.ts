@@ -1,15 +1,9 @@
 import { splitJoinTableInput } from './join-table-links'
 
 /**
- * #2054 — finding↔control links live in a join table (findingControl), so they
- * cannot ride along in the entity's own update input. splitJoinTableInput peels
- * the join-table keys out of a mutation input and returns them as an add/remove
- * diff to be applied separately.
- *
- * Two rules carry the weight:
- *  - the bare key and its `add…` variant both mean "add" (callers use either)
- *  - add wins over remove for the same id, so a re-link in the same edit cannot
- *    be undone by a stale removal
+ * #2054 — finding/control links live in a join table, so they cannot ride along in the entity's
+ * own update input. The bare key and its add… variant both mean add, and add wins over remove
+ * for the same id.
  */
 describe('splitJoinTableInput', () => {
   test('leaves an input with no join keys untouched', () => {

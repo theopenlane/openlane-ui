@@ -3,17 +3,9 @@ import { type ControlReportItem } from '@/lib/graphql-hooks/control'
 import { deriveOrgCoverage, getFrameworkRelatedControls, getOrgRelatedControls, hasOrgCoverageGap, hasPolicyGap, type RelatedControlItem } from './report-coverage'
 
 /**
- * The control report's org-coverage column and its "gap" filters are driven by
- * these pure helpers. The rules that are easy to regress:
- *
- *  - a related control counts as ORG-owned when it has no referenceFramework or
- *    that framework is literally 'CUSTOM'
- *  - ARCHIVED / NOT_APPLICABLE refs are excluded from the active tally but stay
- *    in orgControlRefs (the chip list still shows them)
- *  - worstStatus is the earliest entry in ORG_COVERAGE_SEVERITY_ORDER, which is
- *    ordered worst → best, so APPROVED only wins when nothing else is present
- *  - both gap predicates apply to FRAMEWORK controls only; a custom control can
- *    never be "missing org coverage"
+ * Drives the control report's org-coverage column and its gap filters. A related control counts
+ * as org-owned when it has no referenceFramework or that framework is 'CUSTOM', and worstStatus
+ * takes the earliest entry in ORG_COVERAGE_SEVERITY_ORDER.
  */
 
 const related = (over: Partial<RelatedControlItem> = {}): RelatedControlItem =>

@@ -4,14 +4,9 @@ import { personnelMergeConfig } from './personnel-merge-config'
 import { vendorMergeConfig } from './vendor-merge-config'
 
 /**
- * ISS-2778 — records can be merged by dragging one row onto another, so the
- * merge dialog must name both records unambiguously. Each config supplies a
- * getDisplayName used for that.
- *
- * The fallback chain is what matters: a record with no display name still has to
- * render as SOMETHING, or the confirmation reads "Merge  into " and the user
- * cannot tell which record they are about to destroy. Falling back to the id is
- * ugly but unambiguous.
+ * ISS-2778 — the merge dialog must name both records, or the confirmation reads "Merge  into "
+ * and the user cannot tell which record they are about to destroy. The fallback chain ends at
+ * the id.
  */
 
 const configs = [

@@ -1,12 +1,9 @@
 import { getDismissedAnnouncement, recordDismissedAnnouncement } from './announcement-dismissal'
 
 /**
- * ISS-2770 — the announcement banner remembers a dismissal by storing the
- * MESSAGE, not a boolean. That is what makes a NEW announcement reappear for
- * someone who dismissed the previous one: the banner compares the stored string
- * against the current message rather than checking a dismissed flag.
- *
- * Not org-scoped, deliberately — an announcement is global to the deployment.
+ * ISS-2770 — the banner stores the dismissed message rather than a boolean, which is what makes a
+ * new announcement reappear for someone who dismissed the previous one. Deliberately not
+ * org-scoped, since an announcement is global to the deployment.
  */
 
 const store = new Map<string, string>()

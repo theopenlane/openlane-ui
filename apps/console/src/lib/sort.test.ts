@@ -1,14 +1,9 @@
 import { compareNatural } from './sort'
 
 /**
- * ISS-2550 — the control report sorted ref codes with a fresh
- * `localeCompare(..., { numeric: true })` on every comparison, which builds a
- * collator per call and dominated the sort on large reports. compareNatural
- * reuses one Intl.Collator.
- *
- * The behaviour must be identical to the call it replaced, so these pin the
- * natural-ordering contract that control ref codes depend on: CC1.2 before
- * CC1.10, not after.
+ * ISS-2550 — compareNatural reuses one Intl.Collator instead of building one per comparison,
+ * which dominated the sort on large control reports. Behaviour has to stay identical to the
+ * localeCompare call it replaced.
  */
 describe('compareNatural', () => {
   const sorted = (values: string[]): string[] => [...values].sort(compareNatural)

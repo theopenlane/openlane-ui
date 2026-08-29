@@ -2,13 +2,8 @@ import { ObjectAssociationNodeEnum } from '@/components/shared/object-associatio
 import { FULL_PAGE_KINDS, isSheetKind } from './sheet-navigation-provider'
 
 /**
- * ISS-2593 — association links open their target's slideout IN PLACE instead of
- * navigating away, but only for object kinds that actually have a sheet.
- * isSheetKind is the switch; FULL_PAGE_KINDS names the kinds that must still
- * navigate (controls and subcontrols have full detail pages, not sheets).
- *
- * Getting this wrong is silent in one direction: a kind wrongly listed as a
- * sheet kind renders a link that opens nothing.
+ * ISS-2593 — association links open their target's slideout in place, but only for object kinds
+ * that actually have a sheet. FULL_PAGE_KINDS names the kinds that must still navigate.
  */
 describe('isSheetKind', () => {
   test.each([

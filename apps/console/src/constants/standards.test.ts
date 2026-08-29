@@ -9,15 +9,9 @@ import {
 } from './standards'
 
 /**
- * ISS-2603 — Openlane ships two system-owned standards (OL Baseline and OTS)
- * that must be hidden from org-facing lists while staying reachable through
- * their own routes.
- *
- * The subtle part is SQL, not TypeScript: a bare `frameworkNotIn [...]` silently
- * drops rows whose framework is NULL, because NULL NOT IN (...) is NULL, not
- * true. Every exclusion clause therefore has to be an OR with an IsNil branch —
- * without it, custom standards with no framework vanish from the list. These
- * assertions exist to stop that OR being "simplified" away.
+ * ISS-2603 — a bare `frameworkNotIn [...]` silently drops rows whose framework is NULL, because
+ * NULL NOT IN (...) is NULL rather than true. Every exclusion clause therefore needs an OR'd
+ * IsNil branch, and these assertions exist to stop it being simplified away.
  */
 describe('system standard exclusion clauses', () => {
   test('excluding system standards keeps records with a null framework', () => {

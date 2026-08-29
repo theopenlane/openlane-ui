@@ -3,13 +3,9 @@ import { arePlanChecksDisabled, featureUtil } from './plans'
 import { PlanEnum } from './plan-enum'
 
 /**
- * #1969 — Openlane support sessions carry no subscription modules, so every
- * module gate has to treat an impersonation session as fully entitled. Without
- * the bypass a support engineer lands in an org where the whole sidebar is
- * locked and `hasNoModules` reports the billing as expired.
- *
- * The env-var escape hatch (NEXT_PUBLIC_ENABLE_PLAN=false) short-circuits the
- * same checks, so it is asserted alongside to keep the two paths distinct.
+ * #1969 — support sessions carry no subscription modules, so every module gate has to treat an
+ * impersonation session as fully entitled. Without the bypass a support engineer lands in an org
+ * with the whole sidebar locked and the billing reported as expired.
  */
 
 const session = (over: Partial<Session['user']> = {}): Session =>

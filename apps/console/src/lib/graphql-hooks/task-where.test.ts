@@ -2,13 +2,9 @@ import { type TaskWhereInput } from '@repo/codegen/src/schema'
 import { EXCLUDE_TEMPLATES_WHERE, resolveTasksWhere } from './task-where'
 
 /**
- * ISS-2714 — task templates are stored as tasks with isTemplate:true, so every
- * ordinary task query has to exclude them or the list fills with templates.
- *
- * The back-off rule is the interesting part: the exclusion is dropped when the
- * caller ALREADY constrains isTemplate anywhere in its filter (including inside
- * a nested and/or), so the template picker can ask for templates without the
- * default silently contradicting it and returning nothing.
+ * ISS-2714 — task templates are stored as tasks with isTemplate:true, so ordinary queries have to
+ * exclude them. The exclusion backs off when the caller already constrains isTemplate anywhere in
+ * its filter, including inside a nested and/or.
  */
 describe('resolveTasksWhere', () => {
   test('excludes templates when there is no filter at all', () => {

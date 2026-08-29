@@ -2,15 +2,9 @@ import { resolveAllowedStatuses } from './allowed-statuses'
 import { type StatusFilterableWhere } from './has-status-condition'
 
 /**
- * ISS-2715 — the tasks card/board view renders one column per status, but only
- * for statuses the current filter can actually match. resolveAllowedStatuses
- * works that out by intersecting the filter against the full status list.
- *
- * Getting it wrong is visible either way: too narrow and a column with tasks in
- * it disappears; too wide and the board fills with permanently-empty columns.
- *
- * The and/or handling is the subtle part — `and` narrows cumulatively while `or`
- * keeps the union of what its branches allow.
+ * ISS-2715 — the tasks board renders one column per status the current filter can match; too
+ * narrow hides a column with tasks in it, too wide fills the board with empty ones. `and` narrows
+ * cumulatively while `or` keeps the union of what its branches allow.
  */
 
 type Status = 'OPEN' | 'IN_PROGRESS' | 'IN_REVIEW' | 'COMPLETED' | 'WONT_DO'

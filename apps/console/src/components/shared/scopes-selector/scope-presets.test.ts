@@ -1,14 +1,9 @@
 import { buildPresetScopes, getActivePresetKey, SCOPE_PRESETS, type TScopeGroup, type TScopePreset } from './scope-presets'
 
 /**
- * #2077 — API token scope selection gained read-only / read-write / full-access
- * presets. buildPresetScopes expands a preset over the available object groups,
- * and getActivePresetKey does the reverse: it decides whether an arbitrary
- * selection happens to equal a preset, so the UI can show it as selected.
- *
- * The reverse mapping has to be an EXACT set match. A subset or superset must
- * report "no preset" — otherwise a hand-picked selection would be mislabelled as
- * a preset and silently widened the next time the preset is re-applied.
+ * #2077 — buildPresetScopes expands a preset over the object groups and getActivePresetKey does
+ * the reverse. That reverse mapping has to be an exact set match, or a hand-picked selection is
+ * mislabelled as a preset and silently widened when the preset is re-applied.
  */
 
 const groups: TScopeGroup[] = [

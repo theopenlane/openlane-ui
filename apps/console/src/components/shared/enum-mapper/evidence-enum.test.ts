@@ -2,13 +2,8 @@ import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
 import { EvidenceStatusColors, getEvidenceStatusLabel, getEvidenceStatusStyle } from './evidence-enum'
 
 /**
- * ISS-2594 — the evidence dashboard chart needs a colour and a SHORT label per
- * status. Two statuses get abbreviated so they fit a chart legend
- * ("Auditor approved" → "Approved", "Ready for auditor" → "Ready"); everything
- * else falls through to the standard getEnumLabel form.
- *
- * The colour map must be exhaustive: a missing status yields `undefined` in the
- * style, which renders as a transparent chip rather than throwing.
+ * ISS-2594 — two statuses are abbreviated so they fit the chart legend; everything else falls
+ * through to getEnumLabel. The colour map has to stay exhaustive or a chip renders transparent.
  */
 describe('EvidenceStatusColors', () => {
   test('covers every evidence status', () => {

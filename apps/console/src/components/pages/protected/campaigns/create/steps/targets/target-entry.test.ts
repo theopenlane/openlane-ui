@@ -1,17 +1,9 @@
 import { type CampaignTargetEntry, getRecipientDisplayName, hasTarget, mergeTargets, removeTarget, toCampaignTargetInputs, toEmailKeys, toggleTarget } from './target-entry'
 
 /**
- * ISS-2560 / #2073 — campaign recipients can be assembled from personnel,
- * contacts, a CSV and manual entry, so the same person routinely arrives twice.
- * Email is the identity key throughout, compared case- and whitespace-insensitively.
- *
- * The rules that fail silently if broken:
- *  - merging ENRICHES rather than replaces: a manual entry that later matches a
- *    contact keeps the contactID, and a blank name is filled from the duplicate
- *  - a recipient whose "name" is just their email address is sent with no name,
- *    so the email is not printed twice in the greeting
- *  - invalid and excluded emails are dropped at conversion, not earlier, so the
- *    picker can still show them
+ * ISS-2560 / #2073 — recipients arrive from personnel, contacts, CSV and manual entry, so the
+ * same person routinely arrives twice. Email is the identity key, and merging enriches rather
+ * than replaces: a manual entry later matched to a contact keeps the contactID.
  */
 
 const target = (over: Partial<CampaignTargetEntry> = {}): CampaignTargetEntry => ({

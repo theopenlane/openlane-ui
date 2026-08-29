@@ -3,18 +3,8 @@ import type { SectionLookup, SectionResult } from '@/lib/docs-help/types'
 import { cacheKeyOf, readSectionCache, writeSectionCache } from './section-cache'
 
 /**
- * #2148 — resolved docs sections are cached in-process. It is an LRU with a TTL,
- * and both halves have a subtle rule:
- *
- *  - a READ re-inserts the entry so it becomes most-recently-used. Without that
- *    the map keeps insertion order and eviction throws out entries that are
- *    being actively used.
- *  - the cache key must distinguish every field of the lookup, including an
- *    extractSection given as an array vs the same value as a string, otherwise
- *    two different requests share one answer.
- *
- * The cache is module-level state shared across tests, so keys here are unique
- * per test rather than reset between them.
+ * #2148 — an in-process LRU with a TTL. A read re-inserts the entry as most-recently-used;
+ * without that, eviction throws out entries that are actively in use.
  */
 
 const result = (text: string): SectionResult => ({ text }) as unknown as SectionResult
@@ -43,11 +33,6 @@ describe('cacheKeyOf', () => {
   })
 
   test('produces a stable key when the optional fields are absent', () => {
-    // `prefer` and `section` collapse to '' but a missing `extractSection`
-    // stringifies to the literal "undefined". That is untidy rather than wrong:
-    // it is consistent, so two lookups without one still share a key. Only a
-    // lookup whose extractSection is literally the string "undefined" would
-    // collide, which is not a real input.
     expect(cacheKeyOf(lookup())).toBe(cacheKeyOf(lookup()))
     expect(cacheKeyOf(lookup())).toBe('controls||undefined|')
   })
@@ -79,7 +64,6 @@ describe('LRU eviction', () => {
       writeSectionCache(`${prefix}${i}`, result(String(i)))
     }
 
-    // The first writes are gone; the most recent survive.
     expect(readSectionCache(`${prefix}0`)).toBeNull()
     expect(readSectionCache(`${prefix}${SECTION_CACHE_MAX + 4}`)).toEqual(result(String(SECTION_CACHE_MAX + 4)))
   })
@@ -88,7 +72,6 @@ describe('LRU eviction', () => {
     const prefix = `lru-${Date.now()}-`
     writeSectionCache(`${prefix}kept`, result('kept'))
 
-    // Fill past the cap, re-reading the entry partway so it becomes MRU.
     for (let i = 0; i < SECTION_CACHE_MAX - 1; i++) {
       writeSectionCache(`${prefix}${i}`, result(String(i)))
       if (i === Math.floor(SECTION_CACHE_MAX / 2)) readSectionCache(`${prefix}kept`)

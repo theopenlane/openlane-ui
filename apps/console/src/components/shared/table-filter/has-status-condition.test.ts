@@ -1,14 +1,9 @@
 import { hasStatusCondition, type StatusFilterableWhere } from './has-status-condition'
 
 /**
- * ISS-2418 — linked-controls tables apply a default "hide archived" status
- * filter, but must back off the moment the user filters by status themselves.
- * hasStatusCondition answers "did the user already constrain status?" and has to
- * look inside nested and/or groups, because TableFilter composes multi-condition
- * filters that way.
- *
- * The `in` check is key-presence, not truthiness: an explicitly empty or null
- * status filter still counts as the user having taken control.
+ * ISS-2418 — linked-controls tables default to hiding archived, but must back off the moment the
+ * user filters by status themselves. The check is key-presence rather than truthiness, and has to
+ * look inside nested and/or groups.
  */
 describe('hasStatusCondition', () => {
   test('is false for an empty filter', () => {

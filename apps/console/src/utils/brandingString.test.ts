@@ -1,13 +1,9 @@
 import { parseBrandingString } from './brandingString'
 
 /**
- * #2092 — trust center branding can be imported from a pasted "branding string".
- * parseBrandingString is a parser for untrusted user input, so its refusals
- * matter more than its happy path: a wrong version prefix, a missing colour, or
- * an oversized payload must all yield null rather than a half-applied palette.
- *
- * Colours are normalised through normalizeHexColor (tested separately), so
- * shorthand and casing are accepted here too.
+ * #2092 — a parser for untrusted pasted input, so its refusals matter more than its happy path.
+ * A wrong version prefix, a missing colour or an oversized payload must all yield null rather
+ * than a half-applied palette.
  */
 
 const VALID = 'olbrand1:bg=#ffffff;fg=#000000;accent=#ff0000;secBg=#eeeeee;secFg=#333333'

@@ -1,15 +1,9 @@
 import { createOrgPersistedStore, parseString, parseStringUnion } from './org-persisted-store'
 
 /**
- * ISS-2614 — the dashboard's work-item "Group by" choice had to survive a
- * reload, per organization. createOrgPersistedStore backs a useSyncExternalStore
- * with org-scoped localStorage.
- *
- * The store is a plain factory, so it is testable without React. What matters:
- * snapshots are cached PER ORG (a shared cache would leak one org's choice into
- * another), getSnapshot must be referentially stable so useSyncExternalStore
- * does not loop, a corrupt or unknown stored value falls back to the default
- * rather than throwing, and the server snapshot is never hydrated.
+ * ISS-2614 — backs a useSyncExternalStore with org-scoped localStorage. Snapshots are cached per
+ * org so one org's choice cannot leak into another, and getSnapshot must be referentially stable
+ * or the store re-renders forever.
  */
 
 const store = new Map<string, string>()

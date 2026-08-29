@@ -1,11 +1,9 @@
 import { buildVendorLogoProxyUrl, getVendorLogoUrl, toVendorLogoHost, VENDOR_LOGO_SIZE } from './vendor-logo'
 
 /**
- * ISS-2486 — vendor logos are looked up by domain through an authenticated proxy
- * route. toVendorLogoHost is what decides whether a user-typed website value is
- * safe to forward: it accepts a bare domain or a full URL, strips scheme/path/
- * port down to the hostname, and returns null for anything that is not a real
- * registrable domain — so junk never reaches the outbound favicon request.
+ * ISS-2486 — decides whether a user-typed website value is safe to forward to the authenticated
+ * logo proxy. Anything that is not a real registrable domain returns null, so junk never reaches
+ * the outbound request.
  */
 describe('toVendorLogoHost', () => {
   test.each([

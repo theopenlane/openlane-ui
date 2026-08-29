@@ -1,10 +1,9 @@
 import { normalizeHexColor } from './normalizeHexColor'
 
 /**
- * ISS-2542 — trust center branding requires a real hex colour. normalizeHexColor
- * is the gate: it accepts what a user might reasonably paste (with or without a
- * leading #, 3- or 6-digit, any case, padded) and returns a single canonical
- * lowercase 6-digit form, or null so the caller can reject the input.
+ * ISS-2542 — accepts what a user might reasonably paste (with or without a leading #, 3- or
+ * 6-digit, any case) and returns a canonical lowercase 6-digit form, or null so the caller can
+ * reject the input.
  */
 describe('normalizeHexColor', () => {
   test('canonicalises a 6-digit value to lowercase with a single #', () => {

@@ -1,15 +1,9 @@
 import { getProgramFilterFields } from './program-filter-field'
 
 /**
- * ISS-2725 — "browse by" links stopped working: they wrote filter state whose
- * keys did not match the declared filter fields, so loadFilters' validation
- * (which drops undeclared keys) silently discarded them. The program filter was
- * consolidated into this shared builder so the writer and the declaration cannot
- * drift apart.
- *
- * The access gate matters as much as the shape: a user without program access
- * gets NO field, not an empty-optioned one, so the filter panel does not show a
- * control that can never match.
+ * ISS-2725 — browse-by links wrote filter state whose keys did not match the declared filter
+ * fields, so loadFilters silently dropped them. A user without program access gets no field at
+ * all rather than an empty-optioned one.
  */
 describe('getProgramFilterFields', () => {
   const options = [

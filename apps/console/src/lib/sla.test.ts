@@ -4,23 +4,15 @@ import { type SlaDefinitionsNodeNonNull } from '@/lib/graphql-hooks/sla-definiti
 import { buildDueSoonCondition, buildPastDueCondition, buildSlaDaysByLevel, DUE_SOON_WINDOW_DAYS, getSlaDueDate, isSlaPastDue } from './sla'
 
 /**
- * ISS-2482 — the past-due calculation was duplicated across the attention table,
- * the vulnerability/finding tables and the SLA badge, each with its own casing
- * and null handling. It now lives here.
- *
- * The rules worth pinning: security levels are matched case-insensitively via an
- * uppercase index, the FIRST definition for a level wins (later duplicates are
- * ignored), non-positive or non-numeric slaDays are dropped entirely, and the
- * query conditions are built from day boundaries rather than "now" so they stay
- * stable within a day.
+ * ISS-2482 — the past-due calculation was duplicated across the attention table, the
+ * vulnerability/finding tables and the SLA badge, each with its own casing and null handling.
+ * It now lives here.
  */
 
 const def = (securityLevel: string | null, slaDays: number | null): SlaDefinitionsNodeNonNull => ({ securityLevel, slaDays }) as unknown as SlaDefinitionsNodeNonNull
 
-// `Condition.or` is typed as the broad ConditionValue union. The builders emit
-// flat `{ securityLevel, createdAt* }` records, which is ConditionValue's
-// `{ [operator: string]: string | number }` member — narrow to exactly that
-// rather than indexing through the union at every assertion.
+// The builders emit flat `{ securityLevel, createdAt* }` records; narrow to exactly that
+// member of ConditionValue rather than indexing through the union at every assertion.
 type SlaBranch = { [operator: string]: string | number }
 
 const isBranchList = (value: ConditionValue | undefined): value is SlaBranch[] => Array.isArray(value)

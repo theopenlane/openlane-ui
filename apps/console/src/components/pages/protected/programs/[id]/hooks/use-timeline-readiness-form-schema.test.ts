@@ -2,16 +2,9 @@ import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { changedTimelineFields, type TimelineReadinessFormValues } from './use-timeline-readiness-form-schema'
 
 /**
- * ISS-2707 — an old program could not be marked complete. The timeline form
- * validated "end date must be in the future" unconditionally, so any program
- * whose audit period had already ended failed validation the moment you touched
- * its status — even though the end date was untouched.
- *
- * The fix makes the date rules conditional on the field actually having CHANGED,
- * which makes changedTimelineFields the load-bearing piece. It compares by DAY,
- * not by timestamp: the form hands back a Date built from a date-picker, so two
- * values for the same calendar day must not read as a change and re-trigger the
- * validation this bug was about.
+ * ISS-2707 — an old program could not be marked complete, because the timeline form validated
+ * "end date must be in the future" unconditionally. The fix makes the date rules conditional on
+ * the field having changed, compared by day so a re-created Date for the same day is not an edit.
  */
 
 const values = (over: Partial<TimelineReadinessFormValues> = {}): TimelineReadinessFormValues => ({
@@ -29,9 +22,8 @@ describe('changedTimelineFields', () => {
   })
 
   test('ignores a time-of-day difference on the same calendar day', () => {
-    // The whole point of comparing by day: a re-created Date for the same day
-    // must not look like an edit, or an untouched past end date would fail
-    // validation again.
+    // A re-created Date for the same day must not look like an edit, or an untouched past
+    // end date would fail validation again.
     const initial = values({ endDate: new Date('2026-12-31T00:00:00.000Z') })
     const current = values({ endDate: new Date('2026-12-31T18:45:00.000Z') })
 

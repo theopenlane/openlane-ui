@@ -2,14 +2,9 @@ import { type FilterField } from '@/types'
 import { getFiltersUpdatedEvent, loadFilters, pickDeclaredFilterKeys, saveFilters } from './filter-storage'
 
 /**
- * ISS-2398 — clicking a severity chart segment used to apply BOTH a local
- * additionalWhereFilter and the persisted table filter, so the list was filtered
- * twice. The charts now route entirely through this shared filter storage and
- * re-sync from a CustomEvent, which makes the round-trip and the event name the
- * load-bearing parts.
- *
- * The event name is org-scoped: two organizations must not wake each other's
- * tables.
+ * ISS-2398 — chart segments now route through this shared storage instead of also applying a
+ * local additionalWhereFilter, which filtered the list twice. The re-sync event name is
+ * org-scoped so two organizations cannot wake each other's tables.
  */
 
 const store = new Map<string, string>()
@@ -64,7 +59,6 @@ describe('saveFilters / loadFilters round-trip', () => {
 
   test('returns null for corrupt JSON rather than throwing', () => {
     saveFilters(PAGE, { refCodeContainsFold: 'CC1' }, ORG)
-    // Corrupt the stored value directly.
     for (const key of store.keys()) store.set(key, '{not json')
 
     expect(loadFilters(PAGE, undefined, ORG)).toBeNull()

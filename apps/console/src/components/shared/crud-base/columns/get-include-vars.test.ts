@@ -2,12 +2,8 @@ import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { getIncludeVars } from './get-include-vars'
 
 /**
- * ISS-2357 — tables only request the expensive GraphQL fields backing columns
- * that are actually visible. Column defs declare `meta.gqlInclude`, and
- * getIncludeVars folds those against the table's VisibilityState into the
- * `include*` variables sent with the query.
- *
- * The OR-fold matters: two columns can share an include key, and the field must
+ * ISS-2357 — folds each column's meta.gqlInclude against the table's VisibilityState into the
+ * include* query variables. The OR-fold matters: two columns can share a key, and the field must
  * still be fetched while either one is visible.
  */
 

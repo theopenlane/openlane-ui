@@ -2,11 +2,8 @@ import { EvidenceEvidenceStatus, ReviewReviewStatus } from '@repo/codegen/src/sc
 import { getControlEvidenceStatus, getControlLastReviewed, getControlReview, type ControlReviewSummary } from './control-status'
 
 /**
- * ISS-2433 — the auditor dashboard rolls a control's many evidence records and
- * reviews up into one status per row. Both roll-ups are priority-ordered, and
- * the ordering is the point: the row must surface the MOST BLOCKING evidence
- * state (so an approved artifact never hides a rejected one) and the MOST ACTIVE
- * review (so a completed review never hides one still in progress).
+ * ISS-2433 — both roll-ups are priority-ordered, and the ordering is the point: the row must
+ * surface the most blocking evidence state and the most active review.
  */
 
 const review = (over: Partial<ControlReviewSummary>): ControlReviewSummary => ({ id: 'r-1', ...over })

@@ -3,16 +3,9 @@ import { GraphQlResponseError } from '@/constants/graphQlResponseError'
 import { isNonRetryableGraphQlError } from './graphQlErrorMatcher'
 
 /**
- * ISS-2733 — react-query was retrying 400s and GRAPHQL_VALIDATION_FAILED, so a
- * malformed query hammered the backend several times before surfacing an error
- * the user could do nothing about. isNonRetryableGraphQlError is the guard.
- *
- * Two rules do the work, and both fail in the dangerous direction if broken —
- * returning false means "retry", so a mistake here re-introduces the hammering:
- *
- *  - HTTP 4xx is permanent EXCEPT 408 / 425 / 429, which are genuinely transient
- *  - a GraphQL error payload is permanent only when EVERY error in it is a known
- *    permanent code; a mixed payload may still contain something worth retrying
+ * ISS-2733 — react-query was retrying 400s and GRAPHQL_VALIDATION_FAILED, hammering the backend
+ * before surfacing an error the user could do nothing about. Returning false means "retry", so
+ * both rules fail in the dangerous direction.
  */
 
 const clientError = (status: number, errors?: unknown[]): ClientError => new ClientError({ status, errors, data: undefined, headers: new Headers() } as never, { query: 'query {}' } as never)

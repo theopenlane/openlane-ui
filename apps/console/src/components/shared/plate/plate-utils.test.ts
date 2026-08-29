@@ -2,17 +2,9 @@ import { type Value } from 'platejs'
 import { canonicalizeDetails, isPlateValueEmpty, trimPlateValue } from './plate-utils'
 
 /**
- * ISS-2646 — trust center overview values were saved with leading and trailing
- * blank paragraphs, which the editor produces freely.
- *
- * The rules being pinned:
- *  - "empty" is a structural question, not a truthiness one. A Plate value is a
- *    non-null array of nodes with blank text, so `!!value` says nothing; this is
- *    what several callers rely on to hide a panel (#88) or skip a save.
- *  - a VOID node (an image, a divider) is content even with no text, so a value
- *    containing one is not empty.
- *  - trimPlateValue must not mutate its input — callers keep the original form
- *    state while saving the trimmed copy.
+ * ISS-2646 — trust center values were saved with the blank leading and trailing paragraphs the
+ * editor produces freely. "Empty" is structural rather than truthiness here, since a Plate value
+ * is always a non-null array, and a void node counts as content.
  */
 
 const p = (text: string): Value[number] => ({ type: 'p', children: [{ text }] }) as Value[number]

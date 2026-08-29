@@ -19,9 +19,6 @@ import {
   toRemoveFieldName,
 } from '../object-association-config'
 
-// ---------------------------------------------------------------------------
-// Suite 1: getAssociationDiffs
-// ---------------------------------------------------------------------------
 describe('getAssociationDiffs', () => {
   it('returns empty added/removed when there are no changes', () => {
     const map = { taskIDs: ['1', '2'] }
@@ -95,9 +92,6 @@ describe('getAssociationDiffs', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Suite 2: buildMutationKey
-// ---------------------------------------------------------------------------
 describe('buildMutationKey', () => {
   it('builds add key for taskIDs', () => {
     expect(buildMutationKey('add', 'taskIDs')).toBe('addTaskIDs')
@@ -116,9 +110,6 @@ describe('buildMutationKey', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Suite 3: getAssociationInput
-// ---------------------------------------------------------------------------
 describe('getAssociationInput', () => {
   it('returns empty object when there are no changes', () => {
     const map = { taskIDs: ['1'] }
@@ -156,9 +147,6 @@ describe('getAssociationInput', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Suite 4: buildAssociationPayload
-// ---------------------------------------------------------------------------
 describe('buildAssociationPayload', () => {
   const keys = ['taskIDs', 'riskIDs'] as const
 
@@ -196,9 +184,6 @@ describe('buildAssociationPayload', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Suite 5: generateWhere
-// ---------------------------------------------------------------------------
 describe('generateWhere', () => {
   const ownerID = 'org-123'
 
@@ -266,9 +251,6 @@ describe('generateWhere', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Suite 6: extractTableRows
-// ---------------------------------------------------------------------------
 describe('extractTableRows', () => {
   it('handles every responseObjectKey (no type returns empty due to missing case)', () => {
     const allObjectKeys = Object.values(OBJECT_QUERY_CONFIG).map((c) => c.responseObjectKey)
@@ -360,9 +342,6 @@ describe('extractTableRows', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Suite 7: Config integrity
-// ---------------------------------------------------------------------------
 describe('Config integrity', () => {
   it('every ObjectTypeObjects has an OBJECT_QUERY_CONFIG entry', () => {
     for (const objectType of Object.values(ObjectTypeObjects)) {
@@ -418,9 +397,6 @@ describe('Config integrity', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Suite 8: toRemoveFieldName
-// ---------------------------------------------------------------------------
 describe('toRemoveFieldName', () => {
   it('converts controlIDs to removeControlIDs', () => {
     expect(toRemoveFieldName('controlIDs')).toBe('removeControlIDs')
@@ -432,10 +408,9 @@ describe('toRemoveFieldName', () => {
 })
 
 /**
- * #2014 — system details gained many-to-many edges to platforms and programs, so
- * several tables now flatten a GraphQL edge list into a chip cell. These helpers
- * do that flattening and must survive the shapes the API actually returns: a
- * null connection, null edges inside it, and nodes missing the field entirely.
+ * #2014 — these helpers flatten a GraphQL edge list into a chip cell, and must survive the
+ * shapes the API actually returns: a null connection, null edges inside it, and nodes missing
+ * the field entirely.
  */
 describe('getEdgeValues', () => {
   it('maps each node to the requested field', () => {
@@ -477,14 +452,9 @@ describe('typed edge accessors', () => {
 })
 
 /**
- * #2055 — association sections were being assembled by hand at each call site.
- * buildAssociationSections now maps a section-key list onto whichever connections
- * the query actually returned, and each object type declares its section list as
- * a shared constant.
- *
- * The important behaviour is that a MISSING connection is omitted rather than
- * emitted as an empty/undefined section — a rendered-but-empty accordion looks
- * like "no associations" when the truth is "not queried".
+ * #2055 — buildAssociationSections maps a section-key list onto whichever connections the query
+ * returned. A missing connection is omitted rather than emitted empty, since a rendered-but-empty
+ * accordion reads as "no associations" when the truth is "not queried".
  */
 describe('buildAssociationSections', () => {
   const connection = (count: number) => ({ totalCount: count, edges: [] })
