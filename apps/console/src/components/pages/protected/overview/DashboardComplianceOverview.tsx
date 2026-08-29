@@ -7,7 +7,7 @@ import { useGetRiskOpenAndIdentifiedCount } from '@/lib/graphql-hooks/risk'
 import { saveFilters, saveQuickFilters, type TFilterState, type TFilterStateFor } from '@/components/shared/table-filter/filter-storage.ts'
 import { type TEvidenceFilterKey } from '@/components/pages/protected/evidence/table/table-config.ts'
 import { ControlControlStatus, EvidenceEvidenceStatus, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
-import { toUtcDayStart, type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
+import { toDayStartIso, type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { useRouter } from 'next/navigation'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -44,7 +44,7 @@ const DashboardComplianceOverview = () => {
       label: 'Overdue',
       key: 'overdue',
       type: 'custom',
-      getCondition: () => ({ dueLT: toUtcDayStart(new Date()) }),
+      getCondition: () => ({ dueLT: toDayStartIso(new Date()) }),
       isActive: true,
     }
 

@@ -1,5 +1,5 @@
 import { Filter } from 'lucide-react'
-import { getActiveFilterCount, getQuickFiltersWhereCondition, getWhereCondition, handleDateEQOperator, handleDateRangeOperator, toUtcDayStart, type TQuickFilter } from './table-filter-helper'
+import { getActiveFilterCount, getQuickFiltersWhereCondition, getWhereCondition, handleDateEQOperator, handleDateRangeOperator, toDayStartIso, type TQuickFilter } from './table-filter-helper'
 import { type TFilterState } from './filter-storage'
 import { type FilterField } from '@/types'
 
@@ -16,31 +16,31 @@ const withTimeZone = (timeZone: string, run: () => void) => {
   }
 }
 
-describe('toUtcDayStart', () => {
+describe('toDayStartIso', () => {
   test('emits the instant of local midnight, not local midnight stamped as UTC', () => {
     withTimeZone('Europe/Zagreb', () => {
-      expect(toUtcDayStart(new Date(2026, 7, 29, 15, 30))).toBe('2026-08-28T22:00:00.000Z')
+      expect(toDayStartIso(new Date(2026, 7, 29, 15, 30))).toBe('2026-08-28T22:00:00.000Z')
     })
     withTimeZone('America/Los_Angeles', () => {
-      expect(toUtcDayStart(new Date(2026, 7, 29, 15, 30))).toBe('2026-08-29T07:00:00.000Z')
+      expect(toDayStartIso(new Date(2026, 7, 29, 15, 30))).toBe('2026-08-29T07:00:00.000Z')
     })
     withTimeZone('UTC', () => {
-      expect(toUtcDayStart(new Date(2026, 7, 29, 15, 30))).toBe('2026-08-29T00:00:00.000Z')
+      expect(toDayStartIso(new Date(2026, 7, 29, 15, 30))).toBe('2026-08-29T00:00:00.000Z')
     })
   })
 
   test('tracks the offset change across a DST transition', () => {
     withTimeZone('Europe/Zagreb', () => {
-      expect(toUtcDayStart(new Date(2026, 9, 25, 12, 0))).toBe('2026-10-24T22:00:00.000Z')
-      expect(toUtcDayStart(new Date(2026, 9, 26, 12, 0))).toBe('2026-10-25T23:00:00.000Z')
-      expect(toUtcDayStart(new Date(2026, 0, 15, 12, 0))).toBe('2026-01-14T23:00:00.000Z')
+      expect(toDayStartIso(new Date(2026, 9, 25, 12, 0))).toBe('2026-10-24T22:00:00.000Z')
+      expect(toDayStartIso(new Date(2026, 9, 26, 12, 0))).toBe('2026-10-25T23:00:00.000Z')
+      expect(toDayStartIso(new Date(2026, 0, 15, 12, 0))).toBe('2026-01-14T23:00:00.000Z')
     })
   })
 
   test('round trips back to local midnight in every zone', () => {
     for (const timeZone of ['UTC', 'Europe/Zagreb', 'America/Los_Angeles', 'Asia/Kolkata', 'Pacific/Chatham']) {
       withTimeZone(timeZone, () => {
-        const local = new Date(toUtcDayStart(new Date(2026, 7, 29, 15, 30)))
+        const local = new Date(toDayStartIso(new Date(2026, 7, 29, 15, 30)))
         expect([local.getHours(), local.getMinutes(), local.getSeconds(), local.getMilliseconds()]).toEqual([0, 0, 0, 0])
       })
     }

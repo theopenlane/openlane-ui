@@ -1,5 +1,5 @@
 import { defineFilterFields } from '@/types'
-import { toUtcDayStart, type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
+import { toDayStartIso, type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { addDays, endOfWeek, startOfWeek } from 'date-fns'
 import { TaskTaskStatus, type TaskWhereInput } from '@repo/codegen/src/schema'
 import { type TOrgMembers } from '../hooks/useTaskStore'
@@ -86,7 +86,7 @@ export const getTaskQuickFilters = (userId: string | undefined, showMyTasks: boo
     label: 'Overdue',
     key: 'overdue',
     type: 'custom',
-    getCondition: () => ({ dueLT: toUtcDayStart(new Date()) }),
+    getCondition: () => ({ dueLT: toDayStartIso(new Date()) }),
     isActive: false,
   },
   {
@@ -97,8 +97,8 @@ export const getTaskQuickFilters = (userId: string | undefined, showMyTasks: boo
       const start = startOfWeek(new Date(), { weekStartsOn: 1 })
       const end = endOfWeek(new Date(), { weekStartsOn: 1 })
       return {
-        dueGTE: toUtcDayStart(start),
-        dueLT: toUtcDayStart(addDays(end, 1)),
+        dueGTE: toDayStartIso(start),
+        dueLT: toDayStartIso(addDays(end, 1)),
       }
     },
     isActive: false,
