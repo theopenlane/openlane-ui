@@ -17,6 +17,8 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 import { useOrganization } from '@/hooks/useOrganization'
 
+const UNTYPED_LABEL = 'Type not defined'
+
 const CoverageByType = ({ onTypeClick }: { onTypeClick: () => void }) => {
   const { currentOrgId } = useOrganization()
   const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY, undefined, currentOrgId) || {}
@@ -28,10 +30,10 @@ const CoverageByType = ({ onTypeClick }: { onTypeClick: () => void }) => {
     },
   })
 
-  const handleTypeClick = (type: string) => {
+  const handleTypeClick = (kind: string | null) => {
     const newState: TFilterStateFor<TPolicyFilterKey> = {
       approverIDIn: saved.approverIDIn || undefined,
-      internalPolicyKindNameIn: type !== 'Unknown' ? [type] : undefined,
+      internalPolicyKindNameIn: kind === null ? { nullState: 'IsNil' } : [kind],
     }
 
     saveFilters(TableKeyEnum.INTERNAL_POLICY, newState, currentOrgId)
@@ -47,48 +49,49 @@ const CoverageByType = ({ onTypeClick }: { onTypeClick: () => void }) => {
   const groupedData = useMemo(() => {
     if (!policies?.length) return []
 
-    const groups: Record<string, { id: string; total: number; published: number; names: string[] }> = {}
+    const groups = new Map<string | null, { id: string; total: number; published: number; names: string[] }>()
 
     for (const policy of policies) {
-      const type = policy.internalPolicyKindName || 'Unknown'
-      if (!groups[type]) {
-        groups[type] = { id: '', total: 0, published: 0, names: [] }
-      }
-      groups[type].total++
-      groups[type].names.push(policy.name)
+      const kind = policy.internalPolicyKindName || null
+      const group = groups.get(kind) ?? { id: '', total: 0, published: 0, names: [] }
 
-      groups[type].id = policy.id
+      group.total++
+      group.names.push(policy.name)
+      group.id = policy.id
       if (policy.status === InternalPolicyDocumentStatus.PUBLISHED) {
-        groups[type].published++
+        group.published++
       }
+      groups.set(kind, group)
     }
-    return Object.entries(groups)
-      .map(([type, { id, total, published, names }]) => ({
+
+    return [...groups.entries()]
+      .map(([kind, { id, total, published, names }]) => ({
         id,
-        label: type,
+        kind,
+        label: kind ?? UNTYPED_LABEL,
         names,
         percentage: Math.round((published / total) * 100),
         ratio: `${published}/${total}`,
       }))
-      .sort((a, b) => (a.label === 'Unknown' ? 1 : b.label === 'Unknown' ? -1 : a.label.localeCompare(b.label)))
+      .sort((a, b) => (a.kind === null ? 1 : b.kind === null ? -1 : a.label.localeCompare(b.label)))
   }, [policies])
 
-  const renderRow = ({ label, percentage, ratio, names, id }: { label: string; percentage: number; ratio: string; names: string[]; id: string }) => {
+  const renderRow = ({ kind, label, percentage, ratio, names, id }: { kind: string | null; label: string; percentage: number; ratio: string; names: string[]; id: string }) => {
     const showList = names.slice(0, 10)
     const hasMore = names.length > 10
     const policyLink = `/policies/${id}/view`
 
     return (
-      <div key={label} className="flex items-center gap-4 w-full md:w-[calc(50%-1.5rem)] cursor-pointer" onClick={() => handleTypeClick(label)}>
+      <div key={label} className="flex items-center gap-4 w-full md:w-[calc(50%-1.5rem)] cursor-pointer" onClick={() => handleTypeClick(kind)}>
         <Tooltip>
           <div className="min-w-36 shrink-0">
             <TooltipTrigger asChild>
-              <CustomTypeEnumValue value={label || ''} options={enumOptions ?? []} />
+              <CustomTypeEnumValue value={kind ?? ''} options={enumOptions ?? []} placeholder={UNTYPED_LABEL} />
             </TooltipTrigger>
           </div>
 
           <TooltipContent side="right" align="center" className="max-w-xs border p-3 rounded-md space-y-2">
-            <p className="font-medium">{label} Policies</p>
+            <p className="font-medium">{kind === null ? UNTYPED_LABEL : `${label} Policies`}</p>
             {showList.map((name, i) => (
               <Link href={policyLink} key={i}>
                 <p className="text-sm text-muted-foreground truncate hover:underline">{name}</p>
@@ -100,7 +103,7 @@ const CoverageByType = ({ onTypeClick }: { onTypeClick: () => void }) => {
                 className="w-full mt-2"
                 onClick={(e) => {
                   e.stopPropagation()
-                  handleTypeClick(label)
+                  handleTypeClick(kind)
                 }}
               >
                 View all ({names.length})
