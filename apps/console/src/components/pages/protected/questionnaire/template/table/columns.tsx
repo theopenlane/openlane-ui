@@ -150,7 +150,7 @@ export const getTemplateColumns = (params?: Params) => {
           <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="secondary">
+                <Button variant="secondary" aria-label="Row actions">
                   <MoreHorizontal className="h-4 w-4 text-brand" />
                 </Button>
               </DropdownMenuTrigger>

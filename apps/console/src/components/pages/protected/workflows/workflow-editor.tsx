@@ -233,11 +233,11 @@ export default function WorkflowEditor() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Name</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Control approval workflow" />
+              <Label htmlFor="workflow-name">Name</Label>
+              <Input id="workflow-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Control approval workflow" />
             </div>
             <div className="space-y-2">
-              <Label>Schema Type</Label>
+              <Label htmlFor="workflow-schema-type">Schema Type</Label>
               <Select
                 value={schemaType}
                 onValueChange={(val) => {
@@ -246,7 +246,7 @@ export default function WorkflowEditor() {
                 }}
                 disabled={isLoadingMetadata}
               >
-                <SelectTrigger>
+                <SelectTrigger id="workflow-schema-type">
                   <SelectValue placeholder={isLoadingMetadata ? 'Loading types...' : 'Select object type'} />
                 </SelectTrigger>
                 <SelectContent>
@@ -261,8 +261,8 @@ export default function WorkflowEditor() {
           </div>
 
           <div className="space-y-2">
-            <Label>Description</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe what this workflow does" rows={3} />
+            <Label htmlFor="workflow-description">Description</Label>
+            <Textarea id="workflow-description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe what this workflow does" rows={3} />
           </div>
         </CardContent>
       </Card>
@@ -273,9 +273,9 @@ export default function WorkflowEditor() {
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Workflow Kind</Label>
+            <Label htmlFor="workflow-kind">Workflow Kind</Label>
             <Select value={workflowKind} onValueChange={(val) => setWorkflowKind(val as WorkflowDefinitionWorkflowKind)}>
-              <SelectTrigger>
+              <SelectTrigger id="workflow-kind">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -290,9 +290,9 @@ export default function WorkflowEditor() {
 
           {workflowKind === WorkflowDefinitionWorkflowKind.APPROVAL && (
             <div className="space-y-2">
-              <Label>Approval timing</Label>
+              <Label htmlFor="workflow-approval-timing">Approval timing</Label>
               <Select value={approvalTiming} onValueChange={(val) => setApprovalTiming(val as ApprovalTiming)}>
-                <SelectTrigger>
+                <SelectTrigger id="workflow-approval-timing">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -305,23 +305,23 @@ export default function WorkflowEditor() {
           )}
 
           <div className="space-y-2">
-            <Label>Cooldown (seconds)</Label>
-            <Input type="number" min="0" value={cooldownSeconds} onChange={(e) => setCooldownSeconds(Number(e.target.value) || 0)} />
+            <Label htmlFor="workflow-cooldown-seconds">Cooldown (seconds)</Label>
+            <Input id="workflow-cooldown-seconds" type="number" min="0" value={cooldownSeconds} onChange={(e) => setCooldownSeconds(Number(e.target.value) || 0)} />
           </div>
 
           <div className="flex items-center justify-between">
-            <Label>Active</Label>
-            <Switch checked={active} onCheckedChange={setActive} />
+            <Label htmlFor="workflow-active">Active</Label>
+            <Switch id="workflow-active" checked={active} onCheckedChange={setActive} />
           </div>
 
           <div className="flex items-center justify-between">
-            <Label>Draft</Label>
-            <Switch checked={draft} onCheckedChange={setDraft} />
+            <Label htmlFor="workflow-draft">Draft</Label>
+            <Switch id="workflow-draft" checked={draft} onCheckedChange={setDraft} />
           </div>
 
           <div className="flex items-center justify-between">
-            <Label>Default for schema</Label>
-            <Switch checked={isDefault} onCheckedChange={setIsDefault} />
+            <Label htmlFor="workflow-default">Default for schema</Label>
+            <Switch id="workflow-default" checked={isDefault} onCheckedChange={setIsDefault} />
           </div>
         </CardContent>
       </Card>

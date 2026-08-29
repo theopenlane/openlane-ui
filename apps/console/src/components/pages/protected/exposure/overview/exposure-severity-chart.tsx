@@ -78,7 +78,13 @@ const SeverityRow = ({
             return (
               <Tooltip key={sev}>
                 <TooltipTrigger asChild>
-                  <div onClick={() => navigateToFiltered(sev)} className="h-full cursor-pointer" style={{ width: `${pct}%`, backgroundColor: sevColor(sev) }} />
+                  <button
+                    type="button"
+                    aria-label={`${sev} ${label}`}
+                    onClick={() => navigateToFiltered(sev)}
+                    className="h-full cursor-pointer"
+                    style={{ width: `${pct}%`, backgroundColor: sevColor(sev) }}
+                  />
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-64">
                   <p className="font-semibold capitalize mb-1">{sev}</p>

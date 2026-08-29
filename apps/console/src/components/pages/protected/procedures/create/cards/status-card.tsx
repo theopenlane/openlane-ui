@@ -91,7 +91,9 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
               render={({ field }) => (
                 <>
                   <Select value={String(field.value ?? false)} onValueChange={(value) => field.onChange(value === 'true')}>
-                    <SelectTrigger className="w-full">{String(field.value ?? false)}</SelectTrigger>
+                    <SelectTrigger aria-label="Approval Required" className="w-full">
+                      {String(field.value ?? false)}
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="true">True</SelectItem>
                       <SelectItem value="false">False</SelectItem>
@@ -125,7 +127,9 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                       }
                     }}
                   >
-                    <SelectTrigger className="w-full">{reviewFrequencyOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>
+                    <SelectTrigger aria-label="Reviewing Frequency" className="w-full">
+                      {reviewFrequencyOptions.find((item) => item.value === field.value)?.label}
+                    </SelectTrigger>
                     <SelectContent>
                       {reviewFrequencyOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>

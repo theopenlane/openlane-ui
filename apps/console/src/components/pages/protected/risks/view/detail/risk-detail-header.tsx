@@ -123,12 +123,12 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
               {canDeleteRisk && (
                 <Menu
                   trigger={
-                    <Button type="button" variant="secondary" className="h-8 px-2">
+                    <Button type="button" variant="secondary" className="h-8 px-2" data-testid="risk-actions-menu">
                       <MoreHorizontal size={16} />
                     </Button>
                   }
                   content={
-                    <button onClick={onDeleteClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
+                    <button onClick={onDeleteClick} data-testid="risk-delete-button" className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
                       <Trash2 size={16} strokeWidth={2} />
                       <span>Delete</span>
                     </button>

@@ -75,12 +75,13 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove, s
                   {isOwner && !isEditing && (onEdit || onRemove) && (
                     <div className="flex gap-2">
                       {onEdit && (
-                        <button onClick={() => handleEditClick(item)} className="hover:text-btn-secondary bg-unset">
+                        <button aria-label="Edit comment" onClick={() => handleEditClick(item)} className="hover:text-btn-secondary bg-unset">
                           <Pencil className="h-4 w-4" />
                         </button>
                       )}
                       {onRemove && (
                         <button
+                          aria-label="Delete comment"
                           onClick={() => {
                             setCommentToDelete(item)
                             setDeleteDialogOpen(true)
@@ -95,10 +96,10 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove, s
 
                   {isOwner && isEditing && (
                     <div className="flex gap-2">
-                      <button onClick={() => handleSaveEdit(item)}>
+                      <button aria-label="Save comment" onClick={() => handleSaveEdit(item)}>
                         <Check className="h-4 w-4 text-brand" />
                       </button>
-                      <button onClick={handleCancelEdit}>
+                      <button aria-label="Cancel comment edit" onClick={handleCancelEdit}>
                         <X size={16} />
                       </button>
                     </div>

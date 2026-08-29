@@ -37,7 +37,7 @@ export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, tokenMap, ca
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="-mr-2" variant="secondary">
+            <Button className="-mr-2" variant="secondary" aria-label={`Tag actions for ${row.original.name}`}>
               <MoreHorizontal className="h-4 w-4 text-brand" />
             </Button>
           </DropdownMenuTrigger>

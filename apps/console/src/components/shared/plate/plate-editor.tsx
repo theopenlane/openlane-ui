@@ -29,6 +29,7 @@ export type TPlateEditorProps = {
   clearData?: boolean
   onClear?: () => void
   placeholder?: string
+  ariaLabel?: string
   entity?: PolicyDiscussionFieldsFragment | ProcedureDiscussionFieldsFragment | RiskDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment | ControlDiscussionFieldsFragment
   userData?: GetUserProfileQuery
   readonly?: boolean
@@ -52,6 +53,7 @@ const PlateEditor = ({
   clearData,
   onClear,
   placeholder,
+  ariaLabel,
   entity,
   userData,
   readonly,
@@ -256,7 +258,7 @@ const PlateEditor = ({
           editor?.focus()
         }}
       >
-        <Editor placeholder={placeholder ?? 'Type a paragraph'} variant={readonly ? 'readonly' : undefined} />
+        <Editor aria-label={ariaLabel ?? placeholder ?? 'Rich text editor'} placeholder={placeholder ?? 'Type a paragraph'} variant={readonly ? 'readonly' : undefined} />
       </EditorContainer>
     </Plate>
   )

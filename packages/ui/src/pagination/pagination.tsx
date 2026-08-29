@@ -20,9 +20,9 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, pageSi
   return (
     <div className="flex items-center justify-between p-4">
       <div className="flex items-center gap-2 text-sm">
-        <span>Rows per page</span>
+        <span id="rows-per-page-label">Rows per page</span>
         <Select value={pageSize.toString()} onValueChange={(val) => onPageSizeChange(Number(val))}>
-          <SelectTrigger className="w-[60px] h-8 text-sm bg-secondary">
+          <SelectTrigger aria-labelledby="rows-per-page-label" className="w-[60px] h-8 text-sm bg-secondary">
             <SelectValue placeholder="Select" />
           </SelectTrigger>
           <SelectContent>
@@ -40,16 +40,16 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, pageSi
           Page {currentPage} of {totalPages}
         </span>
         <div className="flex gap-2">
-          <Button type="button" className="h-6 w-6 !p-0" variant="outline" disabled={isFirstPage} onClick={() => onPageChange(1)}>
+          <Button type="button" className="h-6 w-6 !p-0" variant="outline" aria-label="First page" disabled={isFirstPage} onClick={() => onPageChange(1)}>
             <ChevronsLeft size={16} />
           </Button>
-          <Button type="button" className="h-6 w-6 !p-0" variant="outline" disabled={isFirstPage} onClick={() => onPageChange(currentPage - 1)}>
+          <Button type="button" className="h-6 w-6 !p-0" variant="outline" aria-label="Previous page" disabled={isFirstPage} onClick={() => onPageChange(currentPage - 1)}>
             <ChevronLeft size={16} />
           </Button>
-          <Button type="button" className="h-6 w-6 !p-0" variant="outline" disabled={isLastPage} onClick={() => onPageChange(currentPage + 1)}>
+          <Button type="button" className="h-6 w-6 !p-0" variant="outline" aria-label="Next page" disabled={isLastPage} onClick={() => onPageChange(currentPage + 1)}>
             <ChevronRight size={16} />
           </Button>
-          <Button type="button" className="h-6 w-6 !p-0" variant="outline" disabled={isLastPage} onClick={() => onPageChange(totalPages)}>
+          <Button type="button" className="h-6 w-6 !p-0" variant="outline" aria-label="Last page" disabled={isLastPage} onClick={() => onPageChange(totalPages)}>
             <ChevronsRight size={16} />
           </Button>
         </div>

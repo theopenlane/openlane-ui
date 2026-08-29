@@ -61,6 +61,7 @@ import { docsHelpQuery } from '@/components/shared/docs-help/docs-help-query'
 import { useDocsHelpNavigate } from '@/components/shared/docs-help/docs-help-context'
 import { docsHelpAvailable } from '@repo/dally/ai'
 import { BookText } from 'lucide-react'
+import { buildControlEntityInput } from './build-control-input'
 
 export default function CreateControlForm() {
   const params = useSearchParams()
@@ -159,15 +160,12 @@ export default function CreateControlForm() {
           : buildAssociationPayload(CONTROL_ASSOCIATION_CONFIG.associationKeys, data, true, {}),
         FINDING_CONTROL_JOIN_KEY_ON_CONTROL,
       )
-      const nonAssociationData = Object.fromEntries(Object.entries(data).filter(([key]) => !allAssociationKeys.has(key)))
-
-      const entityInput = {
-        ...nonAssociationData,
+      const entityInput = buildControlEntityInput({
+        data,
+        associationKeys: allAssociationKeys,
         description: await convertToHtml(data.descriptionJSON as Value),
         descriptionJSON: data.descriptionJSON,
-        referenceID: data.referenceID || undefined,
-        auditorReferenceID: data.auditorReferenceID || undefined,
-      }
+      })
 
       const commonInput = { ...entityInput, ...associationInputs }
 
@@ -388,17 +386,17 @@ export default function CreateControlForm() {
           <div className="w-[55%]">
             {/* Ref Code */}
             <div>
-              <Label>
+              <Label htmlFor="control-ref-code">
                 Ref Code <span className="text-destructive">*</span>
               </Label>
               {errors?.refCode && <p className="text-destructive text-sm mt-1">{errors.refCode.message}</p>}
-              <Controller name="refCode" control={control} rules={{ required: true }} render={({ field }) => <Input {...field} />} />
+              <Controller name="refCode" control={control} rules={{ required: true }} render={({ field }) => <Input id="control-ref-code" {...field} />} />
             </div>
 
             {/* Title */}
             <div className="mt-4">
-              <Label>Title</Label>
-              <Controller name="title" control={control} render={({ field }) => <Input {...field} value={field.value ?? ''} />} />
+              <Label htmlFor="control-title">Title</Label>
+              <Controller name="title" control={control} render={({ field }) => <Input id="control-title" {...field} value={field.value ?? ''} />} />
             </div>
 
             {isCreateSubcontrol && (

@@ -40,7 +40,7 @@ export const DynamicQuestionField: React.FC<{ question: OnboardingQuestion }> = 
           <QuestionLabel question={question} htmlFor={question.key} />
           <QuestionDescription text={question.description} />
           <Select onValueChange={(next) => setValue(question.key, next, { shouldDirty: true, shouldValidate: true })} value={typeof watched === 'string' ? watched : ''}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger id={question.key} className="w-full">
               <SelectValue placeholder="Select an option" />
             </SelectTrigger>
             <SelectContent>
