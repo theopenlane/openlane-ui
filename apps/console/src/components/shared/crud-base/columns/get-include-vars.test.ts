@@ -2,9 +2,9 @@ import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { getIncludeVars } from './get-include-vars'
 
 /**
- * ISS-2357 — folds each column's meta.gqlInclude against the table's VisibilityState into the
- * include* query variables. The OR-fold matters: two columns can share a key, and the field must
- * still be fetched while either one is visible.
+ * Folds each column's meta.gqlInclude against the table's VisibilityState into the include* query variables.
+ * The OR-fold matters: two columns can share a key, and the field must still be fetched while either one is
+ * visible.
  */
 
 type Row = { id: string }
@@ -44,8 +44,8 @@ describe('getIncludeVars', () => {
   })
 
   test('keeps a column with no accessorKey included', () => {
-    // Display columns (select checkbox, row actions) have no accessorKey and
-    // cannot be looked up in VisibilityState, so they must not be dropped.
+    // Display columns (select checkbox, row actions) have no accessorKey and cannot be looked up in
+    // VisibilityState, so they must not be dropped.
     const columns = [{ id: 'actions', meta: { gqlInclude: ['includeRisks'] } } as ColumnDef<Row>]
 
     expect(getIncludeVars<Row>(columns, { actions: false })).toEqual({ includeRisks: true })

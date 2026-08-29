@@ -148,8 +148,8 @@ describe('formatDate', () => {
   })
 })
 
-// ISS-2409 — the program landing page marks overdue audit periods with isPastDate. Empty input
-// must read as "not past" rather than falling through to an Invalid Date comparison.
+// The program landing page marks overdue audit periods with isPastDate. Empty input must read as "not past"
+// rather than falling through to an Invalid Date comparison.
 describe('isPastDate', () => {
   it('returns false for undefined, null and empty input', () => {
     expect(isPastDate(undefined)).toBe(false)
@@ -172,9 +172,8 @@ describe('isPastDate', () => {
 })
 
 /**
- * ISS-2657 — campaign launch scheduling gained a timezone selector, so scheduled times must be
- * shown with their zone. A bare "March 3, 2026 9:00 AM" is ambiguous once a campaign can be
- * scheduled from another zone.
+ * Campaign launch scheduling gained a timezone selector, so scheduled times must be shown with their zone. A
+ * bare "March 3, 2026 9:00 AM" is ambiguous once a campaign can be scheduled from another zone.
  */
 describe('formatDateTimeWithZone', () => {
   it('falls back for empty input', () => {

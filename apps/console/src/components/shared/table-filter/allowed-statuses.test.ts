@@ -2,9 +2,9 @@ import { resolveAllowedStatuses } from './allowed-statuses'
 import { type StatusFilterableWhere } from './has-status-condition'
 
 /**
- * ISS-2715 — the tasks board renders one column per status the current filter can match; too
- * narrow hides a column with tasks in it, too wide fills the board with empty ones. `and` narrows
- * cumulatively while `or` keeps the union of what its branches allow.
+ * The tasks board renders one column per status the current filter can match; too narrow hides a column with
+ * tasks in it, too wide fills the board with empty ones. `and` narrows cumulatively while `or` keeps the
+ * union of what its branches allow.
  */
 
 type Status = 'OPEN' | 'IN_PROGRESS' | 'IN_REVIEW' | 'COMPLETED' | 'WONT_DO'
@@ -42,8 +42,8 @@ describe('resolveAllowedStatuses', () => {
   })
 
   test('treats an empty statusIn as no constraint', () => {
-    // An empty array means "nothing selected", not "match nothing" — otherwise
-    // clearing a filter would blank the board.
+    // An empty array means "nothing selected", not "match nothing" — otherwise clearing a filter would blank
+    // the board.
     expect(resolveAllowedStatuses(where({ statusIn: [] }), ALL)).toEqual([...ALL])
   })
 

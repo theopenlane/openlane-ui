@@ -85,9 +85,8 @@ describe('organization storage legacy fallback', () => {
 })
 
 /**
- * Adds the property the feature exists for — one org's stored state must never be visible to
- * another — plus the throw-safe path, since localStorage access itself raises in private mode and
- * blocked-cookie contexts.
+ * Adds the property the feature exists for — one org's stored state must never be visible to another — plus
+ * the throw-safe path, since localStorage access itself raises in private mode and blocked-cookie contexts.
  */
 describe('cross-organization isolation', () => {
   beforeEach(() => store.clear())

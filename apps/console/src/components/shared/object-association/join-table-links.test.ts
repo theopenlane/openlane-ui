@@ -1,9 +1,8 @@
 import { splitJoinTableInput } from './join-table-links'
 
 /**
- * #2054 — finding/control links live in a join table, so they cannot ride along in the entity's
- * own update input. The bare key and its add… variant both mean add, and add wins over remove
- * for the same id.
+ * Finding/control links live in a join table, so they cannot ride along in the entity's own update input. The
+ * bare key and its add… variant both mean add, and add wins over remove for the same id.
  */
 describe('splitJoinTableInput', () => {
   test('leaves an input with no join keys untouched', () => {

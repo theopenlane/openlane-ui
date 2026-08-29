@@ -1,9 +1,9 @@
 import { getProgramFilterFields } from './program-filter-field'
 
 /**
- * ISS-2725 — browse-by links wrote filter state whose keys did not match the declared filter
- * fields, so loadFilters silently dropped them. A user without program access gets no field at
- * all rather than an empty-optioned one.
+ * Browse-by links wrote filter state whose keys did not match the declared filter fields, so loadFilters
+ * silently dropped them. A user without program access gets no field at all rather than an empty-optioned
+ * one.
  */
 describe('getProgramFilterFields', () => {
   const options = [
@@ -38,8 +38,8 @@ describe('getProgramFilterFields', () => {
   })
 
   test('always uses the same key so written filter state survives validation', () => {
-    // loadFilters drops keys that are not declared filter fields; a mismatch
-    // here is exactly what silently broke the browse-by links.
+    // loadFilters drops keys that are not declared filter fields; a mismatch here is exactly what silently
+    // broke the browse-by links.
     for (const label of ['Program Name', 'Program', 'Programs']) {
       expect(getProgramFilterFields(options, true, label)[0].key).toBe('hasProgramsWith')
     }

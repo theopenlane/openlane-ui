@@ -408,9 +408,8 @@ describe('toRemoveFieldName', () => {
 })
 
 /**
- * #2014 — these helpers flatten a GraphQL edge list into a chip cell, and must survive the
- * shapes the API actually returns: a null connection, null edges inside it, and nodes missing
- * the field entirely.
+ * These helpers flatten a GraphQL edge list into a chip cell, and must survive the shapes the API actually
+ * returns: a null connection, null edges inside it, and nodes missing the field entirely.
  */
 describe('getEdgeValues', () => {
   it('maps each node to the requested field', () => {
@@ -452,9 +451,9 @@ describe('typed edge accessors', () => {
 })
 
 /**
- * #2055 — buildAssociationSections maps a section-key list onto whichever connections the query
- * returned. A missing connection is omitted rather than emitted empty, since a rendered-but-empty
- * accordion reads as "no associations" when the truth is "not queried".
+ * buildAssociationSections maps a section-key list onto whichever connections the query returned. A missing
+ * connection is omitted rather than emitted empty, since a rendered-but-empty accordion reads as "no
+ * associations" when the truth is "not queried".
  */
 describe('buildAssociationSections', () => {
   const connection = (count: number) => ({ totalCount: count, edges: [] })

@@ -2,8 +2,8 @@ import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
 import { EvidenceStatusColors, getEvidenceStatusLabel, getEvidenceStatusStyle } from './evidence-enum'
 
 /**
- * ISS-2594 — two statuses are abbreviated so they fit the chart legend; everything else falls
- * through to getEnumLabel. The colour map has to stay exhaustive or a chip renders transparent.
+ * Two statuses are abbreviated so they fit the chart legend; everything else falls through to getEnumLabel.
+ * The colour map has to stay exhaustive or a chip renders transparent.
  */
 describe('EvidenceStatusColors', () => {
   test('covers every evidence status', () => {

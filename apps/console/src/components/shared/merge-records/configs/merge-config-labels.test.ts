@@ -4,9 +4,8 @@ import { personnelMergeConfig } from './personnel-merge-config'
 import { vendorMergeConfig } from './vendor-merge-config'
 
 /**
- * ISS-2778 — the merge dialog must name both records, or the confirmation reads "Merge  into "
- * and the user cannot tell which record they are about to destroy. The fallback chain ends at
- * the id.
+ * The merge dialog must name both records, or the confirmation reads "Merge into " and the user cannot tell
+ * which record they are about to destroy. The fallback chain ends at the id.
  */
 
 const configs = [
@@ -39,8 +38,8 @@ describe('merge configs', () => {
   })
 
   test.each(configs)('%s config never yields an empty label for a record with an id', (_name, config) => {
-    // getDisplayName is optional on MergeConfig; where a config supplies one it
-    // must still produce something for a record with nothing but an id.
+    // getDisplayName is optional on MergeConfig; where a config supplies one it must still produce something
+    // for a record with nothing but an id.
     const label = config.getDisplayName?.({ id: 'record-id' } as never)
 
     if (config.getDisplayName) expect(label).toBeTruthy()

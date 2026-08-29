@@ -1,9 +1,8 @@
 import { buildVendorLogoProxyUrl, getVendorLogoUrl, toVendorLogoHost, VENDOR_LOGO_SIZE } from './vendor-logo'
 
 /**
- * ISS-2486 — decides whether a user-typed website value is safe to forward to the authenticated
- * logo proxy. Anything that is not a real registrable domain returns null, so junk never reaches
- * the outbound request.
+ * Decides whether a user-typed website value is safe to forward to the authenticated logo proxy. Anything
+ * that is not a real registrable domain returns null, so junk never reaches the outbound request.
  */
 describe('toVendorLogoHost', () => {
   test.each([

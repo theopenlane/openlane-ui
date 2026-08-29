@@ -1,9 +1,9 @@
 import { mergeWhere } from './merge-where'
 
 /**
- * ISS-2687 — combines system-standard exclusions with whatever filter the user has set, without
- * either clobbering the other. An empty object is dropped, and a single surviving condition is
- * returned unwrapped rather than nested in an `and`.
+ * Combines system-standard exclusions with whatever filter the user has set, without either clobbering the
+ * other. An empty object is dropped, and a single surviving condition is returned unwrapped rather than
+ * nested in an `and`.
  */
 
 type Where = { and?: Where[] | null; status?: string; refCode?: string; systemOwned?: boolean }

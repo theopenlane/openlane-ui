@@ -1,9 +1,9 @@
 import { buildPresetScopes, getActivePresetKey, SCOPE_PRESETS, type TScopeGroup, type TScopePreset } from './scope-presets'
 
 /**
- * #2077 — buildPresetScopes expands a preset over the object groups and getActivePresetKey does
- * the reverse. That reverse mapping has to be an exact set match, or a hand-picked selection is
- * mislabelled as a preset and silently widened when the preset is re-applied.
+ * buildPresetScopes expands a preset over the object groups and getActivePresetKey does the reverse. That
+ * reverse mapping has to be an exact set match, or a hand-picked selection is mislabelled as a preset and
+ * silently widened when the preset is re-applied.
  */
 
 const groups: TScopeGroup[] = [

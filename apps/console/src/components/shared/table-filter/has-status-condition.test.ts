@@ -1,9 +1,8 @@
 import { hasStatusCondition, type StatusFilterableWhere } from './has-status-condition'
 
 /**
- * ISS-2418 — linked-controls tables default to hiding archived, but must back off the moment the
- * user filters by status themselves. The check is key-presence rather than truthiness, and has to
- * look inside nested and/or groups.
+ * Linked-controls tables default to hiding archived, but must back off the moment the user filters by status
+ * themselves. The check is key-presence rather than truthiness, and has to look inside nested and/or groups.
  */
 describe('hasStatusCondition', () => {
   test('is false for an empty filter', () => {
@@ -19,8 +18,8 @@ describe('hasStatusCondition', () => {
   })
 
   test('treats an explicitly null/empty status key as a user-set condition', () => {
-    // Key presence, not value — clearing a status filter in the UI leaves the
-    // key behind, and re-applying the default would fight the user.
+    // Key presence, not value — clearing a status filter in the UI leaves the key behind, and re-applying the
+    // default would fight the user.
     expect(hasStatusCondition({ status: null })).toBe(true)
     expect(hasStatusCondition({ statusIn: [] })).toBe(true)
   })

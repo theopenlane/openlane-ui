@@ -2,8 +2,8 @@ import { CampaignFrequency } from '@repo/codegen/src/schema'
 import { buildRecurrenceUpdateInput, describeCampaignRecurrence, describeRecurrence, toRecurrenceValues, type CampaignRecurrenceSource, type CampaignRecurrenceValues } from './campaign-recurrence'
 
 /**
- * #2110 — recurring campaigns. buildRecurrenceUpdateInput must emit clearRecurrenceEndAt when
- * the end date is removed; omitting the key silently keeps the old one.
+ * Recurring campaigns. buildRecurrenceUpdateInput must emit clearRecurrenceEndAt when the end date is
+ * removed; omitting the key silently keeps the old one.
  */
 
 const source = (over: Partial<CampaignRecurrenceSource> = {}): CampaignRecurrenceSource =>

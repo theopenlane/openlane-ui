@@ -2,9 +2,9 @@ import { type Value } from 'platejs'
 import { canonicalizeDetails, isPlateValueEmpty, trimPlateValue } from './plate-utils'
 
 /**
- * ISS-2646 — trust center values were saved with the blank leading and trailing paragraphs the
- * editor produces freely. "Empty" is structural rather than truthiness here, since a Plate value
- * is always a non-null array, and a void node counts as content.
+ * Trust center values were saved with the blank leading and trailing paragraphs the editor produces freely.
+ * "Empty" is structural rather than truthiness here, since a Plate value is always a non-null array, and a
+ * void node counts as content.
  */
 
 const p = (text: string): Value[number] => ({ type: 'p', children: [{ text }] }) as Value[number]
@@ -21,8 +21,7 @@ describe('isPlateValueEmpty', () => {
   })
 
   test('treats a single blank paragraph as empty', () => {
-    // The editor's default value — non-null, so a truthiness check would call
-    // this content.
+    // The editor's default value — non-null, so a truthiness check would call this content.
     expect(isPlateValueEmpty([p('')])).toBe(true)
   })
 

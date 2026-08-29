@@ -2,9 +2,8 @@ import { type NavItem } from '@/types'
 import { getNavLandingHref } from './get-nav-landing-href'
 
 /**
- * ISS-2591 — clicking a nav section lands on its first usable child. Prefer one that is neither
- * hidden nor plan-locked, then fall back to a locked-but-visible child so the user reaches the
- * upgrade prompt instead of a dead link.
+ * Clicking a nav section lands on its first usable child. Prefer one that is neither hidden nor plan-locked,
+ * then fall back to a locked-but-visible child so the user reaches the upgrade prompt instead of a dead link.
  */
 
 const item = (href: string, children?: NavItem[]): NavItem => ({ title: href, href, children }) as NavItem

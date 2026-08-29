@@ -3,9 +3,9 @@ import { arePlanChecksDisabled, featureUtil } from './plans'
 import { PlanEnum } from './plan-enum'
 
 /**
- * #1969 — support sessions carry no subscription modules, so every module gate has to treat an
- * impersonation session as fully entitled. Without the bypass a support engineer lands in an org
- * with the whole sidebar locked and the billing reported as expired.
+ * Support sessions carry no subscription modules, so every module gate has to treat an impersonation session
+ * as fully entitled. Without the bypass a support engineer lands in an org with the whole sidebar locked and
+ * the billing reported as expired.
  */
 
 const session = (over: Partial<Session['user']> = {}): Session =>
@@ -18,8 +18,8 @@ const support = () => session({ isImpersonation: true })
 const originalEnablePlan = process.env.NEXT_PUBLIC_ENABLE_PLAN
 
 beforeEach(() => {
-  // Plan checks ON unless a test opts out, so the impersonation bypass is what
-  // is actually under test rather than the env short-circuit.
+  // Plan checks ON unless a test opts out, so the impersonation bypass is what is actually under test rather
+  // than the env short-circuit.
   process.env.NEXT_PUBLIC_ENABLE_PLAN = 'true'
 })
 
@@ -65,8 +65,8 @@ describe('featureUtil.hasNoModules', () => {
   })
 
   test('is false for a support session despite an empty module list', () => {
-    // This is the bug the commit fixed: a support session would otherwise read
-    // as billing-expired and hide the whole nav.
+    // This is the bug the commit fixed: a support session would otherwise read as billing-expired and hide
+    // the whole nav.
     expect(featureUtil.hasNoModules(support())).toBe(false)
   })
 
@@ -88,11 +88,8 @@ describe('featureUtil.hasObjectType', () => {
 })
 
 /**
- * ISS-2588 — module gating was consolidated so tables, filters and layouts all
- * consult the same map instead of hand-rolled FeatureGate wrappers.
- * getUpgradeModules is the lookup: an object type ABSENT from the map requires
- * nothing, which is what keeps ungated features working rather than locking them
- * out by default.
+ * getUpgradeModules is the lookup behind module gating. An object type absent from the map requires nothing,
+ * which is what keeps ungated features working rather than locking them out by default.
  */
 describe('featureUtil.getUpgradeModules', () => {
   test('requires nothing for an object type that is not module-gated', () => {

@@ -1,9 +1,9 @@
 import { isVendorRiskRating, riskRatingFromScore, VendorRiskRating, VENDOR_RISK_RATING_OPTIONS } from './vendor-risk-rating'
 
 /**
- * ISS-2749 — the thresholds are inclusive upper bounds, so every band boundary is an off-by-one
- * waiting to happen: 5 is LOW, 6 is MEDIUM. Absent input returns undefined rather than NONE,
- * which would claim an unscored vendor had been assessed as no-risk.
+ * The thresholds are inclusive upper bounds, so every band boundary is an off-by-one waiting to happen: 5 is
+ * LOW, 6 is MEDIUM. Absent input returns undefined rather than NONE, which would claim an unscored vendor had
+ * been assessed as no-risk.
  */
 describe('riskRatingFromScore — band boundaries', () => {
   test.each([

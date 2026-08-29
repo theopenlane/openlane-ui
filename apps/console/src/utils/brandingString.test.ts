@@ -1,9 +1,8 @@
 import { parseBrandingString } from './brandingString'
 
 /**
- * #2092 — a parser for untrusted pasted input, so its refusals matter more than its happy path.
- * A wrong version prefix, a missing colour or an oversized payload must all yield null rather
- * than a half-applied palette.
+ * A parser for untrusted pasted input, so its refusals matter more than its happy path. A wrong version
+ * prefix, a missing colour or an oversized payload must all yield null rather than a half-applied palette.
  */
 
 const VALID = 'olbrand1:bg=#ffffff;fg=#000000;accent=#ff0000;secBg=#eeeeee;secFg=#333333'

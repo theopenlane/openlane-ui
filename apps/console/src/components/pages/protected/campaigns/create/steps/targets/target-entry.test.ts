@@ -1,9 +1,9 @@
 import { type CampaignTargetEntry, getRecipientDisplayName, hasTarget, mergeTargets, removeTarget, toCampaignTargetInputs, toEmailKeys, toggleTarget } from './target-entry'
 
 /**
- * ISS-2560 / #2073 — recipients arrive from personnel, contacts, CSV and manual entry, so the
- * same person routinely arrives twice. Email is the identity key, and merging enriches rather
- * than replaces: a manual entry later matched to a contact keeps the contactID.
+ * Recipients arrive from personnel, contacts, CSV and manual entry, so the same person routinely arrives
+ * twice. Email is the identity key, and merging enriches rather than replaces: a manual entry later matched
+ * to a contact keeps the contactID.
  */
 
 const target = (over: Partial<CampaignTargetEntry> = {}): CampaignTargetEntry => ({

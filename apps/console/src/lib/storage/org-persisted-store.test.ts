@@ -1,9 +1,8 @@
 import { createOrgPersistedStore, parseString, parseStringUnion } from './org-persisted-store'
 
 /**
- * ISS-2614 — backs a useSyncExternalStore with org-scoped localStorage. Snapshots are cached per
- * org so one org's choice cannot leak into another, and getSnapshot must be referentially stable
- * or the store re-renders forever.
+ * Backs a useSyncExternalStore with org-scoped localStorage. Snapshots are cached per org so one org's choice
+ * cannot leak into another, and getSnapshot must be referentially stable or the store re-renders forever.
  */
 
 const store = new Map<string, string>()

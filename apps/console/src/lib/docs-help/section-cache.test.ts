@@ -3,8 +3,8 @@ import type { SectionLookup, SectionResult } from '@/lib/docs-help/types'
 import { cacheKeyOf, readSectionCache, writeSectionCache } from './section-cache'
 
 /**
- * #2148 — an in-process LRU with a TTL. A read re-inserts the entry as most-recently-used;
- * without that, eviction throws out entries that are actively in use.
+ * An in-process LRU with a TTL. A read re-inserts the entry as most-recently-used; without that, eviction
+ * throws out entries that are actively in use.
  */
 
 const result = (text: string): SectionResult => ({ text }) as unknown as SectionResult

@@ -9,9 +9,9 @@ import {
 } from './standards'
 
 /**
- * ISS-2603 — a bare `frameworkNotIn [...]` silently drops rows whose framework is NULL, because
- * NULL NOT IN (...) is NULL rather than true. Every exclusion clause therefore needs an OR'd
- * IsNil branch, and these assertions exist to stop it being simplified away.
+ * A bare `frameworkNotIn [...]` silently drops rows whose framework is NULL, because NULL NOT IN (...) is
+ * NULL rather than true. Every exclusion clause therefore needs an OR'd IsNil branch, and these assertions
+ * exist to stop it being simplified away.
  */
 describe('system standard exclusion clauses', () => {
   test('excluding system standards keeps records with a null framework', () => {

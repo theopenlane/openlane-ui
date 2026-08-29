@@ -2,8 +2,8 @@ import { EvidenceEvidenceStatus, ReviewReviewStatus } from '@repo/codegen/src/sc
 import { getControlEvidenceStatus, getControlLastReviewed, getControlReview, type ControlReviewSummary } from './control-status'
 
 /**
- * ISS-2433 — both roll-ups are priority-ordered, and the ordering is the point: the row must
- * surface the most blocking evidence state and the most active review.
+ * Both roll-ups are priority-ordered, and the ordering is the point: the row must surface the most blocking
+ * evidence state and the most active review.
  */
 
 const review = (over: Partial<ControlReviewSummary>): ControlReviewSummary => ({ id: 'r-1', ...over })

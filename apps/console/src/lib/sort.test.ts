@@ -1,9 +1,8 @@
 import { compareNatural } from './sort'
 
 /**
- * ISS-2550 — compareNatural reuses one Intl.Collator instead of building one per comparison,
- * which dominated the sort on large control reports. Behaviour has to stay identical to the
- * localeCompare call it replaced.
+ * compareNatural reuses one Intl.Collator instead of building one per comparison, which dominated the sort on
+ * large control reports. Behaviour has to stay identical to the localeCompare call it replaced.
  */
 describe('compareNatural', () => {
   const sorted = (values: string[]): string[] => [...values].sort(compareNatural)

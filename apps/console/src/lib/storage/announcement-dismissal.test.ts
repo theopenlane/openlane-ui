@@ -1,9 +1,9 @@
 import { getDismissedAnnouncement, recordDismissedAnnouncement } from './announcement-dismissal'
 
 /**
- * ISS-2770 — the banner stores the dismissed message rather than a boolean, which is what makes a
- * new announcement reappear for someone who dismissed the previous one. Deliberately not
- * org-scoped, since an announcement is global to the deployment.
+ * The banner stores the dismissed message rather than a boolean, which is what makes a new announcement
+ * reappear for someone who dismissed the previous one. Deliberately not org-scoped, since an announcement is
+ * global to the deployment.
  */
 
 const store = new Map<string, string>()
@@ -43,8 +43,7 @@ describe('announcement dismissal', () => {
   })
 
   test('a newer announcement replaces the stored one', () => {
-    // The banner compares stored-vs-current, so a new message must not read as
-    // already dismissed.
+    // The banner compares stored-vs-current, so a new message must not read as already dismissed.
     recordDismissedAnnouncement('Old announcement')
     recordDismissedAnnouncement('New announcement')
 

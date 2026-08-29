@@ -2,9 +2,9 @@ import { type FilterField } from '@/types'
 import { getFiltersUpdatedEvent, loadFilters, pickDeclaredFilterKeys, saveFilters } from './filter-storage'
 
 /**
- * ISS-2398 — chart segments now route through this shared storage instead of also applying a
- * local additionalWhereFilter, which filtered the list twice. The re-sync event name is
- * org-scoped so two organizations cannot wake each other's tables.
+ * Chart segments now route through this shared storage instead of also applying a local
+ * additionalWhereFilter, which filtered the list twice. The re-sync event name is org-scoped so two
+ * organizations cannot wake each other's tables.
  */
 
 const store = new Map<string, string>()

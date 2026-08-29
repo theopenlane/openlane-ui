@@ -92,9 +92,9 @@ describe('wordTokens', () => {
 })
 
 /**
- * #1957 — isValidDomain gates both the SSO exempt-domain list and the allowed-domains editor. It
- * must reject anything that is not a bare registrable domain: no scheme, no path, no port, no
- * bare hostname, and a TLD of at least two letters.
+ * isValidDomain gates both the SSO exempt-domain list and the allowed-domains editor. It must reject anything
+ * that is not a bare registrable domain: no scheme, no path, no port, no bare hostname, and a TLD of at least
+ * two letters.
  */
 describe('isValidDomain', () => {
   it.each(['acme.com', 'sub.acme.com', 'deep.sub.acme.co.uk', 'a-b.example.io', 'x1.example.dev'])('accepts %s', (domain) => {
@@ -122,9 +122,8 @@ describe('isValidDomain', () => {
 })
 
 /**
- * ISS-2459 — contact/vendor linking suggests vendors whose domain matches the contact's email
- * domain, so getEmailDomain has to be strict. A wrong answer surfaces as bogus vendor suggestions
- * rather than an error.
+ * Contact/vendor linking suggests vendors whose domain matches the contact's email domain, so getEmailDomain
+ * has to be strict. A wrong answer surfaces as bogus vendor suggestions rather than an error.
  */
 describe('getEmailDomain', () => {
   it('extracts and normalises the domain', () => {
@@ -152,16 +151,16 @@ describe('getEmailDomain', () => {
   })
 
   it('returns the host even when the local part is empty', () => {
-    // Not a valid address, but the split still yields a usable domain; the
-    // caller validates the address separately.
+    // Not a valid address, but the split still yields a usable domain; the caller validates the address
+    // separately.
     expect(getEmailDomain('@acme.com')).toBe('acme.com')
   })
 })
 
 /**
- * toHumanLabel turns identifiers into display text, keeping a known acronym set uppercase; the
- * scan UI (#2040) added DNS to that set. This is for camelCase / snake_case identifiers, not
- * ALL_CAPS enums, which go through getEnumLabel.
+ * toHumanLabel turns identifiers into display text, keeping a known acronym set uppercase; the scan UI added
+ * DNS to that set. This is for camelCase / snake_case identifiers, not ALL_CAPS enums, which go through
+ * getEnumLabel.
  */
 describe('toHumanLabel', () => {
   it('returns an empty string for empty input', () => {
@@ -196,9 +195,8 @@ describe('toHumanLabel', () => {
 })
 
 /**
- * #2078 — pluralize/pluralizeWithCount back the assessment UI's count labels. Only a count of
- * exactly 1 is singular; 0 and negatives take the plural, which is what an "0 responses" label
- * depends on.
+ * pluralize/pluralizeWithCount back the assessment UI's count labels. Only a count of exactly 1 is singular;
+ * 0 and negatives take the plural, which is what an "0 responses" label depends on.
  */
 describe('pluralize', () => {
   it('is singular only for exactly one', () => {

@@ -2,8 +2,8 @@ import { OrgMembershipRole } from '@repo/codegen/src/schema'
 import { ASSIGNABLE_BASE_ROLES } from './assignable-base-roles'
 
 /**
- * #2132 — AUDITOR became assignable; it was previously filtered out alongside OWNER. OWNER is
- * transferred rather than assigned and the *_USER pseudo-roles are internal, so both stay out.
+ * AUDITOR became assignable; it was previously filtered out alongside OWNER. OWNER is transferred rather than
+ * assigned and the *_USER pseudo-roles are internal, so both stay out.
  */
 describe('ASSIGNABLE_BASE_ROLES', () => {
   test('includes AUDITOR', () => {

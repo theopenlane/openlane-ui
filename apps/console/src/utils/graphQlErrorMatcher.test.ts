@@ -3,9 +3,9 @@ import { GraphQlResponseError } from '@/constants/graphQlResponseError'
 import { isNonRetryableGraphQlError } from './graphQlErrorMatcher'
 
 /**
- * ISS-2733 — react-query was retrying 400s and GRAPHQL_VALIDATION_FAILED, hammering the backend
- * before surfacing an error the user could do nothing about. Returning false means "retry", so
- * both rules fail in the dangerous direction.
+ * react-query was retrying 400s and GRAPHQL_VALIDATION_FAILED, hammering the backend before surfacing an
+ * error the user could do nothing about. Returning false means "retry", so both rules fail in the dangerous
+ * direction.
  */
 
 const clientError = (status: number, errors?: unknown[]): ClientError => new ClientError({ status, errors, data: undefined, headers: new Headers() } as never, { query: 'query {}' } as never)
@@ -74,8 +74,8 @@ describe('unrecognised inputs stay retryable', () => {
     ['a string', 'boom'],
     ['an empty object', {}],
   ])('retries %s', (_label, error) => {
-    // Defaulting to "retry" is the safe direction for an error shape we do not
-    // recognise — a transient network failure must not be treated as permanent.
+    // Defaulting to "retry" is the safe direction for an error shape we do not recognise — a transient
+    // network failure must not be treated as permanent.
     expect(isNonRetryableGraphQlError(error)).toBe(false)
   })
 })
