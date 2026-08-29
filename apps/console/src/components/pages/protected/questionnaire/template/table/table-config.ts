@@ -14,11 +14,11 @@ const TemplateFilterIcons = {
 
 export function useTemplateFilters(): FilterField[] | undefined {
   const { data: environmentData, isSuccess: isEnvironmentSuccess } = useGetCustomTypeEnums({
-    where: { objectType: null, field: 'environment' },
+    where: { objectType: 'global', field: 'environment' },
   })
 
   const { data: scopeData, isSuccess: isScopeSuccess } = useGetCustomTypeEnums({
-    where: { objectType: null, field: 'scope' },
+    where: { objectType: 'global', field: 'scope' },
   })
 
   return useMemo(() => {
