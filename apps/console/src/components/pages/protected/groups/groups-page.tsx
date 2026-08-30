@@ -31,6 +31,9 @@ import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog
 import Menu from '@/components/shared/menu/menu'
 import { useCreateBulkCSVGroup } from '@/lib/graphql-hooks/group'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import ExportGroupsDialog from './components/dialogs/export-groups-dialog'
+import ExportMenuItem from '@/components/shared/export/export-menu-item'
+import { useGroupsExport } from './use-groups-export'
 
 const GroupsPage = () => {
   const [activeTab, setActiveTab] = useOrgTableViewMode(TableKeyEnum.GROUP)
@@ -38,6 +41,7 @@ const GroupsPage = () => {
   const [orderBy, setOrderBy] = useState<GetAllGroupsQueryVariables['orderBy']>()
   const [searchQuery, setSearchQuery] = useState('')
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
+  const [isExportOpen, setIsExportOpen] = useState(false)
   const { data: session } = useSession()
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.GROUP)
@@ -152,6 +156,8 @@ const GroupsPage = () => {
 
   const { mappedColumns } = getGroupTableColumns({})
 
+  const { exportGroups, isExporting } = useGroupsExport({ where: whereFilter, orderBy: orderByFilter, columnVisibility })
+
   const baseBulkCreateMutation = useCreateBulkCSVGroup()
 
   const bulkCreateMutation = {
@@ -197,9 +203,11 @@ const GroupsPage = () => {
                   <Upload size={16} strokeWidth={2} />
                   <span>Bulk Upload</span>
                 </button>
+                <ExportMenuItem onExport={() => setIsExportOpen(true)} onSelected={close} disabled={!whereFilter} isExporting={isExporting} />
               </>
             )}
           />
+          {isExportOpen && <ExportGroupsDialog open onOpenChange={setIsExportOpen} onExport={exportGroups} />}
           <GenericBulkCSVCreateDialog
             entityType={ObjectTypes.GROUP}
             displayName="Group"

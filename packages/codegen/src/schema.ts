@@ -4407,6 +4407,36 @@ export interface CreateBulkCsvGroupMutation {
   createBulkCSVGroup: { groups: Array<{ id: string }> | null }
 }
 
+export type GroupsExportQueryVariables = Exact<{
+  where?: Types.GroupWhereInput | null | undefined
+  orderBy?: Array<Types.GroupOrder> | Types.GroupOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+  includePermissions: boolean
+}>
+
+export interface GroupsExportQuery {
+  groups: {
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        id: string
+        name: string
+        displayName: string
+        description: string | null
+        tags: Array<string> | null
+        createdAt: any
+        createdBy: string | null
+        updatedAt: any
+        updatedBy: string | null
+        setting: { visibility: Types.GroupSettingVisibility } | null
+        members: { totalCount: number; edges: Array<{ node: { role: Types.GroupMembershipRole; user: { id: string; displayName: string } } | null } | null> | null }
+        permissions?: { totalCount: number; edges: Array<{ node: { id: string; name: string | null; objectType: string; permissions: Types.Permission } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
+}
+
 export type DirectoryMembershipConnectionFieldsFragment = {
   totalCount: number
   edges: Array<{
@@ -5722,6 +5752,32 @@ export type OrgMembershipsByIdsQueryVariables = Exact<{
 
 export interface OrgMembershipsByIdsQuery {
   orgMemberships: { edges: Array<{ node: { user: { id: string; displayName: string; avatarRemoteURL: string | null; avatarFile: { base64: string | null } | null } } | null } | null> | null }
+}
+
+export type OrgMembershipsExportQueryVariables = Exact<{
+  where?: Types.OrgMembershipWhereInput | null | undefined
+  orderBy?: Array<Types.OrgMembershipOrder> | Types.OrgMembershipOrder | null | undefined
+  first?: number | null | undefined
+  after?: any
+}>
+
+export interface OrgMembershipsExportQuery {
+  orgMemberships: {
+    pageInfo: { endCursor: any; hasNextPage: boolean }
+    edges: Array<{
+      node: {
+        id: string
+        createdAt: any
+        role: Types.OrgMembershipRole
+        additionalRoles: Array<string> | null
+        ssoExempt: boolean | null
+        ssoExemptReason: string | null
+        tfaEnforced: boolean | null
+        tfaEnforcedReason: string | null
+        user: { id: string; displayName: string; email: string; authProvider: Types.UserAuthProvider }
+      } | null
+    } | null> | null
+  }
 }
 
 export type NarrativesWithFilterQueryVariables = Exact<{

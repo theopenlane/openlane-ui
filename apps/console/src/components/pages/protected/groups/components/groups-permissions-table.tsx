@@ -11,13 +11,7 @@ import { Permission } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { OBJECT_TYPE_PERMISSIONS_CONFIG, type TypesWithPermissions } from '@repo/codegen/src/type-names'
-
-const PERMISSION_LABELS: Record<Permission, string> = {
-  [Permission.VIEWER]: 'View',
-  [Permission.EDITOR]: 'Edit',
-  [Permission.BLOCKED]: 'Blocked',
-  [Permission.CREATOR]: 'Create',
-}
+import { PERMISSION_LABELS } from '@/components/pages/protected/groups/permission-labels'
 
 const LABEL_TO_PERMISSION: Record<string, Permission> = Object.fromEntries(Object.entries(PERMISSION_LABELS).map(([key, value]) => [value, key as Permission]))
 

@@ -12,6 +12,7 @@ import {
   DELETE_GROUP_MEMBERSHIP,
   GET_ALL_GROUPS_PAGINATED,
   CREATE_CSV_BULK_GROUP,
+  GET_GROUPS_EXPORT,
 } from '@repo/codegen/query/group'
 
 import {
@@ -39,11 +40,15 @@ import {
   type AllGroupsPaginatedFieldsFragment,
   type CreateBulkCsvGroupMutation,
   type CreateBulkCsvGroupMutationVariables,
+  type GroupsExportQuery,
+  type GroupsExportQueryVariables,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
+import { EXPORT_PAGE_SIZE, EXPORT_PAGE_SIZE_HEAVY } from '@/constants/pagination'
+import { fetchAllConnectionNodes } from '@/lib/graphql-hooks/fetch-all-connection-nodes'
 
 export type GroupsNode = NonNullable<NonNullable<NonNullable<NonNullable<GetAllGroupsQuery['groups']>['edges']>[number]>['node']>
 
@@ -278,4 +283,33 @@ export const useCreateBulkCSVGroup = () => {
       queryClient.invalidateQueries({ queryKey: ['groups'] })
     },
   })
+}
+
+export type GroupExportNode = NonNullable<NonNullable<NonNullable<GroupsExportQuery['groups']['edges']>[number]>['node']>
+
+export type GroupExportPermissionNode = NonNullable<NonNullable<NonNullable<NonNullable<GroupExportNode['permissions']>['edges']>[number]>['node']>
+
+type TFetchAllGroupsForExport = {
+  where?: GroupsExportQueryVariables['where']
+  orderBy?: GroupsExportQueryVariables['orderBy']
+  includePermissions: boolean
+}
+
+export const useFetchAllGroupsForExport = () => {
+  const { client } = useGraphQLClient()
+
+  return useCallback(
+    ({ where, orderBy, includePermissions }: TFetchAllGroupsForExport) =>
+      fetchAllConnectionNodes<GroupExportNode>(async (after) => {
+        const result = await client.request<GroupsExportQuery, GroupsExportQueryVariables>(GET_GROUPS_EXPORT, {
+          where,
+          orderBy,
+          first: includePermissions ? EXPORT_PAGE_SIZE_HEAVY : EXPORT_PAGE_SIZE,
+          after,
+          includePermissions,
+        })
+        return result.groups
+      }),
+    [client],
+  )
 }
