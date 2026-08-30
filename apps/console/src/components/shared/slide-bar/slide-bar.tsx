@@ -103,7 +103,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
   return (
     <div className="relative flex">
       <div
-        className={`transition-all duration-300 overflow-auto${!open && collapsedContentClassName ? ` ${collapsedContentClassName}` : ''}`}
+        className={`transition-all duration-300 overflow-x-clip${!open && collapsedContentClassName ? ` ${collapsedContentClassName}` : ''}`}
         style={{ width: open ? `calc(100% - ${width}px)` : '100%' }}
       >
         {children}

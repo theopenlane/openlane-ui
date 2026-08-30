@@ -85,7 +85,9 @@ const BlockCommentContent = ({
 
   const open = _open || selected || (isCommenting && !!draftCommentNode && commentingCurrent)
 
-  const anchorElement = React.useMemo(() => {
+  const [anchorElement, setAnchorElement] = React.useState<HTMLElement | null>(null)
+
+  React.useLayoutEffect(() => {
     let activeNode: NodeEntry | undefined
 
     if (activeSuggestion) {
@@ -100,11 +102,8 @@ const BlockCommentContent = ({
       }
     }
 
-    if (!activeNode) return null
-
-    return editor.api.toDOMNode(activeNode[0])!
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, activeSuggestion, activeCommentId, editor.api, suggestionNodes, draftCommentNode, commentNodes])
+    setAnchorElement(activeNode ? (editor.api.toDOMNode(activeNode[0]) ?? null) : null)
+  }, [activeSuggestion, activeCommentId, editor, suggestionNodes, draftCommentNode, commentNodes])
 
   if (suggestionsCount + resolvedDiscussions.length === 0 && !draftCommentNode) return <div className="w-full">{children}</div>
 
@@ -113,12 +112,8 @@ const BlockCommentContent = ({
       <Popover
         open={open}
         onOpenChange={(_open_) => {
-          if (!_open_ && isCommenting && draftCommentNode) {
-            editor.tf.unsetNodes(getDraftCommentKey(), {
-              at: [],
-              mode: 'lowest',
-              match: (n) => n[getDraftCommentKey()],
-            })
+          if (!_open_ && isCommenting) {
+            editor.getTransforms(commentPlugin).comment.discardDraft()
           }
           setOpen(_open_)
         }}

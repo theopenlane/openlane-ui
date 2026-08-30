@@ -18,6 +18,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { BasicMarksKit } from '@repo/ui/components/editor/plugins/basic-marks-kit.tsx'
 import { MentionKit } from '@repo/ui/components/editor/plugins/mention-kit.tsx'
 import { serializeCommentValue } from '@repo/ui/components/editor/plugins/mention-serialize.ts'
+import { stripDraftCommentMarks } from '@repo/ui/components/editor/comment-utils.ts'
 import { type TDiscussion, discussionPlugin, CommentEntityType } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 
 import { Editor, EditorContainer } from './editor'
@@ -587,7 +588,8 @@ export function CommentCreateForm({
       Risk: 'updateRiskId',
     }
 
-    const input = entityType === ObjectTypes.CONTROL || entityType === ObjectTypes.SUBCONTROL ? { descriptionJSON: editor.children } : { detailsJSON: editor.children }
+    const documentValue = stripDraftCommentMarks(editor.children)
+    const input = entityType === ObjectTypes.CONTROL || entityType === ObjectTypes.SUBCONTROL ? { descriptionJSON: documentValue } : { detailsJSON: documentValue }
 
     await entityDescriptionUpdate({
       [entityIdKeyMap[entityType]]: entityId,

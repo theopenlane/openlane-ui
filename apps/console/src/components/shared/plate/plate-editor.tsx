@@ -11,6 +11,7 @@ import { detectFormat } from './usePlateEditor'
 import { type CommentEntityType, discussionPlugin, type TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 import { pdfExportPlugin } from '@repo/ui/components/editor/plugins/pdf-export-kit.tsx'
 import { parseCommentTextToChildren } from '@repo/ui/components/editor/plugins/mention-serialize.ts'
+import { stripDraftCommentMarks } from '@repo/ui/components/editor/comment-utils.ts'
 import {
   type ControlDiscussionFieldsFragment,
   type GetUserProfileQuery,
@@ -76,9 +77,11 @@ const PlateEditor = ({
     return EditorKitVariant[variant]({ title, toolbarClassName }) as PlatePlugin[]
   }, [variant, entity, toolbarClassName])
 
+  const [initialSlateValue] = React.useState(() => (Array.isArray(initialValue) ? stripDraftCommentMarks(initialValue) : undefined))
+
   const editor = usePlateEditor({
     plugins: getPlugins(),
-    value: Array.isArray(initialValue) ? initialValue : undefined,
+    value: initialSlateValue,
   })
 
   const { resolvedTheme } = useTheme()
@@ -245,7 +248,7 @@ const PlateEditor = ({
       readOnly={readonly}
       editor={editor}
       onChange={(data) => {
-        onChange?.(data.value)
+        onChange?.(stripDraftCommentMarks(data.value))
       }}
     >
       <EditorContainer
