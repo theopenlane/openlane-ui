@@ -26,6 +26,7 @@ type Options<TForm extends FieldValues, TStore> = {
   enabled: boolean
   form: UseFormReturn<TForm>
   subscribeStore?: (listener: () => void) => () => void
+  isStoreDirty?: () => boolean
   getStoreSnapshot?: () => TStore
   applyStoreSnapshot?: (snapshot: TStore) => void
 }
@@ -59,7 +60,7 @@ const safeRemove = (storageKey: string, organizationId?: string) => {
   }
 }
 
-export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: Options<TForm, TStore>) {
+export const useFormDraft = <TForm extends FieldValues, TStore = unknown>(opts: Options<TForm, TStore>) => {
   const { storageKey, organizationId, enabled, form } = opts
   const scopedKey = getOrganizationStorageKey(storageKey, organizationId)
 
@@ -70,6 +71,8 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
   useEffect(() => {
     callbacksRef.current = opts
   })
+
+  const isFormDirty = form.formState.isDirty
 
   const [pendingDraft, setPendingDraft] = useState<FormDraftPayload<TForm, TStore> | null>(null)
   const [decisionMade, setDecisionMade] = useState(false)
@@ -86,7 +89,7 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
       debounceRef.current = null
     }
 
-    if (storageKeyChanged) {
+    if (storageKeyChanged && enabled) {
       form.reset()
       setEditorKey((k) => k + 1)
     }
@@ -108,7 +111,7 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
 
   const persist = useCallback(() => {
     if (!enabled || !decisionMade || typeof window === 'undefined') return
-    if (!form.formState.isDirty) return
+    if (!form.formState.isDirty && !callbacksRef.current.isStoreDirty?.()) return
     try {
       const payload: FormDraftPayload<TForm, TStore> = {
         version: STORAGE_VERSION,
@@ -134,12 +137,37 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
   }, [enabled, decisionMade, form, schedulePersist])
 
   useEffect(() => {
+    if (!enabled || !decisionMade || !isFormDirty) return
+    schedulePersist()
+  }, [enabled, decisionMade, isFormDirty, schedulePersist])
+
+  useEffect(() => {
     if (!enabled || !decisionMade) return
     return callbacksRef.current.subscribeStore?.(() => schedulePersist())
   }, [enabled, decisionMade, schedulePersist])
 
+  const persistRef = useRef(persist)
   useEffect(() => {
+    persistRef.current = persist
+  })
+
+  useEffect(() => {
+    const flush = () => {
+      if (!debounceRef.current) return
+      clearTimeout(debounceRef.current)
+      debounceRef.current = null
+      persistRef.current()
+    }
+    const flushWhenHidden = () => {
+      if (document.visibilityState === 'hidden') flush()
+    }
+
+    document.addEventListener('visibilitychange', flushWhenHidden)
+    window.addEventListener('pagehide', flush)
+
     return () => {
+      document.removeEventListener('visibilitychange', flushWhenHidden)
+      window.removeEventListener('pagehide', flush)
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
   }, [])
@@ -156,14 +184,16 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
   }, [form, pendingDraft])
 
   const discard = useCallback(() => {
+    if (!enabled) return
     safeRemove(storageKey, organizationId)
     setPendingDraft(null)
     setDecisionMade(true)
-  }, [storageKey, organizationId])
+  }, [enabled, storageKey, organizationId])
 
   const clearDraft = useCallback(() => {
+    if (!enabled) return
     safeRemove(storageKey, organizationId)
-  }, [storageKey, organizationId])
+  }, [enabled, storageKey, organizationId])
 
   return {
     pendingDraft,
