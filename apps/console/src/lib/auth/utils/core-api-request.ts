@@ -13,6 +13,17 @@ export const HTTP_METHODS = {
 
 type HttpMethod = (typeof HTTP_METHODS)[keyof typeof HTTP_METHODS]
 
+const MAX_LOGGED_BODY_CHARS = 500
+
+const readBodyForLog = async (response: Response): Promise<string> => {
+  try {
+    const text = await response.text()
+    return text.length > MAX_LOGGED_BODY_CHARS ? `${text.slice(0, MAX_LOGGED_BODY_CHARS)}…` : text
+  } catch {
+    return '<unreadable>'
+  }
+}
+
 // coreAPIRequest is a wrapper to make API requests to the core REST API that returns the payload
 export async function coreAPIRequest(route: string, method: HttpMethod, req?: NextRequest, errorMsg?: string): Promise<NextResponse> {
   const session = await auth()
@@ -41,19 +52,57 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
 
   const csrfToken = (await cookies()).get(csrfCookieName)?.value
 
-  const response = await secureFetch(
-    `${openlaneAPIUrl}${route}`,
-    {
-      method,
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
+  const upstreamUrl = `${openlaneAPIUrl}${route}`
+  const startedAt = Date.now()
+
+  let response: Response
+
+  try {
+    response = await secureFetch(
+      upstreamUrl,
+      {
+        method,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        ...(payload !== undefined && { body: JSON.stringify(payload) }),
       },
-      ...(payload !== undefined && { body: JSON.stringify(payload) }),
-    },
-    { token: csrfToken },
-  )
+      { token: csrfToken },
+    )
+  } catch (error) {
+    console.error(
+      '[coreAPIRequest] upstream request failed',
+      JSON.stringify({
+        upstreamUrl,
+        method,
+        userId: session.user.userId,
+        durationMs: Date.now() - startedAt,
+        hasCsrfToken: !!csrfToken,
+        error: error instanceof Error ? error.message : String(error),
+      }),
+    )
+
+    throw error
+  }
 
   if (!response.ok) {
+    console.error(
+      '[coreAPIRequest] upstream error response',
+      JSON.stringify({
+        upstreamUrl,
+        method,
+        status: response.status,
+        statusText: response.statusText,
+        contentType: response.headers.get('content-type'),
+        upstreamRequestId: response.headers.get('x-request-id'),
+        cfRay: response.headers.get('cf-ray'),
+        userId: session.user.userId,
+        durationMs: Date.now() - startedAt,
+        hasCsrfToken: !!csrfToken,
+        body: await readBodyForLog(response),
+      }),
+    )
+
     return NextResponse.json({ error: errorMsg ?? 'Failed to fetch' }, { status: response.status })
   }
 
