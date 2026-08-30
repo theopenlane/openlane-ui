@@ -3,13 +3,39 @@
 import { fetchNewAccessToken } from './refresh-token'
 import { probeSession, SessionUnavailableError } from './session-health'
 import { notifySessionExpired } from './session-status'
-import { getKnownTokens, getTokenGeneration, setAuthoritativeTokens, type TokenState } from './session-tokens'
+import { getKnownTokens, getTokenGeneration, getUsableTokens, setAuthoritativeTokens, type TokenState } from './session-tokens'
 
 // Web Locks key, not a duration: the namespace is browser-global (hence the prefix) and shared
 // across tabs, so an exclusive hold means five open tabs produce one /v1/refresh. The generation
 // check inside the lock makes queued waiters adopt the winner's tokens instead of minting their
 // own; it degrades to an unsynchronized run() where locks are unavailable.
 const SESSION_REFRESH_LOCK = 'openlane-session-refresh'
+
+const MAX_CONSECUTIVE_REFRESH_FAILURES = 5
+
+let consecutiveRefreshFailures = 0
+let refreshCooldownUntil = 0
+let lastRefreshFailure: Error | null = null
+
+const recordRefreshSuccess = () => {
+  consecutiveRefreshFailures = 0
+  refreshCooldownUntil = 0
+  lastRefreshFailure = null
+}
+
+const recordRefreshFailure = (error: Error, retryAfterMs: number): Error => {
+  consecutiveRefreshFailures += 1
+  refreshCooldownUntil = Date.now() + retryAfterMs
+  lastRefreshFailure = error
+
+  if (consecutiveRefreshFailures >= MAX_CONSECUTIVE_REFRESH_FAILURES) {
+    console.error(`Giving up on session refresh after ${consecutiveRefreshFailures} consecutive failures`)
+    notifySessionExpired()
+    lastRefreshFailure = new Error('Session expired')
+  }
+
+  return lastRefreshFailure
+}
 
 interface RefreshOptions {
   /**
@@ -47,10 +73,20 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
       return superseded
     }
 
+    if (lastRefreshFailure && Date.now() < refreshCooldownUntil) {
+      const stillUsable = getUsableTokens()
+
+      if (stillUsable) {
+        return stillUsable
+      }
+
+      throw lastRefreshFailure
+    }
+
     const probe = await probeSession({ maxAgeMs: 0 })
 
     if (probe.status === 'unavailable') {
-      throw new SessionUnavailableError(probe.retryAfterMs)
+      throw recordRefreshFailure(new SessionUnavailableError(probe.retryAfterMs), probe.retryAfterMs)
     }
 
     if (probe.status === 'signed-out') {
@@ -65,6 +101,7 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
     // Compare BOTH tokens: keying off the refresh token alone assumes every
     // rotation replaces it, which is not guaranteed.
     if (cookieAccessToken && cookieRefreshToken && (cookieAccessToken !== known?.accessToken || cookieRefreshToken !== known?.refreshToken)) {
+      recordRefreshSuccess()
       return setAuthoritativeTokens(cookieAccessToken, cookieRefreshToken)
     }
 
@@ -80,13 +117,15 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
     const result = await fetchNewAccessToken(cookieRefreshToken ?? refreshToken)
 
     if (result.status === 'unavailable') {
-      throw new SessionUnavailableError(result.retryAfterMs)
+      throw recordRefreshFailure(new SessionUnavailableError(result.retryAfterMs), result.retryAfterMs)
     }
 
     if (result.status === 'rejected') {
       notifySessionExpired()
       throw new Error('Session expired')
     }
+
+    recordRefreshSuccess()
 
     const adopted = setAuthoritativeTokens(result.tokens.accessToken, result.tokens.refreshToken)
 

@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { jwtDecode } from 'jwt-decode'
 import { refreshTokens } from '@/lib/auth/utils/session-refresh'
+import { SessionUnavailableError } from '@/lib/auth/utils/session-health'
 import { getIsSessionInvalid } from '@/lib/auth/utils/session-status'
 
 const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = ['keydown', 'mousemove', 'click', 'scroll', 'touchstart']
+const ACTIVITY_RETRY_BACKOFF_MS = 30_000
 
 interface RefreshTokenClaims {
   nbf?: number
@@ -63,13 +65,15 @@ export function useSessionExpiry() {
 
     let armed = false
     let inFlight = false
+    let nextAttemptAt = 0
 
     const onActivity = async () => {
-      if (!armed || inFlight) return
+      if (!armed || inFlight || Date.now() < nextAttemptAt) return
       inFlight = true
       try {
         await refreshTokens(token)
-      } catch {
+      } catch (error) {
+        nextAttemptAt = Date.now() + (error instanceof SessionUnavailableError ? error.retryAfterMs : ACTIVITY_RETRY_BACKOFF_MS)
         inFlight = false
       }
     }
