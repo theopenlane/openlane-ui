@@ -82,3 +82,32 @@ export const GET_ORG_USER_LIST = gql`
     }
   }
 `
+
+export const GET_ORG_MEMBERSHIPS_EXPORT = gql`
+  query OrgMembershipsExport($where: OrgMembershipWhereInput, $orderBy: [OrgMembershipOrder!], $first: Int, $after: Cursor) {
+    orgMemberships(where: $where, orderBy: $orderBy, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          createdAt
+          role
+          additionalRoles
+          ssoExempt
+          ssoExemptReason
+          tfaEnforced
+          tfaEnforcedReason
+          user {
+            id
+            displayName
+            email
+            authProvider
+          }
+        }
+      }
+    }
+  }
+`

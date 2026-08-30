@@ -1,25 +1,34 @@
-// @/lib/utils/export-to-csv.ts
+export type TExportColumn<T> = {
+  label: string
+  accessor: (item: T) => string | number | null | undefined
+}
 
-export const exportToCSV = <T extends object>(data: T[], columns: { label: string; accessor: (item: T) => string | number | null | undefined }[], fileName: string) => {
-  const csvRows = []
+const FORMULA_TRIGGER = /^[=+\-@\t\r]/
+const UTF8_BOM = '\uFEFF'
 
-  // Add headers
-  csvRows.push(columns.map((col) => col.label).join(','))
+const escapeCsvValue = (value: string | number | null | undefined): string => {
+  if (value === null || value === undefined) return '""'
 
-  // Add rows
+  const text = String(value)
+  const guarded = FORMULA_TRIGGER.test(text) ? `'${text}` : text
+
+  return `"${guarded.replace(/"/g, '""')}"`
+}
+
+export const exportToCSV = <T extends object>(data: T[], columns: TExportColumn<T>[], fileName: string) => {
+  const csvRows = [columns.map((col) => escapeCsvValue(col.label)).join(',')]
+
   data.forEach((item) => {
-    const row = columns.map((col) => {
-      const val = col.accessor(item)
-      return typeof val === 'string' ? `"${val.replace(/"/g, '""')}"` : (val ?? '')
-    })
-    csvRows.push(row.join(','))
+    csvRows.push(columns.map((col) => escapeCsvValue(col.accessor(item))).join(','))
   })
 
-  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' })
+  const blob = new Blob([UTF8_BOM, csvRows.join('\r\n')], { type: 'text/csv;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
   a.download = `${fileName}.csv`
+  document.body.appendChild(a)
   a.click()
-  URL.revokeObjectURL(url)
+  document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(url), 0)
 }

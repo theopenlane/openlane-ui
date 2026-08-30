@@ -1,6 +1,6 @@
 'use client'
 
-import { OrderDirection, type OrgMembership, OrgMembershipOrderField, OrgMembershipRole, type OrgMembershipWhereInput, type User, UserAuthProvider } from '@repo/codegen/src/schema'
+import { OrderDirection, type OrgMembership, OrgMembershipOrderField, type OrgMembershipRole, type OrgMembershipWhereInput, type User, UserAuthProvider } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Copy, Info, KeyRoundIcon, Shield, ShieldCheck, ShieldOff } from 'lucide-react'
@@ -32,18 +32,8 @@ import { MEMBERS_SORT_FIELDS } from './table/table-config'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { toHumanLabel } from '@/utils/strings'
-
-const SSO_EXEMPT_ROLES = [OrgMembershipRole.OWNER]
-
-const getSsoExemptReason = (member: OrgMembership, exemptDomains: string[]): string | null => {
-  if (SSO_EXEMPT_ROLES.includes(member.role)) return 'Exempt due to Owner role'
-  const emailDomain = member.user?.email?.split('@')[1]?.toLowerCase()
-  if (emailDomain && exemptDomains.some((d) => d.toLowerCase() === emailDomain)) return `Exempt via domain (${emailDomain})`
-  if (member.ssoExempt) return member.ssoExemptReason || 'Manually marked as SSO exempt'
-  return null
-}
-
-const getTfaEnforcedReason = (member: OrgMembership): string => member.tfaEnforcedReason || 'Manually required to configure 2FA'
+import { getSsoExemptReason, getTfaEnforcedReason } from './member-status'
+import { useMembersExport } from './use-members-export'
 
 export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
   providersIn?: UserAuthProvider[]
@@ -56,7 +46,7 @@ export const MembersTable = () => {
   const { data: orgSettingData } = useGetOrganizationSetting(currentOrgId || '')
   const orgSetting = orgSettingData?.organization?.setting
   const ssoEnforced = !!(orgSetting?.identityProvider && orgSetting.identityProvider !== 'NONE' && orgSetting.identityProviderLoginEnforced)
-  const exemptDomains = orgSetting?.ssoExemptDomains ?? []
+  const exemptDomains = useMemo(() => orgSetting?.ssoExemptDomains ?? [], [orgSetting?.ssoExemptDomains])
   const [filters, setFilters] = useState<ExtendedOrgMembershipWhereInput | null>(null)
   const [selectedIds, setSelectedIds] = useState<{ id: string }[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -101,6 +91,8 @@ export const MembersTable = () => {
   }, [filters, debouncedSearch])
 
   const { members, error, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
+
+  const { exportMembers, isExporting } = useMembersExport({ where: whereFilters, orderBy, ssoEnforced, exemptDomains })
 
   const { canManageMembers } = useOrgMemberPermissions()
   const currentUserId = sessionData?.user?.userId
@@ -324,6 +316,9 @@ export const MembersTable = () => {
               resetPagination()
             }}
             hideFilter={canManageMembers && selectedMembers.length > 0}
+            onExport={exportMembers}
+            isExporting={isExporting}
+            exportDisabled={!filters}
           />
         </div>
         {canManageMembers && selectedMembers.length > 0 && <MembersBulkActions selectedMembers={selectedMembers} onClear={() => setSelectedIds([])} />}

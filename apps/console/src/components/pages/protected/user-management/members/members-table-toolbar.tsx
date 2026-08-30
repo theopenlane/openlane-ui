@@ -6,6 +6,8 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { MEMBERS_FILTER_FIELDS } from '@/components/pages/protected/user-management/members/table/table-config.ts'
 import { type ExtendedOrgMembershipWhereInput } from './members-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import Menu from '@/components/shared/menu/menu'
+import ExportMenuItem from '@/components/shared/export/export-menu-item'
 
 type TMembersTableToolbarProps = {
   className?: string
@@ -14,9 +16,12 @@ type TMembersTableToolbarProps = {
   setSearchTerm: (searchTerm: string) => void
   setFilters: (filters: ExtendedOrgMembershipWhereInput) => void
   hideFilter?: boolean
+  onExport: () => void
+  isExporting?: boolean
+  exportDisabled?: boolean
 }
 
-const MembersTableToolbar: React.FC<TMembersTableToolbarProps> = ({ searching, searchTerm, setFilters, setSearchTerm, hideFilter }) => {
+const MembersTableToolbar: React.FC<TMembersTableToolbarProps> = ({ searching, searchTerm, setFilters, setSearchTerm, hideFilter, onExport, isExporting, exportDisabled }) => {
   const isSearching = useDebounce(searching, 200)
 
   return (
@@ -31,11 +36,10 @@ const MembersTableToolbar: React.FC<TMembersTableToolbarProps> = ({ searching, s
             variant="searchTable"
           />
         </div>
-        {!hideFilter && (
-          <div className="grow flex flex-row items-center gap-2 justify-end">
-            <TableFilter filterFields={MEMBERS_FILTER_FIELDS} onFilterChange={setFilters} pageKey={TableKeyEnum.MEMBER} />
-          </div>
-        )}
+        <div className="grow flex flex-row items-center gap-2 justify-end">
+          <Menu closeOnSelect={true} content={(close) => <ExportMenuItem onExport={onExport} onSelected={close} isExporting={isExporting} disabled={exportDisabled} />} />
+          {!hideFilter && <TableFilter filterFields={MEMBERS_FILTER_FIELDS} onFilterChange={setFilters} pageKey={TableKeyEnum.MEMBER} />}
+        </div>
       </div>
     </>
   )

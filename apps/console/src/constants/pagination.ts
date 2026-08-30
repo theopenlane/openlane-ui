@@ -9,3 +9,7 @@ export const CARD_DEFAULT_PAGINATION = {
   pageSize: 10,
   query: { first: 10 },
 }
+
+export const EXPORT_PAGE_SIZE = 100
+
+export const EXPORT_PAGE_SIZE_HEAVY = 10
