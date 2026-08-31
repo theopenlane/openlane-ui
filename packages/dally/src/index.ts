@@ -17,6 +17,7 @@ export const surveyLicenseKey = process.env.NEXT_PUBLIC_SURVEYJS_KEY
 
 export const pirschAnalyticsKey = process.env.NEXT_PUBLIC_PIRSCH_KEY
 export const isDevelopment = process.env.NODE_ENV === 'development'
+export const useInsecureCookies = process.env.COOKIE_PLAYWRIGHT_INSECURE === 'true' || isDevelopment
 export const isVercelDev = process.env.VERCEL_ENV === 'development' || process.env.VERCEL_ENV === 'preview'
 
 export const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY

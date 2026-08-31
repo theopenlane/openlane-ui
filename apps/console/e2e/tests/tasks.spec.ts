@@ -1,0 +1,629 @@
+import { test, expect } from '../fixtures/auth'
+import { test as freshTest } from '@playwright/test'
+import { seedLoggedInUser } from '../utils/seedUser'
+
+import { RUN_ID } from '../utils/constants'
+import { createTask, readField, type ApiSession, getOwnerApi } from '../utils/api'
+import { bulkEditAndSave, selectFirstMatchingRow } from '../utils/mutations'
+import { openCreateTaskDialog } from '../utils/tasks'
+import { uniqueName } from '../utils/unique'
+
+const taskTitle = (slug: string) => uniqueName(`E2E Task ${slug}`)
+
+let ownerApi: ApiSession
+
+test.beforeAll(async () => {
+  ownerApi = await getOwnerApi()
+})
+
+test.describe('tasks — list + create', () => {
+  test('/automation/tasks renders the Tasks heading', async ({ page }) => {
+    await page.goto('/automation/tasks')
+
+    await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible()
+  })
+
+  test('required validation — submitting Create task with blank title shows the inline error', async ({ page }) => {
+    await page.goto('/automation/tasks')
+    const dialog = await openCreateTaskDialog(page)
+
+    // Schema in tasks/hooks/use-form-schema.ts:
+    // title.min(2, 'Title must be at least 2 characters'). Submitting
+    // empty surfaces the message under the input.
+    await dialog.getByRole('button', { name: /^create task$/i }).click()
+
+    await expect(dialog.getByText(/^Title must be at least 2 characters$/)).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('happy path — open create dialog, fill title, submit, dialog closes', async ({ page }) => {
+    await page.goto('/automation/tasks')
+
+    // Toolbar has a default-trigger "Create" button (CreateTaskDialog
+    // without a custom trigger renders one). Scope to the dialog
+    // trigger by also waiting for the dialog title that follows.
+    const dialog = await openCreateTaskDialog(page)
+    await expect(dialog.getByText(/Create a new Task/i)).toBeVisible()
+
+    const title = taskTitle('create')
+    await dialog.getByLabel(/^Title$/).fill(title)
+
+    // taskKindName defaults to "Uncategorized" so we don't need to touch
+    // the Type combobox. Submit via the dialog's "Create task" button
+    // (different copy than the trigger's "Create").
+    await dialog.getByRole('button', { name: /^create task$/i }).click()
+
+    // Successful create closes the dialog (handleSuccess in the dialog).
+    await expect(dialog).toBeHidden({ timeout: 15_000 })
+  })
+
+  test('search by title filters server-side — second task disappears when first title is typed', async ({ page }) => {
+    await page.goto('/automation/tasks')
+
+    const a = taskTitle('search-a')
+    const b = taskTitle('search-b')
+    for (const title of [a, b]) {
+      const dialog = await openCreateTaskDialog(page)
+      await dialog.getByLabel(/^Title$/).fill(title)
+      await dialog.getByRole('button', { name: /^create task$/i }).click()
+      await expect(dialog).toBeHidden({ timeout: 15_000 })
+    }
+
+    // The toolbar input has placeholder "Search". TasksPage's
+    // debouncedSearch (300ms) feeds into the where clause as
+    // titleContainsFold/detailsContainsFold OR.
+    await page.getByPlaceholder(/^Search$/).fill(a)
+
+    await expect(page.getByRole('cell').filter({ hasText: b })).toHaveCount(0, { timeout: 15_000 })
+    await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible()
+  })
+
+  test('toggle to Board view via TableCardView — table no longer rendered', async ({ page }) => {
+    await page.goto('/automation/tasks')
+
+    // TableCardView renders two buttons with aria-label "Table view" / "<cardLabel>
+    // view"; task-table-toolbar.tsx passes cardLabel="Board". Click it → TasksPage
+    // swaps to <TaskInfiniteCards />, which has no <table> element.
+    await page.getByLabel(/^Board view$/).click()
+
+    // After switch, the data-table grid no longer renders. tanstack-table
+    // marks rows with role=row inside its table; a card-only view should
+    // have no <table> in the DOM.
+    await expect(page.getByRole('table')).toHaveCount(0, { timeout: 5_000 })
+  })
+
+  test('column visibility menu opens with the column list', async ({ page }) => {
+    await page.goto('/automation/tasks')
+
+    // Toolbar renders ColumnVisibilityMenu's trigger as a Button reading
+    // "Columns" with a Columns3 icon. Click → DropdownMenuContent shows
+    // each column's checkbox + header label.
+    await page.getByRole('button', { name: /^columns$/i }).click()
+
+    // The menu surfaces the Title column among others — at minimum one
+    // row should render with the column's header text.
+    await expect(page.getByRole('menu')).toBeVisible({ timeout: 5_000 })
+    await expect(page.getByText(/^Title$/).last()).toBeVisible()
+  })
+
+  test('filter panel exposes a Status filter', async ({ page }) => {
+    await page.goto('/automation/tasks')
+
+    // task-table-toolbar.tsx renders the shared TableFilter once its async
+    // filterFields (org members / programs / kinds) resolve; getTasksFilterFields
+    // includes a "Status" field.
+    const filterButton = page.getByRole('button', { name: /^Filter( \d+)?$/ })
+    await expect(filterButton).toBeVisible({ timeout: 20_000 })
+    await filterButton.click()
+    await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('the full create-task dialog exposes the rich fields', async ({ page }) => {
+    await page.goto('/automation/tasks')
+    const dialog = await openCreateTaskDialog(page)
+
+    // create-task-form.tsx FormLabels (beyond the required Title): Details,
+    // Assign team member, Due date.
+    await expect(dialog.getByText('Create a new Task')).toBeVisible({ timeout: 10_000 })
+    await expect(dialog.getByText('Title', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('Details', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('Assign team member')).toBeVisible()
+    await expect(dialog.getByText('Due date')).toBeVisible()
+  })
+
+  test('bulk delete — selecting a task row, clicking Bulk Delete, confirming removes the row', async ({ page }) => {
+    await page.goto('/automation/tasks')
+
+    const dialog = await openCreateTaskDialog(page)
+    const title = taskTitle('bulk-del')
+    await dialog.getByLabel(/^Title$/).fill(title)
+    await dialog.getByRole('button', { name: /^create task$/i }).click()
+    await expect(dialog).toBeHidden({ timeout: 15_000 })
+
+    await page.getByPlaceholder(/^Search$/).fill(title)
+
+    const row = page.getByRole('row').filter({ hasText: title })
+    await expect(row).toBeVisible({ timeout: 15_000 })
+
+    await row.getByRole('checkbox').first().check()
+    await page.getByRole('button', { name: /^Bulk Delete \(1\)$/i }).click()
+
+    // ConfirmationDialog renders as a Radix AlertDialog (role=alertdialog,
+    // not "dialog"). Title is "Delete selected tasks?" — confirm with
+    // the destructive "Delete" button (confirmationText prop).
+    const confirm = page.getByRole('alertdialog', { name: /delete selected tasks/i })
+    await expect(confirm).toBeVisible({ timeout: 10_000 })
+    await confirm.getByRole('button', { name: /^delete$/i }).click()
+
+    // After bulk delete, the row should disappear.
+    await expect(page.getByRole('cell').filter({ hasText: title })).toHaveCount(0, { timeout: 15_000 })
+  })
+
+  test('selecting a task row reveals the Bulk Edit dialog trigger', async ({ page }) => {
+    await page.goto('/automation/tasks')
+
+    const dialog = await openCreateTaskDialog(page)
+    const title = taskTitle('bulk')
+    await dialog.getByLabel(/^Title$/).fill(title)
+    await dialog.getByRole('button', { name: /^create task$/i }).click()
+    await expect(dialog).toBeHidden({ timeout: 15_000 })
+
+    await page.getByPlaceholder(/^Search$/).fill(title)
+
+    const row = page.getByRole('row').filter({ hasText: title })
+    await expect(row).toBeVisible({ timeout: 15_000 })
+
+    // Each row's select column wraps the Checkbox in a stopPropagation
+    // div, so the checkbox click doesn't trigger the row's detail-sheet
+    // navigation. Pick the first checkbox in the row (column id="select").
+    await row.getByRole('checkbox').first().check()
+
+    // The toolbar conditionally renders the BulkEditTasksDialog trigger
+    // once selectedTasks.length > 0; the Button label includes the count.
+    await expect(page.getByRole('button', { name: /^Bulk Edit \(1\)$/i })).toBeVisible({ timeout: 5_000 })
+    await page.getByRole('button', { name: /^Bulk Edit \(1\)$/i }).click()
+
+    // Dialog title is "Bulk edit".
+    await expect(page.getByRole('dialog', { name: /^bulk edit$/i })).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('clearing the search input restores both task rows', async ({ page }) => {
+    await page.goto('/automation/tasks')
+
+    const token = `clear-${RUN_ID}-${Date.now().toString(36)}`
+    const a = `E2E Task ${token}-a`
+    const b = `E2E Task ${token}-b`
+    for (const t of [a, b]) {
+      const dialog = await openCreateTaskDialog(page)
+      await dialog.getByLabel(/^Title$/).fill(t)
+      await dialog.getByRole('button', { name: /^create task$/i }).click()
+      await expect(dialog).toBeHidden({ timeout: 15_000 })
+    }
+
+    await page.getByPlaceholder(/^Search$/).fill(token)
+    await expect(page.getByRole('cell').filter({ hasText: a })).toHaveCount(1, { timeout: 15_000 })
+    await expect(page.getByRole('cell').filter({ hasText: b })).toHaveCount(1, { timeout: 15_000 })
+
+    await page.getByPlaceholder(/^Search$/).fill(a)
+    await expect(page.getByRole('cell').filter({ hasText: a })).toHaveCount(1, { timeout: 15_000 })
+    await expect(page.getByRole('cell').filter({ hasText: b })).toHaveCount(0, { timeout: 15_000 })
+
+    await page.getByPlaceholder(/^Search$/).fill(token)
+    await expect(page.getByRole('cell').filter({ hasText: a })).toHaveCount(1, { timeout: 15_000 })
+    await expect(page.getByRole('cell').filter({ hasText: b })).toHaveCount(1, { timeout: 15_000 })
+  })
+
+  test('clicking a task row opens the details sheet with the task title visible', async ({ page }) => {
+    await page.goto('/automation/tasks')
+
+    const dialog = await openCreateTaskDialog(page)
+
+    const title = taskTitle('detail')
+    await dialog.getByLabel(/^Title$/).fill(title)
+    await dialog.getByRole('button', { name: /^create task$/i }).click()
+    await expect(dialog).toBeHidden({ timeout: 15_000 })
+
+    await page.getByPlaceholder(/^Search$/).fill(title)
+
+    const titleCell = page.getByRole('cell').filter({ hasText: title }).first()
+    await expect(titleCell).toBeVisible({ timeout: 15_000 })
+    await titleCell.click()
+
+    // onRowClick → router.replace({ id }) → URL gains ?id=<task-id> →
+    // TaskDetailsSheet picks it up. The sheet's SheetTitle (Radix) renders
+    // the task title as a heading; the URL also reflects ?id=.
+    await expect(page).toHaveURL(/\?id=/, { timeout: 15_000 })
+
+    // The detail sheet renders inside a role=dialog. Scope to it and
+    // check the title is shown by the SheetTitle.
+    const detailSheet = page.getByRole('dialog')
+    await expect(detailSheet).toBeVisible({ timeout: 10_000 })
+    await expect(detailSheet.getByText(title).first()).toBeVisible()
+  })
+
+  test('after create, the new task is visible in the table on /automation/tasks', async ({ page }) => {
+    await page.goto('/automation/tasks')
+
+    const dialog = await openCreateTaskDialog(page)
+
+    const title = taskTitle('listed')
+    await dialog.getByLabel(/^Title$/).fill(title)
+    await dialog.getByRole('button', { name: /^create task$/i }).click()
+    await expect(dialog).toBeHidden({ timeout: 15_000 })
+
+    await page.getByPlaceholder(/^Search$/).fill(title)
+
+    // Default landing tab is the table (TasksPage activeTab='table'). The
+    // title column renders the value as plain text inside a cell.
+    await expect(page.getByRole('cell').filter({ hasText: title }).first()).toBeVisible({ timeout: 15_000 })
+  })
+})
+
+test.describe('tasks — detail sheet (seeded)', () => {
+  test('marking a seeded task complete shows the completion confirmation', async ({ page }) => {
+    const id = await createTask(ownerApi, taskTitle('complete'))
+
+    await page.goto(`/automation/tasks?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const sheet = page.getByRole('dialog')
+    const markComplete = sheet.getByRole('button', { name: /^mark as complete$/i })
+    await expect(markComplete).toBeVisible({ timeout: 20_000 })
+
+    await markComplete.click()
+    await expect(page.getByText(/marked as complete/i).first()).toBeVisible({ timeout: 15_000 })
+    await expect(markComplete).toBeDisabled({ timeout: 15_000 })
+  })
+
+  test('inline-editing a seeded task title persists the change', async ({ page }) => {
+    const original = taskTitle('edit')
+    const id = await createTask(ownerApi, original)
+
+    await page.goto(`/automation/tasks?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const sheet = page.getByRole('dialog')
+    await expect(sheet.getByText(original).first()).toBeVisible({ timeout: 20_000 })
+
+    const updated = `${original} edited`
+    await sheet.getByText(original).first().dblclick()
+    const input = sheet.getByRole('textbox').first()
+    await input.fill(updated)
+    await input.press('Enter')
+
+    await expect(page.getByText(/task updated/i).first()).toBeVisible({ timeout: 15_000 })
+  })
+
+  test('the Completed quick filter activates from the Filter menu', async ({ page }) => {
+    await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible({ timeout: 20_000 })
+
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
+    const completed = page.getByRole('button', { name: /^Completed$/ })
+    await expect(completed).toBeVisible({ timeout: 10_000 })
+
+    await completed.click()
+    await expect(completed).toHaveClass(/is-active/, { timeout: 10_000 })
+  })
+})
+
+test.describe('tasks — detail sheet inline edits (seeded)', () => {
+  // Properties (properties.tsx) renders each field as a labeled row. Double-
+  // clicking the value enters inline edit; choosing a new value calls
+  // handleUpdateField → toast "Task updated".
+  test('inline-editing status from Open to In Progress persists with a toast', async ({ page }) => {
+    const id = await createTask(ownerApi, taskTitle('status'))
+
+    await page.goto(`/automation/tasks?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const sheet = page.getByRole('dialog')
+    // A freshly-seeded task lands in the OPEN status (getEnumLabel → "Open").
+    const statusValue = sheet.getByText('Open', { exact: true }).first()
+    await expect(statusValue).toBeVisible({ timeout: 20_000 })
+
+    // The inline Select trigger renders as a combobox. Open it and pick a value.
+    const trigger = sheet.getByRole('combobox').first()
+    await expect(async () => {
+      await statusValue.dblclick()
+      await expect(trigger).toBeVisible({ timeout: 5_000 })
+    }).toPass({ timeout: 40_000 })
+    await trigger.click()
+    await page.getByRole('option', { name: 'In Progress', exact: true }).click()
+
+    await expect(page.getByText(/task updated/i).first()).toBeVisible({ timeout: 15_000 })
+  })
+
+  test('inline-editing the due date opens the calendar popover', async ({ page }) => {
+    const id = await createTask(ownerApi, taskTitle('due'))
+
+    await page.goto(`/automation/tasks?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const sheet = page.getByRole('dialog')
+    // properties.tsx renders each row as: label paragraph + HoverPencilWrapper
+    // whose pencil is an aria-label="Edit" button. Scope to the Due Date row.
+    const dueLabel = sheet.getByText('Due Date', { exact: true })
+    await expect(dueLabel).toBeVisible({ timeout: 20_000 })
+
+    // The row wraps the label paragraph and the HoverPencilWrapper value (whose
+    // pencil is an aria-label="Edit" button) as siblings. Step up to the row,
+    // hover to reveal the pencil, then click it.
+    const dueRow = dueLabel.locator('xpath=..')
+    await dueRow.hover()
+    await dueRow.getByRole('button', { name: /^Edit$/ }).click()
+
+    // CalendarPopover trigger (empty state) reads "Select a date:". Click it to
+    // surface the calendar grid (the month view renders role=grid).
+    await sheet.getByRole('button', { name: /Select a date:/ }).click()
+    await expect(page.getByRole('grid').first()).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('the detail sheet exposes the Assignee, Status, Due Date, Task Type and Tags rows', async ({ page }) => {
+    const id = await createTask(ownerApi, taskTitle('props'))
+
+    await page.goto(`/automation/tasks?id=${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const sheet = page.getByRole('dialog')
+    await expect(sheet).toBeVisible({ timeout: 20_000 })
+
+    // properties.tsx row labels.
+    for (const label of ['Assignee', 'Due Date', 'Status', 'Task Type', 'Tags']) {
+      await expect(sheet.getByText(label, { exact: true }).first()).toBeVisible({ timeout: 15_000 })
+    }
+  })
+})
+
+test.describe('tasks — quick filters', () => {
+  // task-table-toolbar.tsx quickFilters render as variant="tag" buttons inside
+  // the TableFilter menu; an active one gains the `is-active` class.
+  for (const label of ['Open', 'My Tasks', 'Overdue', 'Due This Week', 'Unassigned']) {
+    test(`the "${label}" quick filter toggles active`, async ({ page }) => {
+      await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+      await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible({ timeout: 20_000 })
+
+      const quick = page.getByRole('button', { name: new RegExp(`^${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`) })
+      // The Filter menu's quick-filter buttons render after async filter fields
+      // resolve (org members/programs/kinds) — slow under parallel load. Toggle-
+      // safe open: only click Filter if the quick button isn't already shown.
+      await expect(async () => {
+        if (!(await quick.isVisible())) await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
+        await expect(quick).toBeVisible({ timeout: 3_000 })
+      }).toPass({ timeout: 25_000 })
+
+      await quick.click()
+      await expect.poll(async () => (await quick.getAttribute('class'))?.includes('is-active') ?? false, { timeout: 30_000 }).toBe(true)
+    })
+  }
+})
+
+test.describe('tasks — column sorting', () => {
+  // SortableHeaderCell (packages/ui data-table) sets aria-sort on the <th>
+  // (role=columnheader) and toggles none → ascending → descending on click.
+  test('clicking the Title header sorts the column ascending', async ({ page }) => {
+    await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible({ timeout: 20_000 })
+
+    const titleHeader = page.getByRole('columnheader', { name: /Title/ })
+    await expect(titleHeader).toBeVisible({ timeout: 20_000 })
+
+    // The inner sort handle carries title="Sort by Title"; clicking it toggles
+    // the sort direction. Starts at "none", first click → "ascending".
+    await titleHeader.getByTitle('Sort by Title').click()
+    await expect(titleHeader).toHaveAttribute('aria-sort', 'ascending', { timeout: 10_000 })
+
+    // A second click advances to "descending".
+    await titleHeader.getByTitle('Sort by Title').click()
+    await expect(titleHeader).toHaveAttribute('aria-sort', 'descending', { timeout: 10_000 })
+  })
+
+  test('the Status and Due Date headers are sortable', async ({ page }) => {
+    await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible({ timeout: 20_000 })
+
+    const statusHeader = page.getByRole('columnheader', { name: /Status/ })
+    await expect(statusHeader).toBeVisible({ timeout: 20_000 })
+    await statusHeader.getByTitle('Sort by Status').click()
+    await expect(statusHeader).toHaveAttribute('aria-sort', 'ascending', { timeout: 10_000 })
+
+    // Switching to a different column resets the previous one — only one
+    // column sorts at a time, so Due Date becomes ascending and Status none.
+    const dueHeader = page.getByRole('columnheader', { name: /Due Date/ })
+    await dueHeader.getByTitle('Sort by Due Date').click()
+    await expect(dueHeader).toHaveAttribute('aria-sort', 'ascending', { timeout: 10_000 })
+  })
+})
+
+freshTest.describe('tasks — fresh org', () => {
+  freshTest('empty state — fresh org has no task rows', async ({ page }) => {
+    await seedLoggedInUser(page, 'tasks-empty')
+
+    await page.goto('/automation/tasks')
+
+    await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('cell').filter({ hasText: /^E2E Task/ })).toHaveCount(0, { timeout: 5_000 })
+  })
+})
+
+/**
+ * ISS-2454 — the tasks list used to inject a hidden `statusIn` (everything except
+ * COMPLETED and WONT_DO) into the where-clause whenever the user had not set a
+ * status, and the Status filter only OFFERED that same subset — so completed
+ * tasks were unreachable through the UI.
+ *
+ * Now the Status options come from the full TaskTaskStatus enum and the default
+ * is an explicit, user-visible filter value (taskDefaultFilterValues →
+ * statusIn: [OPEN, IN_PROGRESS, IN_REVIEW]) passed to TableFilter as
+ * defaultFilterValues, so it can be seen and cleared.
+ */
+test.describe('tasks — status filter defaults (ISS-2454)', () => {
+  test('the Status filter offers every status, including the previously hidden ones', async ({ page }) => {
+    test.slow()
+    await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible({ timeout: 30_000 })
+
+    await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
+
+    // TableFilter renders its fields in a role=menu popover, with the Status
+    // field already EXPANDED — clicking it would collapse the options rather
+    // than reveal them.
+    const filterMenu = page.getByRole('menu')
+    await expect(filterMenu).toBeVisible({ timeout: 15_000 })
+    await expect(filterMenu.getByText('Status', { exact: true })).toBeVisible()
+
+    // enumToOptions(TaskTaskStatus) → all five, rendered via getEnumLabel.
+    await expect(filterMenu.getByText(/^Open$/).first()).toBeVisible({ timeout: 15_000 })
+    await expect(filterMenu.getByText(/^In progress$/i).first()).toBeVisible()
+    await expect(filterMenu.getByText(/^In review$/i).first()).toBeVisible()
+
+    // These two were filtered out of the options before this commit.
+    await expect(filterMenu.getByText(/^Completed$/).first()).toBeVisible()
+    await expect(filterMenu.getByText(/^Wont do$/i).first()).toBeVisible()
+  })
+})
+
+/**
+ * ISS-2484 — the task slideout showed the raw enum for Status ("IN_PROGRESS")
+ * instead of the mapped label plus its status icon. The Status row now renders
+ * TaskStatusIconMapper[status] alongside getEnumLabel(status).
+ */
+test.describe('tasks — slideout status formatting (ISS-2484)', () => {
+  test('the detail sheet Status row shows a human label, not a raw enum value', async ({ page }) => {
+    test.slow()
+    const taskId = await createTask(ownerApi, taskTitle('status-format'))
+
+    await page.goto(`/automation/tasks?id=${taskId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    const sheet = page.getByRole('dialog')
+    await expect(sheet).toBeVisible({ timeout: 30_000 })
+    await expect(sheet.getByText('Status', { exact: true }).first()).toBeVisible({ timeout: 20_000 })
+
+    // getEnumLabel turns OPEN → "Open"; the raw ALL_CAPS form must not appear.
+    await expect(sheet.getByText(/^(OPEN|IN_PROGRESS|IN_REVIEW|COMPLETED|WONT_DO)$/)).toHaveCount(0)
+    await expect(sheet.getByText(/^(Open|In progress|In review|Completed|Wont do)$/i).first()).toBeVisible({ timeout: 15_000 })
+  })
+})
+
+/**
+ * ISS-2592 — picking an assignee from the task table opened the task slideout as
+ * well. The dropdown's options are PORTALLED outside the row, so the option
+ * click landed on a node the row still saw as a descendant event and the row's
+ * onClick fired. data-table.tsx now ignores any row click whose target is no
+ * longer contained by the row.
+ *
+ * This drives the real path — open the assignee editor from a row and pick an
+ * option — on a task seeded for this test, and asserts no slideout appears.
+ */
+test.describe('tasks — assignee edit does not open the slideout (ISS-2592)', () => {
+  test('choosing an assignee from the table leaves the slideout closed', async ({ page }) => {
+    test.slow()
+    const title = taskTitle('assignee-inline')
+    await createTask(ownerApi, title)
+
+    await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible({ timeout: 30_000 })
+
+    await page.getByPlaceholder(/^Search$/).fill(title)
+    const row = page.getByRole('row').filter({ hasText: title })
+    await expect(row).toBeVisible({ timeout: 45_000 })
+
+    // AssigneeCell renders EditableUserCell with placeholder="Not assigned";
+    // clicking it swaps the cell into its editing form. The debounced search
+    // refetch above can remount the cell and drop that local editing state, so
+    // the click is retried until the form actually appears.
+    // Options are portalled to the document body, outside the row, so a refetch
+    // that remounts the cell takes the open dropdown with it. Open-then-pick has
+    // to retry as one cycle; splitting it lets a remount land in the gap.
+    const combobox = row.getByRole('combobox').first()
+    const option = page.getByRole('option').nth(1)
+    await expect(async () => {
+      if (!(await combobox.isVisible().catch(() => false))) {
+        await row.getByText('Not assigned', { exact: true }).click({ timeout: 5_000 })
+      }
+      await expect(combobox).toBeVisible({ timeout: 3_000 })
+      if ((await option.count()) === 0) {
+        await combobox.click({ timeout: 5_000 })
+      }
+      await expect(option).toBeVisible({ timeout: 5_000 })
+      await option.click({ timeout: 5_000 })
+    }).toPass({ timeout: 45_000 })
+
+    // The bug: this used to bubble to the row and open the task sheet.
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+  })
+})
+
+/**
+ * ISS-2715 / ISS-2776 — tasks gained a card (board) view alongside the table,
+ * and the chosen view is persisted per organization via useOrgTableViewMode
+ * (backed by createOrgPersistedStore, unit-tested in org-persisted-store.test.ts).
+ * Which board columns render is decided by resolveAllowedStatuses, unit-tested
+ * in allowed-statuses.test.ts.
+ */
+test.describe('tasks — card view is sticky (ISS-2715 / ISS-2776)', () => {
+  test('switching to the card view survives a reload', async ({ page }) => {
+    test.slow()
+    await createTask(ownerApi, taskTitle('board-view'))
+
+    await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible({ timeout: 30_000 })
+
+    // table-card-view.tsx renders the switch as two BUTTONS (not Radix tabs),
+    // named by aria-label ("Board view" / "Table view"); the active one is
+    // marked with the bg-btn-secondary class rather than aria-selected.
+    // task-table-toolbar.tsx renders TableCardView unconditionally, so the
+    // switch missing IS the regression this test exists to catch — assert it
+    // rather than skipping on it.
+    const boardButton = page.getByRole('button', { name: 'Board view' })
+    await expect(boardButton).toBeVisible({ timeout: 20_000 })
+
+    await boardButton.click()
+    await expect(boardButton).toHaveClass(/bg-btn-secondary/, { timeout: 15_000 })
+
+    await page.reload()
+    await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible({ timeout: 30_000 })
+
+    await expect(page.getByRole('button', { name: 'Board view' })).toHaveClass(/bg-btn-secondary/, { timeout: 30_000 })
+  })
+})
+
+/**
+ * ISS-2714 — task templates. Templates are tasks with isTemplate:true, so the
+ * ordinary list excludes them (resolveTasksWhere, unit-tested in
+ * lib/graphql-hooks/task-where.test.ts) and creation gained a "from template"
+ * path alongside the blank one.
+ */
+test.describe('tasks — templates (ISS-2714)', () => {
+  test('the create control offers both a blank task and a template', async ({ page }) => {
+    test.slow()
+    await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByRole('heading', { level: 2, name: /^Tasks$/ })).toBeVisible({ timeout: 30_000 })
+
+    // create-task-dropdown.tsx splits the toolbar Create button into a menu.
+    const create = page
+      .getByRole('main')
+      .getByRole('button', { name: /^create$/i })
+      .first()
+    await expect(create).toBeVisible({ timeout: 30_000 })
+    await create.click()
+
+    await expect(page.getByText(/template/i).first()).toBeVisible({ timeout: 15_000 })
+  })
+
+  test('a seeded task appears in the list, which excludes templates', async ({ page }) => {
+    test.slow()
+    const title = taskTitle('template-exclusion')
+    await createTask(ownerApi, title)
+
+    await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await page.getByPlaceholder(/^Search$/).fill(title)
+
+    // An ordinary task is visible; templates are filtered out by default.
+    await expect(page.getByRole('row').filter({ hasText: title })).toBeVisible({ timeout: 20_000 })
+  })
+})
+
+test.describe('tasks — bulk edit applies', () => {
+  test('bulk editing a selected task persists the new status', async ({ page }) => {
+    test.slow()
+    const title = uniqueName('E2E TaskBulk')
+    const id = await createTask(ownerApi, title)
+
+    await page.goto('/automation/tasks', { waitUntil: 'domcontentloaded' })
+    await selectFirstMatchingRow(page, title)
+
+    const chosen = await bulkEditAndSave({ page, field: 'Status', operationName: 'UpdateBulkTask' })
+
+    await expect.poll(async () => readField(ownerApi, 'task', id, 'status'), { timeout: 60_000 }).toBe(chosen.toUpperCase().replace(/ /g, '_'))
+  })
+})

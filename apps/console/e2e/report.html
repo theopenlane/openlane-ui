@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="hr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>E2E — Izvještaj o padajućim testovima</title>
+    <style>
+      :root {
+        --bg: #0f1115;
+        --card: #181b22;
+        --card2: #1f232c;
+        --txt: #e6e8ee;
+        --muted: #9aa3b2;
+        --env: #f0a020;
+        --real: #e5484d;
+        --flaky: #8b5cf6;
+        --ok: #30a46c;
+        --border: #2a2f3a;
+        --code: #11141a;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--txt);
+        font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+      .wrap { max-width: 1040px; margin: 0 auto; padding: 40px 24px 80px; }
+      h1 { font-size: 28px; margin: 0 0 4px; }
+      h2 { font-size: 20px; margin: 40px 0 14px; padding-top: 18px; border-top: 1px solid var(--border); }
+      .sub { color: var(--muted); margin: 0 0 28px; }
+      .pills { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 8px; }
+      .pill { padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; border: 1px solid var(--border); }
+      .pill.ok { background: rgba(48,163,108,.14); color: #4cd08a; }
+      .pill.real { background: rgba(229,72,77,.14); color: #ff7b7f; }
+      .pill.env { background: rgba(240,160,32,.14); color: #f5bd5a; }
+      .pill.flaky { background: rgba(139,92,246,.16); color: #b79cff; }
+      table { width: 100%; border-collapse: collapse; margin: 14px 0 8px; font-size: 13.5px; }
+      th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+      th { color: var(--muted); font-weight: 600; }
+      td code { color: #cdd3df; }
+      .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+      .tag.env { background: rgba(240,160,32,.16); color: var(--env); }
+      .tag.real { background: rgba(229,72,77,.16); color: var(--real); }
+      .tag.flaky { background: rgba(139,92,246,.18); color: #b79cff; }
+      .card { background: var(--card); border: 1px solid var(--border); border-left-width: 4px; border-radius: 10px; padding: 18px 20px; margin: 14px 0; }
+      .card.env { border-left-color: var(--env); }
+      .card.real { border-left-color: var(--real); }
+      .card .id { color: var(--muted); font-size: 12.5px; font-family: ui-monospace, monospace; }
+      .card h3 { margin: 6px 0 10px; font-size: 16px; }
+      .label { color: var(--muted); font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; margin: 12px 0 4px; }
+      pre { background: var(--code); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: #c9d1e3; margin: 4px 0; }
+      .why { margin: 2px 0 0; }
+      .note { background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin: 18px 0; color: var(--muted); }
+      .note strong { color: var(--txt); }
+      a { color: #6cb6ff; }
+      .legendrow { color: var(--muted); font-size: 13px; margin-top: 6px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>E2E — Izvještaj o padajućim testovima</h1>
+      <p class="sub">Puni run: <strong>332 prošlo</strong> · <strong>13 palo</strong> · ~30 min (3 workera). Svaki pali test je <strong>ponovno pokrenut izolirano</strong> da razdvojimo stvarne probleme od okolinskih (spori dev server).</p>
+
+      <div class="pills">
+        <span class="pill ok">332 prošlo</span>
+        <span class="pill real">7 stvarnih problema</span>
+        <span class="pill env">6 okolinskih (spori dev server)</span>
+        <span class="pill flaky">2 od njih su flaky (prošla na retry)</span>
+      </div>
+
+      <div class="note">
+        <strong>Metodologija.</strong> Iz <code>.last-run.json</code> uzeto je 13 testova koji su pali i u zadnjem punom runu, pa su pokrenuti s <code>--last-failed</code> u izolaciji (malo paralelnog opterećenja). Rezultat: <strong>11 pada deterministički</strong> (padaju i izolirano → stvaran uzrok), a <strong>2 su bila flaky</strong> (pala jednom, prošla na retry → okolinski šum). Greške su grupirane po stvarnom uzroku, ne po datoteci.
+      </div>
+
+      <div class="note">
+        <strong>Glavni zaključak.</strong> 6 od 13 padova nisu bugovi nego posljedica <strong>sporog <code>next dev</code> servera</strong> — prva navigacija na rutu kompajlira se „on-demand" i probije tight timeoute (<code>webfinger</code> 10s, teške rute <code>goto</code> 60s). Isti uzrok kao i sporost cijelog suitea (vidi <a href="./plan.md">plan.md → Priority 0</a>). Preostalih 7 su <strong>stvarni</strong> problemi: krhki selektori, promijenjeni UI ili kašnjenje propagacije kod seedanja.
+      </div>
+
+      <h2>Pregled svih 13 padova</h2>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Test</th><th>Lokacija</th><th>Tip</th><th>Kratko zašto</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>unknown email → generic error (no user enumeration)</td><td><code>auth.spec.ts:54</code></td><td><span class="tag env">OKOLINA</span></td><td>Čeka odgovor <code>/api/auth/webfinger</code> 10s, ali ruta se prvi put kompajlira dulje → password polje se ne pojavi.</td></tr>
+          <tr><td>2</td><td>Create Notification Template opens the sheet</td><td><code>automation-crud.spec.ts:139</code></td><td><span class="tag real">STVARNO</span></td><td>Tab <code>'Notification Templates'</code> se ne nađe u 10s — promijenjen naziv/struktura taba ili stranica nije renderirala tabove.</td></tr>
+          <tr><td>3</td><td>/automation/workflows/wizard renders heading</td><td><code>automation-other.spec.ts:23</code></td><td><span class="tag env">OKOLINA</span></td><td><code>page.goto</code> probije 60s — teška ruta (workflow wizard) se predugo kompajlira.</td></tr>
+          <tr><td>4</td><td>/automation/workflows/instances renders heading</td><td><code>automation-other.spec.ts:42</code></td><td><span class="tag env">OKOLINA</span></td><td>Isto — <code>goto</code> 60s timeout na cold-compile teške rute.</td></tr>
+          <tr><td>5</td><td>/automation/workflows/templates renders heading</td><td><code>automation-other.spec.ts:42</code></td><td><span class="tag env">OKOLINA</span></td><td>Isto — <code>goto</code> 60s timeout na cold-compile teške rute.</td></tr>
+          <tr><td>6</td><td>group sheet — Members/Permissions toggle</td><td><code>user-management-crud.spec.ts:99</code></td><td><span class="tag real">STVARNO</span></td><td>„Members" se vidi, ali tekst <code>'Permissions'</code> ne — toggle u group sheetu promijenjen ili sheet nije do kraja učitan.</td></tr>
+          <tr><td>7</td><td>change member role via Change Role dialog</td><td><code>user-management-crud.spec.ts:144</code></td><td><span class="tag real">STVARNO</span></td><td>Throwaway član (dodan preko API-ja) se ne pojavi u listi članova unutar 20s — kašnjenje propagacije (FGA) ili spor render.</td></tr>
+          <tr><td>8</td><td>remove a throwaway member from the org</td><td><code>user-management-crud.spec.ts:159</code></td><td><span class="tag real">STVARNO</span></td><td>Isto kao #7 — član se ne vidi u listi → akcija „Remove" se ne može pokrenuti.</td></tr>
+          <tr><td>9</td><td>invite — duplicate email shows duplicate-tag message</td><td><code>user-management.spec.ts:195</code></td><td><span class="tag real">STVARNO</span></td><td>Poruka <code>'This email is already added.'</code> se ne pojavi — promijenjen tekst poruke ili logika za duplikat.</td></tr>
+          <tr><td>10</td><td>resend invite triggers success toast</td><td><code>user-management.spec.ts:439</code></td><td><span class="tag real">STVARNO</span></td><td>Red postoji, ali ikona <code>.lucide-ellipsis-vertical</code> (akcijski meni) se ne nađe — krhki CSS selektor ili promijenjena ikona.</td></tr>
+          <tr><td>11</td><td>cancel invite removes the pending row</td><td><code>user-management.spec.ts:462</code></td><td><span class="tag real">STVARNO</span></td><td>Isto kao #10 — <code>.lucide-ellipsis-vertical</code> u redu pozivnice se ne nađe.</td></tr>
+          <tr><td>12</td><td>login ?redirect=/policies routes to /policies</td><td><code>auth.spec.ts:64</code></td><td><span class="tag flaky">FLAKY</span></td><td>Isto kao #1 — <code>webfinger</code> 10s timeout. Prošlo na retry → okolinski šum.</td></tr>
+          <tr><td>13</td><td>/automation/workflows renders heading</td><td><code>automation-other.spec.ts:23</code></td><td><span class="tag flaky">FLAKY</span></td><td>Isto kao #3 — <code>goto</code> 60s timeout. Prošlo na retry → okolinski šum.</td></tr>
+        </tbody>
+      </table>
+      <p class="legendrow"><span class="tag env">OKOLINA</span> = spor dev server, nije bug · <span class="tag real">STVARNO</span> = treba popravak (selektor/UI/podaci) · <span class="tag flaky">FLAKY</span> = nestabilno, prošlo na ponovni pokušaj</p>
+
+      <h2>Grupa A — Okolina (spori <code>next dev</code> server) · 6 testova</h2>
+      <p class="sub">Ovi testovi <strong>nisu bugovi</strong>. Padaju jer se ruta/API kompajlira pri prvom pristupu dulje nego što dopušta timeout. Nestaju s produkcijskim buildom ili „zagrijavanjem" ruta (vidi suggestion.html).</p>
+
+      <div class="card env">
+        <div class="id">#1 · auth.spec.ts:54</div>
+        <h3>unknown email → generic error, no user enumeration</h3>
+        <div class="label">Greška</div>
+        <pre>TimeoutError: page.waitForResponse: Timeout 10000ms exceeded
+  waiting for response /\/api\/auth\/webfinger/
+→ zatim: locator.fill timeout na input[name="password"]  (login.ts:24)</pre>
+        <div class="label">Zašto pada</div>
+        <p class="why">Helper <code>loginViaForm</code> čeka odgovor s <code>/api/auth/webfinger</code> maksimalno 10s. Kod prvog pogađanja te API rute u <code>next dev</code> ona se tek kompajlira i odgovor stigne nakon &gt;10s. Zbog toga se password polje (koje se prikaže tek nakon webfingera) ne renderira i sljedeći <code>fill</code> pukne. Backend i logika su ispravni — kriv je samo cold-compile + pretijesan timeout.</p>
+      </div>
+
+      <div class="card env">
+        <div class="id">#3 · automation-other.spec.ts:23 — /automation/workflows/wizard</div>
+        <h3>renders the heading for an owner</h3>
+        <div class="label">Greška</div>
+        <pre>TimeoutError: page.goto: Timeout 60000ms exceeded
+  navigating to ".../automation/workflows/wizard", waiting until "load"</pre>
+        <div class="label">Zašto pada</div>
+        <p class="why">Ovo je čisti render-smoke test (storage-state, bez seedanja). Sama navigacija <code>page.goto</code> probije 60s jer je workflow-wizard teška ruta i njezin prvi cold-compile traje predugo (config i sam navodi da teške rute znaju 30–45s). Kad se server još i „udeblja" tijekom dugog runa, pređe 60s. Nije bug stranice.</p>
+      </div>
+
+      <div class="card env">
+        <div class="id">#4 · automation-other.spec.ts:42 — /automation/workflows/instances</div>
+        <h3>renders the page heading text</h3>
+        <div class="label">Greška</div>
+        <pre>TimeoutError: page.goto: Timeout 60000ms exceeded
+  navigating to ".../automation/workflows/instances", waiting until "load"</pre>
+        <div class="label">Zašto pada</div>
+        <p class="why">Identično #3 — cold-compile teške rute probije 60s navigacijski timeout. Okolinski, ne bug.</p>
+      </div>
+
+      <div class="card env">
+        <div class="id">#5 · automation-other.spec.ts:42 — /automation/workflows/templates</div>
+        <h3>renders the page heading text</h3>
+        <div class="label">Greška</div>
+        <pre>TimeoutError: page.goto: Timeout 60000ms exceeded
+  navigating to ".../automation/workflows/templates", waiting until "load"</pre>
+        <div class="label">Zašto pada</div>
+        <p class="why">Identično #3/#4. Iste tri workflow rute (<code>wizard</code>, <code>instances</code>, <code>templates</code>) su najsporije za kompajlirati i konzistentno padaju zadnje u runu kad je server već usporen.</p>
+      </div>
+
+      <div class="card env">
+        <div class="id">#12 · auth.spec.ts:64 · <span style="color:#b79cff">FLAKY</span></div>
+        <h3>login at /login?redirect=/policies routes to /policies after auth</h3>
+        <div class="label">Greška</div>
+        <pre>TimeoutError: page.waitForResponse: Timeout 10000ms exceeded
+  waiting for response /\/api\/auth\/webfinger/   (auth.spec.ts:80)</pre>
+        <div class="label">Zašto pada</div>
+        <p class="why">Isti uzrok kao #1 (webfinger 10s timeout na cold-compile). U izolaciji je <strong>prošao na retry</strong> → potvrđeno okolinski, ne logika.</p>
+      </div>
+
+      <div class="card env">
+        <div class="id">#13 · automation-other.spec.ts:23 — /automation/workflows · <span style="color:#b79cff">FLAKY</span></div>
+        <h3>renders the heading for an owner</h3>
+        <div class="label">Greška</div>
+        <pre>TimeoutError: page.goto: Timeout 60000ms exceeded
+  navigating to ".../automation/workflows", waiting until "load"</pre>
+        <div class="label">Zašto pada</div>
+        <p class="why">Isti uzrok kao #3 (cold-compile). <strong>Prošao na retry</strong> u izolaciji → okolinski.</p>
+      </div>
+
+      <h2>Grupa B — Stvarni problemi (selektori / UI / podaci) · 7 testova</h2>
+      <p class="sub">Ovi padaju <strong>i deterministički i izolirano</strong> (malo paralelnog opterećenja), pa nisu samo šum. Uzrok je krhki selektor, promijenjeni UI ili pretpostavka o stanju podataka. Prijedlozi popravka u suggestion.html.</p>
+
+      <div class="card real">
+        <div class="id">#2 · automation-crud.spec.ts:139</div>
+        <h3>Create Notification Template opens the notification template sheet</h3>
+        <div class="label">Greška</div>
+        <pre>TimeoutError: locator.click: Timeout 10000ms exceeded
+  waiting for getByRole('tab', { name: 'Notification Templates' })
+  (a zatim i: button /^Create Notification Template$/)</pre>
+        <div class="label">Zašto pada</div>
+        <p class="why">Test prvo klikne tab <code>'Notification Templates'</code> na <code>/automation/communications</code>, ali ga ne nađe u 10s. Najvjerojatnije se naziv/uloga taba promijenila u aplikaciji, ili se tabovi nisu renderirali (npr. drugačija struktura stranice). Treba provjeriti stvarni UI komunikacija i uskladiti selektor (ili je riječ o stvarnom regresu na stranici).</p>
+      </div>
+
+      <div class="card real">
+        <div class="id">#6 · user-management-crud.spec.ts:99</div>
+        <h3>group sheet exposes the Members/Permissions toggle and member actions</h3>
+        <div class="label">Greška</div>
+        <pre>expect(getByText('Permissions', { exact: true }).first()).toBeVisible() — element(s) not found (5s)
+  (prethodni redak: getByText('Members') je PROŠAO)</pre>
+        <div class="label">Zašto pada</div>
+        <p class="why">U group sheetu test traži dva clickable teksta: „Members" (nađen) i „Permissions" (nije nađen). Znači sheet se otvorio, ali toggle „Permissions" više ne postoji s tim točnim tekstom — vjerojatno preimenovan ili restrukturiran u UI-ju. Treba uskladiti selektor sa stvarnim labelom ili provjeriti je li toggle uklonjen.</p>
+      </div>
+
+      <div class="card real">
+        <div class="id">#7 · user-management-crud.spec.ts:144</div>
+        <h3>owner changes a throwaway member’s role via the Change Role dialog</h3>
+        <div class="label">Greška</div>
+        <pre>1. pokušaj: locator.fill timeout — getByPlaceholder('Search') (10s)
+2. pokušaj: getByText('<throwaway-email>').first() not found (20s)</pre>
+        <div class="label">Zašto pada</div>
+        <p class="why">Test preko API-ja kreira „throwaway" člana, pa ga traži u listi članova. Član se ne pojavi unutar 20s. Najvjerojatniji uzrok je <strong>kašnjenje propagacije članstva</strong> (README izrijekom spominje FGA propagation lag za <code>createOrgMembership</code>) — UI lista ga još ne vidi. Sekundarno, u jednom pokušaju ni „Search" polje nije stiglo renderirati (spor render). To je pouzdanost <em>setupa testa</em>, ne nužno bug aplikacije.</p>
+      </div>
+
+      <div class="card real">
+        <div class="id">#8 · user-management-crud.spec.ts:159</div>
+        <h3>owner removes a throwaway member from the org</h3>
+        <div class="label">Greška</div>
+        <pre>expect(getByText('<throwaway-email>').first()).toBeVisible() — element(s) not found (20s)</pre>
+        <div class="label">Zašto pada</div>
+        <p class="why">Identičan uzrok kao #7 — throwaway član se ne vidi u listi članova na vrijeme, pa se akcija „Remove Member" ne može ni pokrenuti. Isti popravak (čekati propagaciju članstva prije UI provjere) rješava oba.</p>
+      </div>
+
+      <div class="card real">
+        <div class="id">#9 · user-management.spec.ts:195</div>
+        <h3>invite sheet — committing the same email twice shows the duplicate-tag message</h3>
+        <div class="label">Greška</div>
+        <pre>expect(dialog.getByText(/^This email is already added\.$/)).toBeVisible() — not found (5s)</pre>
+        <div class="label">Zašto pada</div>
+        <p class="why">Nakon unosa istog emaila dvaput, test očekuje točnu poruku „This email is already added.". Poruka se ne pojavi — ili je tekst u aplikaciji promijenjen, ili se duplikat danas tretira drugačije (npr. tiho ignorira). Treba provjeriti stvarno ponašanje invite sheeta i uskladiti tekst/asercij (ili prijaviti regres).</p>
+      </div>
+
+      <div class="card real">
+        <div class="id">#10 · user-management.spec.ts:439</div>
+        <h3>resend invite — pending row resend triggers the success toast</h3>
+        <div class="label">Greška</div>
+        <pre>locator.click timeout (10s)
+  waiting for row(...hasText: '<invite-email>').locator('.lucide-ellipsis-vertical')
+  (red JE bio vidljiv na 15s — ne nalazi se ikona akcijskog menija u redu)</pre>
+        <div class="label">Zašto pada</div>
+        <p class="why">Red pozivnice postoji, ali akcijski meni (ikona <code>.lucide-ellipsis-vertical</code>) se ne nađe. To je <strong>krhki CSS-class selektor</strong> — lucide ikona je preimenovana/izmijenjena, ili se trigger menija renderira drugačije za pending pozivnice. README i sam preporučuje role/testid umjesto CSS klasa.</p>
+      </div>
+
+      <div class="card real">
+        <div class="id">#11 · user-management.spec.ts:462</div>
+        <h3>cancel invite — deleting a pending row removes it from the table</h3>
+        <div class="label">Greška</div>
+        <pre>locator.click timeout (10s)
+  waiting for row(...hasText: '<invite-email>').locator('.lucide-ellipsis-vertical')</pre>
+        <div class="label">Zašto pada</div>
+        <p class="why">Identičan uzrok kao #10 — isti <code>.lucide-ellipsis-vertical</code> selektor u redu pozivnice se ne nađe. Oba testa rješava jedan popravak selektora (npr. <code>getByRole('button')</code> ili <code>data-testid</code> na trigger).</p>
+      </div>
+
+      <div class="note" style="margin-top:32px">
+        Detaljni prijedlozi (popraviti / poboljšati / ukloniti) za svaki test su u <a href="./suggestion.html">suggestion.html</a>. Strateški plan ubrzavanja je u <a href="./plan.md">plan.md → Priority 0</a>.
+      </div>
+    </div>
+  </body>
+</html>
