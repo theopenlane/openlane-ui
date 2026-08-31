@@ -262,7 +262,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, tokenMap, select
               <TooltipTrigger asChild>
                 <div className="flex items-center space-x-2 cursor-help">
                   {ControlIconMapper16[value]}
-                  <p>{label}</p>
+                  <p className="truncate">{label}</p>
                 </div>
               </TooltipTrigger>
               <TooltipContent>{ControlStatusTooltips[value]}</TooltipContent>

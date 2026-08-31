@@ -9,7 +9,7 @@ import ControlChip from '@/components/pages/protected/controls/map-controls/shar
 import { Badge } from '@repo/ui/badge'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { EvidenceIconMapper } from '@/components/shared/enum-mapper/evidence-enum'
+import { EvidenceIconMapper, getEvidenceStatusLabel } from '@/components/shared/enum-mapper/evidence-enum'
 import EvidenceFileChip from '@/components/pages/protected/evidence/table/evidence-file-chip.tsx'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
@@ -111,11 +111,12 @@ export const useGetEvidenceColumns = ({ userMap, tokenMap, selectedEvidence, set
         return (
           <div className="flex items-center space-x-2">
             {EvidenceIconMapper[status]}
-            <p>{getEnumLabel(status)}</p>
+            <TruncatedCell tooltipContent={getEnumLabel(status)}>{getEvidenceStatusLabel(status)}</TruncatedCell>
           </div>
         )
       },
-      size: 100,
+      minSize: 130,
+      size: 150,
     },
     {
       accessorKey: 'isAutomated',

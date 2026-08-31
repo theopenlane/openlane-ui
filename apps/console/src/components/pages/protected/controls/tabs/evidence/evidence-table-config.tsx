@@ -1,12 +1,13 @@
 import React from 'react'
 import type { ColumnDef } from '@repo/ui/table-types'
 import { formatDateSince } from '@/utils/date'
-import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
+import { EvidenceIconMapper, EvidenceStatusOptions, getEvidenceStatusLabel } from '@/components/shared/enum-mapper/evidence-enum'
 import type { FilterField } from '@/types'
 import type { EvidenceEvidenceStatus, User } from '@repo/codegen/src/schema.ts'
 import { type AuthorToken } from '@/lib/authors'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { TruncatedCell } from '@repo/ui/data-table'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import InheritedBadge from '@/components/shared/inherited-badge/inherited-badge'
 
@@ -57,7 +58,7 @@ export const getEvidenceColumns = (
       return (
         <div className="flex items-center space-x-2">
           {EvidenceIconMapper[status]}
-          <span>{getEnumLabel(status)}</span>
+          <TruncatedCell tooltipContent={getEnumLabel(status)}>{getEvidenceStatusLabel(status)}</TruncatedCell>
         </div>
       )
     },
