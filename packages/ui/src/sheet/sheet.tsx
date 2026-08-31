@@ -57,6 +57,7 @@ function SheetContent({
   overlayClassName,
   ref,
   onInteractOutside,
+  onOpenAutoFocus,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> &
   TSheetContentProps & {
@@ -100,12 +101,18 @@ function SheetContent({
     }
   }
 
+  const focusContentOnOpen = (event: Event) => {
+    event.preventDefault()
+    localRef.current?.focus({ preventScroll: true })
+  }
+
   const maxContentWidth = edge ? 'calc(100vw - 3rem)' : '100vw'
 
   return (
     <SheetPortal>
       {overlay && <SheetOverlay className={overlayClassName} />}
       <SheetPrimitive.Content
+        ref={localRef}
         style={{
           width,
           minWidth: typeof minWidth === 'number' ? `min(${minWidth}px, ${maxContentWidth})` : minWidth,
@@ -113,7 +120,7 @@ function SheetContent({
         }}
         data-slot="sheet-content"
         className={cn(
-          'gap-4 p-[24px] pt-[12px] bg-secondary data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500',
+          'gap-4 p-[24px] pt-[12px] bg-secondary outline-none data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500',
           side === 'right' && 'data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-3/4 border-l ',
           side === 'left' && 'data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full w-3/4 border-r',
           side === 'top' && 'data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b',
@@ -121,6 +128,7 @@ function SheetContent({
           className,
         )}
         onInteractOutside={guardInteractOutside(onInteractOutside)}
+        onOpenAutoFocus={onOpenAutoFocus ?? focusContentOnOpen}
         {...props}
       >
         <div onMouseDown={onMouseDown} className={cn('absolute top-0 bottom-0 h-full z-10 w-3 bg-transparent', side === 'right' ? '-left-1 cursor-ew-resize' : '-right-1 cursor-ew-resize')} />
