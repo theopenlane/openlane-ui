@@ -1,4 +1,5 @@
 import { createElement } from 'react'
+import { cn } from '@repo/ui/lib/utils'
 import {
   type LucideIcon,
   Scale,
@@ -46,9 +47,7 @@ const categoryIconMap: Record<string, LucideIcon> = {
 
 const DEFAULT_ICON: LucideIcon = ShieldCheck
 
-export function getControlCategoryIcon(category: string): LucideIcon {
-  return categoryIconMap[category] || DEFAULT_ICON
-}
+export const getControlCategoryIcon = (category: string): LucideIcon => categoryIconMap[category] || DEFAULT_ICON
 
 type ControlCategoryIconProps = {
   category: string
@@ -56,6 +55,4 @@ type ControlCategoryIconProps = {
   className?: string
 }
 
-export function ControlCategoryIcon({ category, size = 20, className }: ControlCategoryIconProps) {
-  return createElement(getControlCategoryIcon(category), { size, className })
-}
+export const ControlCategoryIcon = ({ category, size = 20, className }: ControlCategoryIconProps) => createElement(getControlCategoryIcon(category), { size, className: cn('shrink-0', className) })

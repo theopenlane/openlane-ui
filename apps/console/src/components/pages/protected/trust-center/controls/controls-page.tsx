@@ -375,7 +375,7 @@ export default function ControlsPage() {
             <AccordionItem key={category} value={category}>
               <div className="flex items-center justify-between pt-4 pb-4">
                 <AccordionTrigger className="flex items-center gap-2 text-lg font-semibold cursor-pointer bg-unset">
-                  {isOpen ? <ChevronDown size={22} className="text-brand" /> : <ChevronRight size={22} className="text-brand" />}
+                  {isOpen ? <ChevronDown size={22} className="text-brand shrink-0" /> : <ChevronRight size={22} className="text-brand shrink-0" />}
                   <ControlCategoryIcon category={category} size={20} className="text-primary" />
                   <span>{category}</span>
                   <span className="text-sm font-normal text-muted-foreground">({controls.length})</span>
@@ -460,7 +460,7 @@ export default function ControlsPage() {
                 <AccordionItem key={category} value={category} className="border rounded-lg px-3 mb-2">
                   <AccordionTrigger className="flex items-center justify-between w-full py-3 cursor-pointer bg-unset">
                     <div className="flex items-center gap-2">
-                      <ChevronDown size={16} className="text-brand" />
+                      <ChevronDown size={16} className="text-brand shrink-0" />
                       <ControlCategoryIcon category={category} size={16} className="text-primary" />
                       <span className="font-medium">{category}</span>
                     </div>

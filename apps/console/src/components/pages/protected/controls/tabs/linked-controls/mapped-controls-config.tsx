@@ -52,7 +52,7 @@ const statusColumn: ColumnDef<MappedControlRow> = {
     return (
       <div className="flex items-center gap-1.5">
         {ControlIconMapper16[status as ControlControlStatus]}
-        <span>{getEnumLabel(status)}</span>
+        <TruncatedCell>{getEnumLabel(status)}</TruncatedCell>
       </div>
     )
   },

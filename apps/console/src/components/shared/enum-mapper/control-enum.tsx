@@ -34,17 +34,6 @@ export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> 
   [ControlControlStatus.NOT_APPLICABLE]: <Circle height={16} width={16} className="text-preparing" />,
 }
 
-export const ControlIconMapper: Record<ControlControlStatus, React.ElementType> = {
-  [ControlControlStatus.DRAFT]: FilePenLine,
-  [ControlControlStatus.NOT_IMPLEMENTED]: RouteOff,
-  [ControlControlStatus.PREPARING]: Circle,
-  [ControlControlStatus.NEEDS_APPROVAL]: ScanEye,
-  [ControlControlStatus.CHANGES_REQUESTED]: RefreshCw,
-  [ControlControlStatus.APPROVED]: Stamp,
-  [ControlControlStatus.ARCHIVED]: Circle,
-  [ControlControlStatus.NOT_APPLICABLE]: Circle,
-}
-
 export const ControlImplementationIconMap: Record<ControlImplementationDocumentStatus, React.ReactNode> = {
   [ControlImplementationDocumentStatus.DRAFT]: <FilePenLine size={16} />,
   [ControlImplementationDocumentStatus.APPROVED]: <ThumbsUp size={16} />,

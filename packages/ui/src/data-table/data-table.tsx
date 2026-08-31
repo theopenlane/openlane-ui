@@ -253,7 +253,7 @@ function SortableHeaderCell<TData extends RowData>({ header, sortField, sorting,
   }
 
   return (
-    <TableHead variant="data" ref={setNodeRef} style={style} aria-sort={ariaSort}>
+    <TableHead variant="data" className="[&_svg]:shrink-0" ref={setNodeRef} style={style} aria-sort={ariaSort}>
       {header.isPlaceholder ? null : (
         <div className="flex items-center gap-1">
           {!isDragDisabled && (
@@ -834,7 +834,7 @@ const DataRowContent = memo(function DataRowContent<TData extends RowData>({ row
             <TableCell
               variant="data"
               key={cell.id}
-              className={cn('truncate', (cell.column.columnDef.meta as CustomColumnDef<TData>['meta'])?.className)}
+              className={cn('truncate [&_svg]:shrink-0', (cell.column.columnDef.meta as CustomColumnDef<TData>['meta'])?.className)}
               style={{ width: widthVar, minWidth: widthVar, maxWidth: widthVar }}
             >
               {content}
