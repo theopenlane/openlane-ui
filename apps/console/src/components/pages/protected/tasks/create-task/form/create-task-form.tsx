@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useImperativeHandle, useRef, useState, type Ref } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { InfoIcon } from 'lucide-react'
 import useFormSchema, { type CreateTaskFormData } from '../../hooks/use-form-schema'
@@ -33,8 +33,20 @@ import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
+import { useFormDraft } from '@/hooks/useFormDraft'
+import DraftRestoreModal from '@/components/shared/draft-restore-modal/draft-restore-modal'
+import { canonicalizeDetails, isPlateValueEmpty } from '@/components/shared/plate/plate-utils'
 
 type TSubmitAction = 'save' | 'saveAndUse'
+
+const TASK_DRAFT_KEY = 'draft:task-create'
+
+const getDetailsSignature = (value: Value): string => (isPlateValueEmpty(value) ? '' : canonicalizeDetails(value))
+
+export type TCreateTaskFormHandle = {
+  hasUnsavedChanges: () => boolean
+  discardDraft: () => void
+}
 
 type TProps = {
   onSuccess: () => void
@@ -47,9 +59,10 @@ type TProps = {
   hideObjectAssociation?: boolean
   isOpen?: boolean
   fromTemplate?: boolean
+  ref?: Ref<TCreateTaskFormHandle>
 }
 
-const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
+const CreateTaskForm: React.FC<TProps> = ({ ref, ...props }: TProps) => {
   const plateEditorHelper = usePlateEditor()
   const { formInput } = dialogStyles()
   const { form } = useFormSchema(props.initialValues)
@@ -67,7 +80,22 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const appliedInitialAssociationsRef = React.useRef<TObjectAssociationMap | null>(null)
   const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
   const [submittingAction, setSubmittingAction] = useState<TSubmitAction | null>(null)
+  const detailsBaselineRef = useRef<string | null>(props.initialValues?.details ? null : '')
+  const detailsDirtyRef = useRef(false)
+  const draftRestoredRef = useRef(false)
+  const lastDetailsRef = useRef<Value | null>(null)
+  const associationListenerRef = useRef<(() => void) | null>(null)
   const isTemplate = !props.fromTemplate && !!form.watch('isTemplate')
+
+  const organizationId = session?.user.activeOrganizationId
+  const isBlankCreate = !props.fromTemplate && !props.initialValues && !props.initialData && !props.objectAssociationItems
+
+  const subscribeAssociations = useCallback((listener: () => void) => {
+    associationListenerRef.current = listener
+    return () => {
+      associationListenerRef.current = null
+    }
+  }, [])
 
   const { enumOptions: taskKindOptions, onCreateOption: createTaskKind } = useCreatableEnumOptions({
     objectType: 'task',
@@ -88,10 +116,25 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
     setAssociationResetTrigger((prev) => prev + 1)
   }
 
-  const tagValues: Option[] = React.useMemo(() => {
-    if (!props.isOpen || !props.initialValues) return []
-    return (props.initialValues.tags ?? []).map((tag) => ({ value: tag, label: tag }))
-  }, [props.initialValues, props.isOpen])
+  const applyAssociationSnapshot = (snapshot: TObjectAssociationMap) => {
+    seedAssociations(snapshot)
+    setAssociationResetTrigger((prev) => prev + 1)
+  }
+
+  const { pendingDraft, restore, discard, clearDraft, editorKey } = useFormDraft<CreateTaskFormData, TObjectAssociationMap>({
+    storageKey: TASK_DRAFT_KEY,
+    organizationId,
+    enabled: isBlankCreate && !!organizationId,
+    form,
+    subscribeStore: subscribeAssociations,
+    isStoreDirty: () => hasAssociationChanges(initialAssociations, associations),
+    getStoreSnapshot: () => associations,
+    applyStoreSnapshot: (snapshot) => applyAssociationSnapshot(snapshot),
+  })
+
+  const selectedTags = form.watch('tags')
+
+  const tagValues: Option[] = React.useMemo(() => (selectedTags ?? []).map((tag) => ({ value: tag, label: tag })), [selectedTags])
 
   useEffect(() => {
     if (!props.isOpen || !props.initialValues) return
@@ -108,6 +151,21 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
     setAssociationSeed(initialAssociations)
     setAssociations(initialAssociations)
   }, [initialAssociations])
+
+  useEffect(() => {
+    associationListenerRef.current?.()
+  }, [associations])
+
+  const isFormDirty = form.formState.isDirty
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      hasUnsavedChanges: () => draftRestoredRef.current || isFormDirty || hasAssociationChanges(initialAssociations, associations),
+      discardDraft: clearDraft,
+    }),
+    [isFormDirty, initialAssociations, associations, clearDraft],
+  )
 
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
     value: member?.node?.user?.id,
@@ -156,6 +214,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
         ),
       })
 
+      clearDraft()
       form.reset()
       resetAssociations()
       props.onSuccessWithId?.(createdId)
@@ -172,11 +231,49 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   }
 
   const handleDetailsChange = (value: Value) => {
-    form.setValue('details', value)
+    if (value === lastDetailsRef.current) return
+    lastDetailsRef.current = value
+
+    if (detailsDirtyRef.current) {
+      form.setValue('details', value, { shouldDirty: true })
+      return
+    }
+
+    const signature = getDetailsSignature(value)
+
+    if (detailsBaselineRef.current === null) {
+      if (!signature) {
+        form.setValue('details', value)
+        return
+      }
+
+      detailsBaselineRef.current = signature
+    }
+
+    const changed = signature !== detailsBaselineRef.current
+    detailsDirtyRef.current = changed
+    form.setValue('details', value, { shouldDirty: changed })
+  }
+
+  const handleResumeDraft = () => {
+    restore()
+
+    const restoredDue = form.getValues('due')
+    if (typeof restoredDue === 'string') {
+      form.setValue('due', new Date(restoredDue))
+    }
+
+    draftRestoredRef.current = true
+
+    const restoredDetails = form.getValues('details')
+    detailsBaselineRef.current = Array.isArray(restoredDetails) ? getDetailsSignature(restoredDetails) : null
+    detailsDirtyRef.current = false
+    lastDetailsRef.current = null
   }
 
   return (
     <div className={formInput()}>
+      {pendingDraft && <DraftRestoreModal open savedAt={pendingDraft.savedAt} entityLabel="task" onResume={handleResumeDraft} onDiscard={discard} />}
       <Grid>
         <GridRow columns={4}>
           <GridCell className="col-span-2">
@@ -248,7 +345,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                                 content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                               />
                             </div>
-                            <PlateEditor onChange={handleDetailsChange} placeholder="Write your task details" initialValue={props.initialValues?.details} />
+                            <PlateEditor key={editorKey} onChange={handleDetailsChange} placeholder="Write your task details" initialValue={form.getValues('details')} />
                             {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                           </FormItem>
                         )}
