@@ -9,6 +9,8 @@ import { useElementHeight } from '@/hooks/useElementHeight'
 import SessionExpiredModal from '@/components/shared/session-expired-modal/session-expired-modal'
 import { useSession } from 'next-auth/react'
 import { useSessionExpiry } from '@/hooks/useSessionExpiry'
+import { useSSOReauth } from '@/hooks/useSSOReauth'
+import SSORequiredModal from '@/components/shared/sso-required-modal/sso-required-modal'
 import { bottomNavigationItems, personalNavigationItems, topNavigationItems } from '@/routes/dashboard'
 import Sidebar from '@/components/shared/sidebar/sidebar'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
@@ -34,6 +36,7 @@ export interface DashboardLayoutProps {
 export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const { base, main } = dashboardStyles()
   const { showSessionExpiredModal } = useSessionExpiry()
+  const { ssoRequirement } = useSSOReauth()
   const { data: sessionData } = useSession()
   const { data: orgPermission } = useOrganizationRoles()
   const { role: currentUserRole } = useCurrentUserRole()
@@ -106,7 +109,8 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
               <ImpersonationBanner />
             </div>
 
-            <SessionExpiredModal open={showSessionExpiredModal} />
+            <SSORequiredModal requirement={ssoRequirement} />
+            <SessionExpiredModal open={showSessionExpiredModal && !ssoRequirement} />
             <Sidebar
               navItems={navItems}
               footerNavItems={footerNavItems}

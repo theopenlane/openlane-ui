@@ -8,24 +8,34 @@ export interface SecureFetchCSRFOptions {
   token?: string
 }
 
+const CSRF_EXEMPT_METHODS = new Set(['GET', 'HEAD', 'OPTIONS', 'TRACE'])
+
+const resolveMethod = (url: string | URL | globalThis.Request, options: RequestInit): string => (options.method ?? (url instanceof Request ? url.method : 'GET')).toUpperCase()
+
+export const isCSRFRejection = async (response: Response): Promise<boolean> => {
+  if (response.status !== 403) {
+    return false
+  }
+
+  try {
+    return (await response.clone().text()).toLowerCase().includes('csrf')
+  } catch {
+    return false
+  }
+}
+
 export const secureFetch = async (url: string | URL | globalThis.Request, options: RequestInit = {}, csrfOptions: SecureFetchCSRFOptions = {}) => {
-  const headers: Record<string, string> = {
+  const baseHeaders: Record<string, string> = {
     ...((options.headers as Record<string, string>) || {}),
     'Content-Type': jsonContentType,
   }
 
-  let csrfToken = csrfOptions.token ?? getCookie(csrfCookieName)
-  if (!csrfToken) {
-    csrfToken = await fetchCSRFToken()
-  }
+  const send = async (csrfToken: string) => {
+    const headers = appendCookie({ ...baseHeaders, [csrfHeader]: csrfToken }, csrfCookieName, csrfToken)
 
-  headers[csrfHeader] = csrfToken
-  const newHeaders = appendCookie(headers, csrfCookieName, csrfToken)
-
-  try {
     const res = await fetch(url, {
       ...options,
-      headers: newHeaders,
+      headers,
       credentials: 'include',
     })
 
@@ -39,6 +49,24 @@ export const secureFetch = async (url: string | URL | globalThis.Request, option
     }
 
     return res
+  }
+
+  let csrfToken = csrfOptions.token ?? getCookie(csrfCookieName)
+  if (!csrfToken) {
+    csrfToken = await fetchCSRFToken()
+  }
+
+  try {
+    const response = await send(csrfToken)
+
+    if (!csrfOptions.token && !CSRF_EXEMPT_METHODS.has(resolveMethod(url, options)) && (await isCSRFRejection(response))) {
+      console.warn('[secureFetch] ⚠️ CSRF token rejected — refetching and retrying once')
+      invalidateCSRFToken()
+
+      return await send(await fetchCSRFToken())
+    }
+
+    return response
   } catch (err) {
     console.error('[secureFetch] ⚠️ Fetch error:', err)
     throw err
@@ -57,6 +85,11 @@ const CSRF_TTL_MS = 55 * 60 * 1000
 let cachedCSRFToken: string | null = null
 let cachedCSRFTokenExpiresAt = 0
 let inFlightCSRFRequest: Promise<string> | null = null
+
+export const invalidateCSRFToken = () => {
+  cachedCSRFToken = null
+  cachedCSRFTokenExpiresAt = 0
+}
 
 export const fetchCSRFToken = async (): Promise<string> => {
   const canCache = typeof window !== 'undefined'

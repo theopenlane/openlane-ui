@@ -2,6 +2,8 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
 
+const SSO_LOGIN_PATH = '/v1/sso/login'
+
 interface SSOLoginRequest {
   organization_id: string
   is_test?: boolean
@@ -17,10 +19,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'organization_id is required' }, { status: 400 })
     }
 
-    const ssoData = await secureFetch(`${process.env.API_REST_URL}/v1/sso/login`, {
+    const ssoData = await secureFetch(`${process.env.API_REST_URL}${SSO_LOGIN_PATH}`, {
       method: 'POST',
       body: JSON.stringify({
-        ...body,
+        organization_id: body.organization_id,
+        ...(body.is_test !== undefined && { is_test: body.is_test }),
       }),
     })
 

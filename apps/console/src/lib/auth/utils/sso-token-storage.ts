@@ -20,9 +20,9 @@ export const setSsoTokenAuthorization = (tokenType: SsoTokenType) => {
 }
 
 export const readSsoTokenAuthorization = (): SsoTokenType | null => {
-  const raw = getStorage()?.getItem(SSO_TOKEN_STORAGE_KEY)
-  if (!raw) return null
   try {
+    const raw = getStorage()?.getItem(SSO_TOKEN_STORAGE_KEY)
+    if (!raw) return null
     const parsed: { tokenType?: SsoTokenType } = JSON.parse(raw)
     return parsed.tokenType === 'api' || parsed.tokenType === 'personal' ? parsed.tokenType : null
   } catch {
@@ -31,5 +31,9 @@ export const readSsoTokenAuthorization = (): SsoTokenType | null => {
 }
 
 export const clearSsoTokenAuthorization = () => {
-  getStorage()?.removeItem(SSO_TOKEN_STORAGE_KEY)
+  try {
+    getStorage()?.removeItem(SSO_TOKEN_STORAGE_KEY)
+  } catch {
+    return
+  }
 }

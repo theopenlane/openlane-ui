@@ -1,9 +1,9 @@
-import { fetchCSRFToken } from './auth/utils/secure-fetch'
+import { fetchCSRFToken, invalidateCSRFToken, isCSRFRejection } from './auth/utils/secure-fetch'
 import { csrfCookieName, csrfHeader } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
 import { probeSession, SessionUnavailableError } from './auth/utils/session-health'
 import { refreshTokens } from './auth/utils/session-refresh'
-import { getIsSessionInvalid, notifySessionExpired } from './auth/utils/session-status'
+import { clearSSOReauthRequired, getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
 import { getKnownTokens, getUsableTokens, setAuthoritativeTokens } from './auth/utils/session-tokens'
 
 const resolveAccessToken = async (): Promise<string> => {
@@ -114,12 +114,30 @@ export const fetchGraphQLWithUpload = async <TVariables extends object>({ query,
     body = JSON.stringify({ query, variables: normalizedVariables })
   }
 
-  const response = await fetch(process.env.NEXT_PUBLIC_API_GQL_URL ?? '', {
-    method: 'POST',
-    headers,
-    body,
-    credentials: 'include',
-  })
+  const endpoint = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
+  const post = async () =>
+    await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body,
+      credentials: 'include',
+    })
+
+  let response = await post()
+
+  if (await isCSRFRejection(response)) {
+    invalidateCSRFToken()
+    const freshCSRFToken = await fetchCSRFToken()
+    headers[csrfHeader] = freshCSRFToken
+    headers['cookie'] = `${csrfCookieName}=${freshCSRFToken}`
+    response = await post()
+  }
+
+  if (response.ok) {
+    clearSSOReauthRequired()
+  } else if (await reportSSORequirementFromResponse(response)) {
+    throw new Error('SSO re-authentication required')
+  }
 
   const result = await response.json()
   if (result.errors) throw result.errors

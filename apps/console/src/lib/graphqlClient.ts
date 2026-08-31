@@ -6,10 +6,10 @@ import { getCookie } from './auth/utils/getCookie'
 import type { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import { useCallback, useEffect, useRef } from 'react'
-import { fetchCSRFToken } from './auth/utils/secure-fetch'
+import { fetchCSRFToken, invalidateCSRFToken, isCSRFRejection } from './auth/utils/secure-fetch'
 import { probeSession, SessionUnavailableError } from './auth/utils/session-health'
-import { refreshTokens, setTokenPersister } from './auth/utils/session-refresh'
-import { getIsSessionInvalid, notifySessionExpired } from './auth/utils/session-status'
+import { recoverTokensAfterUnauthorized, refreshTokens, setTokenPersister } from './auth/utils/session-refresh'
+import { clearSSOReauthRequired, getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
 import { getKnownTokens, getUsableTokens, observeSessionTokens, setAuthoritativeTokens, type TokenState } from './auth/utils/session-tokens'
 
 export { getIsSessionInvalid, markSessionExpired } from './auth/utils/session-status'
@@ -152,12 +152,43 @@ export const useFetchWithRetry = () => {
 
     let response = await makeRequest()
 
-    const retryRefreshToken = getKnownTokens()?.refreshToken || refreshToken
+    if (await isCSRFRejection(response)) {
+      invalidateCSRFToken()
 
-    if (response.status === 401 && retryRefreshToken && !getIsSessionInvalid()) {
-      const refreshed = await refreshTokens(retryRefreshToken)
-      headers.set('Authorization', `Bearer ${refreshed.accessToken}`)
-      response = await makeRequest()
+      try {
+        const freshCSRFToken = await fetchCSRFToken()
+        headers.set(csrfHeader, freshCSRFToken)
+        headers.set('cookie', `${csrfCookieName}=${freshCSRFToken}`)
+        response = await makeRequest()
+      } catch (error) {
+        console.error('❌ CSRF refetch after a rejected token failed:', error)
+      }
+    }
+
+    // Retry a 401 only when recovery produced a different access token.
+    // recoverTokensAfterUnauthorized refuses to call /v1/refresh before the
+    // token is due, so an unrelated 401 no longer escalates into a logout.
+    if (response.status === 401 && !getIsSessionInvalid()) {
+      const knownTokens = getKnownTokens()
+      const hasNewerToken = !!knownTokens && knownTokens.accessToken !== current.accessToken
+      const ssoRequired = !hasNewerToken && (await reportSSORequirementFromResponse(response))
+
+      if (!ssoRequired) {
+        const recovered = await recoverTokensAfterUnauthorized(current)
+
+        // Re-check the latch: a concurrent expiry may have landed while recovery
+        // was in flight, and retrying then would be pointless.
+        if (recovered && !getIsSessionInvalid()) {
+          headers.set('Authorization', `Bearer ${recovered.accessToken}`)
+          response = await makeRequest()
+        }
+      }
+    }
+
+    if (response.ok) {
+      clearSSOReauthRequired()
+    } else if (response.status === 401) {
+      await reportSSORequirementFromResponse(response)
     }
 
     return response
