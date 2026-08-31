@@ -1,14 +1,12 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
-import { isSSOLoginPath } from '@/lib/auth/utils/sso-required'
 
-const DEFAULT_SSO_LOGIN_PATH = '/v1/sso/login'
+const SSO_LOGIN_PATH = '/v1/sso/login'
 
 interface SSOLoginRequest {
   organization_id: string
   is_test?: boolean
-  sso_login_path?: string
 }
 
 // is_test cookie is for sso being tested before enforcement
@@ -21,13 +19,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'organization_id is required' }, { status: 400 })
     }
 
-    const { sso_login_path: requestedLoginPath, ...ssoLoginPayload } = body
-    const loginPath = requestedLoginPath && isSSOLoginPath(requestedLoginPath) ? requestedLoginPath : DEFAULT_SSO_LOGIN_PATH
-
-    const ssoData = await secureFetch(`${process.env.API_REST_URL}${loginPath}`, {
+    const ssoData = await secureFetch(`${process.env.API_REST_URL}${SSO_LOGIN_PATH}`, {
       method: 'POST',
       body: JSON.stringify({
-        ...ssoLoginPayload,
+        organization_id: body.organization_id,
+        ...(body.is_test !== undefined && { is_test: body.is_test }),
       }),
     })
 

@@ -23,7 +23,7 @@ const SSORequiredModal = ({ requirement }: SSORequiredModalProps) => {
     setLoading(true)
     setError(null)
 
-    const ssoConfig = await getSSORedirect(requirement.organizationId, requirement.ssoLoginPath)
+    const ssoConfig = await getSSORedirect(requirement.organizationId)
 
     if (!ssoConfig) {
       setError('We could not start single sign-on. Please try again.')
