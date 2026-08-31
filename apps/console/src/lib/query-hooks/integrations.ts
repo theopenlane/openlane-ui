@@ -3,6 +3,7 @@ import { normalizeDefinition, parseIntegrationErrorMessage, HEALTH_CHECK_STALE_T
 import { type IntegrationProvidersResponse, type RawProvidersResponse } from '@/lib/integrations/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
+import { reportSSORequirementFromResponse } from '@/lib/auth/utils/session-status'
 
 type HealthResponse = {
   status?: string
@@ -27,6 +28,8 @@ export const useIntegrationProviders = () => {
       })
 
       if (!res.ok) {
+        await reportSSORequirementFromResponse(res)
+
         const err = await res.json().catch(() => ({}))
         throw new Error(err.error ?? 'Failed to fetch integration providers')
       }

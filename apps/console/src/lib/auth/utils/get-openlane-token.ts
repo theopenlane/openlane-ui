@@ -32,12 +32,13 @@ export const checkWebfinger = async (email: string): Promise<WebfingerConfig | n
   return null
 }
 
-export const getSSORedirect = async (organizationId: string): Promise<{ redirect_uri: string; organization_id: string } | null> => {
+export const getSSORedirect = async (organizationId: string, ssoLoginPath?: string): Promise<{ redirect_uri: string; organization_id: string } | null> => {
   try {
     const ssoResponse = await secureFetch(`/api/auth/sso`, {
       method: 'POST',
       body: JSON.stringify({
         organization_id: organizationId,
+        ...(ssoLoginPath && { sso_login_path: ssoLoginPath }),
       }),
     })
 

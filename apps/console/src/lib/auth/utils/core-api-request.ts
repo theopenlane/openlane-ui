@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { csrfCookieName, openlaneAPIUrl } from '@repo/dally/auth'
 import { auth } from '../auth'
 import { secureFetch } from './secure-fetch'
+import { parseSSORequirement, type SSOUnauthorizedBody } from './sso-required'
 
 export const HTTP_METHODS = {
   GET: 'GET',
@@ -15,12 +16,22 @@ type HttpMethod = (typeof HTTP_METHODS)[keyof typeof HTTP_METHODS]
 
 const MAX_LOGGED_BODY_CHARS = 500
 
-const readBodyForLog = async (response: Response): Promise<string> => {
+const readBody = async (response: Response): Promise<string> => {
   try {
-    const text = await response.text()
-    return text.length > MAX_LOGGED_BODY_CHARS ? `${text.slice(0, MAX_LOGGED_BODY_CHARS)}…` : text
+    return await response.text()
   } catch {
     return '<unreadable>'
+  }
+}
+
+const truncateForLog = (body: string): string => (body.length > MAX_LOGGED_BODY_CHARS ? `${body.slice(0, MAX_LOGGED_BODY_CHARS)}…` : body)
+
+const parseUnauthorizedBody = (body: string): SSOUnauthorizedBody | null => {
+  try {
+    const parsed: SSOUnauthorizedBody = JSON.parse(body)
+    return parsed
+  } catch {
+    return null
   }
 }
 
@@ -62,6 +73,7 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
       upstreamUrl,
       {
         method,
+        redirect: 'manual',
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -85,7 +97,27 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
     throw error
   }
 
+  if (response.status >= 300 && response.status < 400) {
+    console.error(
+      '[coreAPIRequest] upstream redirect not followed',
+      JSON.stringify({
+        upstreamUrl,
+        method,
+        status: response.status,
+        location: response.headers.get('location'),
+        upstreamRequestId: response.headers.get('x-request-id'),
+        cfRay: response.headers.get('cf-ray'),
+        userId: session.user.userId,
+        durationMs: Date.now() - startedAt,
+      }),
+    )
+
+    return NextResponse.json({ error: errorMsg ?? 'Failed to fetch' }, { status: 502 })
+  }
+
   if (!response.ok) {
+    const upstreamBody = await readBody(response)
+
     console.error(
       '[coreAPIRequest] upstream error response',
       JSON.stringify({
@@ -99,9 +131,15 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
         userId: session.user.userId,
         durationMs: Date.now() - startedAt,
         hasCsrfToken: !!csrfToken,
-        body: await readBodyForLog(response),
+        body: truncateForLog(upstreamBody),
       }),
     )
+
+    const unauthorizedBody = response.status === 401 ? parseUnauthorizedBody(upstreamBody) : null
+
+    if (unauthorizedBody && parseSSORequirement(unauthorizedBody)) {
+      return NextResponse.json(unauthorizedBody, { status: 401 })
+    }
 
     return NextResponse.json({ error: errorMsg ?? 'Failed to fetch' }, { status: response.status })
   }

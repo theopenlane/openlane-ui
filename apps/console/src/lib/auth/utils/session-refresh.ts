@@ -2,7 +2,7 @@
 
 import { fetchNewAccessToken } from './refresh-token'
 import { probeSession, SessionUnavailableError } from './session-health'
-import { notifySessionExpired } from './session-status'
+import { notifySSOReauthRequired, notifySessionExpired } from './session-status'
 import { getKnownTokens, getTokenGeneration, getUsableTokens, setAuthoritativeTokens, type TokenState } from './session-tokens'
 
 // Web Locks key, not a duration: the namespace is browser-global (hence the prefix) and shared
@@ -118,6 +118,11 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
 
     if (result.status === 'unavailable') {
       throw recordRefreshFailure(new SessionUnavailableError(result.retryAfterMs), result.retryAfterMs)
+    }
+
+    if (result.status === 'sso-required') {
+      notifySSOReauthRequired(result.requirement)
+      throw new Error('SSO re-authentication required')
     }
 
     if (result.status === 'rejected') {

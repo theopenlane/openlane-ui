@@ -3,7 +3,7 @@ import { csrfCookieName, csrfHeader } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
 import { probeSession, SessionUnavailableError } from './auth/utils/session-health'
 import { refreshTokens } from './auth/utils/session-refresh'
-import { getIsSessionInvalid, notifySessionExpired } from './auth/utils/session-status'
+import { getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
 import { getKnownTokens, getUsableTokens, setAuthoritativeTokens } from './auth/utils/session-tokens'
 
 const resolveAccessToken = async (): Promise<string> => {
@@ -131,6 +131,10 @@ export const fetchGraphQLWithUpload = async <TVariables extends object>({ query,
     headers[csrfHeader] = freshCSRFToken
     headers['cookie'] = `${csrfCookieName}=${freshCSRFToken}`
     response = await post()
+  }
+
+  if (await reportSSORequirementFromResponse(response)) {
+    throw new Error('SSO re-authentication required')
   }
 
   const result = await response.json()
