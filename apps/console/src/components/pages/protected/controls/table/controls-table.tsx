@@ -13,6 +13,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { HIDE_BELOW_1400, TOOLBAR_CONTAINER } from '@/constants/toolbar'
 import ControlsTableToolbar from './controls-table-toolbar'
 import { CONTROLS_SORT_FIELDS, getControlColumns } from './table-config'
+import { buildCustomStandardFilterWhere, isCustomStandardFilter } from '@/components/shared/table-filter/custom-standard-filter'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@repo/ui/table-types'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -94,27 +95,19 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   })
 
   const whereFilter = useMemo(() => {
-    const base: ControlWhereInput = {}
-
     const result = whereGenerator<ControlWhereInput>(filters, (key, value) => {
-      // Special case: CUSTOM pseudo-standard
-      if (key === 'standardIDIn' && Array.isArray(value) && value.includes('CUSTOM')) {
-        const normalStandards = value.filter((id) => id !== 'CUSTOM')
-
-        return {
-          or: [...(normalStandards.length > 0 ? [{ standardIDIn: normalStandards }] : []), { referenceFrameworkIsNil: true }],
-        }
+      if (isCustomStandardFilter(key, value)) {
+        return buildCustomStandardFilterWhere(value)
       }
 
       return { [key]: value } as ControlWhereInput
     })
 
-    // Automatically exclude archived unless overridden
     if (!hasStatusCondition(result)) {
       result.statusNEQ = ControlControlStatus.ARCHIVED
     }
 
-    return { ...base, ...result }
+    return result
   }, [filters])
 
   const whereWithSearch: ControlWhereInput = useMemo(() => {

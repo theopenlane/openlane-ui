@@ -47,6 +47,12 @@ export const clearQuickFilters = (pageKey: TableKeyValue, organizationId?: strin
   removeOrganizationStorageItem(quickFilterKey(pageKey), organizationId)
 }
 
+const discardRetiredQuickFilter = (pageKey: TableKeyValue, organizationId?: string): null => {
+  removeOrganizationStorageItem(quickFilterKey(pageKey), organizationId)
+  removeOrganizationStorageItem(filterKey(pageKey), organizationId)
+  return null
+}
+
 export const loadQuickFilter = (pageKey: TableKeyValue, quickFilters: TQuickFilter[] = [], organizationId?: string): TQuickFilter | null => {
   const activeQuickFilter = quickFilters.find((item) => item.isActive)
   // This is the case when we have active quick filter as default value
@@ -64,7 +70,7 @@ export const loadQuickFilter = (pageKey: TableKeyValue, quickFilters: TQuickFilt
 
     if ('key' in parsed && 'condition' in parsed) {
       const matched = quickFilters.find((f) => f.key === parsed.key)
-      if (!matched) return null
+      if (!matched) return discardRetiredQuickFilter(pageKey, organizationId)
 
       return {
         ...matched,
@@ -74,10 +80,10 @@ export const loadQuickFilter = (pageKey: TableKeyValue, quickFilters: TQuickFilt
     }
 
     const savedKey = Object.keys(parsed).find((key) => quickFilters.some((f) => f.key === key && f.type === 'boolean'))
-    if (!savedKey) return null
+    if (!savedKey) return discardRetiredQuickFilter(pageKey, organizationId)
 
     const matched = quickFilters.find((f) => f.key === savedKey)
-    if (!matched) return null
+    if (!matched) return discardRetiredQuickFilter(pageKey, organizationId)
 
     return {
       ...matched,
