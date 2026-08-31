@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import { useEffect, useMemo } from 'react'
-import { type ContactWhereInput, type Contact, type ContactOrderField } from '@repo/codegen/src/schema'
+import { type ContactWhereInput, type ContactOrderField } from '@repo/codegen/src/schema'
 import { type ContactsNodeNonNull, useContactsWithFilter } from '@/lib/graphql-hooks/contact'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
@@ -102,7 +102,7 @@ const TableComponent = ({
 
   return (
     <>
-      <DataTable<ContactsNodeNonNull, Contact>
+      <DataTable<ContactsNodeNonNull>
         columns={columns}
         sortFields={CONTACTS_SORT_FIELDS}
         onSortChange={onSortChange}

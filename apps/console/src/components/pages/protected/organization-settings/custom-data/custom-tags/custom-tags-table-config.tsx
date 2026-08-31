@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { useMemo } from 'react'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 
 import { Badge } from '@repo/ui/badge'

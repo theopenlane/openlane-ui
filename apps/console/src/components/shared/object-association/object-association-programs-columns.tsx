@@ -1,5 +1,5 @@
 import { type Program } from '@repo/codegen/src/schema'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { Checkbox } from '@repo/ui/checkbox'
 import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback } from 'react'
-import { type VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@repo/ui/table-types'
 import { type GroupsExportQueryVariables } from '@repo/codegen/src/schema'
 import { type GroupExportNode, useFetchAllGroupsForExport } from '@/lib/graphql-hooks/group'
 import { useFetchAuthorMaps } from '@/lib/graphql-hooks/authors'

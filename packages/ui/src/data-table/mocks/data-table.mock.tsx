@@ -1,6 +1,6 @@
 'use client'
 
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef } from '../table-types'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../../dropdown-menu/dropdown-menu'
 import { ArrowUpDown, ClipboardCopyIcon, CreditCardIcon, MoreHorizontal, User } from 'lucide-react'
 import { Tag } from '../../tag/tag'

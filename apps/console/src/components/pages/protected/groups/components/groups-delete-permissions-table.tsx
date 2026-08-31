@@ -1,5 +1,5 @@
 import React from 'react'
-import { type ColumnDef } from '@tanstack/table-core'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { type Permission } from '@repo/codegen/src/schema'
 import { useGroupsStore } from '@/hooks/useGroupsStore'

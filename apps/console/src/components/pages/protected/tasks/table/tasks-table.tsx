@@ -8,7 +8,7 @@ import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns
 import { TASK_SORT_FIELDS } from '@/components/pages/protected/tasks/table/table-config.ts'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/task'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
-import { type VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@repo/ui/table-types'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'

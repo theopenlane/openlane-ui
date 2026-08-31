@@ -10,7 +10,7 @@ import { formatDateSince } from '@/utils/date'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 
 type ExistingFileRow = {

@@ -2,7 +2,7 @@
 
 import React, { useCallback, use, useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
-import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type RowData, type VisibilityState } from '@repo/ui/table-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import {
@@ -198,7 +198,7 @@ const SubprocessorsPage = () => {
     [selectedRows, userMap, tokenMap, canEditSubprocessor, handleEditSubprocessor],
   )
 
-  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+  function isVisibleColumn<T extends RowData>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 

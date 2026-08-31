@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { type ReviewWhereInput, type Review, type ReviewOrderField } from '@repo/codegen/src/schema'
+import { type ReviewWhereInput, type ReviewOrderField } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/reviews/table/columns.tsx'
 import { type ReviewsNodeNonNull, useReviewsWithFilter } from '@/lib/graphql-hooks/review'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
@@ -92,7 +92,7 @@ const TableComponent = ({
   const columns = useMemo(() => getColumns({ userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems }), [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems])
 
   return (
-    <DataTable<ReviewsNodeNonNull, Review>
+    <DataTable<ReviewsNodeNonNull>
       columns={columns}
       sortFields={REVIEWS_SORT_FIELDS}
       onSortChange={onSortChange}

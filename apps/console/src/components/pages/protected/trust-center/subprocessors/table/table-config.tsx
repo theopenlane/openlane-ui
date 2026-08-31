@@ -1,6 +1,6 @@
 'use client'
 
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { Checkbox } from '@repo/ui/checkbox'
 import { type FilterField } from '@/types'
 import { SubprocessorsFilterIcons } from '@/components/shared/enum-mapper/subprocessors-enum'

@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef } from '@repo/ui/table-types'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
 import { CircleDot, FileBadge2, Folder, FolderTree, Layers, Lock, MoreHorizontal, Pencil, Tag } from 'lucide-react'
 import LinkedPoliciesCell from '@/components/shared/linked-policies-cell/linked-policies-cell'

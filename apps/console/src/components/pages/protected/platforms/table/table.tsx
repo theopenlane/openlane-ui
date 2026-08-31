@@ -103,7 +103,7 @@ const TableComponent = ({
   const columns = useMemo(() => getColumns({ userMap, selectedItems, setSelectedItems }), [userMap, selectedItems, setSelectedItems])
 
   return (
-    <DataTable<PlatformsNodeNonNull, PlatformFull>
+    <DataTable<PlatformsNodeNonNull>
       columns={columns}
       sortFields={PLATFORMS_SORT_FIELDS}
       onSortChange={onSortChange}

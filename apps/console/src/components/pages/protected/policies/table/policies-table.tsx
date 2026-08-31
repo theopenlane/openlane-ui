@@ -11,7 +11,7 @@ import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { getPoliciesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
 import { isUlid } from '@/lib/validators'
-import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type RowData, type VisibilityState } from '@repo/ui/table-types'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport, { type TExportMetadata } from '@/components/shared/export/use-file-export.ts'
@@ -121,7 +121,7 @@ export const PoliciesTable = () => {
 
   const { columns, mappedColumns } = useMemo(() => getPoliciesColumns({ userMap, tokenMap, selectedPolicies, setSelectedPolicies, enumOptions }), [userMap, tokenMap, selectedPolicies, enumOptions])
 
-  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+  function isVisibleColumn<T extends RowData>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 

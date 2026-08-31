@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { Checkbox } from '@repo/ui/checkbox'
 import { type TObjectAssociationMap } from './types/TObjectAssociationMap'
 import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'

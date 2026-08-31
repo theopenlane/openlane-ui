@@ -7,7 +7,7 @@ import { Copy, Info, KeyRoundIcon, Shield, ShieldCheck, ShieldOff } from 'lucide
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import Image from 'next/image'
 import { useCopyToClipboard, useDebounce } from '@uidotdev/usehooks'
 import { useSession } from 'next-auth/react'

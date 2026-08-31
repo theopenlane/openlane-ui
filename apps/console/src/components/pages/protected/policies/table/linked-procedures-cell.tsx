@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { type Row } from '@tanstack/react-table'
+import { type Row } from '@repo/ui/table-types'
 import { type InternalPolicy } from '@repo/codegen/src/schema'
 import { Badge } from '@repo/ui/badge'
 import Link from 'next/link'

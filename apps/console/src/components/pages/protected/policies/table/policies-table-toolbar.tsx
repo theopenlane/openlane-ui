@@ -9,7 +9,7 @@ import BulkCSVCreatePolicyDialog from '@/components/pages/protected/policies/cre
 import { hasPermission } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
-import { type VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@repo/ui/table-types'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { BulkEditPoliciesDialog } from '../bulk-edit/bulk-edit-policies'
 import { Button } from '@repo/ui/button'

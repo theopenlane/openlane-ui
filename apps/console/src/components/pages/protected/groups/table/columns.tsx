@@ -1,5 +1,5 @@
 'use client'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { GlobeIcon, LockIcon, StarsIcon } from 'lucide-react'
 import { type Group, type User } from '@repo/codegen/src/schema'
 import { type AuthorToken } from '@/lib/authors'

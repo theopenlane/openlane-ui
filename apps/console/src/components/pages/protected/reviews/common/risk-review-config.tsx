@@ -1,5 +1,5 @@
 import React from 'react'
-import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type VisibilityState } from '@repo/ui/table-types'
 import { Badge } from '@repo/ui/badge'
 import { type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { formatDate } from '@/utils/date'

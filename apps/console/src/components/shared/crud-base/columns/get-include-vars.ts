@@ -1,8 +1,8 @@
-import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type RowData, type VisibilityState } from '@repo/ui/table-types'
 
 type IncludeAwareMeta = { gqlInclude?: string[] }
 
-export const getIncludeVars = <T>(columns: ColumnDef<T>[], visibility: VisibilityState): Record<string, boolean> => {
+export const getIncludeVars = <T extends RowData>(columns: ColumnDef<T>[], visibility: VisibilityState): Record<string, boolean> => {
   const result: Record<string, boolean> = {}
 
   for (const column of columns) {

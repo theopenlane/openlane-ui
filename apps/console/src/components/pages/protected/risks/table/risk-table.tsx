@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { getRiskColumns } from '@/components/pages/protected/risks/table/columns.tsx'
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import { ExportExportFormat, ExportExportType, OrderDirection, RiskOrderField, type RiskWhereInput } from '@repo/codegen/src/schema.ts'
-import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type RowData, type VisibilityState } from '@repo/ui/table-types'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useRisks } from '@/lib/graphql-hooks/risk'
 import { PageHeading } from '@repo/ui/page-heading'
@@ -127,7 +127,7 @@ const RiskTable: React.FC = () => {
     router.push(`/exposure/risks/create`)
   }
 
-  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+  function isVisibleColumn<T extends RowData>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 

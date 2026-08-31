@@ -20,7 +20,7 @@ import { useCustomTypeEnumsPaginated, useDeleteCustomTypeEnum } from '@/lib/grap
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { type VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@repo/ui/table-types'
 import { CustomTypeEnumOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'

@@ -1,6 +1,6 @@
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef, type RowData } from '@repo/ui/table-types'
 
-export const getMappedColumns = <T>(columns: ColumnDef<T>[]) =>
+export const getMappedColumns = <T extends RowData>(columns: ColumnDef<T>[]) =>
   columns
     .filter((column): column is ColumnDef<T> & { accessorKey: string; header: string } => {
       const col = column as { accessorKey?: string; header?: string }

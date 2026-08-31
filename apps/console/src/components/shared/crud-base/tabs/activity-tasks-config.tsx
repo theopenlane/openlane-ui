@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef } from '@repo/ui/table-types'
 import type { Task } from '@repo/codegen/src/schema'
 import { TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'

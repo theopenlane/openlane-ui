@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { type User } from '@repo/codegen/src/schema'
 import { type AuthorToken } from '@/lib/authors'
 import { type CampaignsNodeNonNull } from '@/lib/graphql-hooks/campaign'

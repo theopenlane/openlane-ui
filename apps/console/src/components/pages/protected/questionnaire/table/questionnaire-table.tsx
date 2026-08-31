@@ -10,7 +10,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useAssessments, useDeleteAssessment } from '@/lib/graphql-hooks/assessment'
 import { useRouter } from 'next/navigation'
-import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type RowData, type VisibilityState } from '@repo/ui/table-types'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
@@ -176,7 +176,7 @@ export const QuestionnairesTable = () => {
     canCreateTemplate,
   })
 
-  const getColumnExportKey = <T,>(col: ColumnDef<T>): string | null => {
+  const getColumnExportKey = <T extends RowData>(col: ColumnDef<T>): string | null => {
     if ('accessorKey' in col && typeof col.accessorKey === 'string') return col.accessorKey
     if ('id' in col && typeof col.id === 'string') return col.id
     return null

@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { type Group, type RiskRiskStatus, type RiskTableFieldsFragment, type User } from '@repo/codegen/src/schema.ts'
 import { type AuthorToken } from '@/lib/authors'
 import React from 'react'

@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
-import { type ColumnDef } from '@tanstack/table-core'
+import { type ColumnDef, type RowData } from '@repo/ui/table-types'
 import { ControlControlStatus, ControlOrderField, type ControlWhereInput, ExportExportFormat, ExportExportType, OrderDirection } from '@repo/codegen/src/schema'
 
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -14,7 +14,7 @@ import { HIDE_BELOW_1400, TOOLBAR_CONTAINER } from '@/constants/toolbar'
 import ControlsTableToolbar from './controls-table-toolbar'
 import { CONTROLS_SORT_FIELDS, getControlColumns } from './table-config'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@repo/ui/table-types'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { canEdit } from '@/lib/authz/utils.ts'
@@ -189,7 +189,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       header: column.header,
     }))
 
-  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+  function isVisibleColumn<T extends RowData>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 

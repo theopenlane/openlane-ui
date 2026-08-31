@@ -1,6 +1,6 @@
 'use client'
 
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { type AllGroupsPaginatedFieldsFragment, type InviteInviteStatus, type InviteRole } from '@repo/codegen/src/schema.ts'
 import { InviteActions } from '../actions/invite-actions'
 import { formatDateSince } from '@/utils/date'

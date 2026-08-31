@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { type ColumnDef, type Row, type VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type Row, type VisibilityState } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetIdentityHolderDirectoryAccounts } from '@/lib/graphql-hooks/identity-holder'

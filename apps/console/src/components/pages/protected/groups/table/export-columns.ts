@@ -1,4 +1,4 @@
-import { type VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@repo/ui/table-types'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type GroupExportNode, type GroupExportPermissionNode } from '@/lib/graphql-hooks/group'
 import { type AuthorMaps, resolveAuthorName } from '@/lib/authors'

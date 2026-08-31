@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { type VulnerabilityWhereInput, type Vulnerability, type VulnerabilityOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { type VulnerabilityWhereInput, type VulnerabilityOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/vulnerabilities/table/columns.tsx'
 import { type VulnerabilitiesNodeNonNull, useVulnerabilitiesWithFilter, useUpdateVulnerability } from '@/lib/graphql-hooks/vulnerability'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
@@ -183,7 +183,7 @@ const TableComponent = ({
 
   return (
     <>
-      <DataTable<VulnerabilitiesNodeNonNull, Vulnerability>
+      <DataTable<VulnerabilitiesNodeNonNull>
         columns={columns}
         sortFields={VULNERABILITIES_SORT_FIELDS}
         onSortChange={onSortChange}
