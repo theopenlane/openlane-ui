@@ -119,7 +119,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
         return isSame ? prev : updatedFilters
       })
       onFilterChange?.(buildQuickFilterWhereCondition(savedQuickFilter))
-    } else if (saved) {
+    } else if (saved && Object.keys(saved).length > 0) {
       setValues((prev) => {
         const isSame = JSON.stringify(prev) === JSON.stringify(saved)
         return isSame ? prev : saved
@@ -167,23 +167,21 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
     [pageKey, storageEnabled, currentOrgId],
   )
 
-  const resetRegularFilters = useCallback(
-    (clearStorage: boolean = true) => {
-      setValues({})
-      if (clearStorage && storageEnabled && pageKey) {
-        saveFilters(pageKey, {}, currentOrgId)
-      }
-    },
-    [pageKey, storageEnabled, currentOrgId],
-  )
+  const resetRegularFilters = useCallback(() => {
+    setValues({})
+  }, [])
 
   const resetFilters = useCallback(() => {
     userEditedRef.current = true
-    resetRegularFilters()
+    const restoredValues = defaultFilterValues ?? {}
     resetQuickFilters()
-    onFilterChange?.({})
+    if (storageEnabled && pageKey) {
+      saveFilters(pageKey, {}, currentOrgId)
+    }
+    setValues(restoredValues)
+    onFilterChange?.(buildWhereCondition(restoredValues, filterFields))
     setOpen(false)
-  }, [resetRegularFilters, resetQuickFilters, onFilterChange])
+  }, [defaultFilterValues, resetQuickFilters, storageEnabled, pageKey, currentOrgId, onFilterChange, buildWhereCondition, filterFields])
 
   const handleQuickFilterSave = useCallback(
     (quickFilter: TQuickFilter) => {
@@ -191,7 +189,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
         saveQuickFilters(pageKey, quickFilter, currentOrgId)
       }
       onFilterChange?.(buildQuickFilterWhereCondition(quickFilter))
-      resetRegularFilters(false)
+      resetRegularFilters()
       setOpen(false)
     },
     [buildQuickFilterWhereCondition, onFilterChange, pageKey, resetRegularFilters, storageEnabled, currentOrgId],
@@ -200,10 +198,9 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
   const toggleQuickFilter = useCallback(
     (qf: TQuickFilter) => {
       userEditedRef.current = true
-      resetRegularFilters(false)
+      resetRegularFilters()
       setActiveQuickFilters((prev) => prev.map((item) => (item.key === qf.key && item.label === qf.label ? { ...item, isActive: !item.isActive } : { ...item, isActive: false })))
 
-      // Here we check !isActive because it will become true through updating state
       if (!qf.isActive) {
         handleQuickFilterSave(qf)
       } else {

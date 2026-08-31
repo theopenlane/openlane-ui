@@ -24,6 +24,7 @@ import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
+import { CUSTOM_STANDARD_FILTER_OPTION } from '@/components/shared/table-filter/custom-standard-filter'
 
 export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
@@ -47,13 +48,7 @@ export const getControlsFilterFields = (
     key: 'standardIDIn',
     label: 'Standard',
     type: 'multiselect',
-    options: [
-      ...standardOptions,
-      {
-        value: 'CUSTOM',
-        label: 'CUSTOM',
-      },
-    ],
+    options: [...standardOptions, CUSTOM_STANDARD_FILTER_OPTION],
     icon: FileQuestion,
   },
   {

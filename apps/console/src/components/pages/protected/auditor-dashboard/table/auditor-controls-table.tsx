@@ -29,7 +29,8 @@ import { BulkCSVCreateEvidenceDialog } from '@/components/pages/protected/eviden
 import { getControlReview, getControlLastReviewed } from '../utils/control-status'
 import { getAuditorDashboardColumns, getAuditorDashboardMappedColumns, type AuditorDashboardControlRow } from './columns'
 import useFileExport from '@/components/shared/export/use-file-export'
-import { AUDITOR_CONTROL_EXPORT_FIELDS, getAuditorDashboardFilterFields, getAuditorDashboardQuickFilters } from './table-config'
+import { buildCustomStandardFilterWhere, isCustomStandardFilter } from '@/components/shared/table-filter/custom-standard-filter'
+import { AUDITOR_CONTROL_EXPORT_FIELDS, AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES, getAuditorDashboardFilterFields, getAuditorDashboardQuickFilters } from './table-config'
 
 type AuditorControlsTableProps = {
   programId: string
@@ -66,9 +67,8 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
 
   const where: ControlWhereInput = useMemo(() => {
     const generated = whereGenerator<ControlWhereInput>(filters, (key, value) => {
-      if (key === 'standardIDIn' && Array.isArray(value) && value.includes('CUSTOM')) {
-        const normalStandards = value.filter((id) => id !== 'CUSTOM')
-        return { or: [...(normalStandards.length > 0 ? [{ standardIDIn: normalStandards }] : []), { referenceFrameworkIsNil: true }] }
+      if (isCustomStandardFilter(key, value)) {
+        return buildCustomStandardFilterWhere(value)
       }
       if (key === 'reviewStatusIn') {
         return { hasReviewsWith: [{ statusIn: value, hasProgramsWith: [{ id: programId }] }] } as ControlWhereInput
@@ -141,7 +141,15 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
           onChange={(event) => setSearchTerm(event.currentTarget.value)}
         />
         <div className="flex items-center gap-2">
-          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS} quickFilters={quickFilters} />}
+          {filterFields && (
+            <TableFilter
+              filterFields={filterFields}
+              onFilterChange={setFilters}
+              pageKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS}
+              quickFilters={quickFilters}
+              defaultFilterValues={AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES}
+            />
+          )}
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS} />
           <BulkCSVCreateEvidenceDialog
             trigger={
