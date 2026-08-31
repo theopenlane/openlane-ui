@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { type IdentityHoldersNodeNonNull } from '@/lib/graphql-hooks/identity-holder'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { type IdentityHolderUserStatus } from '@repo/codegen/src/schema.ts'

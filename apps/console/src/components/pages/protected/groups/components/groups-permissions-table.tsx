@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { type ColumnDef } from '@tanstack/table-core'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { DataTable } from '@repo/ui/data-table'
 import { useNotification } from '@/hooks/useNotification'

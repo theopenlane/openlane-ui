@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { TabsContent } from '@repo/ui/tabs'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { PlusCircle } from 'lucide-react'

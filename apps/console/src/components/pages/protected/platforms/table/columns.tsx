@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { type PlatformsNodeNonNull } from '@/lib/graphql-hooks/platform'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { type Platform, type PlatformPlatformStatus } from '@repo/codegen/src/schema'

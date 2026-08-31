@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type ColumnDef, type VisibilityState, type Row } from '@tanstack/react-table'
+import { type ColumnDef, type VisibilityState, type Row } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'

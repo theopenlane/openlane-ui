@@ -103,7 +103,7 @@ const TableComponent = ({
 
   return (
     <>
-      <DataTable<WorkflowDefinitionsNodeNonNull, unknown>
+      <DataTable<WorkflowDefinitionsNodeNonNull>
         columns={columns}
         sortFields={WORKFLOW_SORT_FIELDS}
         onSortChange={onSortChange}

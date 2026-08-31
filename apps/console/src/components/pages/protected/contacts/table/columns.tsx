@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { type ContactsNodeNonNull } from '@/lib/graphql-hooks/contact'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'

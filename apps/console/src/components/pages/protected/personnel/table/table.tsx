@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { type IdentityHolderWhereInput, type IdentityHolder, type IdentityHolderOrderField } from '@repo/codegen/src/schema'
+import { type IdentityHolderWhereInput, type IdentityHolderOrderField } from '@repo/codegen/src/schema'
 import { type IdentityHoldersNodeNonNull, useIdentityHoldersWithFilter } from '@/lib/graphql-hooks/identity-holder'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
@@ -102,7 +102,7 @@ const TableComponent = ({
 
   return (
     <>
-      <DataTable<IdentityHoldersNodeNonNull, IdentityHolder>
+      <DataTable<IdentityHoldersNodeNonNull>
         columns={columns}
         sortFields={PERSONNEL_SORT_FIELDS}
         onSortChange={onSortChange}

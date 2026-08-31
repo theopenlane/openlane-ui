@@ -8,7 +8,7 @@ import { getCampaignColumns } from '@/components/pages/protected/campaigns/table
 import { CAMPAIGN_SORT_FIELDS } from '@/components/pages/protected/campaigns/table/table-config'
 import { useCampaignsWithFilter } from '@/lib/graphql-hooks/campaign'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
-import { type VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@repo/ui/table-types'
 
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'

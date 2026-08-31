@@ -4,7 +4,7 @@ import { getCampaignFilterFields } from '@/components/pages/protected/campaigns/
 import { type FilterField } from '@/types'
 import { DownloadIcon, LoaderCircle, SearchIcon } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
-import { type VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@repo/ui/table-types'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { Input } from '@repo/ui/input'
 import { type CampaignWhereInput } from '@repo/codegen/src/schema'

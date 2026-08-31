@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef, type RowData } from '@repo/ui/table-types'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
 import { MoreHorizontal } from 'lucide-react'
@@ -18,7 +18,7 @@ type RowActionsColumnOptions<T> = {
   label?: string
 }
 
-export function createRowActionsColumn<T>({ actions, label = 'Row actions' }: RowActionsColumnOptions<T>): ColumnDef<T> {
+export function createRowActionsColumn<T extends RowData>({ actions, label = 'Row actions' }: RowActionsColumnOptions<T>): ColumnDef<T> {
   return {
     id: 'actions',
     header: '',

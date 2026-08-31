@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { type Evidence, EvidenceEvidenceStatus, type User } from '@repo/codegen/src/schema.ts'
 import { type AuthorToken } from '@/lib/authors'
 import Link from 'next/link'

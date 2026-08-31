@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { Building2 } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 import { type EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'

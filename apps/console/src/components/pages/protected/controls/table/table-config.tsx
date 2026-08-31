@@ -1,7 +1,7 @@
 import { type FilterField } from '@/types'
 import { type ControlControlStatus, type ControlListFieldsFragment, ControlOrderField, type Entity, type Group, type User } from '@repo/codegen/src/schema.ts'
 import { type AuthorToken } from '@/lib/authors'
-import { type ColumnDef, type Row } from '@tanstack/react-table'
+import { type ColumnDef, type Row } from '@repo/ui/table-types'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { formatDate, formatTimeSince } from '@/utils/date'

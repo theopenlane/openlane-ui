@@ -5,7 +5,7 @@ import CampaignTableToolbar from '@/components/pages/protected/campaigns/table/c
 import { CampaignOrderField, ExportExportFormat, ExportExportType, OrderDirection, type CampaignWhereInput } from '@repo/codegen/src/schema'
 import { getCampaignColumns } from '@/components/pages/protected/campaigns/table/columns'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { type VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@repo/ui/table-types'
 import CampaignsTable from '@/components/pages/protected/campaigns/table/campaigns-table'
 import { useDebounce } from '@uidotdev/usehooks'
 import { PageHeading } from '@repo/ui/page-heading'

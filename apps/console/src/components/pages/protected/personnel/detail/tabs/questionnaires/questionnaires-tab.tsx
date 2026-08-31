@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type VisibilityState } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'

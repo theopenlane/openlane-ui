@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import React from 'react'
 import { type Group, type Procedure, type User } from '@repo/codegen/src/schema.ts'
 import { type AuthorToken } from '@/lib/authors'

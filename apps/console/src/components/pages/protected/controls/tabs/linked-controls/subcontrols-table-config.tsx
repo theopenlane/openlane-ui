@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef } from '@repo/ui/table-types'
 import { CircleDot, Folder, FolderTree, Layers, Tag } from 'lucide-react'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { SubcontrolControlStatus } from '@repo/codegen/src/schema'

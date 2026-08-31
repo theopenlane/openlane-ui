@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
 import { Plus, Trash2 } from 'lucide-react'

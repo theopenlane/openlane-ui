@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility, type TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
 
 type GqlFile = {

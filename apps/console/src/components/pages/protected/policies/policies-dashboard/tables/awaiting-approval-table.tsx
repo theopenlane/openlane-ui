@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
-import { type ColumnDef } from '@tanstack/table-core'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'

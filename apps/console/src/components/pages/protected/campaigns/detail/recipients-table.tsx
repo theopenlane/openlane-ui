@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'

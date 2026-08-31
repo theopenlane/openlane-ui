@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type ColumnDef, type VisibilityState, type Row } from '@tanstack/react-table'
+import { type ColumnDef, type VisibilityState, type Row } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { type TFile } from '@/components/shared/file-table/columns'

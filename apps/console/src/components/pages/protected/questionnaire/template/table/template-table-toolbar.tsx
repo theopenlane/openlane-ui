@@ -7,7 +7,7 @@ import { useTemplateFilters } from '@/components/pages/protected/questionnaire/t
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
 import { CreateTemplateButton } from '@/components/pages/protected/questionnaire/template/create.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
-import { type VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@repo/ui/table-types'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { type TemplateWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { BulkCSVCreateTemplateDialog } from '@/components/pages/protected/questionnaire/dialog/bulk-csv-create-template-dialog'

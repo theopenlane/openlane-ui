@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { type Group, type InternalPolicy, InternalPolicyDocumentManagementMode, type User } from '@repo/codegen/src/schema.ts'
 import { type AuthorToken } from '@/lib/authors'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'

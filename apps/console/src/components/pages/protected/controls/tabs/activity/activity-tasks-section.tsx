@@ -141,7 +141,7 @@ const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ controlId, 
         filterFields={filterFields}
         onFilterChange={handleFilterChange}
       />
-      <DataTable<ActivityTaskRow, unknown>
+      <DataTable<ActivityTaskRow>
         columns={columns}
         data={(tasks ?? []) as ActivityTaskRow[]}
         loading={isLoading}

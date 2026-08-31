@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { type ScanWhereInput, type Scan, type ScanOrderField } from '@repo/codegen/src/schema'
+import { type ScanWhereInput, type ScanOrderField } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/scans/table/columns.tsx'
 import { type ScansNodeNonNull, useScansWithFilter } from '@/lib/graphql-hooks/scan'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
@@ -90,7 +90,7 @@ const TableComponent = ({
   const columns = useMemo(() => getColumns({ userMap, tokenMap, selectedItems, setSelectedItems }), [userMap, tokenMap, selectedItems, setSelectedItems])
 
   return (
-    <DataTable<ScansNodeNonNull, Scan>
+    <DataTable<ScansNodeNonNull>
       columns={columns}
       sortFields={SCANS_SORT_FIELDS}
       onSortChange={onSortChange}

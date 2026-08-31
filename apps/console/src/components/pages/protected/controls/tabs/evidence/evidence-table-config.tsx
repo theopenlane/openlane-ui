@@ -1,5 +1,5 @@
 import React from 'react'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef } from '@repo/ui/table-types'
 import { formatDateSince } from '@/utils/date'
 import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import type { FilterField } from '@/types'

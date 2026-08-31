@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dial
 import { useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { DataTable, TruncatedCell } from '@repo/ui/data-table'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useQueryClient } from '@tanstack/react-query'
 import { useGetAllGroups } from '@/lib/graphql-hooks/group'

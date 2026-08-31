@@ -11,7 +11,7 @@ import { PROCEDURES_SORTABLE_FIELDS } from '@/components/pages/protected/procedu
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useProcedures } from '@/lib/graphql-hooks/procedure'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type RowData, type VisibilityState } from '@repo/ui/table-types'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
@@ -115,7 +115,7 @@ export const ProceduresTable = () => {
     router.push(`/procedures/create`)
   }
 
-  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+  function isVisibleColumn<T extends RowData>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 

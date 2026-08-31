@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { type SubscribersNode } from '@/lib/graphql-hooks/subscriber'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'

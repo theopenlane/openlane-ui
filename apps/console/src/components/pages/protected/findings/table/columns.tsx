@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { type FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'

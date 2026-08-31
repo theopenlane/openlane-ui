@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { Share2 } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'

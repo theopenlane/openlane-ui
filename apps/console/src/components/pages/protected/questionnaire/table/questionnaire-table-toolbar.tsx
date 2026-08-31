@@ -7,7 +7,7 @@ import { getQuestionnaireFilterFields } from '@/components/pages/protected/quest
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
 import { CreateDropdown } from '@/components/pages/protected/questionnaire/create.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
-import { type VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@repo/ui/table-types'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { type AssessmentWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { BulkCSVCreateTemplateDialog } from '../dialog/bulk-csv-create-template-dialog'

@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialo
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Callout } from '@/components/shared/callout/callout'
 import { TriangleAlert } from 'lucide-react'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useGetApiTokens, useGetPersonalAccessTokens } from '@/lib/graphql-hooks/tokens'
 import TokensTableToolbar from '@/components/pages/protected/developers/table/personal-access-tokens-table-toolbar.tsx'

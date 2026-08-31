@@ -5,7 +5,7 @@ import { type TOrgMembers, useTaskStore } from '@/components/pages/protected/tas
 import { ExportExportFormat, ExportExportType, OrderDirection, TaskOrderField, type TaskWhereInput } from '@repo/codegen/src/schema'
 import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type RowData, type VisibilityState } from '@repo/ui/table-types'
 import TaskBoard from '@/components/pages/protected/tasks/board/task-board'
 import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -146,7 +146,7 @@ const TasksPage: React.FC = () => {
       meta: column.meta,
     }))
 
-  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+  function isVisibleColumn<T extends RowData>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 

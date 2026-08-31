@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { DataTable } from '@repo/ui/data-table'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { GroupMembershipRole, type User } from '@repo/codegen/src/schema'

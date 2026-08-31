@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { type EntityWhereInput, type Entity, type EntityOrderField } from '@repo/codegen/src/schema'
+import { type EntityWhereInput, type EntityOrderField } from '@repo/codegen/src/schema'
 import { type EntitiesNodeNonNull, useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -102,7 +102,7 @@ const TableComponent = ({
 
   return (
     <>
-      <DataTable<EntitiesNodeNonNull, Entity>
+      <DataTable<EntitiesNodeNonNull>
         columns={columns}
         sortFields={VENDORS_SORT_FIELDS}
         onSortChange={onSortChange}

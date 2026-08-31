@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { type FindingWhereInput, type Finding, type FindingOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { type FindingWhereInput, type FindingOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/findings/table/columns.tsx'
 import { type FindingsNodeNonNull, useFindingsWithFilter } from '@/lib/graphql-hooks/finding'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
@@ -157,7 +157,7 @@ const TableComponent = ({
 
   return (
     <>
-      <DataTable<FindingsNodeNonNull, Finding>
+      <DataTable<FindingsNodeNonNull>
         columns={columns}
         sortFields={FINDINGS_SORT_FIELDS}
         onSortChange={onSortChange}

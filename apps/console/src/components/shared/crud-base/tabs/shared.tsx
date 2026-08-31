@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { LoaderCircle, SearchIcon } from 'lucide-react'

@@ -12,7 +12,7 @@ import { fileDownload } from '@/components/shared/lib/export'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import type { Row } from '@tanstack/react-table'
+import type { Row } from '@repo/ui/table-types'
 import type { FileOrderField } from '@repo/codegen/src/schema'
 import type { TableKeyValue } from '@repo/ui/table-key'
 

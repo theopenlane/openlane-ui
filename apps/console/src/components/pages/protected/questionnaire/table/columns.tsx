@@ -1,4 +1,4 @@
-import { type ColumnDef, type Row } from '@tanstack/react-table'
+import { type ColumnDef, type Row } from '@repo/ui/table-types'
 import { type Assessment, type User, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { type AuthorToken } from '@/lib/authors'
 import { formatDate, formatTimeSince } from '@/utils/date'

@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { type AssetWhereInput, type Asset, type AssetOrderField } from '@repo/codegen/src/schema'
+import { type AssetWhereInput, type AssetOrderField } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/assets/table/columns.tsx'
 import { type AssetsNodeNonNull, useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
@@ -106,7 +106,7 @@ const TableComponent = ({
 
   return (
     <>
-      <DataTable<AssetsNodeNonNull, Asset>
+      <DataTable<AssetsNodeNonNull>
         columns={columns}
         sortFields={ASSETS_SORT_FIELDS}
         onSortChange={onSortChange}

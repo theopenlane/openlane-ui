@@ -1,26 +1,24 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { flexRender, useTable } from '@tanstack/react-table'
 import {
-  Column,
-  ColumnDef,
-  ColumnFiltersState,
-  ColumnResizeDirection,
-  ColumnResizeMode,
-  ColumnSizingState,
-  flexRender,
-  getCoreRowModel,
-  getExpandedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  Header,
-  OnChangeFn,
-  Row,
-  Table as TanstackTable,
-  useReactTable,
-  VisibilityState,
-} from '@tanstack/react-table'
+  tableFeatureSet,
+  type CellData,
+  type Column,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type ColumnResizeDirection,
+  type ColumnResizeMode,
+  type ColumnSizingState,
+  type Header,
+  type OnChangeFn,
+  type TableFeatureSet,
+  type Row,
+  type RowData,
+  type Table as TanstackTable,
+  type VisibilityState,
+} from './table-types'
 
 import {
   DndContext,
@@ -54,13 +52,13 @@ import { cn } from '../../lib/utils'
 import { TableKeyValue } from '../data-table/table-key.ts'
 export { TruncatedCell } from './truncated-cell'
 
-type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
+type CustomColumnDef<TData extends RowData> = ColumnDef<TData> & {
   meta?: {
     className?: string
   }
 }
 
-export type RowDragDropConfig<TData> = {
+export type RowDragDropConfig<TData extends RowData> = {
   getRowId: (row: TData) => string
   getRowLabel: (row: TData) => string
   onDrop: (source: TData, target: TData) => void
@@ -86,13 +84,13 @@ class TableDragSensor extends PointerSensor {
   }
 }
 
-type RowDragPayload<TData> = { type: typeof ROW_DRAG_TYPE; row: TData }
+type RowDragPayload<TData extends RowData> = { type: typeof ROW_DRAG_TYPE; row: TData }
 
-type RowDragData<TData> = RowDragPayload<TData> | Record<string, unknown> | null | undefined
+type RowDragData<TData extends RowData> = RowDragPayload<TData> | Record<string, unknown> | null | undefined
 
-const isRowDragPayload = <TData,>(data: RowDragData<TData>): data is RowDragPayload<TData> => !!data && data.type === ROW_DRAG_TYPE && 'row' in data
+const isRowDragPayload = <TData extends RowData>(data: RowDragData<TData>): data is RowDragPayload<TData> => !!data && data.type === ROW_DRAG_TYPE && 'row' in data
 
-const readRowPayload = <TData,>(data: RowDragData<TData>): TData | null => (isRowDragPayload<TData>(data) ? data.row : null)
+const readRowPayload = <TData extends RowData>(data: RowDragData<TData>): TData | null => (isRowDragPayload<TData>(data) ? data.row : null)
 
 const tableCollisionDetection: CollisionDetection = (args) => {
   if (!isRowDragId(args.active.id)) {
@@ -103,8 +101,8 @@ const tableCollisionDetection: CollisionDetection = (args) => {
 
 type TStickyOption = { stickyHeader: true; stickyDialogHeader?: false } | { stickyHeader?: false; stickyDialogHeader: true } | { stickyHeader?: false; stickyDialogHeader?: false }
 
-interface BaseDataTableProps<TData, TValue> {
-  columns: CustomColumnDef<TData, TValue>[]
+interface BaseDataTableProps<TData extends RowData> {
+  columns: CustomColumnDef<TData>[]
   loading?: boolean
   data: TData[]
   showFilter?: boolean
@@ -128,7 +126,7 @@ interface BaseDataTableProps<TData, TValue> {
   rowDragDrop?: RowDragDropConfig<TData>
 }
 
-type DataTableProps<TData, TValue> = BaseDataTableProps<TData, TValue> & TStickyOption
+type DataTableProps<TData extends RowData> = BaseDataTableProps<TData> & TStickyOption
 
 export const STORAGE_COLUMN_ORDER_KEY_PREFIX = 'column-order:'
 export type SortCondition<TField extends string> = {
@@ -151,7 +149,7 @@ export function getInitialColumnOrder(tableKey: TableKeyValue): string[] {
 const normalizeKey = (key: string) => key.replace(/_/g, '').toLowerCase()
 const cssVarKey = (id: string) => id.replace(/[^a-zA-Z0-9_-]/g, '')
 
-const resolveColumnId = <TData, TValue>(col: CustomColumnDef<TData, TValue>): string => {
+const resolveColumnId = <TData extends RowData>(col: CustomColumnDef<TData>): string => {
   if (col.id) return col.id
   const accessorKey = 'accessorKey' in col && typeof col.accessorKey === 'string' ? col.accessorKey : undefined
   if (accessorKey) return accessorKey.replace(/\./g, '_')
@@ -229,7 +227,7 @@ function calcHeaderTextMinSize(header: unknown, hasSortField: boolean): number |
 
 const NON_REORDERABLE_COLUMNS = new Set(['select'])
 
-interface SortableHeaderCellProps<TData> {
+interface SortableHeaderCellProps<TData extends RowData> {
   header: Header<TData, unknown>
   sortField: { key: string; label: string } | undefined
   sorting: OrderDirection | undefined
@@ -237,7 +235,7 @@ interface SortableHeaderCellProps<TData> {
   isLastHeader: boolean
 }
 
-function SortableHeaderCell<TData>({ header, sortField, sorting, handleSortChange, isLastHeader }: SortableHeaderCellProps<TData>) {
+function SortableHeaderCell<TData extends RowData>({ header, sortField, sorting, handleSortChange, isLastHeader }: SortableHeaderCellProps<TData>) {
   const isDragDisabled = NON_REORDERABLE_COLUMNS.has(header.column.id)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: header.column.id, disabled: isDragDisabled })
   const columnCssKey = cssVarKey(header.column.id)
@@ -313,7 +311,7 @@ function SortableHeaderCell<TData>({ header, sortField, sorting, handleSortChang
   )
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends RowData>({
   columns,
   loading = false,
   data,
@@ -338,7 +336,7 @@ export function DataTable<TData, TValue>({
   stickyDialogHeader = false,
   renderExpandedRow,
   rowDragDrop,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
   const [columnOrder, setColumnOrder] = useState<string[]>(() => (tableKey ? getInitialColumnOrder(tableKey) : []))
@@ -465,15 +463,11 @@ export function DataTable<TData, TValue>({
     [fixedMaxColumns, getVisibleColumnInfos],
   )
 
-  const table = useReactTable({
+  const table = useTable<TableFeatureSet, TData>({
+    features: tableFeatureSet,
     data,
     columns: enhancedColumns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    ...(renderExpandedRow ? { getExpandedRowModel: getExpandedRowModel() } : {}),
     onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     onColumnSizingChange: handleColumnSizingChange,
@@ -545,7 +539,7 @@ export function DataTable<TData, TValue>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerWidth, columnVisibility])
 
-  const columnSizingInfo = table.getState().columnSizingInfo
+  const columnSizingInfo = table.state.columnResizing
 
   const columnSizeVars = useMemo(() => {
     const vars: Record<string, string> = {}
@@ -753,20 +747,20 @@ export function DataTable<TData, TValue>({
   )
 }
 
-interface NoDataProps<TData, TValue> {
+interface NoDataProps<TData extends RowData> {
   loading: boolean
-  columns: Column<TData, TValue>[]
+  columns: Column<TData>[]
   noDataMarkup?: React.ReactElement
   noResultsText: string
 }
 
-type DataRowProps<TData, TValue> = {
+type DataRowProps<TData extends RowData> = {
   row: Row<TData>
   isExpanded?: boolean
   onRowClick?: (rowData: TData) => void
   rowHref?: (rowData: TData) => string
   cssVarKey: (id: string) => string
-  columns: ColumnDef<TData, TValue>[]
+  columns: readonly ColumnDef<TData>[]
   renderExpandedRow?: (row: Row<TData>) => React.ReactNode
   rowDragDrop?: RowDragDropConfig<TData>
 }
@@ -778,9 +772,9 @@ type RowDragState = {
   isOver: boolean
 }
 
-type DataRowContentProps<TData, TValue> = DataRowProps<TData, TValue> & { dragState?: RowDragState }
+type DataRowContentProps<TData extends RowData> = DataRowProps<TData> & { dragState?: RowDragState }
 
-const DataRowContent = memo(function DataRowContent<TData, TValue>({ row, isExpanded = false, onRowClick, rowHref, cssVarKey, renderExpandedRow, dragState }: DataRowContentProps<TData, TValue>) {
+const DataRowContent = memo(function DataRowContent<TData extends RowData>({ row, isExpanded = false, onRowClick, rowHref, cssVarKey, renderExpandedRow, dragState }: DataRowContentProps<TData>) {
   const router = useRouter()
   const href = rowHref?.(row.original)
   const isClickable = !!(onRowClick || href)
@@ -840,7 +834,7 @@ const DataRowContent = memo(function DataRowContent<TData, TValue>({ row, isExpa
             <TableCell
               variant="data"
               key={cell.id}
-              className={cn('truncate', (cell.column.columnDef.meta as CustomColumnDef<TData, TValue>['meta'])?.className)}
+              className={cn('truncate', (cell.column.columnDef.meta as CustomColumnDef<TData>['meta'])?.className)}
               style={{ width: widthVar, minWidth: widthVar, maxWidth: widthVar }}
             >
               {content}
@@ -857,9 +851,9 @@ const DataRowContent = memo(function DataRowContent<TData, TValue>({ row, isExpa
       )}
     </>
   )
-}) as <TData, TValue>(props: DataRowContentProps<TData, TValue>) => React.ReactElement
+}) as <TData extends RowData>(props: DataRowContentProps<TData>) => React.ReactElement
 
-const DraggableDataRow = <TData, TValue>({ rowDragDrop, ...props }: DataRowProps<TData, TValue> & { rowDragDrop: RowDragDropConfig<TData> }) => {
+const DraggableDataRow = <TData extends RowData>({ rowDragDrop, ...props }: DataRowProps<TData> & { rowDragDrop: RowDragDropConfig<TData> }) => {
   const record = props.row.original
   const dragId = `${ROW_DRAG_ID_PREFIX}${rowDragDrop.getRowId(record)}`
   const payload = useMemo(() => ({ type: ROW_DRAG_TYPE, row: record }), [record])
@@ -888,12 +882,12 @@ const DraggableDataRow = <TData, TValue>({ rowDragDrop, ...props }: DataRowProps
   return <DataRowContent {...props} dragState={dragState} />
 }
 
-const DataRow = memo(function DataRow<TData, TValue>({ rowDragDrop, ...props }: DataRowProps<TData, TValue>) {
+const DataRow = memo(function DataRow<TData extends RowData>({ rowDragDrop, ...props }: DataRowProps<TData>) {
   if (!rowDragDrop) return <DataRowContent {...props} />
   return <DraggableDataRow {...props} rowDragDrop={rowDragDrop} />
-}) as <TData, TValue>(props: DataRowProps<TData, TValue>) => React.ReactElement
+}) as <TData extends RowData>(props: DataRowProps<TData>) => React.ReactElement
 
-const NoData = <TData, TValue>({ loading, columns, noDataMarkup, noResultsText }: NoDataProps<TData, TValue>) => {
+const NoData = <TData extends RowData>({ loading, columns, noDataMarkup, noResultsText }: NoDataProps<TData>) => {
   const visibleCols = columns.filter((col) => col.getIsVisible())
 
   if (loading) {
@@ -921,7 +915,7 @@ const NoData = <TData, TValue>({ loading, columns, noDataMarkup, noResultsText }
   )
 }
 
-interface DataTableBodyContentProps<TData> {
+interface DataTableBodyContentProps<TData extends RowData> {
   table: TanstackTable<TData>
   onRowClick?: (rowData: TData) => void
   rowHref?: (rowData: TData) => string
@@ -932,8 +926,8 @@ interface DataTableBodyContentProps<TData> {
   rowDragDrop?: RowDragDropConfig<TData>
 }
 
-function DataTableBodyContent<TData>({ table, onRowClick, rowHref, loading, noDataMarkup, noResultsText, renderExpandedRow, rowDragDrop }: DataTableBodyContentProps<TData>) {
-  const columnOrderKey = table.getState().columnOrder.join(',')
+function DataTableBodyContent<TData extends RowData>({ table, onRowClick, rowHref, loading, noDataMarkup, noResultsText, renderExpandedRow, rowDragDrop }: DataTableBodyContentProps<TData>) {
+  const columnOrderKey = table.state.columnOrder.join(',')
   return (
     <TableBody variant="data">
       {table.getRowModel().rows?.length ? (
@@ -962,7 +956,7 @@ function DataTableBodyContent<TData>({ table, onRowClick, rowHref, loading, noDa
 const MemoizedDataTableBody = memo(DataTableBodyContent, (prev, next) => {
   return (
     prev.table.options.data === next.table.options.data &&
-    prev.table.getState().columnOrder === next.table.getState().columnOrder &&
+    prev.table.state.columnOrder === next.table.state.columnOrder &&
     prev.renderExpandedRow === next.renderExpandedRow &&
     prev.rowDragDrop === next.rowDragDrop
   )

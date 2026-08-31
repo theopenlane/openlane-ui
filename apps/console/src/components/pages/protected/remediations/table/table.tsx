@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { type RemediationWhereInput, type Remediation, type RemediationOrderField } from '@repo/codegen/src/schema'
+import { type RemediationWhereInput, type RemediationOrderField } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/remediations/table/columns.tsx'
 import { type RemediationsNodeNonNull, useRemediationsWithFilter } from '@/lib/graphql-hooks/remediation'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
@@ -89,7 +89,7 @@ const TableComponent = ({
   const columns = useMemo(() => getColumns({ userMap, tokenMap, selectedItems, setSelectedItems }), [userMap, tokenMap, selectedItems, setSelectedItems])
 
   return (
-    <DataTable<RemediationsNodeNonNull, Remediation>
+    <DataTable<RemediationsNodeNonNull>
       columns={columns}
       sortFields={REMEDIATIONS_SORT_FIELDS}
       onSortChange={onSortChange}

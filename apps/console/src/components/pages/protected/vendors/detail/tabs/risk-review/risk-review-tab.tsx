@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Card, CardContent } from '@repo/ui/cardpanel'

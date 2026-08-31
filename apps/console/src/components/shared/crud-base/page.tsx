@@ -5,7 +5,7 @@ import { ExportExportFormat, type ExportExportType, OrderDirection } from '@repo
 import { type ZodObject, type ZodRawShape } from 'zod'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type VisibilityState } from '@repo/ui/table-types'
 import { useDebounce } from '@uidotdev/usehooks'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { canEdit } from '@/lib/authz/utils.ts'

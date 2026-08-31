@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { Button } from '@repo/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Play, ArrowRight, Eye, MessageSquare } from 'lucide-react'

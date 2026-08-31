@@ -1,10 +1,10 @@
 import { type GetAllGroupsQuery } from '@repo/codegen/src/schema'
 import { Checkbox } from '@repo/ui/checkbox'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 
 type GroupEdge = NonNullable<NonNullable<GetAllGroupsQuery['groups']>['edges']>[number]
 
-export type Group = NonNullable<GroupEdge>['node']
+export type Group = NonNullable<NonNullable<GroupEdge>['node']>
 
 export const useGroupSelectionColumns = (selectedGroupIds: string[], setSelectedGroupIds: (ids: string[]) => void, allGroupIds: string[]): ColumnDef<Group>[] => [
   {

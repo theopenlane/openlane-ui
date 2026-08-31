@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from 'react'
 import { DataTable } from '@repo/ui/data-table'
-import { type SystemDetail, type SystemDetailOrderField, type SystemDetailWhereInput } from '@repo/codegen/src/schema'
+import { type SystemDetailOrderField, type SystemDetailWhereInput } from '@repo/codegen/src/schema'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { type SystemDetailsNodeNonNull, useSystemDetailsWithFilter } from '@/lib/graphql-hooks/system-detail'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
@@ -100,7 +100,7 @@ const TableComponent = ({
   const columns = useMemo(() => getColumns({ userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems }), [userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems])
 
   return (
-    <DataTable<SystemDetailsNodeNonNull, SystemDetail>
+    <DataTable<SystemDetailsNodeNonNull>
       columns={columns}
       sortFields={SYSTEM_DETAILS_SORT_FIELDS}
       onSortChange={onSortChange}

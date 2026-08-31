@@ -1,6 +1,6 @@
 'use client'
 
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@repo/ui/table-types'
 import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
 import { Building2, Calendar, CheckCheck, Mail, XIcon } from 'lucide-react'
