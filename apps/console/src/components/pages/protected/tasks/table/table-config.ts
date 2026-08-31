@@ -6,6 +6,7 @@ import { type TOrgMembers } from '../hooks/useTaskStore'
 import { TaskFilterIcons } from '@/components/shared/enum-mapper/task-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
+import { TASK_TERMINAL_STATUSES } from '@/lib/suggested-tasks/types'
 
 export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: { value: string; label: string }[], taskKindOptions: { value: string; label: string }[], hasProgramAccess: boolean) =>
   defineFilterFields<TaskWhereInput>()([
@@ -65,7 +66,7 @@ export const getTaskQuickFilters = (userId: string | undefined, showMyTasks: boo
     label: 'Completed',
     key: 'completed',
     type: 'custom',
-    getCondition: () => ({ statusIn: [TaskTaskStatus.COMPLETED] }),
+    getCondition: () => ({ statusIn: TASK_TERMINAL_STATUSES }),
     isActive: false,
   },
   {
@@ -86,7 +87,7 @@ export const getTaskQuickFilters = (userId: string | undefined, showMyTasks: boo
     label: 'Overdue',
     key: 'overdue',
     type: 'custom',
-    getCondition: () => ({ dueLT: toDayStartIso(new Date()) }),
+    getCondition: () => ({ dueLT: toDayStartIso(new Date()), statusNotIn: TASK_TERMINAL_STATUSES }),
     isActive: false,
   },
   {
@@ -99,6 +100,7 @@ export const getTaskQuickFilters = (userId: string | undefined, showMyTasks: boo
       return {
         dueGTE: toDayStartIso(start),
         dueLT: toDayStartIso(addDays(end, 1)),
+        statusNotIn: TASK_TERMINAL_STATUSES,
       }
     },
     isActive: false,
