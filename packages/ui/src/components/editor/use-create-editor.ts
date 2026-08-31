@@ -41,6 +41,7 @@ import { BasicFloatingToolbarKit } from '@repo/ui/components/editor/plugins/basi
 import { MinimalisticFixedToolbarKit } from '@repo/ui/components/editor/plugins/minimalistic-fixed-toolbar-kit.tsx'
 import { MinimalisticFloatingToolbarKit } from '@repo/ui/components/editor/plugins/minimalistic-floating-toolbar-kit.tsx'
 import { createReadOnlyToolbarKit } from './plugins/read-only-toolbar-kit.tsx'
+import { ReadOnlyFloatingToolbarKit } from './plugins/read-only-floating-toolbar-kit.tsx'
 import { DocxExportKit } from './plugins/docx-export-kit.tsx'
 import { PdfExportKit } from './plugins/pdf-export-kit.tsx'
 
@@ -115,5 +116,5 @@ export const EditorKitVariant = {
   basic: (_options?: EditorKitOptions) => BasicKit,
   standard: (_options?: EditorKitOptions) => AdvancedKit,
   advanced: (_options?: EditorKitOptions) => AdvancedKit,
-  readonly: (options?: EditorKitOptions) => [...EditorKit, ...createReadOnlyToolbarKit({ title: options?.title ?? 'Document', className: options?.toolbarClassName })],
+  readonly: (options?: EditorKitOptions) => [...EditorKit, ...createReadOnlyToolbarKit({ title: options?.title ?? 'Document', className: options?.toolbarClassName }), ...ReadOnlyFloatingToolbarKit],
 }
