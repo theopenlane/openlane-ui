@@ -225,7 +225,7 @@ const DomainSettingsPage = () => {
             <Button
               onClick={handleCreateCustomDomain}
               variant="secondary"
-              className="flex items-center justify-center gap-2 px-4"
+              className="h-10 flex items-center justify-center gap-2 px-4"
               icon={<Save size={16} />}
               iconPosition="left"
               disabled={isBlockedDomain(inputValue)}
@@ -246,30 +246,30 @@ const DomainSettingsPage = () => {
               <Button
                 onClick={handleUpdateCustomDomain}
                 variant="secondary"
-                className=" flex items-center justify-center gap-2 px-4"
+                className="h-10 flex items-center justify-center gap-2 px-4"
                 icon={<Save size={16} />}
                 iconPosition="left"
                 disabled={isBlockedDomain(inputValue)}
               >
                 Save
               </Button>
-              <Button onClick={handleCancel} variant="secondary" className=" flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
+              <Button onClick={handleCancel} variant="secondary" className="h-10 flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
                 Cancel
               </Button>
             </div>
           ) : (
             <div className="flex gap-2">
               {canEditTc && (
-                <Button variant="secondary" className=" flex items-center justify-center gap-2 px-4" icon={<Pencil size={16} />} iconPosition="left" onClick={() => setEditing(true)}>
+                <Button variant="secondary" className="h-10 flex items-center justify-center gap-2 px-4" icon={<Pencil size={16} />} iconPosition="left" onClick={() => setEditing(true)}>
                   Edit
                 </Button>
               )}
-              {canEditTc && <Button onClick={handleDeleteCustomDomain} variant="secondary" className=" flex items-center justify-center" icon={<Trash2 size={14} />} iconPosition="center" />}
+              {canEditTc && <Button onClick={handleDeleteCustomDomain} variant="secondary" className="h-10 flex items-center justify-center" icon={<Trash2 size={14} />} iconPosition="center" />}
               {dnsVerification?.dnsVerificationStatus && (
                 <>
-                  <Button onClick={handleCopyDefaultCname} variant="secondary" className="flex items-center justify-center  gap-1" icon={<Copy size={14} />} iconPosition="left"></Button>
+                  <Button onClick={handleCopyDefaultCname} variant="secondary" className="h-10 flex items-center justify-center gap-1" icon={<Copy size={14} />} iconPosition="left"></Button>
                   <a href={normalizeUrl(trustCenter.customDomain?.cnameRecord) ?? undefined} rel={'noreferrer'} target="_blank">
-                    <Button variant="secondary" className="flex items-center justify-center  gap-1" icon={<ExternalLink size={14} />} iconPosition="left"></Button>
+                    <Button variant="secondary" className="h-10 flex items-center justify-center gap-1" icon={<ExternalLink size={14} />} iconPosition="left"></Button>
                   </a>
                 </>
               )}

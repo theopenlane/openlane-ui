@@ -4,6 +4,7 @@ import React from 'react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { type ControlListStandardFieldsFragment } from '@repo/codegen/src/schema'
 import { type ColumnDef } from '@tanstack/react-table'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 type ControlSelection = { id: string; refCode: string }
 
@@ -58,27 +59,31 @@ export const getColumns = ({
       },
       size: 50,
       maxSize: 50,
-      meta: {
-        className: 'max-w-[2%] w-[2%]',
-      },
       enableResizing: false,
     },
     {
       accessorKey: 'refCode',
       header: 'Ref Code',
-      cell: ({ row }) => <div className="font-bold">{row.getValue('refCode')}</div>,
-      size: 90,
-      minSize: 90,
-      meta: {
-        className: 'max-w-[5%] w-[5%]',
-      },
+      cell: ({ row }) => (
+        <TruncatedCell portal className="font-bold">
+          {row.getValue('refCode')}
+        </TruncatedCell>
+      ),
+      size: 160,
+      maxSize: 260,
     },
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string, 0) || '',
-      meta: {
-        className: 'max-w-[50%] w-[50%]',
+      cell: ({ cell }) => {
+        const value = cell.getValue<string | null>()
+        if (!value) return '-'
+        const description = convertToReadOnly(value, 0)
+        return (
+          <TruncatedCell portal lineClamp={2} tooltipContent={description}>
+            {description}
+          </TruncatedCell>
+        )
       },
     },
   ]
@@ -88,9 +93,8 @@ export const getColumns = ({
       accessorKey: 'subcontrols.totalCount',
       header: '# of Subcontrols',
       cell: (info) => info.row.original.subcontrols.totalCount,
-      meta: {
-        className: 'max-w-[5%] w-[5%]',
-      },
+      size: 190,
+      maxSize: 260,
     })
   }
 

@@ -78,7 +78,6 @@ export enum AdditionalTableKeyEnum {
   CONTROL_RISKS = 'control-risks',
   CONTROL_REVIEWS = 'control-reviews',
   EXPOSURE_ATTENTION = 'exposure-attention',
-  VENDOR_CONTRACT = 'vendor-contract',
   VENDOR_CONTACTS = 'vendor-contacts',
   CAMPAIGN_RUNS = 'campaign-runs',
   CAMPAIGN_RECIPIENTS = 'campaign-recipients',

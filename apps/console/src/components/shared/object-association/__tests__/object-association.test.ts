@@ -1,5 +1,13 @@
-import { getAssociationDiffs, buildMutationKey, getAssociationInput, buildAssociationPayload } from '../utils'
+import { getAssociationDiffs, buildMutationKey, getAssociationInput, buildAssociationPayload, getEdgeValues, getEdgeIds, getEdgeNames, getEdgeNodes } from '../utils'
 import {
+  buildAssociationSections,
+  CONTROL_ASSOCIATION_SECTIONS,
+  SUBCONTROL_ASSOCIATION_SECTIONS,
+  POLICY_ASSOCIATION_SECTIONS,
+  PROCEDURE_ASSOCIATION_SECTIONS,
+  RISK_ASSOCIATION_SECTIONS,
+  ENTITY_ASSOCIATION_SECTIONS,
+  IDENTITY_HOLDER_ASSOCIATION_SECTIONS,
   ObjectTypeObjects,
   OBJECT_QUERY_CONFIG,
   ASSOCIATION_SECTION_CONFIG,
@@ -11,9 +19,6 @@ import {
   toRemoveFieldName,
 } from '../object-association-config'
 
-// ---------------------------------------------------------------------------
-// Suite 1: getAssociationDiffs
-// ---------------------------------------------------------------------------
 describe('getAssociationDiffs', () => {
   it('returns empty added/removed when there are no changes', () => {
     const map = { taskIDs: ['1', '2'] }
@@ -87,9 +92,6 @@ describe('getAssociationDiffs', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Suite 2: buildMutationKey
-// ---------------------------------------------------------------------------
 describe('buildMutationKey', () => {
   it('builds add key for taskIDs', () => {
     expect(buildMutationKey('add', 'taskIDs')).toBe('addTaskIDs')
@@ -108,9 +110,6 @@ describe('buildMutationKey', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Suite 3: getAssociationInput
-// ---------------------------------------------------------------------------
 describe('getAssociationInput', () => {
   it('returns empty object when there are no changes', () => {
     const map = { taskIDs: ['1'] }
@@ -148,9 +147,6 @@ describe('getAssociationInput', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Suite 4: buildAssociationPayload
-// ---------------------------------------------------------------------------
 describe('buildAssociationPayload', () => {
   const keys = ['taskIDs', 'riskIDs'] as const
 
@@ -188,9 +184,6 @@ describe('buildAssociationPayload', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Suite 5: generateWhere
-// ---------------------------------------------------------------------------
 describe('generateWhere', () => {
   const ownerID = 'org-123'
 
@@ -258,9 +251,6 @@ describe('generateWhere', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Suite 6: extractTableRows
-// ---------------------------------------------------------------------------
 describe('extractTableRows', () => {
   it('handles every responseObjectKey (no type returns empty due to missing case)', () => {
     const allObjectKeys = Object.values(OBJECT_QUERY_CONFIG).map((c) => c.responseObjectKey)
@@ -352,9 +342,6 @@ describe('extractTableRows', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Suite 7: Config integrity
-// ---------------------------------------------------------------------------
 describe('Config integrity', () => {
   it('every ObjectTypeObjects has an OBJECT_QUERY_CONFIG entry', () => {
     for (const objectType of Object.values(ObjectTypeObjects)) {
@@ -410,9 +397,6 @@ describe('Config integrity', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Suite 8: toRemoveFieldName
-// ---------------------------------------------------------------------------
 describe('toRemoveFieldName', () => {
   it('converts controlIDs to removeControlIDs', () => {
     expect(toRemoveFieldName('controlIDs')).toBe('removeControlIDs')
@@ -420,5 +404,114 @@ describe('toRemoveFieldName', () => {
 
   it('converts internalPolicyIDs to removeInternalPolicyIDs', () => {
     expect(toRemoveFieldName('internalPolicyIDs')).toBe('removeInternalPolicyIDs')
+  })
+})
+
+/**
+ * These helpers flatten a GraphQL edge list into a chip cell, and must survive the shapes the API actually
+ * returns: a null connection, null edges inside it, and nodes missing the field entirely.
+ */
+describe('getEdgeValues', () => {
+  it('maps each node to the requested field', () => {
+    expect(getEdgeValues([{ node: { name: 'AWS' } }, { node: { name: 'GCP' } }], 'name')).toEqual(['AWS', 'GCP'])
+  })
+
+  it('returns an empty array for a null or undefined connection', () => {
+    expect(getEdgeValues(null, 'name')).toEqual([])
+    expect(getEdgeValues(undefined, 'name')).toEqual([])
+  })
+
+  it('skips null edges and null nodes', () => {
+    expect(getEdgeValues([null, { node: null }, { node: { name: 'AWS' } }], 'name')).toEqual(['AWS'])
+  })
+
+  it('skips nodes where the field is null or missing', () => {
+    expect(getEdgeValues([{ node: { name: null } }, { node: {} }, { node: { name: 'AWS' } }], 'name')).toEqual(['AWS'])
+  })
+})
+
+describe('typed edge accessors', () => {
+  it('extracts ids', () => {
+    expect(getEdgeIds([{ node: { id: 'a' } }, { node: { id: null } }, { node: { id: 'b' } }])).toEqual(['a', 'b'])
+  })
+
+  it('extracts names', () => {
+    expect(getEdgeNames([{ node: { name: 'Platform A' } }])).toEqual(['Platform A'])
+  })
+
+  it('unwraps whole nodes, dropping null edges and null nodes', () => {
+    expect(getEdgeNodes([{ node: { id: 'a' } }, null, { node: null }, { node: { id: 'b' } }])).toEqual([{ id: 'a' }, { id: 'b' }])
+  })
+
+  it('returns an empty array when the connection is absent', () => {
+    expect(getEdgeIds(null)).toEqual([])
+    expect(getEdgeNames(undefined)).toEqual([])
+    expect(getEdgeNodes(null)).toEqual([])
+  })
+})
+
+/**
+ * buildAssociationSections maps a section-key list onto whichever connections the query returned. A missing
+ * connection is omitted rather than emitted empty, since a rendered-but-empty accordion reads as "no
+ * associations" when the truth is "not queried".
+ */
+describe('buildAssociationSections', () => {
+  const connection = (count: number) => ({ totalCount: count, edges: [] })
+
+  it('maps requested section keys onto the connections present on the root', () => {
+    const sections = buildAssociationSections(['controls', 'tasks'], {
+      controls: connection(2),
+      tasks: connection(1),
+    } as Parameters<typeof buildAssociationSections>[1])
+
+    expect(Object.keys(sections).sort()).toEqual(['controls', 'tasks'])
+  })
+
+  it('omits a section whose connection is absent or null', () => {
+    const sections = buildAssociationSections(['controls', 'tasks'], {
+      controls: connection(2),
+      tasks: null,
+    } as Parameters<typeof buildAssociationSections>[1])
+
+    expect(Object.keys(sections)).toEqual(['controls'])
+  })
+
+  it('ignores connections the caller did not ask for', () => {
+    const sections = buildAssociationSections(['controls'], {
+      controls: connection(1),
+      tasks: connection(5),
+    } as Parameters<typeof buildAssociationSections>[1])
+
+    expect(Object.keys(sections)).toEqual(['controls'])
+  })
+
+  it('returns an empty object for an undefined root', () => {
+    expect(buildAssociationSections(['controls'], undefined)).toEqual({})
+  })
+
+  it('returns an empty object when no section keys are requested', () => {
+    expect(buildAssociationSections([], { controls: connection(1) } as Parameters<typeof buildAssociationSections>[1])).toEqual({})
+  })
+})
+
+describe('Section list integrity', () => {
+  const SECTION_LISTS: Record<string, readonly string[]> = {
+    CONTROL: CONTROL_ASSOCIATION_SECTIONS,
+    SUBCONTROL: SUBCONTROL_ASSOCIATION_SECTIONS,
+    POLICY: POLICY_ASSOCIATION_SECTIONS,
+    PROCEDURE: PROCEDURE_ASSOCIATION_SECTIONS,
+    RISK: RISK_ASSOCIATION_SECTIONS,
+    ENTITY: ENTITY_ASSOCIATION_SECTIONS,
+    IDENTITY_HOLDER: IDENTITY_HOLDER_ASSOCIATION_SECTIONS,
+  }
+
+  it.each(Object.entries(SECTION_LISTS))('%s sections all exist in ASSOCIATION_SECTION_CONFIG', (_name, keys) => {
+    for (const key of keys) {
+      expect(ASSOCIATION_SECTION_CONFIG).toHaveProperty(key)
+    }
+  })
+
+  it.each(Object.entries(SECTION_LISTS))('%s sections contain no duplicates', (_name, keys) => {
+    expect(new Set(keys).size).toBe(keys.length)
   })
 })

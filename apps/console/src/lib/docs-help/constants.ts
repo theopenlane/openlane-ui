@@ -11,6 +11,7 @@ export const MAX_BATCH_ITEMS = 40
 export const BATCH_CONCURRENCY = 6
 // whole-page modes must reach past the default handful of chunks
 export const DEEP_RETRIEVAL_TOP_K = 50
+export const DEFAULT_RETRIEVAL_TOP_K = 8
 
 // public representation drafting: how much of each source field reaches the model,
 // and how far a draft may run past the length of the control it describes

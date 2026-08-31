@@ -175,7 +175,7 @@ const CreatePolicyForm: React.FC = () => {
             <div className="flex justify-between items-center">
               <SaveButton disabled={isCreating} title={isCreating ? 'Creating policy' : 'Save Changes'} />
               <div className="flex items-center gap-2">
-                <Switch checked={createMultiple} onCheckedChange={setCreateMultiple} />
+                <Switch aria-label="Create another policy" checked={createMultiple} onCheckedChange={setCreateMultiple} />
                 <span>Create multiple</span>
               </div>
             </div>

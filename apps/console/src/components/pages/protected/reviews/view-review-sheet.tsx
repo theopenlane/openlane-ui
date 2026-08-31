@@ -19,9 +19,11 @@ import { REVIEW_ASSOCIATION_CONFIG } from '@/components/shared/object-associatio
 type Props = {
   entityId: string | null
   onClose: () => void
+  overrideHeader?: React.ReactNode
+  overrideContent?: React.ReactNode
 }
 
-const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose }) => {
+const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose, overrideHeader, overrideContent }) => {
   const { form } = useFormSchema()
   const { data, isLoading } = useReview(entityId || undefined)
   const { data: associationsData } = useGetReviewAssociations(entityId || undefined)
@@ -125,7 +127,7 @@ const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose }) => {
       ),
   }
 
-  return <GenericDetailsSheet onClose={onClose} {...sheetConfig} />
+  return <GenericDetailsSheet onClose={onClose} {...sheetConfig} overrideHeader={overrideHeader} overrideContent={overrideContent} />
 }
 
 export default ViewReviewSheet

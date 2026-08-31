@@ -11,9 +11,8 @@ import {
   MAX_REQUIREMENT_CHARS,
   MAX_SUGGESTION_SOURCES,
 } from '@/lib/docs-help/constants'
-import { corpusLocation, getClients, fetchGcsFile } from '@/lib/docs-help/clients'
+import { getDocsProvider } from '@/lib/docs-help/provider'
 import { dedupeBySource, extractMarkdownSection, parseChunk, parsePolicyMappingTable, rankChunks } from '@/lib/docs-help/parse'
-import { generateControlTitles, generatePublicRepresentation, summarizeChunks } from '@/lib/docs-help/ai'
 import { lookupSection } from '@/lib/docs-help/retrieval'
 import { cacheKeyOf, readSectionCache, writeSectionCache } from '@/lib/docs-help/section-cache'
 import { docsHelpStream } from '@/lib/docs-help/stream'
@@ -61,8 +60,8 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const docsClients = getClients()
-  if (!docsClients) {
+  const docs = await getDocsProvider()
+  if (!docs) {
     return NextResponse.json({ error: 'Docs help is not enabled' }, { status: 503 })
   }
 
@@ -74,21 +73,19 @@ export const POST = async (req: NextRequest) => {
   const { query, prefer, section, summarize, extractSection, policyMapping, suggestTitles, suggestPublicRepresentation, fullPageFor, batch } = parsed.data
 
   if (suggestPublicRepresentation) {
-    return NextResponse.json({ text: await generatePublicRepresentation(docsClients.genAI, suggestPublicRepresentation) })
+    return NextResponse.json({ text: await docs.publicRepresentation(suggestPublicRepresentation) })
   }
 
   if (suggestTitles) {
     if (suggestTitles.length === 0) return NextResponse.json({ titles: [] })
-    return NextResponse.json({ titles: await generateControlTitles(docsClients.genAI, suggestTitles) })
+    return NextResponse.json({ titles: await docs.controlTitles(suggestTitles) })
   }
-
-  const { parent, ragCorpus } = corpusLocation()
 
   if (batch) {
     try {
       const results = await mapWithConcurrency(batch, BATCH_CONCURRENCY, async (lookup) => ({
         key: lookup.key,
-        ...(await lookupSection(docsClients, parent, ragCorpus, lookup, section)),
+        ...(await lookupSection(docs, lookup, section)),
       }))
       return NextResponse.json({ results })
     } catch (err) {
@@ -108,28 +105,21 @@ export const POST = async (req: NextRequest) => {
 
   try {
     const wantsWholePage = !!extractSection || !!policyMapping || !!fullPageFor
-    const [ragResponse] = await docsClients.rag.retrieveContexts({
-      parent,
-      query: { text: query },
-      vertexRagStore: { ragResources: [{ ragCorpus }] },
-    })
-
-    const contexts = ragResponse.contexts?.contexts ?? []
-    const chunks = rankChunks(dedupeBySource(contexts.map((context) => context?.text)), prefer, section)
+    const contexts = await docs.retrieve(query)
+    const chunks = rankChunks(dedupeBySource(contexts.map((context) => context.text)), prefer, section)
 
     if (wantsWholePage) {
-      const gsUriBySource = new Map<string, string>()
+      const uriBySource = new Map<string, string>()
       const allChunks: DocsHelpChunk[] = []
       for (const context of contexts) {
-        if (!context?.text) continue
         const chunk = parseChunk(context.text)
         allChunks.push(chunk)
-        if (chunk.source && context.sourceUri?.startsWith('gs://')) gsUriBySource.set(chunk.source, context.sourceUri)
+        if (chunk.source && context.sourceUri) uriBySource.set(chunk.source, context.sourceUri)
       }
 
       const pageTextFor = async (source: string): Promise<string> => {
-        const gsUri = gsUriBySource.get(source)
-        const stored = gsUri ? await fetchGcsFile(docsClients.storage, gsUri) : null
+        const sourceUri = uriBySource.get(source)
+        const stored = sourceUri ? await docs.pageText(sourceUri) : null
         if (stored) return parseChunk(stored).text
         return allChunks
           .filter((chunk) => chunk.source === source)
@@ -152,7 +142,7 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ section: '', title: top.title, source: top.source })
     }
 
-    const summary = summarize ? summarizeChunks(docsClients.genAI, chunks, query, req.signal) : Promise.resolve('')
+    const summary = summarize ? docs.summarize(chunks, query, req.signal) : Promise.resolve('')
 
     return new Response(docsHelpStream(chunks, summary), {
       headers: {

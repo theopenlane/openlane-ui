@@ -9,6 +9,7 @@ import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { TruncatedCell } from '@repo/ui/data-table'
+import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 
 type Params = {
   userMap?: Record<string, User>
@@ -144,12 +145,7 @@ export const getGroupTableColumns = ({ userMap, tokenMap }: Params) => {
     },
   ]
 
-  const mappedColumns = columns
-    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
-    .map((column) => ({
-      accessorKey: column.accessorKey,
-      header: column.header,
-    }))
+  const mappedColumns = getMappedColumns(columns)
 
   return { columns, mappedColumns }
 }

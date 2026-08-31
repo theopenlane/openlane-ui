@@ -57,11 +57,6 @@ export type MergeableTypeName =
   | 'IdentityHolder'
   | 'InternalPolicy'
   | 'Invite'
-  | 'JobResult'
-  | 'JobRunner'
-  | 'JobRunnerRegistrationToken'
-  | 'JobRunnerToken'
-  | 'JobTemplate'
   | 'MappableDomain'
   | 'MappedControl'
   | 'Narrative'
@@ -82,8 +77,6 @@ export type MergeableTypeName =
   | 'Risk'
   | 'SLADefinition'
   | 'Scan'
-  | 'ScheduledJob'
-  | 'ScheduledJobRun'
   | 'Standard'
   | 'Subcontrol'
   | 'Subprocessor'
@@ -585,6 +578,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
   ],
   Evidence: [
+    { name: 'auditorReferenceID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'collectionProcedure', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'creationDate', kind: 'date', list: false, nonNull: true, listItemNonNull: false },
     { name: 'description', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
@@ -810,50 +804,6 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'sendAttempts', kind: 'number', list: false, nonNull: true, listItemNonNull: false },
     { name: 'ssoExempt', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'status', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'InviteInviteStatus' },
-  ],
-  JobResult: [
-    { name: 'fileID', kind: 'id', list: false, nonNull: true, listItemNonNull: false },
-    { name: 'log', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'ownerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'scheduledJobID', kind: 'id', list: false, nonNull: true, listItemNonNull: false },
-    { name: 'status', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'JobResultJobExecutionStatus' },
-  ],
-  JobRunner: [
-    { name: 'internalNotes', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'ipAddress', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'lastSeen', kind: 'date', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'name', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
-    { name: 'os', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'ownerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'systemInternalID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
-    { name: 'version', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-  ],
-  JobRunnerRegistrationToken: [
-    { name: 'jobRunnerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'lastUsedAt', kind: 'date', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'ownerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
-  ],
-  JobRunnerToken: [
-    { name: 'isActive', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'lastUsedAt', kind: 'date', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'ownerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'revokedAt', kind: 'date', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'revokedBy', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'revokedReason', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
-  ],
-  JobTemplate: [
-    { name: 'configuration', kind: 'json', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'cron', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'description', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'downloadURL', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
-    { name: 'internalNotes', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'ownerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'systemInternalID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
-    { name: 'title', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
   ],
   MappableDomain: [{ name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true }],
   MappedControl: [
@@ -1227,18 +1177,6 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'systemInternalID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'target', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
-  ],
-  ScheduledJob: [
-    { name: 'active', kind: 'boolean', list: false, nonNull: true, listItemNonNull: false },
-    { name: 'configuration', kind: 'json', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'cron', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'jobRunnerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
-  ],
-  ScheduledJobRun: [
-    { name: 'jobRunnerID', kind: 'id', list: false, nonNull: true, listItemNonNull: false },
-    { name: 'ownerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'scheduledJobID', kind: 'id', list: false, nonNull: true, listItemNonNull: false },
-    { name: 'status', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'ScheduledJobRunScheduledJobRunStatus' },
   ],
   Standard: [
     { name: 'description', kind: 'string', list: false, nonNull: false, listItemNonNull: false },

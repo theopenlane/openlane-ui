@@ -123,6 +123,7 @@ const AllowedDomains = () => {
               onRemove={removeDomain}
               error={inputError}
               isPending={isPending}
+              inputLabel="Allowed domain"
               addLabel="Add Domain"
             />
           </div>

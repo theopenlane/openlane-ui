@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { ChevronDown, Lightbulb } from 'lucide-react'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import { ControlControlSource } from '@repo/codegen/src/schema'
 import { useControlDocsSection } from '@/components/pages/protected/controls/example-evidence-requests'
 import { DocsMarkdown, DocsSourceLink, EvidenceExamplesDisclaimer } from '@/components/shared/docs-help/suggestion-card'
@@ -19,9 +19,9 @@ export function EvidenceDocsExamples({ control }: { control?: { id: string; refC
       }
     : undefined
 
-  const examples = useControlDocsSection(docsHelpEnabled ? docsControl : undefined, ['Example Evidence', 'Evidence Requests'])
+  const examples = useControlDocsSection(docsHelpAvailable ? docsControl : undefined, ['Example Evidence', 'Evidence Requests'])
 
-  if (!docsHelpEnabled || !examples.section || !examples.target) return null
+  if (!docsHelpAvailable || !examples.section || !examples.target) return null
   const { target } = examples
 
   return (

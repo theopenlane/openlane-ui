@@ -1,10 +1,10 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useSession } from 'next-auth/react'
 import { OPENLANE_SUPPORT_USER_ID, supportUser } from '@/constants/support'
 
-import { UPDATE_USER_ROLE_IN_ORG, REMOVE_USER_FROM_ORG, GET_ORG_MEMBERSHIPS, GET_ORG_USER_LIST } from '@repo/codegen/query/member'
+import { UPDATE_USER_ROLE_IN_ORG, REMOVE_USER_FROM_ORG, GET_ORG_MEMBERSHIPS, GET_ORG_MEMBERSHIPS_EXPORT, GET_ORG_USER_LIST } from '@repo/codegen/query/member'
 
 import {
   type UpdateUserRoleInOrgMutation,
@@ -17,9 +17,13 @@ import {
   type OrgMembership,
   type User,
   type OrgMembershipsByIdsQuery,
+  type OrgMembershipsExportQuery,
+  type OrgMembershipsExportQueryVariables,
   OrgMembershipRole,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
+import { EXPORT_PAGE_SIZE } from '@/constants/pagination'
+import { fetchAllConnectionNodes } from '@/lib/graphql-hooks/fetch-all-connection-nodes'
 
 export const useUpdateUserRoleInOrg = () => {
   const { client } = useGraphQLClient()
@@ -96,6 +100,13 @@ type TUseGetOrgUserListProps = {
   where?: OrgMembershipWhereInput
 }
 
+export const toOrgUserList = (data: OrgMembershipsByIdsQuery | undefined, requestedIds: readonly string[]): User[] => {
+  const users = (data?.orgMemberships?.edges ?? []).map((edge) => edge?.node?.user) as User[]
+  const injectSupport = !!OPENLANE_SUPPORT_USER_ID && requestedIds.includes(OPENLANE_SUPPORT_USER_ID) && !users.some((u) => u?.id === OPENLANE_SUPPORT_USER_ID)
+
+  return injectSupport ? [...users, supportUser()] : users
+}
+
 export const useGetOrgUserList = ({ where }: TUseGetOrgUserListProps) => {
   const idInNotEmpty = Array.isArray(where?.hasUserWith?.[0]?.idIn) && where.hasUserWith[0].idIn.length > 0
   const { client } = useGraphQLClient()
@@ -106,14 +117,12 @@ export const useGetOrgUserList = ({ where }: TUseGetOrgUserListProps) => {
     enabled: idInNotEmpty,
   })
 
-  const users = useMemo(() => (queryResult.data?.orgMemberships?.edges ?? []).map((edge) => edge?.node?.user) as User[], [queryResult.data])
-
-  const requestedIds = where?.hasUserWith?.[0]?.idIn ?? []
-  const injectSupport = !!OPENLANE_SUPPORT_USER_ID && requestedIds.includes(OPENLANE_SUPPORT_USER_ID) && !users.some((u) => u?.id === OPENLANE_SUPPORT_USER_ID)
+  const requestedIds = useMemo(() => where?.hasUserWith?.[0]?.idIn ?? [], [where])
+  const users = useMemo(() => toOrgUserList(queryResult.data, requestedIds), [queryResult.data, requestedIds])
 
   return {
     ...queryResult,
-    users: injectSupport ? [...users, supportUser()] : users,
+    users,
     isLoading: queryResult.isPending,
   }
 }
@@ -151,4 +160,24 @@ export const useUserSelectEmail = (args: UserSelectArgs) => {
   )
 
   return { userOptions, ...rest }
+}
+
+export type OrgMembershipExportNode = NonNullable<NonNullable<NonNullable<OrgMembershipsExportQuery['orgMemberships']['edges']>[number]>['node']>
+
+type TFetchAllOrgMembershipsForExport = {
+  where?: OrgMembershipWhereInput
+  orderBy?: OrgMembershipsExportQueryVariables['orderBy']
+}
+
+export const useFetchAllOrgMembershipsForExport = () => {
+  const { client } = useGraphQLClient()
+
+  return useCallback(
+    ({ where, orderBy }: TFetchAllOrgMembershipsForExport) =>
+      fetchAllConnectionNodes<OrgMembershipExportNode>(async (after) => {
+        const result = await client.request<OrgMembershipsExportQuery, OrgMembershipsExportQueryVariables>(GET_ORG_MEMBERSHIPS_EXPORT, { where, orderBy, first: EXPORT_PAGE_SIZE, after })
+        return result.orgMemberships
+      }),
+    [client],
+  )
 }

@@ -64,6 +64,7 @@ export const commentPlugin = toTPlatePlugin<CommentConfig>(BaseCommentPlugin, {
 })
   .extendTransforms(
     ({
+      api,
       editor,
       setOption,
       tf: {
@@ -82,6 +83,18 @@ export const commentPlugin = toTPlatePlugin<CommentConfig>(BaseCommentPlugin, {
         editor.tf.collapse()
         setOption('activeId', getDraftCommentKey())
         setOption('commentingBlock', editor.selection!.focus.path.slice(0, 1))
+      },
+      discardDraft: () => {
+        const draftNodes = api.comment!.nodes({ at: [], isDraft: true })
+
+        editor.tf.withoutNormalizing(() => {
+          draftNodes.forEach(([, path]) => {
+            editor.tf.unsetNodes([getDraftCommentKey()], { at: path })
+          })
+        })
+
+        setOption('activeId', null)
+        setOption('commentingBlock', null)
       },
     }),
   )

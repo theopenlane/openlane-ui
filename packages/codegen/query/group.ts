@@ -218,3 +218,53 @@ export const CREATE_CSV_BULK_GROUP = gql`
     }
   }
 `
+
+export const GET_GROUPS_EXPORT = gql`
+  query GroupsExport($where: GroupWhereInput, $orderBy: [GroupOrder!], $first: Int, $after: Cursor, $includePermissions: Boolean!) {
+    groups(where: $where, orderBy: $orderBy, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          id
+          name
+          displayName
+          description
+          tags
+          createdAt
+          createdBy
+          updatedAt
+          updatedBy
+          setting {
+            visibility
+          }
+          members(first: 100) {
+            totalCount
+            edges {
+              node {
+                role
+                user {
+                  id
+                  displayName
+                }
+              }
+            }
+          }
+          permissions(first: 100) @include(if: $includePermissions) {
+            totalCount
+            edges {
+              node {
+                id
+                name
+                objectType
+                permissions
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`

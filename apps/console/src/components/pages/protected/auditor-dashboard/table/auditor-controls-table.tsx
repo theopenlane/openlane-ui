@@ -21,7 +21,7 @@ import { whereGenerator } from '@/components/shared/table-filter/where-generator
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import CreateControlReviewSheet from '@/components/pages/protected/controls/quick-actions/create-control-review-sheet'
-import ViewReviewSheet from '@/components/pages/protected/reviews/view-review-sheet'
+import ReviewSheetResolver from '@/components/pages/protected/reviews/common/review-sheet-resolver'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import RequestInfoSheet from './request-info-sheet'
 import { ExportEvidenceDialog } from '@/components/pages/protected/evidence/dialog/export-evidence-dialog'
@@ -177,7 +177,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
       />
 
       <CreateControlReviewSheet open={!!startReviewControlId} onOpenChange={(next) => !next && handleReviewSheetClose()} controlId={startReviewControlId ?? ''} programId={programId} />
-      {openReviewId && <ViewReviewSheet entityId={openReviewId} onClose={handleReviewSheetClose} />}
+      {openReviewId && <ReviewSheetResolver reviewId={openReviewId} onClose={handleReviewSheetClose} />}
       <RequestInfoSheet controlId={requestInfoControl?.id ?? null} refCode={requestInfoControl?.refCode} onClose={() => setRequestInfoControl(null)} />
       <EvidenceDetailsSheet />
     </div>

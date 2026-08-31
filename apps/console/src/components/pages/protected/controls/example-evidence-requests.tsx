@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { docsHelpEnabled } from '@repo/dally/ai'
+import { docsHelpAvailable } from '@repo/dally/ai'
 import { ControlControlSource } from '@repo/codegen/src/schema'
 import { useDocsSection } from '@/hooks/useDocsHelp'
 import { useGetAllMappedControlsGrouped } from '@/lib/graphql-hooks/mapped-control'
@@ -43,7 +43,7 @@ export function useFrameworkDocTarget(control?: TDocsEvidenceControl): { target:
   const { controlId, refCode, referenceFramework, source } = control ?? {}
   const isFrameworkControl = source === ControlControlSource.FRAMEWORK && !!referenceFramework && !!refCode
 
-  const mappingsEnabled = docsHelpEnabled && !!controlId && !isFrameworkControl
+  const mappingsEnabled = docsHelpAvailable && !!controlId && !isFrameworkControl
   const {
     mappedControlEdges,
     isLoading: mappingsLoading,
@@ -74,7 +74,7 @@ export type TControlDocsSection = {
 export function useControlDocsSection(control: TDocsEvidenceControl | undefined, sectionName: string | string[]): TControlDocsSection {
   const { target, isLoading: targetLoading, isError: targetError } = useFrameworkDocTarget(control)
 
-  const { data, isLoading: sectionLoading, isError: sectionError } = useDocsSection(target ? `${target.framework} ${target.refCode}` : '', sectionName, docsHelpEnabled && !!target, target?.refCode)
+  const { data, isLoading: sectionLoading, isError: sectionError } = useDocsSection(target ? `${target.framework} ${target.refCode}` : '', sectionName, docsHelpAvailable && !!target, target?.refCode)
 
   const isError = targetError || (!!target && !!sectionError)
   const isLoading = !isError && (targetLoading || (!!target && sectionLoading))

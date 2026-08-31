@@ -14,6 +14,7 @@ import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
 import { type TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { buildCreateEvidenceInput } from './hooks/build-evidence-input'
 import { Panel } from '@repo/ui/panel'
 import { useQueryClient } from '@tanstack/react-query'
 import { type TUploadedFile } from './upload/types/TUploadedFile'
@@ -89,24 +90,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const buildInput = async (data: CreateEvidenceFormData, status?: EvidenceEvidenceStatus): Promise<CreateEvidenceInput> => {
     const collectionProcedure = data.collectionProcedure && typeof data.collectionProcedure !== 'string' ? await convertToHtml(data.collectionProcedure) : data.collectionProcedure
 
-    return {
-      name: data.name,
-      description: data.description,
-      tags: data.tags,
-      creationDate: data.creationDate instanceof Date ? data.creationDate.toISOString() : data.creationDate,
-      renewalDate: data.renewalDate instanceof Date ? data.renewalDate.toISOString() : data.renewalDate,
-      collectionProcedure,
-      source: data.source,
-      fileIDs: data.fileIDs,
-      taskIDs: data.taskIDs,
-      ...evidenceObjectTypes,
-      controlIDs: data.controlIDs,
-      subcontrolIDs: data.subcontrolIDs,
-      programIDs: programId ? [programId] : (data.programIDs ?? []),
-      ...(data.url ? { url: data.url } : {}),
-      ...(status ? { status } : {}),
-      ...(data.reviewFrequency ? { reviewFrequency: data.reviewFrequency } : {}),
-    }
+    return buildCreateEvidenceInput({ data, collectionProcedure, objectAssociations: evidenceObjectTypes, programId, status })
   }
 
   const submitEvidence = async (data: CreateEvidenceFormData, status?: EvidenceEvidenceStatus) => {

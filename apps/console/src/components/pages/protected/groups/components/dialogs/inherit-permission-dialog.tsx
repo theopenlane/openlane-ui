@@ -15,17 +15,11 @@ import { useNotification } from '@/hooks/useNotification'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { Permission } from '@repo/codegen/src/schema'
+import { type Permission } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
-
-const PERMISSION_LABELS: Record<Permission, string> = {
-  [Permission.VIEWER]: 'View',
-  [Permission.EDITOR]: 'Edit',
-  [Permission.BLOCKED]: 'Blocked',
-  [Permission.CREATOR]: 'Create',
-}
+import { PERMISSION_LABELS } from '@/components/pages/protected/groups/permission-labels'
 
 const columns = [
   { accessorKey: 'object', header: 'Name' },

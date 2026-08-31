@@ -19,7 +19,7 @@ import { discussionPlugin } from '../editor/plugins/discussion-kit.tsx'
 
 export function FloatingToolbarButtons() {
   const readOnly = useEditorReadOnly()
-  const isCreate = usePluginOption(discussionPlugin, 'isCreate') as boolean
+  const isCreate = usePluginOption(discussionPlugin, 'isCreate')
 
   return (
     <>
@@ -63,7 +63,7 @@ export function FloatingToolbarButtons() {
       )}
 
       <ToolbarGroup>
-        {!isCreate && <CommentToolbarButton />}
+        <CommentToolbarButton />
         {!isCreate && <SuggestionToolbarButton />}
 
         {!readOnly && <MoreToolbarButton />}

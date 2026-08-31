@@ -11,6 +11,7 @@ import { detectFormat } from './usePlateEditor'
 import { type CommentEntityType, discussionPlugin, type TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 import { pdfExportPlugin } from '@repo/ui/components/editor/plugins/pdf-export-kit.tsx'
 import { parseCommentTextToChildren } from '@repo/ui/components/editor/plugins/mention-serialize.ts'
+import { stripDraftCommentMarks } from '@repo/ui/components/editor/comment-utils.ts'
 import {
   type ControlDiscussionFieldsFragment,
   type GetUserProfileQuery,
@@ -29,6 +30,7 @@ export type TPlateEditorProps = {
   clearData?: boolean
   onClear?: () => void
   placeholder?: string
+  ariaLabel?: string
   entity?: PolicyDiscussionFieldsFragment | ProcedureDiscussionFieldsFragment | RiskDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment | ControlDiscussionFieldsFragment
   userData?: GetUserProfileQuery
   readonly?: boolean
@@ -52,6 +54,7 @@ const PlateEditor = ({
   clearData,
   onClear,
   placeholder,
+  ariaLabel,
   entity,
   userData,
   readonly,
@@ -76,9 +79,11 @@ const PlateEditor = ({
     return EditorKitVariant[variant]({ title, toolbarClassName }) as PlatePlugin[]
   }, [variant, entity, toolbarClassName])
 
+  const [initialSlateValue] = React.useState(() => (Array.isArray(initialValue) ? stripDraftCommentMarks(initialValue) : undefined))
+
   const editor = usePlateEditor({
     plugins: getPlugins(),
-    value: Array.isArray(initialValue) ? initialValue : undefined,
+    value: initialSlateValue,
   })
 
   const { resolvedTheme } = useTheme()
@@ -245,7 +250,7 @@ const PlateEditor = ({
       readOnly={readonly}
       editor={editor}
       onChange={(data) => {
-        onChange?.(data.value)
+        onChange?.(stripDraftCommentMarks(data.value))
       }}
     >
       <EditorContainer
@@ -256,7 +261,7 @@ const PlateEditor = ({
           editor?.focus()
         }}
       >
-        <Editor placeholder={placeholder ?? 'Type a paragraph'} variant={readonly ? 'readonly' : undefined} />
+        <Editor aria-label={ariaLabel ?? placeholder ?? 'Rich text editor'} placeholder={placeholder ?? 'Type a paragraph'} variant={readonly ? 'readonly' : undefined} />
       </EditorContainer>
     </Plate>
   )
