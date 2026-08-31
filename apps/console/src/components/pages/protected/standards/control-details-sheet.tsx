@@ -165,7 +165,6 @@ const ControlDetailsSheet = () => {
       <SheetContent
         side="right"
         className="flex flex-col"
-        onOpenAutoFocus={(e) => e.preventDefault()}
         header={<SlideoutHeader title={controlHeading} onClose={() => handleOpenChange(false)} menuActions={[copyLinkMenuAction(handleCopyLink)]} />}
       >
         <div className="flex flex-col gap-8">
