@@ -2,7 +2,7 @@
   "name": "@repo/codegen",
   "version": "0.0.0",
   "dependencies": {
-    "@graphql-tools/schema": "10.0.38",
+    "@graphql-tools/schema": "10.1.0",
     "graphql": "17.0.2",
     "graphql-request": "7.4.0",
     "typescript": "^7.0.2"
