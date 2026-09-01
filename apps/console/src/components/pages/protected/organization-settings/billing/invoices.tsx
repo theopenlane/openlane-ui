@@ -54,7 +54,8 @@ const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | unde
         {!isLoading && !error && invoicesData?.invoices.length === 0 && <p className="p-4 text-sm ">No invoices found</p>}
 
         {invoicesData?.invoices.slice(0, 5).map((invoice: Invoice) => {
-          const amount = (invoice.amount_paid || invoice.amount_due || 0) / 100
+          const amountCents = invoice.status === 'paid' ? invoice.amount_paid : invoice.amount_due
+          const amount = amountCents / 100
           const formattedDate = invoice.created ? formatDate(new Date(invoice.created * 1000).toISOString()) : ''
 
           return (
@@ -71,7 +72,6 @@ const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | unde
 
                 {invoice.status === 'paid' && <span className="text-green-500 font-medium">Paid</span>}
                 {invoice.status === 'open' && <span className="text-purple-400 font-medium">Pending</span>}
-                {invoice.status === 'overdue' && <span className="text-destructive font-medium">Overdue</span>}
 
                 {invoice.invoice_pdf && (
                   <a href={invoice.invoice_pdf} className=" hover:text-white">

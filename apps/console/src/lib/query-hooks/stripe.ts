@@ -154,12 +154,16 @@ export function useOpenlaneProductsQuery(includeBeta: boolean = false) {
   })
 }
 
-export function useSubscriptionQuery(customerId?: string | null) {
+export function useSubscriptionQuery(customerId?: string | null, subscriptionId?: string | null) {
   return useQuery<Subscription | null>({
-    queryKey: ['stripe-subscription', customerId],
+    queryKey: ['stripe-subscription', customerId, subscriptionId],
     queryFn: async () => {
       if (!customerId) return null
-      const res = await fetch(`/api/stripe/subscription?customer=${customerId}`)
+      const params = new URLSearchParams({ customer: customerId })
+      if (subscriptionId) {
+        params.set('subscription', subscriptionId)
+      }
+      const res = await fetch(`/api/stripe/subscription?${params.toString()}`)
       if (!res.ok) throw new Error('Failed to fetch subscription')
       return res.json() as Promise<Subscription | null>
     },

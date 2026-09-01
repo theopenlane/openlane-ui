@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth/auth'
+import { type Invoice } from '@/types/stripe'
 import { stripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
 
@@ -21,13 +22,14 @@ export async function POST(req: Request) {
       limit: 10,
     })
 
-    const formatted = invoices.data.map((inv) => ({
+    const formatted: Invoice[] = invoices.data.map((inv) => ({
       id: inv.id,
       number: inv.number,
       status: inv.status,
       amount_paid: inv.amount_paid,
-      hosted_invoice_url: inv.hosted_invoice_url,
-      invoice_pdf: inv.invoice_pdf,
+      amount_due: inv.amount_due,
+      hosted_invoice_url: inv.hosted_invoice_url ?? null,
+      invoice_pdf: inv.invoice_pdf ?? null,
       created: inv.created,
     }))
 

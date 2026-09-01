@@ -367,7 +367,7 @@ export type PaymentMethodsResponse = {
 export interface Invoice {
   id: string
   number: string | null
-  status: 'draft' | 'open' | 'paid' | 'uncollectible' | 'void' | 'overdue'
+  status: Stripe.Invoice.Status | null
   amount_paid: number
   amount_due: number
   hosted_invoice_url: string | null

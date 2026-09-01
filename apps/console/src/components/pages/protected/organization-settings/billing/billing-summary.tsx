@@ -15,9 +15,10 @@ type Props = {
   activePriceIds: Set<string | Price>
   nextPhaseStart: Date | null
   currentInterval: 'month' | 'year' | null
+  stripeStatus: string | null
 }
 
-const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, currentInterval }: Props) => {
+const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, currentInterval, stripeStatus }: Props) => {
   const { currentOrgId } = useOrganization()
   const { data } = useGetOrganizationBilling(currentOrgId)
   const { data: schedules = [] } = useSchedulesQuery(stripeCustomerId)
@@ -30,6 +31,8 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
   })
   const subscription = data?.organization.orgSubscriptions?.[0] ?? ({} as OrgSubscription)
   const { expiresAt, active, stripeSubscriptionStatus, trialExpiresAt } = subscription
+  // stripe is the source of truth, the org record only catches up once its webhook lands
+  const status = stripeStatus ?? stripeSubscriptionStatus
   const { mutateAsync: switchInterval, isPending: updating } = useSwitchIntervalMutation()
   const [confirmSwitchOpen, setConfirmSwitchOpen] = useState(false)
   const trialExpirationDate = trialExpiresAt ? parseISO(trialExpiresAt) : null
@@ -131,15 +134,31 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
   const hasDiscount = discountAmount > 0
 
   const badge = useMemo(() => {
-    if (stripeSubscriptionStatus === 'trialing') return { variant: 'gold', text: 'Trial' } as const
+    switch (status) {
+      case 'trialing':
+        return { variant: 'gold', text: 'Trial' } as const
+      case 'past_due':
+        return { variant: 'destructive', text: 'Past due' } as const
+      case 'unpaid':
+        return { variant: 'destructive', text: 'Unpaid' } as const
+      case 'incomplete':
+        return { variant: 'destructive', text: 'Incomplete' } as const
+      case 'paused':
+        return { variant: 'select', text: 'Paused' } as const
+      case 'canceled':
+      case 'incomplete_expired':
+        return { variant: 'destructive', text: 'Expired' } as const
+      case 'active':
+        return { variant: 'default', text: 'Active' } as const
+    }
+
     if (active) return { variant: 'default', text: 'Active' } as const
-    if (!active) return { variant: 'destructive', text: 'Expired' } as const
-    return { variant: 'destructive', text: 'Unknown' } as const
-  }, [stripeSubscriptionStatus, active])
+    return { variant: 'destructive', text: 'Expired' } as const
+  }, [status, active])
 
   const formattedExpiresDate = useMemo(() => {
     try {
-      if (stripeSubscriptionStatus === 'trialing') {
+      if (status === 'trialing') {
         const expirationDate = parseISO(trialExpiresAt)
         return `Expires in ${formatDistanceToNowStrict(expirationDate, { addSuffix: false })}`
       }
@@ -152,7 +171,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
     } catch {
       return 'N/A'
     }
-  }, [expiresAt, stripeSubscriptionStatus, trialExpiresAt, trialEnded, now])
+  }, [expiresAt, status, trialExpiresAt, trialEnded, now])
 
   const handleSwitchInterval = async () => {
     try {
@@ -195,7 +214,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
             {/* Expiration */}
             <Badge variant={badge.variant}>{badge.text}</Badge>
           </div>
-          {trialExpiresAt && stripeSubscriptionStatus === 'trialing' ? (
+          {trialExpiresAt && status === 'trialing' ? (
             <div className="flex items-center gap-2">
               <p className="text-sm font-medium text-text-informational">Trial status:</p>
               <p className="text-sm text-text-informational">{formattedExpiresDate}</p>

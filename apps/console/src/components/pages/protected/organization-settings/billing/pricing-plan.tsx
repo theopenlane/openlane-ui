@@ -26,8 +26,8 @@ const PricingPlan = () => {
 
   const scheduleSubscription = schedules[0]?.subscription ?? null
 
-  // For released schedules, subscription is null — fetch it directly by customer ID
-  const { data: directSubscription, isLoading: subscriptionLoading } = useSubscriptionQuery(!schedulesLoading && !scheduleSubscription ? stripeCustomerId : null)
+  const releasedSubscriptionId = schedules[0]?.released_subscription ?? null
+  const { data: directSubscription, isLoading: subscriptionLoading } = useSubscriptionQuery(!schedulesLoading && !scheduleSubscription ? stripeCustomerId : null, releasedSubscriptionId)
 
   const subscription = scheduleSubscription ?? directSubscription ?? null
 
@@ -165,7 +165,13 @@ const PricingPlan = () => {
       <SideNavigation />
 
       <div className="max-w-[1000px] ml-14">
-        <BillingSummary activePriceIds={activePriceIds} stripeCustomerId={stripeCustomerId} nextPhaseStart={nextPhaseStart} currentInterval={currentInterval} />
+        <BillingSummary
+          activePriceIds={activePriceIds}
+          stripeCustomerId={stripeCustomerId}
+          nextPhaseStart={nextPhaseStart}
+          currentInterval={currentInterval}
+          stripeStatus={subscription?.status ?? null}
+        />
         <>
           {!!schedules[0] && (
             <div>
