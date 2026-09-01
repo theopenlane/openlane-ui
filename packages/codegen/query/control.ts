@@ -681,7 +681,16 @@ export const GET_CONTROLS_PAGINATED = gql`
 `
 
 export const GET_AUDITOR_DASHBOARD_CONTROLS = gql`
-  query GetAuditorDashboardControls($where: ControlWhereInput, $programId: ID!, $orderBy: [ControlOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+  query GetAuditorDashboardControls(
+    $where: ControlWhereInput
+    $programId: ID!
+    $orderBy: [ControlOrder!]
+    $first: Int
+    $after: Cursor
+    $last: Int
+    $before: Cursor
+    $includeRelatedControls: Boolean = false
+  ) {
     controls(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       totalCount
       edges {
@@ -724,6 +733,13 @@ export const GET_AUDITOR_DASHBOARD_CONTROLS = gql`
                 reviewedAt
               }
             }
+          }
+          relatedControls @include(if: $includeRelatedControls) {
+            id
+            refCode
+            referenceFramework
+            isSubcontrol
+            parentControlID
           }
         }
       }

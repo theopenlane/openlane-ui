@@ -43,12 +43,11 @@ describe('getIncludeVars', () => {
     expect(getIncludeVars<Row>(columns, { description: false, category: false })).toEqual({ includeCategory: false })
   })
 
-  test('keeps a column with no accessorKey included', () => {
-    // Display columns (select checkbox, row actions) have no accessorKey and cannot be looked up in
-    // VisibilityState, so they must not be dropped.
-    const columns = [{ id: 'actions', meta: { gqlInclude: ['includeRisks'] } } as ColumnDef<Row>]
+  test('resolves visibility by column id when there is no accessorKey', () => {
+    const columns = [{ id: 'mappedControls', meta: { gqlInclude: ['includeRelatedControls'] } } as ColumnDef<Row>]
 
-    expect(getIncludeVars<Row>(columns, { actions: false })).toEqual({ includeRisks: true })
+    expect(getIncludeVars<Row>(columns, {})).toEqual({ includeRelatedControls: true })
+    expect(getIncludeVars<Row>(columns, { mappedControls: false })).toEqual({ includeRelatedControls: false })
   })
 
   test('ignores an empty gqlInclude list', () => {

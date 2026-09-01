@@ -28,6 +28,8 @@ import RequestInfoSheet from './request-info-sheet'
 import { ExportEvidenceDialog } from '@/components/pages/protected/evidence/dialog/export-evidence-dialog'
 import { BulkCSVCreateEvidenceDialog } from '@/components/pages/protected/evidence/dialog/bulk-csv-create-evidence-dialog'
 import { getControlReview, getControlLastReviewed } from '../utils/control-status'
+import { getProgramScopedMappedControls } from '../utils/mapped-controls'
+import { getIncludeVars } from '@/components/shared/crud-base/columns/get-include-vars'
 import { getAuditorDashboardColumns, getAuditorDashboardMappedColumns, type AuditorDashboardControlRow } from './columns'
 import useFileExport from '@/components/shared/export/use-file-export'
 import { AUDITOR_CONTROL_EXPORT_FIELDS, AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES, getAuditorDashboardFilterFields, getAuditorDashboardQuickFilters } from './table-config'
@@ -44,7 +46,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
   const [startReviewControlId, setStartReviewControlId] = useState<string | null>(null)
   const [openReviewId, setOpenReviewId] = useState<string | null>(null)
   const [requestInfoControl, setRequestInfoControl] = useState<{ id: string; refCode: string } | null>(null)
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, { linkedPolicies: false }))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, { linkedPolicies: false, mappedControls: false }))
 
   const queryClient = useQueryClient()
   const { data: permission } = useOrganizationRoles()
@@ -65,35 +67,6 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
     queryClient.invalidateQueries({ queryKey: ['auditor-dashboard-controls'] })
   }, [queryClient])
 
-  const where: ControlWhereInput = useMemo(() => {
-    const generated = whereGenerator<ControlWhereInput>(filters, createAuditorControlsFilterMapper(programId))
-
-    const base: ControlWhereInput = { hasProgramsWith: [{ id: programId }], ...generated }
-    if (debouncedSearch) {
-      base.and = [...(base.and ?? []), { or: [{ refCodeContainsFold: debouncedSearch }, { titleContainsFold: debouncedSearch }] }]
-    }
-    return base
-  }, [programId, filters, debouncedSearch])
-
-  const { controls, paginationMeta, isLoading, isFetching } = useGetAuditorDashboardControls({ programId, where, pagination, enabled: filters !== null })
-
-  const rows = useMemo<AuditorDashboardControlRow[]>(
-    () =>
-      controls.map((control) => {
-        const reviews = (control.reviews?.edges ?? []).flatMap((edge) => (edge?.node ? [{ id: edge.node.id, status: edge.node.status, reviewedAt: edge.node.reviewedAt }] : []))
-        const evidenceItems = (control.evidence?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
-        const linkedPolicies = (control.internalPolicies?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
-        return {
-          ...control,
-          evidenceItems,
-          linkedPolicies,
-          review: getControlReview(reviews),
-          lastReviewed: getControlLastReviewed(reviews),
-        }
-      }),
-    [controls],
-  )
-
   const columns = useMemo(
     () =>
       getAuditorDashboardColumns({
@@ -106,6 +79,40 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
   )
 
   const mappedColumns = useMemo(() => getAuditorDashboardMappedColumns(columns), [columns])
+
+  const includeVars = useMemo(() => getIncludeVars(columns, columnVisibility), [columns, columnVisibility])
+
+  const programFrameworks = useMemo(() => new Set(standardOptions.map((option) => option.label).filter(Boolean)), [standardOptions])
+
+  const where: ControlWhereInput = useMemo(() => {
+    const generated = whereGenerator<ControlWhereInput>(filters, createAuditorControlsFilterMapper(programId))
+
+    const base: ControlWhereInput = { hasProgramsWith: [{ id: programId }], ...generated }
+    if (debouncedSearch) {
+      base.and = [...(base.and ?? []), { or: [{ refCodeContainsFold: debouncedSearch }, { titleContainsFold: debouncedSearch }] }]
+    }
+    return base
+  }, [programId, filters, debouncedSearch])
+
+  const { controls, paginationMeta, isLoading, isFetching } = useGetAuditorDashboardControls({ programId, where, pagination, includeVars, enabled: filters !== null })
+
+  const rows = useMemo<AuditorDashboardControlRow[]>(
+    () =>
+      controls.map((control) => {
+        const reviews = (control.reviews?.edges ?? []).flatMap((edge) => (edge?.node ? [{ id: edge.node.id, status: edge.node.status, reviewedAt: edge.node.reviewedAt }] : []))
+        const evidenceItems = (control.evidence?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
+        const linkedPolicies = (control.internalPolicies?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
+        return {
+          ...control,
+          evidenceItems,
+          linkedPolicies,
+          mappedControls: getProgramScopedMappedControls({ relatedControls: control.relatedControls, controlId: control.id, programFrameworks }),
+          review: getControlReview(reviews),
+          lastReviewed: getControlLastReviewed(reviews),
+        }
+      }),
+    [controls, programFrameworks],
+  )
 
   const exportFilters = useMemo(() => JSON.stringify({ hasProgramsWith: [{ id: programId }] } satisfies EvidenceWhereInput), [programId])
 
