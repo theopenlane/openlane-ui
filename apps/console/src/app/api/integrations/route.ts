@@ -5,9 +5,10 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { appendSetCookieHeaders, parseProxyResponse } from './proxy-response'
 
 type StartRequestBody = {
-  startPath?: string
   body?: Record<string, unknown>
 }
+
+const INTEGRATION_AUTH_START_URL = `${openlaneAPIUrl}/v1/integrations/auth/start`
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,13 +20,8 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = (await request.json()) as StartRequestBody
-    const startPath = payload.startPath?.trim()
 
-    if (!startPath) {
-      return NextResponse.json({ error: 'Missing integration auth start path' }, { status: 400 })
-    }
-
-    const upstreamResponse = await secureFetch(resolveIntegrationStartURL(startPath), {
+    const upstreamResponse = await secureFetch(INTEGRATION_AUTH_START_URL, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -42,13 +38,5 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error starting integration auth flow:', error)
     return NextResponse.json({ error: 'An error occurred while starting integration auth flow' }, { status: 500 })
-  }
-}
-
-function resolveIntegrationStartURL(startPath: string): string {
-  try {
-    return new URL(startPath).toString()
-  } catch {
-    return new URL(startPath, openlaneAPIUrl).toString()
   }
 }
