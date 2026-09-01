@@ -1783,6 +1783,7 @@ export type GetAuditorDashboardControlsQueryVariables = Exact<{
   after?: any
   last?: number | null | undefined
   before?: any
+  includeRelatedControls?: boolean | null | undefined
 }>
 
 export interface GetAuditorDashboardControlsQuery {
@@ -1797,6 +1798,7 @@ export interface GetAuditorDashboardControlsQuery {
         internalPolicies: { totalCount: number; edges: Array<{ node: { id: string; name: string } | null } | null> | null }
         evidence: { totalCount: number; edges: Array<{ node: { id: string; name: string; status: Types.EvidenceEvidenceStatus | null } | null } | null> | null }
         reviews: { edges: Array<{ node: { id: string; status: Types.ReviewReviewStatus | null; reviewedAt: string | null } | null } | null> | null }
+        relatedControls?: Array<{ id: string; refCode: string; referenceFramework: string | null; isSubcontrol: boolean; parentControlID: string | null }> | null
       } | null
     } | null> | null
     pageInfo: { startCursor: any; endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean }
