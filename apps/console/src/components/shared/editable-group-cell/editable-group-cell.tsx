@@ -1,4 +1,5 @@
 'use client'
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { Avatar } from '@/components/shared/avatar/avatar'
@@ -71,10 +72,10 @@ const EditableGroupCell: React.FC<EditableGroupCellProps> = ({ label, entity, on
     <div className="flex items-center space-x-1">
       {!isEditing ? (
         <div
-          onClick={(e) => {
+          {...activatable((e) => {
             e.stopPropagation()
             setIsEditing(true)
-          }}
+          })}
           className="flex items-center cursor-pointer"
         >
           <div className="flex items-center space-x-1 relative">
@@ -94,7 +95,7 @@ const EditableGroupCell: React.FC<EditableGroupCellProps> = ({ label, entity, on
         </div>
       ) : (
         <Form {...form}>
-          <form onClick={(e) => e.stopPropagation()} onSubmit={form.handleSubmit(onSubmit)} className="flex items-center space-x-2 w-full">
+          <form role="presentation" onClick={(e) => e.stopPropagation()} onSubmit={form.handleSubmit(onSubmit)} className="flex items-center space-x-2 w-full">
             <div className="flex items-center w-full max-w-md">
               <Controller
                 name="id"

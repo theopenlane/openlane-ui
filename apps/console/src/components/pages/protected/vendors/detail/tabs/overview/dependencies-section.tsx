@@ -32,7 +32,7 @@ const getAssetColumns = (canEdit: boolean, onRemove: (asset: AssetNode) => void)
       header: '',
       size: 60,
       cell: ({ row }) => (
-        <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
+        <div role="presentation" className="flex justify-end" onClick={(e) => e.stopPropagation()}>
           <button type="button" onClick={() => onRemove(row.original)} className="text-muted-foreground hover:text-destructive transition-colors">
             <Trash2 size={16} />
           </button>

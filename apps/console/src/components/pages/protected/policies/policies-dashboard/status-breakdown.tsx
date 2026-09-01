@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo, useState } from 'react'
 import { DonutChart } from '@repo/ui/donut-chart'
 import { FileCheck2, FilePen, ScanEye, Stamp, Wrench } from 'lucide-react'
@@ -109,12 +110,14 @@ const StatusBreakdown = ({ onStatusClick }: Props) => {
               return (
                 <Tooltip key={label}>
                   <TooltipTrigger asChild>
-                    <li className="flex items-center cursor-pointer" onClick={() => handleStatusClick(key)}>
-                      <div className="flex items-center gap-1.5">
-                        <Icon size={16} style={{ color }} />
-                        <span className="text-base font-medium">{label}</span>
+                    <li className="flex items-center">
+                      <div className="flex items-center cursor-pointer" {...activatable(() => handleStatusClick(key))}>
+                        <div className="flex items-center gap-1.5">
+                          <Icon size={16} style={{ color }} />
+                          <span className="text-base font-medium">{label}</span>
+                        </div>
+                        <span className="ml-1.5 border w-7 h-7 flex items-center justify-center rounded-full text-sm">{statusCounts[key] ?? 0}</span>
                       </div>
-                      <span className="ml-1.5 border w-7 h-7 flex items-center justify-center rounded-full text-sm">{statusCounts[key] ?? 0}</span>
                     </li>
                   </TooltipTrigger>
 
@@ -125,10 +128,10 @@ const StatusBreakdown = ({ onStatusClick }: Props) => {
                       <p
                         key={i}
                         className="text-sm text-muted-foreground truncate cursor-pointer hover:text-foreground"
-                        onClick={(e) => {
+                        {...activatable((e) => {
                           e.stopPropagation()
                           setSelectedPolicyId(item.id)
-                        }}
+                        })}
                       >
                         {item.name}
                       </p>

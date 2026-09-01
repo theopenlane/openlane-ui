@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import * as React from 'react'
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
@@ -208,10 +209,10 @@ function TablePicker() {
   return (
     <div
       className="m-0 flex! flex-col p-0"
-      onClick={() => {
+      {...activatable(() => {
         tf.insert.table(tablePicker.size, { select: true })
         editor.tf.focus()
-      }}
+      })}
     >
       <div className="grid size-[130px] grid-cols-8 gap-0.5 p-1">
         {tablePicker.grid.map((rows, rowIndex) =>

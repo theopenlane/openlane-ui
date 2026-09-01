@@ -54,7 +54,7 @@ const AttachmentPreview: FC<AttachmentPreviewProps> = ({ src }) => {
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
-      alt="Image Preview"
+      alt="Attachment preview"
       className={cn('block h-auto max-h-[80vh] w-auto max-w-full object-contain', isLoaded ? 'aui-attachment-preview-image-loaded' : 'aui-attachment-preview-image-loading invisible')}
       onLoad={() => setIsLoaded(true)}
     />

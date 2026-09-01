@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
@@ -203,7 +204,7 @@ export const TextField = <TUpdateInput,>({
                   layout === 'horizontal' && 'text-right',
                   multiline && 'whitespace-pre-wrap',
                 )}
-                onClick={handleClick}
+                {...activatable(isEditAllowed ? handleClick : undefined)}
               >
                 {type === 'number' ? (
                   <div ref={popoverRef} className="w-full flex items-center gap-4">
@@ -219,7 +220,7 @@ export const TextField = <TUpdateInput,>({
                 ) : displaySuffix ? (
                   <div className="flex items-center justify-between gap-2 w-full">
                     <div className={cn('min-w-0', layout === 'horizontal' && 'text-right')}>{renderDisplayValue()}</div>
-                    <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <div role="presentation" className="shrink-0" onClick={(e) => e.stopPropagation()}>
                       {displaySuffix}
                     </div>
                   </div>

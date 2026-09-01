@@ -43,7 +43,7 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
   return (
     <div className={cn(GRID_ROW_CLASS, 'px-3 py-1.5 items-start border-t border-border/30')} style={{ gridTemplateColumns: gridCols }}>
       {isSelectionMode && (
-        <div className="flex items-center pt-0.5" onClick={(e) => e.stopPropagation()}>
+        <div role="presentation" className="flex items-center pt-0.5" onClick={(e) => e.stopPropagation()}>
           <Checkbox checked={selected} onCheckedChange={(v) => onSelect(sub.id, !!v)} aria-label="Select row" />
         </div>
       )}
@@ -83,11 +83,11 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
         </div>
       )}
 
-      <div className="overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div role="presentation" className="overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <EvidenceCoverageCell data={sub.evidenceStatus} primaryControlId={`${controlId}/${sub.id}`} />
       </div>
 
-      <div className="flex flex-wrap gap-1 min-w-0" onClick={(e) => e.stopPropagation()}>
+      <div role="presentation" className="flex flex-wrap gap-1 min-w-0" onClick={(e) => e.stopPropagation()}>
         {policies.length === 0 ? (
           <span className="text-xs italic text-muted-foreground">None linked</span>
         ) : (
@@ -95,7 +95,7 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
         )}
       </div>
 
-      <div className="flex flex-wrap gap-1.5 min-w-0 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div role="presentation" className="flex flex-wrap gap-1.5 min-w-0 overflow-hidden" onClick={(e) => e.stopPropagation()}>
         {isCustomView ? (
           <ReportShowMore
             items={frameworkRefs}

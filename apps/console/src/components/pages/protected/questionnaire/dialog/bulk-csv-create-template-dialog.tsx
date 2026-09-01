@@ -86,9 +86,9 @@ const BulkCSVCreateTemplateDialog: React.FC<BulkCsvCreateTemplateDialogProps> = 
         <Callout title="CSV Format">
           <p className="text-sm">
             You can upload a csv containing templates. Please refer to our{' '}
-            <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
+            <button type="button" className="text-brand hover:underline cursor-pointer bg-transparent" onClick={() => handleCSVExport()}>
               template csv file
-            </a>{' '}
+            </button>{' '}
             for available fields and format.
           </p>
         </Callout>

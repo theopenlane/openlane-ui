@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
@@ -72,10 +73,10 @@ const EditableUserCell: React.FC<EditableUserCellProps> = ({ label, entity, onSu
     <div className="flex items-center space-x-1">
       {!isEditing ? (
         <div
-          onClick={(e) => {
+          {...activatable((e) => {
             e.stopPropagation()
             setIsEditing(true)
-          }}
+          })}
           className="flex items-center cursor-pointer"
         >
           <div className="flex items-center space-x-1 relative">
@@ -95,7 +96,7 @@ const EditableUserCell: React.FC<EditableUserCellProps> = ({ label, entity, onSu
         </div>
       ) : (
         <Form {...form}>
-          <form onClick={(e) => e.stopPropagation()} onSubmit={form.handleSubmit(onSubmit)} className="flex items-center space-x-2 w-full">
+          <form role="presentation" onClick={(e) => e.stopPropagation()} onSubmit={form.handleSubmit(onSubmit)} className="flex items-center space-x-2 w-full">
             <div className="flex items-center w-full">
               <Controller
                 name="id"

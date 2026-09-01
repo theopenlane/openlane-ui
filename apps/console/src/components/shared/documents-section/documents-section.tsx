@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState } from 'react'
 import { DataTable, type SortCondition } from '@repo/ui/data-table'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -75,10 +76,10 @@ const DocumentsSection: React.FC<DocumentsSectionProps> = ({
     header: '',
     cell: ({ row }: { row: Row<TFile> }) => {
       return (
-        <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">
+        <div role="presentation" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">
           <SystemTooltip
             icon={
-              <p className="flex items-center gap-1 cursor-pointer" onClick={() => fileDownload(row?.original?.presignedURL || '', row.original.providedFileName, errorNotification)}>
+              <p className="flex items-center gap-1 cursor-pointer" {...activatable(() => fileDownload(row?.original?.presignedURL || '', row.original.providedFileName, errorNotification))}>
                 <Download size={16} />
               </p>
             }
@@ -89,10 +90,10 @@ const DocumentsSection: React.FC<DocumentsSectionProps> = ({
               icon={
                 <p
                   className="flex items-center gap-1 cursor-pointer"
-                  onClick={() => {
+                  {...activatable(() => {
                     setDeleteDialogIsOpen(true)
                     setDeleteFileInfo({ id: row.original.id, name: row.original.providedFileName })
-                  }}
+                  })}
                 >
                   <Trash2 size={16} />
                 </p>

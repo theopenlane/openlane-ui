@@ -3,7 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useEffect, useState } from 'react'
+import { useId, useEffect, useState } from 'react'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type Props = {
@@ -16,6 +16,7 @@ type Props = {
 
 export const EditGroupRoleDialog = ({ open, onOpenChange, groupName, currentRole, onSubmit }: Props) => {
   const [role, setRole] = useState<'Viewer' | 'Editor'>(currentRole)
+  const roleId = useId()
   useEffect(() => {
     if (open) {
       setRole(currentRole)
@@ -36,9 +37,11 @@ export const EditGroupRoleDialog = ({ open, onOpenChange, groupName, currentRole
         </p>
 
         <div className="space-y-1">
-          <label className="text-sm font-medium">Role</label>
+          <label className="text-sm font-medium" htmlFor={roleId}>
+            Role
+          </label>
           <Select key={currentRole} value={role} onValueChange={(val) => setRole(val as 'Viewer' | 'Editor')}>
-            <SelectTrigger>
+            <SelectTrigger id={roleId}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import { useGetEvidenceWithFilesPaginated, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { FileOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
 import React, { useState } from 'react'
@@ -89,16 +90,16 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
           const canPreview = isPreviewableFile(row.original) && !!row.original.presignedURL
 
           return (
-            <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">
+            <div role="presentation" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">
               {canPreview && (
                 <SystemTooltip
                   icon={
                     <p
                       className="flex items-center gap-1 cursor-pointer"
-                      onClick={() => {
+                      {...activatable(() => {
                         setPreviewFile(row.original)
                         setPreviewIsOpen(true)
-                      }}
+                      })}
                     >
                       <Eye size={16} />
                     </p>
@@ -109,7 +110,7 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
 
               <SystemTooltip
                 icon={
-                  <p className="flex items-center gap-1 cursor-pointer" onClick={() => fileDownload(row?.original?.presignedURL || '', row.original.providedFileName, errorNotification)}>
+                  <p className="flex items-center gap-1 cursor-pointer" {...activatable(() => fileDownload(row?.original?.presignedURL || '', row.original.providedFileName, errorNotification))}>
                     <Download size={16} />
                   </p>
                 }
@@ -120,10 +121,10 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
                 icon={
                   <p
                     className="flex items-center gap-1 cursor-pointer"
-                    onClick={() => {
+                    {...activatable(() => {
                       setDeleteDialogIsOpen(true)
                       setDeleteFileInfo({ id: row.original.id, name: row.original.providedFileName })
-                    }}
+                    })}
                   >
                     <Trash2 size={16} />
                   </p>

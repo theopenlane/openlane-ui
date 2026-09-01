@@ -62,7 +62,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-2">
-            <label className="block text-sm font-medium mb-1">Description</label>
+            <span className="block text-sm font-medium mb-1">Description</span>
             {isCreate || (isEditAllowed && isEditing) ? (
               <Controller
                 control={control}

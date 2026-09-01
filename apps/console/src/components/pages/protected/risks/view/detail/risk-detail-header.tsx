@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
@@ -87,8 +88,10 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
             ) : (
               <div className="flex items-center gap-2 min-w-0 flex-wrap">
                 <HoverPencilWrapper showPencil={canEditRisk} onPencilClick={() => startEditing('name')} className="min-w-0">
-                  <h1 className={cn('text-2xl font-semibold break-words', canEditRisk && 'cursor-pointer')} onClick={() => startEditing('name')}>
-                    {risk.name}
+                  <h1 className="text-2xl font-semibold break-words">
+                    <span className={cn(canEditRisk && 'cursor-pointer')} {...activatable(() => startEditing('name'))}>
+                      {risk.name}
+                    </span>
                   </h1>
                 </HoverPencilWrapper>
                 {risk.impact && (

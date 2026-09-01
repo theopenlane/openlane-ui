@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo, useRef, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import ForceGraph, { type ForceGraphMethods, type NodeObject } from 'react-force-graph-2d'
@@ -70,7 +71,7 @@ const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode
           <span className="font-medium">Name</span>
         </div>
         {interactive ? (
-          <span className="cursor-pointer wrap-break-word text-brand hover:underline inline-flex items-center gap-1" onClick={() => window.open(node.link, '_blank')}>
+          <span className="cursor-pointer wrap-break-word text-brand hover:underline inline-flex items-center gap-1" {...activatable(() => window.open(node.link, '_blank'))}>
             {display.name}
             <ExternalLink size={12} />
           </span>
@@ -677,10 +678,10 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
       {showFullscreen ? (
         ReactDOM.createPortal(
           <div
-            onClick={closeFullScreen}
+            {...activatable(closeFullScreen)}
             className={`fixed inset-0 z-10000 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ${isFullscreen ? 'opacity-100' : 'opacity-0'}`}
           >
-            <div onClick={(e) => e.stopPropagation()} className="relative w-[90vw] h-[90vh] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2">
+            <div role="presentation" onClick={(e) => e.stopPropagation()} className="relative w-[90vw] h-[90vh] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2">
               <button onClick={closeFullScreen} className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-opacity-80">
                 <X size={20} />
               </button>

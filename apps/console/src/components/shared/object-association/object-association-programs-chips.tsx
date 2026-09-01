@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import React from 'react'
 import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
@@ -48,7 +49,7 @@ const ObjectAssociationProgramsChips: React.FC<TObjectAssociationProgramsChipsPr
                         <SlidersHorizontal size={12} />
                         <span className="font-medium">Name</span>
                       </div>
-                      <span className={`text-brand pl-3 cursor-pointer`} onClick={() => handleNavigate(href)}>
+                      <span className={`text-brand pl-3 cursor-pointer`} {...activatable(() => handleNavigate(href))}>
                         {refMap[i] ?? id}
                       </span>
                     </div>

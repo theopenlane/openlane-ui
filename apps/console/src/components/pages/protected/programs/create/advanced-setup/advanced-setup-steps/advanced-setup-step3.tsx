@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useId } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
 import { Input } from '@repo/ui/input'
@@ -9,6 +9,9 @@ const AdvancedSetupStep3 = () => {
     register,
     formState: { errors },
   } = useFormContext()
+  const auditPartnerId = useId()
+  const auditFirmId = useId()
+  const auditPartnerEmailId = useId()
 
   return (
     <div className="space-y-6">
@@ -33,22 +36,28 @@ const AdvancedSetupStep3 = () => {
       <div className="space-y-4">
         {/* Audit Partner */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm">Audit Partner</label>
-          <Input placeholder="Auditor Contact" {...register('auditPartnerName')} />
+          <label className="text-sm" htmlFor={auditPartnerId}>
+            Audit Partner
+          </label>
+          <Input id={auditPartnerId} placeholder="Auditor Contact" {...register('auditPartnerName')} />
           {errors.auditPartnerName && <span className="text-xs text-destructive">{String(errors.auditPartnerName.message)}</span>}
         </div>
 
         {/* Audit Firm */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm">Audit Firm</label>
-          <Input placeholder="Audit Firm Name" {...register('auditFirm')} />
+          <label className="text-sm" htmlFor={auditFirmId}>
+            Audit Firm
+          </label>
+          <Input id={auditFirmId} placeholder="Audit Firm Name" {...register('auditFirm')} />
           {errors.auditFirm && <span className="text-xs text-destructive">{String(errors.auditFirm.message)}</span>}
         </div>
 
         {/* Audit Partner Email */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm">Audit Partner Email</label>
-          <Input placeholder="Enter a primary contact email for the audit partner" type="email" {...register('auditPartnerEmail')} />
+          <label className="text-sm" htmlFor={auditPartnerEmailId}>
+            Audit Partner Email
+          </label>
+          <Input id={auditPartnerEmailId} placeholder="Enter a primary contact email for the audit partner" type="email" {...register('auditPartnerEmail')} />
           {errors.auditPartnerEmail && <span className="text-xs text-destructive">{String(errors.auditPartnerEmail.message)}</span>}
         </div>
       </div>

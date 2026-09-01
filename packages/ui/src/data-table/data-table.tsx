@@ -312,6 +312,7 @@ function SortableHeaderCell<TData extends RowData>({ header, sortField, sorting,
       )}
       {!isLastHeader && header.column.getCanResize() && (
         <div
+          role="presentation"
           onDoubleClick={() => header.column.resetSize()}
           onMouseDown={header.getResizeHandler()}
           onTouchStart={header.getResizeHandler()}
@@ -321,9 +322,6 @@ function SortableHeaderCell<TData extends RowData>({ header, sortField, sorting,
             'opacity-80 hover:opacity-100 focus-visible:opacity-100',
             isResizing && 'opacity-100',
           )}
-          role="separator"
-          aria-orientation="vertical"
-          aria-label={`Resize ${header.column.id} column`}
         >
           <div className={cn('h-3/5 w-px rounded-full transition duration-150', isResizing ? 'bg-primary' : 'bg-[var(--color-border)] opacity-70 group-hover/resizer:opacity-100')} />
         </div>

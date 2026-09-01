@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ViewPolicySheet } from '@/components/pages/protected/policies/view-policy-sheet'
@@ -126,7 +127,7 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds,
         header: () => <span className="whitespace-nowrap">Name</span>,
         cell: ({ row }) => (
           <div className="flex flex-col gap-1">
-            <span className="text-blue-500 hover:underline whitespace-nowrap cursor-pointer" onClick={() => setSelectedPolicyId(row.original.id)}>
+            <span className="text-blue-500 hover:underline whitespace-nowrap cursor-pointer" {...activatable(() => setSelectedPolicyId(row.original.id))}>
               {row.original.name}
             </span>
             {inheritedFromMap.has(row.original.id) && <InheritedBadge sources={inheritedFromMap.get(row.original.id) ?? []} />}

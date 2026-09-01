@@ -36,7 +36,7 @@ export const getProgramsColumns = ({ selectedRefCodeMap, frameworks, setSelected
         const allSelected = currentPageRows.every((row) => selectedIds.includes(row.id))
 
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox
               checked={allSelected}
               onCheckedChange={(checked) => {
@@ -53,7 +53,7 @@ export const getProgramsColumns = ({ selectedRefCodeMap, frameworks, setSelected
         const checked = (form.getValues('programIDs') || []).includes(id)
 
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={checked} onCheckedChange={(val) => toggleChecked(id, name, val === true)} />
           </div>
         )

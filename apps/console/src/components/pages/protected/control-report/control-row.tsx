@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo } from 'react'
 import { ChevronRight, TriangleAlert } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -51,10 +52,10 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
         hasSubcontrols && 'cursor-pointer',
       )}
       style={{ gridTemplateColumns: gridCols }}
-      onClick={hasSubcontrols ? () => onToggle(control.id) : undefined}
+      {...activatable(hasSubcontrols ? () => onToggle(control.id) : undefined)}
     >
       {isSelectionMode && (
-        <div className="flex items-center pt-0.5" onClick={(e) => e.stopPropagation()}>
+        <div role="presentation" className="flex items-center pt-0.5" onClick={(e) => e.stopPropagation()}>
           <Checkbox checked={selected} onCheckedChange={(v) => onSelect(control.id, !!v)} aria-label="Select row" />
         </div>
       )}
@@ -96,11 +97,11 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
         </div>
       )}
 
-      <div className="overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div role="presentation" className="overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <EvidenceCoverageCell data={control.evidenceStatus} primaryControlId={control.id} />
       </div>
 
-      <div className="flex flex-wrap gap-1 min-w-0" onClick={(e) => e.stopPropagation()}>
+      <div role="presentation" className="flex flex-wrap gap-1 min-w-0" onClick={(e) => e.stopPropagation()}>
         {linkedPolicies.length === 0 ? (
           <span className="text-xs italic text-muted-foreground">None linked</span>
         ) : (
@@ -109,14 +110,14 @@ const ControlRow: React.FC<ControlRowProps> = ({ control, expanded, onToggle, is
       </div>
 
       {isCustomView ? (
-        <div className="flex flex-wrap gap-1.5 min-w-0 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div role="presentation" className="flex flex-wrap gap-1.5 min-w-0 overflow-hidden" onClick={(e) => e.stopPropagation()}>
           <ReportShowMore
             items={frameworkRefs}
             renderItem={(ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode, referenceFramework: ref.referenceFramework }} hideStandard />}
           />
         </div>
       ) : (
-        <div className="flex flex-wrap gap-1.5 min-w-0 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div role="presentation" className="flex flex-wrap gap-1.5 min-w-0 overflow-hidden" onClick={(e) => e.stopPropagation()}>
           <ReportShowMore items={orgRefs} renderItem={(ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode }} hideStandard hideHexagon />} />
         </div>
       )}

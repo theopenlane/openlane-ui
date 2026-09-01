@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { DownloadIcon, FileText, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
@@ -190,20 +191,20 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                     )}
                     <div
                       className={`flex items-center space-x-2 px-1 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
-                      onClick={() => {
+                      {...activatable(() => {
                         handleExport(ExportExportFormat.CSV)
                         close()
-                      }}
+                      })}
                     >
                       <DownloadIcon size={16} strokeWidth={2} />
                       <span>Export to CSV</span>
                     </div>
                     <div
                       className={`flex items-center space-x-2 px-1 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
-                      onClick={() => {
+                      {...activatable(() => {
                         handleExport(ExportExportFormat.PDF)
                         close()
-                      }}
+                      })}
                     >
                       <FileText size={16} strokeWidth={2} />
                       <span>Export to PDF</span>

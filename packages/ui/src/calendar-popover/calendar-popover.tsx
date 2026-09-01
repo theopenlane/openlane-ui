@@ -96,37 +96,44 @@ const CalendarPopover = <T extends FieldValues>({
 
   return (
     <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          className={`bg-input border border-input focus-visible:outline-hidden disabled:cursor-not-allowed !p-1 text-base rounded-md disabled:opacity-50 ${
-            buttonClassName ?? 'w-full flex justify-between items-center'
-          }`}
-          variant="outlineInput"
-          childFull
-        >
-          <div className={cn(calendarInput(), inputClassName)}>
-            <span>{value ? format(value, 'PPP') : 'Select a date:'}</span>
-            <div className="flex items-center gap-x-2">
-              {showNowButton && (
-                <span
-                  className="text-xs text-brand cursor-pointer hover:underline"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    const now = new Date()
-                    setValue(now)
-                    field?.onChange(now)
-                    onChange?.(now)
-                  }}
-                >
-                  Now
-                </span>
-              )}
-              {value && !required && <X className="h-4 w-4 opacity-50 cursor-pointer" onClick={(e) => handleClearDate(e)} />}
-              <CalendarIcon className="h-4 w-4 opacity-50" />
+      <div className={cn('relative', buttonClassName ?? 'w-full')}>
+        <PopoverTrigger asChild>
+          <Button
+            className={`bg-input border border-input focus-visible:outline-hidden disabled:cursor-not-allowed !p-1 text-base rounded-md disabled:opacity-50 ${
+              buttonClassName ?? 'w-full flex justify-between items-center'
+            }`}
+            variant="outlineInput"
+            childFull
+          >
+            <div className={cn(calendarInput(), inputClassName)}>
+              <span>{value ? format(value, 'PPP') : 'Select a date:'}</span>
             </div>
-          </div>
-        </Button>
-      </PopoverTrigger>
+          </Button>
+        </PopoverTrigger>
+        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center gap-x-2">
+          {showNowButton && (
+            <button
+              type="button"
+              className="pointer-events-auto bg-transparent text-xs text-brand cursor-pointer hover:underline"
+              onClick={(e) => {
+                e.stopPropagation()
+                const now = new Date()
+                setValue(now)
+                field?.onChange(now)
+                onChange?.(now)
+              }}
+            >
+              Now
+            </button>
+          )}
+          {value && !required && (
+            <button type="button" aria-label="Clear date" className="pointer-events-auto bg-transparent" onClick={handleClearDate}>
+              <X className="h-4 w-4 opacity-50 cursor-pointer" />
+            </button>
+          )}
+          <CalendarIcon className="h-4 w-4 opacity-50" />
+        </div>
+      </div>
       {portal ? (
         <PopoverPortal>
           <PopoverContent className={calendarPopoverStyle()} align={align} side={side}>

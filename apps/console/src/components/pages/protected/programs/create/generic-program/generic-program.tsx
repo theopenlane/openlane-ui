@@ -1,5 +1,5 @@
 'use client'
-import React, { use, useEffect, useState } from 'react'
+import React, { useId, use, useEffect, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
@@ -43,6 +43,8 @@ const GenericProgram = () => {
   const { mutateAsync: createProgram } = useCreateProgramWithMembers()
   const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
+  const nameId = useId()
+  const descriptionId = useId()
   const onSubmit = async (data: ProgramFormValues) => {
     try {
       const input: CreateProgramWithMembersInput = {
@@ -105,17 +107,19 @@ const GenericProgram = () => {
 
             {/* Program Name */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm">
+              <label className="text-sm" htmlFor={nameId}>
                 Program Name<span className="text-destructive">*</span>
               </label>
-              <Input placeholder="Program Test" {...register('name', { required: 'Program name is required' })} />
+              <Input id={nameId} placeholder="Program Test" {...register('name', { required: 'Program name is required' })} />
               {errors.name && <span className="text-xs text-destructive">{errors.name.message as string}</span>}
             </div>
 
             {/* Description */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm">Description</label>
-              <Textarea placeholder="Enter a description for this program" {...register('description')} />
+              <label className="text-sm" htmlFor={descriptionId}>
+                Description
+              </label>
+              <Textarea id={descriptionId} placeholder="Enter a description for this program" {...register('description')} />
             </div>
           </div>
 

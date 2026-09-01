@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '../generic-sheet'
@@ -168,7 +169,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                 <div ref={triggerRef} className="w-full">
                   <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
-                      <div className="flex w-full items-center gap-2 rounded-md border bg-input px-3 py-2 text-sm cursor-pointer h-10" onClick={() => setOpen(true)}>
+                      <div className="flex w-full items-center gap-2 rounded-md border bg-input px-3 py-2 text-sm cursor-pointer h-10" {...activatable(() => setOpen(true))}>
                         {currentValue ? (
                           <>
                             {getTypeIcon(currentValue.type)}
@@ -253,7 +254,10 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                   </Popover>
                 </div>
               ) : (
-                <div className={cn('flex items-center gap-2 rounded-md px-1 py-2 text-sm cursor-pointer hover:bg-accent w-full', layout === 'horizontal' && 'justify-end')} onClick={handleClick}>
+                <div
+                  className={cn('flex items-center gap-2 rounded-md px-1 py-2 text-sm cursor-pointer hover:bg-accent w-full', layout === 'horizontal' && 'justify-end')}
+                  {...activatable(isEditAllowed ? handleClick : undefined)}
+                >
                   {currentValue ? (
                     <>
                       {getTypeIcon(currentValue.type)}

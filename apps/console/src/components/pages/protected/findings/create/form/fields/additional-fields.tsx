@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState, useEffect } from 'react'
 import { useFormContext, type FieldValues } from 'react-hook-form'
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
@@ -328,7 +329,7 @@ const ArrayTextField: React.FC<ArrayTextFieldProps> = ({ name, label, isEditing,
       {isFieldEditing ? (
         <Textarea value={localValue} onChange={handleChange} onBlur={handleBlur} autoFocus={internalEditing === name} rows={4} placeholder="One entry per line" />
       ) : (
-        <div className={cn('text-sm py-2 px-1 w-full rounded-md', isEditAllowed && 'cursor-pointer hover:bg-accent')} onClick={handleClick}>
+        <div className={cn('text-sm py-2 px-1 w-full rounded-md', isEditAllowed && 'cursor-pointer hover:bg-accent')} {...activatable(isEditAllowed ? handleClick : undefined)}>
           {currentArray.length === 0 ? notSet : renderView(currentArray)}
         </div>
       )}

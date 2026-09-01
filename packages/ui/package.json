@@ -66,6 +66,7 @@
     "./icons/google": "./src/icons/google.tsx",
     "./icons/github": "./src/icons/github.tsx",
     "./icons/chevron-down": "./src/icons/chevron-down.tsx",
+    "./lib/a11y": "./lib/a11y.ts",
     "./lib/utils": "./lib/utils.ts",
     "./lib/windowResize": "./lib/windowResize.tsx",
     "./lib/chartUtils": "./lib/chartUtils.tsx",

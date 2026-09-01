@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import React from 'react'
 import StepIndicator from '@/components/shared/step-indicator/step-indicator'
 import { type Stepper, type Step } from '@stepperize/react'
@@ -19,7 +20,7 @@ export function StepHeader<T extends readonly Step[]>({ stepper, disabledIDs = [
         {visibleSteps.map((s) => {
           const isActive = stepper.current.id === s.id
           return (
-            <div key={s.id} onClick={() => !disabledIDs.includes(s.id) && stepper.goTo(s.id)} className="flex items-center cursor-pointer">
+            <div key={s.id} {...activatable(() => !disabledIDs.includes(s.id) && stepper.goTo(s.id))} className="flex items-center cursor-pointer">
               <StepIndicator active={isActive} />
             </div>
           )

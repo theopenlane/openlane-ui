@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState, useCallback, useMemo } from 'react'
 import { ArrowDownUp, ArrowUpDown } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
@@ -118,7 +119,7 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData, id }) 
     <div className="p-2 w-full mt-5">
       <div className="flex justify-between items-end mb-2">
         <p className="text-lg">Conversation</p>
-        <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>
+        <div className="flex items-center gap-1 text-right cursor-pointer" {...activatable(handleCommentSort)}>
           {!commentSortIsAsc ? <ArrowDownUp height={16} width={16} /> : <ArrowUpDown height={16} width={16} className="text-primary" />}
           <p className="text-sm">{!commentSortIsAsc ? 'Newest at top' : 'Newest at bottom'}</p>
         </div>

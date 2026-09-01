@@ -54,14 +54,42 @@ const useCopyToClipboard = ({
 }
 
 const defaultComponents = memoizeMarkdownComponents({
-  h1: ({ className, ...props }) => <h1 className={cn('aui-md-h1 mb-8 scroll-m-20 font-extrabold text-4xl tracking-tight last:mb-0', className)} {...props} />,
-  h2: ({ className, ...props }) => <h2 className={cn('aui-md-h2 mt-8 mb-4 scroll-m-20 font-semibold text-3xl tracking-tight first:mt-0 last:mb-0', className)} {...props} />,
-  h3: ({ className, ...props }) => <h3 className={cn('aui-md-h3 mt-6 mb-4 scroll-m-20 font-semibold text-2xl tracking-tight first:mt-0 last:mb-0', className)} {...props} />,
-  h4: ({ className, ...props }) => <h4 className={cn('aui-md-h4 mt-6 mb-4 scroll-m-20 font-semibold text-xl tracking-tight first:mt-0 last:mb-0', className)} {...props} />,
-  h5: ({ className, ...props }) => <h5 className={cn('aui-md-h5 my-4 font-semibold text-lg first:mt-0 last:mb-0', className)} {...props} />,
-  h6: ({ className, ...props }) => <h6 className={cn('aui-md-h6 my-4 font-semibold first:mt-0 last:mb-0', className)} {...props} />,
+  h1: ({ className, children, ...props }) => (
+    <h1 className={cn('aui-md-h1 mb-8 scroll-m-20 font-extrabold text-4xl tracking-tight last:mb-0', className)} {...props}>
+      {children}
+    </h1>
+  ),
+  h2: ({ className, children, ...props }) => (
+    <h2 className={cn('aui-md-h2 mt-8 mb-4 scroll-m-20 font-semibold text-3xl tracking-tight first:mt-0 last:mb-0', className)} {...props}>
+      {children}
+    </h2>
+  ),
+  h3: ({ className, children, ...props }) => (
+    <h3 className={cn('aui-md-h3 mt-6 mb-4 scroll-m-20 font-semibold text-2xl tracking-tight first:mt-0 last:mb-0', className)} {...props}>
+      {children}
+    </h3>
+  ),
+  h4: ({ className, children, ...props }) => (
+    <h4 className={cn('aui-md-h4 mt-6 mb-4 scroll-m-20 font-semibold text-xl tracking-tight first:mt-0 last:mb-0', className)} {...props}>
+      {children}
+    </h4>
+  ),
+  h5: ({ className, children, ...props }) => (
+    <h5 className={cn('aui-md-h5 my-4 font-semibold text-lg first:mt-0 last:mb-0', className)} {...props}>
+      {children}
+    </h5>
+  ),
+  h6: ({ className, children, ...props }) => (
+    <h6 className={cn('aui-md-h6 my-4 font-semibold first:mt-0 last:mb-0', className)} {...props}>
+      {children}
+    </h6>
+  ),
   p: ({ className, ...props }) => <p className={cn('aui-md-p mt-5 mb-5 leading-7 first:mt-0 last:mb-0', className)} {...props} />,
-  a: ({ className, ...props }) => <a className={cn('aui-md-a font-medium text-primary underline underline-offset-4', className)} {...props} />,
+  a: ({ className, children, ...props }) => (
+    <a className={cn('aui-md-a font-medium text-primary underline underline-offset-4', className)} {...props}>
+      {children}
+    </a>
+  ),
   blockquote: ({ className, ...props }) => <blockquote className={cn('aui-md-blockquote border-l-2 pl-6 italic', className)} {...props} />,
   ul: ({ className, ...props }) => <ul className={cn('aui-md-ul my-5 ml-6 list-disc [&>li]:mt-2', className)} {...props} />,
   ol: ({ className, ...props }) => <ol className={cn('aui-md-ol my-5 ml-6 list-decimal [&>li]:mt-2', className)} {...props} />,

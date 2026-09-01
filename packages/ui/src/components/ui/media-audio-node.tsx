@@ -18,7 +18,9 @@ export const AudioElement = withHOC(ResizableProvider, function AudioElement(pro
     <PlateElement {...props} className="mb-1">
       <figure className="group relative cursor-default" contentEditable={false}>
         <div className="h-16">
-          <audio className="size-full" src={unsafeUrl} controls />
+          <audio className="size-full" src={unsafeUrl} controls>
+            <track kind="captions" />
+          </audio>
         </div>
 
         <Caption style={{ width: '100%' }} align={align}>

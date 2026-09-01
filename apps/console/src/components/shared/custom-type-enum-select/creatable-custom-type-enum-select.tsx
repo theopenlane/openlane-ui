@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import { type Ref, useMemo, useState } from 'react'
 import { Check, ChevronDown, Plus } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
@@ -91,8 +92,6 @@ export const CreatableCustomTypeEnumSelect = ({
       <PopoverTrigger asChild>
         <button
           type="button"
-          role="combobox"
-          aria-expanded={open}
           disabled={disabled}
           className={cn(
             'w-full flex justify-between font-normal border border-border bg-input rounded-md h-10 items-center px-3 text-sm disabled:cursor-not-allowed disabled:opacity-50',
@@ -118,7 +117,7 @@ export const CreatableCustomTypeEnumSelect = ({
               {showCreateOption && (
                 <div
                   className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
-                  onClick={handleCreateValue}
+                  {...activatable(handleCreateValue)}
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   <span>Create &quot;{trimmedSearch}&quot;</span>

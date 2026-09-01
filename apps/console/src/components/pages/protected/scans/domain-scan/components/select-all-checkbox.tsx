@@ -18,9 +18,11 @@ export const SelectAllCheckbox = ({ ids, selected, setSelected }: SelectAllCheck
   const checkedState: boolean | 'indeterminate' = allSelected ? true : selectedCount > 0 ? 'indeterminate' : false
 
   return (
-    <label className="flex items-center gap-2 text-sm font-normal text-muted-foreground" onClick={(event) => event.stopPropagation()}>
-      <Checkbox checked={checkedState} onCheckedChange={() => setAllSelected(setSelected, ids, !allSelected)} />
-      {selectedCount} of {ids.length} selected
-    </label>
+    <div role="presentation" onClick={(event) => event.stopPropagation()}>
+      <label className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
+        <Checkbox checked={checkedState} onCheckedChange={() => setAllSelected(setSelected, ids, !allSelected)} />
+        {selectedCount} of {ids.length} selected
+      </label>
+    </div>
   )
 }

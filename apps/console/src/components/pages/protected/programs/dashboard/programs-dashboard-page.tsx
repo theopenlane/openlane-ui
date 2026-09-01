@@ -1,6 +1,6 @@
 'use client'
 
-import React, { use, useEffect, useMemo, useState } from 'react'
+import React, { useId, use, useEffect, useMemo, useState } from 'react'
 import { type ProgramFromGetProgramDashboard as Program, useGetProgramDashboard } from '@/lib/graphql-hooks/program'
 import { Calendar, ChevronRight, SquarePlus, SearchIcon, UserRoundPlus, Undo, UserIcon, TriangleAlert } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -37,6 +37,7 @@ import { useSession } from 'next-auth/react'
 
 const ProgramsDashboardPage = () => {
   const [search, setSearch] = useState('')
+  const expandAllId = useId()
   const { data: session } = useSession()
   const [expanded, setExpanded] = useState<string[]>([])
   const [filterStatus, setFilterStatus] = useState<'ACTIVE' | 'ARCHIVED'>('ACTIVE')
@@ -140,12 +141,15 @@ const ProgramsDashboardPage = () => {
           <h2 className="text-header text-2xl">Programs</h2>
           <div className="flex items-center gap-2">
             <Switch
+              id={expandAllId}
               checked={expanded.length === allKeys.length && allKeys.length > 0}
               onCheckedChange={(checked) => {
                 setExpanded(checked ? allKeys : [])
               }}
             />
-            <label className="text-sm">Expand all</label>
+            <label className="text-sm" htmlFor={expandAllId}>
+              Expand all
+            </label>
           </div>
         </div>
         <div className="flex items-center gap-3">

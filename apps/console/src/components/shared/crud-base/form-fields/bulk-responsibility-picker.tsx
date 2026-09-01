@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import { useMemo, useState } from 'react'
 import { User, Users, Type, Check, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
@@ -61,7 +62,7 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <div className="flex w-60 items-center gap-2 rounded-md border bg-input px-3 py-2 text-sm cursor-pointer h-10" onClick={() => setOpen(true)}>
+        <div className="flex w-60 items-center gap-2 rounded-md border bg-input px-3 py-2 text-sm cursor-pointer h-10" {...activatable(() => setOpen(true))}>
           {value ? (
             <>
               {getTypeIcon(value.type)}

@@ -81,7 +81,7 @@ export const useGetEvidenceColumns = ({ userMap, tokenMap, selectedEvidence, set
         const allControls = [...controlEdges, ...subcontrolEdges]
 
         return (
-          <div className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
             {allControls.map((control, index) => {
               return (
                 <ControlChip
@@ -217,7 +217,7 @@ export const useGetEvidenceColumns = ({ userMap, tokenMap, selectedEvidence, set
         const evidence = row.original
         const alreadyApproved = evidence.status === EvidenceEvidenceStatus.AUDITOR_APPROVED
         return (
-          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
             <Button type="button" className="h-7 px-2" icon={<Stamp size={14} />} iconPosition="left" disabled={auditorActionPending || alreadyApproved} onClick={() => onApprove?.(evidence)}>
               Approve
             </Button>

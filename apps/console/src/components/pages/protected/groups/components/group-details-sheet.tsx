@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
@@ -268,14 +269,14 @@ const GroupDetailsSheet = () => {
                 <div className="mt-9 flex">
                   <p
                     className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer ${activeTab === 'Members' ? 'border-brand text-brand' : ''}`}
-                    onClick={() => setActiveTab('Members')}
+                    {...activatable(() => setActiveTab('Members'))}
                   >
                     Members
                   </p>
 
                   <p
                     className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer ${activeTab === 'RolesAndPermissions' ? 'border-brand text-brand' : ''}`}
-                    onClick={() => setActiveTab('RolesAndPermissions')}
+                    {...activatable(() => setActiveTab('RolesAndPermissions'))}
                   >
                     Roles and Permissions
                   </p>

@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState } from 'react'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
@@ -141,7 +142,7 @@ export const MultiStringField: React.FC<MultiStringFieldProps> = ({
                   )}
                 </div>
                 {!isFieldEditing && (
-                  <div className={`text-sm py-2 rounded-md cursor-pointer px-1 w-full` + (type !== 'link' ? ' hover:bg-accent' : '')} onClick={handleClick}>
+                  <div className={`text-sm py-2 rounded-md cursor-pointer px-1 w-full` + (type !== 'link' ? ' hover:bg-accent' : '')} {...activatable(isEditAllowed ? handleClick : undefined)}>
                     {values.length === 0 ? (
                       <span className="text-muted-foreground italic">Not set</span>
                     ) : type === 'link' ? (

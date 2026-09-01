@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React from 'react'
 import { Info, PencilLine, SlidersHorizontal } from 'lucide-react'
 import { type TaskQuery } from '@repo/codegen/src/schema'
@@ -163,7 +164,7 @@ const RelatedObjects: React.FC<RelatedObjectsProps> = ({ taskData }) => {
                         <SlidersHorizontal size={12} />
                         <span className="font-medium">Name</span>
                       </div>
-                      <span className={`text-brand pl-3 cursor-pointer text-primary ${linkClass}`} onClick={() => handleNavigate(href)}>
+                      <span className={`text-brand pl-3 cursor-pointer text-primary ${linkClass}`} {...activatable(() => handleNavigate(href))}>
                         {key}
                       </span>
                     </div>

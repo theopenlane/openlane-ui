@@ -19,7 +19,7 @@ const RefCodeCell: React.FC<RefCodeCellProps> = ({ href, refCode, status, classN
   const statusStyle = status ? CONTROL_STATUS_STYLES[status] : null
 
   return (
-    <div className={cn('min-w-0 text-sm font-medium', className)} onClick={(e) => e.stopPropagation()}>
+    <div role="presentation" className={cn('min-w-0 text-sm font-medium', className)} onClick={(e) => e.stopPropagation()}>
       <TruncatedCell portal tooltipContent={refCode}>
         <Link href={href} className="text-brand hover:underline">
           {refCode}

@@ -11,7 +11,9 @@ export function VideoElementStatic(props: SlateElementProps<TVideoElement & TCap
     <SlateElement className="py-2.5" {...props}>
       <div style={{ textAlign: align }}>
         <figure className="group relative m-0 inline-block cursor-default" style={{ width }}>
-          <video className="w-full max-w-full rounded-xs object-cover px-0" src={url} controls />
+          <video className="w-full max-w-full rounded-xs object-cover px-0" src={url} controls>
+            <track kind="captions" />
+          </video>
           {caption && <figcaption>{NodeApi.string(caption[0])}</figcaption>}
         </figure>
       </div>

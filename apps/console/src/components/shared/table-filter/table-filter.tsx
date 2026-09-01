@@ -269,10 +269,22 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
         case 'select': {
           const selected = val as string | undefined
           return (
-            <ul className="max-h-40 overflow-y-auto border rounded-lg">
+            <ul role="listbox" className="max-h-40 overflow-y-auto border rounded-lg">
               {field.options?.length ? (
                 field.options.map((opt) => (
-                  <li key={opt.value} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm" onClick={() => handleChange(field.key, opt.value)}>
+                  <li
+                    key={opt.value}
+                    role="option"
+                    aria-selected={selected === opt.value}
+                    tabIndex={0}
+                    className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm"
+                    onClick={() => handleChange(field.key, opt.value)}
+                    onKeyDown={(event) => {
+                      if (event.key !== 'Enter' && event.key !== ' ') return
+                      event.preventDefault()
+                      handleChange(field.key, opt.value)
+                    }}
+                  >
                     <Checkbox checked={selected === opt.value} className="accent-primary" />
                     <span>{opt.label}</span>
                   </li>
@@ -374,10 +386,22 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
           const selected = Array.isArray(val) ? (val as string[]) : []
           const handleToggle = (value: string) => handleChange(field.key, selected.includes(value) ? selected.filter((v) => v !== value) : [...selected, value])
           return (
-            <ul className="max-h-40 overflow-y-auto border rounded-lg">
+            <ul role="listbox" aria-multiselectable className="max-h-40 overflow-y-auto border rounded-lg">
               {field.options?.length ? (
                 field.options.map((opt) => (
-                  <li key={opt.value} className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm" onClick={() => handleToggle(opt.value)}>
+                  <li
+                    key={opt.value}
+                    role="option"
+                    aria-selected={selected.includes(opt.value)}
+                    tabIndex={0}
+                    className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted cursor-pointer text-sm"
+                    onClick={() => handleToggle(opt.value)}
+                    onKeyDown={(event) => {
+                      if (event.key !== 'Enter' && event.key !== ' ') return
+                      event.preventDefault()
+                      handleToggle(opt.value)
+                    }}
+                  >
                     <Checkbox aria-label={opt.label} checked={selected.includes(opt.value)} className="accent-primary" />
                     <span>{opt.label}</span>
                   </li>

@@ -26,7 +26,7 @@ export function createRowActionsColumn<T extends RowData>({ actions, label = 'Ro
     header: '',
     size: 50,
     cell: ({ row }) => (
-      <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
+      <div role="presentation" onClick={(e) => e.stopPropagation()} className="flex justify-end">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" aria-label={label} className="h-8 w-8 p-0">

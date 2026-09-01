@@ -43,8 +43,14 @@ const PageHeading: React.FC<PageHeadingProps> = ({ heading, subheading, eyebrow,
       <div className={cn(styles.wrapper(), className)}>
         {eyebrow && <span className={styles.eyebrow()}>{eyebrow}</span>}
         {!isEditing ? (
-          <h2 className={headingClasses} onClick={(e) => setEditing(!editing)}>
-            {heading}
+          <h2 className={!editable ? headingClasses : undefined}>
+            {editable ? (
+              <button type="button" className={cn(headingClasses, 'bg-transparent text-left')} onClick={() => setEditing(!editing)}>
+                {heading}
+              </button>
+            ) : (
+              heading
+            )}
           </h2>
         ) : (
           <input className="" defaultValue={heading as string} onBlur={onBlurHandler} ref={inputRef} />

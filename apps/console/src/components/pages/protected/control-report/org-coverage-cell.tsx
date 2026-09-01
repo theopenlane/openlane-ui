@@ -21,7 +21,7 @@ type Props = {
 const OrgCoverageCell: React.FC<Props> = ({ data }) => {
   if (!data || data.activeCount === 0) {
     return (
-      <div onClick={(e) => e.stopPropagation()}>
+      <div role="presentation" onClick={(e) => e.stopPropagation()}>
         <span className="text-xs italic text-muted-foreground">No org controls</span>
       </div>
     )

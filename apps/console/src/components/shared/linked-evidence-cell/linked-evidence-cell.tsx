@@ -28,7 +28,7 @@ const LinkedEvidenceCell = ({ evidenceRefs = [], stopPropagation = false }: Link
 
   if (evidenceRefs.length === 1) {
     return (
-      <span onClick={handleClick}>
+      <span role="presentation" onClick={handleClick}>
         <EvidenceBadge item={evidenceRefs[0]} />
       </span>
     )

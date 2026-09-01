@@ -54,10 +54,10 @@ export const columns: ColumnDef<Payment>[] = [
     },
     header: ({ column }) => {
       return (
-        <div className="flex items-center cursor-pointer" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+        <button type="button" className="flex items-center cursor-pointer bg-transparent" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
-        </div>
+        </button>
       )
     },
   },

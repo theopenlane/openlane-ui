@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useEffect, useState } from 'react'
 import { organizationSelectorStyles } from './organization-selector.styles'
 import { Button } from '@repo/ui/button'
@@ -183,7 +184,7 @@ const OrganizationItem = ({ org, isCurrent, role, onClick }: { org: Organization
   const { orgWrapper, orgInfo, orgTitle } = organizationSelectorStyles()
 
   return (
-    <div key={org.id} className={`${orgWrapper()} group`} onClick={onClick}>
+    <div key={org.id} className={`${orgWrapper()} group`} {...activatable(onClick)}>
       <div className={orgInfo()}>
         <div className="flex items-center gap-1">
           {isCurrent ? <Check size={16} /> : <Check size={16} className="opacity-0" />}

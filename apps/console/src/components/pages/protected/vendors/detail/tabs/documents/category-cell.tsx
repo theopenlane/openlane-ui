@@ -59,7 +59,7 @@ const CategoryCell: React.FC<CategoryCellProps> = ({ fileId, value, onUpdate, ca
   }
 
   return (
-    <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+    <div role="presentation" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
       <Popover open={isEditing} onOpenChange={setIsEditing}>
         <PopoverTrigger asChild>
           <button type="button" className="text-sm bg-transparent cursor-pointer">

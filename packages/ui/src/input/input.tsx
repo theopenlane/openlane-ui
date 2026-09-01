@@ -57,11 +57,14 @@ const Input = ({ className, type, icon, prefix, suffix, variant, onIconClick, ma
         className={cn(input({ hasIcon, hasPrefix, iconPosition }), className, isFocused && 'border-brand!')}
         style={{ paddingLeft: hasPrefix ? prefixWidth + 12 : undefined }}
       />
-      {icon && (
-        <div className={iconWrapper({ iconPosition })} onClick={onIconClick} style={{ cursor: onIconClick ? 'pointer' : 'filled' }}>
-          {icon}
-        </div>
-      )}
+      {icon &&
+        (onIconClick ? (
+          <button type="button" className={cn(iconWrapper({ iconPosition }), 'cursor-pointer bg-transparent')} onClick={onIconClick}>
+            {icon}
+          </button>
+        ) : (
+          <div className={iconWrapper({ iconPosition })}>{icon}</div>
+        ))}
       {suffix && <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-sm bg-background-secondary border rounded-md px-1.5 py-0.5 font-medium">{suffix}</div>}
     </div>
   )

@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import { ChevronDown, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
@@ -50,7 +51,7 @@ export const SearchableSingleSelect = ({
         <PopoverTrigger asChild>
           <div
             className={`w-full flex text-sm h-10 px-3 py-0! justify-between border bg-input rounded-md items-center ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-            onClick={() => !disabled && setOpen(true)}
+            {...activatable(() => !disabled && setOpen(true))}
           >
             <span className="truncate">
               <CustomTypeEnumValue value={value} options={options} placeholder={placeholder} />

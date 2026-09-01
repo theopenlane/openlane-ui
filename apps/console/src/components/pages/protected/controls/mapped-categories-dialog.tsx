@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useId, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
@@ -23,6 +23,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<string[]>([])
   const [selectedStandardId, setSelectedStandardId] = useState<string | 'all'>('all')
+  const standardsId = useId()
 
   const { mutateAsync: updateControl, isPending } = useUpdateControl()
 
@@ -151,7 +152,9 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
           {/* Filters */}
           <div className="grid grid-cols-2 gap-4 my-4">
             <div>
-              <label className="text-sm font-medium text-muted-foreground mb-1 block">Standards</label>
+              <label className="text-sm font-medium text-muted-foreground mb-1 block" htmlFor={standardsId}>
+                Standards
+              </label>
               <Select
                 value={selectedStandardId}
                 onValueChange={(val) => {
@@ -162,7 +165,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
                   }))
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger id={standardsId}>
                   <SelectValue placeholder="Select standard" />
                 </SelectTrigger>
                 <SelectContent>

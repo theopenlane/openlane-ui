@@ -100,7 +100,7 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
         const { review } = row.original
 
         return (
-          <div className="flex items-center justify-end gap-1.5" onClick={(event) => event.stopPropagation()}>
+          <div role="presentation" className="flex items-center justify-end gap-1.5" onClick={(event) => event.stopPropagation()}>
             {!review ? (
               canCreateReview && (
                 <Button variant="primary" className="h-8 px-2!" icon={<Play size={14} />} iconPosition="left" onClick={() => onStartReview(row.original.id)}>

@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -214,9 +215,9 @@ export const GlobalSearch = () => {
                   <div
                     key={term}
                     className="px-2.5 py-1 cursor-pointer bg-card rounded-xl text-xs"
-                    onClick={() => {
+                    {...activatable(() => {
                       setQuery(term)
-                    }}
+                    })}
                   >
                     {term}
                   </div>

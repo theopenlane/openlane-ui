@@ -57,7 +57,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
         const allSelected = rows.every((r) => selectedRows.some((s) => s.id === r.id))
 
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox
               checked={allSelected}
               onCheckedChange={(checked) => {
@@ -74,7 +74,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
         const isChecked = selectedRows.some((r) => r.id === row.original.id)
 
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id: row.original.id })} />
           </div>
         )

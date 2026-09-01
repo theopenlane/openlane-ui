@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { TriangleAlert, Fingerprint, SlidersHorizontal, ListChecks } from 'lucide-react'
 import { useGetControlNotImplementedCount } from '@/lib/graphql-hooks/control'
@@ -126,7 +127,7 @@ const DashboardComplianceOverview = () => {
           <div
             key={key}
             className="flex items-center justify-between gap-2 rounded-lg bg-homepage-card-item-transparent p-3 border border-homepage-card-border cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-            onClick={onClick}
+            {...activatable(onClick)}
           >
             <div>
               <p className="text-sm font-medium">{label}</p>

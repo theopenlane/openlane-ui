@@ -32,13 +32,7 @@ export const StandardField = ({ isEditing }: Props) => {
           render={({ field }) => (
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  role="combobox"
-                  aria-expanded={open}
-                  disabled={isLoading}
-                  className="w-full flex justify-between font-normal border border-border bg-input rounded-md h-10 items-center px-3 text-sm"
-                >
+                <button type="button" disabled={isLoading} className="w-full flex justify-between font-normal border border-border bg-input rounded-md h-10 items-center px-3 text-sm">
                   <span className="truncate">{field.value ? selectedStandard?.label || 'Select a standard...' : 'Select a standard...'}</span>
 
                   <span className="flex items-center gap-2">

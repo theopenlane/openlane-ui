@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo } from 'react'
 import ProgressBar from './progress-bar'
 import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/internal-policy'
@@ -82,7 +83,7 @@ const CoverageByType = ({ onTypeClick }: { onTypeClick: () => void }) => {
     const policyLink = `/policies/${id}/view`
 
     return (
-      <div key={label} className="flex items-center gap-4 w-full md:w-[calc(50%-1.5rem)] cursor-pointer" onClick={() => handleTypeClick(kind)}>
+      <div key={label} className="flex items-center gap-4 w-full md:w-[calc(50%-1.5rem)] cursor-pointer" {...activatable(() => handleTypeClick(kind))}>
         <Tooltip>
           <div className="min-w-36 shrink-0">
             <TooltipTrigger asChild>
@@ -126,7 +127,7 @@ const CoverageByType = ({ onTypeClick }: { onTypeClick: () => void }) => {
         {groupedData.length === 0 ? (
           <p className="text-sm text-text-informational">No data available</p>
         ) : (
-          <div className="flex flex-wrap gap-8" onClick={onTypeClick}>
+          <div className="flex flex-wrap gap-8" {...activatable(onTypeClick)}>
             {groupedData.map(renderRow)}
           </div>
         )}

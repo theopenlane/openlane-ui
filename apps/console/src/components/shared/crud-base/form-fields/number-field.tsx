@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
@@ -73,11 +74,11 @@ export const NumberField: React.FC<NumberFieldProps> = ({
             ) : (
               <div
                 className="text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full"
-                onClick={() => {
+                {...activatable(() => {
                   if (isEditAllowed) {
                     setInternalEditing(name)
                   }
-                }}
+                })}
               >
                 {value || <span className="text-muted-foreground italic">Not set</span>}
               </div>
