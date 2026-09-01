@@ -1,7 +1,7 @@
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { FilterIcons } from '@/components/shared/enum-mapper/risk-enum'
-import { type FilterField } from '@/types'
-import { RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
+import { defineFilterFields } from '@/types'
+import { RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, type RiskWhereInput } from '@repo/codegen/src/schema.ts'
 import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 
 export const getRisksFilterFields = (
@@ -10,58 +10,59 @@ export const getRisksFilterFields = (
   riskCategoryOptions: { value: string; label: string }[],
   tagOptions: { value: string; label: string }[],
   hasProgramAccess: boolean,
-): FilterField[] => [
-  {
-    key: 'riskCategoryNameIn',
-    label: 'Category',
-    type: 'multiselect',
-    icon: FilterIcons.Category,
-    options: riskCategoryOptions,
-  },
+) =>
+  defineFilterFields<RiskWhereInput>()([
+    {
+      key: 'riskCategoryNameIn',
+      label: 'Category',
+      type: 'multiselect',
+      icon: FilterIcons.Category,
+      options: riskCategoryOptions,
+    },
 
-  {
-    key: 'impactIn',
-    label: 'Impact',
-    type: 'multiselect',
-    options: enumToOptions(RiskRiskImpact),
-    icon: FilterIcons.Impact,
-  },
+    {
+      key: 'impactIn',
+      label: 'Impact',
+      type: 'multiselect',
+      options: enumToOptions(RiskRiskImpact),
+      icon: FilterIcons.Impact,
+    },
 
-  {
-    key: 'likelihoodIn',
-    label: 'Likelihood',
-    type: 'multiselect',
-    options: enumToOptions(RiskRiskLikelihood),
-    icon: FilterIcons.Likelihood,
-  },
+    {
+      key: 'likelihoodIn',
+      label: 'Likelihood',
+      type: 'multiselect',
+      options: enumToOptions(RiskRiskLikelihood),
+      icon: FilterIcons.Likelihood,
+    },
 
-  {
-    key: 'riskKindNameIn',
-    label: 'Risk Type',
-    type: 'multiselect',
-    icon: FilterIcons.RiskType,
-    options: riskKindOptions,
-  },
+    {
+      key: 'riskKindNameIn',
+      label: 'Risk Type',
+      type: 'multiselect',
+      icon: FilterIcons.RiskType,
+      options: riskKindOptions,
+    },
 
-  { key: 'score', label: 'Score', type: 'sliderRange', icon: FilterIcons.Score, min: 0, max: 100 },
+    { key: 'score', label: 'Score', type: 'sliderRange', icon: FilterIcons.Score, min: 0, max: 100 },
 
-  {
-    key: 'statusIn',
-    label: 'Status',
-    type: 'multiselect',
-    options: enumToOptions(RiskRiskStatus),
-    icon: FilterIcons.Status,
-  },
+    {
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
+      options: enumToOptions(RiskRiskStatus),
+      icon: FilterIcons.Status,
+    },
 
-  ...getProgramFilterFields(programOptions, hasProgramAccess),
-  {
-    key: 'tagsHas',
-    label: 'Tags',
-    type: 'dropdownSearchSingleSelect',
-    icon: FilterIcons.Status,
-    options: tagOptions,
-  },
-]
+    ...getProgramFilterFields(programOptions, hasProgramAccess),
+    {
+      key: 'tagsHas',
+      label: 'Tags',
+      type: 'dropdownSearchSingleSelect',
+      icon: FilterIcons.Status,
+      options: tagOptions,
+    },
+  ])
 
 export const RISKS_SORT_FIELDS = [
   {

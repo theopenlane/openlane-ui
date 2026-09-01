@@ -19,6 +19,7 @@ import { getInitialVisibility } from '@/components/shared/column-visibility-menu
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { mapTrustCenterDocFilterKey } from './table/table-config'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const ReportsAndCertificationsPage = () => {
@@ -32,19 +33,7 @@ const ReportsAndCertificationsPage = () => {
   const whereFilter = useMemo(() => {
     const base: TrustCenterDocWhereInput = {}
 
-    const result = whereGenerator<TrustCenterDocWhereInput>(filters, (key, value) => {
-      if (key === 'hasStandardWith') {
-        return {
-          hasStandardWith: [
-            {
-              shortNameContainsFold: value as string,
-            },
-          ],
-        } as TrustCenterDocWhereInput
-      }
-
-      return { [key]: value } as TrustCenterDocWhereInput
-    })
+    const result = whereGenerator<TrustCenterDocWhereInput>(filters, mapTrustCenterDocFilterKey)
 
     return { ...base, ...result }
   }, [filters])

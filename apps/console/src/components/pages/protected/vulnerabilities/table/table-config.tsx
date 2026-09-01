@@ -1,8 +1,8 @@
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import NameField from '../create/form/fields/name-field'
-import { type VulnerabilityQuery, VulnerabilityOrderField, VulnerabilitySecurityLevel } from '@repo/codegen/src/schema'
+import { type VulnerabilityQuery, VulnerabilityOrderField, VulnerabilitySecurityLevel, type VulnerabilityWhereInput } from '@repo/codegen/src/schema'
 import DescriptionField from '../create/form/fields/description-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
@@ -26,95 +26,96 @@ export const breadcrumbs = [
   { label: 'Vulnerabilities', href: '/exposure/vulnerabilities' },
 ]
 
-export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
-  {
-    key: 'securityLevelIn',
-    label: 'Security Level',
-    type: 'multiselect',
-    options: enumToOptions(VulnerabilitySecurityLevel),
-    icon: FilterIcons.Criticality,
-  },
-  {
-    key: 'vulnerabilityStatusNameIn',
-    label: 'Status',
-    type: 'multiselect',
-    options: enumOptions.vulnerabilityStatusOptions,
-    icon: FilterIcons.Status,
-  },
-  {
-    key: 'priorityContainsFold',
-    label: 'Priority',
-    type: 'text',
-    icon: FilterIcons.Tier,
-  },
-  {
-    key: 'sourceContainsFold',
-    label: 'Source',
-    type: 'text',
-    icon: FilterIcons.Source,
-  },
-  {
-    key: 'categoryContainsFold',
-    label: 'Category',
-    type: 'text',
-    icon: FilterIcons.Category,
-  },
-  {
-    key: 'externalIDContainsFold',
-    label: 'External ID',
-    type: 'text',
-    icon: FilterIcons.ID,
-  },
-  {
-    key: 'open',
-    label: 'Open',
-    type: 'radio',
-    icon: FilterIcons.Access,
-    radioOptions: [
-      { value: true, label: 'Open' },
-      { value: false, label: 'Closed' },
-    ],
-  },
-  {
-    key: 'production',
-    label: 'Production',
-    type: 'radio',
-    icon: FilterIcons.Environment,
-    radioOptions: [
-      { value: true, label: 'Production' },
-      { value: false, label: 'Non-production' },
-    ],
-  },
-  {
-    key: 'blocking',
-    label: 'Blocking',
-    type: 'radio',
-    icon: FilterIcons.Security,
-    radioOptions: [
-      { value: true, label: 'Blocking' },
-      { value: false, label: 'Non-blocking' },
-    ],
-  },
-  {
-    key: 'validated',
-    label: 'Validated',
-    type: 'radio',
-    icon: FilterIcons.ID,
-    radioOptions: [
-      { value: true, label: 'Validated' },
-      { value: false, label: 'Unvalidated' },
-    ],
-  },
-  getEnvironmentFilterField(enumOptions.environmentOptions),
-  getScopeFilterField(enumOptions.scopeOptions),
-  {
-    key: 'tagsHas',
-    label: 'Tags',
-    type: 'dropdownSearchSingleSelect',
-    icon: FilterIcons.Status,
-    options: enumOptions.tagOptions,
-  },
-]
+export const getFilterFields = (enumOptions: EnumOptions) =>
+  defineFilterFields<VulnerabilityWhereInput>()([
+    {
+      key: 'securityLevelIn',
+      label: 'Security Level',
+      type: 'multiselect',
+      options: enumToOptions(VulnerabilitySecurityLevel),
+      icon: FilterIcons.Criticality,
+    },
+    {
+      key: 'vulnerabilityStatusNameIn',
+      label: 'Status',
+      type: 'multiselect',
+      options: enumOptions.vulnerabilityStatusOptions,
+      icon: FilterIcons.Status,
+    },
+    {
+      key: 'priorityContainsFold',
+      label: 'Priority',
+      type: 'text',
+      icon: FilterIcons.Tier,
+    },
+    {
+      key: 'sourceContainsFold',
+      label: 'Source',
+      type: 'text',
+      icon: FilterIcons.Source,
+    },
+    {
+      key: 'categoryContainsFold',
+      label: 'Category',
+      type: 'text',
+      icon: FilterIcons.Category,
+    },
+    {
+      key: 'externalIDContainsFold',
+      label: 'External ID',
+      type: 'text',
+      icon: FilterIcons.ID,
+    },
+    {
+      key: 'open',
+      label: 'Open',
+      type: 'radio',
+      icon: FilterIcons.Access,
+      radioOptions: [
+        { value: true, label: 'Open' },
+        { value: false, label: 'Closed' },
+      ],
+    },
+    {
+      key: 'production',
+      label: 'Production',
+      type: 'radio',
+      icon: FilterIcons.Environment,
+      radioOptions: [
+        { value: true, label: 'Production' },
+        { value: false, label: 'Non-production' },
+      ],
+    },
+    {
+      key: 'blocking',
+      label: 'Blocking',
+      type: 'radio',
+      icon: FilterIcons.Security,
+      radioOptions: [
+        { value: true, label: 'Blocking' },
+        { value: false, label: 'Non-blocking' },
+      ],
+    },
+    {
+      key: 'validated',
+      label: 'Validated',
+      type: 'radio',
+      icon: FilterIcons.ID,
+      radioOptions: [
+        { value: true, label: 'Validated' },
+        { value: false, label: 'Unvalidated' },
+      ],
+    },
+    getEnvironmentFilterField(enumOptions.environmentOptions),
+    getScopeFilterField(enumOptions.scopeOptions),
+    {
+      key: 'tagsHas',
+      label: 'Tags',
+      type: 'dropdownSearchSingleSelect',
+      icon: FilterIcons.Status,
+      options: enumOptions.tagOptions,
+    },
+  ])
 
 export const VULNERABILITIES_SORT_FIELDS = enumToSortFields(VulnerabilityOrderField)
 

@@ -1,3 +1,10 @@
+const mergeMappedCondition = (target: object, addition: object): void => {
+  Object.entries(addition).forEach(([key, value]) => {
+    const existing = (target as Record<string, unknown>)[key]
+    ;(target as Record<string, unknown>)[key] = Array.isArray(existing) && Array.isArray(value) ? [...existing, ...value] : value
+  })
+}
+
 export function whereGenerator<TWhereInput extends object>(filters: TWhereInput | null, mapCustomKey: (key: string, value: unknown) => TWhereInput): TWhereInput {
   const conditions: TWhereInput = {} as TWhereInput
 
@@ -9,13 +16,13 @@ export function whereGenerator<TWhereInput extends object>(filters: TWhereInput 
         const sub = {} as TWhereInput
 
         Object.entries(entry as Record<string, unknown>).forEach(([innerKey, innerValue]) => {
-          Object.assign(sub, mapCustomKey(innerKey, innerValue))
+          mergeMappedCondition(sub, mapCustomKey(innerKey, innerValue))
         })
 
         return sub
       })
     } else {
-      Object.assign(conditions, mapCustomKey(key, value))
+      mergeMappedCondition(conditions, mapCustomKey(key, value))
     }
   })
 

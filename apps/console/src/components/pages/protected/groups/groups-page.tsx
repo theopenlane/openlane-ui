@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import GroupsTable from '@/components/pages/protected/groups/components/groups-table'
 import { PlusCircle, SearchIcon, Upload } from 'lucide-react'
-import { type GetAllGroupsQueryVariables, type GroupSettingVisibility, type GroupWhereInput } from '@repo/codegen/src/schema'
+import { type GetAllGroupsQueryVariables, type GroupWhereInput } from '@repo/codegen/src/schema'
 import CreateGroupDialog from './components/dialogs/create-group-dialog'
 import GroupDetailsSheet from './components/group-details-sheet'
 import { Input } from '@repo/ui/input'
@@ -24,7 +24,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator, whereContainsKey } from '@/components/shared/table-filter/where-generator'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
-import { useGroupsFilters } from './table/table-config'
+import { mapGroupsFilterKey, useGroupsFilters } from './table/table-config'
 import { useOrgTablePagination, useOrgTableViewMode } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
@@ -98,21 +98,7 @@ const GroupsPage = () => {
 
     const searchClause: GroupWhereInput[] = debouncedSearchQuery ? [{ or: [{ nameContainsFold: debouncedSearchQuery }, { displayNameContainsFold: debouncedSearchQuery }] }] : []
 
-    const mapCustomKey = (key: string, value: unknown): GroupWhereInput => {
-      if (key === 'visibilityIn') {
-        return {
-          hasSettingWith: [
-            {
-              visibilityIn: value as GroupSettingVisibility[],
-            },
-          ],
-        }
-      }
-
-      return { [key]: value } as GroupWhereInput
-    }
-
-    const baseWhere = whereGenerator<GroupWhereInput>(whereFilters, mapCustomKey)
+    const baseWhere = whereGenerator<GroupWhereInput>(whereFilters, mapGroupsFilterKey)
     const includeSystemManaged = baseWhere?.and?.map((x) => x.isManaged).find((v) => v !== undefined)
     const andClauses = baseWhere?.and ?? []
     const extractedUserId = andClauses

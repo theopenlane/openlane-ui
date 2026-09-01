@@ -1,7 +1,7 @@
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { ObjectNames } from '@repo/codegen/src/type-names'
-import { type EntityQuery, EntityOrderField } from '@repo/codegen/src/schema'
+import { type EntityQuery, EntityOrderField, type EntityWhereInput } from '@repo/codegen/src/schema'
 import NameField from '../create/form/fields/name-field'
 import DescriptionField from '../create/form/fields/description-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
@@ -19,85 +19,86 @@ export const breadcrumbs = [
   { label: 'Registry', href: '/registry/vendors' },
   { label: 'Vendors', href: '/registry/vendors' },
 ]
-export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
-  {
-    key: 'statusIn',
-    label: 'Status',
-    type: 'multiselect',
-    icon: FilterIcons.Status,
-    options: enumOptions.entityStatusOptions,
-  },
-  {
-    key: 'tagsHas',
-    label: 'Tags',
-    type: 'dropdownSearchSingleSelect',
-    icon: FilterIcons.Tag,
-    options: enumOptions.tagOptions,
-  },
-  getScopeFilterField(enumOptions.scopeOptions),
-  getEnvironmentFilterField(enumOptions.environmentOptions),
-  {
-    key: 'entitySourceTypeNameIn',
-    label: 'Source Type',
-    type: 'multiselect',
-    icon: FilterIcons.Source,
-    options: enumOptions.sourceTypeOptions,
-  },
-  {
-    key: 'entityRelationshipStateNameIn',
-    label: 'Relationship State',
-    type: 'multiselect',
-    icon: FilterIcons.Relationships,
-    options: enumOptions.relationshipStateOptions,
-  },
-  {
-    key: 'entitySecurityQuestionnaireStatusNameIn',
-    label: 'Security Questionnaire Status',
-    type: 'multiselect',
-    icon: FilterIcons.Security,
-    options: enumOptions.securityQuestionnaireStatusOptions,
-  },
-  {
-    key: 'mfaSupported',
-    label: 'MFA Supported',
-    type: 'radio',
-    icon: FilterIcons.SecurityFeatureSupported,
-    radioOptions: [
-      { value: true, label: 'MFA Supported' },
-      { value: false, label: 'MFA Not Supported' },
-    ],
-  },
-  {
-    key: 'mfaEnforced',
-    label: 'MFA Enforced',
-    type: 'radio',
-    icon: FilterIcons.SecurityFeatureEnforced,
-    radioOptions: [
-      { value: true, label: 'MFA Enforced' },
-      { value: false, label: 'MFA Not Enforced' },
-    ],
-  },
-  {
-    key: 'ssoEnforced',
-    label: 'SSO Enforced',
-    type: 'radio',
-    icon: FilterIcons.SSO,
-    radioOptions: [
-      { value: true, label: 'SSO Enforced' },
-      { value: false, label: 'SSO Not Enforced' },
-    ],
-  },
-  {
-    key: 'hasSoc2',
-    label: 'Has SOC 2',
-    type: 'radio',
-    icon: FilterIcons.Security,
-    radioOptions: [
-      { value: true, label: 'Has SOC 2' },
-      { value: false, label: 'No SOC 2' },
-    ],
-  },
-]
+export const getFilterFields = (enumOptions: EnumOptions) =>
+  defineFilterFields<EntityWhereInput>()([
+    {
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
+      icon: FilterIcons.Status,
+      options: enumOptions.entityStatusOptions,
+    },
+    {
+      key: 'tagsHas',
+      label: 'Tags',
+      type: 'dropdownSearchSingleSelect',
+      icon: FilterIcons.Tag,
+      options: enumOptions.tagOptions,
+    },
+    getScopeFilterField(enumOptions.scopeOptions),
+    getEnvironmentFilterField(enumOptions.environmentOptions),
+    {
+      key: 'entitySourceTypeNameIn',
+      label: 'Source Type',
+      type: 'multiselect',
+      icon: FilterIcons.Source,
+      options: enumOptions.sourceTypeOptions,
+    },
+    {
+      key: 'entityRelationshipStateNameIn',
+      label: 'Relationship State',
+      type: 'multiselect',
+      icon: FilterIcons.Relationships,
+      options: enumOptions.relationshipStateOptions,
+    },
+    {
+      key: 'entitySecurityQuestionnaireStatusNameIn',
+      label: 'Security Questionnaire Status',
+      type: 'multiselect',
+      icon: FilterIcons.Security,
+      options: enumOptions.securityQuestionnaireStatusOptions,
+    },
+    {
+      key: 'mfaSupported',
+      label: 'MFA Supported',
+      type: 'radio',
+      icon: FilterIcons.SecurityFeatureSupported,
+      radioOptions: [
+        { value: true, label: 'MFA Supported' },
+        { value: false, label: 'MFA Not Supported' },
+      ],
+    },
+    {
+      key: 'mfaEnforced',
+      label: 'MFA Enforced',
+      type: 'radio',
+      icon: FilterIcons.SecurityFeatureEnforced,
+      radioOptions: [
+        { value: true, label: 'MFA Enforced' },
+        { value: false, label: 'MFA Not Enforced' },
+      ],
+    },
+    {
+      key: 'ssoEnforced',
+      label: 'SSO Enforced',
+      type: 'radio',
+      icon: FilterIcons.SSO,
+      radioOptions: [
+        { value: true, label: 'SSO Enforced' },
+        { value: false, label: 'SSO Not Enforced' },
+      ],
+    },
+    {
+      key: 'hasSoc2',
+      label: 'Has SOC 2',
+      type: 'radio',
+      icon: FilterIcons.Security,
+      radioOptions: [
+        { value: true, label: 'Has SOC 2' },
+        { value: false, label: 'No SOC 2' },
+      ],
+    },
+  ])
 
 export const VENDORS_SORT_FIELDS = enumToSortFields(EntityOrderField)
 

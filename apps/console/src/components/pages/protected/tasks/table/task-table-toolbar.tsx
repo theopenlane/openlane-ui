@@ -1,6 +1,6 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useMemo, useState } from 'react'
-import { getTasksFilterFields } from '@/components/pages/protected/tasks/table/table-config.ts'
+import { getTaskQuickFilters, getTasksFilterFields } from '@/components/pages/protected/tasks/table/table-config.ts'
 import { taskDefaultFilterValues } from '@/components/pages/protected/tasks/util/task'
 import CreateTaskDropdown from '@/components/pages/protected/tasks/create-task/dialog/create-task-dropdown'
 import { type FilterField } from '@/types'
@@ -12,7 +12,7 @@ import Menu from '@/components/shared/menu/menu'
 import { type VisibilityState } from '@repo/ui/table-types'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { Input } from '@repo/ui/input'
-import { TaskTaskStatus, type TaskWhereInput } from '@repo/codegen/src/schema'
+import { type TaskWhereInput } from '@repo/codegen/src/schema'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
 import { type TTableViewMode } from '@/hooks/use-org-table-state'
 import { Button } from '@repo/ui/button'
@@ -20,8 +20,7 @@ import { BulkEditTasksDialog } from '../bulk-edit/bulk-edit-tasks'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
-import { endOfWeek, format, startOfDay, startOfWeek } from 'date-fns'
-import { DateFormatStorage, type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
+import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { useNotification } from '@/hooks/useNotification'
 import { useBulkDeleteTask } from '@/lib/graphql-hooks/task'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -71,73 +70,7 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
     },
   })
 
-  const quickFilters: TQuickFilter[] = useMemo(() => {
-    return [
-      {
-        label: 'Completed',
-        key: 'completed',
-        type: 'custom',
-        getCondition: () => ({ statusIn: [TaskTaskStatus.COMPLETED] }),
-        isActive: false,
-      },
-      {
-        label: 'Open',
-        key: 'open',
-        type: 'custom',
-        getCondition: () => ({ statusIn: [TaskTaskStatus.OPEN] }),
-        isActive: false,
-      },
-      {
-        label: 'My Tasks',
-        key: 'myTasks',
-        type: 'custom',
-        getCondition: () => ({ assigneeID: session?.user?.userId }),
-        isActive: props.showMyTasks ?? false,
-      },
-      {
-        label: 'Overdue',
-        key: 'overdue',
-        type: 'custom',
-        getCondition: () => ({ dueLT: format(startOfDay(new Date()), DateFormatStorage) }),
-        isActive: false,
-      },
-      {
-        label: 'Due This Week',
-        key: 'dueThisWeek',
-        type: 'custom',
-        getCondition: () => {
-          const start = startOfWeek(new Date(), { weekStartsOn: 1 })
-          const end = endOfWeek(new Date(), { weekStartsOn: 1 })
-          return {
-            dueGTE: format(startOfDay(start), DateFormatStorage),
-            dueLT: format(startOfDay(end), DateFormatStorage),
-          }
-        },
-        isActive: false,
-      },
-      {
-        label: 'Unassigned',
-        key: 'unassigned',
-        type: 'custom',
-        getCondition: () => ({ assigneeIDIsNil: true }),
-        isActive: false,
-      },
-      {
-        label: 'Suggested',
-        key: 'suggested',
-        type: 'custom',
-        getCondition: () => ({ isSuggested: true }),
-        isActive: false,
-      },
-      {
-        label: 'Templates',
-        key: 'templates',
-        type: 'custom',
-        getCondition: () => ({ isTemplate: true }),
-        isActive: false,
-      },
-    ]
-  }, [props.showMyTasks, session?.user?.userId])
+  const quickFilters: TQuickFilter[] = useMemo(() => getTaskQuickFilters(session?.user?.userId, props.showMyTasks ?? false), [props.showMyTasks, session?.user?.userId])
 
   const handleBulkDelete = async () => {
     if (!props.selectedTasks) {

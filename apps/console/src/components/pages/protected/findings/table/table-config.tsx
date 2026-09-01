@@ -1,9 +1,9 @@
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import NameField from '../create/form/fields/name-field'
 import DescriptionField from '../create/form/fields/description-field'
-import { type FindingQuery, FindingOrderField, FindingSecurityLevel } from '@repo/codegen/src/schema'
+import { type FindingQuery, FindingOrderField, FindingSecurityLevel, type FindingWhereInput } from '@repo/codegen/src/schema'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { type FindingFieldProps, type EnumOptions, type EnumCreateHandlers } from './types'
@@ -22,72 +22,73 @@ export const breadcrumbs = [
   { label: 'Findings', href: '/exposure/findings' },
 ]
 
-export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
-  {
-    key: 'categoryContainsFold',
-    label: 'Category',
-    type: 'text',
-    icon: FilterIcons.Category,
-  },
-  {
-    key: 'securityLevelIn',
-    label: 'Severity',
-    type: 'multiselect',
-    options: enumToOptions(FindingSecurityLevel),
-    icon: FilterIcons.Criticality,
-  },
-  {
-    key: 'findingStatusNameIn',
-    label: 'Status',
-    type: 'multiselect',
-    options: enumOptions.findingStatusOptions,
-    icon: FilterIcons.Status,
-  },
-  {
-    key: 'priorityContainsFold',
-    label: 'Priority',
-    type: 'text',
-    icon: FilterIcons.Tier,
-  },
-  {
-    key: 'sourceContainsFold',
-    label: 'Source',
-    type: 'text',
-    icon: FilterIcons.Source,
-  },
-  {
-    key: 'open',
-    label: 'Open',
-    type: 'radio',
-    icon: FilterIcons.Access,
-    radioOptions: [
-      { value: true, label: 'Open' },
-      { value: false, label: 'Closed' },
-    ],
-  },
-  {
-    key: 'production',
-    label: 'Production',
-    type: 'radio',
-    icon: FilterIcons.Environment,
-    radioOptions: [
-      { value: true, label: 'Production' },
-      { value: false, label: 'Non-production' },
-    ],
-  },
-  {
-    key: 'validated',
-    label: 'Validated',
-    type: 'radio',
-    icon: FilterIcons.ID,
-    radioOptions: [
-      { value: true, label: 'Validated' },
-      { value: false, label: 'Unvalidated' },
-    ],
-  },
-  getEnvironmentFilterField(enumOptions.environmentOptions),
-  getScopeFilterField(enumOptions.scopeOptions),
-]
+export const getFilterFields = (enumOptions: EnumOptions) =>
+  defineFilterFields<FindingWhereInput>()([
+    {
+      key: 'categoryContainsFold',
+      label: 'Category',
+      type: 'text',
+      icon: FilterIcons.Category,
+    },
+    {
+      key: 'securityLevelIn',
+      label: 'Severity',
+      type: 'multiselect',
+      options: enumToOptions(FindingSecurityLevel),
+      icon: FilterIcons.Criticality,
+    },
+    {
+      key: 'findingStatusNameIn',
+      label: 'Status',
+      type: 'multiselect',
+      options: enumOptions.findingStatusOptions,
+      icon: FilterIcons.Status,
+    },
+    {
+      key: 'priorityContainsFold',
+      label: 'Priority',
+      type: 'text',
+      icon: FilterIcons.Tier,
+    },
+    {
+      key: 'sourceContainsFold',
+      label: 'Source',
+      type: 'text',
+      icon: FilterIcons.Source,
+    },
+    {
+      key: 'open',
+      label: 'Open',
+      type: 'radio',
+      icon: FilterIcons.Access,
+      radioOptions: [
+        { value: true, label: 'Open' },
+        { value: false, label: 'Closed' },
+      ],
+    },
+    {
+      key: 'production',
+      label: 'Production',
+      type: 'radio',
+      icon: FilterIcons.Environment,
+      radioOptions: [
+        { value: true, label: 'Production' },
+        { value: false, label: 'Non-production' },
+      ],
+    },
+    {
+      key: 'validated',
+      label: 'Validated',
+      type: 'radio',
+      icon: FilterIcons.ID,
+      radioOptions: [
+        { value: true, label: 'Validated' },
+        { value: false, label: 'Unvalidated' },
+      ],
+    },
+    getEnvironmentFilterField(enumOptions.environmentOptions),
+    getScopeFilterField(enumOptions.scopeOptions),
+  ])
 
 export const FINDINGS_SORT_FIELDS = enumToSortFields(FindingOrderField)
 

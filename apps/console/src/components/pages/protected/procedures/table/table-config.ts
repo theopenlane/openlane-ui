@@ -1,4 +1,5 @@
-import { type FilterField } from '@/types'
+import { type ProcedureWhereInput } from '@repo/codegen/src/schema'
+import { defineFilterFields, type FilterField } from '@/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
@@ -6,6 +7,89 @@ import { FilterIcons, ProcedureStatusFilterOptions } from '@/components/shared/e
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
+
+type TOption = { value: string; label: string }
+
+export const getProceduresFilterFields = (groupOptions: TOption[], programOptions: TOption[], enumOptions: TOption[], tagOptions: TOption[], hasProgramAccess: boolean) =>
+  defineFilterFields<ProcedureWhereInput>()([
+    {
+      key: 'approverIDIn',
+      label: 'Approver Group',
+      type: 'multiselect',
+      options: groupOptions,
+      icon: FilterIcons.ApproverGroup,
+    },
+    {
+      key: 'hasControlsWith',
+      label: 'Control Ref Code',
+      type: 'text',
+      icon: FilterIcons.Control,
+    },
+    ...getProgramFilterFields(programOptions, hasProgramAccess),
+    {
+      key: 'hasSubcontrolsWith',
+      label: 'Subcontrol Ref Code',
+      type: 'text',
+      icon: FilterIcons.Subcontrol,
+    },
+    {
+      key: 'procedureKindNameIn',
+      label: 'Type',
+      type: 'multiselect',
+      icon: FilterIcons.Type,
+      options: enumOptions,
+    },
+    {
+      key: 'reviewDue',
+      label: 'Review Due',
+      type: 'dateRange',
+      icon: FilterIcons.ReviewDue,
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      type: 'select',
+      options: ProcedureStatusFilterOptions,
+      icon: FilterIcons.Status,
+    },
+    {
+      key: 'hasControls',
+      label: 'Linked Controls',
+      type: 'radio',
+      radioOptions: [
+        { value: true, label: 'Has linked controls' },
+        { value: false, label: 'No linked controls' },
+      ],
+      icon: FilterIcons.LinkedControls,
+    },
+    {
+      key: 'hasInternalPolicies',
+      label: 'Linked Policies',
+      type: 'radio',
+      radioOptions: [
+        { value: true, label: 'Has linked policies' },
+        { value: false, label: 'No linked policies' },
+      ],
+      icon: FilterIcons.LinkedControls,
+    },
+    {
+      key: 'hasComments',
+      label: 'Has Comments',
+      type: 'radio',
+      icon: FilterIcons.Comments,
+      radioOptions: [
+        { value: true, label: 'Has comments' },
+        { value: false, label: 'No comments' },
+      ],
+    },
+    {
+      key: 'tagsHas',
+      label: 'Tags',
+      type: 'dropdownSearchSingleSelect',
+      icon: FilterIcons.Status,
+      options: tagOptions,
+    },
+  ])
 
 export function useProceduresFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess, hasProgramAccess } = useProgramSelect()
@@ -24,87 +108,7 @@ export function useProceduresFilters(): FilterField[] | null {
 
   useEffect(() => {
     if (!isProgramSuccess || !isGroupSuccess || !isTypesSuccess || filters) return
-    const newFilters: FilterField[] = [
-      {
-        key: 'approverIDIn',
-        label: 'Approver Group',
-        type: 'multiselect',
-        options: groupOptions,
-        icon: FilterIcons.ApproverGroup,
-      },
-      {
-        key: 'hasControlsWith',
-        label: 'Control Ref Code',
-        type: 'text',
-        icon: FilterIcons.Control,
-      },
-      ...getProgramFilterFields(programOptions, hasProgramAccess),
-      {
-        key: 'hasSubcontrolsWith',
-        label: 'Subcontrol Ref Code',
-        type: 'text',
-        icon: FilterIcons.Subcontrol,
-      },
-      {
-        key: 'procedureKindNameIn',
-        label: 'Type',
-        type: 'multiselect',
-        icon: FilterIcons.Type,
-        options: enumOptions,
-      },
-      {
-        key: 'reviewDue',
-        label: 'Review Due',
-        type: 'dateRange',
-        icon: FilterIcons.ReviewDue,
-      },
-      {
-        key: 'status',
-        label: 'Status',
-        type: 'select',
-        options: ProcedureStatusFilterOptions,
-        icon: FilterIcons.Status,
-      },
-      {
-        key: 'hasControls',
-        label: 'Linked Controls',
-        type: 'radio',
-        radioOptions: [
-          { value: true, label: 'Has linked controls' },
-          { value: false, label: 'No linked controls' },
-        ],
-        icon: FilterIcons.LinkedControls,
-      },
-      {
-        key: 'hasPolicies',
-        label: 'Linked Policies',
-        type: 'radio',
-        radioOptions: [
-          { value: true, label: 'Has linked policies' },
-          { value: false, label: 'No linked policies' },
-        ],
-        icon: FilterIcons.LinkedControls,
-      },
-      {
-        key: 'hasComments',
-        label: 'Has Comments',
-        type: 'radio',
-        icon: FilterIcons.Comments,
-        radioOptions: [
-          { value: true, label: 'Has comments' },
-          { value: false, label: 'No comments' },
-        ],
-      },
-      {
-        key: 'tagsHas',
-        label: 'Tags',
-        type: 'dropdownSearchSingleSelect',
-        icon: FilterIcons.Status,
-        options: tagOptions,
-      },
-    ]
-
-    setFilters(newFilters)
+    setFilters(getProceduresFilterFields(groupOptions, programOptions, enumOptions, tagOptions, hasProgramAccess))
   }, [isProgramSuccess, hasProgramAccess, programOptions, isGroupSuccess, groupOptions, filters, enumOptions, isTypesSuccess, tagOptions])
   return filters
 }
@@ -121,3 +125,15 @@ export const PROCEDURES_SORTABLE_FIELDS = [
   { key: 'created_at', label: 'Created At' },
   { key: 'updated_at', label: 'Last Updated' },
 ]
+
+export const mapProceduresFilterKey = (key: string, value: unknown): ProcedureWhereInput => {
+  if (key === 'hasControlsWith') {
+    return { hasControlsWith: [{ refCodeContainsFold: value as string }] }
+  }
+
+  if (key === 'hasSubcontrolsWith') {
+    return { hasSubcontrolsWith: [{ refCodeContainsFold: value as string }] }
+  }
+
+  return { [key]: value }
+}

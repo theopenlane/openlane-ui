@@ -18,10 +18,11 @@ import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { createAuditorControlsFilterMapper } from './table-config'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import CreateControlReviewSheet from '@/components/pages/protected/controls/quick-actions/create-control-review-sheet'
-import ReviewSheetResolver from '@/components/pages/protected/reviews/common/review-sheet-resolver'
+import ViewReviewSheet from '@/components/pages/protected/reviews/view-review-sheet'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import RequestInfoSheet from './request-info-sheet'
 import { ExportEvidenceDialog } from '@/components/pages/protected/evidence/dialog/export-evidence-dialog'
@@ -29,7 +30,6 @@ import { BulkCSVCreateEvidenceDialog } from '@/components/pages/protected/eviden
 import { getControlReview, getControlLastReviewed } from '../utils/control-status'
 import { getAuditorDashboardColumns, getAuditorDashboardMappedColumns, type AuditorDashboardControlRow } from './columns'
 import useFileExport from '@/components/shared/export/use-file-export'
-import { buildCustomStandardFilterWhere, isCustomStandardFilter } from '@/components/shared/table-filter/custom-standard-filter'
 import { AUDITOR_CONTROL_EXPORT_FIELDS, AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES, getAuditorDashboardFilterFields, getAuditorDashboardQuickFilters } from './table-config'
 
 type AuditorControlsTableProps = {
@@ -66,18 +66,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
   }, [queryClient])
 
   const where: ControlWhereInput = useMemo(() => {
-    const generated = whereGenerator<ControlWhereInput>(filters, (key, value) => {
-      if (isCustomStandardFilter(key, value)) {
-        return buildCustomStandardFilterWhere(value)
-      }
-      if (key === 'reviewStatusIn') {
-        return { hasReviewsWith: [{ statusIn: value, hasProgramsWith: [{ id: programId }] }] } as ControlWhereInput
-      }
-      if (key === 'evidenceStatusIn') {
-        return { hasEvidenceWith: [{ statusIn: value, hasProgramsWith: [{ id: programId }] }] } as ControlWhereInput
-      }
-      return { [key]: value } as ControlWhereInput
-    })
+    const generated = whereGenerator<ControlWhereInput>(filters, createAuditorControlsFilterMapper(programId))
 
     const base: ControlWhereInput = { hasProgramsWith: [{ id: programId }], ...generated }
     if (debouncedSearch) {
@@ -185,7 +174,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
       />
 
       <CreateControlReviewSheet open={!!startReviewControlId} onOpenChange={(next) => !next && handleReviewSheetClose()} controlId={startReviewControlId ?? ''} programId={programId} />
-      {openReviewId && <ReviewSheetResolver reviewId={openReviewId} onClose={handleReviewSheetClose} />}
+      {openReviewId && <ViewReviewSheet entityId={openReviewId} onClose={handleReviewSheetClose} />}
       <RequestInfoSheet controlId={requestInfoControl?.id ?? null} refCode={requestInfoControl?.refCode} onClose={() => setRequestInfoControl(null)} />
       <EvidenceDetailsSheet />
     </div>

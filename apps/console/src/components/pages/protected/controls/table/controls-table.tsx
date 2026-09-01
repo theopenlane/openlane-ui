@@ -13,7 +13,6 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { HIDE_BELOW_1400, TOOLBAR_CONTAINER } from '@/constants/toolbar'
 import ControlsTableToolbar from './controls-table-toolbar'
 import { CONTROLS_SORT_FIELDS, getControlColumns } from './table-config'
-import { buildCustomStandardFilterWhere, isCustomStandardFilter } from '@/components/shared/table-filter/custom-standard-filter'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@repo/ui/table-types'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -24,6 +23,7 @@ import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { mapControlsFilterKey } from './table-config'
 import { hasStatusCondition } from '@/components/shared/table-filter/has-status-condition'
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
@@ -95,13 +95,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   })
 
   const whereFilter = useMemo(() => {
-    const result = whereGenerator<ControlWhereInput>(filters, (key, value) => {
-      if (isCustomStandardFilter(key, value)) {
-        return buildCustomStandardFilterWhere(value)
-      }
-
-      return { [key]: value } as ControlWhereInput
-    })
+    const result = whereGenerator<ControlWhereInput>(filters, mapControlsFilterKey)
 
     if (!hasStatusCondition(result)) {
       result.statusNEQ = ControlControlStatus.ARCHIVED

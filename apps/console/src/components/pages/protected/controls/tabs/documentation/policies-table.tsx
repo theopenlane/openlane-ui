@@ -5,7 +5,8 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { ViewPolicySheet } from '@/components/pages/protected/policies/view-policy-sheet'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
-import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config'
+import { withoutControlScopedFilters } from './documentation-filter-fields'
+import { mapPoliciesFilterKey, usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config'
 import { SetControlAssociationDialog } from '@/components/pages/protected/controls/set-control-association-dialog'
 import { useDocumentationPolicies } from '@/lib/graphql-hooks/documentation'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
@@ -45,7 +46,7 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds,
   const debouncedSearch = useDebounce(search, 300)
   const [filters, setFilters] = useState<WhereCondition>({})
   const filterFields = usePoliciesFilters()
-  const filteredFields = useMemo(() => filterFields?.filter((field) => field.key !== 'hasControlsWith' && field.key !== 'hasSubcontrolsWith') ?? null, [filterFields])
+  const filteredFields = useMemo(() => withoutControlScopedFilters(filterFields), [filterFields])
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
   const where = useMemo(() => {
@@ -53,12 +54,7 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds,
       nameContainsFold: debouncedSearch,
     }
 
-    const result = whereGenerator<InternalPolicyWhereInput>(filters as InternalPolicyWhereInput, (key, value) => {
-      if (key === 'hasControlsWith' || key === 'hasSubcontrolsWith') {
-        return {} as InternalPolicyWhereInput
-      }
-      return { [key]: value }
-    })
+    const result = whereGenerator<InternalPolicyWhereInput>(filters as InternalPolicyWhereInput, mapPoliciesFilterKey)
 
     const hasStatusCondition = (obj: InternalPolicyWhereInput): boolean => {
       if ('status' in obj || 'statusNEQ' in obj || 'statusIn' in obj || 'statusNotIn' in obj) return true

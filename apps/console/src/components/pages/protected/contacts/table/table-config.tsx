@@ -1,7 +1,7 @@
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { ObjectNames } from '@repo/codegen/src/type-names'
-import { ContactOrderField, type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
+import { ContactOrderField, type ContactQuery, type UpdateContactInput, type ContactWhereInput } from '@repo/codegen/src/schema'
 import NameField from '../create/form/fields/name-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
@@ -17,22 +17,23 @@ export const breadcrumbs = [
   { label: 'Contacts', href: '/registry/contacts' },
 ]
 
-export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
-  {
-    key: 'statusIn',
-    label: 'Status',
-    type: 'multiselect',
-    icon: FilterIcons.Status,
-    options: enumOptions.statusOptions,
-  },
-  {
-    key: 'tagsHas',
-    label: 'Tags',
-    type: 'dropdownSearchSingleSelect',
-    icon: FilterIcons.Tag,
-    options: enumOptions.tagOptions,
-  },
-]
+export const getFilterFields = (enumOptions: EnumOptions) =>
+  defineFilterFields<ContactWhereInput>()([
+    {
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
+      icon: FilterIcons.Status,
+      options: enumOptions.statusOptions,
+    },
+    {
+      key: 'tagsHas',
+      label: 'Tags',
+      type: 'dropdownSearchSingleSelect',
+      icon: FilterIcons.Tag,
+      options: enumOptions.tagOptions,
+    },
+  ])
 
 export const CONTACTS_SORT_FIELDS = enumToSortFields(ContactOrderField)
 

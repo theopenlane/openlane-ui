@@ -1,10 +1,12 @@
-import { EvidenceOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
+import { EvidenceOrderField, OrderDirection, type EvidenceWhereInput } from '@repo/codegen/src/schema.ts'
 import { EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { defineFilterFields } from '@/types'
 
+export const EVIDENCE_REMAPPED_FILTER_KEYS = ['satisfiesFramework'] as const
+
 export const getEvidenceFilterableFields = (frameworkOptions: { value: string; label: string }[], tagOptions: { value: string; label: string }[]) =>
-  defineFilterFields([
+  defineFilterFields<EvidenceWhereInput, (typeof EVIDENCE_REMAPPED_FILTER_KEYS)[number]>()([
     { key: 'name', label: 'Name', type: 'text', icon: FilterIcons.Name },
     { key: 'description', label: 'Description', type: 'text', icon: FilterIcons.Description },
     { key: 'isAutomated', label: 'Is Automated', type: 'boolean', icon: FilterIcons.IsAutomated },
@@ -55,3 +57,11 @@ export const EVIDENCE_SORTABLE_FIELDS = [
   { key: 'renewal_date', label: 'Renewal Date' },
   { key: 'creation_date', label: 'Creation Date' },
 ]
+
+export const mapEvidenceFilterKey = (key: string, value: unknown): EvidenceWhereInput => {
+  if (key === 'satisfiesFramework' && Array.isArray(value) && value.length > 0) {
+    return { or: [{ hasControlsWith: [{ standardIDIn: value }] }, { hasSubcontrolsWith: [{ hasControlWith: [{ standardIDIn: value }] }] }] }
+  }
+
+  return { [key]: value }
+}

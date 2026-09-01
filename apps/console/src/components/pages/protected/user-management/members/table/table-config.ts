@@ -1,7 +1,7 @@
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { InvitesFilterIcons, MembersFilterIcons } from '@/components/shared/enum-mapper/members-enum'
 import { defineFilterFields } from '@/types'
-import { InviteInviteStatus, InviteRole, OrgMembershipRole, UserAuthProvider } from '@repo/codegen/src/schema'
+import { InviteInviteStatus, InviteRole, OrgMembershipRole, UserAuthProvider, type InviteWhereInput, type OrgMembershipWhereInput } from '@repo/codegen/src/schema'
 
 const AUTH_PROVIDER_LABELS: Partial<Record<UserAuthProvider, string>> = {
   [UserAuthProvider.CREDENTIALS]: 'Credentials',
@@ -18,7 +18,9 @@ const INVITE_STATUS_LABELS: Partial<Record<InviteInviteStatus, string>> = {
   [InviteInviteStatus.APPROVAL_REQUIRED]: 'Approval required',
 }
 
-export const MEMBERS_FILTER_FIELDS = defineFilterFields([
+export const MEMBERS_REMAPPED_FILTER_KEYS = ['authProviderIn'] as const
+
+export const MEMBERS_FILTER_FIELDS = defineFilterFields<OrgMembershipWhereInput, (typeof MEMBERS_REMAPPED_FILTER_KEYS)[number]>()([
   {
     key: 'authProviderIn',
     label: 'Providers',
@@ -37,7 +39,7 @@ export const MEMBERS_FILTER_FIELDS = defineFilterFields([
 
 export type TMemberFilterKey = (typeof MEMBERS_FILTER_FIELDS)[number]['key']
 
-export const INVITES_FILTER_FIELDS = defineFilterFields([
+export const INVITES_FILTER_FIELDS = defineFilterFields<InviteWhereInput>()([
   { key: 'createdAt', label: 'Created At', type: 'dateRange', icon: InvitesFilterIcons.CreatedAt },
   {
     key: 'roleIn',
@@ -70,3 +72,11 @@ export const MEMBERS_SORT_FIELDS = [
   { key: 'created_at', label: 'Created At' },
   { key: 'updated_at', label: 'Updated At' },
 ]
+
+export const mapMembersFilterKey = (key: string, value: unknown): OrgMembershipWhereInput => {
+  if (key === 'authProviderIn') {
+    return { hasUserWith: [{ authProviderIn: value as UserAuthProvider[] }] }
+  }
+
+  return { [key]: value }
+}

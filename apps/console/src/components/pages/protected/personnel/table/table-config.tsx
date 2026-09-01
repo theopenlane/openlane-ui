@@ -1,7 +1,7 @@
-import { type FilterField } from '@/types'
+import { defineFilterFields } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { ObjectNames } from '@repo/codegen/src/type-names'
-import { type IdentityHolderQuery, IdentityHolderOrderField } from '@repo/codegen/src/schema'
+import { type IdentityHolderQuery, IdentityHolderOrderField, type IdentityHolderWhereInput } from '@repo/codegen/src/schema'
 import NameField from '../create/form/fields/name-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
@@ -19,51 +19,52 @@ export const breadcrumbs = [
   { label: 'Personnel', href: '/registry/personnel' },
 ]
 
-export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
-  {
-    key: 'statusIn',
-    label: 'Status',
-    type: 'multiselect',
-    icon: FilterIcons.Status,
-    options: enumOptions.statusOptions,
-  },
-  {
-    key: 'identityHolderTypeIn',
-    label: 'Type',
-    type: 'multiselect',
-    icon: FilterIcons.Type,
-    options: enumOptions.identityHolderTypeOptions,
-  },
-  {
-    key: 'isActive',
-    label: 'Active',
-    type: 'radio',
-    icon: FilterIcons.Status,
-    radioOptions: [
-      { value: true, label: 'Active' },
-      { value: false, label: 'Not Active' },
-    ],
-  },
-  {
-    key: 'isOpenlaneUser',
-    label: 'Openlane User',
-    type: 'radio',
-    icon: FilterIcons.Access,
-    radioOptions: [
-      { value: true, label: 'Openlane User' },
-      { value: false, label: 'Not Openlane User' },
-    ],
-  },
-  getEnvironmentFilterField(enumOptions.environmentOptions),
-  getScopeFilterField(enumOptions.scopeOptions),
-  {
-    key: 'tagsHas',
-    label: 'Tags',
-    type: 'dropdownSearchSingleSelect',
-    icon: FilterIcons.Tag,
-    options: enumOptions.tagOptions,
-  },
-]
+export const getFilterFields = (enumOptions: EnumOptions) =>
+  defineFilterFields<IdentityHolderWhereInput>()([
+    {
+      key: 'statusIn',
+      label: 'Status',
+      type: 'multiselect',
+      icon: FilterIcons.Status,
+      options: enumOptions.statusOptions,
+    },
+    {
+      key: 'identityHolderTypeIn',
+      label: 'Type',
+      type: 'multiselect',
+      icon: FilterIcons.Type,
+      options: enumOptions.identityHolderTypeOptions,
+    },
+    {
+      key: 'isActive',
+      label: 'Active',
+      type: 'radio',
+      icon: FilterIcons.Status,
+      radioOptions: [
+        { value: true, label: 'Active' },
+        { value: false, label: 'Not Active' },
+      ],
+    },
+    {
+      key: 'isOpenlaneUser',
+      label: 'Openlane User',
+      type: 'radio',
+      icon: FilterIcons.Access,
+      radioOptions: [
+        { value: true, label: 'Openlane User' },
+        { value: false, label: 'Not Openlane User' },
+      ],
+    },
+    getEnvironmentFilterField(enumOptions.environmentOptions),
+    getScopeFilterField(enumOptions.scopeOptions),
+    {
+      key: 'tagsHas',
+      label: 'Tags',
+      type: 'dropdownSearchSingleSelect',
+      icon: FilterIcons.Tag,
+      options: enumOptions.tagOptions,
+    },
+  ])
 
 export const PERSONNEL_SORT_FIELDS = enumToSortFields(IdentityHolderOrderField)
 

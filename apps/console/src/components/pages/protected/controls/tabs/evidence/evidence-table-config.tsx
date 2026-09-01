@@ -1,8 +1,9 @@
+import { type EvidenceWhereInput } from '@repo/codegen/src/schema'
+import { defineFilterFields } from '@/types'
 import React from 'react'
 import type { ColumnDef } from '@repo/ui/table-types'
 import { formatDateSince } from '@/utils/date'
 import { EvidenceIconMapper, EvidenceStatusOptions, getEvidenceStatusLabel } from '@/components/shared/enum-mapper/evidence-enum'
-import type { FilterField } from '@/types'
 import type { EvidenceEvidenceStatus, User } from '@repo/codegen/src/schema.ts'
 import { type AuthorToken } from '@/lib/authors'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
@@ -20,15 +21,16 @@ export type EvidenceRow = {
   updatedBy?: string | null
 }
 
-export const getEvidenceFilterFields = (): FilterField[] => [
-  { key: 'nameContainsFold', label: 'Name', type: 'text', icon: FilterIcons.Name },
-  { key: 'statusIn', label: 'Status', type: 'multiselect', options: EvidenceStatusOptions, icon: FilterIcons.Status },
-  { key: 'creationDate', label: 'Created', type: 'dateRange', icon: FilterIcons.Date },
-  { key: 'renewalDate', label: 'Renewed', type: 'dateRange', icon: FilterIcons.Date },
-  { key: 'scopeNameIn', label: 'Scope', type: 'text', icon: FilterIcons.Scope, nullableKey: 'scopeName' },
-  { key: 'environmentNameIn', label: 'Environment', type: 'text', icon: FilterIcons.Environment, nullableKey: 'environmentName' },
-  { key: 'externalUUIDContainsFold', label: 'External UUID', type: 'text', icon: FilterIcons.ID },
-]
+export const getEvidenceFilterFields = () =>
+  defineFilterFields<EvidenceWhereInput>()([
+    { key: 'nameContainsFold', label: 'Name', type: 'text', icon: FilterIcons.Name },
+    { key: 'statusIn', label: 'Status', type: 'multiselect', options: EvidenceStatusOptions, icon: FilterIcons.Status },
+    { key: 'creationDate', label: 'Created', type: 'dateRange', icon: FilterIcons.Date },
+    { key: 'renewalDate', label: 'Renewed', type: 'dateRange', icon: FilterIcons.Date },
+    { key: 'scopeNameIn', label: 'Scope', type: 'text', icon: FilterIcons.Scope, nullableKey: 'scopeName' },
+    { key: 'environmentNameIn', label: 'Environment', type: 'text', icon: FilterIcons.Environment, nullableKey: 'environmentName' },
+    { key: 'externalUUIDContainsFold', label: 'External UUID', type: 'text', icon: FilterIcons.ID },
+  ])
 
 export const getEvidenceColumns = (
   onOpenEvidence: (id: string) => void,
