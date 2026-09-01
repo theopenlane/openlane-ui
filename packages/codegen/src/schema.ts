@@ -4759,28 +4759,6 @@ export interface GetIdentityHolderAssociationsTimelineQuery {
   }
 }
 
-export type GetIdentityHolderEdgesForMergeQueryVariables = Exact<{
-  identityHolderId: string
-}>
-
-export interface GetIdentityHolderEdgesForMergeQuery {
-  identityHolder: {
-    id: string
-    userID: string | null
-    directoryAccounts: { edges: Array<{ node: { id: string } | null } | null> | null }
-    assessmentResponses: { edges: Array<{ node: { id: string } | null } | null> | null }
-    assets: { edges: Array<{ node: { id: string } | null } | null> | null }
-    entities: { edges: Array<{ node: { id: string } | null } | null> | null }
-    campaigns: { edges: Array<{ node: { id: string } | null } | null> | null }
-    tasks: { edges: Array<{ node: { id: string } | null } | null> | null }
-    controls: { edges: Array<{ node: { id: string } | null } | null> | null }
-    internalPolicies: { edges: Array<{ node: { id: string } | null } | null> | null }
-    subcontrols: { edges: Array<{ node: { id: string } | null } | null> | null }
-    findings: { edges: Array<{ node: { id: string } | null } | null> | null }
-    files: { edges: Array<{ node: { id: string } | null } | null> | null }
-  }
-}
-
 export type GetIntegrationsQueryVariables = Exact<{
   where?: Types.IntegrationWhereInput | null | undefined
 }>

@@ -31,6 +31,7 @@ import { type FilterField, type WhereInputKey } from '@/types'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type User } from '@repo/codegen/src/schema'
 import { type AuthorToken } from '@/lib/authors'
+import { MergeModeProvider } from '@/components/shared/merge-records/merge-mode-context'
 import type { BulkDeletePayload, ViewEditMode, CreateMode } from './types'
 import { type Session } from 'next-auth'
 
@@ -370,7 +371,7 @@ export function GenericTablePage<
   }
 
   return (
-    <>
+    <MergeModeProvider>
       {beforeTable}
       <ToolbarToUse
         entityType={objectType}
@@ -427,6 +428,6 @@ export function GenericTablePage<
       )}
 
       {renderDetailView()}
-    </>
+    </MergeModeProvider>
   )
 }

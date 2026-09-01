@@ -4,15 +4,16 @@ import React, { useState } from 'react'
 import { ArrowRightLeft } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { MergeRecordsSheet } from './merge-records-sheet'
+import type { MergeableTypeName } from '@repo/codegen/src/merge-fields.generated'
 import type { MergeConfig } from './types'
 
-type Props<TRecord extends object, TUpdateInput> = {
+type Props<TRecord extends object, TUpdateInput, TEntity extends MergeableTypeName> = {
   primaryId: string
-  config: MergeConfig<TRecord, TUpdateInput>
+  config: MergeConfig<TRecord, TUpdateInput, TEntity>
   onMergeComplete?: () => void
 }
 
-export const MergeMenuItem = <TRecord extends object, TUpdateInput>({ primaryId, config, onMergeComplete }: Props<TRecord, TUpdateInput>) => {
+export const MergeMenuItem = <TRecord extends object, TUpdateInput, TEntity extends MergeableTypeName>({ primaryId, config, onMergeComplete }: Props<TRecord, TUpdateInput, TEntity>) => {
   const [open, setOpen] = useState(false)
   return (
     <>
@@ -25,7 +26,7 @@ export const MergeMenuItem = <TRecord extends object, TUpdateInput>({ primaryId,
   )
 }
 
-export const MergeHeaderButton = <TRecord extends object, TUpdateInput>({ primaryId, config, onMergeComplete }: Props<TRecord, TUpdateInput>) => {
+export const MergeHeaderButton = <TRecord extends object, TUpdateInput, TEntity extends MergeableTypeName>({ primaryId, config, onMergeComplete }: Props<TRecord, TUpdateInput, TEntity>) => {
   const [open, setOpen] = useState(false)
   return (
     <>

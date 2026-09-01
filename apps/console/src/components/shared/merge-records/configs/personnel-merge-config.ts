@@ -1,9 +1,8 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useIdentityHolder, useUpdateIdentityHolder, useDeleteIdentityHolder, useIdentityHoldersWithFilter, useGetIdentityHolderEdgesForMerge } from '@/lib/graphql-hooks/identity-holder'
+import { useIdentityHolder, useUpdateIdentityHolder, useDeleteIdentityHolder, useIdentityHoldersWithFilter } from '@/lib/graphql-hooks/identity-holder'
 import { type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
-import { IDENTITY_HOLDER_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import type { MergeConfig, MergeEdgeTransferCount, MergeFieldOverrides, MergePreSaveExtrasResult } from '../types'
 
 type Personnel = NonNullable<IdentityHolderQuery['identityHolder']>
@@ -80,80 +79,21 @@ const useSearchPersonnel = (search: string, excludeId: string) => {
   return { options, isLoading }
 }
 
-type EdgeConnection = { edges?: Array<{ node?: { id: string } | null } | null> | null }
+const personnelPreSaveExtras = ({ primary, secondary }: { primary: Personnel; secondary: Personnel }): MergePreSaveExtrasResult<UpdateIdentityHolderInput> => {
+  const data: Partial<UpdateIdentityHolderInput> = {}
+  const counts: MergeEdgeTransferCount[] = []
 
-type EdgeMergeData = NonNullable<NonNullable<ReturnType<typeof useGetIdentityHolderEdgesForMerge>['data']>['identityHolder']>
+  if (!primary.userID && secondary.userID) {
+    data.userID = secondary.userID
+    counts.push({ key: 'userID', label: 'User link', count: 1 })
+  }
 
-type EdgeTransferSpec = {
-  sourceKey: keyof EdgeMergeData
-  addKey: keyof UpdateIdentityHolderInput
-  label: string
-}
+  if (!primary.employerEntityID && secondary.employerEntityID) {
+    data.employerID = secondary.employerEntityID
+    counts.push({ key: 'employerID', label: 'Employer', count: 1 })
+  }
 
-const ASSOCIATION_LABELS: Record<string, string> = {
-  assets: 'Assets',
-  entities: 'Entities',
-  campaigns: 'Campaigns',
-  tasks: 'Tasks',
-  controls: 'Controls',
-  internalPolicies: 'Internal policies',
-  subcontrols: 'Subcontrols',
-}
-
-const buildAssociationEdgeSpecs = (initialDataKeys: Record<string, string>): EdgeTransferSpec[] =>
-  Object.entries(initialDataKeys).map(([idKey, sourceKey]) => ({
-    sourceKey: sourceKey as EdgeTransferSpec['sourceKey'],
-    addKey: `add${idKey.charAt(0).toUpperCase()}${idKey.slice(1)}` as EdgeTransferSpec['addKey'],
-    label: ASSOCIATION_LABELS[sourceKey] ?? sourceKey,
-  }))
-
-const INTEGRATION_EDGE_SPECS: EdgeTransferSpec[] = [
-  { sourceKey: 'directoryAccounts', addKey: 'addDirectoryAccountIDs', label: 'Directory accounts' },
-  { sourceKey: 'assessmentResponses', addKey: 'addAssessmentResponseIDs', label: 'Assessment responses' },
-  { sourceKey: 'findings', addKey: 'addFindingIDs', label: 'Findings' },
-  { sourceKey: 'files', addKey: 'addFileIDs', label: 'Files' },
-]
-
-const EDGE_TRANSFER_SPECS: EdgeTransferSpec[] = [...buildAssociationEdgeSpecs(IDENTITY_HOLDER_ASSOCIATION_CONFIG.initialDataKeys), ...INTEGRATION_EDGE_SPECS]
-
-const collectEdgeIds = (edges: EdgeConnection['edges']): string[] => (edges ?? []).map((e) => e?.node?.id).filter((id): id is string => typeof id === 'string')
-
-const usePersonnelPreSaveExtras = ({
-  secondaryId,
-  primary,
-}: {
-  primaryId: string
-  secondaryId: string | null
-  primary: Personnel | null | undefined
-}): MergePreSaveExtrasResult<UpdateIdentityHolderInput> => {
-  const { data, isLoading } = useGetIdentityHolderEdgesForMerge(secondaryId)
-
-  return useMemo(() => {
-    if (!secondaryId || !data?.identityHolder) {
-      return { data: null, counts: [], isLoading }
-    }
-
-    const holder = data.identityHolder
-    const extras: Partial<UpdateIdentityHolderInput> = {}
-    const counts: MergeEdgeTransferCount[] = []
-
-    for (const spec of EDGE_TRANSFER_SPECS) {
-      const connection = holder[spec.sourceKey] as EdgeConnection | null | undefined
-      const ids = collectEdgeIds(connection?.edges)
-      if (ids.length) {
-        ;(extras as Record<string, unknown>)[spec.addKey] = ids
-        counts.push({ label: spec.label, count: ids.length })
-      }
-    }
-
-    const primaryUserID = primary?.userID ?? null
-    if (!primaryUserID && holder.userID) {
-      extras.userID = holder.userID
-      counts.push({ label: 'User link', count: 1 })
-    }
-
-    return { data: extras, counts, isLoading }
-  }, [data, isLoading, primary?.userID, secondaryId])
+  return { data, counts }
 }
 
 export const personnelMergeConfig: MergeConfig<Personnel, UpdateIdentityHolderInput, 'IdentityHolder'> = {
@@ -176,6 +116,6 @@ export const personnelMergeConfig: MergeConfig<Personnel, UpdateIdentityHolderIn
     defaultOn: true,
     label: 'Add secondary email to aliases',
   },
-  usePreSaveInputExtras: usePersonnelPreSaveExtras,
+  preSaveInputExtras: personnelPreSaveExtras,
   deleteSecondaryFirst: true,
 }
