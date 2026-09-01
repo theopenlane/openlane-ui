@@ -10,6 +10,7 @@ export const DELETED_USER_LABEL = 'Deleted user'
 
 export const UNKNOWN_AUTHOR_ID = 'unknown'
 export const UNKNOWN_AUTHOR_LABEL = 'Unknown'
+export const EMPTY_DISPLAY_NAME = '-'
 
 export type AuthorToken = { id: string; name: string }
 
@@ -30,7 +31,7 @@ export function resolveAuthor(id: string | null | undefined, { userMap, tokenMap
   if (!id) return { kind: 'deleted', displayName: DELETED_USER_LABEL }
   if (id === UNKNOWN_AUTHOR_ID) return { kind: 'unknown', displayName: UNKNOWN_AUTHOR_LABEL }
   const user = userMap?.[id]
-  if (user) return { kind: 'user', displayName: user.displayName || '-', user }
+  if (user) return { kind: 'user', displayName: user.displayName || EMPTY_DISPLAY_NAME, user }
   if (id === SUPPORT_SUBJECT_ID) return { kind: 'support', displayName: SUPPORT_DISPLAY_NAME }
   if (id === INTEGRATION_SUBJECT_ID) return { kind: 'integration', displayName: INTEGRATION_DISPLAY_NAME }
   const token = tokenMap?.[id]
