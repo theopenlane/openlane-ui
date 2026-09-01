@@ -51,6 +51,10 @@ export const GET_ALL_TRUST_CENTERS = gql`
               id
               base64
             }
+            heroImageFile {
+              id
+              base64
+            }
             overview
             title
             logoRemoteURL
@@ -90,6 +94,10 @@ export const GET_ALL_TRUST_CENTERS = gql`
               id
               base64
             }
+            heroImageFile {
+              id
+              base64
+            }
             logoRemoteURL
             securityContact
             updatedAt
@@ -113,8 +121,8 @@ export const GET_ALL_TRUST_CENTERS = gql`
 `
 
 export const UPDATE_TRUST_CENTER_SETTING = gql`
-  mutation UpdateTrustCenterSetting($updateTrustCenterSettingId: ID!, $input: UpdateTrustCenterSettingInput!, $faviconFile: Upload, $logoFile: Upload) {
-    updateTrustCenterSetting(id: $updateTrustCenterSettingId, input: $input, faviconFile: $faviconFile, logoFile: $logoFile) {
+  mutation UpdateTrustCenterSetting($updateTrustCenterSettingId: ID!, $input: UpdateTrustCenterSettingInput!, $faviconFile: Upload, $logoFile: Upload, $heroImageFile: Upload) {
+    updateTrustCenterSetting(id: $updateTrustCenterSettingId, input: $input, faviconFile: $faviconFile, logoFile: $logoFile, heroImageFile: $heroImageFile) {
       trustCenterSetting {
         id
         logoRemoteURL
@@ -123,6 +131,9 @@ export const UPDATE_TRUST_CENTER_SETTING = gql`
           id
         }
         logoFile {
+          id
+        }
+        heroImageFile {
           id
         }
       }
