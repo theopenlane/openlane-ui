@@ -54,7 +54,8 @@ const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | unde
         {!isLoading && !error && invoicesData?.invoices.length === 0 && <p className="p-4 text-sm ">No invoices found</p>}
 
         {invoicesData?.invoices.slice(0, 5).map((invoice: Invoice) => {
-          const amount = (invoice.amount_paid || invoice.amount_due || 0) / 100
+          // a paid invoice reports what was collected, anything still open reports what is owed
+          const amount = (invoice.status === 'paid' ? invoice.amount_paid : invoice.amount_due) / 100
           const formattedDate = invoice.created ? formatDate(new Date(invoice.created * 1000).toISOString()) : ''
 
           return (

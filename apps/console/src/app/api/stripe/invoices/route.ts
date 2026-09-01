@@ -26,6 +26,7 @@ export async function POST(req: Request) {
       number: inv.number,
       status: inv.status,
       amount_paid: inv.amount_paid,
+      amount_due: inv.amount_due,
       hosted_invoice_url: inv.hosted_invoice_url,
       invoice_pdf: inv.invoice_pdf,
       created: inv.created,
