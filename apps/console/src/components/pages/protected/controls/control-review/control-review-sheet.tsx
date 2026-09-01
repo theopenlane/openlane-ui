@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Sheet } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import ControlReviewSheetBody from './control-review-sheet-body'
 
@@ -28,7 +28,9 @@ const ControlReviewSheet: React.FC<TControlReviewSheetProps> = ({ controlId, que
 
   return (
     <Sheet open={!!reviewId} onOpenChange={(next) => (next ? undefined : close())}>
-      <ControlReviewSheetBody key={reviewId} controlId={controlId} reviewId={reviewId} onClose={close} />
+      <SheetContent minWidth={600} className="flex flex-col">
+        <ControlReviewSheetBody key={reviewId} controlId={controlId} reviewId={reviewId} onClose={close} />
+      </SheetContent>
     </Sheet>
   )
 }

@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { SheetContent } from '@repo/ui/sheet'
+import { SheetFooter, SheetHeader } from '@repo/ui/sheet'
 import { Form } from '@repo/ui/form'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -221,69 +221,66 @@ const ControlReviewSheetBody: React.FC<TControlReviewSheetBodyProps> = ({ contro
 
   return (
     <>
-      <SheetContent
-        minWidth={600}
-        className="flex flex-col"
-        header={
-          <SlideoutHeader
-            title={review?.title || 'Review'}
-            aboveTitle={reviewMeta}
-            onClose={onClose}
-            onEdit={canUseActions && !isEditing && editAllowed ? startEditing : undefined}
-            menuActions={menuActions}
-          />
-        }
-        footer={
-          isEditing ? (
-            <ReviewSheetFooter pendingAction={pendingAction} onCancel={cancelEditing} onSubmit={(status) => form.handleSubmit((formData) => submit(formData, status))()} submitLabel="Save Review" />
-          ) : undefined
-        }
-      >
-        {isLoading ? (
-          <div className="flex flex-col gap-4">
-            <Skeleton height={120} />
-            <Skeleton height={200} />
-          </div>
-        ) : isEditing ? (
-          <Form {...form}>
-            <form className="flex flex-col gap-4 pr-2 pb-4" onSubmit={(e) => e.preventDefault()}>
-              <ControlContextPanel control={control}>
-                <RelatedControlsSelector form={form} controlId={controlId} />
-              </ControlContextPanel>
-              <UploadedEvidenceSection items={evidenceItems} controlId={controlId} onView={setViewEvidenceId} />
-              <ReviewFieldsPanel
-                form={form}
-                clearAuditorNotes={clearAuditorNotes}
-                onAuditorNotesCleared={() => setClearAuditorNotes(false)}
-                auditorNotesLabel="Add Auditor Note"
-                auditorNotesPlaceholder="Add a new note to this review..."
-              />
-              <ReviewFindingsPanel findings={findingsNodes} totalCount={findingsData?.findings?.totalCount} isLoading={isLoadingFindings} form={form} />
-            </form>
-          </Form>
-        ) : (
-          <div className="flex flex-col gap-4 pr-2 pb-4">
+      <SheetHeader className="sticky top-0 z-10 bg-secondary pb-4">
+        <SlideoutHeader
+          title={review?.title || 'Review'}
+          aboveTitle={reviewMeta}
+          onClose={onClose}
+          onEdit={canUseActions && !isEditing && editAllowed ? startEditing : undefined}
+          menuActions={menuActions}
+        />
+      </SheetHeader>
+
+      {isLoading ? (
+        <div className="flex flex-col gap-4">
+          <Skeleton height={120} />
+          <Skeleton height={200} />
+        </div>
+      ) : isEditing ? (
+        <Form {...form}>
+          <form className="flex flex-col gap-4 pr-2 pb-4" onSubmit={(e) => e.preventDefault()}>
             <ControlContextPanel control={control}>
-              {linkedChips.length > 0 && (
-                <div className="flex flex-col gap-2">
-                  <span className="text-sm text-muted-foreground">Reviewed Controls</span>
-                  <div className="flex flex-wrap gap-1">
-                    {linkedChips.map((node) => (
-                      <ControlChip
-                        key={node.id}
-                        control={{ id: node.id, refCode: node.refCode, referenceFramework: node.referenceFramework ?? '', __typename: node.__typename }}
-                        disableHref={node.__typename === ObjectTypes.SUBCONTROL}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+              <RelatedControlsSelector form={form} controlId={controlId} />
             </ControlContextPanel>
-            <ReviewSummaryPanel review={review} />
-            <ReviewFindingsPanel findings={findingsNodes} totalCount={findingsData?.findings?.totalCount} isLoading={isLoadingFindings} />
-          </div>
-        )}
-      </SheetContent>
+            <UploadedEvidenceSection items={evidenceItems} controlId={controlId} onView={setViewEvidenceId} />
+            <ReviewFieldsPanel
+              form={form}
+              clearAuditorNotes={clearAuditorNotes}
+              onAuditorNotesCleared={() => setClearAuditorNotes(false)}
+              auditorNotesLabel="Add Auditor Note"
+              auditorNotesPlaceholder="Add a new note to this review..."
+            />
+            <ReviewFindingsPanel findings={findingsNodes} totalCount={findingsData?.findings?.totalCount} isLoading={isLoadingFindings} form={form} />
+          </form>
+        </Form>
+      ) : (
+        <div className="flex flex-col gap-4 pr-2 pb-4">
+          <ControlContextPanel control={control}>
+            {linkedChips.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <span className="text-sm text-muted-foreground">Reviewed Controls</span>
+                <div className="flex flex-wrap gap-1">
+                  {linkedChips.map((node) => (
+                    <ControlChip
+                      key={node.id}
+                      control={{ id: node.id, refCode: node.refCode, referenceFramework: node.referenceFramework ?? '', __typename: node.__typename }}
+                      disableHref={node.__typename === ObjectTypes.SUBCONTROL}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </ControlContextPanel>
+          <ReviewSummaryPanel review={review} />
+          <ReviewFindingsPanel findings={findingsNodes} totalCount={findingsData?.findings?.totalCount} isLoading={isLoadingFindings} />
+        </div>
+      )}
+
+      {isEditing && (
+        <SheetFooter>
+          <ReviewSheetFooter pendingAction={pendingAction} onCancel={cancelEditing} onSubmit={(status) => form.handleSubmit((formData) => submit(formData, status))()} submitLabel="Save Review" />
+        </SheetFooter>
+      )}
 
       <EvidenceDetailsSheet entityId={viewEvidenceId} controlId={controlId} onClose={() => setViewEvidenceId(null)} />
 
