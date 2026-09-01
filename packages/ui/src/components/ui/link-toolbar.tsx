@@ -114,11 +114,11 @@ export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarStat
 
   return (
     <>
-      <div ref={insertRef} {...insertProps} className={popoverVariants()} onClick={stopPropagation}>
+      <div role="presentation" ref={insertRef} {...insertProps} className={popoverVariants()} onClick={stopPropagation}>
         {input}
       </div>
 
-      <div ref={editRef} {...editProps} className={popoverVariants()} onClick={stopPropagation}>
+      <div role="presentation" ref={editRef} {...editProps} className={popoverVariants()} onClick={stopPropagation}>
         {editContent}
       </div>
     </>
@@ -152,6 +152,9 @@ function LinkOpenButton() {
         variant: 'ghost',
       })}
       onMouseOver={(e) => {
+        e.stopPropagation()
+      }}
+      onFocus={(e) => {
         e.stopPropagation()
       }}
       aria-label="Open link in a new tab"

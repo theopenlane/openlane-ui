@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useEffect, useRef, useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
@@ -129,7 +130,7 @@ export const EmailAliasesField: React.FC<EmailAliasesFieldProps> = ({
           }
 
           return (
-            <div className="text-sm py-2 rounded-md cursor-pointer px-1 hover:bg-accent" onClick={enterEdit}>
+            <div className="text-sm py-2 rounded-md cursor-pointer px-1 hover:bg-accent" {...activatable(isEditAllowed ? enterEdit : undefined)}>
               {values.length === 0 ? (
                 <span className="text-muted-foreground italic">Not set</span>
               ) : (

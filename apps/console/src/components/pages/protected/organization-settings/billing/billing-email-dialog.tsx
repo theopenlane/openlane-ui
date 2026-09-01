@@ -54,9 +54,9 @@ const BillingEmailDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <h1 className="text-brand text-sm font-medium cursor-pointer" onClick={() => setIsOpen(true)}>
+        <button type="button" className="text-brand text-sm font-medium cursor-pointer bg-transparent">
           Edit
-        </h1>
+        </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[360px]">
         <DialogHeader>

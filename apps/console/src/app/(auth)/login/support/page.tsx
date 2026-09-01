@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { PasswordInput } from '@repo/ui/password-input'
@@ -14,6 +14,10 @@ const SupportLoginPage: React.FC = () => {
   const [reason, setReason] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const emailId = useId()
+  const passwordId = useId()
+  const organizationIdFieldId = useId()
+  const reasonId = useId()
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -66,23 +70,40 @@ const SupportLoginPage: React.FC = () => {
 
           <form onSubmit={submit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              <label className="text-sm">Support Identity</label>
-              <Input type="email" variant="light" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-transparent" />
+              <label className="text-sm" htmlFor={emailId}>
+                Support Identity
+              </label>
+              <Input id={emailId} type="email" variant="light" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-transparent" />
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-sm">Support Password</label>
-              <PasswordInput variant="light" value={password} onChange={(e) => setPassword(e.target.value)} required className="bg-transparent !text-text" />
+              <label className="text-sm" htmlFor={passwordId}>
+                Support Password
+              </label>
+              <PasswordInput id={passwordId} variant="light" value={password} onChange={(e) => setPassword(e.target.value)} required className="bg-transparent !text-text" />
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-sm">Organization ID</label>
-              <Input variant="light" value={organizationId} onChange={(e) => setOrganizationId(e.target.value)} placeholder="Organization to access" required className="bg-transparent" />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-sm">Reason</label>
+              <label className="text-sm" htmlFor={organizationIdFieldId}>
+                Organization ID
+              </label>
               <Input
+                id={organizationIdFieldId}
+                variant="light"
+                value={organizationId}
+                onChange={(e) => setOrganizationId(e.target.value)}
+                placeholder="Organization to access"
+                required
+                className="bg-transparent"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm" htmlFor={reasonId}>
+                Reason
+              </label>
+              <Input
+                id={reasonId}
                 variant="light"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}

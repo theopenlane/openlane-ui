@@ -115,7 +115,7 @@ const CredentialConnectionSection = ({
                       {connection?.description || entry.description ? <p className="ml-5 mt-0.5 text-xs text-muted-foreground">{connection?.description || entry.description}</p> : null}
 
                       {isSelected ? (
-                        <div className="mt-4 pt-3 border-t" onClick={(e) => e.stopPropagation()}>
+                        <div role="presentation" className="mt-4 pt-3 border-t" onClick={(e) => e.stopPropagation()}>
                           <div className="flex">
                             <div className="flex flex-1 flex-col min-w-0">
                               <h4 className="text-xs font-medium text-foreground mb-2">CREDENTIALS</h4>

@@ -1,4 +1,5 @@
 'use client'
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { type Libraries, useLoadScript } from '@react-google-maps/api'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
@@ -202,7 +203,7 @@ const BillingContactDialog = () => {
               {showPredictions && predictions.length > 0 && (
                 <div className="absolute z-10 bg-panel border rounded-sm shadow-md w-full">
                   {predictions.map((prediction) => (
-                    <p key={prediction.placeId} onClick={() => handleSelectPrediction(prediction)} className="p-2 cursor-pointer">
+                    <p key={prediction.placeId} {...activatable(() => handleSelectPrediction(prediction))} className="p-2 cursor-pointer">
                       {prediction.text.text}
                     </p>
                   ))}

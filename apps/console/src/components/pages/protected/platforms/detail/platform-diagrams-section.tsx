@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useId, useCallback, useMemo, useState } from 'react'
 import { Download, Expand, Fingerprint, ImagePlus, Trash2, X } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
@@ -39,6 +39,7 @@ interface AddDiagramDialogProps {
 const AddDiagramDialog: React.FC<AddDiagramDialogProps> = ({ open, onOpenChange, onAdd, isUploading }) => {
   const { errorNotification } = useNotification()
   const [selectedType, setSelectedType] = useState<DiagramType | ''>('')
+  const diagramTypeId = useId()
   const [stagedFile, setStagedFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
 
@@ -90,9 +91,11 @@ const AddDiagramDialog: React.FC<AddDiagramDialogProps> = ({ open, onOpenChange,
 
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">Diagram Type</label>
+            <label className="text-sm font-medium" htmlFor={diagramTypeId}>
+              Diagram Type
+            </label>
             <Select value={selectedType} onValueChange={(v) => setSelectedType(v as DiagramType)}>
-              <SelectTrigger>
+              <SelectTrigger id={diagramTypeId}>
                 <SelectValue placeholder="Select diagram type…" />
               </SelectTrigger>
               <SelectContent>

@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useCallback, useEffect, useState, use } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useDeleteControlObjective, useGetAllControlObjectives, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
@@ -201,7 +202,7 @@ const ControlObjectivePage = () => {
           <p className="mb-2 text-sm">No Objective found for this Control.</p>
           {createAllowed && (
             <div className="text-blue-500 flex items-center gap-1 cursor-pointer">
-              <p onClick={() => setShowCreateSheet(true)} className="text-blue-500">
+              <p {...activatable(() => setShowCreateSheet(true))} className="text-blue-500">
                 Create a new one
               </p>{' '}
               <ArrowRight className="mt-0.5" size={16} />

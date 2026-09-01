@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useRef, useState } from 'react'
 import { ArrowLeft, ChevronsDownUp, ChevronsUpDown, Expand, LayoutList, List, Waypoints } from 'lucide-react'
 import ObjectAssociationGraph from '@/components/shared/object-association/object-association-graph.tsx'
@@ -78,7 +79,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
                     <TooltipTrigger asChild>
                       <div
                         data-testid="assoc-view-toggle"
-                        onClick={() => setIsGraphView((prevState) => !prevState)}
+                        {...activatable(() => setIsGraphView((prevState) => !prevState))}
                         className="flex items-center p-1 bg-background border rounded-lg cursor-pointer overflow-hidden"
                       >
                         <Button type="button" variant={!isGraphView ? 'transparent' : 'secondary'} size="sm" className="mr-1 h-6" style={{ boxShadow: 'none', outline: 'none', border: 'none' }}>

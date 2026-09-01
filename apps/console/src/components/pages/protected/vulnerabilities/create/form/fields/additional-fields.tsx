@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
@@ -72,9 +73,9 @@ const SeverityField: React.FC<SeverityFieldProps> = ({ isEditing, isEditAllowed,
             ) : (
               <div
                 className="text-sm py-2 rounded-md cursor-pointer px-1 w-full hover:bg-accent"
-                onClick={() => {
+                {...activatable(() => {
                   if (isEditAllowed) setInternalEditing('severity')
-                }}
+                })}
               >
                 {securityLevel ? <SeverityChip severity={securityLevel} /> : <span className="text-muted-foreground italic">Not set</span>}
               </div>

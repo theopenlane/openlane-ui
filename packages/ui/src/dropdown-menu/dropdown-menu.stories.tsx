@@ -113,9 +113,9 @@ export const UserMenu: Story = {
                 mickey_h@ll.com
               </p>
               <p>
-                <a href="#" className="block text-teal-900 dark:text-teal-100 mt-2">
+                <button type="button" className="block text-teal-900 dark:text-teal-100 mt-2 bg-transparent">
                   User Settings
-                </a>
+                </button>
               </p>
             </div>
           </DropdownMenuItem>

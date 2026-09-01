@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useMemo, useRef, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
@@ -252,7 +253,10 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
                   )}
                 />
               ) : (
-                <div className={`text-sm py-2 rounded-md px-1 w-full hover:bg-accent ${canEditRisk ? 'cursor-pointer' : ''}`} onClick={() => canEditRisk && !isEditing && setInternalEditing('tags')}>
+                <div
+                  className={`text-sm py-2 rounded-md px-1 w-full hover:bg-accent ${canEditRisk ? 'cursor-pointer' : ''}`}
+                  {...activatable(() => canEditRisk && !isEditing && setInternalEditing('tags'))}
+                >
                   {data?.tags?.length ? (
                     <div className="flex gap-2 flex-wrap justify-end">
                       {data.tags.map((tag) => (

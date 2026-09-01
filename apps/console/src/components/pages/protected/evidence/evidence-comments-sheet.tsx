@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import AddComment from '@/components/shared/comments/AddComment'
 import CommentList from '@/components/shared/comments/CommentList'
 import { type TCommentData } from '@/components/shared/comments/types/TCommentData'
@@ -111,7 +112,7 @@ const EvidenceCommentSheet: React.FC<TEvidenceCommentSheetProps> = ({ evidenceId
       <SheetTitle />
       <div className="flex justify-between items-end mb-2">
         <p className="text-lg font-semibold">Comments</p>
-        <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>
+        <div className="flex items-center gap-1 text-right cursor-pointer" {...activatable(handleCommentSort)}>
           {!commentSortIsAsc ? <ArrowDownUp height={16} width={16} /> : <ArrowUpDown height={16} width={16} className="text-primary" />}
           <p className="text-sm">{!commentSortIsAsc ? 'Newest at top' : 'Newest at bottom'}</p>
         </div>

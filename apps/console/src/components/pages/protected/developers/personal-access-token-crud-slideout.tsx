@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState } from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose } from '@repo/ui/sheet'
 import { Input } from '@repo/ui/input'
@@ -338,7 +339,7 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
           </SheetHeader>
 
           <div className="space-y-4 py-4">
-            <div onClick={handleCopyToken} className="flex items-center justify-between w-full cursor-pointer">
+            <div {...activatable(handleCopyToken)} className="flex items-center justify-between w-full cursor-pointer">
               <Input className="truncate text-sm bg-background py-0 h-9" icon={<CopyIcon className="h-4 w-4" />} readOnly value={createdToken} maxWidth />
             </div>
             <div className="flex items-center mt-4">

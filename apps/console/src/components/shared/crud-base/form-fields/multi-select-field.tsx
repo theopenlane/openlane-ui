@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import { useMemo, useRef } from 'react'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { useFormContext } from 'react-hook-form'
@@ -113,7 +114,7 @@ export const MultiSelectField = <TUpdateInput,>({
             ) : (
               <div
                 className={cn('flex flex-wrap gap-1 text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full min-h-9', layout === 'horizontal' && 'justify-end')}
-                onClick={() => isEditAllowed && setInternalEditing(name)}
+                {...activatable(() => isEditAllowed && setInternalEditing(name))}
               >
                 {displayOptions.length ? (
                   displayOptions.map((o) => (

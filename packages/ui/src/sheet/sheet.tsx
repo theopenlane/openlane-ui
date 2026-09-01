@@ -122,7 +122,11 @@ function SheetContent({
         onInteractOutside={guardInteractOutside(onInteractOutside)}
         {...props}
       >
-        <div onMouseDown={onMouseDown} className={cn('absolute top-0 bottom-0 h-full z-10 w-3 bg-transparent', side === 'right' ? '-left-1 cursor-ew-resize' : '-right-1 cursor-ew-resize')} />
+        <div
+          role="presentation"
+          onMouseDown={onMouseDown}
+          className={cn('absolute top-0 bottom-0 h-full z-10 w-3 bg-transparent', side === 'right' ? '-left-1 cursor-ew-resize' : '-right-1 cursor-ew-resize')}
+        />
 
         {edge && <div className={cn('absolute top-1/2 z-20 -translate-y-1/2', side === 'right' ? 'left-0 -translate-x-full' : 'right-0 translate-x-full')}>{edge}</div>}
 

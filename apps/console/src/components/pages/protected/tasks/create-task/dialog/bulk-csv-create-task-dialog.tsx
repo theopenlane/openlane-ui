@@ -91,9 +91,9 @@ const BulkCSVCreateTaskDialog: React.FC<BulkCsvCreateTaskDialogProps> = ({ trigg
               documentation
             </a>{' '}
             for column format. We also provide a{' '}
-            <a className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
+            <button type="button" className="text-brand hover:underline cursor-pointer bg-transparent" onClick={() => handleCSVExport()}>
               template csv file
-            </a>{' '}
+            </button>{' '}
             for you to fill out.
           </p>
         </Callout>

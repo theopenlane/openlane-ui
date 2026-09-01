@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import { type SiteExistsResponse } from '@/types/site-exists'
 import { formatDate } from '@/utils/date'
 import { normalizeUrl } from '@/utils/normalizeUrl'
@@ -82,16 +83,13 @@ export const LivePreview = ({ trustCenter }: LivePreviewProps) => {
             ) : snapshot?.data?.image ? (
               <>
                 <div className="w-full h-[140px] overflow-hidden rounded-b-md border">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`data:image/png;base64,${snapshot.data.image}`}
-                    alt="Live site preview"
-                    className="w-full h-auto object-top object-cover cursor-zoom-in"
-                    onClick={() => setShowModal(true)}
-                  />
+                  <button type="button" className="w-full cursor-zoom-in bg-transparent" onClick={() => setShowModal(true)}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`data:image/png;base64,${snapshot.data.image}`} alt="Live site preview" className="w-full h-auto object-top object-cover" />
+                  </button>
                 </div>
                 {showModal && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" onClick={() => setShowModal(false)}>
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" {...activatable(() => setShowModal(false))}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={`data:image/png;base64,${snapshot.data.image}`} alt="Zoomed live site preview" className="rounded-md max-h-[90vh] max-w-[90vw] border-2 border-white shadow-lg" />
                   </div>

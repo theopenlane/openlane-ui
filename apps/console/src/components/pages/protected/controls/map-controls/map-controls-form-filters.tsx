@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import { activatable } from '@repo/ui/lib/a11y'
+import React, { useId, useEffect, useMemo, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetControlCategories } from '@/lib/graphql-hooks/control'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
@@ -19,6 +20,10 @@ interface Props {
 
 const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcontrols, setEnableSubcontrols, oppositeControls }) => {
   const { currentOrgId } = useOrganization()
+  const frameworkId = useId()
+  const categoryId = useId()
+  const keywordId = useId()
+  const subcontrolsId = useId()
 
   const [referenceFramework, setReferenceFramework] = useState<string>('')
   const [keyword, setKeyword] = useState<string>('')
@@ -92,9 +97,11 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcont
 
   return (
     <div className="grid grid-cols-[150px_1fr] gap-x-4 gap-y-2 items-center mb-4">
-      <label className="text-sm font-medium">Framework</label>
+      <label className="text-sm font-medium" htmlFor={frameworkId}>
+        Framework
+      </label>
       <Select onValueChange={setReferenceFramework} value={referenceFramework}>
-        <SelectTrigger className="w-full">
+        <SelectTrigger id={frameworkId} className="w-full">
           <SelectValue placeholder="Select Framework" />
         </SelectTrigger>
         <SelectContent>
@@ -107,7 +114,9 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcont
         </SelectContent>
       </Select>
 
-      <label className="text-sm font-medium">Category</label>
+      <label className="text-sm font-medium" htmlFor={categoryId}>
+        Category
+      </label>
       <Select
         value={selectedCategoryValues[0] || ''}
         onValueChange={(value) => {
@@ -115,7 +124,7 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcont
           setCategoryOpts([{ value, label: value }])
         }}
       >
-        <SelectTrigger className="w-full">
+        <SelectTrigger id={categoryId} className="w-full">
           <SelectValue placeholder="Select a category..." />
         </SelectTrigger>
         <SelectContent>
@@ -127,21 +136,25 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcont
         </SelectContent>
       </Select>
 
-      <label className="text-sm font-medium">Keyword</label>
-      <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Search by keyword" />
+      <label className="text-sm font-medium" htmlFor={keywordId}>
+        Keyword
+      </label>
+      <Input id={keywordId} value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Search by keyword" />
 
-      <label className="text-sm font-medium">Include Subcontrols</label>
-      <Checkbox checked={enableSubcontrols} onCheckedChange={setEnableSubcontrols} />
+      <label className="text-sm font-medium" htmlFor={subcontrolsId}>
+        Include Subcontrols
+      </label>
+      <Checkbox id={subcontrolsId} checked={enableSubcontrols} onCheckedChange={setEnableSubcontrols} />
       {(referenceFramework || categoryOpts.length > 0 || keyword) && (
         <div className="col-span-2 flex justify-end">
           <p
-            onClick={() => {
+            {...activatable(() => {
               setReferenceFramework('')
               setCategoryOpts([])
               setKeyword('')
               onFilterChange({})
               setEnableSubcontrols(false)
-            }}
+            })}
             className="text-blue-500 cursor-pointer self-start"
           >
             Clear

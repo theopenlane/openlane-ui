@@ -47,7 +47,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
         const currentPageQuestionnaires = table.getRowModel().rows.map((row) => row.original)
         const allSelected = currentPageQuestionnaires.every((questionnaire) => selected.some((sc) => sc.id === questionnaire.id))
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox
               checked={allSelected}
               onCheckedChange={(checked) => {
@@ -68,7 +68,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
         const isChecked = params?.selectedQuestionnaires.some((c) => c.id === id)
 
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
           </div>
         )
@@ -230,7 +230,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
         }
 
         return (
-          <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
+          <div role="presentation" onClick={(e) => e.stopPropagation()} className="flex justify-end">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary">

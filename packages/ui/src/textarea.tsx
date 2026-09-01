@@ -26,9 +26,9 @@ const EditableTextarea = ({ className, ref, ...props }: EditableTextareaProps & 
   }
 
   return (
-    <p onClick={() => setEditing(true)} className={` hover:cursor-pointer whitespace-pre-line ${!props.value && '!text-neutral-400'}`}>
+    <button type="button" onClick={() => setEditing(true)} className={`block w-full bg-transparent text-left hover:cursor-pointer whitespace-pre-line ${!props.value && '!text-neutral-400'}`}>
       {props.value || props.placeholder}
-    </p>
+    </button>
   )
 }
 

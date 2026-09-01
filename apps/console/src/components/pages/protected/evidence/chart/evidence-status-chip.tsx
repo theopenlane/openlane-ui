@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useGetFirstFiveEvidencesByStatus } from '@/lib/graphql-hooks/evidence.ts'
@@ -98,7 +99,7 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
         {evidences.length > 0 && (
           <div className={`grid gap-2 pl-3 ${columnClass}`}>
             {evidences.map((item, index) => (
-              <span key={index} className="pr-1 text-brand text-xs hover:underline cursor-pointer" onClick={() => replace({ id: item?.node?.id || '' })}>
+              <span key={index} className="pr-1 text-brand text-xs hover:underline cursor-pointer" {...activatable(() => replace({ id: item?.node?.id || '' }))}>
                 {item?.node?.displayID}
               </span>
             ))}

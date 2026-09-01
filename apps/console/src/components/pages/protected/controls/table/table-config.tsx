@@ -165,7 +165,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, tokenMap, select
         const allSelected = currentPageControls.every((control) => selectedControls.some((sc) => sc.id === control.id))
 
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox
               checked={allSelected}
               onCheckedChange={(checked: boolean) => {
@@ -184,7 +184,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, tokenMap, select
         const isChecked = selectedControls.some((c) => c.id === id)
 
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id, refCode })} />
           </div>
         )

@@ -124,7 +124,7 @@ export const getColumns = ({
       header: '',
       size: 50,
       cell: ({ row }) => (
-        <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
+        <div role="presentation" onClick={(e) => e.stopPropagation()} className="flex justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" className="h-8 w-8 p-0">
