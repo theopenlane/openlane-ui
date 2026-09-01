@@ -2,13 +2,13 @@
 
 import React, { useState } from 'react'
 
-type ReportShowMoreProps<T> = {
+type ShowMoreProps<T> = {
   items: T[]
   renderItem: (item: T) => React.ReactNode
   limit?: number
 }
 
-const ReportShowMore = <T,>({ items, renderItem, limit = 3 }: ReportShowMoreProps<T>) => {
+const ShowMore = <T,>({ items, renderItem, limit = 3 }: ShowMoreProps<T>) => {
   const [expanded, setExpanded] = useState(false)
   const visibleItems = expanded ? items : items.slice(0, limit)
   const hiddenCount = items.length - visibleItems.length
@@ -32,4 +32,4 @@ const ReportShowMore = <T,>({ items, renderItem, limit = 3 }: ReportShowMoreProp
   )
 }
 
-export default ReportShowMore
+export default ShowMore

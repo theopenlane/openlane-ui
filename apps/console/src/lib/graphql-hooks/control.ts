@@ -181,6 +181,9 @@ export type AuditorDashboardControlNode = NonNullable<NonNullable<NonNullable<Ge
 
 export type AuditorDashboardEvidenceItem = NonNullable<NonNullable<NonNullable<NonNullable<AuditorDashboardControlNode>['evidence']['edges']>[number]>['node']>
 export type AuditorDashboardPolicyItem = NonNullable<NonNullable<NonNullable<NonNullable<AuditorDashboardControlNode>['internalPolicies']['edges']>[number]>['node']>
+export type AuditorDashboardRelatedControl = NonNullable<NonNullable<AuditorDashboardControlNode>['relatedControls']>[number]
+
+export type AuditorDashboardIncludeVar = Extract<keyof GetAuditorDashboardControlsQueryVariables, `include${string}`>
 
 type UseGetAuditorDashboardControlsArgs = {
   programId: string
@@ -188,19 +191,19 @@ type UseGetAuditorDashboardControlsArgs = {
   orderBy?: GetAuditorDashboardControlsQueryVariables['orderBy']
   pagination?: TPagination | null
   enabled?: boolean
+  includeVars?: Partial<Record<AuditorDashboardIncludeVar, boolean>>
 }
 
-export const useGetAuditorDashboardControls = ({ programId, where, orderBy, pagination, enabled = true }: UseGetAuditorDashboardControlsArgs) => {
+export const useGetAuditorDashboardControls = ({ programId, where, orderBy, pagination, enabled = true, includeVars }: UseGetAuditorDashboardControlsArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetAuditorDashboardControlsQuery, GetAuditorDashboardControlsQueryVariables>({
-    queryKey: ['auditor-dashboard-controls', programId, where, orderBy, pagination?.page, pagination?.pageSize],
-    queryFn: () => client.request(GET_AUDITOR_DASHBOARD_CONTROLS, { programId, where, orderBy, ...pagination?.query }),
+    queryKey: ['auditor-dashboard-controls', programId, where, orderBy, pagination?.page, pagination?.pageSize, includeVars],
+    queryFn: () => client.request(GET_AUDITOR_DASHBOARD_CONTROLS, { programId, where, orderBy, ...includeVars, ...pagination?.query }),
     enabled: enabled && !!programId,
   })
 
-  const edges = queryResult.data?.controls?.edges ?? []
-  const controls = edges.map((edge) => edge?.node).filter(Boolean) as NonNullable<AuditorDashboardControlNode>[]
+  const controls = useMemo(() => (queryResult.data?.controls?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [queryResult.data])
 
   const paginationMeta = {
     totalCount: queryResult.data?.controls?.totalCount ?? 0,

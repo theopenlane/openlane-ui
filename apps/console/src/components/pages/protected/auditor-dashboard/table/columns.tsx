@@ -9,14 +9,23 @@ import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ReviewReviewStatus } from '@repo/codegen/src/schema'
-import { type AuditorDashboardControlNode, type AuditorDashboardEvidenceItem, type AuditorDashboardPolicyItem } from '@/lib/graphql-hooks/control'
+import {
+  type AuditorDashboardControlNode,
+  type AuditorDashboardEvidenceItem,
+  type AuditorDashboardIncludeVar,
+  type AuditorDashboardPolicyItem,
+  type AuditorDashboardRelatedControl,
+} from '@/lib/graphql-hooks/control'
 import { OverflowBadgesCell } from '@/components/shared/crud-base/columns/overflow-badges-cell'
+import { resolveColumnId } from '@/components/shared/crud-base/columns/resolve-column-id'
 import { type ControlReviewSummary } from '../utils/control-status'
 import { EvidenceStatusCell } from './evidence-status-cell'
+import { MappedControlsCell } from './mapped-controls-cell'
 
 export type AuditorDashboardControlRow = NonNullable<AuditorDashboardControlNode> & {
   evidenceItems: AuditorDashboardEvidenceItem[]
   linkedPolicies: AuditorDashboardPolicyItem[]
+  mappedControls: AuditorDashboardRelatedControl[]
   review: ControlReviewSummary | null
   lastReviewed: string | null
 }
@@ -81,6 +90,15 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
       cell: ({ row }) => <OverflowBadgesCell values={row.original.linkedPolicies.map((policy) => policy.name)} />,
     },
     {
+      id: 'mappedControls',
+      header: 'Mapped Controls',
+      size: 240,
+      meta: {
+        gqlInclude: ['includeRelatedControls'] satisfies AuditorDashboardIncludeVar[],
+      },
+      cell: ({ row }) => <MappedControlsCell items={row.original.mappedControls} />,
+    },
+    {
       id: 'lastReviewed',
       header: 'Last Reviewed',
       size: 130,
@@ -135,7 +153,7 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
 
 export const getAuditorDashboardMappedColumns = (columns: ColumnDef<AuditorDashboardControlRow>[]): { accessorKey: string; header: string }[] =>
   columns.flatMap((column) => {
-    const id = column.id ?? ('accessorKey' in column && typeof column.accessorKey === 'string' ? column.accessorKey : undefined)
+    const id = resolveColumnId(column)
     if (!id || column.enableHiding === false || typeof column.header !== 'string' || column.header === '') {
       return []
     }

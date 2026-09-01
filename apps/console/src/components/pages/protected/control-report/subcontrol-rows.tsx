@@ -14,7 +14,7 @@ import RefCodeCell from './ref-code-cell'
 import LinkedPolicyChip from './linked-policy-chip'
 import OrgCoverageCell from './org-coverage-cell'
 import EvidenceCoverageCell from './evidence-coverage-cell'
-import ReportShowMore from './report-show-more'
+import ShowMore from '@/components/shared/show-more/show-more'
 import { GRID_ROW_CLASS, getGridCols } from './control-report-grid'
 import { deriveOrgCoverage, getOrgRelatedControls, getFrameworkRelatedControls } from './report-coverage'
 
@@ -91,18 +91,18 @@ export const SubcontrolRow = React.memo(({ sub, controlId, isCustomView, isSelec
         {policies.length === 0 ? (
           <span className="text-xs italic text-muted-foreground">None linked</span>
         ) : (
-          <ReportShowMore items={policies} renderItem={(p) => <LinkedPolicyChip key={p.id} id={p.id} name={p.name} />} />
+          <ShowMore items={policies} renderItem={(p) => <LinkedPolicyChip key={p.id} id={p.id} name={p.name} />} />
         )}
       </div>
 
       <div className="flex flex-wrap gap-1.5 min-w-0 overflow-hidden" onClick={(e) => e.stopPropagation()}>
         {isCustomView ? (
-          <ReportShowMore
+          <ShowMore
             items={frameworkRefs}
             renderItem={(ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode, referenceFramework: ref.referenceFramework }} hideStandard />}
           />
         ) : (
-          <ReportShowMore items={orgRefs} renderItem={(ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode }} hideStandard hideHexagon />} />
+          <ShowMore items={orgRefs} renderItem={(ref) => <ControlChip key={ref.id} control={{ __typename: 'Control', id: ref.id, refCode: ref.refCode }} hideStandard hideHexagon />} />
         )}
       </div>
     </div>
