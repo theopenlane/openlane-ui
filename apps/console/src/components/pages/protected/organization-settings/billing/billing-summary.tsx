@@ -143,6 +143,8 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, curr
         return { variant: 'destructive', text: 'Unpaid' } as const
       case 'incomplete':
         return { variant: 'destructive', text: 'Incomplete' } as const
+      case 'paused':
+        return { variant: 'select', text: 'Paused' } as const
       case 'canceled':
       case 'incomplete_expired':
         return { variant: 'destructive', text: 'Expired' } as const

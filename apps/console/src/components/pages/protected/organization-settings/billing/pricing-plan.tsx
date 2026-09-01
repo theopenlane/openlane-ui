@@ -26,7 +26,6 @@ const PricingPlan = () => {
 
   const scheduleSubscription = schedules[0]?.subscription ?? null
 
-  // For released schedules, subscription is null - the id lives on released_subscription, otherwise fall back to the customer's live subscription
   const releasedSubscriptionId = schedules[0]?.released_subscription ?? null
   const { data: directSubscription, isLoading: subscriptionLoading } = useSubscriptionQuery(!schedulesLoading && !scheduleSubscription ? stripeCustomerId : null, releasedSubscriptionId)
 

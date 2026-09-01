@@ -3,9 +3,11 @@ import { stripe } from '@/lib/stripe'
 import type Stripe from 'stripe'
 import { auth } from '@/lib/auth/auth'
 
-// statuses that still represent a subscription the customer is on, in preference order
-// past_due / unpaid are included because a failed or unpaid invoice must not blank out the billing page
-const LIVE_STATUSES: Stripe.Subscription.Status[] = ['active', 'trialing', 'past_due', 'unpaid', 'incomplete']
+const LIVE_STATUSES: Stripe.Subscription.Status[] = ['active', 'trialing', 'past_due', 'unpaid', 'paused', 'incomplete']
+
+const isLive = (subscription: Stripe.Subscription) => LIVE_STATUSES.includes(subscription.status)
+
+const belongsToCustomer = (subscription: Stripe.Subscription, customerId: string) => (typeof subscription.customer === 'string' ? subscription.customer : subscription.customer.id) === customerId
 
 export async function GET(req: Request) {
   // ensure we have a valid session
@@ -23,22 +25,20 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Missing customer id' }, { status: 400 })
     }
 
-    // a released schedule keeps its subscription in released_subscription, so retrieve it directly when we know the id
     if (subscriptionId) {
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-      const belongsToCustomer = typeof subscription.customer === 'string' ? subscription.customer === customerId : subscription.customer.id === customerId
+      const releasedSubscription = await stripe.subscriptions.retrieve(subscriptionId).catch(() => null)
 
-      if (belongsToCustomer && subscription.status !== 'canceled') {
-        return NextResponse.json(subscription)
+      if (releasedSubscription && belongsToCustomer(releasedSubscription, customerId) && isLive(releasedSubscription)) {
+        return NextResponse.json(releasedSubscription)
       }
     }
 
     const subs = await stripe.subscriptions.list({
       customer: customerId,
-      status: 'all',
+      limit: 100,
     })
 
-    const live = LIVE_STATUSES.map((status) => subs.data.find((sub) => sub.status === status)).find((sub) => !!sub)
+    const live = subs.data.filter(isLive).sort((a, b) => LIVE_STATUSES.indexOf(a.status) - LIVE_STATUSES.indexOf(b.status))[0]
 
     return NextResponse.json(live ?? null)
   } catch (err: unknown) {
