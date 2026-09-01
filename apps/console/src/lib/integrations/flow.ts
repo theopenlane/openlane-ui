@@ -6,8 +6,6 @@ export const PRIMARY_DIRECTORY_FIELD = 'primaryDirectory'
 export const PRIMARY_DOCUMENT_FIELD = 'primary'
 export const DOCUMENT_FOLDER_FIELD = 'folderId'
 
-const INTEGRATION_AUTH_START_PATH = '/v1/integrations/auth/start'
-
 type StartIntegrationOptions = {
   credentialRef?: string
   installationId?: string
@@ -93,7 +91,6 @@ export async function startIntegrationAuthFlow(provider: IntegrationProvider, op
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      startPath: INTEGRATION_AUTH_START_PATH,
       body: buildStartRequestBody(provider, options),
     }),
   })
