@@ -6,6 +6,7 @@ import { jwtDecode } from 'jwt-decode'
 import { refreshTokens } from '@/lib/auth/utils/session-refresh'
 import { SessionUnavailableError } from '@/lib/auth/utils/session-health'
 import { getIsSessionInvalid } from '@/lib/auth/utils/session-status'
+import { REFRESH_TOKEN_SKEW_MARGIN_MS } from '@/lib/auth/utils/session-tokens'
 
 const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = ['keydown', 'mousemove', 'click', 'scroll', 'touchstart']
 const ACTIVITY_RETRY_BACKOFF_MS = 30_000
@@ -84,7 +85,7 @@ export function useSessionExpiry() {
       () => {
         armed = true
       },
-      Math.max(0, nbfMs - now),
+      Math.max(0, nbfMs + REFRESH_TOKEN_SKEW_MARGIN_MS - now),
     )
     const expireTimeoutId = window.setTimeout(() => setShowSessionExpiredModal(true), expMs - now)
 

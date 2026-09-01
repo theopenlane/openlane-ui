@@ -116,6 +116,14 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
 
     const result = await fetchNewAccessToken(cookieRefreshToken ?? refreshToken)
 
+    if (result.status === 'not-ready') {
+      if (refreshCandidate) {
+        return refreshCandidate
+      }
+
+      throw new SessionUnavailableError(Math.max(result.readyAt - Date.now(), 0))
+    }
+
     if (result.status === 'unavailable') {
       throw recordRefreshFailure(new SessionUnavailableError(result.retryAfterMs), result.retryAfterMs)
     }

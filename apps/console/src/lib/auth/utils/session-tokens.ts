@@ -10,6 +10,7 @@ const REFRESH_BUFFER_CEILING_MS = 60_000
 // know least about the token. The 401 retry in fetchWithRetry is the net. Using
 // REFRESH_BUFFER_CEILING_MS directly when iat is absent would be the more conservative read.
 const FALLBACK_TOKEN_TTL_MS = 60_000
+export const REFRESH_TOKEN_SKEW_MARGIN_MS = 60_000
 
 export interface TokenState {
   accessToken: string
@@ -76,5 +77,14 @@ export const clearTokens = () => {
 export const getTokenGeneration = () => generation
 
 export const getKnownTokens = (): TokenState | null => tokenState
+
+export const getRefreshTokenReadyAt = (refreshToken: string): number | null => {
+  try {
+    const { nbf } = jwtDecode<{ nbf?: number }>(refreshToken)
+    return nbf ? nbf * 1000 + REFRESH_TOKEN_SKEW_MARGIN_MS : null
+  } catch {
+    return null
+  }
+}
 
 export const getUsableTokens = (): TokenState | null => (tokenState && Date.now() < tokenState.refreshAt ? tokenState : null)
