@@ -2,13 +2,19 @@ import { openlaneAPIUrl } from '@repo/dally/auth'
 import { secureFetch } from './secure-fetch'
 import { parseRetryAfter } from './retry-after'
 import { readSSORequirement, type SSORequirement } from './sso-required'
+import { getRefreshTokenReadyAt } from './session-tokens'
 
 export interface Tokens {
   accessToken: string
   refreshToken: string
 }
 
-export type RefreshResult = { status: 'ok'; tokens: Tokens } | { status: 'rejected' } | { status: 'sso-required'; requirement: SSORequirement } | { status: 'unavailable'; retryAfterMs: number }
+export type RefreshResult =
+  | { status: 'ok'; tokens: Tokens }
+  | { status: 'rejected' }
+  | { status: 'sso-required'; requirement: SSORequirement }
+  | { status: 'unavailable'; retryAfterMs: number }
+  | { status: 'not-ready'; readyAt: number }
 
 /**
  * `rejected` is destructive: it ends in the session-expired modal, which
@@ -18,6 +24,12 @@ export type RefreshResult = { status: 'ok'; tokens: Tokens } | { status: 'reject
 const REJECTED_REFRESH_STATUSES = new Set([400, 401])
 
 export const fetchNewAccessToken = async (refreshToken: string): Promise<RefreshResult> => {
+  const readyAt = getRefreshTokenReadyAt(refreshToken)
+
+  if (readyAt !== null && Date.now() < readyAt) {
+    return { status: 'not-ready', readyAt }
+  }
+
   let response: Response
 
   try {
