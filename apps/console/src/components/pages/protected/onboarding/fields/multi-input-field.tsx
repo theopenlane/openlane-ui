@@ -46,7 +46,7 @@ export const MultiInputField: React.FC<{ question: OnboardingQuestion }> = ({ qu
     <div className="space-y-2">
       <QuestionLabel question={question} htmlFor={question.key} />
       <QuestionDescription text={question.description} />
-      <div className="flex flex-wrap items-center gap-2 border rounded-md p-2">
+      <div className="flex min-h-10 flex-wrap items-center gap-2 rounded-md border bg-input px-3 py-1.5 focus-within:border-brand">
         {items.map((item) => (
           <Badge key={item} className="flex items-center gap-1">
             {item}
@@ -70,7 +70,7 @@ export const MultiInputField: React.FC<{ question: OnboardingQuestion }> = ({ qu
             }
           }}
           onBlur={addItem}
-          className="h-auto flex-1 min-w-[180px] border-none !px-1 !py-0 shadow-none focus-visible:ring-0"
+          className="h-auto border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
         />
       </div>
       {invalidDraft && <p className="text-red-500 text-sm">Invalid domain format. Example: acme.com</p>}
