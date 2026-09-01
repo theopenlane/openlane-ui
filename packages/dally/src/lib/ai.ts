@@ -26,7 +26,10 @@ export const geminiModelName = process.env.GOOGLE_AI_MODEL_NAME || 'gemini-2.5-f
 export const aiSystemInstruction = process.env.AI_SYSTEM_INSTRUCTION?.trimEnd() ?? 'You are a helpful assistant that provides concise and accurate answers based on the provided context.'
 
 export const controlSystemInstruction =
-  process.env.CONTROL_FRAMEWORK_INSTRUCTION?.trimEnd() ?? 'When referencing controls, always use their ref codes with their framework (e.g., "SOC 2 - CC1.1"). Do not use internal identifiers.'
+  process.env.CONTROL_FRAMEWORK_INSTRUCTION?.trimEnd() ??
+  'Only reference a control when its exact ref code and framework are explicitly supplied in the request context. When referencing a supplied control, use its ref code with its framework (e.g., "SOC 2 - CC1.1"), never an internal identifier. Do not infer control mappings from a framework, regulation, or certification mentioned by the user.'
+
+export const policySystemInstruction = process.env.POLICY_SYSTEM_INSTRUCTION?.trimEnd() ?? ''
 
 export const policyPrompt = (policyName: string) =>
   `Generate a formal policy document for "${policyName}" based on the following requirements.\n\n` + (process.env.NEXT_PUBLIC_AI_POLICY_PROMPT?.trimEnd() ?? '')

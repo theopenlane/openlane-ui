@@ -15,6 +15,7 @@ import {
   maxOutputTokens,
   geminiModelName,
   ragCorpusID,
+  policySystemInstruction,
 } from '@repo/dally/ai'
 
 export const runtime = 'nodejs'
@@ -97,7 +98,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { prompt, context } = await req.json()
+    const { section, prompt, context } = await req.json()
     let contextData = ''
 
     // Configure additional context for RAG if corpus ID is provided
@@ -105,14 +106,9 @@ export async function POST(req: NextRequest) {
       contextData = await getContext(prompt)
     }
 
-    const RULES = aiSystemInstruction ?? ''
+    const systemInstruction = section === 'policy' ? `${aiSystemInstruction}\n${policySystemInstruction}` : `${aiSystemInstruction}\n${controlSystemInstruction}`
 
-    const mergedUserText = [
-      RULES, // unchanged
-      `Information Context (RAG):\n${toText(contextData)}`,
-      `Request Context Details (authoritative):\n${toText(context)}`,
-      `User Question:\n${prompt}`,
-    ]
+    const mergedUserText = [`Information Context (RAG):\n${toText(contextData)}`, `Request Context Details (authoritative):\n${toText(context)}`, `User Question:\n${prompt}`]
       .filter(Boolean)
       .join('\n\n')
 
@@ -126,7 +122,7 @@ export async function POST(req: NextRequest) {
         },
       ],
       config: {
-        systemInstruction: aiSystemInstruction + '\n' + controlSystemInstruction,
+        systemInstruction,
         temperature,
         maxOutputTokens,
         thinkingConfig: { thinkingBudget: 0 },

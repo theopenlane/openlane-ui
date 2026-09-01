@@ -51,7 +51,7 @@ function serializeContext(context?: ContextType): string {
   }
   if (context.policy?.name) out += `Policy: ${context.policy.name}\n`
   if (context.policy?.description) out += `Policy Description: ${context.policy.description}\n`
-  if (context.additionalContext) out += `Additional Context: ${JSON.stringify(context.additionalContext)}\n`
+  if (context.additionalContext) out += `Additional Context:\n${context.additionalContext.trim()}\n`
   if (context.conversationHistory && context.conversationHistory.length > 0) {
     out += `Conversation History:\n`
     for (const msg of context.conversationHistory) {
@@ -80,6 +80,7 @@ export function useAISuggestions() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          section,
           prompt,
           context: serializeContext(context),
         }),
