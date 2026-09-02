@@ -185,6 +185,8 @@ export const BULK_EDIT_REMEDIATION = gql`
   mutation UpdateBulkRemediation($ids: [ID!]!, $input: UpdateRemediationInput!) {
     updateBulkRemediation(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

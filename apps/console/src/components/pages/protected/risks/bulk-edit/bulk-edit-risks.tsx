@@ -14,12 +14,12 @@ import { ClientError } from 'graphql-request'
 import { Input } from '@repo/ui/input'
 import {
   checkHasFieldsToUpdate,
-  collectAssociationInput,
+  collectBulkEditFieldInput,
+  type BulkEditInputValue,
   type BulkEditRisksDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditRisks,
   useModuleFilteredSelectOptions,
-  getMappedClearValue,
   InputType,
   bulkEditFieldsSchema,
   type BulkEditFieldsFormValues,
@@ -28,12 +28,13 @@ import { useBulkEditRisk } from '@/lib/graphql-hooks/risk'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-single-object-association'
 import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
 import { getAssociationSelectedCount } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
+import { BulkEditValueSelect } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-value-select'
+import { useBulkUpdateFeedback } from '@/components/shared/crud-base/use-bulk-update-feedback'
 
 type BulkEditRisksFormValues = BulkEditFieldsFormValues
 
@@ -41,7 +42,8 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
   const [open, setOpen] = useState(false)
   const [collapsedAssociations, setCollapsedAssociations] = useState<Record<string, boolean>>({})
   const { mutateAsync: bulkEditRisks } = useBulkEditRisk()
-  const { errorNotification, successNotification } = useNotification()
+  const { errorNotification } = useNotification()
+  const { notifyBulkUpdate } = useBulkUpdateFeedback()
   const form = useForm<BulkEditRisksFormValues>({
     resolver: zodResolver(bulkEditFieldsSchema),
     defaultValues: defaultObject,
@@ -97,35 +99,30 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
 
   const onSubmit = async () => {
     const ids = selectedRisks.map((risk) => risk.id)
-    const input: Record<string, string | string[] | boolean> = {}
+    const input: Record<string, BulkEditInputValue> = {}
     if (watchedFields.length === 0) return
 
     if (ids.length === 0) return
-    watchedFields.forEach((field) => {
-      if (collectAssociationInput(field, input)) return
-
-      const key = field.selectedObject?.name
-      if (!key) return
-
-      if (field?.selectedValue && field?.value) {
-        input[key] = field.selectedValue
-      }
-
-      if (field.selectedObject?.inputType === InputType.Input && !field?.selectedValue) {
-        const clearValue = getMappedClearValue(field.selectedObject?.name)
-        input[clearValue] = true
-      }
-    })
+    watchedFields.forEach((field) => collectBulkEditFieldInput(field, input))
 
     try {
-      await bulkEditRisks({
+      const result = await bulkEditRisks({
         ids: ids,
         input,
       })
-      successNotification({
-        title: 'Successfully bulk updated selected risks.',
-      })
-      setSelectedRisks([])
+      const payload = result.updateBulkRisk
+      if (
+        !notifyBulkUpdate({
+          requestedCount: ids.length,
+          updatedIDs: payload?.updatedIDs,
+          notUpdatedIDs: payload?.notUpdatedIDs,
+          error: payload?.error,
+          singular: 'risk',
+          setSelected: setSelectedRisks,
+        })
+      )
+        return
+
       setOpen(false)
     } catch (error: unknown) {
       let errorMessage: string | undefined
@@ -207,32 +204,16 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                                 }
                               />
                             ) : (
-                              <Select
+                              <BulkEditValueSelect
+                                selectedObject={item.selectedObject}
                                 value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                                onValueChange={(value) =>
+                                onChange={(value) =>
                                   update(index, {
                                     ...item,
                                     selectedValue: value,
                                   })
                                 }
-                              >
-                                <SelectTrigger className="w-60">
-                                  <SelectValue>
-                                    <CustomTypeEnumValue
-                                      value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                                      options={item.selectedObject?.options || []}
-                                      placeholder={item.selectedObject?.placeholder ?? ''}
-                                    />
-                                  </SelectValue>
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {(item.selectedObject?.options || []).map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                      <CustomTypeEnumOptionChip option={option} />
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                              />
                             )}
                           </div>
                         ) : item.selectedObject.inputType === InputType.Tag ? (

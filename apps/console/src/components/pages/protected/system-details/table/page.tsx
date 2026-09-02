@@ -174,7 +174,8 @@ const SystemDetailPage: React.FC = () => {
     onBulkEdit: async (ids: string[], input: UpdateSystemDetailInput & SystemDetailBulkEditAssociations) => {
       const { platformIDs, programIDs, ...rest } = input
       const payload: UpdateSystemDetailInput = { ...rest, ...getAssociationInput({}, { platformIDs, programIDs }) }
-      await baseBulkEditMutation.mutateAsync({ ids, input: payload })
+      const result = await baseBulkEditMutation.mutateAsync({ ids, input: payload })
+      return result.updateBulkSystemDetail
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     bulkEditFieldLabels,

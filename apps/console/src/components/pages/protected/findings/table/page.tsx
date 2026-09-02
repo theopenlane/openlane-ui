@@ -70,7 +70,8 @@ const FindingPage: React.FC = () => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
     onBulkEdit: async (ids: string[], input: UpdateFindingInput) => {
-      await baseBulkEditMutation.mutateAsync({ ids, input })
+      const result = await baseBulkEditMutation.mutateAsync({ ids, input })
+      return result.updateBulkFinding
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,

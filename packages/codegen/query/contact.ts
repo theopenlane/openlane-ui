@@ -130,6 +130,8 @@ export const BULK_EDIT_CONTACT = gql`
   mutation UpdateBulkContact($ids: [ID!]!, $input: UpdateContactInput!) {
     updateBulkContact(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

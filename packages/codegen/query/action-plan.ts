@@ -143,6 +143,8 @@ export const BULK_EDIT_ACTION_PLAN = gql`
   mutation UpdateBulkActionPlan($ids: [ID!]!, $input: UpdateActionPlanInput!) {
     updateBulkActionPlan(ids: $ids, input: $input) {
       updatedIDs
+      notUpdatedIDs
+      error
     }
   }
 `

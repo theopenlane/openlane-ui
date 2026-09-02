@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
@@ -17,7 +16,11 @@ import {
   type BulkEditTasksDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditTasks,
-  getMappedClearValue,
+  checkHasFieldsToUpdate,
+  collectBulkEditFieldInput,
+  type BulkEditInputValue,
+  bulkEditFieldsSchema,
+  type BulkEditFieldsFormValues,
   InputType,
   SelectOptionBulkEditTasks,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
@@ -27,44 +30,20 @@ import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organizatio
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
+import { BulkEditValueSelect } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-value-select'
+import { useBulkUpdateFeedback } from '@/components/shared/crud-base/use-bulk-update-feedback'
 
-const fieldItemSchema = z.object({
-  value: z.enum(SelectOptionBulkEditTasks).optional(),
-  selectedObject: z
-    .object({
-      selectOptionEnum: z.enum(SelectOptionBulkEditTasks),
-      name: z.string(),
-      placeholder: z.string(),
-      options: z
-        .array(
-          z.object({
-            label: z.string(),
-            value: z.string(),
-          }),
-        )
-        .optional(),
-      inputType: z.enum(InputType),
-    })
-    .optional(),
-  selectedValue: z.union([z.string(), z.array(z.string())]).optional(),
-  selectedDate: z.date().nullable().optional(),
-})
-
-const bulkEditTasksSchema = z.object({
-  fieldsArray: z.array(fieldItemSchema),
-})
-
-type BulkEditTasksFormValues = z.infer<typeof bulkEditTasksSchema>
+type BulkEditTasksFormValues = BulkEditFieldsFormValues
 
 export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ selectedTasks, setSelectedTasks }) => {
   const [open, setOpen] = useState(false)
   const { mutateAsync: bulkEditTasks } = useBulkEditTask()
-  const { errorNotification, successNotification } = useNotification()
+  const { errorNotification } = useNotification()
+  const { notifyBulkUpdate } = useBulkUpdateFeedback()
   const form = useForm<BulkEditTasksFormValues>({
-    resolver: zodResolver(bulkEditTasksSchema),
+    resolver: zodResolver(bulkEditFieldsSchema),
     defaultValues: defaultObject,
   })
 
@@ -90,9 +69,7 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
   const { control, handleSubmit } = form
 
   const watchedFields = useWatch({ control, name: 'fieldsArray' }) ?? []
-  const hasFieldsToUpdate = watchedFields.some(
-    (field) => (field.selectedObject && field.selectedValue) || field.selectedObject?.inputType === InputType.Input || field.selectedObject?.inputType === InputType.Date,
-  )
+  const hasFieldsToUpdate = checkHasFieldsToUpdate(watchedFields)
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
     name: 'fieldsArray',
@@ -112,33 +89,30 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
 
   const onSubmit = async () => {
     const ids = selectedTasks.map((task) => task.id)
-    const input: Record<string, string | string[] | Date | boolean | null> = {}
+    const input: Record<string, BulkEditInputValue> = {}
     if (watchedFields.length === 0) return
 
     if (ids.length === 0) return
-    watchedFields.forEach((field) => {
-      const key = field.selectedObject?.name
-      if (key && field?.selectedValue && field?.value) {
-        input[key] = field.selectedValue
-      }
-      if (key && field?.selectedDate && field?.value) {
-        input[key] = field.selectedDate
-      }
-      if (field.selectedObject?.inputType === InputType.Date && !field?.selectedDate) {
-        const clearValue = getMappedClearValue(field.selectedObject?.name)
-        input[clearValue] = true
-      }
-    })
+    watchedFields.forEach((field) => collectBulkEditFieldInput(field, input))
 
     try {
-      await bulkEditTasks({
+      const result = await bulkEditTasks({
         ids: ids,
         input,
       })
-      successNotification({
-        title: 'Successfully bulk updated selected tasks.',
-      })
-      setSelectedTasks([])
+      const payload = result.updateBulkTask
+      if (
+        !notifyBulkUpdate({
+          requestedCount: ids.length,
+          updatedIDs: payload?.updatedIDs,
+          notUpdatedIDs: payload?.notUpdatedIDs,
+          error: payload?.error,
+          singular: 'task',
+          setSelected: setSelectedTasks,
+        })
+      )
+        return
+
       setOpen(false)
     } catch (error: unknown) {
       let errorMessage: string | undefined
@@ -219,32 +193,16 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
                               }
                             />
                           ) : (
-                            <Select
+                            <BulkEditValueSelect
+                              selectedObject={item.selectedObject}
                               value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                              onValueChange={(value) =>
+                              onChange={(value) =>
                                 update(index, {
                                   ...item,
                                   selectedValue: value,
                                 })
                               }
-                            >
-                              <SelectTrigger className="w-60">
-                                <SelectValue placeholder={item.selectedObject?.placeholder}>
-                                  <CustomTypeEnumValue
-                                    value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                                    options={item.selectedObject?.options || []}
-                                    placeholder={item.selectedObject?.placeholder ?? ''}
-                                  />
-                                </SelectValue>
-                              </SelectTrigger>
-                              <SelectContent>
-                                {(item.selectedObject?.options || []).map((option) => (
-                                  <SelectItem key={option.value} value={option.value}>
-                                    <CustomTypeEnumOptionChip option={option} />
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            />
                           )}
                         </div>
                       ) : item.selectedObject.inputType === InputType.Date ? (

@@ -25,7 +25,7 @@ import type { WhereCondition } from '@/types'
 import { type TFilterState } from '../../table-filter/filter-storage'
 import { GenericBulkEditDialog, type ResponsibilityFieldsMap } from '../dialog/bulk-edit'
 import { type EnumOptionsGeneric } from '../page'
-import type { BulkDeletePayload, CreateMode } from '../types'
+import type { BulkDeletePayload, BulkUpdatePayload, CreateMode } from '../types'
 import { getBulkActionFailureDescription } from '../bulk-action-feedback'
 import { type Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
@@ -35,6 +35,7 @@ import { cn } from '@repo/ui/lib/utils'
 type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInput> = {
   entityType: ObjectTypes
   displayName?: string
+  displayNamePlural?: string
   handleExport: () => void
   filterFields?: FilterField[] | undefined
   quickFilters?: TQuickFilter[]
@@ -55,7 +56,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   setSelectedItems: React.Dispatch<React.SetStateAction<T[]>>
   onBulkDelete?: (ids: string[]) => Promise<BulkDeletePayload>
   onBulkCreate?: (file: File) => Promise<void>
-  onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<void>
+  onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<BulkUpdatePayload>
   bulkEditFormSchema?: ZodObject<ZodRawShape>
   storageKey: TableKeyValue
   enumOpts?: EnumOptionsGeneric
@@ -81,6 +82,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
   const { data: session } = useSession()
   const { available: mergeAvailable, active: mergeModeActive, setActive: setMergeModeActive } = useMergeMode()
+  const { onBulkEdit } = props
 
   const { successNotification, errorNotification } = useNotification()
   const { replace } = useSmartRouter()
@@ -156,7 +158,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
           <div className={cn('flex flex-row items-center gap-2', mergeModeActive && 'hidden')}>
             {props.selectedItems.length > 0 ? (
               <>
-                {props.canEdit(props.permission?.roles, session) && props.onBulkEdit && props.bulkEditFormSchema && (
+                {props.canEdit(props.permission?.roles, session) && onBulkEdit && props.bulkEditFormSchema && (
                   <>
                     <GenericBulkEditDialog<T, TUpdateInput>
                       open={isBulkEditDialogOpen}
@@ -165,13 +167,12 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                       setSelectedItems={props.setSelectedItems}
                       schema={props.bulkEditFormSchema as ZodObject<ZodRawShape>}
                       bulkEditMutation={{
-                        mutateAsync: async ({ ids, input }) => {
-                          await props.onBulkEdit?.(ids, input as TUpdateInput)
-                        },
+                        mutateAsync: ({ ids, input }) => onBulkEdit(ids, input as TUpdateInput),
                       }}
                       enumOpts={props.enumOpts}
                       entityType={props.entityType}
                       displayName={props.displayName}
+                      displayNamePlural={props.displayNamePlural}
                       responsibilityFields={props.responsibilityFields}
                       fieldLabels={props.bulkEditFieldLabels}
                     />

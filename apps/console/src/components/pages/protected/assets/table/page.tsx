@@ -231,7 +231,8 @@ const AssetPage: React.FC = () => {
         ...rest,
         ...(vendorIDs && vendorIDs.length > 0 ? { addEntityIDs: vendorIDs } : {}),
       }
-      await bulkEditMutation.mutateAsync({ ids, input: payload })
+      const result = await bulkEditMutation.mutateAsync({ ids, input: payload })
+      return result.updateBulkAsset
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     bulkEditFieldLabels: { vendorIDs: 'Vendors' },

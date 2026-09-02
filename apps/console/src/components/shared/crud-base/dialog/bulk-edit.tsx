@@ -22,6 +22,8 @@ import { type EnumOptionsGeneric } from '../page'
 import { toHumanLabel } from '@/utils/strings'
 import { type ResponsibilitySelection } from '../form-fields/responsibility-field-utils'
 import { BulkResponsibilityPicker } from '../form-fields/bulk-responsibility-picker'
+import { useBulkUpdateFeedback } from '../use-bulk-update-feedback'
+import { type BulkUpdatePayload } from '../types'
 
 export type ResponsibilityFieldsMap = Record<string, { fieldBaseName: string }>
 
@@ -35,10 +37,11 @@ interface GenericBulkEditDialogProps<T extends { id: string }, TUpdateInput> {
   setSelectedItems: React.Dispatch<React.SetStateAction<T[]>>
   schema: ZodObject<ZodRawShape>
   bulkEditMutation: {
-    mutateAsync: (params: { ids: string[]; input: TUpdateInput }) => Promise<void>
+    mutateAsync: (params: { ids: string[]; input: TUpdateInput }) => Promise<BulkUpdatePayload>
   }
   entityType?: ObjectTypes
   displayName?: string
+  displayNamePlural?: string
   open?: boolean
   onOpenChange?: (open: boolean) => void
   enumOpts?: EnumOptionsGeneric
@@ -75,6 +78,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
   bulkEditMutation,
   entityType,
   displayName,
+  displayNamePlural,
   open: openProp,
   onOpenChange,
   enumOpts,
@@ -83,7 +87,8 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
 }: GenericBulkEditDialogProps<T, TUpdateInput>) {
   const getFieldLabel = (key: string) => fieldLabels?.[key] ?? toHumanLabel(key)
   const [open, setOpen] = useState(openProp ?? false)
-  const { errorNotification, successNotification } = useNotification()
+  const { errorNotification } = useNotification()
+  const { notifyBulkUpdate } = useBulkUpdateFeedback()
   const entityLabel = displayName ?? toHumanLabel(entityType as string)
 
   const handleOpenChange = (nextOpen: boolean) => {
@@ -175,11 +180,20 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
     })
 
     try {
-      await bulkEditMutation.mutateAsync({ ids, input })
-      successNotification({
-        title: `Successfully bulk updated selected ${entityLabel?.toLowerCase()}.`,
-      })
-      setSelectedItems([])
+      const result = await bulkEditMutation.mutateAsync({ ids, input })
+      if (
+        !notifyBulkUpdate({
+          requestedCount: ids.length,
+          updatedIDs: result.updatedIDs,
+          notUpdatedIDs: result.notUpdatedIDs,
+          error: result.error,
+          singular: entityLabel.toLowerCase() || 'record',
+          plural: displayNamePlural?.toLowerCase(),
+          setSelected: setSelectedItems,
+        })
+      )
+        return
+
       handleOpenChange(false)
     } catch (error: unknown) {
       let errorMessage: string | undefined
