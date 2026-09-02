@@ -35,10 +35,10 @@ declare module 'next-auth' {
 
 declare module '@auth/core/jwt' {
   interface JWT {
-    accessToken?: string
-    refreshToken?: string
-    isTfaEnabled?: boolean
-    isOnboarding?: boolean
+    user: {
+      accessToken: string
+      refreshToken: string
+    }
   }
 }
 
