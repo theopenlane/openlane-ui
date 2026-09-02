@@ -18,7 +18,7 @@ export const formId = 'edit' + ObjectNames.ASSET
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
   { label: 'Registry', href: '/registry/assets' },
-  { label: 'Assets', href: '/assets' },
+  { label: 'Assets', href: '/registry/assets' },
 ]
 
 export const getFilterFields = (enumOptions: EnumOptions) =>

@@ -79,7 +79,7 @@ const AllowedDomains = () => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Organization Settings', href: '/organization-settings/general-settings' },
-      { label: 'Authentication', href: '/authentication' },
+      { label: 'Authentication', href: '/organization-settings/authentication' },
     ])
   }, [setCrumbs])
 

@@ -27,7 +27,7 @@ export default function ViewQuestionnaire(input: { existingId: string }) {
       { label: 'Home', href: '/dashboard' },
       { label: 'Automation', href: '/automation/questionnaires' },
       { label: 'Questionnaires', href: '/automation/questionnaires' },
-      { label: 'Questionnaire Viewer', href: '/questionnaire-viewer' },
+      { label: 'Questionnaire Viewer', href: '/automation/questionnaires/questionnaire-viewer' },
     ])
   }, [setCrumbs])
 

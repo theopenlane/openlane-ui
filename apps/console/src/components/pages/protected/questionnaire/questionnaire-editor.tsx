@@ -145,7 +145,7 @@ const QuestionnaireEditor = (input: { templateId: string; existingId: string }) 
       { label: 'Home', href: '/dashboard' },
       { label: 'Automation', href: '/automation/questionnaires' },
       { label: 'Questionnaires', href: '/automation/questionnaires' },
-      { label: 'Questionnaire Editor', href: '/questionnaire-editor' },
+      { label: 'Questionnaire Editor', href: '/automation/questionnaires/questionnaire-editor' },
     ])
   }, [setCrumbs])
 

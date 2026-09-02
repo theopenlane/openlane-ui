@@ -26,7 +26,7 @@ export default function ViewTemplate(input: { existingId: string }) {
       { label: 'Automation', href: '/automation/questionnaires' },
       { label: 'Questionnaires', href: '/automation/questionnaires' },
       { label: 'Templates', href: '/automation/questionnaires/templates' },
-      { label: 'Template Viewer', href: '/template-viewer' },
+      { label: 'Template Viewer', href: '/automation/questionnaires/templates/template-viewer' },
     ])
   }, [setCrumbs])
 
