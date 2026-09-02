@@ -17,6 +17,13 @@ export interface TDiscussion {
 
 export type CommentEntityType = typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL | typeof ObjectTypes.INTERNAL_POLICY | typeof ObjectTypes.PROCEDURE | typeof ObjectTypes.RISK
 
+export interface TDiscussionUser {
+  id: string
+  name: string
+  avatarUrl?: string
+  hue?: number
+}
+
 /**
  * discussionPlugin
  *
@@ -40,15 +47,7 @@ export const discussionPlugin = createPlatePlugin({
     entityId: undefined as string | undefined,
     currentUserId: undefined as string | undefined,
     isCreate: false,
-    users: {} as Record<
-      string,
-      {
-        id: string
-        avatarUrl: string
-        name: string
-        hue?: number
-      }
-    >,
+    users: {} as Record<string, TDiscussionUser>,
     discussions: [] as TDiscussion[],
   },
 })

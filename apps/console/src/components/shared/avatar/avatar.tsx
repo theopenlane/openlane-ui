@@ -17,28 +17,19 @@ interface AvatarProps {
   className?: string
 }
 
-export function Avatar({ variant, entity, className }: AvatarProps) {
+export const getAvatarImageSrc = (entity?: AvatarEntityLike | null): string | undefined => {
+  if (!entity) return undefined
+
+  if (entity.avatarFile?.base64) return toBase64DataUri(entity.avatarFile.base64)
+  if (entity.logoFile?.base64) return toBase64DataUri(entity.logoFile.base64)
+
+  return entity.avatarRemoteURL || entity.gravatarLogoURL || entity.logoURL || undefined
+}
+
+export const Avatar = ({ variant, entity, className }: AvatarProps) => {
   if (!entity) return null
 
-  const image = (() => {
-    if ('avatarFile' in entity && entity.avatarFile) {
-      if ('base64' in entity.avatarFile && entity.avatarFile.base64) {
-        return toBase64DataUri(entity.avatarFile.base64)
-      }
-    }
-    if ('logoFile' in entity && entity.logoFile) {
-      if ('base64' in entity.logoFile && entity.logoFile.base64) {
-        return toBase64DataUri(entity.logoFile.base64)
-      }
-    }
-    return (
-      ('avatarRemoteURL' in entity ? entity.avatarRemoteURL : undefined) ??
-      ('gravatarLogoURL' in entity ? entity.gravatarLogoURL : undefined) ??
-      ('logoURL' in entity ? entity.logoURL : undefined) ??
-      undefined
-    )
-  })()
-
+  const image = getAvatarImageSrc(entity)
   const fallbackText = entity.displayName?.substring(0, variant === 'small' ? 1 : 2)
 
   return (

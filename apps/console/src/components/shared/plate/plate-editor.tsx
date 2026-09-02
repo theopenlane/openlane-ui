@@ -8,19 +8,11 @@ import { EditorKitVariant, type TPlateEditorVariants } from '@repo/ui/components
 import { Editor, EditorContainer, type TPlateEditorStyleVariant } from '@repo/ui/components/ui/editor.tsx'
 import { createPlateEditor, Plate, type PlatePlugin, usePlateEditor } from 'platejs/react'
 import { detectFormat } from './usePlateEditor'
-import { type CommentEntityType, discussionPlugin, type TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
+import { type CommentEntityType, discussionPlugin } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 import { pdfExportPlugin } from '@repo/ui/components/editor/plugins/pdf-export-kit.tsx'
-import { parseCommentTextToChildren } from '@repo/ui/components/editor/plugins/mention-serialize.ts'
 import { stripDraftCommentMarks } from '@repo/ui/components/editor/comment-utils.ts'
-import {
-  type ControlDiscussionFieldsFragment,
-  type GetUserProfileQuery,
-  type PolicyDiscussionFieldsFragment,
-  type ProcedureDiscussionFieldsFragment,
-  type RiskDiscussionFieldsFragment,
-  type SubcontrolDiscussionFieldsFragment,
-} from '@repo/codegen/src/schema.ts'
-import { type TComment } from '@repo/ui/components/ui/comment.jsx'
+import { type GetUserProfileQuery } from '@repo/codegen/src/schema.ts'
+import { mapEntityDiscussions, type TDiscussionEntity, useDiscussionUsers } from './discussions'
 
 export type TPlateEditorProps = {
   onChange?: (data: Value) => void
@@ -31,7 +23,7 @@ export type TPlateEditorProps = {
   onClear?: () => void
   placeholder?: string
   ariaLabel?: string
-  entity?: PolicyDiscussionFieldsFragment | ProcedureDiscussionFieldsFragment | RiskDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment | ControlDiscussionFieldsFragment
+  entity?: TDiscussionEntity
   userData?: GetUserProfileQuery
   readonly?: boolean
   isCreate?: boolean
@@ -107,74 +99,25 @@ const PlateEditor = ({
 
   const initialValueSetRef = useRef(false)
 
-  function mapEntityDiscussions(
-    entity: PolicyDiscussionFieldsFragment | ProcedureDiscussionFieldsFragment | RiskDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment | ControlDiscussionFieldsFragment,
-  ): TDiscussion[] {
-    return (
-      entity.discussions?.edges
-        ?.map((edge) => {
-          const d = edge?.node
-          if (!d || !d.externalID) return null
-
-          const comments: TComment[] =
-            d.comments?.edges
-              ?.map((cEdge) => {
-                const c = cEdge?.node
-                if (!c) return null
-
-                return {
-                  id: c.id,
-                  contentRich: [
-                    {
-                      type: 'p',
-                      children: parseCommentTextToChildren(c.text ?? '', { comment: true, [`comment_${d.externalID}`]: true }),
-                      id: c.noteRef,
-                    },
-                  ],
-                  createdAt: new Date(c.createdAt ?? Date.now()),
-                  discussionId: d.externalID,
-                  isEdited: c.isEdited,
-                  userId: c.createdBy ?? 'unknown',
-                } as TComment
-              })
-              .filter((c): c is TComment => c !== null) ?? []
-
-          return {
-            id: d.externalID,
-            systemId: d.id,
-            createdAt: new Date(d.createdAt ?? Date.now()),
-            isResolved: d.isResolved ?? false,
-            userId: comments[0]?.userId ?? 'unknown',
-            comments,
-          } as TDiscussion
-        })
-        .filter((d): d is TDiscussion => d !== null) ?? []
-    )
-  }
+  const discussions = React.useMemo(() => (entity ? mapEntityDiscussions(entity) : []), [entity])
+  const discussionUsers = useDiscussionUsers(discussions, userData?.user)
 
   useEffect(() => {
-    if (isCreate) {
-      editor.setOption(discussionPlugin, 'isCreate', true)
-    } else {
-      editor.setOption(discussionPlugin, 'isCreate', false)
-    }
+    editor.setOption(discussionPlugin, 'isCreate', !!isCreate)
+  }, [editor, isCreate])
 
-    if (!editor || !entity || !userData?.user) return
+  useEffect(() => {
+    if (!entity || !userData?.user) return
 
     editor.setOption(discussionPlugin, 'entityType', entity.__typename as CommentEntityType)
     editor.setOption(discussionPlugin, 'entityId', entity.id)
     editor.setOption(discussionPlugin, 'currentUserId', userData.user.id)
+    editor.setOption(discussionPlugin, 'discussions', discussions)
+  }, [editor, entity, userData, discussions])
 
-    editor.setOption(discussionPlugin, 'users', {
-      [userData.user.id]: {
-        id: userData.user.id,
-        name: userData.user.displayName,
-        avatarUrl: userData.user.avatarRemoteURL ?? '',
-      },
-    })
-
-    editor.setOption(discussionPlugin, 'discussions', mapEntityDiscussions(entity))
-  }, [editor, entity, isCreate, userData])
+  useEffect(() => {
+    editor.setOption(discussionPlugin, 'users', discussionUsers)
+  }, [editor, discussionUsers])
 
   // Expose methods via ref
   useImperativeHandle(ref, () => ({
