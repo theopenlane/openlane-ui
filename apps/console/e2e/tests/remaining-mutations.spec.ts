@@ -1,5 +1,6 @@
 import { test, expect, readManifest } from '../fixtures/auth'
 import { uniqueName, uniqueRef } from '../utils/unique'
+import { openRowAction } from '../utils/menu'
 import { confirmDestructive, expectMutationOk } from '../utils/mutations'
 import { createControl, createGroup, createSubcontrol, getOwnerApi, getSelf, addOrgMember, loginViaApi, gql, type ApiSession } from '../utils/api'
 import { registerAndVerify } from '../utils/registerUser'
@@ -39,8 +40,7 @@ test.describe('group memberships', () => {
     await expect(row).toBeVisible({ timeout: 30_000 })
 
     await expectMutationOk(page, 'UpdateGroupMembership', async () => {
-      await row.getByRole('combobox').first().click()
-      await page.getByRole('option', { name: 'Admin', exact: true }).click()
+      await openRowAction(page, row.getByRole('combobox').first(), page.getByRole('option', { name: 'Admin', exact: true }))
     })
     await expect(page.getByText('Group membership updated successfully.').first()).toBeVisible({ timeout: 30_000 })
 
