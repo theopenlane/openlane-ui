@@ -10,6 +10,7 @@ import { REFRESH_TOKEN_SKEW_MARGIN_MS } from '@/lib/auth/utils/session-tokens'
 
 const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = ['keydown', 'mousemove', 'click', 'scroll', 'touchstart']
 const ACTIVITY_RETRY_BACKOFF_MS = 30_000
+const ACTIVITY_MIN_INTERVAL_MS = 60_000
 
 interface RefreshTokenClaims {
   nbf?: number
@@ -75,7 +76,9 @@ export function useSessionExpiry() {
         await refreshTokens(token)
       } catch (error) {
         nextAttemptAt = Date.now() + (error instanceof SessionUnavailableError ? error.retryAfterMs : ACTIVITY_RETRY_BACKOFF_MS)
+      } finally {
         inFlight = false
+        nextAttemptAt = Math.max(nextAttemptAt, Date.now() + ACTIVITY_MIN_INTERVAL_MS)
       }
     }
 

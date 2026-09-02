@@ -1,9 +1,10 @@
 'use client'
 
+import type { Session } from 'next-auth'
 import { fetchNewAccessToken } from './refresh-token'
-import { probeSession, SessionUnavailableError } from './session-health'
+import { probeSession, resetSessionProbe, SessionUnavailableError } from './session-health'
 import { notifySSOReauthRequired, notifySessionExpired } from './session-status'
-import { getKnownTokens, getTokenGeneration, getUsableTokens, setAuthoritativeTokens, type TokenState } from './session-tokens'
+import { getKnownTokens, getTokenGeneration, getUsableTokens, isTokenUsable, readTokenRefreshAt, setAuthoritativeTokens, type TokenState } from './session-tokens'
 
 // Web Locks key, not a duration: the namespace is browser-global (hence the prefix) and shared
 // across tabs, so an exclusive hold means five open tabs produce one /v1/refresh. The generation
@@ -47,12 +48,43 @@ interface RefreshOptions {
   networkOnlyIfDue?: boolean
 }
 
-type TokenPersister = (tokens: { accessToken: string; refreshToken: string }) => Promise<unknown>
+interface PersistableTokens {
+  accessToken: string
+  refreshToken: string
+}
+
+type TokenPersister = (tokens: PersistableTokens) => Promise<Session | null>
 
 let persistTokens: TokenPersister | null = null
 
 export const setTokenPersister = (persist: TokenPersister | null) => {
   persistTokens = persist
+}
+
+const persistToSession = async ({ accessToken, refreshToken }: PersistableTokens): Promise<boolean> => {
+  if (!persistTokens) {
+    if (typeof window !== 'undefined') {
+      console.error('❌ No session persister registered — the refreshed token cannot reach the server session')
+    }
+
+    return false
+  }
+
+  try {
+    const persisted = await persistTokens({ accessToken, refreshToken })
+
+    if (persisted?.user?.accessToken !== accessToken) {
+      console.error('❌ Session update did not store the refreshed access token')
+      return false
+    }
+
+    resetSessionProbe()
+
+    return true
+  } catch (error) {
+    console.error('❌ Failed to persist refreshed session:', error)
+    return false
+  }
 }
 
 const withRefreshLock = async <T>(run: () => Promise<T>): Promise<T> => {
@@ -98,11 +130,19 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
     const cookieRefreshToken = probe.session.user?.refreshToken
     const known = getKnownTokens()
 
-    // Compare BOTH tokens: keying off the refresh token alone assumes every
-    // rotation replaces it, which is not guaranteed.
-    if (cookieAccessToken && cookieRefreshToken && (cookieAccessToken !== known?.accessToken || cookieRefreshToken !== known?.refreshToken)) {
+    const cookieDiffers = !!cookieAccessToken && !!cookieRefreshToken && (cookieAccessToken !== known?.accessToken || cookieRefreshToken !== known?.refreshToken)
+    const cookieRefreshAt = cookieDiffers ? readTokenRefreshAt(cookieAccessToken) : null
+    const cookieOutlivesKnown = cookieRefreshAt !== null && Date.now() < cookieRefreshAt && (!known || cookieRefreshAt >= known.refreshAt)
+
+    if (cookieOutlivesKnown) {
       recordRefreshSuccess()
-      return setAuthoritativeTokens(cookieAccessToken, cookieRefreshToken)
+      const adopted = setAuthoritativeTokens(cookieAccessToken, cookieRefreshToken)
+      await persistToSession(adopted)
+      return adopted
+    }
+
+    if (cookieDiffers && known?.refreshToken && Date.now() < known.refreshAt) {
+      await persistToSession(known)
     }
 
     // Re-read after reconciliation: a concurrent request may have installed a
@@ -114,7 +154,7 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
       return refreshCandidate
     }
 
-    const result = await fetchNewAccessToken(cookieRefreshToken ?? refreshToken)
+    const result = await fetchNewAccessToken(refreshCandidate?.refreshToken || cookieRefreshToken || refreshToken)
 
     if (result.status === 'not-ready') {
       if (refreshCandidate) {
@@ -142,13 +182,7 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
 
     const adopted = setAuthoritativeTokens(result.tokens.accessToken, result.tokens.refreshToken)
 
-    if (persistTokens) {
-      try {
-        await persistTokens(result.tokens)
-      } catch (error) {
-        console.error('❌ Failed to persist refreshed session:', error)
-      }
-    }
+    await persistToSession(result.tokens)
 
     return adopted
   })
@@ -163,7 +197,7 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
 export const recoverTokensAfterUnauthorized = async (failedTokens: TokenState): Promise<TokenState | null> => {
   const known = getKnownTokens()
 
-  if (known && known.accessToken !== failedTokens.accessToken) {
+  if (known && known.accessToken !== failedTokens.accessToken && isTokenUsable(known.accessToken)) {
     return known
   }
 
@@ -175,5 +209,5 @@ export const recoverTokensAfterUnauthorized = async (failedTokens: TokenState): 
 
   const recovered = await refreshTokens(refreshToken, { networkOnlyIfDue: true })
 
-  return recovered.accessToken === failedTokens.accessToken ? null : recovered
+  return recovered.accessToken !== failedTokens.accessToken && isTokenUsable(recovered.accessToken) ? recovered : null
 }
