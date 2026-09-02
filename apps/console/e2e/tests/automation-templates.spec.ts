@@ -86,6 +86,12 @@ test('the column menu shows Description and persists the visibility choice after
 
     const setDescriptionColumn = async (visible: boolean) => {
       await expect(async () => {
+        const menu = page.getByRole('menu', { name: 'Columns' })
+        if (await menu.isVisible().catch(() => false)) {
+          await page.keyboard.press('Escape')
+          await expect(menu).toBeHidden({ timeout: 5_000 })
+        }
+
         await page.getByRole('button', { name: 'Columns' }).click()
         const toggle = page.getByRole('menu').getByRole('checkbox', { name: 'Description' })
         await expect(toggle).toBeVisible({ timeout: 5_000 })
