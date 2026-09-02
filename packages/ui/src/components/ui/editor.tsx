@@ -11,7 +11,7 @@ import { PlateContainer, PlateContent, PlateView } from 'platejs/react'
 import { cn } from '@repo/ui/lib/utils'
 
 const editorContainerVariants = cva(
-  'w-full cursor-text flow-root overflow-clip caret-primary select-text bg-input selection:bg-brand/25 ' +
+  'w-full isolate cursor-text flow-root overflow-clip caret-primary select-text bg-input selection:bg-brand/25 ' +
     'focus-visible:outline-hidden [&_.slate-selection-area]:z-50 ' +
     '[&_.slate-selection-area]:border [&_.slate-selection-area]:border/25 [&_.slate-selection-area]:bg-brand/15',
   {
@@ -40,7 +40,7 @@ const editorContainerVariants = cva(
 export type TPlateEditorStyleVariant = 'default' | 'comment' | 'select' | 'demo' | null | undefined
 
 export function EditorContainer({ className, variant, ...props }: React.ComponentProps<'div'> & VariantProps<typeof editorContainerVariants>) {
-  return <PlateContainer className={cn('ignore-click-outside/toolbar', editorContainerVariants({ variant }), className)} {...props} />
+  return <PlateContainer data-slot="editor-container" className={cn('ignore-click-outside/toolbar', editorContainerVariants({ variant }), className)} {...props} />
 }
 
 const editorVariants = cva(

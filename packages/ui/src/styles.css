@@ -975,3 +975,8 @@ body[data-row-dragging] * {
 :root {
   --highlight: oklch(0.852 0.199 91.936);
 }
+
+@theme {
+  --editor-z-fixed-toolbar: 60;
+  --editor-z-floating-toolbar: 70;
+}
