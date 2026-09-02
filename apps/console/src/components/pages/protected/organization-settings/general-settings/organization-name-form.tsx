@@ -145,7 +145,7 @@ const OrganizationNameForm = () => {
                       <Input {...field} variant="medium" className="h-10" />
                     </FormControl>
 
-                    <SaveButton variant={isSuccess ? 'success' : 'primary'} title={isPending ? 'Saving Changes' : isSuccess ? 'Saved' : 'Save Changes'} />
+                    <SaveButton variant={isSuccess ? 'success' : 'primary'} title={isPending ? 'Saving...' : isSuccess ? 'Saved' : 'Save'} />
                   </div>
                   <FormMessage className="mt-1 text-sm text-error" />
                 </FormItem>

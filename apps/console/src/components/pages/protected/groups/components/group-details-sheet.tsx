@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Button } from '@repo/ui/button'
-import { GlobeIcon, Info, Link, Tag, User, Pencil, PanelRightClose, ShieldHalf } from 'lucide-react'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { GlobeIcon, Info, Tag, User, ShieldHalf } from 'lucide-react'
+import { Sheet, SheetContent, SheetDescription } from '@repo/ui/sheet'
 import GroupsMembersTable from './groups-members-table'
 import { Card } from '@repo/ui/cardpanel'
 import DeleteGroupDialog from './dialogs/delete-group-dialog'
@@ -35,8 +34,8 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { GROUP_PERMISSIONS_DOCS_URL } from '@/constants/docs'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { deleteMenuAction, copyLinkMenuAction, SlideoutHeader, type SlideoutMenuAction } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const EditGroupSchema = z.object({
@@ -52,6 +51,7 @@ const GroupDetailsSheet = () => {
   const { data: sessionData } = useSession()
   const [activeTab, setActiveTab] = useState<'Members' | 'RolesAndPermissions'>('Members')
   const [isEditing, setIsEditing] = useState(false)
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const searchParams = useSearchParams()
   const { selectedGroup, setSelectedGroup, setIsAdmin } = useGroupsStore()
   const queryClient = useQueryClient()
@@ -64,7 +64,7 @@ const GroupDetailsSheet = () => {
 
   const { name, displayName, description, members, setting, tags, id, isManaged } = data?.group || {}
 
-  const { mutateAsync: updateGroup } = useUpdateGroup()
+  const { mutateAsync: updateGroup, isPending: isSavingGroup } = useUpdateGroup()
 
   const { control, handleSubmit, reset } = useForm<EditGroupFormData>({
     resolver: zodResolver(EditGroupSchema),
@@ -160,151 +160,147 @@ const GroupDetailsSheet = () => {
     }
   }, [searchParams, setSelectedGroup])
 
+  const isGroupEditAllowed = !isManaged && canEdit(permission?.roles, sessionData)
+  const groupHeading = displayName || name || 'Group'
+
+  const menuActions: SlideoutMenuAction[] = [copyLinkMenuAction(handleCopyLink), deleteMenuAction(() => setIsDeleteOpen(true), { disabled: !isGroupEditAllowed })]
+
   return (
-    <Sheet open={!!selectedGroup} onOpenChange={handleSheetClose}>
-      <SheetContent
-        className="flex flex-col"
-        header={
-          <SheetHeader>
-            <div className="flex items-center justify-between">
-              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleSheetClose} />
+    <>
+      <Sheet open={!!selectedGroup} onOpenChange={handleSheetClose}>
+        <SheetContent
+          className="flex flex-col"
+          header={<SlideoutHeader title={groupHeading} onClose={handleSheetClose} onEdit={!isEditing && isGroupEditAllowed ? () => setIsEditing(true) : undefined} menuActions={menuActions} />}
+          footer={
+            isEditing ? (
+              <SlideoutFormFooter
+                onSave={handleSubmit(onSubmit)}
+                onCancel={() => {
+                  reset()
+                  setIsEditing(false)
+                }}
+                isPending={isSavingGroup}
+              />
+            ) : undefined
+          }
+        >
+          {fetching ? (
+            <Loading />
+          ) : (
+            <>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                {isEditing && <Controller name="groupName" control={control} render={({ field }) => <Input {...field} placeholder="Group name" />} />}
+                <SheetDescription>
+                  {isEditing ? <Controller name="description" control={control} render={({ field }) => <Textarea {...field} placeholder="Add a description" />} /> : description}
+                </SheetDescription>
+                <div>
+                  <div className="flex flex-col gap-4 mt-5">
+                    <div className="flex items-center gap-4">
+                      <GlobeIcon height={16} width={16} color="#2CCBAB" />
+                      <p className="text-sm">Visibility:</p>
+                      {isEditing ? (
+                        <Controller
+                          name="visibility"
+                          control={control}
+                          render={({ field }) => (
+                            <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger>{field.value}</SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Public">Public</SelectItem>
+                                <SelectItem value="Private">Private</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                      ) : (
+                        <p className="capitalize text-sm">{setting?.visibility.toLowerCase()}</p>
+                      )}
+                    </div>
 
-              <div className="flex justify-end gap-2">
-                <Button icon={<Link />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
-                  Copy link
-                </Button>
-                {isEditing ? (
-                  <div className="flex gap-2">
-                    <CancelButton onClick={() => setIsEditing(false)}></CancelButton>
-                    <SaveButton onClick={handleSubmit(onSubmit)} />
+                    <div className="flex items-center gap-4">
+                      <User height={16} width={16} color="#2CCBAB" />
+                      <p className="text-sm">Members:</p>
+                      <p className="text-sm">{members?.edges?.length}</p>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <Tag height={16} width={16} color="#2CCBAB" />
+                      <p className="text-sm">Tags:</p>
+                      {isEditing ? (
+                        <Controller name="tags" control={control} render={({ field }) => <MultipleSelector value={field.value} creatable options={tagOptions} onChange={field.onChange} />} />
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {tags?.map((tag: string, i: number) => (
+                            <TagChip key={i} tag={tag} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                ) : (
-                  <Button disabled={!!isManaged || !canEdit(permission?.roles, sessionData)} icon={<Pencil />} iconPosition="left" variant="secondary" onClick={() => setIsEditing(true)}>
-                    Edit Group
-                  </Button>
-                )}
 
-                <DeleteGroupDialog />
-              </div>
-            </div>
-          </SheetHeader>
-        }
-      >
-        {fetching ? (
-          <Loading />
-        ) : (
-          <>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <SheetTitle>{isEditing ? <Controller name="groupName" control={control} render={({ field }) => <Input {...field} placeholder="Group name" />} /> : displayName || name}</SheetTitle>
-              <SheetDescription>
-                {isEditing ? <Controller name="description" control={control} render={({ field }) => <Textarea {...field} placeholder="Add a description" />} /> : description}
-              </SheetDescription>
-              <div>
-                <div className="flex flex-col gap-4 mt-5">
-                  <div className="flex items-center gap-4">
-                    <GlobeIcon height={16} width={16} color="#2CCBAB" />
-                    <p className="text-sm">Visibility:</p>
-                    {isEditing ? (
-                      <Controller
-                        name="visibility"
-                        control={control}
-                        render={({ field }) => (
-                          <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger>{field.value}</SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Public">Public</SelectItem>
-                              <SelectItem value="Private">Private</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                    ) : (
-                      <p className="capitalize text-sm">{setting?.visibility.toLowerCase()}</p>
-                    )}
+                  <div className="mt-9 flex flex-wrap gap-4">
+                    <AddMembersDialog />
+                    <AssignRoleToGroupDialog />
+                    <AssignPermissionsDialog />
+                    <InheritPermissionDialog />
                   </div>
 
-                  <div className="flex items-center gap-4">
-                    <User height={16} width={16} color="#2CCBAB" />
-                    <p className="text-sm">Members:</p>
-                    <p className="text-sm">{members?.edges?.length}</p>
-                  </div>
+                  <Card className="mt-6 p-4 flex gap-3">
+                    <Info className="mt-1" width={16} height={16} />
+                    <div>
+                      <p className="font-semibold">Did you know?</p>
+                      <p className="text-sm">
+                        Groups can be used to assign specific access to objects within the system. Please refer to our{' '}
+                        <a href={`${GROUP_PERMISSIONS_DOCS_URL}`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
+                          documentation
+                        </a>
+                        .
+                      </p>
+                    </div>
+                  </Card>
 
-                  <div className="flex items-center gap-4">
-                    <Tag height={16} width={16} color="#2CCBAB" />
-                    <p className="text-sm">Tags:</p>
-                    {isEditing ? (
-                      <Controller name="tags" control={control} render={({ field }) => <MultipleSelector value={field.value} creatable options={tagOptions} onChange={field.onChange} />} />
-                    ) : (
-                      <div className="flex flex-wrap gap-2">
-                        {tags?.map((tag: string, i: number) => (
-                          <TagChip key={i} tag={tag} />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  <div className="mt-9 flex">
+                    <p
+                      className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer ${activeTab === 'Members' ? 'border-brand text-brand' : ''}`}
+                      onClick={() => setActiveTab('Members')}
+                    >
+                      Members
+                    </p>
 
-                <div className="mt-9 flex flex-wrap gap-4">
-                  <AddMembersDialog />
-                  <AssignRoleToGroupDialog />
-                  <AssignPermissionsDialog />
-                  <InheritPermissionDialog />
-                </div>
-
-                <Card className="mt-6 p-4 flex gap-3">
-                  <Info className="mt-1" width={16} height={16} />
-                  <div>
-                    <p className="font-semibold">Did you know?</p>
-                    <p className="text-sm">
-                      Groups can be used to assign specific access to objects within the system. Please refer to our{' '}
-                      <a href={`${GROUP_PERMISSIONS_DOCS_URL}`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
-                        documentation
-                      </a>
-                      .
+                    <p
+                      className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer ${activeTab === 'RolesAndPermissions' ? 'border-brand text-brand' : ''}`}
+                      onClick={() => setActiveTab('RolesAndPermissions')}
+                    >
+                      Roles and Permissions
                     </p>
                   </div>
-                </Card>
-
-                <div className="mt-9 flex">
-                  <p
-                    className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer ${activeTab === 'Members' ? 'border-brand text-brand' : ''}`}
-                    onClick={() => setActiveTab('Members')}
-                  >
-                    Members
-                  </p>
-
-                  <p
-                    className={`px-4 py-2 text-sm font-semibold w-1/2 text-center border-b-2 cursor-pointer ${activeTab === 'RolesAndPermissions' ? 'border-brand text-brand' : ''}`}
-                    onClick={() => setActiveTab('RolesAndPermissions')}
-                  >
-                    Roles and Permissions
-                  </p>
-                </div>
-                <div className="mt-7">
-                  {activeTab === 'Members' ? (
-                    <GroupsMembersTable />
-                  ) : (
-                    <div className="flex flex-col gap-8">
-                      <GroupRolesTable />
-                      <div className="flex flex-col gap-3">
-                        <div className="flex items-center gap-2">
-                          <ShieldHalf width={16} height={16} className="text-brand" />
-                          <div>
-                            <p className="font-semibold">Permissions</p>
-                            <p className="text-xs text-text-light">Specific access permissions this group has.</p>
+                  <div className="mt-7">
+                    {activeTab === 'Members' ? (
+                      <GroupsMembersTable />
+                    ) : (
+                      <div className="flex flex-col gap-8">
+                        <GroupRolesTable />
+                        <div className="flex flex-col gap-3">
+                          <div className="flex items-center gap-2">
+                            <ShieldHalf width={16} height={16} className="text-brand" />
+                            <div>
+                              <p className="font-semibold">Permissions</p>
+                              <p className="text-xs text-text-light">Specific access permissions this group has.</p>
+                            </div>
                           </div>
+                          <GroupsPermissionsTable />
                         </div>
-                        <GroupsPermissionsTable />
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            </form>
-          </>
-        )}
-      </SheetContent>
-    </Sheet>
+              </form>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+      {!!selectedGroup && <DeleteGroupDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen} />}
+    </>
   )
 }
 

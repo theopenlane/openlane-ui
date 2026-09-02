@@ -1,31 +1,29 @@
 'use client'
 import React, { useState } from 'react'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
-import { Trash2, AlertTriangle, ChevronUpIcon, ChevronDownIcon } from 'lucide-react'
+import { AlertTriangle, ChevronUpIcon, ChevronDownIcon } from 'lucide-react'
 import { useDeleteGroup, useGetGroupDetails } from '@/lib/graphql-hooks/group'
 import { useQueryClient } from '@tanstack/react-query'
 import GroupsDeletePermissionsTable from '../groups-delete-permissions-table'
 import { useNotification } from '@/hooks/useNotification'
-import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { useSession } from 'next-auth/react'
 
-const DeleteGroupDialog = () => {
+type DeleteGroupDialogProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+const DeleteGroupDialog = ({ open, onOpenChange }: DeleteGroupDialogProps) => {
   const { selectedGroup, setSelectedGroup } = useGroupsStore()
-  const { data: session } = useSession()
-  const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup)
-  const [isOpen, setIsOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const [expanded, setExpanded] = useState(false)
   const queryClient = useQueryClient()
 
   const { data } = useGetGroupDetails(selectedGroup)
-  const { id, name, isManaged } = data?.group || {}
+  const { id, name } = data?.group || {}
 
   const { mutateAsync: deleteGroup } = useDeleteGroup()
 
@@ -36,7 +34,7 @@ const DeleteGroupDialog = () => {
       await deleteGroup({ deleteGroupId: id })
       successNotification({ title: `Group "${name}" deleted successfully` })
       setSelectedGroup(null)
-      setIsOpen(false)
+      onOpenChange(false)
       queryClient.invalidateQueries({ queryKey: ['groups'] })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -48,12 +46,7 @@ const DeleteGroupDialog = () => {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button icon={<Trash2 />} iconPosition="left" variant="secondary" disabled={!!isManaged || !canEdit(permission?.roles, session)}>
-          Delete
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[445px]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Delete group</DialogTitle>
@@ -83,7 +76,7 @@ const DeleteGroupDialog = () => {
           <Button variant="destructive" onClick={handleDelete}>
             Delete this group
           </Button>
-          <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
+          <CancelButton onClick={() => onOpenChange(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

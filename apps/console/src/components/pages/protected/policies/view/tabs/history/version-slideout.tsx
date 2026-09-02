@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
+import { History } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
 import { formatTimeSince } from '@/utils/date'
@@ -14,6 +14,7 @@ import { type HistoryNode } from './types'
 import { toPlateValue } from './utils'
 import { stringToPlateValue } from '@/components/shared/plate/plate-utils'
 import CollapsibleSection from '@/components/shared/collapsible-section/collapsible-section'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 
 type VersionSlideoutProps = {
   historyId: string | null
@@ -40,57 +41,51 @@ const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories,
         if (!o) onClose()
       }}
     >
-      <SheetContent>
+      <SheetContent
+        header={
+          record ? (
+            <SlideoutHeader
+              title={record.revision ?? 'Policy version'}
+              aboveTitle={record.historyTime ? <p className="text-xs text-muted-foreground">{formatTimeSince(record.historyTime)}</p> : undefined}
+              onClose={onClose}
+              primaryAction={canRestore ? { label: 'Restore this version', icon: <History size={16} />, onClick: () => onRestore(record.id) } : undefined}
+            />
+          ) : undefined
+        }
+      >
         {record ? (
-          <div className="flex flex-col h-full">
-            <SheetHeader>
-              <SheetTitle>{record.revision ?? 'Policy version'}</SheetTitle>
-              <p className="text-xs text-muted-foreground">{record.historyTime ? formatTimeSince(record.historyTime) : null}</p>
-            </SheetHeader>
-
-            <div className="flex-1 overflow-y-auto px-4 py-3">
-              <Tabs value={selectedPane} onValueChange={(v) => setSelectedPane(v as 'version' | 'diff')}>
-                <TabsList>
-                  <TabsTrigger value="version">Version</TabsTrigger>
-                  <TabsTrigger value="diff">Diff</TabsTrigger>
-                </TabsList>
-                <TabsContent value="version">
-                  <div className="flex flex-col gap-4">
-                    <CollapsibleSection label="Metadata" defaultOpen={metadataOnly}>
-                      <FieldsSummary history={record} groupNameMap={groupNameMap} />
-                    </CollapsibleSection>
-                    {!metadataOnly && (
-                      <div>
-                        <h4 className="mb-2 text-sm font-medium">Details</h4>
-                        <VersionReadonly value={previousValue} detailsHtml={record.details ?? null} cacheKey={record.id} />
-                      </div>
-                    )}
+          <Tabs value={selectedPane} onValueChange={(v) => setSelectedPane(v as 'version' | 'diff')}>
+            <TabsList>
+              <TabsTrigger value="version">Version</TabsTrigger>
+              <TabsTrigger value="diff">Diff</TabsTrigger>
+            </TabsList>
+            <TabsContent value="version">
+              <div className="flex flex-col gap-4">
+                <CollapsibleSection label="Metadata" defaultOpen={metadataOnly}>
+                  <FieldsSummary history={record} groupNameMap={groupNameMap} />
+                </CollapsibleSection>
+                {!metadataOnly && (
+                  <div>
+                    <h4 className="mb-2 text-sm font-medium">Details</h4>
+                    <VersionReadonly value={previousValue} detailsHtml={record.details ?? null} cacheKey={record.id} />
                   </div>
-                </TabsContent>
-                <TabsContent value="diff">
-                  <div className="flex flex-col gap-4">
-                    <CollapsibleSection label="Field changes" defaultOpen>
-                      <FieldsDiff history={record} current={currentPolicy} groupNameMap={groupNameMap} />
-                    </CollapsibleSection>
-                    {!metadataOnly && (
-                      <div>
-                        <h4 className="mb-2 text-sm font-medium">Details diff</h4>
-                        <VersionDiff previous={previousValue} current={currentValue} />
-                      </div>
-                    )}
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </div>
-
-            {canRestore && (
-              <div className="flex justify-end gap-2 border-t border-border p-3">
-                <Button type="button" onClick={() => onRestore(record.id)}>
-                  Restore this version
-                </Button>
+                )}
               </div>
-            )}
-          </div>
+            </TabsContent>
+            <TabsContent value="diff">
+              <div className="flex flex-col gap-4">
+                <CollapsibleSection label="Field changes" defaultOpen>
+                  <FieldsDiff history={record} current={currentPolicy} groupNameMap={groupNameMap} />
+                </CollapsibleSection>
+                {!metadataOnly && (
+                  <div>
+                    <h4 className="mb-2 text-sm font-medium">Details diff</h4>
+                    <VersionDiff previous={previousValue} current={currentValue} />
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
         ) : null}
       </SheetContent>
     </Sheet>

@@ -1,8 +1,6 @@
 'use client'
 
 import React, { useCallback } from 'react'
-import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { ExternalLink, PanelRightClose } from 'lucide-react'
 import useFormSchema, { type EditRisksFormData } from './view/hooks/use-form-schema'
 import { type RiskFieldsFragment, type UpdateRiskInput, type CreateRiskInput, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
 import { useGetRiskById } from '@/lib/graphql-hooks/risk'
@@ -13,8 +11,7 @@ import DetailsField from './view/fields/details-field'
 import PropertiesCard from './view/cards/properties-card'
 import { type Value } from 'platejs'
 import { GenericDetailsSheet, type GenericDetailsSheetConfig, type RenderFieldsProps, type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
-import { useRouter } from 'next/navigation'
-import { Button } from '@repo/ui/button'
+import { SlideoutPreviewHeader } from '@/components/shared/crud-base/slideout-preview-header'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 
 type Props = {
@@ -23,7 +20,6 @@ type Props = {
 }
 
 const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
-  const router = useRouter()
   const { form } = useFormSchema()
   const { data, isLoading } = useGetRiskById(entityId)
   const plateEditorHelper = usePlateEditor()
@@ -77,34 +73,7 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
     [plateEditorHelper],
   )
 
-  const renderHeader = useCallback(
-    ({ close }: RenderHeaderProps) => (
-      <SheetHeader>
-        <SheetTitle className="sr-only">Risk</SheetTitle>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <PanelRightClose size={16} className="cursor-pointer" onClick={close} />
-          </div>
-          <div className="flex items-center gap-2 mr-6">
-            <Button
-              variant="secondary"
-              icon={<ExternalLink />}
-              iconPosition="left"
-              onClick={() => {
-                if (entityId) {
-                  close()
-                  router.push(`/exposure/risks/${entityId}`)
-                }
-              }}
-            >
-              Open Full
-            </Button>
-          </div>
-        </div>
-      </SheetHeader>
-    ),
-    [entityId, router],
-  )
+  const renderHeader = useCallback(({ close }: RenderHeaderProps) => <SlideoutPreviewHeader title="Risk" close={close} fullPagePath={entityId ? `/exposure/risks/${entityId}` : null} />, [entityId])
   const renderFields = useCallback(
     ({ isEditing, isCreate, data: risk, handleUpdateField, isEditAllowed }: RenderFieldsProps<RiskFieldsFragment, UpdateRiskInput>) => {
       const isStatusForPastDue = risk?.status === RiskRiskStatus.OPEN || risk?.status === RiskRiskStatus.IDENTIFIED || risk?.status === RiskRiskStatus.IN_PROGRESS

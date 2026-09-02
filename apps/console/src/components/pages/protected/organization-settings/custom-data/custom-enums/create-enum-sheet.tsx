@@ -4,11 +4,10 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { FormProvider, useForm, useController, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { PanelRightClose, Trash2, LoaderCircle } from 'lucide-react'
+import { LoaderCircle } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { Label } from '@repo/ui/label'
@@ -22,8 +21,11 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 import { useCustomTypeEnum, useCreateCustomTypeEnum, useUpdateCustomTypeEnum, useDeleteCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enum'
 import { ENUM_GROUP_MAP } from './custom-enums-config'
-import { SaveButton } from '@/components/shared/save-button/save-button'
+import { deleteMenuAction, SlideoutHeader, type SlideoutMenuAction } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+
+const ENUM_FORM_ID = 'enumForm'
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -207,27 +209,27 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
 
   const isPending = isCreating || isUpdating
 
+  const enumHeading = isCreate ? `Create ${selectedEnumType || ''} Enum` : `Update ${selectedEnumType || ''} Enum`
+
+  const enumMenuActions: SlideoutMenuAction[] = isEditMode ? [deleteMenuAction(() => setDeleteDialogOpen(true), { disabled: isPending || isDeleting })] : []
+
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent side="right" className="w-[420px] sm:w-[480px] p-0 flex flex-col">
-        <SheetHeader className="p-6 border-b">
-          <div className="flex items-center justify-between">
-            <PanelRightClose size={18} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
-            <div className="flex items-center gap-2">
-              {isEditMode && (
-                <Button variant="secondary" onClick={() => setDeleteDialogOpen(true)} icon={<Trash2 size={14} />} disabled={isPending || isDeleting}>
-                  Delete
-                </Button>
-              )}
-              <SaveButton onClick={handleSubmit(onSubmit)} isSaving={isPending} disabled={isPending} />
-            </div>
-          </div>
-          <div className="mt-4">
-            <SheetTitle>{isCreate ? `Create ${selectedEnumType || ''} Enum` : `Update ${selectedEnumType || ''} Enum`}</SheetTitle>
-            <SheetDescription />
-          </div>
-        </SheetHeader>
-
+      <SheetContent
+        aria-describedby={undefined}
+        side="right"
+        className="w-[420px] sm:w-[480px] flex flex-col"
+        header={<SlideoutHeader title={enumHeading} onClose={() => handleOpenChange(false)} menuActions={enumMenuActions} />}
+        footer={
+          <SlideoutFormFooter
+            formId={ENUM_FORM_ID}
+            onCancel={() => handleOpenChange(false)}
+            isPending={isPending}
+            saveLabel={isCreate ? 'Create' : 'Save'}
+            savingLabel={isCreate ? 'Creating...' : 'Saving...'}
+          />
+        }
+      >
         <div className="flex-1 overflow-y-auto">
           {isLoadingDetails ? (
             <div className="flex items-center justify-center h-64">
@@ -235,7 +237,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
             </div>
           ) : (
             <FormProvider {...formMethods}>
-              <form key={enumData?.customTypeEnum?.id || 'create'} className="p-6 space-y-6">
+              <form key={enumData?.customTypeEnum?.id || 'create'} id={ENUM_FORM_ID} onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="custom-enum-name">Name</Label>
                   <Input id="custom-enum-name" {...formMethods.register('name')} disabled={isPending || isEditMode} />

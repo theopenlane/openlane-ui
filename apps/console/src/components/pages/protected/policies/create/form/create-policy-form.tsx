@@ -173,7 +173,7 @@ const CreatePolicyForm: React.FC = () => {
                 use from the policy once it exists. Association IDs still live on the form, so deep-link auto-mapping
                 and restored drafts are submitted with the policy */}
             <div className="flex justify-between items-center">
-              <SaveButton disabled={isCreating} title={isCreating ? 'Creating policy' : 'Save Changes'} />
+              <SaveButton disabled={isCreating} title={isCreating ? 'Creating policy' : 'Save'} />
               <div className="flex items-center gap-2">
                 <Switch aria-label="Create another policy" checked={createMultiple} onCheckedChange={setCreateMultiple} />
                 <span>Create multiple</span>

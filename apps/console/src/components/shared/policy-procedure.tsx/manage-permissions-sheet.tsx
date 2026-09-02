@@ -1,8 +1,7 @@
 'use client'
 
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { PanelRightClose } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Sheet, SheetContent, SheetDescription } from '@repo/ui/sheet'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { AssignPermissionsDialog } from './assign-permission-dialog'
@@ -127,17 +126,9 @@ export function ManagePermissionSheet({ open, onOpenChange }: { open: boolean; o
         <SheetContent
           onOpenAutoFocus={(e) => e.preventDefault()}
           className="flex flex-col"
-          header={
-            <SheetHeader className="flex justify-between items-center flex-row text-2xl">
-              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => onOpenChange(false)} />
-              <Button className="h-8 p-2" onClick={() => setAssignDialogOpen(true)}>
-                Assign
-              </Button>
-            </SheetHeader>
-          }
+          header={<SlideoutHeader title="Manage permission" onClose={() => onOpenChange(false)} primaryAction={{ label: 'Assign', onClick: () => setAssignDialogOpen(true) }} />}
         >
-          <SheetTitle>Manage permission</SheetTitle>
-          <SheetDescription>
+          <SheetDescription className="mt-2">
             Grant specific groups within your organization permission to edit this policy. Members of these groups will be able to update the policy’s content and metadata.
           </SheetDescription>
 

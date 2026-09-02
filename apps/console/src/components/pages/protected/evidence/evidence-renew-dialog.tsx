@@ -1,7 +1,7 @@
 'use client'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { FileUp, InfoIcon, Repeat, Trash2 } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { FileUp, InfoIcon, Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
@@ -22,14 +22,15 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 type TEvidenceRenewDialog = {
   controlId?: string
   evidenceId: string
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
-const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, controlId }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, controlId, open, onOpenChange }) => {
   const queryClient = useQueryClient()
   const { form } = useFormSchema()
   const { successNotification, errorNotification } = useNotification()
-  const { evidence } = useGetRenewEvidenceById(evidenceId, isOpen)
+  const { evidence } = useGetRenewEvidenceById(evidenceId, open)
   const { mutateAsync: createEvidence, isPending: isSubmitting } = useCreateEvidence()
   const [evidenceFiles, setEvidenceFiles] = useState<TUploadedFile[]>([])
   const { convertToHtml } = usePlateEditor()
@@ -67,7 +68,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
         },
         evidenceFiles: evidenceFiles?.map((item) => item.file) || [],
       })
-      setIsOpen(false)
+      onOpenChange(false)
       if (controlId) {
         queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
       }
@@ -96,12 +97,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="secondary" className="h-8 p-2" icon={<Repeat />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
-          Renew
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Renew Evidence</DialogTitle>
@@ -177,7 +173,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
           <Button onClick={form.handleSubmit(onSubmitHandler)} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Creating...' : 'Create'}
           </Button>
-          <CancelButton disabled={isSubmitting} onClick={() => setIsOpen(false)}></CancelButton>
+          <CancelButton disabled={isSubmitting} onClick={() => onOpenChange(false)}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>

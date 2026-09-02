@@ -1,12 +1,10 @@
 'use client'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Button } from '@repo/ui/button'
-import { Copy, PanelRightClose, Pencil, Save, Trash2 } from 'lucide-react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { TrustCenterDocTrustCenterDocumentVisibility, TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
@@ -27,8 +25,8 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { Switch } from '@repo/ui/switch'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { deleteMenuAction, copyLinkMenuAction, SlideoutHeader, type SlideoutMenuAction } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
 import { StandardField } from './form-fields/standard-field'
 import { Callout } from '@/components/shared/callout/callout'
 import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-nda-request'
@@ -234,145 +232,107 @@ export const CreateDocumentSheet: React.FC = () => {
     if (documentId || isCreateMode) setOpen(true)
   }, [documentId, isCreateMode])
 
+  const documentHeading = isCreateMode ? 'Create Document' : documentData?.trustCenterDoc?.title || 'Document'
+
+  const documentMenuActions: SlideoutMenuAction[] = isEditMode
+    ? [
+        copyLinkMenuAction(() => {
+          navigator.clipboard.writeText(window.location.href)
+          successNotification({
+            title: 'Link copied',
+            description: 'Document link has been copied to clipboard.',
+          })
+        }),
+        ...(isDeleteAllowed ? [deleteMenuAction(() => setIsDeleteDialogOpen(true))] : []),
+      ]
+    : []
+
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent side="right" className="w-[420px] sm:w-[480px] overflow-y-auto">
-        <SheetTitle />
-        <SheetDescription />
-        <SheetHeader>
-          <div className="flex justify-between">
-            <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
-
-            {isEditMode ? (
-              <div className="flex justify-start gap-2 items-center">
-                <div className="flex gap-3">
-                  <Button
-                    className="h-8 p-2"
-                    icon={<Copy />}
-                    iconPosition="left"
-                    variant="secondary"
-                    onClick={() => {
-                      navigator.clipboard.writeText(window.location.href)
-                      successNotification({
-                        title: 'Link copied',
-                        description: 'Document link has been copied to clipboard.',
-                      })
+    <>
+      <Sheet open={open} onOpenChange={handleOpenChange}>
+        <SheetContent
+          aria-describedby={undefined}
+          side="right"
+          className="w-[420px] sm:w-[480px] overflow-y-auto"
+          header={
+            <SlideoutHeader
+              title={documentHeading}
+              onClose={() => handleOpenChange(false)}
+              onEdit={isEditMode && !isEditing && isEditAllowed ? () => setIsEditing(true) : undefined}
+              menuActions={documentMenuActions}
+            />
+          }
+          footer={
+            isCreateMode ? (
+              <SlideoutFormFooter formId="document-form" onCancel={() => handleOpenChange(false)} isPending={isSubmitting} disabled={!uploadedFile} saveLabel="Create" savingLabel="Creating..." />
+            ) : isEditing ? (
+              <SlideoutFormFooter
+                formId="document-form"
+                onCancel={() => {
+                  setIsEditing(false)
+                  prefillForm()
+                }}
+                isPending={isSubmitting}
+              />
+            ) : undefined
+          }
+        >
+          <FormProvider {...formMethods}>
+            <form id="document-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
+              <TitleField isEditing={isEditing || isCreateMode} />
+              <CategoryField isEditing={isEditing || isCreateMode} isCreateAllowed={isEditAllowed || canCreateDoc} />
+              <VisibilityField isEditing={isEditing || isCreateMode} />
+              {isCreateMode && visibilityValue === TrustCenterDocTrustCenterDocumentVisibility.PROTECTED && !hasNdaTemplate && (
+                <Callout variant="warning" compact>
+                  <span>Protected documents require a NDA to be uploaded. </span>
+                  <Link href="/trust-center/NDAs" target="_blank" rel="noreferrer" className="underline">
+                    Upload NDA
+                  </Link>
+                </Callout>
+              )}
+              <StandardField isEditing={isEditing || isCreateMode} />
+              <TagsField isEditing={isEditing || isCreateMode} />
+              {isCreateMode && (
+                <div className="flex flex-col gap-2">
+                  <Label>Watermark enabled</Label>
+                  <Switch
+                    checked={isWatermarkEnabled}
+                    onCheckedChange={(checked) => {
+                      setIsWatermarkEnabled(checked)
                     }}
-                  >
-                    Copy link
-                  </Button>
-
-                  {isSubmitting ? (
-                    <Button className="h-8 p-2" variant="primary" icon={<Save />} iconPosition="left" disabled>
-                      Saving...
-                    </Button>
-                  ) : (
-                    <>
-                      {isEditing ? (
-                        <>
-                          <CancelButton
-                            onClick={() => {
-                              setIsEditing(false)
-                              prefillForm()
-                            }}
-                          ></CancelButton>
-                          <SaveButton form="document-form" />
-                        </>
-                      ) : (
-                        <>
-                          {isEditAllowed && (
-                            <Button
-                              icon={<Pencil size={16} strokeWidth={2} />}
-                              iconPosition="left"
-                              type="button"
-                              variant="secondary"
-                              className="p-2! h-8"
-                              aria-label="Edit document"
-                              onClick={() => setIsEditing(true)}
-                            >
-                              Edit
-                            </Button>
-                          )}
-                        </>
-                      )}
-
-                      {isDeleteAllowed && (
-                        <Button
-                          type="button"
-                          icon={<Trash2 size={16} strokeWidth={2} />}
-                          iconPosition="left"
-                          variant="secondary"
-                          className="p-2! h-8"
-                          onClick={() => setIsDeleteDialogOpen(true)}
-                          aria-label="Delete document"
-                        >
-                          Delete
-                        </Button>
-                      )}
-                    </>
-                  )}
+                  />
                 </div>
-
-                <ConfirmationDialog
-                  open={isDeleteDialogOpen}
-                  onOpenChange={setIsDeleteDialogOpen}
-                  onConfirm={handleDeleteConfirm}
-                  title="Delete Document"
-                  description={
-                    <>
-                      This action cannot be undone. This will permanently remove <b>{documentData?.trustCenterDoc?.title || 'this document'}</b>.
-                    </>
-                  }
-                  confirmationText="Delete"
-                  confirmationTextVariant="destructive"
-                />
-              </div>
-            ) : (
-              <div className="pt-4 flex justify-end">
-                <Button type="submit" form="document-form" disabled={isSubmitting || !uploadedFile} variant="secondary">
-                  Create
-                </Button>
-              </div>
-            )}
-          </div>
-        </SheetHeader>
-
-        <FormProvider {...formMethods}>
-          <form id="document-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
-            <TitleField isEditing={isEditing || isCreateMode} />
-            <CategoryField isEditing={isEditing || isCreateMode} isCreateAllowed={isEditAllowed || canCreateDoc} />
-            <VisibilityField isEditing={isEditing || isCreateMode} />
-            {isCreateMode && visibilityValue === TrustCenterDocTrustCenterDocumentVisibility.PROTECTED && !hasNdaTemplate && (
-              <Callout variant="warning" compact>
-                <span>Protected documents require a NDA to be uploaded. </span>
-                <Link href="/trust-center/NDAs" target="_blank" rel="noreferrer" className="underline">
-                  Upload NDA
-                </Link>
-              </Callout>
-            )}
-            <StandardField isEditing={isEditing || isCreateMode} />
-            <TagsField isEditing={isEditing || isCreateMode} />
-            {isCreateMode && (
-              <div className="flex flex-col gap-2">
-                <Label>Watermark enabled</Label>
-                <Switch
-                  checked={isWatermarkEnabled}
-                  onCheckedChange={(checked) => {
-                    setIsWatermarkEnabled(checked)
-                  }}
-                />
-              </div>
-            )}
-            {isEditMode && (
-              <div className="flex flex-col gap-2">
-                <Label>Watermark status</Label>
-                <DocumentsWatermarkStatusChip className="self-start" status={documentData?.trustCenterDoc?.watermarkStatus ?? undefined} />
-              </div>
-            )}
-            {isEditMode ? <DocumentFiles documentId={documentId ?? ''} editAllowed={isEditAllowed} /> : <FileField uploadedFile={uploadedFile} isEditing={isEditing} onFileUpload={handleFileUpload} />}
-          </form>
-        </FormProvider>
-      </SheetContent>
-    </Sheet>
+              )}
+              {isEditMode && (
+                <div className="flex flex-col gap-2">
+                  <Label>Watermark status</Label>
+                  <DocumentsWatermarkStatusChip className="self-start" status={documentData?.trustCenterDoc?.watermarkStatus ?? undefined} />
+                </div>
+              )}
+              {isEditMode ? (
+                <DocumentFiles documentId={documentId ?? ''} editAllowed={isEditAllowed} />
+              ) : (
+                <FileField uploadedFile={uploadedFile} isEditing={isEditing} onFileUpload={handleFileUpload} />
+              )}
+            </form>
+          </FormProvider>
+        </SheetContent>
+      </Sheet>
+      {isEditMode && (
+        <ConfirmationDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          onConfirm={handleDeleteConfirm}
+          title="Delete Document"
+          description={
+            <>
+              This action cannot be undone. This will permanently remove <b>{documentData?.trustCenterDoc?.title || 'this document'}</b>.
+            </>
+          }
+          confirmationText="Delete"
+          confirmationTextVariant="destructive"
+        />
+      )}
+    </>
   )
 }

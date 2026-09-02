@@ -3,10 +3,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Pencil, Trash2, X } from 'lucide-react'
-import { SheetHeader } from '@repo/ui/sheet'
+import { SheetFooter, SheetHeader } from '@repo/ui/sheet'
 import { Form } from '@repo/ui/form'
-import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -16,6 +14,7 @@ import { useReview, useUpdateReview, useBulkDeleteReview } from '@/lib/graphql-h
 import { useCreateFinding, useFindingsWithFilter } from '@/lib/graphql-hooks/finding'
 import { useCreateFindingControl } from '@/lib/graphql-hooks/finding-control'
 import { useObjectPermissionRoles } from '@/components/shared/crud-base/use-object-permission'
+import { deleteMenuAction, SlideoutHeader, type SlideoutMenuAction } from '@/components/shared/crud-base/slideout-header'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -205,38 +204,31 @@ const ControlReviewSheetBody: React.FC<TControlReviewSheetBodyProps> = ({ contro
 
   const canUseActions = !isLoading && !!review
 
+  const reviewMeta =
+    review?.status || review?.reporter || review?.reportedAt ? (
+      <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
+        {review?.status ? <Badge variant="select">{getEnumLabel(review.status)}</Badge> : null}
+        {review?.reporter ? <span>Reported by {review.reporter}</span> : null}
+        {review?.reportedAt ? (
+          <span className="flex items-center gap-1">
+            on <DateCell value={review.reportedAt} />
+          </span>
+        ) : null}
+      </div>
+    ) : undefined
+
+  const menuActions: SlideoutMenuAction[] = canUseActions && !isEditing && deleteAllowed ? [deleteMenuAction(() => setIsDeleteDialogOpen(true))] : []
+
   return (
     <>
       <SheetHeader className="sticky top-0 z-10 bg-secondary pb-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex flex-col gap-1 min-w-0">
-            <span className="text-2xl leading-8 font-medium break-words">{review?.title || 'Review'}</span>
-            <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
-              {review?.status ? <Badge variant="select">{getEnumLabel(review.status)}</Badge> : null}
-              {review?.reporter ? <span>Reported by {review.reporter}</span> : null}
-              {review?.reportedAt ? (
-                <span className="flex items-center gap-1">
-                  on <DateCell value={review.reportedAt} />
-                </span>
-              ) : null}
-            </div>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {canUseActions && !isEditing && editAllowed && (
-              <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={startEditing} aria-label="Edit review">
-                <Pencil size={16} strokeWidth={2} />
-              </Button>
-            )}
-            {canUseActions && !isEditing && deleteAllowed && (
-              <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setIsDeleteDialogOpen(true)} aria-label="Delete review">
-                <Trash2 size={16} strokeWidth={2} />
-              </Button>
-            )}
-            <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={onClose} aria-label="Close review sheet">
-              <X size={16} strokeWidth={2} />
-            </Button>
-          </div>
-        </div>
+        <SlideoutHeader
+          title={review?.title || 'Review'}
+          aboveTitle={reviewMeta}
+          onClose={onClose}
+          onEdit={canUseActions && !isEditing && editAllowed ? startEditing : undefined}
+          menuActions={menuActions}
+        />
       </SheetHeader>
 
       {isLoading ? (
@@ -245,26 +237,22 @@ const ControlReviewSheetBody: React.FC<TControlReviewSheetBodyProps> = ({ contro
           <Skeleton height={200} />
         </div>
       ) : isEditing ? (
-        <>
-          <Form {...form}>
-            <form className="flex flex-col gap-4 pr-2 pb-4" onSubmit={(e) => e.preventDefault()}>
-              <ControlContextPanel control={control}>
-                <RelatedControlsSelector form={form} controlId={controlId} />
-              </ControlContextPanel>
-              <UploadedEvidenceSection items={evidenceItems} controlId={controlId} onView={setViewEvidenceId} />
-              <ReviewFieldsPanel
-                form={form}
-                clearAuditorNotes={clearAuditorNotes}
-                onAuditorNotesCleared={() => setClearAuditorNotes(false)}
-                auditorNotesLabel="Add Auditor Note"
-                auditorNotesPlaceholder="Add a new note to this review..."
-              />
-              <ReviewFindingsPanel findings={findingsNodes} totalCount={findingsData?.findings?.totalCount} isLoading={isLoadingFindings} form={form} />
-            </form>
-          </Form>
-
-          <ReviewSheetFooter pendingAction={pendingAction} onCancel={cancelEditing} onSubmit={(status) => form.handleSubmit((formData) => submit(formData, status))()} submitLabel="Save Review" />
-        </>
+        <Form {...form}>
+          <form className="flex flex-col gap-4 pr-2 pb-4" onSubmit={(e) => e.preventDefault()}>
+            <ControlContextPanel control={control}>
+              <RelatedControlsSelector form={form} controlId={controlId} />
+            </ControlContextPanel>
+            <UploadedEvidenceSection items={evidenceItems} controlId={controlId} onView={setViewEvidenceId} />
+            <ReviewFieldsPanel
+              form={form}
+              clearAuditorNotes={clearAuditorNotes}
+              onAuditorNotesCleared={() => setClearAuditorNotes(false)}
+              auditorNotesLabel="Add Auditor Note"
+              auditorNotesPlaceholder="Add a new note to this review..."
+            />
+            <ReviewFindingsPanel findings={findingsNodes} totalCount={findingsData?.findings?.totalCount} isLoading={isLoadingFindings} form={form} />
+          </form>
+        </Form>
       ) : (
         <div className="flex flex-col gap-4 pr-2 pb-4">
           <ControlContextPanel control={control}>
@@ -286,6 +274,12 @@ const ControlReviewSheetBody: React.FC<TControlReviewSheetBodyProps> = ({ contro
           <ReviewSummaryPanel review={review} />
           <ReviewFindingsPanel findings={findingsNodes} totalCount={findingsData?.findings?.totalCount} isLoading={isLoadingFindings} />
         </div>
+      )}
+
+      {isEditing && (
+        <SheetFooter>
+          <ReviewSheetFooter pendingAction={pendingAction} onCancel={cancelEditing} onSubmit={(status) => form.handleSubmit((formData) => submit(formData, status))()} submitLabel="Save Review" />
+        </SheetFooter>
       )}
 
       <EvidenceDetailsSheet entityId={viewEvidenceId} controlId={controlId} onClose={() => setViewEvidenceId(null)} />

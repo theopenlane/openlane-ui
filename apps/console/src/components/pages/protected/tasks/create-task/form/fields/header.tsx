@@ -1,22 +1,19 @@
-import { useNotification } from '@/hooks/useNotification'
-import { Button } from '@repo/ui/button'
-import { Badge } from '@repo/ui/badge'
-import { SheetHeader } from '@repo/ui/sheet'
-import { Copy, LayoutTemplate, LinkIcon, PanelRightClose, Pencil, Trash2, X } from 'lucide-react'
-import React from 'react'
-import DeleteTaskDialog from '../../dialog/delete-task-dialog'
-import Menu from '@/components/shared/menu/menu'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+'use client'
 
-const MENU_ITEM_CLASS = 'flex items-center gap-2 px-1 bg-transparent cursor-pointer disabled:cursor-not-allowed disabled:opacity-50'
-const ICON_SIZE = 16
+import { useNotification } from '@/hooks/useNotification'
+import { Badge } from '@repo/ui/badge'
+import { Copy, LayoutTemplate, X } from 'lucide-react'
+import React, { useState } from 'react'
+import DeleteTaskDialog from '../../dialog/delete-task-dialog'
+import { deleteMenuAction, copyLinkMenuAction, SlideoutHeader, type SlideoutMenuAction } from '@/components/shared/crud-base/slideout-header'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { canDelete } from '@/lib/authz/utils.ts'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface TasksSheetHeaderProps {
   close: () => void
   isEditing: boolean
   setIsEditing: (value: boolean) => void
-  isPending: boolean
   title?: string | null
   isEditAllowed: boolean
   id: string | null
@@ -33,7 +30,6 @@ const TasksSheetHeader = ({
   close,
   isEditing,
   setIsEditing,
-  isPending,
   title,
   isEditAllowed,
   id,
@@ -46,6 +42,10 @@ const TasksSheetHeader = ({
   onUseTemplate,
 }: TasksSheetHeaderProps) => {
   const { successNotification, errorNotification } = useNotification()
+  const { data: permission } = useAccountRoles(ObjectTypes.TASK, id)
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+
+  const isDeleteAllowed = !!title && !!id && canDelete(permission?.roles)
 
   const handleCopyLink = () => {
     if (!sharePath) {
@@ -66,12 +66,21 @@ const TasksSheetHeader = ({
       })
   }
 
+  const menuActions: SlideoutMenuAction[] = [
+    copyLinkMenuAction(handleCopyLink),
+    { key: 'duplicate', label: 'Duplicate', icon: <Copy size={16} strokeWidth={2} />, onClick: onDuplicate, disabled: !canDuplicate },
+    ...(!isTemplate && isEditAllowed && !isEditing
+      ? [{ key: 'save-as-template', label: 'Save as template', icon: <LayoutTemplate size={16} strokeWidth={2} />, onClick: () => onTemplateChange(true) }]
+      : []),
+    ...(isDeleteAllowed ? [deleteMenuAction(() => setIsDeleteOpen(true))] : []),
+  ]
+
   return (
-    <SheetHeader>
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <PanelRightClose aria-label="Close detail sheet" size={ICON_SIZE} className="cursor-pointer" onClick={close} />
-          {isTemplate && (
+    <>
+      <SlideoutHeader
+        title={title ?? 'Task'}
+        titleAdornment={
+          isTemplate ? (
             <Badge variant="blue" className="gap-1">
               Template
               {isEditAllowed && !isEditing && (
@@ -80,86 +89,15 @@ const TasksSheetHeader = ({
                 </button>
               )}
             </Badge>
-          )}
-        </div>
-        <div className="flex justify-end gap-2">
-          {isEditing ? (
-            <div className="flex gap-2">
-              <CancelButton disabled={isPending} onClick={() => setIsEditing(false)}></CancelButton>
-              <SaveButton form="editTask" disabled={isPending} isSaving={isPending} />
-            </div>
-          ) : (
-            <>
-              {isTemplate && (
-                <Button icon={<LayoutTemplate />} iconPosition="left" variant="secondary" onClick={onUseTemplate} disabled={!canDuplicate}>
-                  Use template
-                </Button>
-              )}
-              {isEditAllowed && (
-                <Button icon={<Pencil />} iconPosition="left" variant="secondary" onClick={() => setIsEditing(true)}>
-                  Edit
-                </Button>
-              )}
-              {!isTemplate && isEditAllowed && (
-                <Button icon={<LayoutTemplate />} iconPosition="left" variant="secondary" onClick={() => onTemplateChange(true)}>
-                  Save as template
-                </Button>
-              )}
-              <Menu
-                closeOnSelect
-                content={(closeMenu) => (
-                  <>
-                    <button
-                      type="button"
-                      className={MENU_ITEM_CLASS}
-                      onClick={() => {
-                        handleCopyLink()
-                        closeMenu()
-                      }}
-                    >
-                      <LinkIcon size={ICON_SIZE} />
-                      <span>Copy link</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={MENU_ITEM_CLASS}
-                      disabled={!canDuplicate}
-                      onClick={() => {
-                        onDuplicate()
-                        closeMenu()
-                      }}
-                    >
-                      <Copy size={ICON_SIZE} />
-                      <span>Duplicate</span>
-                    </button>
-                    {title && id && (
-                      <DeleteTaskDialog
-                        taskName={title}
-                        taskId={id}
-                        onDeleted={onDeleted}
-                        renderTrigger={(openDialog) => (
-                          <button
-                            type="button"
-                            className={`${MENU_ITEM_CLASS} text-destructive`}
-                            onClick={() => {
-                              openDialog()
-                              closeMenu()
-                            }}
-                          >
-                            <Trash2 size={ICON_SIZE} />
-                            <span>Delete</span>
-                          </button>
-                        )}
-                      />
-                    )}
-                  </>
-                )}
-              />
-            </>
-          )}
-        </div>
-      </div>
-    </SheetHeader>
+          ) : undefined
+        }
+        onClose={close}
+        onEdit={!isEditing && isEditAllowed ? () => setIsEditing(true) : undefined}
+        primaryAction={isTemplate && !isEditing ? { label: 'Use template', icon: <LayoutTemplate size={16} />, onClick: onUseTemplate, disabled: !canDuplicate } : undefined}
+        menuActions={menuActions}
+      />
+      {isDeleteAllowed && <DeleteTaskDialog taskName={title} taskId={id} onDeleted={onDeleted} open={isDeleteOpen} onOpenChange={setIsDeleteOpen} />}
+    </>
   )
 }
 

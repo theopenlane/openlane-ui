@@ -15,7 +15,7 @@ import { useIsAuditor } from '@/lib/graphql-hooks/member'
 import EvidenceRequestChangesDialog from './evidence-request-changes-dialog'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { getAssociationInput } from '@/components/shared/object-association/utils.ts'
-import { canEdit } from '@/lib/authz/utils'
+import { canDelete, canEdit } from '@/lib/authz/utils'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -30,6 +30,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { ObjectWorkflowPanel } from '@/components/workflows/object-workflow-panel'
 import { useSession } from 'next-auth/react'
 import EvidenceDetailHeader from './detail/evidence-detail-header'
+import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
 import EvidenceOverviewSection from './detail/evidence-overview-section'
 import EvidenceRelationshipsSection from './detail/evidence-relationships-section'
 import EvidenceMetadataSection from './detail/evidence-metadata-section'
@@ -67,7 +68,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
 
-  const { mutateAsync: updateEvidence } = useUpdateEvidence()
+  const { mutateAsync: updateEvidence, isPending: isSavingEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
   const latestStatusRef = useRef<EvidenceEvidenceStatus | null>(null)
   const { isAuditor } = useIsAuditor()
@@ -96,6 +97,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
   const { data: permission } = useAccountRoles(ObjectTypes.EVIDENCE, data?.evidence.id)
 
   const editAllowed = canEdit(permission?.roles, session) || isAuditor
+  const deleteAllowed = canDelete(permission?.roles)
 
   const isEditing = editRequested && editAllowed
 
@@ -110,6 +112,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
   const evidenceName = evidence?.name
 
   const { form } = useFormSchema(true)
+  const { isDirty: isEvidenceDirty } = form.formState
 
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -151,7 +154,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
   }
 
   const handleSheetClose = () => {
-    if (isEditing) {
+    if (isEditing && isEvidenceDirty) {
       setIsDiscardDialogOpen(true)
       return
     }
@@ -401,18 +404,18 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
             isEditing={isEditing}
             isAuditor={isAuditor}
             editAllowed={editAllowed}
+            deleteAllowed={deleteAllowed}
             auditorActionPending={auditorActionPending}
             onStatusChange={handleStatusChange}
             onCopyLink={handleCopyLink}
             onEdit={() => setEditRequested(true)}
-            onCancelEdit={() => setEditRequested(false)}
-            onSave={handleSave}
             onDelete={() => setDeleteDialogIsOpen(true)}
             onApprove={handleApprove}
             onRequestChanges={() => setRequestChangesOpen(true)}
             onClose={handleSheetClose}
           />
         }
+        footer={isEditing ? <SlideoutFormFooter onSave={() => handleSave()} onCancel={() => setEditRequested(false)} isPending={isSavingEvidence} /> : undefined}
       >
         {fetching ? (
           <EvidenceDetailsSheetSkeleton />
