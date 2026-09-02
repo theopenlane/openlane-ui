@@ -51,7 +51,7 @@ tasks:
   test:
     desc: run all tests
     cmds:
-      - bun test
+      - bun run test
 
   clean:
     desc: clean all apps and package
