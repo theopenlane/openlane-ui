@@ -63,7 +63,7 @@ export const observeSessionTokens = (accessToken: string, refreshToken: string):
 
   const candidate = toTokenState(accessToken, refreshToken)
 
-  if (!tokenState || candidate.issuedAt > tokenState.issuedAt) {
+  if (!tokenState || candidate.issuedAt >= tokenState.issuedAt) {
     return commit(candidate) as TokenState
   }
 
@@ -77,6 +77,19 @@ export const clearTokens = () => {
 export const getTokenGeneration = () => generation
 
 export const getKnownTokens = (): TokenState | null => tokenState
+
+export const readTokenRefreshAt = (accessToken: string): number | null => {
+  try {
+    return toTokenState(accessToken, '').refreshAt
+  } catch {
+    return null
+  }
+}
+
+export const isTokenUsable = (accessToken: string): boolean => {
+  const refreshAt = readTokenRefreshAt(accessToken)
+  return refreshAt !== null && Date.now() < refreshAt
+}
 
 export const getRefreshTokenReadyAt = (refreshToken: string): number | null => {
   try {

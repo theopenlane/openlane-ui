@@ -4,7 +4,7 @@ import { getCookie } from './auth/utils/getCookie'
 import { probeSession, SessionUnavailableError } from './auth/utils/session-health'
 import { refreshTokens } from './auth/utils/session-refresh'
 import { clearSSOReauthRequired, getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
-import { getKnownTokens, getUsableTokens, setAuthoritativeTokens } from './auth/utils/session-tokens'
+import { getKnownTokens, getUsableTokens, observeSessionTokens } from './auth/utils/session-tokens'
 
 const resolveAccessToken = async (): Promise<string> => {
   if (getIsSessionInvalid()) {
@@ -33,14 +33,21 @@ const resolveAccessToken = async (): Promise<string> => {
     throw new Error('Session expired')
   }
 
-  const adopted = setAuthoritativeTokens(probe.session.user.accessToken, probe.session.user.refreshToken ?? '')
+  observeSessionTokens(probe.session.user.accessToken, probe.session.user.refreshToken ?? '')
 
-  if (Date.now() >= adopted.refreshAt && adopted.refreshToken) {
+  const usableAfterProbe = getUsableTokens()
+  if (usableAfterProbe) {
+    return usableAfterProbe.accessToken
+  }
+
+  const adopted = getKnownTokens()
+  if (adopted?.refreshToken) {
     const refreshed = await refreshTokens(adopted.refreshToken)
     return refreshed.accessToken
   }
 
-  return adopted.accessToken
+  notifySessionExpired()
+  throw new Error('Session expired')
 }
 
 export const fetchGraphQLWithUpload = async <TVariables extends object>({ query, variables }: { query: string; variables?: TVariables }) => {

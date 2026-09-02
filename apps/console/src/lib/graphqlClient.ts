@@ -10,7 +10,7 @@ import { fetchCSRFToken, invalidateCSRFToken, isCSRFRejection } from './auth/uti
 import { probeSession, SessionUnavailableError } from './auth/utils/session-health'
 import { recoverTokensAfterUnauthorized, refreshTokens, setTokenPersister } from './auth/utils/session-refresh'
 import { clearSSOReauthRequired, getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
-import { getKnownTokens, getUsableTokens, observeSessionTokens, setAuthoritativeTokens, type TokenState } from './auth/utils/session-tokens'
+import { getKnownTokens, getUsableTokens, observeSessionTokens, type TokenState } from './auth/utils/session-tokens'
 
 export { getIsSessionInvalid, markSessionExpired } from './auth/utils/session-status'
 
@@ -30,25 +30,19 @@ const useSessionUpdateRef = () => {
 }
 
 export const useSessionTokenSync = () => {
-  const { data, update } = useSession()
-  const sessionRef = useRef(data)
-  const updateRef = useRef(update)
+  const { data } = useSession()
+  const updateRef = useSessionUpdateRef()
   const accessToken = data?.user?.accessToken
   const refreshToken = data?.user?.refreshToken
 
   useEffect(() => {
-    sessionRef.current = data
-    updateRef.current = update
-  }, [data, update])
-
-  useEffect(() => {
-    setTokenPersister((tokens) => updateRef.current({ ...sessionRef.current, user: tokens }))
+    setTokenPersister((tokens) => updateRef.current({ user: tokens }))
     return () => setTokenPersister(null)
-  }, [])
+  }, [updateRef])
 
   useEffect(() => {
     if (!accessToken) return
-    setAuthoritativeTokens(accessToken, refreshToken ?? '')
+    observeSessionTokens(accessToken, refreshToken ?? '')
   }, [accessToken, refreshToken])
 }
 
