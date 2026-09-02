@@ -9,7 +9,6 @@ import { credentialsProvider } from './providers/credentials'
 import { checkWebfinger, getTokenFromOpenlaneAPI, type OAuthUserRequest } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { secureFetch } from './utils/secure-fetch'
-import { applyTokenUpdate, withFreshAccessToken } from './utils/jwt-refresh'
 import { cookies } from 'next/headers'
 import { allowedLoginDomains } from '@repo/dally/auth'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
@@ -62,8 +61,8 @@ export const config = {
       // than only clearing client state. Without this the access and refresh tokens remain valid
       // until they expire even after the user signs out
       const token = 'token' in message ? message.token : null
-      const accessToken = token?.accessToken
-      const refreshToken = token?.refreshToken
+      const accessToken = token?.accessToken as string | undefined
+      const refreshToken = token?.refreshToken as string | undefined
 
       if (accessToken || refreshToken) {
         try {
@@ -187,7 +186,10 @@ export const config = {
         })
 
         try {
-          jwtDecode<JwtPayload>(user.accessToken)
+          const decoded = jwtDecode<JwtPayload>(user.accessToken)
+          if (decoded.exp) {
+            token.expiresAt = decoded.exp * 1000 // Save as ms timestamp
+          }
         } catch (err) {
           console.error('❌ Failed to decode access token on login:', err)
           return null
@@ -199,7 +201,10 @@ export const config = {
         })
 
         try {
-          jwtDecode<JwtPayload>(account.access_token)
+          const decoded = jwtDecode<JwtPayload>(account.access_token)
+          if (decoded.exp) {
+            token.expiresAt = decoded.exp * 1000
+          }
         } catch (err) {
           console.error('❌ Failed to decode access token from account:', err)
         }
@@ -212,10 +217,10 @@ export const config = {
 
       // Handle session update
       if (trigger === 'update') {
-        return applyTokenUpdate(token, session)
+        return { ...token, ...session?.user }
       }
 
-      return await withFreshAccessToken(token)
+      return token
     },
     async session({ session, token }) {
       try {

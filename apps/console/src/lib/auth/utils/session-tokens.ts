@@ -40,8 +40,6 @@ const commit = (next: TokenState | null): TokenState | null => {
   return next
 }
 
-const isNewer = (candidate: TokenState, current: TokenState): boolean => candidate.issuedAt > current.issuedAt || (candidate.issuedAt === current.issuedAt && candidate.refreshAt > current.refreshAt)
-
 const mergeRefreshToken = (current: TokenState, refreshToken: string): TokenState => {
   if (!refreshToken || refreshToken === current.refreshToken) {
     return current
@@ -65,25 +63,11 @@ export const observeSessionTokens = (accessToken: string, refreshToken: string):
 
   const candidate = toTokenState(accessToken, refreshToken)
 
-  if (!tokenState || isNewer(candidate, tokenState)) {
+  if (!tokenState || candidate.issuedAt > tokenState.issuedAt) {
     return commit(candidate) as TokenState
   }
 
   return tokenState
-}
-
-export const adoptSessionTokens = (accessToken: string, refreshToken: string): TokenState => {
-  if (tokenState?.accessToken === accessToken) {
-    return mergeRefreshToken(tokenState, refreshToken)
-  }
-
-  const candidate = toTokenState(accessToken, refreshToken)
-
-  if (tokenState && isNewer(tokenState, candidate)) {
-    return tokenState
-  }
-
-  return commit(candidate) as TokenState
 }
 
 export const clearTokens = () => {
@@ -93,19 +77,6 @@ export const clearTokens = () => {
 export const getTokenGeneration = () => generation
 
 export const getKnownTokens = (): TokenState | null => tokenState
-
-export const readTokenRefreshAt = (accessToken: string): number | null => {
-  try {
-    return toTokenState(accessToken, '').refreshAt
-  } catch {
-    return null
-  }
-}
-
-export const isTokenUsable = (accessToken: string): boolean => {
-  const refreshAt = readTokenRefreshAt(accessToken)
-  return refreshAt !== null && Date.now() < refreshAt
-}
 
 export const getRefreshTokenReadyAt = (refreshToken: string): number | null => {
   try {
