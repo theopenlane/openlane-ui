@@ -10,7 +10,7 @@ const LogsPage: React.FC = () => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Organization Settings', href: '/organization-settings/general-settings' },
-      { label: 'Audit Logs', href: '/logs' },
+      { label: 'Audit Logs', href: '/organization-settings/logs' },
     ])
   }, [setCrumbs])
 

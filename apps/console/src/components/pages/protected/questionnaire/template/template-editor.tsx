@@ -71,7 +71,7 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
       { label: 'Automation', href: '/automation/questionnaires' },
       { label: 'Questionnaires', href: '/automation/questionnaires' },
       { label: 'Templates', href: '/automation/questionnaires/templates' },
-      { label: 'Template Editor', href: '/template-editor' },
+      { label: 'Template Editor', href: '/automation/questionnaires/templates/template-editor' },
     ])
   }, [setCrumbs])
 
