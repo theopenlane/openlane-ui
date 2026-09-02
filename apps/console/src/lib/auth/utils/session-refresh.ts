@@ -136,7 +136,9 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
 
     if (cookieOutlivesKnown) {
       recordRefreshSuccess()
-      return setAuthoritativeTokens(cookieAccessToken, cookieRefreshToken)
+      const adopted = setAuthoritativeTokens(cookieAccessToken, cookieRefreshToken)
+      await persistToSession(adopted)
+      return adopted
     }
 
     if (cookieDiffers && known?.refreshToken && Date.now() < known.refreshAt) {

@@ -10,7 +10,7 @@ import { fetchCSRFToken, invalidateCSRFToken, isCSRFRejection } from './auth/uti
 import { probeSession, SessionUnavailableError } from './auth/utils/session-health'
 import { recoverTokensAfterUnauthorized, refreshTokens, setTokenPersister } from './auth/utils/session-refresh'
 import { clearSSOReauthRequired, getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
-import { getKnownTokens, getUsableTokens, observeSessionTokens, type TokenState } from './auth/utils/session-tokens'
+import { adoptSessionTokens, getKnownTokens, getUsableTokens, observeSessionTokens, type TokenState } from './auth/utils/session-tokens'
 
 export { getIsSessionInvalid, markSessionExpired } from './auth/utils/session-status'
 
@@ -42,7 +42,7 @@ export const useSessionTokenSync = () => {
 
   useEffect(() => {
     if (!accessToken) return
-    observeSessionTokens(accessToken, refreshToken ?? '')
+    adoptSessionTokens(accessToken, refreshToken ?? '')
   }, [accessToken, refreshToken])
 }
 

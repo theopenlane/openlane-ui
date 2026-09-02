@@ -33,21 +33,19 @@ const resolveAccessToken = async (): Promise<string> => {
     throw new Error('Session expired')
   }
 
-  observeSessionTokens(probe.session.user.accessToken, probe.session.user.refreshToken ?? '')
+  const observed = observeSessionTokens(probe.session.user.accessToken, probe.session.user.refreshToken ?? '')
 
   const usableAfterProbe = getUsableTokens()
   if (usableAfterProbe) {
     return usableAfterProbe.accessToken
   }
 
-  const adopted = getKnownTokens()
-  if (adopted?.refreshToken) {
-    const refreshed = await refreshTokens(adopted.refreshToken)
+  if (observed.refreshToken) {
+    const refreshed = await refreshTokens(observed.refreshToken)
     return refreshed.accessToken
   }
 
-  notifySessionExpired()
-  throw new Error('Session expired')
+  return observed.accessToken
 }
 
 export const fetchGraphQLWithUpload = async <TVariables extends object>({ query, variables }: { query: string; variables?: TVariables }) => {
