@@ -1,14 +1,17 @@
 import { test, expect } from '../fixtures/auth'
 import { test as freshTest } from '@playwright/test'
 import { seedLoggedInUser } from '../utils/seedUser'
+import { dismissDraftRestore } from '../utils/drafts'
 
 import { uniqueRef } from '../utils/unique'
+import { expectMutationOk } from '../utils/mutations'
 
 const refCodeFor = (slug: string) => uniqueRef(`E2E-${slug}`)
 
 test.describe('controls — create + view', () => {
   test('required validation — submitting without a Ref Code stays on create-control and shows the inline error', async ({ page }) => {
     await page.goto('/controls/create-control')
+    await dismissDraftRestore(page)
 
     // The Create button is the form's submit. There are other "Create"
     // buttons further down the page (association sections), so scope to
@@ -27,9 +30,10 @@ test.describe('controls — create + view', () => {
     const b = refCodeFor('search-b')
     for (const refCode of [a, b]) {
       await page.goto('/controls/create-control')
+      await dismissDraftRestore(page)
       await page.locator('input[name="refCode"]').fill(refCode)
       await page.locator('form button[type="submit"]', { hasText: /^create$/i }).click()
-      await page.waitForURL(/\/controls\/[^/]+(\?|$)/, { timeout: 30_000 })
+      await page.waitForURL(/\/controls\/(?!create)[^/]+(\?|$)/, { timeout: 30_000 })
     }
 
     await page.goto('/controls')
@@ -45,6 +49,7 @@ test.describe('controls — create + view', () => {
 
   test('happy path — create a control and land on the detail page', async ({ page }) => {
     await page.goto('/controls/create-control')
+    await dismissDraftRestore(page)
 
     const refCode = refCodeFor('ctl')
     // Ref Code is the only required field — the form's zod schema only
@@ -59,7 +64,7 @@ test.describe('controls — create + view', () => {
     await page.locator('form button[type="submit"]', { hasText: /^create$/i }).click()
 
     // Form redirects to /controls/{id} on success.
-    await page.waitForURL(/\/controls\/[^/]+(\?|$)/, { timeout: 30_000 })
+    await page.waitForURL(/\/controls\/(?!create)[^/]+(\?|$)/, { timeout: 30_000 })
 
     // Detail page renders the refCode as an h1.
     await expect(page.getByRole('heading', { level: 1, name: refCode })).toBeVisible({ timeout: 15_000 })
@@ -84,10 +89,11 @@ test.describe('controls — create + view', () => {
 
   test('newly created control appears in the controls table view', async ({ page }) => {
     await page.goto('/controls/create-control')
+    await dismissDraftRestore(page)
     const refCode = refCodeFor('listed')
     await page.locator('input[name="refCode"]').fill(refCode)
     await page.locator('form button[type="submit"]', { hasText: /^create$/i }).click()
-    await page.waitForURL(/\/controls\/[^/]+(\?|$)/, { timeout: 30_000 })
+    await page.waitForURL(/\/controls\/(?!create)[^/]+(\?|$)/, { timeout: 30_000 })
 
     await page.goto('/controls')
     await page.locator('.lucide-table').first().click()
@@ -100,10 +106,11 @@ test.describe('controls — create + view', () => {
   test('inline title rename: double-click h1 → edit refCode → Enter → reload → new refCode persists', async ({ page }) => {
     // Create the control first — same flow as the happy path above.
     await page.goto('/controls/create-control')
+    await dismissDraftRestore(page)
     const original = refCodeFor('orig')
     await page.locator('input[name="refCode"]').fill(original)
     await page.locator('form button[type="submit"]', { hasText: /^create$/i }).click()
-    await page.waitForURL(/\/controls\/[^/]+(\?|$)/, { timeout: 30_000 })
+    await page.waitForURL(/\/controls\/(?!create)[^/]+(\?|$)/, { timeout: 30_000 })
 
     const originalH1 = page.getByRole('heading', { level: 1, name: original })
     await expect(originalH1).toBeVisible({ timeout: 15_000 })
@@ -115,19 +122,24 @@ test.describe('controls — create + view', () => {
       const refCodeInput = page.getByLabel(/^Ref Code/)
       await expect(refCodeInput).toBeVisible({ timeout: 2_000 })
       await refCodeInput.fill(updated)
-      await refCodeInput.press('Enter')
-      await page.reload()
-      await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 5_000 })
-    }).toPass({ timeout: 30_000 })
+      await expectMutationOk(page, 'UpdateControl', async () => {
+        await refCodeInput.press('Enter')
+      })
+      await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 10_000 })
+    }).toPass({ timeout: 60_000 })
+
+    await page.reload()
+    await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 30_000 })
     await expect(page.getByRole('heading', { level: 1, name: original })).toHaveCount(0)
   })
 
   test('inline status change: double-click status → select Preparing → reload → new status persists', async ({ page }) => {
     await page.goto('/controls/create-control')
+    await dismissDraftRestore(page)
     const refCode = refCodeFor('status')
     await page.locator('input[name="refCode"]').fill(refCode)
     await page.locator('form button[type="submit"]', { hasText: /^create$/i }).click()
-    await page.waitForURL(/\/controls\/[^/]+(\?|$)/, { timeout: 30_000 })
+    await page.waitForURL(/\/controls\/(?!create)[^/]+(\?|$)/, { timeout: 30_000 })
 
     const statusTrigger = page.getByTestId('control-status-trigger')
     await expect(statusTrigger).toContainText(/^Not Implemented$/)

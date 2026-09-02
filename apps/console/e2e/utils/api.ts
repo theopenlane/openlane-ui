@@ -246,7 +246,8 @@ export const deleteSubcontrol = async (sess: ApiSession, id: string): Promise<vo
   await gql(sess, `mutation($id: ID!){ deleteSubcontrol(id: $id){ deletedID } }`, { id })
 }
 
-export const createReview = (sess: ApiSession, title: string): Promise<string> => seedEntity(sess, 'createReview', 'CreateReviewInput', 'review', { title })
+export const createReview = (sess: ApiSession, title: string, extra: Record<string, unknown> = {}): Promise<string> =>
+  seedEntity(sess, 'createReview', 'CreateReviewInput', 'review', { title, ...extra })
 
 export const deleteReview = async (sess: ApiSession, id: string): Promise<void> => {
   await gql(sess, `mutation($id: ID!){ deleteReview(id: $id){ deletedID } }`, { id })

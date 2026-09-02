@@ -41,6 +41,7 @@ let policyKind: string
 let policyKindId: string
 let approverGroup: string
 let approverGroupId: string
+let seededPolicyId: string
 
 test.beforeAll(async () => {
   ownerApi = await getOwnerApi()
@@ -48,11 +49,13 @@ test.beforeAll(async () => {
   policyKindId = await createCustomTypeEnum(ownerApi, policyKind, 'kind', 'internal_policy')
   approverGroup = uniqueName('E2E Approver Group')
   approverGroupId = await createGroup(ownerApi, approverGroup)
+  seededPolicyId = await createInternalPolicy(ownerApi, uniqueName('E2E Policy Toolbar Seed'))
 })
 
 test.afterAll(async () => {
   if (policyKindId) await deleteCustomTypeEnum(ownerApi, policyKindId)
   if (approverGroupId) await gql(ownerApi, `mutation($id: ID!){ deleteGroup(id: $id){ deletedID } }`, { id: approverGroupId })
+  if (seededPolicyId) await deletePolicy(ownerApi, seededPolicyId)
 })
 
 test.describe('policies — create form metadata', () => {

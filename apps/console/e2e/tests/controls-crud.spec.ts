@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test'
 import { test, expect } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
 import { uniqueRef } from '../utils/unique'
+import { clickResilient } from '../utils/menu'
 import {
   createControl,
   createSubcontrol,
@@ -72,7 +73,7 @@ test.describe('controls — owner edit + delete (seeded)', () => {
     await expect(editControlButton(page)).toBeVisible({ timeout: 30_000 })
 
     await page.getByTestId('control-actions-menu').click()
-    await page.getByTestId('control-delete-button').click()
+    await clickResilient(page.getByTestId('control-delete-button'))
     // Confirmation dialog → confirm Delete.
     await page
       .getByRole('alertdialog')

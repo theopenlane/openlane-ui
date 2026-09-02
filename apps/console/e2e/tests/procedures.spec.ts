@@ -1,9 +1,11 @@
 import { test, expect } from '../fixtures/auth'
 import { test as freshTest, type Locator, type Page } from '@playwright/test'
 import { seedLoggedInUser } from '../utils/seedUser'
+import { dismissDraftRestore } from '../utils/drafts'
 
 import { RUN_ID } from '../utils/constants'
 import { uniqueName } from '../utils/unique'
+import { expectMutationOk } from '../utils/mutations'
 
 const procedureName = (slug: string) => uniqueName(`E2E Procedure ${slug}`)
 const policyName = (slug: string) => uniqueName(`E2E Policy ${slug}`)
@@ -37,6 +39,7 @@ test.describe('procedures — list + create', () => {
     const b = procedureName('search-b')
     for (const name of [a, b]) {
       await page.goto('/procedures/create')
+      await dismissDraftRestore(page)
       await page.getByLabel(/^Title$/).fill(name)
       await page.getByRole('button', { name: /^save procedure$/i }).click({ timeout: 30_000 })
       await page.waitForURL(/\/procedures\/[^/]+\/view/, { timeout: 30_000 })
@@ -52,6 +55,7 @@ test.describe('procedures — list + create', () => {
 
   test('happy path — create a procedure and land on the view page', async ({ page }) => {
     await page.goto('/procedures/create')
+    await dismissDraftRestore(page)
 
     const name = procedureName('create')
     await page.getByLabel(/^Title$/).fill(name)
@@ -66,6 +70,7 @@ test.describe('procedures — list + create', () => {
 
   test('newly created procedure appears in the procedures table', async ({ page }) => {
     await page.goto('/procedures/create')
+    await dismissDraftRestore(page)
     const name = procedureName('listed')
     await page.getByLabel(/^Title$/).fill(name)
     await page.getByRole('button', { name: /^save procedure$/i }).click({ timeout: 30_000 })
@@ -78,6 +83,7 @@ test.describe('procedures — list + create', () => {
 
   test('inline title rename: double-click h1 → type → Enter → reload → new title persists', async ({ page }) => {
     await page.goto('/procedures/create')
+    await dismissDraftRestore(page)
     const original = procedureName('edit-orig')
     await page.getByLabel(/^Title$/).fill(original)
     await page.getByRole('button', { name: /^save procedure$/i }).click({ timeout: 30_000 })
@@ -93,15 +99,20 @@ test.describe('procedures — list + create', () => {
       const titleInput = page.getByRole('textbox').first()
       await expect(titleInput).toBeVisible({ timeout: 2_000 })
       await titleInput.fill(updated)
-      await titleInput.press('Enter')
-      await page.reload()
-      await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 5_000 })
-    }).toPass({ timeout: 30_000 })
+      await expectMutationOk(page, 'UpdateProcedure', async () => {
+        await titleInput.press('Enter')
+      })
+      await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 10_000 })
+    }).toPass({ timeout: 60_000 })
+
+    await page.reload()
+    await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 30_000 })
     await expect(page.getByRole('heading', { level: 1, name: original })).toHaveCount(0)
   })
 
   test('inline status change: click status → select Pending → reload → new status persists', async ({ page }) => {
     await page.goto('/procedures/create')
+    await dismissDraftRestore(page)
     const name = procedureName('status')
     await page.getByLabel(/^Title$/).fill(name)
     await page.getByRole('button', { name: /^save procedure$/i }).click({ timeout: 30_000 })
@@ -134,6 +145,7 @@ test.describe('procedures — list + create', () => {
     const policyUrl = page.url()
 
     await page.goto('/procedures/create')
+    await dismissDraftRestore(page)
     const linkedProcedure = procedureName('policy-assoc')
     await page.getByLabel(/^Title$/).fill(linkedProcedure)
     await page.getByRole('button', { name: /^save procedure$/i }).click({ timeout: 30_000 })
@@ -180,6 +192,7 @@ test.describe('procedures — list + create', () => {
 
 const createProcedureViaUi = async (page: Page, name: string): Promise<string> => {
   await page.goto('/procedures/create')
+  await dismissDraftRestore(page)
   await page.getByLabel(/^Title$/).fill(name)
   await page.getByRole('button', { name: /^save procedure$/i }).click({ timeout: 30_000 })
   await page.waitForURL(/\/procedures\/[^/]+\/view/, { timeout: 30_000 })

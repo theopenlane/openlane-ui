@@ -80,7 +80,7 @@ test.describe('bulk edit — action plans on the risk Mitigation tab', () => {
     test.slow()
     const riskId = await createRisk(ownerApi, uniqueName('E2E BulkEdit ap risk'))
     const name = uniqueName('E2E BulkEdit actionplan')
-    await createActionPlan(ownerApi, name, { riskIDs: [riskId] })
+    await createActionPlan(ownerApi, name, { riskIDs: [riskId], priority: 'MEDIUM' })
 
     await page.goto(`/exposure/risks/${riskId}?tab=mitigation`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await selectFirstMatchingRow(page, name)

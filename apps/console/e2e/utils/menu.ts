@@ -26,6 +26,20 @@ export const openRowAction = async (page: Page, trigger: Locator, item: Locator,
 }
 
 /**
+ * Click a target that resolves but never settles. Radix menus, cmdk lists and
+ * tables re-render on every background refetch, so Playwright's actionability
+ * wait can time out on an element that is perfectly clickable. Fall back to a
+ * dispatched click rather than widening the timeout.
+ */
+export const clickResilient = async (target: Locator, timeout = 10_000): Promise<void> => {
+  try {
+    await target.click({ timeout })
+  } catch {
+    await target.dispatchEvent('click')
+  }
+}
+
+/**
  * Confirm a destructive action. The confirmation button is matched on its
  * visible text so it cannot resolve to an icon-only button that merely carries
  * the same aria-label, and dispatched rather than clicked because the dialog

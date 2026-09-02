@@ -1,14 +1,17 @@
 import { test, expect } from '../fixtures/auth'
 import { test as freshTest, type Page } from '@playwright/test'
 import { seedLoggedInUser } from '../utils/seedUser'
+import { dismissDraftRestore } from '../utils/drafts'
 
 import { RUN_ID } from '../utils/constants'
+import { expectMutationOk } from '../utils/mutations'
 
 const policyName = (slug: string) => `E2E Policy ${slug} ${RUN_ID} ${Date.now().toString(36)}`
 
 test.describe('policies — create + view', () => {
   test('happy path — create a policy and land on the view page', async ({ page }) => {
     await page.goto('/policies/create')
+    await dismissDraftRestore(page)
 
     const name = policyName('create')
     // Title is the only required field — the form pre-populates a Plate.js
@@ -27,6 +30,7 @@ test.describe('policies — create + view', () => {
 
   test('required validation — submitting without a title stays on create and shows the inline error', async ({ page }) => {
     await page.goto('/policies/create')
+    await dismissDraftRestore(page)
     await page.getByRole('button', { name: /^save changes$/i }).click()
 
     await expect(page).toHaveURL(/\/policies\/create(\?|$)/)
@@ -40,6 +44,7 @@ test.describe('policies — create + view', () => {
     const b = policyName('search-b')
     for (const name of [a, b]) {
       await page.goto('/policies/create')
+      await dismissDraftRestore(page)
       await page.getByLabel(/^Title$/).fill(name)
       await page.getByRole('button', { name: /^save changes$/i }).click()
       await page.waitForURL(/\/policies\/[^/]+\/view/, { timeout: 30_000 })
@@ -63,6 +68,7 @@ test.describe('policies — create + view', () => {
   test('toggle to table view: TabSwitcher Table icon → table renders the policy', async ({ page }) => {
     // Create one policy first so the table has something to render.
     await page.goto('/policies/create')
+    await dismissDraftRestore(page)
     const name = policyName('table')
     await page.getByLabel(/^Title$/).fill(name)
     await page.getByRole('button', { name: /^save changes$/i }).click()
@@ -85,6 +91,7 @@ test.describe('policies — create + view', () => {
 
   test('newly created policy appears in the dashboard recent-activity feed', async ({ page }) => {
     await page.goto('/policies/create')
+    await dismissDraftRestore(page)
     const name = policyName('list')
     await page.getByLabel(/^Title$/).fill(name)
     await page.getByRole('button', { name: /^save changes$/i }).click()
@@ -105,6 +112,7 @@ test.describe('policies — edit', () => {
     // as the happy-path create test above; kept inline so this spec
     // doesn't need a shared fixture.
     await page.goto('/policies/create')
+    await dismissDraftRestore(page)
     const original = policyName('edit-orig')
     await page.getByLabel(/^Title$/).fill(original)
     await page.getByRole('button', { name: /^save changes$/i }).click()
@@ -120,15 +128,20 @@ test.describe('policies — edit', () => {
       const titleInput = page.getByRole('textbox').first()
       await expect(titleInput).toBeVisible({ timeout: 2_000 })
       await titleInput.fill(updated)
-      await titleInput.press('Enter')
-      await page.reload()
-      await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 5_000 })
-    }).toPass({ timeout: 30_000 })
+      await expectMutationOk(page, 'UpdateInternalPolicy', async () => {
+        await titleInput.press('Enter')
+      })
+      await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 10_000 })
+    }).toPass({ timeout: 60_000 })
+
+    await page.reload()
+    await expect(page.getByRole('heading', { level: 1, name: updated })).toBeVisible({ timeout: 30_000 })
     await expect(page.getByRole('heading', { level: 1, name: original })).toHaveCount(0)
   })
 
   test('inline status change: double-click status → select Pending → reload → new status persists', async ({ page }) => {
     await page.goto('/policies/create')
+    await dismissDraftRestore(page)
     const name = policyName('status')
     await page.getByLabel(/^Title$/).fill(name)
     await page.getByRole('button', { name: /^save changes$/i }).click()

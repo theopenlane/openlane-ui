@@ -1,6 +1,7 @@
 import { test, expect } from '../fixtures/auth'
 import { createControl, deleteControl, deleteSubcontrol, getOwnerApi, type ApiSession } from '../utils/api'
 import { uniqueName, uniqueRef } from '../utils/unique'
+import { clickResilient } from '../utils/menu'
 
 let ownerApi: ApiSession
 let parentRefCode: string
@@ -28,7 +29,7 @@ test.describe('controls — create subcontrol from the bare route', () => {
 
     const option = page.getByRole('option', { name: new RegExp(parentRefCode) }).first()
     await expect(option).toBeVisible({ timeout: 30_000 })
-    await option.click()
+    await clickResilient(option)
 
     await expect(combobox).toHaveValue(new RegExp(parentRefCode), { timeout: 30_000 })
   })
@@ -45,10 +46,7 @@ test.describe('controls — create subcontrol from the bare route', () => {
       const combobox = page.getByRole('combobox', { name: 'Search Control' })
       await combobox.click()
       await combobox.fill(parentRefCode)
-      await page
-        .getByRole('option', { name: new RegExp(parentRefCode) })
-        .first()
-        .click()
+      await clickResilient(page.getByRole('option', { name: new RegExp(parentRefCode) }).first())
 
       const refCode = page.getByLabel(/^Ref Code/)
       await expect(refCode).toBeEditable({ timeout: 30_000 })

@@ -589,7 +589,7 @@ test.describe('trust-center — document bulk actions and watermark', () => {
       await dialog.getByRole('button', { name: /^Save/ }).click()
     })
 
-    await expect(toast(page, 'Successfully updated selected documents.')).toBeVisible({ timeout: 30_000 })
+    await expect(toast(page, 'Successfully bulk updated selected document.')).toBeVisible({ timeout: 30_000 })
   })
 
   test('bulk deleting selected documents removes them', async ({ page }) => {

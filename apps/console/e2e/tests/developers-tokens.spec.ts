@@ -1,4 +1,4 @@
-import { addDays, format, subDays } from 'date-fns'
+import { addDays, format } from 'date-fns'
 import type { Page } from '@playwright/test'
 
 import { test, expect } from '../fixtures/auth'
@@ -31,7 +31,7 @@ const applyNameFilter = async (page: Page, name: string): Promise<void> => {
   await page.getByRole('button', { name: 'View Results' }).click()
 }
 
-const calendarDayName = (date: Date): RegExp => new RegExp(`${format(date, 'MMMM')}.*${date.getDate()}.*${date.getFullYear()}`, 'i')
+const calendarDayName = (date: Date): RegExp => new RegExp(`${format(date, 'MMMM do')}, ${date.getFullYear()}$`, 'i')
 
 const chooseRangeDate = async (page: Page, endpoint: 'From' | 'To', date: Date): Promise<void> => {
   await page
