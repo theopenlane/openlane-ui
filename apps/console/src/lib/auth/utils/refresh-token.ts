@@ -1,8 +1,7 @@
 'use client'
 
 // Never refresh from the server: core sends the renewed session cookie as a Set-Cookie, so a
-// server-side call drops it. That was #2238. 'use client' alone only blows up at runtime,
-// 'client-only' fails the build.
+// server-side call drops it.
 import 'client-only'
 
 import { openlaneAPIUrl } from '@repo/dally/auth'
