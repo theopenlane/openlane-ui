@@ -76,7 +76,7 @@ let persistTokens: TokenPersister | null = null
 
 // Bumped whenever the NextAuth session actually takes a new pair. /api routes authenticate
 // with the token in that session, not the one on the request, so this is the only signal that
-// their credential moved — see recoverUnauthorized.
+// their credential moved. See recoverUnauthorized.
 let sessionSyncGeneration = 0
 
 export const getSessionSyncGeneration = () => sessionSyncGeneration
@@ -106,6 +106,7 @@ const persistToSession = async (tokens: PersistableTokens): Promise<boolean> => 
       if (stored) {
         sessionSyncGeneration += 1
         resetSessionProbe()
+        console.info('✅ NextAuth session took the refreshed tokens', { at: new Date().toISOString(), attempt, token: describeToken(tokens.accessToken) })
 
         return true
       }
@@ -189,7 +190,7 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
     }
 
     if (cookieDiffers && known?.refreshToken && Date.now() < known.refreshAt) {
-      // The session cookie is behind what this tab holds. Push our pair back into it — /api
+      // The session cookie is behind what this tab holds. Push our pair back into it, /api
       // routes read their credential from there, so this is the repair they need.
       console.warn('⚠️ NextAuth session is behind this tab, resyncing', { session: describeToken(cookieAccessToken), tab: describeToken(known.accessToken) })
       await persistToSession(known)
@@ -289,7 +290,7 @@ export const resolveCurrentTokens = async (): Promise<TokenState> => {
 }
 
 // Returns the tokens to retry with, or null if nothing changed and the caller should just
-// surface the 401. Won't refresh before the token is due by default — core's nbf makes that a
+// surface the 401. Won't refresh before the token is due by default, core's nbf makes that a
 // guaranteed failure. forceRefresh lifts only that gate, for the one case nothing else fixes:
 // the session cookie died while the token is still fresh, and only a browser /v1/refresh
 // brings it back.
@@ -307,7 +308,7 @@ export const recoverTokensAfterUnauthorized = async (failedTokens: TokenState, {
   }
 
   // Too early to succeed, and finding that out inside refreshTokens costs a probe under the
-  // lock — a burst of 401s would queue up behind each other.
+  // lock, and a burst of 401s would queue up behind each other.
   if (forceRefresh) {
     const readyAt = getRefreshTokenReadyAt(refreshToken)
 

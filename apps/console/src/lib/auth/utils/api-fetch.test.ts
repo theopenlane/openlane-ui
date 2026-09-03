@@ -38,13 +38,18 @@ const locksStub = {
 
 let sessionTokens: { accessToken: string; refreshToken: string } | null = null
 let calls: string[] = []
+let authHeaders: Array<string | null> = []
 let apiResponse: (attempt: number) => Response
 
 globals.navigator = { locks: locksStub }
 globals.window = { dispatchEvent: () => true }
-globals.fetch = (async (input: RequestInfo | URL) => {
+globals.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = String(input)
   calls.push(url)
+
+  if (url.includes('/api/reports')) {
+    authHeaders.push(new Headers(init?.headers).get('authorization'))
+  }
 
   if (url.includes('/api/auth/session')) {
     return new Response(JSON.stringify(sessionTokens ? { user: sessionTokens } : {}), { status: 200, headers: { 'content-type': 'application/json' } })
@@ -72,6 +77,7 @@ afterAll(() => {
 
 beforeEach(() => {
   calls = []
+  authHeaders = []
   lockQueues.clear()
   clearTokens()
   resetSessionProbe()
@@ -85,7 +91,7 @@ const probeCalls = () => calls.filter((c) => c.includes('/api/auth/session')).le
 const refreshCalls = () => calls.filter((c) => c.includes('/v1/refresh')).length
 
 describe('apiFetch', () => {
-  test('a successful call is a plain fetch — no probe, no refresh', async () => {
+  test('a successful call is a plain fetch, no probe, no refresh', async () => {
     setAuthoritativeTokens(dueToken('due'), 'r-due')
 
     const response = await apiFetch('/api/reports')
@@ -139,6 +145,45 @@ describe('apiFetch', () => {
 
     expect(seen?.method).toBe('POST')
     expect(seen?.credentials).toBe('include')
+  })
+
+  test("attaches the tab's usable token as a bearer", async () => {
+    const fresh = freshToken('fresh')
+    setAuthoritativeTokens(fresh, 'r-fresh')
+
+    await apiFetch('/api/reports')
+
+    expect(authHeaders).toEqual([`Bearer ${fresh}`])
+  })
+
+  test('sends no bearer when the tab has no usable token', async () => {
+    setAuthoritativeTokens(dueToken('due'), 'r-due')
+
+    await apiFetch('/api/reports')
+
+    expect(authHeaders).toEqual([null])
+  })
+
+  test('keeps an Authorization the caller set', async () => {
+    setAuthoritativeTokens(freshToken('fresh'), 'r-fresh')
+
+    await apiFetch('/api/reports', { headers: { Authorization: 'Bearer anonymous' } })
+
+    expect(authHeaders).toEqual(['Bearer anonymous'])
+  })
+
+  test('rebuilds the bearer on the retry after a refresh', async () => {
+    const due = dueToken('due')
+    setAuthoritativeTokens(due, 'r-due')
+    sessionTokens = { accessToken: due, refreshToken: 'r-due' }
+    apiResponse = (attempt) => new Response('{}', { status: attempt === 1 ? 401 : 200 })
+
+    await apiFetch('/api/reports')
+
+    expect(authHeaders).toHaveLength(2)
+    expect(authHeaders[0]).toBeNull()
+    expect(authHeaders[1]).toMatch(/^Bearer /)
+    expect(authHeaders[1]).not.toBe(`Bearer ${due}`)
   })
 
   test('returns the original 401 when no credential can be resolved, rather than throwing', async () => {

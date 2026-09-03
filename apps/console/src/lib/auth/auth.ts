@@ -10,6 +10,7 @@ import { checkWebfinger, getTokenFromOpenlaneAPI, type OAuthUserRequest } from '
 import { setSessionCookie } from './utils/set-session-cookie'
 import { secureFetch } from './utils/secure-fetch'
 import { applyTokenUpdate } from './utils/jwt-token-update'
+import { describeToken } from './utils/token-claims'
 import { cookies } from 'next/headers'
 import { allowedLoginDomains } from '@repo/dally/auth'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
@@ -212,7 +213,19 @@ export const config = {
 
       // Handle session update
       if (trigger === 'update') {
-        return applyTokenUpdate(token, session)
+        const before = describeToken(token.accessToken)
+        const next = applyTokenUpdate(token, session)
+        const after = describeToken(next.accessToken)
+
+        console.info('[nextauth jwt] update', JSON.stringify({ at: new Date().toISOString(), changed: before?.jti !== after?.jti, before, after }))
+
+        return next
+      }
+
+      const carried = describeToken(token.accessToken)
+
+      if (carried?.expired) {
+        console.warn('[nextauth jwt] read re-signs a cookie holding an EXPIRED token', JSON.stringify({ at: new Date().toISOString(), trigger, token: carried }))
       }
 
       return token

@@ -4,14 +4,20 @@ import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import { csrfHeader } from '@repo/dally/auth'
 import { getCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
 import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
+import { describeCredential, selectCoreCredential } from '@/lib/auth/utils/select-core-credential'
 
 export async function POST(request: Request) {
   const session = await auth()
-  const token = session?.user?.accessToken
+  const authorization = request.headers.get('authorization')
+  const selection = selectCoreCredential(session, authorization)
 
-  if (!token) {
+  if (selection.kind === 'rejected') {
+    console.error('[switch-organization] refusing to forward a credential', JSON.stringify({ userId: session?.user?.userId, credential: describeCredential(session, authorization, selection) }))
+
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
   }
+
+  const token = selection.accessToken
 
   const bodyData = await request.json()
   const cookies = request.headers.get('cookie')
