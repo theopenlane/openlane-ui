@@ -1,6 +1,5 @@
 'use client'
 
-import { apiFetch } from '@/lib/auth/utils/api-fetch'
 type TExportCSV = {
   filename: string
 }
@@ -11,7 +10,7 @@ interface HttpResponse<T> extends Response {
 
 export async function exportCSV<T>(arg: TExportCSV): Promise<void | { message: string }> {
   try {
-    const fData: HttpResponse<T> = await apiFetch('/api/export', {
+    const fData: HttpResponse<T> = await fetch('/api/export', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

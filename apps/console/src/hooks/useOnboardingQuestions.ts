@@ -1,11 +1,10 @@
-import { apiFetch } from '@/lib/auth/utils/api-fetch'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { type OnboardingQuestionsResponse, type OnboardingStep } from '@/lib/onboarding-questions/types'
 import { reportSSORequirementFromResponse } from '@/lib/auth/utils/session-status'
 
 const fetchOnboardingQuestions = async (): Promise<OnboardingQuestionsResponse> => {
-  const response = await apiFetch('/api/onboarding/questions')
+  const response = await fetch('/api/onboarding/questions')
 
   if (!response.ok) {
     await reportSSORequirementFromResponse(response)

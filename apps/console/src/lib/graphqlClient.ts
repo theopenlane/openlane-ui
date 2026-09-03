@@ -10,8 +10,7 @@ import { fetchCSRFToken, invalidateCSRFToken, isCSRFRejection } from './auth/uti
 import { probeSession, SessionUnavailableError } from './auth/utils/session-health'
 import { refreshTokens, setTokenPersister } from './auth/utils/session-refresh'
 import { clearSSOReauthRequired, getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
-import { sendWithUnauthorizedRecovery } from './auth/utils/unauthorized-recovery'
-import { adoptSessionTokens, getUsableTokens, observeSessionTokens, type TokenState } from './auth/utils/session-tokens'
+import { getKnownTokens, getUsableTokens, observeSessionTokens, setAuthoritativeTokens, type TokenState } from './auth/utils/session-tokens'
 
 export { getIsSessionInvalid, markSessionExpired } from './auth/utils/session-status'
 
@@ -31,19 +30,25 @@ const useSessionUpdateRef = () => {
 }
 
 export const useSessionTokenSync = () => {
-  const { data } = useSession()
-  const updateRef = useSessionUpdateRef()
+  const { data, update } = useSession()
+  const sessionRef = useRef(data)
+  const updateRef = useRef(update)
   const accessToken = data?.user?.accessToken
   const refreshToken = data?.user?.refreshToken
 
   useEffect(() => {
-    setTokenPersister((tokens) => updateRef.current({ user: tokens }))
+    sessionRef.current = data
+    updateRef.current = update
+  }, [data, update])
+
+  useEffect(() => {
+    setTokenPersister((tokens) => updateRef.current({ ...sessionRef.current, user: tokens }))
     return () => setTokenPersister(null)
-  }, [updateRef])
+  }, [])
 
   useEffect(() => {
     if (!accessToken) return
-    adoptSessionTokens(accessToken, refreshToken ?? '')
+    setAuthoritativeTokens(accessToken, refreshToken ?? '')
   }, [accessToken, refreshToken])
 }
 
@@ -138,24 +143,23 @@ export const useFetchWithRetry = () => {
       console.warn('⚠️ [CSRF] No CSRF token available — requests may fail')
     }
 
-    // CSRF is per attempt, the credential spans all of them. Nesting keeps a 401 after a
-    // CSRF refetch covered.
-    const send = async (tokens: TokenState) => {
-      headers.set('Authorization', `Bearer ${tokens.accessToken}`)
+    const post = async () =>
+      await fetch(requestUrl, {
+        ...init,
+        headers,
+        credentials: 'include',
+      })
 
-      const post = async () =>
-        await fetch(requestUrl, {
-          ...init,
-          headers,
-          credentials: 'include',
-        })
+    let csrfReplayed = false
 
-      const response = await post()
+    const makeRequest = async () => {
+      const attempt = await post()
 
-      if (!(await isCSRFRejection(response))) {
-        return response
+      if (csrfReplayed || !(await isCSRFRejection(attempt))) {
+        return attempt
       }
 
+      csrfReplayed = true
       invalidateCSRFToken()
 
       try {
@@ -165,15 +169,27 @@ export const useFetchWithRetry = () => {
         return await post()
       } catch (error) {
         console.error('❌ CSRF refetch after a rejected token failed:', error)
-        return response
+        return attempt
       }
     }
 
-    const response = await sendWithUnauthorizedRecovery(current, send)
+    let response = await makeRequest()
+
+    if (await reportSSORequirementFromResponse(response)) {
+      return response
+    }
+
+    const retryRefreshToken = getKnownTokens()?.refreshToken || refreshToken
+
+    if (response.status === 401 && retryRefreshToken && !getIsSessionInvalid()) {
+      const refreshed = await refreshTokens(retryRefreshToken)
+      headers.set('Authorization', `Bearer ${refreshed.accessToken}`)
+      response = await makeRequest()
+    }
 
     if (response.ok) {
       clearSSOReauthRequired()
-    } else if (response.status === 401) {
+    } else {
       await reportSSORequirementFromResponse(response)
     }
 

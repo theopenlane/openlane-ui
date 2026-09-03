@@ -1,4 +1,3 @@
-import { apiFetch } from '@/lib/auth/utils/api-fetch'
 import { type GetIntegrationsQuery } from '@repo/codegen/src/schema'
 import { countFinalizedIntegrationsForProvider, parseIntegrationErrorMessage, primaryCredentialRef, primaryCredentialSchema, resolveSchemaRoot, schemaHasProperties } from './utils'
 import { type IntegrationConfigurationResult, type IntegrationProvider, type StartIntegrationResponse } from './types'
@@ -88,7 +87,7 @@ export async function startIntegrationAuthFlow(provider: IntegrationProvider, op
     throw new Error(`${provider.displayName} does not support auth flows`)
   }
 
-  const response = await apiFetch('/api/integrations', {
+  const response = await fetch('/api/integrations', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -104,7 +103,7 @@ export async function startIntegrationAuthFlow(provider: IntegrationProvider, op
 }
 
 export async function saveIntegrationConfiguration(options: SaveIntegrationConfigurationOptions): Promise<IntegrationConfigurationResult> {
-  const response = await apiFetch('/api/integrations/config', {
+  const response = await fetch('/api/integrations/config', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

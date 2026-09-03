@@ -1,4 +1,3 @@
-import { apiFetch } from '@/lib/auth/utils/api-fetch'
 import { type InvoicesResponse, type OpenlaneProductsResponse, type Subscription, type SubscriptionSchedulesResponse, type UpcomingInvoiceResponse } from '@/types/stripe'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -8,7 +7,7 @@ export function useSchedulesQuery(customerId?: string | null) {
     queryKey: ['stripe-schedules', customerId],
     queryFn: async () => {
       if (!customerId) return []
-      const res = await apiFetch(`/api/stripe/schedules?customerId=${customerId}`)
+      const res = await fetch(`/api/stripe/schedules?customerId=${customerId}`)
       if (!res.ok) throw new Error('Failed to fetch schedules')
       return res.json()
     },
@@ -34,7 +33,7 @@ export function useUpcomingInvoiceQuery({ customerId, scheduleId, subscriptionId
         params.set('subscriptionId', subscriptionId)
       }
 
-      const res = await apiFetch(`/api/stripe/upcoming-invoice?${params.toString()}`)
+      const res = await fetch(`/api/stripe/upcoming-invoice?${params.toString()}`)
       if (!res.ok) {
         const error = await res.json().catch(() => ({}))
         throw new Error(error.error || 'Failed to fetch upcoming invoice')
@@ -49,7 +48,7 @@ export function useUpdateScheduleMutation() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ scheduleId, priceId, quantity = 1, action = 'subscribe' }: { scheduleId: string; priceId: string; quantity?: number; action?: 'subscribe' | 'unsubscribe' }) => {
-      const res = await apiFetch('/api/stripe/schedules/update', {
+      const res = await fetch('/api/stripe/schedules/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scheduleId, priceId, quantity, action }),
@@ -73,7 +72,7 @@ export function useSwitchIntervalMutation() {
 
   return useMutation({
     mutationFn: async ({ scheduleId, swaps }: { scheduleId: string; swaps: { from: string; to: string }[] }) => {
-      const res = await apiFetch('/api/stripe/schedules/switch', {
+      const res = await fetch('/api/stripe/schedules/switch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scheduleId, swaps }),
@@ -95,7 +94,7 @@ export function useCancelSubscriptionMutation() {
 
   return useMutation({
     mutationFn: async ({ scheduleId }: { scheduleId: string }) => {
-      const res = await apiFetch('/api/stripe/schedules/cancel', {
+      const res = await fetch('/api/stripe/schedules/cancel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scheduleId }),
@@ -117,7 +116,7 @@ export function useRenewSubscriptionMutation() {
 
   return useMutation({
     mutationFn: async ({ scheduleId }: { scheduleId: string }) => {
-      const res = await apiFetch('/api/stripe/schedules/renew', {
+      const res = await fetch('/api/stripe/schedules/renew', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scheduleId }),
@@ -164,7 +163,7 @@ export function useSubscriptionQuery(customerId?: string | null, subscriptionId?
       if (subscriptionId) {
         params.set('subscription', subscriptionId)
       }
-      const res = await apiFetch(`/api/stripe/subscription?${params.toString()}`)
+      const res = await fetch(`/api/stripe/subscription?${params.toString()}`)
       if (!res.ok) throw new Error('Failed to fetch subscription')
       return res.json() as Promise<Subscription | null>
     },
@@ -186,7 +185,7 @@ export function usePaymentMethodsQuery(customerId?: string | null) {
         }
       }
 
-      const res = await apiFetch(`/api/stripe/payment-methods?customerId=${customerId}`)
+      const res = await fetch(`/api/stripe/payment-methods?customerId=${customerId}`)
       if (!res.ok) {
         const error = await res.json().catch(() => ({}))
         throw new Error(error.error || 'Failed to fetch payment methods')
@@ -206,7 +205,7 @@ export function useInvoicesQuery(customerId?: string | null) {
         return { invoices: [] }
       }
 
-      const res = await apiFetch(`/api/stripe/invoices`, {
+      const res = await fetch(`/api/stripe/invoices`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ customerId }),
