@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/auth/utils/api-fetch'
 import { useQuery } from '@tanstack/react-query'
 import { jsonContentType } from '../auth/utils/secure-fetch'
 
@@ -23,7 +24,7 @@ export const useSnapshot = ({ url }: UseSnapshotParams) => {
     queryKey: ['snapshot', url],
     enabled: !!url,
     queryFn: async () => {
-      const response = await fetch('/api/snapshot', {
+      const response = await apiFetch('/api/snapshot', {
         method: 'POST',
         headers: {
           'Content-Type': jsonContentType,

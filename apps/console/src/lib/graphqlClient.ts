@@ -8,9 +8,10 @@ import { useSession } from 'next-auth/react'
 import { useCallback, useEffect, useRef } from 'react'
 import { fetchCSRFToken, invalidateCSRFToken, isCSRFRejection } from './auth/utils/secure-fetch'
 import { probeSession, SessionUnavailableError } from './auth/utils/session-health'
-import { recoverTokensAfterUnauthorized, refreshTokens, setTokenPersister } from './auth/utils/session-refresh'
+import { refreshTokens, setTokenPersister } from './auth/utils/session-refresh'
 import { clearSSOReauthRequired, getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
-import { getKnownTokens, getUsableTokens, observeSessionTokens, setAuthoritativeTokens, type TokenState } from './auth/utils/session-tokens'
+import { sendWithUnauthorizedRecovery } from './auth/utils/unauthorized-recovery'
+import { adoptSessionTokens, getUsableTokens, observeSessionTokens, type TokenState } from './auth/utils/session-tokens'
 
 export { getIsSessionInvalid, markSessionExpired } from './auth/utils/session-status'
 
@@ -30,25 +31,19 @@ const useSessionUpdateRef = () => {
 }
 
 export const useSessionTokenSync = () => {
-  const { data, update } = useSession()
-  const sessionRef = useRef(data)
-  const updateRef = useRef(update)
+  const { data } = useSession()
+  const updateRef = useSessionUpdateRef()
   const accessToken = data?.user?.accessToken
   const refreshToken = data?.user?.refreshToken
 
   useEffect(() => {
-    sessionRef.current = data
-    updateRef.current = update
-  }, [data, update])
-
-  useEffect(() => {
-    setTokenPersister((tokens) => updateRef.current({ ...sessionRef.current, user: tokens }))
+    setTokenPersister((tokens) => updateRef.current({ user: tokens }))
     return () => setTokenPersister(null)
-  }, [])
+  }, [updateRef])
 
   useEffect(() => {
     if (!accessToken) return
-    setAuthoritativeTokens(accessToken, refreshToken ?? '')
+    adoptSessionTokens(accessToken, refreshToken ?? '')
   }, [accessToken, refreshToken])
 }
 
@@ -143,47 +138,38 @@ export const useFetchWithRetry = () => {
       console.warn('⚠️ [CSRF] No CSRF token available — requests may fail')
     }
 
-    const makeRequest = async () =>
-      await fetch(requestUrl, {
-        ...init,
-        headers,
-        credentials: 'include',
-      })
+    // CSRF belongs to one attempt, the credential belongs to all of them — nesting this way
+    // keeps a 401 that follows a CSRF refetch covered.
+    const send = async (tokens: TokenState) => {
+      headers.set('Authorization', `Bearer ${tokens.accessToken}`)
 
-    let response = await makeRequest()
+      const post = async () =>
+        await fetch(requestUrl, {
+          ...init,
+          headers,
+          credentials: 'include',
+        })
 
-    if (await isCSRFRejection(response)) {
+      const response = await post()
+
+      if (!(await isCSRFRejection(response))) {
+        return response
+      }
+
       invalidateCSRFToken()
 
       try {
         const freshCSRFToken = await fetchCSRFToken()
         headers.set(csrfHeader, freshCSRFToken)
         headers.set('cookie', `${csrfCookieName}=${freshCSRFToken}`)
-        response = await makeRequest()
+        return await post()
       } catch (error) {
         console.error('❌ CSRF refetch after a rejected token failed:', error)
+        return response
       }
     }
 
-    // Retry a 401 only when recovery produced a different access token.
-    // recoverTokensAfterUnauthorized refuses to call /v1/refresh before the
-    // token is due, so an unrelated 401 no longer escalates into a logout.
-    if (response.status === 401 && !getIsSessionInvalid()) {
-      const knownTokens = getKnownTokens()
-      const hasNewerToken = !!knownTokens && knownTokens.accessToken !== current.accessToken
-      const ssoRequired = !hasNewerToken && (await reportSSORequirementFromResponse(response))
-
-      if (!ssoRequired) {
-        const recovered = await recoverTokensAfterUnauthorized(current)
-
-        // Re-check the latch: a concurrent expiry may have landed while recovery
-        // was in flight, and retrying then would be pointless.
-        if (recovered && !getIsSessionInvalid()) {
-          headers.set('Authorization', `Bearer ${recovered.accessToken}`)
-          response = await makeRequest()
-        }
-      }
-    }
+    const response = await sendWithUnauthorizedRecovery(current, send)
 
     if (response.ok) {
       clearSSOReauthRequired()

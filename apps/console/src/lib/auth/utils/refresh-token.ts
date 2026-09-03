@@ -1,3 +1,10 @@
+'use client'
+
+// Core only sends the renewed session cookie as a Set-Cookie on /v1/refresh, so refreshing
+// server-side strands it — that was #2238. 'use client' alone only fails at runtime;
+// 'client-only' throws under the react-server condition, so it fails the build.
+import 'client-only'
+
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { secureFetch } from './secure-fetch'
 import { parseRetryAfter } from './retry-after'
