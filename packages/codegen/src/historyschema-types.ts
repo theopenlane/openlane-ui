@@ -48,6 +48,8 @@ export interface Scalars {
   ExportMetadata: { input: any; output: any }
   /** The `ImplementationGuidance` scalar type that represents steps to take to implement a control; they can come directly from the control source or pulled from external sources */
   ImplementationGuidance: { input: any; output: any }
+  /** The `IntegrationHealth` scalar type records the runtime health state of an installed integration, including the unhealthy reason, per-operation failure reasons, and the last successful health check time */
+  IntegrationHealth: { input: any; output: any }
   /** A valid JSON string. */
   JSON: { input: any; output: any }
   /** JobCadence is when a job should be scheduled to run */
@@ -33144,6 +33146,8 @@ export interface Integration extends Node {
   family?: Maybe<Scalars['String']['output']>
   files: FileConnection
   findings: FindingConnection
+  /** runtime health state recorded by health checks and reconcile failures */
+  health?: Maybe<Scalars['IntegrationHealth']['output']>
   id: Scalars['ID']['output']
   /** the type of integration, such as communicattion, storage, SCM, etc. */
   integrationType?: Maybe<Scalars['String']['output']>
@@ -33403,7 +33407,7 @@ export interface IntegrationEdge {
 /** IntegrationIntegrationStatus is enum for the field status */
 export enum IntegrationIntegrationStatus {
   CONNECTED = 'CONNECTED',
-  DELETED = 'DELETED',
+  DEGRADED = 'DEGRADED',
   DISABLED = 'DISABLED',
   ERRORED = 'ERRORED',
   PENDING = 'PENDING',

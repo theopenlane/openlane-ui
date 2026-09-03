@@ -217481,6 +217481,18 @@
             "deprecationReason": null
           },
           {
+            "name": "health",
+            "description": "runtime health state recorded by health checks and reconcile failures",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "IntegrationHealth",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "id",
             "description": null,
             "args": [],
@@ -218600,6 +218612,17 @@
         "possibleTypes": null
       },
       {
+        "kind": "SCALAR",
+        "name": "IntegrationHealth",
+        "description": "The `IntegrationHealth` scalar type records the runtime health state of an installed integration, including the unhealthy reason, per-operation failure reasons, and the last successful health check time",
+        "isOneOf": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
         "kind": "ENUM",
         "name": "IntegrationIntegrationStatus",
         "description": "IntegrationIntegrationStatus is enum for the field status",
@@ -218615,7 +218638,7 @@
             "deprecationReason": null
           },
           {
-            "name": "DELETED",
+            "name": "DEGRADED",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null

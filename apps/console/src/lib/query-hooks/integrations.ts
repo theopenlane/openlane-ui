@@ -5,17 +5,21 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { reportSSORequirementFromResponse } from '@/lib/auth/utils/session-status'
 
+export type IntegrationConnectionHealth = {
+  healthy: boolean
+  reason?: string
+}
+
+export type IntegrationOperationHealth = {
+  name: string
+  healthy: boolean
+  reason?: string
+}
+
 export type IntegrationHealthResponse = {
   status?: string
-  connection?: {
-    healthy: boolean
-    reason?: string
-  }
-  operations?: {
-    name: string
-    healthy: boolean
-    reason?: string
-  }[]
+  connection?: IntegrationConnectionHealth
+  operations?: IntegrationOperationHealth[]
 }
 
 type DisconnectResponse = {
@@ -63,8 +67,11 @@ export const useIntegrationProviders = () => {
   return resp
 }
 
+const describeUnhealthyOperations = (operations: IntegrationOperationHealth[]): string => operations.map((operation) => `${operation.name}: ${operation.reason ?? 'unhealthy'}`).join('\n')
+
 export const useIntegrationHealthCheck = () => {
   const queryClient = useQueryClient()
+  const { successNotification, errorNotification } = useNotification()
 
   return useMutation<IntegrationHealthResponse, Error, string>({
     mutationFn: async (integrationId: string) => {
@@ -78,10 +85,39 @@ export const useIntegrationHealthCheck = () => {
       }
       return (await res.json()) as IntegrationHealthResponse
     },
-    onSettled: () => {
-      // the assessment records status and per-operation state; refresh the list so badges reflect it
-      queryClient.invalidateQueries({ queryKey: ['integrations'] })
+    onSuccess: (result) => {
+      if (result.connection && !result.connection.healthy) {
+        errorNotification({
+          title: 'Health Check Failed',
+          description: result.connection.reason || 'The integration connection is no longer valid.',
+        })
+
+        return
+      }
+
+      const unhealthyOperations = (result.operations ?? []).filter((operation) => !operation.healthy)
+
+      if (unhealthyOperations.length > 0) {
+        errorNotification({
+          title: 'Integration Degraded',
+          description: describeUnhealthyOperations(unhealthyOperations),
+        })
+
+        return
+      }
+
+      successNotification({
+        title: 'Health Check Passed',
+        description: 'The connection and all operations are healthy.',
+      })
     },
+    onError: (error) => {
+      errorNotification({
+        title: 'Health Check Failed',
+        description: error instanceof Error ? error.message : 'Unexpected error while checking integration health.',
+      })
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['integrations'] }),
   })
 }
 
