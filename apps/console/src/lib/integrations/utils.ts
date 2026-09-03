@@ -9,7 +9,7 @@ import {
   type RawDefinition,
 } from './types'
 
-const FINALIZED_INTEGRATION_STATUSES = new Set(['CONNECTED', 'DISABLED', 'ERRORED'])
+const FINALIZED_INTEGRATION_STATUSES = new Set(['CONNECTED', 'DEGRADED', 'DISABLED', 'ERRORED'])
 
 const PROVIDER_ICON_MAP: Record<string, string> = {
   Authentik: '/icons/brand/integrations/authentik.png',
@@ -63,10 +63,6 @@ const DOCUMENT_FOLDER_FIELD_CONFIG: Record<string, DocumentFolderFieldConfig> = 
 }
 
 type FinalizedIntegrationFields = Pick<IntegrationNode, 'definitionID' | 'definitionSlug' | 'family' | 'kind' | 'name' | 'status'>
-
-export const HEALTH_CHECK_OPERATION_NAME = 'HealthCheck'
-
-export const HEALTH_CHECK_STALE_TIME_MS = 2 * 60 * 1000
 
 export function normalizeDefinition(raw: RawDefinition): IntegrationProvider {
   const spec = raw.spec
@@ -373,10 +369,6 @@ export function resolveConnectionEntry(provider?: IntegrationProvider, credentia
   const activeCredentialRef = credentialRef ?? primaryCredentialRef(provider)
 
   return provider.connections?.find((connection) => connection.credentialRef === activeCredentialRef)
-}
-
-export function providerSupportsHealth(provider?: IntegrationProvider): boolean {
-  return Boolean(provider?.operations?.some((operation) => operation.name === HEALTH_CHECK_OPERATION_NAME))
 }
 
 export function disabledOperationConfigKeys(provider?: IntegrationProvider): Set<string> {

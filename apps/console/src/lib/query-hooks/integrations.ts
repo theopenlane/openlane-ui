@@ -1,13 +1,21 @@
 import { useNotification } from '@/hooks/useNotification'
-import { normalizeDefinition, parseIntegrationErrorMessage, HEALTH_CHECK_STALE_TIME_MS } from '@/lib/integrations/utils'
+import { normalizeDefinition, parseIntegrationErrorMessage } from '@/lib/integrations/utils'
 import { type IntegrationProvidersResponse, type RawProvidersResponse } from '@/lib/integrations/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { reportSSORequirementFromResponse } from '@/lib/auth/utils/session-status'
 
-type HealthResponse = {
+export type IntegrationHealthResponse = {
   status?: string
-  summary?: string
+  connection?: {
+    healthy: boolean
+    reason?: string
+  }
+  operations?: {
+    name: string
+    healthy: boolean
+    reason?: string
+  }[]
 }
 
 type DisconnectResponse = {
@@ -55,10 +63,11 @@ export const useIntegrationProviders = () => {
   return resp
 }
 
-export const useIntegrationHealth = (integrationId?: string, enabled = true) => {
-  return useQuery<HealthResponse>({
-    queryKey: ['integrationHealth', integrationId],
-    queryFn: async () => {
+export const useIntegrationHealthCheck = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<IntegrationHealthResponse, Error, string>({
+    mutationFn: async (integrationId: string) => {
       const res = await fetch('/api/integrations/health', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -67,12 +76,12 @@ export const useIntegrationHealth = (integrationId?: string, enabled = true) => 
       if (!res.ok) {
         throw new Error(await parseIntegrationErrorMessage(res))
       }
-      return (await res.json()) as HealthResponse
+      return (await res.json()) as IntegrationHealthResponse
     },
-    enabled: Boolean(integrationId && enabled),
-    staleTime: HEALTH_CHECK_STALE_TIME_MS,
-    retry: false,
-    refetchOnWindowFocus: false,
+    onSettled: () => {
+      // the assessment records status and per-operation state; refresh the list so badges reflect it
+      queryClient.invalidateQueries({ queryKey: ['integrations'] })
+    },
   })
 }
 

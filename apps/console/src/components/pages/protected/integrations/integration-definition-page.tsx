@@ -16,7 +16,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import IntegrationDefinitionSkeleton from './integration-definition-skeleton'
 import { Callout } from '@/components/shared/callout/callout'
 import { Button } from '@repo/ui/button'
-import { filterFinalizedIntegrationsForProvider, HEALTH_CHECK_OPERATION_NAME, resolveSchemaRoot } from '@/lib/integrations/utils'
+import { filterFinalizedIntegrationsForProvider, resolveSchemaRoot } from '@/lib/integrations/utils'
 import { providerSupportsDocumentSync, providerSupportsPrimaryDirectory } from '@/lib/integrations/flow'
 import { writePendingVendorIntegrationLink, clearPendingVendorIntegrationLink } from '@/lib/integrations/pending-vendor-link'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -80,7 +80,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     return filterFinalizedIntegrationsForProvider(integrations, provider)
   }, [data?.integrations?.edges, provider])
 
-  const visibleOperations = useMemo(() => (provider?.operations ?? []).filter((op) => op.name !== HEALTH_CHECK_OPERATION_NAME), [provider?.operations])
+  const visibleOperations = provider?.operations ?? []
 
   const supportsPrimaryDirectory = useMemo(() => providerSupportsPrimaryDirectory(provider), [provider])
   const supportsDocumentSync = useMemo(() => providerSupportsDocumentSync(provider), [provider])

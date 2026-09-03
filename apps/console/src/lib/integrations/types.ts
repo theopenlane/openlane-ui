@@ -6,6 +6,11 @@ export type IntegrationMetadata = {
   externalName?: string
   externalId?: string
   credentialRef?: string
+}
+
+export type IntegrationHealth = {
+  unhealthyReason?: string
+  unhealthyOperations?: Record<string, string>
   lastSuccessfulHealthCheck?: string
 }
 
@@ -80,7 +85,6 @@ export type IntegrationConnectionEntry = {
   name?: string
   description?: string
   credentialRefs?: string[]
-  validationOperation?: string
   auth?: unknown
   meta?: Record<string, IntegrationMetaEntry>
   disconnect?: {
