@@ -238,7 +238,7 @@ describe('refreshTokens', () => {
 
     expect(adopted.accessToken).not.toBe(due)
     expect(persisted).toHaveLength(2)
-    expect(errors).toContain('❌ Session update did not store the refreshed tokens after retrying')
+    expect(errors).toContain('❌ NextAuth session did not take the refreshed tokens after retrying')
   })
 
   test('a persister that lands on the second attempt is not reported as a failure', async () => {

@@ -1,3 +1,5 @@
+import type { Session } from 'next-auth'
+import { setTokenPersister } from './session-refresh'
 import { MAX_CREDENTIAL_RETRIES, noteAuthorizedResponse, sendWithUnauthorizedRecovery } from './unauthorized-recovery'
 import { invalidateCSRFToken } from './secure-fetch'
 import { resetSessionProbe } from './session-health'
@@ -88,11 +90,17 @@ beforeEach(() => {
   resetSessionProbe()
   resetSessionStatus()
   noteAuthorizedResponse()
+  setTokenPersister(null)
   calls = []
   refreshCount = 0
   dispatchedEvents.length = 0
   sessionTokens = null
   nextRefreshTokens = () => ({ accessToken: freshToken(`refreshed-${refreshCount}`), refreshToken: `r-refreshed-${refreshCount}` })
+})
+
+const sessionWith = ({ accessToken, refreshToken }: { accessToken: string; refreshToken: string }): Session => ({
+  expires: new Date(Date.now() + HOUR_S * 1000).toISOString(),
+  user: { id: 'u-1', accessToken, refreshToken, activeOrganizationId: 'org-1', image: '', isTfaEnabled: false, isOnboarding: false, modules: [] },
 })
 
 const probeCalls = () => calls.filter((c) => c.includes('/api/auth/session')).length
@@ -229,6 +237,40 @@ describe('sendWithUnauthorizedRecovery', () => {
     expect(seen).toHaveLength(1)
     expect(refreshCount).toBe(0)
     expect(probeCalls()).toBe(1)
+  })
+
+  // The bug this fix exists for: /api routes authenticate with the token in the NextAuth
+  // session, so repairing that session is progress even though our own token never changed.
+  // Recovery used to do the repair and then decline to retry.
+  test('retries after the NextAuth session is resynced, even with an unchanged token', async () => {
+    const fresh = freshToken('fresh')
+    const current = setAuthoritativeTokens(fresh, 'r-fresh')
+
+    // Behind and past its refreshAt, the way production looked: session stale, tab fresh.
+    sessionTokens = { accessToken: dueToken('stale'), refreshToken: 'r-stale' }
+
+    const persisted: Array<{ accessToken: string; refreshToken: string }> = []
+    setTokenPersister(async (tokens) => {
+      persisted.push(tokens)
+      return sessionWith(tokens)
+    })
+
+    const { send, seen } = recordingSend((attempt) => (attempt === 1 ? unauthorized() : ok()))
+
+    const originalWarn = console.warn
+    console.warn = () => {}
+
+    try {
+      const response = await sendWithUnauthorizedRecovery(current, send)
+
+      expect(response.status).toBe(200)
+      expect(seen).toHaveLength(2)
+      expect(seen[1].accessToken).toBe(fresh)
+      expect(persisted).toHaveLength(1)
+      expect(refreshCount).toBe(0)
+    } finally {
+      console.warn = originalWarn
+    }
   })
 })
 

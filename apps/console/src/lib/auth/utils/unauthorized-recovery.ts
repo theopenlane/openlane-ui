@@ -1,6 +1,6 @@
 'use client'
 
-import { recoverTokensAfterUnauthorized } from './session-refresh'
+import { getSessionSyncGeneration, recoverTokensAfterUnauthorized } from './session-refresh'
 import { getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './session-status'
 import type { TokenState } from './session-tokens'
 
@@ -30,8 +30,25 @@ const noteUnrecoverableUnauthorized = () => {
 
 type SendRequest = (tokens: TokenState) => Promise<Response>
 
-const nextCredential = async (failed: TokenState): Promise<TokenState | null> => {
-  return (await recoverTokensAfterUnauthorized(failed)) ?? (await recoverTokensAfterUnauthorized(failed, { forceRefresh: true }))
+interface Recovery {
+  tokens: TokenState | null
+  serverSessionResynced: boolean
+}
+
+const nextCredential = async (failed: TokenState): Promise<Recovery> => {
+  const syncedBefore = getSessionSyncGeneration()
+  const recovered = await recoverTokensAfterUnauthorized(failed)
+  const resynced = () => getSessionSyncGeneration() !== syncedBefore
+
+  // A resync is usually the repair an /api route needed, so stop here rather than spending a
+  // token rotation on top of it.
+  if (recovered || resynced()) {
+    return { tokens: recovered, serverSessionResynced: resynced() }
+  }
+
+  const forced = await recoverTokensAfterUnauthorized(failed, { forceRefresh: true })
+
+  return { tokens: forced, serverSessionResynced: resynced() }
 }
 
 // Split out so api-fetch can send first and only resolve a credential once it needs one.
@@ -46,14 +63,17 @@ export const recoverUnauthorized = async (unauthorized: Response, initial: Token
       return response
     }
 
-    const recovered = await nextCredential(tokens)
+    // Two things count as progress. A different access token is the obvious one. The other is
+    // the NextAuth session having taken a new pair: /api routes authenticate with that, not
+    // with our header, so a resync there is worth a retry even though our token is unchanged.
+    const { tokens: recovered, serverSessionResynced } = await nextCredential(tokens)
+    const gotNewToken = !!recovered && recovered.accessToken !== tokens.accessToken
 
-    // Nothing new to send, so a retry would just reproduce this 401.
-    if (!recovered || recovered.accessToken === tokens.accessToken) {
+    if (!gotNewToken && !serverSessionResynced) {
       break
     }
 
-    tokens = recovered
+    tokens = recovered ?? tokens
     credentialChanges += 1
 
     // A concurrent expiry may have landed while we were recovering.

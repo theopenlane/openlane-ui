@@ -4,6 +4,7 @@ import type { Session } from 'next-auth'
 import { fetchNewAccessToken } from './refresh-token'
 import { probeSession, resetSessionProbe, SessionUnavailableError } from './session-health'
 import { getIsSessionInvalid, notifySSOReauthRequired, notifySessionExpired } from './session-status'
+import { describeToken } from './token-claims'
 import {
   getKnownTokens,
   getRefreshTokenReadyAt,
@@ -73,14 +74,15 @@ const PERSIST_ATTEMPTS = 2
 
 let persistTokens: TokenPersister | null = null
 
+// Bumped whenever the NextAuth session actually takes a new pair. /api routes authenticate
+// with the token in that session, not the one on the request, so this is the only signal that
+// their credential moved — see recoverUnauthorized.
+let sessionSyncGeneration = 0
+
+export const getSessionSyncGeneration = () => sessionSyncGeneration
+
 export const setTokenPersister = (persist: TokenPersister | null) => {
   persistTokens = persist
-}
-
-const storesBothTokens = async (persist: TokenPersister, { accessToken, refreshToken }: PersistableTokens): Promise<boolean> => {
-  const persisted = await persist({ accessToken, refreshToken })
-
-  return persisted?.user?.accessToken === accessToken && persisted?.user?.refreshToken === refreshToken
 }
 
 const persistToSession = async (tokens: PersistableTokens): Promise<boolean> => {
@@ -98,21 +100,33 @@ const persistToSession = async (tokens: PersistableTokens): Promise<boolean> => 
     const isLastAttempt = attempt === PERSIST_ATTEMPTS
 
     try {
-      if (await storesBothTokens(persist, tokens)) {
+      const persisted = await persist(tokens)
+      const stored = persisted?.user?.accessToken === tokens.accessToken && persisted?.user?.refreshToken === tokens.refreshToken
+
+      if (stored) {
+        sessionSyncGeneration += 1
         resetSessionProbe()
+
         return true
       }
 
+      const detail = {
+        attempt,
+        wanted: describeToken(tokens.accessToken),
+        stored: describeToken(persisted?.user?.accessToken),
+        refreshTokenMatched: persisted?.user?.refreshToken === tokens.refreshToken,
+      }
+
       if (isLastAttempt) {
-        console.error('❌ Session update did not store the refreshed tokens after retrying')
+        console.error('❌ NextAuth session did not take the refreshed tokens after retrying', detail)
       } else {
-        console.warn('⚠️ Session update did not store the refreshed tokens, retrying')
+        console.warn('⚠️ NextAuth session did not take the refreshed tokens, retrying', detail)
       }
     } catch (error) {
       if (isLastAttempt) {
-        console.error('❌ Failed to persist refreshed session after retrying:', error)
+        console.error('❌ Failed to write the refreshed tokens to the NextAuth session after retrying', { attempt, wanted: describeToken(tokens.accessToken), error })
       } else {
-        console.warn('⚠️ Failed to persist refreshed session, retrying:', error)
+        console.warn('⚠️ Failed to write the refreshed tokens to the NextAuth session, retrying', { attempt, error })
       }
     }
   }
@@ -175,6 +189,9 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
     }
 
     if (cookieDiffers && known?.refreshToken && Date.now() < known.refreshAt) {
+      // The session cookie is behind what this tab holds. Push our pair back into it — /api
+      // routes read their credential from there, so this is the repair they need.
+      console.warn('⚠️ NextAuth session is behind this tab, resyncing', { session: describeToken(cookieAccessToken), tab: describeToken(known.accessToken) })
       await persistToSession(known)
     }
 
