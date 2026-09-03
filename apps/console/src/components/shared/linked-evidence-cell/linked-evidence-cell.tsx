@@ -1,6 +1,6 @@
 import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { getEvidenceStatusStyle } from '@/components/shared/enum-mapper/evidence-enum'
+import { EvidenceStatusBadge } from '@/components/shared/enum-mapper/evidence-enum'
 import { type EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
 
 type EvidenceRef = { id: string; name: string; status?: string | null }
@@ -10,14 +10,16 @@ type LinkedEvidenceCellProps = {
   stopPropagation?: boolean
 }
 
-const EvidenceBadge = ({ item }: { item: EvidenceRef }) => {
-  const style = item.status ? getEvidenceStatusStyle(item.status as EvidenceEvidenceStatus) : undefined
-  return (
-    <Badge variant="secondary" className="text-xs font-normal" style={style ? { backgroundColor: style.bg, color: style.color } : undefined}>
+const EvidenceBadge = ({ item }: { item: EvidenceRef }) =>
+  item.status ? (
+    <EvidenceStatusBadge status={item.status as EvidenceEvidenceStatus} className="font-normal">
+      {item.name}
+    </EvidenceStatusBadge>
+  ) : (
+    <Badge variant="secondary" className="text-xs font-normal">
       {item.name}
     </Badge>
   )
-}
 
 const LinkedEvidenceCell = ({ evidenceRefs = [], stopPropagation = false }: LinkedEvidenceCellProps) => {
   const handleClick = stopPropagation ? (e: React.MouseEvent) => e.stopPropagation() : undefined

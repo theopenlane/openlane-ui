@@ -1,11 +1,12 @@
 'use client'
 
 import React from 'react'
-import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
-import { Badge } from '@repo/ui/badge'
+import { type EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
+import { Badge, badgeVariants } from '@repo/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { getEvidenceStatusStyle } from '@/components/shared/enum-mapper/evidence-enum'
-import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { cn } from '@repo/ui/lib/utils'
+import { EvidenceStatusBadge, EvidenceStatusOptions, getEvidenceStatusStyle } from '@/components/shared/enum-mapper/evidence-enum'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type TEvidenceStatusChipSelectProps = {
   status?: EvidenceEvidenceStatus | null
@@ -13,16 +14,14 @@ type TEvidenceStatusChipSelectProps = {
   onChange: (status: EvidenceEvidenceStatus) => void
 }
 
-const statusOptions = enumToOptions(EvidenceEvidenceStatus)
-
 const EvidenceStatusChipSelect: React.FC<TEvidenceStatusChipSelectProps> = ({ status, editAllowed, onChange }) => {
-  const style = status ? getEvidenceStatusStyle(status) : undefined
-  const chipStyle = style ? { backgroundColor: style.bg, color: style.color } : undefined
-  const label = getEnumLabel(status ?? undefined) || 'No status'
+  const label = status ? getEnumLabel(status) : 'No status'
 
   if (!editAllowed) {
-    return (
-      <Badge variant="secondary" className="text-xs font-medium" style={chipStyle}>
+    return status ? (
+      <EvidenceStatusBadge status={status} />
+    ) : (
+      <Badge variant="secondary" className="font-medium">
         {label}
       </Badge>
     )
@@ -32,15 +31,15 @@ const EvidenceStatusChipSelect: React.FC<TEvidenceStatusChipSelectProps> = ({ st
     <Select value={status ?? undefined} onValueChange={(value) => onChange(value as EvidenceEvidenceStatus)}>
       <SelectTrigger
         aria-label="Evidence status"
-        className="w-fit h-auto gap-1 rounded-full border-transparent px-2.5 py-0.5 text-xs font-medium shadow-none cursor-pointer focus:ring-0 [&>svg]:opacity-100"
-        style={chipStyle}
+        className={cn(badgeVariants({ variant: 'secondary' }), 'w-fit h-auto gap-1 font-medium shadow-none cursor-pointer focus:ring-0 [&>svg]:opacity-100')}
+        style={status ? getEvidenceStatusStyle(status) : undefined}
       >
         {label}
       </SelectTrigger>
       <SelectContent>
-        {statusOptions.map((option) => (
+        {EvidenceStatusOptions.map((option) => (
           <SelectItem key={option.value} value={option.value}>
-            {getEnumLabel(option.value)}
+            {option.label}
           </SelectItem>
         ))}
       </SelectContent>

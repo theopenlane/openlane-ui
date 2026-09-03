@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useGetFirstFiveEvidencesByStatus } from '@/lib/graphql-hooks/evidence.ts'
 import { CircleQuestionMark, Fingerprint, Folder } from 'lucide-react'
 import { type TChartData } from '@/components/pages/protected/evidence/chart/evidence-summary-card.tsx'
-import { EvidenceStatusColors } from '@/components/shared/enum-mapper/evidence-enum.tsx'
+import { EvidenceStatusBadge } from '@/components/shared/enum-mapper/evidence-enum.tsx'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { type EvidenceWhereInput } from '@repo/codegen/src/schema'
 import { saveFilters, type TFilterStateFor } from '@/components/shared/table-filter/filter-storage.ts'
@@ -24,9 +23,7 @@ const EvidenceStatusChip: React.FC<TEvidenceStatusChipProps> = ({ programId, dat
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTrigger asChild>
-          <Badge className="text-white px-2 py-1 text-xs font-normal cursor-pointer" style={{ backgroundColor: EvidenceStatusColors[data.status] }}>
-            {data.name}
-          </Badge>
+          <EvidenceStatusBadge status={data.status} className="cursor-pointer" />
         </TooltipTrigger>
 
         {tooltipOpen && (

@@ -8,8 +8,7 @@ import { Button } from '@repo/ui/button'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip.tsx'
 import { Badge } from '@repo/ui/badge'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { EvidenceIconMapper, getEvidenceStatusLabel } from '@/components/shared/enum-mapper/evidence-enum'
+import { EvidenceStatusIconLabel } from '@/components/shared/enum-mapper/evidence-enum'
 import EvidenceFileChip from '@/components/pages/protected/evidence/table/evidence-file-chip.tsx'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
@@ -104,17 +103,7 @@ export const useGetEvidenceColumns = ({ userMap, tokenMap, selectedEvidence, set
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }) => {
-        const status = row.original.status
-        if (!status) return '-'
-
-        return (
-          <div className="flex items-center space-x-2">
-            {EvidenceIconMapper[status]}
-            <TruncatedCell tooltipContent={getEnumLabel(status)}>{getEvidenceStatusLabel(status)}</TruncatedCell>
-          </div>
-        )
-      },
+      cell: ({ row }) => <EvidenceStatusIconLabel status={row.original.status} />,
       minSize: 130,
       size: 150,
     },
