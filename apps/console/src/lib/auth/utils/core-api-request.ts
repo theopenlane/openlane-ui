@@ -4,6 +4,7 @@ import { csrfCookieName, openlaneAPIUrl } from '@repo/dally/auth'
 import { auth } from '../auth'
 import { secureFetch } from './secure-fetch'
 import { parseSSORequirement, type SSOUnauthorizedBody } from './sso-required'
+import { describeToken, sameToken } from './token-claims'
 
 export const HTTP_METHODS = {
   GET: 'GET',
@@ -48,6 +49,16 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
   }
 
   const accessToken = session.user.accessToken
+  // This route authenticates with the token from the NextAuth cookie, NOT the one the caller
+  // sent. When those differ the caller is usually ahead of us, which is what a stale-session
+  // 401 looks like — so record both.
+  const callerBearer = req?.headers.get('authorization')?.replace(/^Bearer /i, '')
+  const credential = {
+    used: describeToken(accessToken),
+    callerSentBearer: !!callerBearer,
+    callerBearerMatches: sameToken(callerBearer, accessToken),
+    callerBearer: callerBearer && !sameToken(callerBearer, accessToken) ? describeToken(callerBearer) : undefined,
+  }
   let payload: unknown
   if (method !== HTTP_METHODS.GET && req) {
     try {
@@ -131,9 +142,22 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
         userId: session.user.userId,
         durationMs: Date.now() - startedAt,
         hasCsrfToken: !!csrfToken,
+        credential,
         body: truncateForLog(upstreamBody),
       }),
     )
+
+    if (response.status === 401 && credential.used?.expired && credential.callerBearer && !credential.callerBearer.expired) {
+      console.error(
+        '[coreAPIRequest] the NextAuth session is behind the browser',
+        JSON.stringify({
+          upstreamUrl,
+          sessionToken: credential.used,
+          callerToken: credential.callerBearer,
+          note: 'the caller had a valid token but this route uses the one in the session cookie, so the write-back from the last refresh did not land',
+        }),
+      )
+    }
 
     const unauthorizedBody = response.status === 401 ? parseUnauthorizedBody(upstreamBody) : null
 

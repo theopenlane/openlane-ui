@@ -12,6 +12,12 @@ let ssoRequirement: SSORequirement | null = null
 
 export const getIsSessionInvalid = () => isSessionInvalid
 
+// Both flags latch for the life of the module, which is right for the app but untestable.
+export const resetSessionStatus = () => {
+  isSessionInvalid = false
+  ssoRequirement = null
+}
+
 export const markSessionExpired = () => {
   isSessionInvalid = true
   ssoRequirement = null

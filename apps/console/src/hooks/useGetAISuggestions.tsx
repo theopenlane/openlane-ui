@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/auth/utils/api-fetch'
 import { type ChatMessage } from '@repo/ui/components/editor/use-chat.js'
 import { useState } from 'react'
 
@@ -74,7 +75,7 @@ export function useAISuggestions() {
     setError(null)
 
     try {
-      const response = await fetch('/api/suggestions', {
+      const response = await apiFetch('/api/suggestions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

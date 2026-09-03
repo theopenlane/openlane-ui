@@ -1,3 +1,4 @@
+import { apiFetch } from '@/lib/auth/utils/api-fetch'
 import { useNotification } from '@/hooks/useNotification'
 import { normalizeDefinition, parseIntegrationErrorMessage, HEALTH_CHECK_STALE_TIME_MS } from '@/lib/integrations/utils'
 import { type IntegrationProvidersResponse, type RawProvidersResponse } from '@/lib/integrations/types'
@@ -23,7 +24,7 @@ export const useIntegrationProviders = () => {
   const resp = useQuery<IntegrationProvidersResponse>({
     queryKey: ['integrationProviders'],
     queryFn: async () => {
-      const res = await fetch('/api/integrations/providers', {
+      const res = await apiFetch('/api/integrations/providers', {
         method: 'GET',
       })
 
@@ -59,7 +60,7 @@ export const useIntegrationHealth = (integrationId?: string, enabled = true) => 
   return useQuery<HealthResponse>({
     queryKey: ['integrationHealth', integrationId],
     queryFn: async () => {
-      const res = await fetch('/api/integrations/health', {
+      const res = await apiFetch('/api/integrations/health', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ integrationId }),
@@ -82,7 +83,7 @@ export const useDisconnectIntegration = () => {
 
   return useMutation({
     mutationFn: async (integrationId: string) => {
-      const response = await fetch('/api/integrations/disconnect', {
+      const response = await apiFetch('/api/integrations/disconnect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ integrationId }),

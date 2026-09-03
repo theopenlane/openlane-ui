@@ -1,3 +1,9 @@
+'use client'
+
+// Never refresh from the server: core sends the renewed session cookie as a Set-Cookie, so a
+// server-side call drops it.
+import 'client-only'
+
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { secureFetch } from './secure-fetch'
 import { parseRetryAfter } from './retry-after'
