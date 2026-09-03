@@ -3,6 +3,7 @@
 import { resolveCurrentTokens } from './session-refresh'
 import { getIsSessionInvalid } from './session-status'
 import { getTokenGeneration, getUsableTokens, type TokenState } from './session-tokens'
+import { describeToken } from './token-claims'
 import { noteAuthorizedResponse, recoverUnauthorized } from './unauthorized-recovery'
 
 const isOwnApiRoute = (input: RequestInfo | URL): boolean => {
@@ -41,12 +42,15 @@ export const apiFetch = async (input: RequestInfo | URL, init?: RequestInit): Pr
     return await fetch(input, { credentials: 'include', ...init, headers })
   }
 
-  const response = await send(getUsableTokens())
+  const initial = getUsableTokens()
+  const response = await send(initial)
 
   if (response.status !== 401) {
     noteAuthorizedResponse()
     return response
   }
+
+  console.warn('⚠️ /api request came back 401', { at: new Date().toISOString(), url: String(input), sentBearer: attachBearer && !!initial, bearer: describeToken(initial?.accessToken) })
 
   if (getIsSessionInvalid()) {
     return response

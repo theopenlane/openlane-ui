@@ -185,6 +185,7 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
     if (cookieOutlivesKnown) {
       recordRefreshSuccess()
       const adopted = setAuthoritativeTokens(cookieAccessToken, cookieRefreshToken)
+      console.info('🔄 adopted a newer token from the session', { at: new Date().toISOString(), from: describeToken(known?.accessToken), to: describeToken(adopted.accessToken) })
       await persistToSession(adopted)
       return adopted
     }
@@ -238,6 +239,7 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
     }
 
     const adopted = setAuthoritativeTokens(result.tokens.accessToken, result.tokens.refreshToken)
+    console.info('🔄 refreshed over the network', { at: new Date().toISOString(), from: describeToken(refreshCandidate?.accessToken), to: describeToken(adopted.accessToken) })
 
     await persistToSession(adopted)
 
