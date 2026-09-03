@@ -3,8 +3,8 @@ import { coreAPIRequest, HTTP_METHODS } from '@/lib/auth/utils/core-api-request'
 
 const ROUTE = '/v1/account/organization-roles'
 
-export async function GET() {
-  return coreAPIRequest(ROUTE, HTTP_METHODS.GET, undefined, 'Failed to fetch organization roles')
+export async function GET(req: NextRequest) {
+  return coreAPIRequest(ROUTE, HTTP_METHODS.GET, req, 'Failed to fetch organization roles')
 }
 
 export async function POST(req: NextRequest) {

@@ -10,6 +10,7 @@ declare module 'next-auth' {
       accessToken: string
       refreshToken: string
       activeOrganizationId: string
+      userId?: string | null
       image: string
       isTfaEnabled: boolean
       isOnboarding: boolean

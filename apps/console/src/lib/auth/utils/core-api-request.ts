@@ -4,7 +4,7 @@ import { csrfCookieName, openlaneAPIUrl } from '@repo/dally/auth'
 import { auth } from '../auth'
 import { secureFetch } from './secure-fetch'
 import { parseSSORequirement, type SSOUnauthorizedBody } from './sso-required'
-import { describeToken, sameToken } from './token-claims'
+import { describeCredential, selectCoreCredential } from './select-core-credential'
 
 export const HTTP_METHODS = {
   GET: 'GET',
@@ -36,11 +36,18 @@ const parseUnauthorizedBody = (body: string): SSOUnauthorizedBody | null => {
   }
 }
 
-// coreAPIRequest is a wrapper to make API requests to the core REST API that returns the payload
-export async function coreAPIRequest(route: string, method: HttpMethod, req?: NextRequest, errorMsg?: string): Promise<NextResponse> {
+// coreAPIRequest is a wrapper to make API requests to the core REST API that returns the payload.
+// The request is required so every route, GET included, hands over the caller's Authorization.
+// See selectCoreCredential for why that header beats the token in the session cookie.
+export async function coreAPIRequest(route: string, method: HttpMethod, req: NextRequest, errorMsg?: string): Promise<NextResponse> {
   const session = await auth()
+  const authorization = req.headers.get('authorization')
+  const selection = selectCoreCredential(session, authorization)
+  const credential = describeCredential(session, authorization, selection)
 
-  if (!session?.user?.accessToken) {
+  if (selection.kind === 'rejected') {
+    console.error('[coreAPIRequest] refusing to forward a credential', JSON.stringify({ route, method, userId: session?.user?.userId, credential }))
+
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -48,19 +55,9 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
     return NextResponse.json({ error: 'Bad Request' }, { status: 400 })
   }
 
-  const accessToken = session.user.accessToken
-  // This route authenticates with the token from the NextAuth cookie, NOT the one the caller
-  // sent. When those differ the caller is usually ahead of us, which is what a stale-session
-  // 401 looks like — so record both.
-  const callerBearer = req?.headers.get('authorization')?.replace(/^Bearer /i, '')
-  const credential = {
-    used: describeToken(accessToken),
-    callerSentBearer: !!callerBearer,
-    callerBearerMatches: sameToken(callerBearer, accessToken),
-    callerBearer: callerBearer && !sameToken(callerBearer, accessToken) ? describeToken(callerBearer) : undefined,
-  }
+  const accessToken = selection.accessToken
   let payload: unknown
-  if (method !== HTTP_METHODS.GET && req) {
+  if (method !== HTTP_METHODS.GET) {
     try {
       payload = await req.json()
     } catch {
@@ -98,9 +95,10 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
       JSON.stringify({
         upstreamUrl,
         method,
-        userId: session.user.userId,
+        userId: session?.user?.userId,
         durationMs: Date.now() - startedAt,
         hasCsrfToken: !!csrfToken,
+        credential,
         error: error instanceof Error ? error.message : String(error),
       }),
     )
@@ -118,7 +116,7 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
         location: response.headers.get('location'),
         upstreamRequestId: response.headers.get('x-request-id'),
         cfRay: response.headers.get('cf-ray'),
-        userId: session.user.userId,
+        userId: session?.user?.userId,
         durationMs: Date.now() - startedAt,
       }),
     )
@@ -139,7 +137,7 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
         contentType: response.headers.get('content-type'),
         upstreamRequestId: response.headers.get('x-request-id'),
         cfRay: response.headers.get('cf-ray'),
-        userId: session.user.userId,
+        userId: session?.user?.userId,
         durationMs: Date.now() - startedAt,
         hasCsrfToken: !!csrfToken,
         credential,
@@ -147,15 +145,10 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
       }),
     )
 
-    if (response.status === 401 && credential.used?.expired && credential.callerBearer && !credential.callerBearer.expired) {
+    if (response.status === 401 && selection.kind === 'session' && credential.session?.expired) {
       console.error(
-        '[coreAPIRequest] the NextAuth session is behind the browser',
-        JSON.stringify({
-          upstreamUrl,
-          sessionToken: credential.used,
-          callerToken: credential.callerBearer,
-          note: 'the caller had a valid token but this route uses the one in the session cookie, so the write-back from the last refresh did not land',
-        }),
+        '[coreAPIRequest] the NextAuth session token is expired and the caller sent no bearer to use instead',
+        JSON.stringify({ upstreamUrl, sessionToken: credential.session, note: 'the write-back from the last browser refresh did not land in the session cookie' }),
       )
     }
 

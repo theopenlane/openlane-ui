@@ -3,6 +3,7 @@
 import { getSessionSyncGeneration, recoverTokensAfterUnauthorized } from './session-refresh'
 import { getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './session-status'
 import type { TokenState } from './session-tokens'
+import { describeToken } from './token-claims'
 
 // Shared 401 policy for every transport. Retrying with the same credential just gives you the
 // same 401, so a retry needs one that actually changed: take one another request installed,
@@ -72,6 +73,15 @@ export const recoverUnauthorized = async (unauthorized: Response, initial: Token
     if (!gotNewToken && !serverSessionResynced) {
       break
     }
+
+    console.info('🔁 401 recovery', {
+      at: new Date().toISOString(),
+      attempt: credentialChanges + 1,
+      gotNewToken,
+      serverSessionResynced,
+      from: describeToken(tokens.accessToken),
+      to: describeToken(recovered?.accessToken ?? tokens.accessToken),
+    })
 
     tokens = recovered ?? tokens
     credentialChanges += 1

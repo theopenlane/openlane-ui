@@ -1,3 +1,5 @@
+import { apiFetch } from '@/lib/auth/utils/api-fetch'
+import { setAuthoritativeTokens } from '@/lib/auth/utils/session-tokens'
 import { type AuthenticationResponseJSON, type RegistrationResponseJSON } from '@simplewebauthn/types'
 import useSWR from 'swr'
 
@@ -208,7 +210,7 @@ export function handleSSORedirect(response: { needs_sso?: boolean; redirect_uri?
 }
 
 export async function switchOrganization<T>(arg: SwitchOrganization) {
-  const fData: HttpResponse<T> = await fetch('/api/auth/switch-organization', {
+  const fData: HttpResponse<T> = await apiFetch('/api/auth/switch-organization', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -218,6 +220,13 @@ export async function switchOrganization<T>(arg: SwitchOrganization) {
   try {
     const fDataMessage = await fData.json()
     fData.message = fDataMessage.error
+
+    // Install the new org's pair before the caller invalidates caches or navigates, or a
+    // request fired in that gap still carries the old org's token.
+    if (fData.ok && typeof fDataMessage.access_token === 'string' && fDataMessage.access_token) {
+      setAuthoritativeTokens(fDataMessage.access_token, typeof fDataMessage.refresh_token === 'string' ? fDataMessage.refresh_token : '')
+    }
+
     return fDataMessage
   } catch {
     return { message: 'error' }
