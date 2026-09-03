@@ -198,9 +198,8 @@ describe('refreshTokens', () => {
     resetSessionStatus()
   })
 
-  // Only safe while the browser is the sole producer of token pairs — every other producer
-  // installs the session cookie itself. Reintroduce a server-side refresh and this adopts a
-  // pair whose Set-Cookie went nowhere. refresh-token.ts imports 'client-only' to stop that.
+  // Only safe while the browser is the only thing producing token pairs. Bring back a
+  // server-side refresh and this happily adopts a pair whose Set-Cookie went nowhere.
   test('adopts a strictly newer probed pair without touching /v1/refresh', async () => {
     setAuthoritativeTokens(dueToken('known'), 'r-known')
     const newer = freshToken('probed')

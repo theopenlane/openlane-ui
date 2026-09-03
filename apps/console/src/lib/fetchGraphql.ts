@@ -77,8 +77,7 @@ export const fetchGraphQLWithUpload = async <TResult, TVariables extends object>
 
   const endpoint = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
 
-  // Same layering as the GraphQL client. Before this, an upload that outlived its session
-  // cookie surfaced the 401 as an unreadable JSON parse error.
+  // Same layering as the GraphQL client. Uploads used to surface a 401 as a JSON parse error.
   const send = async (attemptTokens: TokenState) => {
     headers['Authorization'] = `Bearer ${attemptTokens.accessToken}`
 

@@ -5,14 +5,11 @@ import { getIsSessionInvalid } from './session-status'
 import { getTokenGeneration } from './session-tokens'
 import { noteAuthorizedResponse, recoverUnauthorized } from './unauthorized-recovery'
 
-/**
- * fetch for our own /api routes, with the same 401 recovery the GraphQL transports use.
- * These handlers read the token from the server session via auth(), not from a header, so
- * the credential that has to move is the NextAuth session — a browser refresh writes its
- * new pair back there, which is why gating the retry on our own token changing works.
- *
- * Nothing is resolved until a 401 actually happens; the happy path is a plain fetch.
- */
+// fetch for our own /api routes. They read the token from the server session via auth(), not
+// from a header, so there's nothing to put on the request — what has to move is the NextAuth
+// session, and a browser refresh writes its new pair back there. Nothing is resolved until a
+// 401 actually happens; resolving up front would put a probe and a possible logout in front of
+// every call, including ones made while a session is still being set up.
 export const apiFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
   const send = async () => await fetch(input, { credentials: 'include', ...init })
   const response = await send()
@@ -30,12 +27,12 @@ export const apiFetch = async (input: RequestInfo | URL, init?: RequestInit): Pr
     const generation = getTokenGeneration()
     const tokens = await resolveCurrentTokens()
 
-    // Resolving may itself have refreshed a due pair, so this 401 predates it — retry first.
+    // Resolving may have refreshed a due pair, so this 401 predates it. Retry before giving up.
     const retried = generation === getTokenGeneration() ? response : await send()
 
     return retried.status === 401 ? await recoverUnauthorized(retried, tokens, send) : retried
   } catch (error) {
-    // No credential at all. Callers branch on res.ok, so hand back the 401 instead of throwing.
+    // No credential at all. Callers check res.ok, so don't turn this into a throwing API.
     console.error('❌ Could not resolve a credential to retry an unauthorized request:', error)
     return response
   }

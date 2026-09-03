@@ -213,8 +213,8 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
 
     recordRefreshSuccess()
 
-    // A refresh already in flight when the session ended must not commit, or logout hands
-    // the browser live credentials and a brand new core session on its way out.
+    // Don't commit a refresh that was already in flight when the session ended, or logout
+    // hands the browser fresh credentials and a new core session on its way out.
     if (getIsSessionInvalid()) {
       throw new Error('Session expired')
     }
@@ -227,10 +227,8 @@ export const refreshTokens = async (refreshToken: string, { networkOnlyIfDue = f
   })
 }
 
-/**
- * The token a request starts from, cheapest source first: memory, then a refresh, then the
- * NextAuth session. Throws rather than handing back something unusable.
- */
+// Cheapest source first: memory, then a refresh, then the NextAuth session. Throws rather than
+// handing back something unusable.
 export const resolveCurrentTokens = async (): Promise<TokenState> => {
   if (getIsSessionInvalid()) {
     throw new Error('Session expired')
@@ -273,14 +271,11 @@ export const resolveCurrentTokens = async (): Promise<TokenState> => {
   return observed
 }
 
-/**
- * Recover from a 401, or return null when nothing changed and the caller should surface it.
- *
- * Refuses to refresh before the token is due by default, since core's `nbf` makes an early
- * refresh a guaranteed failure. `forceRefresh` lifts only that gate: the Openlane session
- * cookie expires on its own schedule and a browser /v1/refresh is the only thing that
- * reinstalls it, so a 401 on a still-fresh token is the evidence that promotes it to due.
- */
+// Returns the tokens to retry with, or null if nothing changed and the caller should just
+// surface the 401. Won't refresh before the token is due by default — core's nbf makes that a
+// guaranteed failure. forceRefresh lifts only that gate, for the one case nothing else fixes:
+// the session cookie died while the token is still fresh, and only a browser /v1/refresh
+// brings it back.
 export const recoverTokensAfterUnauthorized = async (failedTokens: TokenState, { forceRefresh = false }: RecoveryOptions = {}): Promise<TokenState | null> => {
   const known = getKnownTokens()
 
@@ -294,8 +289,8 @@ export const recoverTokensAfterUnauthorized = async (failedTokens: TokenState, {
     return null
   }
 
-  // Before `nbf` this cannot succeed, and finding that out costs a probe under the refresh
-  // lock — a burst of 401s would serialize into a convoy. Decline here instead.
+  // Too early to succeed, and finding that out inside refreshTokens costs a probe under the
+  // lock — a burst of 401s would queue up behind each other.
   if (forceRefresh) {
     const readyAt = getRefreshTokenReadyAt(refreshToken)
 

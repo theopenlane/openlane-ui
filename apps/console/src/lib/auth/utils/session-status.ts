@@ -12,8 +12,7 @@ let ssoRequirement: SSORequirement | null = null
 
 export const getIsSessionInvalid = () => isSessionInvalid
 
-// Inverse of markSessionExpired. Both flags latch for the life of the module, which is right
-// for the app but leaves nothing testable without this. Mirrors resetSessionProbe.
+// Both flags latch for the life of the module, which is right for the app but untestable.
 export const resetSessionStatus = () => {
   isSessionInvalid = false
   ssoRequirement = null

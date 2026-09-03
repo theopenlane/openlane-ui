@@ -138,8 +138,8 @@ export const useFetchWithRetry = () => {
       console.warn('⚠️ [CSRF] No CSRF token available — requests may fail')
     }
 
-    // CSRF belongs to one attempt, the credential belongs to all of them — nesting this way
-    // keeps a 401 that follows a CSRF refetch covered.
+    // CSRF is per attempt, the credential spans all of them. Nesting keeps a 401 after a
+    // CSRF refetch covered.
     const send = async (tokens: TokenState) => {
       headers.set('Authorization', `Bearer ${tokens.accessToken}`)
 

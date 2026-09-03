@@ -4,8 +4,7 @@ import { resetSessionProbe } from './session-health'
 import { markSessionExpired, resetSessionStatus, SESSION_EXPIRED_EVENT } from './session-status'
 import { clearTokens, setAuthoritativeTokens, type TokenState } from './session-tokens'
 
-// Three rungs: adopt a token someone else installed, refresh when due, force a refresh when
-// not. The third is the only repair for a session cookie that outlived the access token.
+// Three rungs: take a token someone else installed, refresh when due, force a refresh when not.
 
 const HOUR_S = 60 * 60
 
@@ -42,7 +41,7 @@ let calls: string[] = []
 let refreshCount = 0
 let nextRefreshTokens: () => { accessToken: string; refreshToken: string }
 
-// Both expiry and SSO re-auth dispatch here, so assert on the event name, not the count.
+// Expiry and SSO re-auth both dispatch here, so assert on the name, not the count.
 const dispatchedEvents: string[] = []
 
 globals.navigator = { locks: locksStub }
@@ -79,7 +78,7 @@ afterAll(() => {
   globals.window = originalWindow
   globals.fetch = originalFetch
 
-  // Defining `window` lets fetchCSRFToken cache; secure-fetch.test.ts asserts on that cache.
+  // Defining window lets fetchCSRFToken cache, and secure-fetch.test.ts asserts on that.
   invalidateCSRFToken()
 })
 
@@ -148,8 +147,7 @@ describe('sendWithUnauthorizedRecovery', () => {
     expect(refreshCount).toBe(0)
   })
 
-  // The regression this module exists for: the token is nowhere near due, so recovery used
-  // to decline and the 401 was permanent.
+  // The regression this exists for: token nowhere near due, so recovery used to decline.
   test('forces a refresh for a 401 while the access token is still fresh', async () => {
     const access = freshToken('fresh')
     const current = setAuthoritativeTokens(access, 'r-fresh')
@@ -194,8 +192,7 @@ describe('sendWithUnauthorizedRecovery', () => {
     expect(dispatchedEvents).not.toContain(SESSION_EXPIRED_EVENT)
   })
 
-  // Core's `nbf` means one request can't mint five replacements on its own, so this count is
-  // reached by concurrent churn, not a dead session. Logging out on it would be wrong.
+  // Reached by concurrent churn, not a dead session — don't log anyone out on it.
   test('bounds the retries and surfaces the 401 without ending the session', async () => {
     const access = dueToken('due')
     const current = setAuthoritativeTokens(access, 'r-due')
@@ -217,8 +214,7 @@ describe('sendWithUnauthorizedRecovery', () => {
     }
   })
 
-  // Finding out it's too early costs a probe under the refresh lock, which a burst of 401s
-  // would serialize into a convoy.
+  // Finding out it's too early costs a probe under the lock, so don't even try.
   test('does not attempt a forced refresh before the refresh token is valid', async () => {
     const access = freshToken('fresh')
     const notYetValid = `${b64({ alg: 'none' })}.${b64({ nbf: Math.floor(Date.now() / 1000) + HOUR_S })}.`

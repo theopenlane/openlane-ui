@@ -4,8 +4,7 @@ import { resetSessionProbe } from './session-health'
 import { resetSessionStatus } from './session-status'
 import { clearTokens, setAuthoritativeTokens } from './session-tokens'
 
-// /api routes authenticate with the session cookie, not a header, so there is no credential
-// to build up front. These pin that the happy path stays a plain fetch.
+// No credential to build up front, so the happy path has to stay a plain fetch.
 
 const HOUR_S = 60 * 60
 

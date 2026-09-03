@@ -1,8 +1,8 @@
 import type { JWT } from '@auth/core/jwt'
 import { applyTokenUpdate } from './jwt-token-update'
 
-// Replaced a blind `{ ...token, ...session?.user }` spread. update() is caller-supplied, so
-// the rejections below are the whole point — a bad token must not displace a working pair.
+// Replaced a blind `{ ...token, ...session?.user }` spread. update() comes from the caller, so
+// the rejections below are the whole point.
 
 const b64 = (value: object) => Buffer.from(JSON.stringify(value)).toString('base64url')
 const tokenWithClaims = (claims: object) => `${b64({ alg: 'none' })}.${b64(claims)}.`
@@ -90,8 +90,7 @@ describe('applyTokenUpdate', () => {
     expect(existing.isTfaEnabled).toBe(false)
   })
 
-  // No usable `exp` means toTokenState gives it refreshAt: Infinity — a pair that never
-  // refreshes and always wins the freshness comparison.
+  // No usable exp means refreshAt: Infinity — never refreshes, always wins on freshness.
   test.each([
     ['no exp claim', {}],
     ['exp: 0', { exp: 0 }],

@@ -1,7 +1,7 @@
 import { adoptSessionTokens, clearTokens, getKnownTokens, getTokenGeneration, observeSessionTokens, readTokenRefreshAt } from './session-tokens'
 
-// observe and adopt differ only in how they break a tie: a probe is a guess and may only
-// move forward, the session hook is authoritative and may replace an equal-vintage pair.
+// observe and adopt differ only on ties: a probe is a guess so it may only move forward, the
+// session hook is authoritative so it may replace an equal-vintage pair.
 
 const HOUR_S = 60 * 60
 
