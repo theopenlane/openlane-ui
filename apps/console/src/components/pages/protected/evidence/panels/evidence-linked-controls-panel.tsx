@@ -33,7 +33,7 @@ const EvidenceLinkedControlsPanel: React.FC<TEvidenceLinkedControlsPanelProps> =
   showEmptyState = false,
 }) => {
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
-  const linkedCount = (form.watch('subcontrolIDs')?.length || 0) + (form.watch('controlIDs')?.length || 0)
+  const linkedCount = (evidenceControls?.length ?? 0) + (evidenceSubcontrols?.length ?? 0)
 
   return (
     <>
@@ -48,7 +48,7 @@ const EvidenceLinkedControlsPanel: React.FC<TEvidenceLinkedControlsPanelProps> =
       )}
       <Accordion type="single" collapsible defaultValue="ControlsAccordion" className="w-full">
         <AccordionItem value="ControlsAccordion">
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-center justify-between gap-3 w-full">
             <RelationsAccordionTrigger label="Linked Control(s)" count={linkedCount} />
             <Button
               variant="secondary"

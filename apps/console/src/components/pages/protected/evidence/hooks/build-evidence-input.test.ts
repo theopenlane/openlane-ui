@@ -67,10 +67,10 @@ describe('buildCreateEvidenceInput', () => {
     expect(input.reviewFrequency).toBe('YEARLY')
   })
 
-  it('prefers an explicit programId over the form value', () => {
+  it('keeps both an explicit programId and the form values', () => {
     const input = build({ data: formData({ programIDs: ['form-program'] }), programId: 'sheet-program' })
 
-    expect(input.programIDs).toEqual(['sheet-program'])
+    expect(input.programIDs).toEqual(['sheet-program', 'form-program'])
   })
 
   it('falls back to the form programIDs when no programId is supplied', () => {

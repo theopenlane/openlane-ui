@@ -1,5 +1,5 @@
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { ObjectAssociationNodeEnum, type TBaseAssociatedNode, type TEdgeNode } from '@/components/shared/object-association/types/object-association-types.ts'
+import { ObjectAssociationNodeEnum, type TBaseAssociatedNode, type TEdgeNode, type TLinkedProgram } from '@/components/shared/object-association/types/object-association-types.ts'
 import { type TAssociationMutationKey, type TAssociationUpdateInput, type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import type { AssociationsData, AssociationsRoot } from '@/components/shared/object-association/association-section'
@@ -12,7 +12,12 @@ export const getEdgeValues = <T extends Record<string, unknown>, K extends keyof
     .filter((value): value is NonNullable<T[K]> => value !== null && value !== undefined)
 
 export const getEdgeIds = (edges: TEdgeNode<{ id?: string | null }>[] | null | undefined): string[] => getEdgeValues(edges, 'id') as string[]
-export const getEdgeNames = (edges: TEdgeNode<{ name?: string | null }>[] | null | undefined): string[] => getEdgeValues(edges, 'name') as string[]
+
+type TLinkedProgramNode = { id: string; name: string; displayID?: string | null }
+
+export const toLinkedProgram = ({ id, name, displayID }: TLinkedProgramNode): TLinkedProgram => ({ id, name: name || displayID || id })
+
+export const getLinkedPrograms = (edges: TEdgeNode<TLinkedProgramNode>[] | null | undefined): TLinkedProgram[] => getEdgeNodes(edges).map(toLinkedProgram)
 
 export type TAssociationDisplayModel = {
   name: string

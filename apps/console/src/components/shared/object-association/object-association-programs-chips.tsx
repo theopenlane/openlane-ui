@@ -1,37 +1,35 @@
 import React from 'react'
-import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import ObjectsChip from '../objects-chip/objects-chip'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { useRouter } from 'next/navigation'
 import { Info, SlidersHorizontal } from 'lucide-react'
+import { type TLinkedProgram } from './types/object-association-types'
 
 type TObjectAssociationProgramsChipsProps = {
-  refMap: string[]
-  setRefMap: React.Dispatch<React.SetStateAction<string[]>>
-  form: CreateEvidenceFormMethods
+  programs: TLinkedProgram[]
+  onChange: (programs: TLinkedProgram[]) => void
 }
 
-const ObjectAssociationProgramsChips: React.FC<TObjectAssociationProgramsChipsProps> = ({ refMap, setRefMap, form }: TObjectAssociationProgramsChipsProps) => {
+const ObjectAssociationProgramsChips: React.FC<TObjectAssociationProgramsChipsProps> = ({ programs, onChange }: TObjectAssociationProgramsChipsProps) => {
   const router = useRouter()
-  const handleRemove = (id: string) => {
-    const idx = form.getValues('programIDs')?.indexOf(id)
-    if (idx === undefined || idx === -1) return
 
-    const newIds = form.getValues('programIDs')?.filter((x) => x !== id) || []
-    const newRefCodes = refMap.filter((_, i) => i !== idx) || []
-    form.setValue('programIDs', newIds)
-    setRefMap(newRefCodes)
+  const handleRemove = (id: string) => {
+    onChange(programs.filter((program) => program.id !== id))
   }
 
   const handleNavigate = (href: string) => {
     router.push(href)
   }
 
+  if (programs.length === 0) {
+    return <p className="text-sm text-muted-foreground">No programs linked yet</p>
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap gap-2">
-        {(form.getValues('programIDs') || []).map((id, i) => {
+        {programs.map(({ id, name }) => {
           const href = getHrefForObjectType('programs', {
             id,
           })
@@ -39,7 +37,7 @@ const ObjectAssociationProgramsChips: React.FC<TObjectAssociationProgramsChipsPr
             <TooltipProvider key={id}>
               <Tooltip>
                 <TooltipTrigger onClick={(e) => e.preventDefault()} asChild>
-                  <ObjectsChip removable onRemove={() => handleRemove(id)} name={refMap[i] ?? id} objectType={'programs'} />
+                  <ObjectsChip removable onRemove={() => handleRemove(id)} name={name} objectType={'programs'} />
                 </TooltipTrigger>
                 <TooltipContent>
                   <div>
@@ -49,7 +47,7 @@ const ObjectAssociationProgramsChips: React.FC<TObjectAssociationProgramsChipsPr
                         <span className="font-medium">Name</span>
                       </div>
                       <span className={`text-brand pl-3 cursor-pointer`} onClick={() => handleNavigate(href)}>
-                        {refMap[i] ?? id}
+                        {name}
                       </span>
                     </div>
                     <div className="flex flex-row gap-4 items-center border-b pb-2 pt-2">

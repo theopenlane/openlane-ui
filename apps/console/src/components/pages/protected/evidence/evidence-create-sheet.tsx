@@ -26,7 +26,7 @@ import { type CustomEvidenceControl, EVIDENCE_ASSOCIATION_FIELDS } from './evide
 import { EvidenceDocsExamples } from './evidence-docs-examples'
 import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-controls'
 import { useOpenObjectSheet } from '@/providers/sheet-navigation-provider'
-import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import { ObjectAssociationNodeEnum, type TLinkedProgram } from '@/components/shared/object-association/types/object-association-types'
 import ObjectSheetLink from '@/components/shared/object-sheet-link/object-sheet-link'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -69,7 +69,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const programId = searchParams.get('programId')
   const queryClient = useQueryClient()
   const openObjectSheet = useOpenObjectSheet()
-  const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
+  const [linkedPrograms, setLinkedPrograms] = useState<TLinkedProgram[]>([])
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
@@ -84,6 +84,14 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       form.setValue('status', mode.defaultStatus)
     }
   }, [open, mode.defaultStatus, form])
+
+  const resetSheetState = () => {
+    setEvidenceSubcontrols(null)
+    setEvidenceControls(null)
+    setLinkedPrograms([])
+    setEvidenceObjectTypes(undefined)
+    form.reset()
+  }
 
   const buildInput = async (data: CreateEvidenceFormData, status?: EvidenceEvidenceStatus): Promise<CreateEvidenceInput> => {
     const collectionProcedure = data.collectionProcedure && typeof data.collectionProcedure !== 'string' ? await convertToHtml(data.collectionProcedure) : data.collectionProcedure
@@ -111,9 +119,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       if (onEvidenceCreateSuccess) {
         onEvidenceCreateSuccess()
       }
-      setEvidenceSubcontrols(null)
-      setEvidenceControls(null)
-      form.reset()
+      resetSheetState()
 
       if (!res.createEvidence.evidence.id) return
       const id = res.createEvidence.evidence.id
@@ -189,11 +195,16 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         form.setValue('tags', formData.tags)
       }
       if (formData && formData.objectAssociations) {
+        const seededPrograms = formData.linkedPrograms ?? []
+
         form.setValue('controlIDs', formData.objectAssociations.controlIDs ? formData.objectAssociations.controlIDs : [])
-        form.setValue('programIDs', formData.objectAssociations.programIDs ? formData.objectAssociations.programIDs : [])
+        form.setValue(
+          'programIDs',
+          seededPrograms.map(({ id }) => id),
+        )
         form.setValue('subcontrolIDs', formData.objectAssociations.subcontrolIDs ? formData.objectAssociations.subcontrolIDs : [])
 
-        setAssociationProgramsRefMap(formData.programDisplayIDs ? formData.programDisplayIDs : [])
+        setLinkedPrograms(seededPrograms)
       }
     }
   }, [form, formData, controlParam])
@@ -370,8 +381,8 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
               form={form}
               showCollectionProcedure={mode.showCollectionProcedure}
               tagOptions={tagOptions}
-              associationProgramsRefMap={associationProgramsRefMap}
-              setAssociationProgramsRefMap={setAssociationProgramsRefMap}
+              linkedPrograms={linkedPrograms}
+              setLinkedPrograms={setLinkedPrograms}
               onObjectAssociationChange={handleEvidenceObjectIdsChange}
               allowedObjectTypes={allowedObjectTypes}
               defaultSelectedObject={defaultSelectedObject}
@@ -395,9 +406,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
           onConfirm={() => {
             setIsDiscardDialogOpen(false)
             onOpenChange(false)
-            setEvidenceSubcontrols(null)
-            setEvidenceControls(null)
-            form.reset()
+            resetSheetState()
           }}
           onCancel={() => setIsDiscardDialogOpen(false)}
         />

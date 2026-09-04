@@ -7,7 +7,7 @@ import ObjectAssociationControlsChips from '@/components/shared/object-associati
 import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
-import type { Section } from '@/components/shared/object-association/types/object-association-types'
+import type { Section, TLinkedProgram } from '@/components/shared/object-association/types/object-association-types'
 import ObjectsChip from '@/components/shared/objects-chip/objects-chip'
 import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { type SuggestedControl } from '@/components/pages/protected/evidence/hooks/use-evidence-suggested-controls'
@@ -25,12 +25,11 @@ type TEvidenceRelationshipsSectionProps = {
   setEvidenceSubcontrols: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
   suggestedControlsMap?: SuggestedControl[]
   isLoadingSuggestions?: boolean
-  associationProgramsRefMap: string[]
-  setAssociationProgramsRefMap: React.Dispatch<React.SetStateAction<string[]>>
+  linkedPrograms: TLinkedProgram[]
+  setLinkedPrograms: React.Dispatch<React.SetStateAction<TLinkedProgram[]>>
   initialAssociations: TObjectAssociationMap
   onAssociationsChange: (updatedMap: TObjectAssociationMap) => void
   associatedObjectSections: Section
-  programNames: string[]
 }
 
 const EvidenceRelationshipsSection: React.FC<TEvidenceRelationshipsSectionProps> = ({
@@ -42,12 +41,11 @@ const EvidenceRelationshipsSection: React.FC<TEvidenceRelationshipsSectionProps>
   setEvidenceSubcontrols,
   suggestedControlsMap,
   isLoadingSuggestions,
-  associationProgramsRefMap,
-  setAssociationProgramsRefMap,
+  linkedPrograms,
+  setLinkedPrograms,
   initialAssociations,
   onAssociationsChange,
   associatedObjectSections,
-  programNames,
 }) => {
   const hasControls = (evidenceControls?.length ?? 0) > 0 || (evidenceSubcontrols?.length ?? 0) > 0
   const hasAssociatedObjects = Object.keys(associatedObjectSections).length > 0
@@ -67,7 +65,7 @@ const EvidenceRelationshipsSection: React.FC<TEvidenceRelationshipsSectionProps>
           />
         </Panel>
         <Panel>
-          <EvidenceLinkedProgramsPanel form={form} refMap={associationProgramsRefMap} setRefMap={setAssociationProgramsRefMap} />
+          <EvidenceLinkedProgramsPanel form={form} linkedPrograms={linkedPrograms} setLinkedPrograms={setLinkedPrograms} />
         </Panel>
         <Panel>
           <PanelHeader heading="Associate more objects" noBorder />
@@ -95,10 +93,10 @@ const EvidenceRelationshipsSection: React.FC<TEvidenceRelationshipsSectionProps>
 
       <div>
         <p className="text-muted-foreground text-xs mb-2">Linked programs</p>
-        {programNames.length > 0 ? (
+        {linkedPrograms.length > 0 ? (
           <div className="flex flex-wrap gap-2">
-            {programNames.map((name) => (
-              <ObjectsChip key={name} name={name} objectType="programs" />
+            {linkedPrograms.map(({ id, name }) => (
+              <ObjectsChip key={id} name={name} objectType="programs" />
             ))}
           </div>
         ) : (

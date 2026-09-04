@@ -1,5 +1,5 @@
 import type { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
-import { getEdgeIds, getEdgeNames } from '@/components/shared/object-association/utils'
+import { getEdgeIds, getLinkedPrograms } from '@/components/shared/object-association/utils'
 
 type EdgeNode = {
   id?: string | null
@@ -7,6 +7,8 @@ type EdgeNode = {
 }
 
 type Edge = { node?: EdgeNode | null } | null
+
+type ProgramEdge = { node?: { id: string; name: string; displayID?: string | null } | null } | null
 
 type ControlObjectiveEdges = {
   edges?: Edge[] | null
@@ -34,9 +36,10 @@ export const buildEvidenceControlParam = (control?: ControlLike) => ({
   controlRefCodes: control?.refCode ? [control.refCode] : [],
 })
 
-export const buildControlEvidenceData = (control: ControlLike, associationsData?: { control?: { programs?: { edges?: Edge[] | null } | null } | null }): TFormEvidenceData => {
+export const buildControlEvidenceData = (control: ControlLike, associationsData?: { control?: { programs?: { edges?: ProgramEdge[] | null } | null } | null }): TFormEvidenceData => {
   const programEdges = associationsData?.control?.programs?.edges
   const controlObjectiveEdges = control?.controlObjectives?.edges as Edge[] | null | undefined
+  const linkedPrograms = getLinkedPrograms(programEdges)
 
   return {
     displayID: control?.refCode ?? undefined,
@@ -45,10 +48,10 @@ export const buildControlEvidenceData = (control: ControlLike, associationsData?
     referenceFramework: {
       [control?.id ?? 'default']: control?.referenceFramework ?? '',
     },
-    programDisplayIDs: getEdgeNames(programEdges),
+    linkedPrograms,
     objectAssociations: {
       controlIDs: control?.id ? [control.id] : [],
-      programIDs: getEdgeIds(programEdges),
+      programIDs: linkedPrograms.map(({ id }) => id),
       controlObjectiveIDs: getEdgeIds(controlObjectiveEdges),
     },
   }

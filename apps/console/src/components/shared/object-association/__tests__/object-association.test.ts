@@ -1,4 +1,4 @@
-import { getAssociationDiffs, buildMutationKey, getAssociationInput, buildAssociationPayload, getEdgeValues, getEdgeIds, getEdgeNames, getEdgeNodes } from '../utils'
+import { getAssociationDiffs, buildMutationKey, getAssociationInput, buildAssociationPayload, getEdgeValues, getEdgeIds, getEdgeNodes } from '../utils'
 import {
   buildAssociationSections,
   CONTROL_ASSOCIATION_SECTIONS,
@@ -435,17 +435,12 @@ describe('typed edge accessors', () => {
     expect(getEdgeIds([{ node: { id: 'a' } }, { node: { id: null } }, { node: { id: 'b' } }])).toEqual(['a', 'b'])
   })
 
-  it('extracts names', () => {
-    expect(getEdgeNames([{ node: { name: 'Platform A' } }])).toEqual(['Platform A'])
-  })
-
   it('unwraps whole nodes, dropping null edges and null nodes', () => {
     expect(getEdgeNodes([{ node: { id: 'a' } }, null, { node: null }, { node: { id: 'b' } }])).toEqual([{ id: 'a' }, { id: 'b' }])
   })
 
   it('returns an empty array when the connection is absent', () => {
     expect(getEdgeIds(null)).toEqual([])
-    expect(getEdgeNames(undefined)).toEqual([])
     expect(getEdgeNodes(null)).toEqual([])
   })
 })

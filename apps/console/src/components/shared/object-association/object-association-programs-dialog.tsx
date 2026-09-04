@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { DataTable } from '@repo/ui/data-table'
 import { ProgramProgramStatus, type ProgramWhereInput } from '@repo/codegen/src/schema'
@@ -8,7 +8,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import usePlateEditor from '../plate/usePlateEditor'
 import { useGetAllProgramsPaginated } from '@/lib/graphql-hooks/program'
 import { getProgramsColumns } from './object-association-programs-columns'
-import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { type TLinkedProgram } from './types/object-association-types'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SaveButton } from '../save-button/save-button'
 import { CancelButton } from '../cancel-button.tsx/cancel-button'
@@ -17,14 +17,12 @@ import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 type TProgramSelectionDialogProps = {
   open: boolean
   onClose: () => void
-  initialRefCodes?: string[]
-  onSave: (newIds: string[], refCodesMap: string[], description?: string[]) => void
-  form: CreateEvidenceFormMethods
+  initialPrograms?: TLinkedProgram[]
+  onSave: (programs: TLinkedProgram[]) => void
 }
 
-export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({ open, onClose, initialRefCodes, onSave, form }: TProgramSelectionDialogProps) => {
-  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<string[]>([])
-  const [frameworks, setFrameworks] = useState<string[]>([])
+export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({ open, onClose, initialPrograms, onSave }: TProgramSelectionDialogProps) => {
+  const [selectedPrograms, setSelectedPrograms] = useState<TLinkedProgram[]>([])
   const { convertToReadOnly } = usePlateEditor()
 
   const [pagination, setPagination] = useOrgTablePagination(
@@ -37,11 +35,13 @@ export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({
     TableKeyEnum.OBJECT_ASSOCIATION_PROGRAMS,
   )
 
-  useEffect(() => {
+  const [wasOpen, setWasOpen] = useState(false)
+  if (open !== wasOpen) {
+    setWasOpen(open)
     if (open) {
-      setSelectedRefCodeMap(initialRefCodes ? [...initialRefCodes] : [])
+      setSelectedPrograms(initialPrograms ?? [])
     }
-  }, [open, initialRefCodes])
+  }
 
   const where: ProgramWhereInput = useMemo(() => {
     return {
@@ -64,18 +64,15 @@ export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({
   const columns = useMemo(
     () =>
       getProgramsColumns({
-        selectedRefCodeMap,
-        frameworks,
-        setSelectedRefCodeMap,
-        setFrameworks,
+        selectedPrograms,
+        setSelectedPrograms,
         convertToReadOnly: convertToReadOnly ?? (() => null),
-        form,
       }),
-    [selectedRefCodeMap, frameworks, convertToReadOnly, form],
+    [selectedPrograms, convertToReadOnly],
   )
 
   const handleSave = () => {
-    onSave(form.getValues('programIDs') || [], selectedRefCodeMap, frameworks)
+    onSave(selectedPrograms)
     onClose()
   }
 

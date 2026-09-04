@@ -59,20 +59,17 @@ const ObjectAssociationControlsChips = ({
   const queryClient = useQueryClient()
   const { client } = useGraphQLClient()
 
-  const handleRemove = (id: string, refCode: string, isSubcontrol = false) => {
+  const handleRemove = (id: string, isSubcontrol = false) => {
+    const current = isSubcontrol ? evidenceSubcontrols : evidenceControls
+    const remaining = current?.filter((control) => control.id !== id) ?? null
+
     if (isSubcontrol) {
-      setEvidenceSubcontrols?.((prev) => {
-        const newSubcontrols = prev?.filter((subcontrol) => subcontrol.refCode !== refCode) ?? null
-        form?.setValue('subcontrolIDs', newSubcontrols?.map((c) => c.id) ?? [])
-        return newSubcontrols
-      })
+      setEvidenceSubcontrols?.(remaining)
     } else {
-      setEvidenceControls?.((prev) => {
-        const newControls = prev?.filter((control) => control.refCode !== refCode) ?? null
-        form?.setValue('controlIDs', newControls?.map((c) => c.id) ?? [])
-        return newControls
-      })
+      setEvidenceControls?.(remaining)
     }
+
+    form?.setValue(isSubcontrol ? 'subcontrolIDs' : 'controlIDs', remaining?.map((control) => control.id) ?? [], { shouldValidate: true, shouldDirty: true })
   }
 
   const addEvidenceControl = (id: string, isSubcontrol: boolean, refCode: string, referenceFramework: string | null) => {
@@ -244,7 +241,7 @@ const ObjectAssociationControlsChips = ({
                 __typename: ObjectTypes.CONTROL,
               }}
               removable
-              onRemove={() => handleRemove(id, refCode)}
+              onRemove={() => handleRemove(id)}
             />
           ))}
 
@@ -260,10 +257,10 @@ const ObjectAssociationControlsChips = ({
                 __typename: ObjectTypes.SUBCONTROL,
               }}
               removable
-              onRemove={() => handleRemove(id, refCode, true)}
+              onRemove={() => handleRemove(id, true)}
             />
           ))}
-        {((form && form.getValues('controlIDs')) || []).length === 0 && ((form && form.getValues('subcontrolIDs')) || []).length === 0 && (
+        {(evidenceControls?.length ?? 0) === 0 && (evidenceSubcontrols?.length ?? 0) === 0 && (
           <div className="flex gap-2 items-center text-sm leading-5 font-sans font-normal">
             <TriangleAlert height={12} width={12} />
             You haven&apos;t linked any controls to this evidence, ensure at least one control is linked for proper tracking of evidence
