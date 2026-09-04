@@ -5,6 +5,7 @@ import ControlChip from '@/components/pages/protected/controls/map-controls/shar
 import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { InfoIcon, TriangleAlert } from 'lucide-react'
 import { type CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
+import { type SuggestedControl } from '@/components/pages/protected/evidence/hooks/use-evidence-suggested-controls'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useCloneControls } from '@/lib/graphql-hooks/standard'
 import { useNotification } from '@/hooks/useNotification'
@@ -20,7 +21,7 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 
 type TObjectAssociationControlsChipsProps = {
   form?: CreateEvidenceFormMethods
-  suggestedControlsMap?: { id: string; refCode: string; referenceFramework: string | null; source: string; typeName: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL }[]
+  suggestedControlsMap?: SuggestedControl[]
   evidenceControls: CustomEvidenceControl[] | null
   setEvidenceControls?: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
   evidenceSubcontrols: CustomEvidenceControl[] | null
@@ -299,9 +300,8 @@ const ObjectAssociationControlsChips = ({
           <div className="flex flex-wrap gap-2">
             {suggestedControlsMap
               .filter((c) => {
-                const inControls = evidenceControls?.some((item) => item.refCode === c.refCode && item.referenceFramework === c.referenceFramework)
-                const inSubcontrols = evidenceSubcontrols?.some((item) => item.refCode === c.refCode && item.referenceFramework === c.referenceFramework)
-                return !inControls && !inSubcontrols
+                const isSameControl = (item: CustomEvidenceControl) => item.refCode === c.refCode && (item.referenceFramework ?? null) === c.referenceFramework
+                return !evidenceControls?.some(isSameControl) && !evidenceSubcontrols?.some(isSameControl)
               })
               .map(({ id, refCode, referenceFramework, typeName, source }) => (
                 <ControlChip
