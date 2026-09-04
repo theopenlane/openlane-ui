@@ -2,25 +2,11 @@ import { useMemo } from 'react'
 import { type GetEvidenceQuery } from '@repo/codegen/src/schema'
 import { type CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import type { Section } from '@/components/shared/object-association/types/object-association-types'
+import { getEdgeIds, getLinkedPrograms } from '@/components/shared/object-association/utils'
 
 type EvidenceNode = GetEvidenceQuery['evidence']
 
-type NodeIdEdge = { node?: { id?: string | null } | null } | null
-
-const nodeIds = (edges?: readonly NodeIdEdge[] | null): string[] => edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? []
-
 export const useEvidenceAssociations = (evidence?: EvidenceNode) => {
-  const initialAssociations = useMemo(
-    () => ({
-      programIDs: nodeIds(evidence?.programs?.edges),
-      controlObjectiveIDs: nodeIds(evidence?.controlObjectives?.edges),
-      subcontrolIDs: nodeIds(evidence?.subcontrols?.edges),
-      controlIDs: nodeIds(evidence?.controls?.edges),
-      taskIDs: nodeIds(evidence?.tasks?.edges),
-    }),
-    [evidence],
-  )
-
   const controlsAndPrograms = useMemo(() => {
     const controls: CustomEvidenceControl[] = evidence?.controls?.edges?.map((edge) => edge?.node).filter((n) => !!n) ?? []
     const subcontrols: CustomEvidenceControl[] = evidence?.subcontrols?.edges?.map((edge) => edge?.node).filter((n) => !!n) ?? []
@@ -28,9 +14,20 @@ export const useEvidenceAssociations = (evidence?: EvidenceNode) => {
     return {
       controls,
       subcontrols,
-      programDisplayIDs: evidence?.programs?.edges?.map((edge) => edge?.node?.name).filter((name): name is string => typeof name === 'string' && name.length > 0) ?? [],
+      programs: getLinkedPrograms(evidence?.programs?.edges),
     }
   }, [evidence])
+
+  const initialAssociations = useMemo(
+    () => ({
+      programIDs: controlsAndPrograms.programs.map(({ id }) => id),
+      controlObjectiveIDs: getEdgeIds(evidence?.controlObjectives?.edges),
+      subcontrolIDs: getEdgeIds(evidence?.subcontrols?.edges),
+      controlIDs: getEdgeIds(evidence?.controls?.edges),
+      taskIDs: getEdgeIds(evidence?.tasks?.edges),
+    }),
+    [evidence, controlsAndPrograms],
+  )
 
   const associatedObjectSections = useMemo<Section>(() => {
     if (!evidence) return {}

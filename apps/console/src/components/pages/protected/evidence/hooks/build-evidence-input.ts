@@ -30,7 +30,7 @@ export const buildCreateEvidenceInput = ({ data, collectionProcedure, objectAsso
   ...objectAssociations,
   controlIDs: data.controlIDs,
   subcontrolIDs: data.subcontrolIDs,
-  programIDs: programId ? [programId] : (data.programIDs ?? []),
+  programIDs: [...new Set([...(programId ? [programId] : []), ...(data.programIDs ?? [])])],
   ...(data.url ? { url: data.url } : {}),
   ...(status ? { status } : {}),
   ...(data.reviewFrequency ? { reviewFrequency: data.reviewFrequency } : {}),

@@ -6,6 +6,8 @@ import { type Value } from 'platejs'
 import { type GetTaskAssociationsQuery, type TaskQuery } from '@repo/codegen/src/schema'
 import { buildAssociationIds, buildAssociationItems, type TAssociationItem } from '@/components/shared/object-association/association-items'
 import { type AssociationSectionKey } from '@/components/shared/object-association/object-association-config'
+import { getLinkedPrograms } from '@/components/shared/object-association/utils'
+import { type TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData'
 
 export type TTaskCopyMode = 'duplicate' | 'template'
 
@@ -79,23 +81,25 @@ export const buildTaskFormValues = (taskData: TaskQuery['task'] | undefined, mod
   }
 }
 
-export const generateEvidenceFormData = (taskData: TaskQuery['task'] | undefined, associationData: GetTaskAssociationsQuery | undefined) => {
+export const generateEvidenceFormData = (taskData: TaskQuery['task'] | undefined, associationData: GetTaskAssociationsQuery | undefined): TFormEvidenceData | undefined => {
   if (!taskData) {
     return undefined
   }
+
+  const linkedPrograms = getLinkedPrograms(associationData?.task?.programs?.edges)
 
   return {
     displayID: taskData.displayID,
     tags: taskData.tags ?? undefined,
     controlRefCodes: associationData?.task?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
     subcontrolRefCodes: associationData?.task?.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
-    programDisplayIDs: associationData?.task?.programs?.edges?.map((item) => item?.node?.name).filter((id): id is string => !!id) || [],
+    linkedPrograms,
     referenceFramework: Object.fromEntries(associationData?.task?.controls?.edges?.map((item) => [item?.node?.id ?? 'default', item?.node?.referenceFramework ?? '']) || []),
     subcontrolReferenceFramework: Object.fromEntries(associationData?.task?.subcontrols?.edges?.map((item) => [item?.node?.id ?? 'default', item?.node?.referenceFramework ?? '']) || []),
     objectAssociations: {
       controlIDs: associationData?.task?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
       subcontrolIDs: associationData?.task?.subcontrols?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-      programIDs: associationData?.task?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+      programIDs: linkedPrograms.map(({ id }) => id),
       taskIDs: taskData.id ? [taskData.id] : [],
     },
   }

@@ -54,3 +54,8 @@ export enum ObjectAssociationNodeEnum {
   ENTITY = 'entities',
   IDENTITY_HOLDER = 'identityHolders',
 }
+
+export type TLinkedProgram = {
+  id: string
+  name: string
+}

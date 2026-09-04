@@ -37,7 +37,7 @@ import EvidenceDetailSection from './detail/evidence-detail-section'
 import { evidenceToFormValues } from './detail/evidence-form-values'
 import { useEvidenceAssociations } from './hooks/use-evidence-associations'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
-import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import { ObjectAssociationNodeEnum, type TLinkedProgram } from '@/components/shared/object-association/types/object-association-types'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type TEvidenceDetailsSheet = {
@@ -74,7 +74,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
   const [requestChangesOpen, setRequestChangesOpen] = useState(false)
   const [auditorActionPending, setAuditorActionPending] = useState(false)
 
-  const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
+  const [linkedPrograms, setLinkedPrograms] = useState<TLinkedProgram[]>([])
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
@@ -93,7 +93,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
 
   const [editField, setEditField] = useState<EvidenceEditableField | null>(null)
 
-  const { data: permission } = useAccountRoles(ObjectTypes.EVIDENCE, data?.evidence.id)
+  const { data: permission } = useAccountRoles(ObjectTypes.EVIDENCE, data?.evidence?.id)
 
   const editAllowed = canEdit(permission?.roles, session) || isAuditor
 
@@ -121,7 +121,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
     setPrevAssocData(controlsAndPrograms)
     setEvidenceControls(controlsAndPrograms.controls)
     setEvidenceSubcontrols(controlsAndPrograms.subcontrols)
-    setAssociationProgramsRefMap(controlsAndPrograms.programDisplayIDs)
+    setLinkedPrograms(controlsAndPrograms.programs)
   }
 
   useEffect(() => {
@@ -130,6 +130,19 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
       form.reset(evidenceToFormValues(evidence, initialAssociations))
     }
   }, [evidence, form, initialAssociations])
+
+  const resetAssociationState = () => {
+    form.reset(evidenceToFormValues(evidence, initialAssociations))
+    setEvidenceControls(controlsAndPrograms.controls)
+    setEvidenceSubcontrols(controlsAndPrograms.subcontrols)
+    setLinkedPrograms(controlsAndPrograms.programs)
+    setAssociations({})
+  }
+
+  const handleCancelEdit = () => {
+    resetAssociationState()
+    setEditRequested(false)
+  }
 
   const handleCopyLink = () => {
     if (!config.id) {
@@ -405,7 +418,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
             onStatusChange={handleStatusChange}
             onCopyLink={handleCopyLink}
             onEdit={() => setEditRequested(true)}
-            onCancelEdit={() => setEditRequested(false)}
+            onCancelEdit={handleCancelEdit}
             onSave={handleSave}
             onDelete={() => setDeleteDialogIsOpen(true)}
             onApprove={handleApprove}
@@ -416,10 +429,15 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
       >
         {fetching ? (
           <EvidenceDetailsSheetSkeleton />
+        ) : !evidence ? (
+          <div role="alert" className="flex flex-col gap-2 py-10 text-center">
+            <p className="text-sm font-medium">Evidence could not be loaded</p>
+            <p className="text-xs text-muted-foreground">Close this panel and try again. If the problem persists you may no longer have access to this evidence.</p>
+          </div>
         ) : (
           <Form {...form}>
             <form onSubmit={handleSave} className="pr-4 flex flex-col gap-6">
-              {config.id && <ObjectWorkflowPanel objectId={config.id} objectType="Evidence" objectLabel={evidence?.name} />}
+              {config.id && <ObjectWorkflowPanel objectId={config.id} objectType="Evidence" objectLabel={evidence.name} />}
 
               <EvidenceOverviewSection
                 form={form}
@@ -429,9 +447,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
                 onEdit={handleDoubleClick}
                 onUpdateField={handleUpdateField}
                 onKeyDown={handleKeyDown}
-                name={evidence?.name}
-                description={evidence?.description}
-                collectionProcedure={evidence?.collectionProcedure}
+                name={evidence.name}
+                description={evidence.description}
+                collectionProcedure={evidence.collectionProcedure}
                 renderCollectionProcedure={convertToReadOnly}
               />
 
@@ -450,28 +468,25 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
                 setEvidenceSubcontrols={setEvidenceSubcontrols}
                 suggestedControlsMap={suggestedControlsMap}
                 isLoadingSuggestions={isSuggestionsLoading}
-                associationProgramsRefMap={associationProgramsRefMap}
-                setAssociationProgramsRefMap={setAssociationProgramsRefMap}
+                linkedPrograms={linkedPrograms}
+                setLinkedPrograms={setLinkedPrograms}
                 initialAssociations={initialAssociations}
                 onAssociationsChange={setAssociations}
                 associatedObjectSections={associatedObjectSections}
-                programNames={controlsAndPrograms.programDisplayIDs}
               />
 
-              {evidence && (
-                <EvidenceMetadataSection
-                  form={form}
-                  evidence={evidence}
-                  isEditing={isEditing}
-                  editField={editField}
-                  editAllowed={editAllowed}
-                  onEdit={handleDoubleClick}
-                  onUpdateField={handleUpdateField}
-                  onKeyDown={handleKeyDown}
-                  triggerRef={triggerRef}
-                  popoverRef={popoverRef}
-                />
-              )}
+              <EvidenceMetadataSection
+                form={form}
+                evidence={evidence}
+                isEditing={isEditing}
+                editField={editField}
+                editAllowed={editAllowed}
+                onEdit={handleDoubleClick}
+                onUpdateField={handleUpdateField}
+                onKeyDown={handleKeyDown}
+                triggerRef={triggerRef}
+                popoverRef={popoverRef}
+              />
 
               {!isEditing && config.id && <EvidenceCommentsCard evidenceId={config.id} />}
             </form>
@@ -499,10 +514,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
           isOpen={isDiscardDialogOpen}
           onConfirm={() => {
             setIsDiscardDialogOpen(false)
-            form.reset(evidenceToFormValues(evidence, initialAssociations))
-            setEvidenceControls(controlsAndPrograms.controls)
-            setEvidenceSubcontrols(controlsAndPrograms.subcontrols)
-            setAssociationProgramsRefMap(controlsAndPrograms.programDisplayIDs)
+            resetAssociationState()
             handleCloseParams()
           }}
           onCancel={() => setIsDiscardDialogOpen(false)}

@@ -1,29 +1,28 @@
 import { type Program } from '@repo/codegen/src/schema'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { Checkbox } from '@repo/ui/checkbox'
-import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { type TLinkedProgram } from './types/object-association-types'
+import { toLinkedProgram } from './utils'
 
 type TColumnOptions = {
-  selectedRefCodeMap: string[]
-  frameworks: string[]
-  setSelectedRefCodeMap: React.Dispatch<React.SetStateAction<string[]>>
-  setFrameworks: React.Dispatch<React.SetStateAction<string[]>>
+  selectedPrograms: TLinkedProgram[]
+  setSelectedPrograms: React.Dispatch<React.SetStateAction<TLinkedProgram[]>>
   convertToReadOnly: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
-  form: CreateEvidenceFormMethods
 }
 
-export const getProgramsColumns = ({ selectedRefCodeMap, frameworks, setSelectedRefCodeMap, setFrameworks, convertToReadOnly, form }: TColumnOptions): ColumnDef<Program>[] => {
-  const toggleChecked = (id: string, refCode: string, isChecked: boolean, referenceFramework?: string) => {
-    const currentIds = form.getValues('programIDs') || []
-    const newIds = isChecked ? [...new Set([...currentIds, id])] : currentIds.filter((v) => v !== id)
+export const getProgramsColumns = ({ selectedPrograms, setSelectedPrograms, convertToReadOnly }: TColumnOptions): ColumnDef<Program>[] => {
+  const selectedIds = new Set(selectedPrograms.map((program) => program.id))
 
-    const newRefCodes = isChecked ? [...new Set([...(selectedRefCodeMap || []), refCode])] : selectedRefCodeMap?.filter((v) => v !== refCode)
+  const toggleSelection = (programs: TLinkedProgram[], isChecked: boolean) => {
+    const toggledIds = new Set(programs.map((program) => program.id))
+    setSelectedPrograms((prev) => {
+      if (!isChecked) {
+        return prev.filter((selected) => !toggledIds.has(selected.id))
+      }
 
-    const newFrameworks = isChecked ? [...new Set([...frameworks, referenceFramework || ''])] : frameworks.filter((f) => f !== referenceFramework)
-
-    setSelectedRefCodeMap(newRefCodes)
-    setFrameworks(newFrameworks)
-    form.setValue('programIDs', newIds, { shouldValidate: true, shouldDirty: true })
+      const alreadySelected = new Set(prev.map((selected) => selected.id))
+      return [...prev, ...programs.filter((program) => !alreadySelected.has(program.id))]
+    })
   }
 
   return [
@@ -31,33 +30,19 @@ export const getProgramsColumns = ({ selectedRefCodeMap, frameworks, setSelected
       id: 'select',
       header: ({ table }) => {
         const currentPageRows = table.getRowModel().rows.map((row) => row.original)
-        const selectedIds = form.getValues('programIDs') || []
-
-        const allSelected = currentPageRows.every((row) => selectedIds.includes(row.id))
+        const allSelected = currentPageRows.length > 0 && currentPageRows.every((row) => selectedIds.has(row.id))
 
         return (
           <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(checked) => {
-                currentPageRows.forEach((row) => {
-                  toggleChecked(row.id, row.name, checked === true)
-                })
-              }}
-            />
+            <Checkbox checked={allSelected} onCheckedChange={(checked) => toggleSelection(currentPageRows.map(toLinkedProgram), checked === true)} />
           </div>
         )
       },
-      cell: ({ row }) => {
-        const { id, name } = row.original
-        const checked = (form.getValues('programIDs') || []).includes(id)
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={checked} onCheckedChange={(val) => toggleChecked(id, name, val === true)} />
-          </div>
-        )
-      },
+      cell: ({ row }) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <Checkbox checked={selectedIds.has(row.original.id)} onCheckedChange={(val) => toggleSelection([toLinkedProgram(row.original)], val === true)} />
+        </div>
+      ),
       size: 50,
       maxSize: 50,
       enableResizing: false,

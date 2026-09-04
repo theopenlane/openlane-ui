@@ -84,14 +84,16 @@ const EvidenceDetailHeader: React.FC<TEvidenceDetailHeaderProps> = ({
                 </Button>
               </>
             )}
-            {editAllowed && (
+            {editAllowed && evidenceId && (
               <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={onEdit} aria-label="Edit evidence">
                 <Pencil size={16} strokeWidth={2} />
               </Button>
             )}
-            <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={onDelete} aria-label="Delete evidence">
-              <Trash2 size={16} strokeWidth={2} />
-            </Button>
+            {evidenceId && (
+              <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={onDelete} aria-label="Delete evidence">
+                <Trash2 size={16} strokeWidth={2} />
+              </Button>
+            )}
           </>
         )}
         <X aria-label="Close detail sheet" size={20} className="cursor-pointer shrink-0" onClick={onClose} />

@@ -12,6 +12,7 @@ import PlateEditor from '@/components/shared/plate/plate-editor'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { type ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type TLinkedProgram } from '@/components/shared/object-association/types/object-association-types'
 import { EvidenceFrequency } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
@@ -22,8 +23,8 @@ type TEvidenceAdditionalDetailsProps = {
   form: CreateEvidenceFormMethods
   showCollectionProcedure: boolean
   tagOptions: Option[]
-  associationProgramsRefMap: string[]
-  setAssociationProgramsRefMap: React.Dispatch<React.SetStateAction<string[]>>
+  linkedPrograms: TLinkedProgram[]
+  setLinkedPrograms: React.Dispatch<React.SetStateAction<TLinkedProgram[]>>
   onObjectAssociationChange: (updatedMap: TObjectAssociationMap) => void
   allowedObjectTypes?: ObjectTypeObjects[]
   defaultSelectedObject?: ObjectTypeObjects
@@ -64,8 +65,8 @@ const EvidenceAdditionalDetails: React.FC<TEvidenceAdditionalDetailsProps> = ({
   form,
   showCollectionProcedure,
   tagOptions,
-  associationProgramsRefMap,
-  setAssociationProgramsRefMap,
+  linkedPrograms,
+  setLinkedPrograms,
   onObjectAssociationChange,
   allowedObjectTypes,
   defaultSelectedObject,
@@ -103,7 +104,7 @@ const EvidenceAdditionalDetails: React.FC<TEvidenceAdditionalDetailsProps> = ({
         )}
 
         <Section value="programs" icon={<Folder size={16} />} title="Linked Program(s)">
-          <EvidenceLinkedProgramsPanel form={form} refMap={associationProgramsRefMap} setRefMap={setAssociationProgramsRefMap} />
+          <EvidenceLinkedProgramsPanel form={form} linkedPrograms={linkedPrograms} setLinkedPrograms={setLinkedPrograms} />
         </Section>
 
         <Section value="renewal" icon={<Clock size={16} />} title="Renewal settings">
