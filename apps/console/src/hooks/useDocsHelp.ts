@@ -1,4 +1,3 @@
-import { apiFetch } from '@/lib/auth/utils/api-fetch'
 import { use, useEffect, useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { DocsHelpChunk, DocsHelpFrame, DocsHelpResponse, DocsSection } from '@/types/docs-help'
@@ -12,7 +11,7 @@ type DocsHelpRequest = { query: string; prefer?: string; section?: DocsSection; 
 type DocsHelpParams = DocsHelpRequest & { enabled: boolean; seed?: DocsHelpChunk[] }
 
 const readDocsHelp = async (body: DocsHelpRequest, signal: AbortSignal | undefined, onFrame: (frame: DocsHelpFrame) => void): Promise<void> => {
-  const res = await apiFetch('/api/docs-help', {
+  const res = await fetch('/api/docs-help', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -74,7 +73,7 @@ export const useDocsHelp = ({ query, prefer, section, summarize, enabled, seed }
 // the section/title/full-page modes return a single json body rather than the
 // streamed frames useDocsHelp consumes
 async function postDocsHelp(body: object) {
-  const res = await apiFetch('/api/docs-help', {
+  const res = await fetch('/api/docs-help', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

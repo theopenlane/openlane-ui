@@ -1,6 +1,5 @@
 'use client'
 
-import { apiFetch } from '@/lib/auth/utils/api-fetch'
 import { useQuery } from '@tanstack/react-query'
 
 export interface AnalyticsResponse {
@@ -11,7 +10,7 @@ export interface AnalyticsResponse {
 
 export async function fetchVisitors(pirschDomainID: string): Promise<AnalyticsResponse> {
   const query = new URLSearchParams({ pirschDomainID })
-  const res = await apiFetch(`/api/analytics?${query}`)
+  const res = await fetch(`/api/analytics?${query}`)
 
   if (!res.ok) {
     throw new Error('Failed to fetch analytics')

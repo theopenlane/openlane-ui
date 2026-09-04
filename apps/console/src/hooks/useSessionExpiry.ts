@@ -4,13 +4,9 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { jwtDecode } from 'jwt-decode'
 import { refreshTokens } from '@/lib/auth/utils/session-refresh'
-import { SessionUnavailableError } from '@/lib/auth/utils/session-health'
 import { getIsSessionInvalid } from '@/lib/auth/utils/session-status'
-import { REFRESH_TOKEN_SKEW_MARGIN_MS } from '@/lib/auth/utils/session-tokens'
 
 const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = ['keydown', 'mousemove', 'click', 'scroll', 'touchstart']
-const ACTIVITY_RETRY_BACKOFF_MS = 30_000
-const ACTIVITY_MIN_INTERVAL_MS = 60_000
 
 interface RefreshTokenClaims {
   nbf?: number
@@ -67,18 +63,14 @@ export function useSessionExpiry() {
 
     let armed = false
     let inFlight = false
-    let nextAttemptAt = 0
 
     const onActivity = async () => {
-      if (!armed || inFlight || Date.now() < nextAttemptAt) return
+      if (!armed || inFlight) return
       inFlight = true
       try {
         await refreshTokens(token)
-      } catch (error) {
-        nextAttemptAt = Date.now() + (error instanceof SessionUnavailableError ? error.retryAfterMs : ACTIVITY_RETRY_BACKOFF_MS)
-      } finally {
+      } catch {
         inFlight = false
-        nextAttemptAt = Math.max(nextAttemptAt, Date.now() + ACTIVITY_MIN_INTERVAL_MS)
       }
     }
 
@@ -88,7 +80,7 @@ export function useSessionExpiry() {
       () => {
         armed = true
       },
-      Math.max(0, nbfMs + REFRESH_TOKEN_SKEW_MARGIN_MS - now),
+      Math.max(0, nbfMs - now),
     )
     const expireTimeoutId = window.setTimeout(() => setShowSessionExpiredModal(true), expMs - now)
 

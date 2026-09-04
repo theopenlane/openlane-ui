@@ -1,41 +1,16 @@
-'use client'
-
-// Never refresh from the server: core sends the renewed session cookie as a Set-Cookie, so a
-// server-side call drops it.
-import 'client-only'
-
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { secureFetch } from './secure-fetch'
 import { parseRetryAfter } from './retry-after'
 import { readSSORequirement, type SSORequirement } from './sso-required'
-import { getRefreshTokenReadyAt } from './session-tokens'
 
 export interface Tokens {
   accessToken: string
   refreshToken: string
 }
 
-export type RefreshResult =
-  | { status: 'ok'; tokens: Tokens }
-  | { status: 'rejected' }
-  | { status: 'sso-required'; requirement: SSORequirement }
-  | { status: 'unavailable'; retryAfterMs: number }
-  | { status: 'not-ready'; readyAt: number }
-
-/**
- * `rejected` is destructive: it ends in the session-expired modal, which
- * revokes the tokens and server session. So this is an allowlist — anything
- * unrecognised stays recoverable rather than logging a live user out.
- */
-const REJECTED_REFRESH_STATUSES = new Set([400, 401])
+export type RefreshResult = { status: 'ok'; tokens: Tokens } | { status: 'rejected' } | { status: 'sso-required'; requirement: SSORequirement } | { status: 'unavailable'; retryAfterMs: number }
 
 export const fetchNewAccessToken = async (refreshToken: string): Promise<RefreshResult> => {
-  const readyAt = getRefreshTokenReadyAt(refreshToken)
-
-  if (readyAt !== null && Date.now() < readyAt) {
-    return { status: 'not-ready', readyAt }
-  }
-
   let response: Response
 
   try {
@@ -48,6 +23,11 @@ export const fetchNewAccessToken = async (refreshToken: string): Promise<Refresh
     return { status: 'unavailable', retryAfterMs: parseRetryAfter(null) }
   }
 
+  if (response.status === 429 || response.status >= 500) {
+    console.error(`Refresh endpoint unavailable. Status: ${response.status}`)
+    return { status: 'unavailable', retryAfterMs: parseRetryAfter(response.headers.get('retry-after')) }
+  }
+
   if (!response.ok) {
     console.error(`Failed to refresh access token. Status: ${response.status}`)
 
@@ -57,21 +37,17 @@ export const fetchNewAccessToken = async (refreshToken: string): Promise<Refresh
       return { status: 'sso-required', requirement: ssoRequirement }
     }
 
-    return REJECTED_REFRESH_STATUSES.has(response.status) ? { status: 'rejected' } : { status: 'unavailable', retryAfterMs: parseRetryAfter(response.headers.get('retry-after')) }
+    return { status: 'rejected' }
   }
 
   try {
-    const data: { access_token?: string; refresh_token?: string } = await response.json()
+    const data = await response.json()
 
-    // A 2xx with no access token is a malformed response, not proof the
-    // credential is dead — stay recoverable.
-    if (!data.access_token) {
-      return { status: 'unavailable', retryAfterMs: parseRetryAfter(response.headers.get('retry-after')) }
+    if (!data?.access_token) {
+      return { status: 'rejected' }
     }
 
-    // Core does not necessarily rotate the refresh token; keep the one we sent
-    // rather than storing undefined.
-    return { status: 'ok', tokens: { accessToken: data.access_token, refreshToken: data.refresh_token || refreshToken } }
+    return { status: 'ok', tokens: { accessToken: data.access_token, refreshToken: data.refresh_token } }
   } catch (error) {
     console.error('Refresh token response was not valid JSON:', error)
     return { status: 'unavailable', retryAfterMs: parseRetryAfter(null) }

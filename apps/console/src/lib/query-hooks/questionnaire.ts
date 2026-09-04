@@ -1,4 +1,3 @@
-import { apiFetch } from '@/lib/auth/utils/api-fetch'
 import { useNotification } from '@/hooks/useNotification'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useEffect } from 'react'
@@ -25,7 +24,7 @@ export const useQuestionnaire = ({ token, enabled = true }: UseQuestionnairePara
     queryKey: ['questionnaire', token],
     enabled: !!token && enabled,
     queryFn: async () => {
-      const response = await apiFetch('/api/questionnaire', {
+      const response = await fetch('/api/questionnaire', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -71,7 +70,7 @@ export const useResendQuestionnaireLink = () => {
 
   return useMutation<ResendQuestionnaireLinkResponse, Error, ResendQuestionnaireLinkParams>({
     mutationFn: async ({ assessmentId, email, recaptchaToken }) => {
-      const response = await apiFetch('/api/questionnaire/resend', {
+      const response = await fetch('/api/questionnaire/resend', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -118,7 +117,7 @@ export const useSubmitQuestionnaire = () => {
 
   return useMutation<SubmitQuestionnaireResponse, Error, SubmitQuestionnaireParams>({
     mutationFn: async ({ token, data, isDraft }) => {
-      const response = await apiFetch('/api/questionnaire', {
+      const response = await fetch('/api/questionnaire', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

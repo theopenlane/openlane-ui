@@ -1,15 +1,54 @@
 import { fetchCSRFToken, invalidateCSRFToken, isCSRFRejection } from './auth/utils/secure-fetch'
 import { csrfCookieName, csrfHeader } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
-import { resolveCurrentTokens } from './auth/utils/session-refresh'
-import { clearSSOReauthRequired, reportSSORequirementFromResponse } from './auth/utils/session-status'
-import type { TokenState } from './auth/utils/session-tokens'
-import { sendWithUnauthorizedRecovery } from './auth/utils/unauthorized-recovery'
+import { probeSession, SessionUnavailableError } from './auth/utils/session-health'
+import { refreshTokens } from './auth/utils/session-refresh'
+import { clearSSOReauthRequired, getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
+import { getKnownTokens, getUsableTokens, setAuthoritativeTokens } from './auth/utils/session-tokens'
 
-export const fetchGraphQLWithUpload = async <TResult, TVariables extends object>({ query, variables }: { query: string; variables?: TVariables }): Promise<TResult> => {
-  const tokens = await resolveCurrentTokens()
+const resolveAccessToken = async (): Promise<string> => {
+  if (getIsSessionInvalid()) {
+    throw new Error('Session expired')
+  }
 
-  const headers: Record<string, string> = {}
+  const usable = getUsableTokens()
+  if (usable) {
+    return usable.accessToken
+  }
+
+  const known = getKnownTokens()
+  if (known?.refreshToken) {
+    const refreshed = await refreshTokens(known.refreshToken)
+    return refreshed.accessToken
+  }
+
+  const probe = await probeSession()
+
+  if (probe.status === 'unavailable') {
+    throw new SessionUnavailableError(probe.retryAfterMs)
+  }
+
+  if (probe.status === 'signed-out' || !probe.session.user?.accessToken) {
+    notifySessionExpired()
+    throw new Error('Session expired')
+  }
+
+  const adopted = setAuthoritativeTokens(probe.session.user.accessToken, probe.session.user.refreshToken ?? '')
+
+  if (Date.now() >= adopted.refreshAt && adopted.refreshToken) {
+    const refreshed = await refreshTokens(adopted.refreshToken)
+    return refreshed.accessToken
+  }
+
+  return adopted.accessToken
+}
+
+export const fetchGraphQLWithUpload = async <TVariables extends object>({ query, variables }: { query: string; variables?: TVariables }) => {
+  const accessToken = await resolveAccessToken()
+
+  const headers: HeadersInit = {
+    Authorization: `Bearer ${accessToken}`,
+  }
 
   let csrfToken = getCookie(csrfCookieName)
   if (!csrfToken) {
@@ -77,33 +116,23 @@ export const fetchGraphQLWithUpload = async <TResult, TVariables extends object>
 
   const endpoint = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
 
-  // Same layering as the GraphQL client. Uploads used to surface a 401 as a JSON parse error.
-  const send = async (attemptTokens: TokenState) => {
-    headers['Authorization'] = `Bearer ${attemptTokens.accessToken}`
+  const post = async () =>
+    await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body,
+      credentials: 'include',
+    })
 
-    const post = async () =>
-      await fetch(endpoint, {
-        method: 'POST',
-        headers,
-        body,
-        credentials: 'include',
-      })
+  let response = await post()
 
-    const attempt = await post()
-
-    if (!(await isCSRFRejection(attempt))) {
-      return attempt
-    }
-
+  if (await isCSRFRejection(response)) {
     invalidateCSRFToken()
     const freshCSRFToken = await fetchCSRFToken()
     headers[csrfHeader] = freshCSRFToken
     headers['cookie'] = `${csrfCookieName}=${freshCSRFToken}`
-
-    return await post()
+    response = await post()
   }
-
-  const response = await sendWithUnauthorizedRecovery(tokens, send)
 
   if (response.ok) {
     clearSSOReauthRequired()
@@ -111,15 +140,7 @@ export const fetchGraphQLWithUpload = async <TResult, TVariables extends object>
     throw new Error('SSO re-authentication required')
   }
 
-  let result: { errors?: unknown; data: TResult }
-
-  try {
-    result = await response.json()
-  } catch (error) {
-    throw new Error(`GraphQL upload failed with status ${response.status}`, { cause: error })
-  }
-
+  const result = await response.json()
   if (result.errors) throw result.errors
-
   return result.data
 }
