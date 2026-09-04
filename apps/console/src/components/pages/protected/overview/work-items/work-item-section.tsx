@@ -1,6 +1,6 @@
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
 import type { WorkItem } from './types'
+import SectionHeader from './section-header'
 import WorkItemRow from './work-item-row'
 
 type WorkItemSectionProps = {
@@ -15,12 +15,7 @@ const WorkItemSection = ({ label, items, showHeader, showKindLabel = false }: Wo
 
   return (
     <div className="space-y-3">
-      {showHeader && (
-        <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          {label}
-          <Badge variant="secondary">{items.length}</Badge>
-        </div>
-      )}
+      {showHeader && <SectionHeader label={label} count={items.length} />}
       {items.map((item) => (
         <WorkItemRow key={item.key} item={item} showKindLabel={showKindLabel} />
       ))}

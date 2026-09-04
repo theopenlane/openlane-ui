@@ -1,12 +1,17 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { Badge } from '@repo/ui/badge'
+import { Button } from '@repo/ui/button'
 import type { EvidenceLight } from '@/lib/graphql-hooks/evidence'
 import { FILTER_LABELS, WORK_ITEM_ROW_CLASS } from './types'
+import SectionHeader from './section-header'
 
 type EvidenceRequestsSectionProps = {
   evidenceRequests: EvidenceLight[]
+  totalCount: number
   showHeader: boolean
+  hasMore: boolean
+  isLoadingMore: boolean
+  onShowMore: () => void
 }
 
 const evidenceHref = (evidence: EvidenceLight): string => {
@@ -14,19 +19,14 @@ const evidenceHref = (evidence: EvidenceLight): string => {
   return linkedControlId ? `/controls/${linkedControlId}?controlEvidenceId=${evidence.id}` : `/evidence?id=${evidence.id}`
 }
 
-const EvidenceRequestsSection = ({ evidenceRequests, showHeader }: EvidenceRequestsSectionProps) => {
+const EvidenceRequestsSection = ({ evidenceRequests, totalCount, showHeader, hasMore, isLoadingMore, onShowMore }: EvidenceRequestsSectionProps) => {
   const router = useRouter()
 
-  if (evidenceRequests.length === 0) return null
+  if (evidenceRequests.length === 0 && !hasMore) return null
 
   return (
     <div className="space-y-3">
-      {showHeader && (
-        <p className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          {FILTER_LABELS.evidenceRequests}
-          <Badge variant="secondary">{evidenceRequests.length}</Badge>
-        </p>
-      )}
+      {showHeader && <SectionHeader label={FILTER_LABELS.evidenceRequests} count={totalCount} />}
       {evidenceRequests.map((evidence) => {
         const controlRefCodes = evidence.controls?.edges?.map((edge) => edge?.node?.refCode).filter((refCode): refCode is string => !!refCode)
 
@@ -39,6 +39,13 @@ const EvidenceRequestsSection = ({ evidenceRequests, showHeader }: EvidenceReque
           </div>
         )
       })}
+      {hasMore && (
+        <div className="flex justify-center">
+          <Button variant="outline" onClick={onShowMore} loading={isLoadingMore} disabled={isLoadingMore}>
+            {`Show more (${Math.max(totalCount - evidenceRequests.length, 0)})`}
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

@@ -8,7 +8,7 @@ import { isToday } from 'date-fns'
 import { EvidenceEvidenceStatus, NotificationNotificationTopic, OrderDirection, TaskOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
 import type { Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { useTasksWithFilter, useUpdateTask } from '@/lib/graphql-hooks/task'
-import { useGetEvidenceListLight } from '@/lib/graphql-hooks/evidence'
+import { useGetEvidenceListLightInfinite } from '@/lib/graphql-hooks/evidence'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { controlOwnedByUserWhere } from '@/lib/control-where'
 import { useNotification } from '@/hooks/useNotification'
@@ -25,6 +25,7 @@ import { ALL_FILTER_KEY, FILTER_LABELS, UNCATEGORIZED_KIND, type FilterKey, type
 import { workItemsGroupByStore } from './group-by-storage'
 
 const TASK_ORDER_BY = [{ field: TaskOrderField.due, direction: OrderDirection.ASC }]
+const EVIDENCE_REQUESTS_PAGE_SIZE = 10
 const TASK_KIND_ENUM_WHERE = { objectType: 'task', field: 'kind' }
 
 const dueLabelFor = (due: string | null | undefined): string | null => {
@@ -64,16 +65,24 @@ export const useWorkItems = () => {
 
   const {
     evidences: evidenceRequests,
+    totalCount: evidenceRequestsTotalCount,
     isPending: isEvidenceLoading,
     error: evidenceError,
-  } = useGetEvidenceListLight({
+    hasNextPage: hasMoreEvidenceRequests,
+    isFetchingNextPage: isLoadingMoreEvidenceRequests,
+    fetchNextPage: fetchMoreEvidenceRequests,
+  } = useGetEvidenceListLightInfinite({
     where: {
       status: EvidenceEvidenceStatus.REQUESTED,
       hasControlsWith: [controlOwnedByUserWhere(userId ?? '')],
     },
-    pagination: DEFAULT_PAGINATION,
+    pageSize: EVIDENCE_REQUESTS_PAGE_SIZE,
     enabled: !!userId,
   })
+
+  const showMoreEvidenceRequests = useCallback(() => {
+    fetchMoreEvidenceRequests()
+  }, [fetchMoreEvidenceRequests])
 
   const approvalNotifications = useMemo(() => notifications.filter((notification) => !notification.readAt && notification.topic === NotificationNotificationTopic.APPROVAL), [notifications])
 
@@ -168,10 +177,10 @@ export const useWorkItems = () => {
     }
 
     if (approvalNotifications.length > 0) filters.push({ key: 'approvals', label: FILTER_LABELS.approvals })
-    if (evidenceRequests.length > 0) filters.push({ key: 'evidenceRequests', label: FILTER_LABELS.evidenceRequests })
+    if (evidenceRequestsTotalCount > 0) filters.push({ key: 'evidenceRequests', label: FILTER_LABELS.evidenceRequests })
 
     return filters
-  }, [groupBy, recommendationWorkItems, taskWorkItems, kindGroups, approvalNotifications, evidenceRequests])
+  }, [groupBy, recommendationWorkItems, taskWorkItems, kindGroups, approvalNotifications, evidenceRequestsTotalCount])
 
   const activeFilter = useMemo(() => (availableFilters.some((filter) => filter.key === requestedFilter) ? requestedFilter : ALL_FILTER_KEY), [availableFilters, requestedFilter])
 
@@ -186,7 +195,7 @@ export const useWorkItems = () => {
   const error = feedError ?? tasksError ?? evidenceError ?? taskKindError ?? null
 
   const hasWorkItems = groupBy === 'type' ? (showRecommendations && recommendationWorkItems.length > 0) || (showTasks && taskWorkItems.length > 0) : visibleKindGroups.length > 0
-  const isEmpty = !hasWorkItems && !(showApprovals && approvalNotifications.length > 0) && !(showEvidenceRequests && evidenceRequests.length > 0)
+  const isEmpty = !hasWorkItems && !(showApprovals && approvalNotifications.length > 0) && !(showEvidenceRequests && evidenceRequestsTotalCount > 0)
 
   const selectedSuggestion = useMemo(() => suggestions.find((suggestion) => suggestion.id === selectedSuggestionId) ?? null, [suggestions, selectedSuggestionId])
 
@@ -201,6 +210,10 @@ export const useWorkItems = () => {
     visibleKindGroups,
     approvalNotifications,
     evidenceRequests,
+    evidenceRequestsTotalCount,
+    hasMoreEvidenceRequests,
+    isLoadingMoreEvidenceRequests,
+    showMoreEvidenceRequests,
     showRecommendations,
     showTasks,
     showApprovals,
