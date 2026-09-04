@@ -6,7 +6,8 @@ import { DonutChart } from '@repo/ui/donut-chart'
 import { useSearchParams } from 'next/navigation'
 import EvidenceStatusChip from '@/components/pages/protected/evidence/chart/evidence-status-chip.tsx'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
-import { EvidenceStatusColors, getEvidenceStatusLabel } from '@/components/shared/enum-mapper/evidence-enum'
+import { EvidenceStatusColors } from '@/components/shared/enum-mapper/evidence-enum'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export type TChartData = {
   name: string
@@ -43,7 +44,7 @@ export const EvidenceSummaryCard = () => {
   const chartData: TChartData[] = useMemo(
     () =>
       CHART_SERIES.map(({ status, countKey, description }) => ({
-        name: getEvidenceStatusLabel(status),
+        name: getEnumLabel(status),
         value: data?.[countKey]?.totalCount ?? 0,
         status,
         description,

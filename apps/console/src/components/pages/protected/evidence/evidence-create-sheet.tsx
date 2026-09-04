@@ -33,13 +33,11 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
-import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import { useIsAuditor } from '@/lib/graphql-hooks/member'
 import EvidenceLinkedControlsPanel from './panels/evidence-linked-controls-panel'
 import EvidenceAdditionalDetails from './create/evidence-additional-details'
 import { EVIDENCE_AUDITOR_REQUEST_MODE, EVIDENCE_CREATE_MODE } from './create/evidence-create-mode'
-
-const statusOptions = enumToOptions(EvidenceEvidenceStatus)
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -353,9 +351,9 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                             <SelectValue placeholder="Select status..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {statusOptions.map((option) => (
+                            {EvidenceStatusOptions.map((option) => (
                               <SelectItem key={option.value} value={option.value}>
-                                {getEnumLabel(option.value)}
+                                {option.label}
                               </SelectItem>
                             ))}
                           </SelectContent>

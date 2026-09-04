@@ -3,7 +3,7 @@ import { FileCheck2 } from 'lucide-react'
 import { defineFilterFields } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { ReviewStatusOptions } from '@/components/shared/enum-mapper/review-enum'
-import { EvidenceStatusFilterOptions } from '@/components/shared/enum-mapper/evidence-enum'
+import { EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { buildCustomStandardFilterWhere, CUSTOM_STANDARD_FILTER_OPTION, CUSTOM_STANDARD_FILTER_VALUE, isCustomStandardFilter } from '@/components/shared/table-filter/custom-standard-filter'
@@ -36,7 +36,7 @@ export const getAuditorDashboardFilterFields = (frameworkOptions: TOption[], own
       key: 'evidenceStatusIn',
       label: 'Evidence Status',
       type: 'multiselect',
-      options: EvidenceStatusFilterOptions,
+      options: EvidenceStatusOptions,
       icon: FileCheck2,
     },
     {

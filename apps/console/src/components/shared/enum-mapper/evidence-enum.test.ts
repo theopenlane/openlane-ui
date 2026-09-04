@@ -1,33 +1,15 @@
+import { readFileSync } from 'node:fs'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
-import { EvidenceStatusColors, getEvidenceStatusLabel, getEvidenceStatusStyle } from './evidence-enum'
+import { EvidenceStatusColors, getEvidenceStatusStyle } from './evidence-enum'
 
-/**
- * Two statuses are abbreviated so they fit the chart legend; everything else falls through to getEnumLabel.
- * The colour map has to stay exhaustive or a chip renders transparent.
- */
+const uiStyles = readFileSync(new URL('../../../../../../packages/ui/src/styles.css', import.meta.url), 'utf8')
+
 describe('EvidenceStatusColors', () => {
-  test('covers every evidence status', () => {
+  test('maps every evidence status to a design token defined in the ui theme', () => {
     for (const status of Object.values(EvidenceEvidenceStatus)) {
-      expect(EvidenceStatusColors[status]).toMatch(/^#[0-9a-fA-F]{6}$/)
-    }
-  })
-})
-
-describe('getEvidenceStatusLabel', () => {
-  test('shortens the two long statuses for the chart legend', () => {
-    expect(getEvidenceStatusLabel(EvidenceEvidenceStatus.AUDITOR_APPROVED)).toBe('Approved')
-    expect(getEvidenceStatusLabel(EvidenceEvidenceStatus.READY_FOR_AUDITOR)).toBe('Ready')
-  })
-
-  test('falls back to the standard enum label for the rest', () => {
-    // getEnumLabel title-cases every word, so ALL_CAPS becomes "Missing Artifact".
-    expect(getEvidenceStatusLabel(EvidenceEvidenceStatus.MISSING_ARTIFACT)).toBe('Missing Artifact')
-    expect(getEvidenceStatusLabel(EvidenceEvidenceStatus.IN_REVIEW)).toBe('In Review')
-  })
-
-  test('never returns a raw ALL_CAPS value', () => {
-    for (const status of Object.values(EvidenceEvidenceStatus)) {
-      expect(getEvidenceStatusLabel(status)).not.toBe(status)
+      const token = EvidenceStatusColors[status]
+      expect(token).toMatch(/^var\(--color-evidence-[a-z-]+\)$/)
+      expect(uiStyles).toContain(`${token.slice(4, -1)}:`)
     }
   })
 })
@@ -37,15 +19,15 @@ describe('getEvidenceStatusStyle', () => {
     const style = getEvidenceStatusStyle(EvidenceEvidenceStatus.REJECTED)
 
     expect(style.color).toBe(EvidenceStatusColors[EvidenceEvidenceStatus.REJECTED])
-    expect(style.bg).toContain(EvidenceStatusColors[EvidenceEvidenceStatus.REJECTED])
-    expect(style.bg).toContain('color-mix')
+    expect(style.backgroundColor).toContain(EvidenceStatusColors[EvidenceEvidenceStatus.REJECTED])
+    expect(style.backgroundColor).toContain('color-mix')
   })
 
   test('resolves for every status without producing undefined', () => {
     for (const status of Object.values(EvidenceEvidenceStatus)) {
       const style = getEvidenceStatusStyle(status)
       expect(style.color).toBeDefined()
-      expect(style.bg).not.toContain('undefined')
+      expect(style.backgroundColor).not.toContain('undefined')
     }
   })
 })

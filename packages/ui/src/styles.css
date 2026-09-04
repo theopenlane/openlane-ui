@@ -668,12 +668,18 @@
   --color-toast-error-icon-muted: #f45b503d;
   --color-toast-error-icon-border: #f45b5052;
   /* Status colors */
-  --color-needs-renewal: #f97316;
+  --color-evidence-auditor-approved: #15803d;
+  --color-evidence-rejected: #b91c1c;
+  --color-evidence-needs-renewal: #ca8a04;
+  --color-evidence-ready-for-auditor: #16a34a;
+  --color-evidence-missing-artifact: #ef4444;
+  --color-evidence-submitted: #2563eb;
+  --color-evidence-in-review: #d97706;
+  --color-evidence-draft: #6b7280;
+  --color-evidence-requested: #f97316;
   --color-rejected: #dc2626;
   --color-needs-approval: #f97316;
-  --color-missing-artifact: #f97316;
   --color-approved: #22c55e;
-  --color-ready: #3b82f6;
   --color-archived: #94a3b8;
   --color-preparing: #3b82f6;
   --color-not-implemented: #8f46f5;
@@ -685,7 +691,6 @@
   --color-open: #8f46f5;
   --color-completed: #22c55e;
   --color-wont-do: #94a3b8;
-  --color-requested: #f97316;
   --color-action-required: #f97316;
   --color-ready-for-auditor: #22c55e;
   --color-not-started: #a855f7;
