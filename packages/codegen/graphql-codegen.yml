@@ -72,6 +72,7 @@ hooks:
   afterAllFileWrite:
     - node ./plugins/generate-type-constants.js
     - node ./plugins/generate-object-modules.js
+    - node ./plugins/generate-report-schema.js
     - node ./plugins/generate-queries.js
     - node ./plugins/generate-hooks.js
     - node ./plugins/generate-merge-fields.js

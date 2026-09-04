@@ -53,3 +53,43 @@ export function toPascalCase(str) {
     .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
     .join('')
 }
+
+export const EXCLUDED_TYPES = [
+  'Notification',
+  'Note',
+  'MappableDomain',
+  'CustomDomain',
+  'DnsVerification',
+  'Event',
+  'File',
+  'GroupMembership',
+  'ProgramMembership',
+  'Hush',
+  'Invite',
+  'OrgMembership',
+  'OrgSubscription',
+  'Webauthn',
+  'ApiToken',
+  'JobRunnerToken',
+  'TrustCenterSetting',
+  'UserSetting',
+  'TrustCenterWatermarkConfig',
+  'PersonalAccessToken',
+  'OrganizationSetting',
+  'GroupPermission',
+  'DocumentData',
+  'ControlReport',
+  'PolicySummary',
+]
+
+// Fields to exclude from all queries
+export const EXCLUDED_FIELDS = ['deletedAt', 'deletedBy', 'systemInternalID', 'internalNotes', 'ownerID', '__typename', 'owner']
+
+// Edge types to exclude from associations
+export const EXCLUDED_ASSOCIATIONS = ['groups', 'editors', 'viewers', 'blockedGroups', 'user', 'owner', 'organization']
+
+const excludedTypeNames = new Set(EXCLUDED_TYPES.map((name) => name.toLowerCase()))
+
+export const isExcludedType = (typeName) => excludedTypeNames.has(typeName.toLowerCase())
+
+export const DISPLAY_FIELD_ORDER = ['refCode', 'displayID', 'name', 'title', 'status', 'createdAt']

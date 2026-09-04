@@ -1,3 +1,5 @@
+import { downloadFile } from './downloadFile'
+
 export type TExportColumn<T> = {
   label: string
   accessor: (item: T) => string | number | null | undefined
@@ -22,13 +24,5 @@ export const exportToCSV = <T extends object>(data: T[], columns: TExportColumn<
     csvRows.push(columns.map((col) => escapeCsvValue(col.accessor(item))).join(','))
   })
 
-  const blob = new Blob([UTF8_BOM, csvRows.join('\r\n')], { type: 'text/csv;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${fileName}.csv`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  setTimeout(() => URL.revokeObjectURL(url), 0)
+  downloadFile([UTF8_BOM, csvRows.join('\r\n')], `${fileName}.csv`, 'text/csv;charset=utf-8')
 }
