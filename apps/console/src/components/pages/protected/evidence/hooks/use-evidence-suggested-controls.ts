@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useGetAllMappedControlsGrouped } from '@/lib/graphql-hooks/mapped-control'
 import { useGetExistingOrgControls } from '@/lib/graphql-hooks/control'
 import { useGetExistingOrgSubcontrols } from '@/lib/graphql-hooks/subcontrol'
@@ -19,8 +19,24 @@ type UseEvidenceSuggestedControlsArgs = {
   enabled?: boolean
 }
 
+type SuggestionSeed = {
+  controls: CustomEvidenceControl[] | null
+  subcontrols: CustomEvidenceControl[] | null
+  hadLinkedControls: boolean
+}
+
 export const useEvidenceSuggestedControls = ({ evidenceControls, evidenceSubcontrols, enabled = true }: UseEvidenceSuggestedControlsArgs) => {
-  const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
+  const hasLinkedControls = (evidenceControls?.length ?? 0) + (evidenceSubcontrols?.length ?? 0) > 0
+  const [seed, setSeed] = useState<SuggestionSeed | null>(null)
+  const shouldReseed = seed === null || seed.hadLinkedControls !== hasLinkedControls
+
+  if (!enabled) {
+    if (seed !== null) setSeed(null)
+  } else if (shouldReseed) {
+    setSeed({ controls: evidenceControls, subcontrols: evidenceSubcontrols, hadLinkedControls: hasLinkedControls })
+  }
+
+  const where = useMemo(() => (seed ? buildWhere(seed.controls, seed.subcontrols) : undefined), [seed])
 
   const { mappedControlEdges, isLoading: isMappedLoading } = useGetAllMappedControlsGrouped({
     where,
@@ -29,14 +45,16 @@ export const useEvidenceSuggestedControls = ({ evidenceControls, evidenceSubcont
   })
 
   const suggestions = useMemo(() => {
-    return flattenAndFilterControls(mappedControlEdges, evidenceControls, evidenceSubcontrols).map((item) => ({
+    if (!seed) return []
+
+    return flattenAndFilterControls(mappedControlEdges, seed.controls, seed.subcontrols).map((item) => ({
       id: item.id,
       refCode: item.refCode,
       referenceFramework: item.referenceFramework ?? null,
       source: item.source ?? '',
       typeName: item.type,
     }))
-  }, [mappedControlEdges, evidenceControls, evidenceSubcontrols])
+  }, [mappedControlEdges, seed])
 
   const controlRefCodes = useMemo(() => Array.from(new Set(suggestions.filter((s) => s.typeName === ObjectTypes.CONTROL).map((s) => s.refCode))), [suggestions])
 
