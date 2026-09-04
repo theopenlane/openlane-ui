@@ -91,7 +91,7 @@
     "@ai-sdk/openai": "^4.0.46",
     "@ai-sdk/provider": "^4.0.7",
     "@ai-sdk/provider-utils": "^5.0.29",
-    "@ai-sdk/react": "4.0.80",
+    "@ai-sdk/react": "4.0.87",
     "@ariakit/react": "^0.4.38",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
