@@ -17,6 +17,7 @@ type TEvidenceDetailHeaderProps = {
   isEditing: boolean
   isAuditor: boolean
   editAllowed: boolean
+  editPermissionLoading: boolean
   auditorActionPending: boolean
   onStatusChange: (status: EvidenceEvidenceStatus) => void
   onCopyLink: () => void
@@ -36,6 +37,7 @@ const EvidenceDetailHeader: React.FC<TEvidenceDetailHeaderProps> = ({
   isEditing,
   isAuditor,
   editAllowed,
+  editPermissionLoading,
   auditorActionPending,
   onStatusChange,
   onCopyLink,
@@ -84,8 +86,8 @@ const EvidenceDetailHeader: React.FC<TEvidenceDetailHeaderProps> = ({
                 </Button>
               </>
             )}
-            {editAllowed && evidenceId && (
-              <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={onEdit} aria-label="Edit evidence">
+            {(editAllowed || editPermissionLoading) && evidenceId && (
+              <Button type="button" variant="secondary" className="p-1! h-8 bg-card" disabled={editPermissionLoading} onClick={onEdit} aria-label="Edit evidence">
                 <Pencil size={16} strokeWidth={2} />
               </Button>
             )}

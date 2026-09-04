@@ -163,6 +163,7 @@ export const useGetEvidenceById = (evidenceId?: string | null) => {
     queryKey: ['evidences', evidenceId],
     queryFn: async () => client.request(GET_EVIDENCE, { evidenceId }),
     enabled: !!evidenceId,
+    placeholderData: undefined,
   })
 }
 
@@ -173,6 +174,7 @@ export const useGetRenewEvidenceById = (evidenceId?: string | null, enabled: boo
     queryKey: ['getRenewEvidenceById', evidenceId],
     queryFn: async () => client.request(GET_RENEW_EVIDENCE, { evidenceId }),
     enabled: enabled && !!evidenceId,
+    placeholderData: undefined,
   })
 
   const evidence = queryResult.data?.evidence

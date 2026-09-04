@@ -93,7 +93,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
 
   const [editField, setEditField] = useState<EvidenceEditableField | null>(null)
 
-  const { data: permission } = useAccountRoles(ObjectTypes.EVIDENCE, data?.evidence?.id)
+  const { data: permission, isLoading: permissionLoading } = useAccountRoles(ObjectTypes.EVIDENCE, config.id)
 
   const editAllowed = canEdit(permission?.roles, session) || isAuditor
 
@@ -414,6 +414,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
             isEditing={isEditing}
             isAuditor={isAuditor}
             editAllowed={editAllowed}
+            editPermissionLoading={permissionLoading}
             auditorActionPending={auditorActionPending}
             onStatusChange={handleStatusChange}
             onCopyLink={handleCopyLink}
@@ -436,7 +437,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
           </div>
         ) : (
           <Form {...form}>
-            <form onSubmit={handleSave} className="pr-4 flex flex-col gap-6">
+            <form key={config.id} onSubmit={handleSave} className="pr-4 flex flex-col gap-6">
               {config.id && <ObjectWorkflowPanel objectId={config.id} objectType="Evidence" objectLabel={evidence.name} />}
 
               <EvidenceOverviewSection
