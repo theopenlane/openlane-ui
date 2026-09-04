@@ -1,10 +1,10 @@
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { X } from 'lucide-react'
 import type { Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { formatTimeSince } from '@/utils/date'
 import { FILTER_LABELS, WORK_ITEM_ROW_CLASS } from './types'
+import SectionHeader from './section-header'
 
 type ApprovalsSectionProps = {
   notifications: Notification[]
@@ -18,12 +18,7 @@ const ApprovalsSection = ({ notifications, showHeader, onOpen, onDismiss }: Appr
 
   return (
     <div className="space-y-3">
-      {showHeader && (
-        <p className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          {FILTER_LABELS.approvals}
-          <Badge variant="secondary">{notifications.length}</Badge>
-        </p>
-      )}
+      {showHeader && <SectionHeader label={FILTER_LABELS.approvals} count={notifications.length} />}
       {notifications.map((notification) => (
         <div key={`notification-${notification.id}`} className={WORK_ITEM_ROW_CLASS} onClick={() => onOpen(notification)}>
           <div className="min-w-0 flex-1">

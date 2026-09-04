@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { type InfiniteData, type QueryKey, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   CREATE_EVIDENCE,
@@ -313,6 +314,43 @@ export const useGetEvidenceListLight = ({ orderBy, pagination, where, enabled = 
     evidences,
     paginationMeta,
   }
+}
+
+type TGetEvidenceListLightInfiniteProps = {
+  orderBy?: EvidenceOrder | EvidenceOrder[]
+  where?: EvidenceWhereInput
+  pageSize: number
+  enabled?: boolean
+}
+
+export const useGetEvidenceListLightInfinite = ({ orderBy, where, pageSize, enabled = true }: TGetEvidenceListLightInfiniteProps) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useInfiniteQuery<GetEvidenceListLightQuery, Error, InfiniteData<GetEvidenceListLightQuery>, QueryKey, string | null>({
+    initialPageParam: null,
+    queryKey: ['evidences', 'light', 'infinite', where, orderBy, pageSize],
+    queryFn: async ({ pageParam }) => client.request<GetEvidenceListLightQuery>(GET_EVIDENCE_LIST_LIGHT, { where, orderBy, first: pageSize, after: pageParam }),
+    getNextPageParam: (lastPage, _allPages, _lastPageParam, allPageParams) => {
+      const pageInfo = lastPage.evidences?.pageInfo
+      const nextCursor = pageInfo?.endCursor ?? null
+
+      if (!pageInfo?.hasNextPage || nextCursor === null || allPageParams.includes(nextCursor)) {
+        return undefined
+      }
+
+      return nextCursor
+    },
+    enabled,
+  })
+
+  const evidences: EvidenceLight[] = useMemo(
+    () => queryResult.data?.pages.flatMap((page) => (page.evidences?.edges ?? []).map((edge) => edge?.node).filter((node): node is EvidenceLight => !!node)) ?? [],
+    [queryResult.data],
+  )
+
+  const totalCount = queryResult.data?.pages[0]?.evidences?.totalCount ?? 0
+
+  return { ...queryResult, evidences, totalCount }
 }
 
 export type TEvidenceCountsByStatus = Pick<GetEvidenceCountsByStatusAllProgramsQuery, keyof GetEvidenceCountsByStatusAllProgramsQuery & keyof GetEvidenceCountsByStatusByProgramIdQuery>

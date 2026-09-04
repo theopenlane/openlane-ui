@@ -66,7 +66,16 @@ const DashboardTasksAndSuggestions = () => {
                 <ApprovalsSection notifications={workItems.approvalNotifications} showHeader={showSectionHeaders} onOpen={workItems.openNotification} onDismiss={workItems.dismissNotification} />
               )}
 
-              {workItems.showEvidenceRequests && <EvidenceRequestsSection evidenceRequests={workItems.evidenceRequests} showHeader={showSectionHeaders} />}
+              {workItems.showEvidenceRequests && (
+                <EvidenceRequestsSection
+                  evidenceRequests={workItems.evidenceRequests}
+                  totalCount={workItems.evidenceRequestsTotalCount}
+                  showHeader={showSectionHeaders}
+                  hasMore={workItems.hasMoreEvidenceRequests}
+                  isLoadingMore={workItems.isLoadingMoreEvidenceRequests}
+                  onShowMore={workItems.showMoreEvidenceRequests}
+                />
+              )}
 
               {workItems.isEmpty && (
                 <div className="flex flex-col items-center gap-2 py-6 text-center">
