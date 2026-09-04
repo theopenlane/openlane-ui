@@ -7,15 +7,15 @@ import { cn } from '@repo/ui/lib/utils'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const EvidenceStatusColors: Record<EvidenceEvidenceStatus, string> = {
-  [EvidenceEvidenceStatus.AUDITOR_APPROVED]: '#15803D',
-  [EvidenceEvidenceStatus.REJECTED]: '#B91C1C',
-  [EvidenceEvidenceStatus.NEEDS_RENEWAL]: '#CA8A04',
-  [EvidenceEvidenceStatus.READY_FOR_AUDITOR]: '#16A34A',
-  [EvidenceEvidenceStatus.MISSING_ARTIFACT]: '#EF4444',
-  [EvidenceEvidenceStatus.SUBMITTED]: '#2563EB',
-  [EvidenceEvidenceStatus.IN_REVIEW]: '#D97706',
-  [EvidenceEvidenceStatus.DRAFT]: '#6B7280',
-  [EvidenceEvidenceStatus.REQUESTED]: '#f97316',
+  [EvidenceEvidenceStatus.AUDITOR_APPROVED]: 'var(--color-evidence-auditor-approved)',
+  [EvidenceEvidenceStatus.REJECTED]: 'var(--color-evidence-rejected)',
+  [EvidenceEvidenceStatus.NEEDS_RENEWAL]: 'var(--color-evidence-needs-renewal)',
+  [EvidenceEvidenceStatus.READY_FOR_AUDITOR]: 'var(--color-evidence-ready-for-auditor)',
+  [EvidenceEvidenceStatus.MISSING_ARTIFACT]: 'var(--color-evidence-missing-artifact)',
+  [EvidenceEvidenceStatus.SUBMITTED]: 'var(--color-evidence-submitted)',
+  [EvidenceEvidenceStatus.IN_REVIEW]: 'var(--color-evidence-in-review)',
+  [EvidenceEvidenceStatus.DRAFT]: 'var(--color-evidence-draft)',
+  [EvidenceEvidenceStatus.REQUESTED]: 'var(--color-evidence-requested)',
 }
 
 const statusIcon = (status: EvidenceEvidenceStatus, Icon: LucideIcon) => <Icon size={16} className="shrink-0" style={{ color: EvidenceStatusColors[status] }} />

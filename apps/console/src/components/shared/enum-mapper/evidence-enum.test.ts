@@ -1,10 +1,15 @@
+import { readFileSync } from 'node:fs'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
 import { EvidenceStatusColors, getEvidenceStatusStyle } from './evidence-enum'
 
+const uiStyles = readFileSync(new URL('../../../../../../packages/ui/src/styles.css', import.meta.url), 'utf8')
+
 describe('EvidenceStatusColors', () => {
-  test('covers every evidence status', () => {
+  test('maps every evidence status to a design token defined in the ui theme', () => {
     for (const status of Object.values(EvidenceEvidenceStatus)) {
-      expect(EvidenceStatusColors[status]).toMatch(/^#[0-9a-fA-F]{6}$/)
+      const token = EvidenceStatusColors[status]
+      expect(token).toMatch(/^var\(--color-evidence-[a-z-]+\)$/)
+      expect(uiStyles).toContain(`${token.slice(4, -1)}:`)
     }
   })
 })
