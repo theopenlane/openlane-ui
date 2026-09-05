@@ -1,13 +1,7 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
-import type Stripe from 'stripe'
 import { auth } from '@/lib/auth/auth'
-
-const LIVE_STATUSES: Stripe.Subscription.Status[] = ['active', 'trialing', 'past_due', 'unpaid', 'paused', 'incomplete']
-
-const isLive = (subscription: Stripe.Subscription) => LIVE_STATUSES.includes(subscription.status)
-
-const belongsToCustomer = (subscription: Stripe.Subscription, customerId: string) => (typeof subscription.customer === 'string' ? subscription.customer : subscription.customer.id) === customerId
+import { belongsToCustomer, isLive, pickLiveSubscription } from './live-subscription'
 
 export async function GET(req: Request) {
   // ensure we have a valid session
@@ -38,9 +32,7 @@ export async function GET(req: Request) {
       limit: 100,
     })
 
-    const live = subs.data.filter(isLive).sort((a, b) => LIVE_STATUSES.indexOf(a.status) - LIVE_STATUSES.indexOf(b.status))[0]
-
-    return NextResponse.json(live ?? null)
+    return NextResponse.json(pickLiveSubscription(subs.data))
   } catch (err: unknown) {
     console.error('❌ Stripe error:', err)
 
