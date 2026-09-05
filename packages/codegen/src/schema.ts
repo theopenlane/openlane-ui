@@ -4780,6 +4780,7 @@ export interface GetIntegrationsQuery {
         tags: Array<string> | null
         description: string | null
         metadata: any
+        health: any
         primaryDirectory: boolean
         createdAt: any
         createdBy: string | null

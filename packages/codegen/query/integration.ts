@@ -16,6 +16,7 @@ export const GET_INTEGRATIONS = gql`
           tags
           description
           metadata
+          health
           primaryDirectory
           createdAt
           createdBy

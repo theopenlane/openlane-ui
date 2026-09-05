@@ -8,23 +8,23 @@ import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
-import {
-  getInstalledIntegrationConfig,
-  installedIntegrationDisplayName,
-  providerSupportsHealth,
-  readIntegrationUserInput,
-  resolveConnectionEntry,
-  resolveCredentialEntry,
-  resolveManageUrl,
-} from '@/lib/integrations/utils'
+import { type IntegrationHealth, type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
+import { getInstalledIntegrationConfig, installedIntegrationDisplayName, readIntegrationUserInput, resolveConnectionEntry, resolveCredentialEntry, resolveManageUrl } from '@/lib/integrations/utils'
 import { PRIMARY_DOCUMENT_FIELD, providerHasUserInputSchema } from '@/lib/integrations/flow'
-import { useDisconnectIntegration, useIntegrationHealth } from '@/lib/query-hooks/integrations'
+import { useDisconnectIntegration, useIntegrationHealthCheck } from '@/lib/query-hooks/integrations'
+import { IntegrationIntegrationStatus } from '@repo/codegen/src/schema'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import IntegrationCardIcons from './integration-card-icons'
 import IntegrationConfigurationDialog from './integration-configuration-dialog'
+
+type TIntegrationHealthBadge = {
+  label: string
+  summary?: string
+  variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'green'
+}
 
 type InstalledIntegrationCardProps = {
   integration: IntegrationNode
@@ -43,25 +43,22 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
   const displayName = installedIntegrationDisplayName(integration, providers)
   const integrationConfig = getInstalledIntegrationConfig(integration, providers)
   const provider = integrationConfig?.provider
-  const supportsHealth = providerSupportsHealth(provider)
   const hasUserInput = providerHasUserInputSchema(provider)
   const isPrimaryDocument = readIntegrationUserInput(integration)[PRIMARY_DOCUMENT_FIELD] === true
 
-  // The GraphQL query requests `metadata` but codegen maps it to `providerMetadataSnapshot`.
-  // At runtime the response key is `metadata`. A single cast bridges the mismatch until
-  // codegen is regenerated.
-  const meta = ((integration as Record<string, unknown>).metadata ?? undefined) as IntegrationMetadata | undefined
+  const meta: IntegrationMetadata | undefined = integration.metadata ?? undefined
+  const health: IntegrationHealth | undefined = integration.health ?? undefined
   const externalName = meta?.externalName ?? ''
   const externalId = meta?.externalId ?? ''
   const credentialRefName = meta?.credentialRef ?? ''
-  const lastHealthCheck = meta?.lastSuccessfulHealthCheck ?? ''
+  const lastHealthCheck = health?.lastSuccessfulHealthCheck ?? ''
   const credentialEntry = resolveCredentialEntry(provider, credentialRefName)
   const connectionEntry = resolveConnectionEntry(provider, credentialRefName || undefined)
   const manageUrl = resolveManageUrl(provider, connectionEntry, externalId, externalName)
 
   const disconnectMutation = useDisconnectIntegration()
-  const healthQuery = useIntegrationHealth(integration.id, supportsHealth)
-  const healthStatus = resolveHealthStatus(healthQuery.isPending, healthQuery.isError, healthQuery.data)
+  const healthCheck = useIntegrationHealthCheck()
+  const healthStatus = resolveHealthStatus(integration.status, health, healthCheck.isPending)
 
   const { userMap, tokenMap } = useAuthorMaps([integration.createdBy])
 
@@ -126,9 +123,11 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
               Manage Connections
             </Button>
           ) : null}
-          <Button variant="secondary" icon={<Activity className="size-4" />} iconPosition="left" onClick={() => healthQuery.refetch()} disabled={healthQuery.isFetching}>
-            {healthQuery.isFetching ? 'Checking...' : 'Health Check'}
-          </Button>
+          {canManage ? (
+            <Button variant="secondary" icon={<Activity className="size-4" />} iconPosition="left" onClick={() => healthCheck.mutate(integration.id)} disabled={healthCheck.isPending}>
+              {healthCheck.isPending ? 'Checking...' : 'Health Check'}
+            </Button>
+          ) : null}
           {!linkToDetail && canManage && hasUserInput ? (
             <Button variant="secondary" icon={<Settings className="size-4" />} iconPosition="left" onClick={() => setConfigOpen(true)}>
               Configure
@@ -172,27 +171,27 @@ const InstalledIntegrationCard = ({ integration, providers, canManage, linkToDet
 
 export default InstalledIntegrationCard
 
-function resolveHealthStatus(
-  isLoading: boolean,
-  isError: boolean,
-  data?: { status?: string; summary?: string },
-): {
-  label: string
-  summary?: string
-  variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'green'
-} {
-  if (isLoading) {
+const resolveHealthStatus = (status: IntegrationIntegrationStatus, health: IntegrationHealth | undefined, isChecking: boolean): TIntegrationHealthBadge => {
+  if (isChecking) {
     return { label: 'Checking', variant: 'secondary' }
   }
 
-  if (isError) {
-    return { label: 'Needs Attention', summary: 'Health check failed.', variant: 'destructive' }
-  }
-
-  switch ((data?.status ?? '').toLowerCase()) {
-    case 'ok':
-      return { label: 'Healthy', summary: data?.summary, variant: 'green' }
+  switch (status) {
+    case IntegrationIntegrationStatus.CONNECTED:
+      return { label: 'Healthy', variant: 'green' }
+    case IntegrationIntegrationStatus.DEGRADED: {
+      const failing = Object.entries(health?.unhealthyOperations ?? {})
+        .map(([name, reason]) => `${name}: ${reason}`)
+        .join('\n')
+      return { label: 'Degraded', summary: failing || 'One or more operations are failing.', variant: 'destructive' }
+    }
+    case IntegrationIntegrationStatus.ERRORED:
+      return { label: 'Needs Attention', summary: health?.unhealthyReason || 'The integration has stopped syncing.', variant: 'destructive' }
+    case IntegrationIntegrationStatus.PENDING:
+      return { label: 'Pending', variant: 'outline' }
+    case IntegrationIntegrationStatus.DISABLED:
+      return { label: 'Disabled', variant: 'secondary' }
     default:
-      return { label: 'Unknown', variant: 'outline' }
+      return { label: getEnumLabel(status), variant: 'outline' }
   }
 }

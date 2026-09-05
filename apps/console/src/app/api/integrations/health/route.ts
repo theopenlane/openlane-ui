@@ -1,6 +1,5 @@
 import { auth } from '@/lib/auth/auth'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
-import { HEALTH_CHECK_OPERATION_NAME } from '@/lib/integrations/utils'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { type NextRequest, NextResponse } from 'next/server'
 import { parseProxyResponse } from '../proxy-response'
@@ -24,19 +23,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Integration ID is required' }, { status: 400 })
     }
 
-    const upstreamURL = `${openlaneAPIUrl}/v1/integrations/${encodeURIComponent(integrationId)}/operations/run`
+    const upstreamURL = `${openlaneAPIUrl}/v1/integrations/${encodeURIComponent(integrationId)}/health`
 
     const upstreamResponse = await secureFetch(upstreamURL, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        body: {
-          operation: HEALTH_CHECK_OPERATION_NAME,
-          config: {},
-        },
-      }),
     })
 
     const rawBody = await upstreamResponse.text()
