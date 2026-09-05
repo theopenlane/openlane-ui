@@ -15,6 +15,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { ROW_ACTIONS_COLUMN_ID } from '@repo/ui/pinned-columns'
 
 type RecipientsTableProps = {
   campaignId: string
@@ -119,7 +120,7 @@ const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipie
     }
 
     const removeColumn: ColumnDef<CampaignTargetsNodeNonNull> = {
-      id: 'remove',
+      id: ROW_ACTIONS_COLUMN_ID,
       header: '',
       size: 48,
       cell: ({ row }) => (

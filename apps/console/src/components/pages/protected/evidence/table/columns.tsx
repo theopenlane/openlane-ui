@@ -17,6 +17,7 @@ import { createSelectColumn } from '@/components/shared/crud-base/columns/select
 import { formatDate } from '@/utils/date.ts'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { TruncatedCell } from '@repo/ui/data-table'
+import { ROW_ACTIONS_COLUMN_ID } from '@repo/ui/pinned-columns'
 
 type TGetEvidenceColumnsProps = {
   userMap: Record<string, User>
@@ -197,7 +198,7 @@ export const useGetEvidenceColumns = ({ userMap, tokenMap, selectedEvidence, set
 
   if (isAuditor) {
     columns.push({
-      id: 'auditorActions',
+      id: ROW_ACTIONS_COLUMN_ID,
       header: 'Actions',
       size: 290,
       minSize: 290,

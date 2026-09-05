@@ -4,8 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import type { RowDragDropConfig } from '@repo/ui/data-table'
 import { MergeRecordsSheet } from './merge-records-sheet'
 import { useMergeMode } from './merge-mode-context'
-import { SELECT_COLUMN_ID } from '@/components/shared/crud-base/columns/select-column'
-import { ROW_ACTIONS_COLUMN_ID } from '@/components/shared/crud-base/columns/row-actions-column'
+import { ROW_ACTIONS_COLUMN_ID, SELECT_COLUMN_ID } from '@repo/ui/pinned-columns'
 import type { MergeConfig } from './types'
 
 type MergePair = { dropId: number; primaryId: string; secondaryId: string; secondaryLabel: string }

@@ -22,6 +22,7 @@
     "./code-block": "./src/code-block/code-block.tsx",
     "./command": "./src/command.tsx",
     "./data-table": "./src/data-table/data-table.tsx",
+    "./pinned-columns": "./src/data-table/pinned-columns.ts",
     "./table-key": "./src/data-table/table-key.ts",
     "./table-types": "./src/data-table/table-types.ts",
     "./dialog": "./src/dialog/dialog.tsx",

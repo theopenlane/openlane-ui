@@ -50,6 +50,7 @@ import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
 import { cn } from '../../lib/utils'
 import { TableKeyValue } from '../data-table/table-key.ts'
+import { isPinnedColumnId, reconcileColumnOrder, sortPinnedColumns } from './pinned-columns'
 export { TruncatedCell } from './truncated-cell'
 
 type CustomColumnDef<TData extends RowData> = ColumnDef<TData> & {
@@ -246,8 +247,6 @@ function calcHeaderTextMinSize(header: unknown, hasSortField: boolean): number |
   return Math.max(DEFAULT_COLUMN_MIN_SIZE, textWidth + sortWidth + AUTO_MIN_SIZE_GRIP_ICON)
 }
 
-const NON_REORDERABLE_COLUMNS = new Set(['select'])
-
 interface SortableHeaderCellProps<TData extends RowData> {
   header: Header<TData, unknown>
   sortField: { key: string; label: string } | undefined
@@ -257,7 +256,7 @@ interface SortableHeaderCellProps<TData extends RowData> {
 }
 
 function SortableHeaderCell<TData extends RowData>({ header, sortField, sorting, handleSortChange, isLastHeader }: SortableHeaderCellProps<TData>) {
-  const isDragDisabled = NON_REORDERABLE_COLUMNS.has(header.column.id)
+  const isDragDisabled = isPinnedColumnId(header.column.id)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: header.column.id, disabled: isDragDisabled })
   const columnCssKey = cssVarKey(header.column.id)
   const columnWidth = `var(--col-${columnCssKey})`
@@ -464,16 +463,19 @@ export function DataTable<TData extends RowData>({
   }, [effectiveColumnVisibility, pageInfo])
 
   const enhancedColumns = useMemo(() => {
-    return columns.map((col) => {
+    const withAutoMinSize = columns.map((col) => {
       if (col.minSize != null) return col
       const hasSortField = sortFields?.some((sf) => normalizeKey(sf.key) === normalizeKey(resolveColumnId(col))) ?? false
       const autoMinSize = calcHeaderTextMinSize(col.header, hasSortField)
       if (autoMinSize == null) return col
       return { ...col, minSize: autoMinSize }
     })
+    return sortPinnedColumns(withAutoMinSize, resolveColumnId)
   }, [columns, sortFields])
 
   const fixedMaxColumns = useMemo(() => new Set(enhancedColumns.filter((col) => col.maxSize != null).map(resolveColumnId)), [enhancedColumns])
+
+  const effectiveColumnOrder = useMemo(() => reconcileColumnOrder(columnOrder), [columnOrder])
 
   const tableRef = useRef<TanstackTable<TData> | null>(null)
   const containerWidthRef = useRef(0)
@@ -520,7 +522,7 @@ export function DataTable<TData extends RowData>({
     state: {
       columnFilters,
       columnVisibility: effectiveColumnVisibility,
-      columnOrder,
+      columnOrder: effectiveColumnOrder,
       rowSelection,
       columnSizing: columnSizes,
       pagination: {
@@ -552,16 +554,12 @@ export function DataTable<TData extends RowData>({
 
     if (!over || active.id === over.id) return
 
-    setColumnOrder((prev) => {
-      const currentOrder = prev.length > 0 ? prev : table.getAllLeafColumns().map((c) => c.id)
-      const oldIndex = currentOrder.indexOf(active.id as string)
-      const newIndex = currentOrder.indexOf(over.id as string)
-      if (oldIndex === -1 || newIndex === -1) return prev
-      const reordered = arrayMove(currentOrder, oldIndex, newIndex)
-      const pinned = reordered.filter((id) => NON_REORDERABLE_COLUMNS.has(id))
-      const rest = reordered.filter((id) => !NON_REORDERABLE_COLUMNS.has(id))
-      return [...pinned, ...rest]
-    })
+    const renderedOrder = table.getAllLeafColumns().map((col) => col.id)
+    const oldIndex = renderedOrder.indexOf(active.id as string)
+    const newIndex = renderedOrder.indexOf(over.id as string)
+    if (oldIndex === -1 || newIndex === -1) return
+
+    setColumnOrder(reconcileColumnOrder(arrayMove(renderedOrder, oldIndex, newIndex)))
   }
 
   useLayoutEffect(() => {
@@ -664,10 +662,10 @@ export function DataTable<TData extends RowData>({
   }
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && tableKey && columnOrder.length > 0) {
-      localStorage.setItem(`${STORAGE_COLUMN_ORDER_KEY_PREFIX}${tableKey}`, JSON.stringify(columnOrder))
+    if (typeof window !== 'undefined' && tableKey && effectiveColumnOrder.length > 0) {
+      localStorage.setItem(`${STORAGE_COLUMN_ORDER_KEY_PREFIX}${tableKey}`, JSON.stringify(effectiveColumnOrder))
     }
-  }, [columnOrder, tableKey])
+  }, [effectiveColumnOrder, tableKey])
 
   return (
     <>
