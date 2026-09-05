@@ -30,10 +30,11 @@ import { BulkCSVCreateEvidenceDialog } from '@/components/pages/protected/eviden
 import { getControlReview, getControlLastReviewed } from '../utils/control-status'
 import { getProgramScopedMappedControls } from '../utils/mapped-controls'
 import { getIncludeVars } from '@/components/shared/crud-base/columns/get-include-vars'
+import { getExportFields } from '@/components/shared/crud-base/columns/get-export-fields'
 import { getAuditorDashboardColumns, getAuditorDashboardMappedColumns, type AuditorDashboardControlRow } from './columns'
 import useFileExport from '@/components/shared/export/use-file-export'
 import {
-  AUDITOR_CONTROL_EXPORT_FIELDS,
+  AUDITOR_CONTROL_BASE_EXPORT_FIELDS,
   AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES,
   AUDITOR_DASHBOARD_DEFAULT_SORT,
   AUDITOR_DASHBOARD_SORT_FIELDS,
@@ -155,7 +156,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
     handleExport({
       exportType: ExportExportType.CONTROL,
       filters: JSON.stringify(where),
-      fields: AUDITOR_CONTROL_EXPORT_FIELDS,
+      fields: getExportFields(columns, columnVisibility, AUDITOR_CONTROL_BASE_EXPORT_FIELDS),
       format: ExportExportFormat.CSV,
     })
 
