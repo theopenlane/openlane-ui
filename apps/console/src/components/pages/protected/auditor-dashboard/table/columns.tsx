@@ -101,6 +101,7 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
       size: 240,
       meta: {
         gqlInclude: ['includeRelatedControls'] satisfies AuditorDashboardIncludeVar[],
+        exportPrefix: 'relatedControls.refCode',
       },
       cell: ({ row }) => <MappedControlsCell items={row.original.mappedControls} />,
     },

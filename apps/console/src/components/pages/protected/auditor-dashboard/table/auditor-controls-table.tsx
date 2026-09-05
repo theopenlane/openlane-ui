@@ -47,7 +47,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
   const [startReviewControlId, setStartReviewControlId] = useState<string | null>(null)
   const [openReviewId, setOpenReviewId] = useState<string | null>(null)
   const [requestInfoControl, setRequestInfoControl] = useState<{ id: string; refCode: string } | null>(null)
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, { linkedPolicies: false, mappedControls: false }))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, {}))
 
   const queryClient = useQueryClient()
   const { data: permission } = useOrganizationRoles()
