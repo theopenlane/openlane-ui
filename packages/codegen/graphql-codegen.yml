@@ -36,6 +36,8 @@ generates:
   ./src/schema.graphql:
     plugins:
       - schema-ast
+    config:
+      includeDirectives: true
   ./src/schema-types.ts:
     plugins:
       - typescript # Base TypeScript types (object types, inputs, native enums) from the GraphQL schema

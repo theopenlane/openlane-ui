@@ -102,7 +102,7 @@ export default function SideNav({
   onPrimaryExpandToggle,
   onSecondaryExpandToggle,
 }: TSideNavProps) {
-  const { data: session } = useSession()
+  const { data: session, status: sessionStatus } = useSession()
   const pathname = usePathname()
   const router = useRouter()
   const isLocked = useIsNavItemLocked()
@@ -111,15 +111,17 @@ export default function SideNav({
   const billingExpired = featureUtil.hasNoModules(session)
 
   useEffect(() => {
-    if (!openPanel) {
-      const firstItem = navItems
-        .filter((item): item is NavItem => 'title' in item)
-        .filter((item) => !item.hidden && !isLocked(item))
-        .find((item) => item.children && item.children.length > 0)
-
-      onToggleAction(firstItem?.title?.toLowerCase() as PanelKey)
+    if (sessionStatus === 'loading' || openPanel) {
+      return
     }
-  }, [isLocked, navItems, onToggleAction, openPanel])
+
+    const firstItem = navItems
+      .filter((item): item is NavItem => 'title' in item)
+      .filter((item) => !item.hidden && !isLocked(item))
+      .find((item) => item.children && item.children.length > 0)
+
+    onToggleAction((firstItem?.title?.toLowerCase() as PanelKey) ?? null)
+  }, [isLocked, navItems, onToggleAction, openPanel, sessionStatus])
 
   const handleTogglePanel = (item: NavItem) => {
     const panelKey = item?.title?.toLowerCase() as PanelKey

@@ -16,7 +16,7 @@ export interface NavItem {
   isChildren?: boolean
   children?: NavItem[]
   hidden?: boolean
-  plan?: PlanEnum
+  plan?: PlanEnum | PlanEnum[]
   objectType?: ObjectTypes
 }
 
