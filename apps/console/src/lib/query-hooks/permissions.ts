@@ -36,6 +36,7 @@ export const useAccountRoles = (objectType: string, id?: string | number | null,
     queryKey: ['accountRoles', snakeCaseObjectType, id],
     enabled: !!snakeCaseObjectType && !!id && enabled && !isImpersonation,
     retry: shouldRetryPermission,
+    placeholderData: undefined,
     queryFn: async () => {
       const res = await fetchWithRetry('/api/permissions/account-roles', {
         method: 'POST',
@@ -109,9 +110,10 @@ export const useAccountRolesMany = ({ objectType, ids, enabled = true }: UseAcco
   const isImpersonation = !!session?.user?.isImpersonation
 
   const resp = useQuery<useAccountRolesManyResponse>({
-    queryKey: ['accountRolesMany', objectType, ids.sort().join('')],
+    queryKey: ['accountRolesMany', objectType, [...ids].sort().join('')],
     enabled: !!objectType && ids.length > 0 && enabled && !isImpersonation,
     retry: shouldRetryPermission,
+    placeholderData: undefined,
     queryFn: async () => {
       const res = await fetchWithRetry('/api/permissions/account-roles', {
         method: 'POST',
