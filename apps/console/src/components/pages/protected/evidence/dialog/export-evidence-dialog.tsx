@@ -11,6 +11,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCreateExport } from '@/lib/graphql-hooks/export'
 import { ExportExportMode, ExportExportType } from '@repo/codegen/src/schema.ts'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useControllableOpen } from '@/hooks/useControllableOpen'
 
 type ExportEvidenceDialogProps = {
   trigger?: React.ReactElement<
@@ -21,10 +22,12 @@ type ExportEvidenceDialogProps = {
     }>
   >
   filters?: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-const ExportEvidenceDialog: React.FC<ExportEvidenceDialogProps> = ({ trigger, filters }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+const ExportEvidenceDialog: React.FC<ExportEvidenceDialogProps> = ({ trigger, filters, open: openProp, onOpenChange }) => {
+  const [isOpen, setIsOpen, isControlled] = useControllableOpen({ open: openProp, onOpenChange })
   const [mode, setMode] = useState<ExportExportMode>(ExportExportMode.FOLDER)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createExport, isPending: isSubmitting } = useCreateExport()
@@ -62,13 +65,13 @@ const ExportEvidenceDialog: React.FC<ExportEvidenceDialogProps> = ({ trigger, fi
             disabled: isSubmitting,
           })}
         </DialogTrigger>
-      ) : (
+      ) : !isControlled ? (
         <DialogTrigger asChild>
           <Button variant="transparent" icon={<Download />} className="h-8 px-2!" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
             Export
           </Button>
         </DialogTrigger>
-      )}
+      ) : null}
 
       <DialogContent className="sm:max-w-[480px] bg-secondary">
         <DialogHeader>
