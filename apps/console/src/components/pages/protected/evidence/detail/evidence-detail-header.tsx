@@ -17,6 +17,8 @@ type TEvidenceDetailHeaderProps = {
   isEditing: boolean
   isAuditor: boolean
   editAllowed: boolean
+  editPermissionLoading: boolean
+  isLoading: boolean
   auditorActionPending: boolean
   onStatusChange: (status: EvidenceEvidenceStatus) => void
   onCopyLink: () => void
@@ -36,6 +38,8 @@ const EvidenceDetailHeader: React.FC<TEvidenceDetailHeaderProps> = ({
   isEditing,
   isAuditor,
   editAllowed,
+  editPermissionLoading,
+  isLoading,
   auditorActionPending,
   onStatusChange,
   onCopyLink,
@@ -65,34 +69,38 @@ const EvidenceDetailHeader: React.FC<TEvidenceDetailHeaderProps> = ({
             <Button className="h-8 p-2" icon={<Copy />} iconPosition="left" variant="secondary" onClick={onCopyLink}>
               Copy link
             </Button>
-            {evidenceId && !isAuditor && <EvidenceRenewDialog evidenceId={evidenceId} controlId={controlId} />}
-            {isAuditor && evidenceId && (
+            {!isLoading && (
               <>
-                <Button
-                  type="button"
-                  className="h-8 p-2"
-                  icon={<Stamp size={16} />}
-                  iconPosition="left"
-                  onClick={onApprove}
-                  loading={auditorActionPending}
-                  disabled={auditorActionPending || status === EvidenceEvidenceStatus.AUDITOR_APPROVED}
-                >
-                  Approve
-                </Button>
-                <Button type="button" variant="destructive" className="h-8 p-2" icon={<RefreshCw size={16} />} iconPosition="left" onClick={onRequestChanges} disabled={auditorActionPending}>
-                  Request Changes
-                </Button>
+                {evidenceId && !isAuditor && <EvidenceRenewDialog evidenceId={evidenceId} controlId={controlId} />}
+                {isAuditor && evidenceId && (
+                  <>
+                    <Button
+                      type="button"
+                      className="h-8 p-2"
+                      icon={<Stamp size={16} />}
+                      iconPosition="left"
+                      onClick={onApprove}
+                      loading={auditorActionPending}
+                      disabled={auditorActionPending || status === EvidenceEvidenceStatus.AUDITOR_APPROVED}
+                    >
+                      Approve
+                    </Button>
+                    <Button type="button" variant="destructive" className="h-8 p-2" icon={<RefreshCw size={16} />} iconPosition="left" onClick={onRequestChanges} disabled={auditorActionPending}>
+                      Request Changes
+                    </Button>
+                  </>
+                )}
+                {(editAllowed || editPermissionLoading) && evidenceId && (
+                  <Button type="button" variant="secondary" className="p-1! h-8 bg-card" disabled={editPermissionLoading} onClick={onEdit} aria-label="Edit evidence">
+                    <Pencil size={16} strokeWidth={2} />
+                  </Button>
+                )}
+                {evidenceId && (
+                  <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={onDelete} aria-label="Delete evidence">
+                    <Trash2 size={16} strokeWidth={2} />
+                  </Button>
+                )}
               </>
-            )}
-            {editAllowed && evidenceId && (
-              <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={onEdit} aria-label="Edit evidence">
-                <Pencil size={16} strokeWidth={2} />
-              </Button>
-            )}
-            {evidenceId && (
-              <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={onDelete} aria-label="Delete evidence">
-                <Trash2 size={16} strokeWidth={2} />
-              </Button>
             )}
           </>
         )}
