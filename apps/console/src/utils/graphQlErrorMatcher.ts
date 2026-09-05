@@ -167,6 +167,14 @@ const parseError = (error: unknown): TParseError | undefined => {
   return undefined
 }
 
+const COMPLEXITY_PATTERN = /operation has complexity (\d+), which exceeds the limit of (\d+)/
+
+const describeComplexity = (message: string): string | undefined => {
+  const matched = message.match(COMPLEXITY_PATTERN)
+
+  return matched ? `This request asks the API for too much at once (cost ${matched[1]} against a limit of ${matched[2]}). Ask for fewer fields or fewer records, then try again.` : undefined
+}
+
 export const parseErrorMessage = (error: unknown): string => {
   const unknownMessage = 'Something went wrong. Please try again.'
   if (findInvalidQueryInfo(error)) {
@@ -180,7 +188,7 @@ export const parseErrorMessage = (error: unknown): string => {
         return "You can't add an SSO exclusion for a domain that's also in your allowed domains. Remove it from one list first."
       }
 
-      return message
+      return describeComplexity(message) ?? message
     }
   }
 

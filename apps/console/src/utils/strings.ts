@@ -36,6 +36,10 @@ const ACRONYMS = new Set([
   'mfa',
   'totp',
   'dns',
+  'uuid',
+  'sla',
+  'json',
+  'csv',
   // compliance frameworks, which show up in doc paths and framework names
   'soc',
   'nist',

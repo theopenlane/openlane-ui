@@ -80,6 +80,12 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       hidden: session?.user?.isOnboarding || billingExpired,
     },
     {
+      title: 'Custom Report',
+      href: '/reports/custom',
+      icon: ChartBarDecreasingIcon,
+      hidden: true,
+    },
+    {
       title: 'Compliance',
       icon: ShieldCheckIcon,
       href: '/',

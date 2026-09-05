@@ -1,45 +1,10 @@
 const fs = require('fs')
 const path = require('path')
-const { toKebab, toUpperSnake, pluralizeTypeName } = require('./lib')
+const { toKebab, toUpperSnake, pluralizeTypeName, isExcludedType, EXCLUDED_FIELDS, EXCLUDED_ASSOCIATIONS } = require('./lib')
 
 const schemaPath = path.join(__dirname, '..', 'src', 'schema-types.ts')
 const queryOutputDir = path.join(__dirname, '..', 'query')
 const schemaContent = fs.readFileSync(schemaPath, 'utf8')
-
-// Types to exclude from query generation
-const EXCLUDED_TYPES = [
-  'Notification',
-  'Note',
-  'MappableDomain',
-  'CustomDomain',
-  'DnsVerification',
-  'Event',
-  'File',
-  'GroupMembership',
-  'ProgramMembership',
-  'Hush',
-  'Invite',
-  'OrgMembership',
-  'OrgSubscription',
-  'Webauthn',
-  'ApiToken',
-  'JobRunnerToken',
-  'TrustCenterSetting',
-  'UserSetting',
-  'TrustCenterWatermarkConfig',
-  'PersonalAccessToken',
-  'OrganizationSetting',
-  'GroupPermission',
-  'DocumentData',
-  'ControlReport',
-  'PolicySummary',
-]
-
-// Fields to exclude from all queries
-const EXCLUDED_FIELDS = ['deletedAt', 'deletedBy', 'systemInternalID', 'internalNotes', 'ownerID', '__typename', 'owner']
-
-// Edge types to exclude from associations
-const EXCLUDED_ASSOCIATIONS = ['groups', 'editors', 'viewers', 'blockedGroups', 'user', 'owner', 'organization']
 
 // Extract all Node interfaces
 const nodeTypeRegex = /export interface (\w+) extends Node\s*\{([\s\S]*?)\n\}/g
@@ -56,7 +21,7 @@ const nodeTypes = matches
       fields: extractFields(m[2]),
     }
   })
-  .filter((nt) => !EXCLUDED_TYPES.includes(nt.name))
+  .filter((nt) => !isExcludedType(nt.name))
 
 function isScalarField(fieldType) {
   // Matches Scalars['TYPE']['output'] or Maybe<Scalars['TYPE']['output']>
@@ -284,6 +249,6 @@ for (const nodeType of nodeTypes) {
 
 // Count excluded types
 const allMatches = [...schemaContent.matchAll(nodeTypeRegex)]
-excludedCount = allMatches.filter((m) => EXCLUDED_TYPES.includes(m[1])).length
+excludedCount = allMatches.filter((m) => isExcludedType(m[1])).length
 
 console.log(`\nSummary: Created ${createdCount} files, skipped ${skippedCount} existing files, excluded ${excludedCount} types`)
