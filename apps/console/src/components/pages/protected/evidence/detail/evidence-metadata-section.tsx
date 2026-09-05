@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { Calendar, CalendarCheck2, CalendarClock, CircuitBoard, Download, Eye, Fingerprint, LinkIcon, Maximize2, Radio, RefreshCw, Tag, UserRoundCheck, UserRoundPen } from 'lucide-react'
+import { Calendar, CalendarCheck2, CalendarClock, CircuitBoard, Eye, Fingerprint, LinkIcon, Maximize2, Radio, RefreshCw, Tag, UserRoundCheck, UserRoundPen } from 'lucide-react'
 import NextLink from 'next/link'
 import { Controller } from 'react-hook-form'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
@@ -19,9 +19,7 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
-import { useNotification } from '@/hooks/useNotification'
 import { formatDate } from '@/utils/date'
-import { fileDownload } from '@/components/shared/lib/export'
 import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { type EvidenceEditableField } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import EvidenceDetailSection from './evidence-detail-section'
@@ -60,7 +58,6 @@ type TEvidenceMetadataSectionProps = {
 
 const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form, evidence, isEditing, editField, editAllowed, onEdit, onUpdateField, onKeyDown, triggerRef, popoverRef }) => {
   const { tagOptions } = useGetTags()
-  const { errorNotification } = useNotification()
   const { enumOptions: scopeOptions, onCreateOption: onCreateScope } = useCreatableEnumOptions({ field: 'scope', isEditAllowed: editAllowed })
   const { enumOptions: environmentOptions, onCreateOption: onCreateEnvironment } = useCreatableEnumOptions({ field: 'environment', isEditAllowed: editAllowed })
   const authorMaps = useAuthorMaps([evidence.createdBy, evidence.updatedBy])
@@ -234,15 +231,11 @@ const EvidenceMetadataSection: React.FC<TEvidenceMetadataSectionProps> = ({ form
         </EvidenceDetailFieldRow>
 
         {!isEditing && evidence.url && (
-          <div className="flex justify-end items-center gap-4 text-sm">
+          <div className="flex justify-end items-center text-sm">
             <NextLink href={evidence.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 cursor-pointer">
               <Eye size={16} />
               View
             </NextLink>
-            <button type="button" className="flex items-center gap-1 cursor-pointer" onClick={() => fileDownload(evidence.url ?? '', 'customFileName', errorNotification)}>
-              <Download size={16} />
-              Download
-            </button>
           </div>
         )}
 
