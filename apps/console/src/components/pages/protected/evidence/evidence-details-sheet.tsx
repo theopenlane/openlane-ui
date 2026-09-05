@@ -46,10 +46,20 @@ type TEvidenceDetailsSheet = {
   onClose?: () => void
 }
 
+type TEvidenceSheetConfig = {
+  id: string | null
+  link: string
+}
+
+type TEvidenceDetailsSheetContent = TEvidenceDetailsSheet & {
+  config: TEvidenceSheetConfig
+  isOpen: boolean
+}
+
 const DATE_POPOVER_FIELDS: EvidenceEditableField[] = ['renewalDate', 'creationDate']
 const INLINE_POPOVER_FIELDS: EvidenceEditableField[] = ['tags', 'reviewFrequency', ...DATE_POPOVER_FIELDS]
 
-const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, entityId: entityIdProp, onClose: onCloseProp }) => {
+const EvidenceDetailsSheetContent: React.FC<TEvidenceDetailsSheetContent> = ({ controlId, entityId: entityIdProp, onClose: onCloseProp, config, isOpen }) => {
   const { convertToHtml, convertToReadOnly } = usePlateEditor()
   const [editRequested, setEditRequested] = useState(false)
 
@@ -59,8 +69,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
 
   const searchParams = useSearchParams()
-  const controlEvidenceIdParam = searchParams?.get('controlEvidenceId')
-  const id = searchParams.get('id')
   const editAssociationsForId = searchParams.get(EDIT_ASSOCIATIONS_PARAM)
   const { replace: replaceSearchParams } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
@@ -78,16 +86,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
-
-  const config = useMemo(() => {
-    if (entityIdProp !== undefined) {
-      return { id: entityIdProp, link: entityIdProp ? `${window.location.origin}${getHrefForObjectType(ObjectAssociationNodeEnum.EVIDENCE, { id: entityIdProp })}` : '' }
-    }
-    if (controlEvidenceIdParam) {
-      return { id: controlEvidenceIdParam, link: `${window.location.origin}${window.location.pathname}?controlEvidenceId=${controlEvidenceIdParam}` }
-    }
-    return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
-  }, [entityIdProp, controlEvidenceIdParam, id])
 
   const { data, isLoading: fetching } = useGetEvidenceById(config.id)
 
@@ -377,13 +375,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
     },
   )
 
-  const [prevConfigId, setPrevConfigId] = useState(config.id)
-  if (config.id !== prevConfigId) {
-    setPrevConfigId(config.id)
-    setEditRequested(false)
-    setEditField(null)
-  }
-
   useEffect(() => {
     if (entityIdProp !== undefined || !editAssociationsForId) {
       return
@@ -395,7 +386,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
   }, [editAssociationsForId, entityIdProp, config.id, replaceSearchParams])
 
   return (
-    <Sheet open={!!config.id} onOpenChange={handleSheetClose}>
+    <Sheet open={isOpen} onOpenChange={handleSheetClose}>
       <SheetContent
         onEscapeKeyDown={(e) => {
           if (editField) {
@@ -415,6 +406,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
             isAuditor={isAuditor}
             editAllowed={editAllowed}
             editPermissionLoading={permissionLoading}
+            isLoading={fetching}
             auditorActionPending={auditorActionPending}
             onStatusChange={handleStatusChange}
             onCopyLink={handleCopyLink}
@@ -437,7 +429,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
           </div>
         ) : (
           <Form {...form}>
-            <form key={config.id} onSubmit={handleSave} className="pr-4 flex flex-col gap-6">
+            <form onSubmit={handleSave} className="pr-4 flex flex-col gap-6">
               {config.id && <ObjectWorkflowPanel objectId={config.id} objectType="Evidence" objectLabel={evidence.name} />}
 
               <EvidenceOverviewSection
@@ -523,6 +515,30 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId, enti
       </SheetContent>
     </Sheet>
   )
+}
+
+const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = (props) => {
+  const searchParams = useSearchParams()
+  const controlEvidenceIdParam = searchParams?.get('controlEvidenceId')
+  const id = searchParams.get('id')
+  const { entityId: entityIdProp } = props
+
+  const config = useMemo<TEvidenceSheetConfig>(() => {
+    if (entityIdProp !== undefined) {
+      return { id: entityIdProp, link: entityIdProp ? `${window.location.origin}${getHrefForObjectType(ObjectAssociationNodeEnum.EVIDENCE, { id: entityIdProp })}` : '' }
+    }
+    if (controlEvidenceIdParam) {
+      return { id: controlEvidenceIdParam, link: `${window.location.origin}${window.location.pathname}?controlEvidenceId=${controlEvidenceIdParam}` }
+    }
+    return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
+  }, [entityIdProp, controlEvidenceIdParam, id])
+
+  const [openedConfig, setOpenedConfig] = useState(config)
+  if (config.id && config.id !== openedConfig.id) {
+    setOpenedConfig(config)
+  }
+
+  return <EvidenceDetailsSheetContent key={openedConfig.id ?? 'no-evidence'} config={openedConfig} isOpen={!!config.id} {...props} />
 }
 
 export default EvidenceDetailsSheet
