@@ -76,6 +76,10 @@ function generate() {
   const planEnum = readPlanEnum()
   const modulesByType = readModulesByType()
 
+  if (modulesByType.size === 0) {
+    throw new Error(`no applied @modules directives in ${schemaPath}, schema-ast must run with includeDirectives: true`)
+  }
+
   const entries = []
 
   for (const [typeName, modules] of modulesByType) {

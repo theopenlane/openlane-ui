@@ -14,7 +14,7 @@ type TRequiredSubscriptionProps = {
 const RequiredSubscription: React.FC<TRequiredSubscriptionProps> = ({ module }: TRequiredSubscriptionProps) => {
   const router = useRouter()
   const { data: openlaneProducts } = useOpenlaneProductsQuery(true)
-  const modules = Array.isArray(module) ? module : [module]
+  const modules = featureUtil.toModules(module)
   const moduleLabel = modules.map((m) => featureUtil.getPlanName(m)).join(' or ')
   const moduleNoun = modules.length > 1 ? 'modules' : 'module'
   const moduleDescription = modules.length > 0 ? featureUtil.getPlanDescription(modules[0], openlaneProducts) : undefined

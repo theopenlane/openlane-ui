@@ -13,9 +13,11 @@ export const useModuleAccess = () => {
 
   const hasModule = useCallback((module: PlanEnum) => featureUtil.hasModule(modules, module, session), [modules, session])
 
+  const hasAnyModule = useCallback((requiredModules: PlanEnum | PlanEnum[]) => featureUtil.hasAnyModule(modules, requiredModules, session), [modules, session])
+
   const hasObjectType = useCallback((objectType: ObjectTypes) => featureUtil.hasObjectType(modules, objectType, session), [modules, session])
 
-  return useMemo(() => ({ modules, hasModule, hasObjectType }), [modules, hasModule, hasObjectType])
+  return useMemo(() => ({ modules, hasModule, hasAnyModule, hasObjectType }), [modules, hasModule, hasAnyModule, hasObjectType])
 }
 
 export const useHasObjectType = (objectType: ObjectTypes) => {
@@ -29,22 +31,32 @@ export const useHasModule = (module: PlanEnum) => {
 }
 
 export const useIsNavItemLocked = () => {
-  const { hasModule, hasObjectType } = useModuleAccess()
+  const { hasAnyModule, hasObjectType } = useModuleAccess()
 
   return useCallback(
-    function isLocked(item: NavItem): boolean {
-      if (item.objectType) {
-        return !hasObjectType(item.objectType)
+    (item: NavItem): boolean => {
+      const locked = (candidate: NavItem): boolean => {
+        const requiredPlans = candidate.plan ? featureUtil.toModules(candidate.plan) : []
+
+        if (requiredPlans.length > 0 && !hasAnyModule(requiredPlans)) {
+          return true
+        }
+
+        if (candidate.objectType && !hasObjectType(candidate.objectType)) {
+          return true
+        }
+
+        if (requiredPlans.length > 0 || candidate.objectType) {
+          return false
+        }
+
+        const visibleChildren = (candidate.children ?? []).filter((child) => !child.hidden)
+
+        return visibleChildren.length > 0 && visibleChildren.every((child) => locked(child))
       }
 
-      if (item.plan) {
-        return !hasModule(item.plan)
-      }
-
-      const visibleChildren = (item.children ?? []).filter((child) => !child.hidden)
-
-      return visibleChildren.length > 0 && visibleChildren.every(isLocked)
+      return locked(item)
     },
-    [hasModule, hasObjectType],
+    [hasAnyModule, hasObjectType],
   )
 }

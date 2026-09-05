@@ -41,23 +41,27 @@ export const featureUtil = {
 
   getPlanName: (plan: PlanEnum) => PLAN_NAMES[plan],
 
-  hasModule: (userModules: PlanEnum[], requiredModule: PlanEnum, session?: Session | null): boolean => {
+  toModules: (module: PlanEnum | PlanEnum[]): PlanEnum[] => (Array.isArray(module) ? module : [module]),
+
+  hasAnyModule: (userModules: PlanEnum[], requiredModules: PlanEnum | PlanEnum[], session?: Session | null): boolean => {
     // support role has no modules, skip check
     if (arePlanChecksDisabled() || isImpersonation(session)) {
       return true
     }
 
-    return userModules.includes(requiredModule)
+    return featureUtil.toModules(requiredModules).some((module) => userModules.includes(module))
   },
 
+  hasModule: (userModules: PlanEnum[], requiredModule: PlanEnum, session?: Session | null): boolean => featureUtil.hasAnyModule(userModules, requiredModule, session),
+
   hasObjectType: (userModules: PlanEnum[], objectType: ObjectTypes, session?: Session | null): boolean => {
-    if (arePlanChecksDisabled() || isImpersonation(session)) {
+    const requiredModules = featureUtil.getUpgradeModules(objectType)
+
+    if (requiredModules.length === 0) {
       return true
     }
 
-    const requiredModules = featureUtil.getUpgradeModules(objectType)
-
-    return requiredModules.length === 0 || requiredModules.some((module) => userModules.includes(module))
+    return featureUtil.hasAnyModule(userModules, requiredModules, session)
   },
 
   isFreeModule: (module: PlanEnum): boolean => {

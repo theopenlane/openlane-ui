@@ -83,6 +83,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       title: 'Compliance',
       icon: ShieldCheckIcon,
       href: '/',
+      plan: PlanEnum.COMPLIANCE_MODULE,
       hidden: session?.user?.isOnboarding || billingExpired,
       children: [
         {
@@ -135,6 +136,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       title: 'Registry',
       icon: LayersIcon,
       href: '/registry',
+      plan: [PlanEnum.COMPLIANCE_MODULE, PlanEnum.REGISTRY_MODULE],
       hidden: session?.user?.isOnboarding || billingExpired,
       children: [
         {
@@ -237,6 +239,7 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       title: 'Exposure',
       href: '/exposure',
       icon: SatelliteDishIcon,
+      plan: [PlanEnum.COMPLIANCE_MODULE, PlanEnum.VULNERABILITY_MANAGEMENT_MODULE, PlanEnum.RISK_MANAGEMENT_ADDON],
       hidden: session?.user?.isOnboarding || billingExpired,
       children: [
         {
