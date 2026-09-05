@@ -6,6 +6,7 @@ import { ArrowUpDown, ClipboardCopyIcon, CreditCardIcon, MoreHorizontal, User } 
 import { Tag } from '../../tag/tag'
 import { Checkbox } from '../../checkbox/checkbox'
 import { Avatar, AvatarFallback, AvatarImage } from '../../avatar/avatar'
+import { ROW_ACTIONS_COLUMN_ID, SELECT_COLUMN_ID } from '../pinned-columns'
 
 export type Payment = {
   id: string
@@ -20,7 +21,7 @@ export type Payment = {
 
 export const columns: ColumnDef<Payment>[] = [
   {
-    id: 'select',
+    id: SELECT_COLUMN_ID,
     size: 100,
     header: ({ table }) => (
       <Checkbox
@@ -80,7 +81,7 @@ export const columns: ColumnDef<Payment>[] = [
     },
   },
   {
-    id: 'actions',
+    id: ROW_ACTIONS_COLUMN_ID,
     cell: ({ row }) => {
       const payment = row.original
       return (

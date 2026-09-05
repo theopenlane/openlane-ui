@@ -1,9 +1,8 @@
 import { useMemo } from 'react'
 import { type ColumnDef, type Row } from '@repo/ui/table-types'
 import { Checkbox } from '@repo/ui/checkbox'
+import { SELECT_COLUMN_ID } from '@repo/ui/pinned-columns'
 import React from 'react'
-
-export const SELECT_COLUMN_ID = 'select'
 
 function buildSelectColumn<T extends { id: string }>(
   selectedItems: { id: string }[],

@@ -5,8 +5,7 @@ import { type ColumnDef, type RowData } from '@repo/ui/table-types'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
 import { MoreHorizontal } from 'lucide-react'
-
-export const ROW_ACTIONS_COLUMN_ID = 'actions'
+import { ROW_ACTIONS_COLUMN_ID } from '@repo/ui/pinned-columns'
 
 type RowAction<T> = {
   label: string
