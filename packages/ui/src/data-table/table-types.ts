@@ -25,7 +25,14 @@ import {
   type Table as TanstackTable,
 } from '@tanstack/react-table'
 
+export type ColumnMetaShape = {
+  exportPrefix?: string
+  gqlInclude?: string[]
+  className?: string
+}
+
 export const tableFeatureSet = tableFeatures({
+  columnMeta: {} as ColumnMetaShape,
   columnVisibilityFeature,
   columnOrderingFeature,
   columnFilteringFeature,
