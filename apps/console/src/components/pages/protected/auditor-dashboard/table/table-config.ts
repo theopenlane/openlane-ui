@@ -10,7 +10,7 @@ import { buildCustomStandardFilterWhere, CUSTOM_STANDARD_FILTER_OPTION, CUSTOM_S
 
 type TOption = { value: string; label: string }
 
-export const AUDITOR_CONTROL_EXPORT_FIELDS = ['refCode', 'title', 'description', 'category', 'subcategory', 'status', 'referenceFramework', 'controlOwner.name', 'internalPolicies.name']
+export const AUDITOR_CONTROL_BASE_EXPORT_FIELDS = ['refCode', 'title', 'description', 'category', 'subcategory', 'status', 'referenceFramework']
 
 export const AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES: TFilterState = { standardIDIn: [CUSTOM_STANDARD_FILTER_VALUE] }
 

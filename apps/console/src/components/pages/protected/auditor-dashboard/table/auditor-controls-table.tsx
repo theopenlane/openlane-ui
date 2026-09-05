@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Input } from '@repo/ui/input'
-import { Button } from '@repo/ui/button'
+import Menu from '@/components/shared/menu/menu.tsx'
 import { SearchIcon, LoaderCircle, Download, Upload } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@repo/ui/table-types'
@@ -30,9 +30,10 @@ import { BulkCSVCreateEvidenceDialog } from '@/components/pages/protected/eviden
 import { getControlReview, getControlLastReviewed } from '../utils/control-status'
 import { getProgramScopedMappedControls } from '../utils/mapped-controls'
 import { getIncludeVars } from '@/components/shared/crud-base/columns/get-include-vars'
+import { getExportFields } from '@/components/shared/crud-base/columns/get-export-fields'
 import { getAuditorDashboardColumns, getAuditorDashboardMappedColumns, type AuditorDashboardControlRow } from './columns'
 import useFileExport from '@/components/shared/export/use-file-export'
-import { AUDITOR_CONTROL_EXPORT_FIELDS, AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES, getAuditorDashboardFilterFields, getAuditorDashboardQuickFilters } from './table-config'
+import { AUDITOR_CONTROL_BASE_EXPORT_FIELDS, AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES, getAuditorDashboardFilterFields, getAuditorDashboardQuickFilters } from './table-config'
 
 type AuditorControlsTableProps = {
   programId: string
@@ -46,7 +47,9 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
   const [startReviewControlId, setStartReviewControlId] = useState<string | null>(null)
   const [openReviewId, setOpenReviewId] = useState<string | null>(null)
   const [requestInfoControl, setRequestInfoControl] = useState<{ id: string; refCode: string } | null>(null)
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, { linkedPolicies: false, mappedControls: false }))
+  const [isBulkEvidenceRequestOpen, setIsBulkEvidenceRequestOpen] = useState<boolean>(false)
+  const [isBulkDownloadEvidenceOpen, setIsBulkDownloadEvidenceOpen] = useState<boolean>(false)
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, {}))
 
   const queryClient = useQueryClient()
   const { data: permission } = useOrganizationRoles()
@@ -122,7 +125,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
     handleExport({
       exportType: ExportExportType.CONTROL,
       filters: JSON.stringify(where),
-      fields: AUDITOR_CONTROL_EXPORT_FIELDS,
+      fields: getExportFields(columns, columnVisibility, AUDITOR_CONTROL_BASE_EXPORT_FIELDS),
       format: ExportExportFormat.CSV,
     })
 
@@ -137,6 +140,49 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
           onChange={(event) => setSearchTerm(event.currentTarget.value)}
         />
         <div className="flex items-center gap-2">
+          <Menu
+            closeOnSelect={true}
+            content={(close) => (
+              <>
+                <button
+                  type="button"
+                  className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                  onClick={() => {
+                    setIsBulkEvidenceRequestOpen(true)
+                    close()
+                  }}
+                >
+                  <Upload size={16} strokeWidth={2} />
+                  <span>Bulk Evidence Request</span>
+                </button>
+                <button
+                  type="button"
+                  className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isExporting || rows.length === 0}
+                  onClick={() => {
+                    handleExportControls()
+                    close()
+                  }}
+                >
+                  <Download size={16} strokeWidth={2} />
+                  <span>Export Controls</span>
+                </button>
+                <button
+                  type="button"
+                  className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
+                  onClick={() => {
+                    setIsBulkDownloadEvidenceOpen(true)
+                    close()
+                  }}
+                >
+                  <Download size={16} strokeWidth={2} />
+                  <span>Bulk Download Evidence</span>
+                </button>
+              </>
+            )}
+          />
+          <BulkCSVCreateEvidenceDialog open={isBulkEvidenceRequestOpen} onOpenChange={setIsBulkEvidenceRequestOpen} />
+          <ExportEvidenceDialog filters={exportFilters} open={isBulkDownloadEvidenceOpen} onOpenChange={setIsBulkDownloadEvidenceOpen} />
           {filterFields && (
             <TableFilter
               filterFields={filterFields}
@@ -147,24 +193,6 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
             />
           )}
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS} />
-          <BulkCSVCreateEvidenceDialog
-            trigger={
-              <Button variant="secondary" icon={<Upload size={16} />} iconPosition="left">
-                Bulk Evidence Request
-              </Button>
-            }
-          />
-          <Button variant="secondary" icon={<Download size={16} />} iconPosition="left" disabled={isExporting || rows.length === 0} onClick={handleExportControls}>
-            Export Controls
-          </Button>
-          <ExportEvidenceDialog
-            filters={exportFilters}
-            trigger={
-              <Button variant="secondary" icon={<Download size={16} />} iconPosition="left">
-                Bulk Download Evidence
-              </Button>
-            }
-          />
         </div>
       </div>
 

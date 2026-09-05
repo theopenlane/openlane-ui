@@ -81,12 +81,18 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
       id: 'owner',
       header: 'Control Owner',
       size: 180,
+      meta: {
+        exportPrefix: 'controlOwner.name',
+      },
       cell: ({ row }) => <UserCell user={row.original.controlOwner ?? undefined} fallback="—" />,
     },
     {
       id: 'linkedPolicies',
       header: 'Linked Policies',
       size: 220,
+      meta: {
+        exportPrefix: 'internalPolicies.name',
+      },
       cell: ({ row }) => <OverflowBadgesCell values={row.original.linkedPolicies.map((policy) => policy.name)} />,
     },
     {
@@ -95,6 +101,7 @@ export const getAuditorDashboardColumns = ({ canCreateReview, onStartReview, onO
       size: 240,
       meta: {
         gqlInclude: ['includeRelatedControls'] satisfies AuditorDashboardIncludeVar[],
+        exportPrefix: 'relatedControls.refCode',
       },
       cell: ({ row }) => <MappedControlsCell items={row.original.mappedControls} />,
     },

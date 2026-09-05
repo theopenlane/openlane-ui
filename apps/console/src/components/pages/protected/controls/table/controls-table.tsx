@@ -5,7 +5,6 @@ import { useSearchParams } from 'next/navigation'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
-import { type ColumnDef, type RowData } from '@repo/ui/table-types'
 import { ControlControlStatus, ControlOrderField, type ControlWhereInput, ExportExportFormat, ExportExportType, OrderDirection } from '@repo/codegen/src/schema'
 
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -29,6 +28,7 @@ import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { getIncludeVars } from '@/components/shared/crud-base/columns/get-include-vars'
+import { getExportFields } from '@/components/shared/crud-base/columns/get-export-fields'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
@@ -176,10 +176,6 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
       header: column.header,
     }))
 
-  function isVisibleColumn<T extends RowData>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
-    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
-  }
-
   const handleExportFile = async () => {
     if (!controls || controls.length === 0) {
       return
@@ -188,7 +184,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     handleExport({
       exportType: ExportExportType.CONTROL,
       filters: JSON.stringify(whereFilter),
-      fields: columns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
+      fields: getExportFields(columns, columnVisibility),
       format: ExportExportFormat.CSV,
     })
   }

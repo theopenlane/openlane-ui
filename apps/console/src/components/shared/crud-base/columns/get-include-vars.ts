@@ -1,17 +1,14 @@
 import { type ColumnDef, type RowData, type VisibilityState } from '@repo/ui/table-types'
-import { resolveColumnId } from './resolve-column-id'
-
-type IncludeAwareMeta = { gqlInclude?: string[] }
+import { isColumnVisible } from './is-column-visible'
 
 export const getIncludeVars = <T extends RowData>(columns: ColumnDef<T>[], visibility: VisibilityState): Record<string, boolean> => {
   const result: Record<string, boolean> = {}
 
   for (const column of columns) {
-    const includeKeys = (column.meta as IncludeAwareMeta | undefined)?.gqlInclude
+    const includeKeys = column.meta?.gqlInclude
     if (!includeKeys?.length) continue
 
-    const columnId = resolveColumnId(column)
-    const isVisible = columnId ? visibility[columnId] !== false : true
+    const isVisible = isColumnVisible(column, visibility)
 
     for (const key of includeKeys) {
       result[key] = result[key] || isVisible
