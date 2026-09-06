@@ -31,17 +31,20 @@ export interface NavHeading {
   hidden?: boolean
 }
 
+export type FilterOption = { value: string; label: string }
+
 export interface FilterField<K extends string = string> {
   key: K
   label: string
   icon: LucideIcon
   type:
     'text' | 'select' | 'date' | 'boolean' | 'dateRange' | 'sliderNumber' | 'sliderRange' | 'multiselect' | 'dropdownUserSearch' | 'radio' | 'dropdownSearchMultiselect' | 'dropdownSearchSingleSelect'
-  options?: { value: string; label: string }[] //for select and multiselect types
+  options?: FilterOption[] //for select and multiselect types
   min?: number // for sliderNumber type
   max?: number // for sliderNumber type
   radioOptions?: { value: string | boolean | undefined; label: string }[] // Specific for tri-state/radio logic
   nullableKey?: string
+  matchAnyCasing?: boolean
 }
 
 export type WhereInputKey<TWhereInput> = Extract<keyof TWhereInput, string>
@@ -56,14 +59,19 @@ export type DateFilterKey<TWhereInput> = PairedBaseKey<TWhereInput, 'GTE', 'LT'>
 export type RangeFilterKey<TWhereInput> = PairedBaseKey<TWhereInput, 'GTE', 'LTE'>
 export type NullableFilterKey<TWhereInput> = PairedBaseKey<TWhereInput, 'IsNil', 'NotNil'>
 
-type FilterFieldShape<TWhereInput> = Omit<FilterField, 'key' | 'type' | 'nullableKey'> & {
+type FilterFieldShape<TWhereInput> = Omit<FilterField, 'key' | 'type' | 'nullableKey' | 'matchAnyCasing'> & {
   nullableKey?: NullableFilterKey<TWhereInput>
 }
 
 export type FilterFieldFor<TWhereInput, TSynthetic extends string = never> =
   | (FilterFieldShape<TWhereInput> & {
-      type: 'text' | 'select' | 'boolean' | 'radio' | 'multiselect' | 'sliderNumber' | 'dropdownUserSearch' | 'dropdownSearchMultiselect' | 'dropdownSearchSingleSelect'
+      type: 'text' | 'select' | 'boolean' | 'radio' | 'multiselect' | 'sliderNumber' | 'dropdownUserSearch' | 'dropdownSearchMultiselect'
       key: SchemaFilterKey<TWhereInput> | TSynthetic
+    })
+  | (FilterFieldShape<TWhereInput> & {
+      type: 'dropdownSearchSingleSelect'
+      key: SchemaFilterKey<TWhereInput> | TSynthetic
+      matchAnyCasing?: boolean
     })
   | (FilterFieldShape<TWhereInput> & {
       type: 'date' | 'dateRange'

@@ -13,6 +13,7 @@ import { ReviewAssociationSection } from '../create/form/fields/association-sect
 import { ReviewDocumentsSection } from '../create/form/fields/documents-section'
 import { ReviewCommentsSection } from '../create/form/fields/comments-section'
 import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
+import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 export const formId = 'edit' + ObjectNames.REVIEW
 
@@ -61,13 +62,7 @@ export const getFilterFields = (enumOptions: EnumOptions) =>
     },
     getEnvironmentFilterField(enumOptions.environmentOptions),
     getScopeFilterField(enumOptions.scopeOptions),
-    {
-      key: 'tagsHas',
-      label: 'Tags',
-      type: 'dropdownSearchSingleSelect',
-      icon: FilterIcons.Status,
-      options: enumOptions.tagOptions,
-    },
+    getTagsFilterField(enumOptions.tagOptions),
   ])
 
 export const REVIEWS_SORT_FIELDS = enumToSortFields(ReviewOrderField)

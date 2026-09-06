@@ -25,6 +25,7 @@ import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 import { buildCustomStandardFilterWhere, CUSTOM_STANDARD_FILTER_OPTION, isCustomStandardFilter } from '@/components/shared/table-filter/custom-standard-filter'
+import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
@@ -90,13 +91,7 @@ export const getControlsFilterFields = (
         { value: false, label: 'No comments' },
       ],
     },
-    {
-      key: 'tagsHas',
-      label: 'Tags',
-      type: 'dropdownSearchSingleSelect',
-      icon: FilterIcons.Tag,
-      options: tagOptions,
-    },
+    getTagsFilterField(tagOptions),
     { key: 'sourceNameContainsFold', label: 'Source Name', type: 'text', icon: FilterIcons.Source },
   ])
 

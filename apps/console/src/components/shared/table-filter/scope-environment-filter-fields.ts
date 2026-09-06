@@ -1,6 +1,5 @@
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
-
-type FilterOption = { value: string; label: string }
+import { type FilterOption } from '@/types'
 
 export const getEnvironmentFilterField = (options: FilterOption[]) =>
   ({

@@ -2,6 +2,7 @@ import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { FilterIcons } from '@/components/shared/enum-mapper/questionnaire-enum'
 import { defineFilterFields } from '@/types'
 import { OrderDirection, AssessmentOrderField, AssessmentAssessmentType, type AssessmentWhereInput } from '@repo/codegen/src/schema.ts'
+import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 type Option = { value: string; label: string }
 
@@ -9,7 +10,7 @@ export const QUESTIONNAIRE_REMAPPED_FILTER_KEYS = ['dueDate'] as const
 
 export const getQuestionnaireFilterFields = (tagOptions: Option[], templateOptions: Option[]) =>
   defineFilterFields<AssessmentWhereInput, (typeof QUESTIONNAIRE_REMAPPED_FILTER_KEYS)[number]>()([
-    { key: 'tagsHas', label: 'Tags', type: 'dropdownSearchSingleSelect', icon: FilterIcons.Tags, options: tagOptions },
+    getTagsFilterField(tagOptions),
     {
       key: 'assessmentTypeIn',
       label: 'Type',

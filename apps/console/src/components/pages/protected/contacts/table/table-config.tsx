@@ -8,6 +8,7 @@ import Properties from '../create/form/fields/properties'
 import LinkedVendors from '../create/form/fields/linked-vendors'
 import { type ContactFieldProps, type EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
+import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 export const formId = 'edit' + ObjectNames.CONTACT
 
@@ -26,13 +27,7 @@ export const getFilterFields = (enumOptions: EnumOptions) =>
       icon: FilterIcons.Status,
       options: enumOptions.statusOptions,
     },
-    {
-      key: 'tagsHas',
-      label: 'Tags',
-      type: 'dropdownSearchSingleSelect',
-      icon: FilterIcons.Tag,
-      options: enumOptions.tagOptions,
-    },
+    getTagsFilterField(enumOptions.tagOptions),
   ])
 
 export const CONTACTS_SORT_FIELDS = enumToSortFields(ContactOrderField)

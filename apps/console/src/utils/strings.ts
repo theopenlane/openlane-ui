@@ -134,3 +134,9 @@ export const wordTokens = (value: string): string[] =>
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter(Boolean)
+
+const TITLE_CASE_BOUNDARY = /(?:^|[\s\-_/])\p{L}/gu
+
+export const toTitleCase = (value: string): string => value.replace(TITLE_CASE_BOUNDARY, (match) => match.toUpperCase())
+
+export const capitalizeFirstLetter = (value: string): string => value.charAt(0).toUpperCase() + value.slice(1)

@@ -11,6 +11,7 @@ import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { EntityAssociationSection } from '../create/form/fields/association-section'
 import { EntityDocumentsSection } from '../create/form/fields/documents-section'
 import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
+import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 export const formId = 'edit' + ObjectNames.ENTITY
 
@@ -28,13 +29,7 @@ export const getFilterFields = (enumOptions: EnumOptions) =>
       icon: FilterIcons.Status,
       options: enumOptions.entityStatusOptions,
     },
-    {
-      key: 'tagsHas',
-      label: 'Tags',
-      type: 'dropdownSearchSingleSelect',
-      icon: FilterIcons.Tag,
-      options: enumOptions.tagOptions,
-    },
+    getTagsFilterField(enumOptions.tagOptions),
     getScopeFilterField(enumOptions.scopeOptions),
     getEnvironmentFilterField(enumOptions.environmentOptions),
     {
