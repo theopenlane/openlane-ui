@@ -10,6 +10,7 @@ import { useSession } from 'next-auth/react'
 import { Pencil, Trash2, Check, X } from 'lucide-react'
 import { type Value } from 'platejs'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useHasOrgFullAccess } from '@/lib/authz/use-has-org-full-access'
 
 type CommentListProps = {
   comments: TCommentData[]
@@ -20,6 +21,7 @@ type CommentListProps = {
 
 const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove, showAuthor = true }) => {
   const { data: session } = useSession()
+  const hasOrgFullAccess = useHasOrgFullAccess()
   const plateEditorHelper = usePlateEditor()
 
   const [isEditingItemId, setIsEditingItemId] = useState<string | null>(null)
@@ -59,7 +61,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove, s
   return (
     <>
       {comments.map((item) => {
-        const isOwner = item.createdBy === session?.user?.userId
+        const canManageComment = item.createdBy === session?.user?.userId || hasOrgFullAccess
         const isEditing = isEditingItemId === item.id
 
         return (
@@ -72,7 +74,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove, s
                     <p className="text-sm text-muted-foreground">{formatDateTime(item.createdAt)}</p>
                   </div>
 
-                  {isOwner && !isEditing && (onEdit || onRemove) && (
+                  {canManageComment && !isEditing && (onEdit || onRemove) && (
                     <div className="flex gap-2">
                       {onEdit && (
                         <button aria-label="Edit comment" onClick={() => handleEditClick(item)} className="hover:text-btn-secondary bg-unset">
@@ -94,7 +96,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove, s
                     </div>
                   )}
 
-                  {isOwner && isEditing && (
+                  {canManageComment && isEditing && (
                     <div className="flex gap-2">
                       <button aria-label="Save comment" onClick={() => handleSaveEdit(item)}>
                         <Check className="h-4 w-4 text-brand" />
