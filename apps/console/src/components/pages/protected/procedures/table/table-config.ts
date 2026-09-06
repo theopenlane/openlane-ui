@@ -7,6 +7,7 @@ import { FilterIcons, ProcedureStatusFilterOptions } from '@/components/shared/e
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
+import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 type TOption = { value: string; label: string }
 
@@ -82,13 +83,7 @@ export const getProceduresFilterFields = (groupOptions: TOption[], programOption
         { value: false, label: 'No comments' },
       ],
     },
-    {
-      key: 'tagsHas',
-      label: 'Tags',
-      type: 'dropdownSearchSingleSelect',
-      icon: FilterIcons.Status,
-      options: tagOptions,
-    },
+    getTagsFilterField(tagOptions),
   ])
 
 export function useProceduresFilters(): FilterField[] | null {

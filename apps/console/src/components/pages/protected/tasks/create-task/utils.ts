@@ -1,7 +1,7 @@
 import type usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type CreateTaskFormData, type EditTaskFormData } from '../hooks/use-form-schema'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
-import { capitalizeFirstLetter } from '@/lib/auth/utils/strings'
+import { capitalizeFirstLetter } from '@/utils/strings'
 import { type Value } from 'platejs'
 import { type GetTaskAssociationsQuery, type TaskQuery } from '@repo/codegen/src/schema'
 import { buildAssociationIds, buildAssociationItems, type TAssociationItem } from '@/components/shared/object-association/association-items'

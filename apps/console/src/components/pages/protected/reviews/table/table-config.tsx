@@ -16,6 +16,7 @@ import { getEnvironmentFilterField, getScopeFilterField } from '@/components/sha
 import { isStringArray } from '@/components/shared/table-filter/filter-storage'
 import { VENDOR_ENTITY_TYPE_WHERE } from '@/lib/graphql-hooks/entity'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 export const formId = 'edit' + ObjectNames.REVIEW
 
@@ -90,13 +91,7 @@ export const getFilterFields = (enumOptions: EnumOptions) =>
     },
     getEnvironmentFilterField(enumOptions.environmentOptions),
     getScopeFilterField(enumOptions.scopeOptions),
-    {
-      key: 'tagsHas',
-      label: 'Tags',
-      type: 'dropdownSearchSingleSelect',
-      icon: FilterIcons.Status,
-      options: enumOptions.tagOptions,
-    },
+    getTagsFilterField(enumOptions.tagOptions),
   ])
 
 export const REVIEWS_SORT_FIELDS = enumToSortFields(ReviewOrderField)

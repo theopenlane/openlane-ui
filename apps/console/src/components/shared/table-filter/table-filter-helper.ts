@@ -3,6 +3,7 @@ import { addDays, isSameDay, isValid, startOfDay } from 'date-fns'
 import type { DateRange } from 'react-day-picker'
 import { type Condition, type FilterField, type WhereCondition } from '@/types'
 import { getNullFilterCondition, isNullFilterValue } from './null-filter'
+import { getAnyCasingCondition } from './any-casing-condition'
 
 // For devs: Only 1 quick filter can be active in same time
 export type TQuickFilter = {
@@ -162,7 +163,7 @@ const getFiltersWhereCondition = (filterState: TFilterState, filterFields: Filte
       }
       case 'dropdownSearchSingleSelect': {
         if (!val) break
-        andConditions.push({ [key]: val } as Condition)
+        andConditions.push(field.matchAnyCasing ? getAnyCasingCondition(key, val as string) : ({ [key]: val } as Condition))
         break
       }
     }

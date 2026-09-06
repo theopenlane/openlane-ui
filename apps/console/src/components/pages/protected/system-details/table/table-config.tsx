@@ -10,6 +10,7 @@ import NameField from '../create/form/fields/name-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
 import { type EnumOptions, type SystemDetailFieldProps } from './types'
+import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 export const formId = 'edit' + ObjectNames.SYSTEM_DETAIL
 
@@ -28,13 +29,7 @@ export const getFilterFields = (enumOptions: EnumOptions, hasProgramAccess: bool
       icon: FilterIcons.Security,
       options: enumOptions.sensitivityLevelOptions,
     },
-    {
-      key: 'tagsHas',
-      label: 'Tags',
-      type: 'dropdownSearchSingleSelect',
-      icon: FilterIcons.Tag,
-      options: enumOptions.tagOptions,
-    },
+    getTagsFilterField(enumOptions.tagOptions),
     {
       key: 'hasPlatformsWith',
       label: 'Platforms',

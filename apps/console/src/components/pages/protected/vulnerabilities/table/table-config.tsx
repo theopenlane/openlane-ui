@@ -15,6 +15,7 @@ import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 import { Badge } from '@repo/ui/badge'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
+import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 export const formId = 'edit' + ObjectNames.VULNERABILITY
 
@@ -108,13 +109,7 @@ export const getFilterFields = (enumOptions: EnumOptions) =>
     },
     getEnvironmentFilterField(enumOptions.environmentOptions),
     getScopeFilterField(enumOptions.scopeOptions),
-    {
-      key: 'tagsHas',
-      label: 'Tags',
-      type: 'dropdownSearchSingleSelect',
-      icon: FilterIcons.Status,
-      options: enumOptions.tagOptions,
-    },
+    getTagsFilterField(enumOptions.tagOptions),
   ])
 
 export const VULNERABILITIES_SORT_FIELDS = enumToSortFields(VulnerabilityOrderField)

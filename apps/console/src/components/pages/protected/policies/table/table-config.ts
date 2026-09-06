@@ -7,6 +7,7 @@ import { FilterIcons, InternalPolicyStatusFilterOptions } from '@/components/sha
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
+import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 type TOption = { value: string; label: string }
 
@@ -93,13 +94,7 @@ export const getPoliciesFilterFields = (groupOptions: TOption[], programOptions:
         { value: false, label: 'No comments' },
       ],
     },
-    {
-      key: 'tagsHas',
-      label: 'Tags',
-      type: 'dropdownSearchSingleSelect',
-      icon: FilterIcons.Status,
-      options: tagOptions,
-    },
+    getTagsFilterField(tagOptions),
   ])
 
 export type TPolicyFilterKey = ReturnType<typeof getPoliciesFilterFields>[number]['key']

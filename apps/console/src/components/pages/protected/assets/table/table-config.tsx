@@ -12,6 +12,7 @@ import { type AssetFieldProps, type EnumOptions, type EnumCreateHandlers } from 
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { AssetAssociationSection } from '../create/form/fields/association-section'
 import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
+import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 export const formId = 'edit' + ObjectNames.ASSET
 
@@ -109,13 +110,7 @@ export const getFilterFields = (enumOptions: EnumOptions) =>
       type: 'text',
       icon: FilterIcons.Region,
     },
-    {
-      key: 'tagsHas',
-      label: 'Tags',
-      type: 'dropdownSearchSingleSelect',
-      icon: FilterIcons.Status,
-      options: enumOptions.tagOptions,
-    },
+    getTagsFilterField(enumOptions.tagOptions),
   ])
 
 export const ASSETS_SORT_FIELDS = enumToSortFields(AssetOrderField)

@@ -10,6 +10,7 @@ import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { IdentityHolderAssociationSection } from '../create/form/fields/association-section'
 import { IdentityHolderDocumentsSection } from '../create/form/fields/documents-section'
 import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
+import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 export const formId = 'edit' + ObjectNames.IDENTITY_HOLDER
 
@@ -57,13 +58,7 @@ export const getFilterFields = (enumOptions: EnumOptions) =>
     },
     getEnvironmentFilterField(enumOptions.environmentOptions),
     getScopeFilterField(enumOptions.scopeOptions),
-    {
-      key: 'tagsHas',
-      label: 'Tags',
-      type: 'dropdownSearchSingleSelect',
-      icon: FilterIcons.Tag,
-      options: enumOptions.tagOptions,
-    },
+    getTagsFilterField(enumOptions.tagOptions),
   ])
 
 export const PERSONNEL_SORT_FIELDS = enumToSortFields(IdentityHolderOrderField)

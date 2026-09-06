@@ -3,6 +3,7 @@ import { FilterIcons } from '@/components/shared/enum-mapper/risk-enum'
 import { defineFilterFields } from '@/types'
 import { RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, type RiskWhereInput } from '@repo/codegen/src/schema.ts'
 import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
+import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 export const getRisksFilterFields = (
   programOptions: { value: string; label: string }[],
@@ -55,13 +56,7 @@ export const getRisksFilterFields = (
     },
 
     ...getProgramFilterFields(programOptions, hasProgramAccess),
-    {
-      key: 'tagsHas',
-      label: 'Tags',
-      type: 'dropdownSearchSingleSelect',
-      icon: FilterIcons.Status,
-      options: tagOptions,
-    },
+    getTagsFilterField(tagOptions),
   ])
 
 export const RISKS_SORT_FIELDS = [

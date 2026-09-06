@@ -2,7 +2,7 @@
 
 import { cache } from 'react'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
-import { capitalizeFirstLetter } from '@/lib/auth/utils/strings'
+import { capitalizeFirstLetter } from '@/utils/strings'
 
 export const getDashboardDataForRequest = cache(getDashboardData)
 
