@@ -31,12 +31,7 @@ const CreatePolicyForm: React.FC = () => {
   const { form } = useFormSchema()
   const searchParams = useSearchParams()
 
-  // allow deep-links to prefill the policy name, e.g. from the suggested
-  // policy coverage alert
   const nameParam = searchParams.get('name')
-  useEffect(() => {
-    if (nameParam && !form.getValues('name')) form.setValue('name', nameParam)
-  }, [nameParam, form])
   const router = useRouter()
   const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy()
   const { successNotification, errorNotification } = useNotification()
@@ -51,12 +46,19 @@ const CreatePolicyForm: React.FC = () => {
   const { data: userData } = useGetCurrentUser(userId)
   const plateEditorHelper = usePlateEditor()
 
-  const { pendingDraft, restore, discard, clearDraft, editorKey } = useFormDraft<CreatePolicyFormData>({
+  const { pendingDraft, isDraftResolved, restore, discard, clearDraft, editorKey } = useFormDraft<CreatePolicyFormData>({
     storageKey: POLICY_DRAFT_KEY,
     organizationId: currentOrgId,
     enabled: true,
     form,
   })
+
+  useEffect(() => {
+    if (nameParam && !form.getValues('name')) form.setValue('name', nameParam)
+  }, [nameParam, form, editorKey])
+
+  const draftSettled = !!currentOrgId && isDraftResolved
+  const wantsAIGeneration = searchParams.get('generate') === 'true'
 
   // deep-links can request auto-mapping the new policy to one or more controls,
   // e.g. "create & map" from a control's (or a report section's) suggested policies
@@ -112,14 +114,7 @@ const CreatePolicyForm: React.FC = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onCreateHandler)} className="flex flex-col lg:flex-row gap-6 w-full">
           <div className="flex-1 space-y-6 min-w-0">
-            <HelperText
-              name={form.getValues('name')}
-              editorRef={editorRef}
-              onNameChange={(newName) => {
-                form.setValue('name', newName)
-              }}
-              autoGenerateName={searchParams.get('generate') === 'true' ? (nameParam ?? undefined) : undefined}
-            />
+            <HelperText form={form} editorRef={editorRef} initialAIPolicyName={draftSettled && wantsAIGeneration ? (nameParam ?? undefined) : undefined} />
 
             <InputRow className="w-full">
               <FormField
