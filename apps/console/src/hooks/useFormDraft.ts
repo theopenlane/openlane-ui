@@ -75,7 +75,7 @@ export const useFormDraft = <TForm extends FieldValues, TStore = unknown>(opts: 
   const isFormDirty = form.formState.isDirty
 
   const [pendingDraft, setPendingDraft] = useState<FormDraftPayload<TForm, TStore> | null>(null)
-  const [decisionMade, setDecisionMade] = useState(false)
+  const [isDraftResolved, setIsDraftResolved] = useState(false)
   const [editorKey, setEditorKey] = useState(0)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const prevStorageKeyRef = useRef(scopedKey)
@@ -96,21 +96,21 @@ export const useFormDraft = <TForm extends FieldValues, TStore = unknown>(opts: 
 
     if (!enabled) {
       setPendingDraft(null)
-      setDecisionMade(true)
+      setIsDraftResolved(true)
       return
     }
     const draft = safeReadDraft<TForm, TStore>(storageKey, organizationId)
     if (draft) {
       setPendingDraft(draft)
-      setDecisionMade(false)
+      setIsDraftResolved(false)
     } else {
       setPendingDraft(null)
-      setDecisionMade(true)
+      setIsDraftResolved(true)
     }
   }, [storageKey, organizationId, scopedKey, enabled, form])
 
   const persist = useCallback(() => {
-    if (!enabled || !decisionMade || typeof window === 'undefined') return
+    if (!enabled || !isDraftResolved || typeof window === 'undefined') return
     if (!form.formState.isDirty && !callbacksRef.current.isStoreDirty?.()) return
     try {
       const payload: FormDraftPayload<TForm, TStore> = {
@@ -123,7 +123,7 @@ export const useFormDraft = <TForm extends FieldValues, TStore = unknown>(opts: 
     } catch {
       /* ignore quota / private mode errors */
     }
-  }, [enabled, decisionMade, form, storageKey, organizationId])
+  }, [enabled, isDraftResolved, form, storageKey, organizationId])
 
   const schedulePersist = useCallback(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -131,20 +131,20 @@ export const useFormDraft = <TForm extends FieldValues, TStore = unknown>(opts: 
   }, [persist])
 
   useEffect(() => {
-    if (!enabled || !decisionMade) return
+    if (!enabled || !isDraftResolved) return
     const subscription = form.watch(() => schedulePersist())
     return () => subscription.unsubscribe()
-  }, [enabled, decisionMade, form, schedulePersist])
+  }, [enabled, isDraftResolved, form, schedulePersist])
 
   useEffect(() => {
-    if (!enabled || !decisionMade || !isFormDirty) return
+    if (!enabled || !isDraftResolved || !isFormDirty) return
     schedulePersist()
-  }, [enabled, decisionMade, isFormDirty, schedulePersist])
+  }, [enabled, isDraftResolved, isFormDirty, schedulePersist])
 
   useEffect(() => {
-    if (!enabled || !decisionMade) return
+    if (!enabled || !isDraftResolved) return
     return callbacksRef.current.subscribeStore?.(() => schedulePersist())
-  }, [enabled, decisionMade, schedulePersist])
+  }, [enabled, isDraftResolved, schedulePersist])
 
   const persistRef = useRef(persist)
   useEffect(() => {
@@ -180,14 +180,14 @@ export const useFormDraft = <TForm extends FieldValues, TStore = unknown>(opts: 
     }
     setPendingDraft(null)
     setEditorKey((k) => k + 1)
-    setDecisionMade(true)
+    setIsDraftResolved(true)
   }, [form, pendingDraft])
 
   const discard = useCallback(() => {
     if (!enabled) return
     safeRemove(storageKey, organizationId)
     setPendingDraft(null)
-    setDecisionMade(true)
+    setIsDraftResolved(true)
   }, [enabled, storageKey, organizationId])
 
   const clearDraft = useCallback(() => {
@@ -197,6 +197,7 @@ export const useFormDraft = <TForm extends FieldValues, TStore = unknown>(opts: 
 
   return {
     pendingDraft,
+    isDraftResolved,
     restore,
     discard,
     clearDraft,
