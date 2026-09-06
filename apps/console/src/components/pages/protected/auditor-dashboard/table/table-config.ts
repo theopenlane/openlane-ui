@@ -1,4 +1,5 @@
-import { type ControlWhereInput, type EvidenceEvidenceStatus, type ReviewReviewStatus } from '@repo/codegen/src/schema'
+import { ControlOrderField, OrderDirection, type ControlWhereInput, type EvidenceEvidenceStatus, type ReviewReviewStatus } from '@repo/codegen/src/schema'
+import { type SortCondition } from '@repo/ui/data-table'
 import { FileCheck2 } from 'lucide-react'
 import { defineFilterFields } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
@@ -15,6 +16,10 @@ export const AUDITOR_CONTROL_EXPORT_FIELDS = ['refCode', 'title', 'description',
 export const AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES: TFilterState = { standardIDIn: [CUSTOM_STANDARD_FILTER_VALUE] }
 
 export const AUDITOR_DASHBOARD_REMAPPED_FILTER_KEYS = ['reviewStatusIn', 'evidenceStatusIn'] as const
+
+export const AUDITOR_DASHBOARD_SORT_FIELDS: { key: ControlOrderField; label: string }[] = [{ key: ControlOrderField.ref_code, label: 'Control' }]
+
+export const AUDITOR_DASHBOARD_DEFAULT_SORT: SortCondition<ControlOrderField>[] = [{ field: ControlOrderField.ref_code, direction: OrderDirection.ASC }]
 
 export const getAuditorDashboardFilterFields = (frameworkOptions: TOption[], ownerOptions: TOption[]) =>
   defineFilterFields<ControlWhereInput, (typeof AUDITOR_DASHBOARD_REMAPPED_FILTER_KEYS)[number]>()([

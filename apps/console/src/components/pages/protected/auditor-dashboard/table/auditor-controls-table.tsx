@@ -2,23 +2,23 @@
 
 import React, { useCallback, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, type SortCondition } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { SearchIcon, LoaderCircle, Download, Upload } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@repo/ui/table-types'
+import { type WhereCondition } from '@/types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useOrgTablePagination } from '@/hooks/use-org-table-state'
-import { type ControlWhereInput, type EvidenceWhereInput, ExportExportFormat, ExportExportType } from '@repo/codegen/src/schema'
+import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
+import { ControlOrderField, type ControlWhereInput, type EvidenceWhereInput, ExportExportFormat, ExportExportType } from '@repo/codegen/src/schema'
 import { useGetAuditorDashboardControls } from '@/lib/graphql-hooks/control'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
-import { createAuditorControlsFilterMapper } from './table-config'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import CreateControlReviewSheet from '@/components/pages/protected/controls/quick-actions/create-control-review-sheet'
@@ -32,14 +32,23 @@ import { getProgramScopedMappedControls } from '../utils/mapped-controls'
 import { getIncludeVars } from '@/components/shared/crud-base/columns/get-include-vars'
 import { getAuditorDashboardColumns, getAuditorDashboardMappedColumns, type AuditorDashboardControlRow } from './columns'
 import useFileExport from '@/components/shared/export/use-file-export'
-import { AUDITOR_CONTROL_EXPORT_FIELDS, AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES, getAuditorDashboardFilterFields, getAuditorDashboardQuickFilters } from './table-config'
+import {
+  AUDITOR_CONTROL_EXPORT_FIELDS,
+  AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES,
+  AUDITOR_DASHBOARD_DEFAULT_SORT,
+  AUDITOR_DASHBOARD_SORT_FIELDS,
+  createAuditorControlsFilterMapper,
+  getAuditorDashboardFilterFields,
+  getAuditorDashboardQuickFilters,
+} from './table-config'
 
 type AuditorControlsTableProps = {
   programId: string
 }
 
 export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ programId }) => {
-  const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION)
+  const [pagination, setPagination, resetPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS)
+  const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS, ControlOrderField, AUDITOR_DASHBOARD_DEFAULT_SORT)
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [filters, setFilters] = useState<ControlWhereInput | null>(null)
@@ -66,6 +75,30 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
     setOpenReviewId(null)
     queryClient.invalidateQueries({ queryKey: ['auditor-dashboard-controls'] })
   }, [queryClient])
+
+  const handleSortChange = useCallback(
+    (sortCondition: SortCondition<ControlOrderField>[]) => {
+      setOrderBy(sortCondition)
+      resetPagination()
+    },
+    [setOrderBy, resetPagination],
+  )
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setSearchTerm(value)
+      resetPagination()
+    },
+    [resetPagination],
+  )
+
+  const handleFilterChange = useCallback(
+    (whereCondition: WhereCondition) => {
+      setFilters(whereCondition)
+      resetPagination()
+    },
+    [resetPagination],
+  )
 
   const columns = useMemo(
     () =>
@@ -94,7 +127,7 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
     return base
   }, [programId, filters, debouncedSearch])
 
-  const { controls, paginationMeta, isLoading, isFetching } = useGetAuditorDashboardControls({ programId, where, pagination, includeVars, enabled: filters !== null })
+  const { controls, paginationMeta, isLoading, isFetching } = useGetAuditorDashboardControls({ programId, where, orderBy, pagination, includeVars, enabled: filters !== null })
 
   const rows = useMemo<AuditorDashboardControlRow[]>(
     () =>
@@ -134,13 +167,13 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
           icon={isFetching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
           placeholder="Search"
           className="max-w-xs"
-          onChange={(event) => setSearchTerm(event.currentTarget.value)}
+          onChange={(event) => handleSearchChange(event.currentTarget.value)}
         />
         <div className="flex items-center gap-2">
           {filterFields && (
             <TableFilter
               filterFields={filterFields}
-              onFilterChange={setFilters}
+              onFilterChange={handleFilterChange}
               pageKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS}
               quickFilters={quickFilters}
               defaultFilterValues={AUDITOR_DASHBOARD_DEFAULT_FILTER_VALUES}
@@ -175,6 +208,9 @@ export const AuditorControlsTable: React.FC<AuditorControlsTableProps> = ({ prog
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
+        sorting={orderBy}
+        sortFields={AUDITOR_DASHBOARD_SORT_FIELDS}
+        onSortChange={handleSortChange}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         tableKey={TableKeyEnum.AUDITOR_DASHBOARD_CONTROLS}
