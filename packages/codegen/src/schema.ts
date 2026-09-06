@@ -3719,9 +3719,11 @@ export interface EvidenceSuggestedActionsQuery {
   needsRenewal: { totalCount: number; edges: Array<{ node: { id: string; name: string; status: Types.EvidenceEvidenceStatus | null; updatedAt: any } | null } | null> | null }
 }
 
-export type GetItemsMissingEvidenceCountQueryVariables = Exact<{ [key: string]: never }>
+export type GetEvidenceStatusCountQueryVariables = Exact<{
+  statusIn?: Array<Types.EvidenceEvidenceStatus> | Types.EvidenceEvidenceStatus | null | undefined
+}>
 
-export interface GetItemsMissingEvidenceCountQuery {
+export interface GetEvidenceStatusCountQuery {
   evidences: { totalCount: number }
 }
 

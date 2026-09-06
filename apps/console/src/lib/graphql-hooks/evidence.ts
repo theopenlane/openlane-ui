@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { type InfiniteData, type QueryKey, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { EVIDENCE_REQUESTED_OR_MISSING_STATUSES } from '@/lib/enums/evidence'
 import {
   CREATE_EVIDENCE,
   DELETE_EVIDENCE,
@@ -19,7 +20,7 @@ import {
   GET_EVIDENCE_COUNTS_BY_STATUS_BY_PROGRAM_ID,
   GET_EVIDENCE_COUNTS_BY_STATUS_ALL_PROGRAMS,
   GET_EVIDENCE_SUGGESTED_ACTIONS,
-  GET_EVIDENCE_ITEMS_MISSING_ARTIFACT_COUNT,
+  GET_EVIDENCE_STATUS_COUNT,
   GET_EVIDENCE_COMMENTS,
   UPDATE_EVIDENCE_COMMENT,
   CREATE_CSV_BULK_EVIDENCE,
@@ -56,7 +57,7 @@ import {
   type GetEvidenceCountsByStatusByProgramIdQuery,
   type EvidenceSuggestedActionsQuery,
   type FileWhereInput,
-  type GetItemsMissingEvidenceCountQuery,
+  type GetEvidenceStatusCountQuery,
   type GetEvidenceCommentsQuery,
   type GetEvidenceCommentsQueryVariables,
   type UpdateEvidenceCommentMutation,
@@ -465,12 +466,12 @@ export const useEvidenceSuggestedActions = () => {
   })
 }
 
-export const useGetEvidenceMissingArtifactCount = () => {
+export const useGetEvidenceRequestedOrMissingCount = () => {
   const { client } = useGraphQLClient()
 
-  const queryResult = useQuery<GetItemsMissingEvidenceCountQuery, unknown>({
-    queryKey: ['evidences', 'evidenceMissingArtifactCount'],
-    queryFn: async () => client.request(GET_EVIDENCE_ITEMS_MISSING_ARTIFACT_COUNT),
+  const queryResult = useQuery<GetEvidenceStatusCountQuery, unknown>({
+    queryKey: ['evidences', 'statusCount', EVIDENCE_REQUESTED_OR_MISSING_STATUSES],
+    queryFn: async () => client.request(GET_EVIDENCE_STATUS_COUNT, { statusIn: EVIDENCE_REQUESTED_OR_MISSING_STATUSES }),
     enabled: true,
   })
 
