@@ -1,12 +1,13 @@
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { TriangleAlert, Fingerprint, SlidersHorizontal, ListChecks } from 'lucide-react'
 import { useGetControlNotImplementedCount } from '@/lib/graphql-hooks/control'
-import { useGetEvidenceMissingArtifactCount } from '@/lib/graphql-hooks/evidence.ts'
+import { useGetEvidenceRequestedOrMissingCount } from '@/lib/graphql-hooks/evidence.ts'
 import { useGetOverdueTasksCount } from '@/lib/graphql-hooks/task'
 import { useGetRiskOpenAndIdentifiedCount } from '@/lib/graphql-hooks/risk'
 import { saveFilters, saveQuickFilters, type TFilterState, type TFilterStateFor } from '@/components/shared/table-filter/filter-storage.ts'
 import { type TEvidenceFilterKey } from '@/components/pages/protected/evidence/table/table-config.ts'
-import { ControlControlStatus, EvidenceEvidenceStatus, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
+import { ControlControlStatus, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
+import { EVIDENCE_REQUESTED_OR_MISSING_STATUSES } from '@/lib/enums/evidence'
 import { toDayStartIso, type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { useRouter } from 'next/navigation'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -16,10 +17,10 @@ const DashboardComplianceOverview = () => {
   const { currentOrgId } = useOrganization()
   const router = useRouter()
   const { totalCount: controlNotImplementedCount } = useGetControlNotImplementedCount()
-  const { totalCount: evidenceMissingArtifactCount } = useGetEvidenceMissingArtifactCount()
+  const { totalCount: evidenceRequestedOrMissingCount } = useGetEvidenceRequestedOrMissingCount()
   const { totalCount: taskOverdueCount } = useGetOverdueTasksCount()
   const { totalCount: riskOpenAndIdentifiedCount } = useGetRiskOpenAndIdentifiedCount()
-  const requiredAttentionCount = controlNotImplementedCount + evidenceMissingArtifactCount + taskOverdueCount + riskOpenAndIdentifiedCount
+  const requiredAttentionCount = controlNotImplementedCount + evidenceRequestedOrMissingCount + taskOverdueCount + riskOpenAndIdentifiedCount
 
   const handleOpenControlDashboard = () => {
     const filters: TFilterState = {
@@ -32,7 +33,7 @@ const DashboardComplianceOverview = () => {
 
   const handleOpenEvidenceDashboard = () => {
     const filters: TFilterStateFor<TEvidenceFilterKey> = {
-      statusIn: [EvidenceEvidenceStatus.MISSING_ARTIFACT],
+      statusIn: EVIDENCE_REQUESTED_OR_MISSING_STATUSES,
     }
 
     saveFilters(TableKeyEnum.EVIDENCE, filters, currentOrgId)
@@ -75,8 +76,8 @@ const DashboardComplianceOverview = () => {
     {
       key: 'evidence',
       label: 'Evidence',
-      subtitle: 'Items Missing',
-      count: evidenceMissingArtifactCount,
+      subtitle: 'Items Requested or Missing',
+      count: evidenceRequestedOrMissingCount,
       Icon: Fingerprint,
       colorClass: 'text-evidence-icon',
       chipClass: 'bg-evidence-icon/12',
