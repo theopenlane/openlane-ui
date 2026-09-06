@@ -5,37 +5,20 @@ export const statCardStyles = tv({
     wrapper: 'shadow-xs border rounded-lg w-full ',
     content: 'space-y-2',
     title: 'text-lg font-medium flex items-center',
-    trendBadge: 'text-xs flex items-center px-2 py-1 rounded-full',
     percentage: 'text-3xl font-semibold',
     statDetails: 'flex justify-between text-xs',
-    progressWrapper: 'w-full h-2 rounded-full',
+    progressWrapper: 'w-full h-2 rounded-full bg-gray-100',
     progressBar: 'h-2 rounded-full',
   },
   variants: {
     color: {
       green: {
-        trendBadge: 'bg-green-200 text-green-700',
-        progressWrapper: 'bg-gray-100',
         progressBar: 'bg-green-500',
       },
       red: {
-        trendBadge: 'bg-red-200 text-red-700',
-        progressWrapper: 'bg-gray-100',
         progressBar: 'bg-red-700',
       },
-      yellow: {
-        trendBadge: 'bg-slate-200 text-slate-700',
-        progressWrapper: 'bg-gray-100',
-        progressBar: 'bg-yellow-500',
-      },
-      gray: {
-        trendBadge: 'bg-gray-200 text-gray-700',
-        progressWrapper: 'bg-gray-100',
-        progressBar: 'bg-gray-500',
-      },
       blue: {
-        trendBadge: 'bg-blue-200 text-blue-700',
-        progressWrapper: 'bg-gray-100',
         progressBar: 'bg-blue-500',
       },
     },
