@@ -175,16 +175,18 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
               renderView={(arr) => (
                 <ul className="space-y-1">
                   {arr.map((url, i) => (
-                    <li key={i}>
+                    <li key={i} className="min-w-0">
                       <a
                         href={normalizeUrl(url)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-primary hover:underline"
+                        className="inline-flex items-center gap-1 min-w-0 max-w-full text-primary hover:underline"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <ExternalLinkIcon className="w-4 h-4 shrink-0" />
-                        <span className="truncate">{url}</span>
+                        <span className="truncate" title={url}>
+                          {url}
+                        </span>
                       </a>
                     </li>
                   ))}
