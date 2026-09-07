@@ -1,17 +1,11 @@
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { FilterIcons } from '@/components/shared/enum-mapper/risk-enum'
-import { defineFilterFields } from '@/types'
+import { defineFilterFields, type FilterOption } from '@/types'
 import { RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, type RiskWhereInput } from '@repo/codegen/src/schema.ts'
 import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
-export const getRisksFilterFields = (
-  programOptions: { value: string; label: string }[],
-  riskKindOptions: { value: string; label: string }[],
-  riskCategoryOptions: { value: string; label: string }[],
-  tagOptions: { value: string; label: string }[],
-  hasProgramAccess: boolean,
-) =>
+export const getRisksFilterFields = (programOptions: FilterOption[], riskKindOptions: FilterOption[], riskCategoryOptions: FilterOption[], tagOptions: FilterOption[], hasProgramAccess: boolean) =>
   defineFilterFields<RiskWhereInput>()([
     {
       key: 'riskCategoryNameIn',

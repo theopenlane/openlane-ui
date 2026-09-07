@@ -1,12 +1,12 @@
 import { EvidenceOrderField, OrderDirection, type EvidenceWhereInput } from '@repo/codegen/src/schema.ts'
 import { EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
-import { defineFilterFields } from '@/types'
+import { defineFilterFields, type FilterOption } from '@/types'
 import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 export const EVIDENCE_REMAPPED_FILTER_KEYS = ['satisfiesFramework'] as const
 
-export const getEvidenceFilterableFields = (frameworkOptions: { value: string; label: string }[], tagOptions: { value: string; label: string }[]) =>
+export const getEvidenceFilterableFields = (frameworkOptions: FilterOption[], tagOptions: FilterOption[]) =>
   defineFilterFields<EvidenceWhereInput, (typeof EVIDENCE_REMAPPED_FILTER_KEYS)[number]>()([
     { key: 'name', label: 'Name', type: 'text', icon: FilterIcons.Name },
     { key: 'description', label: 'Description', type: 'text', icon: FilterIcons.Description },

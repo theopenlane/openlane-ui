@@ -8,5 +8,5 @@ export const getTagsFilterField = (options: FilterOption[]) =>
     type: 'dropdownSearchSingleSelect',
     icon: FilterIcons.Tag,
     options,
-    matchAnyCasing: true,
+    matchCasingVariants: true,
   }) as const

@@ -1,4 +1,4 @@
-import { defineFilterFields } from '@/types'
+import { defineFilterFields, type FilterOption } from '@/types'
 import { type ControlControlStatus, type ControlListFieldsFragment, ControlOrderField, type Entity, type Group, type User, type ControlWhereInput } from '@repo/codegen/src/schema.ts'
 import { type AuthorToken } from '@/lib/authors'
 import { type ColumnDef, type Row } from '@repo/ui/table-types'
@@ -28,11 +28,11 @@ import { buildCustomStandardFilterWhere, CUSTOM_STANDARD_FILTER_OPTION, isCustom
 import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
 export const getControlsFilterFields = (
-  standardOptions: { value: string; label: string }[],
-  groups: { value: string; label: string }[],
-  programOptions: { value: string; label: string }[],
-  typeOptions: { value: string; label: string }[],
-  tagOptions: { value: string; label: string }[],
+  standardOptions: FilterOption[],
+  groups: FilterOption[],
+  programOptions: FilterOption[],
+  typeOptions: FilterOption[],
+  tagOptions: FilterOption[],
   hasProgramAccess: boolean,
 ) =>
   defineFilterFields<ControlWhereInput>()([

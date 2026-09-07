@@ -1,5 +1,5 @@
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
-import { defineFilterFields, type FilterField } from '@/types'
+import { defineFilterFields, type FilterField, type FilterOption } from '@/types'
 import { type InternalPolicyWhereInput } from '@repo/codegen/src/schema'
 import { useEffect, useMemo, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
@@ -9,9 +9,7 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { getProgramFilterFields } from '@/components/shared/table-filter/program-filter-field'
 import { getTagsFilterField } from '@/components/shared/table-filter/tags-filter-field'
 
-type TOption = { value: string; label: string }
-
-export const getPoliciesFilterFields = (groupOptions: TOption[], programOptions: TOption[], enumOptions: TOption[], tagOptions: TOption[], hasProgramAccess: boolean) =>
+export const getPoliciesFilterFields = (groupOptions: FilterOption[], programOptions: FilterOption[], enumOptions: FilterOption[], tagOptions: FilterOption[], hasProgramAccess: boolean) =>
   defineFilterFields<InternalPolicyWhereInput>()([
     {
       key: 'approverIDIn',

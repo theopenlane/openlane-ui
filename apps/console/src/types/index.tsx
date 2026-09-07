@@ -44,7 +44,7 @@ export interface FilterField<K extends string = string> {
   max?: number // for sliderNumber type
   radioOptions?: { value: string | boolean | undefined; label: string }[] // Specific for tri-state/radio logic
   nullableKey?: string
-  matchAnyCasing?: boolean
+  matchCasingVariants?: boolean
 }
 
 export type WhereInputKey<TWhereInput> = Extract<keyof TWhereInput, string>
@@ -59,7 +59,7 @@ export type DateFilterKey<TWhereInput> = PairedBaseKey<TWhereInput, 'GTE', 'LT'>
 export type RangeFilterKey<TWhereInput> = PairedBaseKey<TWhereInput, 'GTE', 'LTE'>
 export type NullableFilterKey<TWhereInput> = PairedBaseKey<TWhereInput, 'IsNil', 'NotNil'>
 
-type FilterFieldShape<TWhereInput> = Omit<FilterField, 'key' | 'type' | 'nullableKey' | 'matchAnyCasing'> & {
+type FilterFieldShape<TWhereInput> = Omit<FilterField, 'key' | 'type' | 'nullableKey' | 'matchCasingVariants'> & {
   nullableKey?: NullableFilterKey<TWhereInput>
 }
 
@@ -71,7 +71,7 @@ export type FilterFieldFor<TWhereInput, TSynthetic extends string = never> =
   | (FilterFieldShape<TWhereInput> & {
       type: 'dropdownSearchSingleSelect'
       key: SchemaFilterKey<TWhereInput> | TSynthetic
-      matchAnyCasing?: boolean
+      matchCasingVariants?: boolean
     })
   | (FilterFieldShape<TWhereInput> & {
       type: 'date' | 'dateRange'
