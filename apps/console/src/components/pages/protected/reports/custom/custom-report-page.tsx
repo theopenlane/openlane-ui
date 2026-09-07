@@ -13,7 +13,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
 import { useReportExport, useReportQuery, type TReportRequest } from '@/lib/graphql-hooks/custom-report'
 import { buildReportQuery } from '@/lib/report/build-report-query'
-import { buildWhere, isFilterComplete, type TReportCombinator, type TReportFilter } from '@/lib/report/report-filters'
+import { buildWhere, defaultFilters, isFilterComplete, type TReportCombinator, type TReportFilter } from '@/lib/report/report-filters'
 import { EXPORT_FORMAT_LABELS, EXPORT_FORMATS } from '@/lib/report/report-export'
 import { buildColumnIndex, entityOptions, getEntity, resolveColumns, type TReportColumn } from '@/lib/report/report-schema'
 import ReportColumnsPanel from './report-columns-panel'
@@ -52,10 +52,13 @@ const CustomReportPage: React.FC = () => {
 
   useEffect(() => {
     const first = availableEntities[0]
-    if (!entityName && first) {
-      setEntityName(first.value)
-      setColumnPaths(getEntity(first.value)?.defaultFields ?? [])
-    }
+    if (entityName || !first) return
+
+    const firstEntity = getEntity(first.value)
+
+    setEntityName(first.value)
+    setColumnPaths(firstEntity?.defaultFields ?? [])
+    setFilters(firstEntity ? defaultFilters(firstEntity) : [])
   }, [availableEntities, entityName])
 
   const entity = availableEntities.some((option) => option.value === entityName) ? getEntity(entityName) : undefined
@@ -70,7 +73,7 @@ const CustomReportPage: React.FC = () => {
 
     setEntityName(nextEntityName)
     setColumnPaths(nextEntity.defaultFields)
-    setFilters([])
+    setFilters(defaultFilters(nextEntity))
     setCombinator('and')
     setRequest(null)
     setPagination(resetPagination(pagination.pageSize))
@@ -99,11 +102,11 @@ const CustomReportPage: React.FC = () => {
     return filters.filter((filter) => !isFilterComplete(filter, fieldsByName.get(filter.field))).length
   }, [entity, filters])
 
-  const previewQuery = useMemo(() => {
-    if (tab !== 'query' || !entity) return ''
+  const preview = useMemo(() => {
+    if (tab !== 'query' || !entity) return null
 
     const columns = resolveColumns(columnIndex, columnPaths)
-    if (columns.length === 0) return ''
+    if (columns.length === 0) return null
 
     const { query, variables } = buildReportQuery({
       entity,
@@ -112,7 +115,7 @@ const CustomReportPage: React.FC = () => {
       pageQuery: { first: pagination.pageSize },
     })
 
-    return Object.keys(variables).length > 0 ? `${query}\n\n# variables\n${JSON.stringify(variables, null, 2)}` : query
+    return { query, variables: Object.keys(variables).length > 0 ? JSON.stringify(variables, null, 2) : '' }
   }, [columnIndex, columnPaths, combinator, entity, filters, pagination.pageSize, tab])
 
   const handleRun = () => {
@@ -131,6 +134,14 @@ const CustomReportPage: React.FC = () => {
   return (
     <div className="flex flex-col lg:flex-row gap-4 items-start">
       <aside className="w-full lg:w-72 shrink-0 flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <Button type="button" full icon={<Play size={14} />} iconPosition="left" loading={isFetching} disabled={!entity || columnPaths.length === 0 || incompleteFilters > 0} onClick={handleRun}>
+            Run report
+          </Button>
+          {columnPaths.length === 0 && <p className="text-xs text-muted-foreground">Select at least one column to run this report.</p>}
+          {incompleteFilters > 0 && <p className="text-xs text-muted-foreground">Give every filter a value, or remove it, before running this report.</p>}
+        </div>
+
         <ReportPanel title="Report on" description="Choose the type of data to include in your report">
           {availableEntities.length === 0 ? (
             <p className="text-sm text-muted-foreground">Your organization has no modules that can be reported on yet.</p>
@@ -157,14 +168,6 @@ const CustomReportPage: React.FC = () => {
             <ReportFiltersPanel entity={entity} filters={filters} combinator={combinator} onCombinatorChange={setCombinator} onChange={setFilters} />
           </>
         )}
-
-        <div className="sticky bottom-0 flex flex-col gap-1 bg-background pt-2 pb-1">
-          <Button type="button" full icon={<Play size={14} />} iconPosition="left" loading={isFetching} disabled={!entity || columnPaths.length === 0 || incompleteFilters > 0} onClick={handleRun}>
-            Run report
-          </Button>
-          {columnPaths.length === 0 && <p className="text-xs text-muted-foreground">Select at least one column to run this report.</p>}
-          {incompleteFilters > 0 && <p className="text-xs text-muted-foreground">Give every filter a value, or remove it, before running this report.</p>}
-        </div>
       </aside>
 
       <Card className="flex-1 min-w-0 w-full p-4">
@@ -208,7 +211,14 @@ const CustomReportPage: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="query" className="mt-4">
-            {previewQuery ? <CodeBlock code={previewQuery} language="text" /> : <p className="text-sm text-muted-foreground">Select at least one column to see the query.</p>}
+            {preview ? (
+              <div className="flex flex-col gap-3">
+                <CodeBlock code={preview.query} language="graphql" />
+                {preview.variables && <CodeBlock code={preview.variables} language="json" title="Variables" />}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Select at least one column to see the query.</p>
+            )}
           </TabsContent>
         </Tabs>
       </Card>

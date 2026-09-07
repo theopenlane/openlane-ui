@@ -1,4 +1,5 @@
-import { REPORT_OPERATOR_SUFFIX, type TReportField, type TReportFieldKind, type TReportOperator } from '@repo/codegen/src/report-schema.generated'
+import { REPORT_OPERATOR_SUFFIX, type TReportEntity, type TReportField, type TReportFieldKind, type TReportOperator } from '@repo/codegen/src/report-schema.generated'
+import { filterableFields, getFieldOperators } from './report-schema'
 
 export type TReportCombinator = 'and' | 'or'
 
@@ -10,6 +11,14 @@ export type TReportFilter = {
 }
 
 export const MAX_FILTERS = 5
+
+const SYSTEM_OWNED_FIELD = 'systemOwned'
+
+export const defaultFilters = (entity: TReportEntity): TReportFilter[] => {
+  const field = filterableFields(entity).find((item) => item.name === SYSTEM_OWNED_FIELD)
+
+  return field && getFieldOperators(field).includes('eq') ? [{ id: crypto.randomUUID(), field: SYSTEM_OWNED_FIELD, operator: 'eq', value: 'false' }] : []
+}
 
 export const LIST_VALUE_SEPARATOR = ','
 
