@@ -224,7 +224,7 @@ test.describe('evidence — status overview', () => {
     // evidence-summary-card.tsx renders the donut + a status chip legend.
     await expect(page.getByText('Evidence Status Overview', { exact: true })).toBeVisible({ timeout: 15_000 })
     await expect(page.getByText('Requested', { exact: true }).first()).toBeVisible()
-    await expect(page.getByText('Approved', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText('Auditor Approved', { exact: true }).first()).toBeVisible()
   })
 })
 

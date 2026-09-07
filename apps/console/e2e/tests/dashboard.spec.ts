@@ -140,7 +140,7 @@ test.describe('dashboard — compliance overview metric navigation', () => {
     test.slow()
     await openOverview(page)
 
-    await clickTile(page, 'Items Missing')
+    await clickTile(page, 'Items Requested or Missing')
     await expect(page).toHaveURL(/\/evidence/, { timeout: 30_000 })
   })
 

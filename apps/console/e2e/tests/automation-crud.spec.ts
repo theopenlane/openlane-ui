@@ -4,7 +4,7 @@ import { confirmDestructiveDialog, openRowAction } from '../utils/menu'
 import { RUN_ID } from '../utils/constants'
 import { createCampaign, createQuestionnaire, createTemplate, type ApiSession, getOwnerApi } from '../utils/api'
 import { uniqueName } from '../utils/unique'
-import { expectMutationOk } from '../utils/mutations'
+import { expectMutationOk, toast } from '../utils/mutations'
 
 /**
  * Deep automation flows beyond automation-other.spec.ts (subroute renders +
@@ -620,7 +620,7 @@ test.describe('automation — remaining submits', () => {
     await expectMutationOk(page, 'CreateEmailTemplate', async () => {
       await save.click()
     })
-    await expect(page.getByText('Email template created')).toBeVisible({ timeout: 30_000 })
+    await expect(toast(page, 'Email template created')).toBeVisible({ timeout: 30_000 })
   })
 })
 

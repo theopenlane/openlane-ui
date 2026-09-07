@@ -215,8 +215,7 @@ test('the workflow table Edit action opens the editor and persists the updated d
     await page.getByPlaceholder('Search').fill(name)
     const row = rowFor(page, name)
     await expect(row).toContainText(originalDescription, { timeout: 20_000 })
-    await row.getByRole('button', { name: 'Row actions' }).click()
-    await page.getByRole('menuitem', { name: 'Edit' }).click({ timeout: 30_000 })
+    await openRowAction(page, row.getByRole('button', { name: 'Row actions' }), page.getByRole('menuitem', { name: 'Edit' }))
 
     await page.waitForURL(new RegExp(`/automation/workflows/editor\\?id=${id}$`), { timeout: 20_000 })
     await expect(page.getByLabel('Name')).toHaveValue(name, { timeout: 30_000 })

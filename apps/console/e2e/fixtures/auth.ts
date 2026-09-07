@@ -39,9 +39,18 @@ export const authFile = (profile: AuthProfile): string => path.join(AUTH_DIR, `$
 /** Read the run manifest (emails, shared org id) written by global-setup. */
 export const readManifest = (): AuthManifest => JSON.parse(readFileSync(path.join(AUTH_DIR, 'manifest.json'), 'utf-8')) as AuthManifest
 
-const emailForProfile = (profile: Role): string => {
+interface Credentials {
+  email: string
+  password: string
+}
+
+const credentialsForProfile = (profile: AuthProfile): Credentials | undefined => {
   const manifest = readManifest()
-  return profile === 'owner' ? manifest.ownerEmail : manifest.roleEmails[profile]
+  if (profile === 'demo') {
+    if (!manifest.demoEmail || !manifest.demoPassword) return undefined
+    return { email: manifest.demoEmail, password: manifest.demoPassword }
+  }
+  return { email: profile === 'owner' ? manifest.ownerEmail : manifest.roleEmails[profile], password: manifest.password }
 }
 
 type SessionFor = (profile: AuthProfile) => Promise<string>
@@ -73,15 +82,14 @@ export const test = base.extend<{ authProfile: AuthProfile }, { sessionFor: Sess
       const cache = new Map<AuthProfile, string>()
 
       const sessionFor: SessionFor = async (profile) => {
-        // The demo org is seeded outside this run and has its own credentials,
-        // so it keeps using the session global-setup captured.
-        if (profile === 'demo') return authFile('demo')
-
         const cached = cache.get(profile)
         if (cached) return cached
 
+        const credentials = credentialsForProfile(profile)
+        if (!credentials) return authFile(profile)
+
         const outPath = path.join(dir, `${profile}.json`)
-        await loginAndSaveState(browser, emailForProfile(profile), readManifest().password, outPath)
+        await loginAndSaveState(browser, credentials.email, credentials.password, outPath)
         cache.set(profile, outPath)
         return outPath
       }
