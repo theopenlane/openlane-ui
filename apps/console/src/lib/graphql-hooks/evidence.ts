@@ -15,8 +15,6 @@ import {
   GET_FIRST_FIVE_EVIDENCES_BY_STATUS,
   GET_RENEW_EVIDENCE,
   UPDATE_EVIDENCE,
-  GET_EVIDENCE_TREND_DATA,
-  GET_PROGRAM_EVIDENCE_TREND_DATA,
   GET_EVIDENCE_COUNTS_BY_STATUS_BY_PROGRAM_ID,
   GET_EVIDENCE_COUNTS_BY_STATUS_ALL_PROGRAMS,
   GET_EVIDENCE_SUGGESTED_ACTIONS,
@@ -48,9 +46,6 @@ import {
   type GetEvidenceListLightQuery,
   type EvidenceOrder,
   type Evidence,
-  type GetEvidenceTrendDataQuery,
-  type GetProgramEvidenceTrendDataQuery,
-  EvidenceEvidenceStatus,
   type GetEvidencesByStatusQuery,
   type GetEvidenceFilesByIdQuery,
   type GetEvidenceCountsByStatusAllProgramsQuery,
@@ -89,17 +84,6 @@ export function useCreateEvidence() {
       invalidateEvidenceQueries(queryClient)
     },
   })
-}
-
-function calculateTrend(currentWeekCount: number, previousWeekCount: number) {
-  if (previousWeekCount > 0) {
-    const trend = ((currentWeekCount - previousWeekCount) / previousWeekCount) * 100
-    if (trend > 0) return { trend: Math.round(trend), trendType: 'up' as const }
-    if (trend < 0) return { trend: Math.round(trend), trendType: 'down' as const }
-    return { trend: 0, trendType: 'flat' as const }
-  }
-  if (currentWeekCount > 0) return { trend: 100, trendType: 'up' as const }
-  return { trend: 0, trendType: 'flat' as const }
 }
 
 type TEvidenceFilesProps = {
@@ -368,69 +352,6 @@ export const useGetEvidenceCountsByStatus = (programId?: string | null) => {
       return client.request(GET_EVIDENCE_COUNTS_BY_STATUS_ALL_PROGRAMS)
     },
   })
-}
-
-export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvidenceStatus) => {
-  const { client } = useGraphQLClient()
-
-  return useQuery({
-    queryKey: ['evidence-trend', programId, status],
-    queryFn: async () => {
-      const now = new Date()
-      const currentWeekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
-      const previousWeekStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString()
-      const previousWeekEnd = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
-
-      if (!status) {
-        return {
-          trend: 0,
-          trendType: 'flat' as const,
-          currentWeekCount: 0,
-          previousWeekCount: 0,
-        }
-      }
-
-      if (programId) {
-        const variables = { programId, currentWeekStart, previousWeekStart, previousWeekEnd, status }
-        const data = await client.request<GetProgramEvidenceTrendDataQuery>(GET_PROGRAM_EVIDENCE_TREND_DATA, variables)
-        const currentWeekCount = data.currentWeek.totalCount
-        const previousWeekCount = data.previousWeek.totalCount
-        const { trend, trendType } = calculateTrend(currentWeekCount, previousWeekCount)
-        return {
-          trend,
-          trendType,
-          currentWeekCount,
-          previousWeekCount,
-        }
-      } else {
-        const variables = { currentWeekStart, previousWeekStart, previousWeekEnd, status }
-        const data = await client.request<GetEvidenceTrendDataQuery>(GET_EVIDENCE_TREND_DATA, variables)
-        const currentWeekCount = data.currentWeek.totalCount
-        const previousWeekCount = data.previousWeek.totalCount
-        const { trend, trendType } = calculateTrend(currentWeekCount, previousWeekCount)
-        return {
-          trend,
-          trendType,
-          currentWeekCount,
-          previousWeekCount,
-        }
-      }
-    },
-    enabled: !!status,
-  })
-}
-
-// Convenience hooks for specific statuses
-export const useSubmittedEvidenceTrend = (programId?: string | null) => {
-  return useEvidenceTrend(programId, EvidenceEvidenceStatus.READY_FOR_AUDITOR)
-}
-
-export const useAcceptedEvidenceTrend = (programId?: string | null) => {
-  return useEvidenceTrend(programId, EvidenceEvidenceStatus.AUDITOR_APPROVED)
-}
-
-export const useRejectedEvidenceTrend = (programId?: string | null) => {
-  return useEvidenceTrend(programId, EvidenceEvidenceStatus.REJECTED)
 }
 
 type TGetFirstFiveEvidenceByStatusProps = {
