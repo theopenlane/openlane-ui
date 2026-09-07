@@ -17,6 +17,7 @@ export enum AccessEnum {
   CanDeleteRisk = 'can_delete_risk',
   CanCreateReview = 'can_create_review',
   CanEdit = 'can_edit',
+  FullAccess = 'full_access',
   CanView = 'can_view',
   CanCreateControlObjective = 'can_create_control_objective',
   CanCreateControlImplementation = 'can_create_control_implementation',

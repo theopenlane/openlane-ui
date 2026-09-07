@@ -30,6 +30,7 @@ import { useInsertSubcontrolPlateComment, useUpdateSubcontrol, useUpdateSubcontr
 import { useInsertRiskComment, useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risk'
 import { useUpdateDiscussion } from 'console/src/lib/graphql-hooks/discussion'
 import { useNotification } from 'console/src/hooks/useNotification'
+import { useHasOrgFullAccess } from 'console/src/lib/authz/use-has-org-full-access'
 import { parseErrorMessage } from 'console/src/utils/graphQlErrorMatcher'
 import { useQueryClient } from '@tanstack/react-query'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -58,6 +59,7 @@ export function Comment(props: {
   const editor = useEditorRef()
   const userInfo = usePluginOption(discussionPlugin, 'user', comment.userId)
   const currentUserId = usePluginOption(discussionPlugin, 'currentUserId')
+  const hasOrgFullAccess = useHasOrgFullAccess()
   const { mutateAsync: updateControlComment } = useUpdateControlComment()
   const { mutateAsync: updateSubcontrolComment } = useUpdateSubcontrolComment()
   const { mutateAsync: updatePolicyComment } = useUpdatePolicyComment()
@@ -183,7 +185,7 @@ export function Comment(props: {
 
   const { tf } = useEditorPlugin(CommentPlugin)
 
-  const isMyComment = currentUserId === comment.userId
+  const canManageComment = currentUserId === comment.userId || hasOrgFullAccess
   const initialValue = comment.contentRich
 
   const commentEditor = useCommentEditor(
@@ -238,7 +240,7 @@ export function Comment(props: {
           {comment.isEdited && <span>(edited)</span>}
         </div>
 
-        {isMyComment && (hovering || dropdownOpen) && (
+        {canManageComment && (hovering || dropdownOpen) && (
           <div className="absolute top-0 right-0 flex space-x-1">
             {index === 0 && (
               <Button variant="ghost" className="h-6 p-1 text-muted-foreground" onClick={onResolveComment} type="button">
