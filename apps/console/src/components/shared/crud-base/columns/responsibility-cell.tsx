@@ -1,6 +1,6 @@
 import { type User } from '@repo/codegen/src/schema'
 import { UserCell } from './user-cell'
-import { Users } from 'lucide-react'
+import { Users, IdCardLanyard } from 'lucide-react'
 
 type ResponsibilityCellProps = {
   userMap: Record<string, User>
@@ -25,7 +25,12 @@ export const ResponsibilityCell = ({ userMap, user, group, personnel, stringValu
   }
 
   if (personnel?.id) {
-    return <span>{personnel.fullName || personnel.email || personnel.id}</span>
+    return (
+      <div className="flex items-center gap-2">
+        <IdCardLanyard className="h-4 w-4 text-muted-foreground" />
+        {personnel.fullName || personnel.email || personnel.id}
+      </div>
+    )
   }
 
   if (stringValue) {

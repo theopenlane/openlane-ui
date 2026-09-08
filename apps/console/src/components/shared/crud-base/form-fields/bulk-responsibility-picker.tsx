@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { User, Users, Type, Check, X } from 'lucide-react'
+import { User, Users, IdCardLanyard, Type, Check, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
@@ -32,6 +32,7 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
   const getTypeIcon = (type?: string) => {
     switch (type) {
       case 'personnel':
+        return <IdCardLanyard className="h-3.5 w-3.5 text-muted-foreground" />
       case 'user':
         return <User className="h-3.5 w-3.5 text-muted-foreground" />
       case 'group':
@@ -127,7 +128,7 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
                     value={`personnel-${option.value}`}
                     onSelect={() => handleSelect({ type: 'personnel', value: option.value, displayName: option.label })}
                   >
-                    <User className="mr-2 h-4 w-4" />
+                    <IdCardLanyard className="mr-2 h-4 w-4" />
                     <span>
                       {option.label}
                       {option.email && option.email !== option.label ? ` (${option.email})` : ''}

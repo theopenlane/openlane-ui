@@ -4,7 +4,7 @@ import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '../generic-sheet'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { InfoIcon, User, Users, Type, Check, X, ChevronDown } from 'lucide-react'
+import { InfoIcon, User, Users, IdCardLanyard, Type, Check, X, ChevronDown } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { useMemo, useRef, useState } from 'react'
@@ -127,6 +127,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   const getTypeIcon = (type?: string) => {
     switch (type) {
       case 'personnel':
+        return <IdCardLanyard className="h-3.5 w-3.5 text-muted-foreground" />
       case 'user':
         return <User className="h-3.5 w-3.5 text-muted-foreground" />
       case 'group':
@@ -255,7 +256,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                                   value={`personnel-${option.value}`}
                                   onSelect={() => handleSelect({ type: 'personnel', value: option.value, displayName: option.label }, field)}
                                 >
-                                  <User className="mr-2 h-4 w-4" />
+                                  <IdCardLanyard className="mr-2 h-4 w-4" />
                                   <span>
                                     {option.label}
                                     {option.email && option.email !== option.label ? ` (${option.email})` : ''}
