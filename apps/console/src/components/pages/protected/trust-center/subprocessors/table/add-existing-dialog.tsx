@@ -13,9 +13,7 @@ import { CountriesField } from '../sheet/form-fields/countries-field'
 import { CategoryField } from '../sheet/form-fields/category-field'
 import { useCreateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessor'
 import { type CreateSubprocessorMutation } from '@repo/codegen/src/schema'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
-import { useSession } from 'next-auth/react'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 
 const schema = z.object({
   subprocessorID: z.string().min(1, 'Please select a subprocessor'),
@@ -42,9 +40,7 @@ export const AddExistingDialog = ({
   const isControlled = typeof controlledOpen === 'boolean'
   const resolvedOpen = isControlled ? controlledOpen : open
   const { successNotification, errorNotification } = useNotification()
-  const { data: orgPermission } = useOrganizationRoles()
-  const { data: session } = useSession()
-  const canEditOrg = canEdit(orgPermission?.roles, session)
+  const { allowed: canEditOrg } = useCanEditTrustCenter()
 
   const { mutateAsync: createTCSubprocessor } = useCreateTrustCenterSubprocessor()
 

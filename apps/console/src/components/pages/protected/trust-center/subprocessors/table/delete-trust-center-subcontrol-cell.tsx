@@ -7,6 +7,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useDeleteTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessor'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 
 interface Props {
   subprocessorId: string
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export const DeleteTrustCenterSubprocessorCell = ({ subprocessorId, subprocessorName }: Props) => {
+  const { allowed: isDeleteAllowed } = useCanEditTrustCenter()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const { mutateAsync: deleteSubprocessor } = useDeleteTrustCenterSubprocessor()
   const { successNotification, errorNotification } = useNotification()
@@ -33,6 +35,10 @@ export const DeleteTrustCenterSubprocessorCell = ({ subprocessorId, subprocessor
     } finally {
       setIsDeleteDialogOpen(false)
     }
+  }
+
+  if (!isDeleteAllowed) {
+    return null
   }
 
   return (

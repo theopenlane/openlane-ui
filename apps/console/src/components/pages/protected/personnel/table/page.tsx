@@ -1,5 +1,6 @@
 'use client'
 
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import React, { useCallback, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
@@ -196,6 +197,7 @@ const PersonnelPage: React.FC = () => {
 
   const tableConfig: PersonnelTablePageConfig = {
     objectType,
+    createPermission: AccessEnum.CanCreateIdentityHolder,
     objectName,
     displayName,
     displayNamePlural,

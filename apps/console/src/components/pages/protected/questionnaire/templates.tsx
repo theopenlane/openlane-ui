@@ -17,6 +17,10 @@ import { useCreateAssessment } from '@/lib/graphql-hooks/assessment'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const formSchema = z.object({
   templateId: z.string().min(1, 'Please select a template'),
@@ -33,6 +37,9 @@ export const TemplateList = ({ initialTemplateId, onCreateSuccess }: TemplateLis
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createAssessment } = useCreateAssessment()
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canCreateAssessment = hasPermission(orgPermission?.roles, AccessEnum.CanCreateAssessment, session)
 
   const { selectTemplate } = pageStyles()
 
@@ -175,9 +182,11 @@ export const TemplateList = ({ initialTemplateId, onCreateSuccess }: TemplateLis
           <DialogClose asChild>
             <CancelButton />
           </DialogClose>
-          <Button variant="primary" onClick={handleSubmit((data) => handleFromTemplate(data.templateId))} disabled={!hasTemplates || form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? 'Creating...' : 'Create Questionnaire'}
-          </Button>
+          {canCreateAssessment && (
+            <Button variant="primary" onClick={handleSubmit((data) => handleFromTemplate(data.templateId))} disabled={!hasTemplates || form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? 'Creating...' : 'Create Questionnaire'}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </>

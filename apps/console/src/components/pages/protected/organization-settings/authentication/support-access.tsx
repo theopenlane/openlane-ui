@@ -4,6 +4,9 @@ import React from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationSetting, useUpdateOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Badge } from '@repo/ui/badge'
@@ -15,6 +18,9 @@ const SupportAccess = () => {
   const { data, isLoading } = useGetOrganizationSetting(currentOrgId)
   const { mutateAsync: update } = useUpdateOrganizationSetting()
   const { successNotification, errorNotification } = useNotification()
+  const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canManage = canEdit(orgPermission?.roles, session)
   const queryClient = useQueryClient()
 
   const settingId = data?.organization?.setting?.id
@@ -51,10 +57,12 @@ const SupportAccess = () => {
               </p>
               <Badge variant={allowSupportAccess ? 'green' : 'secondary'}>{allowSupportAccess ? '● Enabled' : '● Disabled'}</Badge>
             </div>
-            <Button variant={allowSupportAccess ? 'destructive' : 'secondary'} onClick={onToggle} className="shrink-0">
-              <Lock className="h-4 w-4 mr-2" />
-              {allowSupportAccess ? 'Revoke Access' : 'Enable Access'}
-            </Button>
+            {canManage && (
+              <Button variant={allowSupportAccess ? 'destructive' : 'secondary'} onClick={onToggle} className="shrink-0">
+                <Lock className="h-4 w-4 mr-2" />
+                {allowSupportAccess ? 'Revoke Access' : 'Enable Access'}
+              </Button>
+            )}
           </div>
         </div>
       </div>

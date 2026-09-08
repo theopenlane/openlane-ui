@@ -19,6 +19,7 @@ import ApplyWatermarkSheet from './apply-watermark-sheet'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
+import { useCanEditTrustCenter } from '@/lib/authz/use-can-edit-trust-center'
 
 type TProps = {
   searching?: boolean
@@ -42,6 +43,7 @@ const DocumentsTableToolbar: React.FC<TProps> = ({ searching, searchTerm, setSea
   const { mutate: deleteDocs, isPending: isDeleting } = useBulkDeleteTrustCenterDocs()
   const { errorNotification } = useNotification()
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const { allowed: canCreateDocument } = useCanEditTrustCenter()
 
   const handleCreateClick = () => {
     const params = new URLSearchParams(searchParams)
@@ -117,16 +119,18 @@ const DocumentsTableToolbar: React.FC<TProps> = ({ searching, searchTerm, setSea
             className="w-60"
           />
         </div>
-        {selectedDocs.length === 0 ? (
+        {selectedDocs.length === 0 || !canCreateDocument ? (
           <div className="flex items-center gap-2 flex-wrap justify-end">
             {mappedColumns && columnVisibility && setColumnVisibility && (
               <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.DOCUMENTS} />
             )}
-            {watermarkConfig && <ApplyWatermarkSheet watermarkConfig={watermarkConfig} />}
+            {canCreateDocument && watermarkConfig && <ApplyWatermarkSheet watermarkConfig={watermarkConfig} />}
             <TableFilter filterFields={trustCenterDocsFilterFields} onFilterChange={handleFilterChange} pageKey={TableKeyEnum.TRUST_CENTER_DOC} />
-            <Button variant="primary" icon={<PlusCircle size={16} strokeWidth={2} />} iconPosition="left" onClick={handleCreateClick}>
-              New Document
-            </Button>
+            {canCreateDocument && (
+              <Button variant="primary" icon={<PlusCircle size={16} strokeWidth={2} />} iconPosition="left" onClick={handleCreateClick}>
+                New Document
+              </Button>
+            )}
           </div>
         ) : (
           <div className="flex items-center gap-2 justify-end flex-wrap">

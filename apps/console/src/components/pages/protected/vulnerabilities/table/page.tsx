@@ -1,5 +1,6 @@
 'use client'
 
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
@@ -170,6 +171,7 @@ const VulnerabilityPage: React.FC = () => {
 
   const tableConfig: VulnerabilityTablePageConfig = {
     objectType,
+    createPermission: AccessEnum.CanCreateVulnerability,
     objectName,
     tableKey,
     exportType,

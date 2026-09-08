@@ -1,5 +1,6 @@
 'use client'
 
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import React from 'react'
 import { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { useCreateBulkCSVFinding, useBulkEditFinding, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
@@ -47,6 +48,7 @@ const FindingPage: React.FC = () => {
 
   const tableConfig: FindingTablePageConfig = {
     objectType,
+    createPermission: AccessEnum.CanCreateFinding,
     objectName,
     tableKey,
     exportType,

@@ -10,6 +10,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { OrgMembershipRole, type OrgMembership } from '@repo/codegen/src/schema'
 import { ManageAdditionalRolesDialog } from '@/components/shared/organization-roles/manage-additional-roles-dialog'
+import { useOrgMemberPermissions } from '@/lib/authz/use-org-member-permissions'
 import { ASSIGNABLE_BASE_ROLES } from './assignable-base-roles'
 import { invalidateMembershipQueries } from '@/lib/graphql-hooks/membership-cache'
 import { useRemoveUserFromOrg, useUpdateUserRoleInOrg } from '@/lib/graphql-hooks/member'
@@ -26,6 +27,7 @@ type MembersBulkActionsProps = {
 }
 
 export const MembersBulkActions = ({ selectedMembers, onClear }: MembersBulkActionsProps) => {
+  const { canManageMembers } = useOrgMemberPermissions()
   const [rolesMode, setRolesMode] = useState<'add' | 'remove' | null>(null)
   const [showChangeRole, setShowChangeRole] = useState(false)
   const [showRemove, setShowRemove] = useState(false)
@@ -62,6 +64,10 @@ export const MembersBulkActions = ({ selectedMembers, onClear }: MembersBulkActi
       return
     }
     errorNotification({ title: 'Error', description: `Removed ${count - failed.length} of ${count} member(s); ${failed.length} failed: ${parseErrorMessage(failed[0].reason)}` })
+  }
+
+  if (!canManageMembers) {
+    return null
   }
 
   return (

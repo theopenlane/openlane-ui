@@ -25,7 +25,7 @@ interface SortableFaqCardProps {
 }
 
 export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDelete, editForm, isUpdating, onSaveEdit, onCancelEdit, canEdit }: SortableFaqCardProps) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: faq.id })
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: faq.id, disabled: !canEdit })
 
   const style = {
     transform: CSS.Transform.toString(transform),
