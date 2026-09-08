@@ -13,6 +13,9 @@ import { ReviewAssociationSection } from '../create/form/fields/association-sect
 import { ReviewDocumentsSection } from '../create/form/fields/documents-section'
 import { ReviewCommentsSection } from '../create/form/fields/comments-section'
 import { getEnvironmentFilterField, getScopeFilterField } from '@/components/shared/table-filter/scope-environment-filter-fields'
+import { isStringArray } from '@/components/shared/table-filter/filter-storage'
+import { VENDOR_ENTITY_TYPE_WHERE } from '@/lib/graphql-hooks/entity'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 export const formId = 'edit' + ObjectNames.REVIEW
 
@@ -22,14 +25,40 @@ export const breadcrumbs = [
   { label: 'Reviews', href: '/exposure/reviews' },
 ]
 
+export const REVIEW_REMAPPED_FILTER_KEYS = ['reviewType'] as const
+
+const ReviewType = { CONTROL: 'CONTROL', VENDOR: 'VENDOR' } as const
+type ReviewType = (typeof ReviewType)[keyof typeof ReviewType]
+
+const REVIEW_TYPE_WHERE: Record<ReviewType, ReviewWhereInput[]> = {
+  CONTROL: [{ hasControls: true }, { hasSubcontrols: true }],
+  VENDOR: [{ hasEntitiesWith: [VENDOR_ENTITY_TYPE_WHERE] }],
+}
+
+const REVIEW_TYPE_OPTIONS = enumToOptions(ReviewType)
+
+const isReviewType = (value: string): value is ReviewType => (Object.values(ReviewType) as string[]).includes(value)
+
+export const mapReviewFilterKey = (key: string, value: unknown): ReviewWhereInput => {
+  if (key === 'reviewType' && isStringArray(value)) return { or: value.filter(isReviewType).flatMap((type) => REVIEW_TYPE_WHERE[type]) }
+  return { [key]: value }
+}
+
 export const getFilterFields = (enumOptions: EnumOptions) =>
-  defineFilterFields<ReviewWhereInput>()([
+  defineFilterFields<ReviewWhereInput, (typeof REVIEW_REMAPPED_FILTER_KEYS)[number]>()([
     {
       key: 'statusIn',
       label: 'Status',
       type: 'multiselect',
       icon: FilterIcons.Status,
       options: enumOptions.statusOptions,
+    },
+    {
+      key: 'reviewType',
+      label: 'Type',
+      type: 'multiselect',
+      icon: FilterIcons.Type,
+      options: REVIEW_TYPE_OPTIONS,
     },
     {
       key: 'categoryContainsFold',

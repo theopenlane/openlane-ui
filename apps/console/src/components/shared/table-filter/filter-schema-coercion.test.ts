@@ -1,7 +1,7 @@
 import { buildClientSchema, getNamedType, isEnumType, isInputObjectType, validateInputValue, type IntrospectionQuery } from 'graphql'
 import introspection from '@repo/codegen/src/introspectionschema.json'
 import { getQuickFiltersWhereCondition, getWhereCondition, type TQuickFilter } from './table-filter-helper'
-import { whereGenerator } from './where-generator'
+import { identityFilterKey, whereGenerator } from './where-generator'
 import { type TFilterState } from './filter-storage'
 import { type FilterField } from '@/types'
 
@@ -11,7 +11,7 @@ import { getFilterFields as getFindingFilterFields } from '@/components/pages/pr
 import { getFilterFields as getPersonnelFilterFields } from '@/components/pages/protected/personnel/table/table-config'
 import { getFilterFields as getPlatformFilterFields } from '@/components/pages/protected/platforms/table/table-config'
 import { getFilterFields as getRemediationFilterFields } from '@/components/pages/protected/remediations/table/table-config'
-import { getFilterFields as getReviewFilterFields } from '@/components/pages/protected/reviews/table/table-config'
+import { getFilterFields as getReviewFilterFields, mapReviewFilterKey } from '@/components/pages/protected/reviews/table/table-config'
 import { getFilterFields as getScanFilterFields } from '@/components/pages/protected/scans/table/table-config'
 import { getFilterFields as getSystemDetailFilterFields } from '@/components/pages/protected/system-details/table/table-config'
 import { getFilterFields as getVendorFilterFields } from '@/components/pages/protected/vendors/table/table-config'
@@ -106,8 +106,6 @@ type Suite = {
   mapper?: FilterKeyMapper
 }
 
-const passThrough: FilterKeyMapper = (key, value) => ({ [key]: value })
-
 const suites: Suite[] = [
   { page: 'action-plans', whereInput: 'ActionPlanWhereInput', fields: getActionPlanFilterFields() },
   { page: 'assets', whereInput: 'AssetWhereInput', fields: getAssetFilterFields(emptyEnumOptions()) },
@@ -131,7 +129,7 @@ const suites: Suite[] = [
   { page: 'questionnaire', whereInput: 'AssessmentWhereInput', fields: getQuestionnaireFilterFields(noOptions, noOptions), mapper: mapQuestionnaireFilterKey },
   { page: 'questionnaire/template', whereInput: 'TemplateWhereInput', fields: getTemplateFilterFields(noOptions, noOptions) },
   { page: 'remediations', whereInput: 'RemediationWhereInput', fields: getRemediationFilterFields(emptyEnumOptions()) },
-  { page: 'reviews', whereInput: 'ReviewWhereInput', fields: getReviewFilterFields(emptyEnumOptions()) },
+  { page: 'reviews', whereInput: 'ReviewWhereInput', fields: getReviewFilterFields(emptyEnumOptions()), mapper: mapReviewFilterKey },
   { page: 'reviews/risk-review', whereInput: 'ReviewWhereInput', fields: REVIEW_FILTER_FIELDS },
   { page: 'risks', whereInput: 'RiskWhereInput', fields: getRisksFilterFields(noOptions, noOptions, noOptions, noOptions, true) },
   { page: 'scans', whereInput: 'ScanWhereInput', fields: getScanFilterFields(emptyEnumOptions()) },
@@ -167,7 +165,7 @@ const buildWhere = (field: FilterField, value: TFilterState[string], mapper: Fil
 
 describe('filter fields coerce against the GraphQL schema', () => {
   for (const { page, whereInput, fields, mapper } of suites) {
-    const mapKey = mapper ?? passThrough
+    const mapKey = mapper ?? identityFilterKey
 
     if (snapshotIsMissing(whereInput)) {
       test(`${page} is skipped because ${whereInput} is absent from the introspection snapshot`, () => {
@@ -207,7 +205,7 @@ describe('a filter that is offered actually reaches the query', () => {
   for (const { page, whereInput, fields, mapper } of suites) {
     if (snapshotIsMissing(whereInput)) continue
 
-    const mapKey = mapper ?? passThrough
+    const mapKey = mapper ?? identityFilterKey
 
     test(`${page} sends a predicate for every filter it offers`, () => {
       const swallowed = fields.filter((field) => producesNoPredicate(buildWhere(field, sampleValue(field, whereInput), mapKey))).map((field) => field.key)
@@ -229,7 +227,7 @@ const quickFilterSuites: { page: string; whereInput: string; quickFilters: TQuic
 
 describe('quick filter conditions coerce against the GraphQL schema', () => {
   for (const { page, whereInput, quickFilters, mapper } of quickFilterSuites) {
-    const mapKey = mapper ?? passThrough
+    const mapKey = mapper ?? identityFilterKey
 
     test(`${page} declares at least one quick filter`, () => {
       expect(quickFilters.length).toBeGreaterThan(0)
