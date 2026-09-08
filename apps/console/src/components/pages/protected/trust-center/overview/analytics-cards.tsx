@@ -3,7 +3,7 @@
 import React from 'react'
 import { Users, Eye, Clock, PenTool } from 'lucide-react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import { useGetNDAStats } from '@/lib/graphql-hooks/trust-center-nda-request'
+import { ndaRequestsWhere, useGetNdaRequestCount } from '@/lib/graphql-hooks/trust-center-nda-request'
 import { useAnalytics } from '@/lib/query-hooks/analytics'
 
 interface AnalyticsCardsProps {
@@ -14,8 +14,8 @@ interface AnalyticsCardsProps {
 export default function AnalyticsCards({ ndaApprovalRequired, pirschDomainID }: AnalyticsCardsProps) {
   const { data: visitorData, isLoading: isLoadingVisitors, isError: isErrorVisitors } = useAnalytics(pirschDomainID)
 
-  const { count: ndaCount, isLoading: isLoadingNDA } = useGetNDAStats({
-    ndaApprovalRequired: !!ndaApprovalRequired,
+  const { totalCount: ndaCount, isLoading: isLoadingNDA } = useGetNdaRequestCount({
+    where: ndaApprovalRequired ? ndaRequestsWhere.needingApproval() : ndaRequestsWhere.createdWithinWindow(),
     enabled: ndaApprovalRequired !== undefined,
   })
 

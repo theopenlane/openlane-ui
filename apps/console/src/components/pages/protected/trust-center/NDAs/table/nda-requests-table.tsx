@@ -15,6 +15,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useDebounce } from '@uidotdev/usehooks'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 import { resolveAuthor } from '@/lib/authors'
+import { useSearchParams } from 'next/navigation'
+import { NDA_REQUEST_TAB_PARAM, parseNdaRequestTab, type TNdaRequestTab } from './nda-request-tabs'
 
 type NdaRequestsTableProps = {
   requireApproval: boolean
@@ -22,7 +24,8 @@ type NdaRequestsTableProps = {
 }
 
 const NdaRequestsTable = ({ requireApproval, canRevoke }: NdaRequestsTableProps) => {
-  const [activeTab, setActiveTab] = useState<'requested' | 'approved' | 'signed'>('requested')
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState<TNdaRequestTab>(() => parseNdaRequestTab(searchParams.get(NDA_REQUEST_TAB_PARAM)))
   const [searchTerm, setSearchTerm] = useState('')
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
   const [actionLoadingType, setActionLoadingType] = useState<'approve' | 'deny' | null>(null)

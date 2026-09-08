@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef } from '@repo/ui/table-types'
 import { LoaderCircle } from 'lucide-react'
 import { CodeBlock } from '@repo/ui/code-block'
 import { DataTable } from '@repo/ui/data-table'
@@ -41,7 +41,7 @@ const ReportResults: React.FC<TReportResultsProps> = ({ result, error, isLoading
         header: column.label,
         accessorFn: (row: TReportRow) => formatCell(row[column.path], column.field.kind),
         cell: ({ getValue }) => {
-          const value = getValue<string>()
+          const value = String(getValue() ?? '')
           return value === '' ? <span className="text-muted-foreground">—</span> : <span className="block truncate">{value}</span>
         },
       })),
