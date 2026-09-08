@@ -3,12 +3,18 @@ import { cn } from '@repo/ui/lib/utils'
 import { Badge } from '@repo/ui/badge'
 import { formatDate } from '@/utils/date'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { pluralizeWithCount } from '@/utils/strings'
 import type { MembershipList as MembershipListData } from '@/lib/directory-memberships/group-memberships'
 
 const GRID = 'grid grid-cols-[minmax(0,1fr)_120px_140px_140px]'
 
 export const MembershipList = ({ memberships }: { memberships: MembershipListData }) => {
   const hiddenCount = Math.max(0, memberships.totalCount - memberships.items.length)
+
+  if (memberships.items.length === 0 && hiddenCount > 0) {
+    return <p className="text-sm italic text-muted-foreground">{pluralizeWithCount(hiddenCount, 'membership')} could not be loaded.</p>
+  }
+
   return (
     <div>
       <div className="overflow-hidden rounded-md border border-border max-w-162.5">
