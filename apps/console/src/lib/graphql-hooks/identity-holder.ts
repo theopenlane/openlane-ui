@@ -32,6 +32,7 @@ import {
   type InputMaybe,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
+import { withPartialData } from '@/lib/graphql-partial-data'
 import { type TPagination, type TPageInfo, type TPaginationMeta } from '@repo/ui/pagination-types'
 import {
   GET_ALL_IDENTITY_HOLDERS,
@@ -247,11 +248,13 @@ export const useGetIdentityHolderDirectoryAccounts = (identityHolderId?: string,
   const queryResult = useQuery<GetIdentityHolderDirectoryAccountsQuery, unknown>({
     queryKey: ['identityHolders', identityHolderId, 'directoryAccounts', where, membershipWhere],
     queryFn: async () =>
-      client.request<GetIdentityHolderDirectoryAccountsQuery, GetIdentityHolderDirectoryAccountsQueryVariables>(GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS, {
-        identityHolderId: identityHolderId as string,
-        where,
-        membershipWhere,
-      }),
+      withPartialData(
+        client.request<GetIdentityHolderDirectoryAccountsQuery, GetIdentityHolderDirectoryAccountsQueryVariables>(GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS, {
+          identityHolderId: identityHolderId as string,
+          where,
+          membershipWhere,
+        }),
+      ),
     enabled: !!identityHolderId && enabled,
   })
 
