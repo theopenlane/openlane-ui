@@ -149,7 +149,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
       if (respConfig && field.selectedResponsibility !== undefined) {
         const selection = field.selectedResponsibility
         const baseName = respConfig.fieldBaseName
-        Object.assign(input, buildResponsibilityPayload(baseName, selection, { mode: 'update', allowPersonnel: respConfig.allowPersonnel }))
+        Object.assign(input as object, buildResponsibilityPayload(baseName, selection, { mode: 'update', allowPersonnel: respConfig.allowPersonnel }))
         return
       }
 
