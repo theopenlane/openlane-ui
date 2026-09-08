@@ -41,7 +41,7 @@ const dismissedKey = (frameworkControl: TCreateOrgControlsTarget) => `suggested-
 const templateIndexKey = (refCode: string, referenceFramework?: string | null) => `${refCode.trim().toLowerCase()}|${(referenceFramework ?? '').trim().toLowerCase()}`
 
 function useTemplateIndex(enabled: boolean) {
-  const { controls, isPending, isError } = useTemplateControlsWithMappings({ where: TEMPLATE_CONTROLS_WHERE, enabled })
+  const { controls, isLoading, isError } = useTemplateControlsWithMappings({ where: TEMPLATE_CONTROLS_WHERE, enabled })
 
   const index = useMemo(() => {
     const map = new Map<string, TTemplateControl[]>()
@@ -60,7 +60,7 @@ function useTemplateIndex(enabled: boolean) {
     return map
   }, [controls])
 
-  return { index, isLoading: enabled && isPending, isError: enabled && isError }
+  return { index, isLoading, isError: enabled && isError }
 }
 
 const NO_ROWS: TExampleRow[] = []

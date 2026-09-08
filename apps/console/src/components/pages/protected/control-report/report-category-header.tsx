@@ -8,7 +8,7 @@ import { type ControlReportItem } from '@/lib/graphql-hooks/control'
 import { useDismissible } from '@/hooks/useDismissible'
 import { Callout } from '@/components/shared/callout/callout'
 import { DismissButton } from '@/components/shared/docs-help/suggestion-card'
-import { hasOrgCoverageGap, hasPolicyGap } from './report-coverage'
+import { getOrgRelatedRefCodes, hasPolicyGap, isFrameworkControl } from './report-coverage'
 import { ResolveGapsPanel, useSectionGapGroups, type TGapControl } from './resolve-gaps-panel'
 
 type ReportCategoryHeaderProps = {
@@ -21,11 +21,19 @@ type ReportCategoryHeaderProps = {
   onToggleCategorySubcontrols: () => void
 }
 
-const toGapControl = (control: ControlReportItem): TGapControl => ({ id: control.id, refCode: control.refCode, referenceFramework: control.referenceFramework ?? '', description: control.description })
+const toGapControl = (control: ControlReportItem): TGapControl => ({
+  id: control.id,
+  refCode: control.refCode,
+  referenceFramework: control.referenceFramework ?? '',
+  description: control.description,
+  existingRefCodes: getOrgRelatedRefCodes(control.relatedControls),
+})
 
 const ReportCategoryHeader: React.FC<ReportCategoryHeaderProps> = ({ category, controls, isOpen, expandedControls, accentColor, onToggleOpen, onToggleCategorySubcontrols }) => {
   const [showResolveGaps, setShowResolveGaps] = useState(false)
-  const orgGapControls = useMemo(() => controls.filter(hasOrgCoverageGap).map(toGapControl), [controls])
+  // partially covered controls can still have unmapped template suggestions, so every
+  // framework control is checked and the ref codes it already has are filtered out
+  const orgGapControls = useMemo(() => controls.filter(isFrameworkControl).map(toGapControl), [controls])
   const policyGapControls = useMemo(() => controls.filter(hasPolicyGap).map(toGapControl), [controls])
   const hasCheapGap = orgGapControls.length + policyGapControls.length > 0
 

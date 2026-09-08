@@ -40,7 +40,10 @@ export const deriveOrgCoverage = (related?: RelatedControlItem[] | null): OrgCov
 
 // a framework control (never a custom one) with neither org coverage nor a
 // linked policy; what the section's "Resolve gaps" panel offers to fix
-const isFrameworkControl = (control: ControlReportItem): boolean => !!control.referenceFramework && control.referenceFramework !== 'CUSTOM'
+export const isFrameworkControl = (control: ControlReportItem): boolean => !!control.referenceFramework && control.referenceFramework !== 'CUSTOM'
+
+// ref codes of the org controls already mapped, so suggestions skip templates the org has
+export const getOrgRelatedRefCodes = (related?: RelatedControlItem[] | null): string[] => getOrgRelatedControls(related).flatMap((r) => (r.refCode ? [r.refCode] : []))
 
 export const hasOrgCoverageGap = (control: ControlReportItem): boolean => {
   if (!isFrameworkControl(control)) return false

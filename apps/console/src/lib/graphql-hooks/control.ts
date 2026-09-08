@@ -727,7 +727,7 @@ const TEMPLATE_CONTROLS_PAGE_SIZE = 100
 export const useTemplateControlsWithMappings = ({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, ...rest } = useInfiniteQuery<
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending, ...rest } = useInfiniteQuery<
     GetTemplateControlsWithMappingsQuery,
     Error,
     InfiniteData<GetTemplateControlsWithMappingsQuery>,
@@ -748,5 +748,5 @@ export const useTemplateControlsWithMappings = ({ where, enabled = true }: { whe
 
   const controls = useMemo(() => (data?.pages ?? []).flatMap((page) => (page.controls?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))), [data])
 
-  return { ...rest, controls }
+  return { ...rest, controls, isPending, isLoading: enabled && (isPending || hasNextPage || isFetchingNextPage) }
 }

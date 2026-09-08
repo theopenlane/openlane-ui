@@ -33,12 +33,12 @@ import CountBadge from '@/components/shared/count-badge/count-badge'
 import { SuggestionCard, TargetChecklist } from '@/components/shared/docs-help/suggestion-card'
 import { TruncatedCell } from '@repo/ui/data-table'
 
-export type TGapControl = TCreateOrgControlsTarget & { referenceFramework: string }
+export type TGapControl = TCreateOrgControlsTarget & { referenceFramework: string; existingRefCodes?: string[] }
 
 type TPolicyGroup = { name: string; description: string; existingPolicy?: { id: string; name: string; summary?: string | null }; controls: TGapControl[] }
 
-function ControlSuggestionWorker({ target, onResult }: { target: TCreateOrgControlsTarget; onResult: (id: string, rows: TExampleRow[], isLoading: boolean, isError: boolean) => void }) {
-  const { rows, isLoading, isError } = useResolvedSuggestions(target, undefined, true)
+function ControlSuggestionWorker({ target, onResult }: { target: TGapControl; onResult: (id: string, rows: TExampleRow[], isLoading: boolean, isError: boolean) => void }) {
+  const { rows, isLoading, isError } = useResolvedSuggestions(target, target.existingRefCodes, true)
   useEffect(() => onResult(target.id, rows, isLoading, isError), [target.id, rows, isLoading, isError, onResult])
   return null
 }
