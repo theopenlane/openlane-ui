@@ -33,6 +33,11 @@ export const GET_ALL_ENTITIES = gql`
             base64
           }
           internalOwner
+          internalOwnerIdentityHolder {
+            id
+            fullName
+            email
+          }
           internalOwnerGroup {
             id
             displayName
@@ -48,6 +53,11 @@ export const GET_ALL_ENTITIES = gql`
           nextReviewAt
           renewalRisk
           reviewedBy
+          reviewedByIdentityHolder {
+            id
+            fullName
+            email
+          }
           reviewedByGroup {
             id
             displayName
@@ -138,6 +148,11 @@ export const ENTITY = gql`
         }
       }
       internalOwner
+      internalOwnerIdentityHolder {
+        id
+        fullName
+        email
+      }
       internalOwnerGroup {
         id
         displayName
@@ -160,6 +175,11 @@ export const ENTITY = gql`
       providedServices
       renewalRisk
       reviewedBy
+      reviewedByIdentityHolder {
+        id
+        fullName
+        email
+      }
       reviewedByGroup {
         id
         displayName

@@ -11,6 +11,7 @@ import { useMemo, useRef, useState } from 'react'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
+import { usePersonnelSelect } from '@/lib/graphql-hooks/identity-holder'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
 import { type ResponsibilitySelection, buildResponsibilityInlineUpdate } from './responsibility-field-utils'
@@ -33,6 +34,7 @@ interface ResponsibilityFieldProps {
   labelClassName?: string
   userOnly?: boolean
   groupOnly?: boolean
+  allowPersonnel?: boolean
 }
 
 export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
@@ -51,6 +53,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   labelClassName,
   userOnly = false,
   groupOnly = false,
+  allowPersonnel = true,
 }) => {
   const { control } = useFormContext()
   const [open, setOpen] = useState(false)
@@ -60,6 +63,10 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
 
   const { userOptions } = useUserSelect({})
   const { groupOptions } = useGroupSelect()
+  const { personnelOptions } = usePersonnelSelect({
+    searchText,
+    enabled: open && !userOnly && !groupOnly && allowPersonnel,
+  })
   const { errorNotification } = useNotification()
 
   const isFieldEditing = isCreate || isEditing || internalEditing === name
@@ -108,7 +115,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
     setSearchText('')
 
     if (!isEditing && !isCreate && handleUpdate) {
-      const payload = buildResponsibilityInlineUpdate(fieldBaseName, selectionToUse)
+      const payload = buildResponsibilityInlineUpdate(fieldBaseName, selectionToUse, { allowPersonnel })
       await handleUpdate(payload)
     }
 
@@ -119,6 +126,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
 
   const getTypeIcon = (type?: string) => {
     switch (type) {
+      case 'personnel':
       case 'user':
         return <User className="h-3.5 w-3.5 text-muted-foreground" />
       case 'group':
@@ -190,7 +198,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                       <Command shouldFilter={false}>
                         {groupOnly && <CommandInput placeholder="Search groups..." value={searchText} onValueChange={setSearchText} />}
                         {userOnly && <CommandInput placeholder="Search users..." value={searchText} onValueChange={setSearchText} />}
-                        {!groupOnly && !userOnly && <CommandInput placeholder="Search users, groups, or type a name..." value={searchText} onValueChange={setSearchText} />}
+                        {!groupOnly && !userOnly && <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} />}
                         <CommandList className="max-h-[min(300px,var(--radix-popover-content-available-height,300px))]">
                           <CommandEmpty>No results found.</CommandEmpty>
                           {currentValue && !groupOnly && !userOnly && (
@@ -239,14 +247,36 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                               ))}
                             </CommandGroup>
                           )}
-                          {!userOnly && !groupOnly && searchText.trim() && !hasExactMatch && (
-                            <CommandGroup heading="Custom">
-                              <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() }, field)}>
-                                <Type className="mr-2 h-4 w-4" />
-                                <span>Use &quot;{searchText.trim()}&quot; as custom email</span>
-                              </CommandItem>
+                          {!userOnly && !groupOnly && allowPersonnel && personnelOptions.length > 0 && (
+                            <CommandGroup heading="Personnel">
+                              {personnelOptions.map((option) => (
+                                <CommandItem
+                                  key={`personnel-${option.value}`}
+                                  value={`personnel-${option.value}`}
+                                  onSelect={() => handleSelect({ type: 'personnel', value: option.value, displayName: option.label }, field)}
+                                >
+                                  <User className="mr-2 h-4 w-4" />
+                                  <span>
+                                    {option.label}
+                                    {option.email && option.email !== option.label ? ` (${option.email})` : ''}
+                                  </span>
+                                  {currentValue?.type === 'personnel' && currentValue.value === option.value && <Check className="ml-auto h-4 w-4" />}
+                                </CommandItem>
+                              ))}
                             </CommandGroup>
                           )}
+                          {!userOnly &&
+                            !groupOnly &&
+                            searchText.trim() &&
+                            !hasExactMatch &&
+                            !personnelOptions.some((person) => person.label.toLowerCase() === normalizedSearchText || person.email?.toLowerCase() === normalizedSearchText) && (
+                              <CommandGroup heading="Custom">
+                                <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() }, field)}>
+                                  <Type className="mr-2 h-4 w-4" />
+                                  <span>Use &quot;{searchText.trim()}&quot; as custom email</span>
+                                </CommandItem>
+                              </CommandGroup>
+                            )}
                         </CommandList>
                       </Command>
                     </PopoverContent>

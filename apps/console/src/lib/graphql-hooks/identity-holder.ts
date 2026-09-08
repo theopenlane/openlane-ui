@@ -112,6 +112,27 @@ export const useIdentityHolderOptions = ({ where, pagination, enabled = true }: 
   return { ...queryResult, nodes, totalCount, paginationMeta }
 }
 
+type PersonnelSelectArgs = {
+  searchText?: string
+  enabled?: boolean
+}
+
+export const usePersonnelSelect = ({ searchText = '', enabled = true }: PersonnelSelectArgs = {}) => {
+  const search = searchText.trim()
+  const { nodes, ...rest } = useIdentityHolderOptions({
+    where: search ? { or: [{ fullNameContainsFold: search }, { emailContainsFold: search }] } : undefined,
+    enabled,
+  })
+
+  const personnelOptions = nodes.map((person) => ({
+    label: person.fullName || person.email || person.id,
+    value: person.id,
+    email: person.email,
+  }))
+
+  return { personnelOptions, ...rest }
+}
+
 export const useCreateIdentityHolder = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()

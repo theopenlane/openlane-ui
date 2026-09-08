@@ -3,7 +3,7 @@ import { isValidEmail } from '@/lib/validators'
 
 export const responsibilityFieldSchema = z
   .object({
-    type: z.enum(['user', 'group', 'string']),
+    type: z.enum(['user', 'group', 'personnel', 'string']),
     value: z.string(),
     displayName: z.string().optional(),
     noClearOtherFields: z.boolean().optional(), // for types that are update but do not have other fields to clear, like delegate in risks
@@ -20,6 +20,8 @@ export type ResponsibilitySelection = z.infer<typeof responsibilityFieldSchema>
 export interface ResponsibilityFieldInput {
   user?: { id?: string; displayName?: string } | null
   group?: { id?: string; displayName?: string } | null
+  personnel?: { id?: string; fullName?: string | null; email?: string | null } | null
+  personnelID?: string | null
   userID?: string | null
   groupID?: string | null
   stringValue?: string | null
@@ -58,6 +60,11 @@ export function normalizeResponsibilityField(input: ResponsibilityFieldInput): R
     }
   }
 
+  if (input.personnel?.id || input.personnelID) {
+    const id = input.personnel?.id || input.personnelID!
+    return { type: 'personnel', value: id, displayName: input.personnel?.fullName || input.personnel?.email || id }
+  }
+
   if (input.stringValue) {
     return {
       type: 'string',
@@ -79,10 +86,12 @@ type ResponsibilityPayloadMode = 'create' | 'update'
 
 interface ResponsibilityPayloadOptions {
   mode?: ResponsibilityPayloadMode
+  allowPersonnel?: boolean
 }
 
-function getClearFieldNames(fieldBaseName: string): { clearUser: string; clearGroup: string; clearString: string } {
+function getClearFieldNames(fieldBaseName: string): { clearUser: string; clearGroup: string; clearString: string; clearPersonnel: string } {
   return {
+    clearPersonnel: `clear${capitalize(fieldBaseName)}IdentityHolder`,
     clearUser: `clear${capitalize(fieldBaseName)}User`,
     clearGroup: `clear${capitalize(fieldBaseName)}Group`,
     clearString: `clear${capitalize(fieldBaseName)}`,
@@ -92,13 +101,15 @@ function getClearFieldNames(fieldBaseName: string): { clearUser: string; clearGr
 export function buildResponsibilityPayload(
   fieldBaseName: string,
   selection: ResponsibilitySelection,
-  { mode = 'create' }: ResponsibilityPayloadOptions = {},
+  { mode = 'create', allowPersonnel = true }: ResponsibilityPayloadOptions = {},
 ): Record<string, string | boolean | undefined> {
   if (mode === 'update') {
-    const { clearUser, clearGroup, clearString } = getClearFieldNames(fieldBaseName)
+    const { clearUser, clearGroup, clearString, clearPersonnel } = getClearFieldNames(fieldBaseName)
+    const clearPersonnelFields = allowPersonnel ? { [clearPersonnel]: true } : {}
 
     if (!selection) {
       return {
+        ...clearPersonnelFields,
         [clearUser]: true,
         [clearGroup]: true,
         [clearString]: true,
@@ -119,6 +130,7 @@ export function buildResponsibilityPayload(
     switch (selection.type) {
       case 'user':
         return {
+          ...clearPersonnelFields,
           [`${fieldBaseName}UserID`]: selection.value,
           [clearGroup]: true,
           [clearString]: true,
@@ -126,12 +138,16 @@ export function buildResponsibilityPayload(
       case 'group':
         return {
           [`${fieldBaseName}GroupID`]: selection.value,
+          ...clearPersonnelFields,
           [clearUser]: true,
           [clearString]: true,
         }
+      case 'personnel':
+        return { [`${fieldBaseName}IdentityHolderID`]: selection.value, [clearUser]: true, [clearGroup]: true, [clearString]: true }
       case 'string':
         return {
           [fieldBaseName]: selection.value,
+          ...clearPersonnelFields,
           [clearUser]: true,
           [clearGroup]: true,
         }
@@ -153,6 +169,8 @@ export function buildResponsibilityPayload(
       return { [`${fieldBaseName}UserID`]: selection.value }
     case 'group':
       return { [`${fieldBaseName}GroupID`]: selection.value }
+    case 'personnel':
+      return { [`${fieldBaseName}IdentityHolderID`]: selection.value }
     case 'string':
       return { [fieldBaseName]: selection.value }
     default:
@@ -160,8 +178,12 @@ export function buildResponsibilityPayload(
   }
 }
 
-export function buildResponsibilityInlineUpdate(fieldBaseName: string, selection: ResponsibilitySelection): Record<string, string | boolean | undefined> {
-  return buildResponsibilityPayload(fieldBaseName, selection, { mode: 'update' })
+export function buildResponsibilityInlineUpdate(
+  fieldBaseName: string,
+  selection: ResponsibilitySelection,
+  { allowPersonnel = true }: ResponsibilityPayloadOptions = {},
+): Record<string, string | boolean | undefined> {
+  return buildResponsibilityPayload(fieldBaseName, selection, { mode: 'update', allowPersonnel })
 }
 
 function capitalize(str: string): string {

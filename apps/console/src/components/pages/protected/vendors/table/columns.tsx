@@ -117,7 +117,15 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
       accessorKey: 'internalOwner',
       header: 'Internal Owner',
       size: 160,
-      cell: ({ row }) => <ResponsibilityCell userMap={userMap} user={row.original.internalOwnerUser} group={row.original.internalOwnerGroup} stringValue={row.original.internalOwner} />,
+      cell: ({ row }) => (
+        <ResponsibilityCell
+          userMap={userMap}
+          user={row.original.internalOwnerUser}
+          personnel={row.original.internalOwnerIdentityHolder}
+          group={row.original.internalOwnerGroup}
+          stringValue={row.original.internalOwner}
+        />
+      ),
     },
     { accessorKey: 'lastReviewedAt', header: 'Last Reviewed At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     {
@@ -138,7 +146,15 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
       accessorKey: 'reviewedBy',
       header: 'Reviewed By',
       size: 160,
-      cell: ({ row }) => <ResponsibilityCell userMap={userMap} user={row.original.reviewedByUser} group={row.original.reviewedByGroup} stringValue={row.original.reviewedBy} />,
+      cell: ({ row }) => (
+        <ResponsibilityCell
+          userMap={userMap}
+          user={row.original.reviewedByUser}
+          personnel={row.original.reviewedByIdentityHolder}
+          group={row.original.reviewedByGroup}
+          stringValue={row.original.reviewedBy}
+        />
+      ),
     },
     { accessorKey: 'riskRating', header: 'Risk Rating', size: 120 },
     { accessorKey: 'riskScore', header: 'Risk Score', size: 100 },

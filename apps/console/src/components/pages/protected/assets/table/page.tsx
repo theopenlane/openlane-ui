@@ -27,7 +27,12 @@ import { useCanEditObject } from '@/components/shared/crud-base/use-object-permi
 
 const normalizeData = (data: AssetQuery['asset']) =>
   normalizeEntityData(data, {
-    internalOwner: { user: data?.internalOwnerUser, group: data?.internalOwnerGroup, stringValue: data?.internalOwner },
+    internalOwner: {
+      personnel: data?.internalOwnerIdentityHolder,
+      user: data?.internalOwnerUser,
+      group: data?.internalOwnerGroup,
+      stringValue: data?.internalOwner,
+    },
   })
 
 const AssetPage: React.FC = () => {

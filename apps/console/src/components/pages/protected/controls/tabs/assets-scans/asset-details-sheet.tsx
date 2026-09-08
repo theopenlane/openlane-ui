@@ -24,7 +24,12 @@ type AssetDetailsSheetProps = {
 
 const normalizeData = (data: AssetQuery['asset']) =>
   normalizeEntityData(data, {
-    internalOwner: { user: data?.internalOwnerUser, group: data?.internalOwnerGroup, stringValue: data?.internalOwner },
+    internalOwner: {
+      personnel: data?.internalOwnerIdentityHolder,
+      user: data?.internalOwnerUser,
+      group: data?.internalOwnerGroup,
+      stringValue: data?.internalOwner,
+    },
   })
 
 const AssetDetailsSheet: React.FC<AssetDetailsSheetProps> = ({ queryParamKey }) => {

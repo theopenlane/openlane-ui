@@ -16,6 +16,11 @@ export const GET_ALL_PLATFORMS = gql`
             displayName
             email
           }
+          businessOwnerIdentityHolder {
+            id
+            fullName
+            email
+          }
           businessOwnerGroup {
             id
             name
@@ -70,6 +75,11 @@ export const GET_ALL_PLATFORMS = gql`
             displayName
             email
           }
+          technicalOwnerIdentityHolder {
+            id
+            fullName
+            email
+          }
           technicalOwnerGroup {
             id
             name
@@ -113,6 +123,11 @@ export const PLATFORM = gql`
         displayName
         email
       }
+      businessOwnerIdentityHolder {
+        id
+        fullName
+        email
+      }
       businessOwnerGroup {
         id
         name
@@ -142,6 +157,11 @@ export const PLATFORM = gql`
       internalOwnerUser {
         id
         displayName
+        email
+      }
+      internalOwnerIdentityHolder {
+        id
+        fullName
         email
       }
       internalOwnerGroup {
@@ -174,6 +194,11 @@ export const PLATFORM = gql`
         displayName
         email
       }
+      securityOwnerIdentityHolder {
+        id
+        fullName
+        email
+      }
       securityOwnerGroup {
         id
         name
@@ -188,6 +213,11 @@ export const PLATFORM = gql`
       technicalOwnerUser {
         id
         displayName
+        email
+      }
+      technicalOwnerIdentityHolder {
+        id
+        fullName
         email
       }
       technicalOwnerGroup {
@@ -210,6 +240,11 @@ export const PLATFORM = gql`
               displayName
               email
             }
+            internalOwnerIdentityHolder {
+              id
+              fullName
+              email
+            }
             internalOwnerGroup {
               id
               displayName
@@ -227,6 +262,11 @@ export const PLATFORM = gql`
             internalOwnerUser {
               id
               displayName
+              email
+            }
+            internalOwnerIdentityHolder {
+              id
+              fullName
               email
             }
             internalOwnerGroup {
@@ -252,6 +292,11 @@ export const PLATFORM = gql`
               displayName
               email
             }
+            internalOwnerIdentityHolder {
+              id
+              fullName
+              email
+            }
             internalOwnerGroup {
               id
               displayName
@@ -273,6 +318,11 @@ export const PLATFORM = gql`
             internalOwnerUser {
               id
               displayName
+              email
+            }
+            internalOwnerIdentityHolder {
+              id
+              fullName
               email
             }
             internalOwnerGroup {

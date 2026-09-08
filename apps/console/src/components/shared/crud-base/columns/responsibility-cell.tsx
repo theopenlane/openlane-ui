@@ -6,10 +6,11 @@ type ResponsibilityCellProps = {
   userMap: Record<string, User>
   user?: { id: string; displayName?: string | null } | null
   group?: { id: string; displayName?: string | null } | null
+  personnel?: { id: string; fullName?: string | null; email?: string | null } | null
   stringValue?: string | null
 }
 
-export const ResponsibilityCell = ({ userMap, user, group, stringValue }: ResponsibilityCellProps) => {
+export const ResponsibilityCell = ({ userMap, user, group, personnel, stringValue }: ResponsibilityCellProps) => {
   if (user?.id) {
     return <UserCell user={userMap[user.id]} />
   }
@@ -21,6 +22,10 @@ export const ResponsibilityCell = ({ userMap, user, group, stringValue }: Respon
         {group.displayName || '-'}
       </div>
     )
+  }
+
+  if (personnel?.id) {
+    return <span>{personnel.fullName || personnel.email || personnel.id}</span>
   }
 
   if (stringValue) {
