@@ -11,7 +11,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { identityFilterKey, whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { type SortCondition } from '@repo/ui/data-table'
@@ -85,6 +85,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
 
   defaultVisibility: VisibilityState
   filterFields?: FilterField[] | undefined
+  mapFilterKey?: (key: string, value: unknown) => TWhereInput
   quickFilters?: TQuickFilter[]
   searchFields?: WhereInputKey<TWhereInput>[]
 
@@ -169,6 +170,7 @@ export function GenericTablePage<
     defaultSorting,
     defaultVisibility,
     filterFields,
+    mapFilterKey,
     quickFilters,
     searchFields,
     breadcrumbs,
@@ -217,11 +219,7 @@ export function GenericTablePage<
   }
 
   const whereFilter = useMemo(() => {
-    const result = filters
-      ? (whereGenerator<TWhereInput>(filters, (key, value) => {
-          return { [key]: value } as TWhereInput
-        }) as Record<string, unknown>)
-      : ({} as Record<string, unknown>)
+    const result = filters ? (whereGenerator<TWhereInput>(filters, mapFilterKey ?? identityFilterKey) as Record<string, unknown>) : ({} as Record<string, unknown>)
 
     const merged = { ...result }
 
@@ -237,7 +235,7 @@ export function GenericTablePage<
     if (Object.keys(merged).length === 0) return null
 
     return merged as TWhereInput
-  }, [filters, debouncedSearch, searchFields, additionalWhereFilter])
+  }, [filters, mapFilterKey, debouncedSearch, searchFields, additionalWhereFilter])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined

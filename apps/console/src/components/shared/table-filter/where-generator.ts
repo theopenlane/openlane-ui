@@ -5,6 +5,8 @@ const mergeMappedCondition = (target: object, addition: object): void => {
   })
 }
 
+export const identityFilterKey = <TWhereInput>(key: string, value: unknown): TWhereInput => ({ [key]: value }) as TWhereInput
+
 export function whereGenerator<TWhereInput extends object>(filters: TWhereInput | null, mapCustomKey: (key: string, value: unknown) => TWhereInput): TWhereInput {
   const conditions: TWhereInput = {} as TWhereInput
 

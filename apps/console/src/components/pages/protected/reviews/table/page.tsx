@@ -15,7 +15,7 @@ import {
 } from '@/lib/graphql-hooks/review'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
-import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
+import { breadcrumbs, getFieldsToRender, getFilterFields, mapReviewFilterKey, visibilityFields } from './table-config'
 import { type ReviewSheetConfig, type ReviewTablePageConfig, type ReviewFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
@@ -178,6 +178,7 @@ const ReviewPage: React.FC = () => {
     defaultSorting,
     defaultVisibility: visibilityFields,
     filterFields: getFilterFields(enumOpts),
+    mapFilterKey: mapReviewFilterKey,
     searchFields: ['titleContainsFold', 'summaryContainsFold', 'detailsContainsFold'],
     breadcrumbs,
     form,
