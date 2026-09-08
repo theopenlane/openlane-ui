@@ -1,9 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { memo } from 'react'
 import { Calendar } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
+import { cn } from '@repo/ui/lib/utils'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { type TasksWithFilterNode } from '@/lib/graphql-hooks/task'
 import { formatDate } from '@/utils/date'
@@ -11,11 +12,12 @@ import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 
-type TTaskBoardCardProps = {
+type TTaskBoardCardProps = React.HTMLAttributes<HTMLDivElement> & {
   task: TasksWithFilterNode
+  ref?: React.Ref<HTMLDivElement>
 }
 
-const TaskBoardCard = ({ task }: TTaskBoardCardProps) => {
+const TaskBoardCardContent = ({ task, className, ...props }: TTaskBoardCardProps) => {
   const { replace } = useSmartRouter()
   const subtitle = [task.title, task.taskKindName].filter(Boolean).join(' - ')
 
@@ -23,6 +25,7 @@ const TaskBoardCard = ({ task }: TTaskBoardCardProps) => {
 
   return (
     <Card
+      {...props}
       role="button"
       tabIndex={0}
       aria-label={task.title}
@@ -33,7 +36,7 @@ const TaskBoardCard = ({ task }: TTaskBoardCardProps) => {
           openTask()
         }
       }}
-      className="w-full p-4 space-y-3 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className={cn('w-full p-4 space-y-3 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', className)}
     >
       <div className="flex items-center gap-2 min-w-0">
         <h3 className="font-semibold truncate">{task.title}</h3>
@@ -67,5 +70,7 @@ const TaskBoardCard = ({ task }: TTaskBoardCardProps) => {
     </Card>
   )
 }
+
+const TaskBoardCard = memo(TaskBoardCardContent)
 
 export default TaskBoardCard

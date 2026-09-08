@@ -85,13 +85,18 @@ type GetInfiniteTasksArgs = {
 
 type TaskCursor = string | null
 
-export const useTasksWithFilterInfinite = ({ where, orderBy, pageSize, includeTemplates }: GetInfiniteTasksArgs) => {
+export const getTasksInfiniteQueryKey = ({ where, orderBy, pageSize, includeTemplates }: GetInfiniteTasksArgs) =>
+  ['tasks', 'infinite', resolveTasksWhere(where, includeTemplates), orderBy, pageSize] as const
+
+export const useTasksWithFilterInfinite = (args: GetInfiniteTasksArgs) => {
+  const { orderBy, pageSize } = args
   const { client } = useGraphQLClient()
-  const effectiveWhere = resolveTasksWhere(where, includeTemplates)
+  const queryKey = getTasksInfiniteQueryKey(args)
+  const effectiveWhere = queryKey[2]
 
   const queryResult = useInfiniteQuery<TasksWithFilterQuery, Error, InfiniteData<TasksWithFilterQuery>, QueryKey, TaskCursor>({
     initialPageParam: null,
-    queryKey: ['tasks', 'infinite', effectiveWhere, orderBy, pageSize],
+    queryKey,
     queryFn: async ({ pageParam }): Promise<TasksWithFilterQuery> => {
       const result = await client.request<TasksWithFilterQuery, TasksWithFilterQueryVariables>(TASKS_WITH_FILTER, {
         where: effectiveWhere,
