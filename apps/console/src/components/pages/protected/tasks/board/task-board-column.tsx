@@ -1,34 +1,40 @@
 'use client'
 
 import React, { useCallback, useEffect, useMemo } from 'react'
+import { useDroppable } from '@dnd-kit/core'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
 import { Card } from '@repo/ui/cardpanel'
 import { cn } from '@repo/ui/lib/utils'
-import { type TaskOrder, type TaskTaskStatus, type TaskWhereInput } from '@repo/codegen/src/schema'
+import { type TaskTaskStatus, type TaskWhereInput } from '@repo/codegen/src/schema'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useTasksWithFilterInfinite } from '@/lib/graphql-hooks/task'
 import { TaskStatusDotMapper } from '@/components/shared/enum-mapper/task-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { SkeletonRows } from '@/components/shared/skeleton/skeleton-rows'
-import TaskBoardCard from '@/components/pages/protected/tasks/board/task-board-card'
+import { useCanEditTasks } from '@/lib/authz/use-can-edit-tasks'
+import DraggableTaskBoardCard from '@/components/pages/protected/tasks/board/draggable-task-board-card'
+import { TASK_COLUMN_DROP_TYPE, type TaskColumnDropData, canMoveTaskTo, readDraggedTask } from '@/components/pages/protected/tasks/board/task-drag-data'
+import { getColumnQueryArgs, type TaskBoardOrderBy } from '@/components/pages/protected/tasks/board/task-board-column-query'
 
 const COLUMN_PADDING = 'px-3'
 
 type TTaskBoardColumnProps = {
   status: TaskTaskStatus
   whereFilter: TaskWhereInput
-  orderByFilter: TaskOrder[] | TaskOrder | undefined
+  orderByFilter: TaskBoardOrderBy
   onHasTasksChange?: (status: TaskTaskStatus, hasTasks: boolean) => void
 }
 
 const TaskBoardColumn = ({ status, whereFilter, orderByFilter, onHasTasksChange }: TTaskBoardColumnProps) => {
-  const columnWhere = useMemo<TaskWhereInput>(() => ({ ...whereFilter, and: [...(whereFilter.and ?? []), { status }] }), [whereFilter, status])
+  const columnArgs = useMemo(() => getColumnQueryArgs(whereFilter, orderByFilter, status), [whereFilter, orderByFilter, status])
+  const { setNodeRef, isOver, active } = useDroppable({ id: status, data: { type: TASK_COLUMN_DROP_TYPE, status } satisfies TaskColumnDropData })
+  const draggedTask = readDraggedTask(active)
+  const isDropTarget = isOver && !!draggedTask && canMoveTaskTo(draggedTask, status)
 
-  const { tasks, isError, isLoading, paginationMeta, fetchNextPage } = useTasksWithFilterInfinite({
-    where: columnWhere,
-    orderBy: orderByFilter,
-    pageSize: CARD_DEFAULT_PAGINATION.pageSize,
-  })
+  const { tasks, isError, isLoading, paginationMeta, fetchNextPage } = useTasksWithFilterInfinite(columnArgs)
+
+  const taskIds = useMemo(() => tasks.map((task) => task.id), [tasks])
+  const canEditTask = useCanEditTasks(taskIds)
 
   const handleLoadMore = useCallback(() => {
     fetchNextPage({ cancelRefetch: false })
@@ -41,7 +47,7 @@ const TaskBoardColumn = ({ status, whereFilter, orderByFilter, onHasTasksChange 
   }, [status, hasTasks, onHasTasksChange])
 
   return (
-    <Card className="flex flex-col flex-1 min-w-[300px] overflow-hidden bg-secondary h-[calc(100vh-236px)]">
+    <Card ref={setNodeRef} className={cn('flex flex-col flex-1 min-w-[300px] overflow-hidden bg-secondary h-[calc(100vh-236px)]', isDropTarget && 'ring-2 ring-primary')}>
       <div className={cn('flex items-center gap-2 py-3 border-b shrink-0', COLUMN_PADDING)}>
         <span className={cn('h-2 w-2 rounded-full shrink-0', TaskStatusDotMapper[status])} />
         <span className="font-medium truncate">{getEnumLabel(status)}</span>
@@ -55,7 +61,7 @@ const TaskBoardColumn = ({ status, whereFilter, orderByFilter, onHasTasksChange 
           <InfiniteScroll pagination={CARD_DEFAULT_PAGINATION} onPaginationChange={handleLoadMore} paginationMeta={paginationMeta} pageSize={CARD_DEFAULT_PAGINATION.pageSize}>
             <div className="flex flex-col gap-3">
               {tasks.map((task) => (
-                <TaskBoardCard key={task.id} task={task} />
+                <DraggableTaskBoardCard key={task.id} task={task} disabled={!canEditTask(task.id)} />
               ))}
             </div>
           </InfiniteScroll>
