@@ -8,8 +8,8 @@ import DeleteTaskDialog from '../../dialog/delete-task-dialog'
 import Menu from '@/components/shared/menu/menu'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import MenuItem from '@/components/shared/menu/menu-item'
 
-const MENU_ITEM_CLASS = 'flex items-center gap-2 px-1 bg-transparent cursor-pointer disabled:cursor-not-allowed disabled:opacity-50'
 const ICON_SIZE = 16
 
 interface TasksSheetHeaderProps {
@@ -109,46 +109,41 @@ const TasksSheetHeader = ({
                 closeOnSelect
                 content={(closeMenu) => (
                   <>
-                    <button
-                      type="button"
-                      className={MENU_ITEM_CLASS}
-                      onClick={() => {
+                    <MenuItem
+                      icon={<LinkIcon size={ICON_SIZE} />}
+                      onSelect={() => {
                         handleCopyLink()
                         closeMenu()
                       }}
                     >
-                      <LinkIcon size={ICON_SIZE} />
-                      <span>Copy link</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={MENU_ITEM_CLASS}
+                      Copy link
+                    </MenuItem>
+                    <MenuItem
+                      icon={<Copy size={ICON_SIZE} />}
                       disabled={!canDuplicate}
-                      onClick={() => {
+                      onSelect={() => {
                         onDuplicate()
                         closeMenu()
                       }}
                     >
-                      <Copy size={ICON_SIZE} />
-                      <span>Duplicate</span>
-                    </button>
+                      Duplicate
+                    </MenuItem>
                     {title && id && (
                       <DeleteTaskDialog
                         taskName={title}
                         taskId={id}
                         onDeleted={onDeleted}
                         renderTrigger={(openDialog) => (
-                          <button
-                            type="button"
-                            className={`${MENU_ITEM_CLASS} text-destructive`}
-                            onClick={() => {
+                          <MenuItem
+                            icon={<Trash2 size={ICON_SIZE} />}
+                            onSelect={() => {
                               openDialog()
                               closeMenu()
                             }}
+                            destructive
                           >
-                            <Trash2 size={ICON_SIZE} />
-                            <span>Delete</span>
-                          </button>
+                            Delete
+                          </MenuItem>
                         )}
                       />
                     )}

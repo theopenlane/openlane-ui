@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { DownloadIcon, FileText, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
+import { FileText, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreateProcedureDialog from '@/components/pages/protected/procedures/create/form/bulk-csv-create-procedure-dialog'
@@ -24,6 +24,8 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 import { type Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
+import MenuItem from '@/components/shared/menu/menu-item'
+import ExportMenuItem from '@/components/shared/export/export-menu-item'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -164,50 +166,34 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                   <>
                     {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
                       <>
-                        <button
-                          type="button"
-                          className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                          onClick={() => {
+                        <MenuItem
+                          icon={<Import size={16} strokeWidth={2} />}
+                          onSelect={() => {
                             setIsImportDialogOpen(true)
                             close()
                           }}
                         >
-                          <Import size={16} strokeWidth={2} />
-                          <span>Import existing document</span>
-                        </button>
-                        <button
-                          type="button"
-                          className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                          onClick={() => {
+                          Import existing document
+                        </MenuItem>
+                        <MenuItem
+                          icon={<Import size={16} strokeWidth={2} />}
+                          onSelect={() => {
                             setIsBulkUploadDialogOpen(true)
                             close()
                           }}
                         >
-                          <Import size={16} strokeWidth={2} />
-                          <span>Bulk upload</span>
-                        </button>
+                          Bulk upload
+                        </MenuItem>
                       </>
                     )}
-                    <div
-                      className={`flex items-center space-x-2 px-1 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
-                      onClick={() => {
-                        handleExport(ExportExportFormat.CSV)
-                        close()
-                      }}
-                    >
-                      <DownloadIcon size={16} strokeWidth={2} />
-                      <span>Export to CSV</span>
-                    </div>
-                    <div
-                      className={`flex items-center space-x-2 px-1 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
-                      onClick={() => {
-                        handleExport(ExportExportFormat.PDF)
-                        close()
-                      }}
-                    >
-                      <FileText size={16} strokeWidth={2} />
-                      <span>Export to PDF</span>
-                    </div>
+                    <ExportMenuItem label="Export to CSV" onExport={() => handleExport(ExportExportFormat.CSV)} onSelected={close} disabled={!exportEnabled} />
+                    <ExportMenuItem
+                      label="Export to PDF"
+                      icon={<FileText size={16} strokeWidth={2} />}
+                      onExport={() => handleExport(ExportExportFormat.PDF)}
+                      onSelected={close}
+                      disabled={!exportEnabled}
+                    />
                   </>
                 )}
               />

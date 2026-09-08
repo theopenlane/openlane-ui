@@ -95,7 +95,7 @@ export const DropdownMultiselectCheckbox: Story = {
             }}
             asChild
           >
-            <Button variant="outlineInput">{selectedToppings.length > 0 ? `${selectedToppings.length} toppings selected` : 'Select Toppings'}</Button>
+            <Button variant="outline">{selectedToppings.length > 0 ? `${selectedToppings.length} toppings selected` : 'Select Toppings'}</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuCheckboxItem

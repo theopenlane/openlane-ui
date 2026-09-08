@@ -90,7 +90,7 @@ const OrganizationDelete = ({ onLoadingChange }: OrganizationDeleteProps) => {
         title="Delete organization"
         description={DELETE_ORGANIZATION_DESCRIPTION}
         action={
-          <Button variant="redOutline" type="button" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDialogOpen(true)}>
+          <Button variant="destructiveOutline" type="button" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDialogOpen(true)}>
             Delete organization
           </Button>
         }

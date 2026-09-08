@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { ArrowRight, ArrowUpRight, InfoIcon } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Check, Copy, InfoIcon, Trash2, X } from 'lucide-react'
 import { GoogleIcon } from '../icons/google'
 import { Button, buttonStyles } from './button'
 
@@ -67,36 +67,72 @@ export const Secondary: Story = {
   args: { variant: 'secondary' },
 }
 
-export const SecondaryOutline: Story = {
-  args: { variant: 'secondaryOutline' },
+export const Outline: Story = {
+  args: { variant: 'outline' },
 }
 
-export const IconButton: Story = {
-  args: { variant: 'iconButton', icon: <ArrowRight /> },
+export const Transparent: Story = {
+  args: { variant: 'transparent' },
 }
 
 export const Filled: Story = {
   args: { variant: 'filled' },
 }
 
-export const Light: Story = {
-  args: { variant: 'light' },
+export const Tag: Story = {
+  args: { variant: 'tag', children: 'Filter' },
 }
 
-export const Outline: Story = {
-  args: { variant: 'outline' },
+export const TagActive: Story = {
+  args: { variant: 'tag', children: 'Filter', className: 'is-active' },
 }
 
-export const OutlineLight: Story = {
-  args: { variant: 'outlineLight' },
+export const Icon: Story = {
+  args: { variant: 'icon', children: <X size={16} />, 'aria-label': 'Close' },
+}
+
+export const Sidebar: Story = {
+  args: { variant: 'sidebar', children: 'Navigation item', className: 'justify-start' },
+}
+
+export const Link: Story = {
+  args: { variant: 'link', children: 'Review recommendations', icon: <ArrowRight size={14} /> },
+}
+
+export const MenuItem: Story = {
+  args: { variant: 'menuItem', children: 'Duplicate' },
+  render: (args) => (
+    <div className="flex w-48 flex-col space-y-2 rounded-md border p-3 shadow-md">
+      <Button {...args}>
+        <Copy size={16} strokeWidth={2} />
+        <span>Duplicate</span>
+      </Button>
+      <Button {...args} className="text-destructive">
+        <Trash2 size={16} strokeWidth={2} />
+        <span>Delete</span>
+      </Button>
+      <Button {...args} disabled>
+        <Copy size={16} strokeWidth={2} />
+        <span>Disabled</span>
+      </Button>
+    </div>
+  ),
+}
+
+export const Destructive: Story = {
+  args: { variant: 'destructive' },
+}
+
+export const DestructiveOutline: Story = {
+  args: { variant: 'destructiveOutline', children: 'Delete account' },
 }
 
 export const Success: Story = {
   args: { variant: 'success' },
 }
 
-export const Destructive: Story = {
-  args: { variant: 'destructive' },
+export const Approve: Story = {
+  args: { variant: 'approve', children: 'Approve', icon: <Check size={16} />, iconPosition: 'left' },
 }
 
 export const Small: Story = {
@@ -116,7 +152,7 @@ export const IconLeft: Story = {
 }
 
 export const BrandIcon: Story = {
-  args: { icon: <GoogleIcon />, iconPosition: 'left', variant: 'secondaryOutline' },
+  args: { icon: <GoogleIcon />, iconPosition: 'left', variant: 'outline' },
 }
 
 export const Loading: Story = {

@@ -18,6 +18,7 @@ import ReportFilterCheckbox from './report-filter-checkbox'
 import ReportToolbarAction from './report-toolbar-action'
 import ReportToolbarFilterLabel from './report-toolbar-filter-label'
 import { HIDE_BELOW_1300, HIDE_BELOW_1400, ICON_ONLY_BELOW_1300, TOOLBAR_CONTAINER } from '@/constants/toolbar'
+import MenuItem from '@/components/shared/menu/menu-item'
 
 type ReportToolbarProps = {
   active: 'dashboard' | 'table'
@@ -181,39 +182,33 @@ const ReportToolbar: React.FC<ReportToolbarProps> = ({
               closeOnSelect={true}
               content={(close) => (
                 <>
-                  <button
-                    type="button"
-                    className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                    onClick={() => {
+                  <MenuItem
+                    icon={<Upload size={16} strokeWidth={2} />}
+                    onSelect={() => {
                       setIsCloneOpen(true)
                       close()
                     }}
                   >
-                    <Upload size={16} strokeWidth={2} />
-                    <span>Upload From Standard</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                    onClick={() => {
+                    Upload From Standard
+                  </MenuItem>
+                  <MenuItem
+                    icon={<Upload size={16} strokeWidth={2} />}
+                    onSelect={() => {
                       setIsCreateOpen(true)
                       close()
                     }}
                   >
-                    <Upload size={16} strokeWidth={2} />
-                    <span>Upload Custom Controls</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                    onClick={() => {
+                    Upload Custom Controls
+                  </MenuItem>
+                  <MenuItem
+                    icon={<Upload size={16} strokeWidth={2} />}
+                    onSelect={() => {
                       setIsMapOpen(true)
                       close()
                     }}
                   >
-                    <Upload size={16} strokeWidth={2} />
-                    <span>Upload Control Mappings</span>
-                  </button>
+                    Upload Control Mappings
+                  </MenuItem>
                 </>
               )}
             />

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { type ZodObject, type ZodRawShape } from 'zod'
-import { ArrowRightLeft, DownloadIcon, LoaderCircle, PlusCircle, SearchIcon, Upload } from 'lucide-react'
+import { ArrowRightLeft, LoaderCircle, PlusCircle, SearchIcon, Upload } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
 import { type VisibilityState } from '@repo/ui/table-types'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
@@ -31,6 +31,8 @@ import { type Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import { useMergeMode } from '@/components/shared/merge-records/merge-mode-context'
 import { cn } from '@repo/ui/lib/utils'
+import MenuItem from '@/components/shared/menu/menu-item'
+import ExportMenuItem from '@/components/shared/export/export-menu-item'
 
 type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInput> = {
   entityType: ObjectTypes
@@ -68,13 +70,6 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   additionalActiveFilterCount?: number
   defaultFilterValues?: TFilterState
 }
-
-const MenuAction = ({ icon, label, onSelect }: { icon: React.ReactNode; label: string; onSelect: () => void }) => (
-  <button type="button" className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer" onClick={onSelect}>
-    {icon}
-    <span>{label}</span>
-  </button>
-)
 
 function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput>(props: GenericTableToolbarProps<T, TWhereInput, TUpdateInput>) {
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
@@ -218,33 +213,28 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                   content={(close) => (
                     <>
                       {mergeAvailable && (
-                        <MenuAction
+                        <MenuItem
                           icon={<ArrowRightLeft size={16} strokeWidth={2} />}
-                          label="Merge records"
                           onSelect={() => {
                             setMergeModeActive(true)
                             close()
                           }}
-                        />
+                        >
+                          Merge records
+                        </MenuItem>
                       )}
                       {props.onBulkCreate && (
-                        <MenuAction
+                        <MenuItem
                           icon={<Upload size={16} strokeWidth={2} />}
-                          label="Bulk Upload"
                           onSelect={() => {
                             setIsBulkUploadOpen(true)
                             close()
                           }}
-                        />
+                        >
+                          Bulk Upload
+                        </MenuItem>
                       )}
-                      <MenuAction
-                        icon={<DownloadIcon size={16} strokeWidth={2} />}
-                        label="Export"
-                        onSelect={() => {
-                          props.handleExport()
-                          close()
-                        }}
-                      />
+                      <ExportMenuItem onExport={props.handleExport} onSelected={close} />
                     </>
                   )}
                 />

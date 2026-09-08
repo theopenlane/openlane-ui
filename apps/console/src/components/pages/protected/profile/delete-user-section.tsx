@@ -51,13 +51,12 @@ const DeleteUserSection: React.FC<DeleteUserSectionProps> = ({ userId }) => {
 
   const deleteButton = (
     <Button
-      variant="redOutline"
+      variant="destructiveOutline"
       type="button"
       icon={<Trash2 />}
       iconPosition="left"
       disabled={isDeleteDisabled}
       className={isDeleteDisabled ? 'cursor-not-allowed border-border text-muted-foreground opacity-50 dark:border-border dark:text-muted-foreground' : undefined}
-
       onClick={() => setIsDialogOpen(true)}
     >
       Delete account

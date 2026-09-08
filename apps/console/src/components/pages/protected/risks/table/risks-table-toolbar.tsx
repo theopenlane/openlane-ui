@@ -1,6 +1,6 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useMemo, useState } from 'react'
-import { DownloadIcon, LoaderCircle, SearchIcon, SquarePlus, Upload } from 'lucide-react'
+import { LoaderCircle, SearchIcon, SquarePlus, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { getRisksFilterFields } from './table-config'
 import { type FilterField } from '@/types'
@@ -26,6 +26,8 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
+import MenuItem from '@/components/shared/menu/menu-item'
+import ExportMenuItem from '@/components/shared/export/export-menu-item'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void
@@ -184,28 +186,17 @@ const RisksTableToolbar: React.FC<TProps> = ({
               content={(close) => (
                 <>
                   {hasPermission(permission?.roles, AccessEnum.CanCreateRisk, session) && (
-                    <button
-                      type="button"
-                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                      onClick={() => {
+                    <MenuItem
+                      icon={<Upload size={16} strokeWidth={2} />}
+                      onSelect={() => {
                         setIsBulkUploadOpen(true)
                         close()
                       }}
                     >
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Bulk Upload</span>
-                    </button>
+                      Bulk Upload
+                    </MenuItem>
                   )}
-                  <button
-                    className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
-                    onClick={() => {
-                      handleExport()
-                      close()
-                    }}
-                  >
-                    <DownloadIcon size={16} strokeWidth={2} />
-                    <span>Export</span>
-                  </button>
+                  <ExportMenuItem onExport={handleExport} onSelected={close} disabled={!exportEnabled} />
                 </>
               )}
             />

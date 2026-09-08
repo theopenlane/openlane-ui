@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { buttonStyles } from '@repo/ui/button'
 import { CancelButton } from './cancel-button'
 
 const meta: Meta<typeof CancelButton> = {
@@ -21,7 +22,7 @@ const meta: Meta<typeof CancelButton> = {
     },
     variant: {
       control: 'select',
-      options: ['primary', 'secondary', 'secondaryOutline', 'destructive', 'outline', 'outlineLight'],
+      options: Object.keys(buttonStyles.variants.variant),
       description: 'Button variant (default: "secondary")',
     },
   },

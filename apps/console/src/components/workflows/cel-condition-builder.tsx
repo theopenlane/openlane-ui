@@ -355,7 +355,7 @@ export const CELConditionBuilder = ({ objectType, objectTypes, initialExpression
                 />
               </div>
 
-              <Button type="button" variant="iconButton" onClick={() => removeCondition(condition.id)} className="h-8 w-8 p-0">
+              <Button type="button" variant="transparent" size="icon-sm" onClick={() => removeCondition(condition.id)}>
                 <Trash2 />
               </Button>
             </div>

@@ -3,7 +3,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 export const buttonStyles = tv({
   slots: {
-    base: `flex h-9 py-[6px] px-[14px] items-center gap-2 transition-color duration-500 rounded-md inline-flex group justify-center whitespace-nowrap`,
+    base: `flex h-9 py-[6px] px-[14px] items-center gap-2 transition-colors duration-500 rounded-md inline-flex group justify-center whitespace-nowrap`,
     iconOuter: 'relative h-4 w-4 shrink-0 overflow-hidden',
     iconInner: 'absolute transition-all duration-500 group-hover:text-current',
     loadingWrapper: 'absolute top-1/2 left-1/2  transform -translate-x-1/2 -translate-y-1/2',
@@ -34,19 +34,29 @@ export const buttonStyles = tv({
         focus-visible:shadow-[0_0_0_4px_rgba(9,21,29,0.06),_0_1px_2px_0_rgba(9,21,29,0.04),_0_-1px_0_0_rgba(9,21,29,0.1)_inset]
         dark:focus-visible:shadow-[0_0_0_4px_rgba(96,232,201,0.24),_0_1px_1px_0.5px_rgba(9,21,29,0.24)]
       `,
-      secondaryOutline: `border-border text-text-paragraph border hover:bg-btn-secondary-hover`,
-      icon: 'text-muted-foreground hover:text-foreground',
-      iconButton: `
+      outline: 'border-border text-text-paragraph border',
+      transparent: `
         bg-transparent
-        text-muted-foreground
-        rounded-md
-        hover:bg-nav
+        border
+        border-transparent
+        hover:bg-btn-secondary
         hover:border-border
-        hover:text-text-paragraph
-        [&.is-active]:!bg-nav
-        [&.is-active]:border-border
-        [&.is-active]:text-text-paragraph
+        disabled:cursor-not-allowed
+        disabled:text-btn-secondary-text-disabled
       `,
+      filled: 'bg-btn-primary text-btn-primary-text',
+      tag: `
+        border
+        border-border
+        rounded-lg
+        text-muted-foreground
+        hover:text-text-paragraph
+        hover:border-text-paragraph
+        [&.is-active]:border-active-filter-border
+        [&.is-active]:bg-active-filter-background
+        [&.is-active]:text-active-filter-text
+      `,
+      icon: 'text-muted-foreground hover:text-foreground',
       sidebar: `bg-transparent
         border border-transparent
         rounded-[6px]
@@ -59,38 +69,19 @@ export const buttonStyles = tv({
         [&.is-active]:border-border
         [&.is-active]:text-text-paragraph
       `,
-      transparent: `
-        bg-transparent
-        border
-        border-transparent
-        hover:bg-btn-secondary
-        hover:border-border
-        disabled:cursor-not-allowed
-        disabled:text-btn-secondary-text-disabled
-      `,
-      tag: `
-        border
-        border-border
-        rounded-lg
-        text-muted-foreground
-        hover:text-text-paragraph
-        hover:border-text-paragraph
-        [&.is-active]:border-active-filter-border
-        [&.is-active]:bg-active-filter-background
-        [&.is-active]:text-active-filter-text
-      `,
-      link: 'bg-transparent border-none p-0 h-auto font-medium hover:underline underline-offset-4 disabled:cursor-not-allowed disabled:opacity-50',
-      filled: 'bg-button text-button-text ',
-      light: 'bg-button-light text-text-dark ',
-      outline: 'border-border text-text-paragraph border',
-      outlineLight: 'border-border-dark text-text-dark border',
-      outlineInput: 'border-border text-text-paragraph border ',
-      outlineInputPadding: 'border-border text-paragraph mx-1 border ',
-      redOutline: 'border-red-500 text-red-500 border dark:border-red-500 dark:text-red-500',
-      white: {},
-      success: 'flex-row-reverse !bg-teal-600 text-button-text ',
+      link: 'bg-transparent border-none font-medium hover:underline underline-offset-4 disabled:cursor-not-allowed disabled:opacity-50',
+      menuItem: 'justify-start bg-transparent rounded-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
       destructive: 'flex-row-reverse !bg-destructive text-destructive-foreground ',
-      back: 'bg-button-back text-text-dark',
+      destructiveOutline: 'border-red-500 text-red-500 border dark:border-red-500 dark:text-red-500',
+      success: 'flex-row-reverse !bg-teal-600 text-white',
+      approve: 'border-teal-600 text-teal-600 border disabled:cursor-not-allowed disabled:opacity-50',
+    },
+    size: {
+      sm: 'h-auto p-0 text-sm px-2',
+      md: 'h-8 px-2 text-sm',
+      lg: 'h-16 px-8 text-lg',
+      icon: 'size-9 p-0',
+      'icon-sm': 'size-8 p-0',
     },
     iconPosition: {
       left: 'flex-row-reverse',
@@ -100,16 +91,6 @@ export const buttonStyles = tv({
       true: {
         iconInner: 'group-hover:-translate-y-4',
       },
-    },
-    size: {
-      sm: 'h-auto p-0 text-sm px-2',
-      md: 'h-8 px-2 text-sm',
-      lg: 'h-16 px-8 text-lg',
-      xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-      icon: 'size-9',
-      'icon-xs': "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
-      'icon-sm': 'size-8',
-      'icon-lg': 'size-10',
     },
     full: {
       true: {
@@ -122,6 +103,10 @@ export const buttonStyles = tv({
       },
     },
   },
+  compoundVariants: [
+    { variant: 'link', class: { base: 'h-auto p-0' } },
+    { variant: 'menuItem', class: { base: 'h-auto py-0 px-1 text-base' } },
+  ],
   defaultVariants: {
     variant: 'primary',
     size: 'md',

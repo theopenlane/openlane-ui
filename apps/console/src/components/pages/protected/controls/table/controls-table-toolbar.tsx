@@ -1,7 +1,7 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useMemo, useState } from 'react'
 import { type Condition, type FilterField } from '@/types'
-import { CirclePlus, DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
+import { CirclePlus, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { getControlsFilterFields } from './table-config'
 import { Input } from '@repo/ui/input'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
@@ -36,6 +36,8 @@ import { getBulkActionFailureDescription } from '@/components/shared/crud-base/b
 import { useSession } from 'next-auth/react'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type Session } from 'next-auth'
+import MenuItem from '@/components/shared/menu/menu-item'
+import ExportMenuItem from '@/components/shared/export/export-menu-item'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -228,62 +230,43 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                 closeOnSelect={true}
                 content={(close) => (
                   <>
-                    <button
-                      type="button"
-                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                      onClick={() => {
+                    <MenuItem
+                      icon={<Upload size={16} strokeWidth={2} />}
+                      onSelect={() => {
                         setIsCloneOpen(true)
                         close()
                       }}
                     >
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Upload From Standard</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                      onClick={() => {
+                      Upload From Standard
+                    </MenuItem>
+                    <MenuItem
+                      icon={<Upload size={16} strokeWidth={2} />}
+                      onSelect={() => {
                         setIsCreateOpen(true)
                         close()
                       }}
                     >
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Upload Custom Controls</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                      onClick={() => {
+                      Upload Custom Controls
+                    </MenuItem>
+                    <MenuItem
+                      icon={<Upload size={16} strokeWidth={2} />}
+                      onSelect={() => {
                         setIsMapOpen(true)
                         close()
                       }}
                     >
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Upload Control Mappings</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                      onClick={() => {
+                      Upload Control Mappings
+                    </MenuItem>
+                    <MenuItem
+                      icon={<Upload size={16} strokeWidth={2} />}
+                      onSelect={() => {
                         setIsUpdateOpen(true)
                         close()
                       }}
                     >
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Update Existing Controls</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={!exportEnabled}
-                      onClick={() => {
-                        handleExport()
-                        close()
-                      }}
-                    >
-                      <DownloadIcon size={16} strokeWidth={2} />
-                      <span>Export</span>
-                    </button>
+                      Update Existing Controls
+                    </MenuItem>
+                    <ExportMenuItem onExport={handleExport} onSelected={close} disabled={!exportEnabled} />
                   </>
                 )}
               />

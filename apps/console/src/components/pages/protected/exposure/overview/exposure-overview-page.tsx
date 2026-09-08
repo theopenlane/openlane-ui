@@ -24,6 +24,7 @@ import ConfigureSlaSheet from './configure-sla-sheet'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useSession } from 'next-auth/react'
 import { useHasObjectType } from '@/lib/subscription-plan/hooks/use-module-access'
+import MenuItem from '@/components/shared/menu/menu-item'
 
 const CRIT_WHERE = { or: [{ severityContainsFold: 'critical' }, { severityIn: ['CRITICAL', 'Critical'] }] }
 const HIGH_WHERE = { or: [{ severityContainsFold: 'high' }, { severityIn: ['HIGH', 'High'] }] }
@@ -206,10 +207,9 @@ const ExposureOverviewPage = () => {
                 </Button>
               }
               content={
-                <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={() => setSlaSheetOpen(true)}>
-                  <Settings size={16} strokeWidth={2} />
-                  <span>{hasWriteAccess ? 'Configure SLA' : 'View SLA'}</span>
-                </button>
+                <MenuItem icon={<Settings size={16} strokeWidth={2} />} onSelect={() => setSlaSheetOpen(true)}>
+                  {hasWriteAccess ? 'Configure SLA' : 'View SLA'}
+                </MenuItem>
               }
             />
           }

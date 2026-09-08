@@ -101,7 +101,7 @@ const CalendarPopover = <T extends FieldValues>({
           className={`bg-input border border-input focus-visible:outline-hidden disabled:cursor-not-allowed !p-1 text-base rounded-md disabled:opacity-50 ${
             buttonClassName ?? 'w-full flex justify-between items-center'
           }`}
-          variant="outlineInput"
+          variant="outline"
           childFull
         >
           <div className={cn(calendarInput(), inputClassName)}>

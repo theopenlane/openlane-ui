@@ -180,7 +180,7 @@ const ProfilePage = () => {
           <Button key={0} className="mx-10 w-24" onClick={() => handleTfaChange(false)}>
             Disable
           </Button>,
-          <Button key={1} variant="redOutline" className="mx-10 w-24" onClick={removeTfa}>
+          <Button key={1} variant="destructiveOutline" className="mx-10 w-24" onClick={removeTfa}>
             Remove
           </Button>,
         ],
@@ -202,7 +202,7 @@ const ProfilePage = () => {
         <Button variant="secondary" key={0} className="mx-10 w-24" onClick={() => handleTfaChange(true)}>
           Enable
         </Button>,
-        <Button key={1} variant="redOutline" className="mx-10 w-24" onClick={removeTfa}>
+        <Button key={1} variant="destructiveOutline" className="mx-10 w-24" onClick={removeTfa}>
           Remove
         </Button>,
       ],

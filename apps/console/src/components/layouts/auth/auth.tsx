@@ -32,7 +32,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
       <div className={closeButton()} style={{ transform: `translateY(var(${GLOBAL_BANNER_HEIGHT_VAR}, 0px))` }}>
         <Link href={OPENLANE_WEBSITE_URL}>
-          <Button className="!py-2 !px-1.5 !h-8 bg-transparent" variant="secondaryOutline" icon={<ArrowLeft size={16} />} iconPosition="left">
+          <Button className="!py-2 !px-1.5 !h-8 bg-transparent" variant="outline" icon={<ArrowLeft size={16} />} iconPosition="left">
             Back to Home
           </Button>
         </Link>

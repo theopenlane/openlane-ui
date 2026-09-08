@@ -6,8 +6,6 @@ import { Button } from '@repo/ui/button'
 
 export type TVendorReviewAction = 'draft' | 'save' | 'complete' | 'completeAndApprove' | 'approve'
 
-const APPROVE_BUTTON_CLASS = 'border-teal-600 text-teal-600'
-
 type TVendorReviewFooterProps = {
   pendingAction: TVendorReviewAction | null
   isCreate: boolean
@@ -38,8 +36,7 @@ const VendorReviewFooter: React.FC<TVendorReviewFooterProps> = ({ pendingAction,
           </Button>
           <Button
             type="button"
-            variant="outline"
-            className={APPROVE_BUTTON_CLASS}
+            variant="approve"
             icon={<Check size={16} />}
             iconPosition="left"
             onClick={() => onSubmit('completeAndApprove')}
@@ -61,23 +58,13 @@ const VendorReviewFooter: React.FC<TVendorReviewFooterProps> = ({ pendingAction,
           </Button>
           {!isApproved &&
             (isCompleted ? (
-              <Button
-                type="button"
-                variant="outline"
-                className={APPROVE_BUTTON_CLASS}
-                icon={<Check size={16} />}
-                iconPosition="left"
-                onClick={() => onSubmit('approve')}
-                loading={pendingAction === 'approve'}
-                disabled={isBusy}
-              >
+              <Button type="button" variant="approve" icon={<Check size={16} />} iconPosition="left" onClick={() => onSubmit('approve')} loading={pendingAction === 'approve'} disabled={isBusy}>
                 Approve
               </Button>
             ) : (
               <Button
                 type="button"
-                variant="outline"
-                className={APPROVE_BUTTON_CLASS}
+                variant="approve"
                 icon={<Check size={16} />}
                 iconPosition="left"
                 onClick={() => onSubmit('completeAndApprove')}

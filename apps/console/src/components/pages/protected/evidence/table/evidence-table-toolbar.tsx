@@ -24,6 +24,7 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
+import MenuItem from '@/components/shared/menu/menu-item'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -198,25 +199,16 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
                 closeOnSelect={true}
                 content={(close) => (
                   <>
-                    <button
-                      type="button"
-                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                      onClick={() => {
+                    <MenuItem
+                      icon={<Upload size={16} strokeWidth={2} />}
+                      onSelect={() => {
                         setIsBulkUploadOpen(true)
                         close()
                       }}
                     >
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Bulk Upload</span>
-                    </button>
-                    <ExportEvidenceDialog
-                      trigger={
-                        <div className="flex items-center space-x-2 px-1">
-                          <Download size={16} strokeWidth={2} />
-                          <span>Export</span>
-                        </div>
-                      }
-                    />
+                      Bulk Upload
+                    </MenuItem>
+                    <ExportEvidenceDialog trigger={<MenuItem icon={<Download size={16} strokeWidth={2} />}>Export</MenuItem>} />
                   </>
                 )}
               />

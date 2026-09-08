@@ -9,7 +9,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@repo/ui/alert-dialog'
-import { Button } from '@repo/ui/button'
+import { Button, type ButtonProps } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { useState } from 'react'
@@ -21,8 +21,7 @@ type ConfirmationAlertProps = {
   title?: string
   description: React.ReactNode
   confirmationText?: string
-  confirmationTextVariant?:
-    'filled' | 'white' | 'success' | 'light' | 'outline' | 'outlineLight' | 'outlineInput' | 'outlineInputPadding' | 'redOutline' | 'destructive' | 'back' | 'primary' | undefined
+  confirmationTextVariant?: ButtonProps['variant']
   showInput?: boolean
   loading?: boolean
 }

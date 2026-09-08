@@ -34,6 +34,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ExportGroupsDialog from './components/dialogs/export-groups-dialog'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
 import { useGroupsExport } from './use-groups-export'
+import MenuItem from '@/components/shared/menu/menu-item'
 
 const GroupsPage = () => {
   const [activeTab, setActiveTab] = useOrgTableViewMode(TableKeyEnum.GROUP)
@@ -178,17 +179,15 @@ const GroupsPage = () => {
             closeOnSelect={true}
             content={(close) => (
               <>
-                <button
-                  type="button"
-                  className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                  onClick={() => {
+                <MenuItem
+                  icon={<Upload size={16} strokeWidth={2} />}
+                  onSelect={() => {
                     setIsBulkUploadOpen(true)
                     close()
                   }}
                 >
-                  <Upload size={16} strokeWidth={2} />
-                  <span>Bulk Upload</span>
-                </button>
+                  Bulk Upload
+                </MenuItem>
                 <ExportMenuItem onExport={() => setIsExportOpen(true)} onSelected={close} disabled={!whereFilter} isExporting={isExporting} />
               </>
             )}

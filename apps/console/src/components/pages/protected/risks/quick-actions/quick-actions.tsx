@@ -14,6 +14,7 @@ import { useFormContext } from 'react-hook-form'
 import { type EditRisksFormData } from '../view/hooks/use-form-schema'
 import { RiskDecisionDialog } from './decision-dialog'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
+import MenuItem from '@/components/shared/menu/menu-item'
 
 const EDIT_RESTRICTED_IDS = new Set(['mark-as-remediated', 'add-review', 'set-risk-decision', 'add-action-plan'])
 
@@ -99,12 +100,9 @@ const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
     if (action.href) {
       if (inMenu) {
         return (
-          <Link key={action.id} href={action.href}>
-            <button type="button" className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer w-full">
-              {action.icon}
-              <span>{action.label}</span>
-            </button>
-          </Link>
+          <MenuItem key={action.id} href={action.href} icon={action.icon}>
+            {action.label}
+          </MenuItem>
         )
       }
       return (
@@ -118,10 +116,9 @@ const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
 
     if (inMenu) {
       return (
-        <button key={action.id} onClick={action.onClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer w-full">
-          {action.icon}
-          <span>{action.label}</span>
-        </button>
+        <MenuItem icon={action.icon} key={action.id} onSelect={action.onClick}>
+          {action.label}
+        </MenuItem>
       )
     }
 

@@ -10,7 +10,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { DownloadIcon, Plus, SearchIcon, Sparkles, Upload } from 'lucide-react'
+import { Plus, SearchIcon, Sparkles, Upload } from 'lucide-react'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
@@ -38,6 +38,8 @@ import AddContactDialog from './add-contact-dialog'
 import ContactDetailSheet from './contact-detail-sheet'
 import { useSuggestedContacts } from './use-suggested-contacts'
 import { defineFilterFields } from '@/types'
+import MenuItem from '@/components/shared/menu/menu-item'
+import ExportMenuItem from '@/components/shared/export/export-menu-item'
 
 interface ContactsTabProps {
   vendorId: string
@@ -222,29 +224,17 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
                 content={(close) => (
                   <>
                     {canEditVendor && (
-                      <button
-                        type="button"
-                        className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                        onClick={() => {
+                      <MenuItem
+                        icon={<Upload size={16} strokeWidth={2} />}
+                        onSelect={() => {
                           setIsBulkUploadOpen(true)
                           close()
                         }}
                       >
-                        <Upload size={16} strokeWidth={2} />
-                        <span>Bulk Upload</span>
-                      </button>
+                        Bulk Upload
+                      </MenuItem>
                     )}
-                    <button
-                      type="button"
-                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                      onClick={() => {
-                        handleExportCSV()
-                        close()
-                      }}
-                    >
-                      <DownloadIcon size={16} strokeWidth={2} />
-                      <span>Export</span>
-                    </button>
+                    <ExportMenuItem onExport={handleExportCSV} onSelected={close} />
                   </>
                 )}
               />

@@ -188,8 +188,8 @@ const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
         </div>
       </div>
       <Dialog>
-        <DialogTrigger>
-          <Button variant="redOutline">Remove</Button>
+        <DialogTrigger asChild>
+          <Button variant="destructiveOutline">Remove</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[455px]">
           <DialogHeader>

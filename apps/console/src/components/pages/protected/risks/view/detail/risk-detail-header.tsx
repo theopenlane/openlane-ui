@@ -12,6 +12,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { type GetRiskByIdQuery, type UpdateRiskInput } from '@repo/codegen/src/schema'
 import { cn } from '@repo/ui/lib/utils'
+import MenuItem from '@/components/shared/menu/menu-item'
 
 interface RiskDetailHeaderProps {
   risk: GetRiskByIdQuery['risk']
@@ -128,10 +129,9 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
                     </Button>
                   }
                   content={
-                    <button onClick={onDeleteClick} data-testid="risk-delete-button" className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
-                      <Trash2 size={16} strokeWidth={2} />
-                      <span>Delete</span>
-                    </button>
+                    <MenuItem icon={<Trash2 size={16} strokeWidth={2} />} onSelect={onDeleteClick} data-testid="risk-delete-button" destructive>
+                      Delete
+                    </MenuItem>
                   }
                 />
               )}
