@@ -1,4 +1,4 @@
-import { Button } from '@repo/ui/button'
+import { Button, type ButtonProps } from '@repo/ui/button'
 import { XIcon } from 'lucide-react'
 import React from 'react'
 type CancelButtonProps = {
@@ -7,26 +7,7 @@ type CancelButtonProps = {
   type?: 'button' | 'submit' | 'reset'
   disabled?: boolean
   className?: string
-  variant?:
-    | 'primary'
-    | 'secondary'
-    | 'secondaryOutline'
-    | 'icon'
-    | 'iconButton'
-    | 'sidebar'
-    | 'transparent'
-    | 'tag'
-    | 'filled'
-    | 'light'
-    | 'outline'
-    | 'outlineLight'
-    | 'outlineInput'
-    | 'outlineInputPadding'
-    | 'redOutline'
-    | 'white'
-    | 'success'
-    | 'destructive'
-    | 'back'
+  variant?: ButtonProps['variant']
 }
 
 export const CancelButton = ({ onClick, title = 'Cancel', type = 'button', disabled, className, variant = 'secondary' }: CancelButtonProps) => {

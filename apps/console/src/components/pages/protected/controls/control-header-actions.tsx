@@ -6,11 +6,11 @@ import { CopyPlus, PencilIcon, MoreHorizontal, Trash2, Sparkles } from 'lucide-r
 import { hasPermission, canDelete, canEdit } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
-import Link from 'next/link'
 import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
 import type { TAccessRole } from '@/types/authz'
 import { useSession } from 'next-auth/react'
+import MenuItem from '@/components/shared/menu/menu-item'
 
 interface ControlHeaderActionsProps {
   controlId: string
@@ -62,18 +62,14 @@ const ControlHeaderActions: React.FC<ControlHeaderActionsProps> = ({ controlId, 
           content={
             <>
               {canCloneControl && (
-                <Link href={`/controls/${controlId}/clone-control?mapControlId=${controlId}`}>
-                  <button className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer">
-                    <CopyPlus size={16} strokeWidth={2} />
-                    <span>Clone Control</span>
-                  </button>
-                </Link>
+                <MenuItem href={`/controls/${controlId}/clone-control?mapControlId=${controlId}`} icon={<CopyPlus size={16} strokeWidth={2} />}>
+                  Clone Control
+                </MenuItem>
               )}
               {canDeleteControl && (
-                <button onClick={onDeleteClick} data-testid="control-delete-button" className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
-                  <Trash2 size={16} strokeWidth={2} />
-                  <span>Delete</span>
-                </button>
+                <MenuItem icon={<Trash2 size={16} strokeWidth={2} />} onSelect={onDeleteClick} data-testid="control-delete-button" destructive>
+                  Delete
+                </MenuItem>
               )}
             </>
           }

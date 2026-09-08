@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { ChevronDown, DownloadIcon, LoaderCircle, SearchIcon, Trash2 } from 'lucide-react'
+import { ChevronDown, LoaderCircle, SearchIcon, Trash2 } from 'lucide-react'
 import { type VisibilityState } from '@repo/ui/table-types'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
@@ -21,6 +21,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import ExportMenuItem from '@/components/shared/export/export-menu-item'
 
 type TProps = {
   searching?: boolean
@@ -157,18 +158,7 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
               closeOnSelect={true}
               content={(close) => (
                 <>
-                  <button
-                    type="button"
-                    className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={!exportEnabled}
-                    onClick={() => {
-                      onExport()
-                      close()
-                    }}
-                  >
-                    <DownloadIcon size={16} strokeWidth={2} />
-                    <span>Export</span>
-                  </button>
+                  <ExportMenuItem onExport={onExport} onSelected={close} disabled={!exportEnabled} />
                 </>
               )}
             />

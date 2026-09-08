@@ -15,7 +15,7 @@ const CancelDialog: React.FC<TCancelDialogProps> = ({ onConfirm, onCancel, isOpe
       onOpenChange={(open) => !open && onCancel()}
       onConfirm={onConfirm}
       confirmationText="Confirm"
-      confirmationTextVariant="redOutline"
+      confirmationTextVariant="destructiveOutline"
       description="You have unsaved changes. Do you want to discard them?"
     />
   )

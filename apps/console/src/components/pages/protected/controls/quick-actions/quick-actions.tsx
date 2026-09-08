@@ -18,6 +18,7 @@ import { buildControlEvidenceData, buildEvidenceControlParam, buildSubcontrolEvi
 import CreateControlObjectiveSheet from '../tabs/implementation/control-objectives-components/create-control-objective-sheet'
 import PublicRepresentationDialog from '@/components/pages/protected/controls/public-representation-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import MenuItem from '@/components/shared/menu/menu-item'
 
 const EDIT_RESTRICTED_IDS = new Set(['add-implementation', 'add-objective', 'create-subcontrol', 'map-control', 'add-public-representation'])
 
@@ -207,12 +208,9 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
     if (action.href) {
       if (inMenu) {
         return (
-          <Link key={action.id} href={action.href}>
-            <button type="button" className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer w-full">
-              {action.icon}
-              <span>{action.label}</span>
-            </button>
-          </Link>
+          <MenuItem key={action.id} href={action.href} icon={action.icon}>
+            {action.label}
+          </MenuItem>
         )
       }
       return (
@@ -226,10 +224,9 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
 
     if (inMenu) {
       return (
-        <button key={action.id} onClick={action.onClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer w-full">
-          {action.icon}
-          <span>{action.label}</span>
-        </button>
+        <MenuItem icon={action.icon} key={action.id} onSelect={action.onClick}>
+          {action.label}
+        </MenuItem>
       )
     }
 

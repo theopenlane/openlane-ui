@@ -122,14 +122,14 @@ const SelectSourceProgramStep = ({
                             }}
                           />
                         </FormControl>
-                        <Button type="button" variant="secondary" size="icon-sm" className="p-0!" aria-label="Save program name" onClick={() => setIsEditingName(false)}>
+                        <Button type="button" variant="secondary" size="icon-sm" aria-label="Save program name" onClick={() => setIsEditingName(false)}>
                           <Check size={14} />
                         </Button>
                       </>
                     ) : (
                       <>
                         <h3 className="font-medium">{field.value || summaryProgram.name}</h3>
-                        <Button type="button" variant="secondary" size="icon-sm" className="p-0!" aria-label="Edit program name" onClick={() => setIsEditingName(true)}>
+                        <Button type="button" variant="secondary" size="icon-sm" aria-label="Edit program name" onClick={() => setIsEditingName(true)}>
                           <Pencil size={14} />
                         </Button>
                       </>
@@ -143,7 +143,7 @@ const SelectSourceProgramStep = ({
             />
             <div className="flex shrink-0 items-center gap-2">
               <Badge variant="outline">Copied from {summaryProgram.name}</Badge>
-              <Button type="button" variant="secondary" size="icon-sm" className="p-0!" aria-label="Switch program" onClick={() => setIsSwitchingProgram(true)}>
+              <Button type="button" variant="secondary" size="icon-sm" aria-label="Switch program" onClick={() => setIsSwitchingProgram(true)}>
                 <Repeat size={14} />
               </Button>
             </div>

@@ -3,7 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Upload } from 'lucide-react'
 import React, { useState } from 'react'
-import { Button } from '@repo/ui/button'
+import { Button, type ButtonProps } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { acceptedFileTypes, acceptedFileTypesShort, maxFileSizeInMb } from '@/components/shared/file-upload/file-upload-config'
 import { type TUploadedFile } from '@/components/shared/file-upload/types'
@@ -15,7 +15,7 @@ type DocumentsUploadDialogProps = {
   isUploading: boolean
   title?: string
   buttonLabel?: string
-  buttonVariant?: 'primary' | 'secondary' | 'secondaryOutline'
+  buttonVariant?: ButtonProps['variant']
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }

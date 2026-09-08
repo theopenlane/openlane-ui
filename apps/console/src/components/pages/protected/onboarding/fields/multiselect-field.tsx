@@ -78,7 +78,7 @@ export const MultiselectField: React.FC<{ question: OnboardingQuestion }> = ({ q
       </div>
       {isCollapsible && (
         <div className="flex justify-end">
-          <Button type="button" variant="secondaryOutline" className="text-sm text-primary" onClick={() => setShowAll((current) => !current)}>
+          <Button type="button" variant="outline" className="text-sm text-primary" onClick={() => setShowAll((current) => !current)}>
             {showAll ? 'Show less' : 'See all'}
           </Button>
         </div>

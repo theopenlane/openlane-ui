@@ -2,7 +2,7 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useMemo, useState } from 'react'
 import { getCampaignFilterFields } from '@/components/pages/protected/campaigns/table/table-config'
 import { type FilterField } from '@/types'
-import { DownloadIcon, LoaderCircle, SearchIcon } from 'lucide-react'
+import { LoaderCircle, SearchIcon } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
 import { type VisibilityState } from '@repo/ui/table-types'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
@@ -18,6 +18,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
+import ExportMenuItem from '@/components/shared/export/export-menu-item'
 
 type TCampaignTableToolbarProps = {
   onFilterChange: (filters: CampaignWhereInput) => void
@@ -118,14 +119,7 @@ const CampaignTableToolbar: React.FC<TCampaignTableToolbarProps> = (props) => {
           </>
         ) : (
           <>
-            <Menu
-              content={
-                <button className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!props.exportEnabled ? 'opacity-50' : ''}`} onClick={props.handleExport}>
-                  <DownloadIcon size={16} strokeWidth={2} />
-                  <span>Export</span>
-                </button>
-              }
-            />
+            <Menu content={<ExportMenuItem onExport={props.handleExport} disabled={!props.exportEnabled} />} />
             {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
               <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={TableKeyEnum.CAMPAIGN} />
             )}

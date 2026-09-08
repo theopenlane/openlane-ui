@@ -1,4 +1,4 @@
-import { Button } from '@repo/ui/button'
+import { Button, type ButtonProps } from '@repo/ui/button'
 import { SaveIcon } from 'lucide-react'
 type SaveButtonProps = {
   onClick?: React.MouseEventHandler<HTMLButtonElement>
@@ -9,26 +9,7 @@ type SaveButtonProps = {
   isSaving?: boolean
   form?: string
   className?: string
-  variant?:
-    | 'primary'
-    | 'secondary'
-    | 'secondaryOutline'
-    | 'icon'
-    | 'iconButton'
-    | 'sidebar'
-    | 'transparent'
-    | 'tag'
-    | 'filled'
-    | 'light'
-    | 'outline'
-    | 'outlineLight'
-    | 'outlineInput'
-    | 'outlineInputPadding'
-    | 'redOutline'
-    | 'white'
-    | 'success'
-    | 'destructive'
-    | 'back'
+  variant?: ButtonProps['variant']
 }
 
 export const SaveButton = ({

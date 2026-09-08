@@ -252,7 +252,7 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
                 <FormControl>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outlineInput" full>
+                      <Button variant="outline" full>
                         {field.value && field.value.length > 0
                           ? Object.entries(orgs)
                               .filter(([, value]) => field?.value?.includes(value?.node?.id ?? ''))

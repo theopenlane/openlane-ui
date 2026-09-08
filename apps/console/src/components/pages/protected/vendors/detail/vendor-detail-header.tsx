@@ -19,9 +19,9 @@ import { useNotification } from '@/hooks/useNotification'
 import type { TAccessRole } from '@/types/authz'
 import type { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 import { getVendorLogoUrl } from '@/lib/vendor-logo'
-import Link from 'next/link'
 import { MergeMenuItem } from '@/components/shared/merge-records/merge-menu-item'
 import { vendorMergeConfig } from '@/components/shared/merge-records/configs/vendor-merge-config'
+import MenuItem from '@/components/shared/menu/menu-item'
 
 interface VendorDetailHeaderProps {
   vendor: EntityQuery['entity']
@@ -188,23 +188,20 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
                   content={
                     <>
                       {canEditVendor && !hasIntegration && matchedProvider && (
-                        <Link href={`/automation/integrations/${matchedProvider.id}?vendorId=${vendor.id}`} className="flex items-center space-x-2 px-1 cursor-pointer">
-                          <PlusIcon size={16} strokeWidth={2} />
-                          <span>Add Integration</span>
-                        </Link>
+                        <MenuItem href={`/automation/integrations/${matchedProvider.id}?vendorId=${vendor.id}`} icon={<PlusIcon size={16} strokeWidth={2} />}>
+                          Add Integration
+                        </MenuItem>
                       )}
                       {canEditVendor && hasIntegration && integrationDefId !== '' && (
-                        <Link href={`/automation/integrations/${integrationDefId}`} className="flex items-center space-x-2 px-1 cursor-pointer">
-                          <CogIcon size={16} strokeWidth={2} />
-                          <span>Configure Integration</span>
-                        </Link>
+                        <MenuItem href={`/automation/integrations/${integrationDefId}`} icon={<CogIcon size={16} strokeWidth={2} />}>
+                          Configure Integration
+                        </MenuItem>
                       )}
                       {canEditVendor && <MergeMenuItem primaryId={vendor.id} config={vendorMergeConfig} onMergeComplete={onMergeComplete} />}
                       {canDeleteVendor && (
-                        <button onClick={onDeleteClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
-                          <Trash2 size={16} strokeWidth={2} />
-                          <span>Delete</span>
-                        </button>
+                        <MenuItem icon={<Trash2 size={16} strokeWidth={2} />} onSelect={onDeleteClick} destructive>
+                          Delete
+                        </MenuItem>
                       )}
                     </>
                   }

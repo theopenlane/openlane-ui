@@ -77,3 +77,4 @@ const Button = ({
 }
 
 export { Button, buttonStyles }
+export type { ButtonProps, ButtonVariants } from './button.styles'

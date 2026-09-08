@@ -55,7 +55,7 @@ const ExportEvidenceDialog: React.FC<ExportEvidenceDialogProps> = ({ trigger, fi
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
-        <DialogTrigger className="bg-transparent">
+        <DialogTrigger asChild>
           {/* eslint-disable-next-line @eslint-react/no-clone-element */}
           {cloneElement(trigger, {
             onClick: () => setIsOpen(true),

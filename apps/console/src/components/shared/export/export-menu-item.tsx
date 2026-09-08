@@ -1,5 +1,6 @@
 import React from 'react'
 import { DownloadIcon, LoaderCircle } from 'lucide-react'
+import MenuItem from '@/components/shared/menu/menu-item'
 
 type TExportMenuItemProps = {
   onExport: () => void
@@ -7,21 +8,20 @@ type TExportMenuItemProps = {
   isExporting?: boolean
   disabled?: boolean
   label?: string
+  icon?: React.ReactNode
 }
 
-const ExportMenuItem: React.FC<TExportMenuItemProps> = ({ onExport, onSelected, isExporting, disabled, label = 'Export' }) => (
-  <button
-    type="button"
+const ExportMenuItem: React.FC<TExportMenuItemProps> = ({ onExport, onSelected, isExporting, disabled, label = 'Export', icon }) => (
+  <MenuItem
+    icon={isExporting ? <LoaderCircle size={16} strokeWidth={2} className="animate-spin" /> : (icon ?? <DownloadIcon size={16} strokeWidth={2} />)}
     disabled={disabled || isExporting}
-    className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-    onClick={() => {
+    onSelect={() => {
       onExport()
       onSelected?.()
     }}
   >
-    {isExporting ? <LoaderCircle size={16} strokeWidth={2} className="animate-spin" /> : <DownloadIcon size={16} strokeWidth={2} />}
-    <span>{label}</span>
-  </button>
+    {label}
+  </MenuItem>
 )
 
 export default ExportMenuItem

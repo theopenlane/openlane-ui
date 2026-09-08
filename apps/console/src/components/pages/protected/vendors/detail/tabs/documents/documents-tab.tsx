@@ -22,11 +22,12 @@ import { fileDownload } from '@/components/shared/lib/export'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import Menu from '@/components/shared/menu/menu'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
-import { Check, X, Download, DownloadIcon, Upload, SearchIcon, Eye, Trash2 } from 'lucide-react'
+import { Check, X, Download, Upload, SearchIcon, Eye, Trash2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import MarkAsEvidenceDialog from './mark-as-evidence-dialog'
 import UnmarkEvidenceDialog from './unmark-evidence-dialog'
 import DeleteDocumentDialog from './delete-document-dialog'
+import ExportMenuItem from '@/components/shared/export/export-menu-item'
 
 interface DocumentsTabProps {
   vendorId: string
@@ -238,22 +239,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
       <div className="flex items-center gap-2 mb-3">
         <Input icon={<SearchIcon size={16} />} placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.currentTarget.value)} variant="searchTable" />
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          <Menu
-            closeOnSelect={true}
-            content={(close) => (
-              <button
-                type="button"
-                className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                onClick={() => {
-                  handleExportCSV()
-                  close()
-                }}
-              >
-                <DownloadIcon size={16} strokeWidth={2} />
-                <span>Export</span>
-              </button>
-            )}
-          />
+          <Menu closeOnSelect={true} content={(close) => <ExportMenuItem onExport={handleExportCSV} onSelected={close} />} />
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.ENTITY_FILES} />
           {canEdit && (
             <Button variant="primary" icon={<Upload />} iconPosition="left" onClick={() => setIsUploadDialogOpen(true)}>

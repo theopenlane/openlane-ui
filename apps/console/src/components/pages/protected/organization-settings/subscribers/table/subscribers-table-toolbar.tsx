@@ -1,12 +1,14 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useState } from 'react'
 import { SUBSCRIBERS_FILTER_FIELDS } from '@/components/pages/protected/organization-settings/subscribers/table/table-config.ts'
-import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
+import { LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import Menu from '@/components/shared/menu/menu.tsx'
 import BulkCSVCreateSubscriberDialog from '@/components/pages/protected/organization-settings/subscribers/bulk-csv-create-subscriber-dialog.tsx'
 import { type SubscriberWhereInput } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import MenuItem from '@/components/shared/menu/menu-item'
+import ExportMenuItem from '@/components/shared/export/export-menu-item'
 
 type TProps = {
   onFilterChange: (filters: SubscriberWhereInput) => void
@@ -35,28 +37,16 @@ const SubscribersTableToolbar: React.FC<TProps> = ({ searching, searchTerm, onFi
           closeOnSelect={true}
           content={(close) => (
             <>
-              <button
-                type="button"
-                className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                onClick={() => {
-                  handleExport()
-                  close()
-                }}
-              >
-                <DownloadIcon size={16} strokeWidth={2} />
-                <span>Export</span>
-              </button>
-              <button
-                type="button"
-                className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                onClick={() => {
+              <ExportMenuItem onExport={handleExport} onSelected={close} />
+              <MenuItem
+                icon={<Upload size={16} strokeWidth={2} />}
+                onSelect={() => {
                   setIsBulkUploadOpen(true)
                   close()
                 }}
               >
-                <Upload size={16} strokeWidth={2} />
-                <span>Bulk Upload</span>
-              </button>
+                Bulk Upload
+              </MenuItem>
             </>
           )}
         />

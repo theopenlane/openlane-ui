@@ -19,6 +19,7 @@ import { getFilterFields } from './table-config'
 import { tableKey } from './types'
 import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
+import MenuItem from '@/components/shared/menu/menu-item'
 
 type WorkflowsTableToolbarProps = {
   searching?: boolean
@@ -126,14 +127,12 @@ const WorkflowsTableToolbar: React.FC<WorkflowsTableToolbarProps> = ({
                 }
                 content={
                   <>
-                    <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={() => router.push('/automation/workflows/wizard')}>
-                      <Wand2 size={16} strokeWidth={2} />
-                      <span>Wizard</span>
-                    </button>
-                    <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={() => router.push('/automation/workflows/editor')}>
-                      <FileCode size={16} strokeWidth={2} />
-                      <span>Editor</span>
-                    </button>
+                    <MenuItem icon={<Wand2 size={16} strokeWidth={2} />} onSelect={() => router.push('/automation/workflows/wizard')}>
+                      Wizard
+                    </MenuItem>
+                    <MenuItem icon={<FileCode size={16} strokeWidth={2} />} onSelect={() => router.push('/automation/workflows/editor')}>
+                      Editor
+                    </MenuItem>
                   </>
                 }
               />

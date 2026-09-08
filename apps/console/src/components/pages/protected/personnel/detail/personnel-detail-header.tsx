@@ -14,6 +14,7 @@ import { IdentityHolderUserStatus, type IdentityHolderQuery, type UpdateIdentity
 import { PersonnelStatusBadge } from '@/components/shared/enum-mapper/personnel-enum'
 import { MergeMenuItem } from '@/components/shared/merge-records/merge-menu-item'
 import { personnelMergeConfig } from '@/components/shared/merge-records/configs/personnel-merge-config'
+import MenuItem from '@/components/shared/menu/menu-item'
 
 interface PersonnelDetailHeaderProps {
   personnel: IdentityHolderQuery['identityHolder']
@@ -157,10 +158,9 @@ const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({
                   <>
                     {canEditPersonnel && <MergeMenuItem primaryId={personnel.id} config={personnelMergeConfig} onMergeComplete={onMergeComplete} />}
                     {canDeletePersonnel && (
-                      <button onClick={onDeleteClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
-                        <Trash2 size={16} strokeWidth={2} />
-                        <span>Delete</span>
-                      </button>
+                      <MenuItem icon={<Trash2 size={16} strokeWidth={2} />} onSelect={onDeleteClick} destructive>
+                        Delete
+                      </MenuItem>
                     )}
                   </>
                 }

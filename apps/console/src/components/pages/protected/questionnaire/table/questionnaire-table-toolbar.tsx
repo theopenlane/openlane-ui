@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
+import { LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import { getQuestionnaireFilterFields } from '@/components/pages/protected/questionnaire/table/table-config.ts'
@@ -28,6 +28,8 @@ import { getBulkActionFailureDescription } from '@/components/shared/crud-base/b
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
+import MenuItem from '@/components/shared/menu/menu-item'
+import ExportMenuItem from '@/components/shared/export/export-menu-item'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
@@ -190,26 +192,16 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
               <Menu
                 content={(close) => (
                   <>
-                    <button
-                      type="button"
-                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                      onClick={() => {
+                    <MenuItem
+                      icon={<Upload size={16} strokeWidth={2} />}
+                      onSelect={() => {
                         setIsBulkUploadOpen(true)
                         close()
                       }}
                     >
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Bulk Upload</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={handleExport}
-                      disabled={!exportEnabled}
-                    >
-                      <DownloadIcon size={16} strokeWidth={2} />
-                      <span>Export</span>
-                    </button>
+                      Bulk Upload
+                    </MenuItem>
+                    <ExportMenuItem onExport={handleExport} onSelected={close} disabled={!exportEnabled} />
                   </>
                 )}
               />

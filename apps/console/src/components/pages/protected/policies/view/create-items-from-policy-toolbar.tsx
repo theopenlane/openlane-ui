@@ -9,6 +9,7 @@ import { type TObjectAssociationMap } from '@/components/shared/object-associati
 import { type TAssociationItem } from '@/components/shared/object-association/association-items'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useSession } from 'next-auth/react'
+import MenuItem from '@/components/shared/menu/menu-item'
 
 type TCreateItemsFromPolityProps = {
   handleCreateNewPolicy: () => void
@@ -27,28 +28,16 @@ const CreateItemsFromPolicyToolbar: React.FC<TCreateItemsFromPolityProps> = ({ h
         content={
           <>
             {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy, session) && (
-              <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={handleCreateNewPolicy}>
-                <CirclePlus size={16} strokeWidth={2} />
-                <span>Policy</span>
-              </button>
+              <MenuItem icon={<CirclePlus size={16} strokeWidth={2} />} onSelect={handleCreateNewPolicy}>
+                Policy
+              </MenuItem>
             )}
             {hasPermission(permission?.roles, AccessEnum.CanCreateProcedure, session) && (
-              <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={handleCreateNewProcedure}>
-                <CirclePlus size={16} strokeWidth={2} />
-                <span>Procedure</span>
-              </button>
+              <MenuItem icon={<CirclePlus size={16} strokeWidth={2} />} onSelect={handleCreateNewProcedure}>
+                Procedure
+              </MenuItem>
             )}
-            <CreateTaskDialog
-              className="bg-transparent"
-              initialData={initialData}
-              trigger={
-                <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent">
-                  <CirclePlus size={16} strokeWidth={2} />
-                  <span>Task</span>
-                </button>
-              }
-              objectAssociationItems={objectAssociationItems}
-            />
+            <CreateTaskDialog initialData={initialData} trigger={<MenuItem icon={<CirclePlus size={16} strokeWidth={2} />}>Task</MenuItem>} objectAssociationItems={objectAssociationItems} />
           </>
         }
       />

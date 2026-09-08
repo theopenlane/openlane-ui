@@ -5,7 +5,7 @@ import { taskDefaultFilterValues } from '@/components/pages/protected/tasks/util
 import CreateTaskDropdown from '@/components/pages/protected/tasks/create-task/dialog/create-task-dropdown'
 import { type FilterField } from '@/types'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
+import { LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import Menu from '@/components/shared/menu/menu'
@@ -29,6 +29,8 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
+import MenuItem from '@/components/shared/menu/menu-item'
+import ExportMenuItem from '@/components/shared/export/export-menu-item'
 
 type TTaskTableToolbarProps = {
   onFilterChange: (filters: TaskWhereInput) => void
@@ -170,21 +172,16 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
                 closeOnSelect={true}
                 content={(close) => (
                   <>
-                    <button
-                      type="button"
-                      className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer"
-                      onClick={() => {
+                    <MenuItem
+                      icon={<Upload size={16} strokeWidth={2} />}
+                      onSelect={() => {
                         setIsBulkUploadOpen(true)
                         close()
                       }}
                     >
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Bulk Upload</span>
-                    </button>
-                    <button className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!props.exportEnabled ? 'opacity-50' : ''}`} onClick={props.handleExport}>
-                      <DownloadIcon size={16} strokeWidth={2} />
-                      <span>Export</span>
-                    </button>
+                      Bulk Upload
+                    </MenuItem>
+                    <ExportMenuItem onExport={props.handleExport} onSelected={close} disabled={!props.exportEnabled} />
                   </>
                 )}
               />

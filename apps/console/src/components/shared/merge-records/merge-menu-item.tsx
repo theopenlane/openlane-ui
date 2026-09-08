@@ -6,6 +6,7 @@ import { Button } from '@repo/ui/button'
 import { MergeRecordsSheet } from './merge-records-sheet'
 import type { MergeableTypeName } from '@repo/codegen/src/merge-fields.generated'
 import type { MergeConfig } from './types'
+import MenuItem from '@/components/shared/menu/menu-item'
 
 type Props<TRecord extends object, TUpdateInput, TEntity extends MergeableTypeName> = {
   primaryId: string
@@ -17,10 +18,9 @@ export const MergeMenuItem = <TRecord extends object, TUpdateInput, TEntity exte
   const [open, setOpen] = useState(false)
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer">
-        <ArrowRightLeft size={16} strokeWidth={2} />
-        <span>Merge with…</span>
-      </button>
+      <MenuItem icon={<ArrowRightLeft size={16} strokeWidth={2} />} onSelect={() => setOpen(true)}>
+        Merge with…
+      </MenuItem>
       <MergeRecordsSheet open={open} onOpenChange={setOpen} config={config} primaryId={primaryId} onMergeComplete={onMergeComplete} />
     </>
   )
