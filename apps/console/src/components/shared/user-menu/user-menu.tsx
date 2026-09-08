@@ -6,8 +6,7 @@ import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSeparator } from '@repo/ui/dropdown-menu'
 import { useTheme } from 'next-themes'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
-import { Avatar } from '../avatar/avatar'
-import { type User } from '@repo/codegen/src/schema'
+import { Avatar, type AvatarEntityLike } from '../avatar/avatar'
 import { Computer, Keyboard, LogOut, Moon, PaintbrushVertical, Sun, TextSearch, UserCog } from 'lucide-react'
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 import { useRouter } from 'next/navigation'
@@ -21,9 +20,19 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
   const { setTheme, theme } = useTheme()
   const { data: sessionData } = useSession()
   const { trigger, email } = userMenuStyles()
-  const userId = sessionData?.user.userId
+  const sessionUser = sessionData?.user
+  const userId = sessionUser?.userId
   const { data } = useGetCurrentUser(userId)
   const { suffix } = useShortcutSuffix()
+  const profile = data?.user
+
+  const displayName = (profile ? profile.displayName : sessionUser?.name) || ''
+  const emailAddress = (profile ? profile.email : sessionUser?.email) || ''
+  const avatarEntity: AvatarEntityLike = {
+    ...(profile ?? { avatarRemoteURL: sessionUser?.image }),
+    displayName: displayName || emailAddress,
+  }
+
   const themeOptions = [
     { value: 'dark', icon: <Moon size={14} />, label: 'Dark' },
     { value: 'light', icon: <Sun size={14} />, label: 'Light' },
@@ -39,16 +48,19 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
         <div className={trigger()} data-testid="user-menu-trigger">
-          <Avatar entity={data?.user as User}></Avatar>
+          <Avatar entity={avatarEntity} />
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-64 border shadow-md pb-1" align="end">
-        <div className="text-sm px-2 text-paragraph">
-          {`${data?.user.displayName}`}
-          <br />
-          <div className={email() + ' text-muted-foreground'}>{data?.user.email}</div>
-        </div>
-        <DropdownMenuSeparator spacing="md" className="border-b mt-4 mb-1" />
+        {(displayName || emailAddress) && (
+          <>
+            <div className="text-sm px-2 text-paragraph">
+              {displayName && <div>{displayName}</div>}
+              {emailAddress && <div className={email() + ' text-muted-foreground'}>{emailAddress}</div>}
+            </div>
+            <DropdownMenuSeparator spacing="md" className="border-b mt-4 mb-1" />
+          </>
+        )}
 
         <div className="flex items-center justify-between pl-2">
           <div className="flex items-center gap-2">
@@ -74,7 +86,7 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
 
         <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1" />
 
-        {!sessionData?.user?.isImpersonation && (
+        {!sessionUser?.isImpersonation && (
           <>
             <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => handleSettingsRedirect()}>
               <UserCog size={16} className="text-muted-foreground" />
