@@ -25,11 +25,6 @@ const openItemAction = async (page: Page, action: 'Edit' | 'Delete' | 'Mark Veri
   await page.getByRole('button', { name: action, exact: true }).click()
 }
 
-/**
- * Implementations render no identifying text of their own, so a test can only
- * reach one through its actions menu. Serial mode keeps exactly one on the
- * page at a time.
- */
 const createImplementation = async (page: Page) => {
   await startCreate(page)
   await expect(sheet(page).getByRole('button', { name: /^Create$/ })).toBeVisible({ timeout: 30_000 })

@@ -4,18 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 import { API_BASE, PASSWORD, RUN_ID } from './constants'
 
-/**
- * Raw HTTP helpers for talking to the backend (theopenlane/core) directly,
- * bypassing the UI. Used by global-setup to seed users, orgs, and memberships
- * fast — see AUTH_STRATEGY.md "Layer 3 — programmatic seeding".
- *
- * Auth model (discovered empirically against the dev backend):
- *   GraphQL /query requires ALL of:
- *     - Authorization: Bearer <access_token>   (from /v1/login)
- *     - Cookie: temporary-cookie=<session>      (the session string from /v1/login)
- *     - CSRF: header X-CSRF-Token + cookie ol.csrf-token, both = token from GET /csrf
- *   A bearer token alone returns 401 "invalid session provided".
- */
+/** Raw HTTP helpers for talking to the backend (theopenlane/core) directly, bypassing the UI. */
 
 const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME ?? 'temporary-cookie'
 const CSRF_COOKIE = process.env.NEXT_PUBLIC_CSRF_COOKIE_NAME ?? 'ol.csrf-token'
@@ -29,7 +18,6 @@ export interface ApiSession {
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 
-/** Log in via the backend REST endpoint and return the raw token triple. */
 export const loginViaApi = async (email: string, password: string = PASSWORD): Promise<ApiSession> => {
   const res = await fetch(`${API_BASE}/v1/login`, {
     method: 'POST',
@@ -43,10 +31,6 @@ export const loginViaApi = async (email: string, password: string = PASSWORD): P
   return { accessToken: body.access_token, refreshToken: body.refresh_token ?? '', session: body.session }
 }
 
-// The backend validates CSRF with the double-submit-cookie pattern: it only
-// checks that the X-CSRF-Token header equals the ol.csrf-token cookie — the
-// value is arbitrary. So we mint our own token instead of calling the /csrf
-// endpoint (which is stateful and intermittently returns {"csrf": null}).
 const CSRF_TOKEN = `e2e-${RUN_ID}-csrf-token`
 
 interface GqlResult<T> {
@@ -54,15 +38,7 @@ interface GqlResult<T> {
   errors?: Array<{ message: string }>
 }
 
-/**
- * Execute a GraphQL operation against /query as an authenticated user.
- * Retries on 401 to absorb the dev backend's occasional session race.
- *
- * NOTE: callers must tolerate `errors` being present even when the mutation's
- * side effect succeeded — the backend's authorization layer (OpenFGA) lags
- * behind writes, so payload/related reads can transiently 404. Verify success
- * out-of-band rather than trusting the response payload.
- */
+/** GraphQL against /query. Retries on 401 to absorb the dev backend's session race. */
 export const gql = async <T>(sess: ApiSession, query: string, variables?: Record<string, unknown>, tries = 3): Promise<GqlResult<T>> => {
   let last: Response | undefined
   for (let i = 0; i < tries; i++) {
@@ -86,7 +62,6 @@ export const gql = async <T>(sess: ApiSession, query: string, variables?: Record
   throw new Error(`gql request failed after ${tries} tries: ${last?.status}`)
 }
 
-/** Return the authenticated user's id and userSetting id. */
 export const getSelf = async (sess: ApiSession): Promise<{ id: string; settingId: string }> => {
   const res = await gql<{ self: { id: string; setting: { id: string } } }>(sess, `{ self { id setting { id } } }`)
   const id = res.data?.self?.id
@@ -95,7 +70,6 @@ export const getSelf = async (sess: ApiSession): Promise<{ id: string; settingId
   return { id, settingId }
 }
 
-/** Set the user's default organization so their next login is scoped to it. */
 export const setDefaultOrg = async (sess: ApiSession, settingId: string, organizationID: string): Promise<void> => {
   const res = await gql<{ updateUserSetting: { userSetting: { id: string } } }>(
     sess,
@@ -107,7 +81,6 @@ export const setDefaultOrg = async (sess: ApiSession, settingId: string, organiz
   }
 }
 
-/** Return the user's non-personal organizations (the shareable ones). */
 export const getSharedOrgs = async (sess: ApiSession): Promise<Array<{ id: string; name: string }>> => {
   const res = await gql<{ self: { organizations: { edges: Array<{ node: { id: string; name: string; personalOrg: boolean } }> } } }>(
     sess,
@@ -116,9 +89,6 @@ export const getSharedOrgs = async (sess: ApiSession): Promise<Array<{ id: strin
   return (res.data?.self?.organizations?.edges ?? []).map((e) => e.node).filter((o) => !o.personalOrg)
 }
 
-// Generic entity seeder: runs a create<X> mutation in the caller's active org
-// and returns the new id. Used to seed detail/list/filter specs with realistic
-// data instead of clicking through the create UI.
 type CreateResult = Record<string, Record<string, { id: string }>>
 
 export const seedEntity = async (sess: ApiSession, mutationField: string, inputType: string, payloadField: string, input: Record<string, unknown>): Promise<string> => {
@@ -128,23 +98,17 @@ export const seedEntity = async (sess: ApiSession, mutationField: string, inputT
   return id
 }
 
-/** Create a control (only `refCode` required). */
 export const createControl = (sess: ApiSession, refCode: string, extra: Record<string, unknown> = {}): Promise<string> =>
   seedEntity(sess, 'createControl', 'CreateControlInput', 'control', { refCode, ...extra })
 
-/** Create an internal policy (only `name` required). */
 export const createInternalPolicy = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createInternalPolicy', 'CreateInternalPolicyInput', 'internalPolicy', { name })
 
-/** Create a procedure (only `name` required). */
 export const createProcedure = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createProcedure', 'CreateProcedureInput', 'procedure', { name })
 
-/** Create a program (only `name` required). */
 export const createProgram = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createProgram', 'CreateProgramInput', 'program', { name })
 
-/** Create a risk (only `name` required). */
 export const createRisk = (sess: ApiSession, name: string, extra: Record<string, unknown> = {}): Promise<string> => seedEntity(sess, 'createRisk', 'CreateRiskInput', 'risk', { name, ...extra })
 
-/** Create an exposure finding (identified by displayName; externalID is the API key). */
 export const createFinding = (sess: ApiSession, displayName: string, extra: Record<string, unknown> = {}): Promise<string> =>
   seedEntity(sess, 'createFinding', 'CreateFindingInput', 'finding', { displayName, ...extra })
 
@@ -152,14 +116,12 @@ export const deleteFinding = async (sess: ApiSession, id: string): Promise<void>
   await gql(sess, `mutation($id: ID!){ deleteFinding(id: $id){ deletedID } }`, { id })
 }
 
-/** Create an exposure scan (only `target` required). */
 export const createScan = (sess: ApiSession, target: string, extra: Record<string, unknown> = {}): Promise<string> => seedEntity(sess, 'createScan', 'CreateScanInput', 'scan', { target, ...extra })
 
 export const deleteScan = async (sess: ApiSession, id: string): Promise<void> => {
   await gql(sess, `mutation($id: ID!){ deleteScan(id: $id){ deletedID } }`, { id })
 }
 
-/** Create a remediation (identified by `title`). */
 export const createRemediation = (sess: ApiSession, title: string, extra: Record<string, unknown> = {}): Promise<string> =>
   seedEntity(sess, 'createRemediation', 'CreateRemediationInput', 'remediation', { title, ...extra })
 
@@ -167,7 +129,6 @@ export const deleteRemediation = async (sess: ApiSession, id: string): Promise<v
   await gql(sess, `mutation($id: ID!){ deleteRemediation(id: $id){ deletedID } }`, { id })
 }
 
-/** Create a vulnerability (only `externalID` required). */
 export const createVulnerability = (sess: ApiSession, displayName: string, externalID: string, extra: Record<string, unknown> = {}): Promise<string> =>
   seedEntity(sess, 'createVulnerability', 'CreateVulnerabilityInput', 'vulnerability', { displayName, externalID, ...extra })
 
@@ -175,7 +136,6 @@ export const deleteVulnerability = async (sess: ApiSession, id: string): Promise
   await gql(sess, `mutation($id: ID!){ deleteVulnerability(id: $id){ deletedID } }`, { id })
 }
 
-/** Create an action plan (`name` and `title` both required). */
 export const createActionPlan = (sess: ApiSession, name: string, extra: Record<string, unknown> = {}): Promise<string> =>
   seedEntity(sess, 'createActionPlan', 'CreateActionPlanInput', 'actionPlan', { name, title: name, ...extra })
 
@@ -183,26 +143,18 @@ export const deleteActionPlan = async (sess: ApiSession, id: string): Promise<vo
   await gql(sess, `mutation($id: ID!){ deleteActionPlan(id: $id){ deletedID } }`, { id })
 }
 
-/** Create a task (only `title` required). */
 export const createTask = (sess: ApiSession, title: string): Promise<string> => seedEntity(sess, 'createTask', 'CreateTaskInput', 'task', { title })
 
-/** Create a group (only `name` required). */
 export const createGroup = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createGroup', 'CreateGroupInput', 'group', { name })
 
-/** Create an evidence record (only `name` required). */
 export const createEvidence = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createEvidence', 'CreateEvidenceInput', 'evidence', { name })
 
-/** Create a registry asset (only `name` required). */
 export const createAsset = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createAsset', 'CreateAssetInput', 'asset', { name })
 
-/** Create a registry contact (identified by `fullName`). */
 export const createContact = (sess: ApiSession, fullName: string): Promise<string> => seedEntity(sess, 'createContact', 'CreateContactInput', 'contact', { fullName })
 
-/** Create a campaign (only `name` required). Unblocks campaign detail/bulk specs. */
 export const createCampaign = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createCampaign', 'CreateCampaignInput', 'campaign', { name })
 
-/** Create a registry platform (only `name` required). */
-/** Create a system detail (only `systemName` required). */
 export const createSystemDetail = (sess: ApiSession, systemName: string, extra: Record<string, unknown> = {}): Promise<string> =>
   seedEntity(sess, 'createSystemDetail', 'CreateSystemDetailInput', 'systemDetail', { systemName, ...extra })
 
@@ -273,26 +225,17 @@ export const deleteSubscriber = async (sess: ApiSession, email: string): Promise
   await gql(sess, `mutation($email: String!){ deleteSubscriber(email: $email){ email } }`, { email })
 }
 
-/** Minimal SurveyJS definition for a seeded questionnaire template. */
 const MINIMAL_SURVEY = { pages: [{ name: 'page1', elements: [{ type: 'text', name: 'q1', title: 'Question 1' }] }] }
 
-/** Create a questionnaire template (name + jsonconfig). Returns the template id. */
 export const createTemplate = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createTemplate', 'CreateTemplateInput', 'template', { name, jsonconfig: MINIMAL_SURVEY })
 
-/**
- * Create a questionnaire (Assessment) from a fresh template and return its id.
- * Unblocks the questionnaire list/send/row-action specs.
- */
+/** Create a questionnaire (Assessment) from a fresh template and return its id. */
 export const createQuestionnaire = async (sess: ApiSession, name: string): Promise<string> => {
   const templateId = await createTemplate(sess, `${name} (template)`)
   return seedEntity(sess, 'createAssessment', 'CreateAssessmentInput', 'assessment', { name, templateID: templateId })
 }
 
-/**
- * Create a vendor — an Entity created with `entityTypeName: "vendor"` (matches
- * the console's vendor create flow). Uses the extra entityTypeName arg, so it
- * can't go through the generic seedEntity helper.
- */
+/** Create a vendor — an Entity created with `entityTypeName: "vendor"` (matches the console's vendor create flow). */
 export const createVendor = async (sess: ApiSession, name: string, displayName?: string): Promise<string> => {
   const res = await gql<{ createEntity: { entity: { id: string } } }>(
     sess,
@@ -304,7 +247,6 @@ export const createVendor = async (sess: ApiSession, name: string, displayName?:
   return id
 }
 
-// Associate objects with a control via updateControl's add*IDs fields.
 const updateControlAssoc = async (sess: ApiSession, controlId: string, input: Record<string, unknown>): Promise<void> => {
   const res = await gql<{ updateControl: { control: { id: string } } }>(sess, `mutation($id: ID!, $input: UpdateControlInput!){ updateControl(id: $id, input: $input){ control { id } } }`, {
     id: controlId,
@@ -313,16 +255,12 @@ const updateControlAssoc = async (sess: ApiSession, controlId: string, input: Re
   if (!res.data?.updateControl?.control?.id) throw new Error(`updateControlAssoc failed: ${JSON.stringify(res.errors)}`)
 }
 
-/** Link an internal policy to a control (control side: addInternalPolicyIDs). */
 export const linkControlPolicy = (sess: ApiSession, controlId: string, policyId: string): Promise<void> => updateControlAssoc(sess, controlId, { addInternalPolicyIDs: [policyId] })
 
-/** Link a procedure to a control (control side: addProcedureIDs). */
 export const linkControlProcedure = (sess: ApiSession, controlId: string, procedureId: string): Promise<void> => updateControlAssoc(sess, controlId, { addProcedureIDs: [procedureId] })
 
-/** Link an evidence record to a control (control side: addEvidenceIDs). */
 export const linkControlEvidence = (sess: ApiSession, controlId: string, evidenceId: string): Promise<void> => updateControlAssoc(sess, controlId, { addEvidenceIDs: [evidenceId] })
 
-/** Link a control to a procedure (procedure side: addControlIDs). */
 export const linkProcedureControl = async (sess: ApiSession, procedureId: string, controlId: string): Promise<void> => {
   const res = await gql<{ updateProcedure: { procedure: { id: string } } }>(sess, `mutation($id: ID!, $input: UpdateProcedureInput!){ updateProcedure(id: $id, input: $input){ procedure { id } } }`, {
     id: procedureId,
@@ -331,15 +269,7 @@ export const linkProcedureControl = async (sess: ApiSession, procedureId: string
   if (!res.data?.updateProcedure?.procedure?.id) throw new Error(`linkProcedureControl failed: ${JSON.stringify(res.errors)}`)
 }
 
-/**
- * The shared Owner's API session, logged in once per worker process.
- *
- * Every CRUD spec opens a `test.beforeAll` to get this session, but under
- * `fullyParallel` a beforeAll runs once per worker GROUP, not once per file —
- * so a full run was re-issuing the same login dozens of times for a token that
- * never differs. Memoising on the module (one instance per worker process)
- * collapses that to one login per worker.
- */
+/** The shared Owner's API session, logged in once per worker process. */
 let ownerApiPromise: Promise<ApiSession> | null = null
 
 export const getOwnerApi = (): Promise<ApiSession> => {
@@ -363,7 +293,6 @@ export const getDemoApi = (): Promise<ApiSession> => {
   return demoApiPromise
 }
 
-/** Create a fresh non-personal organization owned by the caller. */
 export const createSharedOrg = async (sess: ApiSession, name: string): Promise<string> => {
   const res = await gql<{ createOrganization: { organization: { id: string } } }>(sess, `mutation($input: CreateOrganizationInput!){ createOrganization(input: $input){ organization { id } } }`, {
     input: { name },
@@ -373,21 +302,11 @@ export const createSharedOrg = async (sess: ApiSession, name: string): Promise<s
   return id
 }
 
-/**
- * Mark every onboarding suggested-task in the caller's org COMPLETED.
- *
- * dashboard-page.tsx swaps the setup checklist for the compliance overview only
- * when useSetupChecklist reports isComplete (`completedCount === totalCount`).
- * The shared org is created by walking the real onboarding wizard, which seeds
- * five suggested tasks, so it always renders the checklist — leaving every
- * compliance-overview spec to skip itself. Completing them once in global-setup
- * makes that branch deterministic instead.
- */
+/** Mark every onboarding suggested-task in the caller's org COMPLETED. */
 export const completeOnboardingTasks = async (sess: ApiSession): Promise<number> => {
   const res = await gql<{ tasks: { edges: Array<{ node: { id: string; status: string } }> } }>(
     sess,
     `query($where: TaskWhereInput){ tasks(where: $where, first: 100){ edges { node { id status } } } }`,
-    // SuggestedTaskSource.ONBOARDING — the wire value, not the TS key.
     { where: { isSuggested: true, source: 'openlane_onboarding' } },
   )
   const pending = (res.data?.tasks?.edges ?? []).map((e) => e.node).filter((t) => t.status !== 'COMPLETED')
@@ -405,11 +324,7 @@ interface MemberEdge {
   userID: string
 }
 
-/**
- * Find a user's orgMembership id (and current role) in an org. Reads the
- * `userID` scalar — NOT the `user{}` edge, which throws "user not found" under
- * FGA lag. Retries until the membership row appears.
- */
+/** Find a user's orgMembership. Reads the `userID` scalar, not the `user{}` edge, which throws under FGA. */
 const findMembership = async (owner: ApiSession, organizationID: string, userID: string, tries = 12, delayMs = 500): Promise<MemberEdge> => {
   for (let i = 0; i < tries; i++) {
     const res = await gql<{ organization: { members: { edges: Array<{ node: MemberEdge }> } } }>(
@@ -424,18 +339,7 @@ const findMembership = async (owner: ApiSession, organizationID: string, userID:
   throw new Error(`findMembership: no membership for user ${userID} in org ${organizationID}`)
 }
 
-/**
- * Add an existing user to an org with a role.
- *
- * createOrgMembership always lands the user as MEMBER (it ignores the role
- * argument), so non-MEMBER roles are elevated with a follow-up
- * updateOrgMembership. That update only authorizes when the OWNER's token is
- * scoped to this org — callers must pass an owner session whose active org is
- * `organizationID` (see global-setup, which sets the owner's defaultOrg first).
- *
- * Neither mutation's payload is trusted (FGA lag 404s the response even on
- * success); success is confirmed by re-reading the membership role.
- */
+/** Add a user to an org. createOrgMembership ignores the role argument and always lands them as MEMBER, so the role is patched after. */
 export const addOrgMember = async (owner: ApiSession, organizationID: string, userID: string, role: SeedRole): Promise<void> => {
   await gql(owner, `mutation($input: CreateOrgMembershipInput!){ createOrgMembership(input: $input){ orgMembership { id } } }`, { input: { organizationID, userID, role } })
   if (role === 'MEMBER') return
@@ -450,18 +354,13 @@ export const addOrgMember = async (owner: ApiSession, organizationID: string, us
     if (updated.data?.updateOrgMembership?.orgMembership?.role === role) return
     await sleep(1500)
   }
-  // Confirm via a fresh read in case the payload lagged but the write landed.
   const after = await findMembership(owner, organizationID, userID)
   if (after.role !== role) {
     throw new Error(`addOrgMember: could not elevate user ${userID} to ${role} (still ${after.role})`)
   }
 }
 
-/**
- * Poll until the user's own session reports membership in `organizationID`.
- * This is the authoritative success check for addOrgMember — it waits out the
- * authorization-propagation lag instead of trusting the mutation payload.
- */
+/** Poll until the user's own session reports membership in `organizationID`. */
 export const memberSeesOrg = async (member: ApiSession, organizationID: string, tries = 10, delayMs = 500): Promise<boolean> => {
   for (let i = 0; i < tries; i++) {
     const orgs = await getSharedOrgs(member)

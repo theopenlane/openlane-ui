@@ -5,7 +5,6 @@
     "TZ",
     "CI",
 
-    // Playwright E2E
     "E2E_API_BASE",
     "E2E_BASE_URL",
     "E2E_PORT",

@@ -14,15 +14,7 @@ interface RegisterResponse {
   token?: string
 }
 
-/**
- * Register a new user and complete email verification.
- *
- * Relies on the backend's dev-mode behavior (`server.dev: true`) which
- * returns the verification token in the /v1/register response body —
- * see core/internal/httpserve/handlers/register.go:137-140. Without dev
- * mode, the token would only be deliverable by email and this helper
- * would fail.
- */
+/** Register a new user and complete email verification. */
 export const registerAndVerify = async (input: RegisterUserInput): Promise<{ email: string; password: string }> => {
   const password = input.password ?? PASSWORD
   const firstName = input.firstName ?? 'E2E'

@@ -6,16 +6,8 @@ import { createAsset, createContact, createVendor, createSystemDetail, gql, type
 import { uniqueName } from '../utils/unique'
 import { expectMutationOk } from '../utils/mutations'
 
-/**
- * Deep registry flows beyond registry.spec.ts (list render + vendor create on
- * fresh users): server-side search for assets and contacts. Runs as the
- * storage-state Owner; entities seeded via the Owner API with run-unique names.
- */
-
 let ownerApi: ApiSession
 
-// createAsset (utils/api.ts) only sets `name`; the Asset Type filter needs a
-// typed row, so seed one inline through the same /query client with assetType.
 const createAssetTyped = async (sess: ApiSession, name: string, assetType: string): Promise<string> => {
   const res = await gql<{ createAsset: { asset: { id: string } } }>(sess, `mutation($input: CreateAssetInput!){ createAsset(input: $input){ asset { id } } }`, { input: { name, assetType } })
   const id = res.data?.createAsset?.asset?.id
@@ -55,8 +47,6 @@ test.describe('registry — assets', () => {
   test('opening an asset via ?id= shows the detail sheet with edit + copy-link', async ({ page }) => {
     const id = await createAsset(ownerApi, uniqueName('E2E Asset'))
 
-    // assets/table/table.tsx onRowClick → replace({ id }), so the GenericDetailsSheet
-    // opens directly from the query param. Header exposes Copy link + Edit (owner).
     await page.goto(`/registry/assets?id=${id}`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('button', { name: /^Copy link$/ })).toBeVisible({ timeout: 20_000 })
     await expect(page.getByRole('button', { name: /^Edit$/ }).first()).toBeVisible({ timeout: 15_000 })
@@ -89,7 +79,6 @@ test.describe('registry — contacts', () => {
   test('opening a contact via ?id= shows the detail sheet with edit + copy-link', async ({ page }) => {
     const id = await createContact(ownerApi, uniqueName('E2E Contact'))
 
-    // contacts/table/table.tsx onRowClick → replace({ id }) (same crud-base sheet).
     await page.goto(`/registry/contacts?id=${id}`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('button', { name: /^Copy link$/ })).toBeVisible({ timeout: 20_000 })
     await expect(page.getByRole('button', { name: /^Edit$/ }).first()).toBeVisible({ timeout: 15_000 })
@@ -109,8 +98,6 @@ test.describe('registry — vendor detail (seeded)', () => {
     test.slow()
     const id = await createVendor(ownerApi, uniqueName('E2E Vendor'))
 
-    // vendor-detail-tabs.tsx renders URL-controlled Radix tabs; Overview/
-    // Documents/Contacts are always present (Directory is conditional).
     await page.goto(`/registry/vendors/${id}`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('tab', { name: 'Overview' })).toBeVisible({ timeout: 30_000 })
     await expect(page.getByRole('tab', { name: 'Documents' })).toBeVisible()
@@ -126,8 +113,6 @@ test.describe('registry — vendor detail (seeded)', () => {
     const contacts = page.getByRole('tab', { name: 'Contacts' })
     await expect(documents).toBeVisible({ timeout: 30_000 })
 
-    // vendor-detail-tabs.tsx is URL-controlled (router.replace ?tab=…); wait for
-    // the commit before asserting the controlled aria-selected flips.
     await documents.click()
     await page.waitForURL(/[?&]tab=documents/, { timeout: 15_000 })
     await expect(documents).toHaveAttribute('aria-selected', 'true', { timeout: 15_000 })
@@ -145,7 +130,6 @@ test.describe('registry — vendor detail (seeded)', () => {
     await page.goto(`/registry/vendors/${id}?tab=contacts`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('tab', { name: 'Contacts' })).toHaveAttribute('aria-selected', 'true', { timeout: 30_000 })
 
-    // contacts-tab.tsx "Add Contact" button → add-contact-dialog.tsx (DialogTitle).
     await page.getByRole('button', { name: /^Add Contact$/ }).click()
     await expect(page.getByRole('dialog').getByText('Add Contact')).toBeVisible({ timeout: 10_000 })
   })
@@ -157,7 +141,6 @@ test.describe('registry — vendor detail (seeded)', () => {
     await page.goto(`/registry/vendors/${id}?tab=documents`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('tab', { name: 'Documents' })).toHaveAttribute('aria-selected', 'true', { timeout: 30_000 })
 
-    // documents-tab.tsx "Upload" → documents-upload-dialog.tsx with title="Upload Documents".
     await page
       .getByRole('button', { name: /^Upload$/ })
       .first()
@@ -166,12 +149,6 @@ test.describe('registry — vendor detail (seeded)', () => {
   })
 })
 
-// NOTE: registry platforms — the `createPlatform` seeder works, but the
-// platforms dashboard doesn't surface a freshly-seeded platform reliably
-// (pagination/sort) and the heavy /registry/platforms/[id] detail route didn't
-// render a bare-seeded platform within budget. Seeder kept as infra. ⏳
-
-// Filter panels on the user-managed registry sub-pages (shared TableFilter).
 const REGISTRY_FILTER_PAGES = [
   { path: '/registry/personnel', heading: /^Personnel$/, field: 'Status' },
   { path: '/registry/system-details', heading: /^System Details$/, field: 'Sensitivity Level' },
@@ -281,9 +258,6 @@ test.describe('registry — entity CRUD', () => {
     await sheet.getByRole('textbox', { name: 'Email', exact: true }).fill(`e2e-person-${Date.now().toString(36)}@example.com`)
     await sheet.getByRole('button', { name: /^Create$/ }).click()
 
-    // The slideout closes on a successful create (the success toast title is
-    // derived from the objectType — "Identityholder Created" — so assert the
-    // close rather than entity-specific copy).
     await expect(sheet).toBeHidden({ timeout: 15_000 })
   })
 
@@ -306,8 +280,6 @@ test.describe('registry — entity CRUD', () => {
     await sheet.getByRole('textbox').first().fill(uniqueName('E2E System'))
     await sheet.getByRole('button', { name: /^Create$/ }).click()
 
-    // The slideout closes on a successful create (toast title is "Systemdetail
-    // Created", derived from objectType — assert the close, not the copy).
     await expect(sheet).toBeHidden({ timeout: 15_000 })
   })
 
@@ -358,14 +330,6 @@ test.describe('registry — entity CRUD', () => {
 })
 
 test.describe('registry — personnel + system-detail edit/delete', () => {
-  // No API seeder exists for personnel/system-details, so each test first
-  // creates the record through the UI slideout, then drives edit/delete.
-
-  // Personnel detail is a FULL PAGE (/registry/personnel/[id]); the edit toast
-  // is hardcoded "Personnel updated" in personnel-detail-page.tsx. System-detail
-  // detail is the crud-base GenericDetailsSheet (?id=), whose update toast is
-  // derived from objectType "SystemDetail" → "Systemdetail Updated".
-
   const createPersonnelViaUI = async (page: Page, name: string) => {
     await page.goto('/registry/personnel', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await expect(page.getByRole('heading', { level: 2, name: /^Personnel$/ })).toBeVisible({ timeout: 20_000 })
@@ -392,7 +356,6 @@ test.describe('registry — personnel + system-detail edit/delete', () => {
     const name = uniqueName('E2E Person')
     await createPersonnelViaUI(page, name)
 
-    // personnel/table/table.tsx onRowClick → push(/registry/personnel/[id]).
     await page.getByPlaceholder(/^Search$/).fill(name)
     const row = page.getByRole('row').filter({ hasText: name }).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
@@ -400,14 +363,11 @@ test.describe('registry — personnel + system-detail edit/delete', () => {
 
     await page.waitForURL(/\/registry\/personnel\/[^/]+$/, { timeout: 30_000 })
 
-    // personnel-detail-header.tsx: the page-level Edit button carries
-    // aria-label="Edit personnel" and toggles isEditing → renders SaveButton.
     await page.getByRole('button', { name: 'Edit personnel' }).click()
 
     const save = page.getByRole('button', { name: /^Save Changes$/ })
     await expect(save).toBeVisible({ timeout: 15_000 })
 
-    // In edit mode the registered "fullName" <Input> is the first textbox.
     const fullName = page.getByRole('textbox').first()
     await fullName.fill(uniqueName('E2E Person Edited'))
     await save.click()
@@ -420,8 +380,6 @@ test.describe('registry — personnel + system-detail edit/delete', () => {
     const name = uniqueName('E2E System')
     await createSystemDetailViaUI(page, name)
 
-    // system-details/table/table.tsx onRowClick → replace({ id }); the detail
-    // GenericDetailsSheet opens from ?id=.
     await page.getByPlaceholder(/^Search$/).fill(name)
     const row = page.getByRole('row').filter({ hasText: name }).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
@@ -448,8 +406,7 @@ test.describe('registry — personnel + system-detail edit/delete', () => {
     const row = page.getByRole('row').filter({ hasText: name }).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
 
-    // Per-row select checkbox (header select-all is disabled); selecting reveals
-    // the toolbar "Bulk Delete" button (table-toolbar.tsx).
+    // Per-row select checkbox (header select-all is disabled)
     await row.getByRole('checkbox').click()
     await page.getByRole('button', { name: /^Bulk Delete/ }).click()
 
@@ -462,10 +419,6 @@ test.describe('registry — personnel + system-detail edit/delete', () => {
 })
 
 test.describe('registry — server-side search', () => {
-  // Each list page wires server-side search via searchFields →
-  // *ContainsFold OR clauses (crud-base/page.tsx). Seed two run-unique rows
-  // and assert search narrows to the matching one.
-
   test('vendors search narrows to the matching seeded vendor (displayNameContainsFold)', async ({ page }) => {
     test.slow()
     const a = uniqueName('E2E Vendor')
@@ -486,7 +439,6 @@ test.describe('registry — server-side search', () => {
     const a = uniqueName('E2E System')
     const b = uniqueName('E2E System')
 
-    // No API seeder for system-details → create both via the slideout.
     await page.goto('/registry/system-details', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await expect(page.getByRole('heading', { level: 2, name: /^System Details$/ })).toBeVisible({ timeout: 20_000 })
     for (const name of [a, b]) {
@@ -523,10 +475,6 @@ test.describe('registry — server-side search', () => {
 })
 
 test.describe('registry — assets filter by type', () => {
-  // assets/table/table-config.tsx exposes an "Asset Type" multiselect filter
-  // backed by the static AssetAssetType enum (DEVICE/DOMAIN/REPOSITORY/…).
-  // Seed a DEVICE-typed asset, then apply the DEVICE filter and assert it
-  // survives while a default (untyped) asset drops out.
   test('applying the Asset Type=Device filter keeps the device asset and drops the untyped one', async ({ page }) => {
     test.slow()
     const deviceName = uniqueName('E2E Device Asset')
@@ -537,14 +485,9 @@ test.describe('registry — assets filter by type', () => {
     await page.goto('/registry/assets', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await expect(page.getByRole('heading', { level: 2, name: /^Assets$/ })).toBeVisible({ timeout: 20_000 })
 
-    // Confirm both are present before filtering (search-free; small org).
     await page.getByPlaceholder(/^Search$/).fill('E2E')
 
     await page.getByRole('button', { name: /^Filter( \d+)?$/ }).click()
-    // table-filter.tsx: open the "Asset Type" accordion, then click the
-    // "Device" option (a <li> with onClick in the multiselect list), then
-    // "View Results". Click the listitem (which carries the handler) and
-    // scope to the open filter dropdown to avoid the closed-accordion copies.
     const panel = page.getByRole('menu').last()
     await panel.getByText('Asset Type', { exact: true }).click()
     const deviceOption = panel
@@ -573,8 +516,7 @@ test.describe('registry — vendor bulk delete', () => {
     const row = page.getByRole('row').filter({ hasText: name }).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
 
-    // Header select-all is disabled → use the per-row checkbox; selecting
-    // reveals the "Bulk Delete (n)" toolbar button (table-toolbar.tsx).
+    // Header select-all is disabled → use the per-row checkbox
     await row.getByRole('checkbox').click()
     await page.getByRole('button', { name: /^Bulk Delete/ }).click()
 
@@ -602,8 +544,6 @@ test.describe('registry — system-detail view + delete', () => {
     const name = uniqueName('E2E System')
     await createSystemDetailViaUI(page, name)
 
-    // system-details/table/table.tsx onRowClick → replace({ id }); the
-    // GenericDetailsSheet opens from the resulting ?id= param.
     await page.getByPlaceholder(/^Search$/).fill(name)
     const row = page.getByRole('row').filter({ hasText: name }).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
@@ -629,9 +569,6 @@ test.describe('registry — system-detail view + delete', () => {
       .first()
       .click()
 
-    // delete-dialog.tsx: entityType "SystemDetail" → toHumanLabel → "System
-    // Detail"; dialog title "Delete System Detail", toast "System Detail
-    // deleted successfully.".
     const confirm = page.getByRole('alertdialog')
     await expect(confirm.getByText('Delete System Detail')).toBeVisible({ timeout: 10_000 })
     await confirm.getByRole('button', { name: /^Delete$/ }).click()
@@ -657,14 +594,12 @@ test.describe('registry — personnel view + delete + bulk', () => {
     const name = uniqueName('E2E Person')
     await createPersonnelViaUI(page, name)
 
-    // personnel/table/table.tsx onRowClick → push(/registry/personnel/[id]).
     await page.getByPlaceholder(/^Search$/).fill(name)
     const row = page.getByRole('row').filter({ hasText: name }).first()
     await expect(row).toBeVisible({ timeout: 15_000 })
     await row.click()
 
     await page.waitForURL(/\/registry\/personnel\/[^/]+$/, { timeout: 30_000 })
-    // personnel-detail-header.tsx renders the page-level "Edit personnel" button.
     await expect(page.getByRole('button', { name: 'Edit personnel' })).toBeVisible({ timeout: 20_000 })
     await expect(page.getByText(name).first()).toBeVisible({ timeout: 15_000 })
   })
@@ -680,8 +615,6 @@ test.describe('registry — personnel view + delete + bulk', () => {
     await row.click()
     await page.waitForURL(/\/registry\/personnel\/[^/]+$/, { timeout: 30_000 })
 
-    // personnel-detail-header.tsx: the "..." (MoreHorizontal) menu holds the
-    // destructive "Delete" item → ConfirmationDialog "Delete Personnel".
     await expect(page.getByRole('button', { name: 'Edit personnel' })).toBeVisible({ timeout: 20_000 })
     await page.locator('button:has(svg.lucide-ellipsis), button:has(svg.lucide-more-horizontal)').last().click()
     await page.getByRole('button', { name: /^Delete$/ }).click()
@@ -713,18 +646,6 @@ test.describe('registry — personnel view + delete + bulk', () => {
   })
 })
 
-/**
- * ISS-2459 — contacts can now be linked to vendors from both sides:
- *
- *  - the contact detail sheet gains a "Linked Vendors" card (linked-vendors.tsx)
- *    with a vendor search popover; it renders only outside create mode
- *  - the contact CREATE form instead shows VendorSuggestion, which proposes
- *    vendors matching the contact email's domain (getEmailDomain, unit-tested in
- *    utils/strings.test.ts)
- *  - the vendor detail Contacts tab gains suggested contacts by the same rule
- *
- * Read-only: the popover is opened but no link is committed.
- */
 test.describe('registry — contact linked vendors (ISS-2459)', () => {
   test('the contact detail sheet shows the Linked Vendors card', async ({ page }) => {
     test.slow()
@@ -737,7 +658,6 @@ test.describe('registry — contact linked vendors (ISS-2459)', () => {
     await expect(sheet).toBeVisible({ timeout: 30_000 })
     await expect(sheet.getByText('Linked Vendors', { exact: true })).toBeVisible({ timeout: 20_000 })
 
-    // A freshly seeded contact has none.
     await expect(sheet.getByText('No vendors linked', { exact: true })).toBeVisible({ timeout: 15_000 })
   })
 
@@ -751,20 +671,12 @@ test.describe('registry — contact linked vendors (ISS-2459)', () => {
     const sheet = page.getByRole('dialog')
     await expect(sheet.getByText('Linked Vendors', { exact: true })).toBeVisible({ timeout: 30_000 })
 
-    // The card's "Link Vendor" trigger opens a Command popover. Nothing is
-    // selected, so no link is created.
     await sheet.getByRole('button', { name: /^Link Vendor$/ }).click()
 
     await expect(page.getByPlaceholder('Search vendors...')).toBeVisible({ timeout: 15_000 })
   })
 })
 
-/**
- * #2014 — system details gained many-to-many edges to platforms and programs.
- * The list picked up chip columns for both and matching multiselect filters
- * (the edge→chip flattening helpers are unit-tested in
- * object-association/__tests__).
- */
 test.describe('registry — system detail platform/program edges (#2014)', () => {
   test('the system details filter menu exposes Platforms and Programs', async ({ page }) => {
     test.slow()
@@ -787,13 +699,6 @@ test.describe('registry — system detail platform/program edges (#2014)', () =>
   })
 })
 
-/**
- * ISS-2528 — system details bulk edit gained Platforms/Programs association
- * fields (splitting the schema into a value part and an association part, and
- * switching the option sources to the *IDs variants), plus date-field sizing.
- *
- * Dialog-OPEN only: rows are selected to surface Bulk Edit but nothing is saved.
- */
 test.describe('registry — system details bulk edit associations (ISS-2528)', () => {
   let seededSystemDetailName: string
 
@@ -807,8 +712,6 @@ test.describe('registry — system details bulk edit associations (ISS-2528)', (
     await page.goto('/registry/system-details', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 2, name: /^System Details$/ })).toBeVisible({ timeout: 30_000 })
 
-    // Seed the row this test operates on rather than skipping when the shared
-    // org happens to have none, then search for it so pagination can't bury it.
     await page.getByPlaceholder(/^Search$/).fill(seededSystemDetailName)
     const row = page.getByRole('row').filter({ hasText: seededSystemDetailName })
     await expect(row).toBeVisible({ timeout: 20_000 })
@@ -819,9 +722,6 @@ test.describe('registry — system details bulk edit associations (ISS-2528)', (
     const dialog = page.getByRole('dialog')
     await expect(dialog).toBeVisible({ timeout: 15_000 })
 
-    // GenericBulkEditDialog does not list the editable fields in the dialog
-    // body — it renders a "Select field..." picker whose SelectContent holds
-    // them, so the association fields only exist once that select is opened.
     await dialog.getByRole('combobox').first().click()
 
     const options = page.getByRole('option')
@@ -830,17 +730,6 @@ test.describe('registry — system details bulk edit associations (ISS-2528)', (
   })
 })
 
-/**
- * ISS-2573 — the vendor Risk Review tab warns when a HIGH-risk vendor has no
- * recent review. "Recent" is derived from the vendor's review frequency
- * (useHasRecentReview maps MONTHLY→1 … TRIENNIALLY→36 months, defaulting to
- * YEARLY, with NONE meaning no cutoff at all), checking both the vendor's own
- * lastReviewedAt and any review record inside that window.
- *
- * A seeded vendor carries no risk rating, so the warning branch is unreachable;
- * this pins the negative — the banner must not appear by default — which is what
- * an inverted isHighRisk or a broken recency check would break.
- */
 test.describe('registry — vendor high-risk review warning (ISS-2573)', () => {
   test('a plain seeded vendor shows the Risk summary without the high-risk banner', async ({ page }) => {
     test.slow()

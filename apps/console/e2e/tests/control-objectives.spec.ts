@@ -41,12 +41,6 @@ const openCreateSheet = async (page: Page): Promise<Locator> => {
   return sheet
 }
 
-/**
- * The objective list never renders the objective's own name — the card shows
- * status, source, revision, type and category only. Cards are therefore
- * indistinguishable, so a test can only reach one through its actions menu.
- * This describe runs serially so exactly one objective exists at a time.
- */
 const createObjective = async (page: Page, name: string) => {
   const sheet = await openCreateSheet(page)
   await sheet.getByRole('textbox').first().fill(name)

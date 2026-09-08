@@ -30,7 +30,6 @@ test.describe('procedures — list + create', () => {
   test('/procedures renders the Procedures heading for an owner', async ({ page }) => {
     await page.goto('/procedures')
 
-    // PageHeading from @repo/ui renders the heading as an <h2>.
     await expect(page.getByRole('heading', { level: 2, name: /^Procedures$/ })).toBeVisible()
   })
 
@@ -60,8 +59,6 @@ test.describe('procedures — list + create', () => {
     const name = procedureName('create')
     await page.getByLabel(/^Title$/).fill(name)
 
-    // Procedures use the SaveButton with a custom title "Save Procedure"
-    // (vs policies' default "Save Changes").
     await page.getByRole('button', { name: /^save procedure$/i }).click({ timeout: 30_000 })
 
     await page.waitForURL(/\/procedures\/[^/]+\/view/, { timeout: 30_000 })
@@ -201,8 +198,6 @@ const createProcedureViaUi = async (page: Page, name: string): Promise<string> =
   return id
 }
 
-// The edit form's StatusCard renders the Status select inside a grid row labelled
-// by a <span>; scope to that row so we never grab another card's combobox.
 const statusCardSelect = (page: Page, label: string) =>
   page
     .locator('div.grid')
@@ -217,8 +212,6 @@ test.describe('procedures — edit form (/procedures/[id]/edit)', () => {
 
     await page.goto(`/procedures/${id}/edit`, { waitUntil: 'domcontentloaded' })
 
-    // The route renders <PageHeading heading="Edit procedure" /> (an h2) once the
-    // owner clears canEdit, then mounts the form with the Title input populated.
     await expect(page.getByRole('heading', { name: /^Edit procedure$/ })).toBeVisible({ timeout: 20_000 })
     await expect(page.getByLabel(/^Title$/)).toHaveValue(name, { timeout: 15_000 })
   })
@@ -235,8 +228,6 @@ test.describe('procedures — edit form (/procedures/[id]/edit)', () => {
     const updated = procedureName('edit-title-new')
     await titleInput.fill(updated)
 
-    // Edit mode's SaveButton carries the title "Save" (vs "Save Procedure" on
-    // create); saving pushes back to /procedures.
     await page.getByRole('button', { name: /^Save$/ }).click()
     await page.waitForURL(/\/procedures(\?|$)/, { timeout: 30_000 })
 
@@ -270,7 +261,6 @@ test.describe('procedures — edit form (/procedures/[id]/edit)', () => {
     const editor = page.locator('[contenteditable="true"]').first()
     await expect(editor).toBeVisible({ timeout: 20_000 })
     await editor.click()
-    // Append to the procedure body, then assert the editor holds the typed text.
     await page.keyboard.type(marker)
     await expect(editor).toContainText(marker, { timeout: 10_000 })
 

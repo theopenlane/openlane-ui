@@ -5,29 +5,7 @@ import { loginViaForm } from '../utils/login'
 import { backButton, companyNameInput, completeOnboarding, ensureOnboardingRoute, nextButton } from '../utils/onboarding'
 import { registerAndVerify } from '../utils/registerUser'
 
-/**
- * The wizard is now backend-driven: /api/onboarding/questions returns the steps
- * and questions (core's internal/onboarding/onboarding.yaml), and
- * dynamic-step.tsx / dynamic-field.tsx render them. Consequences for this suite:
- *
- *  - Field ids are question KEYS (`company_name`, `company_domains`,
- *    `company_sector`, `user_role`, …), not the old camelCase ids.
- *  - Step headings are the backend step titles: Company Info → User Info →
- *    Compliance Setup → Starting Point → Support Preferences → the trial card.
- *  - The footer's forward button is labelled with the NEXT step's title, so the
- *    helpers target it by its ArrowRight icon instead.
- *  - `company_name` is the only required question, and onboarding-page.tsx
- *    pre-fills it from the user's email domain. Advance is blocked by DISABLING
- *    the forward button (isNextDisabled), not by letting a click through to an
- *    error.
- */
-
-// Onboarding is one-shot per account, so every test that completes the
-// wizard needs a fresh user. We *also* need a unique email DOMAIN per
-// test, because completing onboarding registers the user's domain on
-// the new org's allowed-domains list — meaning subsequent users with the
-// same domain would auto-join into that org and skip the wizard. RFC 2606
-// reserves `.invalid` so it never collides with anything real.
+// Onboarding is one-shot per account, so every test that completes the wizard needs a fresh user
 const freshUser = async (slug: string) => {
   const unique = `${slug}-${RUN_ID}-${Date.now().toString(36)}`
   const email = `user@${unique}.invalid`
@@ -35,15 +13,6 @@ const freshUser = async (slug: string) => {
   return email
 }
 
-// Each test in this file creates a fresh user and hits the same local
-// backend, so running them in parallel races on /v1/register + /v1/login.
-// Serial execution adds a few seconds and removes a class of flake.
-//
-// Retries: the post-login `getDashboardData` request occasionally returns
-// null (transient backend/session race), which makes NextAuth's
-// `isOnboarding` fall through to false and routes the user to /dashboard
-// instead of /onboarding. That's a product flake worth fixing upstream;
-// in the meantime, one retry keeps this suite stable.
 test.describe.configure({ mode: 'serial', retries: 2 })
 
 test.describe('onboarding', () => {
@@ -63,8 +32,6 @@ test.describe('onboarding', () => {
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    // onboarding-page.tsx derives the name from the domain's first label,
-    // splitting on - / _ and title-casing each word.
     const expected = email
       .split('@')[1]
       .split('.')[0]
@@ -83,7 +50,6 @@ test.describe('onboarding', () => {
 
     await companyNameInput(page).fill('')
 
-    // company_name is the step's only required key → isNextDisabled flips true.
     await expect(nextButton(page)).toBeDisabled({ timeout: 10_000 })
     await expect(page.getByRole('heading', { name: /^Company Info$/ })).toBeVisible()
   })
@@ -95,7 +61,6 @@ test.describe('onboarding', () => {
 
     await companyNameInput(page).fill('ab')
 
-    // build-schema.ts: z.string().min(3, 'Company name requires at least 3 characters')
     await expect(page.getByText(/Company name requires at least 3 characters/i)).toBeVisible({ timeout: 10_000 })
     await expect(nextButton(page)).toBeDisabled()
   })
@@ -127,9 +92,6 @@ test.describe('onboarding', () => {
 
   test('completed user can still reach /onboarding (product currently allows re-entry)', async ({ page }) => {
     test.slow()
-    // NOTE: this documents current behavior, not a feature. The wizard has
-    // no guard against re-entry after onboarding has already been completed.
-    // If the product team adds a redirect, flip this assertion.
     const email = await freshUser('reentry')
     await loginViaForm(page, email, PASSWORD)
     await completeOnboarding(page)
@@ -144,8 +106,6 @@ test.describe('onboarding', () => {
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    // multi-input-field.tsx commits the draft on Enter/Tab/blur — there is no
-    // "Add Domain" button any more.
     await page.locator('#company_domains').fill('acme.example')
     await page.locator('#company_domains').press('Enter')
 
@@ -169,8 +129,6 @@ test.describe('onboarding', () => {
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    // Domains are optional now, so removing the auto-added chip must NOT block
-    // advance — it just empties the list.
     const domain = email.split('@')[1]
     await expect(page.getByText(domain, { exact: true })).toBeVisible({ timeout: 15_000 })
 
@@ -184,8 +142,6 @@ test.describe('onboarding', () => {
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    // dynamic-field.tsx renders selects as Radix comboboxes labelled by the
-    // question label; company_sector_other depends on company_sector === other.
     await page.getByLabel('Company Sector').click()
     await page.getByRole('option', { name: 'Other', exact: true }).click()
 
@@ -246,8 +202,6 @@ test.describe('onboarding', () => {
     await nextButton(page).click()
     await expect(page.getByRole('heading', { name: /^Starting Point$/ })).toBeVisible()
 
-    // boolean-field.tsx renders a Yes/No RadioGroup with ids
-    // `<key>-true` / `<key>-false`.
     const yes = page.locator('#has_existing_controls-true')
     await yes.click()
     await expect(yes).toBeChecked()
@@ -265,13 +219,8 @@ test.describe('onboarding', () => {
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    // onboarding-footer.tsx renders ExitOnboardingLink TWICE — once in a
-    // `hidden lg:flex` desktop column and once in a `lg:hidden` mobile one — so
-    // only the viewport-appropriate copy is ever visible. Filter on visibility
-    // rather than picking an index, which would depend on the breakpoint.
     const exitLink = page.getByRole('button', { name: 'Exit the onboarding process' }).filter({ visible: true })
 
-    // onboarding-page.tsx renders the exit shortcut whenever currentIndex > 0.
     await expect(page.getByRole('button', { name: 'Exit the onboarding process' })).toHaveCount(0)
 
     await companyNameInput(page).fill(`Early Exit Co ${Date.now().toString(36)}`)
@@ -281,15 +230,11 @@ test.describe('onboarding', () => {
     await expect(exitLink).toBeVisible({ timeout: 10_000 })
     await expect(page.getByText(/use general template for my account/).filter({ visible: true })).toBeVisible()
 
-    // exitOnboarding submits whatever is filled so far and router.push('/')es.
     await exitLink.click()
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 })
   })
 
   test('refresh mid-wizard wipes form state (in-memory only)', async ({ page }) => {
-    // Documents current product behavior: the wizard holds form state in
-    // useForm with no persistence layer, so a hard refresh resets it — back to
-    // the domain-derived default rather than what was typed.
     const email = await freshUser('refresh')
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
@@ -303,27 +248,14 @@ test.describe('onboarding', () => {
   })
 })
 
-/**
- * ISS-2466 — the (protected) layout prefixes document.title with the active
- * organization's display name ("{Org} | {Page}"). A user who has not finished
- * onboarding is still in their auto-created PERSONAL org, whose name is derived
- * from their own account — leaking it into the browser tab looked like a bug.
- *
- * getOrgDisplayNameForRequest now returns null for a personalOrg, so the layout
- * falls back to the generic "Openlane | {Page}" template.
- */
 test.describe('onboarding — document title (ISS-2466)', () => {
   test('a mid-onboarding user gets the generic Openlane title, not their personal org name', async ({ page }) => {
     const email = await freshUser('title')
     await loginViaForm(page, email, PASSWORD)
     await ensureOnboardingRoute(page)
 
-    // onboarding/page.tsx sets metadata.title 'Onboarding'; the layout template
-    // supplies the prefix.
     await expect(page).toHaveTitle(/^Openlane \| Onboarding$/, { timeout: 20_000 })
 
-    // The personal org is named after the user, so the local-part must not leak
-    // into the tab title.
     const localPart = email.split('@')[0]
     await expect(page).not.toHaveTitle(new RegExp(localPart, 'i'))
   })

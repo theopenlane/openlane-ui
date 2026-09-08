@@ -21,9 +21,7 @@ const ICON_SIZE = 12
 
 export const InviteActions = ({ inviteId, recipient, role }: InviteActionsProps) => {
   const { canManageMembers, canInviteMembers, canInviteAdmins } = useOrgMemberPermissions()
-  // Resending re-issues the same invite, so it belongs to whoever may issue an
-  // invite at that level — a MEMBER holds can_invite_members and must keep it.
-  // Deleting an existing invite is member management, which is a separate grant.
+  // Resend re-issues the invite, so it follows the invite grant; delete is member management.
   const canResend = role === InviteRole.ADMIN || role === InviteRole.OWNER || role === InviteRole.SUPER_ADMIN ? canInviteAdmins : canInviteMembers
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteInvite } = useDeleteOrganizationInvite()

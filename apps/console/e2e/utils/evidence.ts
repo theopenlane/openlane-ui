@@ -11,16 +11,7 @@ const expectCreationToast = async (page: Page): Promise<void> => {
   await expect(page.getByText(/Evidence has been successfully created/i).first()).toBeVisible({ timeout: 30_000 })
 }
 
-/**
- * EVIDENCE_CREATE_MODE.requireLinkedControls is true, so "Submit for review" is
- * gated on linking a control. Draft creation skips that gate and still runs the
- * same success path — toast + openObjectSheet — so it's the cheapest way for a
- * spec to get a real evidence record on screen.
- *
- * ISS-2593 also moved creation off the router: evidence-create-sheet.tsx opens
- * the detail slideout through SheetNavigationProvider React state, so the URL
- * never gains `?id=`.
- */
+/** requireLinkedControls gates "Submit for review" on a linked control; saving as draft skips that gate. */
 export const saveEvidenceAsDraft = async (page: Page, dialog: Locator): Promise<void> => {
   await dialog.getByRole('button', { name: /^save as draft$/i }).click()
   await expectCreationToast(page)

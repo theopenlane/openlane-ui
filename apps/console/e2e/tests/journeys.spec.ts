@@ -13,12 +13,6 @@ test.beforeAll(async () => {
   ownerApi = await getOwnerApi()
 })
 
-/**
- * EVIDENCE_CREATE_MODE.requireLinkedControls gates "Submit for review" on at
- * least one linked control, while "Save as draft" deliberately bypasses it.
- * Both halves of that rule are asserted here — a regression in either direction
- * is silent otherwise.
- */
 test.describe('journey — evidence submission gate', () => {
   test('submitting for review without a linked control is refused with guidance', async ({ page }) => {
     test.slow()
@@ -50,12 +44,6 @@ test.describe('journey — evidence submission gate', () => {
   })
 })
 
-/**
- * A control is only useful once it carries an objective and an implementation.
- * Each page is covered on its own elsewhere; this walks the three of them in
- * sequence against one freshly seeded control, which is what a user actually
- * does and what per-page specs cannot catch.
- */
 test.describe('journey — a new control gains an objective and an implementation', () => {
   test.describe.configure({ mode: 'serial' })
 

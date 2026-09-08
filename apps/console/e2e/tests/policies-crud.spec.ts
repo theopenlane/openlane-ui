@@ -7,16 +7,6 @@ import { uniqueName } from '../utils/unique'
 import { bulkEditAndSave, confirmDestructive, selectFirstMatchingRow } from '../utils/mutations'
 import { deleteFirstComment, editFirstComment, postComment } from '../utils/comments'
 
-/**
- * Deep policies flows beyond policies.spec.ts (which covers create/search/inline
- * edit on fresh users). Runs as the storage-state Owner; entities are seeded via
- * the Owner API (fast) with run-unique names. The shared org is long-lived, so
- * always search/target the unique name — never assert against the full list.
- *
- * ⏳ Written without running (servers were off). Selectors grounded in
- * policies.spec.ts (proven) + a component selector map; verify on first run.
- */
-
 let ownerApi: ApiSession
 const uniquePolicyName = () => uniqueName('E2E PolCRUD')
 
@@ -49,7 +39,6 @@ const openExportPdfDialog = async (page: Page): Promise<void> => {
 
 const openTableView = async (page: Page) => {
   await page.goto('/policies', { waitUntil: 'domcontentloaded' })
-  // TabSwitcher renders raw lucide SVGs; the Table icon has no accessible name.
   await page.locator('.lucide-table').first().click()
   await expect(page.getByRole('row').nth(1)).toBeVisible({ timeout: 30_000 })
 }
@@ -59,7 +48,6 @@ test.describe('policies — table tooling', () => {
     await openTableView(page)
 
     await page.getByRole('button', { name: /^Columns$/ }).click()
-    // The menu lists column names as checkbox toggles; "Status" is one of them.
     await expect(page.getByRole('menu').getByText(/^Status$/)).toBeVisible({ timeout: 10_000 })
   })
 
@@ -75,9 +63,7 @@ test.describe('policies — table tooling', () => {
     await createInternalPolicy(ownerApi, name)
     await openTableView(page)
 
-    // The shared org has many policies + pagination, so search to surface the
-    // seeded row, then check its row checkbox (the header select-all is disabled
-    // until rows settle). Selecting a row flips the toolbar into the bulk state.
+    // The shared org has many policies + pagination, so search to surface the seeded row
     await page.getByPlaceholder(/^Search$/).fill(name)
     const row = page.getByRole('row').filter({ hasText: name })
     await expect(row).toBeVisible({ timeout: 15_000 })
@@ -85,7 +71,6 @@ test.describe('policies — table tooling', () => {
 
     await expect(page.getByRole('button', { name: /^Bulk Delete/ })).toBeVisible({ timeout: 10_000 })
 
-    // The bulk state also exposes "Bulk Edit" → bulk-edit-policies.tsx dialog.
     await page.getByRole('button', { name: /^Bulk Edit/ }).click()
     await expect(page.getByRole('dialog').getByText('Bulk edit')).toBeVisible({ timeout: 10_000 })
   })
@@ -100,7 +85,6 @@ test.describe('policies — detail (seeded)', () => {
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
 
     await page.getByRole('tab', { name: /^History$/ }).click()
-    // history-tab.tsx marks the current revision with a "Current" badge.
     await expect(page.getByText(/^Current$/).first()).toBeVisible({ timeout: 15_000 })
   })
 
@@ -133,10 +117,8 @@ test.describe('policies — detail (seeded)', () => {
     await page.goto(`/policies/${id}/view`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
 
-    // The 3-dot actions menu (Ellipsis) holds Edit / Delete / Manage Permissions.
     await page.getByTestId('policy-actions-menu').click()
     await page.getByTestId('policy-delete-button').click()
-    // ConfirmationDialog "Delete Internal Policy" — confirm.
     await page
       .getByRole('alertdialog')
       .getByRole('button', { name: /^Delete$/ })
@@ -164,8 +146,6 @@ test.describe('policies — associations & flows', () => {
     await page.goto(`/policies/${policyId}/view`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 30_000 })
 
-    // Shared ObjectAssociationSwitch (graph view by default) → AddAssociationPlusBtn
-    // opens the SetAssociationDialog "Associate Related Objects".
     await page.getByLabel('Add Association objects').click()
     const dialog = page.getByRole('dialog').filter({ hasText: 'Associate Related Objects' })
     await expect(dialog).toBeVisible({ timeout: 15_000 })
@@ -178,8 +158,6 @@ test.describe('policies — associations & flows', () => {
     await expect(controlRow).toBeVisible({ timeout: 15_000 })
     await controlRow.getByRole('checkbox').first().check()
 
-    // Confirm is the shared SaveButton ("Save Changes"); saving closes the
-    // dialog once the link mutation succeeds.
     await dialog.getByRole('button', { name: /^Save Changes$/ }).click()
     await expect(dialog).toBeHidden({ timeout: 20_000 })
   })
@@ -195,10 +173,6 @@ test.describe('policies — associations & flows', () => {
     await page.goto(`/policies/${policyId}/view`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 30_000 })
 
-    // view-policy-page.tsx "procedures" tab renders LinkedProcedures, which lists
-    // each linked procedure's name under a "Linked Procedures" heading.
-    // The detail tabs hydrate after the page heading, so wait for the tab to be
-    // actionable (it may carry a count badge) before clicking.
     const proceduresTab = page.getByRole('tab', { name: /^Procedures/ })
     await expect(proceduresTab).toBeVisible({ timeout: 30_000 })
     await proceduresTab.click()
@@ -213,8 +187,6 @@ test.describe('policies — associations & flows', () => {
     await page.goto(`/policies/${id}/view`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
 
-    // CreateItemsFromPolicyToolbar exposes Policy / Procedure / Task. "Procedure"
-    // pushes to /procedures/create.
     await page.getByRole('button', { name: /^Create$/ }).click()
     await page.getByRole('button', { name: /^Procedure$/ }).click()
 
@@ -230,11 +202,9 @@ test.describe('policies — detail page UI (seeded)', () => {
     await page.goto(`/policies/${id}/view`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
 
-    // view-policy-page.tsx renders an underline Tabs with Policy/Procedures/History.
     await expect(page.getByRole('tab', { name: /^Policy$/ })).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('tab', { name: /^Procedures$/ })).toBeVisible()
     await expect(page.getByRole('tab', { name: /^History$/ })).toBeVisible()
-    // Sidebar <h3>Properties</h3> over the Authority/Properties cards.
     await expect(page.getByRole('heading', { level: 3, name: /^Properties$/ })).toBeVisible({ timeout: 10_000 })
   })
 
@@ -248,7 +218,6 @@ test.describe('policies — detail page UI (seeded)', () => {
     await page.getByTestId('policy-actions-menu').click()
     await page.getByRole('button', { name: /^Manage Permissions$/ }).click()
 
-    // Shared ManagePermissionSheet: SheetTitle "Manage permission" + "Group list" h3.
     const sheet = page.getByRole('dialog')
     await expect(sheet.getByText(/^Manage permission$/)).toBeVisible({ timeout: 10_000 })
     await expect(sheet.getByText(/^Group list$/)).toBeVisible({ timeout: 10_000 })
@@ -261,8 +230,6 @@ test.describe('policies — detail page UI (seeded)', () => {
     await page.goto(`/policies/${id}/view`, { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
 
-    // CreateItemsFromPolicyToolbar: a "Create" Menu trigger exposing
-    // Policy / Procedure / Task items. "Policy" pushes to /policies/create.
     await page.getByRole('button', { name: /^Create$/ }).click()
     await page.getByRole('button', { name: /^Policy$/ }).click()
 
@@ -270,20 +237,6 @@ test.describe('policies — detail page UI (seeded)', () => {
   })
 })
 
-/**
- * ISS-2382 — the policy slideout (view-policy-sheet.tsx) branches its Details
- * body on `managementMode`: INTEGRATION renders IntegrationDocumentView,
- * EXTERNAL_REFERENCE with a file renders ExternalReferenceView, and everything
- * else falls through to the read-only PlateEditor.
- *
- * Only the fall-through branch is reachable from a seeded policy — the other two
- * need a connected integration or an uploaded document, neither of which the API
- * seeder can produce. This pins the default branch so a regression in the
- * managementMode check surfaces as the editor disappearing.
- *
- * The sheet is opened from the control Documentation tab's policies-table
- * (policies-table.tsx onRowClick), which is the most deterministic entry point.
- */
 test.describe('policies — view slideout (ISS-2382)', () => {
   test('the slideout Details section renders the editor branch for a plain policy', async ({ page }) => {
     test.slow()
@@ -301,12 +254,8 @@ test.describe('policies — view slideout (ISS-2382)', () => {
     await expect(sheet).toBeVisible({ timeout: 15_000 })
     await expect(sheet.getByText(policyName).first()).toBeVisible({ timeout: 15_000 })
 
-    // detailsOpen defaults to true, so the section is already expanded.
     await expect(sheet.getByRole('button', { name: /^Details$/ })).toBeVisible({ timeout: 10_000 })
 
-    // The editor branch mounts a Plate contenteditable surface. The other two
-    // branches render a "Read-only" badge / a document download panel instead,
-    // so their absence confirms which branch was chosen.
     await expect(sheet.locator('[contenteditable]').first()).toBeVisible({ timeout: 20_000 })
     await expect(sheet.getByText('Word document managed outside Openlane.')).toHaveCount(0)
   })
@@ -326,28 +275,11 @@ test.describe('policies — view slideout (ISS-2382)', () => {
     const details = sheet.getByRole('button', { name: /^Details$/ })
     await expect(details).toBeVisible({ timeout: 15_000 })
 
-    // detailsOpen defaults to true, so the editor is mounted on open. The
-    // collapse round-trip is not asserted: the readonly Plate surface stays
-    // both mounted and visible through the transition, so there is no stable
-    // signal to wait on. Which BRANCH renders is the meaningful assertion and
-    // is covered by the test above.
     await expect(sheet.locator('[contenteditable]').first()).toBeVisible({ timeout: 20_000 })
   })
 })
 
-/**
- * ISS-2563 — "Export to PDF" no longer exports immediately. It opens
- * ExportPdfDialog first, offering an "Exclude metadata" checkbox that omits the
- * owner/approver/version/date block from the generated document; the choice is
- * threaded through as TExportMetadata.
- *
- * Dialog-OPEN only — Export is never clicked, so no export job is queued.
- */
 test.describe('policies — PDF export metadata option (ISS-2563)', () => {
-  // /policies renders a full-page empty state when the org has no policies, and
-  // the table toolbar (which owns the Action menu) does not exist in that
-  // branch. Seeding one keeps the test from depending on policies left behind
-  // by other specs — which is why it passed until the org was reseeded.
   test.beforeAll(async () => {
     await createInternalPolicy(ownerApi, uniquePolicyName())
   })
@@ -374,7 +306,6 @@ test.describe('policies — PDF export metadata option (ISS-2563)', () => {
     const excludeMetadata = dialog.getByRole('checkbox')
     await expect(excludeMetadata).toBeVisible({ timeout: 15_000 })
 
-    // Defaults to including metadata; ticking it is what the commit added.
     await expect(excludeMetadata).not.toBeChecked()
     await excludeMetadata.click()
     await expect(excludeMetadata).toBeChecked()
@@ -384,12 +315,6 @@ test.describe('policies — PDF export metadata option (ISS-2563)', () => {
   })
 })
 
-/**
- * #2048 — the Policy page's linked procedures list became collapsible: each
- * procedure is an accordion whose trigger shows its name and status badge, with
- * the details (Type, Description, Approver) revealed on expand, rather than the
- * whole list rendering flat.
- */
 test.describe('policies — collapsible linked procedures (#2048)', () => {
   test('a linked procedure renders as a collapsed accordion that expands', async ({ page }) => {
     test.slow()
@@ -398,7 +323,6 @@ test.describe('policies — collapsible linked procedures (#2048)', () => {
     const procedureName = `E2E LinkedProc ${RUN_ID} ${Date.now().toString(36)}`
     const procedureId = await createProcedure(ownerApi, procedureName)
 
-    // Link from the procedure side (procedures own the controlIDs/policy edge).
     await gql(ownerApi, `mutation($id: ID!, $input: UpdateInternalPolicyInput!){ updateInternalPolicy(id: $id, input: $input){ internalPolicy { id } } }`, {
       id: policyId,
       input: { addProcedureIDs: [procedureId] },
@@ -406,16 +330,12 @@ test.describe('policies — collapsible linked procedures (#2048)', () => {
 
     await page.goto(`/policies/${policyId}/view`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
-    // Linked procedures live behind the policy detail's "Procedures" tab.
     const proceduresTab = page.getByRole('tab', { name: /^Procedures/ })
     await expect(proceduresTab).toBeVisible({ timeout: 45_000 })
     await proceduresTab.click()
 
     await expect(page.getByText(procedureName).first()).toBeVisible({ timeout: 20_000 })
 
-    // Collapsed by default: expanding the accordion reveals the procedure's
-    // detail rows. ("Approver" also appears in the policy's own Properties
-    // panel, so assert on the Type row, which is unique to the accordion.)
     await page.getByText(procedureName).first().click()
     await expect(page.getByText('Type', { exact: true }).first()).toBeVisible({ timeout: 15_000 })
   })

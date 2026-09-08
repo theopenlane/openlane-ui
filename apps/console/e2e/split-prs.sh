@@ -1,26 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Splits the feat-playwright-e2e branch into three reviewable branches.
-#
-#   e2e/split/auth-session-hardening   (from origin/main)
-#   e2e/split/console-unit-tests       (from origin/main)
-#   e2e/split/playwright-suite         (stacked on auth-session-hardening)
-#
-# Usage:  bash apps/console/e2e/split-prs.sh [SRC_REF]
-#
-# SRC_REF defaults to HEAD and must contain every change to be split, so commit
-# any work in progress on feat-playwright-e2e first. The working tree must be
-# clean; this script only creates new branches and never touches the source one.
-#
-# Commits are made with --no-verify on purpose. The pre-commit hook reformats
-# staged files in place, which would make a split branch diverge from SRC_REF,
-# and it type-checks and tests a partial tree that is not what any of these
-# branches is meant to stand alone as. SRC_REF is verified before splitting.
-#
-# .husky/pre-commit belongs to the Playwright branch, not the unit-test branch:
-# narrowing `bun test` to explicit paths is what stops bun from collecting the
-# Playwright .spec.ts files, so the e2e branch cannot commit without it.
 
 SRC_REF="${1:-HEAD}"
 REPO_ROOT="$(git rev-parse --show-toplevel)"

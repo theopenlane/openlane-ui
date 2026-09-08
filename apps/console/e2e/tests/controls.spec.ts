@@ -13,15 +13,9 @@ test.describe('controls — create + view', () => {
     await page.goto('/controls/create-control')
     await dismissDraftRestore(page)
 
-    // The Create button is the form's submit. There are other "Create"
-    // buttons further down the page (association sections), so scope to
-    // the form's submit button.
     await page.locator('form button[type="submit"]', { hasText: /^create$/i }).click()
 
     await expect(page).toHaveURL(/\/controls\/create-control(\?|$)/)
-    // Zod schema in create-control/use-form-schema.ts: refCode.min(1,
-    // 'Ref Code is required') → the message is rendered next to the
-    // input via the FormField error path.
     await expect(page.getByText(/^Ref Code is required$/)).toBeVisible()
   })
 
@@ -37,8 +31,6 @@ test.describe('controls — create + view', () => {
     }
 
     await page.goto('/controls')
-    // /controls defaults to the dashboard tab; switch to the table view
-    // (Lucide Table icon in the TabSwitcher) so the search input renders.
     await page.locator('.lucide-table').first().click()
 
     await page.getByPlaceholder(/^Search$/).fill(a)
@@ -52,37 +44,22 @@ test.describe('controls — create + view', () => {
     await dismissDraftRestore(page)
 
     const refCode = refCodeFor('ctl')
-    // Ref Code is the only required field — the form's zod schema only
-    // demands controlID for subcontrols, not for top-level controls.
-    // The Ref Code <Label> is not htmlFor-associated to its <Input>, so
-    // we target the input by its react-hook-form-injected name attribute.
     await page.locator('input[name="refCode"]').fill(refCode)
 
-    // The submit button reads "Create". There are other "Create" buttons
-    // elsewhere on the page (e.g. inside association sections) — scope
-    // to the form's submit button to disambiguate.
     await page.locator('form button[type="submit"]', { hasText: /^create$/i }).click()
 
-    // Form redirects to /controls/{id} on success.
     await page.waitForURL(/\/controls\/(?!create)[^/]+(\?|$)/, { timeout: 30_000 })
 
-    // Detail page renders the refCode as an h1.
     await expect(page.getByRole('heading', { level: 1, name: refCode })).toBeVisible({ timeout: 15_000 })
   })
 
   test('create-subcontrol — submitting without a Parent Control shows the inline error', async ({ page }) => {
     await page.goto('/controls/create-subcontrol')
 
-    // Subcontrol form requires both refCode and controlID. Fill refCode
-    // so we surface the controlID-specific error rather than the
-    // refCode error.
     await page.locator('input[name="refCode"]').fill(refCodeFor('sub-req'))
 
     await page.locator('form button[type="submit"]', { hasText: /^create$/i }).click()
 
-    // controlFormSchema's superRefine adds 'Parent Control is required'
-    // when isCreateSubcontrol && controlID is empty. Surfaced under the
-    // Parent Control select.
     await expect(page).toHaveURL(/\/controls\/create-subcontrol(\?|$)/)
     await expect(page.getByText(/^Parent Control is required$/)).toBeVisible({ timeout: 10_000 })
   })
@@ -104,7 +81,6 @@ test.describe('controls — create + view', () => {
   })
 
   test('inline title rename: double-click h1 → edit refCode → Enter → reload → new refCode persists', async ({ page }) => {
-    // Create the control first — same flow as the happy path above.
     await page.goto('/controls/create-control')
     await dismissDraftRestore(page)
     const original = refCodeFor('orig')
@@ -144,8 +120,7 @@ test.describe('controls — create + view', () => {
     const statusTrigger = page.getByTestId('control-status-trigger')
     await expect(statusTrigger).toContainText(/^Not Implemented$/)
 
-    // Scoped testid, not getByRole('combobox') — the detail page also renders
-    // rows-per-page selects in the linked-controls tables (strict-mode clash).
+    // Scoped testid, not getByRole('combobox')
     const statusSelect = page.getByTestId('control-status-select')
     await expect(async () => {
       await statusTrigger.dblclick()

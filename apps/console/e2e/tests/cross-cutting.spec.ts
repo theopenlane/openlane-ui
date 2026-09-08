@@ -16,9 +16,6 @@ test.describe('cross-cutting — auth redirects', () => {
   test('logged-in user visiting /signup ends up either on /signup or /dashboard (no crash)', async ({ page }) => {
     await page.goto('/signup').catch(() => {})
 
-    // Either the middleware bounces to /dashboard or the page renders
-    // even for authenticated users. Both are acceptable outcomes per
-    // current product behavior — assert one of them and stay green.
     await expect(page).toHaveURL(/\/(signup|dashboard)/, { timeout: 15_000 })
   })
 })
@@ -26,13 +23,9 @@ test.describe('cross-cutting — auth redirects', () => {
 test.describe('cross-cutting — theming', () => {
   test('selecting Dark theme persists across reload', async ({ page }) => {
     await page.goto('/dashboard')
-    // Open user menu and pick Dark. The theme buttons are icon-only
-    // <button>s with title attributes — no role text — so we target
-    // them by accessible name (title surfaces as aria/title).
     await page.getByTestId('user-menu-trigger').click()
     await page.getByRole('button', { name: /^dark$/i }).click()
 
-    // next-themes flips the html element's class. Wait for it.
     await expect(page.locator('html')).toHaveClass(/dark/)
 
     await page.reload()
@@ -41,10 +34,7 @@ test.describe('cross-cutting — theming', () => {
 
   test('selecting Light theme drops the .dark class and persists across reload', async ({ page }) => {
     await page.goto('/dashboard')
-    // Toggle to Dark first so the assertion isn't a no-op against the
-    // default theme (the default in-app may already be light or system).
-    // The user-menu DropdownMenu does not auto-close on theme clicks, so
-    // we keep it open and switch from Dark → Light without reopening.
+    // Toggle to Dark first so the assertion isn't a no-op against the default theme (the default in-app may already be light or system)
     await page.getByTestId('user-menu-trigger').click()
     await page.getByRole('button', { name: /^dark$/i }).click()
     await expect(page.locator('html')).toHaveClass(/dark/)
@@ -61,14 +51,11 @@ test.describe('cross-cutting — dropdown dismissal', () => {
   test('Escape closes the user menu dropdown', async ({ page }) => {
     await page.goto('/dashboard')
     await page.getByTestId('user-menu-trigger').click()
-    // The user menu dropdown surfaces "User Settings" once open. Use it
-    // as the visibility marker (it's a Button inside DropdownMenuContent).
     const menuItem = page.getByRole('button', { name: /^user settings$/i })
     await expect(menuItem).toBeVisible({ timeout: 10_000 })
 
     await page.keyboard.press('Escape')
 
-    // Radix DropdownMenu unmounts the content on close.
     await expect(menuItem).toBeHidden({ timeout: 10_000 })
   })
 
@@ -99,8 +86,6 @@ test.describe('cross-cutting — breadcrumbs', () => {
   test('/policies renders the Home → Compliance → Policies breadcrumb trail', async ({ page }) => {
     await page.goto('/policies')
 
-    // BreadcrumbNavigation renders BreadcrumbLink href="..." with label
-    // text from the page-level setCrumbs call.
     const navigation = page.getByRole('navigation', { name: /breadcrumb/i }).first()
     await expect(navigation.getByText(/^Home$/)).toBeVisible({ timeout: 15_000 })
     await expect(navigation.getByText(/^Compliance$/)).toBeVisible()
@@ -112,8 +97,6 @@ test.describe('cross-cutting — page title', () => {
   test('/policies sets document.title to include "Internal Policies"', async ({ page }) => {
     await page.goto('/policies')
 
-    // The page's metadata.title is "Internal Policies". The root layout
-    // may add a title-template prefix; assert the segment we own.
     await expect(page).toHaveTitle(/Internal Policies/, { timeout: 15_000 })
   })
 })
@@ -128,8 +111,7 @@ test.describe('cross-cutting — filter persistence', () => {
 
     await page.reload()
 
-    // useStorageSearch reads from localStorage on mount, so the input
-    // should re-hydrate with "persist-me" after the reload.
+    // useStorageSearch reads from localStorage on mount
     await expect(page.getByPlaceholder(/^Search$/)).toHaveValue('persist-me', { timeout: 10_000 })
   })
 })
@@ -137,9 +119,6 @@ test.describe('cross-cutting — filter persistence', () => {
 test.describe('cross-cutting — sidebar toggle', () => {
   test('primary sidebar toggle button expands then collapses the rail', async ({ page }) => {
     await page.goto('/dashboard')
-    // Default is collapsed (per dashboard.tsx useState init), so the
-    // toggle currently shows the PanelLeftOpen Lucide icon. Click to
-    // expand → icon flips to PanelLeftClose.
     const openIcon = page.locator('.lucide-panel-left-open').first()
     const closeIcon = page.locator('.lucide-panel-left-close').first()
 
@@ -147,21 +126,17 @@ test.describe('cross-cutting — sidebar toggle', () => {
     await openIcon.click()
     await expect(closeIcon).toBeVisible({ timeout: 5_000 })
 
-    // Collapse again — close-icon flips back to open-icon.
     await closeIcon.click()
     await expect(page.locator('.lucide-panel-left-open').first()).toBeVisible({ timeout: 5_000 })
   })
 
   test('primary sidebar expand state persists across reload (localStorage)', async ({ page }) => {
     await page.goto('/dashboard')
-    // Default is collapsed — expand the rail and reload.
     await page.locator('.lucide-panel-left-open').first().click()
     await expect(page.locator('.lucide-panel-left-close').first()).toBeVisible({ timeout: 5_000 })
 
     await page.reload()
 
-    // After reload, the toggle should still display the close icon
-    // (i.e. expanded state read from localStorage).
     await expect(page.locator('.lucide-panel-left-close').first()).toBeVisible({ timeout: 10_000 })
   })
 })
@@ -193,9 +168,6 @@ test.describe('cross-cutting — global shortcuts', () => {
     const cmdInput = page.getByPlaceholder(/type a command or search/i)
     await expect(cmdInput).toBeVisible({ timeout: 10_000 })
 
-    // cmdk filters CommandItems as you type. The Compliance group's
-    // children include Policies; once filtered, Enter selects the first
-    // visible match → router.push(child.href) → /policies.
     await cmdInput.fill('Policies')
     await page.keyboard.press('Enter')
 
@@ -205,8 +177,6 @@ test.describe('cross-cutting — global shortcuts', () => {
   test('Cmd/Ctrl+/ opens the global search dialog', async ({ page }) => {
     await page.goto('/dashboard')
     await page.keyboard.press('ControlOrMeta+/')
-    // The search dialog has its own input with a different placeholder
-    // ("Search...") to disambiguate from the command menu above.
     await expect(page.getByPlaceholder(/^search\.\.\.$/i)).toBeVisible()
   })
 
@@ -216,12 +186,8 @@ test.describe('cross-cutting — global shortcuts', () => {
     const searchInput = page.getByPlaceholder(/^search\.\.\.$/i)
     await expect(searchInput).toBeVisible({ timeout: 10_000 })
 
-    // Type a string that's guaranteed to have no matches in a fresh
-    // org (RFC 2606 .invalid + run id).
     await searchInput.fill(`zzzzz-no-match-${Date.now().toString(36)}`)
 
-    // CommandEmpty renders "No results found" once the backend returns
-    // empty result set across every entity group.
     await expect(page.getByText(/^No results found$/)).toBeVisible({ timeout: 15_000 })
   })
 
@@ -240,10 +206,7 @@ test.describe('cross-cutting — 404 not-found page', () => {
   test('logged-in user hitting an unknown route sees the default not-found copy', async ({ page }) => {
     await page.goto('/this-route-does-not-exist-' + Date.now().toString(36))
 
-    // ErrorPage (error-page.tsx:29) renders the default title verbatim
-    // when no `title` prop is passed — Next's not-found.tsx passes none.
     await expect(page.getByText(/^The page could not be found$/)).toBeVisible({ timeout: 15_000 })
-    // "Back to Dashboard" Button is the documented recovery affordance.
     await expect(page.getByRole('button', { name: /^Back to Dashboard$/i })).toBeVisible()
   })
 
@@ -258,14 +221,9 @@ test.describe('cross-cutting — 404 not-found page', () => {
 test.describe('cross-cutting — org switcher', () => {
   test('org selector popover lists organizations with a search field', async ({ page }) => {
     await page.goto('/dashboard')
-    // organization-selector.tsx PopoverTrigger (data-testid="org-selector-trigger")
-    // sits in an off-screen sidebar region that can't be scrolled into the
-    // viewport, so a normal/forced click reports "outside of viewport". Dispatch
-    // the click directly — Radix's PopoverTrigger opens on the synthetic event.
     await page.getByTestId('org-selector-trigger').dispatchEvent('click')
 
     await expect(page.getByPlaceholder('Search for an organization')).toBeVisible({ timeout: 10_000 })
-    // The popover footer always offers a "View all organizations" link-button.
     await expect(page.getByRole('button', { name: /View all organizations/i })).toBeVisible()
   })
 })
@@ -274,7 +232,6 @@ test.describe('cross-cutting — notifications bell', () => {
   test('header renders the Notifications bell for an authenticated user', async ({ page }) => {
     await page.goto('/dashboard')
 
-    // BellButton in SystemNotification.tsx renders <button aria-label="Notifications">.
     await expect(page.getByRole('button', { name: /^notifications$/i })).toBeVisible({ timeout: 15_000 })
   })
 })
@@ -287,9 +244,6 @@ freshTest.describe('cross-cutting — fresh org', () => {
     )
     await seedLoggedInUser(page, 'logout')
 
-    // Open the user menu and click Log out. signOut() triggers a
-    // /api/auth/signout round-trip; wait for it to finish so the
-    // session cookie is cleared before we assert on the redirect.
     await page.getByTestId('user-menu-trigger').click()
     const signOutResponse = page.waitForResponse(/\/api\/auth\/signout/)
     await page.getByRole('button', { name: /^log out$/i }).click()
@@ -312,29 +266,14 @@ freshTest.describe('cross-cutting — fresh org', () => {
 
     await page.getByRole('button', { name: /^notifications$/i }).click()
 
-    // Completing onboarding emits an "Organization ready" notification, so a
-    // freshly-seeded org lands in the populated branch of SystemNotification.tsx,
-    // never the "No new notifications at the moment." empty state.
     await expect(page.getByText('Organization ready').first()).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('link', { name: /^View All$/ })).toBeVisible()
   })
 })
 
-/**
- * ISS-2499 — "Rows per page" stopped persisting: useOrgTablePagination was
- * called without a tableKey, so nothing was written to storage. Each table now
- * passes its TableKeyEnum and the chosen pageSize is stored per-org under
- * `pagination:<tableKey>`, surviving a reload.
- *
- * The commit also added resetPagination(), which returns to page 1 while KEEPING
- * the chosen page size — asserted here via the search path.
- */
 test.describe('cross-cutting — rows-per-page persistence (ISS-2499)', () => {
   const rowsPerPageTrigger = (page: Page) => page.getByText('Rows per page', { exact: true }).locator('..').getByRole('combobox').first()
 
-  // The pagination footer only exists once the table has rows — an org with no
-  // policies renders a full-page empty state instead, so both tests here need a
-  // policy of their own rather than one another spec happened to leave behind.
   test.beforeAll(async () => {
     const { ownerEmail, password } = readManifest()
     const owner = await loginViaApi(ownerEmail, password)
@@ -344,13 +283,11 @@ test.describe('cross-cutting — rows-per-page persistence (ISS-2499)', () => {
   test('a chosen page size survives a hard reload', async ({ page }) => {
     test.slow()
     await page.goto('/policies', { waitUntil: 'domcontentloaded' })
-    // TabSwitcher: the table view is what renders the pagination footer.
     await page.locator('.lucide-table').first().click()
 
     const trigger = rowsPerPageTrigger(page)
     await expect(trigger).toBeVisible({ timeout: 45_000 })
 
-    // Pick a non-default size so a regression to the default is visible.
     await trigger.click()
     await page.getByRole('option', { name: '25', exact: true }).click()
     await expect(trigger).toContainText('25', { timeout: 15_000 })
@@ -372,18 +309,12 @@ test.describe('cross-cutting — rows-per-page persistence (ISS-2499)', () => {
     await page.getByRole('option', { name: '50', exact: true }).click()
     await expect(policiesTrigger).toContainText('50', { timeout: 15_000 })
 
-    // A different table keys its own pagination, so it must not inherit 50.
     await page.goto('/controls', { waitUntil: 'domcontentloaded' })
     await page.locator('.lucide-table').first().click()
     await expect(rowsPerPageTrigger(page)).not.toContainText('50', { timeout: 45_000 })
   })
 })
 
-/**
- * ISS-2591 — bare section URLs used to 404. next.config now redirects each to a
- * concrete landing page, and the sidebar computes a section's href from its
- * first usable child (getNavLandingHref, unit-tested in routes/).
- */
 const SECTION_REDIRECTS = [
   { from: '/registry', to: /\/registry\/platforms/ },
   { from: '/trust-center', to: /\/trust-center\/overview/ },
@@ -403,22 +334,12 @@ test.describe('cross-cutting — section redirects (ISS-2591)', () => {
   }
 })
 
-/**
- * #2148 — context-aware docs help. Pages register a docs topic through
- * DocsHelpContext and the shell exposes a help affordance that opens an
- * InfoSlideOut with the matching documentation section.
- *
- * The content itself is fetched from an AI-backed route, so this asserts the
- * affordance and the slideout opening rather than any particular text.
- */
 test.describe('cross-cutting — contextual docs help (#2148)', () => {
   test('a page with a registered docs topic exposes a help affordance', async ({ page }) => {
     test.slow()
     await page.goto('/controls', { waitUntil: 'domcontentloaded' })
     await expect(page.getByText('Report on:', { exact: true })).toBeVisible({ timeout: 45_000 })
 
-    // docs-help registers a help trigger in the page shell; it is absent on
-    // pages that register no topic, so skip rather than fail if this one moved.
     const help = page.getByRole('button', { name: /help|docs/i }).first()
     test.skip(!(await help.isVisible().catch(() => false)), 'no docs-help affordance registered on this page')
 
@@ -427,25 +348,16 @@ test.describe('cross-cutting — contextual docs help (#2148)', () => {
   })
 })
 
-/**
- * ISS-2598 — a "Create" menu was added to the left nav so the common objects can
- * be created from anywhere, rather than only from their own list page. Entries
- * are module- and permission-gated, so the set varies by org and role.
- */
 test.describe('cross-cutting — nav create menu (ISS-2598)', () => {
   test('the sidebar Create menu lists creatable objects', async ({ page }) => {
     test.slow()
     await page.goto('/dashboard', { waitUntil: 'domcontentloaded', timeout: 180_000 })
     await expect(page.getByTestId('user-menu-trigger')).toBeAttached({ timeout: 30_000 })
 
-    // create-menu.tsx labels the trigger "Create" only when the rail is
-    // EXPANDED; collapsed (the default) it renders as a bare Plus icon, so
-    // target the icon.
     const createTrigger = page.locator('.lucide-plus').first()
     await expect(createTrigger).toBeVisible({ timeout: 30_000 })
     await createTrigger.click()
 
-    // Entries are gated per module/permission; Task is ungated for an owner.
     await expect(page.getByText('Task', { exact: true }).first()).toBeVisible({ timeout: 15_000 })
   })
 })

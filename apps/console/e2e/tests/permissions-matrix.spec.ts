@@ -104,9 +104,6 @@ const ORG_LEVEL_GATES: Gate[] = [
     ready: shell,
     affordance: (page) => page.getByRole('button', { name: /^invite member$/i }),
   },
-  // Campaigns is a list route, not an admin-only surface: can_view_campaign is
-  // its own FGA relation and the nav shows the entry to every role, so a viewer
-  // reaches the list and only loses the create affordance.
   {
     permission: 'CanCreateCampaign',
     affordanceLabel: 'the Create campaign button',
@@ -116,8 +113,6 @@ const ORG_LEVEL_GATES: Gate[] = [
     affordance: (page) => page.getByRole('button', { name: /^Create Campaign$/ }),
   },
   {
-    // PERMISSIONS.md: AUDITOR is not read-only — it creates and deletes evidence,
-    // findings and reviews, which is why CanCreateReview grants readonly too.
     permission: 'CanCreateFinding',
     affordanceLabel: 'the Create finding affordance',
     granted: ['owner', 'admin', 'readonly'],
@@ -174,8 +169,6 @@ const ORG_LEVEL_GATES: Gate[] = [
     affordance: createButton,
   },
   {
-    // The NDA page shows Upload before a template exists and Replace after, both
-    // behind canEditTc — the same boolean that now gates the NDA request table.
     permission: 'CanEdit (trust center NDAs)',
     affordanceLabel: 'an NDA template affordance',
     granted: ['owner', 'admin'],
@@ -403,9 +396,6 @@ for (const role of ROLES) {
   })
 }
 
-// Both affordances resolve to org can_edit (owner + admin). can_delete_subscriber
-// exists in the FGA model but core never consults it: the Subscriber policy
-// guards non-create mutations with CheckOrgWriteAccess, which is can_edit.
 test.describe('permissions matrix — subscribers', () => {
   let ownerApi: ApiSession
   let seededEmail: string
@@ -461,8 +451,6 @@ test.describe('permissions matrix — subscribers', () => {
   }
 })
 
-// The owner/delegate cells are inline editors, not buttons: without can_edit the
-// cell still renders its value but stops turning into a combobox on click.
 test.describe('permissions matrix — inline table editors', () => {
   for (const role of ROLES) {
     const canEditRows = role === 'owner' || role === 'admin'
@@ -474,12 +462,6 @@ test.describe('permissions matrix — inline table editors', () => {
         test.slow()
         await page.goto('/controls', { waitUntil: 'domcontentloaded', timeout: 180_000 })
 
-        // /controls opens on the dashboard tab; the toggle click is occasionally
-        // swallowed while the page settles, so retry it until the table view's
-        // Owner column is actually up rather than asserting against whichever
-        // view happened to render.
-        // The Owner column header carries no accessible name of its own; the
-        // sortable button inside it does.
         const ownerHeader = page.getByRole('button', { name: 'Owner', exact: true })
         await expect(async () => {
           if (!(await ownerHeader.isVisible().catch(() => false))) {
@@ -488,14 +470,6 @@ test.describe('permissions matrix — inline table editors', () => {
           await expect(ownerHeader).toBeVisible({ timeout: 5_000 })
         }).toPass({ timeout: 90_000 })
 
-        // EditableGroupCell draws a dashed underline only when it is editable —
-        // that span is the affordance, so assert on it rather than clicking a
-        // guessed cell and risking a navigation to the control detail page.
-        // Scope to the whole table: the owner column is fetched conditionally
-        // (gqlInclude), so which row paints it first is not deterministic.
-        // Count rather than assert visibility: the underline is an absolutely
-        // positioned, border-only span with no real height, which Playwright's
-        // visibility check treats inconsistently even when the span is there.
         const editAffordance = page.locator('table span.border-dashed')
         if (canEditRows) {
           await expect.poll(() => editAffordance.count(), { timeout: 45_000 }).toBeGreaterThan(0)
@@ -507,8 +481,6 @@ test.describe('permissions matrix — inline table editors', () => {
   }
 })
 
-// Campaign detail actions read object-level roles on the campaign itself, not the
-// org roles the rest of this file asserts, so they need a real campaign to sit on.
 test.describe('permissions matrix — campaign detail', () => {
   let ownerApi: ApiSession
   let campaignId: string
@@ -535,8 +507,6 @@ test.describe('permissions matrix — campaign detail', () => {
         await page.goto(`/automation/campaigns/${campaignId}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
         await expect(shell(page)).toBeVisible({ timeout: 90_000 })
 
-        // A freshly seeded campaign is DRAFT, so Launch renders for anyone who
-        // can edit it — disabled while it has no recipients, but still present.
         const launch = page.getByRole('button', { name: /^Launch$/ })
         if (canEditCampaign) {
           await expect(launch.first()).toBeVisible({ timeout: 45_000 })

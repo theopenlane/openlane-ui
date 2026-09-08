@@ -1,20 +1,6 @@
 #!/usr/bin/env bash
-# Mode B runner: build the console once, serve it, run the Playwright suite
-# against it, then tear the server down.
-#
-# `next dev` compiles every route on first hit and bloats over a long run, which
-# is what makes a full Mode A suite take ~30-45 min. A production server has no
-# compile tax, so the same suite lands in roughly a quarter of the time.
-#
-# Port MUST be one of core's CORS `alloworigins` (config/.config.yaml):
-# http://localhost:3001 or http://localhost:3004. The browser talks to core
-# directly, so any other port gets every GraphQL POST blocked by CORS and
-# onboarding silently stalls. Defaults to 3004, which keeps 3001 free for a
-# `next dev` you may want running alongside.
-#
-#   bun run e2e:full                    # build + serve + run everything
-#   E2E_SKIP_BUILD=1 bun run e2e:full   # reuse the last build
-#   bun run e2e:full tests/tasks.spec.ts --grep create
+# Build the console, serve it, run the suite against it, tear it down.
+# Port MUST be one of core's CORS `alloworigins` (3001 or 3004) or every GraphQL POST is blocked.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -82,8 +68,6 @@ fi
 
 echo "==> running suite against ${BASE_URL}"
 set +e
-# global-setup now seeds fresh sessions by default, so forcing E2E_RESEED here
-# would only fight an explicit E2E_REUSE_AUTH=1.
 E2E_BASE_URL="$BASE_URL" bunx playwright test "$@"
 STATUS=$?
 set -e
