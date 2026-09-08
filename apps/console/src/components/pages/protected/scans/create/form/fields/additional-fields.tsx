@@ -127,6 +127,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
             <ResponsibilityField
               name="performedBy"
               fieldBaseName="performedBy"
+              allowPersonnel={false}
               label="Performed By"
               isEditing={isEditing}
               isEditAllowed={isEditAllowed}

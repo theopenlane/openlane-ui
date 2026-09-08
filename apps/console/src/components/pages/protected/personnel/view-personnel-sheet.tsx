@@ -56,7 +56,7 @@ const ViewPersonnelSheet: React.FC<Props> = ({ identityHolderId, onClose }) => {
   const normalizeData = useCallback(
     (d: IdentityHoldersNodeNonNull): Partial<EditPersonnelFormData> =>
       normalizeEntityData(d, {
-        internalOwner: { user: d?.internalOwnerUser, group: d?.internalOwnerGroup, stringValue: d?.internalOwner },
+        internalOwner: { personnel: d?.internalOwnerIdentityHolder, user: d?.internalOwnerUser, group: d?.internalOwnerGroup, stringValue: d?.internalOwner },
       }) as Partial<EditPersonnelFormData>,
     [],
   )

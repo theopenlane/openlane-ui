@@ -76,8 +76,18 @@ const ViewVendorSheet: React.FC<Props> = ({ entityId, onClose }) => {
   const normalizeData = useCallback(
     (d: EntitiesNodeNonNull): Partial<EditVendorFormData> =>
       normalizeEntityData(d, {
-        internalOwner: { user: d?.internalOwnerUser, group: d?.internalOwnerGroup, stringValue: d?.internalOwner },
-        reviewedBy: { user: d?.reviewedByUser, group: d?.reviewedByGroup, stringValue: d?.reviewedBy },
+        internalOwner: {
+          personnel: d?.internalOwnerIdentityHolder,
+          user: d?.internalOwnerUser,
+          group: d?.internalOwnerGroup,
+          stringValue: d?.internalOwner,
+        },
+        reviewedBy: {
+          personnel: d?.reviewedByIdentityHolder,
+          user: d?.reviewedByUser,
+          group: d?.reviewedByGroup,
+          stringValue: d?.reviewedBy,
+        },
       }) as Partial<EditVendorFormData>,
     [],
   )

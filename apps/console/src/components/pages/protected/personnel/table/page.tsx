@@ -48,7 +48,12 @@ import { IDENTITY_HOLDER_ASSOCIATION_CONFIG } from '@/components/shared/object-a
 
 const normalizeData = (data: IdentityHoldersNodeNonNull | null | undefined) =>
   normalizeEntityData(data, {
-    internalOwner: { user: data?.internalOwnerUser, group: data?.internalOwnerGroup, stringValue: data?.internalOwner },
+    internalOwner: {
+      personnel: data?.internalOwnerIdentityHolder,
+      user: data?.internalOwnerUser,
+      group: data?.internalOwnerGroup,
+      stringValue: data?.internalOwner,
+    },
   })
 
 const PersonnelPage: React.FC = () => {

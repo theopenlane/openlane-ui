@@ -1,7 +1,7 @@
 import { type ColumnDef } from '@repo/ui/table-types'
 import { type PlatformsNodeNonNull } from '@/lib/graphql-hooks/platform'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
-import { type Platform, type PlatformPlatformStatus } from '@repo/codegen/src/schema'
+import { type PlatformPlatformStatus } from '@repo/codegen/src/schema'
 import { formatDate } from '@/utils/date'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
@@ -76,17 +76,35 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
       accessorKey: 'businessOwner',
       header: 'Business Owner',
       size: 160,
-      cell: ({ row }) => (
-        <ResponsibilityCell userMap={userMap} user={(row.original as Platform).businessOwnerUser} group={(row.original as Platform).businessOwnerGroup} stringValue={row.original.businessOwner} />
-      ),
+      cell: ({ row }) => {
+        const platform = row.original
+        return (
+          <ResponsibilityCell
+            userMap={userMap}
+            user={platform.businessOwnerUser}
+            personnel={platform.businessOwnerIdentityHolder}
+            group={platform.businessOwnerGroup}
+            stringValue={platform.businessOwner}
+          />
+        )
+      },
     },
     {
       accessorKey: 'technicalOwner',
       header: 'Technical Owner',
       size: 160,
-      cell: ({ row }) => (
-        <ResponsibilityCell userMap={userMap} user={(row.original as Platform).technicalOwnerUser} group={(row.original as Platform).technicalOwnerGroup} stringValue={row.original.technicalOwner} />
-      ),
+      cell: ({ row }) => {
+        const platform = row.original
+        return (
+          <ResponsibilityCell
+            userMap={userMap}
+            user={platform.technicalOwnerUser}
+            personnel={platform.technicalOwnerIdentityHolder}
+            group={platform.technicalOwnerGroup}
+            stringValue={platform.technicalOwner}
+          />
+        )
+      },
     },
     { accessorKey: 'createdAt', header: 'Created At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },

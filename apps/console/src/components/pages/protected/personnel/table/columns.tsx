@@ -62,7 +62,15 @@ export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems 
       accessorKey: 'internalOwner',
       header: 'Internal Owner',
       size: 160,
-      cell: ({ row }) => <ResponsibilityCell userMap={userMap} user={row.original.internalOwnerUser} group={row.original.internalOwnerGroup} stringValue={row.original.internalOwner} />,
+      cell: ({ row }) => (
+        <ResponsibilityCell
+          userMap={userMap}
+          user={row.original.internalOwnerUser}
+          personnel={row.original.internalOwnerIdentityHolder}
+          group={row.original.internalOwnerGroup}
+          stringValue={row.original.internalOwner}
+        />
+      ),
     },
     { accessorKey: 'tags', header: 'Tags', size: 180, cell: ({ row }) => <TagsCell tags={row.original.tags} /> },
     { accessorKey: 'createdAt', header: 'Created At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },

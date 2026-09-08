@@ -3727,31 +3727,6 @@ export interface GetEvidenceFilesByIdQuery {
   }
 }
 
-export type GetEvidenceTrendDataQueryVariables = Exact<{
-  currentWeekStart: any
-  previousWeekStart: any
-  previousWeekEnd: any
-  status?: Types.EvidenceEvidenceStatus | null | undefined
-}>
-
-export interface GetEvidenceTrendDataQuery {
-  currentWeek: { totalCount: number }
-  previousWeek: { totalCount: number }
-}
-
-export type GetProgramEvidenceTrendDataQueryVariables = Exact<{
-  programId: string
-  currentWeekStart: any
-  previousWeekStart: any
-  previousWeekEnd: any
-  status?: Types.EvidenceEvidenceStatus | null | undefined
-}>
-
-export interface GetProgramEvidenceTrendDataQuery {
-  currentWeek: { totalCount: number }
-  previousWeek: { totalCount: number }
-}
-
 export type EvidenceSuggestedActionsQueryVariables = Exact<{ [key: string]: never }>
 
 export interface EvidenceSuggestedActionsQuery {

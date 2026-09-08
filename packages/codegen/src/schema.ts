@@ -496,6 +496,7 @@ export interface AssetsWithFilterQuery {
         tags: Array<string> | null
         website: string | null
         categories: Array<string> | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerUser: { id: string; displayName: string } | null
         entities: { edges: Array<{ node: { id: string; name: string | null; displayName: string | null } | null } | null> | null }
@@ -542,6 +543,7 @@ export interface AssetQuery {
     tags: Array<string> | null
     website: string | null
     categories: Array<string> | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
     entities: { edges: Array<{ node: { id: string; name: string | null; displayName: string | null } | null } | null> | null }
@@ -3105,8 +3107,10 @@ export interface EntitiesWithFilterQuery {
         updatedBy: string | null
         vendorMetadata: any
         logoFile: { base64: string | null } | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerUser: { id: string; displayName: string } | null
+        reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
         reviewedByGroup: { id: string; displayName: string } | null
         reviewedByUser: { id: string; displayName: string } | null
       } | null
@@ -3183,9 +3187,11 @@ export interface EntityQuery {
     updatedBy: string | null
     vendorMetadata: any
     integrations: { edges: Array<{ node: { id: string; definitionID: string | null; name: string; directoryGroups: { totalCount: number } } | null } | null> | null }
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
     logoFile: { base64: string | null } | null
+    reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
     reviewedByGroup: { id: string; displayName: string } | null
     reviewedByUser: { id: string; displayName: string } | null
   }
@@ -4478,6 +4484,7 @@ export interface IdentityHoldersWithFilterQuery {
         updatedBy: string | null
         userID: string | null
         workflowEligibleMarker: boolean | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerUser: { id: string; displayName: string } | null
       } | null
@@ -4544,6 +4551,7 @@ export interface IdentityHolderQuery {
     updatedBy: string | null
     userID: string | null
     workflowEligibleMarker: boolean | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
   }
@@ -6036,8 +6044,10 @@ export interface PlatformsWithFilterQuery {
         updatedBy: string | null
         workflowEligibleMarker: boolean | null
         businessOwnerUser: { id: string; displayName: string; email: string } | null
+        businessOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         businessOwnerGroup: { id: string; name: string } | null
         technicalOwnerUser: { id: string; displayName: string; email: string } | null
+        technicalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         technicalOwnerGroup: { id: string; name: string } | null
       } | null
     } | null> | null
@@ -6114,13 +6124,17 @@ export interface PlatformQuery {
     updatedBy: string | null
     workflowEligibleMarker: boolean | null
     businessOwnerUser: { id: string; displayName: string; email: string } | null
+    businessOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     businessOwnerGroup: { id: string; name: string } | null
     internalOwnerUser: { id: string; displayName: string; email: string } | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; name: string } | null
     platformOwner: { id: string; displayName: string; email: string } | null
     securityOwnerUser: { id: string; displayName: string; email: string } | null
+    securityOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     securityOwnerGroup: { id: string; name: string } | null
     technicalOwnerUser: { id: string; displayName: string; email: string } | null
+    technicalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     technicalOwnerGroup: { id: string; name: string } | null
     assets: {
       edges: Array<{
@@ -6130,6 +6144,7 @@ export interface PlatformQuery {
           assetType: Types.AssetAssetType
           internalOwner: string | null
           internalOwnerUser: { id: string; displayName: string; email: string } | null
+          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
           internalOwnerGroup: { id: string; displayName: string } | null
         } | null
       } | null> | null
@@ -6142,6 +6157,7 @@ export interface PlatformQuery {
           assetType: Types.AssetAssetType
           internalOwner: string | null
           internalOwnerUser: { id: string; displayName: string; email: string } | null
+          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
           internalOwnerGroup: { id: string; displayName: string } | null
         } | null
       } | null> | null
@@ -6156,6 +6172,7 @@ export interface PlatformQuery {
           internalOwner: string | null
           logoFile: { base64: string | null } | null
           internalOwnerUser: { id: string; displayName: string; email: string } | null
+          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
           internalOwnerGroup: { id: string; displayName: string } | null
         } | null
       } | null> | null
@@ -6170,6 +6187,7 @@ export interface PlatformQuery {
           internalOwner: string | null
           logoFile: { base64: string | null } | null
           internalOwnerUser: { id: string; displayName: string; email: string } | null
+          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
           internalOwnerGroup: { id: string; displayName: string } | null
         } | null
       } | null> | null
@@ -7514,10 +7532,12 @@ export interface ScansWithFilterQuery {
         updatedAt: any
         updatedBy: string | null
         assignedToUser: { id: string; displayName: string } | null
+        assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
         assignedToGroup: { id: string; displayName: string } | null
         performedByUser: { id: string; displayName: string } | null
         performedByGroup: { id: string; displayName: string } | null
         reviewedByUser: { id: string; displayName: string } | null
+        reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
         reviewedByGroup: { id: string; displayName: string } | null
       } | null
     } | null> | null
@@ -7553,10 +7573,12 @@ export interface ScanQuery {
     updatedAt: any
     updatedBy: string | null
     assignedToUser: { id: string; displayName: string } | null
+    assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
     assignedToGroup: { id: string; displayName: string } | null
     performedByUser: { id: string; displayName: string } | null
     performedByGroup: { id: string; displayName: string } | null
     reviewedByUser: { id: string; displayName: string } | null
+    reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
     reviewedByGroup: { id: string; displayName: string } | null
   }
 }

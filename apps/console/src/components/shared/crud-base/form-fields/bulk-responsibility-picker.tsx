@@ -1,30 +1,38 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { User, Users, Type, Check, X } from 'lucide-react'
+import { User, Users, IdCardLanyard, Type, Check, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
+import { usePersonnelSelect } from '@/lib/graphql-hooks/identity-holder'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
 import { type ResponsibilitySelection } from './responsibility-field-utils'
 import { isValidEmail } from '@/lib/validators'
 
 interface BulkResponsibilityPickerProps {
+  allowPersonnel?: boolean
   value: ResponsibilitySelection
   onChange: (selection: ResponsibilitySelection) => void
 }
 
-export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> = ({ value, onChange }) => {
+export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> = ({ allowPersonnel = true, value, onChange }) => {
   const [open, setOpen] = useState(false)
   const [searchText, setSearchText] = useState('')
 
   const { userOptions } = useUserSelect({})
   const { groupOptions } = useGroupSelect()
+  const { personnelOptions } = usePersonnelSelect({
+    searchText,
+    enabled: open && allowPersonnel,
+  })
   const { errorNotification } = useNotification()
 
   const getTypeIcon = (type?: string) => {
     switch (type) {
+      case 'personnel':
+        return <IdCardLanyard className="h-3.5 w-3.5 text-muted-foreground" />
       case 'user':
         return <User className="h-3.5 w-3.5 text-muted-foreground" />
       case 'group':
@@ -79,7 +87,7 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
         sideOffset={4}
       >
         <Command shouldFilter={false}>
-          <CommandInput placeholder="Search users, groups, or type a name..." value={searchText} onValueChange={setSearchText} />
+          <CommandInput placeholder="Search users, groups, personnel, or type a name/email..." value={searchText} onValueChange={setSearchText} />
           <CommandList className="max-h-[min(300px,var(--radix-popover-content-available-height,300px))]">
             <CommandEmpty>No results found.</CommandEmpty>
             {value && (
@@ -112,7 +120,25 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
                 ))}
               </CommandGroup>
             )}
-            {searchText.trim() && !hasExactMatch && (
+            {allowPersonnel && personnelOptions.length > 0 && (
+              <CommandGroup heading="Personnel">
+                {personnelOptions.map((option) => (
+                  <CommandItem
+                    key={`personnel-${option.value}`}
+                    value={`personnel-${option.value}`}
+                    onSelect={() => handleSelect({ type: 'personnel', value: option.value, displayName: option.label })}
+                  >
+                    <IdCardLanyard className="mr-2 h-4 w-4" />
+                    <span>
+                      {option.label}
+                      {option.email && option.email !== option.label ? ` (${option.email})` : ''}
+                    </span>
+                    {value?.type === 'personnel' && value.value === option.value && <Check className="ml-auto h-4 w-4" />}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {searchText.trim() && !hasExactMatch && !personnelOptions.some((person) => person.label.toLowerCase() === normalizedSearchText || person.email?.toLowerCase() === normalizedSearchText) && (
               <CommandGroup heading="Custom">
                 <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() })}>
                   <Type className="mr-2 h-4 w-4" />

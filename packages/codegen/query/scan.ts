@@ -11,6 +11,11 @@ export const GET_ALL_SCANS = gql`
             id
             displayName
           }
+          assignedToIdentityHolder {
+            id
+            fullName
+            email
+          }
           assignedToGroup {
             id
             displayName
@@ -36,6 +41,11 @@ export const GET_ALL_SCANS = gql`
           reviewedByUser {
             id
             displayName
+          }
+          reviewedByIdentityHolder {
+            id
+            fullName
+            email
           }
           reviewedByGroup {
             id
@@ -70,6 +80,11 @@ export const SCAN = gql`
         id
         displayName
       }
+      assignedToIdentityHolder {
+        id
+        fullName
+        email
+      }
       assignedToGroup {
         id
         displayName
@@ -95,6 +110,11 @@ export const SCAN = gql`
       reviewedByUser {
         id
         displayName
+      }
+      reviewedByIdentityHolder {
+        id
+        fullName
+        email
       }
       reviewedByGroup {
         id

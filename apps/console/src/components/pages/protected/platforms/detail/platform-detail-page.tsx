@@ -103,21 +103,25 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
     containsPii: platform.containsPii ?? false,
     platformOwner: platform.platformOwnerID ? { type: 'user' as const, value: platform.platformOwnerID, displayName: platform.platformOwner?.displayName ?? platform.platformOwnerID } : undefined,
     businessOwner: normalizeResponsibilityField({
+      personnel: platform.businessOwnerIdentityHolder,
       user: platform.businessOwnerUser ? { id: platform.businessOwnerUser.id, displayName: platform.businessOwnerUser.displayName } : null,
       group: platform.businessOwnerGroup ? { id: platform.businessOwnerGroup.id, displayName: platform.businessOwnerGroup.name } : null,
       stringValue: platform.businessOwner,
     }),
     technicalOwner: normalizeResponsibilityField({
+      personnel: platform.technicalOwnerIdentityHolder,
       user: platform.technicalOwnerUser ? { id: platform.technicalOwnerUser.id, displayName: platform.technicalOwnerUser.displayName } : null,
       group: platform.technicalOwnerGroup ? { id: platform.technicalOwnerGroup.id, displayName: platform.technicalOwnerGroup.name } : null,
       stringValue: platform.technicalOwner,
     }),
     internalOwner: normalizeResponsibilityField({
+      personnel: platform.internalOwnerIdentityHolder,
       user: platform.internalOwnerUser ? { id: platform.internalOwnerUser.id, displayName: platform.internalOwnerUser.displayName } : null,
       group: platform.internalOwnerGroup ? { id: platform.internalOwnerGroup.id, displayName: platform.internalOwnerGroup.name } : null,
       stringValue: platform.internalOwner,
     }),
     securityOwner: normalizeResponsibilityField({
+      personnel: platform.securityOwnerIdentityHolder,
       user: platform.securityOwnerUser ? { id: platform.securityOwnerUser.id, displayName: platform.securityOwnerUser.displayName } : null,
       group: platform.securityOwnerGroup ? { id: platform.securityOwnerGroup.id, displayName: platform.securityOwnerGroup.name } : null,
       stringValue: platform.securityOwner,

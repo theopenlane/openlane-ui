@@ -19541,7 +19541,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the asset when no user or group is linked",
+            "description": "the internal owner for the asset when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -19566,6 +19566,30 @@
           {
             "name": "internalOwnerGroupID",
             "description": "the internal owner group id for the asset",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
+            "description": "the internal owner identity holder id for the asset",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -24737,6 +24761,38 @@
             "deprecationReason": null
           },
           {
+            "name": "hasInternalOwnerIdentityHolder",
+            "description": "internal_owner_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasInternalOwnerIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "hasInternalOwnerUser",
             "description": "internal_owner_user edge predicates",
             "type": {
@@ -25962,6 +26018,154 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
+            "description": "internal_owner_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null,
@@ -29759,7 +29963,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the campaign when no user or group is linked",
+            "description": "the internal owner for the campaign when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -29784,6 +29988,30 @@
           {
             "name": "internalOwnerGroupID",
             "description": "the internal owner group id for the campaign",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
+            "description": "the internal owner identity holder id for the campaign",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -36447,6 +36675,38 @@
             "deprecationReason": null
           },
           {
+            "name": "hasInternalOwnerIdentityHolder",
+            "description": "internal_owner_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasInternalOwnerIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "hasInternalOwnerUser",
             "description": "internal_owner_user edge predicates",
             "type": {
@@ -37120,6 +37380,154 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
+            "description": "internal_owner_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null,
@@ -69245,7 +69653,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the asset when no user or group is linked",
+            "description": "the internal owner for the asset when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -69257,6 +69665,18 @@
           },
           {
             "name": "internalOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -69965,7 +70385,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the campaign when no user or group is linked",
+            "description": "the internal owner for the campaign when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -69977,6 +70397,18 @@
           },
           {
             "name": "internalOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -76437,7 +76869,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the entity when no user or group is linked",
+            "description": "the internal owner for the entity when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -76449,6 +76881,18 @@
           },
           {
             "name": "internalOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -76797,7 +77241,7 @@
           },
           {
             "name": "reviewedBy",
-            "description": "who reviewed the entity when no user or group is linked",
+            "description": "who reviewed the entity when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -76809,6 +77253,18 @@
           },
           {
             "name": "reviewedByGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -79117,7 +79573,7 @@
           },
           {
             "name": "assignedTo",
-            "description": "who the finding is assigned to when no user or group is linked",
+            "description": "who the finding is assigned to when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -79129,6 +79585,18 @@
           },
           {
             "name": "assignedToGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -79781,7 +80249,7 @@
           },
           {
             "name": "reviewedBy",
-            "description": "who reviewed the finding when no user or group is linked",
+            "description": "who reviewed the finding when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -79793,6 +80261,18 @@
           },
           {
             "name": "reviewedByGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -82257,7 +82737,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the identity holder when no user or group is linked",
+            "description": "the internal owner for the identity holder when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -82269,6 +82749,18 @@
           },
           {
             "name": "internalOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -89353,7 +89845,7 @@
           },
           {
             "name": "businessOwner",
-            "description": "business owner for the platform when no user or group is linked",
+            "description": "business owner for the platform when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -89365,6 +89857,18 @@
           },
           {
             "name": "businessOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -89797,7 +90301,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the platform when no user or group is linked",
+            "description": "the internal owner for the platform when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -89809,6 +90313,18 @@
           },
           {
             "name": "internalOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -90085,7 +90601,7 @@
           },
           {
             "name": "securityOwner",
-            "description": "security owner for the platform when no user or group is linked",
+            "description": "security owner for the platform when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -90097,6 +90613,18 @@
           },
           {
             "name": "securityOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -90281,7 +90809,7 @@
           },
           {
             "name": "technicalOwner",
-            "description": "technical owner for the platform when no user or group is linked",
+            "description": "technical owner for the platform when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -90293,6 +90821,18 @@
           },
           {
             "name": "technicalOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -94421,7 +94961,7 @@
           },
           {
             "name": "assignedTo",
-            "description": "who the scan is assigned to when no user or group is linked",
+            "description": "who the scan is assigned to when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -94433,6 +94973,18 @@
           },
           {
             "name": "assignedToGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -94777,7 +95329,7 @@
           },
           {
             "name": "reviewedBy",
-            "description": "who reviewed the scan when no user or group is linked",
+            "description": "who reviewed the scan when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -94789,6 +95341,18 @@
           },
           {
             "name": "reviewedByGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -101405,7 +101969,7 @@
           },
           {
             "name": "assignedTo",
-            "description": "who the vulnerability is assigned to when no user or group is linked",
+            "description": "who the vulnerability is assigned to when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -101417,6 +101981,18 @@
           },
           {
             "name": "assignedToGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -102133,7 +102709,7 @@
           },
           {
             "name": "reviewedBy",
-            "description": "who reviewed the vulnerability when no user or group is linked",
+            "description": "who reviewed the vulnerability when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -102145,6 +102721,18 @@
           },
           {
             "name": "reviewedByGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -144615,7 +145203,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the entity when no user or group is linked",
+            "description": "the internal owner for the entity when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -144640,6 +145228,30 @@
           {
             "name": "internalOwnerGroupID",
             "description": "the internal owner group id for the entity",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
+            "description": "the internal owner identity holder id for the entity",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -145376,7 +145988,7 @@
           },
           {
             "name": "reviewedBy",
-            "description": "who reviewed the entity when no user or group is linked",
+            "description": "who reviewed the entity when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -145401,6 +146013,30 @@
           {
             "name": "reviewedByGroupID",
             "description": "the group id that reviewed the entity",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
+            "description": "the identity holder id that reviewed the entity",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -152775,6 +153411,38 @@
             "deprecationReason": null
           },
           {
+            "name": "hasInternalOwnerIdentityHolder",
+            "description": "internal_owner_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasInternalOwnerIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "hasInternalOwnerUser",
             "description": "internal_owner_user edge predicates",
             "type": {
@@ -153053,6 +153721,38 @@
                 "kind": "NON_NULL",
                 "ofType": {
                   "name": "GroupWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasReviewedByIdentityHolder",
+            "description": "reviewed_by_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasReviewedByIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
                   "kind": "INPUT_OBJECT",
                   "ofType": null
                 }
@@ -153880,6 +154580,154 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
+            "description": "internal_owner_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null,
@@ -155568,6 +156416,154 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
+            "description": "reviewed_by_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null,
@@ -176469,7 +177465,7 @@
           },
           {
             "name": "assignedTo",
-            "description": "who the finding is assigned to when no user or group is linked",
+            "description": "who the finding is assigned to when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -176494,6 +177490,30 @@
           {
             "name": "assignedToGroupID",
             "description": "the group id assigned to the finding",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderID",
+            "description": "the identity holder id assigned to the finding",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -178302,7 +179322,7 @@
           },
           {
             "name": "reviewedBy",
-            "description": "who reviewed the finding when no user or group is linked",
+            "description": "who reviewed the finding when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -178327,6 +179347,30 @@
           {
             "name": "reviewedByGroupID",
             "description": "the group id that reviewed the finding",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
+            "description": "the identity holder id that reviewed the finding",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -182434,6 +183478,154 @@
             "deprecationReason": null
           },
           {
+            "name": "assignedToIdentityHolderID",
+            "description": "assigned_to_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "assignedToIn",
             "description": null,
             "type": {
@@ -185018,6 +186210,38 @@
             "deprecationReason": null
           },
           {
+            "name": "hasAssignedToIdentityHolder",
+            "description": "assigned_to_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasAssignedToIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "hasAssignedToUser",
             "description": "assigned_to_user edge predicates",
             "type": {
@@ -185584,6 +186808,38 @@
                 "kind": "NON_NULL",
                 "ofType": {
                   "name": "GroupWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasReviewedByIdentityHolder",
+            "description": "reviewed_by_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasReviewedByIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
                   "kind": "INPUT_OBJECT",
                   "ofType": null
                 }
@@ -187711,6 +188967,154 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
+            "description": "reviewed_by_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null,
@@ -208457,7 +209861,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the identity holder when no user or group is linked",
+            "description": "the internal owner for the identity holder when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -208482,6 +209886,30 @@
           {
             "name": "internalOwnerGroupID",
             "description": "the internal owner group id for the identity holder",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
+            "description": "the internal owner identity holder id for the identity holder",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -212611,6 +214039,38 @@
             "deprecationReason": null
           },
           {
+            "name": "hasInternalOwnerIdentityHolder",
+            "description": "internal_owner_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasInternalOwnerIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "hasInternalOwnerUser",
             "description": "internal_owner_user edge predicates",
             "type": {
@@ -213328,6 +214788,154 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
+            "description": "internal_owner_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null,
@@ -217275,6 +218883,18 @@
             "deprecationReason": null
           },
           {
+            "name": "expiresAt",
+            "description": "when a pending installation is considered abandoned and eligible for cleanup; cleared when the installation connects",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Time",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "family",
             "description": "the denormalized family label for the installation definition",
             "args": [],
@@ -218742,6 +220362,12 @@
             "deprecationReason": null
           },
           {
+            "name": "expires_at",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "family",
             "description": null,
             "isDeprecated": false,
@@ -219793,6 +221419,90 @@
           },
           {
             "name": "environmentNameNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "expiresAt",
+            "description": "expires_at field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Time",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "expiresAtGT",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Time",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "expiresAtGTE",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Time",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "expiresAtIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "expiresAtLT",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Time",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "expiresAtLTE",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Time",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "expiresAtNotNil",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -314275,7 +315985,7 @@
           },
           {
             "name": "businessOwner",
-            "description": "business owner for the platform when no user or group is linked",
+            "description": "business owner for the platform when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -314300,6 +316010,30 @@
           {
             "name": "businessOwnerGroupID",
             "description": "the business owner group id for the platform",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolderID",
+            "description": "the business owner identity holder id for the platform",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -315888,7 +317622,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the platform when no user or group is linked",
+            "description": "the internal owner for the platform when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -315913,6 +317647,30 @@
           {
             "name": "internalOwnerGroupID",
             "description": "the internal owner group id for the platform",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
+            "description": "the internal owner identity holder id for the platform",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -316568,7 +318326,7 @@
           },
           {
             "name": "securityOwner",
-            "description": "security owner for the platform when no user or group is linked",
+            "description": "security owner for the platform when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -316593,6 +318351,30 @@
           {
             "name": "securityOwnerGroupID",
             "description": "the security owner group id for the platform",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityOwnerIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityOwnerIdentityHolderID",
+            "description": "the security owner identity holder id for the platform",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -317116,7 +318898,7 @@
           },
           {
             "name": "technicalOwner",
-            "description": "technical owner for the platform when no user or group is linked",
+            "description": "technical owner for the platform when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -317141,6 +318923,30 @@
           {
             "name": "technicalOwnerGroupID",
             "description": "the technical owner group id for the platform",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolderID",
+            "description": "the technical owner identity holder id for the platform",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -318629,6 +320435,154 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolderID",
+            "description": "business_owner_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null,
@@ -321252,6 +323206,38 @@
             "deprecationReason": null
           },
           {
+            "name": "hasBusinessOwnerIdentityHolder",
+            "description": "business_owner_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasBusinessOwnerIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "hasBusinessOwnerUser",
             "description": "business_owner_user edge predicates",
             "type": {
@@ -321828,6 +323814,38 @@
             "deprecationReason": null
           },
           {
+            "name": "hasInternalOwnerIdentityHolder",
+            "description": "internal_owner_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasInternalOwnerIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "hasInternalOwnerUser",
             "description": "internal_owner_user edge predicates",
             "type": {
@@ -322180,6 +324198,38 @@
             "deprecationReason": null
           },
           {
+            "name": "hasSecurityOwnerIdentityHolder",
+            "description": "security_owner_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasSecurityOwnerIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "hasSecurityOwnerUser",
             "description": "security_owner_user edge predicates",
             "type": {
@@ -322394,6 +324444,38 @@
                 "kind": "NON_NULL",
                 "ofType": {
                   "name": "GroupWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasTechnicalOwnerIdentityHolder",
+            "description": "technical_owner_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasTechnicalOwnerIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
                   "kind": "INPUT_OBJECT",
                   "ofType": null
                 }
@@ -322833,6 +324915,154 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
+            "description": "internal_owner_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null,
@@ -325004,6 +327234,154 @@
             "deprecationReason": null
           },
           {
+            "name": "securityOwnerIdentityHolderID",
+            "description": "security_owner_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityOwnerIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityOwnerIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityOwnerIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityOwnerIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityOwnerIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityOwnerIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityOwnerIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityOwnerIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityOwnerIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityOwnerIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "securityOwnerIn",
             "description": null,
             "type": {
@@ -326025,6 +328403,154 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolderID",
+            "description": "technical_owner_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null,
@@ -385604,7 +388130,7 @@
           },
           {
             "name": "assignedTo",
-            "description": "who the scan is assigned to when no user or group is linked",
+            "description": "who the scan is assigned to when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -385629,6 +388155,30 @@
           {
             "name": "assignedToGroupID",
             "description": "the group id assigned to the scan",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderID",
+            "description": "the identity holder id assigned to the scan",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -386777,7 +389327,7 @@
           },
           {
             "name": "reviewedBy",
-            "description": "who reviewed the scan when no user or group is linked",
+            "description": "who reviewed the scan when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -386802,6 +389352,30 @@
           {
             "name": "reviewedByGroupID",
             "description": "the group id that reviewed the scan",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
+            "description": "the identity holder id that reviewed the scan",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -388114,6 +390688,154 @@
             "deprecationReason": null
           },
           {
+            "name": "assignedToIdentityHolderID",
+            "description": "assigned_to_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "assignedToIn",
             "description": null,
             "type": {
@@ -389122,6 +391844,38 @@
             "deprecationReason": null
           },
           {
+            "name": "hasAssignedToIdentityHolder",
+            "description": "assigned_to_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasAssignedToIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "hasAssignedToUser",
             "description": "assigned_to_user edge predicates",
             "type": {
@@ -389624,6 +392378,38 @@
                 "kind": "NON_NULL",
                 "ofType": {
                   "name": "GroupWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasReviewedByIdentityHolder",
+            "description": "reviewed_by_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasReviewedByIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
                   "kind": "INPUT_OBJECT",
                   "ofType": null
                 }
@@ -390951,6 +393737,154 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
+            "description": "reviewed_by_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null,
@@ -463805,6 +466739,18 @@
             "deprecationReason": null
           },
           {
+            "name": "clearInternalOwnerIdentityHolder",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "clearInternalOwnerUser",
             "description": null,
             "type": {
@@ -464262,7 +467208,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the asset when no user or group is linked",
+            "description": "the internal owner for the asset when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -464274,6 +467220,18 @@
           },
           {
             "name": "internalOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -465337,6 +468295,18 @@
             "deprecationReason": null
           },
           {
+            "name": "clearInternalOwnerIdentityHolder",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "clearInternalOwnerUser",
             "description": null,
             "type": {
@@ -465674,7 +468644,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the campaign when no user or group is linked",
+            "description": "the internal owner for the campaign when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -465686,6 +468656,18 @@
           },
           {
             "name": "internalOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -478077,6 +481059,18 @@
             "deprecationReason": null
           },
           {
+            "name": "clearInternalOwnerIdentityHolder",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "clearInternalOwnerUser",
             "description": null,
             "type": {
@@ -478318,6 +481312,18 @@
           },
           {
             "name": "clearReviewedByGroup",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "clearReviewedByIdentityHolder",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -478830,7 +481836,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the entity when no user or group is linked",
+            "description": "the internal owner for the entity when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -478842,6 +481848,18 @@
           },
           {
             "name": "internalOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -479598,7 +482616,7 @@
           },
           {
             "name": "reviewedBy",
-            "description": "who reviewed the entity when no user or group is linked",
+            "description": "who reviewed the entity when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -479610,6 +482628,18 @@
           },
           {
             "name": "reviewedByGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -484318,7 +487348,7 @@
           },
           {
             "name": "assignedTo",
-            "description": "who the finding is assigned to when no user or group is linked",
+            "description": "who the finding is assigned to when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -484330,6 +487360,18 @@
           },
           {
             "name": "assignedToGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -484446,6 +487488,18 @@
           },
           {
             "name": "clearAssignedToGroup",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "clearAssignedToIdentityHolder",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -484974,6 +488028,18 @@
           },
           {
             "name": "clearReviewedByGroup",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "clearReviewedByIdentityHolder",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -485994,7 +489060,7 @@
           },
           {
             "name": "reviewedBy",
-            "description": "who reviewed the finding when no user or group is linked",
+            "description": "who reviewed the finding when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -486006,6 +489072,18 @@
           },
           {
             "name": "reviewedByGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -490521,6 +493599,18 @@
             "deprecationReason": null
           },
           {
+            "name": "clearInternalOwnerIdentityHolder",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "clearInternalOwnerUser",
             "description": null,
             "type": {
@@ -490902,7 +493992,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the identity holder when no user or group is linked",
+            "description": "the internal owner for the identity holder when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -490914,6 +494004,18 @@
           },
           {
             "name": "internalOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -506350,7 +509452,7 @@
           },
           {
             "name": "businessOwner",
-            "description": "business owner for the platform when no user or group is linked",
+            "description": "business owner for the platform when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -506362,6 +509464,18 @@
           },
           {
             "name": "businessOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "businessOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -506494,6 +509608,18 @@
           },
           {
             "name": "clearBusinessOwnerGroup",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "clearBusinessOwnerIdentityHolder",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -506853,6 +509979,18 @@
             "deprecationReason": null
           },
           {
+            "name": "clearInternalOwnerIdentityHolder",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "clearInternalOwnerUser",
             "description": null,
             "type": {
@@ -507081,6 +510219,18 @@
             "deprecationReason": null
           },
           {
+            "name": "clearSecurityOwnerIdentityHolder",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "clearSecurityOwnerUser",
             "description": null,
             "type": {
@@ -507202,6 +510352,18 @@
           },
           {
             "name": "clearTechnicalOwnerGroup",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "clearTechnicalOwnerIdentityHolder",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -507442,7 +510604,7 @@
           },
           {
             "name": "internalOwner",
-            "description": "the internal owner for the platform when no user or group is linked",
+            "description": "the internal owner for the platform when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -507454,6 +510616,18 @@
           },
           {
             "name": "internalOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "internalOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -508194,7 +511368,7 @@
           },
           {
             "name": "securityOwner",
-            "description": "security owner for the platform when no user or group is linked",
+            "description": "security owner for the platform when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -508206,6 +511380,18 @@
           },
           {
             "name": "securityOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -508310,7 +511496,7 @@
           },
           {
             "name": "technicalOwner",
-            "description": "technical owner for the platform when no user or group is linked",
+            "description": "technical owner for the platform when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -508322,6 +511508,18 @@
           },
           {
             "name": "technicalOwnerGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "technicalOwnerIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -517518,7 +520716,7 @@
           },
           {
             "name": "assignedTo",
-            "description": "who the scan is assigned to when no user or group is linked",
+            "description": "who the scan is assigned to when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -517530,6 +520728,18 @@
           },
           {
             "name": "assignedToGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -517590,6 +520800,18 @@
           },
           {
             "name": "clearAssignedToGroup",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "clearAssignedToIdentityHolder",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -517854,6 +521076,18 @@
           },
           {
             "name": "clearReviewedByGroup",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "clearReviewedByIdentityHolder",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -518394,7 +521628,7 @@
           },
           {
             "name": "reviewedBy",
-            "description": "who reviewed the scan when no user or group is linked",
+            "description": "who reviewed the scan when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -518406,6 +521640,18 @@
           },
           {
             "name": "reviewedByGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -531598,7 +534844,7 @@
           },
           {
             "name": "assignedTo",
-            "description": "who the vulnerability is assigned to when no user or group is linked",
+            "description": "who the vulnerability is assigned to when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -531610,6 +534856,18 @@
           },
           {
             "name": "assignedToGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -531706,6 +534964,18 @@
           },
           {
             "name": "clearAssignedToGroup",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "clearAssignedToIdentityHolder",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -532282,6 +535552,18 @@
           },
           {
             "name": "clearReviewedByGroup",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "clearReviewedByIdentityHolder",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -533370,7 +536652,7 @@
           },
           {
             "name": "reviewedBy",
-            "description": "who reviewed the vulnerability when no user or group is linked",
+            "description": "who reviewed the vulnerability when no user, group, or identity holder is linked",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -533382,6 +536664,18 @@
           },
           {
             "name": "reviewedByGroupID",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -548518,7 +551812,7 @@
           },
           {
             "name": "assignedTo",
-            "description": "who the vulnerability is assigned to when no user or group is linked",
+            "description": "who the vulnerability is assigned to when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -548543,6 +551837,30 @@
           {
             "name": "assignedToGroupID",
             "description": "the group id assigned to the vulnerability",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderID",
+            "description": "the identity holder id assigned to the vulnerability",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -550132,7 +553450,7 @@
           },
           {
             "name": "reviewedBy",
-            "description": "who reviewed the vulnerability when no user or group is linked",
+            "description": "who reviewed the vulnerability when no user, group, or identity holder is linked",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -550157,6 +553475,30 @@
           {
             "name": "reviewedByGroupID",
             "description": "the group id that reviewed the vulnerability",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolder",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "IdentityHolder",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
+            "description": "the identity holder id that reviewed the vulnerability",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -552215,6 +555557,154 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderID",
+            "description": "assigned_to_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "assignedToIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null,
@@ -555378,6 +558868,38 @@
             "deprecationReason": null
           },
           {
+            "name": "hasAssignedToIdentityHolder",
+            "description": "assigned_to_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasAssignedToIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "hasAssignedToUser",
             "description": "assigned_to_user edge predicates",
             "type": {
@@ -555816,6 +559338,38 @@
                 "kind": "NON_NULL",
                 "ofType": {
                   "name": "GroupWhereInput",
+                  "kind": "INPUT_OBJECT",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasReviewedByIdentityHolder",
+            "description": "reviewed_by_identity_holder edge predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "hasReviewedByIdentityHolderWith",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "IdentityHolderWhereInput",
                   "kind": "INPUT_OBJECT",
                   "ofType": null
                 }
@@ -557851,6 +561405,154 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderID",
+            "description": "reviewed_by_identity_holder_id field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDContains",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDContainsFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDEqualFold",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDHasPrefix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDHasSuffix",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDIsNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "ID",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "name": null,
+                "kind": "NON_NULL",
+                "ofType": {
+                  "name": "ID",
+                  "kind": "SCALAR",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "reviewedByIdentityHolderIDNotNil",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null,

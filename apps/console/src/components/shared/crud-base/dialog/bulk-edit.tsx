@@ -20,12 +20,12 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { type EnumOptionsGeneric } from '../page'
 import { toHumanLabel } from '@/utils/strings'
-import { type ResponsibilitySelection } from '../form-fields/responsibility-field-utils'
+import { buildResponsibilityPayload, type ResponsibilitySelection } from '../form-fields/responsibility-field-utils'
 import { BulkResponsibilityPicker } from '../form-fields/bulk-responsibility-picker'
 import { useBulkUpdateFeedback } from '../use-bulk-update-feedback'
 import { type BulkUpdatePayload } from '../types'
 
-export type ResponsibilityFieldsMap = Record<string, { fieldBaseName: string }>
+export type ResponsibilityFieldsMap = Record<string, { fieldBaseName: string; allowPersonnel?: boolean }>
 
 export interface BulkEditFieldOption {
   label: string
@@ -149,24 +149,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
       if (respConfig && field.selectedResponsibility !== undefined) {
         const selection = field.selectedResponsibility
         const baseName = respConfig.fieldBaseName
-        const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
-        const inputRecord = input as Record<string, unknown>
-
-        if (!selection) {
-          inputRecord[`clear${capitalize(baseName)}User`] = true
-          inputRecord[`clear${capitalize(baseName)}Group`] = true
-          inputRecord[`clear${capitalize(baseName)}`] = true
-        } else if (selection.type === 'user') {
-          inputRecord[`${baseName}UserID`] = selection.value
-          inputRecord[`clear${capitalize(baseName)}Group`] = true
-        } else if (selection.type === 'group') {
-          inputRecord[`${baseName}GroupID`] = selection.value
-          inputRecord[`clear${capitalize(baseName)}User`] = true
-        } else if (selection.type === 'string') {
-          inputRecord[baseName] = selection.value
-          inputRecord[`clear${capitalize(baseName)}User`] = true
-          inputRecord[`clear${capitalize(baseName)}Group`] = true
-        }
+        Object.assign(input as object, buildResponsibilityPayload(baseName, selection, { mode: 'update', allowPersonnel: respConfig.allowPersonnel }))
         return
       }
 
@@ -265,7 +248,9 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                       <Controller
                         control={control}
                         name={`fieldsArray.${index}.selectedResponsibility`}
-                        render={({ field }) => <BulkResponsibilityPicker value={field.value as ResponsibilitySelection} onChange={field.onChange} />}
+                        render={({ field }) => (
+                          <BulkResponsibilityPicker allowPersonnel={responsibilityFields[fieldKey].allowPersonnel} value={field.value as ResponsibilitySelection} onChange={field.onChange} />
+                        )}
                       />
                     ) : fieldKey && innerZodType instanceof z.ZodArray && selectOptions ? (
                       <Controller

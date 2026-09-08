@@ -37,7 +37,12 @@ interface PersonnelDetailPageProps {
 
 const normalizeData = (data: IdentityHolderQuery['identityHolder']) =>
   normalizeEntityData(data, {
-    internalOwner: { user: data?.internalOwnerUser, group: data?.internalOwnerGroup, stringValue: data?.internalOwner },
+    internalOwner: {
+      personnel: data?.internalOwnerIdentityHolder,
+      user: data?.internalOwnerUser,
+      group: data?.internalOwnerGroup,
+      stringValue: data?.internalOwner,
+    },
   })
 
 const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }) => {
