@@ -516,6 +516,7 @@ export function DataTable<TData extends RowData>({
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     onColumnSizingChange: handleColumnSizingChange,
+    getRowCanExpand: () => !!renderExpandedRow,
     columnResizeMode,
     columnResizeDirection,
     enableColumnResizing: true,
