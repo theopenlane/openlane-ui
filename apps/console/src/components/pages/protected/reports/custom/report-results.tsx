@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import type { ColumnDef } from '@tanstack/react-table'
 import { LoaderCircle } from 'lucide-react'
 import { CodeBlock } from '@repo/ui/code-block'
 import { DataTable } from '@repo/ui/data-table'
+import type { ColumnDef } from '@repo/ui/table-types'
 import Pagination from '@repo/ui/pagination'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { Callout } from '@/components/shared/callout/callout'
@@ -36,15 +36,19 @@ const pageQueryFor = (page: number, pagination: TPagination, totalPages: number,
 const ReportResults: React.FC<TReportResultsProps> = ({ result, error, isLoading, view, pagination, onPaginationChange }) => {
   const tableColumns = useMemo<ColumnDef<TReportRow>[]>(
     () =>
-      (result?.columns ?? []).map((column) => ({
-        id: column.path,
-        header: column.label,
-        accessorFn: (row: TReportRow) => formatCell(row[column.path], column.field.kind),
-        cell: ({ getValue }) => {
-          const value = getValue<string>()
-          return value === '' ? <span className="text-muted-foreground">—</span> : <span className="block truncate">{value}</span>
-        },
-      })),
+      (result?.columns ?? []).map((column) => {
+        const cellValue = (row: TReportRow) => formatCell(row[column.path], column.field.kind)
+
+        return {
+          id: column.path,
+          header: column.label,
+          accessorFn: cellValue,
+          cell: ({ row }) => {
+            const value = cellValue(row.original)
+            return value === '' ? <span className="text-muted-foreground">—</span> : <span className="block truncate">{value}</span>
+          },
+        }
+      }),
     [result?.columns],
   )
 
