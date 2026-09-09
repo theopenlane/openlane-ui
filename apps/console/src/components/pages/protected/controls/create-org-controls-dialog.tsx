@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import CountBadge from '@/components/shared/count-badge/count-badge'
+import { Callout } from '@/components/shared/callout/callout'
 import { DocsSourceLink, TargetChecklist } from '@/components/shared/docs-help/suggestion-card'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { LightbulbIcon, Link2, PencilLine, Sparkles, TriangleAlert } from 'lucide-react'
@@ -473,16 +474,10 @@ export function CreateOrgControlsRowsList({
   return (
     <div className={`space-y-4 ${className ?? ''}`}>
       {rows.some((row) => !row.existingMatch) && (
-        <div className="flex items-start gap-2.5 rounded-md border border-[var(--color-warning)]/40 bg-[var(--color-warning)]/10 p-3">
-          <PencilLine size={16} className="mt-0.5 shrink-0 text-[var(--color-warning)]" />
-          <p className="text-sm">
-            <span className="font-medium">Edit these before creating them.</span>{' '}
-            <span className="text-muted-foreground">
-              They&apos;re generic examples, not customized to your organization. Ensure each one to match how your organization actually operates. Delete any that are not relevant to your
-              organization. They will be created as drafts and mapped back to this standard control.
-            </span>
-          </p>
-        </div>
+        <Callout variant="warning" icon={PencilLine} title="Edit these before creating them." compact>
+          They&apos;re generic examples, not customized to your organization. Ensure each one to match how your organization actually operates. Delete any that are not relevant to your organization.
+          They will be created as drafts and mapped back to this standard control.
+        </Callout>
       )}
       {rows.map((row, index) => {
         const editing = editingKeys.has(rowKey(row))

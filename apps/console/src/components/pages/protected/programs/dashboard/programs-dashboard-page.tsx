@@ -2,7 +2,7 @@
 
 import React, { useId, use, useEffect, useMemo, useState } from 'react'
 import { type ProgramFromGetProgramDashboard as Program, useGetProgramDashboard } from '@/lib/graphql-hooks/program'
-import { Calendar, ChevronRight, SquarePlus, SearchIcon, UserRoundPlus, Undo, UserIcon, TriangleAlert } from 'lucide-react'
+import { Calendar, ChevronRight, SquarePlus, SearchIcon, UserRoundPlus, Undo, UserIcon } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Input } from '@repo/ui/input'
@@ -289,18 +289,18 @@ const ProgramCard = ({ program, editAllowed }: { program: NonNullable<Program>; 
       </div>
 
       {showArchiveSuggestion && (
-        <div className="flex items-center justify-between gap-4 rounded-md border border-[var(--color-warning)]/40 bg-[var(--color-warning)]/10 p-4">
-          <div className="flex items-start gap-3">
-            <TriangleAlert className="size-5 shrink-0 text-[var(--color-warning)]" />
-            <div className="text-sm">
-              <p className="font-medium">This program is completed and past its end date</p>
-              <p className="text-muted-foreground">To keep your workspace organized, we recommend archiving it</p>
-            </div>
-          </div>
-          <Button variant="secondary" className="shrink-0 border-[var(--color-warning)]/60 " onClick={handleArchive} disabled={isUpdatingStatus} aria-label="Archive program">
-            {isUpdatingStatus ? 'Archiving...' : 'Archive Program'}
-          </Button>
-        </div>
+        <Callout
+          variant="warning"
+          compact
+          title="This program is completed and past its end date"
+          action={
+            <Button variant="secondary" onClick={handleArchive} disabled={isUpdatingStatus} aria-label="Archive program">
+              {isUpdatingStatus ? 'Archiving...' : 'Archive Program'}
+            </Button>
+          }
+        >
+          <span className="text-muted-foreground">To keep your workspace organized, we recommend archiving it</span>
+        </Callout>
       )}
 
       {/* Status row */}

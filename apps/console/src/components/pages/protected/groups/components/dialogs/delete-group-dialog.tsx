@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
-import { Trash2, AlertTriangle, ChevronUpIcon, ChevronDownIcon } from 'lucide-react'
+import { Trash2, ChevronUpIcon, ChevronDownIcon } from 'lucide-react'
 import { useDeleteGroup, useGetGroupDetails } from '@/lib/graphql-hooks/group'
 import { useQueryClient } from '@tanstack/react-query'
 import GroupsDeletePermissionsTable from '../groups-delete-permissions-table'
@@ -14,6 +14,7 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
+import { Callout } from '@/components/shared/callout/callout'
 
 const DeleteGroupDialog = () => {
   const { selectedGroup, setSelectedGroup } = useGroupsStore()
@@ -59,13 +60,9 @@ const DeleteGroupDialog = () => {
           <DialogTitle className="text-2xl font-semibold">Delete group</DialogTitle>
         </DialogHeader>
 
-        <div className="flex items-start gap-3 p-4 border border-destructive-border bg-(--color-destructive-transparent) rounded-lg">
-          <AlertTriangle className="text-destructive mt-1 flex-none" width={16} height={16} />
-          <div>
-            <p className="font-medium text-base text-destructive">Warning</p>
-            <p className="text-sm text-destructive">Please proceed with caution, because you will not be able to undo this action.</p>
-          </div>
-        </div>
+        <Callout variant="danger" title="Warning" compact>
+          Please proceed with caution, because you will not be able to undo this action.
+        </Callout>
         <p>
           Are you sure you want to delete the group <span className="font-semibold">{name}</span> from your organization?
         </p>

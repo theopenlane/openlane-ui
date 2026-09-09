@@ -5,7 +5,7 @@ import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { ChevronDown, Droplet, InfoIcon, PanelRightClose, X } from 'lucide-react'
+import { ChevronDown, Droplet, PanelRightClose, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import FileUpload from '@/components/shared/file-upload/file-upload'
@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontOptions } from '@/components/shared/enum-mapper/trust-center-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { Callout } from '@/components/shared/callout/callout'
 
 type WatermarkConfigUI = {
   id?: string
@@ -159,15 +160,9 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
           }
         >
           <div className="flex flex-col justify-baseline gap-5">
-            <div className="w-full flex items-start gap-2 border rounded-lg p-2.5 bg-card">
-              <InfoIcon size={14} className="mt-1 shrink-0" />
-              <div className="flex flex-col gap-1">
-                <p className="font-medium text-sm leading-5 text-foreground">Applies to new documents only.</p>
-                <p className="font-normal text-xs leading-4">
-                  This watermark setting will be used for all newly generated documents. Existing documents are not changed and can be overridden individually.
-                </p>
-              </div>
-            </div>
+            <Callout variant="info" title="Applies to new documents only." compact>
+              This watermark setting will be used for all newly generated documents. Existing documents are not changed and can be overridden individually.
+            </Callout>
             <div className="flex flex-col max-w gap-4">
               <label className="flex items-center p-4 border border-border rounded-lg cursor-pointer">
                 <input

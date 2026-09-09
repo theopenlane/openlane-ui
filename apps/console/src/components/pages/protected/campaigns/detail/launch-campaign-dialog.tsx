@@ -6,13 +6,14 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Button } from '@repo/ui/button'
-import { AlertTriangle, CalendarClock, Mail, Repeat, Rocket, SendHorizontal, Users } from 'lucide-react'
+import { CalendarClock, Mail, Repeat, Rocket, SendHorizontal, Users } from 'lucide-react'
 import { TZDate } from '@date-fns/tz'
 import { ModeOption } from './mode-option'
 import { TimezoneSelect } from '@/components/shared/timezone-select/timezone-select'
 import { formatDateTime, getBrowserTimeZone } from '@/utils/date'
 import { type CampaignRecurrenceValues, describeRecurrence } from '../recurrence/campaign-recurrence'
 import { RecurrenceFields } from '../recurrence/recurrence-fields'
+import { Callout } from '@/components/shared/callout/callout'
 
 export type LaunchContent = { kind: 'questionnaire' | 'email'; label?: string }
 
@@ -87,13 +88,9 @@ export const LaunchCampaignDialog: React.FC<LaunchCampaignDialogProps> = ({ open
           <DialogTitle>Launch campaign</DialogTitle>
         </DialogHeader>
 
-        <div className="flex gap-3 rounded-md border border-amber-500/40 bg-amber-500/10 p-3">
-          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-500" />
-          <div className="flex flex-col gap-0.5 text-sm">
-            <span className="font-medium">This campaign will be launched to recipients.</span>
-            <span className="text-muted-foreground">Once launched, you won&apos;t be able to edit the campaign, email, or questionnaire. You can still add recipients after launch.</span>
-          </div>
-        </div>
+        <Callout variant="warning" title="This campaign will be launched to recipients." compact>
+          Once launched, you won&apos;t be able to edit the campaign, email, or questionnaire. You can still add recipients after launch.
+        </Callout>
 
         <div className="flex flex-col gap-2">
           <span className="text-sm font-medium">When do you want to launch?</span>

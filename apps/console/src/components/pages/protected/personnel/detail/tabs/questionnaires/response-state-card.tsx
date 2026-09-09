@@ -4,6 +4,7 @@ import React from 'react'
 import { AssessmentResponseAssessmentResponseStatus } from '@repo/codegen/src/schema'
 import { Button } from '@repo/ui/button'
 import { Send } from 'lucide-react'
+import { Callout } from '@/components/shared/callout/callout'
 
 type ResponseStateCardProps = {
   status: AssessmentResponseAssessmentResponseStatus
@@ -33,9 +34,9 @@ const ResponseStateCard: React.FC<ResponseStateCardProps> = ({ status, answered,
   return (
     <div className="space-y-4">
       {isOverdue && pastDue !== null && (
-        <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <Callout variant="danger" compact>
           Due date passed {pastDue} {pastDue === 1 ? 'day' : 'days'} ago
-        </div>
+        </Callout>
       )}
 
       {isInProgress && (
