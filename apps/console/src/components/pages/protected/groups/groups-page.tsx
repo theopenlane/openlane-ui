@@ -18,9 +18,7 @@ import { getGroupTableColumns } from './table/columns'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
-import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useOrgPermission } from '@/components/shared/crud-base/use-object-permission'
 import { whereGenerator, whereContainsKey } from '@/components/shared/table-filter/where-generator'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
@@ -57,7 +55,7 @@ const GroupsPage = () => {
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.GROUP, defaultVisibility))
   const { setCrumbs } = React.use(BreadcrumbContext)
-  const { data: permissions } = useOrganizationRoles()
+  const { canCreate } = useOrgPermission()
   const filterFields = useGroupsFilters()
   const quickFilters: TQuickFilter[] = useMemo(() => {
     return [
@@ -206,7 +204,7 @@ const GroupsPage = () => {
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.GROUP} />
           )}
           {filterFields && filterFields.length > 0 && <TableFilter filterFields={filterFields} onFilterChange={setWhereFilters} pageKey={TableKeyEnum.GROUP} quickFilters={quickFilters} />}
-          {hasPermission(permissions?.roles, AccessEnum.CanCreateGroup, session) && (
+          {canCreate(ObjectTypes.GROUP) && (
             <CreateGroupDialog
               trigger={
                 <Button className="h-8 !px-2" icon={<PlusCircle />} iconPosition="left">

@@ -29,7 +29,7 @@ import { buildAssociationPayload } from '@/components/shared/object-association/
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { REVIEW_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import ReviewSheetResolver from '../common/review-sheet-resolver'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 
 const ReviewPage: React.FC = () => {
   const { form } = useFormSchema()

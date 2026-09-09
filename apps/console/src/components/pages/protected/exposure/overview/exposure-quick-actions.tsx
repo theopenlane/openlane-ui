@@ -7,7 +7,7 @@ import { Bug, FileSearch, Wrench, ClipboardCheck, ListOrdered } from 'lucide-rea
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { useSession } from 'next-auth/react'
 
 const ExposureQuickActions = () => {

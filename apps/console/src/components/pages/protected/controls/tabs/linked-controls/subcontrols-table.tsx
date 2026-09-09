@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { hasPermission, canEdit } from '@/lib/authz/utils'
 import { CreateButton } from '@/components/shared/create-button/create-button'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
