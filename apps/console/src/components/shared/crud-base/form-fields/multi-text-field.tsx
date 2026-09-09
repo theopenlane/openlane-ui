@@ -4,13 +4,14 @@ import React, { useState } from 'react'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { InfoIcon, ExternalLink } from 'lucide-react'
+import { InfoIcon } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
+import { normalizeUrl } from '@/utils/normalizeUrl'
+import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
 
 const isValidLink = (value: string): boolean => {
-  const candidate = /^https?:\/\//i.test(value) ? value : `https://${value}`
   try {
-    const { hostname } = new URL(candidate)
+    const { hostname } = new URL(normalizeUrl(value))
     return /^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/i.test(hostname)
   } catch {
     return false
@@ -106,14 +107,8 @@ export const MultiStringField: React.FC<MultiStringFieldProps> = ({
                   {isFieldEditing &&
                     values.map((value) => (
                       <span key={value} className="flex items-center gap-1 bg-muted px-2 py-1 rounded-md">
-                        {type === 'link' ? (
-                          <a href={value.startsWith('http') ? value : `https://${value}`} target="_blank" rel="noopener noreferrer" className="">
-                            {value.startsWith('http') ? value : `https://${value}`}
-                          </a>
-                        ) : (
-                          value
-                        )}
-                        <button type="button" onClick={() => handleRemove(value)} className="ml-1 bg-transparent">
+                        {type === 'link' ? <ExternalLinkValue value={value} /> : value}
+                        <button type="button" onClick={() => handleRemove(value)} className="ml-2 bg-transparent">
                           ×
                         </button>
                       </span>
@@ -147,17 +142,7 @@ export const MultiStringField: React.FC<MultiStringFieldProps> = ({
                     ) : type === 'link' ? (
                       <div className="flex flex-wrap gap-2">
                         {values.map((value) => (
-                          <a
-                            key={value}
-                            href={value.startsWith('http') ? value : `https://${value}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 hover:bg-accent bg-muted rounded-md px-2 py-1"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {value.startsWith('http') ? value : `https://${value}`}
-                            <ExternalLink className="w-4 h-4 ml-1" />
-                          </a>
+                          <ExternalLinkValue key={value} value={value} className="hover:bg-accent bg-muted rounded-md px-2 py-1" />
                         ))}
                       </div>
                     ) : (

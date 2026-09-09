@@ -6,10 +6,9 @@ import { Textarea } from '@repo/ui/textarea'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '../generic-sheet'
 import { formatDate, formatCurrency } from '@/utils/date'
-import { ExternalLink } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
-import { normalizeUrl } from '@/utils/normalizeUrl'
+import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
 import { cn } from '@repo/ui/lib/utils'
 import { useRef } from 'react'
 
@@ -115,7 +114,9 @@ export const TextField = <TUpdateInput,>({
     }
   }
 
-  const resolvedPrefix = type === 'currency' ? '$' : type === 'link' ? 'https://' : prefix
+  const resolvedPrefix = type === 'currency' ? '$' : prefix
+  const resolvedPlaceholder = type === 'link' ? (placeholder ?? 'https://example.com') : placeholder
+  const inputType = type === 'link' || type === 'currency' ? 'text' : type
 
   const popoverRef = useRef<HTMLDivElement>(null)
 
@@ -131,16 +132,7 @@ export const TextField = <TUpdateInput,>({
     }
 
     if (type === 'link') {
-      return value ? (
-        <a href={normalizeUrl(value)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 min-w-0 max-w-full" onClick={(e) => e.stopPropagation()}>
-          <span className="truncate" title={normalizeUrl(value)}>
-            {normalizeUrl(value)}
-          </span>
-          <ExternalLink className="w-4 h-4 ml-1 shrink-0" />
-        </a>
-      ) : (
-        notSet
-      )
+      return <ExternalLinkValue value={value} fallback={notSet} />
     }
 
     if (!value) {
@@ -187,9 +179,9 @@ export const TextField = <TUpdateInput,>({
                   className="w-full"
                   {...field}
                   value={field.value ?? ''}
-                  type={type}
+                  type={inputType}
                   prefix={resolvedPrefix}
-                  placeholder={placeholder}
+                  placeholder={resolvedPlaceholder}
                   onBlur={handleBlur}
                   onKeyDown={handleKeyDown}
                   autoFocus={internalEditing === name}
@@ -198,7 +190,7 @@ export const TextField = <TUpdateInput,>({
             ) : (
               <div
                 className={cn(
-                  'text-sm py-2 rounded-md px-1 w-full',
+                  'text-sm py-2 rounded-md px-1 w-full min-w-0',
                   isEditAllowed ? 'cursor-pointer hover:bg-accent' : 'cursor-not-allowed',
                   layout === 'horizontal' && 'text-right',
                   multiline && 'whitespace-pre-wrap',
