@@ -134,7 +134,7 @@ const MultiSelectField: React.FC<MultiSelectProps> = ({ fieldName, oppositeField
                                 <TooltipTrigger asChild>
                                   <div>{row}</div>
                                 </TooltipTrigger>
-                                <TooltipContent side="top" align="center" sideOffset={-4}>
+                                <TooltipContent portal side="top" align="center" sideOffset={-4}>
                                   {disabledReason ?? 'Already selected in the opposite list'}
                                 </TooltipContent>
                               </Tooltip>

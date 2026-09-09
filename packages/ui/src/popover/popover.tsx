@@ -16,12 +16,21 @@ const PopoverContent = ({
   className,
   align = 'center',
   sideOffset = 4,
+  collisionPadding = 8,
   ref,
   onInteractOutside,
   ...props
 }: React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & { ref?: React.Ref<React.ElementRef<typeof PopoverPrimitive.Content>> }) => (
   <PopoverPrimitive.Portal>
-    <PopoverPrimitive.Content ref={ref} align={align} sideOffset={sideOffset} className={cn(content(), className)} onInteractOutside={guardInteractOutside(onInteractOutside)} {...props} />
+    <PopoverPrimitive.Content
+      ref={ref}
+      align={align}
+      sideOffset={sideOffset}
+      collisionPadding={collisionPadding}
+      className={cn(content(), className)}
+      onInteractOutside={guardInteractOutside(onInteractOutside)}
+      {...props}
+    />
   </PopoverPrimitive.Portal>
 )
 
