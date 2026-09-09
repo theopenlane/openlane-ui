@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import { TriangleAlert } from 'lucide-react'
 import type { EmailTemplateCatalogEntryNode } from '@/lib/graphql-hooks/email-template'
 import { EmailTemplateConfigForm } from './email-template-config-form'
+import { Callout } from '@/components/shared/callout/callout'
 
 interface EmailTemplateConfigurationProps {
   isCatalogLoading: boolean
@@ -23,12 +23,9 @@ export const EmailTemplateConfiguration: React.FC<EmailTemplateConfigurationProp
   if (isCatalogDrift) {
     return (
       <div className="flex flex-col gap-3">
-        <div className="flex items-start gap-2 rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-          <TriangleAlert size={16} className="shrink-0 text-yellow-500" />
-          <span>
-            This template uses the catalog key <span className="font-mono">{selectedKey}</span>, which is no longer available. Showing its saved configuration as read-only JSON.
-          </span>
-        </div>
+        <Callout variant="warning" compact>
+          This template uses the catalog key <span className="font-mono">{selectedKey}</span>, which is no longer available. Showing its saved configuration as read-only JSON.
+        </Callout>
         <pre className="overflow-auto rounded-md border border-border bg-card p-3 text-xs">{JSON.stringify(configData, null, 2)}</pre>
       </div>
     )

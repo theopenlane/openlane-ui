@@ -7,7 +7,7 @@ import { Label } from '@repo/ui/label'
 import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Switch } from '@repo/ui/switch'
-import { AlertTriangleIcon, CopyIcon, SquarePlus } from 'lucide-react'
+import { CopyIcon, SquarePlus } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
@@ -25,6 +25,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import useFormSchema, { type TokenFormData } from './hooks/use-form-schema'
 import { useSSOAuthorize } from './hooks/sso'
+import { Callout } from '@/components/shared/callout/callout'
 
 export type EditTokenData = {
   id: string
@@ -328,13 +329,9 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
         <SheetContent initialWidth={700}>
           <SheetHeader>
             <SheetTitle className="text-2xl font-semibold">Token created</SheetTitle>
-            <div className="flex gap-3 p-4 border rounded-md mt-2">
-              <AlertTriangleIcon className="shrink-0" />
-              <div>
-                <p className="text-base">Heads up!</p>
-                <p className="text-sm mt-0">Copy your access token now, as you will not be able to see this again</p>
-              </div>
-            </div>
+            <Callout variant="warning" title="Heads up!" className="mt-2" compact>
+              Copy your access token now, as you will not be able to see this again
+            </Callout>
           </SheetHeader>
 
           <div className="space-y-4 py-4">

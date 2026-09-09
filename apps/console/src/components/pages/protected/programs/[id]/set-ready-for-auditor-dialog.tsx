@@ -2,6 +2,7 @@
 
 import { MultiEmailInput } from '@/components/pages/protected/user-management/members/sidebar/multi-email-input'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { Callout } from '@/components/shared/callout/callout'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrgMemberships, useUpdateUserRoleInOrg } from '@/lib/graphql-hooks/member'
@@ -14,7 +15,7 @@ import { type CreateInviteInput, InviteRole, OrgMembershipRole, ProgramProgramSt
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useQueryClient } from '@tanstack/react-query'
-import { Info, Pencil } from 'lucide-react'
+import { Pencil } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
 import { SSOExemptionDialog } from './sso-exemption-dialog'
@@ -197,13 +198,9 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
           <DialogHeader>
             <DialogTitle>Set ready for auditor</DialogTitle>
           </DialogHeader>
-          <div className="flex items-start gap-2 rounded-md border border-border bg-input p-4 ">
-            <Info className="mt-1" size={16} />
-            <div className="text-sm">
-              <p className="text-base ">What will happen?</p>
-              <p>This program will be marked as &quot;Auditor ready&quot;. All auditors in this organization will get a notification that the program is ready.</p>
-            </div>
-          </div>
+          <Callout variant="info" title="What will happen?" compact>
+            This program will be marked as &quot;Auditor ready&quot;. All auditors in this organization will get a notification that the program is ready.
+          </Callout>
           <div className="rounded-md border border-border p-4">
             <p className="mb-3 text-sm font-medium">Auditors to notify</p>
             {isLoading ? (
@@ -228,12 +225,9 @@ const SetReadyForAuditorDialog: React.FC<SetReadyForAuditorDialogProps> = ({ pro
             <MultiEmailInput value={additionalAuditors} onChange={handleNewAuditorEmails} onValidChange={setIsAdditionalEmailsValid} />
           </div>
           {shouldShowAutoInvitationNotice && (
-            <div className="flex items-start gap-2 rounded-md border border-border bg-input p-4">
-              <Info className="mt-1" size={16} />
-              <p className="text-sm text-muted-foreground">
-                <strong>{email}</strong> will be invited to this org as an Auditor.
-              </p>
-            </div>
+            <Callout variant="info" compact>
+              <strong>{email}</strong> will be invited to this org as an Auditor.
+            </Callout>
           )}
           <DialogFooter className="mt-6 flex gap-2">
             <Button onClick={handleSetReadyForAuditor} disabled={!isAdditionalEmailsValid || isLoadingMembershipsToAddAsAuditors || isLoadingOrgSetting || isSubmitting}>

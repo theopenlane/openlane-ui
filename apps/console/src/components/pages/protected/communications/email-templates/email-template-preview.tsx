@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { Loader2, TriangleAlert } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useHtmlPurifier, HTML_DOCUMENT_SANITIZE_CONFIG } from '@/lib/html/sanitize-html'
+import { Callout } from '@/components/shared/callout/callout'
 
 interface EmailTemplatePreviewProps {
   previewHtml: string
@@ -22,10 +23,9 @@ export const EmailTemplatePreview: React.FC<EmailTemplatePreviewProps> = ({ prev
 
   if (errorMessage) {
     return (
-      <div className="flex items-start gap-2 rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-        <TriangleAlert size={16} className="shrink-0 text-yellow-500" />
-        <span>Could not render preview: {errorMessage}</span>
-      </div>
+      <Callout variant="danger" compact>
+        Could not render preview: {errorMessage}
+      </Callout>
     )
   }
 
@@ -48,12 +48,9 @@ export const EmailTemplatePreview: React.FC<EmailTemplatePreviewProps> = ({ prev
 
   if (isCatalogDrift) {
     return (
-      <div className="flex items-start gap-2 rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-        <TriangleAlert size={16} className="shrink-0 text-yellow-500" />
-        <span>
-          This template uses the catalog key <span className="font-mono">{selectedKey}</span>, which is no longer available, so it can&apos;t be previewed.
-        </span>
-      </div>
+      <Callout variant="warning" compact>
+        This template uses the catalog key <span className="font-mono">{selectedKey}</span>, which is no longer available, so it can&apos;t be previewed.
+      </Callout>
     )
   }
 

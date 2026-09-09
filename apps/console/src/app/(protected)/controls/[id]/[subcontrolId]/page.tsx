@@ -6,7 +6,6 @@ import { useParams, useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { FormProvider, useForm } from 'react-hook-form'
 import { type Value } from 'platejs'
-import { InfoIcon } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import ControlHeaderActions from '@/components/pages/protected/controls/control-header-actions'
@@ -50,6 +49,7 @@ import QuickActions from '@/components/pages/protected/controls/quick-actions/qu
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { Callout } from '@/components/shared/callout/callout'
 
 interface FormValues {
   refCode: string
@@ -356,16 +356,11 @@ const ControlDetailsPage: React.FC = () => {
         </div>
       </div>
       {isEditing && isSourceFramework && (
-        <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
-          <InfoIcon size={14} className="mt-1 shrink-0" />
-          <p>
-            This subcontrol was created via a reference framework and the details are not editable. If you need to edit it, consider&nbsp;
-            <Link className="text-blue-500" href={`/controls/${id}/create-subcontrol?mapSubcontrolId=${subcontrolId}`}>
-              creating a new subcontrol
-            </Link>
-            &nbsp;and linking it.
-          </p>
-        </div>
+        <Callout variant="info" compact className="w-3/5">
+          This subcontrol was created via a reference framework and the details are not editable. If you need to edit it, consider&nbsp;
+          <Link href={`/controls/${id}/create-subcontrol?mapSubcontrolId=${subcontrolId}`}>creating a new subcontrol</Link>
+          &nbsp;and linking it.
+        </Callout>
       )}
       <DescriptionField
         isEditing={isEditing}

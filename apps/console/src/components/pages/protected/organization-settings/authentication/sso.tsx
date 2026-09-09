@@ -21,8 +21,9 @@ import { OrganizationSettingSsoProvider, type OrganizationSetting, type UpdateOr
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { Alert, AlertDescription } from '@repo/ui/alert'
-import { Check, Copy, Info, MoreHorizontal, Pencil, RefreshCw, Shield, X } from 'lucide-react'
+import { Check, Copy, Info, MoreHorizontal, Pencil, RefreshCw, Shield } from 'lucide-react'
+import { Callout } from '@/components/shared/callout/callout'
+import { DismissButton } from '@/components/shared/docs-help/suggestion-card'
 import { siteUrl } from '@repo/dally/auth'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -39,26 +40,11 @@ type viewMode = 'overview' | 'edit'
 
 const providerLabel = (provider: string): string => SSO_PROVIDER_NAMES[provider as OrganizationSettingSsoProvider] ?? getEnumLabel(provider)
 
-const StatusAlert = ({ tone, message, onClose }: { tone: 'warning' | 'success' | 'error'; message: string; onClose: () => void }) => {
-  const styles = {
-    warning: { container: 'border-yellow-200 bg-yellow-50', text: 'text-yellow-800', button: 'text-yellow-600 hover:text-yellow-800' },
-    success: { container: 'border-green-200 bg-green-50', text: 'text-green-800', button: 'text-green-600 hover:text-green-800' },
-    error: { container: 'border-red-200 bg-red-50', text: 'text-red-800', button: 'text-red-600 hover:text-red-800' },
-  }[tone]
-
-  return (
-    <Alert className={`mb-4 ${styles.container}`}>
-      <AlertDescription className={styles.text}>
-        <div className="flex items-center justify-between">
-          <span className="font-medium">{message}</span>
-          <Button variant="secondary" size="sm" onClick={onClose} className={`${styles.button} h-6 w-6 p-0`}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </AlertDescription>
-    </Alert>
-  )
-}
+const StatusAlert = ({ variant, message, onClose }: { variant: 'warning' | 'success' | 'danger'; message: string; onClose: () => void }) => (
+  <Callout role="alert" variant={variant} compact className="mb-4" contentClassName="font-medium" action={<DismissButton onClick={onClose} label="Dismiss alert" tooltip="Dismiss" />}>
+    {message}
+  </Callout>
+)
 
 const SSOOverview = ({
   setting,
@@ -677,10 +663,14 @@ const SSOPage = () => {
 
             <div className="mt-6 border-t pt-4">
               {showReTestWarning && (
-                <StatusAlert tone="warning" message="SSO credentials updated — we recommend re-testing your connection to confirm everything is working." onClose={() => setShowReTestWarning(false)} />
+                <StatusAlert
+                  variant="warning"
+                  message="SSO credentials updated — we recommend re-testing your connection to confirm everything is working."
+                  onClose={() => setShowReTestWarning(false)}
+                />
               )}
-              {showSSOTestedAlert && <StatusAlert tone="success" message="SSO connection tested and verified successfully!" onClose={() => setShowSSOTestedAlert(false)} />}
-              {showSSOErrorAlert && <StatusAlert tone="error" message={`SSO verification failed: ${ssoErrorMessage}`} onClose={() => setShowSSOErrorAlert(false)} />}
+              {showSSOTestedAlert && <StatusAlert variant="success" message="SSO connection tested and verified successfully!" onClose={() => setShowSSOTestedAlert(false)} />}
+              {showSSOErrorAlert && <StatusAlert variant="danger" message={`SSO verification failed: ${ssoErrorMessage}`} onClose={() => setShowSSOErrorAlert(false)} />}
 
               {viewMode === 'overview' ? (
                 <SSOOverview

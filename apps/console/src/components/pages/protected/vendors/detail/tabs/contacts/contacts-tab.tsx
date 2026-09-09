@@ -10,7 +10,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { Plus, SearchIcon, Sparkles, Upload } from 'lucide-react'
+import { Plus, SearchIcon, Upload } from 'lucide-react'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
@@ -40,6 +40,7 @@ import { useSuggestedContacts } from './use-suggested-contacts'
 import { defineFilterFields } from '@/types'
 import MenuItem from '@/components/shared/menu/menu-item'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
+import { Callout } from '@/components/shared/callout/callout'
 
 interface ContactsTabProps {
   vendorId: string
@@ -252,17 +253,18 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
       </div>
 
       {canEditVendor && suggestedContacts.length > 0 && (
-        <div className="mb-3 flex items-center justify-between gap-3 rounded-md border border-primary/40 bg-primary/5 p-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-sm">
-              We found {suggestedContacts.length} contact{suggestedContacts.length === 1 ? '' : 's'} not linked to this vendor.
-            </span>
-          </div>
-          <Button size="sm" variant="outline" onClick={openLinkSuggestions}>
-            Link now
-          </Button>
-        </div>
+        <Callout
+          variant="recommendation"
+          compact
+          className="mb-3"
+          action={
+            <Button size="sm" variant="outline" onClick={openLinkSuggestions}>
+              Link now
+            </Button>
+          }
+        >
+          We found {suggestedContacts.length} contact{suggestedContacts.length === 1 ? '' : 's'} not linked to this vendor.
+        </Callout>
       )}
 
       {viewMode === 'table' ? (

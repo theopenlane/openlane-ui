@@ -3,10 +3,11 @@
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { cn } from '@repo/ui/lib/utils'
-import { AlertTriangle, Calendar, CircleHelp, FileText, Lock, Mail, Repeat, Rocket, SendHorizontal, Users } from 'lucide-react'
+import { Calendar, CircleHelp, FileText, Lock, Mail, Repeat, Rocket, SendHorizontal, Users } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 import { StepBadge } from '@/components/shared/step-badge/step-badge'
 import { ModeOption } from './mode-option'
+import { Callout } from '@/components/shared/callout/callout'
 
 type CampaignContentMode = 'questionnaire' | 'email'
 
@@ -133,10 +134,9 @@ export const CampaignSetupView: React.FC<CampaignSetupViewProps> = ({
           </div>
 
           {!hasContent && (
-            <div className="flex gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-3">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-500" />
-              <span className="text-xs text-muted-foreground">Select either a questionnaire template or an email template before launching this campaign.</span>
-            </div>
+            <Callout variant="warning" compact role="status">
+              Select either a questionnaire template or an email template before launching this campaign.
+            </Callout>
           )}
         </div>
 
