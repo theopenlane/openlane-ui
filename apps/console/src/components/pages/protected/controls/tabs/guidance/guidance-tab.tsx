@@ -2,8 +2,8 @@
 
 import React, { useMemo } from 'react'
 import { Accordion, AccordionContent, AccordionItem } from '@radix-ui/react-accordion'
-import { Card } from '@repo/ui/cardpanel'
-import { Button } from '@repo/ui/button'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { Button } from '@theopenlane/ui/button'
 import { CopyIcon, PlusCircle } from 'lucide-react'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'

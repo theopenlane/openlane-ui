@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import ImportControlsDialogFramework from './program-settings-import-controls-dialog-framework'
 import ImportControlsDialogProgram from './program-settings-import-controls-dialog-program'
 import { type SelectedItem } from '../shared/program-settings-import-controls-shared-props'

@@ -1,6 +1,6 @@
 'use client'
 
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { CheckCircle, Clock, XCircle, AlertCircle, Loader2 } from 'lucide-react'
 
 type WorkflowStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED'

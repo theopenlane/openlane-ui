@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl } from '@theopenlane/ui/form'
 import { type EditPlatformFormData } from '../../hooks/use-form-schema'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { type Value } from 'platejs'

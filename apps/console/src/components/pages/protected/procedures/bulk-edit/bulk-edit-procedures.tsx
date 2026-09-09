@@ -3,15 +3,15 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form'
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
-import { Input } from '@repo/ui/input'
+import { Input } from '@theopenlane/ui/input'
 import {
   type BulkEditProceduresDialogProps,
   defaultObject,

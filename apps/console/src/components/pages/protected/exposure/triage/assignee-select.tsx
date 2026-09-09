@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@theopenlane/ui/select'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 
 const UNASSIGNED = 'unassigned'

@@ -2,9 +2,9 @@
 
 import React, { useMemo, useState } from 'react'
 import { ChevronRight } from 'lucide-react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
-import { CodeBlock } from '@repo/ui/code-block'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
+import { CodeBlock } from '@theopenlane/ui/code-block'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@theopenlane/ui/dialog'
 
 type Props = {
   metadata: unknown

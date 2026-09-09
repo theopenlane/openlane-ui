@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { Plus, ShieldCheck } from 'lucide-react'
 import { ManageAdditionalRolesDialog } from '@/components/shared/organization-roles/manage-additional-roles-dialog'
 import { AdditionalRolesCell } from '@/components/shared/organization-roles/additional-roles-cell'

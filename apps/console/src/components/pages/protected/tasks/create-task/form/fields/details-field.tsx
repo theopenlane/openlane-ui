@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { FormControl, FormField, FormItem, FormLabel } from '@theopenlane/ui/form'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { type EditTaskFormData } from '../../../hooks/use-form-schema'
 import PlateEditor from '@/components/shared/plate/plate-editor'

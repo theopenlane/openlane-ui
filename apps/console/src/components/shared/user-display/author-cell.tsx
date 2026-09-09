@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { KeyRound } from 'lucide-react'
-import { Logo } from '@repo/ui/logo'
-import { cn } from '@repo/ui/lib/utils'
+import { Logo } from '@theopenlane/ui/logo'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { type AuthorMaps, type ResolvedAuthor, resolveAuthor } from '@/lib/authors'
 

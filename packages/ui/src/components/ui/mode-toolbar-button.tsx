@@ -7,7 +7,7 @@ import { type DropdownMenuProps, DropdownMenuItemIndicator } from '@radix-ui/rea
 import { CheckIcon, EyeIcon, PencilLineIcon, PenIcon } from 'lucide-react'
 import { useEditorRef, usePlateState, usePluginOption } from 'platejs/react'
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@theopenlane/ui/components/ui/dropdown-menu.tsx'
 
 import { ToolbarButton } from './toolbar'
 

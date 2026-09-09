@@ -1,10 +1,10 @@
 'use client'
 
 import React from 'react'
-import { Checkbox } from '@repo/ui/checkbox'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 import { type ControlListStandardFieldsFragment } from '@repo/codegen/src/schema'
-import { type ColumnDef } from '@repo/ui/table-types'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 
 type ControlSelection = { id: string; refCode: string }
 

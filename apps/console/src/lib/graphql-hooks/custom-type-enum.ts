@@ -3,8 +3,8 @@
 import { useEffect, useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery, type InfiniteData, type UseQueryResult, type UseMutationResult } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { type Option } from '@repo/ui/multiple-selector'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type Option } from '@theopenlane/ui/multiple-selector'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import {
   type CustomTypeEnumWhereInput,
   type CreateCustomTypeEnumInput,

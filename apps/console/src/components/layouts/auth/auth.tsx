@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { authStyles } from './auth.styles'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import Triangle from '@/assets/Triangle'
 import { GLOBAL_BANNER_HEIGHT_VAR } from '@/constants/layout'
 

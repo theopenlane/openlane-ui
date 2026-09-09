@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { Copy, Plus, Trash2 } from 'lucide-react'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'

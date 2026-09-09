@@ -1,17 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
-import { Button } from '@repo/ui/button'
-import { MessageBox } from '@repo/ui/message-box'
+import { Input } from '@theopenlane/ui/input'
+import { Label } from '@theopenlane/ui/label'
+import { Button } from '@theopenlane/ui/button'
+import { MessageBox } from '@theopenlane/ui/message-box'
 import { ArrowUpRight } from 'lucide-react'
 import { loginStyles } from '@/components/pages/auth/login/login.styles'
 import Link from 'next/link'
 import { openlaneAPIUrl, recaptchaSiteKey } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '@/app/(auth)/login/page.styles'
-import { Logo } from '@repo/ui/logo'
+import { Logo } from '@theopenlane/ui/logo'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 export default function ForgotPasswordComponent() {

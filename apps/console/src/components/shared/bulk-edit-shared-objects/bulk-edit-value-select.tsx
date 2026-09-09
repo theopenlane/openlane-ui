@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { isClearableSelect, type SelectOptionSelectedObject } from './bulk-edit-shared-objects'

@@ -11,7 +11,7 @@ import {
   ExportExportType,
   OrderDirection,
 } from '@repo/codegen/src/schema'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { ObjectTypes, ObjectNames } from '@repo/codegen/src/type-names'
 import { type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { type ReviewFormData } from '../hooks/use-form-schema'

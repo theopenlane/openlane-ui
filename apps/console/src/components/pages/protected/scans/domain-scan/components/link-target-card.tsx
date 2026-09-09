@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
-import { Checkbox } from '@repo/ui/checkbox'
-import { Separator } from '@repo/ui/separator'
+import { Badge } from '@theopenlane/ui/badge'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { Separator } from '@theopenlane/ui/separator'
 import { SectionCard } from './section-card'
 import { VendorLogo } from './vendor-logo'
 import { LinkSelectAllToggle } from './link-select-all-toggle'

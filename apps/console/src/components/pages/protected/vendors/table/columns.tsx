@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { Building2 } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 import { type EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
@@ -11,7 +11,7 @@ import { createSelectColumn } from '@/components/shared/crud-base/columns/select
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 import { getVendorLogoUrl } from '@/lib/vendor-logo'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 import { toHumanLabel } from '@/utils/strings'
 import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
 

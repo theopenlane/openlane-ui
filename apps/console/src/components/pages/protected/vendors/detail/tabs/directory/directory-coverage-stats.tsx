@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 
 type DirectoryCoverageStatsProps = {
   totalGroups: number

@@ -30,7 +30,7 @@ import {
   type ResendCampaignIncompleteTargetsMutationVariables,
 } from '@repo/codegen/src/schema'
 
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import {
   GET_ALL_CAMPAIGNS,
   CREATE_CAMPAIGN,

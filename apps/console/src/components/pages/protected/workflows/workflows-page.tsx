@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import { useWorkflowDefinitionsWithFilter } from '@/lib/graphql-hooks/workflow-definition'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import WorkflowDefinitionsTablePage from './table/page'

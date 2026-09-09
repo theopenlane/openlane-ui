@@ -10,8 +10,8 @@ import { Minus, Plus } from 'lucide-react'
 import { KEYS } from 'platejs'
 import { useEditorPlugin, useEditorSelector } from 'platejs/react'
 
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/components/ui/popover.tsx'
-import { cn } from '@repo/ui/lib/utils'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/components/ui/popover.tsx'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 import { ToolbarButton } from './toolbar'
 

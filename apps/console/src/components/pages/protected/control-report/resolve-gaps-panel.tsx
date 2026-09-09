@@ -2,9 +2,9 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@theopenlane/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
 import { GitBranch, Link2, Loader2, PanelRightClose, PencilLine } from 'lucide-react'
 import { docsHelpAvailable } from '@repo/dally/ai'
 import { ControlControlSource, MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
@@ -31,7 +31,7 @@ import { CreatePolicyMenuItems, findPolicyTemplate, useCreatePolicyFromTemplate 
 import { coverageNote, normalizeName } from '@/lib/docs-help/names'
 import CountBadge from '@/components/shared/count-badge/count-badge'
 import { SuggestionCard, TargetChecklist } from '@/components/shared/docs-help/suggestion-card'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 
 export type TGapControl = TCreateOrgControlsTarget & { referenceFramework: string; existingRefCodes?: string[] }
 

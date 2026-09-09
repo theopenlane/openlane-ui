@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import * as ToastPrimitives from '@radix-ui/react-toast'
 import { Bell, X } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { getNotificationRedirectUrl, redirectToNotification } from './notification-redirect'

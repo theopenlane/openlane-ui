@@ -23,7 +23,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { type ClientError } from 'graphql-request'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import {
   GET_ALL_SCANS,
   CREATE_SCAN,

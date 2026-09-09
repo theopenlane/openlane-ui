@@ -13,7 +13,7 @@ import {
   type DirectoryAccountQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { GET_ALL_DIRECTORY_ACCOUNTS, CREATE_DIRECTORY_ACCOUNT, UPDATE_DIRECTORY_ACCOUNT, DELETE_DIRECTORY_ACCOUNT, DIRECTORY_ACCOUNT } from '@repo/codegen/query/directory-account'
 
 type GetAllDirectoryAccountsArgs = {

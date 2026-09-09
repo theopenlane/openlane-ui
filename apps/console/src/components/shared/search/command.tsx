@@ -1,6 +1,6 @@
 'use client'
 
-import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { type NavHeading, type NavItem, type Separator } from '@/types'

@@ -4,7 +4,7 @@ import type { Transition } from 'motion/react'
 import { motion, useAnimation } from 'motion/react'
 import type { HTMLAttributes, Ref } from 'react'
 import { useCallback, useEffect, useImperativeHandle, useRef } from 'react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 // adapted from https://lucide-animated.com/r/layers.json — the lower layers lift up then settle back
 // animation is triggered by hovering the nearest `.group` ancestor (e.g. a nav row) so the

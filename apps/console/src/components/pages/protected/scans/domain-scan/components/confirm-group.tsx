@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
-import { Separator } from '@repo/ui/separator'
+import { Button } from '@theopenlane/ui/button'
+import { Separator } from '@theopenlane/ui/separator'
 import { SectionCard } from './section-card'
 import { EmptyState } from './empty-state'
 import { VendorLogo } from './vendor-logo'

@@ -7,7 +7,7 @@ import { type FloatingToolbarState, flip, offset, useFloatingToolbar, useFloatin
 import { KEYS } from 'platejs'
 import { useEditorId, useEditorRef, useEventEditorValue, usePluginOption } from 'platejs/react'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 import { Toolbar } from './toolbar'
 import { useComposedRef } from 'platejs/react'

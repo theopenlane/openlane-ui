@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
-import { Card } from '@repo/ui/cardpanel'
-import { Separator } from '@repo/ui/separator'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { Separator } from '@theopenlane/ui/separator'
 
 import { type AvailableIntegrationNode, type IntegrationNode, type IntegrationProvider, type IntegrationStatusFilter } from '@/lib/integrations/types'
 import { getInstalledIntegrationConfig } from '@/lib/integrations/utils'

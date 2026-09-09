@@ -6,7 +6,7 @@ import { DocumentsSection } from '@/components/shared/documents-section/document
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'
 import { FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
-import { type TableKeyValue } from '@repo/ui/table-key'
+import { type TableKeyValue } from '@theopenlane/ui/table-key'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'

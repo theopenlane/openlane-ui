@@ -1,14 +1,14 @@
-import { Switch } from '@repo/ui/switch'
+import { Switch } from '@theopenlane/ui/switch'
 import { useNotification } from '@/hooks/useNotification'
 import { useDeleteTrustCenterDoc, useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center-doc'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
 import { Droplet, Eye, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useId, useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Button } from '@repo/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
 
 type DocumentActionsProps = {
   documentId: string

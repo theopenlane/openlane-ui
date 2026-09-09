@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 
 type TCancelDialogProps = {
   onConfirm: () => void

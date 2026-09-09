@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable } from '@theopenlane/ui/data-table'
 import { useEffect, useMemo, useState } from 'react'
 import { type WorkflowDefinitionWhereInput, type WorkflowDefinitionOrderField } from '@repo/codegen/src/schema'
 import { type WorkflowDefinitionsNodeNonNull, useWorkflowDefinitionsWithFilter, useDeleteWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
@@ -13,7 +13,7 @@ import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
 import { createRowActionsColumn } from '@/components/shared/crud-base/columns/row-actions-column'
 import { Copy, Pencil, Trash2 } from 'lucide-react'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { useSession } from 'next-auth/react'
 
 const TableComponent = ({

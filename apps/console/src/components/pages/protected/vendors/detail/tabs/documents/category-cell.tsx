@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Input } from '@repo/ui/input'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Button } from '@repo/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
+import { Button } from '@theopenlane/ui/button'
 import { Check, PencilIcon } from 'lucide-react'
 
 const CATEGORY_OPTIONS = ['Contract', 'Certificate', 'Policy', 'Report', 'Invoice', 'SLA', 'NDA', 'SOC 2', 'ISO 27001', 'Other']

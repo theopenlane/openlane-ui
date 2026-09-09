@@ -5,7 +5,7 @@ import type { TSuggestionText } from 'platejs'
 import { BaseSuggestionPlugin } from '@platejs/suggestion'
 import { SlateLeaf, SlateLeafProps } from 'platejs/static'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export function SuggestionLeafStatic(props: SlateLeafProps<TSuggestionText>) {
   const { editor, leaf } = props

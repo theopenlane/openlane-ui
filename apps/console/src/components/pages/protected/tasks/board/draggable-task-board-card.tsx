@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useDraggable } from '@dnd-kit/core'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { type TasksWithFilterNode } from '@/lib/graphql-hooks/task'
 import TaskBoardCard from '@/components/pages/protected/tasks/board/task-board-card'
 import { TASK_DRAG_TYPE, type TaskDragData } from '@/components/pages/protected/tasks/board/task-drag-data'

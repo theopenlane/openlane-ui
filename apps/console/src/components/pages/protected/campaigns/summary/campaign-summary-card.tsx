@@ -1,7 +1,7 @@
 import React from 'react'
-import { Card } from '@repo/ui/cardpanel'
-import { Button } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { Button } from '@theopenlane/ui/button'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export type TCampaignSummaryCardAccent = 'success' | 'warning' | 'info'
 

@@ -1,16 +1,16 @@
 'use client'
 
 import { type InviteInviteStatus, InviteOrderField, type InviteRole, type InviteWhereInput, OrderDirection } from '@repo/codegen/src/schema'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable } from '@theopenlane/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { useGetInvites } from '@/lib/graphql-hooks/organization'
 import { InvitesColumns } from '@/components/pages/protected/user-management/members/table/columns.tsx'
 import OrganizationInvitesTableToolbar from '@/components/pages/protected/user-management/members/table/organization-invites-table-toolbar.tsx'
 import { useMemo, useState } from 'react'
 import { INVITES_SORT_FIELDS } from '@/components/pages/protected/user-management/members/table/table-config.ts'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 
 type InviteNode = {
   __typename?: 'Invite' | undefined

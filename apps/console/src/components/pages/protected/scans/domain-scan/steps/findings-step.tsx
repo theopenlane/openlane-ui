@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Separator } from '@repo/ui/separator'
-import { EditableTextarea } from '@repo/ui/textarea'
+import { Separator } from '@theopenlane/ui/separator'
+import { EditableTextarea } from '@theopenlane/ui/textarea'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { EditableName } from '../editable-name'

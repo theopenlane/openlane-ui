@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Input } from '@theopenlane/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { sortByOrder } from '@/lib/onboarding-questions/build-schema'
 import { type OnboardingQuestion } from '@/lib/onboarding-questions/types'
 import { BooleanField } from './fields/boolean-field'

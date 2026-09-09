@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { Share2 } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { type AttentionItem } from './items-requiring-attention'
 import { ObjectTypes } from '@repo/codegen/src/type-names'

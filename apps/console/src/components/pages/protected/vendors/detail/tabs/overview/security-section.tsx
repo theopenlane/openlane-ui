@@ -3,7 +3,7 @@
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Check, X, PencilIcon } from 'lucide-react'
-import { Checkbox } from '@repo/ui/checkbox'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 import type { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 
 interface SecuritySectionProps {

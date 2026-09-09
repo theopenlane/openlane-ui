@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Checkbox } from '@repo/ui/checkbox'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 import { setAllSelected } from '../selection-utils'
 
 type SelectAllCheckboxProps = {

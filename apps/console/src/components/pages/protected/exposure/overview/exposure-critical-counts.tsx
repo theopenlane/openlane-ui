@@ -1,12 +1,12 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import { AlertTriangle, Bug, FileSearch } from 'lucide-react'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { useRouter } from 'next/navigation'
 import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage'
-import { TableKeyEnum, type TableKeyValue } from '@repo/ui/table-key'
+import { TableKeyEnum, type TableKeyValue } from '@theopenlane/ui/table-key'
 import { useOrganization } from '@/hooks/useOrganization'
 
 type Counts = {

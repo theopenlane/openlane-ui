@@ -3,7 +3,7 @@
 import { TableCellHeaderPlugin, TableCellPlugin, TablePlugin, TableRowPlugin } from '@platejs/table/react'
 import { getNextTableCell, getTableEntries, insertTableRow } from '@platejs/table'
 
-import { TableCellElement, TableCellHeaderElement, TableElement, TableRowElement } from '@repo/ui/components/ui/table-node.tsx'
+import { TableCellElement, TableCellHeaderElement, TableElement, TableRowElement } from '@theopenlane/ui/components/ui/table-node.tsx'
 
 const TablePluginWithRowAppend = TablePlugin.overrideEditor(({ editor, tf: { tab } }) => ({
   transforms: {

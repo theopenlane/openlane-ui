@@ -1,4 +1,4 @@
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { FileText, Trash2 } from 'lucide-react'
 
 type TUploadedFileDetailsCard = {

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
 import { Download, Loader2 } from 'lucide-react'
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { useNotification } from '@/hooks/useNotification'

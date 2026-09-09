@@ -3,8 +3,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/react-collapsible'
-import { Badge } from '@repo/ui/badge'
-import { cn } from '@repo/ui/lib/utils'
+import { Badge } from '@theopenlane/ui/badge'
+import { cn } from '@theopenlane/ui/lib/utils'
 import type { VendorDirectoryGroup, VendorDirectoryMember } from '@/lib/graphql-hooks/vendor-directory'
 import DirectoryMembersTable from './directory-members-table'
 

@@ -2,8 +2,8 @@
 
 import { useCallback, useState } from 'react'
 import Cropper, { type Area, type MediaSize, type Point } from 'react-easy-crop'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
 import { SaveButton } from '../save-button/save-button'
 import { CancelButton } from '../cancel-button.tsx/cancel-button'
 import getCroppedImg from './utils/getCroppedImage'

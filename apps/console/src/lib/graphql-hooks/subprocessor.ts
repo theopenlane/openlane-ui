@@ -15,7 +15,7 @@ import {
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 
 type UseGetSubprocessorsArgs = {
   where?: GetSubprocessorsQueryVariables['where']

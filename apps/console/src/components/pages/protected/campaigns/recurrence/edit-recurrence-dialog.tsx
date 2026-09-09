@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
 import { type CampaignRecurrenceValues } from './campaign-recurrence'
 import { RecurrenceFields } from './recurrence-fields'
 

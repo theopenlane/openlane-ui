@@ -1,14 +1,14 @@
 'use client'
 import { type Price } from '@/types/stripe'
 import { useState } from 'react'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { formatDate } from '@/utils/date'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { Box, ExternalLink, InfoIcon } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { Card } from '@repo/ui/cardpanel'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
+import { Card } from '@theopenlane/ui/cardpanel'
 
 type Product = {
   product_id: string

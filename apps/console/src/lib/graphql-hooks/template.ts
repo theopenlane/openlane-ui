@@ -19,7 +19,7 @@ import {
   type CreateBulkCsvTemplateMutation,
   type CreateBulkCsvTemplateMutationVariables,
 } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 
 type UseTemplatesArgs = {

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { EvidenceStatusBadge, EvidenceStatusColors } from '@/components/shared/enum-mapper/evidence-enum'
 import { EVIDENCE_SEVERITY_ORDER } from '@/lib/graphql-hooks/mapped-control'
 import { type ControlReportItem } from '@/lib/graphql-hooks/control'

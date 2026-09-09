@@ -1,10 +1,10 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React, { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
 import { VendorLogo } from './vendor-logo'
 import type { LinkableItem } from '../types'
 

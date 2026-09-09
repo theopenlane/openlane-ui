@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { type ControlControlStatus } from '@repo/codegen/src/schema'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { CONTROL_STATUS_STYLES } from '@/components/shared/enum-mapper/control-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 

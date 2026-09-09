@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Button } from '@theopenlane/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { ArrowLeft, ArrowRight, ShieldCheck, ShieldOff, Clock, UserPlus } from 'lucide-react'
 import AssigneeSelect from './assignee-select'
 import { type TriageVuln } from './triage-utils'

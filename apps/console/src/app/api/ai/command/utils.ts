@@ -3,7 +3,7 @@ import { serializeMd } from '@platejs/markdown'
 import type { UIMessage } from 'ai'
 import dedent from 'dedent'
 import { RangeApi, type SlateEditor } from 'platejs'
-import type { ChatMessage } from '@repo/ui/components/editor/use-chat.ts'
+import type { ChatMessage } from '@theopenlane/ui/components/editor/use-chat.ts'
 
 /**
  * Tag content split by newlines

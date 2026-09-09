@@ -1,5 +1,5 @@
-import { activatable } from '@repo/ui/lib/a11y'
-import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
+import { activatable } from '@theopenlane/ui/lib/a11y'
+import { Card, CardContent, CardTitle } from '@theopenlane/ui/cardpanel'
 import { TriangleAlert, Fingerprint, SlidersHorizontal, ListChecks } from 'lucide-react'
 import { useGetControlNotImplementedCount } from '@/lib/graphql-hooks/control'
 import { useGetEvidenceRequestedOrMissingCount } from '@/lib/graphql-hooks/evidence.ts'
@@ -11,7 +11,7 @@ import { ControlControlStatus, RiskRiskStatus } from '@repo/codegen/src/schema.t
 import { EVIDENCE_REQUESTED_OR_MISSING_STATUSES } from '@/lib/enums/evidence'
 import { toDayStartIso, type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { useRouter } from 'next/navigation'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { useOrganization } from '@/hooks/useOrganization'
 
 const DashboardComplianceOverview = () => {

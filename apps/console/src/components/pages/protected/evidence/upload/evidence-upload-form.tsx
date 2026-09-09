@@ -1,5 +1,5 @@
 'use client'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 import React, { useEffect, useState } from 'react'
 import UploadTab from '@/components/pages/protected/evidence/upload/upload-tab'
 import DirectLinkTab from '@/components/pages/protected/evidence/upload/direct-link-tab'

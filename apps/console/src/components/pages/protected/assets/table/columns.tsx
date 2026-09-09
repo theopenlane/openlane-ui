@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { type AssetsNodeNonNull } from '@/lib/graphql-hooks/asset'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -9,7 +9,7 @@ import { createSelectColumn } from '@/components/shared/crud-base/columns/select
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 
 export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<AssetsNodeNonNull>[] => {
   return [

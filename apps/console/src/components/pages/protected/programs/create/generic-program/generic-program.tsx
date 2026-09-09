@@ -1,9 +1,9 @@
 'use client'
 import React, { useId, use, useEffect, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
-import { Textarea } from '@repo/ui/textarea'
-import { Button } from '@repo/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Textarea } from '@theopenlane/ui/textarea'
+import { Button } from '@theopenlane/ui/button'
 import { useRouter } from 'next/navigation'
 import ProgramTypeSelect from '../shared/form-fields/program-select'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
@@ -12,7 +12,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)

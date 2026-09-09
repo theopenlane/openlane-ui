@@ -242,7 +242,7 @@ export const useBulkDelete${capitalType} = () => {
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 ${typeImportLine}
 ${fetchGraphQLWithUploadImport}
-import { TPagination } from '@repo/ui/pagination-types'
+import { TPagination } from '@theopenlane/ui/pagination-types'
 ${importLine}
 
 ${getAllArgsType}

@@ -1,11 +1,11 @@
 'use client'
 
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import SectionWarning from '../section-warning'
 import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
 import { ColorInput } from '@/components/shared/color-input/color-input'
-import { Label } from '@repo/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Label } from '@theopenlane/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { TrustCenterWatermarkConfigFontOptions } from '@/components/shared/enum-mapper/trust-center-enum'
 import { useFormContext } from 'react-hook-form'
 import { type BrandFormValues } from '../brand-schema'
@@ -13,7 +13,7 @@ import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
 import { buildPreviewUrl } from '../helpers/preview-url'
 import { BrandingPaletteImport } from './branding-palette-import'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { Palette } from 'lucide-react'
 
 interface BrandingThemeSectionProps {

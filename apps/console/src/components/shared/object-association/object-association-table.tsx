@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import { DataTable } from '@repo/ui/data-table'
-import { type ColumnDef } from '@repo/ui/table-types'
-import { Checkbox } from '@repo/ui/checkbox'
+import { DataTable } from '@theopenlane/ui/data-table'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 import { type TObjectAssociationMap } from './types/TObjectAssociationMap'
-import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'
+import { type TPagination, type TPaginationMeta } from '@theopenlane/ui/pagination-types'
 import { type TableRow } from './object-association-config'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 
 type Props = {
   data: TableRow[]

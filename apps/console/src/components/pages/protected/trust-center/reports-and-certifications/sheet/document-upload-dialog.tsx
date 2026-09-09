@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
 import { FileUp, Trash2, Upload } from 'lucide-react'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'

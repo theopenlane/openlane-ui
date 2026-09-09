@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Users, Eye, Clock, PenTool } from 'lucide-react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import { useGetNDAStats } from '@/lib/graphql-hooks/trust-center-nda-request'
 import { useAnalytics } from '@/lib/query-hooks/analytics'
 

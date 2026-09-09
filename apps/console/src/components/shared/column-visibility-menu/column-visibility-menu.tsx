@@ -1,9 +1,9 @@
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Button } from '@repo/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
+import { Button } from '@theopenlane/ui/button'
 import { Columns3 } from 'lucide-react'
-import { Checkbox } from '@repo/ui/checkbox'
-import { type VisibilityState } from '@repo/ui/table-types'
-import { type TableKeyValue } from '@repo/ui/table-key'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { type VisibilityState } from '@theopenlane/ui/table-types'
+import { type TableKeyValue } from '@theopenlane/ui/table-key'
 
 const STORAGE_FILTER_PREFIX = 'column-visibility'
 

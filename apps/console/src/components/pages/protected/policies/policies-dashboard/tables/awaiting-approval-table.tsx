@@ -1,18 +1,18 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable } from '@theopenlane/ui/data-table'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDate } from '@/utils/date'
 import { type Group, InternalPolicyDocumentStatus, type InternalPolicyWhereInput } from '@repo/codegen/src/schema'
 import { wherePoliciesDashboard } from '../dashboard-config'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import Link from 'next/link'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 
 type FormattedPolicy = {
   id: string

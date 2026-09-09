@@ -4,11 +4,11 @@ import { type PropsWithChildren, useEffect, useState, type FC } from 'react'
 import { XIcon, PlusIcon, FileText } from 'lucide-react'
 import { AttachmentPrimitive, ComposerPrimitive, MessagePrimitive, useAuiState, useAui } from '@assistant-ui/react'
 import { useShallow } from 'zustand/shallow'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/tooltip'
-import { Dialog, DialogTitle, DialogContent, DialogTrigger } from '@repo/ui/dialog'
-import { Avatar, AvatarImage, AvatarFallback } from '@repo/ui/avatar'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@theopenlane/ui/tooltip'
+import { Dialog, DialogTitle, DialogContent, DialogTrigger } from '@theopenlane/ui/dialog'
+import { Avatar, AvatarImage, AvatarFallback } from '@theopenlane/ui/avatar'
 import { TooltipIconButton } from '@/components/assistant-ui/tooltip-icon-button'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 const useFileSrc = (file: File | undefined) => {
   const [src, setSrc] = useState<string | undefined>(undefined)

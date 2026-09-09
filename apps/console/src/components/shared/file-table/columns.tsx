@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import React from 'react'
 
 export type TFile = {

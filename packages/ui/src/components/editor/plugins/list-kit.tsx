@@ -4,8 +4,8 @@ import { BulletedListRules, OrderedListRules, TaskListRules } from '@platejs/lis
 import { ListPlugin } from '@platejs/list/react'
 import { KEYS } from 'platejs'
 
-import { IndentKit } from '@repo/ui/components/editor/plugins/indent-kit.tsx'
-import { BlockList } from '@repo/ui/components/ui/block-list.tsx'
+import { IndentKit } from '@theopenlane/ui/components/editor/plugins/indent-kit.tsx'
+import { BlockList } from '@theopenlane/ui/components/ui/block-list.tsx'
 
 export const ListKit = [
   ...IndentKit,

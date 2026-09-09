@@ -2,11 +2,11 @@
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSearchParams } from 'next/navigation'
-import { Badge } from '@repo/ui/badge'
-import { cn } from '@repo/ui/lib/utils'
+import { Badge } from '@theopenlane/ui/badge'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { AlertCircle, BookLock, Cloud, GlobeLock, Shield, SlidersHorizontal } from 'lucide-react'
 import { Callout } from '@/components/shared/callout/callout'
-import { Checkbox } from '@repo/ui/checkbox'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 
 const CATEGORY_OPTIONS = [
   { name: 'Security', icon: Shield },

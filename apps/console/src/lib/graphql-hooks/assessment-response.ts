@@ -11,7 +11,7 @@ import {
   type DeleteAssessmentResponseMutation,
   type DeleteAssessmentResponseMutationVariables,
 } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { ASSESSMENT_RESPONSE, GET_ALL_ASSESSMENT_RESPONSES, CREATE_ASSESSMENT_RESPONSE, DELETE_ASSESSMENT_RESPONSE } from '@repo/codegen/query/assessment-response'
 
 type GetAllAssessmentResponsesArgs = {

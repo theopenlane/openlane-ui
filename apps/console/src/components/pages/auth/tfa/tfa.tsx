@@ -1,8 +1,8 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React, { useState, useMemo } from 'react'
-import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@theopenlane/ui/input-otp'
 import { useNotification } from '@/hooks/useNotification'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'

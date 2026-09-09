@@ -1,6 +1,6 @@
 import { useRouter } from 'next/navigation'
 import { SquarePlus } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 
 export const CreateTemplateButton = () => {
   const router = useRouter()

@@ -1,4 +1,4 @@
-import { TabsContent } from '@repo/ui/tabs'
+import { TabsContent } from '@theopenlane/ui/tabs'
 import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
 import DirectLinkTab from '../file-upload/direct-link-tab-section'
 

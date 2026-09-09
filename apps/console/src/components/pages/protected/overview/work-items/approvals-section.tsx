@@ -1,6 +1,6 @@
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { X } from 'lucide-react'
 import type { Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 import { formatTimeSince } from '@/utils/date'

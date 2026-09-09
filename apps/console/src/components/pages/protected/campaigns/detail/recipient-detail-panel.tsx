@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { ArrowLeft } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
 import { formatDate } from '@/utils/date'
 

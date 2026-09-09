@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@theopenlane/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
 import { ArrowLeft, SaveIcon, X } from 'lucide-react'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 
 export interface StepperStep {
   title: string

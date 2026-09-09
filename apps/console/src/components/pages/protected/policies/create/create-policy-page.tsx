@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import CreatePolicyForm from '@/components/pages/protected/policies/create/form/create-policy-form.tsx'
 import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
 import { hasPermission } from '@/lib/authz/utils.ts'

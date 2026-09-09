@@ -1,5 +1,5 @@
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
 import { Search } from 'lucide-react'
 import React from 'react'
 import { type IntegrationStatusFilter } from '@/lib/integrations/types'

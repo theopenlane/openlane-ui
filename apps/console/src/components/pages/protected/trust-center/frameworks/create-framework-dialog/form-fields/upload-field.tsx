@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Label } from '@repo/ui/label'
+import { Label } from '@theopenlane/ui/label'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Eye } from 'lucide-react'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'

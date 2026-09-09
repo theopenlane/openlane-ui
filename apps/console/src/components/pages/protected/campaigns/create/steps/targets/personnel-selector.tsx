@@ -10,7 +10,7 @@ import { type RecipientOption } from './recipient-option'
 import { SelectedTargetsPreview } from './selected-targets-preview'
 import { ALL_SCOPE, PICKER_PAGINATION, getRecipientDisplayName, mergeTargets, removeTarget, toggleTarget, type CampaignTargetEntry } from './target-entry'
 import { normalizeEmail } from '@/lib/validators'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 
 const scopeOptions = [{ label: 'All personnel', value: ALL_SCOPE }, ...enumToOptions(IdentityHolderIdentityHolderType)]
 

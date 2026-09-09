@@ -10,9 +10,9 @@ import { type EmojiDropdownMenuOptions, type UseEmojiPickerType, useEmojiDropdow
 import * as Popover from '@radix-ui/react-popover'
 import { AppleIcon, ClockIcon, CompassIcon, FlagIcon, LeafIcon, LightbulbIcon, MusicIcon, SearchIcon, SmileIcon, StarIcon, XIcon } from 'lucide-react'
 
-import { Button } from '@repo/ui/components/ui/button.tsx'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/components/ui/button.tsx'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { ToolbarButton } from '../ui/toolbar'
 
 export function EmojiToolbarButton({

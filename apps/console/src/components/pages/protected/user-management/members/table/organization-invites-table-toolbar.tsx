@@ -2,7 +2,7 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React from 'react'
 import { INVITES_FILTER_FIELDS } from '@/components/pages/protected/user-management/members/table/table-config.ts'
 import { type InviteWhereInput } from '@repo/codegen/src/schema'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 
 type TProps = {
   onFilterChange: (filters: InviteWhereInput) => void

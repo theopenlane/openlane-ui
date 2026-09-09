@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { X } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { normalizeEmail } from '@/lib/validators'
 import { type CampaignTargetEntry } from './target-entry'
 

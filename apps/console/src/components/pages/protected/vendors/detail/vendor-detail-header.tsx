@@ -2,9 +2,9 @@
 
 import React, { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { Badge } from '@repo/ui/badge'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Badge } from '@theopenlane/ui/badge'
 import { MoreHorizontal, Trash2, Building2, PencilIcon, CogIcon, CheckIcon, PlusIcon } from 'lucide-react'
 import { canDelete } from '@/lib/authz/utils'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'

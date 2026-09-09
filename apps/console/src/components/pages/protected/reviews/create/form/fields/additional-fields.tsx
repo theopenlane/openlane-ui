@@ -10,7 +10,7 @@ import { type InternalEditingType } from '@/components/shared/crud-base/generic-
 import { type EnumOptions } from '../../../table/types'
 import { ReviewStatusOptions } from '@/components/shared/enum-mapper/review-enum'
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@theopenlane/ui/cardpanel'
 
 interface AdditionalFieldsProps {
   isEditing: boolean

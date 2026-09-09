@@ -7,11 +7,11 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import { type VariantProps, cva } from 'class-variance-authority'
 import { ChevronDown } from 'lucide-react'
 
-import { DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuSeparator } from '@repo/ui/components/ui/dropdown-menu.tsx'
-import { Separator } from '@repo/ui/components/ui/separator.tsx'
-import { Tooltip, TooltipTrigger } from '@repo/ui/tooltip'
-import { cn } from '@repo/ui/lib/utils'
-import { onActivateKeyDown } from '@repo/ui/lib/a11y'
+import { DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuSeparator } from '@theopenlane/ui/components/ui/dropdown-menu.tsx'
+import { Separator } from '@theopenlane/ui/components/ui/separator.tsx'
+import { Tooltip, TooltipTrigger } from '@theopenlane/ui/tooltip'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { onActivateKeyDown } from '@theopenlane/ui/lib/a11y'
 
 export function Toolbar({ className, ...props }: React.ComponentProps<typeof ToolbarPrimitive.Root>) {
   return <ToolbarPrimitive.Root className={cn('relative flex select-none items-center', className)} {...props} />

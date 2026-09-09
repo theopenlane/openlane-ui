@@ -1,8 +1,8 @@
 'use client'
 
 import { type UseFormReturn } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
-import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
+import { SheetHeader, SheetTitle } from '@theopenlane/ui/sheet'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Trash2 } from 'lucide-react'

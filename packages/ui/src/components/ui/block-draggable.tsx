@@ -9,9 +9,9 @@ import { type TElement, getPluginByType, isType, KEYS } from 'platejs'
 import { type PlateEditor, type PlateElementProps, type RenderNodeWrapper, MemoizedChildren, useEditorRef, useElement, usePluginOption } from 'platejs/react'
 import { useSelected } from 'platejs/react'
 
-import { Button } from '@repo/ui/components/ui/button.tsx'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/tooltip'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/components/ui/button.tsx'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@theopenlane/ui/tooltip'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 const UNDRAGGABLE_KEYS = [KEYS.column, KEYS.tr, KEYS.td]
 

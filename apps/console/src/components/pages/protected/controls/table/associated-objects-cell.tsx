@@ -1,6 +1,6 @@
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { Badge } from '@theopenlane/ui/badge'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { type ControlListFieldsFragment } from '@repo/codegen/src/schema'
 
 const ASSOCIATION_BADGES = [

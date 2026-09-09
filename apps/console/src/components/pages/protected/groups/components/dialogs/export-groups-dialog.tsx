@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
-import { Checkbox } from '@repo/ui/checkbox'
-import { Label } from '@repo/ui/label'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { Label } from '@theopenlane/ui/label'
 import { DownloadIcon } from 'lucide-react'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 

@@ -1,4 +1,4 @@
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 
 type NamesChipCellProps = {
   names: (string | null | undefined)[] | null | undefined

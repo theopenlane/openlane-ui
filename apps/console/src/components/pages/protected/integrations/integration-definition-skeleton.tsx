@@ -1,4 +1,4 @@
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 
 const IntegrationDefinitionSkeleton = () => {

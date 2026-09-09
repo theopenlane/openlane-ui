@@ -1,6 +1,6 @@
 import { CircleAlert, CircleCheck, CircleEllipsis, CircleX, Globe, Server, Building2, ShieldAlert } from 'lucide-react'
 import { ScanScanStatus, ScanScanType } from '@repo/codegen/src/schema.ts'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const ScanTypeIconMapper: Record<ScanScanType, React.ReactNode> = {

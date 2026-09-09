@@ -8,7 +8,7 @@ import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/r
 import { type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@theopenlane/ui/cardpanel'
 import { MultiStringField } from '@/components/shared/crud-base/form-fields/multi-text-field'
 
 interface AdditionalFieldsProps {

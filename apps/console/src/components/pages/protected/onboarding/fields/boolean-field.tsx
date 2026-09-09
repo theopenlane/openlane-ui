@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Label } from '@repo/ui/label'
-import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
+import { Label } from '@theopenlane/ui/label'
+import { RadioGroup, RadioGroupItem } from '@theopenlane/ui/radio-group'
 import { sortByOrder } from '@/lib/onboarding-questions/build-schema'
 import { type OnboardingQuestion } from '@/lib/onboarding-questions/types'
 import { FieldError, QuestionDescription, QuestionLabel } from '../question-label'

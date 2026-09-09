@@ -1,6 +1,6 @@
 import { ArchiveX, FileBadge, FileCheck, FileClock, FileCog, FileLock, FilePen, FileSearch, FileWarning } from 'lucide-react'
 import { EntityEntityStatus } from '@repo/codegen/src/schema.ts'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const VendorStatusIconMapper: Record<EntityEntityStatus, React.ReactNode> = {

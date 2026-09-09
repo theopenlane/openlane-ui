@@ -13,7 +13,7 @@ import {
   type DirectoryMembershipQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { GET_ALL_DIRECTORY_MEMBERSHIPS, CREATE_DIRECTORY_MEMBERSHIP, UPDATE_DIRECTORY_MEMBERSHIP, DELETE_DIRECTORY_MEMBERSHIP, DIRECTORY_MEMBERSHIP } from '@repo/codegen/query/directory-membership'
 
 type GetAllDirectoryMembershipsArgs = {

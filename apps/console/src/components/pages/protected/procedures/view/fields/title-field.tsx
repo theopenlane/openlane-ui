@@ -2,14 +2,14 @@
 
 import React, { useState } from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
-import { FormControl, FormItem, FormLabel } from '@repo/ui/form'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { FormControl, FormItem, FormLabel } from '@theopenlane/ui/form'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
-import { Input } from '@repo/ui/input'
+import { Input } from '@theopenlane/ui/input'
 import { type UpdateProcedureInput } from '@repo/codegen/src/schema'
 import { type EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
-import { Separator } from '@repo/ui/separator'
+import { Separator } from '@theopenlane/ui/separator'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 type TTitleFieldProps = {

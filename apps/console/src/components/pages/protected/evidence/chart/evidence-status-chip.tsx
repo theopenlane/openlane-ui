@@ -1,6 +1,6 @@
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React, { useState } from 'react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { useGetFirstFiveEvidencesByStatus } from '@/lib/graphql-hooks/evidence.ts'
 import { CircleQuestionMark, Fingerprint, Folder } from 'lucide-react'
 import { type TChartData } from '@/components/pages/protected/evidence/chart/evidence-summary-card.tsx'
@@ -9,7 +9,7 @@ import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { type EvidenceWhereInput } from '@repo/codegen/src/schema'
 import { saveFilters, type TFilterStateFor } from '@/components/shared/table-filter/filter-storage.ts'
 import { type TEvidenceFilterKey } from '@/components/pages/protected/evidence/table/table-config.ts'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { useOrganization } from '@/hooks/useOrganization'
 
 type TEvidenceStatusChipProps = {

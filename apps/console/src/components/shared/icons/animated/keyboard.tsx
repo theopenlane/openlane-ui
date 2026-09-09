@@ -3,7 +3,7 @@
 import { AnimatePresence, motion, useAnimation } from 'motion/react'
 import type { HTMLAttributes, Ref } from 'react'
 import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 // adapted from https://lucide-animated.com/r/keyboard.json — the keys flicker while hovered
 // animation is triggered by hovering the nearest `.group` ancestor (e.g. a nav row) so the

@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Checkbox } from '@repo/ui/checkbox'
-import { Label } from '@repo/ui/label'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { Label } from '@theopenlane/ui/label'
 import { type OnboardingQuestion } from '@/lib/onboarding-questions/types'
 import { FieldError, QuestionDescription, QuestionLabel } from '../question-label'
 

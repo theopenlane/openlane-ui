@@ -4,7 +4,7 @@ import { TOKEN_FILTER_FIELDS } from '@/components/pages/protected/developers/tab
 import { type PersonalAccessTokenWhereInput } from '@repo/codegen/src/schema'
 import PersonalApiKeyDialog from '@/components/pages/protected/developers/personal-access-token-crud-slideout'
 import { usePathname } from 'next/navigation'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { useSession } from 'next-auth/react'

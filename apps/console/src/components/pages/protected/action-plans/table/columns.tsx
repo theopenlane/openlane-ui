@@ -1,10 +1,10 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { type ActionPlansNodeNonNull } from '@/lib/graphql-hooks/action-plan'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type ActionPlanDocumentStatus, type ActionPlanPriority } from '@repo/codegen/src/schema'
 

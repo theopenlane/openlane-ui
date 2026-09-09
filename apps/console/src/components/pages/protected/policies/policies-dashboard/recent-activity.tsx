@@ -1,11 +1,11 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React, { useMemo, useState } from 'react'
 import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/internal-policy'
 import { wherePoliciesDashboard } from './dashboard-config'
 import { formatDate } from '@/utils/date'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { AuthorDisplay } from '@/components/shared/user-display/author-cell'
 import { resolveAuthor } from '@/lib/authors'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'

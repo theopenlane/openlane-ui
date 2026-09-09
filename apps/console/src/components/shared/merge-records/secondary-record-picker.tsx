@@ -2,9 +2,9 @@
 
 import React, { useMemo, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { Button } from '@repo/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
+import { Button } from '@theopenlane/ui/button'
 import { ChevronsUpDown, Loader2 } from 'lucide-react'
 import type { MergeSearchHookResult } from './types'
 

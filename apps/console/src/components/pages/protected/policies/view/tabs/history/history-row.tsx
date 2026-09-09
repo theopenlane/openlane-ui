@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
 import { formatTimeSince } from '@/utils/date'
 import { AuthorDisplay } from '@/components/shared/user-display/author-cell'
 import { type ResolvedAuthor } from '@/lib/authors'

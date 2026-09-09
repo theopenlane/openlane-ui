@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { ConfirmationDialog } from './confirmation-dialog'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 
 const meta: Meta<typeof ConfirmationDialog> = {
   title: 'Overlays/ConfirmationDialog',

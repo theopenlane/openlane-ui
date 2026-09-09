@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Accordion, AccordionContent, AccordionItem } from '@radix-ui/react-accordion'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import AccordionSectionTrigger from '@/components/shared/accordion-section-trigger/accordion-section-trigger'
 import CopyableText from '@/components/shared/copyable-text/copyable-text'
 import { toHumanLabel } from '@/utils/strings'

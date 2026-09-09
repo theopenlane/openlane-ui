@@ -9,7 +9,7 @@ import { getMentionOnSelectItem } from '@platejs/mention'
 import { IS_APPLE, KEYS } from 'platejs'
 import { PlateElement, useFocused, useReadOnly, useSelected } from 'platejs/react'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 import { InlineCombobox, InlineComboboxContent, InlineComboboxEmpty, InlineComboboxGroup, InlineComboboxInput, InlineComboboxItem } from './inline-combobox'
 import { useMounted } from '../../../hooks/use-mounted.ts'

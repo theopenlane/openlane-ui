@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { Archive, Link2Off, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils'

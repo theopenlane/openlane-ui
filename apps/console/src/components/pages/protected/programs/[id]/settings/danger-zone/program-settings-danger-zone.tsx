@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useParams, useRouter } from 'next/navigation'
 import { useDeleteProgram, useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { useNotification } from '@/hooks/useNotification'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { canDelete, canEdit } from '@/lib/authz/utils'

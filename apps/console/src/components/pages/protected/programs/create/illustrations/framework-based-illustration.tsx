@@ -1,6 +1,6 @@
 import React from 'react'
 import { Rectangle } from './shadow-rectangle'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { Frame } from 'lucide-react'
 
 const FrameworkBasedIllustration = () => {

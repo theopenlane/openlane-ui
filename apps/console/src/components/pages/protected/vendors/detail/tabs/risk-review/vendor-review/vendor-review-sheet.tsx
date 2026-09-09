@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Sheet, SheetContent } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@theopenlane/ui/sheet'
 import { type EntityQuery } from '@repo/codegen/src/schema'
 import { type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import VendorReviewSheetBody from './vendor-review-sheet-body'

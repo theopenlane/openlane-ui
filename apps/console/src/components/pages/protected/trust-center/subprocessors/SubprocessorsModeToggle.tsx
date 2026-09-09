@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Card } from '@repo/ui/cardpanel'
-import { cn } from '@repo/ui/lib/utils'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { ExternalLink, LayoutGrid } from 'lucide-react'
 
 export type SubprocessorMode = 'manage' | 'link'

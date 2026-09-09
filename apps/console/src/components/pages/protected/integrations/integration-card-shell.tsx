@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent, CardFooter, CardHeader } from '@repo/ui/cardpanel'
+import { Card, CardContent, CardFooter, CardHeader } from '@theopenlane/ui/cardpanel'
 import DocsLinkTooltip from './docs-link-tooltip'
 import IntegrationCardIcons from './integration-card-icons'
 import IntegrationTagList from './integration-tag-list'

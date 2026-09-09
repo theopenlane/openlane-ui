@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@theopenlane/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 import { type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
 import { formatTimeSince } from '@/utils/date'
 import VersionReadonly from './version-readonly'

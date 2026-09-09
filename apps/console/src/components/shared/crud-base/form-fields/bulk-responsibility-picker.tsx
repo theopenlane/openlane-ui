@@ -1,10 +1,10 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import { useMemo, useState } from 'react'
 import { User, Users, IdCardLanyard, Type, Check, X } from 'lucide-react'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { usePersonnelSelect } from '@/lib/graphql-hooks/identity-holder'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'

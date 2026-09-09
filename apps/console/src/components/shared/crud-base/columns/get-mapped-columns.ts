@@ -1,4 +1,4 @@
-import { type ColumnDef, type RowData } from '@repo/ui/table-types'
+import { type ColumnDef, type RowData } from '@theopenlane/ui/table-types'
 
 export const getMappedColumns = <T extends RowData>(columns: ColumnDef<T>[]) =>
   columns

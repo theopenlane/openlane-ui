@@ -13,7 +13,7 @@ import 'survey-creator-core/survey-creator-core.min.css'
 import { lightTheme } from '@/styles/questionnaire/theme-light'
 import { darkTheme } from '@/styles/questionnaire/theme-dark'
 import { useNotification } from '@/hooks/useNotification'
-import { Panel } from '@repo/ui/panel'
+import { Panel } from '@theopenlane/ui/panel'
 import { useRouter } from 'next/navigation'
 
 import '@/styles/questionnaire/custom.css'

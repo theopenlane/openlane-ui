@@ -67,7 +67,7 @@ import {
   type GetEvidencesWithFileIdsQueryVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 
 type TInvalidateClient = { invalidateQueries: (args: { queryKey: unknown[] }) => void }
 

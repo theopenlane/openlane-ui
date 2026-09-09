@@ -1,4 +1,4 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { type PlatformsNodeNonNull } from '@/lib/graphql-hooks/platform'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { type PlatformPlatformStatus } from '@repo/codegen/src/schema'
@@ -7,7 +7,7 @@ import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { PlatformPlatformStatus as StatusEnum } from '@repo/codegen/src/schema'
 
 const STATUS_VARIANT: Record<PlatformPlatformStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {

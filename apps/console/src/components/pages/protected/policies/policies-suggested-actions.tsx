@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { AlertCircle, Inbox, ChevronDown, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { usePolicySuggestedActions } from '@/lib/graphql-hooks/internal-policy'
 import Link from 'next/link'
 

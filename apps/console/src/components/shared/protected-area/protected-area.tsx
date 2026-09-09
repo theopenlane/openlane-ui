@@ -1,6 +1,6 @@
 // not authorized not-authorized dont revmove this comment, its used for searching
 import { CircleArrowLeft } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import React from 'react'
 import Cat from '@/assets/Cat'
 import Plot from '@/assets/Plot.tsx'
@@ -10,7 +10,7 @@ import { SUPPORT_URL } from '@/constants'
 import Link from 'next/link'
 import { saveFilters, type TFilterStateFor } from '@/components/shared/table-filter/filter-storage.ts'
 import { type TMemberFilterKey } from '@/components/pages/protected/user-management/members/table/table-config.ts'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { useOrganization } from '@/hooks/useOrganization'
 
 const ProtectedArea: React.FC = () => {

@@ -2,11 +2,11 @@
 
 import type { TElement } from 'platejs'
 
-import { loremSentence } from '@repo/ui/components/editor/placeholder-text.ts'
+import { loremSentence } from '@theopenlane/ui/components/editor/placeholder-text.ts'
 import { CopilotPlugin } from '@platejs/ai/react'
 import { serializeMd, stripMarkdown } from '@platejs/markdown'
 
-import { GhostText } from '@repo/ui/components/ui/ghost-text.tsx'
+import { GhostText } from '@theopenlane/ui/components/ui/ghost-text.tsx'
 
 import { MarkdownKit } from './markdown-kit'
 

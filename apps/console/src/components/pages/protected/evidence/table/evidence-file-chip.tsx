@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { useGetEvidenceFilesById } from '@/lib/graphql-hooks/evidence.ts'
 import { File, LinkIcon } from 'lucide-react'
 import { type Maybe } from '@repo/codegen/src/schema.ts'

@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useEffect, useState, useMemo } from 'react'
-import { Sheet, SheetContent, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
-import { Badge } from '@repo/ui/badge'
+import { Sheet, SheetContent, SheetTitle } from '@theopenlane/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
+import { Badge } from '@theopenlane/ui/badge'
 import { ArrowLeft, ArrowRightLeft, Loader2, X } from 'lucide-react'
 import { SecondaryRecordPicker } from './secondary-record-picker'
 import { MergeFieldRow } from './merge-field-row'

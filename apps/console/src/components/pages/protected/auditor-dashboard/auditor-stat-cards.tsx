@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Card } from '@repo/ui/cardpanel'
-import { Badge } from '@repo/ui/badge'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { Badge } from '@theopenlane/ui/badge'
 import { CalendarDays, Building2, UserRoundCheck, ListChecks, FileCheck2, CircleCheckBig, CircleDashed, Copy } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 import { useNotification } from '@/hooks/useNotification'

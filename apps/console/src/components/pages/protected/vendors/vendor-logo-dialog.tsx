@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
 import { Check, Loader2 } from 'lucide-react'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { useSuggestedVendorLogos } from './hooks/use-suggested-vendor-logos'
 

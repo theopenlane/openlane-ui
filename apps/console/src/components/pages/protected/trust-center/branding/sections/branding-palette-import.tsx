@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Label } from '@theopenlane/ui/label'
 import { ClipboardPaste } from 'lucide-react'
 import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
 import { parseBrandingString } from '@/utils/brandingString'

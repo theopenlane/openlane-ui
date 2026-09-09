@@ -1,6 +1,6 @@
 import { CircleHelp, UserLock, UserRoundCheck, UserRoundMinus, UserRoundPlus, UserRoundX } from 'lucide-react'
 import { IdentityHolderUserStatus } from '@repo/codegen/src/schema.ts'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const PersonnelStatusIconMapper: Record<IdentityHolderUserStatus, React.ReactNode> = {

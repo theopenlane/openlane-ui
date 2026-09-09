@@ -1,4 +1,4 @@
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import { TemplatesTable } from '@/components/pages/protected/questionnaire/template/table/template-table.tsx'
 import { type Metadata } from 'next'
 

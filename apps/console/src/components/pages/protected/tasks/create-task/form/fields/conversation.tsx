@@ -1,6 +1,6 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React, { useState, useCallback, useMemo } from 'react'
 import { ArrowDownUp, ArrowUpDown } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'

@@ -43,7 +43,7 @@ import {
   type GroupsExportQuery,
   type GroupsExportQueryVariables,
 } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'

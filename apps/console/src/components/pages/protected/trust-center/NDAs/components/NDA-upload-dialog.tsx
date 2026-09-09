@@ -1,8 +1,8 @@
 'use client'
 
 import React, { type ReactNode, useState } from 'react'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { Loader2 } from 'lucide-react'

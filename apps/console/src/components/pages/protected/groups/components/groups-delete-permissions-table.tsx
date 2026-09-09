@@ -1,10 +1,10 @@
 import React from 'react'
-import { type ColumnDef } from '@repo/ui/table-types'
-import { DataTable } from '@repo/ui/data-table'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
+import { DataTable } from '@theopenlane/ui/data-table'
 import { type Permission } from '@repo/codegen/src/schema'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useGetGroupPermissions } from '@/lib/graphql-hooks/group'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 
 interface GroupPermission {
   id: string

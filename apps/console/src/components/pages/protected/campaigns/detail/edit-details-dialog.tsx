@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useId, useEffect, useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Input } from '@repo/ui/input'
-import { Textarea } from '@repo/ui/textarea'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Input } from '@theopenlane/ui/input'
+import { Textarea } from '@theopenlane/ui/textarea'
+import { Button } from '@theopenlane/ui/button'
 
 interface EditDetailsDialogProps {
   open: boolean

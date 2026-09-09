@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/cardpanel'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@theopenlane/ui/cardpanel'
 import { DateField } from '@/components/shared/crud-base/form-fields/date-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { MultiSelectField } from '@/components/shared/crud-base/form-fields/multi-select-field'

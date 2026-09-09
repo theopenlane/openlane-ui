@@ -2,8 +2,8 @@
 
 import { createPlatePlugin } from 'platejs/react'
 
-import { FixedToolbar } from '@repo/ui/components/ui/fixed-toolbar.tsx'
-import { MinimalisticToolbarButtons } from '@repo/ui/components/ui/minimalistic-toolbar-buttons.tsx'
+import { FixedToolbar } from '@theopenlane/ui/components/ui/fixed-toolbar.tsx'
+import { MinimalisticToolbarButtons } from '@theopenlane/ui/components/ui/minimalistic-toolbar-buttons.tsx'
 
 export const MinimalisticFixedToolbarKit = [
   createPlatePlugin({

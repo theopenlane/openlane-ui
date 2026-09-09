@@ -1,6 +1,6 @@
 import { defineFilterFields } from '@/types'
 import React from 'react'
-import type { ColumnDef } from '@repo/ui/table-types'
+import type { ColumnDef } from '@theopenlane/ui/table-types'
 import type { Task } from '@repo/codegen/src/schema'
 import { TaskTaskStatus, type TaskWhereInput } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'

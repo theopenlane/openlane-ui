@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Copy } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { copyableTextStyles, type CopyableTextVariants } from './copyable-text.styles'
 

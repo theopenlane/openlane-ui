@@ -1,9 +1,9 @@
 'use client'
 
 import { useFormContext } from 'react-hook-form'
-import { Label } from '@repo/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Label } from '@theopenlane/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { InfoIcon } from 'lucide-react'
 import { TrustCenterDocTrustCenterDocumentVisibility } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'

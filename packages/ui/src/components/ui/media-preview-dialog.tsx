@@ -5,7 +5,7 @@ import { cva } from 'class-variance-authority'
 import { ArrowLeft, ArrowRight, Download, Minus, Plus, X } from 'lucide-react'
 import { useEditorRef } from 'platejs/react'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 const buttonVariants = cva('rounded-sm bg-[rgba(0,0,0,0.5)] px-1', {
   defaultVariants: {

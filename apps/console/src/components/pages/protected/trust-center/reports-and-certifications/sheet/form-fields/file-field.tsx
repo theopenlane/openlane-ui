@@ -1,11 +1,11 @@
 'use client'
 import { useFormContext } from 'react-hook-form'
-import { Label } from '@repo/ui/label'
+import { Label } from '@theopenlane/ui/label'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { FileText, Repeat2 } from 'lucide-react'
-import { Card } from '@repo/ui/cardpanel'
-import { Button } from '@repo/ui/button'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { Button } from '@theopenlane/ui/button'
 
 interface Props {
   isEditing: boolean

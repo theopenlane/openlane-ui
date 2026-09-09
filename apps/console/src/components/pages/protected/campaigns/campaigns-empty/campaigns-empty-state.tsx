@@ -1,7 +1,7 @@
 import React from 'react'
 import { ClipboardCheck, SquarePlus } from 'lucide-react'
-import { Card } from '@repo/ui/cardpanel'
-import { Button } from '@repo/ui/button'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { Button } from '@theopenlane/ui/button'
 
 type TCampaignsEmptyStateProps = {
   onCreateCampaign: () => void

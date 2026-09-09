@@ -3,7 +3,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { ArrowDownUp, ArrowUpDown, X } from 'lucide-react'
-import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetHeader } from '@theopenlane/ui/sheet'
 import { useDeleteNote, useGetControlComments, useUpdateControl, useUpdateControlComment } from '@/lib/graphql-hooks/control'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useNotification } from '@/hooks/useNotification'

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Check } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 type StepBadgeSize = 'sm' | 'md'
 

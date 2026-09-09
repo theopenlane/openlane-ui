@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Button } from '@theopenlane/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
 import { FolderKanban, ChevronsUpDown } from 'lucide-react'
 
 type ProgramOption = { label: string; value: string }

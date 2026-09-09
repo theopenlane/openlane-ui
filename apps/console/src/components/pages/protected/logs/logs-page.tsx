@@ -1,7 +1,7 @@
 'use client'
 
 import React, { use, useEffect } from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const LogsPage: React.FC = () => {

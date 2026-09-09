@@ -1,13 +1,13 @@
 import { useGetControlCountsByStatus } from '@/lib/graphql-hooks/control'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
-import { Card, CardContent } from '@repo/ui/cardpanel'
-import { DonutChart } from '@repo/ui/donut-chart'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
+import { DonutChart } from '@theopenlane/ui/donut-chart'
 import { Settings2 } from 'lucide-react'
 import Link from 'next/link'
 import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { useParams } from 'next/navigation'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { useOrganization } from '@/hooks/useOrganization'
 
 const chartColors = ['#4ADE80', '#EAB308', '#EF4444', '#107565', '#017BFE']

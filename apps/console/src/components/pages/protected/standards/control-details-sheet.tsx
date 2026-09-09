@@ -1,11 +1,11 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@theopenlane/ui/sheet'
 import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { LinkIcon, PanelRightClose } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { useGetAllMappedControlsGrouped } from '@/lib/graphql-hooks/mapped-control'
 import { type GroupedControls, type RelatedNode } from '../controls/shared/related-node'

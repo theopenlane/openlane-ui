@@ -6,7 +6,7 @@ import { DateField } from '@/components/shared/crud-base/form-fields/date-field'
 import { type UpdateActionPlanInput, ActionPlanDocumentStatus, ActionPlanPriority, ActionPlanFrequency } from '@repo/codegen/src/schema'
 import { type FieldValues, Controller, useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@theopenlane/ui/cardpanel'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 

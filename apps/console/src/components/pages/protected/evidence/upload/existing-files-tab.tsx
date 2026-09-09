@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { TabsContent } from '@repo/ui/tabs'
-import { type ColumnDef } from '@repo/ui/table-types'
-import { DataTable } from '@repo/ui/data-table'
+import { TabsContent } from '@theopenlane/ui/tabs'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
+import { DataTable } from '@theopenlane/ui/data-table'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { PlusCircle } from 'lucide-react'
 import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
@@ -10,7 +10,7 @@ import { formatDateSince } from '@/utils/date'
 import { type TUploadedFile } from './types/TUploadedFile'
 import { type TEvidenceFilesColumn } from './types/TEvidenceFilesColumn'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 
 type TProps = {
   evidenceFiles: TUploadedFile[]

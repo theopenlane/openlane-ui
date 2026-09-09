@@ -1,6 +1,6 @@
 import { type Program } from '@repo/codegen/src/schema'
-import { type ColumnDef } from '@repo/ui/table-types'
-import { Checkbox } from '@repo/ui/checkbox'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 import { type TLinkedProgram } from './types/object-association-types'
 import { toLinkedProgram } from './utils'
 

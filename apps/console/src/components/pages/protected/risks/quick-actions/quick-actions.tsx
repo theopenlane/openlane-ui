@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { CheckCircle2, UserRoundSearch, SlidersHorizontal, CheckCheck, ListCheck } from 'lucide-react'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'

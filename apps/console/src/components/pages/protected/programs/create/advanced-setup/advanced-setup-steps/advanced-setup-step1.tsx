@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { Shield, Search, BarChart3, FileText } from 'lucide-react'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { useFormContext } from 'react-hook-form'
 
 interface ProgramType {

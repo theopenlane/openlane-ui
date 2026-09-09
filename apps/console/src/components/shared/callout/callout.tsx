@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Info, AlertTriangle, AlertCircle, CheckCircle2, LightbulbIcon, Sparkles, type LucideIcon } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 type Variant = 'info' | 'success' | 'warning' | 'danger' | 'suggestion' | 'recommendation' | 'simple'
 

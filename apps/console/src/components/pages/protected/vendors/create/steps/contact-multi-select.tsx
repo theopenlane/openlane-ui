@@ -2,13 +2,13 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { Badge } from '@repo/ui/badge'
+import { FormField, FormItem, FormLabel, FormControl } from '@theopenlane/ui/form'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
+import { Badge } from '@theopenlane/ui/badge'
 import { Check, X, Users } from 'lucide-react'
 import { useContacts } from '@/lib/graphql-hooks/contact'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
 
 type ContactInfo = { id: string; fullName?: string | null; email?: string | null }

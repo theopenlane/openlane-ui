@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react'
 import React, { useState } from 'react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { Button } from '@repo/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
+import { Button } from '@theopenlane/ui/button'
 
 const AddAssociationPlusBtn = ({ ref, ...props }: React.ButtonHTMLAttributes<HTMLDivElement> & { ref?: React.Ref<HTMLDivElement> }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)

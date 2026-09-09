@@ -1,9 +1,9 @@
 'use client'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@theopenlane/ui/dialog'
 import { Upload } from 'lucide-react'
 import React, { useState } from 'react'
-import { Button, type ButtonProps } from '@repo/ui/button'
+import { Button, type ButtonProps } from '@theopenlane/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { acceptedFileTypes, acceptedFileTypesShort, maxFileSizeInMb } from '@/components/shared/file-upload/file-upload-config'
 import { type TUploadedFile } from '@/components/shared/file-upload/types'

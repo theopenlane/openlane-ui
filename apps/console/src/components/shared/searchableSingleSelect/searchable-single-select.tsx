@@ -1,12 +1,12 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import { ChevronDown, X } from 'lucide-react'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
-import { type Option } from '@repo/ui/multiple-selector'
+import { type Option } from '@theopenlane/ui/multiple-selector'
 import { useRef, useState } from 'react'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '../custom-type-enum-chip/custom-type-enum-chip'
 

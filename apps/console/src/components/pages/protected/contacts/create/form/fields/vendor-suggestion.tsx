@@ -3,7 +3,7 @@
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { X } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { getEmailDomain, isValidDomain } from '@/utils/strings'
 import { type ContactFormData } from '../../../hooks/use-form-schema'

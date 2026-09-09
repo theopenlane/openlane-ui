@@ -12,11 +12,11 @@ import { type NodeEntry, type SlateEditor, isHotkey, KEYS, NodeApi, TextApi } fr
 import { useEditorPlugin, useFocusedLast, useHotkeys, usePluginOption } from 'platejs/react'
 import { type PlateEditor, useEditorRef } from 'platejs/react'
 
-import { Button } from '@repo/ui/components/ui/button.tsx'
-import { Command, CommandGroup, CommandItem, CommandList } from '@repo/ui/command'
-import { Popover, PopoverAnchor, PopoverContent } from '@repo/ui/components/ui/popover.tsx'
-import { cn } from '@repo/ui/lib/utils'
-import { commentPlugin } from '@repo/ui/components/editor/plugins/comment-kit.tsx'
+import { Button } from '@theopenlane/ui/components/ui/button.tsx'
+import { Command, CommandGroup, CommandItem, CommandList } from '@theopenlane/ui/command'
+import { Popover, PopoverAnchor, PopoverContent } from '@theopenlane/ui/components/ui/popover.tsx'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { commentPlugin } from '@theopenlane/ui/components/editor/plugins/comment-kit.tsx'
 
 import { AIChatEditor } from './ai-chat-editor'
 

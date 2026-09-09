@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Badge } from '@repo/ui/badge'
-import { Input } from '@repo/ui/input'
+import { Badge } from '@theopenlane/ui/badge'
+import { Input } from '@theopenlane/ui/input'
 import { X } from 'lucide-react'
 import { DOMAIN_REGEX } from '@/lib/onboarding-questions/build-schema'
 import { type OnboardingQuestion } from '@/lib/onboarding-questions/types'

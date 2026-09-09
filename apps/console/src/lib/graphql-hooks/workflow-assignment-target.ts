@@ -7,7 +7,7 @@ import {
   type WorkflowAssignmentTargetQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { GET_ALL_WORKFLOW_ASSIGNMENT_TARGETS, WORKFLOW_ASSIGNMENT_TARGET } from '@repo/codegen/query/workflow-assignment-target'
 
 type GetAllWorkflowAssignmentTargetsArgs = {

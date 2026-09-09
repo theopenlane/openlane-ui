@@ -41,7 +41,7 @@ import {
   type AssessmentTemplateCreatePayload,
   type MutationCreateAssessmentTemplateArgs,
 } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 
 type CreateAssessmentTemplateMutationVariables = MutationCreateAssessmentTemplateArgs
 

@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { Box, Server, ShieldAlert, Users } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardTitle } from '@repo/ui/cardpanel'
-import { Separator } from '@repo/ui/separator'
+import { Card, CardContent, CardDescription, CardTitle } from '@theopenlane/ui/cardpanel'
+import { Separator } from '@theopenlane/ui/separator'
 
 type ScanFoundSummaryProps = {
   hostname: string

@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Input } from '@repo/ui/input'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Input } from '@theopenlane/ui/input'
+import { Button } from '@theopenlane/ui/button'
 import { SearchIcon, SquareArrowOutUpRight } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { type Template } from '@repo/codegen/src/schema'
 
 export type QuestionnaireTemplate = Pick<Template, 'id' | 'name' | 'description' | 'jsonconfig'>

@@ -10,11 +10,11 @@ import { CheckIcon, XIcon } from 'lucide-react'
 import { type NodeEntry, type Path, type TElement, type TSuggestionElement, type TSuggestionText, ElementApi, KEYS, PathApi, TextApi } from 'platejs'
 import { useEditorPlugin, usePluginOption } from 'platejs/react'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/components/ui/avatar.tsx'
-import { Button } from '@repo/ui/components/ui/button.tsx'
-import { cn } from '@repo/ui/lib/utils'
-import { type TDiscussion, discussionPlugin } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
-import { suggestionPlugin } from '@repo/ui/components/editor/plugins/suggestion-kit.tsx'
+import { Avatar, AvatarFallback, AvatarImage } from '@theopenlane/ui/components/ui/avatar.tsx'
+import { Button } from '@theopenlane/ui/components/ui/button.tsx'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { type TDiscussion, discussionPlugin } from '@theopenlane/ui/components/editor/plugins/discussion-kit.tsx'
+import { suggestionPlugin } from '@theopenlane/ui/components/editor/plugins/suggestion-kit.tsx'
 
 import { type TComment, Comment, CommentCreateForm, formatCommentDate } from './comment'
 

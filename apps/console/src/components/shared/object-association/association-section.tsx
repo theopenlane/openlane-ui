@@ -7,7 +7,7 @@ import AssociatedObjectsAccordion from '@/components/shared/object-association/a
 import { type Section, type TBaseAssociatedNode, getObjectName } from '@/components/shared/object-association/types/object-association-types'
 import { ASSOCIATION_REMOVAL_CONFIG, type ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
-import { Panel, PanelHeader } from '@repo/ui/panel'
+import { Panel, PanelHeader } from '@theopenlane/ui/panel'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { type TAssociationUpdateInput, type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { SetAssociationDialog, type SetAssociationDialogConfig } from '@/components/shared/object-association/set-association-dialog'

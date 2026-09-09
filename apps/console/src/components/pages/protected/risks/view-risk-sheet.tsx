@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback } from 'react'
-import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { SheetHeader, SheetTitle } from '@theopenlane/ui/sheet'
 import { ExternalLink, PanelRightClose } from 'lucide-react'
 import useFormSchema, { type EditRisksFormData } from './view/hooks/use-form-schema'
 import { type RiskFieldsFragment, type UpdateRiskInput, type CreateRiskInput, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
@@ -14,7 +14,7 @@ import PropertiesCard from './view/cards/properties-card'
 import { type Value } from 'platejs'
 import { GenericDetailsSheet, type GenericDetailsSheetConfig, type RenderFieldsProps, type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
 import { useRouter } from 'next/navigation'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 
 type Props = {

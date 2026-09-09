@@ -1,9 +1,9 @@
 import { ButtonSkeleton } from '@/components/shared/skeleton/button-skeleton'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { TitleSkeleton } from '@/components/shared/skeleton/title-skeleton'
-import { Button } from '@repo/ui/button'
-import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Button } from '@theopenlane/ui/button'
+import { Card, CardContent, CardTitle } from '@theopenlane/ui/cardpanel'
+import { Tabs, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 
 export const EvidenceDetailsSheetSkeleton = () => {
   return (

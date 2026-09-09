@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Check, Copy } from 'lucide-react'
-import { InfoSlideOut } from '@repo/ui/info-slide-out'
+import { InfoSlideOut } from '@theopenlane/ui/info-slide-out'
 import { useNotification } from '@/hooks/useNotification'
 import { EVIDENCE_DOCS_URL } from '@/constants/docs'
 

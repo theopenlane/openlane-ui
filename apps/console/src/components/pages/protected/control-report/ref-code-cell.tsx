@@ -2,8 +2,8 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { TruncatedCell } from '@repo/ui/data-table'
-import { cn } from '@repo/ui/lib/utils'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { type ControlControlStatus } from '@repo/codegen/src/schema'
 import { CONTROL_STATUS_STYLES } from '@/components/shared/enum-mapper/control-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'

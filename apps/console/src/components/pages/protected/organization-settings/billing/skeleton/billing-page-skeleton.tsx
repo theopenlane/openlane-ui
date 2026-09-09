@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import Skeleton from '@/components/shared/skeleton/skeleton'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 
 const ProductCardSkeleton = () => (
   <Card className="bg-transparent p-4">

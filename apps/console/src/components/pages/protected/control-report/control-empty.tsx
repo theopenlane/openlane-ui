@@ -1,11 +1,11 @@
-import { Button } from '@repo/ui/button'
-import { Card, CardDescription, CardTitle } from '@repo/ui/cardpanel'
+import { Button } from '@theopenlane/ui/button'
+import { Card, CardDescription, CardTitle } from '@theopenlane/ui/cardpanel'
 import { LayersIcon, LibraryIcon, SquarePenIcon, UploadIcon } from 'lucide-react'
 import { BulkCSVCloneControlDialog } from '../controls/bulk-csv-clone-control-dialog'
 import { BulkCSVCreateControlDialog } from '../controls/bulk-csv-create-control-dialog'
 import Link from 'next/link'
-import { cn } from '@repo/ui/lib/utils'
-import { buttonVariants } from '@repo/ui/components/ui/button.tsx'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { buttonVariants } from '@theopenlane/ui/components/ui/button.tsx'
 
 export function ControlsEmptyActions() {
   const cards = [

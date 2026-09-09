@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { ExternalLink } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useGetVulnerabilityAssociations } from '@/lib/graphql-hooks/vulnerability'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { SeverityChip } from '@/components/shared/severity/severity-chip'

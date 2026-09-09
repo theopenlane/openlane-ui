@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Sheet, SheetContent } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@theopenlane/ui/sheet'
 import { useNotification } from '@/hooks/useNotification'
-import { Form } from '@repo/ui/form'
+import { Form } from '@theopenlane/ui/form'
 import { useQueryClient } from '@tanstack/react-query'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'

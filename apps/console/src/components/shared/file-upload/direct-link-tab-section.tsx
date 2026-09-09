@@ -1,6 +1,6 @@
-import { Button } from '@repo/ui/button'
-import { Card } from '@repo/ui/cardpanel'
-import { Input } from '@repo/ui/input'
+import { Button } from '@theopenlane/ui/button'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { Input } from '@theopenlane/ui/input'
 import { Plus } from 'lucide-react'
 
 type TDirectLinkTab = {

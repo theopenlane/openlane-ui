@@ -5,8 +5,8 @@ import { type DialogProps } from '@radix-ui/react-dialog'
 import { Command as CommandPrimitive } from 'cmdk'
 import { Search } from 'lucide-react'
 
-import { cn } from '@repo/ui/lib/utils'
-import { Dialog, DialogContent } from '@repo/ui/dialog'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { Dialog, DialogContent } from '@theopenlane/ui/dialog'
 
 const Command = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive> & { ref?: React.Ref<React.ElementRef<typeof CommandPrimitive>> }) => (
   <CommandPrimitive ref={ref} className={cn('flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground', className)} {...props} />

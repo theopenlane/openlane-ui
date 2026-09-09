@@ -2,13 +2,13 @@ import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hov
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import { useRef, useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FolderIcon } from 'lucide-react'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import { type Option } from '@repo/ui/multiple-selector'
+import { type Option } from '@theopenlane/ui/multiple-selector'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 const SelectedDisplay = ({ name, options }: { name: string; options: (Option & { color?: string; description?: string })[] }) => {

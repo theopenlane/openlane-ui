@@ -10,7 +10,7 @@ import { getEditorDOMFromHtmlString } from 'platejs/static'
 import { useEditorRef } from 'platejs/react'
 import { useFilePicker } from 'use-file-picker'
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/components/ui/dropdown-menu.tsx'
 
 import { ToolbarButton } from './toolbar'
 import { importDocx } from '@platejs/docx-io'

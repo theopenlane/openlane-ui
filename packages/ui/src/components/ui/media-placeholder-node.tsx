@@ -1,6 +1,6 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import * as React from 'react'
 
 import type { TPlaceholderElement } from 'platejs'
@@ -12,7 +12,7 @@ import { KEYS } from 'platejs'
 import { PlateElement, useEditorPlugin, withHOC } from 'platejs/react'
 import { useFilePicker } from 'use-file-picker'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { useUploadFile } from '../../../hooks/use-upload-file.ts'
 
 const CONTENT: Record<

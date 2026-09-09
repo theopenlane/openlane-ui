@@ -3,7 +3,7 @@
 import React, { useMemo, useRef } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Tag } from 'lucide-react'
-import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import MultipleSelector, { type Option } from '@theopenlane/ui/multiple-selector'
 import { type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
 import { type EditVendorFormData } from '../../../hooks/use-form-schema'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'

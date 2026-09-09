@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbSeparator, BreadcrumbLink } from '@repo/ui/breadcrumb'
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbSeparator, BreadcrumbLink } from '@theopenlane/ui/breadcrumb'
 import { ChevronRight } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { BreadcrumbSkeleton } from './breadcrumb-skeleton'

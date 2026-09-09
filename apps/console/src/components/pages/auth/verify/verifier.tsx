@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
-import { Logo } from '@repo/ui/logo'
+import { Logo } from '@theopenlane/ui/logo'
 import { useVerifyUser } from '@/lib/user'
 import { verificationStyles } from './page.styles'
-import { buttonVariants } from '@repo/ui/components/ui/button.tsx'
+import { buttonVariants } from '@theopenlane/ui/components/ui/button.tsx'
 
 export const TokenVerifier = () => {
   const { successMessage, button, success, content, logo, wrapper, verifying } = verificationStyles()

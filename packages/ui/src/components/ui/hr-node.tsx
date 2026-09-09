@@ -6,7 +6,7 @@ import type { PlateElementProps } from 'platejs/react'
 
 import { PlateElement, useFocused, useReadOnly, useSelected } from 'platejs/react'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export function HrElement(props: PlateElementProps) {
   const readOnly = useReadOnly()

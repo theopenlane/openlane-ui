@@ -3,7 +3,7 @@
 import React, { use, useEffect, useState } from 'react'
 import useFormSchema from './hooks/use-form-schema'
 import { CircleHelp } from 'lucide-react'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'

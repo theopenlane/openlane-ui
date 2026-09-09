@@ -2,7 +2,7 @@
 import React, { useId } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
-import MultipleSelector from '@repo/ui/multiple-selector'
+import MultipleSelector from '@theopenlane/ui/multiple-selector'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { type WizardValues } from '../advanced-setup-wizard-config'

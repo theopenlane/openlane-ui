@@ -1,4 +1,4 @@
-import { type TableKeyValue } from '@repo/ui/table-key'
+import { type TableKeyValue } from '@theopenlane/ui/table-key'
 import { type Condition, type FilterField } from '@/types'
 import type { DateRange } from 'react-day-picker'
 import { isValid } from 'date-fns'

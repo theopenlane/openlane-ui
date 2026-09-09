@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { type IntegrationOperationMetadata } from '@/lib/integrations/types'
 
 const PERMISSIONS_PREVIEW_COUNT = 3

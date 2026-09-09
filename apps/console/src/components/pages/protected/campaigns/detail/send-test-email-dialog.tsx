@@ -2,9 +2,9 @@
 
 import React, { useId, useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Input } from '@repo/ui/input'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Input } from '@theopenlane/ui/input'
+import { Button } from '@theopenlane/ui/button'
 import { SendHorizontal } from 'lucide-react'
 import { useSendCampaignTestEmail } from '@/lib/graphql-hooks/campaign'
 import { useNotification } from '@/hooks/useNotification'

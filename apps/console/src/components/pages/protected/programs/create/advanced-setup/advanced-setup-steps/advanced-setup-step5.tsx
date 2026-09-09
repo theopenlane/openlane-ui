@@ -2,7 +2,7 @@
 import React, { useId } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
-import MultipleSelector from '@repo/ui/multiple-selector'
+import MultipleSelector from '@theopenlane/ui/multiple-selector'
 import { type z } from 'zod'
 import { type step5Schema } from '../advanced-setup-wizard-config'
 import { useRiskSelect } from '@/lib/graphql-hooks/risk'

@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { FileTextIcon, X, Eye } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'

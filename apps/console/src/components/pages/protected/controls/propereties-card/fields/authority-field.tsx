@@ -3,8 +3,8 @@ import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hov
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { buildClearableUpdate } from '@/components/shared/searchableSingleSelect/clearable-update'
 import { type Entity, type Group, type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
-import { type Option } from '@repo/ui/multiple-selector'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { type Option } from '@theopenlane/ui/multiple-selector'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { useFormContext, Controller } from 'react-hook-form'
 import { HelpCircle } from 'lucide-react'
 

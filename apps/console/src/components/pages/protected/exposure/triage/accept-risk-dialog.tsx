@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@repo/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Textarea } from '@repo/ui/textarea'
-import { Input } from '@repo/ui/input'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@theopenlane/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
+import { Textarea } from '@theopenlane/ui/textarea'
+import { Input } from '@theopenlane/ui/input'
+import { Button } from '@theopenlane/ui/button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { DISMISS_REASONS, OTHER_DISMISS_REASON } from '../vulnerability-dismiss-reasons'
 

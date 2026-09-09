@@ -1,18 +1,18 @@
 'use client'
 
-import { DataTable } from '@repo/ui/data-table'
-import { type ColumnDef } from '@repo/ui/table-types'
+import { DataTable } from '@theopenlane/ui/data-table'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import React, { useMemo } from 'react'
 import { type GroupOrder, type GroupWhereInput } from '@repo/codegen/src/schema'
 import { GROUP_SORT_FIELDS } from '@/components/pages/protected/groups/table/table-config.ts'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { useGetAllGroups, type GroupsNode } from '@/lib/graphql-hooks/group'
-import { type VisibilityState } from '@repo/ui/table-types'
+import { type VisibilityState } from '@theopenlane/ui/table-types'
 import { getGroupTableColumns } from '../table/columns'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 
 type TGroupsTableProps = {
   onSortChange?: (sortCondition: GroupOrder | GroupOrder[]) => void

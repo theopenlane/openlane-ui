@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { CircleCheck, CircleX } from 'lucide-react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import CopyableText from '@/components/shared/copyable-text/copyable-text'
 import CountBadge from '@/components/shared/count-badge/count-badge'
 import { getAgentReadiness, getMissingComplianceLinks, getSecurityViolations, getRisks, type ScanMetadata } from './scan-metadata'

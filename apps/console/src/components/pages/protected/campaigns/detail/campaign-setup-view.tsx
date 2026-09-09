@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Button } from '@repo/ui/button'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { Calendar, CircleHelp, FileText, Lock, Mail, Repeat, Rocket, SendHorizontal, Users } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 import { StepBadge } from '@/components/shared/step-badge/step-badge'

@@ -1,4 +1,4 @@
-import { Button, type ButtonProps } from '@repo/ui/button'
+import { Button, type ButtonProps } from '@theopenlane/ui/button'
 import { SaveIcon } from 'lucide-react'
 type SaveButtonProps = {
   onClick?: React.MouseEventHandler<HTMLButtonElement>

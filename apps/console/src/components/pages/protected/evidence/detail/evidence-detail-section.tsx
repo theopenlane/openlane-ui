@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 
 type TEvidenceDetailSectionProps = {
   title: string

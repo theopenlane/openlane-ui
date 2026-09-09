@@ -1,5 +1,5 @@
 import { LineChart, TooltipProps } from './chart'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 interface Issue {
   status: 'completed' | 'in progress' | 'on hold'

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import Menu from '@/components/shared/menu/menu'
 import { MoreHorizontal } from 'lucide-react'
 

@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Card, CardDescription, CardTitle } from '@repo/ui/cardpanel'
-import { Separator } from '@repo/ui/separator'
+import { Card, CardDescription, CardTitle } from '@theopenlane/ui/cardpanel'
+import { Separator } from '@theopenlane/ui/separator'
 import { SidebarGroupRow } from './sidebar-group-row'
 import type { EditableStepId, LinkableItem } from '../types'
 

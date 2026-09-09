@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react'
 import { type FilterField } from '@/types'
-import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/popover'
-import { Input } from '@repo/ui/input'
+import { Popover, PopoverTrigger, PopoverContent } from '@theopenlane/ui/popover'
+import { Input } from '@theopenlane/ui/input'
 import { ChevronDown } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
-import { Button } from '@repo/ui/button'
-import { Checkbox } from '@repo/ui/checkbox'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 
 type DropdownSearchMultiselectProps = {
   field: FilterField

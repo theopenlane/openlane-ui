@@ -6,7 +6,7 @@ import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evi
 import { InfoIcon, TriangleAlert } from 'lucide-react'
 import { type CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import { type SuggestedControl } from '@/components/pages/protected/evidence/hooks/use-evidence-suggested-controls'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { useCloneControls } from '@/lib/graphql-hooks/standard'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
@@ -15,7 +15,7 @@ import { type GetExistingControlsForOrganizationQuery, type GetExistingSubcontro
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { GET_EXISTING_CONTROLS_FOR_ORGANIZATION } from '@repo/codegen/query/control'
 import { GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION } from '@repo/codegen/query/subcontrol'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 

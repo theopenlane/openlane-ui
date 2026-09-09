@@ -11,11 +11,11 @@ import { MessageSquareTextIcon, MessagesSquareIcon, PencilLineIcon } from 'lucid
 import { type AnyPluginConfig, type NodeEntry, type Path, type TCommentText, type TElement, type TSuggestionText, PathApi, TextApi } from 'platejs'
 import { useEditorPlugin, useEditorRef, usePluginOption } from 'platejs/react'
 
-import { Button } from '@repo/ui/components/ui/button.tsx'
-import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@repo/ui/components/ui/popover.tsx'
-import { commentPlugin } from '@repo/ui/components/editor/plugins/comment-kit.tsx'
-import { type TDiscussion, discussionPlugin } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
-import { suggestionPlugin } from '@repo/ui/components/editor/plugins/suggestion-kit.tsx'
+import { Button } from '@theopenlane/ui/components/ui/button.tsx'
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@theopenlane/ui/components/ui/popover.tsx'
+import { commentPlugin } from '@theopenlane/ui/components/editor/plugins/comment-kit.tsx'
+import { type TDiscussion, discussionPlugin } from '@theopenlane/ui/components/editor/plugins/discussion-kit.tsx'
+import { suggestionPlugin } from '@theopenlane/ui/components/editor/plugins/suggestion-kit.tsx'
 
 import { BlockSuggestionCard, isResolvedSuggestion, useResolveSuggestion } from './block-suggestion'
 import { Comment, CommentCreateForm } from './comment'

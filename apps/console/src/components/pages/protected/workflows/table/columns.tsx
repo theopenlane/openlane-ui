@@ -1,11 +1,11 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { type WorkflowDefinitionsNodeNonNull } from '@/lib/graphql-hooks/workflow-definition'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { toHumanLabel } from '@/utils/strings'
 
 export const getColumns = ({ selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<WorkflowDefinitionsNodeNonNull>[] => {

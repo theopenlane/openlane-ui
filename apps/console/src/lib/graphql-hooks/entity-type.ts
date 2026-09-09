@@ -20,7 +20,7 @@ import {
   type UpdateBulkEntityTypeMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import {
   ENTITY_TYPE,
   GET_ALL_ENTITY_TYPES,
