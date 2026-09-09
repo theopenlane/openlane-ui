@@ -16,6 +16,7 @@ import { buildReportQuery } from '@/lib/report/build-report-query'
 import { buildWhere, defaultFilters, isFilterComplete, type TReportCombinator, type TReportFilter } from '@/lib/report/report-filters'
 import { EXPORT_FORMAT_LABELS, EXPORT_FORMATS } from '@/lib/report/report-export'
 import { buildColumnIndex, entityOptions, getEntity, resolveColumns, type TReportColumn } from '@/lib/report/report-schema'
+import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import ReportColumnsPanel from './report-columns-panel'
 import ReportFiltersPanel from './report-filters-panel'
 import ReportPanel from './report-panel'
@@ -68,6 +69,8 @@ const CustomReportPage: React.FC = () => {
   const [request, setRequest] = useState<TReportRequest | null>(null)
 
   const handleEntityChange = (nextEntityName: string) => {
+    if (nextEntityName === entityName) return
+
     const nextEntity = getEntity(nextEntityName)
     if (!nextEntity) return
 
@@ -146,18 +149,7 @@ const CustomReportPage: React.FC = () => {
           {availableEntities.length === 0 ? (
             <p className="text-sm text-muted-foreground">Your organization has no modules that can be reported on yet.</p>
           ) : (
-            <Select value={entityName} onValueChange={handleEntityChange}>
-              <SelectTrigger aria-label="Report data type">
-                <SelectValue placeholder="Select a data type" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableEntities.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SearchableSingleSelect ariaLabel="Report data type" value={entityName} options={availableEntities} placeholder="Select a data type" onChange={handleEntityChange} />
           )}
         </ReportPanel>
 

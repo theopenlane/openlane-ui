@@ -203,7 +203,7 @@ export const useSearch = (query: string) => {
     enabled: query.length > 2,
   })
 
-  const rawPages = useMemo(() => {
+  const rawPages = useMemo<RoutePage[]>(() => {
     const trimmedQuery = query.trim().toLowerCase()
 
     if (trimmedQuery.length > 2) {
@@ -218,7 +218,7 @@ export const useSearch = (query: string) => {
 
           return nameMatch || routeMatch || keywordMatch
         })
-      }) as RoutePage[]
+      })
     }
 
     return []

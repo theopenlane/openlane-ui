@@ -8,6 +8,7 @@ import {
   BookmarkIcon,
   BriefcaseBusinessIcon,
   ChartBarDecreasingIcon,
+  ChartLineIcon,
   ChartSplineIcon,
   CircleHelpIcon,
   ClipboardCheckIcon,
@@ -82,8 +83,8 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
     {
       title: 'Custom Report',
       href: '/reports/custom',
-      icon: ChartBarDecreasingIcon,
-      hidden: true,
+      icon: ChartLineIcon,
+      hidden: session?.user?.isOnboarding || billingExpired,
     },
     {
       title: 'Compliance',

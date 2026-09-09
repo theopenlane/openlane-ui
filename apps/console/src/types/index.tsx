@@ -96,7 +96,7 @@ export type RoutePage = {
   route: string
   name: string
   keywords?: string[]
-  hidden?: undefined
+  hidden?: boolean
 }
 
 export type MapControl = {
