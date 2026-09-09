@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { type FilterField, type WhereCondition } from '@/types'
-import { Filter, ChevronDown, CalendarIcon } from 'lucide-react'
+import { Filter, ChevronDown, CalendarIcon, X } from 'lucide-react'
 import { format } from 'date-fns'
 import { Input } from '@repo/ui/input'
 import { Switch } from '@repo/ui/switch'
@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Button } from '@repo/ui/button'
 import { cn } from '@repo/ui/lib/utils'
 import { Calendar } from '@repo/ui/calendar'
+import type { DateRange } from 'react-day-picker'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { type TableKeyValue } from '@repo/ui/table-key'
@@ -306,11 +307,12 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
             </Popover>
           )
         case 'dateRange': {
-          const range = (val as { from?: Date; to?: Date }) ?? {}
+          const range = val as DateRange | undefined
+          const hasSelection = Boolean(range?.from || range?.to)
           return (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="secondary" className={cn('w-full justify-start text-left font-normal', !range?.from && !range?.to && 'text-muted-foreground')}>
+                <Button variant="secondary" className={cn('w-full justify-start text-left font-normal', !hasSelection && 'text-muted-foreground')}>
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {range?.from && range?.to
                     ? `${format(range.from, 'PPP')} - ${format(range.to, 'PPP')}`
@@ -321,18 +323,52 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
                         : 'Pick date range'}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="p-4 space-y-4 w-auto">
-                <div className="flex flex-col gap-4">
-                  <div>
-                    <p className="text-sm font-medium mb-1">From</p>
-                    <Calendar mode="single" selected={range.from} onSelect={(date) => handleChange(field.key, { ...range, from: date ?? undefined })} />
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-medium mb-1">To</p>
-                    <Calendar mode="single" selected={range.to} onSelect={(date) => handleChange(field.key, { ...range, to: date ?? undefined })} />
-                  </div>
+              <PopoverContent align="start" className="w-auto p-0">
+                <div className="flex items-center justify-between gap-4 px-4 pt-4">
+                  <p className="text-sm font-medium">Pick a start and end date</p>
+                  {hasSelection && (
+                    <Button type="button" variant="link" size="sm" onClick={() => handleChange(field.key, undefined)}>
+                      Clear
+                    </Button>
+                  )}
                 </div>
+                {hasSelection && (
+                  <div className="flex flex-wrap gap-2 px-4 pt-2">
+                    {range?.from && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="tag"
+                        className="font-normal"
+                        icon={<X size={12} />}
+                        aria-label={`Clear start date ${format(range.from, 'PPP')}`}
+                        onClick={() => handleChange(field.key, range.to ? { from: undefined, to: range.to } : undefined)}
+                      >
+                        {`From: ${format(range.from, 'PP')}`}
+                      </Button>
+                    )}
+                    {range?.to && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="tag"
+                        className="font-normal"
+                        icon={<X size={12} />}
+                        aria-label={`Clear end date ${format(range.to, 'PPP')}`}
+                        onClick={() => handleChange(field.key, range.from ? { from: range.from, to: undefined } : undefined)}
+                      >
+                        {`To: ${format(range.to, 'PP')}`}
+                      </Button>
+                    )}
+                  </div>
+                )}
+                <Calendar
+                  mode="range"
+                  defaultMonth={range?.from ?? range?.to}
+                  selected={range}
+                  onSelect={(selectedRange) => handleChange(field.key, selectedRange?.from || selectedRange?.to ? selectedRange : undefined)}
+                  className="shadow-none bg-transparent"
+                />
               </PopoverContent>
             </Popover>
           )

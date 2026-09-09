@@ -73,7 +73,7 @@ export function CountryDropdown({ value = [], onChange, disabled, placeholder = 
         <ChevronDown size={16} />
       </PopoverTrigger>
 
-      <PopoverContent side="bottom" collisionPadding={10} className="p-0 w-full min-w-[250px] pointer-events-auto overflow-visible">
+      <PopoverContent side="bottom" collisionPadding={10} className="p-0 w-full min-w-[250px] pointer-events-auto">
         {/* Search input */}
         <div className="sticky top-0 z-10 bg-popover px-2 py-1 border-b">
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search..." className="w-full h-8 px-2 rounded-md border bg-background text-sm" />
