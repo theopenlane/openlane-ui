@@ -13,6 +13,7 @@ import { ResponsibilityCell } from '@/components/shared/crud-base/columns/respon
 import { getVendorLogoUrl } from '@/lib/vendor-logo'
 import { TruncatedCell } from '@repo/ui/data-table'
 import { toHumanLabel } from '@/utils/strings'
+import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
 
 const renderVendorIdentityCell = (row: EntitiesNodeNonNull, label: string) => {
   const logo = getVendorLogoUrl(row.logoFile)
@@ -171,16 +172,7 @@ export const getColumns = ({ userMap, tokenMap, convertToReadOnly, selectedItems
       accessorKey: 'statusPageURL',
       header: 'Status Page URL',
       size: 200,
-      cell: ({ cell }) => {
-        const url = cell.getValue() as string
-        return url ? (
-          <a href={url.startsWith('http') ? url : `https://${url}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-            {url}
-          </a>
-        ) : (
-          ''
-        )
-      },
+      cell: ({ row }) => <ExternalLinkValue value={row.original.statusPageURL} />,
     },
     { accessorKey: 'terminationNoticeDays', header: 'Termination Notice Days', size: 100 },
     { accessorKey: 'tier', header: 'Tier', size: 100, cell: ({ cell }) => toHumanLabel(cell.getValue() as string) },
