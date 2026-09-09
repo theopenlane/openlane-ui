@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useId } from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Input } from '@repo/ui/input'
 import { Separator } from '@repo/ui/separator'
@@ -47,6 +47,8 @@ export const PlatformStep = ({
   existingPlatformNames,
 }: PlatformStepProps) => {
   const singleName = singleOverride.name ?? singleCandidate.name
+  const platformNameId = useId()
+  const platformDescriptionId = useId()
   const singleAlreadyExists = existingPlatformNames.has(canonicalizeLookupValue(singleName))
 
   if (mode === 'single') {
@@ -63,14 +65,17 @@ export const PlatformStep = ({
         >
           <div className="space-y-4 px-6 py-4">
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">Platform name</label>
-              <Input value={singleName} onChange={(event) => setSingleOverride((prev) => ({ ...prev, name: event.target.value }))} placeholder={singleCandidate.name} />
+              <label className="text-sm font-medium" htmlFor={platformNameId}>
+                Platform name
+              </label>
+              <Input id={platformNameId} value={singleName} onChange={(event) => setSingleOverride((prev) => ({ ...prev, name: event.target.value }))} placeholder={singleCandidate.name} />
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">
+              <label className="text-sm font-medium" htmlFor={platformDescriptionId}>
                 Description <span className="font-normal text-muted-foreground">- Optional</span>
               </label>
               <Textarea
+                id={platformDescriptionId}
                 value={(singleOverride.description ?? singleCandidate.description) || ''}
                 onChange={(event) => setSingleOverride((prev) => ({ ...prev, description: event.target.value }))}
                 placeholder="Add a short description of this platform"

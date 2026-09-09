@@ -21,7 +21,7 @@ const WebhookDetailsSection = ({ details, onDismiss }: WebhookDetailsSectionProp
         <p className="mb-4 text-xs text-muted-foreground">These values are shown only once. Copy them now and configure them in your provider.</p>
         <div className="space-y-3">
           <div>
-            <label className="text-xs font-medium">Webhook URL</label>
+            <span className="text-xs font-medium">Webhook URL</span>
             <div className="mt-1 flex items-center gap-2">
               <code className="flex-1 rounded bg-muted px-3 py-1.5 text-xs break-all">{details.endpointUrl}</code>
               <Button type="button" variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(details.endpointUrl)}>
@@ -30,7 +30,7 @@ const WebhookDetailsSection = ({ details, onDismiss }: WebhookDetailsSectionProp
             </div>
           </div>
           <div>
-            <label className="text-xs font-medium">Webhook Secret</label>
+            <span className="text-xs font-medium">Webhook Secret</span>
             <div className="mt-1 flex items-center gap-2">
               <code className="flex-1 rounded bg-muted px-3 py-1.5 text-xs break-all">{details.secret}</code>
               <Button type="button" variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(details.secret)}>

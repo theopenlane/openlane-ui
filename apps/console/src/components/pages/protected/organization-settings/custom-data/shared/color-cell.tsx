@@ -70,6 +70,11 @@ const ColorCell = ({ id, initialColor, disabled, onSave }: ColorCellProps) => {
     if (isDirty && !isSaving) handleCancel()
   })
 
+  const openColorPicker = () => {
+    if (disabled || isSaving) return
+    inputRef.current?.click()
+  }
+
   return (
     <div
       ref={containerRef}
@@ -78,7 +83,14 @@ const ColorCell = ({ id, initialColor, disabled, onSave }: ColorCellProps) => {
         disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-muted',
         isDirty && 'bg-accent/50',
       )}
-      onClick={() => !disabled && !isSaving && inputRef.current?.click()}
+      role="button"
+      tabIndex={0}
+      onClick={openColorPicker}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return
+        event.preventDefault()
+        openColorPicker()
+      }}
     >
       <div className="relative flex items-center shrink-0">
         <div

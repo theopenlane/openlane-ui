@@ -523,11 +523,7 @@ export const LoginPage = () => {
                   </>
                 }
 
-                <span
-                  onClick={() => !signInLoading}
-                  className="text-sm text-gray-600 hover:text-gray-800 mt-2 mx-auto block cursor-pointer select-none"
-                  style={{ opacity: signInLoading ? 0.5 : 1 }}
-                ></span>
+                <span className="text-sm text-gray-600 hover:text-gray-800 mt-2 mx-auto block select-none" style={{ opacity: signInLoading ? 0.5 : 1 }}></span>
               </div>
             </>
           )}

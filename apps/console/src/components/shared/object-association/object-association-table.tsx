@@ -47,7 +47,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
         const allSelected = validRows.length > 0 && validRows.every((row) => (selectedIdsMap[row.inputName] ?? []).includes(row.id))
 
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox
               checked={allSelected}
               onCheckedChange={(isChecked: boolean) => {
@@ -101,7 +101,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
         }
 
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={checked} onCheckedChange={toggleChecked} />
           </div>
         )

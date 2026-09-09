@@ -58,7 +58,15 @@ export const EditableName: React.FC<EditableNameProps> = ({ value, onChange, pla
 
   return (
     <span
+      role="button"
+      tabIndex={0}
       onClick={(event) => {
+        event.stopPropagation()
+        startEditing()
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return
+        event.preventDefault()
         event.stopPropagation()
         startEditing()
       }}

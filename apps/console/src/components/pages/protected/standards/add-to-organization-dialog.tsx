@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useId, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -23,6 +23,7 @@ type AddToOrganizationDialogProps = {
 
 const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open, onOpenChange, selectedControls, standardId, standardName }) => {
   const [selectedProgram, setSelectedProgram] = useState<string | undefined>(undefined)
+  const assignProgramId = useId()
   const { data: programsData } = useGetAllPrograms()
   const { mutateAsync: cloneControls, isPending } = useCloneControls()
   const { successNotification, errorNotification } = useNotification()
@@ -81,9 +82,11 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
             </div>
           )}
           <div>
-            <label className="font-semibold block mb-2">Assign to program</label>
+            <label className="font-semibold block mb-2" htmlFor={assignProgramId}>
+              Assign to program
+            </label>
             <Select onValueChange={setSelectedProgram}>
-              <SelectTrigger>
+              <SelectTrigger id={assignProgramId}>
                 <SelectValue placeholder="No program (add later)" />
               </SelectTrigger>
               <SelectContent>

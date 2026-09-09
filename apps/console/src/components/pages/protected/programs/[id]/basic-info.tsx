@@ -1,5 +1,6 @@
 'use client'
 
+import { onActivateKeyDown } from '@repo/ui/lib/a11y'
 import { useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { Card } from '@repo/ui/cardpanel'
 import { useParams } from 'next/navigation'
@@ -334,19 +335,27 @@ export function FrameworkField<T extends FieldValues>({ form, program, isEditing
 
                 {showSuggestions && filteredSuggestions.length > 0 && (
                   <ul className="absolute z-10 mt-1 w-full max-h-48 overflow-auto rounded-md border bg-popover p-1 shadow-md">
-                    {filteredSuggestions.map((opt) => (
-                      <li
-                        key={opt.value}
-                        onMouseDown={() => {
-                          field.onChange(opt.label)
-                          setQuery(opt.label)
-                          setShowSuggestions(false)
-                        }}
-                        className="cursor-pointer rounded-sm px-2 py-1 text-sm hover:bg-accent hover:text-accent-foreground"
-                      >
-                        {opt.label}
-                      </li>
-                    ))}
+                    {filteredSuggestions.map((opt) => {
+                      const selectSuggestion = () => {
+                        field.onChange(opt.label)
+                        setQuery(opt.label)
+                        setShowSuggestions(false)
+                      }
+
+                      return (
+                        <li
+                          key={opt.value}
+                          role="option"
+                          aria-selected={false}
+                          tabIndex={0}
+                          onMouseDown={selectSuggestion}
+                          onKeyDown={onActivateKeyDown(selectSuggestion)}
+                          className="cursor-pointer rounded-sm px-2 py-1 text-sm hover:bg-accent hover:text-accent-foreground"
+                        >
+                          {opt.label}
+                        </li>
+                      )
+                    })}
                   </ul>
                 )}
               </div>

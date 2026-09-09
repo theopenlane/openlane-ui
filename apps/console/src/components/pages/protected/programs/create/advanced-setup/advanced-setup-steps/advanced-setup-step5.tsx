@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useId } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
 import MultipleSelector from '@repo/ui/multiple-selector'
@@ -16,6 +16,9 @@ const AdvancedSetupStep5 = () => {
   const { riskOptions } = useRiskSelect()
   const { policyOptions } = usePolicySelect()
   const { procedureOptions } = useProcedureSelect()
+  const riskIDsId = useId()
+  const policyIDsId = useId()
+  const procedureIDsId = useId()
 
   return (
     <div className="space-y-6">
@@ -42,31 +45,41 @@ const AdvancedSetupStep5 = () => {
       <div className="space-y-5">
         {/* Associate Existing Risks */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm">Associate Existing Risks</label>
+          <label className="text-sm" htmlFor={riskIDsId}>
+            Associate Existing Risks
+          </label>
           <Controller
             control={control}
             name="riskIDs"
-            render={({ field }) => <MultipleSelector placeholder="Search risks..." options={riskOptions} value={field.value ?? []} onChange={field.onChange} />}
+            render={({ field }) => <MultipleSelector inputProps={{ id: riskIDsId }} placeholder="Search risks..." options={riskOptions} value={field.value ?? []} onChange={field.onChange} />}
           />
         </div>
 
         {/* Associate Existing Policies */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm">Associate Existing Policies</label>
+          <label className="text-sm" htmlFor={policyIDsId}>
+            Associate Existing Policies
+          </label>
           <Controller
             control={control}
             name="internalPolicyIDs"
-            render={({ field }) => <MultipleSelector placeholder="Select policies from the list" options={policyOptions} value={field.value ?? []} onChange={field.onChange} />}
+            render={({ field }) => (
+              <MultipleSelector inputProps={{ id: policyIDsId }} placeholder="Select policies from the list" options={policyOptions} value={field.value ?? []} onChange={field.onChange} />
+            )}
           />
         </div>
 
         {/* Associate Existing Procedures */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm">Associate Existing Procedures</label>
+          <label className="text-sm" htmlFor={procedureIDsId}>
+            Associate Existing Procedures
+          </label>
           <Controller
             control={control}
             name="procedureIDs"
-            render={({ field }) => <MultipleSelector placeholder="Select procedures from the list" options={procedureOptions} value={field.value ?? []} onChange={field.onChange} />}
+            render={({ field }) => (
+              <MultipleSelector inputProps={{ id: procedureIDsId }} placeholder="Select procedures from the list" options={procedureOptions} value={field.value ?? []} onChange={field.onChange} />
+            )}
           />
         </div>
       </div>

@@ -11,6 +11,7 @@ import { DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuSeparator } from
 import { Separator } from '@repo/ui/components/ui/separator.tsx'
 import { Tooltip, TooltipTrigger } from '@repo/ui/tooltip'
 import { cn } from '@repo/ui/lib/utils'
+import { onActivateKeyDown } from '@repo/ui/lib/a11y'
 
 export function Toolbar({ className, ...props }: React.ComponentProps<typeof ToolbarPrimitive.Root>) {
   return <ToolbarPrimitive.Root className={cn('relative flex select-none items-center', className)} {...props} />
@@ -155,7 +156,9 @@ export function ToolbarSplitButtonSecondary({ className, size, variant, ...props
         className,
       )}
       onClick={(e) => e.stopPropagation()}
+      onKeyDown={onActivateKeyDown((e) => e.stopPropagation())}
       role="button"
+      tabIndex={0}
       {...props}
     >
       <ChevronDown className="size-3.5 text-muted-foreground" data-icon />

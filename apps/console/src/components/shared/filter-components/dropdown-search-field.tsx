@@ -39,19 +39,20 @@ export const DropdownSearchField: React.FC<DropdownSearchFieldProps> = ({ field,
         <div className="max-h-48 overflow-y-auto border rounded-md flex flex-col">
           {filteredOptions.length > 0 ? (
             filteredOptions.map((opt) => (
-              <div
+              <button
                 key={opt.value}
+                type="button"
                 role="radio"
                 aria-checked={value === opt.value}
                 onClick={() => handleClick(opt.value)}
-                className={cn('flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-muted text-sm', value === opt.value && 'bg-muted font-medium')}
+                className={cn('flex w-full items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-muted text-sm text-left', value === opt.value && 'bg-muted font-medium')}
               >
                 <div className="relative h-4 w-4 flex items-center justify-center">
                   <div className="h-3 w-3 rounded-full border border-primary" />
                   {value === opt.value && <div className="absolute h-1 w-1 rounded-full bg-primary" />}
                 </div>
                 {opt.label}
-              </div>
+              </button>
             ))
           ) : (
             <div className="px-3 py-2 text-sm text-muted-foreground">No results found</div>

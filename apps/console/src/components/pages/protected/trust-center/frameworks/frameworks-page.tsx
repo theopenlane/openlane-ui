@@ -276,7 +276,7 @@ export default function FrameworksPage() {
         <CardContent className="flex p-0 gap-6 justify-between h-16">
           <p className="text-sm text-muted-foreground line-clamp-3">{standard.description || 'No description provided'}</p>
 
-          <div className="flex" onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" className="flex" onClick={(e) => e.stopPropagation()}>
             <div className="flex gap-3">
               <Switch disabled={!canEditCompliance && !canEditTc} checked={isAssociated} onCheckedChange={(checked) => handleToggle(standard.id, checked)} />
             </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
+import React, { useId, type Dispatch, type SetStateAction, useCallback, useMemo, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
@@ -25,6 +25,7 @@ interface TargetsStepProps {
 export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChange, uploadedFile, onFileUpload, activeTab, onActiveTabChange, lockedEmails = EMPTY_EMAIL_KEYS }) => {
   const manualOptions: Option[] = useMemo(() => targets.filter((target) => target.source === 'manual').map((target) => ({ value: target.email, label: target.email })), [targets])
   const [skippedManualEmails, setSkippedManualEmails] = useState<string[]>([])
+  const manualEmailsId = useId()
 
   const handleFileUpload = (uploaded: TUploadedFile) => {
     if (uploaded.file) {
@@ -64,7 +65,7 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
 
         <TabsContent value="csv" className="mt-4">
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Upload (CSV)</label>
+            <span className="text-sm font-medium">Upload (CSV)</span>
             {uploadedFile ? (
               <div className="flex items-center justify-between rounded-md border border-border p-3">
                 <span className="text-sm">{uploadedFile.name}</span>
@@ -86,8 +87,11 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
 
         <TabsContent value="manual" className="mt-4">
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Enter emails</label>
+            <label className="text-sm font-medium" htmlFor={manualEmailsId}>
+              Enter emails
+            </label>
             <MultipleSelector
+              inputProps={{ id: manualEmailsId }}
               value={manualOptions}
               onChange={handleManualChange}
               creatable

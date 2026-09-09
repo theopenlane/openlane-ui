@@ -1,3 +1,4 @@
+import { activatable } from '@repo/ui/lib/a11y'
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
@@ -31,7 +32,7 @@ const EvidenceRequestsSection = ({ evidenceRequests, totalCount, showHeader, has
         const controlRefCodes = evidence.controls?.edges?.map((edge) => edge?.node?.refCode).filter((refCode): refCode is string => !!refCode)
 
         return (
-          <div key={`evidence-${evidence.id}`} className={WORK_ITEM_ROW_CLASS} onClick={() => router.push(evidenceHref(evidence))}>
+          <div key={`evidence-${evidence.id}`} className={WORK_ITEM_ROW_CLASS} {...activatable(() => router.push(evidenceHref(evidence)))}>
             <div className="min-w-0">
               <p className="text-sm font-medium truncate">{evidence.name}</p>
               {controlRefCodes && controlRefCodes.length > 0 && <p className="text-xs text-muted-foreground truncate">Requested for {controlRefCodes.join(', ')}</p>}

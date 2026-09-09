@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import React, { useState, useMemo } from 'react'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
 import { useNotification } from '@/hooks/useNotification'
@@ -26,11 +27,11 @@ const TfaPage: React.FC = () => {
             <>
               <p className="text-sm text-text-light">Want to go back to authenticator? Click&nbsp;</p>
               <p
-                onClick={() => {
+                {...activatable(() => {
                   setIsSecret(false)
                   setOtpValue('')
                   setError('')
-                }}
+                })}
                 className="text-sm underline cursor-pointer text-primary"
               >
                 here
@@ -45,11 +46,11 @@ const TfaPage: React.FC = () => {
             <>
               <p className="text-sm text-text-light">Don&apos;t have access to your app? Click&nbsp;</p>
               <p
-                onClick={() => {
+                {...activatable(() => {
                   setIsSecret(true)
                   setOtpValue('')
                   setError('')
-                }}
+                })}
                 className="text-sm underline cursor-pointer text-primary"
               >
                 here

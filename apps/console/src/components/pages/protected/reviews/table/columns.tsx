@@ -55,7 +55,7 @@ export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems 
         const subcontrolEdges = row.original?.subcontrols?.edges || []
         const allControls = [...controlEdges, ...subcontrolEdges]
         return (
-          <div className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
             {allControls.map((control, index) => (
               <ControlChip
                 key={index}

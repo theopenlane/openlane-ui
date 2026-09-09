@@ -1,5 +1,6 @@
 'use client'
 
+import { activatable } from '@repo/ui/lib/a11y'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { type FieldValues, useFormContext } from 'react-hook-form'
@@ -119,11 +120,11 @@ export const SelectField = <TUpdateInput,>({
             ) : (
               <div
                 className={cn('text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full', layout === 'horizontal' && 'flex justify-end')}
-                onClick={() => {
+                {...activatable(() => {
                   if (isEditAllowed) {
                     setInternalEditing(name)
                   }
-                }}
+                })}
               >
                 {renderValue && rawValue ? (
                   renderValue(rawValue)
