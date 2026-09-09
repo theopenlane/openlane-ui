@@ -1,5 +1,5 @@
-import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
+import { Input } from '@theopenlane/ui/input'
+import { Label } from '@theopenlane/ui/label'
 import React, { memo, startTransition, useState } from 'react'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
 

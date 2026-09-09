@@ -2,10 +2,10 @@
 
 import React from 'react'
 import { type UseFormReturn } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { SquarePlus, X } from 'lucide-react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
+import { FormField, FormItem, FormLabel, FormControl } from '@theopenlane/ui/form'
 import { useCampaignEmailTemplateSelect } from '@/lib/graphql-hooks/email-template'
 import { type CampaignFormData } from '../hooks/use-campaign-form-schema'
 

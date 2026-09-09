@@ -1,5 +1,5 @@
 import React from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import TasksPage from '@/components/pages/protected/tasks/table/tasks-page.tsx'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import { type Metadata } from 'next'

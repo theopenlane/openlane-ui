@@ -7,8 +7,8 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PanelRightClose } from 'lucide-react'
 
-import { Button } from '@repo/ui/button'
-import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetHeader } from '@repo/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
+import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetHeader } from '@theopenlane/ui/sheet'
 
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'

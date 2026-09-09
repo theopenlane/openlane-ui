@@ -1,6 +1,6 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React, { useMemo, useRef, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import ForceGraph, { type ForceGraphMethods, type NodeObject } from 'react-force-graph-2d'
@@ -12,7 +12,7 @@ import { type Section, type TBaseAssociatedNode, type TEdgeNode } from '@/compon
 import { useTheme } from 'next-themes'
 import { useSheetNavigation, isSheetKind, FULL_PAGE_KINDS } from '@/providers/sheet-navigation-provider'
 import { useRouter } from 'next/navigation'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { getAssociationDescription, getAssociationDisplayModel, getAssociationDisplayName } from '@/components/shared/object-association/utils'
 

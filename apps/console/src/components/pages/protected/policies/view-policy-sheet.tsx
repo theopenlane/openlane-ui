@@ -2,8 +2,8 @@
 
 import React, { useCallback, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
+import { SheetHeader, SheetTitle } from '@theopenlane/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
 import { ChevronDown, ChevronRight, ExternalLink, PanelRightClose } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { DocumentStatusBadge } from '@/components/shared/enum-mapper/policy-enum'

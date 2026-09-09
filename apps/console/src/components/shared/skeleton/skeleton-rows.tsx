@@ -1,4 +1,4 @@
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import Skeleton from './skeleton'
 
 type SkeletonRowsProps = {

@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams } from 'next/navigation'
 import { canEdit } from '@/lib/authz/utils.ts'

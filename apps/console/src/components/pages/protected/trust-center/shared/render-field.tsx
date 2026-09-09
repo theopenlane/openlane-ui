@@ -1,7 +1,7 @@
 'use client'
 
-import { Input } from '@repo/ui/input'
-import { Textarea } from '@repo/ui/textarea'
+import { Input } from '@theopenlane/ui/input'
+import { Textarea } from '@theopenlane/ui/textarea'
 import { type UseFormRegister } from 'react-hook-form'
 import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { type BrandFormValues } from '../branding/brand-schema'

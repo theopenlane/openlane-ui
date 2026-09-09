@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { type TComments } from '@/components/shared/comments/types/TComments'

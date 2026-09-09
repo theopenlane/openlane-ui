@@ -44,7 +44,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { useMemo } from 'react'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { invalidateTaskAssociations } from '@/components/shared/object-association/object-association-config'
 import { resolveTasksWhere } from '@/lib/graphql-hooks/task-where'
 

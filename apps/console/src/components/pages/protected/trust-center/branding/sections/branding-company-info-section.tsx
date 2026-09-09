@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form'
 import { type BrandFormValues } from '../brand-schema'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import { RenderBrandField } from '../../shared/render-field'
 import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import SectionWarning from '../section-warning'

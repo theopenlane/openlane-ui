@@ -1,4 +1,4 @@
-@import '@repo/ui/styles.css';
+@import '@theopenlane/ui/styles.css';
 @source "../../../apps/console/src/components/shared/**/*.{js,ts,jsx,tsx}";
 
 html.dark {

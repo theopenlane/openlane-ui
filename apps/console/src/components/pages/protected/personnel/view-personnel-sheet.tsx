@@ -2,8 +2,8 @@
 
 import React, { useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
+import { SheetHeader, SheetTitle } from '@theopenlane/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
 import { ExternalLink, PanelRightClose } from 'lucide-react'
 import { useIdentityHolder, type IdentityHoldersNodeNonNull } from '@/lib/graphql-hooks/identity-holder'
 import { IdentityHolderUserStatus, IdentityHolderIdentityHolderType, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
 import { LoaderCircle } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useTaskTemplates } from '@/lib/graphql-hooks/task'

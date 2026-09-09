@@ -1,11 +1,11 @@
 'use client'
 
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { formatDate } from '@/utils/date'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Button } from '@repo/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
+import { Button } from '@theopenlane/ui/button'
 import { MoreHorizontal, Trash2 } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { AssessmentResponseAssessmentResponseStatus } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 

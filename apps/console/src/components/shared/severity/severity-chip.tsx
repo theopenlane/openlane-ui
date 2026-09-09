@@ -1,5 +1,5 @@
 import React from 'react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { getSeverityStyle } from '@/utils/severity'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 

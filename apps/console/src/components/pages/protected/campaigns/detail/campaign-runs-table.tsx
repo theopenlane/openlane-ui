@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { type ColumnDef } from '@repo/ui/table-types'
-import { DataTable } from '@repo/ui/data-table'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
+import { DataTable } from '@theopenlane/ui/data-table'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { formatDate } from '@/utils/date'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 type CampaignRunRow = {

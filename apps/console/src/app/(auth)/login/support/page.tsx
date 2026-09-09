@@ -1,10 +1,10 @@
 'use client'
 
 import { useId, useState } from 'react'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { PasswordInput } from '@repo/ui/password-input'
-import { Logo } from '@repo/ui/logo'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { PasswordInput } from '@theopenlane/ui/password-input'
+import { Logo } from '@theopenlane/ui/logo'
 import { ArrowRight, Headphones } from 'lucide-react'
 
 const SupportLoginPage: React.FC = () => {

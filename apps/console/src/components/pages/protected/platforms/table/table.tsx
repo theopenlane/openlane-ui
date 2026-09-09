@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable } from '@theopenlane/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
 import { type PlatformWhereInput, type Platform as PlatformFull, type PlatformOrderField } from '@repo/codegen/src/schema'
 import { type PlatformsNodeNonNull, usePlatformsWithFilter } from '@/lib/graphql-hooks/platform'

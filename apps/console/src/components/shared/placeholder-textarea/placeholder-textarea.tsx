@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState, type ChangeEvent, type UIEvent } from 'react'
-import { Textarea } from '@repo/ui/textarea'
+import { Textarea } from '@theopenlane/ui/textarea'
 
 // {{ like this }}
 const PLACEHOLDER = /(\{\{.*?\}\})/g

@@ -2,9 +2,9 @@
 
 import React, { useEffect, useMemo } from 'react'
 import { FormProvider } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
-import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Button } from '@theopenlane/ui/button'
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@theopenlane/ui/sheet'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { type IntegrationProvider, type IntegrationSchemaNode } from '@/lib/integrations/types'

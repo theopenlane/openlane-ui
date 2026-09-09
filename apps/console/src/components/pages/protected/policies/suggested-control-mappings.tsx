@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Lightbulb, Link2 } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { DismissButton, SuggestionCard, SuggestionRow } from '@/components/shared/docs-help/suggestion-card'
 import { useDismissible } from '@/hooks/useDismissible'
 import { docsHelpAvailable } from '@repo/dally/ai'

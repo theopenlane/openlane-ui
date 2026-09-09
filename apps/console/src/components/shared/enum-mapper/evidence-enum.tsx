@@ -1,9 +1,9 @@
 import React from 'react'
 import { ArchiveX, FileArchive, FileSearch, FileText, Inbox, RefreshCw, Stamp, type LucideIcon } from 'lucide-react'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
-import { Badge, type BadgeProps } from '@repo/ui/badge'
-import { TruncatedCell } from '@repo/ui/data-table'
-import { cn } from '@repo/ui/lib/utils'
+import { Badge, type BadgeProps } from '@theopenlane/ui/badge'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const EvidenceStatusColors: Record<EvidenceEvidenceStatus, string> = {

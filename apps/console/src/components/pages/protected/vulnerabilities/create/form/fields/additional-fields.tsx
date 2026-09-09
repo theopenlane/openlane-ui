@@ -1,6 +1,6 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
@@ -8,12 +8,12 @@ import { type UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
-import { Input } from '@repo/ui/input'
+import { FormField, FormItem, FormLabel, FormControl } from '@theopenlane/ui/form'
+import { Input } from '@theopenlane/ui/input'
 import { SeverityChip } from '@/components/shared/severity/severity-chip'
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@theopenlane/ui/cardpanel'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 import { getDismissReasonLabel } from '@/components/pages/protected/exposure/vulnerability-dismiss-reasons'
 
 interface AdditionalFieldsProps {

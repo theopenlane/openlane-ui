@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useDashboardContentOffset } from '@/providers/DashboardContentOffsetContext'
 import { CONTENT_LEFT_COLUMN_CLASS, CONTENT_RIGHT_COLUMN_CLASS } from './onboarding-layout-classes'
 

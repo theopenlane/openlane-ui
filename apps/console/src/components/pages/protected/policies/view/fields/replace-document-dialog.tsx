@@ -2,8 +2,8 @@
 
 import React, { useEffect } from 'react'
 import { useWatch } from 'react-hook-form'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
 import { wordAcceptedFileTypes, wordAcceptedFileTypesShort } from '@/components/shared/file-upload/file-upload-config'

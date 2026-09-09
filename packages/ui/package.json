@@ -1,7 +1,7 @@
 {
-  "name": "@repo/ui",
-  "version": "0.0.0",
-  "private": true,
+  "name": "@theopenlane/ui",
+  "version": "0.1.2",
+  "private": false,
   "sideEffects": [
     "**/*.css"
   ],
@@ -81,7 +81,301 @@
     "./country-flag": "./src/country-flag/country-flag.tsx",
     "./lib/markdown-joiner-transform": "./lib/markdown-joiner-transform.ts"
   },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      "./paragraph": {
+        "types": "./dist/src/paragraph/paragraph.d.mts",
+        "import": "./dist/src/paragraph/paragraph.mjs"
+      },
+      "./styles.css": "./dist/styles.css",
+      "./alert": {
+        "types": "./dist/src/alert/alert.d.mts",
+        "import": "./dist/src/alert/alert.mjs"
+      },
+      "./alert-dialog": {
+        "types": "./dist/src/alert-dialog/alert-dialog.d.mts",
+        "import": "./dist/src/alert-dialog/alert-dialog.mjs"
+      },
+      "./avatar": {
+        "types": "./dist/src/avatar/avatar.d.mts",
+        "import": "./dist/src/avatar/avatar.mjs"
+      },
+      "./badge": {
+        "types": "./dist/src/badge/badge.d.mts",
+        "import": "./dist/src/badge/badge.mjs"
+      },
+      "./button": {
+        "types": "./dist/src/button/button.d.mts",
+        "import": "./dist/src/button/button.mjs"
+      },
+      "./breadcrumb": {
+        "types": "./dist/src/breadcrumb/breadcrumb.d.mts",
+        "import": "./dist/src/breadcrumb/breadcrumb.mjs"
+      },
+      "./calendar": {
+        "types": "./dist/src/calendar/calendar.d.mts",
+        "import": "./dist/src/calendar/calendar.mjs"
+      },
+      "./calendar-popover": {
+        "types": "./dist/src/calendar-popover/calendar-popover.d.mts",
+        "import": "./dist/src/calendar-popover/calendar-popover.mjs"
+      },
+      "./cardpanel": {
+        "types": "./dist/src/cardpanel/card.d.mts",
+        "import": "./dist/src/cardpanel/card.mjs"
+      },
+      "./confirmation-dialog": {
+        "types": "./dist/src/confirmation-dialog/confirmation-dialog.d.mts",
+        "import": "./dist/src/confirmation-dialog/confirmation-dialog.mjs"
+      },
+      "./checkbox": {
+        "types": "./dist/src/checkbox/checkbox.d.mts",
+        "import": "./dist/src/checkbox/checkbox.mjs"
+      },
+      "./code-block": {
+        "types": "./dist/src/code-block/code-block.d.mts",
+        "import": "./dist/src/code-block/code-block.mjs"
+      },
+      "./command": {
+        "types": "./dist/src/command.d.mts",
+        "import": "./dist/src/command.mjs"
+      },
+      "./data-table": {
+        "types": "./dist/src/data-table/data-table.d.mts",
+        "import": "./dist/src/data-table/data-table.mjs"
+      },
+      "./pinned-columns": {
+        "types": "./dist/src/data-table/pinned-columns.d.mts",
+        "import": "./dist/src/data-table/pinned-columns.mjs"
+      },
+      "./table-key": {
+        "types": "./dist/src/data-table/table-key.d.mts",
+        "import": "./dist/src/data-table/table-key.mjs"
+      },
+      "./table-types": {
+        "types": "./dist/src/data-table/table-types.d.mts",
+        "import": "./dist/src/data-table/table-types.mjs"
+      },
+      "./dialog": {
+        "types": "./dist/src/dialog/dialog.d.mts",
+        "import": "./dist/src/dialog/dialog.mjs"
+      },
+      "./dropdown-menu": {
+        "types": "./dist/src/dropdown-menu/dropdown-menu.d.mts",
+        "import": "./dist/src/dropdown-menu/dropdown-menu.mjs"
+      },
+      "./form": {
+        "types": "./dist/src/form/form.d.mts",
+        "import": "./dist/src/form/form.mjs"
+      },
+      "./global-search": {
+        "types": "./dist/src/global-search.d.mts",
+        "import": "./dist/src/global-search.mjs"
+      },
+      "./grid": {
+        "types": "./dist/src/grid/grid.d.mts",
+        "import": "./dist/src/grid/grid.mjs"
+      },
+      "./kbd": {
+        "types": "./dist/src/kbd/kbd.d.mts",
+        "import": "./dist/src/kbd/kbd.mjs"
+      },
+      "./logo": {
+        "types": "./dist/src/logo/logo.d.mts",
+        "import": "./dist/src/logo/logo.mjs"
+      },
+      "./input": {
+        "types": "./dist/src/input/input.d.mts",
+        "import": "./dist/src/input/input.mjs"
+      },
+      "./info": {
+        "types": "./dist/src/info/info.d.mts",
+        "import": "./dist/src/info/info.mjs"
+      },
+      "./info-slide-out": {
+        "types": "./dist/src/info-slide-out/info-slide-out.d.mts",
+        "import": "./dist/src/info-slide-out/info-slide-out.mjs"
+      },
+      "./label": {
+        "types": "./dist/src/label/label.d.mts",
+        "import": "./dist/src/label/label.mjs"
+      },
+      "./line-chart": {
+        "types": "./dist/src/chart/chart.d.mts",
+        "import": "./dist/src/chart/chart.mjs"
+      },
+      "./line-chart-example": {
+        "types": "./dist/src/chart/chart-example.d.mts",
+        "import": "./dist/src/chart/chart-example.mjs"
+      },
+      "./input-otp": {
+        "types": "./dist/src/input-otp/input-otp.d.mts",
+        "import": "./dist/src/input-otp/input-otp.mjs"
+      },
+      "./page-heading": {
+        "types": "./dist/src/page-heading/page-heading.d.mts",
+        "import": "./dist/src/page-heading/page-heading.mjs"
+      },
+      "./panel": {
+        "types": "./dist/src/panel/panel.d.mts",
+        "import": "./dist/src/panel/panel.mjs"
+      },
+      "./password-input": {
+        "types": "./dist/src/password-input/password-input.d.mts",
+        "import": "./dist/src/password-input/password-input.mjs"
+      },
+      "./plate-ui/*": {
+        "types": "./dist/src/plate-ui/*.d.mts",
+        "import": "./dist/src/plate-ui/*.mjs"
+      },
+      "./popover": {
+        "types": "./dist/src/popover/popover.d.mts",
+        "import": "./dist/src/popover/popover.mjs"
+      },
+      "./progress-circle": {
+        "types": "./dist/src/progress-circle/progress-circle.d.mts",
+        "import": "./dist/src/progress-circle/progress-circle.mjs"
+      },
+      "./tag-input": {
+        "types": "./dist/src/tag-input/tag-input.d.mts",
+        "import": "./dist/src/tag-input/tag-input.mjs"
+      },
+      "./toaster": {
+        "types": "./dist/src/toast/toaster.d.mts",
+        "import": "./dist/src/toast/toaster.mjs"
+      },
+      "./toast": {
+        "types": "./dist/src/toast/toast.d.mts",
+        "import": "./dist/src/toast/toast.mjs"
+      },
+      "./use-toast": {
+        "types": "./dist/src/toast/use-toast.d.mts",
+        "import": "./dist/src/toast/use-toast.mjs"
+      },
+      "./simple-form": {
+        "types": "./dist/src/simple-form.d.mts",
+        "import": "./dist/src/simple-form.mjs"
+      },
+      "./select": {
+        "types": "./dist/src/select/select.d.mts",
+        "import": "./dist/src/select/select.mjs"
+      },
+      "./separator": {
+        "types": "./dist/src/separator/separator.d.mts",
+        "import": "./dist/src/separator/separator.mjs"
+      },
+      "./sheet": {
+        "types": "./dist/src/sheet/sheet.d.mts",
+        "import": "./dist/src/sheet/sheet.mjs"
+      },
+      "./slider": {
+        "types": "./dist/src/slider/slider.d.mts",
+        "import": "./dist/src/slider/slider.mjs"
+      },
+      "./switch": {
+        "types": "./dist/src/switch/switch.d.mts",
+        "import": "./dist/src/switch/switch.mjs"
+      },
+      "./system-tooltip": {
+        "types": "./dist/src/system-tooltip.d.mts",
+        "import": "./dist/src/system-tooltip.mjs"
+      },
+      "./tabs": {
+        "types": "./dist/src/tabs/tabs.d.mts",
+        "import": "./dist/src/tabs/tabs.mjs"
+      },
+      "./tag": {
+        "types": "./dist/src/tag/tag.d.mts",
+        "import": "./dist/src/tag/tag.mjs"
+      },
+      "./table": {
+        "types": "./dist/src/table/table.d.mts",
+        "import": "./dist/src/table/table.mjs"
+      },
+      "./textarea": {
+        "types": "./dist/src/textarea.d.mts",
+        "import": "./dist/src/textarea.mjs"
+      },
+      "./tooltip": {
+        "types": "./dist/src/tooltip.d.mts",
+        "import": "./dist/src/tooltip.mjs"
+      },
+      "./multiple-selector": {
+        "types": "./dist/src/multiple-selector/multiple-selector.d.mts",
+        "import": "./dist/src/multiple-selector/multiple-selector.mjs"
+      },
+      "./message-box": {
+        "types": "./dist/src/message-box.d.mts",
+        "import": "./dist/src/message-box.mjs"
+      },
+      "./icons/google": {
+        "types": "./dist/src/icons/google.d.mts",
+        "import": "./dist/src/icons/google.mjs"
+      },
+      "./icons/github": {
+        "types": "./dist/src/icons/github.d.mts",
+        "import": "./dist/src/icons/github.mjs"
+      },
+      "./icons/chevron-down": {
+        "types": "./dist/src/icons/chevron-down.d.mts",
+        "import": "./dist/src/icons/chevron-down.mjs"
+      },
+      "./lib/utils": {
+        "types": "./dist/lib/utils.d.mts",
+        "import": "./dist/lib/utils.mjs"
+      },
+      "./lib/windowResize": {
+        "types": "./dist/lib/windowResize.d.mts",
+        "import": "./dist/lib/windowResize.mjs"
+      },
+      "./lib/chartUtils": {
+        "types": "./dist/lib/chartUtils.d.mts",
+        "import": "./dist/lib/chartUtils.mjs"
+      },
+      "./pagination": {
+        "types": "./dist/src/pagination/pagination.d.mts",
+        "import": "./dist/src/pagination/pagination.mjs"
+      },
+      "./pagination-types": {
+        "types": "./dist/src/pagination/types.d.mts",
+        "import": "./dist/src/pagination/types.mjs"
+      },
+      "./components/*": {
+        "types": "./dist/src/components/*.d.mts",
+        "import": "./dist/src/components/*.mjs"
+      },
+      "./donut-chart": {
+        "types": "./dist/src/chart/donut-chart.d.mts",
+        "import": "./dist/src/chart/donut-chart.mjs"
+      },
+      "./infinite-scroll": {
+        "types": "./dist/src/infinite-scroll/infinite-scroll.d.mts",
+        "import": "./dist/src/infinite-scroll/infinite-scroll.mjs"
+      },
+      "./radio-group": {
+        "types": "./dist/src/radio-group/radio-group.d.mts",
+        "import": "./dist/src/radio-group/radio-group.mjs"
+      },
+      "./country-dropdown": {
+        "types": "./dist/src/country-dropdown/country-dropdown.d.mts",
+        "import": "./dist/src/country-dropdown/country-dropdown.mjs"
+      },
+      "./country-flag": {
+        "types": "./dist/src/country-flag/country-flag.d.mts",
+        "import": "./dist/src/country-flag/country-flag.mjs"
+      },
+      "./lib/markdown-joiner-transform": {
+        "types": "./dist/lib/markdown-joiner-transform.d.mts",
+        "import": "./dist/lib/markdown-joiner-transform.mjs"
+      }
+    }
+  },
   "scripts": {
+    "build": "NODE_OPTIONS=--max-old-space-size=8192 tsup && node scripts/build-css.mjs && node scripts/build-package-json.mjs",
     "lint": "eslint src/"
   },
   "peerDependencies": {

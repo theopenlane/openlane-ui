@@ -2,11 +2,11 @@ import { ComposerAddAttachment, ComposerAttachments, UserMessageAttachments } fr
 import { MarkdownText } from '@/components/assistant-ui/markdown-text'
 import { ToolFallback } from '@/components/assistant-ui/tool-fallback'
 import { TooltipIconButton } from '@/components/assistant-ui/tooltip-icon-button'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { ActionBarMorePrimitive, ActionBarPrimitive, AuiIf, BranchPickerPrimitive, ComposerPrimitive, ErrorPrimitive, MessagePrimitive, ThreadPrimitive } from '@assistant-ui/react'
 import { ArrowDownIcon, ArrowUpIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, CopyIcon, DownloadIcon, MoreHorizontalIcon, PencilIcon, RefreshCwIcon, SquareIcon } from 'lucide-react'
 import type { FC } from 'react'
-import { Button } from '../../../@repo/ui/components/button'
+import { Button } from '../../../@theopenlane/ui/components/button'
 
 export interface ThreadProps {
   welcome?: {

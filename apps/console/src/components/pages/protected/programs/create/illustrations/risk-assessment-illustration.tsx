@@ -1,7 +1,7 @@
 import React from 'react'
 import { Check, SearchCheck } from 'lucide-react'
 import { Rectangle } from './shadow-rectangle'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 
 const RiskAssessmentIllustration = () => {
   return (

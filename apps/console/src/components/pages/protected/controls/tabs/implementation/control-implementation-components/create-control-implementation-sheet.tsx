@@ -1,6 +1,6 @@
 'use client'
 
-import { Sheet, SheetContent } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@theopenlane/ui/sheet'
 import React, { useEffect, useMemo, useState } from 'react'
 import { CreateControlImplementationForm } from './form/create-control-implementation-form'
 import { ControlImplementationDocumentStatus, type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'

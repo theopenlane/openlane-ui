@@ -2,12 +2,12 @@
 
 import * as React from 'react'
 import { useMemo } from 'react'
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
 import ColorCell from '../shared/color-cell'
 import { FALLBACK_COLOR } from '../shared/constants'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
@@ -16,7 +16,7 @@ import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { formatDate, formatDateSince } from '@/utils/date'
 import { type TagDefinition, type User } from '@repo/codegen/src/schema'
 import { type AuthorToken } from '@/lib/authors'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 
 type ColumnsParams = {
   onEdit?: (id: string) => void

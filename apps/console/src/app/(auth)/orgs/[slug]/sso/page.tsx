@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Button } from '@repo/ui/button'
-import { Logo } from '@repo/ui/logo'
+import { Button } from '@theopenlane/ui/button'
+import { Logo } from '@theopenlane/ui/logo'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { OPENLANE_WEBSITE_URL, SUPPORT_URL } from '@/constants'

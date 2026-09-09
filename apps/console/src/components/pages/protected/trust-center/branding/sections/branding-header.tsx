@@ -1,4 +1,4 @@
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { BookUp, Eye, RotateCcw } from 'lucide-react'
 import UrlInput from '../../shared/url-input'
 import { buildPreviewUrl } from '../helpers/preview-url'

@@ -1,5 +1,5 @@
 import { Check, Circle, Loader2, Radar, Sparkles } from 'lucide-react'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { type SubmitStage } from '@/lib/onboarding-questions/types'
 
 type StepStatus = 'done' | 'in-progress' | 'pending'

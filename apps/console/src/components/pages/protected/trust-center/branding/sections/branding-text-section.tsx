@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import SectionWarning from '../section-warning'
 import { Controller, useFormContext } from 'react-hook-form'
 import { type BrandFormValues } from '../brand-schema'

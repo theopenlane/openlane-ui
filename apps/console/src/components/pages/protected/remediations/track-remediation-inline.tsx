@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import { Form } from '@repo/ui/form'
-import { Button } from '@repo/ui/button'
-import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Form } from '@theopenlane/ui/form'
+import { Button } from '@theopenlane/ui/button'
+import { SheetHeader, SheetTitle } from '@theopenlane/ui/sheet'
 import { ArrowLeft } from 'lucide-react'
 import useFormSchema, { type RemediationFormData } from './hooks/use-form-schema'
 import { useCreateRemediation } from '@/lib/graphql-hooks/remediation'

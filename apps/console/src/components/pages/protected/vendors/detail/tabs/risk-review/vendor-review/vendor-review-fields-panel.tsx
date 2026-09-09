@@ -2,9 +2,9 @@
 
 import React, { useMemo } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
-import { Panel } from '@repo/ui/panel'
-import { Input } from '@repo/ui/input'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
+import { Panel } from '@theopenlane/ui/panel'
+import { Input } from '@theopenlane/ui/input'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@theopenlane/ui/form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { ReadOnlyField } from '@/components/shared/read-only-field/read-only-field'

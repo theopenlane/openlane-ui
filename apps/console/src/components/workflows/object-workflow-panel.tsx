@@ -1,13 +1,13 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/cardpanel'
-import { Button } from '@repo/ui/button'
-import { Badge } from '@repo/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@theopenlane/ui/cardpanel'
+import { Button } from '@theopenlane/ui/button'
+import { Badge } from '@theopenlane/ui/badge'
 import { CheckCircle, Clock, XCircle } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { Textarea } from '@repo/ui/textarea'
-import { Label } from '@repo/ui/label'
+import { Textarea } from '@theopenlane/ui/textarea'
+import { Label } from '@theopenlane/ui/label'
 import { WorkflowStatusBadge } from '@/components/workflows/workflow-status-badge'
 import { useApproveAssignment, useRejectAssignment, useRequestChangesAssignment, useWorkflowInstancesForObject } from '@/lib/graphql-hooks/workflows'
 // commented out because of ISS-2473

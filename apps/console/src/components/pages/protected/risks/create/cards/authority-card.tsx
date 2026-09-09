@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { Stamp, CircleArrowRight } from 'lucide-react'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 

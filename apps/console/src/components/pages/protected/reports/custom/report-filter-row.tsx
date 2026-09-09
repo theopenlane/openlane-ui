@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { X } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Button } from '@theopenlane/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import type { TReportField, TReportOperator } from '@repo/codegen/src/report-schema.generated'
 import { operatorLabel, type TReportCombinator, type TReportFilter } from '@/lib/report/report-filters'
 import { getFieldOperators, type TLabelled } from '@/lib/report/report-schema'

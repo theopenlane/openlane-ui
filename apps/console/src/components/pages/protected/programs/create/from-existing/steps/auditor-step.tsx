@@ -2,9 +2,9 @@
 
 import React from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
-import { Switch } from '@repo/ui/switch'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
+import { Input } from '@theopenlane/ui/input'
+import { Switch } from '@theopenlane/ui/switch'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@theopenlane/ui/form'
 import { type SourceProgram } from '../from-existing-types'
 import { hasAuditorDetails, type WizardValues } from '../from-existing-wizard-config'
 

@@ -31,7 +31,7 @@ import {
   StandardOrderField,
 } from '@repo/codegen/src/schema'
 import { useMemo } from 'react'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { EXCLUDE_SYSTEM_STANDARDS_WHERE, type TSystemStandard } from '@/constants/standards'
 import { mergeWhere } from '@/lib/merge-where'

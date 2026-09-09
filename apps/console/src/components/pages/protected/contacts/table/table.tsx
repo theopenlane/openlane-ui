@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable } from '@theopenlane/ui/data-table'
 import { useEffect, useMemo } from 'react'
 import { type ContactWhereInput, type ContactOrderField } from '@repo/codegen/src/schema'
 import { type ContactsNodeNonNull, useContactsWithFilter } from '@/lib/graphql-hooks/contact'

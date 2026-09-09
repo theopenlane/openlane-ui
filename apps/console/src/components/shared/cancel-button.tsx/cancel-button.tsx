@@ -1,4 +1,4 @@
-import { Button, type ButtonProps } from '@repo/ui/button'
+import { Button, type ButtonProps } from '@theopenlane/ui/button'
 import { XIcon } from 'lucide-react'
 import React from 'react'
 type CancelButtonProps = {

@@ -1,5 +1,5 @@
 import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import React from 'react'
 
 const CSS_COLOR_PATTERN = /^(#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})|(rgb|hsl)a?\([^;{}()]*\)|[a-z]+)$/i

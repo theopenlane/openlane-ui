@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Loader2, FileWarning, Download } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import type { File as GqlFile } from '@repo/codegen/src/schema'
 import { HTML_SANITIZE_CONFIG, isSafeLinkHref, useHtmlPurifier } from '@/lib/html/sanitize-html'
 

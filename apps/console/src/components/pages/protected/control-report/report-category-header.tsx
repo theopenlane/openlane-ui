@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, ChevronDown, ChevronsUpDown } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { type ControlReportItem } from '@/lib/graphql-hooks/control'
 import { useDismissible } from '@/hooks/useDismissible'

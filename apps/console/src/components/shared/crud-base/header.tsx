@@ -1,8 +1,8 @@
 'use client'
 
 import { useNotification } from '@/hooks/useNotification'
-import { Button } from '@repo/ui/button'
-import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
+import { SheetHeader, SheetTitle } from '@theopenlane/ui/sheet'
 import { LinkIcon, PanelRightClose, Pencil } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import React from 'react'

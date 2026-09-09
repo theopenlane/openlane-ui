@@ -8,9 +8,9 @@ import { RiArrowLeftSLine, RiArrowRightSLine } from '@remixicon/react'
 import { CartesianGrid, Dot, Label, Line, Legend as RechartsLegend, LineChart as RechartsLineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { AxisDomain } from 'recharts/types/util/types'
 
-import { AvailableChartColors, AvailableChartColorsKeys, constructCategoryColors, getColorClassName, getYAxisDomain, hasOnlyOneValueForKey } from '@repo/ui/lib/chartUtils'
-import { useOnWindowResize } from '@repo/ui/lib/windowResize'
-import { cn } from '@repo/ui/lib/utils'
+import { AvailableChartColors, AvailableChartColorsKeys, constructCategoryColors, getColorClassName, getYAxisDomain, hasOnlyOneValueForKey } from '@theopenlane/ui/lib/chartUtils'
+import { useOnWindowResize } from '@theopenlane/ui/lib/windowResize'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { isString } from 'lodash'
 
 //#region Legend

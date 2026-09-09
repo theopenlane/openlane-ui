@@ -2,9 +2,9 @@
 
 import React, { memo } from 'react'
 import { Calendar } from 'lucide-react'
-import { Card } from '@repo/ui/cardpanel'
-import { Badge } from '@repo/ui/badge'
-import { cn } from '@repo/ui/lib/utils'
+import { Card } from '@theopenlane/ui/cardpanel'
+import { Badge } from '@theopenlane/ui/badge'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { type TasksWithFilterNode } from '@/lib/graphql-hooks/task'
 import { formatDate } from '@/utils/date'

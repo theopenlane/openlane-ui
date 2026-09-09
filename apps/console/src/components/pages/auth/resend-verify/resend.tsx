@@ -4,15 +4,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { Button } from '@repo/ui/button'
-import { Form, FormField, FormControl, FormMessage, FormLabel } from '@repo/ui/form'
-import { Input } from '@repo/ui/input'
+import { Button } from '@theopenlane/ui/button'
+import { Form, FormField, FormControl, FormMessage, FormLabel } from '@theopenlane/ui/form'
+import { Input } from '@theopenlane/ui/input'
 import { resendStyles } from './resend.styles'
 import { resendVerification } from '@/lib/user'
 import { useRouter } from 'next/navigation'
-import { Panel } from '@repo/ui/panel'
-import { Logo } from '@repo/ui/logo'
-import { buttonVariants } from '@repo/ui/components/ui/button.tsx'
+import { Panel } from '@theopenlane/ui/panel'
+import { Logo } from '@theopenlane/ui/logo'
+import { buttonVariants } from '@theopenlane/ui/components/ui/button.tsx'
 
 const formSchema = z.object({
   email: z.string().email(),

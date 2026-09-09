@@ -1,11 +1,11 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React from 'react'
 import { Info, PencilLine, SlidersHorizontal } from 'lucide-react'
 import { type TaskQuery } from '@repo/codegen/src/schema'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import ObjectsChip from '@/components/shared/objects-chip/objects-chip'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useRouter } from 'next/navigation'

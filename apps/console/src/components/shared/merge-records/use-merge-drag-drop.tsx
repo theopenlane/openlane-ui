@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import type { RowDragDropConfig } from '@repo/ui/data-table'
+import type { RowDragDropConfig } from '@theopenlane/ui/data-table'
 import { MergeRecordsSheet } from './merge-records-sheet'
 import { useMergeMode } from './merge-mode-context'
-import { ROW_ACTIONS_COLUMN_ID, SELECT_COLUMN_ID } from '@repo/ui/pinned-columns'
+import { ROW_ACTIONS_COLUMN_ID, SELECT_COLUMN_ID } from '@theopenlane/ui/pinned-columns'
 import type { MergeConfig } from './types'
 
 type MergePair = { dropId: number; primaryId: string; secondaryId: string; secondaryLabel: string }

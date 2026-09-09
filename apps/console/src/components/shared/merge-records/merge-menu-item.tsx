@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { ArrowRightLeft } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { MergeRecordsSheet } from './merge-records-sheet'
 import type { MergeableTypeName } from '@repo/codegen/src/merge-fields.generated'
 import type { MergeConfig } from './types'

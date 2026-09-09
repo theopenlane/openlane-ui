@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { Button } from '@repo/ui/button'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@theopenlane/ui/sheet'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
+import { Button } from '@theopenlane/ui/button'
 import { Copy, PanelRightClose } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 

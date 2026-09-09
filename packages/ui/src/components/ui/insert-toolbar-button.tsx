@@ -29,8 +29,8 @@ import {
 import { KEYS } from 'platejs'
 import { type PlateEditor, useEditorRef } from 'platejs/react'
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
-import { insertBlock, insertInlineElement } from '@repo/ui/components/editor/transforms.ts'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/components/ui/dropdown-menu.tsx'
+import { insertBlock, insertInlineElement } from '@theopenlane/ui/components/editor/transforms.ts'
 
 import { ToolbarButton, ToolbarMenuGroup } from './toolbar'
 

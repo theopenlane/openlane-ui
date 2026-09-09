@@ -1,7 +1,7 @@
 'use client'
 
 import { Pencil, Check, X } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import useClickOutside from '@/hooks/useClickOutside'
 import { useNotification } from '@/hooks/useNotification'

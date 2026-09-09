@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/react-collapsible'
-import { DataTable } from '@repo/ui/data-table'
-import type { ColumnDef } from '@repo/ui/table-types'
-import type { TPagination } from '@repo/ui/pagination-types'
+import { DataTable } from '@theopenlane/ui/data-table'
+import type { ColumnDef } from '@theopenlane/ui/table-types'
+import type { TPagination } from '@theopenlane/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import type { FilterField, WhereCondition } from '@/types'
@@ -11,7 +11,7 @@ import { extractFilterValues } from '@/components/pages/protected/controls/table
 import { useDebounce } from '@uidotdev/usehooks'
 import { getMappedControlsFilterFields } from './mapped-controls-config'
 import type { MappedControlRow } from './mapped-controls-types'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
 
 type MappedControlsTableProps = {

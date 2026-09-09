@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
-import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@repo/ui/cardpanel'
-import { Separator } from '@repo/ui/separator'
+import { Badge } from '@theopenlane/ui/badge'
+import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@theopenlane/ui/cardpanel'
+import { Separator } from '@theopenlane/ui/separator'
 
 type SectionCardProps = {
   title: React.ReactNode

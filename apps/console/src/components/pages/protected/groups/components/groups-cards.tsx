@@ -2,10 +2,10 @@
 
 import React from 'react'
 import { GlobeIcon, LockIcon } from 'lucide-react'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { type GroupsNode } from '@/lib/graphql-hooks/group'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 

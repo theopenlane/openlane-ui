@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { ReviewReviewStatus } from '@repo/codegen/src/schema'
 
 type TReviewSheetFooterProps = {

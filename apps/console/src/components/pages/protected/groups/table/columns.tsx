@@ -1,5 +1,5 @@
 'use client'
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { GlobeIcon, LockIcon, StarsIcon } from 'lucide-react'
 import { type Group, type User } from '@repo/codegen/src/schema'
 import { type AuthorToken } from '@/lib/authors'
@@ -8,7 +8,7 @@ import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { toBase64DataUri } from '@/lib/image-utils'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 
 type Params = {

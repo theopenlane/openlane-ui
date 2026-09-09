@@ -4,7 +4,7 @@ import React from 'react'
 import type { Ref } from 'react'
 import { tv, VariantProps } from 'tailwind-variants'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 const progressCircleVariants = tv({
   slots: {

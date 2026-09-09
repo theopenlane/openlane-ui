@@ -4,8 +4,8 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { useNotification } from '@/hooks/useNotification'
 import { useUpdateOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { Button } from '@repo/ui/button'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import type React from 'react'
 

@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import ControlObjectiveDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-objectives-components/control-objective-details-sheet'
 import ControlImplementationDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/control-implementation-details-sheet'
-import { Label } from '@repo/ui/label'
-import { Input } from '@repo/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
+import { Label } from '@theopenlane/ui/label'
+import { Input } from '@theopenlane/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@theopenlane/ui/select'
 import {
   extractTableRows,
   generateWhere,
@@ -22,8 +22,8 @@ import { useVirtualPagination } from '@/components/shared/object-association/use
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { type TObjectAssociationMap } from './types/TObjectAssociationMap'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type TPagination } from '@repo/ui/pagination-types'
-import Pagination from '@repo/ui/pagination'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
+import Pagination from '@theopenlane/ui/pagination'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useSession } from 'next-auth/react'
 import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'

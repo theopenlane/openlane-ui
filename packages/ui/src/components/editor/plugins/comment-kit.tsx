@@ -6,7 +6,7 @@ import { type BaseCommentConfig, BaseCommentPlugin, getDraftCommentKey } from '@
 import { isSlateString } from 'platejs'
 import { toTPlatePlugin } from 'platejs/react'
 
-import { CommentLeaf } from '@repo/ui/components/ui/comment-node.tsx'
+import { CommentLeaf } from '@theopenlane/ui/components/ui/comment-node.tsx'
 
 type CommentConfig = ExtendConfig<
   BaseCommentConfig,

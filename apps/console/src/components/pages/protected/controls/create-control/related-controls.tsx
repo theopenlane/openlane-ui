@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react'
 import MapControlDialog from './map-control-dialog'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import StandardChip from '../../standards/shared/standard-chip'
 import { RelatedControlChip } from '../shared/related-control-chip'
 import { type Control, type Subcontrol } from '@repo/codegen/src/schema'

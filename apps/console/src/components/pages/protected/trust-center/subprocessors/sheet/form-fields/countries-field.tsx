@@ -1,9 +1,9 @@
 'use client'
 
 import { useFormContext } from 'react-hook-form'
-import { FormField, FormItem, FormControl, FormLabel } from '@repo/ui/form'
-import { CountryDropdown } from '@repo/ui/country-dropdown'
-import { CountryFlag } from '@repo/ui/country-flag'
+import { FormField, FormItem, FormControl, FormLabel } from '@theopenlane/ui/form'
+import { CountryDropdown } from '@theopenlane/ui/country-dropdown'
+import { CountryFlag } from '@theopenlane/ui/country-flag'
 
 export const CountriesField = ({ isEditing }: { isEditing: boolean }) => {
   const {

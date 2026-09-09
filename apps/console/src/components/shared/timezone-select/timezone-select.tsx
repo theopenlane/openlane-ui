@@ -2,8 +2,8 @@
 
 import React, { useMemo, useState } from 'react'
 import { Check, ChevronDown, Globe } from 'lucide-react'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@theopenlane/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@theopenlane/ui/command'
 import { tzOffset } from '@date-fns/tz'
 import { formatTimeZoneLabel } from '@/utils/date'
 

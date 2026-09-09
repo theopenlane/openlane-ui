@@ -8,7 +8,7 @@ import type { PlateContentProps, PlateViewProps } from 'platejs/react'
 import { cva } from 'class-variance-authority'
 import { PlateContainer, PlateContent, PlateView } from 'platejs/react'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 const editorContainerVariants = cva(
   'w-full isolate cursor-text flow-root overflow-clip caret-primary select-text bg-input selection:bg-brand/25 ' +

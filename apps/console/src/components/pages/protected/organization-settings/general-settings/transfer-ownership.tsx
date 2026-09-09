@@ -1,5 +1,5 @@
 'use client'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { UsersRound } from 'lucide-react'
 import { ManagementRow } from './management-row'
 import { TransferOwnershipDialog } from './transfer-ownership-dialog'

@@ -1,11 +1,11 @@
 import { defineFilterFields } from '@/types'
 import React from 'react'
 import Link from 'next/link'
-import type { ColumnDef } from '@repo/ui/table-types'
+import type { ColumnDef } from '@theopenlane/ui/table-types'
 import { CircleDot, Folder, FolderTree, Layers, Tag } from 'lucide-react'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { SubcontrolControlStatus, type SubcontrolWhereInput } from '@repo/codegen/src/schema'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 
 export type SubcontrolRow = {

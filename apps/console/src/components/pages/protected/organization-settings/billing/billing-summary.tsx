@@ -5,9 +5,9 @@ import { type OrgSubscription } from '@repo/codegen/src/schema'
 import React, { useCallback, useMemo, useState } from 'react'
 import { formatDistanceToNowStrict, parseISO, isBefore } from 'date-fns'
 import { type Price, type SchedulePhase, type SchedulePhaseItem, type SubscriptionItem } from '@/types/stripe'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { formatDate } from '@/utils/date'
 
 type Props = {

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Loader2, Search } from 'lucide-react'
-import { Input } from '@repo/ui/input'
+import { Input } from '@theopenlane/ui/input'
 import { getSeverityStyle } from '@/utils/severity'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 import { getSeverityLabel, getVulnerabilityName, type TriageFacet, type TriageGroups, type TriageVuln } from './triage-utils'

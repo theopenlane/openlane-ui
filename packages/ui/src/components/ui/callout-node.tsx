@@ -6,8 +6,8 @@ import { useCalloutEmojiPicker } from '@platejs/callout/react'
 import { useEmojiDropdownMenuState } from '@platejs/emoji/react'
 import { PlateElement } from 'platejs/react'
 
-import { Button } from '@repo/ui/components/ui/button.tsx'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@theopenlane/ui/components/ui/button.tsx'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 import { EmojiPicker, EmojiPopover } from './emoji-toolbar-button'
 

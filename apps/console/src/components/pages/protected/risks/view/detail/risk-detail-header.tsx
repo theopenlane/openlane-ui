@@ -1,18 +1,18 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { Badge } from '@repo/ui/badge'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Badge } from '@theopenlane/ui/badge'
 import { MoreHorizontal, Trash2, PencilIcon, TriangleAlert } from 'lucide-react'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import Menu from '@/components/shared/menu/menu'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { type GetRiskByIdQuery, type UpdateRiskInput } from '@repo/codegen/src/schema'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import MenuItem from '@/components/shared/menu/menu-item'
 
 interface RiskDetailHeaderProps {

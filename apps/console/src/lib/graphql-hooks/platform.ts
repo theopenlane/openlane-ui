@@ -15,7 +15,7 @@ import {
   type UpdatePlatformInput,
 } from '@repo/codegen/src/schema'
 
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { GET_ALL_PLATFORMS, CREATE_PLATFORM, UPDATE_PLATFORM, DELETE_PLATFORM, PLATFORM } from '@repo/codegen/query/platform'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import type { DiagramType } from '@/components/pages/protected/platforms/detail/platform-diagrams-section'

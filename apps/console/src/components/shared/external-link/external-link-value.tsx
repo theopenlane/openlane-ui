@@ -2,7 +2,7 @@
 
 import { type ReactNode } from 'react'
 import { ExternalLink } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { formatUrlForDisplay, normalizeHref } from '@/utils/normalizeUrl'
 
 interface ExternalLinkValueProps {

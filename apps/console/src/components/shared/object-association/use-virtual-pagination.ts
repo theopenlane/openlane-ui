@@ -1,5 +1,5 @@
 import { type Dispatch, type SetStateAction, useEffect, useMemo } from 'react'
-import { type TPageInfo, type TPagination, type TPaginationQuery } from '@repo/ui/pagination-types'
+import { type TPageInfo, type TPagination, type TPaginationQuery } from '@theopenlane/ui/pagination-types'
 import { type TableRow } from '@/components/shared/object-association/object-association-config'
 
 type Args = {

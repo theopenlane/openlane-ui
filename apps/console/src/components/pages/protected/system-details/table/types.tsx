@@ -13,7 +13,7 @@ import {
   type UpdateSystemDetailMutation,
 } from '@repo/codegen/src/schema'
 import { ObjectNames, ObjectTypes } from '@repo/codegen/src/type-names'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 
 type TFormData = SystemDetailFormData
 type TData = SystemDetailsNodeNonNull

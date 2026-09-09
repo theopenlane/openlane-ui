@@ -6,7 +6,7 @@ import React from 'react'
 import { type Value } from 'platejs'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 
 type TBusinessCostFieldProps = {

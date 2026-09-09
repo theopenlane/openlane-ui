@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { Badge } from '@repo/ui/badge'
-import { Input } from '@repo/ui/input'
-import { Separator } from '@repo/ui/separator'
+import { Badge } from '@theopenlane/ui/badge'
+import { Input } from '@theopenlane/ui/input'
+import { Separator } from '@theopenlane/ui/separator'
 import { EditableName } from '../editable-name'
 import { SectionCard } from '../components/section-card'
 import { SelectionRow } from '../components/selection-row'

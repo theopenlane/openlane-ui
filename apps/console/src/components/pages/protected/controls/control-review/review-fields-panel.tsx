@@ -2,10 +2,10 @@
 
 import React from 'react'
 import { type UseFormReturn } from 'react-hook-form'
-import { Panel } from '@repo/ui/panel'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
-import { Input } from '@repo/ui/input'
-import { Textarea } from '@repo/ui/textarea'
+import { Panel } from '@theopenlane/ui/panel'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@theopenlane/ui/form'
+import { Input } from '@theopenlane/ui/input'
+import { Textarea } from '@theopenlane/ui/textarea'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { type ControlReviewFormData } from './use-control-review-form-schema'
 

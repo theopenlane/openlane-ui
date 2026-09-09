@@ -2,8 +2,8 @@
 
 import { signOut, useSession } from 'next-auth/react'
 import { userMenuStyles } from './user-menu.styles'
-import { Button } from '@repo/ui/button'
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSeparator } from '@repo/ui/dropdown-menu'
+import { Button } from '@theopenlane/ui/button'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSeparator } from '@theopenlane/ui/dropdown-menu'
 import { useTheme } from 'next-themes'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { Avatar, type AvatarEntityLike } from '../avatar/avatar'

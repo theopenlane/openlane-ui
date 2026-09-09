@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { buttonStyles } from '@repo/ui/button'
+import { buttonStyles } from '@theopenlane/ui/button'
 import { CancelButton } from './cancel-button'
 
 const meta: Meta<typeof CancelButton> = {

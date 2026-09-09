@@ -1,5 +1,5 @@
 import { createSlateEditor, ElementApi, KEYS, NodeApi, type SlateEditor, type TElement, type Value } from 'platejs'
-import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
+import { BaseEditorKit } from '@theopenlane/ui/components/editor/editor-base-kit.tsx'
 import { detectFormat } from './usePlateEditor'
 import type usePlateEditor from './usePlateEditor'
 

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { Laptop } from 'lucide-react'
 import ViewAssetSheet from '@/components/pages/protected/assets/view-asset-sheet'
 

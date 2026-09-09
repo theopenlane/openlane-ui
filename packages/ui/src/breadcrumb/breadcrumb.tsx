@@ -4,7 +4,7 @@ import * as React from 'react'
 import Link from 'next/link'
 import { Slot } from '@radix-ui/react-slot'
 import { ChevronRight, MoreHorizontal } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 const Breadcrumb = ({
   ref,

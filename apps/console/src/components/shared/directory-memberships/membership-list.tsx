@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { cn } from '@repo/ui/lib/utils'
-import { Badge } from '@repo/ui/badge'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { Badge } from '@theopenlane/ui/badge'
 import { formatDate } from '@/utils/date'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { pluralizeWithCount } from '@/utils/strings'

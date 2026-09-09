@@ -1,5 +1,5 @@
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
-import type { TPaginationQuery } from '@repo/ui/pagination-types'
+import type { TPaginationQuery } from '@theopenlane/ui/pagination-types'
 import type { TReportColumn } from './report-schema'
 
 export const REPORT_OPERATION_NAME = 'CustomReport'

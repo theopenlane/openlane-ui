@@ -1,16 +1,16 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
-import { Input } from '@repo/ui/input'
-import { Textarea } from '@repo/ui/textarea'
+import { activatable } from '@theopenlane/ui/lib/a11y'
+import { FormField, FormItem, FormLabel, FormControl } from '@theopenlane/ui/form'
+import { Input } from '@theopenlane/ui/input'
+import { Textarea } from '@theopenlane/ui/textarea'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '../generic-sheet'
 import { formatDate, formatCurrency } from '@/utils/date'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { ExternalLinkValue } from '@/components/shared/external-link/external-link-value'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { useRef } from 'react'
 
 interface TextFieldProps<TUpdateInput> {

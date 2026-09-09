@@ -2,7 +2,7 @@
 
 import { type NextPage } from 'next'
 import { useParams } from 'next/navigation'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import React from 'react'
 import EditProcedurePage from '@/components/pages/protected/procedures/edit-procedure-page.tsx'
 import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'

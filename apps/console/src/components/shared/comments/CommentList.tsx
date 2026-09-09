@@ -9,7 +9,7 @@ import PlateEditor from '../plate/plate-editor'
 import { useSession } from 'next-auth/react'
 import { Pencil, Trash2, Check, X } from 'lucide-react'
 import { type Value } from 'platejs'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { useHasOrgFullAccess } from '@/lib/authz/use-has-org-full-access'
 
 type CommentListProps = {

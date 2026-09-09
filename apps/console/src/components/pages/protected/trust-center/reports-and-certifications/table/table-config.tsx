@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility, type TrustCenterDocWatermarkStatus, type TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 
 type GqlFile = {
@@ -154,8 +154,8 @@ export const TRUST_CENTER_DOCS_SORT_FIELDS = [
 import { AlertTriangle, Eye, FileQuestion, Folder } from 'lucide-react'
 import { defineFilterFields } from '@/types'
 import { NDAUploadDialog } from '../../NDAs/components/NDA-upload-dialog'
-import { Badge } from '@repo/ui/badge'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Badge } from '@theopenlane/ui/badge'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'

@@ -4,8 +4,8 @@ import { type BaseSuggestionConfig, BaseSuggestionPlugin } from '@platejs/sugges
 import { type ExtendConfig, type Path, isSlateEditor, isSlateElement, isSlateString } from 'platejs'
 import { toTPlatePlugin } from 'platejs/react'
 
-import { BlockSuggestion } from '@repo/ui/components/ui/block-suggestion.tsx'
-import { SuggestionLeaf, SuggestionLineBreak } from '@repo/ui/components/ui/suggestion-node.tsx'
+import { BlockSuggestion } from '@theopenlane/ui/components/ui/block-suggestion.tsx'
+import { SuggestionLeaf, SuggestionLineBreak } from '@theopenlane/ui/components/ui/suggestion-node.tsx'
 
 import { discussionPlugin } from './discussion-kit'
 

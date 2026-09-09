@@ -1,5 +1,5 @@
 import { type Entity, type Group, type Organization, type User } from '@repo/codegen/src/schema'
-import { Avatar as AvatarComponent, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
+import { Avatar as AvatarComponent, AvatarFallback, AvatarImage } from '@theopenlane/ui/avatar'
 import { toBase64DataUri } from '@/lib/image-utils'
 
 export type AvatarEntityLike = {

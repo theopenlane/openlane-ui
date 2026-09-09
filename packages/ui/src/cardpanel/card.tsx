@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 const Card = ({ className, ref, ...props }: React.HTMLAttributes<HTMLDivElement> & { ref?: React.Ref<HTMLDivElement> }) => (
   <div ref={ref} className={cn('rounded-lg border bg-card shadow-xs', className)} {...props} />

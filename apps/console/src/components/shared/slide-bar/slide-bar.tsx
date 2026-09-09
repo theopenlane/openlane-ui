@@ -1,6 +1,6 @@
 import React, { useState, useRef, type ReactNode, useEffect } from 'react'
 import { PanelRight, PanelRightClose } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { TOP_BANNER_HEIGHT_VAR } from '@/constants/layout'
 
 type TSlideBarLayoutProps = {

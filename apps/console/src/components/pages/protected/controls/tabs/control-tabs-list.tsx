@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 
 const CONTROL_TABS = [
   { value: 'implementation', label: 'Implementations', className: 'px-0' },

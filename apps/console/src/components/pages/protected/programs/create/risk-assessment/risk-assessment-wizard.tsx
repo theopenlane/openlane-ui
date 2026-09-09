@@ -2,11 +2,11 @@
 import { defineStepper } from '@stepperize/react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 
 import React, { use, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Separator } from '@repo/ui/separator'
+import { Separator } from '@theopenlane/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
 import { type CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import TeamSetupStep from '../shared/steps/team-setup-step'
@@ -18,7 +18,7 @@ import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears, getYear } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)

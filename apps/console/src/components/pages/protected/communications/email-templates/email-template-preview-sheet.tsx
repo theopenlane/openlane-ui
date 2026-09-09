@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@theopenlane/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
 import { X } from 'lucide-react'
 import { usePreviewEmailTemplateHtml } from '@/lib/graphql-hooks/email-template'
 import { EmailTemplatePreview } from './email-template-preview'

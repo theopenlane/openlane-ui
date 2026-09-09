@@ -1,17 +1,17 @@
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React, { useMemo, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { type QueryClient, useQueryClient } from '@tanstack/react-query'
 import { type AvatarEntityLike } from '@/components/shared/avatar/avatar'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@theopenlane/ui/select'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore.ts'
-import { Form } from '@repo/ui/form'
+import { Form } from '@theopenlane/ui/form'
 import { CircleUser } from 'lucide-react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import useEditableFieldFormSchema, { UNASSIGNED, type EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
-import { type Option } from '@repo/ui/multiple-selector'
+import { type Option } from '@theopenlane/ui/multiple-selector'
 
 type EditableUserCellProps = {
   label: string

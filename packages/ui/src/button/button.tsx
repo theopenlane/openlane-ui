@@ -2,7 +2,7 @@ import { Slot, Slottable } from '@radix-ui/react-slot'
 import { buttonStyles, type ButtonProps } from './button.styles'
 import { CheckIcon, LoaderCircle } from 'lucide-react'
 import { cn } from '../../lib/utils'
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@theopenlane/ui/tooltip'
 
 const Button = ({
   asChild = false,

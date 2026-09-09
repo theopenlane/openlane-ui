@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable } from '@theopenlane/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
 import { type IdentityHolderWhereInput, type IdentityHolderOrderField } from '@repo/codegen/src/schema'
 import { type IdentityHoldersNodeNonNull, useIdentityHoldersWithFilter } from '@/lib/graphql-hooks/identity-holder'

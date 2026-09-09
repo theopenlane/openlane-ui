@@ -2,7 +2,7 @@
 
 import React, { useEffect, use } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 import CustomTagsTab from './custom-tags/custom-tags-tab'
 import CustomEnumsTab from './custom-enums/custom-enums-tab'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'

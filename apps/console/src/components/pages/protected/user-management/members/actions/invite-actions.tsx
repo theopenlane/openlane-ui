@@ -2,13 +2,13 @@
 
 import { MoreHorizontal, RotateCw, Trash2 } from 'lucide-react'
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
 import { useCreateBulkInvite, useDeleteOrganizationInvite } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { type CreateInviteInput, type InputMaybe, type InviteRole } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 
 type InviteActionsProps = {
   inviteId: string

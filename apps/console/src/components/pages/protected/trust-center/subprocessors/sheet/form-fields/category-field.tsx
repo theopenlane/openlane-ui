@@ -3,7 +3,7 @@
 import { Controller, useFormContext } from 'react-hook-form'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import { Label } from '@repo/ui/label'
+import { Label } from '@theopenlane/ui/label'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 export const CategoryField = ({ isEditing, isCreateAllowed = false }: { isEditing: boolean; isCreateAllowed?: boolean }) => {

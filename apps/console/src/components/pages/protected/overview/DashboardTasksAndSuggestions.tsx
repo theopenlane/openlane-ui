@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react'
-import { CardContent } from '@repo/ui/cardpanel'
+import { CardContent } from '@theopenlane/ui/cardpanel'
 import { TriangleAlert } from 'lucide-react'
 import { PartyPopperIcon } from '@/components/shared/icons/animated'
 import type { PartyPopperIconHandle } from '@/components/shared/icons/animated/party-popper'

@@ -6,8 +6,8 @@ import { useGetOrganizationSetting, useUpdateOrganizationSetting } from '@/lib/g
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
 import { Headphones, Lock } from 'lucide-react'
 
 const SupportAccess = () => {

@@ -3,7 +3,7 @@ import { useInfiniteQuery, type InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { type GetVendorDirectoryQuery, type GetVendorDirectoryQueryVariables } from '@repo/codegen/src/schema'
 import { GET_VENDOR_DIRECTORY } from '@repo/codegen/query/vendor-directory'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 
 export type VendorDirectoryGroupNode = NonNullable<NonNullable<GetVendorDirectoryQuery['directoryGroups']['edges']>[number]>['node']
 export type VendorDirectoryGroup = NonNullable<VendorDirectoryGroupNode>

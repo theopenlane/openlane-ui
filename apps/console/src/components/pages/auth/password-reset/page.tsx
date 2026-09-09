@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Label } from '@repo/ui/label'
-import { Button } from '@repo/ui/button'
-import { MessageBox } from '@repo/ui/message-box'
-import { Logo } from '@repo/ui/logo'
+import { Label } from '@theopenlane/ui/label'
+import { Button } from '@theopenlane/ui/button'
+import { MessageBox } from '@theopenlane/ui/message-box'
+import { Logo } from '@theopenlane/ui/logo'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
 import { loginStyles } from '@/components/pages/auth/login/login.styles'
 import { pageStyles } from '@/app/(auth)/login/page.styles'
-import { PasswordInput } from '@repo/ui/password-input'
+import { PasswordInput } from '@theopenlane/ui/password-input'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 export default function PasswordResetPage() {

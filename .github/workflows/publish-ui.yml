@@ -1,0 +1,29 @@
+name: Publish @theopenlane/ui
+
+on:
+  push:
+    tags:
+      - 'ui-v*'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      # setup-node v6 is required for npm trusted publishing (OIDC); the
+      # registry-url input writes the .npmrc that npm publish reads
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - run: npm install -g npm@latest
+      - run: bun install --frozen-lockfile
+      - run: bun run --cwd packages/ui build
+      # the publishable manifest is generated into dist/ by the build
+      # (npm publishConfig cannot remap exports at publish time)
+      - run: npm publish ./packages/ui/dist --provenance

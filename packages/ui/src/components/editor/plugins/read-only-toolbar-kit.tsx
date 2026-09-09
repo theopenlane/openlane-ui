@@ -2,8 +2,8 @@
 
 import { createPlatePlugin } from 'platejs/react'
 
-import { Toolbar } from '@repo/ui/components/ui/toolbar.tsx'
-import { ReadOnlyToolbarButtons } from '@repo/ui/components/ui/readonly-toolbar-buttons.tsx'
+import { Toolbar } from '@theopenlane/ui/components/ui/toolbar.tsx'
+import { ReadOnlyToolbarButtons } from '@theopenlane/ui/components/ui/readonly-toolbar-buttons.tsx'
 
 type ReadOnlyToolbarKitOptions = {
   title?: string

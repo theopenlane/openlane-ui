@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo } from 'react'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable } from '@theopenlane/ui/data-table'
 import { type ActionPlanWhereInput, type ActionPlanOrderField } from '@repo/codegen/src/schema'
 import { getColumns } from './columns'
 import { useActionPlansWithFilter } from '@/lib/graphql-hooks/action-plan'

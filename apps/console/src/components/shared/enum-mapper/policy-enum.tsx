@@ -1,6 +1,6 @@
 import { Archive, CalendarClock, CircleDot, FileCheck2, FilePen, GitFork, Link, MessageCircle, ScanEye, Settings2, ShieldCheck, Stamp, Tag, UsersRound, Wrench, type LucideIcon } from 'lucide-react'
 import { InternalPolicyDocumentManagementMode, InternalPolicyDocumentStatus, ProcedureDocumentStatus } from '@repo/codegen/src/schema.ts'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const DocumentIconMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, React.ReactNode> = {

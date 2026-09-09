@@ -1,18 +1,18 @@
 'use client'
 
-import { DataTable, type SortCondition } from '@repo/ui/data-table'
+import { DataTable, type SortCondition } from '@theopenlane/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
 import type { CampaignOrder, CampaignOrderField, CampaignWhereInput, OrderDirection } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { getCampaignColumns } from '@/components/pages/protected/campaigns/table/columns'
 import { CAMPAIGN_SORT_FIELDS } from '@/components/pages/protected/campaigns/table/table-config'
 import { useCampaignsWithFilter } from '@/lib/graphql-hooks/campaign'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
-import { type VisibilityState } from '@repo/ui/table-types'
+import { type VisibilityState } from '@theopenlane/ui/table-types'
 
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
 

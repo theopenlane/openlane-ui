@@ -1,6 +1,6 @@
 import React from 'react'
 import { type Metadata } from 'next'
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import { ProgramSettingsUsers } from '@/components/pages/protected/programs/[id]/settings/users/program-settings-users'
 import { ProgramSettingsGroups } from '@/components/pages/protected/programs/[id]/settings/groups/program-settings-groups'
 import { ProgramSettingsImportControls } from '@/components/pages/protected/programs/[id]/settings/program-settings-import-controls'

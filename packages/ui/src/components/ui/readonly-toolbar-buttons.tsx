@@ -1,6 +1,6 @@
 'use client'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { ToolbarGroup } from './toolbar'
 import { ExportToolbarButton } from './export-toolbar-button'
 import { CommentToolbarButton, useCanComment } from './comment-toolbar-button'

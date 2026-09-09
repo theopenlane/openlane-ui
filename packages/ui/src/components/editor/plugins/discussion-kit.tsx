@@ -1,8 +1,8 @@
 'use client'
 
-import type { TComment } from '@repo/ui/components/ui/comment.tsx'
+import type { TComment } from '@theopenlane/ui/components/ui/comment.tsx'
 import { createPlatePlugin } from 'platejs/react'
-import { BlockDiscussion } from '@repo/ui/components/ui/block-discussion.tsx'
+import { BlockDiscussion } from '@theopenlane/ui/components/ui/block-discussion.tsx'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export interface TDiscussion {

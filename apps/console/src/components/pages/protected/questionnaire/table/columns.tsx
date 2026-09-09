@@ -1,16 +1,16 @@
-import { type ColumnDef, type Row } from '@repo/ui/table-types'
+import { type ColumnDef, type Row } from '@theopenlane/ui/table-types'
 import { type Assessment, type User, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { type AuthorToken } from '@/lib/authors'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
-import { Checkbox } from '@repo/ui/checkbox'
-import { Button } from '@repo/ui/button'
-import { Badge } from '@repo/ui/badge'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { Button } from '@theopenlane/ui/button'
+import { Badge } from '@theopenlane/ui/badge'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
 import { MoreHorizontal, Send, Pencil, Eye, Trash2, FileText, Info, FilePlus } from 'lucide-react'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 
 type Params = {
   userMap?: Record<string, User>

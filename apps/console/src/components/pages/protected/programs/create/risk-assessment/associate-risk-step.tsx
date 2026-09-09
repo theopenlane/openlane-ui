@@ -4,7 +4,7 @@ import React, { useId } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
 import { useRiskSelect } from '@/lib/graphql-hooks/risk'
-import MultipleSelector from '@repo/ui/multiple-selector'
+import MultipleSelector from '@theopenlane/ui/multiple-selector'
 
 const AssociateRisksStep = () => {
   const { control } = useFormContext()

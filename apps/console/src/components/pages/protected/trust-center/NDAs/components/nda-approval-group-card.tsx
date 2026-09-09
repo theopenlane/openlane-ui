@@ -1,8 +1,8 @@
 'use client'
 
 import { useMemo } from 'react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
-import { Label } from '@repo/ui/label'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
+import { Label } from '@theopenlane/ui/label'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { type UpdateTrustCenterSettingInput } from '@repo/codegen/src/schema'

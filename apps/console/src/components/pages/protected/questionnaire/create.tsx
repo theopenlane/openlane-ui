@@ -1,10 +1,10 @@
 import { useRouter } from 'next/navigation'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
 import { FilePlus, LayoutTemplate, SquarePlus } from 'lucide-react'
 import { TemplateList } from './templates'
 import React, { useState } from 'react'
-import { Dialog } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
+import { Dialog } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
 
 const ICON_SIZE = 12
 

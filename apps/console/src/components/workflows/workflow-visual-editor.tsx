@@ -30,7 +30,7 @@ import { NodePalette } from '@/components/workflows/node-palette'
 import type { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
 import type { WorkflowAction, WorkflowCondition, WorkflowNodeData, WorkflowTrigger } from '@/types/workflow'
 import { Undo2, Redo2 } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 
 type WorkflowEditorNode = Node<WorkflowNodeData, 'trigger' | 'condition' | 'action'>
 type WorkflowTriggerNode = Node<WorkflowTrigger, 'trigger'>

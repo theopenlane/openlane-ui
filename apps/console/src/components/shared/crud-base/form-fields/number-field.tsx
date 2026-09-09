@@ -1,11 +1,11 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import { type FieldValues, useFormContext } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { Input } from '@theopenlane/ui/input'
+import { FormField, FormItem, FormLabel, FormControl } from '@theopenlane/ui/form'
 import { type InternalEditingType } from '../generic-sheet'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 
 interface NumberFieldProps {

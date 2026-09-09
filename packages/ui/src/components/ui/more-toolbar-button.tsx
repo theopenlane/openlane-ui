@@ -8,7 +8,7 @@ import { KeyboardIcon, MoreHorizontalIcon, SubscriptIcon, SuperscriptIcon } from
 import { KEYS } from 'platejs'
 import { useEditorRef } from 'platejs/react'
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/components/ui/dropdown-menu.tsx'
 
 import { ToolbarButton } from '../ui/toolbar'
 

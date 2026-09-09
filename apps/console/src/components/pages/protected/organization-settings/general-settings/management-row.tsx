@@ -1,6 +1,6 @@
 'use client'
 import { type ReactNode } from 'react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 type ManagementRowProps = {
   icon: ReactNode

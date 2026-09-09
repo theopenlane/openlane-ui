@@ -1,6 +1,6 @@
 import React from 'react'
-import { Input } from '@repo/ui/input'
-import { Button } from '@repo/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Button } from '@theopenlane/ui/button'
 import { Plus, Trash2 } from 'lucide-react'
 
 type DomainListEditorProps = {

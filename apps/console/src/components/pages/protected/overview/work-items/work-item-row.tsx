@@ -1,7 +1,7 @@
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
 import { ArrowUpRight, Check, X } from 'lucide-react'
 import { UNCATEGORIZED_KIND, WORK_ITEM_ROW_CLASS, type WorkItem, type WorkItemActionKind } from './types'
 

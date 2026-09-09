@@ -7,11 +7,11 @@ import { useDeleteApiToken, useDeletePersonalAccessToken } from '@/lib/graphql-h
 import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useSSOAuthorize } from '../hooks/sso'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import PersonalApiKeyDialog from '../personal-access-token-crud-slideout'
-import { Button } from '@repo/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Button } from '@theopenlane/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
 
 type TokenActionProps = {
   tokenId: string

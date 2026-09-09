@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@theopenlane/ui/tabs'
 import ScrollableTabsList from '@/components/pages/protected/controls/tabs/scrollable-tabs-list'
 import OverviewTab from './overview/overview-tab'
 import DocumentsTab from './documents/documents-tab'

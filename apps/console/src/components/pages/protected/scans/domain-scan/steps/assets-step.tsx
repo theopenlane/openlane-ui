@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
-import { Separator } from '@repo/ui/separator'
+import { Badge } from '@theopenlane/ui/badge'
+import { Separator } from '@theopenlane/ui/separator'
 import { EditableName } from '../editable-name'
 import { SectionCard } from '../components/section-card'
 import { SelectionRow } from '../components/selection-row'

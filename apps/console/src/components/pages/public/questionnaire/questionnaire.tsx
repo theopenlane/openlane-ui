@@ -13,7 +13,7 @@ import { useQuestionnaire, useSubmitQuestionnaire, useResendQuestionnaireLink } 
 import { lightTheme } from '@/styles/questionnaire/theme-light'
 import { darkTheme } from '@/styles/questionnaire/theme-dark'
 import { CircleCheckBig, MailCheck } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { recaptchaSiteKey } from '@repo/dally/auth'
 
 interface QuestionnairePageProps {

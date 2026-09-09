@@ -1,11 +1,11 @@
 import React from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { LoaderCircle, SearchIcon } from 'lucide-react'
-import { Input } from '@repo/ui/input'
+import { Input } from '@theopenlane/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import { MEMBERS_FILTER_FIELDS } from '@/components/pages/protected/user-management/members/table/table-config.ts'
 import { type ExtendedOrgMembershipWhereInput } from './members-table'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import Menu from '@/components/shared/menu/menu'
 import ExportMenuItem from '@/components/shared/export/export-menu-item'
 

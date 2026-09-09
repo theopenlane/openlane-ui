@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { Copy, Pencil, RefreshCw, Stamp, Trash2, X } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { SheetHeader } from '@repo/ui/sheet'
+import { Button } from '@theopenlane/ui/button'
+import { SheetHeader } from '@theopenlane/ui/sheet'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
 import { EvidenceRenewDialog } from '@/components/pages/protected/evidence/evidence-renew-dialog'
 import { SaveButton } from '@/components/shared/save-button/save-button'

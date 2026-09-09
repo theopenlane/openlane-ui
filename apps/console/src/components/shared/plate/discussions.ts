@@ -7,9 +7,9 @@ import {
   type RiskDiscussionFieldsFragment,
   type SubcontrolDiscussionFieldsFragment,
 } from '@repo/codegen/src/schema'
-import { type TDiscussion, type TDiscussionUser } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
-import { type TComment } from '@repo/ui/components/ui/comment.tsx'
-import { parseCommentTextToChildren } from '@repo/ui/components/editor/plugins/mention-serialize.ts'
+import { type TDiscussion, type TDiscussionUser } from '@theopenlane/ui/components/editor/plugins/discussion-kit.tsx'
+import { type TComment } from '@theopenlane/ui/components/ui/comment.tsx'
+import { parseCommentTextToChildren } from '@theopenlane/ui/components/editor/plugins/mention-serialize.ts'
 import { getAvatarImageSrc } from '@/components/shared/avatar/avatar'
 import { EMPTY_DISPLAY_NAME, resolveAuthor, UNKNOWN_AUTHOR_ID } from '@/lib/authors'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'

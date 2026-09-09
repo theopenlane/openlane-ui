@@ -8,8 +8,8 @@ import type { PlateLeafProps, RenderNodeWrapper } from 'platejs/react'
 import { CornerDownLeftIcon } from 'lucide-react'
 import { PlateLeaf, useEditorPlugin, usePluginOption } from 'platejs/react'
 
-import { cn } from '@repo/ui/lib/utils'
-import { type SuggestionConfig, suggestionPlugin } from '@repo/ui/components/editor/plugins/suggestion-kit.tsx'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { type SuggestionConfig, suggestionPlugin } from '@theopenlane/ui/components/editor/plugins/suggestion-kit.tsx'
 
 export function SuggestionLeaf(props: PlateLeafProps<TSuggestionText>) {
   const { api, setOption } = useEditorPlugin(suggestionPlugin)

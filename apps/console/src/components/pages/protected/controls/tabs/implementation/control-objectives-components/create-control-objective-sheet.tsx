@@ -1,6 +1,6 @@
 'use client'
 
-import { Sheet, SheetContent } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@theopenlane/ui/sheet'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { CreateControlObjectiveForm } from './form/create-control-objective-form'

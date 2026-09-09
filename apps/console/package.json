@@ -29,7 +29,7 @@
     "@react-google-maps/api": "^2.20.8",
     "@repo/codegen": "workspace:*",
     "@repo/dally": "workspace:*",
-    "@repo/ui": "workspace:*",
+    "@theopenlane/ui": "workspace:*",
     "@rjsf/core": "^6.8.0",
     "@rjsf/utils": "^6.8.0",
     "@rjsf/validator-ajv8": "^6.8.0",

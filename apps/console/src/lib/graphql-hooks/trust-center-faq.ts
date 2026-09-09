@@ -22,7 +22,7 @@ import {
   type DeleteBulkTrustCenterFaqMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import {
   GET_ALL_TRUST_CENTER_FAQS,
   CREATE_TRUST_CENTER_FAQ,

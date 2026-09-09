@@ -1,10 +1,10 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React, { useMemo } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
-import { Badge } from '@repo/ui/badge'
-import MultipleSelector from '@repo/ui/multiple-selector'
+import { Badge } from '@theopenlane/ui/badge'
+import MultipleSelector from '@theopenlane/ui/multiple-selector'
 import { type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
 import useStringArrayInlineEdit from '@/hooks/useStringArrayInlineEdit'
 import { type EditVendorFormData } from '../../../hooks/use-form-schema'

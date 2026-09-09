@@ -2,8 +2,8 @@
 
 import React, { memo, useMemo } from 'react'
 import { Plus } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Button } from '@theopenlane/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@theopenlane/ui/select'
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
 import { filterableFields, getFieldOperators, labelledFields } from '@/lib/report/report-schema'
 import { filterValueInput, MAX_FILTERS, type TReportCombinator, type TReportFilter } from '@/lib/report/report-filters'

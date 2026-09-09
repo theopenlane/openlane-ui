@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { ArrowRightCircle, ShieldCheck } from 'lucide-react'
 import { getSSORedirect } from '@/lib/auth/utils/get-openlane-token'
 import { getCookie } from '@/lib/auth/utils/getCookie'

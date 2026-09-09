@@ -1,4 +1,4 @@
-import { type ColumnDef, type VisibilityState } from '@repo/ui/table-types'
+import { type ColumnDef, type VisibilityState } from '@theopenlane/ui/table-types'
 import { getIncludeVars } from './get-include-vars'
 
 /**

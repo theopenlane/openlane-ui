@@ -1,17 +1,17 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import { useMemo, useRef } from 'react'
-import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl } from '@theopenlane/ui/form'
 import { useFormContext } from 'react-hook-form'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
-import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
-import { Badge } from '@repo/ui/badge'
+import MultipleSelector, { type Option } from '@theopenlane/ui/multiple-selector'
+import { Badge } from '@theopenlane/ui/badge'
 import { type InternalEditingType } from '../generic-sheet'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 interface MultiSelectFieldProps<TUpdateInput> {
   name: string

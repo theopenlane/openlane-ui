@@ -1,10 +1,10 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React, { useMemo, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
-import { Card } from '@repo/ui/cardpanel'
-import MultipleSelector from '@repo/ui/multiple-selector'
+import { Card } from '@theopenlane/ui/cardpanel'
+import MultipleSelector from '@theopenlane/ui/multiple-selector'
 import { type UpdateEntityInput, type EntityQuery, EntityEntityStatus, EntityFrequency } from '@repo/codegen/src/schema'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'

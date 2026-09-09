@@ -1,6 +1,6 @@
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
 import clsx from 'clsx'
 import { BadgeCheck, CircleX, ExternalLink, Hourglass } from 'lucide-react'
 import React from 'react'

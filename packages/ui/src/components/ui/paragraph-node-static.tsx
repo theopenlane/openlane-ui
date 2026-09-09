@@ -1,6 +1,6 @@
 import { SlateElement, type SlateElementProps } from 'platejs/static'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export function ParagraphElementStatic(props: SlateElementProps) {
   return (

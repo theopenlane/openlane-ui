@@ -10,7 +10,7 @@ import { type InternalEditingType } from '@/components/shared/crud-base/generic-
 import { ScanStatusIconMapper } from '@/components/shared/enum-mapper/scan-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@theopenlane/ui/cardpanel'
 
 const SCAN_TYPE_OPTIONS = [
   { value: 'DOMAIN', label: 'Domain' },

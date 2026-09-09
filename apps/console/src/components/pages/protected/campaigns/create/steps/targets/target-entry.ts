@@ -1,6 +1,6 @@
 import { isValidEmail, normalizeEmail } from '@/lib/validators'
 import { type CreateCampaignTargetInput } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 
 export type TargetTab = 'personnel' | 'contacts' | 'csv' | 'manual'
 

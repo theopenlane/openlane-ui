@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import { Copy, Check, CircleAlert } from 'lucide-react'
 import { type ContactUserStatus, type GetContactsQuery } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'

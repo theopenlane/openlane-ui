@@ -13,12 +13,12 @@ import { serializeHtml } from 'platejs/static'
 import { splitParagraphNewlinesForExport } from './export-docx-helper'
 import { pdfExportPlugin } from '../editor/plugins/pdf-export-kit.tsx'
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
-import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/components/ui/dropdown-menu.tsx'
+import { BaseEditorKit } from '@theopenlane/ui/components/editor/editor-base-kit.tsx'
 
 import { EditorStatic } from './editor-static'
 import { ToolbarButton } from '../ui/toolbar'
-import { DocxExportKit } from '@repo/ui/components/editor/plugins/docx-export-kit.tsx'
+import { DocxExportKit } from '@theopenlane/ui/components/editor/plugins/docx-export-kit.tsx'
 import { DocxKit } from '../editor/plugins/docx-kit'
 import { ThemeAwareFontBackgroundColorPlugin, ThemeAwareFontColorPlugin } from '../editor/plugins/font-kit'
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { Checkbox } from '@repo/ui/checkbox'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip'
 import { type MapControl } from '@/types'
 

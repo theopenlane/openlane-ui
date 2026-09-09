@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { Logo } from '@repo/ui/logo'
+import { Logo } from '@theopenlane/ui/logo'
 import { useAcceptOrganizationInvite } from '../../../lib/user'
 import Link from 'next/link'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 
 export const InviteAccepter = () => {
   const searchParams = useSearchParams()

@@ -13,8 +13,8 @@ import { ExternalLink, Link, Text, Unlink } from 'lucide-react'
 import { KEYS } from 'platejs'
 import { useEditorRef, useEditorSelection, useFormInputProps, usePluginOption } from 'platejs/react'
 
-import { buttonVariants } from '@repo/ui/components/ui/button.tsx'
-import { Separator } from '@repo/ui/components/ui/separator.tsx'
+import { buttonVariants } from '@theopenlane/ui/components/ui/button.tsx'
+import { Separator } from '@theopenlane/ui/components/ui/separator.tsx'
 
 const popoverVariants = cva('z-(--editor-z-floating-toolbar) w-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md outline-hidden')
 

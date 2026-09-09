@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FileText, Headset } from 'lucide-react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import { useOrganization } from '@/hooks/useOrganization'
 import type { SetupChecklistItem } from '@/hooks/useSetupChecklist'
 import { SUPPORT_URL } from '@/constants'

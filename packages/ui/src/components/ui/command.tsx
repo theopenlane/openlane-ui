@@ -4,8 +4,8 @@ import * as React from 'react'
 import { Command as CommandPrimitive } from 'cmdk'
 import { SearchIcon } from 'lucide-react'
 
-import { cn } from '@repo/ui/lib/utils'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from 'src/dialog'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
 
 function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
   return <CommandPrimitive data-slot="command" className={cn('flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground', className)} {...props} />

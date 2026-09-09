@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 import { Repeat, Upload } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { Button } from '@theopenlane/ui/button'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import FilePreview, { DownloadButton } from '@/components/shared/file-preview/file-preview'
 import { type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'

@@ -13,7 +13,7 @@ import { useMediaState } from '@platejs/media/react'
 import { ResizableProvider, useResizableValue } from '@platejs/resizable'
 import { PlateElement, useEditorMounted, withHOC } from 'platejs/react'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 import { Caption, CaptionTextarea } from './caption'
 import { mediaResizeHandleVariants, Resizable, ResizeHandle } from './resize-handle'

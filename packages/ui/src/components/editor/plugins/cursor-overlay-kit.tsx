@@ -2,7 +2,7 @@
 
 import { CursorOverlayPlugin } from '@platejs/selection/react'
 
-import { CursorOverlay } from '@repo/ui/components/ui/cursor-overlay.tsx'
+import { CursorOverlay } from '@theopenlane/ui/components/ui/cursor-overlay.tsx'
 
 export const CursorOverlayKit = [
   CursorOverlayPlugin.configure({

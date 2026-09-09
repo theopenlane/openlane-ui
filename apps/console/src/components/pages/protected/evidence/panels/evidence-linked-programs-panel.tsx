@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Accordion, AccordionContent, AccordionItem } from '@radix-ui/react-accordion'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import RelationsAccordionTrigger from '@/components/shared/relations-accordion-trigger.tsx/relations-accordion-trigger'
 import { ProgramSelectionDialog } from '@/components/shared/object-association/object-association-programs-dialog'
 import ObjectAssociationProgramsChips from '@/components/shared/object-association/object-association-programs-chips'

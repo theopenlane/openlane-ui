@@ -32,7 +32,7 @@ import {
   type UpdateApiTokenMutation,
   type UpdateApiTokenMutationVariables,
 } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 
 type UseGetPersonalAccessTokensArgs = {
   where?: GetPersonalAccessTokensQueryVariables['where']

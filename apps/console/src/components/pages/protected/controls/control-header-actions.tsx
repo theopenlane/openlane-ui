@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { CopyPlus, PencilIcon, MoreHorizontal, Trash2, Sparkles } from 'lucide-react'
 import { hasPermission, canDelete, canEdit } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'

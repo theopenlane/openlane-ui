@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
-import { Button } from '@repo/ui/button'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
+import { Button } from '@theopenlane/ui/button'
 import { Sparkles, Loader2, Smile, Meh, Frown } from 'lucide-react'
 import { aiEnabled } from '@repo/dally/ai'
 import { extractQuestions } from './responses-tab/extract-questions'

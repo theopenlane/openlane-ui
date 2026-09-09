@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { AlertCircle, ChevronDown, Inbox, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useEvidenceSuggestedActions } from '@/lib/graphql-hooks/evidence'
 import { EDIT_ASSOCIATIONS_PARAM } from '../evidence-sheet-config'
 import { useSmartRouter } from '@/hooks/useSmartRouter'

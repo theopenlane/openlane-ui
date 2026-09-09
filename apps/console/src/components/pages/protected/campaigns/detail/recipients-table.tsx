@@ -2,20 +2,20 @@
 
 import React, { useMemo, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type ColumnDef } from '@repo/ui/table-types'
-import { DataTable } from '@repo/ui/data-table'
-import { TableKeyEnum } from '@repo/ui/table-key'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
+import { DataTable } from '@theopenlane/ui/data-table'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
 import { SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
-import type { TPagination } from '@repo/ui/pagination-types'
+import type { TPagination } from '@theopenlane/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useCampaignTargetsWithFilter, useDeleteCampaignTarget, type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
 import { formatDate } from '@/utils/date'
-import { Button } from '@repo/ui/button'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { Button } from '@theopenlane/ui/button'
+import { ConfirmationDialog } from '@theopenlane/ui/confirmation-dialog'
 import { Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ROW_ACTIONS_COLUMN_ID } from '@repo/ui/pinned-columns'
+import { ROW_ACTIONS_COLUMN_ID } from '@theopenlane/ui/pinned-columns'
 
 type RecipientsTableProps = {
   campaignId: string

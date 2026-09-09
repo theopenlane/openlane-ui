@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
 import { useRouter } from 'next/navigation'
 import { type AvailableIntegrationNode } from '@/lib/integrations/types'
 import IntegrationCardShell from './integration-card-shell'

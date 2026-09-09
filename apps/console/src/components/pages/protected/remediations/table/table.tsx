@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable } from '@theopenlane/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
 import { type RemediationWhereInput, type RemediationOrderField } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/remediations/table/columns.tsx'

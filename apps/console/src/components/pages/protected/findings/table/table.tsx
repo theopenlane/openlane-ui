@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable } from '@theopenlane/ui/data-table'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { type FindingWhereInput, type FindingOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/findings/table/columns.tsx'

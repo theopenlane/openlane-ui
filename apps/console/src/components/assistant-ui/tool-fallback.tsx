@@ -3,7 +3,7 @@
 import { memo, useCallback, useRef, useState } from 'react'
 import { AlertCircleIcon, CheckIcon, ChevronDownIcon, LoaderIcon, XCircleIcon } from 'lucide-react'
 import { useScrollLock, type ToolCallMessagePartStatus, type ToolCallMessagePartComponent } from '@assistant-ui/react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/react-collapsible'
 
 const ANIMATION_DURATION = 200

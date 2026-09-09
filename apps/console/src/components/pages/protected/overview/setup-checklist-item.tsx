@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Check, Circle } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import type { SetupChecklistItem, SetupChecklistItemStatus } from '@/hooks/useSetupChecklist'
 
 export const SETUP_CHECKLIST_STATUS: Record<SetupChecklistItemStatus, { label: string; labelClass: string; markerClass: string; order: number }> = {

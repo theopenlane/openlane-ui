@@ -1,5 +1,5 @@
 import { Plus, SquarePlus } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import React from 'react'
 
 export const CreateBtn = (

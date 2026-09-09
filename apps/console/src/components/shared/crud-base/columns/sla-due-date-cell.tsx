@@ -1,6 +1,6 @@
 import { getSlaDueDate, isSlaPastDue, type SlaDaysByLevel } from '@/lib/sla'
 import { formatDate } from '@/utils/date'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 type SlaDueDateCellProps = {
   createdAt: string | null | undefined

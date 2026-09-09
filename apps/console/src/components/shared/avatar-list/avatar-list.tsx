@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@theopenlane/ui/avatar'
 import { Popover, PopoverTrigger, PopoverContent } from '@radix-ui/react-popover'
 
 interface AvatarListData {

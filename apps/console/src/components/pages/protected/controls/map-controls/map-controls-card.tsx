@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent } from '@theopenlane/ui/cardpanel'
 import MapControlsFormFilters from './map-controls-form-filters'
 import MatchedControls from './matched-controls'
 import { AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'

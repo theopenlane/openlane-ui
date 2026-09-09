@@ -8,8 +8,8 @@ import { NotificationRow } from '@/components/shared/SystemNotification/notifica
 import { ExportRow } from '@/components/shared/SystemNotification/export-row'
 import { useGetAllExports } from '@/lib/graphql-hooks/export'
 import { Bell, CheckCheck, Inbox, Stamp, Radar, FileDown, AtSign, FolderSync, ClipboardList, type LucideIcon, ArrowDownToLine, ListChecks, Plug } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
-import { Button } from '@repo/ui/button'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { Button } from '@theopenlane/ui/button'
 import { isToday, isYesterday, format, startOfDay } from 'date-fns'
 import { toHumanLabel } from '@/utils/strings'
 

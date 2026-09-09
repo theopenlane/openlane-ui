@@ -1,9 +1,9 @@
 'use client'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@theopenlane/ui/dialog'
 import { Upload } from 'lucide-react'
 import React, { cloneElement, useState } from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { useControllableOpen } from '@/hooks/useControllableOpen'

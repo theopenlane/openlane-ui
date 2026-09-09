@@ -23,7 +23,7 @@ import {
   type DeleteBulkContactMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { GET_CONTACTS, GET_ALL_CONTACTS, CONTACT, CREATE_CONTACT, UPDATE_CONTACT, DELETE_CONTACT, CREATE_CSV_BULK_CONTACT, BULK_EDIT_CONTACT, BULK_DELETE_CONTACT } from '@repo/codegen/query/contact'
 
 type ContactNode = NonNullable<NonNullable<NonNullable<GetContactsQuery['contacts']['edges']>[number]>['node']>

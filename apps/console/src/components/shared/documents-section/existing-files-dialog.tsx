@@ -1,16 +1,16 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@theopenlane/ui/dialog'
 import { Link, PlusCircle } from 'lucide-react'
-import { Button } from '@repo/ui/button'
-import { DataTable } from '@repo/ui/data-table'
+import { Button } from '@theopenlane/ui/button'
+import { DataTable } from '@theopenlane/ui/data-table'
 import { useGetFiles } from '@/lib/graphql-hooks/file'
 import { formatDateSince } from '@/utils/date'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { TableKeyEnum } from '@repo/ui/table-key'
-import { type ColumnDef } from '@repo/ui/table-types'
+import { TableKeyEnum } from '@theopenlane/ui/table-key'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 
 type ExistingFileRow = {

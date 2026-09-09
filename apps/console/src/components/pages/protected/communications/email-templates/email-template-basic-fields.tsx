@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useId } from 'react'
-import { Input } from '@repo/ui/input'
+import { Input } from '@theopenlane/ui/input'
 
 interface EmailTemplateBasicFieldsProps {
   name: string

@@ -32,7 +32,7 @@ import {
   TemplateTemplateKind,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 
 export const useGetTrustCenterNDAFiles = (enabled = true) => {
   const { client } = useGraphQLClient()

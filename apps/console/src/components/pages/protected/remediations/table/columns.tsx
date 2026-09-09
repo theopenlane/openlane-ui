@@ -1,11 +1,11 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { type RemediationsNodeNonNull } from '@/lib/graphql-hooks/remediation'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
-import { TruncatedCell } from '@repo/ui/data-table'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
 
 export const getColumns = ({ userMap, tokenMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<RemediationsNodeNonNull>[] => {
   return [

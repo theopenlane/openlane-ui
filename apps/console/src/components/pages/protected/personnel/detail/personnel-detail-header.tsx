@@ -2,9 +2,9 @@
 
 import React, { useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { Badge } from '@repo/ui/badge'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Badge } from '@theopenlane/ui/badge'
 import { MoreHorizontal, Trash2, User, PencilIcon } from 'lucide-react'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import Menu from '@/components/shared/menu/menu'

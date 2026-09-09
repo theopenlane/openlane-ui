@@ -8,7 +8,7 @@ import { type FC, memo, useState } from 'react'
 import { CheckIcon, CopyIcon } from 'lucide-react'
 
 import { TooltipIconButton } from '@/components/assistant-ui/tooltip-icon-button'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 const MarkdownTextImpl = () => {
   return <MarkdownTextPrimitive remarkPlugins={[remarkGfm]} className="aui-md" components={defaultComponents} />

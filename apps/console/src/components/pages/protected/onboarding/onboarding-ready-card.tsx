@@ -1,7 +1,7 @@
 import { ArrowRight, Box, Server, ShieldAlert, Users } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
-import { Card } from '@repo/ui/cardpanel'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
+import { Card } from '@theopenlane/ui/cardpanel'
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
 

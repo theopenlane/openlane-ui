@@ -24,7 +24,7 @@ import {
 } from '@repo/codegen/src/schema'
 
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { useCallback } from 'react'
 
 type UseGetTrustCenterSubprocessorsArgs = {

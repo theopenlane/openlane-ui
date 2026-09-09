@@ -2,9 +2,9 @@
 
 import type { DragEvent } from 'react'
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/cardpanel'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
+import { Card, CardContent, CardHeader, CardTitle } from '@theopenlane/ui/cardpanel'
+import { Button } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
 import { Plus, Search } from 'lucide-react'
 
 type NodePaletteProps = {

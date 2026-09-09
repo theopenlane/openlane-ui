@@ -6,7 +6,7 @@ import { Check, Loader2 } from 'lucide-react'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { fetchLogoAsFile } from '../../vendor-logo-dialog'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { useSuggestedVendorLogos } from '../../hooks/use-suggested-vendor-logos'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
 

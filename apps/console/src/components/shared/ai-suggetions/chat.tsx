@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { Check, Copy, Sparkles } from 'lucide-react'
-import { Textarea } from '@repo/ui/textarea'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { Textarea } from '@theopenlane/ui/textarea'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
 import { type ControlContext, type OrganizationContext, type ConversationMessage, useAISuggestions, type UserContext, type PolicyContext } from '@/hooks/useGetAISuggestions.tsx'
 import ReactMarkdown from 'react-markdown'
 

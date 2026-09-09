@@ -1,5 +1,5 @@
-import { Badge } from '@repo/ui/badge'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Badge } from '@theopenlane/ui/badge'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 
 type OverflowBadgesCellProps = {
   values?: string[] | null

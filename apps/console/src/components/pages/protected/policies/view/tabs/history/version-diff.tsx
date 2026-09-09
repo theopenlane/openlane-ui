@@ -5,7 +5,7 @@ import { computeDiff, type DiffOperation, type DiffUpdate, withGetFragmentExclud
 import cloneDeep from 'lodash/cloneDeep'
 import { createSlatePlugin, type Descendant, type Value } from 'platejs'
 import { createPlateEditor, Plate, PlateContent, PlateLeaf, type PlateLeafProps, toPlatePlugin, usePlateEditor } from 'platejs/react'
-import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
+import { BaseEditorKit } from '@theopenlane/ui/components/editor/editor-base-kit.tsx'
 
 type VersionDiffProps = {
   previous: Descendant[] | null | undefined

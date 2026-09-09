@@ -1,6 +1,6 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { type ControlListFieldsFragment, type Subcontrol } from '@repo/codegen/src/schema'
-import { Checkbox } from '@repo/ui/checkbox'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { AccordionEnum } from './object-association-control-dialog'
 import { type CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'

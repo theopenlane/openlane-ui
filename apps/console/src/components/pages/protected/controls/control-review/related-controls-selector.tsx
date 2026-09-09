@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from 'react'
 import { useWatch, type UseFormReturn } from 'react-hook-form'
 import { ChevronDown } from 'lucide-react'
-import { Checkbox } from '@repo/ui/checkbox'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 import { useGetControlById, useGetControlRelatedControls } from '@/lib/graphql-hooks/control'
 import { getEdgeNodes } from '@/components/shared/object-association/utils'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'

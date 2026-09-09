@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { TabsContent } from '@repo/ui/tabs'
+import { TabsContent } from '@theopenlane/ui/tabs'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { acceptedFileTypes, acceptedFileTypesShort } from './evidence-upload-config'
 import { type TUploadedFile } from './types/TUploadedFile'

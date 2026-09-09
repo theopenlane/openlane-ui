@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react'
 import { useVulnerabilitySeverityCounts } from '@/lib/graphql-hooks/vulnerability'
 import { useFindingSeverityCounts } from '@/lib/graphql-hooks/finding'
-import { cn } from '@repo/ui/lib/utils'
-import { type TableKeyValue } from '@repo/ui/table-key'
+import { cn } from '@theopenlane/ui/lib/utils'
+import { type TableKeyValue } from '@theopenlane/ui/table-key'
 import { getFiltersUpdatedEvent, saveFilters, loadFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { useOrganization } from '@/hooks/useOrganization'
 

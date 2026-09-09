@@ -1,7 +1,7 @@
 'use client'
 
 import Diamond from '@/assets/Diamond'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { useRouter } from 'next/navigation'
 import { type PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 import { featureUtil } from '@/lib/subscription-plan/plans.ts'

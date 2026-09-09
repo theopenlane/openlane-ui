@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
+import { Badge } from '@theopenlane/ui/badge'
 import { MergeValueDisplay } from './merge-value-display'
 import { isEmptyValue } from './use-merge-resolution'
 import type { ResolvedField } from './use-merge-resolution'

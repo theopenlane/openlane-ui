@@ -1,4 +1,4 @@
-import { PageHeading } from '@repo/ui/page-heading'
+import { PageHeading } from '@theopenlane/ui/page-heading'
 import type { Metadata } from 'next/types'
 import SubscribersPage from '@/components/pages/protected/organization-settings/subscribers/subscribers-page'
 

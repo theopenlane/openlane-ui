@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Dialog, DialogContent } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
+import { Dialog, DialogContent } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
 import { ArrowRightCircle, ShieldCheck } from 'lucide-react'
 import { getSSORedirect } from '@/lib/auth/utils/get-openlane-token'
 import { type SSORequirement } from '@/lib/auth/utils/sso-required'

@@ -13,7 +13,7 @@ import {
   type DirectorySyncRunQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { GET_ALL_DIRECTORY_SYNC_RUNS, CREATE_DIRECTORY_SYNC_RUN, UPDATE_DIRECTORY_SYNC_RUN, DELETE_DIRECTORY_SYNC_RUN, DIRECTORY_SYNC_RUN } from '@repo/codegen/query/directory-sync-run'
 
 type GetAllDirectorySyncRunsArgs = {

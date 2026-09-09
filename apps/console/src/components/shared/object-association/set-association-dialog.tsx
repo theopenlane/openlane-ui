@@ -1,7 +1,7 @@
 'use client'
 
 import ObjectAssociation from '@/components/shared/object-association/object-association'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@theopenlane/ui/dialog'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { type ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { type TAssociationUpdateInput, type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'

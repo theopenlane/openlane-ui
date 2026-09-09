@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Check } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 
 export type TVendorReviewAction = 'draft' | 'save' | 'complete' | 'completeAndApprove' | 'approve'
 

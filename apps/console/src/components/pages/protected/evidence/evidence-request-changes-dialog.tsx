@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { Button } from '@repo/ui/button'
-import { Textarea } from '@repo/ui/textarea'
-import { Label } from '@repo/ui/label'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@theopenlane/ui/dialog'
+import { Button } from '@theopenlane/ui/button'
+import { Textarea } from '@theopenlane/ui/textarea'
+import { Label } from '@theopenlane/ui/label'
 
 type TEvidenceRequestChangesDialogProps = {
   open: boolean

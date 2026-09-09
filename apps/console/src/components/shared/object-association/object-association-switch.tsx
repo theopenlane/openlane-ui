@@ -1,9 +1,9 @@
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import React, { useRef, useState } from 'react'
 import { ArrowLeft, ChevronsDownUp, ChevronsUpDown, Expand, LayoutList, List, Waypoints } from 'lucide-react'
 import ObjectAssociationGraph from '@/components/shared/object-association/object-association-graph.tsx'
 import { SetControlAssociationDialog } from '@/components/pages/protected/controls/set-control-association-dialog'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { ObjectAssociationNodeEnum, type Section, type TCenterNode, getCenterNodeObjectName } from '@/components/shared/object-association/types/object-association-types.ts'
 import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion.tsx'
 import { SetPolicyAssociationDialog } from '@/components/pages/protected/policies/set-policy-association-dialog'
@@ -11,7 +11,7 @@ import { SetProcedureAssociationDialog } from '@/components/pages/protected/proc
 import { SetRiskAssociationDialog } from '@/components/pages/protected/risks/set-risk-association-dialog'
 import { SetVendorAssociationDialog } from '@/components/pages/protected/vendors/set-vendor-association-dialog'
 import { SetPersonnelAssociationDialog } from '@/components/pages/protected/personnel/set-personnel-association-dialog'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@theopenlane/ui/tooltip'
 
 type TObjectAssociationSwitchProps = {
   controlId?: string

@@ -1,7 +1,7 @@
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { useGetStandards } from '@/lib/graphql-hooks/standard'
 import { type Standard } from '@repo/codegen/src/schema'
-import { FormControl, FormField, FormItem } from '@repo/ui/form'
+import { FormControl, FormField, FormItem } from '@theopenlane/ui/form'
 import { useFormContext, useWatch, useController } from 'react-hook-form'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'

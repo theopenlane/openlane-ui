@@ -5,8 +5,8 @@ import * as React from 'react'
 import { MessageSquareTextIcon } from 'lucide-react'
 import { useEditorRef, usePluginOption } from 'platejs/react'
 
-import { commentPlugin } from '@repo/ui/components/editor/plugins/comment-kit.tsx'
-import { discussionPlugin } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
+import { commentPlugin } from '@theopenlane/ui/components/editor/plugins/comment-kit.tsx'
+import { discussionPlugin } from '@theopenlane/ui/components/editor/plugins/discussion-kit.tsx'
 
 import { ToolbarButton } from './toolbar'
 

@@ -1,15 +1,15 @@
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { type Template, type User, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { type AuthorToken } from '@/lib/authors'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { AuthorCell } from '@/components/shared/user-display/author-cell'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@theopenlane/ui/dropdown-menu'
 import { MoreHorizontal, Pencil, FilePlus, Trash2, Copy } from 'lucide-react'
-import { TruncatedCell } from '@repo/ui/data-table'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { TruncatedCell } from '@theopenlane/ui/data-table'
+import { SystemTooltip } from '@theopenlane/ui/system-tooltip'
 
 type Params = {
   userMap?: Record<string, User>

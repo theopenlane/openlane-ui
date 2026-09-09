@@ -1,8 +1,8 @@
 import { Fragment } from 'react'
 import { ArrowRight, Handshake, ShieldCheck, Sparkles } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
-import { Card } from '@repo/ui/cardpanel'
+import { Badge } from '@theopenlane/ui/badge'
+import { Button } from '@theopenlane/ui/button'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { type OnboardingCard } from '@/lib/onboarding-questions/types'
 
 const TRIAL_CARD_ICONS: Record<string, typeof ShieldCheck> = {

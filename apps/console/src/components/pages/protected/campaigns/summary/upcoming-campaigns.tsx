@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { ChevronRight, Users } from 'lucide-react'
-import { Card } from '@repo/ui/cardpanel'
+import { Card } from '@theopenlane/ui/cardpanel'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatDateUntil } from '@/utils/date'
 import { pluralizeWithCount } from '@/utils/strings'

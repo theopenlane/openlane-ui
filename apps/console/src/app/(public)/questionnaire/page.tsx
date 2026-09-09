@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react'
 import { type Metadata } from 'next'
 import Link from 'next/link'
-import { Logo } from '@repo/ui/logo'
+import { Logo } from '@theopenlane/ui/logo'
 import { QuestionnairePage } from '@/components/pages/public/questionnaire/questionnaire'
 import { QuestionnaireBackground } from '@/components/pages/public/questionnaire/questionnaire-background'
 import { OPENLANE_WEBSITE_URL } from '@/constants'

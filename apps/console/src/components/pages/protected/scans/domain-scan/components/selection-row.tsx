@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Badge } from '@repo/ui/badge'
-import { Checkbox } from '@repo/ui/checkbox'
+import { Badge } from '@theopenlane/ui/badge'
+import { Checkbox } from '@theopenlane/ui/checkbox'
 
 type SelectionRowProps = {
   checked: boolean

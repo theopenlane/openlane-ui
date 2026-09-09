@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Panel, PanelHeader } from '@repo/ui/panel'
+import { Panel, PanelHeader } from '@theopenlane/ui/panel'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
 import ObjectAssociationControlsChips from '@/components/shared/object-association/object-association-controls-chips'
 import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion'

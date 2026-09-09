@@ -53,7 +53,7 @@ import {
   type UpdatePolicyCommentMutation,
   type UpdatePolicyCommentMutationVariables,
 } from '@repo/codegen/src/schema'
-import { type TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@theopenlane/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { useSession } from 'next-auth/react'
 import { subDays } from 'date-fns'

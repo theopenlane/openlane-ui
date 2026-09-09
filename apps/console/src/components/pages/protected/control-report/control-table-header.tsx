@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Checkbox } from '@repo/ui/checkbox'
-import { cn } from '@repo/ui/lib/utils'
+import { Checkbox } from '@theopenlane/ui/checkbox'
+import { cn } from '@theopenlane/ui/lib/utils'
 import { GRID_ROW_CLASS, getGridCols } from './control-report-grid'
 
 type ControlTableHeaderProps = {

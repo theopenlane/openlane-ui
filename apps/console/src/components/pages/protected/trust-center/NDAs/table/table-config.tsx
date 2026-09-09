@@ -1,8 +1,8 @@
 'use client'
 
-import { type ColumnDef } from '@repo/ui/table-types'
+import { type ColumnDef } from '@theopenlane/ui/table-types'
 import { formatDate } from '@/utils/date'
-import { Button } from '@repo/ui/button'
+import { Button } from '@theopenlane/ui/button'
 import { Building2, Calendar, CheckCheck, Mail, XIcon } from 'lucide-react'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { defineFilterFields } from '@/types'

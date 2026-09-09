@@ -8,10 +8,10 @@ import {
   AlertDialogFooter,
   AlertDialogAction,
   AlertDialogCancel,
-} from '@repo/ui/alert-dialog'
-import { Button, type ButtonProps } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { Label } from '@repo/ui/label'
+} from '@theopenlane/ui/alert-dialog'
+import { Button, type ButtonProps } from '@theopenlane/ui/button'
+import { Input } from '@theopenlane/ui/input'
+import { Label } from '@theopenlane/ui/label'
 import { useState } from 'react'
 
 type ConfirmationAlertProps = {

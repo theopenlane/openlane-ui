@@ -1,4 +1,4 @@
-import { activatable } from '@repo/ui/lib/a11y'
+import { activatable } from '@theopenlane/ui/lib/a11y'
 import { XIcon } from 'lucide-react'
 
 type TObjectsChipProps = {

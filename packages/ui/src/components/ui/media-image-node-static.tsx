@@ -6,7 +6,7 @@ import { SlateElement, type SlateElementProps } from 'platejs/static'
 
 import { NodeApi } from 'platejs'
 
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@theopenlane/ui/lib/utils'
 
 export function ImageElementStatic(props: SlateElementProps<TImageElement & TCaptionProps & TResizableProps>) {
   const { align = 'center', caption, url, width } = props.element
