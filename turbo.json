@@ -41,6 +41,9 @@
         "PIRSCH_SECRET",
         "PIRSCH_CLIENT_ID",
 
+        // Hubspot tracking
+        "NEXT_PUBLIC_HUBSPOT_PORTAL_ID",
+
         // AI Settings
         "GOOGLE_AI_PROJECT_ID",
         "GOOGLE_AI_REGION",
