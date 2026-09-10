@@ -41,7 +41,7 @@ const ProgramsDashboardPage = () => {
   const { data: session } = useSession()
   const [expanded, setExpanded] = useState<string[]>([])
   const [filterStatus, setFilterStatus] = useState<'ACTIVE' | 'ARCHIVED'>('ACTIVE')
-  const { data: orgPermission } = useOrganizationRoles()
+  const { data: orgPermission, isPending: isPermissionPending } = useOrganizationRoles()
   const { setCrumbs } = use(BreadcrumbContext)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -116,6 +116,10 @@ const ProgramsDashboardPage = () => {
   }
 
   if (!data?.programs.edges?.length && isSuccess && !search && filterStatus === 'ACTIVE') {
+    if (!session?.user?.isImpersonation && isPermissionPending) {
+      return <ProgramsDashboardSkeleton />
+    }
+
     return (
       <>
         {hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram, session) ? (
