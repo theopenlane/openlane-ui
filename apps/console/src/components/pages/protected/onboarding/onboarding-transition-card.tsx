@@ -18,11 +18,12 @@ type OnboardingTransitionCardProps = {
   description: string
   cards: OnboardingCard[]
   primaryDomain?: string
+  isSubmitting: boolean
   onLeave: () => void
 }
 
-const OnboardingTransitionCard = ({ totalSteps, title, description, cards, primaryDomain, onLeave }: OnboardingTransitionCardProps) => (
-  <Card className="w-full min-h-96 p-7 md:p-8 shadow-lg rounded-xl">
+const OnboardingTransitionCard = ({ totalSteps, title, description, cards, primaryDomain, isSubmitting, onLeave }: OnboardingTransitionCardProps) => (
+  <Card className="w-full min-h-96 p-5 sm:p-8 shadow-lg rounded-xl">
     <div className="flex flex-col gap-3 mb-8">
       <Badge variant="primary" className="w-fit uppercase tracking-wide border-primary/24">
         Step {totalSteps} of {totalSteps}
@@ -61,7 +62,7 @@ const OnboardingTransitionCard = ({ totalSteps, title, description, cards, prima
       <p className="text-xs text-text-light">Free 30-day trial, no credit card required.</p>
     </div>
 
-    <Button className="w-full mt-6" type="button" icon={<ArrowRight />} onClick={onLeave}>
+    <Button className="w-full mt-6" type="button" icon={<ArrowRight />} onClick={onLeave} disabled={isSubmitting}>
       Explore Openlane
     </Button>
   </Card>

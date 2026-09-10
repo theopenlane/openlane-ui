@@ -43,6 +43,15 @@ export interface SwitchOrganization {
   target_organization_id: string
 }
 
+export interface SwitchOrganizationResponse {
+  access_token?: string
+  refresh_token?: string
+  session?: string
+  message?: string
+  needs_sso?: boolean
+  redirect_uri?: string
+}
+
 type RegisterUserResponse<T> = { ok: true; data: T } | { ok: false; message: string }
 
 export async function registerUser<T>(arg: RegisterUser): Promise<RegisterUserResponse<T>> {
@@ -198,7 +207,7 @@ export async function verifyAuthentication<T>(arg: AuthVerificationInput) {
 // this handles SSO redirect if required by the response
 //
 // The response from switchOrganization or similar auth functions
-export function handleSSORedirect(response: { needs_sso?: boolean; redirect_uri?: string }): boolean {
+export function handleSSORedirect(response: Pick<SwitchOrganizationResponse, 'needs_sso' | 'redirect_uri'>): boolean {
   if (response?.needs_sso && response?.redirect_uri) {
     window.location.href = response.redirect_uri
     return true
@@ -207,8 +216,8 @@ export function handleSSORedirect(response: { needs_sso?: boolean; redirect_uri?
   return false
 }
 
-export async function switchOrganization<T>(arg: SwitchOrganization) {
-  const fData: HttpResponse<T> = await fetch('/api/auth/switch-organization', {
+export async function switchOrganization(arg: SwitchOrganization): Promise<SwitchOrganizationResponse> {
+  const fData = await fetch('/api/auth/switch-organization', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -216,9 +225,8 @@ export async function switchOrganization<T>(arg: SwitchOrganization) {
     body: JSON.stringify(arg),
   })
   try {
-    const fDataMessage = await fData.json()
-    fData.message = fDataMessage.error
-    return fDataMessage
+    const payload: SwitchOrganizationResponse & { error?: string } = await fData.json()
+    return { ...payload, message: payload.error ?? payload.message }
   } catch {
     return { message: 'error' }
   }

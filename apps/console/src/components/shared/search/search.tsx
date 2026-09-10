@@ -22,6 +22,7 @@ import { type RoutePage } from '@/types'
 import { useSearchHistory } from './useSearchHistory'
 import { getHrefForSearchEntityType } from '@/utils/getHrefForObjectType'
 import { splitTextByQuery } from './search-utils'
+import { useNotification } from '@/hooks/useNotification'
 
 const highlightQueryMatch = (text: string, query: string) => {
   const parts = splitTextByQuery(text, query)
@@ -82,6 +83,7 @@ export const GlobalSearch = () => {
   const { history: searchHistory, addTerm } = useSearchHistory()
 
   const { data: sessionData, update: updateSession } = useSession()
+  const { errorNotification } = useNotification()
   const { push } = useRouter()
 
   const debouncedQuery = useDebounce(query, 300)
@@ -116,9 +118,13 @@ export const GlobalSearch = () => {
         return
       }
 
-      if (sessionData && response) {
+      if (!response.access_token) {
+        errorNotification({ title: 'Unable to switch organization', description: response.message ?? 'Please try again.' })
+        return
+      }
+
+      if (sessionData) {
         await updateSession({
-          ...response.session,
           user: {
             ...sessionData.user,
             accessToken: response.access_token,

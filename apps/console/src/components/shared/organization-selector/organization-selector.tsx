@@ -11,6 +11,7 @@ import { Tag } from '@repo/ui/tag'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { switchOrganization, handleSSORedirect } from '@/lib/user'
+import { useNotification } from '@/hooks/useNotification'
 import { Loading } from '../loading/loading'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
@@ -21,6 +22,7 @@ import { useParams, usePathname, useRouter } from 'next/navigation'
 
 export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
   const { data: sessionData, update: updateSession } = useSession()
+  const { errorNotification } = useNotification()
   const queryClient = useQueryClient()
   const [orgData, setOrgData] = useState({
     organizationSearch: '',
@@ -78,9 +80,13 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
         return
       }
 
-      if (sessionData && response) {
+      if (!response.access_token) {
+        errorNotification({ title: 'Unable to switch organization', description: response.message ?? 'Please try again.' })
+        return
+      }
+
+      if (sessionData) {
         await updateSession({
-          ...response.session,
           user: {
             ...sessionData.user,
             accessToken: response.access_token,
