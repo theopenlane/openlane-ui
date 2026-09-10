@@ -1,8 +1,10 @@
 'use client'
 
 import React from 'react'
+import { usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import SideNav, { type PanelKey } from './sidebar-nav/sidebar-nav'
+import { ONBOARDING_ROUTE } from '@/constants'
 import { type NavItem, type NavHeading, type Separator } from '@/types'
 
 interface SidebarProps {
@@ -29,7 +31,8 @@ export default function Sidebar({
   isOrganizationSelected,
 }: SidebarProps) {
   const { data: session } = useSession()
-  if (session?.user?.isOnboarding) return null
+  const pathname = usePathname()
+  if (pathname === ONBOARDING_ROUTE || session?.user?.isOnboarding) return null
 
   return (
     <SideNav

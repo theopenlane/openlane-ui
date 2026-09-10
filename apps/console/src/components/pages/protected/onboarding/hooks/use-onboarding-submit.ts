@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
@@ -9,12 +9,14 @@ import { useNotification } from '@/hooks/useNotification'
 import { useCreateOnboarding } from '@/lib/graphql-hooks/onboarding'
 import { buildOnboardingInput, getExistingControls, getSelectedFrameworkLabels } from '@/lib/onboarding-questions/submit-mapping'
 import { type OnboardingQuestion, type SubmitStage } from '@/lib/onboarding-questions/types'
+import { clearOnboardingCreatedOrganization, getOnboardingCreatedOrganization, setOnboardingCreatedOrganization } from '@/lib/storage/onboarding-created-organization'
 import { setOnboardingFrameworks } from '@/lib/storage/onboarding-frameworks'
 import { setOnboardingTasksPending } from '@/lib/storage/onboarding-tasks-pending'
 import { handleSSORedirect, switchOrganization } from '@/lib/user'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { useWebSocketClient } from '@/providers/websocket-provider'
 import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
+import { ClientError } from 'graphql-request'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const ORGANIZATION_READY_WAIT_MS = 10000
@@ -33,6 +35,9 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
   const [workspaceReady, setWorkspaceReady] = useState(false)
   const [organizationReady, setOrganizationReady] = useState(false)
   const [organizationReadyWaitOver, setOrganizationReadyWaitOver] = useState(false)
+
+  const userId = sessionData?.user?.userId
+  const isSubmittingRef = useRef(false)
 
   useEffect(() => {
     return addNewNotificationListener((notification) => {
@@ -56,34 +61,38 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
     }
   }, [submitStage, workspaceReady, organizationReady, organizationReadyWaitOver])
 
-  useEffect(() => {
-    if (submitStage !== 'ready' || !sessionData?.user || !sessionData.user.isOnboarding) return
-
-    updateSession({
-      user: {
-        ...sessionData.user,
-        isOnboarding: false,
-      },
-    })
-  }, [submitStage, sessionData, updateSession])
+  const describeFailure = (error: unknown): string => (error instanceof Error && !(error instanceof ClientError) ? error.message : parseErrorMessage(error))
 
   const notifyFailure = (error: unknown) =>
     errorNotification({
       title: 'Error',
-      description: parseErrorMessage(error),
+      description: describeFailure(error),
     })
 
-  const performOnboarding = async (formValues: Record<string, unknown>) => {
+  const createOnboardingOrganization = async (formValues: Record<string, unknown>, currentUserId: string) => {
+    const alreadyCreatedOrgId = getOnboardingCreatedOrganization(currentUserId)
+    if (alreadyCreatedOrgId) return alreadyCreatedOrgId
+
     const response = await createOnboarding({
       input: buildOnboardingInput(allQuestions, formValues),
     })
 
-    if (!response?.createOnboarding) {
-      throw new Error('Unexpected response format')
+    const orgId = response?.createOnboarding?.onboarding?.organizationID
+    if (!orgId) {
+      throw new Error('Onboarding did not return an organization')
     }
 
-    const orgId = response.createOnboarding.onboarding.organizationID
-    if (!orgId) return null
+    setOnboardingCreatedOrganization(orgId, currentUserId)
+
+    return orgId
+  }
+
+  const performOnboarding = async (formValues: Record<string, unknown>) => {
+    if (!sessionData || !userId) {
+      throw new Error('Your session expired. Please sign in again.')
+    }
+
+    const orgId = await createOnboardingOrganization(formValues, userId)
 
     setOnboardingFrameworks(getSelectedFrameworkLabels(allQuestions, formValues), orgId, getExistingControls(formValues))
     setOnboardingTasksPending(orgId)
@@ -93,41 +102,64 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
     })
 
     if (handleSSORedirect(switchResponse)) {
-      return 'sso-redirect' as const
+      return false
     }
 
-    if (!sessionData || !switchResponse) return null
-
-    if (switchResponse.access_token) {
-      setPendingToken(switchResponse.access_token)
+    if (!switchResponse.access_token) {
+      throw new Error(switchResponse.message ?? 'Unable to open your new workspace. Please try again.')
     }
+
+    setPendingToken(switchResponse.access_token)
 
     await updateSession({
-      ...switchResponse.session,
       user: {
         ...sessionData.user,
         accessToken: switchResponse.access_token,
         activeOrganizationId: orgId,
         refreshToken: switchResponse.refresh_token,
+        isOnboarding: false,
       },
     })
+
+    clearOnboardingCreatedOrganization(userId)
 
     requestAnimationFrame(() => {
       queryClient?.clear()
     })
 
-    return 'success' as const
+    return true
+  }
+
+  const runOnboardingOnce = async (formValues: Record<string, unknown>) => {
+    if (isSubmittingRef.current) return false
+
+    isSubmittingRef.current = true
+
+    try {
+      const didComplete = await performOnboarding(formValues)
+
+      if (!didComplete) {
+        isSubmittingRef.current = false
+      }
+
+      return didComplete
+    } catch (error) {
+      isSubmittingRef.current = false
+      throw error
+    }
   }
 
   const submitOnboarding = async (formValues: Record<string, unknown>) => {
+    if (isSubmittingRef.current) return
+
     setSubmitStage('transition')
     setWorkspaceReady(false)
     setOrganizationReadyWaitOver(false)
 
     try {
-      const result = await performOnboarding(formValues)
+      const didComplete = await runOnboardingOnce(formValues)
 
-      if (result === 'sso-redirect' || result === null) {
+      if (!didComplete) {
         return
       }
 
@@ -141,14 +173,14 @@ export const useOnboardingSubmit = (allQuestions: OnboardingQuestion[]) => {
   }
 
   const exitOnboarding = async (formValues: Record<string, unknown>) => {
-    try {
-      const result = await performOnboarding(formValues)
+    if (isSubmittingRef.current) return
 
-      if (result === 'sso-redirect' || result === null) {
+    try {
+      const didComplete = await runOnboardingOnce(formValues)
+
+      if (!didComplete) {
         return
       }
-
-      await updateSession({ user: { isOnboarding: false } })
 
       router.push('/')
     } catch (error) {
