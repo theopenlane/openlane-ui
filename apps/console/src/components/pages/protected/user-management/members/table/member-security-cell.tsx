@@ -4,7 +4,7 @@ import { ShieldCheck, ShieldOff } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Badge } from '@repo/ui/badge'
 
-export const MEMBER_SECURITY_COLUMN_SIZE = 90
+export const MEMBER_SECURITY_COLUMN_SIZE = 145
 
 type TMemberSecurityCellProps = {
   enforced: boolean
@@ -20,9 +20,9 @@ export const MemberSecurityCell = ({ enforced, label, description }: TMemberSecu
       side="left"
       icon={
         <button type="button" className="cursor-default rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          <Badge variant={enforced ? 'primary' : 'select'} className="p-1.5">
-            <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="sr-only">{label}</span>
+          <Badge variant={enforced ? 'primary' : 'select'} className="gap-1 text-xs">
+            <Icon className="h-3 w-3" aria-hidden="true" />
+            {label}
           </Badge>
         </button>
       }

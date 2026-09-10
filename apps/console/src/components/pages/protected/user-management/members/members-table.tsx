@@ -138,7 +138,7 @@ export const MembersTable = () => {
       return <MemberSecurityCell enforced={!exemptReason} label={exemptReason ? 'Exempt' : 'Enforced'} description={exemptReason ?? 'Single sign-on is enforced for this member.'} />
     },
     size: MEMBER_SECURITY_COLUMN_SIZE,
-    maxSize: MEMBER_SECURITY_COLUMN_SIZE,
+    minSize: MEMBER_SECURITY_COLUMN_SIZE,
   }
 
   const tfaColumn: ColumnDef<OrgMembership> = {
@@ -155,7 +155,7 @@ export const MembersTable = () => {
       )
     },
     size: MEMBER_SECURITY_COLUMN_SIZE,
-    maxSize: MEMBER_SECURITY_COLUMN_SIZE,
+    minSize: MEMBER_SECURITY_COLUMN_SIZE,
   }
 
   const actionsColumn: ColumnDef<OrgMembership> = {
