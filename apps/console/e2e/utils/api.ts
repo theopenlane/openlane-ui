@@ -316,7 +316,7 @@ export const completeOnboardingTasks = async (sess: ApiSession): Promise<number>
   return pending.length
 }
 
-export type SeedRole = 'ADMIN' | 'MEMBER' | 'AUDITOR'
+export type SeedRole = 'ADMIN' | 'SUPER_ADMIN' | 'MEMBER' | 'AUDITOR'
 
 interface MemberEdge {
   id: string

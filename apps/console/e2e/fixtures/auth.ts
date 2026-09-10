@@ -9,7 +9,7 @@ import { loginAndSaveState } from '../utils/session'
 
 /** Auth fixtures backed by per-worker logins. */
 
-export type Role = 'owner' | 'admin' | 'member' | 'readonly'
+export type Role = 'owner' | 'admin' | 'superadmin' | 'member' | 'readonly'
 
 /** The demo organization seeded by harmonize. */
 export type AuthProfile = Role | 'demo'

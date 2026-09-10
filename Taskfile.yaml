@@ -75,6 +75,46 @@ tasks:
       - task: install
       - bun dev --filter={apps/storybook}
 
+  e2e:
+    dir: apps/console
+    desc: run the console e2e suite against whatever is already serving on :3001
+    cmd: bun run e2e {{.CLI_ARGS}}
+
+  e2e:full:
+    dir: apps/console
+    desc: build the console, serve it on :3004, run the whole e2e suite, tear down
+    cmd: bun run e2e:full {{.CLI_ARGS}}
+
+  e2e:segment:
+    dir: apps/console
+    desc: 'run one e2e segment, e.g. task e2e:segment -- controls'
+    cmd: bun run e2e:segment {{.CLI_ARGS}}
+
+  e2e:sharded:
+    dir: apps/console
+    desc: run the e2e suite in shards, restarting the server between them
+    cmd: bun run e2e:sharded {{.CLI_ARGS}}
+
+  e2e:ui:
+    dir: apps/console
+    desc: run the e2e suite in Playwright's interactive UI mode
+    cmd: bun run e2e:ui {{.CLI_ARGS}}
+
+  e2e:headed:
+    dir: apps/console
+    desc: run the e2e suite in a visible browser
+    cmd: bun run e2e:headed {{.CLI_ARGS}}
+
+  e2e:report:
+    dir: apps/console
+    desc: open the HTML report from the last e2e run
+    cmd: bun run e2e:report
+
+  e2e:typecheck:
+    dir: apps/console
+    desc: type-check the e2e suite without running it
+    cmd: bun run e2e:typecheck
+
   lint:
     desc: Run ESLint on the console app
     cmds:

@@ -492,3 +492,37 @@ test.describe('permissions — member management affordances (ISS-2713)', () => 
     })
   })
 })
+
+const BILLING_URL = '/organization-settings/billing'
+const CAN_VIEW_BILLING: Role[] = ['owner', 'superadmin']
+const CANNOT_VIEW_BILLING: Role[] = ['admin', 'member', 'readonly']
+
+test.describe('permissions — billing is owner/super-admin only', () => {
+  for (const role of CAN_VIEW_BILLING) {
+    test.describe(role, () => {
+      test.use({ authProfile: role })
+
+      test(`${role} sees the Billing page`, async ({ page }) => {
+        test.slow()
+        await page.goto(BILLING_URL, { waitUntil: 'domcontentloaded' })
+
+        await expect(page.getByRole('heading', { name: /^Billing$/ })).toBeVisible({ timeout: 30_000 })
+        await expect(page.getByText(PROTECTED)).toHaveCount(0)
+      })
+    })
+  }
+
+  for (const role of CANNOT_VIEW_BILLING) {
+    test.describe(role, () => {
+      test.use({ authProfile: role })
+
+      test(`${role} is blocked from the Billing page`, async ({ page }) => {
+        test.slow()
+        await page.goto(BILLING_URL, { waitUntil: 'domcontentloaded' })
+
+        await expect(page.getByText(PROTECTED)).toBeVisible({ timeout: 30_000 })
+        await expect(page.getByRole('heading', { name: /^Billing$/ })).toHaveCount(0)
+      })
+    })
+  }
+})

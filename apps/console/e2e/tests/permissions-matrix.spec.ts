@@ -1,20 +1,21 @@
 import type { Locator, Page } from '@playwright/test'
 
-import { test, expect, type SeededRole } from '../fixtures/seeded-auth'
-import { createCampaign, createSubscriber, deleteSubscriber, gql, type ApiSession } from '../utils/api'
-import { loginSeeded } from '../utils/seeded-users'
+import { test, expect, readManifest, type Role } from '../fixtures/auth'
+import { createCampaign, createSubscriber, deleteSubscriber, gql, loginViaApi, type ApiSession } from '../utils/api'
 import { EMAIL_DOMAIN } from '../utils/constants'
 import { uniqueRef } from '../utils/unique'
 import { PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON } from '../utils/permission-gating'
 
 test.skip(!PERMISSION_GATES_ENABLED, PERMISSION_GATES_SKIP_REASON)
 
-const ROLES: SeededRole[] = ['owner', 'admin', 'member', 'readonly']
+const ROLES: Role[] = ['owner', 'superadmin', 'admin', 'member', 'readonly']
+
+const withSuperAdmin = (granted: Role[]): Role[] => (granted.includes('owner') ? [...granted, 'superadmin'] : granted)
 
 interface Gate {
   permission: string
   affordanceLabel: string
-  granted: SeededRole[]
+  granted: Role[]
   url: string
   ready: (page: Page) => Locator
   affordance: (page: Page) => Locator
@@ -188,10 +189,10 @@ const ORG_LEVEL_GATES: Gate[] = [
 
 for (const role of ROLES) {
   test.describe(`permissions matrix — ${role}`, () => {
-    test.use({ seededRole: role })
+    test.use({ authProfile: role })
 
     for (const gate of ORG_LEVEL_GATES) {
-      const granted = gate.granted.includes(role)
+      const granted = withSuperAdmin(gate.granted).includes(role)
 
       test(`${gate.permission}: ${role} ${granted ? 'sees' : 'does not see'} ${gate.affordanceLabel}`, async ({ page }) => {
         test.slow()
@@ -213,7 +214,7 @@ const PROTECTED_AREA = /protected area/i
 interface CreateRouteGate {
   permission: string
   entity: string
-  granted: SeededRole[]
+  granted: Role[]
   url: string
   present?: (page: Page) => Locator
 }
@@ -228,10 +229,10 @@ const CREATE_ROUTE_GATES: CreateRouteGate[] = [
 
 for (const role of ROLES) {
   test.describe(`permissions matrix — ${role} create routes`, () => {
-    test.use({ seededRole: role })
+    test.use({ authProfile: role })
 
     for (const gate of CREATE_ROUTE_GATES) {
-      const granted = gate.granted.includes(role)
+      const granted = withSuperAdmin(gate.granted).includes(role)
 
       test(`${gate.permission}: ${role} ${granted ? 'reaches' : 'is blocked from'} the ${gate.entity} create page`, async ({ page }) => {
         test.slow()
@@ -260,13 +261,13 @@ for (const role of ROLES) {
   })
 }
 
-const EVIDENCE_GRANTED: SeededRole[] = ['owner', 'admin', 'readonly']
+const EVIDENCE_GRANTED: Role[] = ['owner', 'admin', 'readonly']
 
 for (const role of ROLES) {
   test.describe(`permissions matrix — ${role} evidence`, () => {
-    test.use({ seededRole: role })
+    test.use({ authProfile: role })
 
-    const granted = EVIDENCE_GRANTED.includes(role)
+    const granted = withSuperAdmin(EVIDENCE_GRANTED).includes(role)
 
     test(`CanCreateEvidence: ${role} ${granted ? 'sees' : 'does not see'} the Submit Evidence CTA`, async ({ page }) => {
       test.slow()
@@ -286,7 +287,7 @@ for (const role of ROLES) {
 interface TrustCenterGate {
   permission: string
   affordanceLabel: string
-  granted: SeededRole[]
+  granted: Role[]
   url: string
   affordance: (page: Page) => Locator
 }
@@ -295,10 +296,10 @@ const TRUST_CENTER_GATES: TrustCenterGate[] = []
 
 for (const role of ROLES) {
   test.describe(`permissions matrix — ${role} trust center`, () => {
-    test.use({ seededRole: role })
+    test.use({ authProfile: role })
 
     for (const gate of TRUST_CENTER_GATES) {
-      const granted = gate.granted.includes(role)
+      const granted = withSuperAdmin(gate.granted).includes(role)
 
       test(`${gate.permission}: ${role} ${granted ? 'sees' : 'does not see'} ${gate.affordanceLabel}`, async ({ page }) => {
         test.slow()
@@ -315,11 +316,11 @@ for (const role of ROLES) {
   })
 }
 
-const COMPLIANCE_TOGGLE_ENABLED: SeededRole[] = ['owner', 'admin']
+const COMPLIANCE_TOGGLE_ENABLED: Role[] = ['owner', 'admin']
 
 for (const role of ROLES) {
   test.describe(`permissions matrix — ${role} trust center compliance`, () => {
-    test.use({ seededRole: role })
+    test.use({ authProfile: role })
 
     const canToggle = COMPLIANCE_TOGGLE_ENABLED.includes(role)
 
@@ -341,7 +342,7 @@ for (const role of ROLES) {
   })
 }
 
-const TRUST_CENTER_EDITORS: SeededRole[] = ['owner', 'admin']
+const TRUST_CENTER_EDITORS: Role[] = ['owner', 'admin']
 
 const publishUpdateIsOperable = async (page: Page): Promise<boolean> => {
   const button = page.getByRole('button', { name: /^Publish Update$/ })
@@ -358,7 +359,7 @@ const publishUpdateIsOperable = async (page: Page): Promise<boolean> => {
 
 for (const role of ROLES) {
   test.describe(`permissions matrix — ${role} trust center updates`, () => {
-    test.use({ seededRole: role })
+    test.use({ authProfile: role })
 
     const canPublish = TRUST_CENTER_EDITORS.includes(role)
 
@@ -373,11 +374,11 @@ for (const role of ROLES) {
   })
 }
 
-const DOCUMENT_CREATORS: SeededRole[] = ['owner', 'admin']
+const DOCUMENT_CREATORS: Role[] = ['owner', 'admin']
 
 for (const role of ROLES) {
   test.describe(`permissions matrix — ${role} trust center documents`, () => {
-    test.use({ seededRole: role })
+    test.use({ authProfile: role })
 
     const granted = DOCUMENT_CREATORS.includes(role)
 
@@ -401,7 +402,8 @@ test.describe('permissions matrix — subscribers', () => {
   let seededEmail: string
 
   test.beforeAll(async () => {
-    ownerApi = await loginSeeded('owner')
+    const { ownerEmail, password } = readManifest()
+    ownerApi = await loginViaApi(ownerEmail, password)
     seededEmail = `${uniqueRef('e2e-perm-sub').toLowerCase()}@${EMAIL_DOMAIN}`
     await createSubscriber(ownerApi, seededEmail)
   })
@@ -416,11 +418,11 @@ test.describe('permissions matrix — subscribers', () => {
   }
 
   for (const role of ROLES) {
-    const canCreate = role === 'owner' || role === 'admin'
-    const canDeleteSubscriber = role === 'owner' || role === 'admin'
+    const canCreate = withSuperAdmin(['owner', 'admin']).includes(role)
+    const canDeleteSubscriber = withSuperAdmin(['owner', 'admin']).includes(role)
 
     test.describe(role, () => {
-      test.use({ seededRole: role })
+      test.use({ authProfile: role })
 
       test(`CanCreateSubscriber: ${role} ${canCreate ? 'sees' : 'does not see'} Bulk Upload`, async ({ page }) => {
         test.slow()
@@ -453,10 +455,10 @@ test.describe('permissions matrix — subscribers', () => {
 
 test.describe('permissions matrix — inline table editors', () => {
   for (const role of ROLES) {
-    const canEditRows = role === 'owner' || role === 'admin'
+    const canEditRows = withSuperAdmin(['owner', 'admin']).includes(role)
 
     test.describe(role, () => {
-      test.use({ seededRole: role })
+      test.use({ authProfile: role })
 
       test(`${role} ${canEditRows ? 'can' : 'cannot'} open the control owner editor`, async ({ page }) => {
         test.slow()
@@ -486,7 +488,8 @@ test.describe('permissions matrix — campaign detail', () => {
   let campaignId: string
 
   test.beforeAll(async () => {
-    ownerApi = await loginSeeded('owner')
+    const { ownerEmail, password } = readManifest()
+    ownerApi = await loginViaApi(ownerEmail, password)
     campaignId = await createCampaign(ownerApi, uniqueRef('e2e-perm-campaign'))
   })
 
@@ -497,10 +500,10 @@ test.describe('permissions matrix — campaign detail', () => {
   })
 
   for (const role of ROLES) {
-    const canEditCampaign = role === 'owner' || role === 'admin'
+    const canEditCampaign = withSuperAdmin(['owner', 'admin']).includes(role)
 
     test.describe(role, () => {
-      test.use({ seededRole: role })
+      test.use({ authProfile: role })
 
       test(`${role} ${canEditCampaign ? 'sees' : 'does not see'} the campaign Launch button`, async ({ page }) => {
         test.slow()

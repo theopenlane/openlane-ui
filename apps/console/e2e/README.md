@@ -17,12 +17,29 @@ replaying the captured state. That matters because `auth.ts`'s signOut event
 POSTs `/v1/logout` and revokes tokens _server-side_: with one shared session, a
 single test tripping the session-expired modal killed every worker in the run.
 
-| Profile  | Backend role | Seeded state          |
-| -------- | ------------ | --------------------- |
-| owner    | OWNER        | `.auth/owner.json`    |
-| admin    | ADMIN        | `.auth/admin.json`    |
-| member   | MEMBER       | `.auth/member.json`   |
-| readonly | AUDITOR      | `.auth/readonly.json` |
+| Profile    | Backend role | Seeded state            |
+| ---------- | ------------ | ----------------------- |
+| owner      | OWNER        | `.auth/owner.json`      |
+| superadmin | SUPER\_ADMIN | `.auth/superadmin.json` |
+| admin      | ADMIN        | `.auth/admin.json`      |
+| member     | MEMBER       | `.auth/member.json`     |
+| readonly   | AUDITOR      | `.auth/readonly.json`   |
+
+`superadmin` covers `OrgMembershipRole.SUPER_ADMIN`, which the console treats as
+owner-equivalent via `isOwnerOrSuperAdmin` — the Billing page and its nav entry
+are the gates that distinguish it from `admin`, and `permissions.spec.ts` asserts
+that split across all five profiles.
+
+Core's FGA model is the source of truth for what `superadmin` may do:
+`fga/model/roles/roles.fga` defines it as _"equivalent to the owner except no
+access to delete the organization itself"_. `permissions-matrix.spec.ts` encodes
+exactly that in one place — `withSuperAdmin()` grants `superadmin` wherever a
+gate grants `owner`, rather than repeating the role in every gate's list. No gate
+currently exercises org deletion; if one is added, it must opt out of that helper.
+
+**Every profile above is registered by `global-setup.ts` against core's public
+API.** The suite has no dependency on `theopenlane/harmonize` for users, so it
+runs for anyone who can run core locally.
 
 Switch role with the **`authProfile`** test option — never with
 `storageState: authFile(...)`. `authProfile` routes through the worker-scoped
@@ -103,49 +120,56 @@ Two prerequisites for either mode:
    (returns verify tokens so we can register users without email). `task run-dev`.
 2. **Console** on port **3001** — either the dev server or a production build (below).
 
-All commands run from `apps/console`.
+Every runner is a `task` in the root `Taskfile.yaml`, runnable from anywhere in
+the repo. Arguments after `--` are passed straight through to Playwright.
 
 ```bash
-bun run e2e:full            # RECOMMENDED for a full run — builds, serves, runs, tears down
-bun run e2e                 # all tests against whatever is already on :3001
-bun run e2e -- --grep auth  # filter by title
-bun run e2e tests/tasks.spec.ts          # one file
-bun run e2e -- --last-failed             # re-run only previous failures
-bun run e2e:ui              # interactive UI mode
-bun run e2e:headed          # visible browser
-bun run e2e:report          # open the HTML report from the last run
-bun run e2e:typecheck       # tsc the e2e project (no run)
-bun run e2e:sharded         # self-managing sharded runner (restarts server on bloat)
-bun run e2e --project=controls           # one segment (see below)
+task e2e:full                            # RECOMMENDED for a full run — builds, serves, runs, tears down
+task e2e                                 # all tests against whatever is already on :3001
+task e2e -- --grep auth                  # filter by title
+task e2e -- tests/tasks.spec.ts          # one file
+task e2e -- --last-failed                # re-run only previous failures
+task e2e:ui                              # interactive UI mode
+task e2e:headed                          # visible browser
+task e2e:report                          # open the HTML report from the last run
+task e2e:typecheck                       # tsc the e2e project (no run)
+task e2e:sharded                         # self-managing sharded runner (restarts server on bloat)
+task e2e -- --project=controls           # one segment (see below)
 ```
+
+Each task is a thin wrapper over the matching `apps/console` package script, so
+`cd apps/console && bun run e2e …` still works if you prefer it.
 
 ### Segments
 
 The suite is split into 13 Playwright projects by product area, so a failing
-area can be re-run on its own instead of paying for all 1098 tests.
+area can be re-run on its own instead of paying for the whole suite (~1250 tests).
 
 | Segment        | Files | Tests | Covers                                                               |
 | -------------- | ----: | ----: | -------------------------------------------------------------------- |
-| `permissions`  |     3 |   177 | permission matrix, role gating                                       |
-| `automation`   |    10 |   144 | campaigns, questionnaires, templates, workflows, tasks               |
-| `admin`        |    11 |   135 | org settings, user management, developers, integrations, custom data |
-| `controls`     |    13 |   101 | controls, subcontrols, objectives, mapping, standards                |
-| `exposure`     |     9 |    94 | risks, findings, vulnerabilities, action plans, reviews              |
-| `documents`    |     8 |    79 | policies, procedures                                                 |
-| `registry`     |     7 |    79 | vendors, assets, personnel, platforms, system details                |
+| `permissions`  |     3 |   235 | permission matrix, role gating                                       |
+| `automation`   |    10 |   150 | campaigns, questionnaires, templates, workflows, tasks               |
+| `admin`        |    12 |   143 | org settings, user management, developers, integrations, custom data |
+| `registry`     |    11 |   120 | vendors, assets, personnel, platforms, system details                |
+| `controls`     |    14 |   110 | controls, subcontrols, objectives, mapping, standards                |
+| `exposure`     |     9 |    98 | risks, findings, vulnerabilities, action plans, reviews              |
+| `documents`    |     8 |    88 | policies, procedures                                                 |
 | `programs`     |     3 |    74 | programs list, CRUD, wizard                                          |
-| `platform`     |     8 |    71 | dashboard, search, notifications, cross-cutting, table prefs         |
-| `auth`         |     6 |    69 | login, onboarding, org lifecycle, public routes, user settings       |
-| `evidence`     |     2 |    37 | evidence list and CRUD                                               |
-| `trust-center` |     3 |    37 | trust center, documents, NDAs                                        |
+| `platform`     |     9 |    74 | dashboard, search, notifications, cross-cutting, table prefs         |
+| `auth`         |     6 |    74 | login, onboarding, org lifecycle, public routes, user settings       |
+| `trust-center` |     3 |    48 | trust center, documents, NDAs                                        |
+| `evidence`     |     2 |    39 | evidence list and CRUD                                               |
 | `smoke`        |     1 |     1 | single sanity check                                                  |
 
+The counts are a snapshot and drift as specs land; `task e2e -- --project=<name>
+--list` is the authoritative answer.
+
 ```bash
-bun run e2e --project=controls                  # one segment
-bun run e2e --project=evidence --project=smoke  # several
-bun run e2e:segment controls                    # shorthand for the above
-bun run e2e --project=admin --grep delete       # filter inside a segment
-bun run e2e --project=permissions --shard=1/4   # still composes with sharding
+task e2e -- --project=controls                     # one segment
+task e2e -- --project=evidence --project=smoke     # several
+task e2e:segment -- controls                       # shorthand for the above
+task e2e -- --project=admin --grep delete          # filter inside a segment
+task e2e -- --project=permissions --shard=1/4      # still composes with sharding
 ```
 
 A typo prints the full list of valid names, so there is nothing to memorise.
@@ -161,7 +185,7 @@ When you add a spec, add it to a segment in the same commit.
 
 ```bash
 task dev:console            # next dev on :3001 (Turbopack)
-bun run e2e
+task e2e                    # against the dev server on :3001
 ```
 
 `next dev` compiles each route on first hit (3–45s) and the server bloats over a
@@ -172,14 +196,14 @@ start the dev server itself.)
 ### Mode B — production build (fast, recommended for full runs)
 
 A `next build` + `next start` server has **no compile tax and no memory
-degradation**, so a full run is a small fraction of Mode A's. `bun run e2e:full`
+degradation**, so a full run is a small fraction of Mode A's. `task e2e:full`
 (`e2e/run-prod-suite.sh`) does the whole dance for you — build, serve, run, tear
 down — and serves on **:3004** so it never fights a `next dev` already on :3001:
 
 ```bash
-bun run e2e:full                             # everything
-E2E_SKIP_BUILD=1 bun run e2e:full            # reuse the last build
-bun run e2e:full tests/tasks.spec.ts         # pass through to playwright
+task e2e:full                                   # everything
+E2E_SKIP_BUILD=1 task e2e:full                  # reuse the last build
+task e2e:full -- tests/tasks.spec.ts            # pass through to playwright
 ```
 
 > The build needs several GB of RAM and a few minutes.
@@ -191,7 +215,7 @@ flags (both **default-off**, so production deploys are unaffected):
 COOKIE_PLAYWRIGHT_INSECURE=true bun run build
 COOKIE_PLAYWRIGHT_INSECURE=true AUTH_TRUST_HOST=true bun run start   # :3001
 # in another shell:
-bun run e2e
+task e2e
 ```
 
 - `COOKIE_PLAYWRIGHT_INSECURE=true` — emits dev-style cookies (`secure:false`, no
@@ -224,7 +248,7 @@ bun run e2e
 | `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | (from `.env`)            | If set, login gates on reCAPTCHA; the login helper shims it. Build-time inlined.                                                                                                            |
 | `CI`                             | off                      | Enables `forbidOnly` + the `github` reporter and drops the default worker count to 4. `retries` is `1` everywhere (see `playwright.config.ts`).                                             |
 
-`E2E_SHARD_SIZE` and `E2E_RSS_LIMIT_MB` tune `bun run e2e:sharded` (see
+`E2E_SHARD_SIZE` and `E2E_RSS_LIMIT_MB` tune `task e2e:sharded` (see
 `run-sharded.sh`).
 
 ## CI
@@ -263,7 +287,7 @@ Local commits never run E2E: the pre-commit hook type-checks `apps/console`
 (whose `tsconfig.json` excludes `e2e`) and runs `bun test apps/console/src
 packages`, which is path-scoped so Playwright `.spec.ts` files are never
 collected. E2E type errors are caught by `console-checks` in CI, or locally on
-demand with `bun run e2e:typecheck`.
+demand with `task e2e:typecheck`.
 
 ## Test users
 

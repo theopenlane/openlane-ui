@@ -30,13 +30,15 @@ export const AUTH_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 
 
 const saveAuthState = (context: BrowserContext, role: string): Promise<void> => saveStorageState(context, path.join(AUTH_DIR, `${role}.json`))
 
+type SeededRoleKey = 'admin' | 'superadmin' | 'member' | 'readonly'
+
 export interface AuthManifest {
   runId: string
   ownerEmail: string
   password: string
   sharedOrgId: string
   sharedOrgName: string
-  roleEmails: Record<'admin' | 'member' | 'readonly', string>
+  roleEmails: Record<SeededRoleKey, string>
   sharedControlId: string
   sharedControlRefCode: string
   hasDemoSession: boolean
@@ -44,14 +46,15 @@ export interface AuthManifest {
   demoPassword?: string
 }
 
-const ROLE_MAP: Record<'admin' | 'member' | 'readonly', SeedRole> = {
+const ROLE_MAP: Record<SeededRoleKey, SeedRole> = {
   admin: 'ADMIN',
+  superadmin: 'SUPER_ADMIN',
   member: 'MEMBER',
   readonly: 'AUDITOR',
 }
 
 interface SeedRoleArgs {
-  role: 'admin' | 'member' | 'readonly'
+  role: SeededRoleKey
   ownerApi: ApiSession
   sharedOrgId: string
 }
@@ -215,7 +218,7 @@ const globalSetup = async (_config: FullConfig): Promise<void> => {
   const sharedControlRefCode = `E2E-CTRL-${RUN_ID}`
   const sharedControlId = await createControl(ownerApi, sharedControlRefCode)
 
-  const roles = ['admin', 'member', 'readonly'] as const
+  const roles = ['admin', 'superadmin', 'member', 'readonly'] as const
   const roleEmails = {} as AuthManifest['roleEmails']
   for (const role of roles) {
     roleEmails[role] = await seedRoleUser({ role, ownerApi, sharedOrgId: shared.id })
