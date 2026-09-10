@@ -81,12 +81,6 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
       hidden: session?.user?.isOnboarding || billingExpired,
     },
     {
-      title: 'Custom Report',
-      href: '/reports/custom',
-      icon: ChartLineIcon,
-      hidden: session?.user?.isOnboarding || billingExpired,
-    },
-    {
       title: 'Compliance',
       icon: ShieldCheckIcon,
       href: '/',
@@ -369,6 +363,12 @@ export const topNavigationItems = (session: Session | null, currentUserRole?: Or
           hidden: true,
         },
       ],
+    },
+    {
+      title: 'Custom Report',
+      href: '/reports/custom',
+      icon: ChartLineIcon,
+      hidden: session?.user?.isOnboarding || billingExpired,
     },
   ]
 }

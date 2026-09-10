@@ -1,7 +1,7 @@
 'use client'
 
-import React, { use, useCallback, useEffect, useMemo, useState } from 'react'
-import { Download, Play } from 'lucide-react'
+import React, { use, useCallback, useEffect, useId, useMemo, useState } from 'react'
+import { Copy, Download, Play } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import { CodeBlock } from '@repo/ui/code-block'
@@ -9,7 +9,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import type { TPagination } from '@repo/ui/pagination-types'
+import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { useNotification } from '@/hooks/useNotification'
 import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
 import { useReportExport, useReportQuery, type TReportRequest } from '@/lib/graphql-hooks/custom-report'
 import { buildReportQuery } from '@/lib/report/build-report-query'
@@ -32,6 +34,9 @@ const resetPagination = (pageSize: number): TPagination => ({ page: 1, pageSize,
 const CustomReportPage: React.FC = () => {
   const { setCrumbs } = use(BreadcrumbContext)
   const { hasObjectType } = useModuleAccess()
+  const { successNotification } = useNotification()
+  const [, copyToClipboard] = useCopyToClipboard()
+  const formatLabelId = useId()
 
   const availableEntities = useMemo(() => entityOptions.filter((option) => hasObjectType(option.objectType)), [hasObjectType])
 
@@ -97,6 +102,16 @@ const CustomReportPage: React.FC = () => {
   const { data: result, error, isFetching } = useReportQuery(request, pagination.query)
   const { runExport, isExporting } = useReportExport(request)
 
+  const reportResult = request ? result : undefined
+
+  const recordSummary = useMemo(() => {
+    if (!reportResult) return null
+
+    const total = `${reportResult.totalCount.toLocaleString()} total records`
+
+    return view === 'json' ? `${total}, showing ${reportResult.rows.length.toLocaleString()} on this page` : total
+  }, [reportResult, view])
+
   const incompleteFilters = useMemo(() => {
     if (!entity) return 0
 
@@ -134,6 +149,13 @@ const CustomReportPage: React.FC = () => {
     setPagination(resetPagination(pagination.pageSize))
   }
 
+  const handleCopyQuery = () => {
+    if (!preview) return
+
+    copyToClipboard(preview.query)
+    successNotification({ title: 'Copied to clipboard', variant: 'success' })
+  }
+
   return (
     <div className="flex flex-col lg:flex-row gap-4 items-start">
       <aside className="w-full lg:w-72 shrink-0 flex flex-col gap-4">
@@ -164,50 +186,63 @@ const CustomReportPage: React.FC = () => {
 
       <Card className="flex-1 min-w-0 w-full p-4">
         <Tabs value={tab} onValueChange={setTab}>
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <TabsList>
-              <TabsTrigger value="results">Results</TabsTrigger>
-              <TabsTrigger value="query">Query</TabsTrigger>
-            </TabsList>
+          <TabsList>
+            <TabsTrigger value="results">Results</TabsTrigger>
+            <TabsTrigger value="query">Query</TabsTrigger>
+          </TabsList>
 
-            <div className="flex items-center gap-2">
-              <Select value={view} onValueChange={(value) => setView(value === 'json' ? 'json' : 'table')}>
-                <SelectTrigger className="h-8 w-28 text-sm" aria-label="Results view">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="table">Table</SelectItem>
-                  <SelectItem value="json">JSON</SelectItem>
-                </SelectContent>
-              </Select>
+          <TabsContent value="results" className="mt-4 flex flex-col gap-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              {recordSummary && <p className="text-xs text-muted-foreground">{recordSummary}</p>}
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button type="button" variant="outline" size="md" icon={<Download size={14} />} iconPosition="left" loading={isExporting} disabled={!request || isExporting}>
-                    Export
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {EXPORT_FORMATS.map((format) => (
-                    <DropdownMenuItem key={format} onClick={() => runExport(format)}>
-                      {EXPORT_FORMAT_LABELS[format]}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center gap-2 ml-auto">
+                <span id={formatLabelId} className="text-sm text-muted-foreground">
+                  Format
+                </span>
+                <Select value={view} onValueChange={(value) => setView(value === 'json' ? 'json' : 'table')}>
+                  <SelectTrigger className="h-8 w-28 text-sm" aria-labelledby={formatLabelId}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="table">Table</SelectItem>
+                    <SelectItem value="json">JSON</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button type="button" variant="outline" size="md" icon={<Download size={14} />} iconPosition="left" loading={isExporting} disabled={!request || isExporting}>
+                      Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {EXPORT_FORMATS.map((format) => (
+                      <DropdownMenuItem key={format} onClick={() => runExport(format)}>
+                        {EXPORT_FORMAT_LABELS[format]}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
-          </div>
 
-          <TabsContent value="results" className="mt-4">
-            <ReportResults result={request ? result : undefined} error={error} isLoading={isFetching} view={view} pagination={pagination} onPaginationChange={setPagination} />
+            <ReportResults result={reportResult} error={error} isLoading={isFetching} view={view} pagination={pagination} onPaginationChange={setPagination} />
           </TabsContent>
 
-          <TabsContent value="query" className="mt-4">
+          <TabsContent value="query" className="mt-4 flex flex-col gap-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-sm font-medium">Generated query</p>
+
+              <Button className="ml-auto" type="button" variant="outline" size="md" icon={<Copy size={14} />} iconPosition="left" disabled={!preview} onClick={handleCopyQuery}>
+                Copy
+              </Button>
+            </div>
+
             {preview ? (
-              <div className="flex flex-col gap-3">
+              <>
                 <CodeBlock code={preview.query} language="graphql" />
                 {preview.variables && <CodeBlock code={preview.variables} language="json" title="Variables" />}
-              </div>
+              </>
             ) : (
               <p className="text-sm text-muted-foreground">Select at least one column to see the query.</p>
             )}
