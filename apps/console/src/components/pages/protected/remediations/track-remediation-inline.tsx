@@ -2,17 +2,14 @@
 
 import React from 'react'
 import { Form } from '@repo/ui/form'
-import { Button } from '@repo/ui/button'
-import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { ArrowLeft } from 'lucide-react'
 import useFormSchema, { type RemediationFormData } from './hooks/use-form-schema'
 import { useCreateRemediation } from '@/lib/graphql-hooks/remediation'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { SaveButton } from '@/components/shared/save-button/save-button'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
 import TitleField from './create/form/fields/title-field'
 import { AdditionalFields } from './create/form/fields/additional-fields'
 
@@ -93,23 +90,16 @@ export const TrackRemediationForm: React.FC<TrackRemediationFormProps> = ({ enti
 
 type TrackRemediationHeaderProps = {
   onBack: () => void
+  onClose: () => void
+}
+
+export const TrackRemediationHeader: React.FC<TrackRemediationHeaderProps> = ({ onBack, onClose }) => <SlideoutHeader title="Track Remediation" onBack={onBack} onClose={onClose} />
+
+type TrackRemediationFooterProps = {
+  onCancel: () => void
   isPending: boolean
 }
 
-export const TrackRemediationHeader: React.FC<TrackRemediationHeaderProps> = ({ onBack, isPending }) => {
-  return (
-    <SheetHeader>
-      <SheetTitle className="sr-only">Track Remediation</SheetTitle>
-      <div className="flex items-center justify-between">
-        <Button variant="transparent" onClick={onBack} className="flex items-center gap-1 px-2">
-          <ArrowLeft size={16} />
-          Back
-        </Button>
-        <div className="flex gap-2 mr-6">
-          <CancelButton disabled={isPending} onClick={onBack} />
-          <SaveButton form={TRACK_REMEDIATION_FORM_ID} disabled={isPending} isSaving={isPending} title="Create" savingTitle="Creating..." />
-        </div>
-      </div>
-    </SheetHeader>
-  )
-}
+export const TrackRemediationFooter: React.FC<TrackRemediationFooterProps> = ({ onCancel, isPending }) => (
+  <SlideoutFormFooter formId={TRACK_REMEDIATION_FORM_ID} onCancel={onCancel} isPending={isPending} saveLabel="Create" savingLabel="Creating..." />
+)

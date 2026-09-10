@@ -1,10 +1,7 @@
 'use client'
-import React, { useState } from 'react'
+import React from 'react'
 import { useNotification } from '@/hooks/useNotification'
-import { Trash2 } from 'lucide-react'
-import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { toHumanLabel } from '@/utils/strings'
@@ -14,48 +11,40 @@ interface GenericDeleteDialogProps {
   entityType: ObjectTypes
   displayName?: string
   onDelete: (id: string) => Promise<void>
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
-export const GenericDeleteDialog: React.FC<GenericDeleteDialogProps> = ({ entityId, entityType, displayName, onDelete }) => {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const { successNotification, errorNotification } = useNotification()
-  const [isOpen, setIsOpen] = useState(false)
+export const GenericDeleteDialog: React.FC<GenericDeleteDialogProps> = ({ entityId, entityType, displayName, onDelete, open, onOpenChange }) => {
+  const { errorNotification } = useNotification()
 
   const entityLabel = displayName ?? toHumanLabel(entityType)
 
   const handleDelete = async () => {
-    if (!entityId) return
+    if (!entityId) {
+      onOpenChange(false)
+      return
+    }
 
     try {
-      const newSearchParams = new URLSearchParams(searchParams.toString())
-      newSearchParams.delete('id')
-      router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
       await onDelete(entityId)
-      successNotification({ title: `${entityLabel} deleted successfully.` })
     } catch (error) {
-      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: errorMessage,
+        description: parseErrorMessage(error),
       })
     } finally {
-      setIsOpen(false)
+      onOpenChange(false)
     }
   }
 
   return (
-    <>
-      <Button icon={<Trash2 />} iconPosition="left" variant="secondary" onClick={() => setIsOpen(true)}>
-        Delete
-      </Button>
-      <ConfirmationDialog
-        title={`Delete ${entityLabel}`}
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        onConfirm={handleDelete}
-        description={<>This action cannot be undone. This will permanently remove this {entityLabel.toLowerCase()} from the organization.</>}
-      />
-    </>
+    <ConfirmationDialog
+      title={`Delete ${entityLabel}`}
+      open={open}
+      onOpenChange={onOpenChange}
+      onConfirm={handleDelete}
+      description={<>This action cannot be undone. This will permanently remove this {entityLabel.toLowerCase()} from the organization.</>}
+    />
   )
 }

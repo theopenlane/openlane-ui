@@ -1,7 +1,6 @@
 'use client'
-import { Button } from '@repo/ui/button'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { InfoIcon, PanelRightClose, SearchIcon } from 'lucide-react'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
+import { InfoIcon, SearchIcon } from 'lucide-react'
 import { Controller, type SubmitHandler } from 'react-hook-form'
 import {
   type AllGroupsPaginatedFieldsFragment,
@@ -33,7 +32,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { toHumanLabel } from '@/utils/strings'
 import { useOrgMemberPermissions } from '@/lib/authz/use-org-member-permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
 import { RoleInfoCallout } from '@/components/shared/organization-roles/role-info-callout'
 import { SuperAdminRoleWarning } from '@/components/shared/organization-roles/super-admin-role-warning'
 import useMembersInviteFormSchema, { type MembersInviteFormData } from './use-members-invite-form-schema'
@@ -164,23 +164,16 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
       <SheetContent
         initialWidth={846}
         className="flex flex-col"
-        header={
-          <SheetHeader>
-            <div className="flex items-center justify-between">
-              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
-              <div className="flex justify-end gap-2">
-                <CancelButton onClick={() => handleOpenChange(false)}></CancelButton>
-                <Button iconPosition="left" type="button" form="inviteForm" onClick={handleSubmit(onSubmit)} disabled={!emails?.length || !isEmailInputValid}>
-                  Invite
-                </Button>
-              </div>
-            </div>
-            <div className="flex items-center justify-start">
-              <SheetTitle>
-                <h3 className="font-medium text-2xl text-text-header pb-2">Invite New Member</h3>
-              </SheetTitle>
-            </div>
-          </SheetHeader>
+        header={<SlideoutHeader title="Invite New Member" onClose={() => handleOpenChange(false)} />}
+        footer={
+          <SlideoutFormFooter
+            formId="inviteForm"
+            onCancel={() => handleOpenChange(false)}
+            isPending={form.formState.isSubmitting}
+            disabled={!emails?.length || !isEmailInputValid}
+            saveLabel="Invite"
+            savingLabel="Inviting..."
+          />
         }
       >
         <>

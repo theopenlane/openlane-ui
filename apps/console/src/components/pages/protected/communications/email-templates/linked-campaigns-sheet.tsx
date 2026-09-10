@@ -1,17 +1,18 @@
 'use client'
 
 import React, { useCallback, useMemo, useState } from 'react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Link2, LoaderCircle, Megaphone, Unlink, X } from 'lucide-react'
+import { Link2, LoaderCircle, Megaphone, Unlink } from 'lucide-react'
 import { useCampaignsWithFilter, useUpdateCampaign } from '@/lib/graphql-hooks/campaign'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CampaignCampaignStatus, CampaignOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatDate } from '@/utils/date'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 
 interface LinkedCampaignsSheetProps {
   templateId: string
@@ -79,22 +80,7 @@ export const LinkedCampaignsSheet: React.FC<LinkedCampaignsSheetProps> = ({ temp
         className="flex flex-col"
         minWidth="35vw"
         initialWidth="45vw"
-        header={
-          <SheetHeader>
-            <SheetTitle className="sr-only">Linked Campaigns</SheetTitle>
-            <div className="flex flex-col gap-3">
-              <div className="text-sm text-muted-foreground">
-                Email Templates / <span className="font-semibold text-foreground">Linked Campaigns</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">{templateName}</h2>
-                <button type="button" onClick={onClose} className="cursor-pointer mr-6">
-                  <X size={16} />
-                </button>
-              </div>
-            </div>
-          </SheetHeader>
-        }
+        header={<SlideoutHeader title={`Linked campaigns — ${templateName}`} aboveTitle={<div className="text-sm text-muted-foreground">Email Templates</div>} onClose={onClose} />}
       >
         <div className="mt-2 flex flex-col gap-6">
           <div className="flex flex-col gap-2 rounded-md border border-border p-3">

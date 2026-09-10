@@ -24,6 +24,7 @@ import DetailsField from '../form/fields/details-field'
 import Properties from '../form/fields/properties'
 import Conversation from '../form/fields/conversation'
 import TasksSheetHeader from '../form/fields/header'
+import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
 import { buildTaskAssociations, buildTaskPayload, generateEvidenceFormData, type TTaskCopyMode } from '../utils'
 import { useTaskCopyPrefill } from '../../hooks/use-task-copy-prefill'
 import MarkAsComplete from '../form/fields/mark-as-complete'
@@ -70,6 +71,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const { data, isLoading: fetching } = useTask(id as string)
   const taskData = data?.task
   const { form } = useFormSchema()
+  const { isDirty: isTaskDirty } = form.formState
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   const { data: associationsData, isLoading: associationsLoading } = useTaskAssociations(id as string)
@@ -129,7 +131,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
     })
 
   const handleSheetClose = () => {
-    if (isEditing) {
+    if (isEditing && isTaskDirty) {
       setIsDiscardDialogOpen(true)
       return
     }
@@ -228,7 +230,6 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
             <TasksSheetHeader
               close={handleSheetClose}
               isEditing={isEditing}
-              isPending={isPending}
               setIsEditing={setIsEditing}
               title={taskData?.title}
               isEditAllowed={isEditAllowed}
@@ -242,6 +243,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
               onUseTemplate={() => setCreateFromTaskMode('template')}
             />
           }
+          footer={isEditing ? <SlideoutFormFooter formId="editTask" onCancel={() => setIsEditing(false)} isPending={isPending} /> : undefined}
         >
           {fetching ? (
             <TasksDetailsSheetSkeleton />

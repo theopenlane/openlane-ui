@@ -151,7 +151,7 @@ export const EmailTemplateEditorPage: React.FC = () => {
             Cancel
           </Button>
           <Button variant="primary" onClick={handleSave} disabled={isPending || !name.trim() || !selectedKey} icon={<SaveIcon size={16} />} iconPosition="left">
-            {isPending ? 'Saving...' : isEditMode ? 'Save Changes' : 'Save Draft'}
+            {isPending ? 'Saving...' : isEditMode ? 'Save' : 'Save Draft'}
           </Button>
         </div>
       </div>

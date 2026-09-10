@@ -1,4 +1,5 @@
 import { Button, type ButtonProps } from '@repo/ui/button'
+import { cn } from '@repo/ui/lib/utils'
 import { XIcon } from 'lucide-react'
 import React from 'react'
 type CancelButtonProps = {
@@ -12,7 +13,7 @@ type CancelButtonProps = {
 
 export const CancelButton = ({ onClick, title = 'Cancel', type = 'button', disabled, className, variant = 'secondary' }: CancelButtonProps) => {
   return (
-    <Button disabled={disabled} onClick={onClick} variant={variant} type={type} iconPosition="left" className={`h-8 px-2! ${className}`} icon={<XIcon />}>
+    <Button disabled={disabled} onClick={onClick} variant={variant} type={type} iconPosition="left" className={cn('h-8 px-2', className)} icon={<XIcon size={16} />}>
       {title}
     </Button>
   )

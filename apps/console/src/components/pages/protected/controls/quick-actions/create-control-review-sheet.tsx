@@ -3,9 +3,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { Form } from '@repo/ui/form'
-import { X } from 'lucide-react'
 import { type CreateReviewInput, ReviewReviewStatus } from '@repo/codegen/src/schema'
 import { useCreateReview, useUpdateReview } from '@/lib/graphql-hooks/review'
 import { useCreateFinding } from '@/lib/graphql-hooks/finding'
@@ -24,6 +23,7 @@ import ReviewFindingsPanel from '@/components/pages/protected/controls/control-r
 import ReviewSheetFooter from '@/components/pages/protected/controls/control-review/review-sheet-footer'
 import { buildFindingInput, hasFindingInput } from '@/components/pages/protected/controls/control-review/review-submission'
 import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { UploadedEvidenceSection } from './uploaded-evidence-section'
 
 type TCreateControlReviewSheetProps = {
@@ -140,14 +140,8 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
       <SheetContent
         minWidth={600}
         className="flex flex-col"
-        header={
-          <SheetHeader>
-            <div className="flex items-center justify-between">
-              <span className="text-2xl leading-8 font-medium">Create Review</span>
-              <X aria-label="Close create review sheet" size={20} className="cursor-pointer" onClick={resetAndClose} />
-            </div>
-          </SheetHeader>
-        }
+        header={<SlideoutHeader title="Create Review" onClose={resetAndClose} />}
+        footer={<ReviewSheetFooter pendingAction={pendingAction} onCancel={resetAndClose} onSubmit={(status) => form.handleSubmit((data) => submit(data, status))()} submitLabel="Create Review" />}
       >
         <Form {...form}>
           <form className="flex flex-col gap-4 pr-2 pb-4" onSubmit={(e) => e.preventDefault()}>
@@ -162,8 +156,6 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
             <ReviewFindingsPanel findings={[]} isLoading={false} form={form} />
           </form>
         </Form>
-
-        <ReviewSheetFooter pendingAction={pendingAction} onCancel={resetAndClose} onSubmit={(status) => form.handleSubmit((data) => submit(data, status))()} submitLabel="Create Review" />
       </SheetContent>
     </Sheet>
   )

@@ -1,13 +1,11 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Button } from '@repo/ui/button'
-import { Copy, PanelRightClose } from 'lucide-react'
 import { FormProvider, useForm } from 'react-hook-form'
 import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -19,7 +17,8 @@ import { type UpdateSubprocessorInput } from '@repo/codegen/src/schema'
 
 import { CategoryField } from './form-fields/category-field'
 import { CountriesField } from './form-fields/countries-field'
-import { SaveButton } from '@/components/shared/save-button/save-button'
+import { copyLinkMenuAction, SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
 import { NameField } from './form-fields/name-field'
 import { DescriptionField } from './form-fields/description-field'
 import { LogoField } from './form-fields/logo-field'
@@ -186,35 +185,27 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent side="right" className="w-[420px] sm:w-[480px] overflow-y-auto">
-        <SheetTitle />
-        <SheetDescription />
-        <SheetHeader>
-          <div className="flex justify-between">
-            <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
-            <div className="flex justify-start gap-2 items-center">
-              <div className="flex gap-3">
-                <Button
-                  className="h-8 p-2"
-                  icon={<Copy />}
-                  iconPosition="left"
-                  variant="secondary"
-                  onClick={() => {
-                    navigator.clipboard.writeText(window.location.href)
-                    successNotification({
-                      title: 'Link copied',
-                      description: 'Trust center subprocessor link copied to clipboard.',
-                    })
-                  }}
-                >
-                  Copy link
-                </Button>
-                <SaveButton isSaving={isSubmitting} form="tc-subprocessor-form" />
-              </div>
-            </div>
-          </div>
-        </SheetHeader>
-
+      <SheetContent
+        aria-describedby={undefined}
+        side="right"
+        className="w-[420px] sm:w-[480px] overflow-y-auto"
+        header={
+          <SlideoutHeader
+            title="Edit Subprocessor"
+            onClose={() => handleOpenChange(false)}
+            menuActions={[
+              copyLinkMenuAction(() => {
+                navigator.clipboard.writeText(window.location.href)
+                successNotification({
+                  title: 'Link copied',
+                  description: 'Trust center subprocessor link copied to clipboard.',
+                })
+              }),
+            ]}
+          />
+        }
+        footer={<SlideoutFormFooter formId="tc-subprocessor-form" onCancel={() => handleOpenChange(false)} isPending={isSubmitting} />}
+      >
         <FormProvider {...formMethods}>
           <form id="tc-subprocessor-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
             <NameField isEditing={false} />

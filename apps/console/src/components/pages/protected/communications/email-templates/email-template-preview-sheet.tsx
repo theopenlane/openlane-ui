@@ -1,9 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
-import { X } from 'lucide-react'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { usePreviewEmailTemplateHtml } from '@/lib/graphql-hooks/email-template'
 import { EmailTemplatePreview } from './email-template-preview'
 
@@ -31,24 +30,7 @@ export const EmailTemplatePreviewSheet: React.FC<EmailTemplatePreviewSheetProps>
         className="flex flex-col"
         minWidth="40vw"
         initialWidth="50vw"
-        header={
-          <SheetHeader>
-            <SheetTitle className="sr-only">Preview Email Template</SheetTitle>
-            <div className="flex flex-col gap-4">
-              <div className="text-sm text-muted-foreground">
-                Email Templates / <span className="font-semibold text-foreground">Preview{templateName ? ` — ${templateName}` : ''}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <Button variant="secondary" onClick={onClose}>
-                  Close
-                </Button>
-                <button type="button" onClick={onClose} className="cursor-pointer mr-6">
-                  <X size={16} />
-                </button>
-              </div>
-            </div>
-          </SheetHeader>
-        }
+        header={<SlideoutHeader title={`Preview${templateName ? ` — ${templateName}` : ''}`} aboveTitle={<div className="text-sm text-muted-foreground">Email Templates</div>} onClose={onClose} />}
       >
         {open && (
           <div className="mt-2">

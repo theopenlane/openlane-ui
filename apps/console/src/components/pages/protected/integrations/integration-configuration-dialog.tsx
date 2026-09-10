@@ -2,8 +2,8 @@
 
 import React, { useEffect, useMemo } from 'react'
 import { FormProvider } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
-import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader } from '@repo/ui/sheet'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
@@ -12,6 +12,8 @@ import { disabledOperationConfigKeys, resolveConnectionEntry, resolveCredentialE
 import { connectViaAuth, saveIntegrationConfiguration } from '@/lib/integrations/flow'
 import { IntegrationSchemaSections, normalizeIntegrationFormPayloads, useIntegrationSchemaForm } from './schema-form'
 import { Callout } from '@/components/shared/callout/callout'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 type Props = {
   open: boolean
@@ -171,11 +173,13 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
 
   const showTabs = isExistingInstallation && credForm.sections.length > 0 && settingsForm.sections.length > 0
 
+  const integrationHeading = isExistingInstallation ? `Update ${provider?.displayName ?? 'Integration'}` : `Configure ${provider?.displayName ?? 'Integration'}`
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="flex w-[520px] flex-col p-0 sm:w-[620px]">
         <SheetHeader className="border-b px-6 py-5">
-          <SheetTitle>{isExistingInstallation ? `Update ${provider?.displayName ?? 'Integration'}` : `Configure ${provider?.displayName ?? 'Integration'}`}</SheetTitle>
+          <SlideoutHeader title={integrationHeading} onClose={() => onOpenChange(false)} />
           <SheetDescription>
             {isExistingInstallation
               ? credForm.sections.length > 0
@@ -202,12 +206,13 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
                     <IntegrationSchemaSections sections={credForm.sections} hideDescriptions hideFieldKeys={disabledConfigKeys} />
                   </div>
                   <SheetFooter className="shrink-0 border-t px-6 py-4 sm:flex-row sm:justify-end">
-                    <Button type="button" variant="secondary" onClick={() => onOpenChange(false)} disabled={credForm.formMethods.formState.isSubmitting}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={credForm.formMethods.formState.isSubmitting || !provider}>
-                      {credForm.formMethods.formState.isSubmitting ? 'Saving...' : 'Save Credentials'}
-                    </Button>
+                    <CancelButton onClick={() => onOpenChange(false)} disabled={credForm.formMethods.formState.isSubmitting} />
+                    <SaveButton
+                      title="Save Credentials"
+                      savingTitle="Saving..."
+                      isSaving={credForm.formMethods.formState.isSubmitting}
+                      disabled={credForm.formMethods.formState.isSubmitting || !provider}
+                    />
                   </SheetFooter>
                 </form>
               </FormProvider>
@@ -220,12 +225,13 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
                     <IntegrationSchemaSections sections={settingsForm.sections} hideDescriptions hideFieldKeys={disabledConfigKeys} />
                   </div>
                   <SheetFooter className="shrink-0 border-t px-6 py-4 sm:flex-row sm:justify-end">
-                    <Button type="button" variant="secondary" onClick={() => onOpenChange(false)} disabled={settingsForm.formMethods.formState.isSubmitting}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={settingsForm.formMethods.formState.isSubmitting || !provider}>
-                      {settingsForm.formMethods.formState.isSubmitting ? 'Saving...' : 'Save Settings'}
-                    </Button>
+                    <CancelButton onClick={() => onOpenChange(false)} disabled={settingsForm.formMethods.formState.isSubmitting} />
+                    <SaveButton
+                      title="Save Settings"
+                      savingTitle="Saving..."
+                      isSaving={settingsForm.formMethods.formState.isSubmitting}
+                      disabled={settingsForm.formMethods.formState.isSubmitting || !provider}
+                    />
                   </SheetFooter>
                 </form>
               </FormProvider>
@@ -239,12 +245,13 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
                 <IntegrationSchemaSections sections={combined.sections} hideFieldKeys={disabledConfigKeys} />
               </div>
               <SheetFooter className="shrink-0 border-t px-6 py-4 sm:flex-row sm:justify-end">
-                <Button type="button" variant="secondary" onClick={() => onOpenChange(false)} disabled={combined.formMethods.formState.isSubmitting}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={combined.formMethods.formState.isSubmitting || !provider}>
-                  {combined.formMethods.formState.isSubmitting ? 'Saving...' : 'Save Configuration'}
-                </Button>
+                <CancelButton onClick={() => onOpenChange(false)} disabled={combined.formMethods.formState.isSubmitting} />
+                <SaveButton
+                  title="Save Configuration"
+                  savingTitle="Saving..."
+                  isSaving={combined.formMethods.formState.isSubmitting}
+                  disabled={combined.formMethods.formState.isSubmitting || !provider}
+                />
               </SheetFooter>
             </form>
           </FormProvider>
