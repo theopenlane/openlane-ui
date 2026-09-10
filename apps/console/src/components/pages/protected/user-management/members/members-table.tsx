@@ -3,7 +3,7 @@
 import { OrderDirection, type OrgMembership, OrgMembershipOrderField, type OrgMembershipRole, type OrgMembershipWhereInput, type User, UserAuthProvider } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Copy, Info, KeyRoundIcon, Shield, ShieldCheck, ShieldOff } from 'lucide-react'
+import { Copy, Info, KeyRoundIcon } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
@@ -35,6 +35,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { toHumanLabel } from '@/utils/strings'
 import { getSsoExemptReason, getTfaEnforcedReason } from './member-status'
 import { useMembersExport } from './use-members-export'
+import { MEMBER_SECURITY_COLUMN_SIZE, MemberSecurityCell } from './table/member-security-cell'
 
 export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
   providersIn?: UserAuthProvider[]
@@ -133,62 +134,28 @@ export const MembersTable = () => {
     id: 'sso',
     header: 'SSO',
     cell: ({ row }) => {
-      const reason = getSsoExemptReason(row.original, exemptDomains)
-      if (!reason) {
-        return (
-          <Badge variant="primary" className="gap-1 text-xs">
-            <Shield className="h-3 w-3" />
-            Enforced
-          </Badge>
-        )
-      }
-      return (
-        <SystemTooltip
-          icon={
-            <span className="cursor-default">
-              <Badge variant="select" className="gap-1 text-xs pointer-events-none">
-                <ShieldOff className="h-3 w-3" />
-                Exempt
-              </Badge>
-            </span>
-          }
-          content={reason}
-        />
-      )
+      const exemptReason = getSsoExemptReason(row.original, exemptDomains)
+      return <MemberSecurityCell enforced={!exemptReason} label={exemptReason ? 'Exempt' : 'Enforced'} description={exemptReason ?? 'Single sign-on is enforced for this member.'} />
     },
-    size: 120,
-    maxSize: 120,
+    size: MEMBER_SECURITY_COLUMN_SIZE,
+    maxSize: MEMBER_SECURITY_COLUMN_SIZE,
   }
 
   const tfaColumn: ColumnDef<OrgMembership> = {
     id: 'tfa',
     header: '2FA',
     cell: ({ row }) => {
-      if (row.original.tfaEnforced) {
-        return (
-          <SystemTooltip
-            icon={
-              <span className="cursor-default">
-                <Badge variant="primary" className="gap-1 text-xs pointer-events-none">
-                  <ShieldCheck className="h-3 w-3" />
-                  Enforced
-                </Badge>
-              </span>
-            }
-            content={getTfaEnforcedReason(row.original)}
-          />
-        )
-      }
-
+      const enforced = !!row.original.tfaEnforced
       return (
-        <Badge variant="select" className="gap-1 text-xs">
-          <ShieldOff className="h-3 w-3" />
-          Not enforced
-        </Badge>
+        <MemberSecurityCell
+          enforced={enforced}
+          label={enforced ? 'Enforced' : 'Not enforced'}
+          description={enforced ? getTfaEnforcedReason(row.original) : 'Two-factor authentication is not enforced for this member.'}
+        />
       )
     },
-    size: 140,
-    maxSize: 140,
+    size: MEMBER_SECURITY_COLUMN_SIZE,
+    maxSize: MEMBER_SECURITY_COLUMN_SIZE,
   }
 
   const actionsColumn: ColumnDef<OrgMembership> = {
