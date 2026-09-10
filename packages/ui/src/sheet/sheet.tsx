@@ -41,6 +41,7 @@ type TSheetContentProps = {
   /** render the dimming backdrop; disable for non-modal drawers that leave the page interactive */
   overlay?: boolean
   overlayClassName?: string
+  onWidthChange?: (width: string | undefined) => void
 }
 
 function SheetContent({
@@ -54,6 +55,7 @@ function SheetContent({
   edge,
   overlay = true,
   overlayClassName,
+  onWidthChange,
   ref,
   onInteractOutside,
   ...props
@@ -92,6 +94,13 @@ function SheetContent({
       document.removeEventListener('mouseup', handleMouseUp)
     }
   }, [resizable, side, minWidth])
+
+  const widthChangeRef = React.useRef(onWidthChange)
+  widthChangeRef.current = onWidthChange
+  React.useEffect(() => {
+    widthChangeRef.current?.(width)
+    return () => widthChangeRef.current?.(undefined)
+  }, [width])
 
   const onMouseDown = () => {
     if (resizable) {
