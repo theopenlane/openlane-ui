@@ -1,5 +1,6 @@
 import { type Metadata } from 'next'
 import { AuthLayout, type AuthLayoutProps } from '../../components/layouts/auth'
+import HubspotTracking from '@/components/shared/hubspot/hubspot-tracking'
 
 export const metadata: Metadata = {
   title: {
@@ -9,5 +10,10 @@ export const metadata: Metadata = {
 }
 
 export default function Layout({ children }: AuthLayoutProps): React.ReactNode {
-  return <AuthLayout>{children}</AuthLayout>
+  return (
+    <>
+      <HubspotTracking />
+      <AuthLayout>{children}</AuthLayout>
+    </>
+  )
 }
