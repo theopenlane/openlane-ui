@@ -6065,6 +6065,8 @@ export interface GetPlatformByIdMinifiedQuery {
   platform: { id: string; name: string; displayID: string }
 }
 
+export type PlatformDiagramFileFieldsFragment = { id: string; providedFileName: string; presignedURL: string | null; createdAt: any }
+
 export type PlatformQueryVariables = Exact<{
   platformId: string
 }>
@@ -6194,9 +6196,9 @@ export interface PlatformQuery {
         } | null
       } | null> | null
     }
-    architectureDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null } | null } | null> | null }
-    dataFlowDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null } | null } | null> | null }
-    trustBoundaryDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; base64: string | null } | null } | null> | null }
+    architectureDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null; createdAt: any } | null } | null> | null }
+    dataFlowDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null; createdAt: any } | null } | null> | null }
+    trustBoundaryDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null; createdAt: any } | null } | null> | null }
   }
 }
 
