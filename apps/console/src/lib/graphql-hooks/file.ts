@@ -1,33 +1,41 @@
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { GET_FILES } from '@repo/codegen/query/file'
-import { type GetFilesQuery, type FileWhereInput } from '@repo/codegen/src/schema'
+import { type GetFilesQuery, type FileOrder, type FileWhereInput } from '@repo/codegen/src/schema'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { type TPagination } from '@repo/ui/pagination-types'
 
 type TGetFilesProps = {
   pagination?: TPagination
   where?: FileWhereInput
+  orderBy?: FileOrder | FileOrder[]
 }
 
-export function useGetFiles({ where, pagination }: TGetFilesProps) {
+export const useGetFiles = ({ where, orderBy, pagination }: TGetFilesProps) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetFilesQuery>({
-    queryKey: ['getFiles', where, pagination?.page, pagination?.pageSize],
+    queryKey: ['getFiles', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async () =>
       client.request<GetFilesQuery>(GET_FILES, {
         where,
+        orderBy,
         ...pagination?.query,
       }),
   })
 
-  const files = queryResult.data?.files?.edges?.map((edge) => edge?.node) ?? []
+  const { data, isLoading } = queryResult
 
-  const paginationMeta = {
-    totalCount: queryResult.data?.files?.totalCount ?? 0,
-    pageInfo: queryResult.data?.files?.pageInfo,
-    isLoading: queryResult.isLoading,
-  }
+  const files = useMemo(() => data?.files?.edges?.map((edge) => edge?.node) ?? [], [data])
+
+  const paginationMeta = useMemo(
+    () => ({
+      totalCount: data?.files?.totalCount ?? 0,
+      pageInfo: data?.files?.pageInfo,
+      isLoading,
+    }),
+    [data, isLoading],
+  )
 
   return {
     ...queryResult,
