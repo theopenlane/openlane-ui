@@ -4493,6 +4493,8 @@ export interface IdentityHoldersWithFilterQuery {
   }
 }
 
+export type IdentityHolderOptionFieldsFragment = { id: string; email: string; fullName: string; identityHolderType: Types.IdentityHolderIdentityHolderType; isOpenlaneUser: boolean | null }
+
 export type GetIdentityHolderOptionsQueryVariables = Exact<{
   where?: Types.IdentityHolderWhereInput | null | undefined
   first?: number | null | undefined
@@ -4504,7 +4506,7 @@ export type GetIdentityHolderOptionsQueryVariables = Exact<{
 export interface GetIdentityHolderOptionsQuery {
   identityHolders: {
     totalCount: number
-    edges: Array<{ node: { id: string; email: string; fullName: string; identityHolderType: Types.IdentityHolderIdentityHolderType } | null } | null> | null
+    edges: Array<{ node: { id: string; email: string; fullName: string; identityHolderType: Types.IdentityHolderIdentityHolderType; isOpenlaneUser: boolean | null } | null } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }

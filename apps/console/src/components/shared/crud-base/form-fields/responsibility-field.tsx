@@ -16,6 +16,7 @@ import { usePersonnelSelect } from '@/lib/graphql-hooks/identity-holder'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
 import { type ResponsibilitySelection, buildResponsibilityInlineUpdate } from './responsibility-field-utils'
+import { PersonnelOptionItem } from './personnel-option-item'
 import { isValidEmail } from '@/lib/validators'
 import { cn } from '@repo/ui/lib/utils'
 
@@ -252,18 +253,12 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                           {!userOnly && !groupOnly && allowPersonnel && personnelOptions.length > 0 && (
                             <CommandGroup heading="Personnel">
                               {personnelOptions.map((option) => (
-                                <CommandItem
+                                <PersonnelOptionItem
                                   key={`personnel-${option.value}`}
-                                  value={`personnel-${option.value}`}
+                                  option={option}
+                                  isSelected={currentValue?.type === 'personnel' && currentValue.value === option.value}
                                   onSelect={() => handleSelect({ type: 'personnel', value: option.value, displayName: option.label }, field)}
-                                >
-                                  <IdCardLanyard className="mr-2 h-4 w-4" />
-                                  <span>
-                                    {option.label}
-                                    {option.email && option.email !== option.label ? ` (${option.email})` : ''}
-                                  </span>
-                                  {currentValue?.type === 'personnel' && currentValue.value === option.value && <Check className="ml-auto h-4 w-4" />}
-                                </CommandItem>
+                                />
                               ))}
                             </CommandGroup>
                           )}
