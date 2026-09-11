@@ -21,12 +21,12 @@ import { Trash2, PencilIcon, NetworkIcon, Laptop, Building2, User, Users, Copy, 
 import Menu from '@/components/shared/menu/menu'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { type Platform, PlatformPlatformStatus, type UpdatePlatformInput } from '@repo/codegen/src/schema'
+import { type PlatformDiagramFileFieldsFragment, type PlatformQuery, PlatformPlatformStatus, type UpdatePlatformInput } from '@repo/codegen/src/schema'
 import PlatformAssetsTable from './platform-assets-table'
 import PlatformVendorsTable from './platform-vendors-table'
 import PlatformGraph from './platform-graph'
 import { CollapsibleHtml } from './collapsible-html'
-import { PlatformDiagramsSection } from './platform-diagrams-section'
+import { PlatformDiagramsSection, type DiagramType, type PlatformDiagram } from './platform-diagrams-section'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import useFormSchema, { type EditPlatformFormData } from '../hooks/use-form-schema'
@@ -45,6 +45,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
+
+type PlatformDetail = PlatformQuery['platform']
 
 interface PlatformDetailPageProps {
   platformId: string
@@ -76,7 +78,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
   const [hideOutOfScope, setHideOutOfScope] = useState(true)
 
-  const platform = data?.platform as Platform | undefined
+  const platform = data?.platform
   const canEditPlatform = canEdit(permission?.roles, session)
   const canDeletePlatform = canDelete(permission?.roles)
 
@@ -91,7 +93,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
     ])
   }, [setCrumbs, platform?.name, isLoading])
 
-  const buildEditFormValues = (platform: Platform) => ({
+  const buildEditFormValues = (platform: PlatformDetail) => ({
     name: platform.name ?? '',
     description: platform.description ?? '',
     status: platform.status,
@@ -237,14 +239,20 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
   const inScopeVendors = platform.entities?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []
   const outOfScopeVendors = platform.outOfScopeVendors?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []
 
-  const todiagram =
-    <T extends string>(type: T) =>
-    (f: { id: string; providedFileName: string; presignedURL?: string | null }) => ({ id: f.id, type, name: f.providedFileName, url: f.presignedURL ?? '' })
+  const toDiagram =
+    (type: DiagramType) =>
+    (f: PlatformDiagramFileFieldsFragment): PlatformDiagram => ({
+      id: f.id,
+      type,
+      name: f.providedFileName,
+      url: f.presignedURL ?? '',
+      createdAt: f.createdAt ?? null,
+    })
 
   const diagrams = [
-    ...(platform.architectureDiagrams?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []).map(todiagram('architecture' as const)),
-    ...(platform.dataFlowDiagrams?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []).map(todiagram('data-flow' as const)),
-    ...(platform.trustBoundaryDiagrams?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []).map(todiagram('trust-boundary' as const)),
+    ...(platform.architectureDiagrams?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []).map(toDiagram('architecture')),
+    ...(platform.dataFlowDiagrams?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []).map(toDiagram('data-flow')),
+    ...(platform.trustBoundaryDiagrams?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []).map(toDiagram('trust-boundary')),
   ]
 
   const renderOwner = (label: string, icon: React.ReactNode, name?: string | null, email?: string | null) => {
@@ -326,14 +334,14 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
             renderOwner(
               'Business Owner',
               platform.businessOwnerGroup ? <Users size={14} className="text-muted-foreground" /> : <User size={14} className="text-muted-foreground" />,
-              platform.businessOwnerUser?.displayName ?? platform.businessOwnerGroup?.displayName ?? platform.businessOwner,
+              platform.businessOwnerUser?.displayName ?? platform.businessOwnerGroup?.name ?? platform.businessOwner,
               platform.businessOwnerUser?.email,
             )}
           {(platform.technicalOwnerUser || platform.technicalOwnerGroup || platform.technicalOwner) &&
             renderOwner(
               'Technical Owner',
               platform.technicalOwnerGroup ? <Users size={14} className="text-muted-foreground" /> : <User size={14} className="text-muted-foreground" />,
-              platform.technicalOwnerUser?.displayName ?? platform.technicalOwnerGroup?.displayName ?? platform.technicalOwner,
+              platform.technicalOwnerUser?.displayName ?? platform.technicalOwnerGroup?.name ?? platform.technicalOwner,
               platform.technicalOwnerUser?.email,
             )}
           {(platform.internalOwnerUser || platform.internalOwnerGroup || platform.internalOwner) &&

@@ -11,6 +11,7 @@ import { useDropzone } from 'react-dropzone'
 import { cn } from '@repo/ui/lib/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { toHumanLabel } from '@/utils/strings'
+import { formatDate } from '@/utils/date'
 import { useUploadPlatformDiagram, useRemovePlatformDiagram } from '@/lib/graphql-hooks/platform'
 import { useGetEvidencesWithFileIds } from '@/lib/graphql-hooks/evidence'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -22,11 +23,18 @@ export type DiagramType = 'architecture' | 'trust-boundary' | 'data-flow'
 
 const diagramTypeLabel = (type: DiagramType) => `${toHumanLabel(type)} Diagram`
 
+interface DiagramUploadedAtProps {
+  createdAt: string | null
+}
+
+const DiagramUploadedAt: React.FC<DiagramUploadedAtProps> = ({ createdAt }) => (createdAt ? <span className="text-xs text-muted-foreground">Uploaded at: {formatDate(createdAt)}</span> : null)
+
 export interface PlatformDiagram {
   id: string
   type: DiagramType
   name: string
   url: string
+  createdAt: string | null
 }
 
 interface AddDiagramDialogProps {
@@ -171,8 +179,9 @@ const ExpandDiagramDialog: React.FC<ExpandDiagramDialogProps> = ({ diagram, onCl
           <div className="space-y-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={diagram.url} alt={diagram.name} className="w-full object-contain max-h-[70vh] rounded-md bg-muted" />
-            <div className="flex justify-end">
-              <Button variant="secondary" icon={<Download size={14} />} iconPosition="left" onClick={() => fileDownload(diagram.url, diagram.name, errorNotification)}>
+            <div className="flex items-center justify-between gap-2">
+              <DiagramUploadedAt createdAt={diagram.createdAt} />
+              <Button className="ml-auto" variant="secondary" icon={<Download size={14} />} iconPosition="left" onClick={() => fileDownload(diagram.url, diagram.name, errorNotification)}>
                 Download
               </Button>
             </div>
@@ -202,55 +211,58 @@ const DiagramCard: React.FC<DiagramCardProps> = ({ diagram, canEdit, hasEvidence
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={diagram.url} alt={diagram.name} className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-[1.02]" />
       </button>
-      <div className="px-3 py-2 flex items-center justify-between gap-2 border-t">
-        <div className="flex items-center gap-2 min-w-0">
-          <Badge variant="secondary" className="text-xs shrink-0">
+      <div className="px-3 py-2 flex flex-col gap-1 border-t">
+        <div className="flex flex-wrap items-center justify-between gap-x-2">
+          <Badge variant="secondary" className="text-xs">
             {diagramTypeLabel(diagram.type)}
           </Badge>
-          <span className="text-xs text-muted-foreground truncate">{diagram.name}</span>
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <button
-            type="button"
-            className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-            onClick={onExpand}
-            aria-label="Expand"
-          >
-            <Expand size={13} />
-          </button>
-          <button
-            type="button"
-            className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => fileDownload(diagram.url, diagram.name, errorNotification)}
-            aria-label="Download"
-          >
-            <Download size={13} />
-          </button>
-          <TooltipProvider disableHoverableContent>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  className={cn('h-7 w-7 flex items-center justify-center rounded hover:bg-muted transition-colors', hasEvidence ? 'text-primary' : 'text-muted-foreground hover:text-foreground')}
-                  onClick={hasEvidence ? onUnmarkEvidence : onMarkEvidence}
-                  aria-label={hasEvidence ? 'Remove evidence' : 'Mark as evidence'}
-                >
-                  <Fingerprint size={13} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">{hasEvidence ? 'Remove evidence' : 'Mark as evidence'}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          {canEdit && (
+          <div className="flex items-center gap-1 shrink-0">
             <button
               type="button"
-              className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-destructive hover:text-destructive transition-colors"
-              onClick={onDelete}
-              aria-label="Delete"
+              className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              onClick={onExpand}
+              aria-label="Expand"
             >
-              <Trash2 size={13} />
+              <Expand size={13} />
             </button>
-          )}
+            <button
+              type="button"
+              className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => fileDownload(diagram.url, diagram.name, errorNotification)}
+              aria-label="Download"
+            >
+              <Download size={13} />
+            </button>
+            <TooltipProvider disableHoverableContent>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn('h-7 w-7 flex items-center justify-center rounded hover:bg-muted transition-colors', hasEvidence ? 'text-primary' : 'text-muted-foreground hover:text-foreground')}
+                    onClick={hasEvidence ? onUnmarkEvidence : onMarkEvidence}
+                    aria-label={hasEvidence ? 'Remove evidence' : 'Mark as evidence'}
+                  >
+                    <Fingerprint size={13} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{hasEvidence ? 'Remove evidence' : 'Mark as evidence'}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            {canEdit && (
+              <button
+                type="button"
+                className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted text-destructive hover:text-destructive transition-colors"
+                onClick={onDelete}
+                aria-label="Delete"
+              >
+                <Trash2 size={13} />
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-x-2">
+          <span className="min-w-0 flex-1 text-xs text-muted-foreground truncate">{diagram.name}</span>
+          <DiagramUploadedAt createdAt={diagram.createdAt} />
         </div>
       </div>
     </div>

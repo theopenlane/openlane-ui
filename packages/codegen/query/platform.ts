@@ -110,7 +110,17 @@ export const GET_PLATFORM_BY_ID_MINIFIED = gql`
   }
 `
 
+export const PLATFORM_DIAGRAM_FILE_FIELDS_FRAGMENT = gql`
+  fragment PlatformDiagramFileFields on File {
+    id
+    providedFileName
+    presignedURL
+    createdAt
+  }
+`
+
 export const PLATFORM = gql`
+  ${PLATFORM_DIAGRAM_FILE_FIELDS_FRAGMENT}
   query Platform($platformId: ID!) {
     platform(id: $platformId) {
       accessModelID
@@ -335,27 +345,21 @@ export const PLATFORM = gql`
       architectureDiagrams {
         edges {
           node {
-            id
-            providedFileName
-            presignedURL
+            ...PlatformDiagramFileFields
           }
         }
       }
       dataFlowDiagrams {
         edges {
           node {
-            id
-            providedFileName
-            presignedURL
+            ...PlatformDiagramFileFields
           }
         }
       }
       trustBoundaryDiagrams {
         edges {
           node {
-            id
-            providedFileName
-            base64
+            ...PlatformDiagramFileFields
           }
         }
       }
