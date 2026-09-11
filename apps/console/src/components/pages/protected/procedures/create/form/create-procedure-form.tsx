@@ -23,7 +23,7 @@ import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/internal-po
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization.ts'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher.ts'
-import { POLICY_MANAGEMENT_DOCS_URL } from '@/constants/docs'
+import { ProcedureHelpCallout } from '@/components/pages/protected/procedures/create/form/procedure-help-callout'
 import { Switch } from '@repo/ui/switch'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
@@ -232,21 +232,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
                 </AlertDescription>
               </Alert>
             )}
-            {!isEditable && (
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertTitle>Not sure what to write?</AlertTitle>
-                <AlertDescription>
-                  <p>
-                    For template library and help docs, please refer to our{' '}
-                    <a className="text-blue-600" href={`${POLICY_MANAGEMENT_DOCS_URL}/policies`} target="_blank" rel="noreferrer">
-                      documentation
-                    </a>
-                    .
-                  </p>
-                </AlertDescription>
-              </Alert>
-            )}
+            {!isEditable && <ProcedureHelpCallout />}
             {/* Title Field */}
             <InputRow className="w-full">
               <FormField
