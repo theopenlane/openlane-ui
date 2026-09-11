@@ -21,7 +21,7 @@ type ExistingFileRow = {
   providedFileName: string
   providedFileSize?: number | null
   providedFileExtension: string
-  categoryType?: string | null
+  categoryName?: string | null
   createdAt?: string | null
 }
 
@@ -53,7 +53,7 @@ const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFiles
           providedFileName: edge?.node?.providedFileName ?? '',
           providedFileSize: edge?.node?.providedFileSize ?? 0,
           providedFileExtension: edge?.node?.providedFileExtension ?? '',
-          categoryType: edge?.node?.categoryType ?? '',
+          categoryName: edge?.node?.categoryName ?? '',
           createdAt: edge?.node?.createdAt ?? '',
         })) || []
 
@@ -78,7 +78,7 @@ const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFiles
       size: row.providedFileSize ?? undefined,
       type: 'existingFile',
       id: row.id,
-      category: row.categoryType,
+      category: row.categoryName,
       createdAt: formatDateSince(row.createdAt),
     }
 
@@ -108,7 +108,7 @@ const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFiles
       header: 'Filename',
     },
     {
-      accessorKey: 'categoryType',
+      accessorKey: 'categoryName',
       header: 'Category',
     },
     {

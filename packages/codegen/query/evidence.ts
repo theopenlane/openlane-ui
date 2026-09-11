@@ -28,7 +28,7 @@ export const GET_EVIDENCE_FILES = gql`
           presignedURL
           providedFileExtension
           detectedMimeType
-          categoryType
+          categoryName
           createdAt
         }
       }

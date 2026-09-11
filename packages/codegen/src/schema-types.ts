@@ -8620,8 +8620,6 @@ export interface CreateFileInput {
   categoryID?: InputMaybe<Scalars['ID']['input']>
   /** the category of the file */
   categoryName?: InputMaybe<Scalars['String']['input']>
-  /** the category type of the file, if any (e.g. evidence, invoice, etc.) */
-  categoryType?: InputMaybe<Scalars['String']['input']>
   contactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the content type of the HTTP request - may be different than MIME type as multipart-form can transmit multiple files and different types */
   detectedContentType: Scalars['String']['input']
@@ -18396,11 +18394,6 @@ export interface File extends Node {
   categoryID?: Maybe<Scalars['ID']['output']>
   /** the category of the file */
   categoryName?: Maybe<Scalars['String']['output']>
-  /**
-   * the category type of the file, if any (e.g. evidence, invoice, etc.)
-   * @deprecated use category_status_name instead
-   */
-  categoryType?: Maybe<Scalars['String']['output']>
   contact?: Maybe<Array<Contact>>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
@@ -18603,18 +18596,6 @@ export interface FileWhereInput {
   categoryNameNEQ?: InputMaybe<Scalars['String']['input']>
   categoryNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   categoryNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** category_type field predicates */
-  categoryType?: InputMaybe<Scalars['String']['input']>
-  categoryTypeContains?: InputMaybe<Scalars['String']['input']>
-  categoryTypeContainsFold?: InputMaybe<Scalars['String']['input']>
-  categoryTypeEqualFold?: InputMaybe<Scalars['String']['input']>
-  categoryTypeHasPrefix?: InputMaybe<Scalars['String']['input']>
-  categoryTypeHasSuffix?: InputMaybe<Scalars['String']['input']>
-  categoryTypeIn?: InputMaybe<Array<Scalars['String']['input']>>
-  categoryTypeIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  categoryTypeNEQ?: InputMaybe<Scalars['String']['input']>
-  categoryTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  categoryTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -52527,11 +52508,8 @@ export interface UpdateFileInput {
   categoryID?: InputMaybe<Scalars['ID']['input']>
   /** the category of the file */
   categoryName?: InputMaybe<Scalars['String']['input']>
-  /** the category type of the file, if any (e.g. evidence, invoice, etc.) */
-  categoryType?: InputMaybe<Scalars['String']['input']>
   clearCategory?: InputMaybe<Scalars['Boolean']['input']>
   clearCategoryName?: InputMaybe<Scalars['Boolean']['input']>
-  clearCategoryType?: InputMaybe<Scalars['Boolean']['input']>
   clearContact?: InputMaybe<Scalars['Boolean']['input']>
   clearDetectedMimeType?: InputMaybe<Scalars['Boolean']['input']>
   clearDocument?: InputMaybe<Scalars['Boolean']['input']>

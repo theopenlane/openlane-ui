@@ -3281,7 +3281,7 @@ export interface GetEntityFilesPaginatedQuery {
           id: string
           uri: string | null
           presignedURL: string | null
-          categoryType: string | null
+          categoryName: string | null
           createdAt: any
         } | null
       } | null> | null
@@ -3380,7 +3380,7 @@ export interface GetEvidenceFilesQuery {
         presignedURL: string | null
         providedFileExtension: string
         detectedMimeType: string | null
-        categoryType: string | null
+        categoryName: string | null
         createdAt: any
       } | null
     } | null> | null
@@ -3805,7 +3805,7 @@ export interface GetFilesQuery {
     totalCount: number
     pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
     edges: Array<{
-      node: { id: string; providedFileName: string; providedFileSize: number | null; presignedURL: string | null; providedFileExtension: string; categoryType: string | null; createdAt: any } | null
+      node: { id: string; providedFileName: string; providedFileSize: number | null; presignedURL: string | null; providedFileExtension: string; categoryName: string | null; createdAt: any } | null
     } | null> | null
   }
 }
@@ -4627,7 +4627,7 @@ export interface GetIdentityHolderFilesPaginatedQuery {
           providedFileName: string
           providedFileSize: number | null
           providedFileExtension: string
-          categoryType: string | null
+          categoryName: string | null
           createdAt: any
           id: string
           uri: string | null

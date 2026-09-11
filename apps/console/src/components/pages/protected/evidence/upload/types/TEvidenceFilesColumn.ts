@@ -4,6 +4,6 @@ export type TEvidenceFilesColumn = {
   providedFileSize?: number | null
   presignedURL?: string | null
   providedFileExtension: string
-  categoryType?: string | null
+  categoryName?: string | null
   createdAt?: string | null
 }

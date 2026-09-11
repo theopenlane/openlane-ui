@@ -17,7 +17,7 @@ export const GET_FILES = gql`
           providedFileSize
           presignedURL
           providedFileExtension
-          categoryType
+          categoryName
           createdAt
         }
       }
