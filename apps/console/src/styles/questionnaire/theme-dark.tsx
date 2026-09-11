@@ -119,7 +119,6 @@ const SJS_THEME = {
   '--sjs-font-headertitle-family': 'var(--font-outfit)',
   '--sjs-font-headertitle-color': colors.textColor,
   '--sjs-font-headerdescription-color': colors.textColorDim,
-  '--sjs-font-headertitle-weight': '700',
   '--sjs-header-backcolor': '#09151d',
   '--sjs-article-font-xx-large-textDecoration': 'none',
   '--sjs-article-font-xx-large-fontWeight': '400',
