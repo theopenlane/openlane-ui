@@ -7,12 +7,11 @@ import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-st
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import { fileColumns, type TFile } from '@/components/pages/protected/controls/control-evidence-files/table/columns.tsx'
 import { EVIDENCE_FILES_SORT_FIELDS } from '@/components/pages/protected/controls/control-evidence-files/table/table-config.ts'
-import { ControlEvidenceUploadDialog } from '@/components/pages/protected/evidence/evidence-upload-dialog'
+import { EvidenceAddFilesDialog } from '@/components/pages/protected/evidence/evidence-add-files-dialog'
 import { Download, Eye, Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { useNotification } from '@/hooks/useNotification'
-import { useQueryClient } from '@tanstack/react-query'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import type { Row } from '@repo/ui/table-types'
@@ -28,7 +27,6 @@ type TControlEvidenceFiles = {
 
 const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowed }) => {
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.EVIDENCE_FILES)
-  const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
   const [deleteFileInfo, setDeleteFileInfo] = useState<{
     id: string | null
@@ -67,7 +65,6 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
         },
       })
       setDeleteFileInfo({ id: null, name: null })
-      queryClient.invalidateQueries({ queryKey: ['evidenceFiles'] })
       successNotification({
         title: 'Evidence Updated',
         description: 'The evidence has been successfully updated.',
@@ -150,7 +147,7 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
       <div className="flex items-center justify-between mb-3">
         <p className="text-lg">Provided files</p>
         <div className="flex items-center gap-2">
-          {editAllowed && <ControlEvidenceUploadDialog evidenceID={evidenceID} />}
+          {editAllowed && <EvidenceAddFilesDialog evidenceID={evidenceID} />}
           <Button variant="secondary" icon={<Download />} iconPosition="left" onClick={() => handleDownloadAll()} disabled={files?.length === 0}>
             Download All
           </Button>

@@ -12,7 +12,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Callout } from '@/components/shared/callout/callout'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
-import { type TUploadedFile } from '../upload/TUploadedFile'
+import { type TUploadedFile } from '@/components/shared/file-upload/types'
 import { toHumanLabel, pluralizeTypeName } from '@/utils/strings'
 
 type GenericBulkCsvCreateDialogProps = {

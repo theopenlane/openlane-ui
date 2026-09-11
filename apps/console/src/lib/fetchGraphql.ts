@@ -6,6 +6,8 @@ import { refreshTokens } from './auth/utils/session-refresh'
 import { clearSSOReauthRequired, getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
 import { getKnownTokens, getUsableTokens, setAuthoritativeTokens } from './auth/utils/session-tokens'
 
+const isFileArray = (value: unknown): value is File[] => Array.isArray(value) && value.length > 0 && value.every((item) => item instanceof File)
+
 const resolveAccessToken = async (): Promise<string> => {
   if (getIsSessionInvalid()) {
     throw new Error('Session expired')
@@ -76,7 +78,7 @@ export const fetchGraphQLWithUpload = async <TVariables extends object>({ query,
       fileMap[fileIndex] = [`variables.${key}`]
       updatedVariables[key] = null // GraphQL expects null for files
       fileIndex++
-    } else if (Array.isArray(value) && value.every((v) => v instanceof File)) {
+    } else if (isFileArray(value)) {
       // Multiple files
       hasFile = true
       updatedVariables[key] = value.map(() => null) // Replace all files with null in variables
@@ -100,7 +102,7 @@ export const fetchGraphQLWithUpload = async <TVariables extends object>({ query,
       if (value instanceof File) {
         formData.append(fileIndex.toString(), value)
         fileIndex++
-      } else if (Array.isArray(value) && value.every((v) => v instanceof File)) {
+      } else if (isFileArray(value)) {
         value.forEach((file) => {
           formData.append(fileIndex.toString(), file)
           fileIndex++

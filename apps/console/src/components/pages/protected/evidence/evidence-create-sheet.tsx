@@ -16,7 +16,7 @@ import { type TObjectAssociationMap } from '@/components/shared/object-associati
 import { buildCreateEvidenceInput } from './hooks/build-evidence-input'
 import { Panel } from '@repo/ui/panel'
 import { useQueryClient } from '@tanstack/react-query'
-import { type TUploadedFile } from './upload/types/TUploadedFile'
+import { getNewFiles } from '@/components/shared/file-upload/file-selection'
 import { useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
@@ -65,7 +65,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const { isAuditor } = useIsAuditor()
   const mode = isAuditor ? EVIDENCE_AUDITOR_REQUEST_MODE : EVIDENCE_CREATE_MODE
   const { successNotification, errorNotification } = useNotification()
-  const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
   const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
   const searchParams = useSearchParams()
@@ -109,7 +108,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
     const payload = {
       input,
-      evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
+      evidenceFiles: getNewFiles(data.evidenceFiles ?? []),
     }
 
     try {
@@ -265,17 +264,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
     setEvidenceObjectTypes(updatedMap)
   }, [])
 
-  const handleUploadedFiles = (evidenceFiles: TUploadedFile[]) => {
-    const evidenceFilesFiltered = evidenceFiles?.filter((item) => item.type === 'file')
-    if (evidenceFilesFiltered) {
-      form.setValue('evidenceFiles', evidenceFilesFiltered, { shouldDirty: evidenceFilesFiltered.length > 0 })
-    }
-  }
-
-  const handleResetEvidenceFiles = () => {
-    setResetEvidenceFiles(false)
-  }
-
   const evidenceHeading =
     controlParam && controlParam.length > 0
       ? `Evidence for ${Array.from(new Set(controlParam.map((c) => c.refCode))).join(', ')}`
@@ -359,7 +347,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
             {mode.showFileUpload && (
               <div>
                 <p className="text-sm font-medium mb-2">Provide supporting file(s)</p>
-                <EvidenceUploadForm evidenceFiles={handleUploadedFiles} resetEvidenceFiles={resetEvidenceFiles} setResetEvidenceFiles={handleResetEvidenceFiles} form={form} />
+                <EvidenceUploadForm form={form} />
               </div>
             )}
 
