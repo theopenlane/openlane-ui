@@ -1,7 +1,7 @@
+import { useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  type IdentityHolder,
   type IdentityHoldersWithFilterQuery,
   type IdentityHoldersWithFilterQueryVariables,
   type CreateIdentityHolderMutation,
@@ -12,6 +12,8 @@ import {
   type DeleteIdentityHolderMutationVariables,
   type IdentityHolderQuery,
   type IdentityHolderQueryVariables,
+  type GetIdentityHolderOptionsQuery,
+  type IdentityHolderOptionFieldsFragment,
   type CreateBulkCsvIdentityHolderMutation,
   type CreateBulkCsvIdentityHolderMutationVariables,
   type UpdateBulkIdentityHolderMutation,
@@ -33,7 +35,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { withPartialData } from '@/lib/graphql-partial-data'
-import { type TPagination, type TPageInfo, type TPaginationMeta } from '@repo/ui/pagination-types'
+import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'
 import {
   GET_ALL_IDENTITY_HOLDERS,
   GET_IDENTITY_HOLDER_OPTIONS,
@@ -80,15 +82,7 @@ export const useIdentityHoldersWithFilter = ({ where, orderBy, pagination, enabl
   return { ...queryResult, identityHoldersNodes }
 }
 
-export type IdentityHolderOption = Pick<IdentityHolder, 'id' | 'email' | 'fullName' | 'identityHolderType'>
-
-interface IdentityHolderOptionsResult {
-  identityHolders?: {
-    totalCount: number
-    edges?: Array<{ node?: IdentityHolderOption | null } | null> | null
-    pageInfo?: TPageInfo
-  } | null
-}
+export type IdentityHolderOption = IdentityHolderOptionFieldsFragment
 
 type IdentityHolderOptionsArgs = {
   where?: IdentityHolderWhereInput
@@ -98,13 +92,14 @@ type IdentityHolderOptionsArgs = {
 
 export const useIdentityHolderOptions = ({ where, pagination, enabled = true }: IdentityHolderOptionsArgs = {}) => {
   const { client } = useGraphQLClient()
-  const queryResult = useQuery<IdentityHolderOptionsResult, unknown>({
+  const queryResult = useQuery<GetIdentityHolderOptionsQuery, unknown>({
     queryKey: ['identityHolders', 'options', where, pagination?.page, pagination?.pageSize, pagination?.query],
-    queryFn: () => client.request<IdentityHolderOptionsResult>(GET_IDENTITY_HOLDER_OPTIONS, { where, ...pagination?.query }),
+    queryFn: () => client.request<GetIdentityHolderOptionsQuery>(GET_IDENTITY_HOLDER_OPTIONS, { where, ...pagination?.query }),
     enabled,
   })
 
-  const nodes = (queryResult.data?.identityHolders?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
+  const edges = queryResult.data?.identityHolders?.edges
+  const nodes = useMemo(() => (edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [edges])
   const totalCount = queryResult.data?.identityHolders?.totalCount ?? nodes.length
   const pageInfo = queryResult.data?.identityHolders?.pageInfo
   const paginationMeta: TPaginationMeta = { totalCount, pageInfo, isLoading: queryResult.isFetching }
@@ -117,6 +112,15 @@ type PersonnelSelectArgs = {
   enabled?: boolean
 }
 
+const toPersonnelOption = (person: IdentityHolderOption) => ({
+  label: person.fullName || person.email || person.id,
+  value: person.id,
+  email: person.email,
+  isOpenlaneUser: !!person.isOpenlaneUser,
+})
+
+export type PersonnelOption = ReturnType<typeof toPersonnelOption>
+
 export const usePersonnelSelect = ({ searchText = '', enabled = true }: PersonnelSelectArgs = {}) => {
   const search = searchText.trim()
   const { nodes, ...rest } = useIdentityHolderOptions({
@@ -124,11 +128,7 @@ export const usePersonnelSelect = ({ searchText = '', enabled = true }: Personne
     enabled,
   })
 
-  const personnelOptions = nodes.map((person) => ({
-    label: person.fullName || person.email || person.id,
-    value: person.id,
-    email: person.email,
-  }))
+  const personnelOptions = useMemo(() => nodes.map(toPersonnelOption), [nodes])
 
   return { personnelOptions, ...rest }
 }

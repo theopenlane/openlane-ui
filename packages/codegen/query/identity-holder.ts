@@ -95,16 +95,24 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
   }
 `
 
+const IDENTITY_HOLDER_OPTION_FIELDS = gql`
+  fragment IdentityHolderOptionFields on IdentityHolder {
+    id
+    email
+    fullName
+    identityHolderType
+    isOpenlaneUser
+  }
+`
+
 export const GET_IDENTITY_HOLDER_OPTIONS = gql`
+  ${IDENTITY_HOLDER_OPTION_FIELDS}
   query GetIdentityHolderOptions($where: IdentityHolderWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
     identityHolders(where: $where, first: $first, after: $after, last: $last, before: $before) {
       totalCount
       edges {
         node {
-          id
-          email
-          fullName
-          identityHolderType
+          ...IdentityHolderOptionFields
         }
       }
       pageInfo {

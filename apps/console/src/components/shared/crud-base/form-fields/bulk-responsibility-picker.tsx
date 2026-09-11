@@ -10,6 +10,7 @@ import { usePersonnelSelect } from '@/lib/graphql-hooks/identity-holder'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
 import { type ResponsibilitySelection } from './responsibility-field-utils'
+import { PersonnelOptionItem } from './personnel-option-item'
 import { isValidEmail } from '@/lib/validators'
 
 interface BulkResponsibilityPickerProps {
@@ -124,18 +125,12 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
             {allowPersonnel && personnelOptions.length > 0 && (
               <CommandGroup heading="Personnel">
                 {personnelOptions.map((option) => (
-                  <CommandItem
+                  <PersonnelOptionItem
                     key={`personnel-${option.value}`}
-                    value={`personnel-${option.value}`}
+                    option={option}
+                    isSelected={value?.type === 'personnel' && value.value === option.value}
                     onSelect={() => handleSelect({ type: 'personnel', value: option.value, displayName: option.label })}
-                  >
-                    <IdCardLanyard className="mr-2 h-4 w-4" />
-                    <span>
-                      {option.label}
-                      {option.email && option.email !== option.label ? ` (${option.email})` : ''}
-                    </span>
-                    {value?.type === 'personnel' && value.value === option.value && <Check className="ml-auto h-4 w-4" />}
-                  </CommandItem>
+                  />
                 ))}
               </CommandGroup>
             )}
