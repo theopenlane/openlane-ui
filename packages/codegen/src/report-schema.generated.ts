@@ -47,6 +47,7 @@ export interface TReportEntity {
   objectType: ObjectTypes
   whereTypeName: string
   defaultFields: string[]
+  order?: { typeName: string; fields: string[] }
   fields: TReportField[]
   edges: TReportEdge[]
 }
@@ -626,6 +627,10 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.ACTION_PLAN,
     whereTypeName: 'ActionPlanWhereInput',
     defaultFields: ['name', 'title', 'status', 'createdAt'],
+    order: {
+      typeName: 'ActionPlanOrder',
+      fields: ['MANAGEMENT_MODE', 'PRIORITY', 'REVIEW_FREQUENCY', 'STATUS', 'created_at', 'due_date', 'name', 'review_due', 'revision', 'source', 'title', 'updated_at'],
+    },
     fields: [
       { name: 'actionPlanKindID', kind: 'id', operatorSet: 7 },
       { name: 'actionPlanKindName', kind: 'string', operatorSet: 7 },
@@ -700,6 +705,28 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.ASSESSMENT_RESPONSE,
     whereTypeName: 'AssessmentResponseWhereInput',
     defaultFields: ['status', 'createdAt'],
+    order: {
+      typeName: 'AssessmentResponseOrder',
+      fields: [
+        'assigned_at',
+        'completed_at',
+        'created_at',
+        'display_name',
+        'due_date',
+        'email',
+        'email_click_count',
+        'email_clicked_at',
+        'email_delivered_at',
+        'email_open_count',
+        'email_opened_at',
+        'is_draft',
+        'last_email_event_at',
+        'send_attempts',
+        'started_at',
+        'status',
+        'updated_at',
+      ],
+    },
     fields: [
       { name: 'assessmentID', kind: 'id', operatorSet: 6 },
       { name: 'assignedAt', kind: 'time', operatorSet: 0 },
@@ -751,6 +778,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.ASSESSMENT,
     whereTypeName: 'AssessmentWhereInput',
     defaultFields: ['name', 'createdAt'],
+    order: { typeName: 'AssessmentOrder', fields: ['assessment_type', 'created_at', 'name', 'response_due_duration', 'updated_at'] },
     fields: [
       { name: 'accessURL', kind: 'string' },
       { name: 'assessmentType', kind: 'enum', enumName: 'AssessmentAssessmentType', operatorSet: 5 },
@@ -788,6 +816,26 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.ASSET,
     whereTypeName: 'AssetWhereInput',
     defaultFields: ['name', 'createdAt'],
+    order: {
+      typeName: 'AssetOrder',
+      fields: [
+        'ASSET_TYPE',
+        'SOURCE_TYPE',
+        'contains_pii',
+        'cost_center',
+        'created_at',
+        'display_name',
+        'estimated_monthly_cost',
+        'internal_owner',
+        'name',
+        'observed_at',
+        'physical_location',
+        'purchase_date',
+        'region',
+        'source_identifier',
+        'updated_at',
+      ],
+    },
     fields: [
       { name: 'accessModelID', kind: 'id', operatorSet: 7 },
       { name: 'accessModelName', kind: 'string', operatorSet: 7 },
@@ -874,6 +922,32 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.CAMPAIGN,
     whereTypeName: 'CampaignWhereInput',
     defaultFields: ['displayID', 'name', 'status', 'createdAt'],
+    order: {
+      typeName: 'CampaignOrder',
+      fields: [
+        'CAMPAIGN_TYPE',
+        'STATUS',
+        'completed_at',
+        'created_at',
+        'due_date',
+        'internal_owner',
+        'is_active',
+        'is_recurring',
+        'last_resent_at',
+        'last_run_at',
+        'launched_at',
+        'name',
+        'next_run_at',
+        'recipient_count',
+        'recurrence_end_at',
+        'recurrence_frequency',
+        'recurrence_interval',
+        'recurrence_timezone',
+        'resend_count',
+        'scheduled_at',
+        'updated_at',
+      ],
+    },
     fields: [
       { name: 'assessmentID', kind: 'id', operatorSet: 7 },
       { name: 'campaignType', kind: 'enum', enumName: 'CampaignCampaignType', operatorSet: 5 },
@@ -946,6 +1020,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.CAMPAIGN_TARGET,
     whereTypeName: 'CampaignTargetWhereInput',
     defaultFields: ['status', 'createdAt'],
+    order: { typeName: 'CampaignTargetOrder', fields: ['STATUS', 'completed_at', 'created_at', 'email', 'full_name', 'sent_at', 'updated_at'] },
     fields: [
       { name: 'campaignID', kind: 'id', operatorSet: 7 },
       { name: 'completedAt', kind: 'time', operatorSet: 1 },
@@ -984,6 +1059,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.CONTACT,
     whereTypeName: 'ContactWhereInput',
     defaultFields: ['title', 'status', 'createdAt'],
+    order: { typeName: 'ContactOrder', fields: ['STATUS', 'company', 'created_at', 'email', 'external_id', 'full_name', 'observed_at', 'title', 'updated_at'] },
     fields: [
       { name: 'address', kind: 'string', operatorSet: 7 },
       { name: 'company', kind: 'string', operatorSet: 7 },
@@ -1017,6 +1093,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.CONTROL_IMPLEMENTATION,
     whereTypeName: 'ControlImplementationWhereInput',
     defaultFields: ['status', 'createdAt'],
+    order: { typeName: 'ControlImplementationOrder', fields: ['STATUS', 'created_at', 'implementation_date', 'updated_at', 'verification_date', 'verified'] },
     fields: [
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
       { name: 'createdBy', kind: 'string', operatorSet: 7 },
@@ -1045,6 +1122,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.CONTROL_OBJECTIVE,
     whereTypeName: 'ControlObjectiveWhereInput',
     defaultFields: ['displayID', 'name', 'status', 'createdAt'],
+    order: { typeName: 'ControlObjectiveOrder', fields: ['SOURCE', 'category', 'control_objective_type', 'created_at', 'name', 'revision', 'status', 'subcategory', 'updated_at'] },
     fields: [
       { name: 'category', kind: 'string', operatorSet: 7 },
       { name: 'controlObjectiveType', kind: 'string', operatorSet: 7 },
@@ -1083,6 +1161,10 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.CONTROL,
     whereTypeName: 'ControlWhereInput',
     defaultFields: ['refCode', 'displayID', 'title', 'status'],
+    order: {
+      typeName: 'ControlOrder',
+      fields: ['CONTROL_OWNER_name', 'DELEGATE_name', 'REFERENCE_FRAMEWORK', 'RESPONSIBLE_PARTY_name', 'SOURCE', 'STATUS', 'category', 'created_at', 'ref_code', 'subcategory', 'title', 'updated_at'],
+    },
     fields: [
       { name: 'aliases', kind: 'string', list: true, operatorSet: 13 },
       { name: 'assessmentMethods', kind: 'json', list: true },
@@ -1182,6 +1264,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.CUSTOM_TYPE_ENUM,
     whereTypeName: 'CustomTypeEnumWhereInput',
     defaultFields: ['name', 'createdAt'],
+    order: { typeName: 'CustomTypeEnumOrder', fields: ['created_at', 'field', 'name', 'object_type', 'updated_at'] },
     fields: [
       { name: 'color', kind: 'string', operatorSet: 7 },
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
@@ -1216,6 +1299,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.DIRECTORY_ACCOUNT,
     whereTypeName: 'DirectoryAccountWhereInput',
     defaultFields: ['displayID', 'status', 'createdAt'],
+    order: { typeName: 'DirectoryAccountOrder', fields: ['canonical_email', 'created_at', 'directory_instance_id', 'directory_name', 'display_name', 'external_id', 'updated_at'] },
     fields: [
       { name: 'accountType', kind: 'enum', enumName: 'DirectoryAccountDirectoryAccountType', operatorSet: 11 },
       { name: 'addedAt', kind: 'time', operatorSet: 1 },
@@ -1285,6 +1369,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.DIRECTORY_GROUP,
     whereTypeName: 'DirectoryGroupWhereInput',
     defaultFields: ['displayID', 'status', 'createdAt'],
+    order: { typeName: 'DirectoryGroupOrder', fields: ['created_at', 'directory_instance_id', 'directory_name', 'display_name', 'email', 'external_id', 'updated_at'] },
     fields: [
       { name: 'addedAt', kind: 'time', operatorSet: 1 },
       { name: 'classification', kind: 'enum', enumName: 'DirectoryGroupDirectoryGroupClassification', operatorSet: 5 },
@@ -1339,6 +1424,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.DIRECTORY_MEMBERSHIP,
     whereTypeName: 'DirectoryMembershipWhereInput',
     defaultFields: ['displayID', 'createdAt'],
+    order: { typeName: 'DirectoryMembershipOrder', fields: ['created_at', 'directory_name', 'updated_at'] },
     fields: [
       { name: 'addedAt', kind: 'time', operatorSet: 1 },
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
@@ -1386,6 +1472,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.DIRECTORY_SYNC_RUN,
     whereTypeName: 'DirectorySyncRunWhereInput',
     defaultFields: ['displayID', 'status', 'createdAt'],
+    order: { typeName: 'DirectorySyncRunOrder', fields: ['created_at', 'started_at', 'updated_at'] },
     fields: [
       { name: 'completedAt', kind: 'time', operatorSet: 1 },
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
@@ -1427,6 +1514,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.DISCUSSION,
     whereTypeName: 'DiscussionWhereInput',
     defaultFields: ['createdAt'],
+    order: { typeName: 'DiscussionOrder', fields: ['created_at', 'updated_at'] },
     fields: [
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
       { name: 'createdBy', kind: 'string', operatorSet: 7 },
@@ -1452,6 +1540,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.EMAIL_TEMPLATE,
     whereTypeName: 'EmailTemplateWhereInput',
     defaultFields: ['name', 'createdAt'],
+    order: { typeName: 'EmailTemplateOrder', fields: ['ACTIVE', 'FORMAT', 'KEY', 'LOCALE', 'NAME', 'TEMPLATE_CONTEXT', 'VERSION', 'created_at', 'revision', 'updated_at'] },
     fields: [
       { name: 'active', kind: 'boolean', operatorSet: 2 },
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
@@ -1492,6 +1581,43 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.ENTITY,
     whereTypeName: 'EntityWhereInput',
     defaultFields: ['name', 'status', 'createdAt'],
+    order: {
+      typeName: 'EntityOrder',
+      fields: [
+        'REVIEW_FREQUENCY',
+        'annual_spend',
+        'approved_for_use',
+        'auto_renews',
+        'billing_model',
+        'contract_end_date',
+        'contract_renewal_at',
+        'contract_start_date',
+        'created_at',
+        'display_name',
+        'external_id',
+        'has_soc2',
+        'internal_owner',
+        'last_reviewed_at',
+        'mfa_enforced',
+        'mfa_supported',
+        'name',
+        'next_review_at',
+        'observed_at',
+        'renewal_risk',
+        'reviewed_by',
+        'risk_rating',
+        'risk_score',
+        'risk_score_coverage',
+        'soc2_period_end',
+        'spend_currency',
+        'sso_enforced',
+        'status',
+        'status_page_url',
+        'termination_notice_days',
+        'tier',
+        'updated_at',
+      ],
+    },
     fields: [
       { name: 'aliases', kind: 'string', list: true, operatorSet: 13 },
       { name: 'annualSpend', kind: 'float', operatorSet: 10 },
@@ -1605,6 +1731,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.ENTITY_TYPE,
     whereTypeName: 'EntityTypeWhereInput',
     defaultFields: ['name', 'createdAt'],
+    order: { typeName: 'EntityTypeOrder', fields: ['created_at', 'name', 'updated_at'] },
     fields: [
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
       { name: 'createdBy', kind: 'string', operatorSet: 7 },
@@ -1624,6 +1751,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.EVIDENCE,
     whereTypeName: 'EvidenceWhereInput',
     defaultFields: ['displayID', 'name', 'status', 'createdAt'],
+    order: { typeName: 'EvidenceOrder', fields: ['REVIEW_FREQUENCY', 'STATUS', 'created_at', 'creation_date', 'name', 'renewal_date', 'updated_at'] },
     fields: [
       { name: 'auditorReferenceID', kind: 'string', operatorSet: 7 },
       { name: 'collectionProcedure', kind: 'string', operatorSet: 7 },
@@ -1679,6 +1807,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.EXPORT,
     whereTypeName: 'ExportWhereInput',
     defaultFields: ['status', 'createdAt'],
+    order: { typeName: 'ExportOrder', fields: ['created_at', 'export_type', 'format', 'mode', 'status', 'updated_at'] },
     fields: [
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
       { name: 'createdBy', kind: 'string', operatorSet: 7 },
@@ -1707,6 +1836,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.FINDING_CONTROL,
     whereTypeName: 'FindingControlWhereInput',
     defaultFields: ['createdAt'],
+    order: { typeName: 'FindingControlOrder', fields: ['created_at', 'updated_at'] },
     fields: [
       { name: 'controlID', kind: 'id' },
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
@@ -1736,6 +1866,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.FINDING,
     whereTypeName: 'FindingWhereInput',
     defaultFields: ['displayID', 'createdAt'],
+    order: { typeName: 'FindingOrder', fields: ['category', 'created_at', 'event_time', 'external_id', 'external_owner_id', 'reported_at', 'security_level', 'severity', 'updated_at'] },
     fields: [
       { name: 'assessmentID', kind: 'string', operatorSet: 7 },
       { name: 'assignedTo', kind: 'string', operatorSet: 7 },
@@ -1841,6 +1972,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.GROUP,
     whereTypeName: 'GroupWhereInput',
     defaultFields: ['displayID', 'name', 'createdAt'],
+    order: { typeName: 'GroupOrder', fields: ['created_at', 'display_name', 'name', 'updated_at'] },
     fields: [
       { name: 'additionalRoles', kind: 'string', list: true },
       { name: 'avatarLocalFileID', kind: 'id', operatorSet: 7 },
@@ -1928,6 +2060,29 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.IDENTITY_HOLDER,
     whereTypeName: 'IdentityHolderWhereInput',
     defaultFields: ['displayID', 'title', 'status', 'createdAt'],
+    order: {
+      typeName: 'IdentityHolderOrder',
+      fields: [
+        'IDENTITY_HOLDER_TYPE',
+        'STATUS',
+        'alternate_email',
+        'created_at',
+        'department',
+        'email',
+        'end_date',
+        'external_reference_id',
+        'external_user_id',
+        'full_name',
+        'internal_owner',
+        'is_active',
+        'is_openlane_user',
+        'location',
+        'start_date',
+        'team',
+        'title',
+        'updated_at',
+      ],
+    },
     fields: [
       { name: 'alternateEmail', kind: 'string', operatorSet: 7 },
       { name: 'avatarRemoteURL', kind: 'string', operatorSet: 7 },
@@ -2003,6 +2158,10 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.INTEGRATION,
     whereTypeName: 'IntegrationWhereInput',
     defaultFields: ['name', 'status', 'createdAt'],
+    order: {
+      typeName: 'IntegrationOrder',
+      fields: ['created_at', 'definition_id', 'definition_slug', 'definition_version', 'expires_at', 'family', 'integration_type', 'kind', 'name', 'status', 'updated_at'],
+    },
     fields: [
       { name: 'campaignEmail', kind: 'boolean', operatorSet: 2 },
       { name: 'config', kind: 'json' },
@@ -2066,6 +2225,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.INTERNAL_POLICY,
     whereTypeName: 'InternalPolicyWhereInput',
     defaultFields: ['displayID', 'name', 'status', 'createdAt'],
+    order: { typeName: 'InternalPolicyOrder', fields: ['MANAGEMENT_MODE', 'REVIEW_FREQUENCY', 'STATUS', 'created_at', 'name', 'review_due', 'revision', 'updated_at'] },
     fields: [
       { name: 'approvalRequired', kind: 'boolean', operatorSet: 12 },
       { name: 'approverID', kind: 'id', operatorSet: 7 },
@@ -2144,6 +2304,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.MAPPED_CONTROL,
     whereTypeName: 'MappedControlWhereInput',
     defaultFields: ['createdAt'],
+    order: { typeName: 'MappedControlOrder', fields: ['MAPPING_TYPE', 'SOURCE', 'created_at', 'updated_at'] },
     fields: [
       { name: 'confidence', kind: 'int', operatorSet: 4 },
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
@@ -2171,6 +2332,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.NARRATIVE,
     whereTypeName: 'NarrativeWhereInput',
     defaultFields: ['displayID', 'name', 'createdAt'],
+    order: { typeName: 'NarrativeOrder', fields: ['created_at', 'name', 'updated_at'] },
     fields: [
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
       { name: 'createdBy', kind: 'string', operatorSet: 7 },
@@ -2198,6 +2360,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.NOTIFICATION_PREFERENCE,
     whereTypeName: 'NotificationPreferenceWhereInput',
     defaultFields: ['status', 'createdAt'],
+    order: { typeName: 'NotificationPreferenceOrder', fields: ['CHANNEL', 'ENABLED', 'STATUS', 'created_at', 'updated_at'] },
     fields: [
       { name: 'cadence', kind: 'enum', enumName: 'NotificationPreferenceNotificationCadence', operatorSet: 5 },
       { name: 'channel', kind: 'enum', enumName: 'NotificationPreferenceChannel', operatorSet: 5 },
@@ -2235,6 +2398,10 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.NOTIFICATION_TEMPLATE,
     whereTypeName: 'NotificationTemplateWhereInput',
     defaultFields: ['name', 'createdAt'],
+    order: {
+      typeName: 'NotificationTemplateOrder',
+      fields: ['ACTIVE', 'CHANNEL', 'FORMAT', 'KEY', 'LOCALE', 'NAME', 'TEMPLATE_CONTEXT', 'TOPIC_PATTERN', 'VERSION', 'created_at', 'revision', 'updated_at'],
+    },
     fields: [
       { name: 'active', kind: 'boolean', operatorSet: 2 },
       { name: 'blocks', kind: 'json' },
@@ -2280,6 +2447,29 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.PLATFORM,
     whereTypeName: 'PlatformWhereInput',
     defaultFields: ['displayID', 'name', 'status', 'createdAt'],
+    order: {
+      typeName: 'PlatformOrder',
+      fields: [
+        'SOURCE_TYPE',
+        'STATUS',
+        'business_owner',
+        'business_purpose',
+        'contains_pii',
+        'cost_center',
+        'created_at',
+        'estimated_monthly_cost',
+        'external_reference_id',
+        'internal_owner',
+        'name',
+        'physical_location',
+        'purchase_date',
+        'region',
+        'security_owner',
+        'source_identifier',
+        'technical_owner',
+        'updated_at',
+      ],
+    },
     fields: [
       { name: 'accessModelID', kind: 'id', operatorSet: 7 },
       { name: 'accessModelName', kind: 'string', operatorSet: 7 },
@@ -2402,6 +2592,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.PROCEDURE,
     whereTypeName: 'ProcedureWhereInput',
     defaultFields: ['displayID', 'name', 'status', 'createdAt'],
+    order: { typeName: 'ProcedureOrder', fields: ['MANAGEMENT_MODE', 'REVIEW_FREQUENCY', 'STATUS', 'created_at', 'name', 'review_due', 'revision', 'updated_at'] },
     fields: [
       { name: 'approvalRequired', kind: 'boolean', operatorSet: 12 },
       { name: 'approverID', kind: 'id', operatorSet: 7 },
@@ -2471,6 +2662,22 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.PROGRAM,
     whereTypeName: 'ProgramWhereInput',
     defaultFields: ['displayID', 'name', 'status', 'createdAt'],
+    order: {
+      typeName: 'ProgramOrder',
+      fields: [
+        'STATUS',
+        'created_at',
+        'end_date',
+        'fieldwork_end_date',
+        'fieldwork_start_date',
+        'framework',
+        'name',
+        'observation_period_end_date',
+        'observation_period_start_date',
+        'start_date',
+        'updated_at',
+      ],
+    },
     fields: [
       { name: 'auditFirm', kind: 'string', operatorSet: 7 },
       { name: 'auditor', kind: 'string', operatorSet: 7 },
@@ -2531,6 +2738,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.REMEDIATION,
     whereTypeName: 'RemediationWhereInput',
     defaultFields: ['displayID', 'title', 'status', 'createdAt'],
+    order: { typeName: 'RemediationOrder', fields: ['created_at', 'external_id', 'external_owner_id', 'state', 'status', 'title', 'updated_at'] },
     fields: [
       { name: 'completedAt', kind: 'time', operatorSet: 1 },
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
@@ -2598,6 +2806,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.REVIEW,
     whereTypeName: 'ReviewWhereInput',
     defaultFields: ['title', 'status', 'createdAt'],
+    order: { typeName: 'ReviewOrder', fields: ['created_at', 'external_id', 'external_owner_id', 'state', 'title', 'updated_at'] },
     fields: [
       { name: 'approved', kind: 'boolean', operatorSet: 12 },
       { name: 'approvedAt', kind: 'time', operatorSet: 1 },
@@ -2658,6 +2867,29 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.RISK,
     whereTypeName: 'RiskWhereInput',
     defaultFields: ['displayID', 'name', 'status', 'createdAt'],
+    order: {
+      typeName: 'RiskOrder',
+      fields: [
+        'IMPACT',
+        'LIKELIHOOD',
+        'STATUS',
+        'business_costs',
+        'created_at',
+        'due_date',
+        'external_id',
+        'last_reviewed_at',
+        'mitigated_at',
+        'name',
+        'next_review_due_at',
+        'observed_at',
+        'residual_score',
+        'review_frequency',
+        'review_required',
+        'risk_decision',
+        'score',
+        'updated_at',
+      ],
+    },
     fields: [
       { name: 'businessCosts', kind: 'string', operatorSet: 7 },
       { name: 'businessCostsJSON', kind: 'json', list: true },
@@ -2739,6 +2971,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.SCAN,
     whereTypeName: 'ScanWhereInput',
     defaultFields: ['status', 'createdAt'],
+    order: { typeName: 'ScanOrder', fields: ['SCAN_TYPE', 'STATUS', 'created_at', 'next_scan_run_at', 'scan_date', 'updated_at'] },
     fields: [
       { name: 'assignedTo', kind: 'string', operatorSet: 7 },
       { name: 'assignedToGroupID', kind: 'id', operatorSet: 7 },
@@ -2805,6 +3038,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.SLA_DEFINITION,
     whereTypeName: 'SLADefinitionWhereInput',
     defaultFields: ['displayID', 'createdAt'],
+    order: { typeName: 'SLADefinitionOrder', fields: ['created_at', 'security_level', 'sla_days', 'updated_at'] },
     fields: [
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
       { name: 'createdBy', kind: 'string', operatorSet: 7 },
@@ -2825,6 +3059,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.STANDARD,
     whereTypeName: 'StandardWhereInput',
     defaultFields: ['name', 'status', 'createdAt'],
+    order: { typeName: 'StandardOrder', fields: ['STATUS', 'created_at', 'framework', 'governing_body', 'name', 'revision', 'short_name', 'standard_type', 'updated_at'] },
     fields: [
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
       { name: 'createdBy', kind: 'string', operatorSet: 7 },
@@ -2864,6 +3099,10 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.SUBCONTROL,
     whereTypeName: 'SubcontrolWhereInput',
     defaultFields: ['refCode', 'displayID', 'title', 'status'],
+    order: {
+      typeName: 'SubcontrolOrder',
+      fields: ['CONTROL_OWNER_name', 'DELEGATE_name', 'REFERENCE_FRAMEWORK', 'RESPONSIBLE_PARTY_name', 'SOURCE', 'STATUS', 'category', 'created_at', 'ref_code', 'subcategory', 'title', 'updated_at'],
+    },
     fields: [
       { name: 'aliases', kind: 'string', list: true, operatorSet: 13 },
       { name: 'assessmentMethods', kind: 'json', list: true },
@@ -2949,6 +3188,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.SUBPROCESSOR,
     whereTypeName: 'SubprocessorWhereInput',
     defaultFields: ['name', 'createdAt'],
+    order: { typeName: 'SubprocessorOrder', fields: ['created_at', 'name', 'updated_at'] },
     fields: [
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
       { name: 'createdBy', kind: 'string', operatorSet: 7 },
@@ -2975,6 +3215,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.SUBSCRIBER,
     whereTypeName: 'SubscriberWhereInput',
     defaultFields: ['createdAt'],
+    order: { typeName: 'SubscriberOrder', fields: ['active', 'created_at', 'email', 'send_attempts', 'unsubscribed', 'updated_at'] },
     fields: [
       { name: 'active', kind: 'boolean', operatorSet: 2 },
       { name: 'contactID', kind: 'id', operatorSet: 7 },
@@ -3007,6 +3248,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.SYSTEM_DETAIL,
     whereTypeName: 'SystemDetailWhereInput',
     defaultFields: ['displayID', 'createdAt'],
+    order: { typeName: 'SystemDetailOrder', fields: ['created_at', 'system_name', 'updated_at'] },
     fields: [
       { name: 'authorizationBoundary', kind: 'string', operatorSet: 7 },
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
@@ -3038,6 +3280,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.TAG_DEFINITION,
     whereTypeName: 'TagDefinitionWhereInput',
     defaultFields: ['name', 'createdAt'],
+    order: { typeName: 'TagDefinitionOrder', fields: ['created_at', 'name', 'slug', 'updated_at'] },
     fields: [
       { name: 'aliases', kind: 'string', list: true, operatorSet: 13 },
       { name: 'color', kind: 'string', operatorSet: 7 },
@@ -3060,6 +3303,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.TASK,
     whereTypeName: 'TaskWhereInput',
     defaultFields: ['displayID', 'title', 'status', 'createdAt'],
+    order: { typeName: 'TaskOrder', fields: ['STATUS', 'completed', 'created_at', 'due', 'is_suggested', 'is_template', 'priority', 'title', 'updated_at'] },
     fields: [
       { name: 'assigneeID', kind: 'id', operatorSet: 7 },
       { name: 'assignerID', kind: 'id', operatorSet: 7 },
@@ -3133,6 +3377,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.TEMPLATE,
     whereTypeName: 'TemplateWhereInput',
     defaultFields: ['name', 'createdAt'],
+    order: { typeName: 'TemplateOrder', fields: ['KIND', 'TEMPLATE_TYPE', 'created_at', 'name', 'updated_at'] },
     fields: [
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
       { name: 'createdBy', kind: 'string', operatorSet: 7 },
@@ -3172,6 +3417,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.TRUST_CENTER,
     whereTypeName: 'TrustCenterWhereInput',
     defaultFields: ['createdAt'],
+    order: { typeName: 'TrustCenterOrder', fields: ['created_at', 'updated_at'] },
     fields: [
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
       { name: 'createdBy', kind: 'string', operatorSet: 7 },
@@ -3214,6 +3460,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.VENDOR_RISK_SCORE,
     whereTypeName: 'VendorRiskScoreWhereInput',
     defaultFields: ['createdAt'],
+    order: { typeName: 'VendorRiskScoreOrder', fields: ['created_at', 'impact', 'likelihood', 'question_category', 'question_key', 'score', 'updated_at'] },
     fields: [
       { name: 'answer', kind: 'string', operatorSet: 7 },
       { name: 'answerType', kind: 'enum', enumName: 'VendorRiskScoreVendorScoringAnswerType', operatorSet: 5 },
@@ -3248,6 +3495,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.VENDOR_SCORING_CONFIG,
     whereTypeName: 'VendorScoringConfigWhereInput',
     defaultFields: ['createdAt'],
+    order: { typeName: 'VendorScoringConfigOrder', fields: ['created_at', 'scoring_mode', 'updated_at'] },
     fields: [
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
       { name: 'createdBy', kind: 'string', operatorSet: 7 },
@@ -3268,6 +3516,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.VULNERABILITY,
     whereTypeName: 'VulnerabilityWhereInput',
     defaultFields: ['displayID', 'createdAt'],
+    order: { typeName: 'VulnerabilityOrder', fields: ['category', 'created_at', 'cve_id', 'external_id', 'external_owner_id', 'score', 'security_level', 'severity', 'updated_at'] },
     fields: [
       { name: 'assignedTo', kind: 'string', operatorSet: 7 },
       { name: 'assignedToGroupID', kind: 'id', operatorSet: 7 },
@@ -3374,6 +3623,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.WORKFLOW_ASSIGNMENT,
     whereTypeName: 'WorkflowAssignmentWhereInput',
     defaultFields: ['displayID', 'status', 'createdAt'],
+    order: { typeName: 'WorkflowAssignmentOrder', fields: ['created_at', 'updated_at'] },
     fields: [
       { name: 'actorGroupID', kind: 'id', operatorSet: 7 },
       { name: 'actorUserID', kind: 'id', operatorSet: 7 },
@@ -3412,6 +3662,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.WORKFLOW_ASSIGNMENT_TARGET,
     whereTypeName: 'WorkflowAssignmentTargetWhereInput',
     defaultFields: ['displayID', 'createdAt'],
+    order: { typeName: 'WorkflowAssignmentTargetOrder', fields: ['created_at', 'updated_at'] },
     fields: [
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
       { name: 'createdBy', kind: 'string', operatorSet: 7 },
@@ -3438,6 +3689,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.WORKFLOW_DEFINITION,
     whereTypeName: 'WorkflowDefinitionWhereInput',
     defaultFields: ['displayID', 'name', 'createdAt'],
+    order: { typeName: 'WorkflowDefinitionOrder', fields: ['created_at', 'updated_at'] },
     fields: [
       { name: 'active', kind: 'boolean', operatorSet: 2 },
       { name: 'cooldownSeconds', kind: 'int', operatorSet: 3 },
@@ -3473,6 +3725,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.WORKFLOW_EVENT,
     whereTypeName: 'WorkflowEventWhereInput',
     defaultFields: ['displayID', 'createdAt'],
+    order: { typeName: 'WorkflowEventOrder', fields: ['created_at', 'updated_at'] },
     fields: [
       { name: 'createdAt', kind: 'time', operatorSet: 1 },
       { name: 'createdBy', kind: 'string', operatorSet: 7 },
@@ -3494,6 +3747,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.WORKFLOW_INSTANCE,
     whereTypeName: 'WorkflowInstanceWhereInput',
     defaultFields: ['displayID', 'createdAt'],
+    order: { typeName: 'WorkflowInstanceOrder', fields: ['created_at', 'updated_at'] },
     fields: [
       { name: 'actionPlanID', kind: 'id', operatorSet: 7 },
       { name: 'assessmentID', kind: 'id', operatorSet: 7 },
@@ -3562,6 +3816,7 @@ export const REPORT_ENTITIES: TReportEntity[] = [
     objectType: ObjectTypes.WORKFLOW_OBJECT_REF,
     whereTypeName: 'WorkflowObjectRefWhereInput',
     defaultFields: ['displayID', 'createdAt'],
+    order: { typeName: 'WorkflowObjectRefOrder', fields: ['created_at', 'updated_at'] },
     fields: [
       { name: 'actionPlanID', kind: 'id', operatorSet: 7 },
       { name: 'assessmentID', kind: 'id', operatorSet: 7 },

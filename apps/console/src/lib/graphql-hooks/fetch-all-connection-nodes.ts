@@ -12,21 +12,25 @@ export class ExportTooLargeError extends Error {
   }
 }
 
-export const fetchAllConnectionNodes = async <TNode>(fetchPage: (after: string | null) => Promise<TConnectionPage<TNode> | null | undefined>): Promise<TNode[]> => {
+export const fetchAllConnectionNodes = async <TNode>(
+  fetchPage: (after: string | null, remaining: number) => Promise<TConnectionPage<TNode> | null | undefined>,
+  limit?: number | null,
+): Promise<TNode[]> => {
   const nodes: TNode[] = []
   const visitedCursors = new Set<string>()
+  const maxNodes = limit ?? Number.POSITIVE_INFINITY
   let after: string | null = null
 
   for (let page = 0; page < MAX_EXPORT_PAGES; page++) {
-    const connection = await fetchPage(after)
+    const connection = await fetchPage(after, maxNodes - nodes.length)
 
     connection?.edges?.forEach((edge) => {
-      if (edge?.node) nodes.push(edge.node)
+      if (edge?.node && nodes.length < maxNodes) nodes.push(edge.node)
     })
 
     const endCursor = connection?.pageInfo?.endCursor
 
-    if (!connection?.pageInfo?.hasNextPage || typeof endCursor !== 'string' || visitedCursors.has(endCursor)) {
+    if (nodes.length >= maxNodes || !connection?.pageInfo?.hasNextPage || typeof endCursor !== 'string' || visitedCursors.has(endCursor)) {
       return nodes
     }
 

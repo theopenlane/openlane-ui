@@ -9,7 +9,7 @@ import Pagination from '@repo/ui/pagination'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { Callout } from '@/components/shared/callout/callout'
 import { toJson } from '@/lib/report/report-export'
-import { formatCell, type TReportResult, type TReportRow } from '@/lib/report/report-rows'
+import { formatCell, rowsForPage, type TReportResult, type TReportRow } from '@/lib/report/report-rows'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TReportResultsProps = {
@@ -22,7 +22,8 @@ type TReportResultsProps = {
 }
 
 const pageQueryFor = (page: number, pagination: TPagination, totalPages: number, result: TReportResult): TPagination['query'] => {
-  if (page <= 1) return { first: pagination.pageSize }
+  const pageInfo = result.pageInfo
+  if (!pageInfo || page <= 1) return { first: pagination.pageSize }
 
   if (page >= totalPages) {
     const remaining = result.totalCount - pagination.pageSize * (totalPages - 1)
@@ -30,7 +31,7 @@ const pageQueryFor = (page: number, pagination: TPagination, totalPages: number,
     return { last: remaining > 0 ? remaining : pagination.pageSize }
   }
 
-  return page > pagination.page ? { first: pagination.pageSize, after: result.pageInfo.endCursor } : { last: pagination.pageSize, before: result.pageInfo.startCursor }
+  return page > pagination.page ? { first: pagination.pageSize, after: pageInfo.endCursor } : { last: pagination.pageSize, before: pageInfo.startCursor }
 }
 
 const ReportResults: React.FC<TReportResultsProps> = ({ result, error, isLoading, view, pagination, onPaginationChange }) => {
@@ -52,7 +53,9 @@ const ReportResults: React.FC<TReportResultsProps> = ({ result, error, isLoading
     [result?.columns],
   )
 
-  const json = useMemo(() => (result && view === 'json' ? toJson(result.rows, result.columns) : ''), [result, view])
+  const rows = useMemo(() => (result ? rowsForPage(result, pagination) : []), [pagination, result])
+
+  const json = useMemo(() => (result && view === 'json' ? toJson(rows, result.columns) : ''), [result, rows, view])
 
   if (error) {
     return (
@@ -96,7 +99,7 @@ const ReportResults: React.FC<TReportResultsProps> = ({ result, error, isLoading
   return (
     <DataTable
       columns={tableColumns}
-      data={result.rows}
+      data={rows}
       loading={isLoading}
       tableKey={undefined}
       noResultsText="No records match this report"

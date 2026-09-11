@@ -1,20 +1,27 @@
 import type { TReportFieldKind } from '@repo/codegen/src/report-schema.generated'
+import type { TPagination } from '@repo/ui/pagination-types'
 import { formatDateTime } from '@/utils/date'
+import { sliceByPagination } from '@/utils/pagination'
 import type { TReportColumn } from './report-schema'
 
 export type TReportRow = Record<string, unknown>
 
+export type TReportPageInfo = {
+  hasNextPage?: boolean
+  hasPreviousPage?: boolean
+  startCursor?: string | null
+  endCursor?: string | null
+}
+
 export type TReportResult = {
   totalCount: number
-  pageInfo: {
-    hasNextPage?: boolean
-    hasPreviousPage?: boolean
-    startCursor?: string | null
-    endCursor?: string | null
-  }
+  matchedCount: number
+  pageInfo?: TReportPageInfo
   columns: TReportColumn[]
   rows: TReportRow[]
 }
+
+export const rowsForPage = (result: TReportResult, pagination: TPagination): TReportRow[] => (result.pageInfo ? result.rows : sliceByPagination(result.rows, pagination))
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
 
