@@ -9,6 +9,7 @@ import { useGetEvidenceFiles } from '@/lib/graphql-hooks/evidence'
 import { formatDateSince } from '@/utils/date'
 import { type TUploadedFile } from './types/TUploadedFile'
 import { type TEvidenceFilesColumn } from './types/TEvidenceFilesColumn'
+import { getFileCategory, getFileDisplayName } from '@/components/shared/file-table/columns'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
@@ -38,11 +39,12 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
       const tableData: TEvidenceFilesColumn[] =
         data?.files?.edges?.map((edge) => ({
           id: edge?.node?.id ?? '',
+          name: edge?.node?.name ?? '',
           providedFileName: edge?.node?.providedFileName ?? '',
           providedFileSize: edge?.node?.providedFileSize ?? 0,
           presignedURL: edge?.node?.presignedURL ?? '',
           providedFileExtension: edge?.node?.providedFileExtension ?? '',
-          categoryType: edge?.node?.categoryType ?? '',
+          metadata: edge?.node?.metadata ?? null,
           createdAt: edge?.node?.createdAt ?? '',
         })) || []
 
@@ -51,7 +53,7 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
   }, [isLoading, data?.files?.edges])
 
   const handleAdd = (data: TEvidenceFilesColumn) => {
-    const fileAdded = props.evidenceFiles.some((item) => item.name === data.providedFileName)
+    const fileAdded = props.evidenceFiles.some((item) => item.id === data.id)
     if (fileAdded) {
       return
     }
@@ -60,11 +62,11 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
     props.form.setValue('fileIDs', [...(formFileIds || []), data.id])
 
     const newFile: TUploadedFile = {
-      name: data.providedFileName,
+      name: getFileDisplayName(data),
       size: data.providedFileSize ?? undefined,
       type: 'existingFile',
       id: data.id,
-      category: data.categoryType,
+      category: getFileCategory(data),
       createdAt: formatDateSince(data.createdAt),
     }
     props.existingFile(newFile)
@@ -72,12 +74,14 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
 
   const columns: ColumnDef<TEvidenceFilesColumn>[] = [
     {
-      accessorKey: 'providedFileName',
-      header: 'Filename',
+      accessorKey: 'name',
+      header: 'Name',
+      cell: ({ row }) => getFileDisplayName(row.original),
     },
     {
-      accessorKey: 'categoryType',
+      accessorKey: 'metadata',
       header: 'Category',
+      cell: ({ row }) => getFileCategory(row.original) ?? '-',
     },
     {
       accessorKey: 'createdAt',

@@ -155,8 +155,8 @@ export const CREATE_REVIEW = gql`
 `
 
 export const UPDATE_REVIEW = gql`
-  mutation UpdateReview($updateReviewId: ID!, $input: UpdateReviewInput!, $reviewFiles: [Upload!]) {
-    updateReview(id: $updateReviewId, input: $input, reviewFiles: $reviewFiles) {
+  mutation UpdateReview($updateReviewId: ID!, $input: UpdateReviewInput!, $reviewFiles: [Upload!], $reviewFilesMetadata: [FileMetadataInput!]) {
+    updateReview(id: $updateReviewId, input: $input, reviewFiles: $reviewFiles, reviewFilesMetadata: $reviewFilesMetadata) {
       review {
         id
       }
@@ -323,9 +323,11 @@ export const GET_REVIEW_FILES_PAGINATED = gql`
         totalCount
         edges {
           node {
+            name
             providedFileName
             providedFileSize
             providedFileExtension
+            metadata
             id
             uri
             presignedURL

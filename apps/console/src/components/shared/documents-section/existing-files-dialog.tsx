@@ -12,14 +12,9 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
+import { getFileCategory, getFileDisplayName, type TFile } from '@/components/shared/file-table/columns'
 
-type ExistingFileRow = {
-  id: string
-  providedFileName: string
-  providedFileExtension: string
-  categoryType?: string | null
-  createdAt?: string | null
-}
+type ExistingFileRow = Pick<TFile, 'id' | 'name' | 'providedFileName' | 'providedFileExtension' | 'metadata' | 'createdAt'>
 
 type ExistingFilesDialogProps = {
   selectedFileIds: string[]
@@ -46,9 +41,10 @@ const ExistingFilesDialog: React.FC<ExistingFilesDialogProps> = ({ selectedFileI
       const tableData: ExistingFileRow[] =
         data?.files?.edges?.map((edge) => ({
           id: edge?.node?.id ?? '',
+          name: edge?.node?.name ?? '',
           providedFileName: edge?.node?.providedFileName ?? '',
           providedFileExtension: edge?.node?.providedFileExtension ?? '',
-          categoryType: edge?.node?.categoryType ?? '',
+          metadata: edge?.node?.metadata ?? null,
           createdAt: edge?.node?.createdAt ?? '',
         })) || []
 
@@ -58,17 +54,19 @@ const ExistingFilesDialog: React.FC<ExistingFilesDialogProps> = ({ selectedFileI
 
   const handleAdd = (row: ExistingFileRow) => {
     if (selectedFileIds.includes(row.id)) return
-    onFileSelected({ id: row.id, name: row.providedFileName })
+    onFileSelected({ id: row.id, name: getFileDisplayName(row) })
   }
 
   const columns: ColumnDef<ExistingFileRow>[] = [
     {
-      accessorKey: 'providedFileName',
-      header: 'Filename',
+      accessorKey: 'name',
+      header: 'Name',
+      cell: ({ row }) => getFileDisplayName(row.original),
     },
     {
-      accessorKey: 'categoryType',
+      accessorKey: 'metadata',
       header: 'Category',
+      cell: ({ row }) => getFileCategory(row.original) ?? '-',
     },
     {
       accessorKey: 'createdAt',

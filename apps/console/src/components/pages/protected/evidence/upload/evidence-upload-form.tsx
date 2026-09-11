@@ -32,7 +32,7 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
 
   const handleDelete = (file: TUploadedFile) => {
     setEvidenceFiles((prev) => {
-      const evidenceFiles = prev.filter((evidenceFile) => evidenceFile.name !== file.name)
+      const evidenceFiles = prev.filter((evidenceFile) => evidenceFile !== file)
 
       if (file.type === 'link') {
         props.form.setValue('url', undefined)
@@ -40,11 +40,10 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
 
       if (file.type === 'existingFile') {
         const formFileIds = props.form.getValues('fileIDs')
-        const fileId = prev.find((item) => item.id === file.id)?.id
         if (formFileIds) {
           props.form.setValue(
             'fileIDs',
-            formFileIds.filter((file) => file !== fileId),
+            formFileIds.filter((fileId) => fileId !== file.id),
           )
         }
       }

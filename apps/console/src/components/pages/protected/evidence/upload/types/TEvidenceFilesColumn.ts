@@ -1,9 +1,3 @@
-export type TEvidenceFilesColumn = {
-  id: string
-  providedFileName: string
-  providedFileSize?: number | null
-  presignedURL?: string | null
-  providedFileExtension: string
-  categoryType?: string | null
-  createdAt?: string | null
-}
+import { type TFile } from '@/components/shared/file-table/columns'
+
+export type TEvidenceFilesColumn = Pick<TFile, 'id' | 'name' | 'providedFileName' | 'providedFileSize' | 'presignedURL' | 'providedFileExtension' | 'metadata' | 'createdAt'>

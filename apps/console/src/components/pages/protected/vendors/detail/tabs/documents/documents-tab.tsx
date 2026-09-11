@@ -6,7 +6,7 @@ import { type ColumnDef, type VisibilityState, type Row } from '@repo/ui/table-t
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { type TFile } from '@/components/shared/file-table/columns'
+import { createFileCategoryColumn, fileNameColumn, getFileCategory, getFileDisplayName, originalFileNameColumn, type TFile } from '@/components/shared/file-table/columns'
 import { FILE_SORT_FIELDS } from '@/components/shared/file-table/table-config'
 import { type FileWhereInput, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { useGetEntityFilesPaginated, useUploadEntityFiles } from '@/lib/graphql-hooks/entity'
@@ -16,6 +16,9 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { DocumentsUploadDialog } from '@/components/shared/documents-section/documents-upload-dialog'
+import { FILE_CATEGORY_ENUM, toFileUploadArgs, type StagedUpload } from '@/components/shared/documents-section/staged-upload'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { exportToCSV } from '@/utils/exportToCSV'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { fileDownload } from '@/components/shared/lib/export'
@@ -46,8 +49,9 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
     },
   ])
   const [searchTerm, setSearchTerm] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.ENTITY_FILES, {}))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.ENTITY_FILES, { providedFileName: false }))
   const { successNotification, errorNotification } = useNotification()
+  const { enumOptions: categoryOptions } = useCreatableEnumOptions(FILE_CATEGORY_ENUM)
 
   const [markEvidenceFile, setMarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
   const [unmarkEvidenceFile, setUnmarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
@@ -57,7 +61,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
   const debouncedSearch = useDebounce(searchTerm, 300)
   const fileWhere: FileWhereInput | undefined = (() => {
     const where: FileWhereInput = {}
-    if (debouncedSearch) where.providedFileNameContainsFold = debouncedSearch
+    if (debouncedSearch) where.or = [{ providedFileNameContainsFold: debouncedSearch }, { nameContainsFold: debouncedSearch }]
     if (logoFileId) where.idNEQ = logoFileId
     return Object.keys(where).length > 0 ? where : undefined
   })()
@@ -89,12 +93,15 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
 
   const { mutateAsync: uploadFiles, isPending: isUploading } = useUploadEntityFiles()
 
-  const handleUpload = async (newFiles: File[]) => {
+  const handleUpload = async (uploads: StagedUpload[]) => {
     try {
+      const { files: entityFiles, metadata: entityFilesMetadata } = toFileUploadArgs(uploads)
+
       await uploadFiles({
         updateEntityId: vendorId,
         input: {},
-        entityFiles: newFiles,
+        entityFiles,
+        entityFilesMetadata,
       })
       successNotification({
         title: 'Documents uploaded',
@@ -113,19 +120,17 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
   const handleExportCSV = () => {
     if (validFiles.length === 0) return
 
-    const headers = ['File Name', 'Category', 'Uploaded Date', 'Classified as Evidence']
-    const rows = validFiles.map((f) => [f.providedFileName, f.categoryType || '', f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '', fileToEvidenceMap.has(f.id) ? 'Yes' : 'No'])
-
-    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', 'vendor-documents.csv')
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    exportToCSV(
+      validFiles,
+      [
+        { label: 'Name', accessor: (f) => getFileDisplayName(f) },
+        { label: 'File Name', accessor: (f) => f.providedFileName },
+        { label: 'Category', accessor: (f) => getFileCategory(f) ?? '' },
+        { label: 'Uploaded Date', accessor: (f) => (f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '') },
+        { label: 'Classified as Evidence', accessor: (f) => (fileToEvidenceMap.has(f.id) ? 'Yes' : 'No') },
+      ],
+      'vendor-documents',
+    )
   }
 
   const isClassifiedAsEvidence = (file: TFile) => fileToEvidenceMap.has(file.id)
@@ -139,18 +144,9 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
   }
 
   const columns: ColumnDef<TFile>[] = [
-    {
-      accessorKey: 'providedFileName',
-      header: 'File Name',
-      size: 280,
-      cell: ({ row }) => <span className="block truncate">{row.original.providedFileName}</span>,
-    },
-    {
-      accessorKey: 'categoryType',
-      header: 'Category',
-      size: 150,
-      cell: ({ row }) => <span>{row.original.categoryType || '-'}</span>,
-    },
+    fileNameColumn,
+    originalFileNameColumn,
+    createFileCategoryColumn(categoryOptions),
     {
       accessorKey: 'createdAt',
       header: 'Uploaded Date',
@@ -205,11 +201,11 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
           <div role="presentation" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex items-center gap-2 justify-end">
             {canEdit &&
               (classified ? (
-                <Button variant="secondary" icon={<X />} iconPosition="left" onClick={() => setUnmarkEvidenceFile({ id: row.original.id, name: row.original.providedFileName })}>
+                <Button variant="secondary" icon={<X />} iconPosition="left" onClick={() => setUnmarkEvidenceFile({ id: row.original.id, name: getFileDisplayName(row.original) })}>
                   Unmark Evidence
                 </Button>
               ) : (
-                <Button type="button" onClick={() => setMarkEvidenceFile({ id: row.original.id, name: row.original.providedFileName })}>
+                <Button type="button" onClick={() => setMarkEvidenceFile({ id: row.original.id, name: getFileDisplayName(row.original) })}>
                   <Check size={14} />
                   Mark as Evidence
                 </Button>
@@ -218,7 +214,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
               <Download size={16} />
             </Button>
             {canEdit && (
-              <Button type="button" variant="secondary" onClick={() => setDeleteFile({ id: row.original.id, name: row.original.providedFileName })}>
+              <Button type="button" variant="secondary" onClick={() => setDeleteFile({ id: row.original.id, name: getFileDisplayName(row.original) })}>
                 <Trash2 size={16} />
               </Button>
             )}

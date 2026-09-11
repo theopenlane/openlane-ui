@@ -23,12 +23,13 @@ export const GET_EVIDENCE_FILES = gql`
       edges {
         node {
           id
+          name
           providedFileName
           providedFileSize
           presignedURL
           providedFileExtension
           detectedMimeType
-          categoryType
+          metadata
           createdAt
         }
       }

@@ -2,16 +2,17 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Upload } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Button, type ButtonProps } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { acceptedFileTypes, acceptedFileTypesShort, maxFileSizeInMb } from '@/components/shared/file-upload/file-upload-config'
 import { type TUploadedFile } from '@/components/shared/file-upload/types'
-import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { StagedUploadList } from './staged-upload-list'
+import { type StagedUpload } from './staged-upload'
 
 type DocumentsUploadDialogProps = {
-  onUpload: (files: File[]) => Promise<void>
+  onUpload: (uploads: StagedUpload[]) => Promise<void>
   isUploading: boolean
   title?: string
   buttonLabel?: string
@@ -32,30 +33,46 @@ const DocumentsUploadDialog: React.FC<DocumentsUploadDialogProps> = ({
   const [internalOpen, setInternalOpen] = useState<boolean>(false)
   const isOpen = open ?? internalOpen
   const setIsOpen = onOpenChange ?? setInternalOpen
-  const [stagedFiles, setStagedFiles] = useState<TUploadedFile[]>([])
+  const [stagedUploads, setStagedUploads] = useState<StagedUpload[]>([])
+  const nextStagedIdRef = useRef(0)
 
   const handleFileUpload = async () => {
-    if (!stagedFiles.length) {
+    if (!stagedUploads.length) {
       return
     }
 
-    const files = stagedFiles.filter((item) => item.file).map((item) => item.file as File)
-    await onUpload(files)
+    try {
+      await onUpload(stagedUploads)
+    } catch {
+      return
+    }
+
     setIsOpen(false)
-    setStagedFiles([])
+    setStagedUploads([])
   }
 
-  const handleUploadedFile = (uploadedFile: TUploadedFile) => {
-    setStagedFiles((prev) => [uploadedFile, ...prev])
+  const handleUploadedFile = ({ file }: TUploadedFile) => {
+    if (!file) {
+      return
+    }
+
+    nextStagedIdRef.current += 1
+    const id = `staged-${nextStagedIdRef.current}`
+
+    setStagedUploads((prev) => [{ id, file, name: '', category: '' }, ...prev])
   }
 
-  const handleDelete = (file: TUploadedFile) => {
-    setStagedFiles((prev) => prev.filter((f) => f.name !== file.name))
+  const updateStagedUpload = (id: string, changes: Partial<StagedUpload>) => {
+    setStagedUploads((prev) => prev.map((staged) => (staged.id === id ? { ...staged, ...changes } : staged)))
+  }
+
+  const removeStagedUpload = (id: string) => {
+    setStagedUploads((prev) => prev.filter((staged) => staged.id !== id))
   }
 
   const handleCancel = () => {
     setIsOpen(false)
-    setStagedFiles([])
+    setStagedUploads([])
   }
 
   return (
@@ -72,13 +89,9 @@ const DocumentsUploadDialog: React.FC<DocumentsUploadDialogProps> = ({
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <FileUpload acceptedFileTypes={acceptedFileTypes} onFileUpload={handleUploadedFile} acceptedFileTypesShort={acceptedFileTypesShort} maxFileSizeInMb={maxFileSizeInMb} multipleFiles={true} />
-        <div className="flex gap-6">
-          {stagedFiles.map((file, index) => (
-            <UploadedFileDetailsCard key={index} fileName={file.name} fileSize={file.size} index={index} handleDeleteFile={() => handleDelete(file)} />
-          ))}
-        </div>
+        <StagedUploadList uploads={stagedUploads} onChange={updateStagedUpload} onRemove={removeStagedUpload} />
         <div className="flex flex-col gap-2">
-          <Button variant="primary" onClick={handleFileUpload} loading={isUploading} disabled={isUploading || stagedFiles.length === 0}>
+          <Button variant="primary" onClick={handleFileUpload} loading={isUploading} disabled={isUploading || stagedUploads.length === 0}>
             {isUploading ? 'Uploading...' : 'Upload'}
           </Button>
           <CancelButton disabled={isUploading} onClick={handleCancel} />
