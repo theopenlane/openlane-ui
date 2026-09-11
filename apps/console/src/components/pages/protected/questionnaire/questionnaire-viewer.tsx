@@ -6,11 +6,12 @@ import { Survey } from 'survey-react-ui'
 import 'survey-core/survey-core.min.css'
 import '@/styles/questionnaire/survey-viewer.css'
 
-import { useEffect, use } from 'react'
+import { useEffect, useMemo, use } from 'react'
 import { useTheme } from 'next-themes'
 import { lightTheme } from '@/styles/questionnaire/theme-light'
 import { darkTheme } from '@/styles/questionnaire/theme-dark'
 import { useGetAssessment } from '@/lib/graphql-hooks/assessment'
+import { attachSurveyProgressText } from '@/components/shared/survey/survey-progress-text'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 export default function ViewQuestionnaire(input: { existingId: string }) {
@@ -20,7 +21,14 @@ export default function ViewQuestionnaire(input: { existingId: string }) {
 
   const { data: assessmentResult } = useGetAssessment(input.existingId)
   const surveyJson = assessmentResult?.assessment?.jsonconfig
-  const survey = new Model(surveyJson)
+  const survey = useMemo(() => {
+    const model = new Model(surveyJson)
+    attachSurveyProgressText(model)
+    model.applyTheme(theme === 'dark' ? (darkTheme as ITheme) : lightTheme)
+    model.showCompleteButton = false
+    model.mode = 'display'
+    return model
+  }, [surveyJson, theme])
 
   useEffect(() => {
     setCrumbs([
@@ -30,15 +38,6 @@ export default function ViewQuestionnaire(input: { existingId: string }) {
       { label: 'Questionnaire Viewer', href: '/automation/questionnaires/questionnaire-viewer' },
     ])
   }, [setCrumbs])
-
-  if (theme === 'dark') {
-    survey.applyTheme(darkTheme as ITheme)
-  } else {
-    survey.applyTheme(lightTheme)
-  }
-
-  survey.showCompleteButton = false
-  survey.mode = 'display'
 
   return <Survey model={survey} />
 }
