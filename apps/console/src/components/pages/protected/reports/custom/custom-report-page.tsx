@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
+import { OrderDirection } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useNotification } from '@/hooks/useNotification'
 import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
@@ -17,19 +18,26 @@ import { useReportExport, useReportQuery, type TReportRequest } from '@/lib/grap
 import { buildReportQuery } from '@/lib/report/build-report-query'
 import { buildWhere, defaultFilters, isFilterComplete, type TReportCombinator, type TReportFilter } from '@/lib/report/report-filters'
 import { EXPORT_FORMAT_LABELS, EXPORT_FORMATS } from '@/lib/report/report-export'
-import { buildColumnIndex, entityOptions, getEntity, resolveColumns, type TReportColumn } from '@/lib/report/report-schema'
+import { rowsForPage } from '@/lib/report/report-rows'
+import { buildColumnIndex, entityOptions, getEntity, resolveColumns, type TReportColumn, type TReportOrder } from '@/lib/report/report-schema'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
+import { EXPORT_PAGE_SIZE } from '@/constants/pagination'
 import ReportColumnsPanel from './report-columns-panel'
 import ReportFiltersPanel from './report-filters-panel'
 import ReportPanel from './report-panel'
 import ReportRelatedPanel from './report-related-panel'
 import ReportResults from './report-results'
+import ReportSortPanel, { type TReportSort } from './report-sort-panel'
 
 type TReportView = 'table' | 'json'
 
 const REPORT_PAGE_SIZE = 25
 
 const resetPagination = (pageSize: number): TPagination => ({ page: 1, pageSize, query: { first: pageSize } })
+
+const DEFAULT_SORT: TReportSort = { field: null, direction: OrderDirection.ASC }
+
+const buildOrder = ({ field, direction }: TReportSort): TReportOrder | null => (field ? { field, direction } : null)
 
 const CustomReportPage: React.FC = () => {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -44,6 +52,8 @@ const CustomReportPage: React.FC = () => {
   const [columnPaths, setColumnPaths] = useState<string[]>([])
   const [filters, setFilters] = useState<TReportFilter[]>([])
   const [combinator, setCombinator] = useState<TReportCombinator>('and')
+  const [sort, setSort] = useState<TReportSort>(DEFAULT_SORT)
+  const [limit, setLimit] = useState<number | null>(null)
   const [runId, setRunId] = useState(0)
   const [pagination, setPagination] = useState<TPagination>(() => resetPagination(REPORT_PAGE_SIZE))
   const [view, setView] = useState<TReportView>('table')
@@ -83,6 +93,7 @@ const CustomReportPage: React.FC = () => {
     setColumnPaths(nextEntity.defaultFields)
     setFilters(defaultFilters(nextEntity))
     setCombinator('and')
+    setSort(DEFAULT_SORT)
     setRequest(null)
     setPagination(resetPagination(pagination.pageSize))
   }
@@ -107,10 +118,13 @@ const CustomReportPage: React.FC = () => {
   const recordSummary = useMemo(() => {
     if (!reportResult) return null
 
-    const total = `${reportResult.totalCount.toLocaleString()} total records`
+    const total =
+      reportResult.matchedCount > reportResult.totalCount
+        ? `Showing the first ${reportResult.totalCount.toLocaleString()} of ${reportResult.matchedCount.toLocaleString()} matching records`
+        : `${reportResult.totalCount.toLocaleString()} total records`
 
-    return view === 'json' ? `${total}, showing ${reportResult.rows.length.toLocaleString()} on this page` : total
-  }, [reportResult, view])
+    return view === 'json' ? `${total}, showing ${rowsForPage(reportResult, pagination).length.toLocaleString()} on this page` : total
+  }, [pagination, reportResult, view])
 
   const incompleteFilters = useMemo(() => {
     if (!entity) return 0
@@ -130,11 +144,12 @@ const CustomReportPage: React.FC = () => {
       entity,
       columns,
       where: buildWhere(filters, entity.fields, combinator),
-      pageQuery: { first: pagination.pageSize },
+      orderBy: buildOrder(sort),
+      pageQuery: { first: limit ? Math.min(limit, EXPORT_PAGE_SIZE) : pagination.pageSize },
     })
 
     return { query, variables: Object.keys(variables).length > 0 ? JSON.stringify(variables, null, 2) : '' }
-  }, [columnIndex, columnPaths, combinator, entity, filters, pagination.pageSize, tab])
+  }, [columnIndex, columnPaths, combinator, entity, filters, limit, pagination.pageSize, sort, tab])
 
   const handleRun = () => {
     if (!entity) return
@@ -145,7 +160,7 @@ const CustomReportPage: React.FC = () => {
     const nextRunId = runId + 1
 
     setRunId(nextRunId)
-    setRequest({ runId: nextRunId, entity, columns, where: buildWhere(filters, entity.fields, combinator) })
+    setRequest({ runId: nextRunId, entity, columns, where: buildWhere(filters, entity.fields, combinator), orderBy: buildOrder(sort), limit })
     setPagination(resetPagination(pagination.pageSize))
   }
 
@@ -180,6 +195,7 @@ const CustomReportPage: React.FC = () => {
             <ReportColumnsPanel key={`columns-${entityName}`} entity={entity} selected={selectedPaths} onToggle={toggleColumn} onToggleMany={toggleColumns} />
             <ReportRelatedPanel key={`related-${entityName}`} entity={entity} selected={selectedPaths} onToggle={toggleColumn} onToggleMany={toggleColumns} />
             <ReportFiltersPanel entity={entity} filters={filters} combinator={combinator} onCombinatorChange={setCombinator} onChange={setFilters} />
+            <ReportSortPanel entity={entity} sort={sort} limit={limit} onSortChange={setSort} onLimitChange={setLimit} />
           </>
         )}
       </aside>

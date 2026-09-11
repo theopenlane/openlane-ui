@@ -1,6 +1,6 @@
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
 import type { TPaginationQuery } from '@repo/ui/pagination-types'
-import type { TReportColumn } from './report-schema'
+import type { TReportColumn, TReportOrder } from './report-schema'
 
 export const REPORT_OPERATION_NAME = 'CustomReport'
 
@@ -17,6 +17,7 @@ type TBuildReportQueryArgs = {
   entity: TReportEntity
   columns: TReportColumn[]
   where: Record<string, unknown> | null
+  orderBy: TReportOrder | null
   pageQuery: TPaginationQuery
 }
 
@@ -71,7 +72,7 @@ const nodeSelections = (columns: TReportColumn[]): TSelection[] => {
   return selections
 }
 
-export const buildReportQuery = ({ entity, columns, where, pageQuery }: TBuildReportQueryArgs): TReportQuery => {
+export const buildReportQuery = ({ entity, columns, where, orderBy, pageQuery }: TBuildReportQueryArgs): TReportQuery => {
   const variables: Record<string, unknown> = {}
   const definitions: string[] = []
   const args: string[] = []
@@ -80,6 +81,12 @@ export const buildReportQuery = ({ entity, columns, where, pageQuery }: TBuildRe
     variables.where = where
     definitions.push(`$where: ${schemaName(entity.whereTypeName)}`)
     args.push('where: $where')
+  }
+
+  if (orderBy && entity.order) {
+    variables.orderBy = [orderBy]
+    definitions.push(`$orderBy: [${schemaName(entity.order.typeName)}!]`)
+    args.push('orderBy: $orderBy')
   }
 
   const cursorArgs: [keyof TPaginationQuery, string][] = [

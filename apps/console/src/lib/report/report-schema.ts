@@ -8,6 +8,7 @@ import {
   type TReportField,
   type TReportOperator,
 } from '@repo/codegen/src/report-schema.generated'
+import { type OrderDirection } from '@repo/codegen/src/schema'
 import { toHumanLabel } from '@/utils/strings'
 
 export const PATH_SEPARATOR = '.'
@@ -18,6 +19,8 @@ export type TReportColumn = {
   field: TReportField
   edge?: TReportEdge
 }
+
+export type TReportOrder = { field: string; direction: OrderDirection }
 
 export type TLabelled<T> = { item: T; label: string }
 
@@ -57,6 +60,8 @@ export const getEnumValues = (field: TReportField): string[] => (field.enumName 
 export const buildPath = (edgeName: string, fieldName: string): string => `${edgeName}${PATH_SEPARATOR}${fieldName}`
 
 export const pathLabel = (path: string): string => path.split(PATH_SEPARATOR).map(toHumanLabel).join(' › ')
+
+export const labelledOrderFields = (entity: TReportEntity): TLabelled<string>[] => withLabels(entity.order?.fields ?? [], (value) => value)
 
 export const labelledEdges = (entity: TReportEntity): TLabelled<TReportEdge>[] => withLabels(entity.edges, (edge) => edge.name)
 
