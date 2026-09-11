@@ -290,13 +290,14 @@ export const GET_ENTITY_FILES_PAGINATED = gql`
         totalCount
         edges {
           node {
+            name
             providedFileName
             providedFileSize
             providedFileExtension
             id
             uri
             presignedURL
-            categoryType
+            metadata
             createdAt
           }
         }
@@ -306,8 +307,8 @@ export const GET_ENTITY_FILES_PAGINATED = gql`
 `
 
 export const UPDATE_ENTITY_WITH_FILES = gql`
-  mutation UpdateEntityWithFiles($updateEntityId: ID!, $input: UpdateEntityInput!, $entityFiles: [Upload!], $logoFile: Upload) {
-    updateEntity(id: $updateEntityId, input: $input, entityFiles: $entityFiles, logoFile: $logoFile) {
+  mutation UpdateEntityWithFiles($updateEntityId: ID!, $input: UpdateEntityInput!, $entityFiles: [Upload!], $entityFilesMetadata: [FileMetadataInput!], $logoFile: Upload) {
+    updateEntity(id: $updateEntityId, input: $input, entityFiles: $entityFiles, entityFilesMetadata: $entityFilesMetadata, logoFile: $logoFile) {
       entity {
         id
       }

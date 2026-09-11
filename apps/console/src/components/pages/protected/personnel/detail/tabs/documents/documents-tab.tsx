@@ -5,7 +5,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { type ColumnDef, type VisibilityState, type Row } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { type TFile } from '@/components/shared/file-table/columns'
+import { createFileCategoryColumn, fileNameColumn, getFileCategory, getFileDisplayName, originalFileNameColumn, type TFile } from '@/components/shared/file-table/columns'
 import { FILE_SORT_FIELDS } from '@/components/shared/file-table/table-config'
 import { type FileWhereInput, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
@@ -16,6 +16,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { DocumentsUploadDialog } from '@/components/shared/documents-section/documents-upload-dialog'
+import { FILE_CATEGORY_ENUM, toFileUploadArgs, type StagedUpload } from '@/components/shared/documents-section/staged-upload'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { fileDownload } from '@/components/shared/lib/export'
@@ -49,8 +51,9 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
     },
   ])
   const [searchTerm, setSearchTerm] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.IDENTITY_HOLDER_FILES, {}))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.IDENTITY_HOLDER_FILES, { providedFileName: false }))
   const { successNotification, errorNotification } = useNotification()
+  const { enumOptions: categoryOptions } = useCreatableEnumOptions(FILE_CATEGORY_ENUM)
 
   const [markEvidenceFile, setMarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
   const [unmarkEvidenceFile, setUnmarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
@@ -58,7 +61,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const fileWhere: FileWhereInput | undefined = debouncedSearch ? { providedFileNameContainsFold: debouncedSearch } : undefined
+  const fileWhere: FileWhereInput | undefined = debouncedSearch ? { or: [{ providedFileNameContainsFold: debouncedSearch }, { nameContainsFold: debouncedSearch }] } : undefined
 
   const { files, isLoading, isError, pageInfo, totalCount } = useGetIdentityHolderFilesPaginated({
     identityHolderId: personnelId,
@@ -83,15 +86,20 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
     return map
   }, [evidencesData])
 
+  const validFiles = useMemo(() => files.filter((f) => !!f), [files])
+
   const { mutateAsync: uploadFiles, isPending: isUploading } = useUploadIdentityHolderFiles()
   const { mutateAsync: updateIdentityHolder } = useUpdateIdentityHolder()
 
-  const handleUpload = async (newFiles: File[]) => {
+  const handleUpload = async (uploads: StagedUpload[]) => {
     try {
+      const { files: identityHolderFiles, metadata: identityHolderFilesMetadata } = toFileUploadArgs(uploads)
+
       await uploadFiles({
         updateIdentityHolderId: personnelId,
         input: {},
-        identityHolderFiles: newFiles,
+        identityHolderFiles,
+        identityHolderFilesMetadata,
       })
       successNotification({
         title: 'Documents uploaded',
@@ -132,22 +140,20 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
   }
 
   const handleExportCSV = () => {
-    const visibleFiles = files.filter((f) => !!f)
-    if (visibleFiles.length === 0) return
+    if (validFiles.length === 0) return
 
     exportToCSV(
-      visibleFiles,
+      validFiles,
       [
+        { label: 'Name', accessor: (f) => getFileDisplayName(f) },
         { label: 'File Name', accessor: (f) => f.providedFileName },
-        { label: 'Category', accessor: (f) => f.categoryType || '' },
+        { label: 'Category', accessor: (f) => getFileCategory(f) ?? '' },
         { label: 'Uploaded Date', accessor: (f) => (f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '') },
         { label: 'Classified as Evidence', accessor: (f) => (fileToEvidenceMap.has(f.id) ? 'Yes' : 'No') },
       ],
       'personnel-documents',
     )
   }
-
-  const validFiles = files.filter((f) => !!f)
 
   const isClassifiedAsEvidence = (file: TFile) => fileToEvidenceMap.has(file.id)
 
@@ -160,18 +166,9 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
   }
 
   const columns: ColumnDef<TFile>[] = [
-    {
-      accessorKey: 'providedFileName',
-      header: 'File Name',
-      size: 280,
-      cell: ({ row }) => <span className="block truncate">{row.original.providedFileName}</span>,
-    },
-    {
-      accessorKey: 'categoryType',
-      header: 'Category',
-      size: 150,
-      cell: ({ row }) => <span>{row.original.categoryType || '-'}</span>,
-    },
+    fileNameColumn,
+    originalFileNameColumn,
+    createFileCategoryColumn(categoryOptions),
     {
       accessorKey: 'createdAt',
       header: 'Uploaded Date',
@@ -226,11 +223,11 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
           <div role="presentation" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex items-center gap-2 justify-end">
             {canEdit &&
               (classified ? (
-                <Button variant="secondary" icon={<X />} iconPosition="left" onClick={() => setUnmarkEvidenceFile({ id: row.original.id, name: row.original.providedFileName })}>
+                <Button variant="secondary" icon={<X />} iconPosition="left" onClick={() => setUnmarkEvidenceFile({ id: row.original.id, name: getFileDisplayName(row.original) })}>
                   Unmark Evidence
                 </Button>
               ) : (
-                <Button type="button" onClick={() => setMarkEvidenceFile({ id: row.original.id, name: row.original.providedFileName })}>
+                <Button type="button" onClick={() => setMarkEvidenceFile({ id: row.original.id, name: getFileDisplayName(row.original) })}>
                   <Check size={14} />
                   Mark as Evidence
                 </Button>
@@ -239,7 +236,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
               <Download size={16} />
             </Button>
             {canEdit && (
-              <Button type="button" variant="secondary" onClick={() => setDeleteFile({ id: row.original.id, name: row.original.providedFileName })}>
+              <Button type="button" variant="secondary" onClick={() => setDeleteFile({ id: row.original.id, name: getFileDisplayName(row.original) })}>
                 <Trash2 size={16} />
               </Button>
             )}

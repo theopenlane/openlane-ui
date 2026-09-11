@@ -57,20 +57,25 @@ const useAllCustomTypeEnums = () => {
   return { ...rest, allEdges, isLoading: isLoadingAll, isSuccess: !isLoadingAll && !rest.isError }
 }
 
+export const GLOBAL_ENUM_OBJECT_TYPE = ''
+
 export const useGetCustomTypeEnums = ({ where }: { where?: CustomTypeEnumWhereInput } = {}) => {
   const { allEdges, ...queryRest } = useAllCustomTypeEnums()
 
+  const objectType = where?.objectType
+  const field = where?.field
+
   const filteredEdges = useMemo(() => {
     if (!allEdges || allEdges.length === 0) return null
-    if (!where?.objectType && !where?.field) return allEdges
+    if (objectType == null && !field) return allEdges
     return allEdges.filter((edge) => {
       const node = edge?.node
       if (!node) return false
-      if (where.objectType && node.objectType !== where.objectType) return false
-      if (where.field && node.field !== where.field) return false
+      if (objectType != null && node.objectType !== objectType) return false
+      if (field && node.field !== field) return false
       return true
     })
-  }, [allEdges, where])
+  }, [allEdges, objectType, field])
 
   const enumOptions: CustomTypeEnumOption[] = useMemo(
     () =>

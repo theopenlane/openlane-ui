@@ -9,6 +9,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { acceptedFileTypes, acceptedFileTypesShort, maxFileSizeInMb } from '@/components/shared/file-upload/file-upload-config'
 import { type TUploadedFile } from '@/components/shared/file-upload/types'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
+import { getFileCategory, getFileDisplayName, type TFile } from '@/components/shared/file-table/columns'
 import { useGetFiles } from '@/lib/graphql-hooks/file'
 import { formatDateSince } from '@/utils/date'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -16,14 +17,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 
-type ExistingFileRow = {
-  id: string
-  providedFileName: string
-  providedFileSize?: number | null
-  providedFileExtension: string
-  categoryType?: string | null
-  createdAt?: string | null
-}
+type ExistingFileRow = Pick<TFile, 'id' | 'name' | 'providedFileName' | 'providedFileSize' | 'providedFileExtension' | 'metadata' | 'createdAt'>
 
 type DocumentsCreateSectionProps = {
   onFilesChange: (files: File[]) => void
@@ -50,10 +44,11 @@ const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFiles
       const tableData: ExistingFileRow[] =
         data?.files?.edges?.map((edge) => ({
           id: edge?.node?.id ?? '',
+          name: edge?.node?.name ?? '',
           providedFileName: edge?.node?.providedFileName ?? '',
           providedFileSize: edge?.node?.providedFileSize ?? 0,
           providedFileExtension: edge?.node?.providedFileExtension ?? '',
-          categoryType: edge?.node?.categoryType ?? '',
+          metadata: edge?.node?.metadata ?? null,
           createdAt: edge?.node?.createdAt ?? '',
         })) || []
 
@@ -74,11 +69,11 @@ const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFiles
     if (alreadyAdded) return
 
     const newFile: TUploadedFile = {
-      name: row.providedFileName,
+      name: getFileDisplayName(row),
       size: row.providedFileSize ?? undefined,
       type: 'existingFile',
       id: row.id,
-      category: row.categoryType,
+      category: getFileCategory(row),
       createdAt: formatDateSince(row.createdAt),
     }
 
@@ -104,12 +99,14 @@ const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFiles
 
   const columns: ColumnDef<ExistingFileRow>[] = [
     {
-      accessorKey: 'providedFileName',
-      header: 'Filename',
+      accessorKey: 'name',
+      header: 'Name',
+      cell: ({ row }) => getFileDisplayName(row.original),
     },
     {
-      accessorKey: 'categoryType',
+      accessorKey: 'metadata',
       header: 'Category',
+      cell: ({ row }) => getFileCategory(row.original) ?? '-',
     },
     {
       accessorKey: 'createdAt',

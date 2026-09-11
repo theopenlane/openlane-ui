@@ -3,6 +3,7 @@
 import React from 'react'
 import { useGetReviewFilesPaginated, useUpdateReview, useUploadReviewFiles } from '@/lib/graphql-hooks/review'
 import { DocumentsSection } from '@/components/shared/documents-section/documents-section'
+import { toFileUploadArgs, type StagedUpload } from '@/components/shared/documents-section/staged-upload'
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'
 import { FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
@@ -49,12 +50,15 @@ const ReviewDocumentsSection: React.FC<ReviewDocumentsSectionProps> = ({ reviewI
     return null
   }
 
-  const handleUpload = async (newFiles: File[]) => {
+  const handleUpload = async (uploads: StagedUpload[]) => {
     try {
+      const { files: reviewFiles, metadata: reviewFilesMetadata } = toFileUploadArgs(uploads)
+
       await uploadFiles({
         updateReviewId: reviewId,
         input: {},
-        reviewFiles: newFiles,
+        reviewFiles,
+        reviewFilesMetadata,
       })
       successNotification({
         title: 'Documents uploaded',

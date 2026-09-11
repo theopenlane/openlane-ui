@@ -537,6 +537,7 @@ export interface AssetsWithFilterQuery {
         tags: Array<string> | null
         website: string | null
         categories: Array<string> | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerUser: { id: string; displayName: string } | null
         entities: { edges: Array<{ node: { id: string; name: string | null; displayName: string | null } | null } | null> | null }
@@ -583,6 +584,7 @@ export interface AssetQuery {
     tags: Array<string> | null
     website: string | null
     categories: Array<string> | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
     entities: { edges: Array<{ node: { id: string; name: string | null; displayName: string | null } | null } | null> | null }
@@ -3146,8 +3148,10 @@ export interface EntitiesWithFilterQuery {
         updatedBy: string | null
         vendorMetadata: any
         logoFile: { base64: string | null } | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerUser: { id: string; displayName: string } | null
+        reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
         reviewedByGroup: { id: string; displayName: string } | null
         reviewedByUser: { id: string; displayName: string } | null
       } | null
@@ -3224,9 +3228,11 @@ export interface EntityQuery {
     updatedBy: string | null
     vendorMetadata: any
     integrations: { edges: Array<{ node: { id: string; definitionID: string | null; name: string; directoryGroups: { totalCount: number } } | null } | null> | null }
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
     logoFile: { base64: string | null } | null
+    reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
     reviewedByGroup: { id: string; displayName: string } | null
     reviewedByUser: { id: string; displayName: string } | null
   }
@@ -3310,13 +3316,14 @@ export interface GetEntityFilesPaginatedQuery {
       pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
       edges: Array<{
         node: {
+          name: string | null
           providedFileName: string
           providedFileSize: number | null
           providedFileExtension: string
           id: string
           uri: string | null
           presignedURL: string | null
-          categoryType: string | null
+          metadata: any
           createdAt: any
         } | null
       } | null> | null
@@ -3328,6 +3335,7 @@ export type UpdateEntityWithFilesMutationVariables = Exact<{
   updateEntityId: string
   input: Types.UpdateEntityInput
   entityFiles?: Array<any> | any | null | undefined
+  entityFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
   logoFile?: any
 }>
 
@@ -3410,12 +3418,13 @@ export interface GetEvidenceFilesQuery {
     edges: Array<{
       node: {
         id: string
+        name: string | null
         providedFileName: string
         providedFileSize: number | null
         presignedURL: string | null
         providedFileExtension: string
         detectedMimeType: string | null
-        categoryType: string | null
+        metadata: any
         createdAt: any
       } | null
     } | null> | null
@@ -3840,7 +3849,16 @@ export interface GetFilesQuery {
     totalCount: number
     pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
     edges: Array<{
-      node: { id: string; providedFileName: string; providedFileSize: number | null; presignedURL: string | null; providedFileExtension: string; categoryType: string | null; createdAt: any } | null
+      node: {
+        id: string
+        name: string | null
+        providedFileName: string
+        providedFileSize: number | null
+        presignedURL: string | null
+        providedFileExtension: string
+        metadata: any
+        createdAt: any
+      } | null
     } | null> | null
   }
 }
@@ -4519,6 +4537,7 @@ export interface IdentityHoldersWithFilterQuery {
         updatedBy: string | null
         userID: string | null
         workflowEligibleMarker: boolean | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerUser: { id: string; displayName: string } | null
       } | null
@@ -4585,6 +4604,7 @@ export interface IdentityHolderQuery {
     updatedBy: string | null
     userID: string | null
     workflowEligibleMarker: boolean | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; displayName: string } | null
     internalOwnerUser: { id: string; displayName: string } | null
   }
@@ -4657,10 +4677,11 @@ export interface GetIdentityHolderFilesPaginatedQuery {
       pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
       edges: Array<{
         node: {
+          name: string | null
           providedFileName: string
           providedFileSize: number | null
           providedFileExtension: string
-          categoryType: string | null
+          metadata: any
           createdAt: any
           id: string
           uri: string | null
@@ -4675,6 +4696,7 @@ export type UpdateIdentityHolderWithFilesMutationVariables = Exact<{
   updateIdentityHolderId: string
   input: Types.UpdateIdentityHolderInput
   identityHolderFiles?: Array<any> | any | null | undefined
+  identityHolderFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
 }>
 
 export interface UpdateIdentityHolderWithFilesMutation {
@@ -6077,8 +6099,10 @@ export interface PlatformsWithFilterQuery {
         updatedBy: string | null
         workflowEligibleMarker: boolean | null
         businessOwnerUser: { id: string; displayName: string; email: string } | null
+        businessOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         businessOwnerGroup: { id: string; name: string } | null
         technicalOwnerUser: { id: string; displayName: string; email: string } | null
+        technicalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         technicalOwnerGroup: { id: string; name: string } | null
       } | null
     } | null> | null
@@ -6155,13 +6179,17 @@ export interface PlatformQuery {
     updatedBy: string | null
     workflowEligibleMarker: boolean | null
     businessOwnerUser: { id: string; displayName: string; email: string } | null
+    businessOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     businessOwnerGroup: { id: string; name: string } | null
     internalOwnerUser: { id: string; displayName: string; email: string } | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; name: string } | null
     platformOwner: { id: string; displayName: string; email: string } | null
     securityOwnerUser: { id: string; displayName: string; email: string } | null
+    securityOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     securityOwnerGroup: { id: string; name: string } | null
     technicalOwnerUser: { id: string; displayName: string; email: string } | null
+    technicalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     technicalOwnerGroup: { id: string; name: string } | null
     assets: {
       edges: Array<{
@@ -6171,6 +6199,7 @@ export interface PlatformQuery {
           assetType: Types.AssetAssetType
           internalOwner: string | null
           internalOwnerUser: { id: string; displayName: string; email: string } | null
+          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
           internalOwnerGroup: { id: string; displayName: string } | null
         } | null
       } | null> | null
@@ -6183,6 +6212,7 @@ export interface PlatformQuery {
           assetType: Types.AssetAssetType
           internalOwner: string | null
           internalOwnerUser: { id: string; displayName: string; email: string } | null
+          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
           internalOwnerGroup: { id: string; displayName: string } | null
         } | null
       } | null> | null
@@ -6197,6 +6227,7 @@ export interface PlatformQuery {
           internalOwner: string | null
           logoFile: { base64: string | null } | null
           internalOwnerUser: { id: string; displayName: string; email: string } | null
+          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
           internalOwnerGroup: { id: string; displayName: string } | null
         } | null
       } | null> | null
@@ -6211,6 +6242,7 @@ export interface PlatformQuery {
           internalOwner: string | null
           logoFile: { base64: string | null } | null
           internalOwnerUser: { id: string; displayName: string; email: string } | null
+          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
           internalOwnerGroup: { id: string; displayName: string } | null
         } | null
       } | null> | null
@@ -7091,6 +7123,7 @@ export type UpdateReviewMutationVariables = Exact<{
   updateReviewId: string
   input: Types.UpdateReviewInput
   reviewFiles?: Array<any> | any | null | undefined
+  reviewFilesMetadata?: Array<Types.FileMetadataInput> | Types.FileMetadataInput | null | undefined
 }>
 
 export interface UpdateReviewMutation {
@@ -7164,7 +7197,16 @@ export interface GetReviewFilesPaginatedQuery {
       totalCount: number
       pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
       edges: Array<{
-        node: { providedFileName: string; providedFileSize: number | null; providedFileExtension: string; id: string; uri: string | null; presignedURL: string | null } | null
+        node: {
+          name: string | null
+          providedFileName: string
+          providedFileSize: number | null
+          providedFileExtension: string
+          metadata: any
+          id: string
+          uri: string | null
+          presignedURL: string | null
+        } | null
       } | null> | null
     }
   }
@@ -7555,10 +7597,12 @@ export interface ScansWithFilterQuery {
         updatedAt: any
         updatedBy: string | null
         assignedToUser: { id: string; displayName: string } | null
+        assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
         assignedToGroup: { id: string; displayName: string } | null
         performedByUser: { id: string; displayName: string } | null
         performedByGroup: { id: string; displayName: string } | null
         reviewedByUser: { id: string; displayName: string } | null
+        reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
         reviewedByGroup: { id: string; displayName: string } | null
       } | null
     } | null> | null
@@ -7594,10 +7638,12 @@ export interface ScanQuery {
     updatedAt: any
     updatedBy: string | null
     assignedToUser: { id: string; displayName: string } | null
+    assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
     assignedToGroup: { id: string; displayName: string } | null
     performedByUser: { id: string; displayName: string } | null
     performedByGroup: { id: string; displayName: string } | null
     reviewedByUser: { id: string; displayName: string } | null
+    reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
     reviewedByGroup: { id: string; displayName: string } | null
   }
 }
