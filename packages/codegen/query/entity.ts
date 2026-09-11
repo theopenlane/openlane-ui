@@ -296,7 +296,7 @@ export const GET_ENTITY_FILES_PAGINATED = gql`
             id
             uri
             presignedURL
-            categoryType
+            categoryName
             createdAt
           }
         }

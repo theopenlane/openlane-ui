@@ -255,7 +255,7 @@ export const GET_IDENTITY_HOLDER_FILES_PAGINATED = gql`
             providedFileName
             providedFileSize
             providedFileExtension
-            categoryType
+            categoryName
             createdAt
             id
             uri

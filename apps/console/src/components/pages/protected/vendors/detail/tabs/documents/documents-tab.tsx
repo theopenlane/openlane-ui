@@ -114,7 +114,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
     if (validFiles.length === 0) return
 
     const headers = ['File Name', 'Category', 'Uploaded Date', 'Classified as Evidence']
-    const rows = validFiles.map((f) => [f.providedFileName, f.categoryType || '', f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '', fileToEvidenceMap.has(f.id) ? 'Yes' : 'No'])
+    const rows = validFiles.map((f) => [f.providedFileName, f.categoryName || '', f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '', fileToEvidenceMap.has(f.id) ? 'Yes' : 'No'])
 
     const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -146,10 +146,10 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
       cell: ({ row }) => <span className="block truncate">{row.original.providedFileName}</span>,
     },
     {
-      accessorKey: 'categoryType',
+      accessorKey: 'categoryName',
       header: 'Category',
       size: 150,
-      cell: ({ row }) => <span>{row.original.categoryType || '-'}</span>,
+      cell: ({ row }) => <span>{row.original.categoryName || '-'}</span>,
     },
     {
       accessorKey: 'createdAt',

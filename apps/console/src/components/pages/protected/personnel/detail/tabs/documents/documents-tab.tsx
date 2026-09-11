@@ -139,7 +139,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
       visibleFiles,
       [
         { label: 'File Name', accessor: (f) => f.providedFileName },
-        { label: 'Category', accessor: (f) => f.categoryType || '' },
+        { label: 'Category', accessor: (f) => f.categoryName || '' },
         { label: 'Uploaded Date', accessor: (f) => (f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '') },
         { label: 'Classified as Evidence', accessor: (f) => (fileToEvidenceMap.has(f.id) ? 'Yes' : 'No') },
       ],
@@ -167,10 +167,10 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
       cell: ({ row }) => <span className="block truncate">{row.original.providedFileName}</span>,
     },
     {
-      accessorKey: 'categoryType',
+      accessorKey: 'categoryName',
       header: 'Category',
       size: 150,
-      cell: ({ row }) => <span>{row.original.categoryType || '-'}</span>,
+      cell: ({ row }) => <span>{row.original.categoryName || '-'}</span>,
     },
     {
       accessorKey: 'createdAt',

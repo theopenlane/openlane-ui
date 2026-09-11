@@ -327,7 +327,6 @@ export const REPORT_EDGE_FIELDS: Record<string, TReportField[]> = {
     { name: 'base64', kind: 'string' },
     { name: 'categoryID', kind: 'id' },
     { name: 'categoryName', kind: 'string' },
-    { name: 'categoryType', kind: 'string' },
     { name: 'createdAt', kind: 'time' },
     { name: 'createdBy', kind: 'string' },
     { name: 'detectedContentType', kind: 'string' },

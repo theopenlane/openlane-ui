@@ -10,7 +10,7 @@ export type TFile = {
   id: string
   uri?: string | null
   presignedURL?: string | null
-  categoryType?: string | null
+  categoryName?: string | null
   createdAt?: string | null
 }
 

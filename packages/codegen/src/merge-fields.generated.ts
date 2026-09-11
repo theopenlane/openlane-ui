@@ -610,7 +610,6 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
   File: [
     { name: 'categoryID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'categoryName', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
-    { name: 'categoryType', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'detectedContentType', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
     { name: 'detectedMimeType', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'environmentID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },

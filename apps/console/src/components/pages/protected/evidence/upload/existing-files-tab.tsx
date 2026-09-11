@@ -42,7 +42,7 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
           providedFileSize: edge?.node?.providedFileSize ?? 0,
           presignedURL: edge?.node?.presignedURL ?? '',
           providedFileExtension: edge?.node?.providedFileExtension ?? '',
-          categoryType: edge?.node?.categoryType ?? '',
+          categoryName: edge?.node?.categoryName ?? '',
           createdAt: edge?.node?.createdAt ?? '',
         })) || []
 
@@ -64,7 +64,7 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
       size: data.providedFileSize ?? undefined,
       type: 'existingFile',
       id: data.id,
-      category: data.categoryType,
+      category: data.categoryName,
       createdAt: formatDateSince(data.createdAt),
     }
     props.existingFile(newFile)
@@ -76,7 +76,7 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
       header: 'Filename',
     },
     {
-      accessorKey: 'categoryType',
+      accessorKey: 'categoryName',
       header: 'Category',
     },
     {

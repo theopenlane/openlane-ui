@@ -17,7 +17,7 @@ type ExistingFileRow = {
   id: string
   providedFileName: string
   providedFileExtension: string
-  categoryType?: string | null
+  categoryName?: string | null
   createdAt?: string | null
 }
 
@@ -48,7 +48,7 @@ const ExistingFilesDialog: React.FC<ExistingFilesDialogProps> = ({ selectedFileI
           id: edge?.node?.id ?? '',
           providedFileName: edge?.node?.providedFileName ?? '',
           providedFileExtension: edge?.node?.providedFileExtension ?? '',
-          categoryType: edge?.node?.categoryType ?? '',
+          categoryName: edge?.node?.categoryName ?? '',
           createdAt: edge?.node?.createdAt ?? '',
         })) || []
 
@@ -67,7 +67,7 @@ const ExistingFilesDialog: React.FC<ExistingFilesDialogProps> = ({ selectedFileI
       header: 'Filename',
     },
     {
-      accessorKey: 'categoryType',
+      accessorKey: 'categoryName',
       header: 'Category',
     },
     {
