@@ -42,6 +42,7 @@ export enum AdditionalTableKeyEnum {
   CONTROLS_MAPPED_CATEGORIES = 'controls-mapped-categories',
   EVIDENCE_FILES = 'evidence-files',
   EVIDENCE_EXISTING_FILES = 'evidence-existing-files',
+  EVIDENCE_LINK_EXISTING_FILES = 'evidence-link-existing-files',
   EXISTING_FILES = 'existing-files',
   POLICY_PROCEDURE_MANAGE_PERMISSION = 'policy-procedure-manage-permission',
   POLICY_PROCEDURE_ASSIGN_PERMISSION = 'policy-procedure-assign-permission',

@@ -1,29 +1,14 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { PlusCircle } from 'lucide-react'
-import { type ColumnDef } from '@repo/ui/table-types'
-import { DataTable } from '@repo/ui/data-table'
+import { TableKeyEnum } from '@repo/ui/table-key'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { acceptedFileTypes, acceptedFileTypesShort, maxFileSizeInMb } from '@/components/shared/file-upload/file-upload-config'
 import { type TUploadedFile } from '@/components/shared/file-upload/types'
+import { getExistingFileIds, getNewFiles } from '@/components/shared/file-upload/file-selection'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
-import { useGetFiles } from '@/lib/graphql-hooks/file'
-import { formatDateSince } from '@/utils/date'
-import { type TPagination } from '@repo/ui/pagination-types'
-import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { TableKeyEnum } from '@repo/ui/table-key'
-import { useOrgTablePagination } from '@/hooks/use-org-table-state'
-
-type ExistingFileRow = {
-  id: string
-  providedFileName: string
-  providedFileSize?: number | null
-  providedFileExtension: string
-  categoryType?: string | null
-  createdAt?: string | null
-}
+import ExistingFilesTable from '@/components/shared/file-upload/existing-files-table'
 
 type DocumentsCreateSectionProps = {
   onFilesChange: (files: File[]) => void
@@ -32,100 +17,24 @@ type DocumentsCreateSectionProps = {
 
 const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFilesChange, onFileIdsChange }) => {
   const [allFiles, setAllFiles] = useState<TUploadedFile[]>([])
-  const [pagination, setPagination] = useOrgTablePagination(
-    {
-      ...DEFAULT_PAGINATION,
-      pageSize: 5,
-      page: 1,
-      query: { first: 5 },
+  const allFilesRef = useRef<TUploadedFile[]>([])
+
+  const selectedFileIds = useMemo(() => getExistingFileIds(allFiles), [allFiles])
+
+  const applyChange = useCallback(
+    (update: (previous: TUploadedFile[]) => TUploadedFile[]) => {
+      const updated = update(allFilesRef.current)
+      allFilesRef.current = updated
+      setAllFiles(updated)
+      onFilesChange(getNewFiles(updated))
+      onFileIdsChange?.(getExistingFileIds(updated))
     },
-    TableKeyEnum.EXISTING_FILES,
+    [onFilesChange, onFileIdsChange],
   )
 
-  const { data, isLoading, paginationMeta } = useGetFiles({ pagination })
-  const [existingFiles, setExistingFiles] = useState<ExistingFileRow[]>([])
+  const handleAddFile = useCallback((file: TUploadedFile) => applyChange((previous) => [file, ...previous]), [applyChange])
 
-  useEffect(() => {
-    if (!isLoading) {
-      const tableData: ExistingFileRow[] =
-        data?.files?.edges?.map((edge) => ({
-          id: edge?.node?.id ?? '',
-          providedFileName: edge?.node?.providedFileName ?? '',
-          providedFileSize: edge?.node?.providedFileSize ?? 0,
-          providedFileExtension: edge?.node?.providedFileExtension ?? '',
-          categoryType: edge?.node?.categoryType ?? '',
-          createdAt: edge?.node?.createdAt ?? '',
-        })) || []
-
-      setExistingFiles(tableData)
-    }
-  }, [isLoading, data?.files?.edges])
-
-  const handleUploadedFile = (uploadedFile: TUploadedFile) => {
-    setAllFiles((prev) => {
-      const updated = [uploadedFile, ...prev]
-      onFilesChange(updated.filter((f) => f.type === 'file' && f.file).map((f) => f.file as File))
-      return updated
-    })
-  }
-
-  const handleAddExisting = (row: ExistingFileRow) => {
-    const alreadyAdded = allFiles.some((f) => f.id === row.id)
-    if (alreadyAdded) return
-
-    const newFile: TUploadedFile = {
-      name: row.providedFileName,
-      size: row.providedFileSize ?? undefined,
-      type: 'existingFile',
-      id: row.id,
-      category: row.categoryType,
-      createdAt: formatDateSince(row.createdAt),
-    }
-
-    setAllFiles((prev) => {
-      const updated = [newFile, ...prev]
-      onFileIdsChange?.(updated.filter((f) => f.type === 'existingFile').map((f) => f.id as string))
-      return updated
-    })
-  }
-
-  const handleDelete = (file: TUploadedFile) => {
-    setAllFiles((prev) => {
-      const updated = prev.filter((f) => f.name !== file.name || f.type !== file.type)
-
-      onFilesChange(updated.filter((f) => f.type === 'file' && f.file).map((f) => f.file as File))
-      onFileIdsChange?.(updated.filter((f) => f.type === 'existingFile').map((f) => f.id as string))
-
-      return updated
-    })
-  }
-
-  const selectedFileIds = allFiles.filter((f) => f.type === 'existingFile').map((f) => f.id as string)
-
-  const columns: ColumnDef<ExistingFileRow>[] = [
-    {
-      accessorKey: 'providedFileName',
-      header: 'Filename',
-    },
-    {
-      accessorKey: 'categoryType',
-      header: 'Category',
-    },
-    {
-      accessorKey: 'createdAt',
-      header: 'Created',
-      cell: ({ row }) => {
-        const column = row.original
-        const isAlreadyAdded = selectedFileIds.includes(column.id)
-        return (
-          <div className="flex items-center justify-between w-full">
-            <span>{formatDateSince(column.createdAt)}</span>
-            {!isAlreadyAdded && <PlusCircle className="w-5 h-5 text-primary cursor-pointer hover:scale-105 transition-transform" onClick={() => handleAddExisting(column)} />}
-          </div>
-        )
-      },
-    },
-  ]
+  const handleDelete = (index: number) => applyChange((previous) => previous.filter((_, position) => position !== index))
 
   return (
     <div className="mt-5">
@@ -140,23 +49,16 @@ const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFiles
           </TabsTrigger>
         </TabsList>
         <TabsContent value="upload">
-          <FileUpload acceptedFileTypes={acceptedFileTypes} onFileUpload={handleUploadedFile} acceptedFileTypesShort={acceptedFileTypesShort} maxFileSizeInMb={maxFileSizeInMb} multipleFiles={true} />
+          <FileUpload acceptedFileTypes={acceptedFileTypes} onFileUpload={handleAddFile} acceptedFileTypesShort={acceptedFileTypesShort} maxFileSizeInMb={maxFileSizeInMb} multipleFiles={true} />
         </TabsContent>
         <TabsContent value="existingFiles">
-          <DataTable
-            columns={columns}
-            data={existingFiles}
-            pagination={pagination}
-            onPaginationChange={(p: TPagination) => setPagination(p)}
-            paginationMeta={paginationMeta}
-            tableKey={TableKeyEnum.EXISTING_FILES}
-          />
+          <ExistingFilesTable tableKey={TableKeyEnum.EXISTING_FILES} selectedFileIds={selectedFileIds} onSelect={handleAddFile} />
         </TabsContent>
 
         {allFiles.length > 0 && (
           <div className="mt-6 flex flex-wrap gap-6">
             {allFiles.map((file, index) => (
-              <UploadedFileDetailsCard key={`${file.type}-${file.name}-${index}`} fileName={file.name} fileSize={file.size} index={index} handleDeleteFile={() => handleDelete(file)} />
+              <UploadedFileDetailsCard key={`${file.type}-${file.id ?? file.name}-${index}`} fileName={file.name} fileSize={file.size} index={index} handleDeleteFile={() => handleDelete(index)} />
             ))}
           </div>
         )}

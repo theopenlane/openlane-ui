@@ -7,7 +7,6 @@ import {
   DELETE_EVIDENCE,
   GET_ALL_EVIDENCES,
   GET_EVIDENCE,
-  GET_EVIDENCE_FILES,
   GET_EVIDENCE_FILES_BY_ID,
   GET_EVIDENCE_FILES_PAGINATED,
   GET_EVIDENCE_LIST,
@@ -33,7 +32,6 @@ import {
   type FileOrder,
   type GetAllEvidencesQuery,
   type GetEvidenceFilesPaginatedQuery,
-  type GetEvidenceFilesQuery,
   type GetEvidenceQuery,
   type InputMaybe,
   type UpdateEvidenceMutation,
@@ -51,7 +49,6 @@ import {
   type GetEvidenceCountsByStatusAllProgramsQuery,
   type GetEvidenceCountsByStatusByProgramIdQuery,
   type EvidenceSuggestedActionsQuery,
-  type FileWhereInput,
   type GetEvidenceStatusCountQuery,
   type GetEvidenceCommentsQuery,
   type GetEvidenceCommentsQueryVariables,
@@ -75,47 +72,21 @@ const invalidateEvidenceQueries = (queryClient: TInvalidateClient) => {
   queryClient.invalidateQueries({ queryKey: ['evidences'] })
 }
 
-export function useCreateEvidence() {
+const invalidateEvidenceFileQueries = (queryClient: TInvalidateClient) => {
+  queryClient.invalidateQueries({ queryKey: ['evidenceFiles'] })
+  queryClient.invalidateQueries({ queryKey: ['getFiles'] })
+  invalidateEvidenceQueries(queryClient)
+}
+
+export const useCreateEvidence = () => {
   const { queryClient } = useGraphQLClient()
   return useMutation<CreateEvidenceMutation, unknown, CreateEvidenceMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_EVIDENCE, variables }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['getEvidenceFiles'] })
+      queryClient.invalidateQueries({ queryKey: ['getFiles'] })
       invalidateEvidenceQueries(queryClient)
     },
   })
-}
-
-type TEvidenceFilesProps = {
-  pagination?: TPagination
-  where?: FileWhereInput
-}
-
-export function useGetEvidenceFiles({ where, pagination }: TEvidenceFilesProps) {
-  const { client } = useGraphQLClient()
-
-  const queryResult = useQuery<GetEvidenceFilesQuery>({
-    queryKey: ['getEvidenceFiles', where, pagination?.page, pagination?.pageSize],
-    queryFn: async () =>
-      client.request<GetEvidenceFilesQuery>(GET_EVIDENCE_FILES, {
-        where,
-        ...pagination?.query,
-      }),
-  })
-
-  const files = queryResult.data?.files?.edges?.map((edge) => edge?.node) ?? []
-
-  const paginationMeta = {
-    totalCount: queryResult.data?.files?.totalCount ?? 0,
-    pageInfo: queryResult.data?.files?.pageInfo,
-    isLoading: queryResult.isLoading,
-  }
-
-  return {
-    ...queryResult,
-    files,
-    paginationMeta,
-  }
 }
 
 export const useGetAllEvidences = (where?: EvidenceWhereInput) => {
@@ -211,17 +182,19 @@ export const useUpdateEvidence = () => {
   return useMutation<UpdateEvidenceMutation, unknown, UpdateEvidenceMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_EVIDENCE, variables),
     onSuccess: () => {
-      invalidateEvidenceQueries(queryClient)
+      invalidateEvidenceFileQueries(queryClient)
     },
   })
 }
 
-export function useUploadEvidenceFiles() {
+export const useUploadEvidenceFiles = () => {
   const { queryClient } = useGraphQLClient()
 
   return useMutation<UpdateEvidenceMutation, unknown, UpdateEvidenceMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: UPDATE_EVIDENCE, variables }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['evidenceFiles'] }),
+    onSuccess: () => {
+      invalidateEvidenceFileQueries(queryClient)
+    },
   })
 }
 

@@ -3360,33 +3360,6 @@ export interface CreateEvidenceMutation {
   createEvidence: { evidence: { id: string } }
 }
 
-export type GetEvidenceFilesQueryVariables = Exact<{
-  where?: Types.FileWhereInput | null | undefined
-  first?: number | null | undefined
-  last?: number | null | undefined
-  before?: any
-  after?: any
-}>
-
-export interface GetEvidenceFilesQuery {
-  files: {
-    totalCount: number
-    pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
-    edges: Array<{
-      node: {
-        id: string
-        providedFileName: string
-        providedFileSize: number | null
-        presignedURL: string | null
-        providedFileExtension: string
-        detectedMimeType: string | null
-        categoryType: string | null
-        createdAt: any
-      } | null
-    } | null> | null
-  }
-}
-
 export type GetAllEvidencesQueryVariables = Exact<{
   where?: Types.EvidenceWhereInput | null | undefined
   first?: number | null | undefined
@@ -3794,6 +3767,7 @@ export interface GetExportsQuery {
 
 export type GetFilesQueryVariables = Exact<{
   where?: Types.FileWhereInput | null | undefined
+  orderBy?: Array<Types.FileOrder> | Types.FileOrder | null | undefined
   first?: number | null | undefined
   last?: number | null | undefined
   before?: any
@@ -3804,9 +3778,7 @@ export interface GetFilesQuery {
   files: {
     totalCount: number
     pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
-    edges: Array<{
-      node: { id: string; providedFileName: string; providedFileSize: number | null; presignedURL: string | null; providedFileExtension: string; categoryType: string | null; createdAt: any } | null
-    } | null> | null
+    edges: Array<{ node: { id: string; providedFileName: string; providedFileSize: number | null; categoryName: string | null; createdAt: any } | null } | null> | null
   }
 }
 
