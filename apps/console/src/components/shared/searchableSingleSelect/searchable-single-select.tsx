@@ -1,12 +1,12 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
 import { ChevronDown, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { type Option } from '@repo/ui/multiple-selector'
+import { cn } from '@repo/ui/lib/utils'
 import { useRef, useState } from 'react'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '../custom-type-enum-chip/custom-type-enum-chip'
 
@@ -21,6 +21,7 @@ interface SearchableSingleSelectProps {
   clearable?: boolean
   clearLabel?: string
   disabled?: boolean
+  ariaLabel?: string
 }
 
 export const SearchableSingleSelect = ({
@@ -34,6 +35,7 @@ export const SearchableSingleSelect = ({
   clearable = false,
   clearLabel = 'Unassigned',
   disabled = false,
+  ariaLabel,
 }: SearchableSingleSelectProps) => {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLDivElement>(null)
@@ -41,23 +43,26 @@ export const SearchableSingleSelect = ({
 
   useClickOutsideWithPortal(() => onClose?.(), {
     refs: { triggerRef, popoverRef },
+    enabled: Boolean(onClose),
   })
 
-  useEscapeKey(() => onClose?.())
+  useEscapeKey(() => onClose?.(), { enabled: Boolean(onClose) })
 
   return (
-    <div ref={triggerRef} className={`${className} w-full`}>
+    <div ref={triggerRef} className={cn(className, 'w-full')}>
       <Popover open={open} onOpenChange={(next) => !disabled && setOpen(next)}>
         <PopoverTrigger asChild>
-          <div
-            className={`w-full flex text-sm h-10 px-3 py-0! justify-between border bg-input rounded-md items-center ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-            {...activatable(() => !disabled && setOpen(true))}
+          <button
+            type="button"
+            aria-label={ariaLabel}
+            disabled={disabled}
+            className="w-full flex text-sm text-left h-10 px-3 py-0! justify-between border bg-input rounded-md items-center cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span className="truncate">
               <CustomTypeEnumValue value={value} options={options} placeholder={placeholder} />
             </span>
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </div>
+          </button>
         </PopoverTrigger>
         <PopoverContent ref={popoverRef} className="p-0 bg-input! border w-(--radix-popover-trigger-width) min-w-(--radix-popover-trigger-width)" side="bottom" align="start" sideOffset={4}>
           <Command shouldFilter autoFocus={autoFocus}>

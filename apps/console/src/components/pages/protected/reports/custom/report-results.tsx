@@ -81,9 +81,6 @@ const ReportResults: React.FC<TReportResultsProps> = ({ result, error, isLoading
 
     return (
       <div className="flex flex-col gap-3">
-        <p className="text-xs text-muted-foreground">
-          {result.totalCount.toLocaleString()} total records, showing {result.rows.length.toLocaleString()} on this page
-        </p>
         <CodeBlock code={json} language="json" />
         <Pagination
           currentPage={pagination.page}
@@ -97,19 +94,16 @@ const ReportResults: React.FC<TReportResultsProps> = ({ result, error, isLoading
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <p className="text-xs text-muted-foreground">{result.totalCount.toLocaleString()} total records</p>
-      <DataTable
-        columns={tableColumns}
-        data={result.rows}
-        loading={isLoading}
-        tableKey={undefined}
-        noResultsText="No records match this report"
-        pagination={pagination}
-        onPaginationChange={onPaginationChange}
-        paginationMeta={{ totalCount: result.totalCount, pageInfo: result.pageInfo, isLoading }}
-      />
-    </div>
+    <DataTable
+      columns={tableColumns}
+      data={result.rows}
+      loading={isLoading}
+      tableKey={undefined}
+      noResultsText="No records match this report"
+      pagination={pagination}
+      onPaginationChange={onPaginationChange}
+      paginationMeta={{ totalCount: result.totalCount, pageInfo: result.pageInfo, isLoading }}
+    />
   )
 }
 
