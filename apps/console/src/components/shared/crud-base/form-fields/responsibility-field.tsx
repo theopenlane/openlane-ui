@@ -129,13 +129,13 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   const getTypeIcon = (type?: string) => {
     switch (type) {
       case 'personnel':
-        return <IdCardLanyard className="h-3.5 w-3.5 text-muted-foreground" />
+        return <IdCardLanyard className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
       case 'user':
-        return <User className="h-3.5 w-3.5 text-muted-foreground" />
+        return <User className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
       case 'group':
-        return <Users className="h-3.5 w-3.5 text-muted-foreground" />
+        return <Users className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
       case 'string':
-        return <Type className="h-3.5 w-3.5 text-muted-foreground" />
+        return <Type className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
       default:
         return null
     }
@@ -166,6 +166,8 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
       name={name}
       render={({ field }) => {
         const currentValue = field.value as ResponsibilitySelection
+        const currentLabel = currentValue ? currentValue.displayName || currentValue.value : ''
+        const customEmailLabel = `Use "${searchText.trim()}" as custom email`
 
         return (
           <FormItem className={layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : ''}>
@@ -183,7 +185,9 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                         {currentValue ? (
                           <>
                             {getTypeIcon(currentValue.type)}
-                            <span className="truncate">{currentValue.displayName || currentValue.value}</span>
+                            <span className="truncate" title={currentLabel}>
+                              {currentLabel}
+                            </span>
                           </>
                         ) : (
                           <span className="text-muted-foreground">{placeholderText(name)}</span>
@@ -229,7 +233,9 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                                   onSelect={() => handleSelect({ type: 'user', value: option.value, displayName: option.label }, field)}
                                 >
                                   <User className="mr-2 h-4 w-4" />
-                                  <span>{option.label}</span>
+                                  <span className="truncate" title={option.label}>
+                                    {option.label}
+                                  </span>
                                   {currentValue?.type === 'user' && currentValue?.value === option.value && <Check className="ml-auto h-4 w-4" />}
                                 </CommandItem>
                               ))}
@@ -244,7 +250,9 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                                   onSelect={() => handleSelect({ type: 'group', value: option.value, displayName: option.label }, field)}
                                 >
                                   <Users className="mr-2 h-4 w-4" />
-                                  <span>{option.label}</span>
+                                  <span className="truncate" title={option.label}>
+                                    {option.label}
+                                  </span>
                                   {currentValue?.type === 'group' && currentValue?.value === option.value && <Check className="ml-auto h-4 w-4" />}
                                 </CommandItem>
                               ))}
@@ -270,7 +278,9 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                               <CommandGroup heading="Custom">
                                 <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() }, field)}>
                                   <Type className="mr-2 h-4 w-4" />
-                                  <span>Use &quot;{searchText.trim()}&quot; as custom email</span>
+                                  <span className="truncate" title={customEmailLabel}>
+                                    {customEmailLabel}
+                                  </span>
                                 </CommandItem>
                               </CommandGroup>
                             )}
@@ -281,13 +291,15 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                 </div>
               ) : (
                 <div
-                  className={cn('flex items-center gap-2 rounded-md px-1 py-2 text-sm cursor-pointer hover:bg-accent w-full', layout === 'horizontal' && 'justify-end')}
+                  className={cn('flex min-w-0 items-center gap-2 rounded-md px-1 py-2 text-sm cursor-pointer hover:bg-accent w-full', layout === 'horizontal' && 'justify-end')}
                   {...activatable(isEditAllowed ? handleClick : undefined)}
                 >
                   {currentValue ? (
                     <>
                       {getTypeIcon(currentValue.type)}
-                      <span>{currentValue.displayName || currentValue.value}</span>
+                      <span className="truncate" title={currentLabel}>
+                        {currentLabel}
+                      </span>
                     </>
                   ) : (
                     <span className="text-muted-foreground italic">Not set</span>
