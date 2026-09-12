@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from './lib/auth/auth'
 import { featureUtil } from '@/lib/subscription-plan/plans'
-import { buildLoginRedirect } from '@/lib/auth/utils/redirect'
+import { buildLoginRedirect, buildTfaRedirect } from '@/lib/auth/utils/redirect'
 import { SUPPORT_BLOCKED_PAGES } from '@/constants/support'
 
 export default auth(async (req) => {
@@ -33,6 +33,7 @@ export default auth(async (req) => {
   const isPublicPage = publicPages.includes(path) || path.startsWith('/questionnaire/') || isSSOInitiate
   const validForPersonalOrg = personalOrgPages.includes(path)
   const isInvite = path === '/invite'
+  const isSSOCallback = path === '/login/sso' || path === '/login/sso/enforce'
   const isQuestionnaire = path === '/questionnaire' || path.startsWith('/questionnaire/')
 
   const session = req.auth
@@ -53,7 +54,7 @@ export default auth(async (req) => {
   }
 
   if (isTfaEnabled) {
-    return path === '/tfa' || path === '/login' ? NextResponse.next() : NextResponse.redirect(new URL('/tfa', req.url))
+    return path === '/tfa' || path === '/login' || isSSOCallback ? NextResponse.next() : NextResponse.redirect(new URL(buildTfaRedirect(`${path}${req.nextUrl.search}`), req.url))
   }
 
   if (isInvite) {
@@ -76,7 +77,7 @@ export default auth(async (req) => {
   //
   // Else after sso shareable url is used, the user will always fall through to the /dashboard page and we will
   // never be able to switch
-  if (path === '/login/sso/enforce' || path === '/login/sso') {
+  if (isSSOCallback) {
     return NextResponse.next()
   }
 

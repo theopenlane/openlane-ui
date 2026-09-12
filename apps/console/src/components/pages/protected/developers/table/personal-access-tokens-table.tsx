@@ -32,6 +32,15 @@ import PersonalApiKeyDialog, { type EditTokenData } from '@/components/pages/pro
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { useSession } from 'next-auth/react'
+import { isSsoCallbackError, type SsoCallbackError } from '@/lib/auth/utils/sso-callback-error'
+
+const SSO_TOKEN_ERROR_MESSAGES: Record<SsoCallbackError, string> = {
+  sso_signin_failed: 'SSO sign-in failed during token authorization',
+  sso_callback_failed: 'SSO callback failed during token authorization',
+  sso_callback_error: 'SSO callback error occurred during token authorization',
+  missing_oauth_params: 'Missing OAuth parameters during token authorization',
+  missing_organization_id: 'Missing organization ID during token authorization',
+}
 
 type TokenNode = {
   id: string
@@ -214,22 +223,14 @@ export const PersonalAccessTokenTable = () => {
       return
     }
 
-    const errorMessagesMap = {
-      sso_signin_failed: 'SSO sign-in failed during token authorization',
-      sso_callback_failed: 'SSO callback failed during token authorization',
-      sso_callback_error: 'SSO callback error occurred during token authorization',
-      missing_oauth_params: 'Missing OAuth parameters during token authorization',
-      missing_organization_id: 'Missing organization ID during token authorization',
-    }
-
-    const errorMessage = errorMessagesMap[error as keyof typeof errorMessagesMap]
-    if (errorMessage) {
-      errorNotification({
-        title: 'Error',
-        description: `Token authorization failed: ${errorMessage}`,
-      })
+    if (!error) {
       return
     }
+
+    errorNotification({
+      title: 'Error',
+      description: `Token authorization failed: ${isSsoCallbackError(error) ? SSO_TOKEN_ERROR_MESSAGES[error] : 'the authorization could not be completed'}`,
+    })
   }, [searchParams, errorNotification, successNotification])
 
   const {

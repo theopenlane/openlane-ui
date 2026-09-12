@@ -6,6 +6,7 @@ import { Input } from '@repo/ui/input'
 import { PasswordInput } from '@repo/ui/password-input'
 import { Logo } from '@repo/ui/logo'
 import { ArrowRight, Headphones } from 'lucide-react'
+import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
 
 const SupportLoginPage: React.FC = () => {
   const [email, setEmail] = useState('support@theopenlane.io')
@@ -40,7 +41,7 @@ const SupportLoginPage: React.FC = () => {
       const data = await response.json()
 
       if (response.ok && data.success && data.redirect_uri) {
-        window.location.href = data.redirect_uri
+        startSsoRedirect(data.redirect_uri)
         return
       }
 

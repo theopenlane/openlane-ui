@@ -5,10 +5,28 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, useSession } from 'next-auth/react'
 import { getCookie } from '@/lib/auth/utils/getCookie'
 import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
-import { clearSsoTokenAuthorization, readSsoTokenAuthorization } from '@/lib/auth/utils/sso-token-storage'
+import { clearSsoIntent, readSsoIntent, type SsoIntent } from '@/lib/auth/utils/sso-intent'
 
 const ORG_SETTINGS_URL = '/organization-settings/authentication'
 const LOGIN_URL = '/login'
+
+const getRedirectUrl = (intent: SsoIntent | null, error?: string, isSuccess = false) => {
+  const encodedError = encodeURIComponent(error ?? '')
+
+  if (intent === 'test') {
+    if (isSuccess) return `${ORG_SETTINGS_URL}?ssotested=1`
+    return `${ORG_SETTINGS_URL}?ssotested=0&error=${encodedError}`
+  }
+
+  if (intent) {
+    const basePath = intent === 'api' ? '/developers/api-tokens' : '/developers/personal-access-tokens'
+    if (isSuccess) return `${basePath}?token_authorized=1`
+    return `${basePath}?error=${encodedError}`
+  }
+
+  if (isSuccess) return '/'
+  return `${LOGIN_URL}?error=${encodedError}`
+}
 
 const SSOCallbackPage: React.FC = () => {
   const router = useRouter()
@@ -16,35 +34,17 @@ const SSOCallbackPage: React.FC = () => {
   const callbackStartedRef = useRef(false)
   const { data: sessionData, status, update: updateSession } = useSession()
 
-  const getRedirectUrl = (error?: string, isSuccess = false) => {
-    const isTesting = localStorage.getItem('testing_sso')
-    const tokenAuthorization = readSsoTokenAuthorization()
-    const encodedError = encodeURIComponent(error ?? '')
-
-    if (isTesting) {
-      if (isSuccess) return `${ORG_SETTINGS_URL}?ssotested=1`
-      return `${ORG_SETTINGS_URL}?ssotested=0&error=${encodedError}`
-    }
-
-    if (tokenAuthorization) {
-      const basePath = tokenAuthorization === 'api' ? '/developers/api-tokens' : '/developers/personal-access-tokens'
-      if (isSuccess) return `${basePath}?token_authorized=1`
-      return `${basePath}?error=${encodedError}`
-    }
-
-    if (isSuccess) return '/'
-    return `${LOGIN_URL}?error=${encodedError}`
-  }
-
   useEffect(() => {
     const handleSSOCallback = async () => {
+      const intent = readSsoIntent()
+
       try {
         const state = searchParams?.get('state')
         const code = searchParams?.get('code')
 
         if (!code || !state) {
           console.error('Missing required OAuth parameters')
-          router.push(getRedirectUrl('missing_oauth_params'))
+          router.push(getRedirectUrl(intent, 'missing_oauth_params'))
           return
         }
 
@@ -52,7 +52,7 @@ const SSOCallbackPage: React.FC = () => {
         const organizationId = getCookie('organization_id')
 
         if (!organizationId) {
-          router.push(getRedirectUrl('missing_organization_id'))
+          router.push(getRedirectUrl(intent, 'missing_organization_id'))
           return
         }
 
@@ -94,23 +94,22 @@ const SSOCallbackPage: React.FC = () => {
               })
             }
 
-            const redirectUrl = sanitizeLoginRedirect(data.redirect_url, getRedirectUrl(undefined, true))
-            router.push(redirectUrl)
+            const intentRedirect = getRedirectUrl(intent, undefined, true)
+            router.push(intent ? intentRedirect : sanitizeLoginRedirect(data.redirect_url, intentRedirect))
             return
           }
 
-          router.push(getRedirectUrl('sso_signin_failed'))
+          router.push(getRedirectUrl(intent, 'sso_signin_failed'))
         } else {
           // surface the server's explanation (e.g. authenticated successfully but not a member of the
           // organization) instead of a generic failure code so the login page can guide the user
           const reason = data?.message ? data.message : 'sso_callback_failed'
-          router.push(getRedirectUrl(reason))
+          router.push(getRedirectUrl(intent, reason))
         }
       } catch {
-        router.push(getRedirectUrl('sso_callback_error'))
+        router.push(getRedirectUrl(intent, 'sso_callback_error'))
       } finally {
-        localStorage.removeItem('testing_sso')
-        clearSsoTokenAuthorization()
+        clearSsoIntent()
       }
     }
 

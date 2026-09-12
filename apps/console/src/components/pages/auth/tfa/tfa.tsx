@@ -5,14 +5,16 @@ import React, { useState, useMemo } from 'react'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
 import { useNotification } from '@/hooks/useNotification'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 
 const TfaPage: React.FC = () => {
   const [otpValue, setOtpValue] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { data: sessionData, update: updateSession } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isSecret, setIsSecret] = useState(false)
   const [error, setError] = useState<string>('')
   const { errorNotification } = useNotification()
@@ -75,8 +77,10 @@ const TfaPage: React.FC = () => {
       },
     })
 
+    const redirectTo = sanitizeLoginRedirect(searchParams?.get('redirect'), '/dashboard')
+
     setTimeout(() => {
-      router.push('/dashboard')
+      router.push(redirectTo)
     }, 1000)
   }
 
