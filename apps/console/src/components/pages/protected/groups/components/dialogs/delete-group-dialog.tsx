@@ -55,7 +55,7 @@ const DeleteGroupDialog = () => {
           Delete
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[445px]">
+      <DialogContent className="sm:max-w-[640px]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Delete group</DialogTitle>
         </DialogHeader>
@@ -63,20 +63,20 @@ const DeleteGroupDialog = () => {
         <Callout variant="danger" title="Warning" compact>
           Please proceed with caution, because you will not be able to undo this action.
         </Callout>
-        <p>
+        <p className="break-words">
           Are you sure you want to delete the group <span className="font-semibold">{name}</span> from your organization?
         </p>
-        <div className="space-y-2.5">
-          <p className=" font-medium">Objects associated with the group</p>
-          <p className="text-sm ">All granted permissions to the group will be unassociated. No objects will be deleted.</p>
-          <button className="border rounded-lg flex gap-1 items-center  py-1.5 px-3" onClick={() => setExpanded((prev) => !prev)}>
+        <div className="space-y-2.5 min-w-0">
+          <p className="font-medium">Objects associated with the group</p>
+          <p className="text-sm">All granted permissions to the group will be unassociated. No objects will be deleted.</p>
+          <button type="button" aria-expanded={expanded} className="border rounded-lg flex gap-1 items-center py-1.5 px-3" onClick={() => setExpanded((prev) => !prev)}>
             <p>Show associated Objects</p>
             {expanded ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
           </button>
           {expanded && <GroupsDeletePermissionsTable />}
         </div>
 
-        <DialogFooter className="flex gap-2 justify-start">
+        <DialogFooter className="flex gap-2">
           <Button variant="destructive" onClick={handleDelete}>
             Delete this group
           </Button>
