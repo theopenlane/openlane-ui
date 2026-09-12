@@ -367,15 +367,19 @@ export const GET_EVIDENCE_STATS = gql`
       totalCount
     }
 
-    submitted: controls(where: { hasEvidenceWith: [{ statusIn: [READY_FOR_AUDITOR], hasProgramsWith: [{ id: $programId }] }] }) {
+    requested: controls(where: { systemOwned: false, hasEvidenceWith: [{ statusIn: [REQUESTED], hasProgramsWith: [{ id: $programId }] }] }) {
       totalCount
     }
 
-    accepted: controls(where: { hasEvidenceWith: [{ statusIn: [AUDITOR_APPROVED], hasProgramsWith: [{ id: $programId }] }] }) {
+    submitted: controls(where: { systemOwned: false, hasEvidenceWith: [{ statusIn: [SUBMITTED], hasProgramsWith: [{ id: $programId }] }] }) {
       totalCount
     }
 
-    rejected: controls(where: { hasEvidenceWith: [{ statusIn: [REJECTED], hasProgramsWith: [{ id: $programId }] }] }) {
+    readyForAuditor: controls(where: { systemOwned: false, hasEvidenceWith: [{ statusIn: [READY_FOR_AUDITOR], hasProgramsWith: [{ id: $programId }] }] }) {
+      totalCount
+    }
+
+    accepted: controls(where: { systemOwned: false, hasEvidenceWith: [{ statusIn: [AUDITOR_APPROVED], hasProgramsWith: [{ id: $programId }] }] }) {
       totalCount
     }
   }

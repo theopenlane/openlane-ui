@@ -1,4 +1,4 @@
-import { tv, type VariantProps } from 'tailwind-variants'
+import { tv } from 'tailwind-variants'
 
 export const statCardStyles = tv({
   slots: {
@@ -10,19 +10,4 @@ export const statCardStyles = tv({
     progressWrapper: 'w-full h-2 rounded-full bg-gray-100',
     progressBar: 'h-2 rounded-full',
   },
-  variants: {
-    color: {
-      green: {
-        progressBar: 'bg-green-500',
-      },
-      red: {
-        progressBar: 'bg-red-700',
-      },
-      blue: {
-        progressBar: 'bg-blue-500',
-      },
-    },
-  },
 })
-
-export type StatCardVariants = VariantProps<typeof statCardStyles>

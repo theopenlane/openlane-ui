@@ -1,35 +1,59 @@
 import React from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Hourglass } from 'lucide-react'
-import { statCardStyles, type StatCardVariants } from './stats-cards-styles'
+import { statCardStyles } from './stats-cards-styles'
 import { useParams, useSearchParams } from 'next/navigation'
-import { useProgramEvidenceStats } from '@/lib/graphql-hooks/program'
+import { useProgramEvidenceStats, type EvidenceStatStatus } from '@/lib/graphql-hooks/program'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import Link from 'next/link'
 import { saveFilters, type TFilterStateFor } from '@/components/shared/table-filter/filter-storage.ts'
 import { type TEvidenceFilterKey } from '@/components/pages/protected/evidence/table/table-config.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
+import { EvidenceStatusColors } from '@/components/shared/enum-mapper/evidence-enum'
 import { useOrganization } from '@/hooks/useOrganization'
 
-interface Stat {
+type StatDefinition = {
   title: string
-  status: EvidenceEvidenceStatus
-  percentage: number
-  count: number
-  total: number
-  color: NonNullable<StatCardVariants['color']>
-  tooltip: React.ReactNode
+  status: EvidenceStatStatus
+  tooltip: string
 }
 
-const StatCard: React.FC<{ stat: Stat; programId: string | undefined }> = ({ stat, programId }) => {
+const EVIDENCE_STAT_CARDS: StatDefinition[] = [
+  {
+    title: 'Evidence Requested',
+    status: EvidenceEvidenceStatus.REQUESTED,
+    tooltip: 'Evidence requested is the percentage of controls with evidence that has been requested but not yet provided.',
+  },
+  {
+    title: 'Evidence Submitted',
+    status: EvidenceEvidenceStatus.SUBMITTED,
+    tooltip: 'Evidence submitted is the percentage of controls with evidence that has been submitted but not reviewed internally or by an auditor.',
+  },
+  {
+    title: 'Evidence Accepted',
+    status: EvidenceEvidenceStatus.AUDITOR_APPROVED,
+    tooltip: 'Evidence accepted is the percentage of controls with evidence that has been accepted by the auditor.',
+  },
+]
+
+const { wrapper, content, title: titleClass, percentage: percentageClass, statDetails, progressWrapper, progressBar } = statCardStyles()
+
+type StatCardProps = {
+  stat: StatDefinition
+  count: number
+  total: number
+  programId: string | undefined
+}
+
+const StatCard: React.FC<StatCardProps> = ({ stat, count, total, programId }) => {
   const { currentOrgId } = useOrganization()
-  const { title, percentage, count, total, color, tooltip } = stat
-  const { wrapper, content, title: titleClass, percentage: percentageClass, statDetails, progressWrapper, progressBar } = statCardStyles({ color })
+  const { title, status, tooltip } = stat
+  const percentage = total ? Math.round((count / total) * 100) : 0
 
   const handleClick = () => {
     const filters: TFilterStateFor<TEvidenceFilterKey> = {
-      statusIn: [stat.status],
+      statusIn: [status],
     }
 
     saveFilters(TableKeyEnum.EVIDENCE, filters, currentOrgId)
@@ -70,6 +94,7 @@ const StatCard: React.FC<{ stat: Stat; programId: string | undefined }> = ({ sta
                   style={{
                     width: percentage > 0 ? `${percentage}%` : '1px',
                     minWidth: '1px',
+                    backgroundColor: EvidenceStatusColors[status],
                   }}
                 ></div>
               </div>
@@ -94,41 +119,11 @@ const StatsCards: React.FC = () => {
 
   const total = data?.total ?? 0
 
-  const dynamicStats: Stat[] = [
-    {
-      title: 'Evidence Submitted',
-      status: EvidenceEvidenceStatus.READY_FOR_AUDITOR,
-      percentage: total ? Math.round(((data?.submitted ?? 0) / total) * 100) : 0,
-      count: data?.submitted ?? 0,
-      total,
-      color: 'blue',
-      tooltip: 'Evidence submitted is the percentage of evidence that has been submitted but not reviewed internally or by an auditor.',
-    },
-    {
-      title: 'Evidence Accepted',
-      status: EvidenceEvidenceStatus.AUDITOR_APPROVED,
-      percentage: total ? Math.round(((data?.accepted ?? 0) / total) * 100) : 0,
-      count: data?.accepted ?? 0,
-      total,
-      color: 'green',
-      tooltip: 'Evidence accepted is the percentage of evidence that has been accepted by the auditor.',
-    },
-    {
-      title: 'Evidence Rejected',
-      status: EvidenceEvidenceStatus.REJECTED,
-      percentage: total ? Math.round(((data?.rejected ?? 0) / total) * 100) : 0,
-      count: data?.rejected ?? 0,
-      total,
-      color: 'red',
-      tooltip: 'Evidence rejected is the percentage of evidence that has been rejected by the auditor and needs to be resubmitted.',
-    },
-  ]
-
   return (
     <TooltipProvider>
       <div className="flex gap-8 justify-center">
-        {dynamicStats.map((stat) => (
-          <StatCard programId={id} key={stat.title} stat={stat} />
+        {EVIDENCE_STAT_CARDS.map((stat) => (
+          <StatCard key={stat.status} stat={stat} count={data?.byStatus[stat.status] ?? 0} total={total} programId={id} />
         ))}
       </div>
     </TooltipProvider>
