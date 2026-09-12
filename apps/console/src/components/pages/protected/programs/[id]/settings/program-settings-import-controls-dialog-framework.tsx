@@ -27,7 +27,7 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
 
   const [showCheckboxes, setShowCheckboxes] = useState<boolean>(false)
   const frameworks = [...(data?.standards?.edges?.map((edge) => edge?.node as Standard) || [])]
-  const { wrapper, content } = statCardStyles({ color: 'green' })
+  const { wrapper, content } = statCardStyles()
   const [customSelected, setCustomSelected] = useState(false)
 
   const [pagination, setPagination] = useOrgTablePagination(

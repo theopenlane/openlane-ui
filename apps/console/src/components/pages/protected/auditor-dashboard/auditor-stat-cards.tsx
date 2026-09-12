@@ -6,7 +6,8 @@ import { Badge } from '@repo/ui/badge'
 import { CalendarDays, Building2, UserRoundCheck, ListChecks, FileCheck2, CircleCheckBig, CircleDashed, Copy } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 import { useNotification } from '@/hooks/useNotification'
-import { type GetProgramBasicInfoQuery } from '@repo/codegen/src/schema'
+import { type GetProgramBasicInfoQuery, EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
+import { type ProgramEvidenceScopeStats } from '@/lib/graphql-hooks/program'
 
 const CopyableEmail: React.FC<{ email: string }> = ({ email }) => {
   const { successNotification } = useNotification()
@@ -42,7 +43,7 @@ const AuditorStatCard: React.FC<AuditorStatCardProps> = ({ icon, label, children
 
 type AuditorStatCardsProps = {
   program?: GetProgramBasicInfoQuery['program'] | null
-  evidenceStats?: { total: number; submitted: number; framework: number; organization: number }
+  evidenceStats?: ProgramEvidenceScopeStats
   reviewStats?: { completed: number; inProgress: number }
 }
 
@@ -78,7 +79,7 @@ export const AuditorStatCards: React.FC<AuditorStatCardsProps> = ({ program, evi
       </AuditorStatCard>
 
       <AuditorStatCard icon={<FileCheck2 size={ICON_SIZE} />} label="Evidence Ready">
-        {evidenceStats?.submitted ?? 0}/{evidenceStats?.total ?? 0}
+        {evidenceStats?.byStatus[EvidenceEvidenceStatus.READY_FOR_AUDITOR] ?? 0}/{evidenceStats?.total ?? 0}
       </AuditorStatCard>
 
       <AuditorStatCard icon={<CircleCheckBig size={ICON_SIZE} />} label="Reviews Completed">
