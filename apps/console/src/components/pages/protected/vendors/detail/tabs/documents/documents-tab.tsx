@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type ColumnDef, type VisibilityState, type Row } from '@repo/ui/table-types'
+import { type VisibilityState } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -14,16 +14,15 @@ import { useGetEvidencesWithFileIds } from '@/lib/graphql-hooks/evidence'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { DocumentsUploadDialog } from '@/components/shared/documents-section/documents-upload-dialog'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { fileDownload } from '@/components/shared/lib/export'
+import { exportToCSV } from '@/utils/exportToCSV'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import Menu from '@/components/shared/menu/menu'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
-import { Check, X, Download, Upload, SearchIcon, Eye, Trash2 } from 'lucide-react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { getDocumentExportColumns, useDocumentTableColumns } from '@/components/shared/file-table/document-columns'
+import { Upload, SearchIcon } from 'lucide-react'
 import MarkAsEvidenceDialog from './mark-as-evidence-dialog'
 import UnmarkEvidenceDialog from './unmark-evidence-dialog'
 import DeleteDocumentDialog from './delete-document-dialog'
@@ -36,8 +35,6 @@ interface DocumentsTabProps {
 }
 
 const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFileId }) => {
-  const router = useRouter()
-  const searchParams = useSearchParams()
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.ENTITY_FILES)
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.ENTITY_FILES, FileOrderField, [
     {
@@ -49,9 +46,9 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.ENTITY_FILES, {}))
   const { successNotification, errorNotification } = useNotification()
 
-  const [markEvidenceFile, setMarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
-  const [unmarkEvidenceFile, setUnmarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
-  const [deleteFile, setDeleteFile] = useState<{ id: string; name: string } | null>(null)
+  const [markEvidenceFile, setMarkEvidenceFile] = useState<TFile | null>(null)
+  const [unmarkEvidenceFile, setUnmarkEvidenceFile] = useState<TFile | null>(null)
+  const [deleteFile, setDeleteFile] = useState<TFile | null>(null)
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -69,9 +66,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
     where: fileWhere,
   })
 
-  const validFiles = useMemo(() => files.filter((f) => !!f), [files])
-
-  const fileIds = useMemo(() => validFiles.map((f) => f.id), [validFiles])
+  const fileIds = useMemo(() => files.map((f) => f.id), [files])
 
   const { data: evidencesData } = useGetEvidencesWithFileIds(fileIds)
 
@@ -111,122 +106,18 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
   }
 
   const handleExportCSV = () => {
-    if (validFiles.length === 0) return
+    if (files.length === 0) return
 
-    const headers = ['File Name', 'Category', 'Uploaded Date', 'Classified as Evidence']
-    const rows = validFiles.map((f) => [f.providedFileName, f.categoryType || '', f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '', fileToEvidenceMap.has(f.id) ? 'Yes' : 'No'])
-
-    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', 'vendor-documents.csv')
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    exportToCSV(files, getDocumentExportColumns(fileToEvidenceMap), 'vendor-documents')
   }
 
-  const isClassifiedAsEvidence = (file: TFile) => fileToEvidenceMap.has(file.id)
-
-  const openEvidenceSheet = (fileId: string) => {
-    const evidenceId = fileToEvidenceMap.get(fileId)
-    if (!evidenceId) return
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('id', evidenceId)
-    router.push(`${window.location.pathname}?${params.toString()}`)
-  }
-
-  const columns: ColumnDef<TFile>[] = [
-    {
-      accessorKey: 'providedFileName',
-      header: 'File Name',
-      size: 280,
-      cell: ({ row }) => <span className="block truncate">{row.original.providedFileName}</span>,
-    },
-    {
-      accessorKey: 'categoryType',
-      header: 'Category',
-      size: 150,
-      cell: ({ row }) => <span>{row.original.categoryType || '-'}</span>,
-    },
-    {
-      accessorKey: 'createdAt',
-      header: 'Uploaded Date',
-      size: 150,
-      cell: ({ row }) => <DateCell value={row.original.createdAt} />,
-    },
-    {
-      id: 'classifiedAsEvidence',
-      header: 'Evidence?',
-      size: 120,
-      maxSize: 120,
-      minSize: 120,
-      cell: ({ row }) => {
-        const classified = isClassifiedAsEvidence(row.original)
-        return (
-          <div className="flex items-center gap-2">
-            {classified ? (
-              <>
-                <Check size={16} className="text-success" />
-                <span>Yes</span>
-                <button
-                  type="button"
-                  className="p-0 bg-transparent border-0 cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label="View evidence"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    openEvidenceSheet(row.original.id)
-                  }}
-                >
-                  <Eye size={16} />
-                </button>
-              </>
-            ) : (
-              <>
-                <X size={16} className="text-destructive" />
-                <span>No</span>
-              </>
-            )}
-          </div>
-        )
-      },
-    },
-    {
-      id: 'actions',
-      header: '',
-      size: 260,
-      maxSize: 260,
-      minSize: 260,
-      cell: ({ row }: { row: Row<TFile> }) => {
-        const classified = isClassifiedAsEvidence(row.original)
-        return (
-          <div role="presentation" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex items-center gap-2 justify-end">
-            {canEdit &&
-              (classified ? (
-                <Button variant="secondary" icon={<X />} iconPosition="left" onClick={() => setUnmarkEvidenceFile({ id: row.original.id, name: row.original.providedFileName })}>
-                  Unmark Evidence
-                </Button>
-              ) : (
-                <Button type="button" onClick={() => setMarkEvidenceFile({ id: row.original.id, name: row.original.providedFileName })}>
-                  <Check size={14} />
-                  Mark as Evidence
-                </Button>
-              ))}
-            <Button type="button" variant="secondary" onClick={() => fileDownload(row.original.presignedURL || '', row.original.providedFileName, errorNotification)}>
-              <Download size={16} />
-            </Button>
-            {canEdit && (
-              <Button type="button" variant="secondary" onClick={() => setDeleteFile({ id: row.original.id, name: row.original.providedFileName })}>
-                <Trash2 size={16} />
-              </Button>
-            )}
-          </div>
-        )
-      },
-    } as ColumnDef<TFile>,
-  ]
+  const columns = useDocumentTableColumns({
+    canEdit,
+    fileToEvidenceMap,
+    onMarkEvidence: setMarkEvidenceFile,
+    onUnmarkEvidence: setUnmarkEvidenceFile,
+    onDelete: setDeleteFile,
+  })
 
   const mappedColumns = getMappedColumns(columns)
 
@@ -254,7 +145,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
         sortFields={FILE_SORT_FIELDS}
         sorting={orderBy}
         onSortChange={setOrderBy}
-        data={validFiles}
+        data={files}
         loading={isLoading}
         pagination={pagination}
         onPaginationChange={setPagination}
@@ -264,9 +155,9 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
         tableKey={TableKeyEnum.ENTITY_FILES}
       />
 
-      {markEvidenceFile && <MarkAsEvidenceDialog fileId={markEvidenceFile.id} fileName={markEvidenceFile.name} vendorId={vendorId} onClose={() => setMarkEvidenceFile(null)} />}
-      {unmarkEvidenceFile && <UnmarkEvidenceDialog fileId={unmarkEvidenceFile.id} fileName={unmarkEvidenceFile.name} onClose={() => setUnmarkEvidenceFile(null)} />}
-      {deleteFile && <DeleteDocumentDialog fileId={deleteFile.id} fileName={deleteFile.name} vendorId={vendorId} onClose={() => setDeleteFile(null)} />}
+      {markEvidenceFile && <MarkAsEvidenceDialog fileId={markEvidenceFile.id} fileName={markEvidenceFile.providedFileName} vendorId={vendorId} onClose={() => setMarkEvidenceFile(null)} />}
+      {unmarkEvidenceFile && <UnmarkEvidenceDialog fileId={unmarkEvidenceFile.id} fileName={unmarkEvidenceFile.providedFileName} onClose={() => setUnmarkEvidenceFile(null)} />}
+      {deleteFile && <DeleteDocumentDialog fileId={deleteFile.id} fileName={deleteFile.providedFileName} vendorId={vendorId} onClose={() => setDeleteFile(null)} />}
       {canEdit && <DocumentsUploadDialog onUpload={handleUpload} isUploading={isUploading} title="Upload Documents" open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen} />}
     </div>
   )

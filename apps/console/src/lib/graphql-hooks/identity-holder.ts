@@ -240,7 +240,7 @@ export const useGetIdentityHolderFilesPaginated = ({ identityHolderId, orderBy, 
   })
 
   const identityHolder = queryResult.data?.identityHolder
-  const files = identityHolder?.files?.edges?.map((edge) => edge?.node) ?? []
+  const files = useMemo(() => identityHolder?.files?.edges?.flatMap((edge) => (edge?.node ? [edge.node] : [])) ?? [], [identityHolder])
   const pageInfo = identityHolder?.files?.pageInfo
   const totalCount = identityHolder?.files?.totalCount
 

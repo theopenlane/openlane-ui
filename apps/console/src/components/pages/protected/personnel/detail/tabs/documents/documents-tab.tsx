@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { type ColumnDef, type VisibilityState, type Row } from '@repo/ui/table-types'
+import { type VisibilityState } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { type TFile } from '@/components/shared/file-table/columns'
@@ -14,18 +14,16 @@ import { useGetEvidencesWithFileIds } from '@/lib/graphql-hooks/evidence'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { DocumentsUploadDialog } from '@/components/shared/documents-section/documents-upload-dialog'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { fileDownload } from '@/components/shared/lib/export'
 import { exportToCSV } from '@/utils/exportToCSV'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import Menu from '@/components/shared/menu/menu'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
+import { getDocumentExportColumns, useDocumentTableColumns } from '@/components/shared/file-table/document-columns'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { Check, X, Download, Upload, SearchIcon, Eye, Trash2 } from 'lucide-react'
-import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { Upload, SearchIcon } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import MarkAsEvidenceDialog from './mark-as-evidence-dialog'
 import UnmarkEvidenceDialog from '@/components/pages/protected/vendors/detail/tabs/documents/unmark-evidence-dialog'
@@ -37,9 +35,6 @@ interface DocumentsTabProps {
 }
 
 const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const pathname = usePathname()
   const queryClient = useQueryClient()
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.IDENTITY_HOLDER_FILES)
   const [orderBy, setOrderBy] = useOrgTableSort(TableKeyEnum.IDENTITY_HOLDER_FILES, FileOrderField, [
@@ -52,9 +47,9 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.IDENTITY_HOLDER_FILES, {}))
   const { successNotification, errorNotification } = useNotification()
 
-  const [markEvidenceFile, setMarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
-  const [unmarkEvidenceFile, setUnmarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
-  const [deleteFile, setDeleteFile] = useState<{ id: string; name: string } | null>(null)
+  const [markEvidenceFile, setMarkEvidenceFile] = useState<TFile | null>(null)
+  const [unmarkEvidenceFile, setUnmarkEvidenceFile] = useState<TFile | null>(null)
+  const [deleteFile, setDeleteFile] = useState<TFile | null>(null)
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -67,7 +62,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
     where: fileWhere,
   })
 
-  const fileIds = useMemo(() => files.map((f) => f?.id).filter(Boolean) as string[], [files])
+  const fileIds = useMemo(() => files.map((f) => f.id), [files])
 
   const { data: evidencesData } = useGetEvidencesWithFileIds(fileIds)
 
@@ -119,7 +114,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
       queryClient.invalidateQueries({ queryKey: ['identityHolderFiles'] })
       successNotification({
         title: 'Document removed',
-        description: `"${deleteFile.name}" has been removed.`,
+        description: `"${deleteFile.providedFileName}" has been removed.`,
       })
       setDeleteFile(null)
     } catch (error) {
@@ -132,122 +127,18 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
   }
 
   const handleExportCSV = () => {
-    const visibleFiles = files.filter((f) => !!f)
-    if (visibleFiles.length === 0) return
+    if (files.length === 0) return
 
-    exportToCSV(
-      visibleFiles,
-      [
-        { label: 'File Name', accessor: (f) => f.providedFileName },
-        { label: 'Category', accessor: (f) => f.categoryType || '' },
-        { label: 'Uploaded Date', accessor: (f) => (f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '') },
-        { label: 'Classified as Evidence', accessor: (f) => (fileToEvidenceMap.has(f.id) ? 'Yes' : 'No') },
-      ],
-      'personnel-documents',
-    )
+    exportToCSV(files, getDocumentExportColumns(fileToEvidenceMap), 'personnel-documents')
   }
 
-  const validFiles = files.filter((f) => !!f)
-
-  const isClassifiedAsEvidence = (file: TFile) => fileToEvidenceMap.has(file.id)
-
-  const openEvidenceSheet = (fileId: string) => {
-    const evidenceId = fileToEvidenceMap.get(fileId)
-    if (!evidenceId) return
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('id', evidenceId)
-    router.push(`${pathname}?${params.toString()}`)
-  }
-
-  const columns: ColumnDef<TFile>[] = [
-    {
-      accessorKey: 'providedFileName',
-      header: 'File Name',
-      size: 280,
-      cell: ({ row }) => <span className="block truncate">{row.original.providedFileName}</span>,
-    },
-    {
-      accessorKey: 'categoryType',
-      header: 'Category',
-      size: 150,
-      cell: ({ row }) => <span>{row.original.categoryType || '-'}</span>,
-    },
-    {
-      accessorKey: 'createdAt',
-      header: 'Uploaded Date',
-      size: 150,
-      cell: ({ row }) => <DateCell value={row.original.createdAt} />,
-    },
-    {
-      id: 'classifiedAsEvidence',
-      header: 'Evidence?',
-      size: 120,
-      maxSize: 120,
-      minSize: 120,
-      cell: ({ row }) => {
-        const classified = isClassifiedAsEvidence(row.original)
-        return (
-          <div className="flex items-center gap-2">
-            {classified ? (
-              <>
-                <Check size={16} className="text-success" />
-                <span>Yes</span>
-                <button
-                  type="button"
-                  className="p-0 bg-transparent border-0 cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label="View evidence"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    openEvidenceSheet(row.original.id)
-                  }}
-                >
-                  <Eye size={16} />
-                </button>
-              </>
-            ) : (
-              <>
-                <X size={16} className="text-destructive" />
-                <span>No</span>
-              </>
-            )}
-          </div>
-        )
-      },
-    },
-    {
-      id: 'actions',
-      header: '',
-      size: 260,
-      maxSize: 260,
-      minSize: 260,
-      cell: ({ row }: { row: Row<TFile> }) => {
-        const classified = isClassifiedAsEvidence(row.original)
-        return (
-          <div role="presentation" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex items-center gap-2 justify-end">
-            {canEdit &&
-              (classified ? (
-                <Button variant="secondary" icon={<X />} iconPosition="left" onClick={() => setUnmarkEvidenceFile({ id: row.original.id, name: row.original.providedFileName })}>
-                  Unmark Evidence
-                </Button>
-              ) : (
-                <Button type="button" onClick={() => setMarkEvidenceFile({ id: row.original.id, name: row.original.providedFileName })}>
-                  <Check size={14} />
-                  Mark as Evidence
-                </Button>
-              ))}
-            <Button type="button" variant="secondary" onClick={() => fileDownload(row.original.presignedURL || '', row.original.providedFileName, errorNotification)}>
-              <Download size={16} />
-            </Button>
-            {canEdit && (
-              <Button type="button" variant="secondary" onClick={() => setDeleteFile({ id: row.original.id, name: row.original.providedFileName })}>
-                <Trash2 size={16} />
-              </Button>
-            )}
-          </div>
-        )
-      },
-    } as ColumnDef<TFile>,
-  ]
+  const columns = useDocumentTableColumns({
+    canEdit,
+    fileToEvidenceMap,
+    onMarkEvidence: setMarkEvidenceFile,
+    onUnmarkEvidence: setUnmarkEvidenceFile,
+    onDelete: setDeleteFile,
+  })
 
   const mappedColumns = getMappedColumns(columns)
 
@@ -275,7 +166,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
         sortFields={FILE_SORT_FIELDS}
         sorting={orderBy}
         onSortChange={setOrderBy}
-        data={validFiles}
+        data={files}
         loading={isLoading}
         pagination={pagination}
         onPaginationChange={setPagination}
@@ -285,8 +176,8 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
         tableKey={TableKeyEnum.IDENTITY_HOLDER_FILES}
       />
 
-      {markEvidenceFile && <MarkAsEvidenceDialog fileId={markEvidenceFile.id} fileName={markEvidenceFile.name} personnelId={personnelId} onClose={() => setMarkEvidenceFile(null)} />}
-      {unmarkEvidenceFile && <UnmarkEvidenceDialog fileId={unmarkEvidenceFile.id} fileName={unmarkEvidenceFile.name} onClose={() => setUnmarkEvidenceFile(null)} />}
+      {markEvidenceFile && <MarkAsEvidenceDialog fileId={markEvidenceFile.id} fileName={markEvidenceFile.providedFileName} personnelId={personnelId} onClose={() => setMarkEvidenceFile(null)} />}
+      {unmarkEvidenceFile && <UnmarkEvidenceDialog fileId={unmarkEvidenceFile.id} fileName={unmarkEvidenceFile.providedFileName} onClose={() => setUnmarkEvidenceFile(null)} />}
       {deleteFile && (
         <ConfirmationDialog
           open
@@ -295,7 +186,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
           title="Remove document?"
           description={
             <>
-              Are you sure you want to remove <b>{deleteFile.name}</b>? This action cannot be undone.
+              Are you sure you want to remove <b>{deleteFile.providedFileName}</b>? This action cannot be undone.
             </>
           }
         />
