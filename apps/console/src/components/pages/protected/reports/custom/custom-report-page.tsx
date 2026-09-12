@@ -66,17 +66,6 @@ const CustomReportPage: React.FC = () => {
     ])
   }, [setCrumbs])
 
-  useEffect(() => {
-    const first = availableEntities[0]
-    if (entityName || !first) return
-
-    const firstEntity = getEntity(first.value)
-
-    setEntityName(first.value)
-    setColumnPaths(firstEntity?.defaultFields ?? [])
-    setFilters(firstEntity ? defaultFilters(firstEntity) : [])
-  }, [availableEntities, entityName])
-
   const entity = availableEntities.some((option) => option.value === entityName) ? getEntity(entityName) : undefined
   const columnIndex = useMemo(() => (entity ? buildColumnIndex(entity) : new Map<string, TReportColumn>()), [entity])
   const selectedPaths = useMemo(() => new Set(columnPaths), [columnPaths])
@@ -178,7 +167,7 @@ const CustomReportPage: React.FC = () => {
           <Button type="button" full icon={<Play size={14} />} iconPosition="left" loading={isFetching} disabled={!entity || columnPaths.length === 0 || incompleteFilters > 0} onClick={handleRun}>
             Run report
           </Button>
-          {columnPaths.length === 0 && <p className="text-xs text-muted-foreground">Select at least one column to run this report.</p>}
+          {entity && columnPaths.length === 0 && <p className="text-xs text-muted-foreground">Select at least one column to run this report.</p>}
           {incompleteFilters > 0 && <p className="text-xs text-muted-foreground">Give every filter a value, or remove it, before running this report.</p>}
         </div>
 
@@ -260,7 +249,7 @@ const CustomReportPage: React.FC = () => {
                 {preview.variables && <CodeBlock code={preview.variables} language="json" title="Variables" />}
               </>
             ) : (
-              <p className="text-sm text-muted-foreground">Select at least one column to see the query.</p>
+              <p className="text-sm text-muted-foreground">{entity ? 'Select at least one column to see the query.' : 'Choose a data type to see the query.'}</p>
             )}
           </TabsContent>
         </Tabs>
