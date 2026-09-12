@@ -4,6 +4,7 @@ import { useEffect } from 'storybook/preview-api'
 import { withThemeByClassName } from '@storybook/addon-themes'
 import './style.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { AppTooltipProvider } from '@repo/ui/tooltip'
 import openlaneLight from './openlane'
 import openlaneDark from './openlane-dark'
 
@@ -36,6 +37,12 @@ const QueryClientDecorator = (Story: React.ComponentType, context: { id: string 
   )
 }
 
+const TooltipDecorator = (Story: React.ComponentType) => (
+  <AppTooltipProvider>
+    <Story />
+  </AppTooltipProvider>
+)
+
 function applyTheme(isDark: boolean) {
   const bg = isDark ? DARK_BG : LIGHT_BG
   document.documentElement.classList.toggle('dark', isDark)
@@ -49,6 +56,7 @@ function applyTheme(isDark: boolean) {
 const preview: Preview = {
   decorators: [
     QueryClientDecorator,
+    TooltipDecorator,
     (Story, context) => {
       const isDark = context.globals['theme'] === 'dark'
 

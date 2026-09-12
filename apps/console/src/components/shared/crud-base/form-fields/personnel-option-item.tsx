@@ -19,7 +19,9 @@ export const PersonnelOptionItem: React.FC<PersonnelOptionItemProps> = ({ option
       <IdCardLanyard className="mt-0.5 mr-2 h-4 w-4" />
       <div className="flex min-w-0 flex-col">
         <div className="flex items-center gap-2">
-          <span className="truncate">{option.label}</span>
+          <span className="truncate" title={option.label}>
+            {option.label}
+          </span>
           {option.isOpenlaneUser && (
             <Badge variant="select" className="gap-1 shrink-0 max-w-2/5 overflow-hidden px-1.5 py-0 font-normal" title="Has an Openlane account">
               <User className="size-3!" />
@@ -27,7 +29,11 @@ export const PersonnelOptionItem: React.FC<PersonnelOptionItemProps> = ({ option
             </Badge>
           )}
         </div>
-        {showEmail && <span className="truncate text-xs text-muted-foreground">{option.email}</span>}
+        {showEmail && (
+          <span className="truncate text-xs text-muted-foreground" title={option.email}>
+            {option.email}
+          </span>
+        )}
       </div>
       {isSelected && <Check className="mt-0.5 ml-auto h-4 w-4" />}
     </CommandItem>

@@ -9,7 +9,7 @@ import { Loading } from '@/components/shared/loading/loading'
 import { NavigationGuardProvider } from 'next-navigation-guard'
 import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
 import { InitPlugSDK } from '@/providers/chatSdk'
-import { TooltipProvider } from '@repo/ui/tooltip'
+import { AppTooltipProvider } from '@repo/ui/tooltip'
 import { devrevChatEnabled } from '@repo/dally/auth'
 import { WebSocketProvider } from '@/providers/websocket-provider'
 import { NotificationsProvider } from '@/providers/notifications-provider'
@@ -80,7 +80,9 @@ const Providers = ({ children }: ProvidersProps) => {
   if (isPublicPage) {
     return (
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <AppTooltipProvider>{children}</AppTooltipProvider>
+        </QueryClientProvider>
       </ThemeProvider>
     )
   }
@@ -97,9 +99,7 @@ const Providers = ({ children }: ProvidersProps) => {
             <NotificationsProvider>
               <BreadcrumbProvider>
                 {devrevChatEnabled && <InitPlugSDK />}
-                <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
-                  {children}
-                </TooltipProvider>
+                <AppTooltipProvider>{children}</AppTooltipProvider>
                 <NotificationToastContainer />
               </BreadcrumbProvider>
             </NotificationsProvider>

@@ -27,4 +27,10 @@ function TooltipContent({ className, sideOffset = 4, portal = false, ...props }:
 }
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+const AppTooltipProvider = ({ children }: { children: React.ReactNode }) => (
+  <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
+    {children}
+  </TooltipProvider>
+)
+
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, AppTooltipProvider }
