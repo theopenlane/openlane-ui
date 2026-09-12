@@ -35,8 +35,20 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { isValidDomain } from '@/utils/strings'
 import { DomainListEditor } from '@/components/shared/domain-list-editor/domain-list-editor'
 import { Switch } from '@repo/ui/switch'
+import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
+import { isSsoCallbackError, type SsoCallbackError } from '@/lib/auth/utils/sso-callback-error'
 
 type viewMode = 'overview' | 'edit'
+
+const SSO_ERROR_MESSAGES: Record<SsoCallbackError, string> = {
+  sso_signin_failed: 'SSO sign-in failed',
+  sso_callback_failed: 'SSO callback failed',
+  sso_callback_error: 'SSO callback error occurred',
+  missing_oauth_params: 'The identity provider did not return the expected authorization details',
+  missing_organization_id: 'The verification session expired before your identity provider responded',
+}
+
+const ssoErrorLabel = (error?: string | null): string => (isSsoCallbackError(error) ? SSO_ERROR_MESSAGES[error] : 'The connection could not be verified')
 
 const providerLabel = (provider: string): string => SSO_PROVIDER_NAMES[provider as OrganizationSettingSsoProvider] ?? getEnumLabel(provider)
 
@@ -495,8 +507,6 @@ const SSOPage = () => {
     setIsTestingSSO(true)
 
     try {
-      localStorage.setItem('testing_sso', 'true')
-
       const response = await fetch('/api/auth/sso', {
         method: 'POST',
         headers: {
@@ -511,7 +521,13 @@ const SSOPage = () => {
       const data = await response.json()
 
       if (response.ok && data.success && data.redirect_uri) {
-        window.location.href = data.redirect_uri
+        if (!startSsoRedirect(data.redirect_uri, 'test')) {
+          errorNotification({
+            title: 'SSO test failed',
+            description: 'Enable browser storage for this site so we can return you here after verifying the connection.',
+          })
+        }
+
         return
       }
 
@@ -549,29 +565,23 @@ const SSOPage = () => {
 
   useEffect(() => {
     const ssoTested = searchParams?.get('ssotested')
+
+    if (!ssoTested) return
+
     const error = searchParams?.get('error')
 
     if (ssoTested === '1') {
+      setShowSSOErrorAlert(false)
       setShowSSOTestedAlert(true)
       setShowReTestWarning(false)
       setPendingEnforceCheck(true)
-      router.replace(pathname)
-      return
+    } else {
+      setShowSSOTestedAlert(false)
+      setShowSSOErrorAlert(true)
+      setSSOErrorMessage(ssoErrorLabel(error))
     }
 
-    if (error) {
-      const errorMessagesMap = {
-        sso_signin_failed: 'SSO sign-in failed',
-        sso_callback_failed: 'SSO callback failed',
-        sso_callback_error: 'SSO callback error occurred',
-      }
-      const errorMessage = errorMessagesMap[error as keyof typeof errorMessagesMap]
-      if (errorMessage) {
-        setShowSSOErrorAlert(true)
-        setSSOErrorMessage(errorMessage)
-        router.replace(pathname)
-      }
-    }
+    router.replace(pathname)
   }, [searchParams, router, pathname])
 
   useEffect(() => {

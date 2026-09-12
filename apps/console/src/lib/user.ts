@@ -1,5 +1,6 @@
 import { type AuthenticationResponseJSON, type RegistrationResponseJSON } from '@simplewebauthn/types'
 import useSWR from 'swr'
+import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
 
 export interface LoginUser {
   username: string
@@ -209,7 +210,7 @@ export async function verifyAuthentication<T>(arg: AuthVerificationInput) {
 // The response from switchOrganization or similar auth functions
 export function handleSSORedirect(response: Pick<SwitchOrganizationResponse, 'needs_sso' | 'redirect_uri'>): boolean {
   if (response?.needs_sso && response?.redirect_uri) {
-    window.location.href = response.redirect_uri
+    startSsoRedirect(response.redirect_uri)
     return true
   }
 

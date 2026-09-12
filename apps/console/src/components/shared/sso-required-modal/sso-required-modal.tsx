@@ -6,6 +6,7 @@ import { Button } from '@repo/ui/button'
 import { ArrowRightCircle, ShieldCheck } from 'lucide-react'
 import { getSSORedirect } from '@/lib/auth/utils/get-openlane-token'
 import { type SSORequirement } from '@/lib/auth/utils/sso-required'
+import { startSsoRedirect } from '@/lib/auth/utils/sso-intent'
 
 interface SSORequiredModalProps {
   requirement: SSORequirement | null
@@ -31,7 +32,7 @@ const SSORequiredModal = ({ requirement }: SSORequiredModalProps) => {
       return
     }
 
-    window.location.href = ssoConfig.redirect_uri
+    startSsoRedirect(ssoConfig.redirect_uri)
   }
 
   return (
