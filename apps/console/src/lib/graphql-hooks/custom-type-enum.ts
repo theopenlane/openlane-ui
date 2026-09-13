@@ -24,6 +24,8 @@ import { useSession } from 'next-auth/react'
 
 export type CustomTypeEnumOption = Option & { color?: string; description?: string }
 
+export const GLOBAL_ENUM_OBJECT_TYPE = ''
+
 const useFetchAllCustomTypeEnums = () => {
   const { client } = useGraphQLClient()
 
@@ -62,12 +64,15 @@ export const useGetCustomTypeEnums = ({ where }: { where?: CustomTypeEnumWhereIn
 
   const filteredEdges = useMemo(() => {
     if (!allEdges || allEdges.length === 0) return null
-    if (!where?.objectType && !where?.field) return allEdges
+
+    const objectType = where?.objectType === null ? GLOBAL_ENUM_OBJECT_TYPE : where?.objectType
+    if (objectType === undefined && !where?.field) return allEdges
+
     return allEdges.filter((edge) => {
       const node = edge?.node
       if (!node) return false
-      if (where.objectType && node.objectType !== where.objectType) return false
-      if (where.field && node.field !== where.field) return false
+      if (objectType !== undefined && node.objectType !== objectType) return false
+      if (where?.field && node.field !== where.field) return false
       return true
     })
   }, [allEdges, where])

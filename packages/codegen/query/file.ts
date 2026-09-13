@@ -9,12 +9,14 @@ export const GET_FILES = gql`
         hasPreviousPage
         startCursor
       }
-      totalCount
       edges {
         node {
           id
           providedFileName
           providedFileSize
+          providedFileExtension
+          detectedMimeType
+          presignedURL
           categoryName
           createdAt
         }

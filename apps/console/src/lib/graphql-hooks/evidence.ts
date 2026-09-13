@@ -83,8 +83,7 @@ export const useCreateEvidence = () => {
   return useMutation<CreateEvidenceMutation, unknown, CreateEvidenceMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_EVIDENCE, variables }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['getFiles'] })
-      invalidateEvidenceQueries(queryClient)
+      invalidateEvidenceFileQueries(queryClient)
     },
   })
 }

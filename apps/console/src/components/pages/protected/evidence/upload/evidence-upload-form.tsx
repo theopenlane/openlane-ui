@@ -7,7 +7,7 @@ import UploadTab from '@/components/pages/protected/evidence/upload/upload-tab'
 import DirectLinkTab from '@/components/pages/protected/evidence/upload/direct-link-tab'
 import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { type TUploadedFile } from './types/TUploadedFile'
-import { EVIDENCE_FILE_CATEGORY_WHERE } from './evidence-upload-config'
+import { EVIDENCE_FILE_CATEGORY } from './evidence-upload-config'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
 import ExistingFilesTable from '@/components/shared/file-upload/existing-files-table'
 import { getExistingFileIds } from '@/components/shared/file-upload/file-selection'
@@ -41,6 +41,16 @@ const EvidenceUploadForm: React.FC<TProps> = ({ form }) => {
     [form],
   )
 
+  const handleRemoveExistingFile = useCallback(
+    (fileId: string) => {
+      form.setValue(
+        'evidenceFiles',
+        (form.getValues('evidenceFiles') ?? []).filter((file) => !(file.type === 'existingFile' && file.id === fileId)),
+      )
+    },
+    [form],
+  )
+
   return (
     <Tabs defaultValue="upload">
       <TabsList>
@@ -57,7 +67,13 @@ const EvidenceUploadForm: React.FC<TProps> = ({ form }) => {
       <UploadTab uploadedFile={handleAddFile} />
       <DirectLinkTab directLink={handleAddFile} evidenceFiles={evidenceFiles} form={form} />
       <TabsContent value="existingFiles">
-        <ExistingFilesTable tableKey={TableKeyEnum.EVIDENCE_EXISTING_FILES} selectedFileIds={selectedFileIds} onSelect={handleAddFile} where={EVIDENCE_FILE_CATEGORY_WHERE} />
+        <ExistingFilesTable
+          tableKey={TableKeyEnum.EVIDENCE_EXISTING_FILES}
+          selectedFileIds={selectedFileIds}
+          onSelect={handleAddFile}
+          onDeselect={handleRemoveExistingFile}
+          defaultCategory={EVIDENCE_FILE_CATEGORY}
+        />
       </TabsContent>
 
       <div className="mt-6 flex gap-6">

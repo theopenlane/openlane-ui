@@ -1,6 +1,6 @@
 'use client'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Upload } from 'lucide-react'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
@@ -10,7 +10,7 @@ import { type FileWhereInput } from '@repo/codegen/src/schema'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { maxFileSizeInMb } from '@/components/shared/file-upload/file-upload-config'
 import { useNotification } from '@/hooks/useNotification'
-import { acceptedFileTypes, acceptedFileTypesShort, EVIDENCE_FILE_CATEGORY_WHERE } from '@/components/pages/protected/evidence/upload/evidence-upload-config'
+import { acceptedFileTypes, acceptedFileTypesShort, EVIDENCE_FILE_CATEGORY } from '@/components/pages/protected/evidence/upload/evidence-upload-config'
 import { useUploadEvidenceFiles } from '@/lib/graphql-hooks/evidence'
 import { type TUploadedFile } from '@/components/shared/file-upload/types'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -29,7 +29,7 @@ const EvidenceAddFilesDialog: React.FC<TEvidenceAddFilesDialog> = ({ evidenceID 
   const { mutateAsync: updateEvidence, isPending: isSubmitting } = useUploadEvidenceFiles()
   const [evidenceFiles, setEvidenceFiles] = useState<TUploadedFile[]>([])
 
-  const unlinkedEvidenceFilesWhere = useMemo<FileWhereInput>(() => ({ ...EVIDENCE_FILE_CATEGORY_WHERE, not: { hasEvidenceWith: [{ id: evidenceID }] } }), [evidenceID])
+  const unlinkedFilesWhere = useMemo<FileWhereInput>(() => ({ not: { hasEvidenceWith: [{ id: evidenceID }] } }), [evidenceID])
   const existingFileIds = useMemo(() => getExistingFileIds(evidenceFiles), [evidenceFiles])
 
   const handleSubmit = async () => {
@@ -62,6 +62,10 @@ const EvidenceAddFilesDialog: React.FC<TEvidenceAddFilesDialog> = ({ evidenceID 
     setEvidenceFiles((prev) => prev.filter((_, position) => position !== index))
   }
 
+  const handleRemoveExistingFile = useCallback((fileId: string) => {
+    setEvidenceFiles((prev) => prev.filter((file) => !(file.type === 'existingFile' && file.id === fileId)))
+  }, [])
+
   const handleCancel = () => {
     setIsOpen(false)
     setEvidenceFiles([])
@@ -91,7 +95,14 @@ const EvidenceAddFilesDialog: React.FC<TEvidenceAddFilesDialog> = ({ evidenceID 
             <FileUpload acceptedFileTypes={acceptedFileTypes} onFileUpload={handleAddFile} acceptedFileTypesShort={acceptedFileTypesShort} maxFileSizeInMb={maxFileSizeInMb} multipleFiles={true} />
           </TabsContent>
           <TabsContent value="existingFiles">
-            <ExistingFilesTable tableKey={TableKeyEnum.EVIDENCE_LINK_EXISTING_FILES} selectedFileIds={existingFileIds} onSelect={handleAddFile} where={unlinkedEvidenceFilesWhere} />
+            <ExistingFilesTable
+              tableKey={TableKeyEnum.EVIDENCE_LINK_EXISTING_FILES}
+              selectedFileIds={existingFileIds}
+              onSelect={handleAddFile}
+              onDeselect={handleRemoveExistingFile}
+              where={unlinkedFilesWhere}
+              defaultCategory={EVIDENCE_FILE_CATEGORY}
+            />
           </TabsContent>
         </Tabs>
         <div className="flex flex-wrap gap-6">
@@ -99,12 +110,12 @@ const EvidenceAddFilesDialog: React.FC<TEvidenceAddFilesDialog> = ({ evidenceID 
             <UploadedFileDetailsCard key={`${file.type}-${file.id ?? file.name}-${index}`} fileName={file.name} fileSize={file.size} index={index} handleDeleteFile={() => handleDelete(index)} />
           ))}
         </div>
-        <div className="flex flex-col gap-2">
+        <DialogFooter>
+          <CancelButton disabled={isSubmitting} onClick={handleCancel} />
           <Button variant="primary" onClick={handleSubmit} loading={isSubmitting} disabled={isSubmitting || evidenceFiles.length === 0}>
             {isSubmitting ? 'Adding...' : 'Add'}
           </Button>
-          <CancelButton disabled={isSubmitting} onClick={handleCancel}></CancelButton>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

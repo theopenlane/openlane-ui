@@ -34,7 +34,9 @@ const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFiles
 
   const handleAddFile = useCallback((file: TUploadedFile) => applyChange((previous) => [file, ...previous]), [applyChange])
 
-  const handleDelete = (index: number) => applyChange((previous) => previous.filter((_, position) => position !== index))
+  const handleRemoveExistingFile = useCallback((fileId: string) => applyChange((previous) => previous.filter((file) => !(file.type === 'existingFile' && file.id === fileId))), [applyChange])
+
+  const handleDelete = useCallback((index: number) => applyChange((previous) => previous.filter((_, position) => position !== index)), [applyChange])
 
   return (
     <div className="mt-5">
@@ -52,7 +54,7 @@ const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFiles
           <FileUpload acceptedFileTypes={acceptedFileTypes} onFileUpload={handleAddFile} acceptedFileTypesShort={acceptedFileTypesShort} maxFileSizeInMb={maxFileSizeInMb} multipleFiles={true} />
         </TabsContent>
         <TabsContent value="existingFiles">
-          <ExistingFilesTable tableKey={TableKeyEnum.EXISTING_FILES} selectedFileIds={selectedFileIds} onSelect={handleAddFile} />
+          <ExistingFilesTable tableKey={TableKeyEnum.EXISTING_FILES} selectedFileIds={selectedFileIds} onSelect={handleAddFile} onDeselect={handleRemoveExistingFile} />
         </TabsContent>
 
         {allFiles.length > 0 && (

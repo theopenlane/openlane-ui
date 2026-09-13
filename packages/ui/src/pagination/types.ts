@@ -18,4 +18,4 @@ export type TPageInfo = {
   hasPreviousPage?: boolean
 }
 
-export type TPaginationMeta = { totalCount?: number; pageInfo?: TPageInfo; isLoading?: boolean }
+export type TPaginationMeta = { totalCount?: number; pageInfo?: TPageInfo; isLoading?: boolean; unknownTotalCount?: boolean }

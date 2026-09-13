@@ -137,6 +137,7 @@ interface BaseDataTableProps<TData extends RowData> {
   pagination?: TPagination | null
   onPaginationChange?: (arg: TPagination) => void
   paginationMeta?: TPaginationMeta
+  pageSizeOptions?: number[]
   wrapperClass?: string
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
@@ -344,6 +345,7 @@ export function DataTable<TData extends RowData>({
   pagination,
   onPaginationChange,
   paginationMeta,
+  pageSizeOptions,
   wrapperClass,
   setColumnVisibility,
   columnVisibility,
@@ -393,15 +395,20 @@ export function DataTable<TData extends RowData>({
   const currentPageSize = pagination?.pageSize || 10
 
   const [columnSizes, setColumnSizes] = useState<Record<string, number>>({})
+  const previousColumnVisibilityRef = useRef<VisibilityState | undefined>(undefined)
 
-  const { totalCount, pageInfo, isLoading } = paginationMeta || {}
+  const { totalCount, pageInfo, isLoading, unknownTotalCount } = paginationMeta || {}
 
   const columnResizeMode: ColumnResizeMode = 'onChange'
   const columnResizeDirection: ColumnResizeDirection = 'ltr'
 
   const totalPages = useMemo(() => {
+    if (unknownTotalCount) {
+      return undefined
+    }
+
     return totalCount ? Math.ceil(totalCount / currentPageSize) : 1
-  }, [totalCount, currentPageSize])
+  }, [unknownTotalCount, totalCount, currentPageSize])
 
   const handleSortChange = (field: string) => {
     const existing = (sorting ?? []).find((sc) => sc.field === field)
@@ -573,7 +580,10 @@ export function DataTable<TData extends RowData>({
       preExclusiveColumnSizesRef.current = columnSizesRef.current
     }
 
-    const baseSizing = exclusiveRowDragChanged && !isExclusiveRowDrag ? (preExclusiveColumnSizesRef.current ?? {}) : columnSizesRef.current
+    const visibilityChanged = previousColumnVisibilityRef.current !== effectiveColumnVisibility
+    previousColumnVisibilityRef.current = effectiveColumnVisibility
+
+    const baseSizing = exclusiveRowDragChanged && !isExclusiveRowDrag ? (preExclusiveColumnSizesRef.current ?? {}) : visibilityChanged ? {} : columnSizesRef.current
     const redistributed = redistributeColumnWidths(visibleCols, baseSizing, containerWidth, fixedMaxColumns)
 
     const changed = visibleCols.some((col) => {
@@ -640,16 +650,14 @@ export function DataTable<TData extends RowData>({
   }
 
   const handlePageChange = (newPage: number) => {
-    if (!pagination || !totalCount) return
-
-    const totalPages = Math.ceil(totalCount / currentPageSize)
+    if (!pagination) return
 
     if (newPage === 1) {
       goToFirstPage()
       return
     }
 
-    if (newPage === totalPages) {
+    if (!unknownTotalCount && totalCount && newPage === Math.ceil(totalCount / currentPageSize)) {
       goToLastPage()
       return
     }
@@ -792,7 +800,15 @@ export function DataTable<TData extends RowData>({
       </div>
       {pagination && (
         <div className={isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300'}>
-          <Pagination currentPage={currentPage} totalPages={totalPages} pageSize={currentPageSize} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={currentPageSize}
+            pageSizeOptions={pageSizeOptions}
+            hasNextPage={pageInfo?.hasNextPage}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+          />
         </div>
       )}
     </>

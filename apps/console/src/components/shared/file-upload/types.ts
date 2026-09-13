@@ -4,7 +4,7 @@ export type TUploadedFile = {
   url?: string
   type: 'file' | 'link' | 'existingFile'
   file?: File | null
-  id?: string | number
+  id?: string
   category?: string | null
   createdAt?: string
   width?: number
