@@ -4,7 +4,7 @@ import React, { memo, useId, useMemo } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import type { TReportEntity } from '@repo/codegen/src/report-schema.generated'
 import { OrderDirection } from '@repo/codegen/src/schema'
-import { labelledOrderFields } from '@/lib/report/report-schema'
+import { labelledOrderFields, type TReportSort } from '@/lib/report/report-schema'
 import ReportPanel from './report-panel'
 
 const UNSORTED = 'unsorted'
@@ -12,8 +12,6 @@ const UNSORTED = 'unsorted'
 const UNLIMITED = 'all'
 
 const LIMIT_OPTIONS = [100, 500, 1000, 5000]
-
-export type TReportSort = { field: string | null; direction: OrderDirection }
 
 type TReportSortPanelProps = {
   entity: TReportEntity

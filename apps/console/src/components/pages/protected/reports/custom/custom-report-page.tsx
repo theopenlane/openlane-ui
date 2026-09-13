@@ -1,6 +1,6 @@
 'use client'
 
-import React, { use, useCallback, useEffect, useId, useMemo, useState } from 'react'
+import React, { use, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Copy, Download, Play } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
@@ -10,34 +10,32 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
-import { OrderDirection } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useNotification } from '@/hooks/useNotification'
 import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
 import { useReportExport, useReportQuery, type TReportRequest } from '@/lib/graphql-hooks/custom-report'
 import { buildReportQuery } from '@/lib/report/build-report-query'
-import { buildWhere, defaultFilters, isFilterComplete, type TReportCombinator, type TReportFilter } from '@/lib/report/report-filters'
+import { buildOrder, emptyReportConfig, reportConfigForEntity, type TReportQueryConfig } from '@/lib/report/report-config'
+import { buildWhere, isFilterComplete, type TReportCombinator, type TReportFilter } from '@/lib/report/report-filters'
 import { EXPORT_FORMAT_LABELS, EXPORT_FORMATS } from '@/lib/report/report-export'
 import { rowsForPage } from '@/lib/report/report-rows'
-import { buildColumnIndex, entityOptions, getEntity, resolveColumns, type TReportColumn, type TReportOrder } from '@/lib/report/report-schema'
+import { entityOptions, getColumnIndex, getEntity, resolveColumns, type TReportSort } from '@/lib/report/report-schema'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { EXPORT_PAGE_SIZE } from '@/constants/pagination'
 import ReportColumnsPanel from './report-columns-panel'
 import ReportFiltersPanel from './report-filters-panel'
+import ReportHistoryPanel from './report-history-panel'
 import ReportPanel from './report-panel'
 import ReportRelatedPanel from './report-related-panel'
 import ReportResults from './report-results'
-import ReportSortPanel, { type TReportSort } from './report-sort-panel'
+import ReportSortPanel from './report-sort-panel'
+import { useReportHistory } from './use-report-history'
 
 type TReportView = 'table' | 'json'
 
 const REPORT_PAGE_SIZE = 25
 
 const resetPagination = (pageSize: number): TPagination => ({ page: 1, pageSize, query: { first: pageSize } })
-
-const DEFAULT_SORT: TReportSort = { field: null, direction: OrderDirection.ASC }
-
-const buildOrder = ({ field, direction }: TReportSort): TReportOrder | null => (field ? { field, direction } : null)
 
 const CustomReportPage: React.FC = () => {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -47,14 +45,13 @@ const CustomReportPage: React.FC = () => {
   const formatLabelId = useId()
 
   const availableEntities = useMemo(() => entityOptions.filter((option) => hasObjectType(option.objectType)), [hasObjectType])
+  const reportableEntityNames = useMemo(() => new Set(availableEntities.map((option) => option.value)), [availableEntities])
 
-  const [entityName, setEntityName] = useState('')
-  const [columnPaths, setColumnPaths] = useState<string[]>([])
-  const [filters, setFilters] = useState<TReportFilter[]>([])
-  const [combinator, setCombinator] = useState<TReportCombinator>('and')
-  const [sort, setSort] = useState<TReportSort>(DEFAULT_SORT)
-  const [limit, setLimit] = useState<number | null>(null)
-  const [runId, setRunId] = useState(0)
+  const { options: historyOptions, recordRun } = useReportHistory(reportableEntityNames)
+
+  const [config, setConfig] = useState<TReportQueryConfig>(emptyReportConfig)
+  const { entityName, columnPaths, filters, combinator, sort, limit } = config
+  const runIdRef = useRef(0)
   const [pagination, setPagination] = useState<TPagination>(() => resetPagination(REPORT_PAGE_SIZE))
   const [view, setView] = useState<TReportView>('table')
   const [tab, setTab] = useState('results')
@@ -66,11 +63,18 @@ const CustomReportPage: React.FC = () => {
     ])
   }, [setCrumbs])
 
-  const entity = availableEntities.some((option) => option.value === entityName) ? getEntity(entityName) : undefined
-  const columnIndex = useMemo(() => (entity ? buildColumnIndex(entity) : new Map<string, TReportColumn>()), [entity])
+  const entity = reportableEntityNames.has(entityName) ? getEntity(entityName) : undefined
+  const columnIndex = getColumnIndex(entity)
   const selectedPaths = useMemo(() => new Set(columnPaths), [columnPaths])
 
   const [request, setRequest] = useState<TReportRequest | null>(null)
+
+  const patchConfig = useCallback((patch: Partial<TReportQueryConfig>) => setConfig((current) => ({ ...current, ...patch })), [])
+
+  const setFilters = useCallback((filters: TReportFilter[]) => patchConfig({ filters }), [patchConfig])
+  const setCombinator = useCallback((combinator: TReportCombinator) => patchConfig({ combinator }), [patchConfig])
+  const setSort = useCallback((sort: TReportSort) => patchConfig({ sort }), [patchConfig])
+  const setLimit = useCallback((limit: number | null) => patchConfig({ limit }), [patchConfig])
 
   const handleEntityChange = (nextEntityName: string) => {
     if (nextEntityName === entityName) return
@@ -78,24 +82,24 @@ const CustomReportPage: React.FC = () => {
     const nextEntity = getEntity(nextEntityName)
     if (!nextEntity) return
 
-    setEntityName(nextEntityName)
-    setColumnPaths(nextEntity.defaultFields)
-    setFilters(defaultFilters(nextEntity))
-    setCombinator('and')
-    setSort(DEFAULT_SORT)
+    setConfig((current) => ({ ...reportConfigForEntity(nextEntity), limit: current.limit }))
     setRequest(null)
     setPagination(resetPagination(pagination.pageSize))
   }
 
-  const toggleColumn = useCallback((path: string) => setColumnPaths((current) => (current.includes(path) ? current.filter((item) => item !== path) : [...current, path])), [])
+  const toggleColumn = useCallback(
+    (path: string) => setConfig((current) => ({ ...current, columnPaths: current.columnPaths.includes(path) ? current.columnPaths.filter((item) => item !== path) : [...current.columnPaths, path] })),
+    [],
+  )
 
   const toggleColumns = useCallback((paths: string[], selectAll: boolean) => {
     const changed = new Set(paths)
 
-    setColumnPaths((current) => {
-      const held = new Set(current)
+    setConfig((current) => {
+      const held = new Set(current.columnPaths)
+      const columnPaths = selectAll ? [...current.columnPaths, ...paths.filter((path) => !held.has(path))] : current.columnPaths.filter((path) => !changed.has(path))
 
-      return selectAll ? [...current, ...paths.filter((path) => !held.has(path))] : current.filter((path) => !changed.has(path))
+      return { ...current, columnPaths }
     })
   }, [])
 
@@ -140,18 +144,39 @@ const CustomReportPage: React.FC = () => {
     return { query, variables: Object.keys(variables).length > 0 ? JSON.stringify(variables, null, 2) : '' }
   }, [columnIndex, columnPaths, combinator, entity, filters, limit, pagination.pageSize, sort, tab])
 
-  const handleRun = () => {
-    if (!entity) return
+  const runConfig = useCallback(
+    (next: TReportQueryConfig) => {
+      const nextEntity = getEntity(next.entityName)
+      if (!nextEntity) return
 
-    const columns = resolveColumns(columnIndex, columnPaths)
-    if (columns.length === 0) return
+      const columns = resolveColumns(getColumnIndex(nextEntity), next.columnPaths)
+      if (columns.length === 0) return
 
-    const nextRunId = runId + 1
+      runIdRef.current += 1
 
-    setRunId(nextRunId)
-    setRequest({ runId: nextRunId, entity, columns, where: buildWhere(filters, entity.fields, combinator), orderBy: buildOrder(sort), limit })
-    setPagination(resetPagination(pagination.pageSize))
-  }
+      setRequest({
+        runId: runIdRef.current,
+        entity: nextEntity,
+        columns,
+        where: buildWhere(next.filters, nextEntity.fields, next.combinator),
+        orderBy: buildOrder(next.sort),
+        limit: next.limit,
+      })
+      setPagination((current) => resetPagination(current.pageSize))
+      recordRun(next)
+    },
+    [recordRun],
+  )
+
+  const handleRun = () => runConfig(config)
+
+  const handleSelectHistory = useCallback(
+    (next: TReportQueryConfig) => {
+      setConfig(next)
+      runConfig(next)
+    },
+    [runConfig],
+  )
 
   const handleCopyQuery = () => {
     if (!preview) return
@@ -178,6 +203,8 @@ const CustomReportPage: React.FC = () => {
             <SearchableSingleSelect ariaLabel="Report data type" value={entityName} options={availableEntities} placeholder="Select a data type" onChange={handleEntityChange} />
           )}
         </ReportPanel>
+
+        {historyOptions.length > 0 && <ReportHistoryPanel options={historyOptions} onSelect={handleSelectHistory} />}
 
         {entity && (
           <>

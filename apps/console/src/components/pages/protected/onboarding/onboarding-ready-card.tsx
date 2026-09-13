@@ -2,8 +2,7 @@ import { ArrowRight, Box, Server, ShieldAlert, Users } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
-
-const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
+import { isRecord } from '@/utils/type-guards'
 
 const countArray = (value: unknown): number => (Array.isArray(value) ? value.length : 0)
 

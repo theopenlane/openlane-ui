@@ -22,6 +22,21 @@ export const createOrgPersistedStore = <T>(storageKey: string, parse: (raw: stri
 
   const scopeOf = (organizationId?: string) => getOrganizationStorageKey(storageKey, organizationId)
 
+  const notify = () => listeners.forEach((listener) => listener())
+
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === null) {
+      snapshots.clear()
+      notify()
+      return
+    }
+
+    if (event.key !== storageKey && !event.key.startsWith(`${storageKey}:`)) return
+
+    snapshots.delete(event.key)
+    notify()
+  }
+
   const readSnapshot = (organizationId?: string): OrgPersistedSnapshot<T> => {
     const raw = getOrganizationStorageItem(storageKey, organizationId)
     const parsed = raw === null ? null : parse(raw)
@@ -30,9 +45,13 @@ export const createOrgPersistedStore = <T>(storageKey: string, parse: (raw: stri
 
   return {
     subscribe: (listener) => {
+      if (listeners.size === 0 && typeof window !== 'undefined') window.addEventListener('storage', onStorage)
+
       listeners.add(listener)
+
       return () => {
         listeners.delete(listener)
+        if (listeners.size === 0 && typeof window !== 'undefined') window.removeEventListener('storage', onStorage)
       }
     },
     getSnapshot: (organizationId) => {
@@ -52,7 +71,7 @@ export const createOrgPersistedStore = <T>(storageKey: string, parse: (raw: stri
       if (snapshots.get(scope)?.value === next) return
 
       snapshots.set(scope, { value: next, isHydrated: true })
-      listeners.forEach((listener) => listener())
+      notify()
     },
   }
 }

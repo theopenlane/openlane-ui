@@ -1,12 +1,11 @@
 import { ClientError } from 'graphql-request'
+import { isRecord } from '@/utils/type-guards'
 
 type GraphQLResult = {
   data?: unknown
   errors?: unknown
   status?: number
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
 
 const isContainedBelowRoot =
   (data: Record<string, unknown>) =>
