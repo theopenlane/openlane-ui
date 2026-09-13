@@ -1,4 +1,4 @@
-import { type TAccessRole, type TPermissionData, type TScopesResponse } from '@/types/authz'
+import { type TAccessRole, type TPermissionData, type TScopesResponse } from '@/lib/authz/types'
 import { useQuery, type UseQueryResult } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'

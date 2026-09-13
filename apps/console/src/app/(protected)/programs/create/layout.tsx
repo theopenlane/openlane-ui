@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import ProtectedArea from '@/components/shared/protected-area/protected-area'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { Loading } from '@/components/shared/loading/loading'

@@ -1,5 +1,5 @@
 import { useSession } from 'next-auth/react'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { canEdit, hasPermission, isImpersonation } from '@/lib/authz/utils'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 

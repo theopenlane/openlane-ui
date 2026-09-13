@@ -10,7 +10,7 @@ import { useCampaignsWithFilter } from '@/lib/graphql-hooks/campaign'
 import { useAuthorMaps } from '@/lib/graphql-hooks/authors'
 import { type VisibilityState } from '@repo/ui/table-types'
 
-import { type TAccessRole, type TPermissionData } from '@/types/authz'
+import { type TAccessRole, type TPermissionData } from '@/lib/authz/types'
 import { useQueryErrorNotification } from '@/hooks/useQueryErrorNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useSession } from 'next-auth/react'

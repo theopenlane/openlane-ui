@@ -29,7 +29,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useAssessmentSendPermissionMap } from '@/lib/authz/use-can-send-questionnaire'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { useSession } from 'next-auth/react'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { CreateAssessmentTemplateDialog } from '@/components/pages/protected/questionnaire/dialog/create-assessment-template-dialog'
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
 

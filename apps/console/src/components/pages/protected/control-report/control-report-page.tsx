@@ -8,7 +8,7 @@ import { type ControlReportItem, useControlReports, useGetAllControls } from '@/
 import { ControlControlStatus, ProgramProgramStatus, type ControlWhereInput } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useGetAllGroups } from '@/lib/graphql-hooks/group'

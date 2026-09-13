@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { SlidersHorizontal, SquarePlus } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import Link from 'next/link'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
