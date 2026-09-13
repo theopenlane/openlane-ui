@@ -3,7 +3,7 @@
 import React from 'react'
 import { Button } from '@repo/ui/button'
 import { ReviewReviewStatus } from '@repo/codegen/src/schema'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 
 type TReviewSheetFooterProps = {
   pendingAction: ReviewReviewStatus | null
@@ -13,7 +13,7 @@ type TReviewSheetFooterProps = {
 }
 
 const ReviewSheetFooter: React.FC<TReviewSheetFooterProps> = ({ pendingAction, onCancel, onSubmit, submitLabel }) => (
-  <SlideoutFormFooter
+  <SlideoutFormActions
     onCancel={onCancel}
     onSave={() => onSubmit(ReviewReviewStatus.COMPLETED)}
     isPending={pendingAction !== null}

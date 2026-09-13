@@ -33,7 +33,7 @@ import { toHumanLabel } from '@/utils/strings'
 import { useOrgMemberPermissions } from '@/lib/authz/use-org-member-permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { RoleInfoCallout } from '@/components/shared/organization-roles/role-info-callout'
 import { SuperAdminRoleWarning } from '@/components/shared/organization-roles/super-admin-role-warning'
 import useMembersInviteFormSchema, { type MembersInviteFormData } from './use-members-invite-form-schema'
@@ -164,15 +164,20 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
       <SheetContent
         initialWidth={846}
         className="flex flex-col"
-        header={<SlideoutHeader title="Invite New Member" onClose={() => handleOpenChange(false)} />}
-        footer={
-          <SlideoutFormFooter
-            formId="inviteForm"
-            onCancel={() => handleOpenChange(false)}
-            isPending={form.formState.isSubmitting}
-            disabled={!emails?.length || !isEmailInputValid}
-            saveLabel="Invite"
-            savingLabel="Inviting..."
+        header={
+          <SlideoutHeader
+            title="Invite New Member"
+            onClose={() => handleOpenChange(false)}
+            formActions={
+              <SlideoutFormActions
+                formId="inviteForm"
+                onCancel={() => handleOpenChange(false)}
+                isPending={form.formState.isSubmitting}
+                disabled={!emails?.length || !isEmailInputValid}
+                saveLabel="Invite"
+                savingLabel="Inviting..."
+              />
+            }
           />
         }
       >

@@ -4,7 +4,7 @@ import React from 'react'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
-type SlideoutFormFooterBase = {
+type SlideoutFormActionsBase = {
   onCancel?: () => void
   isPending?: boolean
   disabled?: boolean
@@ -13,9 +13,9 @@ type SlideoutFormFooterBase = {
   secondaryActions?: React.ReactNode
 }
 
-export type SlideoutFormFooterProps = SlideoutFormFooterBase & ({ formId: string; onSave?: never } | { formId?: never; onSave: () => void })
+export type SlideoutFormActionsProps = SlideoutFormActionsBase & ({ formId: string; onSave?: never } | { formId?: never; onSave: () => void })
 
-export const SlideoutFormFooter = ({ formId, onSave, onCancel, isPending, disabled, saveLabel, savingLabel, secondaryActions }: SlideoutFormFooterProps) => (
+export const SlideoutFormActions = ({ formId, onSave, onCancel, isPending, disabled, saveLabel, savingLabel, secondaryActions }: SlideoutFormActionsProps) => (
   <>
     {onCancel && <CancelButton disabled={isPending} onClick={onCancel} />}
     {secondaryActions}

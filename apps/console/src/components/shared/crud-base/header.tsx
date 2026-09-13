@@ -20,6 +20,7 @@ interface GenericSheetHeaderProps {
   basePath?: string
   extraMenuActions?: SlideoutMenuAction[]
   titleAs?: React.ElementType
+  formActions?: React.ReactNode
 }
 
 export const GenericSheetHeader = ({
@@ -35,6 +36,7 @@ export const GenericSheetHeader = ({
   basePath,
   extraMenuActions,
   titleAs,
+  formActions,
 }: GenericSheetHeaderProps) => {
   const { successNotification, errorNotification } = useNotification()
   const searchParams = useSearchParams()
@@ -74,6 +76,7 @@ export const GenericSheetHeader = ({
       remove={onDelete && id ? { entityId: id, onDelete } : undefined}
       extraMenuActions={extraMenuActions}
       titleAs={titleAs}
+      formActions={formActions}
     />
   )
 }

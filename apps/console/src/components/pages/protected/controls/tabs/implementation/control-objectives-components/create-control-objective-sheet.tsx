@@ -14,7 +14,7 @@ import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { useDeleteControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { SheetFormHeader } from '@/components/shared/crud-base/sheet-form-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useNotification } from '@/hooks/useNotification'
 
@@ -130,10 +130,10 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
               entityType={ObjectTypes.CONTROL_OBJECTIVE}
               close={handleClose}
               remove={editData ? { entityId: editData.id, onDelete: handleDelete } : undefined}
+              formActions={
+                <SlideoutFormActions formId={formId} onCancel={handleClose} isPending={isSubmitting} saveLabel={isEditing ? 'Save' : 'Create'} savingLabel={isEditing ? 'Saving...' : 'Creating...'} />
+              }
             />
-          }
-          footer={
-            <SlideoutFormFooter formId={formId} onCancel={handleClose} isPending={isSubmitting} saveLabel={isEditing ? 'Save' : 'Create'} savingLabel={isEditing ? 'Saving...' : 'Creating...'} />
           }
         >
           <CreateControlObjectiveForm

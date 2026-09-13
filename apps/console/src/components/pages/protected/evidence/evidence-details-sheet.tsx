@@ -30,7 +30,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { ObjectWorkflowPanel } from '@/components/workflows/object-workflow-panel'
 import { useSession } from 'next-auth/react'
 import EvidenceDetailHeader from './detail/evidence-detail-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import EvidenceOverviewSection from './detail/evidence-overview-section'
 import EvidenceRelationshipsSection from './detail/evidence-relationships-section'
 import EvidenceMetadataSection from './detail/evidence-metadata-section'
@@ -419,9 +419,9 @@ const EvidenceDetailsSheetContent: React.FC<TEvidenceDetailsSheetContent> = ({ c
             onApprove={handleApprove}
             onRequestChanges={() => setRequestChangesOpen(true)}
             onClose={handleSheetClose}
+            formActions={isEditing ? <SlideoutFormActions onSave={() => handleSave()} onCancel={handleCancelEdit} isPending={isSavingEvidence} /> : undefined}
           />
         }
-        footer={isEditing ? <SlideoutFormFooter onSave={() => handleSave()} onCancel={() => setEditRequested(false)} isPending={isSavingEvidence} /> : undefined}
       >
         {fetching ? (
           <EvidenceDetailsSheetSkeleton />

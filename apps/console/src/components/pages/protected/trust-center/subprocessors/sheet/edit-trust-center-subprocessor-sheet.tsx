@@ -18,7 +18,7 @@ import { type UpdateSubprocessorInput } from '@repo/codegen/src/schema'
 import { CategoryField } from './form-fields/category-field'
 import { CountriesField } from './form-fields/countries-field'
 import { copyLinkMenuAction, SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { NameField } from './form-fields/name-field'
 import { DescriptionField } from './form-fields/description-field'
 import { LogoField } from './form-fields/logo-field'
@@ -202,9 +202,9 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
                 })
               }),
             ]}
+            formActions={<SlideoutFormActions formId="tc-subprocessor-form" onCancel={() => handleOpenChange(false)} isPending={isSubmitting} />}
           />
         }
-        footer={<SlideoutFormFooter formId="tc-subprocessor-form" onCancel={() => handleOpenChange(false)} isPending={isSubmitting} />}
       >
         <FormProvider {...formMethods}>
           <form id="tc-subprocessor-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">

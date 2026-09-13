@@ -24,6 +24,7 @@ interface TasksSheetHeaderProps {
   isTemplate: boolean
   onTemplateChange: (isTemplate: boolean) => void
   onUseTemplate: () => void
+  formActions?: React.ReactNode
 }
 
 const TasksSheetHeader = ({
@@ -40,6 +41,7 @@ const TasksSheetHeader = ({
   isTemplate,
   onTemplateChange,
   onUseTemplate,
+  formActions,
 }: TasksSheetHeaderProps) => {
   const { successNotification, errorNotification } = useNotification()
   const { data: permission } = useAccountRoles(ObjectTypes.TASK, id)
@@ -95,6 +97,7 @@ const TasksSheetHeader = ({
         onEdit={!isEditing && isEditAllowed ? () => setIsEditing(true) : undefined}
         primaryAction={isTemplate && !isEditing ? { label: 'Use template', icon: <LayoutTemplate size={16} />, onClick: onUseTemplate, disabled: !canDuplicate } : undefined}
         menuActions={menuActions}
+        formActions={formActions}
       />
       {isDeleteAllowed && <DeleteTaskDialog taskName={title} taskId={id} onDeleted={onDeleted} open={isDeleteOpen} onOpenChange={setIsDeleteOpen} />}
     </>

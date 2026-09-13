@@ -17,7 +17,7 @@ import { LogoField } from './form-fields/logo-field'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { TagsField } from './form-fields/tags-field'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { type CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 
 const schema = z
@@ -139,8 +139,15 @@ export const CreateSubprocessorSheet = ({ onCreateSuccess, trigger, open: contro
       {trigger && <SheetTrigger asChild>{trigger}</SheetTrigger>}
 
       <SheetContent
-        header={<SlideoutHeader title="Create Subprocessor" onClose={handleClose} />}
-        footer={<SlideoutFormFooter onSave={handleSubmit(onSubmit)} onCancel={handleClose} isPending={isSubmitting} disabled={isSubmitDisabled} saveLabel="Create" savingLabel="Creating..." />}
+        header={
+          <SlideoutHeader
+            title="Create Subprocessor"
+            onClose={handleClose}
+            formActions={
+              <SlideoutFormActions onSave={handleSubmit(onSubmit)} onCancel={handleClose} isPending={isSubmitting} disabled={isSubmitDisabled} saveLabel="Create" savingLabel="Creating..." />
+            }
+          />
+        }
       >
         <FormProvider {...formMethods}>
           <form id="subprocessor-form" className="space-y-6">

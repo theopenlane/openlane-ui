@@ -9,7 +9,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import TitleField from './create/form/fields/title-field'
 import { AdditionalFields } from './create/form/fields/additional-fields'
 
@@ -91,15 +91,14 @@ export const TrackRemediationForm: React.FC<TrackRemediationFormProps> = ({ enti
 type TrackRemediationHeaderProps = {
   onBack: () => void
   onClose: () => void
-}
-
-export const TrackRemediationHeader: React.FC<TrackRemediationHeaderProps> = ({ onBack, onClose }) => <SlideoutHeader title="Track Remediation" onBack={onBack} onClose={onClose} />
-
-type TrackRemediationFooterProps = {
-  onCancel: () => void
   isPending: boolean
 }
 
-export const TrackRemediationFooter: React.FC<TrackRemediationFooterProps> = ({ onCancel, isPending }) => (
-  <SlideoutFormFooter formId={TRACK_REMEDIATION_FORM_ID} onCancel={onCancel} isPending={isPending} saveLabel="Create" savingLabel="Creating..." />
+export const TrackRemediationHeader: React.FC<TrackRemediationHeaderProps> = ({ onBack, onClose, isPending }) => (
+  <SlideoutHeader
+    title="Track Remediation"
+    onBack={onBack}
+    onClose={onClose}
+    formActions={<SlideoutFormActions formId={TRACK_REMEDIATION_FORM_ID} onCancel={onBack} isPending={isPending} saveLabel="Create" savingLabel="Creating..." />}
+  />
 )

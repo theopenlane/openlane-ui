@@ -39,7 +39,7 @@ import EvidenceLinkedControlsPanel from './panels/evidence-linked-controls-panel
 import EvidenceAdditionalDetails from './create/evidence-additional-details'
 import { EVIDENCE_AUDITOR_REQUEST_MODE, EVIDENCE_CREATE_MODE } from './create/evidence-create-mode'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -287,20 +287,25 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         side="right"
         className="bg-secondary flex flex-col"
         minWidth={470}
-        header={<SlideoutHeader title={evidenceHeading} onClose={handleSheetClose} />}
-        footer={
-          <SlideoutFormFooter
-            formId={evidenceCreateFormId}
-            onCancel={handleSheetClose}
-            isPending={isPending}
-            saveLabel={mode.submitLabel}
-            savingLabel="Submitting..."
-            secondaryActions={
-              mode.showSaveAsDraft ? (
-                <Button type="button" variant="secondary" onClick={handleSaveAsDraft} loading={isPending} disabled={isPending}>
-                  Save as draft
-                </Button>
-              ) : undefined
+        header={
+          <SlideoutHeader
+            title={evidenceHeading}
+            onClose={handleSheetClose}
+            formActions={
+              <SlideoutFormActions
+                formId={evidenceCreateFormId}
+                onCancel={handleSheetClose}
+                isPending={isPending}
+                saveLabel={mode.submitLabel}
+                savingLabel="Submitting..."
+                secondaryActions={
+                  mode.showSaveAsDraft ? (
+                    <Button type="button" variant="secondary" onClick={handleSaveAsDraft} loading={isPending} disabled={isPending}>
+                      Save as draft
+                    </Button>
+                  ) : undefined
+                }
+              />
             }
           />
         }

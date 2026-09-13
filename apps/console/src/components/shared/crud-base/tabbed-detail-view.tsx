@@ -6,14 +6,13 @@ import { useNotification } from '@/hooks/useNotification'
 import { Form } from '@repo/ui/form'
 import { useQueryClient } from '@tanstack/react-query'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@repo/ui/tabs'
-import { SheetFooter } from '@repo/ui/sheet'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type FieldValues } from 'react-hook-form'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { GenericSheetHeader } from './header'
-import { SlideoutFormFooter } from './slideout-footer'
+import { SlideoutFormActions } from './slideout-form-actions'
 import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName, toHumanLabel } from '@/utils/strings'
 import type { TabConfig } from './types'
@@ -226,6 +225,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
   }
 
   const defaultTab = tabs[0]?.id ?? 'details'
+  const showFormActions = ((isCreate && !!createMutation) || (isEditing && !!updateMutation)) && !(isFetching && !isCreate)
 
   return (
     <div className="flex flex-col gap-4">
@@ -243,6 +243,11 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
             isEditAllowed={isEditAllowed}
             onDelete={handleDelete}
             titleAs="h2"
+            formActions={
+              showFormActions ? (
+                <SlideoutFormActions formId={formId} onCancel={handleCancelEdit} isPending={isPending} saveLabel={isCreate ? 'Create' : 'Save'} savingLabel={isCreate ? 'Creating...' : 'Saving...'} />
+              ) : undefined
+            }
           />
         )}
       </div>
@@ -268,12 +273,6 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
             </Tabs>
           </form>
         </Form>
-      )}
-
-      {((isCreate && !!createMutation) || (isEditing && !!updateMutation)) && !(isFetching && !isCreate) && (
-        <SheetFooter>
-          <SlideoutFormFooter formId={formId} onCancel={handleCancelEdit} isPending={isPending} saveLabel={isCreate ? 'Create' : 'Save'} savingLabel={isCreate ? 'Creating...' : 'Saving...'} />
-        </SheetFooter>
       )}
 
       <CancelDialog isOpen={!!pendingDiscard} onConfirm={handleConfirmDiscard} onCancel={() => setPendingDiscard(null)} />

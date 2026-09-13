@@ -26,7 +26,7 @@ import useFormSchema, { type TokenFormData } from './hooks/use-form-schema'
 import { useSSOAuthorize } from './hooks/sso'
 import { Callout } from '@/components/shared/callout/callout'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 
 export type EditTokenData = {
   id: string
@@ -361,20 +361,25 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
       ) : (
         <SheetContent
           initialWidth={700}
-          header={<SlideoutHeader title={isEditMode ? 'Edit token' : 'Create new token'} onClose={requestClose} />}
-          footer={
-            <SlideoutFormFooter
-              formId="token-form"
-              onCancel={requestClose}
-              isPending={isSubmitting}
-              saveLabel={isEditMode ? 'Save' : 'Create Token'}
-              savingLabel={isEditMode ? 'Saving...' : 'Creating...'}
-              secondaryActions={
-                isEditMode && showSSOButton ? (
-                  <Button type="button" disabled={isAuthorizingSSO} variant="secondary" onClick={() => handleSSOAuthorize()}>
-                    {isAuthorizingSSO ? 'Authorizing...' : 'Authorize for SSO'}
-                  </Button>
-                ) : undefined
+          header={
+            <SlideoutHeader
+              title={isEditMode ? 'Edit token' : 'Create new token'}
+              onClose={requestClose}
+              formActions={
+                <SlideoutFormActions
+                  formId="token-form"
+                  onCancel={requestClose}
+                  isPending={isSubmitting}
+                  saveLabel={isEditMode ? 'Save' : 'Create Token'}
+                  savingLabel={isEditMode ? 'Saving...' : 'Creating...'}
+                  secondaryActions={
+                    isEditMode && showSSOButton ? (
+                      <Button type="button" disabled={isAuthorizingSSO} variant="secondary" onClick={() => handleSSOAuthorize()}>
+                        {isAuthorizingSSO ? 'Authorizing...' : 'Authorize for SSO'}
+                      </Button>
+                    ) : undefined
+                  }
+                />
               }
             />
           }

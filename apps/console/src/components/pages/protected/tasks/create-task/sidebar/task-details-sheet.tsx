@@ -24,7 +24,7 @@ import DetailsField from '../form/fields/details-field'
 import Properties from '../form/fields/properties'
 import Conversation from '../form/fields/conversation'
 import TasksSheetHeader from '../form/fields/header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { buildTaskAssociations, buildTaskPayload, generateEvidenceFormData, type TTaskCopyMode } from '../utils'
 import { useTaskCopyPrefill } from '../../hooks/use-task-copy-prefill'
 import MarkAsComplete from '../form/fields/mark-as-complete'
@@ -241,9 +241,9 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
               isTemplate={isTemplate}
               onTemplateChange={(nextIsTemplate) => handleUpdateField({ isTemplate: nextIsTemplate })}
               onUseTemplate={() => setCreateFromTaskMode('template')}
+              formActions={isEditing ? <SlideoutFormActions formId="editTask" onCancel={() => setIsEditing(false)} isPending={isPending} /> : undefined}
             />
           }
-          footer={isEditing ? <SlideoutFormFooter formId="editTask" onCancel={() => setIsEditing(false)} isPending={isPending} /> : undefined}
         >
           {fetching ? (
             <TasksDetailsSheetSkeleton />
@@ -251,14 +251,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
             <>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} id="editTask">
-                  <TitleField
-                    isEditing={isEditing}
-                    isEditAllowed={isEditAllowed}
-                    handleUpdate={handleUpdateField}
-                    initialValue={taskData?.title}
-                    internalEditing={internalEditing}
-                    setInternalEditing={setInternalEditing}
-                  />
+                  {isEditing && <TitleField />}
                   <DetailsField isEditing={isEditing} initialValue={taskData?.details} />
                   {isEditAllowed && !isEditing && (
                     <div className="flex gap-4 pb-4 pt-2">

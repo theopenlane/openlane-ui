@@ -224,7 +224,7 @@ const ControlReviewSheetBody: React.FC<TControlReviewSheetBodyProps> = ({ contro
       <SheetHeader className="sticky top-0 z-10 bg-secondary pb-4">
         <SlideoutHeader
           title={review?.title || 'Review'}
-          aboveTitle={reviewMeta}
+          belowTitle={reviewMeta}
           onClose={onClose}
           onEdit={canUseActions && !isEditing && editAllowed ? startEditing : undefined}
           menuActions={menuActions}

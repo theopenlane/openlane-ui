@@ -6,7 +6,7 @@ import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { FormField, FormItem, FormLabel, FormControl, Form } from '@repo/ui/form'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { useNotification } from '@/hooks/useNotification'
 import { useContact, useUpdateContact } from '@/lib/graphql-hooks/contact'
 import { ContactUserStatus, type UpdateContactInput } from '@repo/codegen/src/schema'
@@ -80,8 +80,13 @@ const ContactDetailSheet: React.FC<ContactDetailSheetProps> = ({ contactId, onCl
         side="right"
         className="flex flex-col overflow-y-auto"
         minWidth="35vw"
-        header={<SlideoutHeader title={contactHeading} onClose={onClose} />}
-        footer={canEdit && !isLoading ? <SlideoutFormFooter formId={CONTACT_FORM_ID} onCancel={onClose} isPending={isPending} /> : undefined}
+        header={
+          <SlideoutHeader
+            title={contactHeading}
+            onClose={onClose}
+            formActions={canEdit && !isLoading ? <SlideoutFormActions formId={CONTACT_FORM_ID} onCancel={onClose} isPending={isPending} /> : undefined}
+          />
+        }
       >
         {isLoading ? (
           <div className="flex items-center justify-center py-12">

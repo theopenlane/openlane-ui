@@ -6,7 +6,7 @@ import { useFindingSheetConfig } from './hooks/use-finding-sheet-config'
 import { useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
 import { Button } from '@repo/ui/button'
 import { ShieldCheck, ExternalLink } from 'lucide-react'
-import { TrackRemediationForm, TrackRemediationHeader, TrackRemediationFooter } from '../remediations/track-remediation-inline'
+import { TrackRemediationForm, TrackRemediationHeader } from '../remediations/track-remediation-inline'
 import { useSheetNavigation } from '@/providers/sheet-navigation-provider'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { useRouter } from 'next/navigation'
@@ -115,8 +115,7 @@ const ViewFindingSheet: React.FC<Props> = ({ entityId, onClose }) => {
           />
         ) : undefined
       }
-      overrideHeader={isTrackingRemediation && entityId ? <TrackRemediationHeader onBack={handleStopTracking} onClose={handleClose} /> : undefined}
-      overrideFooter={isTrackingRemediation && entityId ? <TrackRemediationFooter onCancel={handleStopTracking} isPending={isRemediationPending} /> : undefined}
+      overrideHeader={isTrackingRemediation && entityId ? <TrackRemediationHeader onBack={handleStopTracking} onClose={handleClose} isPending={isRemediationPending} /> : undefined}
     />
   )
 }

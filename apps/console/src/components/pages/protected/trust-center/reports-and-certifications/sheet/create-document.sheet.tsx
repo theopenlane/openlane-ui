@@ -26,7 +26,7 @@ import { canDelete, canEdit } from '@/lib/authz/utils'
 import { Switch } from '@repo/ui/switch'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
 import { deleteMenuAction, copyLinkMenuAction, SlideoutHeader, type SlideoutMenuAction } from '@/components/shared/crud-base/slideout-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { StandardField } from './form-fields/standard-field'
 import { Callout } from '@/components/shared/callout/callout'
 import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-nda-request'
@@ -260,21 +260,21 @@ export const CreateDocumentSheet: React.FC = () => {
               onClose={() => handleOpenChange(false)}
               onEdit={isEditMode && !isEditing && isEditAllowed ? () => setIsEditing(true) : undefined}
               menuActions={documentMenuActions}
+              formActions={
+                isCreateMode ? (
+                  <SlideoutFormActions formId="document-form" onCancel={() => handleOpenChange(false)} isPending={isSubmitting} disabled={!uploadedFile} saveLabel="Create" savingLabel="Creating..." />
+                ) : isEditing ? (
+                  <SlideoutFormActions
+                    formId="document-form"
+                    onCancel={() => {
+                      setIsEditing(false)
+                      prefillForm()
+                    }}
+                    isPending={isSubmitting}
+                  />
+                ) : undefined
+              }
             />
-          }
-          footer={
-            isCreateMode ? (
-              <SlideoutFormFooter formId="document-form" onCancel={() => handleOpenChange(false)} isPending={isSubmitting} disabled={!uploadedFile} saveLabel="Create" savingLabel="Creating..." />
-            ) : isEditing ? (
-              <SlideoutFormFooter
-                formId="document-form"
-                onCancel={() => {
-                  setIsEditing(false)
-                  prefillForm()
-                }}
-                isPending={isSubmitting}
-              />
-            ) : undefined
           }
         >
           <FormProvider {...formMethods}>

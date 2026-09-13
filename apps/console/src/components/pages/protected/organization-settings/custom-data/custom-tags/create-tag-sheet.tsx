@@ -11,16 +11,15 @@ import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { Label } from '@repo/ui/label'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ColorInput } from '@/components/shared/color-input/color-input'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-import { useCreateTag, useUpdateTag, useDeleteTag, useGetTagDetails } from '@/lib/graphql-hooks/tag-definition'
-import { deleteMenuAction, copyLinkMenuAction, SlideoutHeader, type SlideoutMenuAction } from '@/components/shared/crud-base/slideout-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { useCreateTag, useUpdateTag, useGetTagDetails } from '@/lib/graphql-hooks/tag-definition'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { useSession } from 'next-auth/react'
@@ -50,13 +49,11 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
   const id = params.get('id')
   const isEditMode = !!id
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [open, setOpen] = useState(false)
 
   const { data: tagData, isLoading: isLoadingDetails } = useGetTagDetails(id)
   const { mutateAsync: createTag, isPending: isCreating } = useCreateTag()
   const { mutateAsync: updateTag, isPending: isUpdating } = useUpdateTag()
-  const { mutateAsync: deleteTag, isPending: isDeleting } = useDeleteTag()
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -98,12 +95,6 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
     }
   }
 
-  const handleCopyLink = () => {
-    const url = `${window.location.origin}${window.location.pathname}?id=${id || 'create'}`
-    navigator.clipboard.writeText(url)
-    successNotification({ title: 'Link copied' })
-  }
-
   const onSubmit = async (data: FormData) => {
     try {
       const formattedAliases = data.aliases
@@ -139,24 +130,9 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
     }
   }
 
-  const handleDelete = async () => {
-    if (!id) return
-    try {
-      await deleteTag({ deleteTagDefinitionId: id })
-      successNotification({ title: 'Tag deleted' })
-      setDeleteDialogOpen(false)
-      handleOpenChange(false)
-      resetPagination()
-    } catch (err) {
-      errorNotification({ title: 'Error deleting', description: parseErrorMessage(err) })
-    }
-  }
-
   const isPending = isCreating || isUpdating
 
   const tagHeading = isCreate ? 'Create Custom Tag' : (tagData?.tagDefinition?.name ?? 'Custom Tag')
-
-  const tagMenuActions: SlideoutMenuAction[] = [copyLinkMenuAction(handleCopyLink), ...(isEditMode && canEditTags ? [deleteMenuAction(() => setDeleteDialogOpen(true), { disabled: isPending })] : [])]
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
@@ -164,17 +140,22 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
         aria-describedby={undefined}
         side="right"
         className="w-[420px] sm:w-[480px]"
-        header={<SlideoutHeader title={tagHeading} onClose={() => handleOpenChange(false)} menuActions={tagMenuActions} />}
-        footer={
-          canEditTags && !isLoadingDetails ? (
-            <SlideoutFormFooter
-              formId={TAG_FORM_ID}
-              onCancel={() => handleOpenChange(false)}
-              isPending={isPending}
-              saveLabel={isCreate ? 'Create' : 'Save'}
-              savingLabel={isCreate ? 'Creating...' : 'Saving...'}
-            />
-          ) : undefined
+        header={
+          <SlideoutHeader
+            title={tagHeading}
+            onClose={() => handleOpenChange(false)}
+            formActions={
+              canEditTags && !isLoadingDetails ? (
+                <SlideoutFormActions
+                  formId={TAG_FORM_ID}
+                  onCancel={() => handleOpenChange(false)}
+                  isPending={isPending}
+                  saveLabel={isCreate ? 'Create' : 'Save'}
+                  savingLabel={isCreate ? 'Creating...' : 'Saving...'}
+                />
+              ) : undefined
+            }
+          />
         }
       >
         {isLoadingDetails ? (
@@ -204,15 +185,6 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
             </form>
           </FormProvider>
         )}
-
-        <ConfirmationDialog
-          open={deleteDialogOpen}
-          onOpenChange={setDeleteDialogOpen}
-          title="Delete Tag"
-          description={`Are you sure you want to delete "${tagData?.tagDefinition?.name}"? This action cannot be undone.`}
-          confirmationText={isDeleting ? 'Deleting...' : 'Delete'}
-          onConfirm={handleDelete}
-        />
       </SheetContent>
     </Sheet>
   )

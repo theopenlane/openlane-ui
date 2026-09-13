@@ -7,86 +7,27 @@ import { Input } from '@repo/ui/input'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { type EditTaskFormData } from '../../../hooks/use-form-schema'
-import useEscapeKey from '@/hooks/useEscapeKey'
-import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
-import { cn } from '@repo/ui/lib/utils'
 
-type TitleFieldProps = {
-  isEditing: boolean
-  isEditAllowed?: boolean
-  handleUpdate?: (val: { title: string }) => void
-  initialValue?: string
-  internalEditing: keyof EditTaskFormData | null
-  setInternalEditing: (field: keyof EditTaskFormData | null) => void
-}
-
-const TitleField: React.FC<TitleFieldProps> = ({ isEditing, isEditAllowed = true, handleUpdate, initialValue, internalEditing, setInternalEditing }) => {
-  const { control, getValues, setValue, formState } = useFormContext<EditTaskFormData>()
-
-  const handleBlur = () => {
-    if (isEditing) return
-
-    const newValue = getValues('title')?.trim()
-    const oldValue = initialValue?.trim()
-
-    if (!newValue || newValue === oldValue) {
-      setInternalEditing(null)
-      return
-    }
-
-    handleUpdate?.({ title: newValue })
-    setInternalEditing(null)
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      ;(e.target as HTMLInputElement).blur()
-    }
-  }
-
-  const handleDoubleClick = () => {
-    if (!isEditing && isEditAllowed) {
-      setInternalEditing('title')
-    }
-  }
-
-  useEscapeKey(
-    () => {
-      if (internalEditing === 'title' && initialValue) {
-        setValue('title', initialValue)
-        setInternalEditing(null)
-      }
-    },
-    { enabled: internalEditing === 'title' },
-  )
-
-  const isCurrentlyEditing = isEditing || internalEditing === 'title'
+const TitleField: React.FC = () => {
+  const { control, formState } = useFormContext<EditTaskFormData>()
 
   return (
-    <div onDoubleClick={handleDoubleClick} className={cn('text-foreground font-semibold', isEditAllowed ? 'cursor-pointer w-fit' : 'cursor-not-allowed')}>
-      {isCurrentlyEditing ? (
-        <FormField
-          control={control}
-          name="title"
-          render={({ field }) => (
-            <FormItem className="w-80">
-              <div className="flex items-center">
-                <FormLabel>Title</FormLabel>
-                <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the task later.</p>} />
-              </div>
-              <FormControl>
-                <Input {...field} variant="medium" className="w-full" onBlur={handleBlur} onKeyDown={handleKeyDown} autoFocus />
-              </FormControl>
-              {formState.errors.title && <p className="text-red-500 text-sm">{formState.errors.title.message}</p>}
-            </FormItem>
-          )}
-        />
-      ) : (
-        <HoverPencilWrapper className={'pr-5'} showPencil={isEditAllowed} onPencilClick={handleDoubleClick}>
-          {initialValue || 'No title'}
-        </HoverPencilWrapper>
+    <FormField
+      control={control}
+      name="title"
+      render={({ field }) => (
+        <FormItem className="w-80">
+          <div className="flex items-center">
+            <FormLabel>Title</FormLabel>
+            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the task later.</p>} />
+          </div>
+          <FormControl>
+            <Input {...field} variant="medium" className="w-full" autoFocus />
+          </FormControl>
+          {formState.errors.title && <p className="text-red-500 text-sm">{formState.errors.title.message}</p>}
+        </FormItem>
       )}
-    </div>
+    />
   )
 }
 

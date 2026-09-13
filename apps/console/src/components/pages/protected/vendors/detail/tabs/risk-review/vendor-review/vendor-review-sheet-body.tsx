@@ -3,10 +3,8 @@
 import React, { useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Pencil, Trash2, X } from 'lucide-react'
 import { SheetHeader } from '@repo/ui/sheet'
 import { Form } from '@repo/ui/form'
-import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -14,6 +12,7 @@ import { ReviewReviewStatus, type CreateReviewInput, type EntityQuery, type Upda
 import { useBulkDeleteReview, useCreateReview, useUpdateReview, type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useObjectPermissionRoles } from '@/components/shared/crud-base/use-object-permission'
+import { deleteMenuAction, SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -179,41 +178,29 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
   const showViewActions = !isCreate && !isEditing
   const isCompleted = review?.status === ReviewReviewStatus.COMPLETED
 
+  const reviewMeta = review ? (
+    <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+      {review.status ? <Badge variant="select">{getEnumLabel(review.status)}</Badge> : null}
+      {review.approved ? <Badge variant="green">Approved</Badge> : null}
+      {review.reporter ? <span>Reported by {review.reporter}</span> : null}
+      {review.reportedAt ? (
+        <span className="flex items-center gap-1">
+          on <DateCell value={review.reportedAt} />
+        </span>
+      ) : null}
+    </div>
+  ) : undefined
+
   return (
     <>
       <SheetHeader className="sticky top-0 z-10 bg-secondary pb-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex min-w-0 flex-col gap-1">
-            <span className="text-2xl leading-8 font-medium break-words">{headerTitle}</span>
-            {review && (
-              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                {review.status ? <Badge variant="select">{getEnumLabel(review.status)}</Badge> : null}
-                {review.approved ? <Badge variant="green">Approved</Badge> : null}
-                {review.reporter ? <span>Reported by {review.reporter}</span> : null}
-                {review.reportedAt ? (
-                  <span className="flex items-center gap-1">
-                    on <DateCell value={review.reportedAt} />
-                  </span>
-                ) : null}
-              </div>
-            )}
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            {showViewActions && editAllowed && (
-              <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={startEditing} aria-label="Edit review">
-                <Pencil size={16} strokeWidth={2} />
-              </Button>
-            )}
-            {showViewActions && deleteAllowed && (
-              <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={() => setIsDeleteDialogOpen(true)} aria-label="Delete review">
-                <Trash2 size={16} strokeWidth={2} />
-              </Button>
-            )}
-            <Button type="button" variant="secondary" className="p-1! h-8 bg-card" onClick={onClose} aria-label="Close review sheet">
-              <X size={16} strokeWidth={2} />
-            </Button>
-          </div>
-        </div>
+        <SlideoutHeader
+          title={headerTitle}
+          belowTitle={reviewMeta}
+          onClose={onClose}
+          onEdit={showViewActions && editAllowed ? startEditing : undefined}
+          menuActions={showViewActions && deleteAllowed ? [deleteMenuAction(() => setIsDeleteDialogOpen(true))] : []}
+        />
       </SheetHeader>
 
       <Form {...form}>

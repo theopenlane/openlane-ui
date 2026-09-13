@@ -14,7 +14,7 @@ import { canEdit, canDelete } from '@/lib/authz/utils'
 import { useObjectPermissionRoles } from './use-object-permission'
 import { GenericSheetHeader } from './header'
 import { type SlideoutMenuAction } from './slideout-header'
-import { SlideoutFormFooter } from './slideout-footer'
+import { SlideoutFormActions } from './slideout-form-actions'
 import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
 import type { BulkDeletePayload } from './types'
@@ -81,7 +81,6 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   extraMenuActions?: SlideoutMenuAction[]
   overrideContent?: React.ReactNode
   overrideHeader?: React.ReactNode
-  overrideFooter?: React.ReactNode
   minWidth?: string | number
   initialWidth?: string | number
 }
@@ -114,7 +113,6 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     extraMenuActions,
     overrideContent,
     overrideHeader,
-    overrideFooter,
     onClose,
     entityId: entityIdOverride,
     isCreateMode,
@@ -311,7 +309,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
 
   const isSavePending = (updateMutation?.isPending || createMutation?.isPending) ?? false
   const isContentLoading = isFetching && !isCreate
-  const showFormFooter = !overrideContent && !isContentLoading && ((isCreate && !!createMutation) || (isEditing && !!updateMutation))
+  const showFormActions = !overrideContent && !isContentLoading && ((isCreate && !!createMutation) || (isEditing && !!updateMutation))
 
   const handleUpdateField = async (input: TUpdateInput) => {
     if (!id || isEditing || !updateMutation) {
@@ -358,13 +356,6 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
           className="flex flex-col "
           minWidth={minWidthOverride ?? '40vw'}
           initialWidth={initialWidthOverride ?? '60vw'}
-          footer={
-            overrideFooter ? (
-              overrideFooter
-            ) : showFormFooter ? (
-              <SlideoutFormFooter formId={formId} onCancel={handleCancelEdit} isPending={isSavePending} saveLabel={isCreate ? 'Create' : 'Save'} savingLabel={isCreate ? 'Creating...' : 'Saving...'} />
-            ) : undefined
-          }
           header={
             overrideHeader ? (
               overrideHeader
@@ -383,6 +374,17 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
                 entityId={id}
                 basePath={basePath}
                 extraMenuActions={extraMenuActions}
+                formActions={
+                  showFormActions ? (
+                    <SlideoutFormActions
+                      formId={formId}
+                      onCancel={handleCancelEdit}
+                      isPending={isSavePending}
+                      saveLabel={isCreate ? 'Create' : 'Save'}
+                      savingLabel={isCreate ? 'Creating...' : 'Saving...'}
+                    />
+                  ) : undefined
+                }
               />
             )
           }

@@ -25,6 +25,7 @@ type TEvidenceDetailHeaderProps = {
   onApprove: () => void
   onRequestChanges: () => void
   onClose: () => void
+  formActions?: React.ReactNode
 }
 
 const EvidenceDetailHeader: React.FC<TEvidenceDetailHeaderProps> = ({
@@ -45,6 +46,7 @@ const EvidenceDetailHeader: React.FC<TEvidenceDetailHeaderProps> = ({
   onApprove,
   onRequestChanges,
   onClose,
+  formActions,
 }) => {
   const [isRenewOpen, setIsRenewOpen] = useState(false)
 
@@ -81,6 +83,7 @@ const EvidenceDetailHeader: React.FC<TEvidenceDetailHeaderProps> = ({
             : undefined
         }
         menuActions={menuActions}
+        formActions={formActions}
       />
       {evidenceId && !isAuditor && !isEditing && <EvidenceRenewDialog evidenceId={evidenceId} controlId={controlId} open={isRenewOpen} onOpenChange={setIsRenewOpen} />}
     </>

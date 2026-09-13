@@ -31,6 +31,7 @@ export type SlideoutHeaderProps = {
   titleAs?: React.ElementType
   titleAdornment?: React.ReactNode
   aboveTitle?: React.ReactNode
+  belowTitle?: React.ReactNode
   onClose?: () => void
   onBack?: () => void
   backDisabled?: boolean
@@ -38,6 +39,7 @@ export type SlideoutHeaderProps = {
   editDisabled?: boolean
   primaryAction?: SlideoutPrimaryAction
   menuActions?: SlideoutMenuAction[]
+  formActions?: React.ReactNode
 }
 
 export const copyLinkMenuAction = (onClick: () => void): SlideoutMenuAction => ({
@@ -65,11 +67,36 @@ export const deleteMenuAction = (onClick: () => void, options?: { disabled?: boo
 
 const orderMenuActions = (actions: SlideoutMenuAction[]) => [...actions.filter((a) => !a.destructive), ...actions.filter((a) => a.destructive)]
 
-export const SlideoutHeader = ({ title, titleAs, titleAdornment, aboveTitle, onClose, onBack, backDisabled, onEdit, editDisabled, primaryAction, menuActions = [] }: SlideoutHeaderProps) => {
+const SingleMenuAction = ({ label, icon, onClick, disabled, destructive }: SlideoutMenuAction) =>
+  icon ? (
+    <Button variant="secondary" size="icon-sm" icon={icon} className={cn(destructive && '[&_svg]:text-destructive')} descriptiveTooltipText={label} onClick={onClick} disabled={disabled} />
+  ) : (
+    <Button variant="secondary" className={cn(destructive && 'text-destructive')} onClick={onClick} disabled={disabled}>
+      {label}
+    </Button>
+  )
+
+export const SlideoutHeader = ({
+  title,
+  titleAs,
+  titleAdornment,
+  aboveTitle,
+  belowTitle,
+  onClose,
+  onBack,
+  backDisabled,
+  onEdit,
+  editDisabled,
+  primaryAction,
+  menuActions = [],
+  formActions,
+}: SlideoutHeaderProps) => {
   const TitleTag = titleAs ?? SheetTitle
   const editBelongsInMenu = !!onEdit && !!primaryAction
 
-  const resolvedMenuActions = orderMenuActions(editBelongsInMenu ? [{ key: 'edit', label: 'Edit', icon: <Pencil size={16} strokeWidth={2} />, onClick: onEdit, disabled: editDisabled }, ...menuActions] : menuActions)
+  const resolvedMenuActions = orderMenuActions(
+    editBelongsInMenu && !formActions ? [{ key: 'edit', label: 'Edit', icon: <Pencil size={16} strokeWidth={2} />, onClick: onEdit, disabled: editDisabled }, ...menuActions] : menuActions,
+  )
 
   return (
     <div className="flex flex-col gap-3">
@@ -81,7 +108,7 @@ export const SlideoutHeader = ({ title, titleAs, titleAdornment, aboveTitle, onC
           {titleAdornment}
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {primaryAction && (
+          {!formActions && primaryAction && (
             <Button
               variant={primaryAction.variant ?? 'primary'}
               type="button"
@@ -94,8 +121,11 @@ export const SlideoutHeader = ({ title, titleAs, titleAdornment, aboveTitle, onC
               {primaryAction.label}
             </Button>
           )}
-          {!editBelongsInMenu && onEdit && <Button variant="secondary" size="icon-sm" icon={<Pencil size={16} />} descriptiveTooltipText="Edit" onClick={onEdit} disabled={editDisabled} />}
-          {resolvedMenuActions.length > 0 && (
+          {!formActions && !editBelongsInMenu && onEdit && (
+            <Button variant="secondary" size="icon-sm" icon={<Pencil size={16} />} descriptiveTooltipText="Edit" onClick={onEdit} disabled={editDisabled} />
+          )}
+          {resolvedMenuActions.length === 1 && <SingleMenuAction {...resolvedMenuActions[0]} />}
+          {resolvedMenuActions.length > 1 && (
             <Menu
               trigger={<Button variant="secondary" size="icon-sm" icon={<Ellipsis size={16} />} descriptiveTooltipText="More actions" />}
               content={resolvedMenuActions.map(({ key, label, icon, onClick, disabled, destructive }) => (
@@ -106,9 +136,11 @@ export const SlideoutHeader = ({ title, titleAs, titleAdornment, aboveTitle, onC
               ))}
             />
           )}
-          {onClose && <Button variant="secondary" size="icon-sm" icon={<X size={16} />} descriptiveTooltipText="Close" onClick={onClose} />}
+          {formActions}
+          {onClose && !formActions && <Button variant="secondary" size="icon-sm" icon={<X size={16} />} descriptiveTooltipText="Close" onClick={onClose} />}
         </div>
       </div>
+      {belowTitle}
     </div>
   )
 }

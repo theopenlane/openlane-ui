@@ -9,7 +9,7 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useRetainedWhileOpen } from '@/hooks/useRetainedWhileOpen'
 import { useDeleteControlImplementation } from '@/lib/graphql-hooks/control-implementation'
 import { SheetFormHeader } from '@/components/shared/crud-base/sheet-form-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useNotification } from '@/hooks/useNotification'
 
@@ -99,10 +99,10 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
               entityType={ObjectTypes.CONTROL_IMPLEMENTATION}
               close={handleClose}
               remove={editData ? { entityId: editData.id, onDelete: handleDelete } : undefined}
+              formActions={
+                <SlideoutFormActions formId={formId} onCancel={handleClose} isPending={isSubmitting} saveLabel={isEditing ? 'Save' : 'Create'} savingLabel={isEditing ? 'Saving...' : 'Creating...'} />
+              }
             />
-          }
-          footer={
-            <SlideoutFormFooter formId={formId} onCancel={handleClose} isPending={isSubmitting} saveLabel={isEditing ? 'Save' : 'Create'} savingLabel={isEditing ? 'Saving...' : 'Creating...'} />
           }
         >
           <CreateControlImplementationForm formId={formId} form={form} onSuccess={() => onOpenChange(false)} defaultValues={normalizedValues} />

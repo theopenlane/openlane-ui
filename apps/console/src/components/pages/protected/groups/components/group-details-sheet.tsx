@@ -36,7 +36,7 @@ import { GROUP_PERMISSIONS_DOCS_URL } from '@/constants/docs'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { deleteMenuAction, copyLinkMenuAction, SlideoutHeader, type SlideoutMenuAction } from '@/components/shared/crud-base/slideout-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const EditGroupSchema = z.object({
@@ -171,18 +171,25 @@ const GroupDetailsSheet = () => {
       <Sheet open={!!selectedGroup} onOpenChange={handleSheetClose}>
         <SheetContent
           className="flex flex-col"
-          header={<SlideoutHeader title={groupHeading} onClose={handleSheetClose} onEdit={!isEditing && isGroupEditAllowed ? () => setIsEditing(true) : undefined} menuActions={menuActions} />}
-          footer={
-            isEditing ? (
-              <SlideoutFormFooter
-                onSave={handleSubmit(onSubmit)}
-                onCancel={() => {
-                  reset()
-                  setIsEditing(false)
-                }}
-                isPending={isSavingGroup}
-              />
-            ) : undefined
+          header={
+            <SlideoutHeader
+              title={groupHeading}
+              onClose={handleSheetClose}
+              onEdit={!isEditing && isGroupEditAllowed ? () => setIsEditing(true) : undefined}
+              menuActions={menuActions}
+              formActions={
+                isEditing ? (
+                  <SlideoutFormActions
+                    onSave={handleSubmit(onSubmit)}
+                    onCancel={() => {
+                      reset()
+                      setIsEditing(false)
+                    }}
+                    isPending={isSavingGroup}
+                  />
+                ) : undefined
+              }
+            />
           }
         >
           {fetching ? (

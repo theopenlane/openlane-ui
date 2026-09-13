@@ -17,7 +17,7 @@ import { TrustCenterWatermarkConfigFont } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { TrustCenterWatermarkConfigFontMapper, TrustCenterWatermarkConfigFontOptions } from '@/components/shared/enum-mapper/trust-center-enum'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { Callout } from '@/components/shared/callout/callout'
 
 type WatermarkConfigUI = {
@@ -161,14 +161,19 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
 
       <Sheet open={sheetOpen} onOpenChange={(open) => (open ? setSheetOpen(true) : handleSheetClose())}>
         <SheetContent
-          header={<SlideoutHeader title="Watermark Document" onClose={handleSheetClose} />}
-          footer={
-            <SlideoutFormFooter
-              onSave={handleApplyWatermark}
-              onCancel={handleSheetClose}
-              isPending={updating}
-              saveLabel={disableWatermarkConfig ? 'Save' : 'Apply watermark'}
-              savingLabel={disableWatermarkConfig ? 'Saving...' : 'Applying...'}
+          header={
+            <SlideoutHeader
+              title="Watermark Document"
+              onClose={handleSheetClose}
+              formActions={
+                <SlideoutFormActions
+                  onSave={handleApplyWatermark}
+                  onCancel={handleSheetClose}
+                  isPending={updating}
+                  saveLabel={disableWatermarkConfig ? 'Save' : 'Apply watermark'}
+                  savingLabel={disableWatermarkConfig ? 'Saving...' : 'Applying...'}
+                />
+              }
             />
           }
         >

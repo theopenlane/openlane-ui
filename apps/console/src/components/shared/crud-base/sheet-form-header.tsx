@@ -23,9 +23,10 @@ export type SheetFormHeaderProps = {
   remove?: SheetDeleteAction
   extraMenuActions?: SlideoutMenuAction[]
   titleAs?: React.ElementType
+  formActions?: React.ReactNode
 }
 
-export const SheetFormHeader = ({ mode, entityType, displayName, close, edit, copyLink, remove, extraMenuActions = [], titleAs }: SheetFormHeaderProps) => {
+export const SheetFormHeader = ({ mode, entityType, displayName, close, edit, copyLink, remove, extraMenuActions = [], titleAs, formActions }: SheetFormHeaderProps) => {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
   const entityLabel = displayName ?? toHumanLabel(entityType)
@@ -40,7 +41,7 @@ export const SheetFormHeader = ({ mode, entityType, displayName, close, edit, co
 
   return (
     <>
-      <SlideoutHeader title={heading} titleAs={titleAs} onClose={close} onEdit={mode === 'view' ? edit : undefined} menuActions={menuActions} />
+      <SlideoutHeader title={heading} titleAs={titleAs} onClose={close} onEdit={mode === 'view' ? edit : undefined} menuActions={menuActions} formActions={formActions} />
       {!isCreate && remove && (
         <GenericDeleteDialog entityId={remove.entityId} entityType={entityType} displayName={displayName} onDelete={remove.onDelete} open={isDeleteOpen} onOpenChange={setIsDeleteOpen} />
       )}

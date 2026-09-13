@@ -17,7 +17,7 @@ import { toHumanLabel } from '@/utils/strings'
 import { CELConditionBuilder } from '@/components/workflows/cel-condition-builder'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { deleteMenuAction, SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
-import { SlideoutFormFooter } from '@/components/shared/crud-base/slideout-footer'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { TargetSelector } from '@/components/pages/protected/workflows/wizard/components/target-selector'
 import { buildTargetKey, normalizeTargets, getTargetLabel } from '@/components/pages/protected/workflows/wizard/utils'
 import type { Target, WorkflowAction, WorkflowActionParams, WorkflowActionType, WorkflowCondition, WorkflowNodeData, WorkflowTrigger, WorkflowTriggerOperation } from '@/types/workflow'
@@ -210,8 +210,14 @@ export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }
       <Sheet open={!!node} onOpenChange={(open) => !open && handleSheetClose()}>
         <SheetContent
           className="w-100 sm:w-135"
-          header={<SlideoutHeader title={nodeHeading} onClose={handleSheetClose} menuActions={[deleteMenuAction(() => setShowDeleteConfirm(true))]} />}
-          footer={<SlideoutFormFooter onSave={handleSave} onCancel={handleSheetClose} disabled={Boolean(paramsError)} />}
+          header={
+            <SlideoutHeader
+              title={nodeHeading}
+              onClose={handleSheetClose}
+              menuActions={[deleteMenuAction(() => setShowDeleteConfirm(true))]}
+              formActions={<SlideoutFormActions onSave={handleSave} onCancel={handleSheetClose} disabled={Boolean(paramsError)} />}
+            />
+          }
         >
           {localData && (
             <div className="mt-6 space-y-4">
