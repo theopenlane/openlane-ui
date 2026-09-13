@@ -5,12 +5,14 @@ import React from 'react'
 import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
 import { type Invoice } from '@/types/stripe'
-import { Card } from '@repo/ui/cardpanel'
 import { DownloadIcon } from 'lucide-react'
 import { InvoiceRowSkeleton } from './skeleton/billing-page-skeleton'
+import { InvoiceList, InvoiceRow } from './invoice-list'
 
 const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | undefined }) => {
   const { data: invoicesData, isLoading, error } = useInvoicesQuery(stripeCustomerId)
+  const invoices = invoicesData?.invoices ?? []
+  const showEmptyState = !isLoading && !error && invoices.length === 0
 
   const handleManageBilling = async () => {
     const res = await fetch('/api/stripe/create-portal-session', {
@@ -28,7 +30,6 @@ const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | unde
   }
   return (
     <div className="mt-10">
-      {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 id="recent-invoices" className="text-2xl">
           Recent Invoices
@@ -39,8 +40,7 @@ const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | unde
           </Button>
         )}
       </div>
-      {/* Invoices */}
-      <Card>
+      <InvoiceList>
         {isLoading && (
           <>
             <InvoiceRowSkeleton />
@@ -49,24 +49,22 @@ const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | unde
           </>
         )}
 
-        {error && <p className="p-4 text-sm text-destructive">Failed to load invoices</p>}
+        {error && <InvoiceRow className="justify-start text-sm text-destructive">Failed to load invoices</InvoiceRow>}
 
-        {!isLoading && !error && invoicesData?.invoices.length === 0 && <p className="p-4 text-sm ">No invoices found</p>}
+        {showEmptyState && <InvoiceRow className="justify-start text-sm">No invoices found</InvoiceRow>}
 
-        {invoicesData?.invoices.slice(0, 5).map((invoice: Invoice) => {
+        {invoices.slice(0, 5).map((invoice: Invoice) => {
           const amountCents = invoice.status === 'paid' ? invoice.amount_paid : invoice.amount_due
           const amount = amountCents / 100
           const formattedDate = invoice.created ? formatDate(new Date(invoice.created * 1000).toISOString()) : ''
 
           return (
-            <div key={invoice.id} className="flex items-center justify-between py-4 px-6 border-b first:border-none">
-              {/* Left side */}
+            <InvoiceRow key={invoice.id}>
               <div className="flex flex-col">
                 <span className="font-medium">Invoice #{invoice.number || invoice.id}</span>
                 <span className="text-xs text-text-informational">{formattedDate}</span>
               </div>
 
-              {/* Right side */}
               <div className="flex items-center gap-6">
                 <span className="text-base">${amount.toFixed(2)}</span>
 
@@ -74,15 +72,15 @@ const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | unde
                 {invoice.status === 'open' && <span className="text-purple-400 font-medium">Pending</span>}
 
                 {invoice.invoice_pdf && (
-                  <a href={invoice.invoice_pdf} className=" hover:text-white">
+                  <a href={invoice.invoice_pdf} target="_blank" rel="noopener noreferrer" aria-label={`Download invoice ${invoice.number || invoice.id}`} className="hover:text-foreground">
                     <DownloadIcon size={16} />
                   </a>
                 )}
               </div>
-            </div>
+            </InvoiceRow>
           )
         })}
-      </Card>{' '}
+      </InvoiceList>
     </div>
   )
 }
