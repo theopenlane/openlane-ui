@@ -34,13 +34,13 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
   const getTypeIcon = (type?: string) => {
     switch (type) {
       case 'personnel':
-        return <IdCardLanyard className="h-3.5 w-3.5 text-muted-foreground" />
+        return <IdCardLanyard className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
       case 'user':
-        return <User className="h-3.5 w-3.5 text-muted-foreground" />
+        return <User className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
       case 'group':
-        return <Users className="h-3.5 w-3.5 text-muted-foreground" />
+        return <Users className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
       case 'string':
-        return <Type className="h-3.5 w-3.5 text-muted-foreground" />
+        return <Type className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
       default:
         return null
     }
@@ -56,6 +56,9 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
     () => filteredUsers.some((u) => u.label.toLowerCase() === normalizedSearchText) || filteredGroups.some((g) => g.label.toLowerCase() === normalizedSearchText),
     [filteredUsers, filteredGroups, normalizedSearchText],
   )
+
+  const currentLabel = value ? value.displayName || value.value : ''
+  const customEmailLabel = `Use "${searchText.trim()}" as custom email`
 
   const handleSelect = (selection: ResponsibilitySelection) => {
     if (selection?.type === 'string' && !isValidEmail(selection.value)) {
@@ -75,7 +78,9 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
           {value ? (
             <>
               {getTypeIcon(value.type)}
-              <span className="truncate">{value.displayName || value.value}</span>
+              <span className="truncate" title={currentLabel}>
+                {currentLabel}
+              </span>
             </>
           ) : (
             <span className="text-muted-foreground">Select owner...</span>
@@ -105,7 +110,9 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
                 {filteredUsers.map((option) => (
                   <CommandItem key={`user-${option.value}`} value={`user-${option.label}`} onSelect={() => handleSelect({ type: 'user', value: option.value, displayName: option.label })}>
                     <User className="mr-2 h-4 w-4" />
-                    <span>{option.label}</span>
+                    <span className="truncate" title={option.label}>
+                      {option.label}
+                    </span>
                     {value?.type === 'user' && value?.value === option.value && <Check className="ml-auto h-4 w-4" />}
                   </CommandItem>
                 ))}
@@ -116,7 +123,9 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
                 {filteredGroups.map((option) => (
                   <CommandItem key={`group-${option.value}`} value={`group-${option.label}`} onSelect={() => handleSelect({ type: 'group', value: option.value, displayName: option.label })}>
                     <Users className="mr-2 h-4 w-4" />
-                    <span>{option.label}</span>
+                    <span className="truncate" title={option.label}>
+                      {option.label}
+                    </span>
                     {value?.type === 'group' && value?.value === option.value && <Check className="ml-auto h-4 w-4" />}
                   </CommandItem>
                 ))}
@@ -138,7 +147,9 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
               <CommandGroup heading="Custom">
                 <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() })}>
                   <Type className="mr-2 h-4 w-4" />
-                  <span>Use &quot;{searchText.trim()}&quot; as custom email</span>
+                  <span className="truncate" title={customEmailLabel}>
+                    {customEmailLabel}
+                  </span>
                 </CommandItem>
               </CommandGroup>
             )}
