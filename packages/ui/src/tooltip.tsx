@@ -6,7 +6,19 @@ import { cn } from '@repo/ui/lib/utils'
 
 const TooltipProvider = TooltipPrimitive.Provider
 const Tooltip = TooltipPrimitive.Root
-const TooltipTrigger = TooltipPrimitive.Trigger
+
+const TooltipTrigger = ({ onFocus, ...props }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) => (
+  <TooltipPrimitive.Trigger
+    {...props}
+    onFocus={(event) => {
+      onFocus?.(event)
+
+      if (event.target instanceof Element && !event.target.matches(':focus-visible')) {
+        event.preventDefault()
+      }
+    }}
+  />
+)
 
 function TooltipContent({ className, sideOffset = 4, portal = false, ...props }: React.ComponentProps<typeof TooltipPrimitive.Content> & { portal?: boolean }) {
   const content = (
