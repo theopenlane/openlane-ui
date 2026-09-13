@@ -30,6 +30,11 @@ export const useHasModule = (module: PlanEnum) => {
   return hasModule(module)
 }
 
+export const useBillingExpired = () => {
+  const { data: session } = useSession()
+  return featureUtil.hasNoModules(session)
+}
+
 export const useIsNavItemLocked = () => {
   const { hasAnyModule, hasObjectType } = useModuleAccess()
 
