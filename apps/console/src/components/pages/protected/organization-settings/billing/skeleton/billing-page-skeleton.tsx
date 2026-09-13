@@ -2,6 +2,7 @@
 import React from 'react'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { Card } from '@repo/ui/cardpanel'
+import { InvoiceList, InvoiceRow } from '../invoice-list'
 
 const ProductCardSkeleton = () => (
   <Card className="bg-transparent p-4">
@@ -23,7 +24,7 @@ const ProductCardSkeleton = () => (
 )
 
 const InvoiceRowSkeleton = () => (
-  <div className="flex items-center justify-between py-4 px-6 border-b first:border-none">
+  <InvoiceRow>
     <div className="flex flex-col gap-1">
       <Skeleton width={160} height={14} />
       <Skeleton width={80} height={10} />
@@ -33,7 +34,7 @@ const InvoiceRowSkeleton = () => (
       <Skeleton width={40} height={14} />
       <Skeleton width={16} height={16} className="rounded" />
     </div>
-  </div>
+  </InvoiceRow>
 )
 
 const BillingPageSkeleton: React.FC = () => {
@@ -125,11 +126,11 @@ const BillingPageSkeleton: React.FC = () => {
             <Skeleton width={140} height={24} />
             <Skeleton width={120} height={32} className="rounded-md" />
           </div>
-          <Card>
+          <InvoiceList>
             <InvoiceRowSkeleton />
             <InvoiceRowSkeleton />
             <InvoiceRowSkeleton />
-          </Card>
+          </InvoiceList>
         </div>
       </div>
     </div>
