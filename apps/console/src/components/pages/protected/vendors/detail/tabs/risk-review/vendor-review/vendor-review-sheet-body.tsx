@@ -23,7 +23,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import useVendorReviewFormSchema, { type VendorReviewFormData } from './use-vendor-review-form-schema'
 import VendorReviewContextPanel from './vendor-review-context-panel'
 import VendorReviewFieldsPanel from './vendor-review-fields-panel'
-import VendorReviewFooter, { type TVendorReviewAction } from './vendor-review-footer'
+import VendorReviewFormActions, { type TVendorReviewAction } from './vendor-review-form-actions'
 import { buildVendorReviewDefaults, buildVendorRiskUpdate } from './vendor-review-utils'
 
 const STATUS_BY_ACTION: Partial<Record<TVendorReviewAction, ReviewReviewStatus>> = {
@@ -200,6 +200,18 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
           onClose={onClose}
           onEdit={showViewActions && editAllowed ? startEditing : undefined}
           menuActions={showViewActions && deleteAllowed ? [deleteMenuAction(() => setIsDeleteDialogOpen(true))] : []}
+          formActions={
+            isEditing ? (
+              <VendorReviewFormActions
+                pendingAction={pendingAction}
+                isCreate={isCreate}
+                isCompleted={isCompleted}
+                isApproved={!!review?.approved}
+                onCancel={isCreate ? undefined : () => setIsEditing(false)}
+                onSubmit={(action) => form.handleSubmit((formData) => submit(formData, action))()}
+              />
+            ) : undefined
+          }
         />
       </SheetHeader>
 
@@ -220,17 +232,6 @@ const VendorReviewSheetBody: React.FC<TVendorReviewSheetBodyProps> = ({ vendor, 
           />
         </form>
       </Form>
-
-      {isEditing && (
-        <VendorReviewFooter
-          pendingAction={pendingAction}
-          isCreate={isCreate}
-          isCompleted={isCompleted}
-          isApproved={!!review?.approved}
-          onCancel={isCreate ? undefined : () => setIsEditing(false)}
-          onSubmit={(action) => form.handleSubmit((formData) => submit(formData, action))()}
-        />
-      )}
 
       {review && (
         <ConfirmationDialog

@@ -328,18 +328,22 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
       {!isEditMode && step === STEP.CREATED ? (
         <SheetContent
           initialWidth={700}
-          header={<SlideoutHeader title="Token created" onClose={confirmationChecked ? requestClose : undefined} />}
-          footer={
-            <div className="flex gap-3 w-full">
-              {showSSOButton && (
-                <Button type="button" disabled={!confirmationChecked || isAuthorizingSSO} variant="secondary" onClick={() => handleSSOAuthorize()}>
-                  {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for SSO'}
-                </Button>
-              )}
-              <Button type="button" variant="primary" disabled={!confirmationChecked || isAuthorizingSSO} className="flex-1" onClick={requestClose}>
-                Done
-              </Button>
-            </div>
+          header={
+            <SlideoutHeader
+              title="Token created"
+              formActions={
+                <>
+                  {showSSOButton && (
+                    <Button type="button" disabled={!confirmationChecked || isAuthorizingSSO} variant="secondary" onClick={() => handleSSOAuthorize()}>
+                      {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for SSO'}
+                    </Button>
+                  )}
+                  <Button type="button" variant="primary" disabled={!confirmationChecked || isAuthorizingSSO} onClick={requestClose}>
+                    Done
+                  </Button>
+                </>
+              }
+            />
           }
         >
           <Callout variant="warning" title="Heads up!" className="mt-2" compact>

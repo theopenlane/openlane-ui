@@ -132,22 +132,22 @@ export const MergeRecordsSheet = <TRecord extends object, TUpdateInput, TEntity 
               onBack={step === 'preview' ? () => setStep('select') : undefined}
               backDisabled={isMerging}
               onClose={handleClose}
+              formActions={
+                <>
+                  <CancelButton onClick={handleClose} disabled={isMerging} />
+                  {step === 'select' ? (
+                    <Button type="button" disabled={!canSelectSecondary || isMerging} onClick={() => setStep('preview')}>
+                      Preview record
+                    </Button>
+                  ) : (
+                    <Button type="button" variant="destructive" disabled={!canMerge || isMerging} onClick={confirmMerge}>
+                      {isMerging && <Loader2 size={14} className="mr-2 animate-spin" />}
+                      Confirm merge
+                    </Button>
+                  )}
+                </>
+              }
             />
-          }
-          footer={
-            <>
-              <CancelButton onClick={handleClose} disabled={isMerging} />
-              {step === 'select' ? (
-                <Button type="button" disabled={!canSelectSecondary || isMerging} onClick={() => setStep('preview')}>
-                  Preview record
-                </Button>
-              ) : (
-                <Button type="button" variant="destructive" disabled={!canMerge || isMerging} onClick={confirmMerge}>
-                  {isMerging && <Loader2 size={14} className="mr-2 animate-spin" />}
-                  Confirm merge
-                </Button>
-              )}
-            </>
           }
         >
           <div className="flex flex-col gap-6 p-1">

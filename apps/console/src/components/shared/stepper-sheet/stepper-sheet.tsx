@@ -110,21 +110,21 @@ export function StepperSheet({
                 </Badge>
               }
               onClose={handleClose}
+              formActions={
+                <>
+                  <CancelButton onClick={handleClose} disabled={isSaving || isCompleting} />
+                  <SaveButton type="button" variant="secondary" onClick={onSaveDraft} disabled={isSaving || isCompleting} isSaving={isSaving} title="Save Draft" savingTitle="Saving..." />
+                  {!isFirstStep && (
+                    <Button variant="outline" onClick={() => onStepChange(currentStep - 1)} disabled={isSaving || isCompleting} icon={<ArrowLeft size={16} />} iconPosition="left">
+                      Previous
+                    </Button>
+                  )}
+                  <Button type="button" variant="primary" onClick={handleNext} disabled={!canProceed || isSaving || isCompleting}>
+                    {isLastStep ? (isCompleting ? 'Saving...' : completeLabel) : 'Next'}
+                  </Button>
+                </>
+              }
             />
-          }
-          footer={
-            <>
-              <CancelButton onClick={handleClose} disabled={isSaving || isCompleting} />
-              <SaveButton type="button" variant="secondary" onClick={onSaveDraft} disabled={isSaving || isCompleting} isSaving={isSaving} title="Save Draft" savingTitle="Saving..." />
-              {!isFirstStep && (
-                <Button variant="outline" onClick={() => onStepChange(currentStep - 1)} disabled={isSaving || isCompleting} icon={<ArrowLeft size={16} />} iconPosition="left">
-                  Previous
-                </Button>
-              )}
-              <Button type="button" variant="primary" onClick={handleNext} disabled={!canProceed || isSaving || isCompleting}>
-                {isLastStep ? (isCompleting ? 'Saving...' : completeLabel) : 'Next'}
-              </Button>
-            </>
           }
         >
           {step && (

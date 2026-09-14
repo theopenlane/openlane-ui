@@ -8,14 +8,15 @@ type SaveButtonProps = {
   type?: 'button' | 'submit' | 'reset'
   disabled?: boolean
   isSaving?: boolean
+  loading?: boolean
   form?: string
   className?: string
   variant?: ButtonProps['variant']
 }
 
-export const SaveButton = ({ onClick, title = 'Save', savingTitle = 'Saving...', type = 'submit', disabled, isSaving = false, form, className, variant = 'primary' }: SaveButtonProps) => {
+export const SaveButton = ({ onClick, title = 'Save', savingTitle = 'Saving...', type = 'submit', disabled, isSaving = false, loading, form, className, variant = 'primary' }: SaveButtonProps) => {
   return (
-    <Button disabled={disabled} form={form} onClick={onClick} variant={variant} type={type} iconPosition="left" className={cn('h-8 px-2', className)} icon={<SaveIcon size={16} />}>
+    <Button disabled={disabled} form={form} onClick={onClick} variant={variant} type={type} loading={loading} iconPosition="left" className={cn('h-8 px-2', className)} icon={<SaveIcon size={16} />}>
       {isSaving ? savingTitle : title}
     </Button>
   )

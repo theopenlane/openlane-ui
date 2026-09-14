@@ -20,7 +20,7 @@ import ControlContextPanel from '@/components/pages/protected/controls/control-c
 import RelatedControlsSelector from '@/components/pages/protected/controls/control-review/related-controls-selector'
 import ReviewFieldsPanel from '@/components/pages/protected/controls/control-review/review-fields-panel'
 import ReviewFindingsPanel from '@/components/pages/protected/controls/control-review/review-findings-panel'
-import ReviewSheetFooter from '@/components/pages/protected/controls/control-review/review-sheet-footer'
+import ReviewFormActions from '@/components/pages/protected/controls/control-review/review-form-actions'
 import { buildFindingInput, hasFindingInput } from '@/components/pages/protected/controls/control-review/review-submission'
 import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
@@ -140,8 +140,15 @@ const CreateControlReviewSheet: React.FC<TCreateControlReviewSheetProps> = ({ op
       <SheetContent
         minWidth={600}
         className="flex flex-col"
-        header={<SlideoutHeader title="Create Review" onClose={resetAndClose} />}
-        footer={<ReviewSheetFooter pendingAction={pendingAction} onCancel={resetAndClose} onSubmit={(status) => form.handleSubmit((data) => submit(data, status))()} submitLabel="Create Review" />}
+        header={
+          <SlideoutHeader
+            title="Create Review"
+            onClose={resetAndClose}
+            formActions={
+              <ReviewFormActions pendingAction={pendingAction} onCancel={resetAndClose} onSubmit={(status) => form.handleSubmit((data) => submit(data, status))()} submitLabel="Create Review" />
+            }
+          />
+        }
       >
         <Form {...form}>
           <form className="flex flex-col gap-4 pr-2 pb-4" onSubmit={(e) => e.preventDefault()}>

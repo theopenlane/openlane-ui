@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { SheetFooter, SheetHeader } from '@repo/ui/sheet'
+import { SheetHeader } from '@repo/ui/sheet'
 import { Form } from '@repo/ui/form'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -33,7 +33,7 @@ import RelatedControlsSelector from './related-controls-selector'
 import ReviewFieldsPanel from './review-fields-panel'
 import ReviewSummaryPanel from './review-summary-panel'
 import ReviewFindingsPanel from './review-findings-panel'
-import ReviewSheetFooter from './review-sheet-footer'
+import ReviewFormActions from './review-form-actions'
 import { buildFindingInput, buildLinkedAssociationInput, hasFindingInput } from './review-submission'
 import { plateToHtmlOrNull } from '@/components/shared/plate/plate-utils'
 
@@ -228,6 +228,11 @@ const ControlReviewSheetBody: React.FC<TControlReviewSheetBodyProps> = ({ contro
           onClose={onClose}
           onEdit={canUseActions && !isEditing && editAllowed ? startEditing : undefined}
           menuActions={menuActions}
+          formActions={
+            isEditing ? (
+              <ReviewFormActions pendingAction={pendingAction} onCancel={cancelEditing} onSubmit={(status) => form.handleSubmit((formData) => submit(formData, status))()} submitLabel="Save Review" />
+            ) : undefined
+          }
         />
       </SheetHeader>
 
@@ -274,12 +279,6 @@ const ControlReviewSheetBody: React.FC<TControlReviewSheetBodyProps> = ({ contro
           <ReviewSummaryPanel review={review} />
           <ReviewFindingsPanel findings={findingsNodes} totalCount={findingsData?.findings?.totalCount} isLoading={isLoadingFindings} />
         </div>
-      )}
-
-      {isEditing && (
-        <SheetFooter>
-          <ReviewSheetFooter pendingAction={pendingAction} onCancel={cancelEditing} onSubmit={(status) => form.handleSubmit((formData) => submit(formData, status))()} submitLabel="Save Review" />
-        </SheetFooter>
       )}
 
       <EvidenceDetailsSheet entityId={viewEvidenceId} controlId={controlId} onClose={() => setViewEvidenceId(null)} />

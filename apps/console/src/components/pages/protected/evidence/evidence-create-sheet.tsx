@@ -6,7 +6,6 @@ import useFormSchema, { type CreateEvidenceFormData, type CreateEvidenceFormInpu
 import { Input, InputRow } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { Button } from '@repo/ui/button'
 import { type CreateEvidenceInput } from '@repo/codegen/src/schema'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
 import { useNotification } from '@/hooks/useNotification'
@@ -40,6 +39,7 @@ import EvidenceAdditionalDetails from './create/evidence-additional-details'
 import { EVIDENCE_AUDITOR_REQUEST_MODE, EVIDENCE_CREATE_MODE } from './create/evidence-create-mode'
 import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -299,11 +299,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                 saveLabel={mode.submitLabel}
                 savingLabel="Submitting..."
                 secondaryActions={
-                  mode.showSaveAsDraft ? (
-                    <Button type="button" variant="secondary" onClick={handleSaveAsDraft} loading={isPending} disabled={isPending}>
-                      Save as draft
-                    </Button>
-                  ) : undefined
+                  mode.showSaveAsDraft ? <SaveButton type="button" variant="secondary" onClick={handleSaveAsDraft} loading={isPending} disabled={isPending} title="Save as draft" /> : undefined
                 }
               />
             }
