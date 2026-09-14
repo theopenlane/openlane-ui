@@ -83,7 +83,7 @@ export default function FrameworksPage() {
     fetchNextPage,
   } = useGetAllStandardsInfinite({
     where,
-    pagination: cardPagination,
+    pageSize: cardPagination.pageSize,
     enabled: sessionResolved && (!currentOrgId || recommendedFetched),
     includeSystemStandards: true,
   })
@@ -310,7 +310,14 @@ export default function FrameworksPage() {
 
         <div className="flex items-center shrink-0 gap-6 ">
           <div className="gap-2 flex items-center">
-            <Switch id="hide-unselected" checked={isChecked} onCheckedChange={setIsChecked} />
+            <Switch
+              id="hide-unselected"
+              checked={isChecked}
+              onCheckedChange={(checked) => {
+                setIsChecked(checked)
+                resetPagination()
+              }}
+            />
             <Label className="text-sm" htmlFor="hide-unselected">
               Hide unselected
             </Label>
@@ -337,7 +344,7 @@ export default function FrameworksPage() {
         </div>
       </div>
 
-      <InfiniteScroll pageSize={10} pagination={cardPagination} onPaginationChange={handlePaginationChange} paginationMeta={paginationMeta} key="standards-card">
+      <InfiniteScroll pageSize={cardPagination.pageSize} pagination={cardPagination} onPaginationChange={handlePaginationChange} paginationMeta={paginationMeta} key="standards-card">
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
           {recommendedStandards.map((standard) => renderStandardCard(standard, true))}
           {standards.map((standard) => renderStandardCard(standard, false))}
