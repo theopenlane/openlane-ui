@@ -24,6 +24,8 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, pageSi
   const isFirstPage = currentPage === 1
   const isLastPage = hasKnownTotal ? currentPage === totalPages : !hasNextPage
 
+  const isSinglePage = !isPageCountPending && isFirstPage && isLastPage
+
   const pageLabel = hasKnownTotal ? `Page ${currentPage} of ${totalPages}` : isLastPage ? `Page ${currentPage}` : `Page ${currentPage} of many`
 
   return (
@@ -44,25 +46,27 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, pageSi
         </Select>
       </div>
 
-      <div className="flex items-center gap-4">
-        <span className={cn('text-sm', isPageCountPending && 'invisible')}>{pageLabel}</span>
-        <div className="flex gap-2">
-          <Button type="button" className="h-6 w-6 !p-0" variant="outline" aria-label="First page" disabled={isFirstPage} onClick={() => onPageChange(1)}>
-            <ChevronsLeft size={16} />
-          </Button>
-          <Button type="button" className="h-6 w-6 !p-0" variant="outline" aria-label="Previous page" disabled={isFirstPage} onClick={() => onPageChange(currentPage - 1)}>
-            <ChevronLeft size={16} />
-          </Button>
-          <Button type="button" className="h-6 w-6 !p-0" variant="outline" aria-label="Next page" disabled={isLastPage} onClick={() => onPageChange(currentPage + 1)}>
-            <ChevronRight size={16} />
-          </Button>
-          {hasKnownTotal && (
-            <Button type="button" className="h-6 w-6 !p-0" variant="outline" aria-label="Last page" disabled={isLastPage} onClick={() => onPageChange(totalPages)}>
-              <ChevronsRight size={16} />
+      {!isSinglePage && (
+        <div className="flex items-center gap-4">
+          <span className={cn('text-sm', isPageCountPending && 'invisible')}>{pageLabel}</span>
+          <div className="flex gap-2">
+            <Button type="button" className="h-6 w-6 !p-0" variant="outline" aria-label="First page" disabled={isFirstPage} onClick={() => onPageChange(1)}>
+              <ChevronsLeft size={16} />
             </Button>
-          )}
+            <Button type="button" className="h-6 w-6 !p-0" variant="outline" aria-label="Previous page" disabled={isFirstPage} onClick={() => onPageChange(currentPage - 1)}>
+              <ChevronLeft size={16} />
+            </Button>
+            <Button type="button" className="h-6 w-6 !p-0" variant="outline" aria-label="Next page" disabled={isLastPage} onClick={() => onPageChange(currentPage + 1)}>
+              <ChevronRight size={16} />
+            </Button>
+            {hasKnownTotal && (
+              <Button type="button" className="h-6 w-6 !p-0" variant="outline" aria-label="Last page" disabled={isLastPage} onClick={() => onPageChange(totalPages)}>
+                <ChevronsRight size={16} />
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

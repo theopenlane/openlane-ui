@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useId, useMemo, useState } from 'react'
 import { LoaderCircle, SearchIcon } from 'lucide-react'
 import { type ColumnDef, type VisibilityState } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
@@ -48,6 +48,7 @@ const ExistingFilesTable: React.FC<TProps> = ({ tableKey, selectedFileIds, onSel
   const [searchTerm, setSearchTerm] = useState('')
   const [category, setCategory] = useState(defaultCategory ?? ALL_CATEGORIES)
   const [previewFile, setPreviewFile] = useState<TExistingFileRow | null>(null)
+  const categorySelectId = useId()
   const debouncedSearch = useDebounce(searchTerm, 300)
   const { enumOptions } = useGetCustomTypeEnums({ where: FILE_CATEGORY_ENUM_WHERE })
 
@@ -150,7 +151,12 @@ const ExistingFilesTable: React.FC<TProps> = ({ tableKey, selectedFileIds, onSel
           variant="searchTable"
           className="flex-1 min-w-52"
         />
-        <CreatableCustomTypeEnumSelect value={category} options={categoryOptions} onValueChange={setCategory} useCustomDisplay={false} triggerClassName="w-48 h-9" />
+        <div className="flex items-center gap-2">
+          <label htmlFor={categorySelectId} className="text-sm whitespace-nowrap">
+            Category
+          </label>
+          <CreatableCustomTypeEnumSelect triggerId={categorySelectId} value={category} options={categoryOptions} onValueChange={setCategory} useCustomDisplay={false} triggerClassName="w-48 h-9" />
+        </div>
       </div>
 
       <DataTable

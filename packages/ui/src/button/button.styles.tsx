@@ -34,7 +34,7 @@ export const buttonStyles = tv({
         focus-visible:shadow-[0_0_0_4px_rgba(9,21,29,0.06),_0_1px_2px_0_rgba(9,21,29,0.04),_0_-1px_0_0_rgba(9,21,29,0.1)_inset]
         dark:focus-visible:shadow-[0_0_0_4px_rgba(96,232,201,0.24),_0_1px_1px_0.5px_rgba(9,21,29,0.24)]
       `,
-      outline: 'border-border text-text-paragraph border',
+      outline: 'border-border text-text-paragraph border disabled:cursor-not-allowed disabled:opacity-40',
       transparent: `
         bg-transparent
         border
