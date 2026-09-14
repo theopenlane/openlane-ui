@@ -24,7 +24,7 @@ import { SearchableSingleSelect } from '@/components/shared/searchableSingleSele
 import { EXPORT_PAGE_SIZE } from '@/constants/pagination'
 import ReportColumnsPanel from './report-columns-panel'
 import ReportFiltersPanel from './report-filters-panel'
-import ReportHistoryPanel from './report-history-panel'
+import ReportHistoryMenu from './report-history-menu'
 import ReportPanel from './report-panel'
 import ReportRelatedPanel from './report-related-panel'
 import ReportResults from './report-results'
@@ -189,9 +189,20 @@ const CustomReportPage: React.FC = () => {
     <div className="flex flex-col lg:flex-row gap-4 items-start">
       <aside className="w-full lg:w-72 shrink-0 flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <Button type="button" full icon={<Play size={14} />} iconPosition="left" loading={isFetching} disabled={!entity || columnPaths.length === 0 || incompleteFilters > 0} onClick={handleRun}>
-            Run report
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              className="flex-1"
+              type="button"
+              icon={<Play size={14} />}
+              iconPosition="left"
+              loading={isFetching}
+              disabled={!entity || columnPaths.length === 0 || incompleteFilters > 0}
+              onClick={handleRun}
+            >
+              Run report
+            </Button>
+            {historyOptions.length > 0 && <ReportHistoryMenu options={historyOptions} onSelect={handleSelectHistory} />}
+          </div>
           {entity && columnPaths.length === 0 && <p className="text-xs text-muted-foreground">Select at least one column to run this report.</p>}
           {incompleteFilters > 0 && <p className="text-xs text-muted-foreground">Give every filter a value, or remove it, before running this report.</p>}
         </div>
@@ -203,8 +214,6 @@ const CustomReportPage: React.FC = () => {
             <SearchableSingleSelect ariaLabel="Report data type" value={entityName} options={availableEntities} placeholder="Select a data type" onChange={handleEntityChange} />
           )}
         </ReportPanel>
-
-        {historyOptions.length > 0 && <ReportHistoryPanel options={historyOptions} onSelect={handleSelectHistory} />}
 
         {entity && (
           <>
