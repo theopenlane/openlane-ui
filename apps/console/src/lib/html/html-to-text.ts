@@ -101,15 +101,14 @@ const decodeEntity = (entity: string): string | undefined => {
 
 const replaceTag = (_markup: string, tagName: string | undefined): string => (tagName && BLOCK_TAGS.has(tagName.toLowerCase()) ? '\n' : '')
 
-const stripMarkupOnce = (value: string): string => (HAS_EMBEDDED.test(value) ? value.replace(EMBEDDED, '') : value).replace(MARKUP, replaceTag)
-
 const stripMarkup = (value: string): string => {
-  let previous = value
-  let current = stripMarkupOnce(value)
+  let previous = ''
+  let current = value
 
   while (current !== previous) {
     previous = current
-    current = stripMarkupOnce(current)
+    if (HAS_EMBEDDED.test(current)) current = current.replace(EMBEDDED, '')
+    current = current.replace(MARKUP, replaceTag)
   }
 
   return current
