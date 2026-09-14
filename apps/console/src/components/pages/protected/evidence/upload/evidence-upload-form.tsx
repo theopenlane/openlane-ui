@@ -25,18 +25,19 @@ const EvidenceUploadForm: React.FC<TProps> = ({ form }) => {
     const current = form.getValues('evidenceFiles') ?? []
 
     if (current[index]?.type === 'link') {
-      form.setValue('url', undefined)
+      form.setValue('url', undefined, { shouldDirty: true })
     }
 
     form.setValue(
       'evidenceFiles',
       current.filter((_, position) => position !== index),
+      { shouldDirty: true },
     )
   }
 
   const handleAddFile = useCallback(
     (file: TUploadedFile) => {
-      form.setValue('evidenceFiles', [file, ...(form.getValues('evidenceFiles') ?? [])])
+      form.setValue('evidenceFiles', [file, ...(form.getValues('evidenceFiles') ?? [])], { shouldDirty: true })
     },
     [form],
   )
@@ -46,6 +47,7 @@ const EvidenceUploadForm: React.FC<TProps> = ({ form }) => {
       form.setValue(
         'evidenceFiles',
         (form.getValues('evidenceFiles') ?? []).filter((file) => !(file.type === 'existingFile' && file.id === fileId)),
+        { shouldDirty: true },
       )
     },
     [form],
