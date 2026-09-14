@@ -12,7 +12,6 @@ import { Switch } from '@repo/ui/switch'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination'
-import { OPENLANE_TRUST_CENTER_STANDARD } from '@/constants/standards'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { BookUp2, PencilIcon, SquarePlus, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
@@ -28,6 +27,7 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { type StandardWhereInput } from '@repo/codegen/src/schema'
+import { mergeWhere } from '@/lib/merge-where'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -55,25 +55,18 @@ export default function FrameworksPage() {
   const canEditCompliance = hasPermission(tcPermission?.roles, AccessEnum.CanEditTrustCenterCompliance, session)
 
   const { compliances, isError: compliancesError, isFetched: compliancesFetched } = useGetTrustCenterCompliances()
-  const baseWhere: StandardWhereInput = {
-    frameworkNEQ: OPENLANE_TRUST_CENTER_STANDARD.framework,
-    ...(isChecked ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } : {}),
-  }
+  const baseWhere: StandardWhereInput | undefined = isChecked ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } : undefined
 
   const sessionResolved = sessionStatus !== 'loading'
 
   const { standards: recommendedStandards, isFetched: recommendedFetched } = useGetRecommendedStandards({
-    where: { ...baseWhere, hasControlsWith: [{ hasOwnerWith: [{ id: currentOrgId }] }] },
+    where: mergeWhere<StandardWhereInput>([baseWhere, { hasControlsWith: [{ hasOwnerWith: [{ id: currentOrgId }] }] }]),
     enabled: !!currentOrgId,
-    includeSystemStandards: true,
   })
 
   const recommendedStandardsIDs = useMemo(() => recommendedStandards.map((s) => s.id), [recommendedStandards])
 
-  const where: StandardWhereInput = {
-    ...baseWhere,
-    ...(recommendedStandardsIDs.length ? { idNotIn: recommendedStandardsIDs } : {}),
-  }
+  const where = mergeWhere<StandardWhereInput>([baseWhere, recommendedStandardsIDs.length ? { idNotIn: recommendedStandardsIDs } : undefined])
 
   const {
     standards,
@@ -85,7 +78,6 @@ export default function FrameworksPage() {
     where,
     pageSize: cardPagination.pageSize,
     enabled: sessionResolved && (!currentOrgId || recommendedFetched),
-    includeSystemStandards: true,
   })
 
   const initialLoading = !compliancesFetched || !standardsFetched

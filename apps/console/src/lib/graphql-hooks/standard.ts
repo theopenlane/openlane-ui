@@ -137,7 +137,7 @@ export const useCreateStandard = () => {
     },
 
     onSuccess: () => {
-      queryClient.removeQueries({ queryKey: ['standards'] })
+      queryClient.invalidateQueries({ queryKey: ['standards'] })
     },
   })
 }
@@ -164,7 +164,7 @@ export const useUpdateStandard = () => {
     },
 
     onSuccess: () => {
-      queryClient.removeQueries({ queryKey: ['standards'] })
+      queryClient.invalidateQueries({ queryKey: ['standards'] })
     },
   })
 }
@@ -176,7 +176,7 @@ export const useDeleteStandard = () => {
     mutationFn: async (variables) => client.request<DeleteStandardMutation, DeleteStandardMutationVariables>(DELETE_STANDARD, variables),
 
     onSuccess: () => {
-      queryClient.removeQueries({ queryKey: ['standards'] })
+      queryClient.invalidateQueries({ queryKey: ['standards'] })
     },
   })
 }
