@@ -3,36 +3,35 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Hourglass } from 'lucide-react'
 import { statCardStyles } from './stats-cards-styles'
 import { useParams, useSearchParams } from 'next/navigation'
-import { useProgramEvidenceStats, type EvidenceStatStatus } from '@/lib/graphql-hooks/program'
+import { useProgramEvidenceStats, EVIDENCE_STAT_STATUS_GROUPS, type EvidenceStatGroupKey } from '@/lib/graphql-hooks/program'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import Link from 'next/link'
 import { saveFilters, type TFilterStateFor } from '@/components/shared/table-filter/filter-storage.ts'
 import { type TEvidenceFilterKey } from '@/components/pages/protected/evidence/table/table-config.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
 import { EvidenceStatusColors } from '@/components/shared/enum-mapper/evidence-enum'
 import { useOrganization } from '@/hooks/useOrganization'
 
 type StatDefinition = {
   title: string
-  status: EvidenceStatStatus
+  group: EvidenceStatGroupKey
   tooltip: string
 }
 
 const EVIDENCE_STAT_CARDS: StatDefinition[] = [
   {
     title: 'Evidence Requested',
-    status: EvidenceEvidenceStatus.REQUESTED,
+    group: 'requested',
     tooltip: 'Evidence requested is the percentage of controls with evidence that has been requested but not yet provided.',
   },
   {
     title: 'Evidence Submitted',
-    status: EvidenceEvidenceStatus.SUBMITTED,
-    tooltip: 'Evidence submitted is the percentage of controls with evidence that has been submitted but not reviewed internally or by an auditor.',
+    group: 'submitted',
+    tooltip: 'Evidence submitted is the percentage of controls with evidence that has been submitted or marked as ready but not reviewed by an auditor.',
   },
   {
     title: 'Evidence Accepted',
-    status: EvidenceEvidenceStatus.AUDITOR_APPROVED,
+    group: 'accepted',
     tooltip: 'Evidence accepted is the percentage of controls with evidence that has been accepted by the auditor.',
   },
 ]
@@ -48,12 +47,13 @@ type StatCardProps = {
 
 const StatCard: React.FC<StatCardProps> = ({ stat, count, total, programId }) => {
   const { currentOrgId } = useOrganization()
-  const { title, status, tooltip } = stat
+  const { title, group, tooltip } = stat
+  const statuses = EVIDENCE_STAT_STATUS_GROUPS[group]
   const percentage = total ? Math.round((count / total) * 100) : 0
 
   const handleClick = () => {
     const filters: TFilterStateFor<TEvidenceFilterKey> = {
-      statusIn: [status],
+      statusIn: [...statuses],
     }
 
     saveFilters(TableKeyEnum.EVIDENCE, filters, currentOrgId)
@@ -94,7 +94,7 @@ const StatCard: React.FC<StatCardProps> = ({ stat, count, total, programId }) =>
                   style={{
                     width: percentage > 0 ? `${percentage}%` : '1px',
                     minWidth: '1px',
-                    backgroundColor: EvidenceStatusColors[status],
+                    backgroundColor: EvidenceStatusColors[statuses[0]],
                   }}
                 ></div>
               </div>
@@ -123,7 +123,7 @@ const StatsCards: React.FC = () => {
     <TooltipProvider>
       <div className="flex gap-8 justify-center">
         {EVIDENCE_STAT_CARDS.map((stat) => (
-          <StatCard key={stat.status} stat={stat} count={data?.byStatus[stat.status] ?? 0} total={total} programId={id} />
+          <StatCard key={stat.group} stat={stat} count={data?.byGroup[stat.group] ?? 0} total={total} programId={id} />
         ))}
       </div>
     </TooltipProvider>

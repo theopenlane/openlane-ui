@@ -371,7 +371,7 @@ export const GET_EVIDENCE_STATS = gql`
       totalCount
     }
 
-    submitted: controls(where: { systemOwned: false, hasEvidenceWith: [{ statusIn: [SUBMITTED], hasProgramsWith: [{ id: $programId }] }] }) {
+    submitted: controls(where: { systemOwned: false, hasEvidenceWith: [{ statusIn: [SUBMITTED, READY_FOR_AUDITOR], hasProgramsWith: [{ id: $programId }] }] }) {
       totalCount
     }
 

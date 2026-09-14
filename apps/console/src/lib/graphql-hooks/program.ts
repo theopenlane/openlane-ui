@@ -142,15 +142,20 @@ export const useGetProgramBasicInfo = (programId: string | null, enabled: boolea
   })
 }
 
-export const EVIDENCE_STAT_STATUSES = [EvidenceEvidenceStatus.REQUESTED, EvidenceEvidenceStatus.SUBMITTED, EvidenceEvidenceStatus.READY_FOR_AUDITOR, EvidenceEvidenceStatus.AUDITOR_APPROVED] as const
+export const EVIDENCE_STAT_STATUS_GROUPS = {
+  requested: [EvidenceEvidenceStatus.REQUESTED],
+  submitted: [EvidenceEvidenceStatus.SUBMITTED, EvidenceEvidenceStatus.READY_FOR_AUDITOR],
+  readyForAuditor: [EvidenceEvidenceStatus.READY_FOR_AUDITOR],
+  accepted: [EvidenceEvidenceStatus.AUDITOR_APPROVED],
+} as const satisfies Record<string, readonly EvidenceEvidenceStatus[]>
 
-export type EvidenceStatStatus = (typeof EVIDENCE_STAT_STATUSES)[number]
+export type EvidenceStatGroupKey = keyof typeof EVIDENCE_STAT_STATUS_GROUPS
 
 export type ProgramEvidenceScopeStats = {
   total: number
   framework: number
   organization: number
-  byStatus: Record<EvidenceStatStatus, number>
+  byGroup: Record<EvidenceStatGroupKey, number>
 }
 
 export const useProgramEvidenceStats = (programId: string | undefined) => {
@@ -165,11 +170,11 @@ export const useProgramEvidenceStats = (programId: string | undefined) => {
         total: data.totalControls.totalCount,
         framework: data.frameworkControls.totalCount,
         organization: data.organizationControls.totalCount,
-        byStatus: {
-          [EvidenceEvidenceStatus.REQUESTED]: data.requested.totalCount,
-          [EvidenceEvidenceStatus.SUBMITTED]: data.submitted.totalCount,
-          [EvidenceEvidenceStatus.READY_FOR_AUDITOR]: data.readyForAuditor.totalCount,
-          [EvidenceEvidenceStatus.AUDITOR_APPROVED]: data.accepted.totalCount,
+        byGroup: {
+          requested: data.requested.totalCount,
+          submitted: data.submitted.totalCount,
+          readyForAuditor: data.readyForAuditor.totalCount,
+          accepted: data.accepted.totalCount,
         },
       }
     },
