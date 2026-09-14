@@ -3,10 +3,12 @@
 import React from 'react'
 import { Check } from 'lucide-react'
 import { Button } from '@repo/ui/button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 export type TVendorReviewAction = 'draft' | 'save' | 'complete' | 'completeAndApprove' | 'approve'
 
-type TVendorReviewFooterProps = {
+type TVendorReviewFormActionsProps = {
   pendingAction: TVendorReviewAction | null
   isCreate: boolean
   isCompleted: boolean
@@ -15,22 +17,16 @@ type TVendorReviewFooterProps = {
   onSubmit: (action: TVendorReviewAction) => void
 }
 
-const VendorReviewFooter: React.FC<TVendorReviewFooterProps> = ({ pendingAction, isCreate, isCompleted, isApproved, onCancel, onSubmit }) => {
+const VendorReviewFormActions: React.FC<TVendorReviewFormActionsProps> = ({ pendingAction, isCreate, isCompleted, isApproved, onCancel, onSubmit }) => {
   const isBusy = pendingAction !== null
 
   return (
-    <div className="mt-auto flex items-center justify-end gap-2 border-t pt-4">
-      {onCancel && (
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isBusy}>
-          Cancel
-        </Button>
-      )}
+    <>
+      {onCancel && <CancelButton onClick={onCancel} disabled={isBusy} />}
 
       {isCreate ? (
         <>
-          <Button type="button" variant="secondary" onClick={() => onSubmit('draft')} loading={pendingAction === 'draft'} disabled={isBusy}>
-            Save as Draft
-          </Button>
+          <SaveButton type="button" variant="secondary" onClick={() => onSubmit('draft')} loading={pendingAction === 'draft'} disabled={isBusy} title="Save as Draft" />
           <Button type="button" onClick={() => onSubmit('complete')} loading={pendingAction === 'complete'} disabled={isBusy}>
             Complete
           </Button>
@@ -53,9 +49,7 @@ const VendorReviewFooter: React.FC<TVendorReviewFooterProps> = ({ pendingAction,
               Complete
             </Button>
           )}
-          <Button type="button" onClick={() => onSubmit('save')} loading={pendingAction === 'save'} disabled={isBusy}>
-            Save Changes
-          </Button>
+          <SaveButton type="button" onClick={() => onSubmit('save')} loading={pendingAction === 'save'} disabled={isBusy} title="Save Changes" />
           {!isApproved &&
             (isCompleted ? (
               <Button type="button" variant="approve" icon={<Check size={16} />} iconPosition="left" onClick={() => onSubmit('approve')} loading={pendingAction === 'approve'} disabled={isBusy}>
@@ -76,8 +70,8 @@ const VendorReviewFooter: React.FC<TVendorReviewFooterProps> = ({ pendingAction,
             ))}
         </>
       )}
-    </div>
+    </>
   )
 }
 
-export default VendorReviewFooter
+export default VendorReviewFormActions

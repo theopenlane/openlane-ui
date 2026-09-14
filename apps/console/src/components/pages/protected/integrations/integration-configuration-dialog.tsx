@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useId, useMemo, useState } from 'react'
 import { FormProvider } from 'react-hook-form'
-import { Button } from '@repo/ui/button'
-import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Sheet, SheetContent, SheetDescription, SheetHeader } from '@repo/ui/sheet'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
@@ -12,6 +12,8 @@ import { disabledOperationConfigKeys, resolveConnectionEntry, resolveCredentialE
 import { connectViaAuth, saveIntegrationConfiguration } from '@/lib/integrations/flow'
 import { IntegrationSchemaSections, normalizeIntegrationFormPayloads, useIntegrationSchemaForm } from './schema-form'
 import { Callout } from '@/components/shared/callout/callout'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { SaveButton } from '@/components/shared/save-button/save-button'
 
 type Props = {
   open: boolean
@@ -61,6 +63,17 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
   const { reset: resetCombined } = combined.formMethods
   const { reset: resetCred } = credForm.formMethods
   const { reset: resetSettings } = settingsForm.formMethods
+
+  const baseId = useId()
+  const combinedFormId = `${baseId}-combined`
+  const credentialsFormId = `${baseId}-credentials`
+  const settingsFormId = `${baseId}-settings`
+
+  const [activeTab, setActiveTab] = useState('credentials')
+
+  useEffect(() => {
+    if (open) setActiveTab('credentials')
+  }, [open])
 
   useEffect(() => {
     if (!open) return
@@ -171,11 +184,25 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
 
   const showTabs = isExistingInstallation && credForm.sections.length > 0 && settingsForm.sections.length > 0
 
+  const integrationHeading = isExistingInstallation ? `Update ${provider?.displayName ?? 'Integration'}` : `Configure ${provider?.displayName ?? 'Integration'}`
+
+  const activeForm = showTabs ? (activeTab === 'credentials' ? credForm : settingsForm) : combined
+  const activeFormId = showTabs ? (activeTab === 'credentials' ? credentialsFormId : settingsFormId) : combinedFormId
+  const activeSaveLabel = showTabs ? (activeTab === 'credentials' ? 'Save Credentials' : 'Save Settings') : 'Save Configuration'
+  const isActiveFormSubmitting = activeForm.formMethods.formState.isSubmitting
+
+  const activeFormActions = (
+    <>
+      <CancelButton onClick={() => onOpenChange(false)} disabled={isActiveFormSubmitting} />
+      <SaveButton form={activeFormId} title={activeSaveLabel} savingTitle="Saving..." isSaving={isActiveFormSubmitting} disabled={isActiveFormSubmitting || !provider} />
+    </>
+  )
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="flex w-[520px] flex-col p-0 sm:w-[620px]">
         <SheetHeader className="border-b px-6 py-5">
-          <SheetTitle>{isExistingInstallation ? `Update ${provider?.displayName ?? 'Integration'}` : `Configure ${provider?.displayName ?? 'Integration'}`}</SheetTitle>
+          <SlideoutHeader title={integrationHeading} onClose={() => onOpenChange(false)} formActions={activeFormActions} />
           <SheetDescription>
             {isExistingInstallation
               ? credForm.sections.length > 0
@@ -186,7 +213,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
         </SheetHeader>
 
         {showTabs ? (
-          <Tabs defaultValue="credentials" variant="solid" className="flex flex-1 flex-col overflow-hidden">
+          <Tabs value={activeTab} onValueChange={setActiveTab} variant="solid" className="flex flex-1 flex-col overflow-hidden">
             <TabsList className="w-full grid grid-cols-2">
               <TabsTrigger value="credentials">Credentials</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -194,58 +221,34 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
 
             <TabsContent value="credentials" className="flex flex-1 flex-col overflow-hidden mt-[10px]">
               <FormProvider {...credForm.formMethods}>
-                <form onSubmit={credForm.formMethods.handleSubmit(onSubmitCredentials)} className="flex flex-1 flex-col overflow-hidden">
+                <form id={credentialsFormId} onSubmit={credForm.formMethods.handleSubmit(onSubmitCredentials)} className="flex flex-1 flex-col overflow-hidden">
                   <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
                     <Callout variant="warning" title="Updating Credentials" className="mb-[30px]">
                       We only load non-sensitive values. When saving, the entire form is validated—so you'll need to re-enter any required values that aren’t pre-filled (like secrets).
                     </Callout>
                     <IntegrationSchemaSections sections={credForm.sections} hideDescriptions hideFieldKeys={disabledConfigKeys} />
                   </div>
-                  <SheetFooter className="shrink-0 border-t px-6 py-4 sm:flex-row sm:justify-end">
-                    <Button type="button" variant="secondary" onClick={() => onOpenChange(false)} disabled={credForm.formMethods.formState.isSubmitting}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={credForm.formMethods.formState.isSubmitting || !provider}>
-                      {credForm.formMethods.formState.isSubmitting ? 'Saving...' : 'Save Credentials'}
-                    </Button>
-                  </SheetFooter>
                 </form>
               </FormProvider>
             </TabsContent>
 
             <TabsContent value="settings" className="flex flex-1 flex-col overflow-hidden">
               <FormProvider {...settingsForm.formMethods}>
-                <form onSubmit={settingsForm.formMethods.handleSubmit(onSubmitSettings)} className="flex flex-1 flex-col overflow-hidden">
+                <form id={settingsFormId} onSubmit={settingsForm.formMethods.handleSubmit(onSubmitSettings)} className="flex flex-1 flex-col overflow-hidden">
                   <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
                     <IntegrationSchemaSections sections={settingsForm.sections} hideDescriptions hideFieldKeys={disabledConfigKeys} />
                   </div>
-                  <SheetFooter className="shrink-0 border-t px-6 py-4 sm:flex-row sm:justify-end">
-                    <Button type="button" variant="secondary" onClick={() => onOpenChange(false)} disabled={settingsForm.formMethods.formState.isSubmitting}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={settingsForm.formMethods.formState.isSubmitting || !provider}>
-                      {settingsForm.formMethods.formState.isSubmitting ? 'Saving...' : 'Save Settings'}
-                    </Button>
-                  </SheetFooter>
                 </form>
               </FormProvider>
             </TabsContent>
           </Tabs>
         ) : (
           <FormProvider {...combined.formMethods}>
-            <form onSubmit={combined.formMethods.handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-hidden">
+            <form id={combinedFormId} onSubmit={combined.formMethods.handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-hidden">
               <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
                 {combined.sections.length === 0 ? <p className="text-sm text-muted-foreground">No additional input is required for this integration.</p> : null}
                 <IntegrationSchemaSections sections={combined.sections} hideFieldKeys={disabledConfigKeys} />
               </div>
-              <SheetFooter className="shrink-0 border-t px-6 py-4 sm:flex-row sm:justify-end">
-                <Button type="button" variant="secondary" onClick={() => onOpenChange(false)} disabled={combined.formMethods.formState.isSubmitting}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={combined.formMethods.formState.isSubmitting || !provider}>
-                  {combined.formMethods.formState.isSubmitting ? 'Saving...' : 'Save Configuration'}
-                </Button>
-              </SheetFooter>
             </form>
           </FormProvider>
         )}

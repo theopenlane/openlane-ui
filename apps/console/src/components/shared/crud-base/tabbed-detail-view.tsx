@@ -12,10 +12,11 @@ import { type FieldValues } from 'react-hook-form'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { GenericSheetHeader } from './header'
+import { SlideoutFormActions } from './slideout-form-actions'
 import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName, toHumanLabel } from '@/utils/strings'
 import type { TabConfig } from './types'
-import type { RenderFieldsProps, RenderHeaderProps, GenericDetailsSheetConfig } from './generic-sheet'
+import type { RenderFieldsProps, GenericDetailsSheetConfig } from './generic-sheet'
 import { getBulkActionFailureDescription } from './bulk-action-feedback'
 import { useSession } from 'next-auth/react'
 
@@ -32,7 +33,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
 ) {
   const [isEditing, setIsEditing] = useState(false)
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
-  const [showCancelDialog, setShowCancelDialog] = useState(false)
+  const [pendingDiscard, setPendingDiscard] = useState<'close' | 'edit' | null>(null)
   const [isFormInitialized, setIsFormInitialized] = useState(false)
 
   const {
@@ -46,7 +47,6 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
     isFetching,
     buildPayload,
     normalizeData,
-    getName,
     formId = 'editForm',
     renderHeader,
     renderFields,
@@ -54,6 +54,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
     onClose,
   } = config
   const { reset } = form
+  const { isDirty } = form.formState
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
 
@@ -87,32 +88,43 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
     }
   }, [data, isCreate, id, normalizeData, reset])
 
+  const exitEditMode = () => {
+    setIsEditing(false)
+    reset()
+  }
+
   const handleClose = () => {
-    if (isEditing && isFormInitialized && form.formState.isDirty) {
-      setShowCancelDialog(true)
+    if (isEditing && isFormInitialized && isDirty) {
+      setPendingDiscard('close')
       return
     }
     onClose?.()
   }
 
-  const handleConfirmClose = () => {
-    setIsFormInitialized(false)
-    setShowCancelDialog(false)
-    onClose?.()
-  }
-
   const handleCancelEdit = () => {
-    if (isFormInitialized && form.formState.isDirty) {
-      setShowCancelDialog(true)
+    if (isFormInitialized && isDirty) {
+      setPendingDiscard(isCreate ? 'close' : 'edit')
       return
     }
 
     if (isCreate) {
       onClose?.()
     } else {
-      setIsEditing(false)
-      reset()
+      exitEditMode()
     }
+  }
+
+  const handleConfirmDiscard = () => {
+    const intent = pendingDiscard
+    setPendingDiscard(null)
+
+    if (intent === 'edit') {
+      exitEditMode()
+      return
+    }
+
+    setIsFormInitialized(false)
+    onClose?.()
   }
 
   const onSubmit = async (formData: TFormData) => {
@@ -201,18 +213,6 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
 
   const isPending = (updateMutation?.isPending ?? false) || (createMutation?.isPending ?? false)
 
-  const headerProps: RenderHeaderProps = {
-    close: handleClose,
-    isEditing,
-    isPending,
-    isCreate,
-    setIsEditing,
-    name: data && getName ? getName(data) : null,
-    isEditAllowed,
-    handleCancelEdit,
-    formId,
-  }
-
   const fieldProps: RenderFieldsProps<TData, TUpdateInput> = {
     isEditing,
     isCreate,
@@ -225,25 +225,29 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
   }
 
   const defaultTab = tabs[0]?.id ?? 'details'
+  const showFormActions = ((isCreate && !!createMutation) || (isEditing && !!updateMutation)) && !(isFetching && !isCreate)
 
   return (
     <div className="flex flex-col gap-4">
       <div className="border-b pb-4">
         {renderHeader ? (
-          renderHeader(headerProps)
+          renderHeader({ close: handleClose })
         ) : (
           <GenericSheetHeader
             close={handleClose}
             isEditing={isEditing}
-            isPending={isPending}
             isCreate={isCreate}
             setIsEditing={setIsEditing}
             entityType={objectType}
             displayName={displayName}
             isEditAllowed={isEditAllowed}
-            handleCancelEdit={handleCancelEdit}
-            formId={formId}
             onDelete={handleDelete}
+            titleAs="h2"
+            formActions={
+              showFormActions ? (
+                <SlideoutFormActions formId={formId} onCancel={handleCancelEdit} isPending={isPending} saveLabel={isCreate ? 'Create' : 'Save'} savingLabel={isCreate ? 'Creating...' : 'Saving...'} />
+              ) : undefined
+            }
           />
         )}
       </div>
@@ -271,7 +275,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
         </Form>
       )}
 
-      <CancelDialog isOpen={showCancelDialog} onConfirm={handleConfirmClose} onCancel={() => setShowCancelDialog(false)} />
+      <CancelDialog isOpen={!!pendingDiscard} onConfirm={handleConfirmDiscard} onCancel={() => setPendingDiscard(null)} />
     </div>
   )
 }

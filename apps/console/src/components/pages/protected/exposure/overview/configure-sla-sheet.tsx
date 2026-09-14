@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
-import { SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { useSlaDefinitionsWithFilter, useUpdateSlaDefinition } from '@/lib/graphql-hooks/sla-definition'
@@ -13,6 +12,7 @@ import { Pencil, Check, X, Loader2 } from 'lucide-react'
 import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 
 type Props = {
   isOpen: boolean
@@ -71,7 +71,9 @@ const ConfigureSlaSheet = ({ isOpen, onClose, readOnly = false }: Props) => {
     }
   }
 
-  const overrideHeader = <SheetTitle>{readOnly ? 'View SLA Definitions' : 'Configure SLA Definitions'}</SheetTitle>
+  const sheetTitle = readOnly ? 'View SLA Definitions' : 'Configure SLA Definitions'
+
+  const overrideHeader = <SlideoutHeader title={sheetTitle} onClose={onClose} />
 
   const overrideContent = (
     <div className="mt-6 space-y-1">

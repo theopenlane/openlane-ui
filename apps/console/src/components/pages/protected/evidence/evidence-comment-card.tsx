@@ -6,8 +6,8 @@ import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import EvidenceCommentSheet from './evidence-comments-sheet'
 import { Card } from '@repo/ui/cardpanel'
-import { Link, PanelRightClose, PanelRightOpen } from 'lucide-react'
-import { SheetContent, SheetHeader, Sheet } from '@repo/ui/sheet'
+import { PanelRightOpen } from 'lucide-react'
+import { SheetContent, Sheet } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
@@ -16,6 +16,7 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 import { formatDateTime } from '@/utils/date'
 import { resolveAuthor } from '@/lib/authors'
 import { AuthorDisplay } from '@/components/shared/user-display/author-cell'
+import { copyLinkMenuAction, SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 
 type TEvidenceCommentsCardProps = {
   evidenceId: string
@@ -93,7 +94,7 @@ const EvidenceCommentsCard: React.FC<TEvidenceCommentsCardProps> = ({ evidenceId
           {totalComments > 0 && <span className="inline-flex items-center justify-center min-w-5 h-5 text-xs rounded-full bg-secondary bg-rounded">{totalComments}</span>}
         </div>
 
-        <Button type="button" className="h-8 p-2" variant="secondary" icon={<PanelRightOpen />} onClick={handleOpenSheet}>
+        <Button type="button" variant="secondary" icon={<PanelRightOpen />} onClick={handleOpenSheet}>
           View & Add Comments
         </Button>
       </div>
@@ -128,21 +129,7 @@ const EvidenceCommentsCard: React.FC<TEvidenceCommentsCardProps> = ({ evidenceId
       )}
 
       <Sheet open={sheetOpen} onOpenChange={handleOpenChange}>
-        <SheetContent
-          header={
-            <SheetHeader>
-              <div className="flex items-center justify-between">
-                <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
-
-                <div className="flex justify-end gap-2">
-                  <Button icon={<Link />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
-                    Copy link
-                  </Button>
-                </div>
-              </div>
-            </SheetHeader>
-          }
-        >
+        <SheetContent header={<SlideoutHeader title="Comments" onClose={() => handleOpenChange(false)} menuActions={[copyLinkMenuAction(handleCopyLink)]} />}>
           <EvidenceCommentSheet evidenceId={evidenceId} />
         </SheetContent>
       </Sheet>

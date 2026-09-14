@@ -4,26 +4,27 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { FormProvider, useForm, useController, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { PanelRightClose, Trash2, LoaderCircle } from 'lucide-react'
+import { LoaderCircle } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
+import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ColorInput } from '@/components/shared/color-input/color-input'
 import { normalizeHexColor } from '@/utils/normalizeHexColor'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-import { useCustomTypeEnum, useCreateCustomTypeEnum, useUpdateCustomTypeEnum, useDeleteCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCustomTypeEnum, useCreateCustomTypeEnum, useUpdateCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enum'
 import { ENUM_GROUP_MAP } from './custom-enums-config'
-import { SaveButton } from '@/components/shared/save-button/save-button'
+import { SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
+import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+
+const ENUM_FORM_ID = 'enumForm'
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -59,7 +60,6 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
   const id = params.get('id')
   const isEditMode = !!id
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [open, setOpen] = useState(false)
 
   const objectTypeOptions = useMemo(() => {
@@ -73,7 +73,6 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
   const { data: enumData, isLoading: isLoadingDetails } = useCustomTypeEnum(id)
   const { mutateAsync: createEnum, isPending: isCreating } = useCreateCustomTypeEnum()
   const { mutateAsync: updateEnum, isPending: isUpdating } = useUpdateCustomTypeEnum()
-  const { mutateAsync: deleteEnum, isPending: isDeleting } = useDeleteCustomTypeEnum()
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -161,19 +160,6 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
     }
   }
 
-  const handleDelete = async () => {
-    if (!id) return
-    try {
-      await deleteEnum(id)
-      successNotification({ title: 'Enum deleted' })
-      setDeleteDialogOpen(false)
-      handleOpenChange(false)
-      resetPagination()
-    } catch (err) {
-      errorNotification({ title: 'Error deleting', description: parseErrorMessage(err) })
-    }
-  }
-
   useEffect(() => {
     if (!id && !isCreate) {
       setOpen(false)
@@ -207,27 +193,30 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
 
   const isPending = isCreating || isUpdating
 
+  const enumHeading = isCreate ? `Create ${selectedEnumType || ''} Enum` : `Update ${selectedEnumType || ''} Enum`
+
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent side="right" className="w-[420px] sm:w-[480px] p-0 flex flex-col">
-        <SheetHeader className="p-6 border-b">
-          <div className="flex items-center justify-between">
-            <PanelRightClose size={18} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
-            <div className="flex items-center gap-2">
-              {isEditMode && (
-                <Button variant="secondary" onClick={() => setDeleteDialogOpen(true)} icon={<Trash2 size={14} />} disabled={isPending || isDeleting}>
-                  Delete
-                </Button>
-              )}
-              <SaveButton onClick={handleSubmit(onSubmit)} isSaving={isPending} disabled={isPending} />
-            </div>
-          </div>
-          <div className="mt-4">
-            <SheetTitle>{isCreate ? `Create ${selectedEnumType || ''} Enum` : `Update ${selectedEnumType || ''} Enum`}</SheetTitle>
-            <SheetDescription />
-          </div>
-        </SheetHeader>
-
+      <SheetContent
+        aria-describedby={undefined}
+        side="right"
+        className="w-[420px] sm:w-[480px] flex flex-col"
+        header={
+          <SlideoutHeader
+            title={enumHeading}
+            onClose={() => handleOpenChange(false)}
+            formActions={
+              <SlideoutFormActions
+                formId={ENUM_FORM_ID}
+                onCancel={() => handleOpenChange(false)}
+                isPending={isPending}
+                saveLabel={isCreate ? 'Create' : 'Save'}
+                savingLabel={isCreate ? 'Creating...' : 'Saving...'}
+              />
+            }
+          />
+        }
+      >
         <div className="flex-1 overflow-y-auto">
           {isLoadingDetails ? (
             <div className="flex items-center justify-center h-64">
@@ -235,7 +224,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
             </div>
           ) : (
             <FormProvider {...formMethods}>
-              <form key={enumData?.customTypeEnum?.id || 'create'} className="p-6 space-y-6">
+              <form key={enumData?.customTypeEnum?.id || 'create'} id={ENUM_FORM_ID} onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="custom-enum-name">Name</Label>
                   <Input id="custom-enum-name" {...formMethods.register('name')} disabled={isPending || isEditMode} />
@@ -306,15 +295,6 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
             </FormProvider>
           )}
         </div>
-
-        <ConfirmationDialog
-          open={deleteDialogOpen}
-          onOpenChange={setDeleteDialogOpen}
-          title="Delete Enum Value"
-          description="Are you sure you want to delete this enum value? This action cannot be undone."
-          confirmationText={isDeleting ? 'Deleting...' : 'Delete'}
-          onConfirm={handleDelete}
-        />
       </SheetContent>
     </Sheet>
   )

@@ -795,11 +795,7 @@ const SSOPage = () => {
 
                       <div className="flex justify-end gap-2 pt-2">
                         <CancelButton onClick={handleCancel}></CancelButton>
-                        <SaveButton
-                          variant={isSuccess ? 'success' : 'primary'}
-                          title={isPending ? 'Saving Changes' : isSuccess ? 'Saved' : 'Save Changes'}
-                          disabled={!form.formState.isDirty || isPending}
-                        />
+                        <SaveButton variant={isSuccess ? 'success' : 'primary'} title={isPending ? 'Saving...' : isSuccess ? 'Saved' : 'Save'} disabled={!form.formState.isDirty || isPending} />
                       </div>
                     </form>
                   </Form>

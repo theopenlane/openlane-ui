@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import { useFindingSheetConfig } from './hooks/use-finding-sheet-config'
 import { useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
@@ -87,10 +87,20 @@ const ViewFindingSheet: React.FC<Props> = ({ entityId, onClose }) => {
   const handleCloseAfterCreate = () => {
     setIsTrackingRemediation(false)
   }
+  const handleClose = () => {
+    handleStopTracking()
+    onClose()
+  }
+
+  useEffect(() => {
+    setIsTrackingRemediation(false)
+    setTrackingDefaultTitle(undefined)
+    setTrackingDefaultInstructions(undefined)
+  }, [entityId])
 
   return (
     <GenericDetailsSheet
-      onClose={onClose}
+      onClose={handleClose}
       basePath="/exposure/findings"
       {...sheetConfig}
       overrideContent={
@@ -105,7 +115,7 @@ const ViewFindingSheet: React.FC<Props> = ({ entityId, onClose }) => {
           />
         ) : undefined
       }
-      overrideHeader={isTrackingRemediation ? <TrackRemediationHeader onBack={handleStopTracking} isPending={isRemediationPending} /> : undefined}
+      overrideHeader={isTrackingRemediation && entityId ? <TrackRemediationHeader onBack={handleStopTracking} onClose={handleClose} isPending={isRemediationPending} /> : undefined}
     />
   )
 }
