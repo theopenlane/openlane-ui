@@ -8,6 +8,7 @@ import { type Value } from 'platejs'
 import { docsHelpAvailable } from '@repo/dally/ai'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { plainTextToPlateValue } from '@/components/shared/plate/plate-utils'
 import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 import { useGetAllControlImplementations } from '@/lib/graphql-hooks/control-implementation'
@@ -83,7 +84,7 @@ const PublicRepresentationDialog: React.FC<PublicRepresentationDialogProps> = ({
         return
       }
       setDraft(text)
-      setValue(text)
+      setValue(plainTextToPlateValue(text))
     } catch {
       errorNotification({ title: 'Suggestion failed', description: 'Could not reach the suggestion service. Please try again.' })
     }

@@ -99,8 +99,21 @@ const decodeEntity = (entity: string): string | undefined => {
   return fromCodePoint(entity[1] === 'x' || entity[1] === 'X' ? Number.parseInt(entity.slice(2), 16) : Number(entity.slice(1)))
 }
 
-const stripMarkup = (value: string): string =>
-  (HAS_EMBEDDED.test(value) ? value.replace(EMBEDDED, '') : value).replace(MARKUP, (_markup, tagName: string | undefined) => (tagName && BLOCK_TAGS.has(tagName.toLowerCase()) ? '\n' : ''))
+const replaceTag = (_markup: string, tagName: string | undefined): string => (tagName && BLOCK_TAGS.has(tagName.toLowerCase()) ? '\n' : '')
+
+const stripMarkupOnce = (value: string): string => (HAS_EMBEDDED.test(value) ? value.replace(EMBEDDED, '') : value).replace(MARKUP, replaceTag)
+
+const stripMarkup = (value: string): string => {
+  let previous = value
+  let current = stripMarkupOnce(value)
+
+  while (current !== previous) {
+    previous = current
+    current = stripMarkupOnce(current)
+  }
+
+  return current
+}
 
 const decodeEntities = (value: string): string => value.replace(ENTITY, (match, entity: string) => decodeEntity(entity) ?? match)
 

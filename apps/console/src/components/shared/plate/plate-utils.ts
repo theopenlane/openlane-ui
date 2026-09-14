@@ -12,6 +12,8 @@ const deserializeToPlate = (input: string): { editor: SlateEditor; nodes: Value 
 
 export const stringToPlateValue = (input: string | null | undefined): Value | null => (input ? deserializeToPlate(input).nodes : null)
 
+export const plainTextToPlateValue = (input: string | null | undefined): Value => (input ?? '').split(/\r\n?|\n/).map((line) => ({ type: KEYS.p, children: [{ text: line }] }))
+
 export const isPlateValueEmpty = (value: Value | string | undefined | null, editor?: SlateEditor): boolean => {
   if (!value) return true
 
