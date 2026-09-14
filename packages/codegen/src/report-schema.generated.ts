@@ -482,8 +482,6 @@ export const REPORT_EDGE_FIELDS: Record<string, TReportField[]> = {
     { name: 'url', kind: 'string' },
   ],
   TrustCenterFAQ: [
-    { name: 'categoryID', kind: 'id' },
-    { name: 'categoryName', kind: 'string' },
     { name: 'createdAt', kind: 'time' },
     { name: 'createdBy', kind: 'string' },
     { name: 'displayOrder', kind: 'int' },

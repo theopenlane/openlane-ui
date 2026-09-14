@@ -10757,9 +10757,6 @@ export interface CreateTrustCenterEntityInput {
  */
 export interface CreateTrustCenterFaqInput {
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  categoryID?: InputMaybe<Scalars['ID']['input']>
-  /** the category of the trust_center_faq */
-  categoryName?: InputMaybe<Scalars['String']['input']>
   createNote?: InputMaybe<CreateNoteInput>
   /** display order of the FAQ */
   displayOrder?: InputMaybe<Scalars['Int']['input']>
@@ -48389,11 +48386,6 @@ export interface TrustCenterEntityWhereInput {
 export interface TrustCenterFaq extends Node {
   __typename?: 'TrustCenterFAQ'
   blockedGroups: GroupConnection
-  category?: Maybe<CustomTypeEnum>
-  /** the category of the trust_center_faq */
-  categoryID?: Maybe<Scalars['ID']['output']>
-  /** the category of the trust_center_faq */
-  categoryName?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** display order of the FAQ */
@@ -48530,30 +48522,6 @@ export interface TrustCenterFaqUpdatePayload {
  */
 export interface TrustCenterFaqWhereInput {
   and?: InputMaybe<Array<TrustCenterFaqWhereInput>>
-  /** category_id field predicates */
-  categoryID?: InputMaybe<Scalars['ID']['input']>
-  categoryIDContains?: InputMaybe<Scalars['ID']['input']>
-  categoryIDContainsFold?: InputMaybe<Scalars['ID']['input']>
-  categoryIDEqualFold?: InputMaybe<Scalars['ID']['input']>
-  categoryIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
-  categoryIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
-  categoryIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  categoryIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  categoryIDNEQ?: InputMaybe<Scalars['ID']['input']>
-  categoryIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  categoryIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** category_name field predicates */
-  categoryName?: InputMaybe<Scalars['String']['input']>
-  categoryNameContains?: InputMaybe<Scalars['String']['input']>
-  categoryNameContainsFold?: InputMaybe<Scalars['String']['input']>
-  categoryNameEqualFold?: InputMaybe<Scalars['String']['input']>
-  categoryNameHasPrefix?: InputMaybe<Scalars['String']['input']>
-  categoryNameHasSuffix?: InputMaybe<Scalars['String']['input']>
-  categoryNameIn?: InputMaybe<Array<Scalars['String']['input']>>
-  categoryNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  categoryNameNEQ?: InputMaybe<Scalars['String']['input']>
-  categoryNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  categoryNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -48586,9 +48554,6 @@ export interface TrustCenterFaqWhereInput {
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
-  /** category edge predicates */
-  hasCategory?: InputMaybe<Scalars['Boolean']['input']>
-  hasCategoryWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -56278,12 +56243,7 @@ export interface UpdateTrustCenterFaqInput {
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addComment?: InputMaybe<CreateNoteInput>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  categoryID?: InputMaybe<Scalars['ID']['input']>
-  /** the category of the trust_center_faq */
-  categoryName?: InputMaybe<Scalars['String']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
-  clearCategory?: InputMaybe<Scalars['Boolean']['input']>
-  clearCategoryName?: InputMaybe<Scalars['Boolean']['input']>
   clearDisplayOrder?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceLink?: InputMaybe<Scalars['Boolean']['input']>
