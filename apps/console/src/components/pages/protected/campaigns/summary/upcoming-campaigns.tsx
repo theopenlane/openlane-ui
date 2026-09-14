@@ -26,10 +26,10 @@ const UpcomingCampaigns: React.FC<TUpcomingCampaignsProps> = ({ campaigns }) => 
     <Card className="px-5 py-4">
       <h3 className="text-sm font-medium">Upcoming</h3>
       <p className="text-xs text-muted-foreground">Campaigns scheduled to launch or run next.</p>
-      <ul className="mt-3 divide-y">
+      <ul className="mt-3 -mx-2 divide-y">
         {campaigns.map((campaign) => (
           <li key={campaign.id}>
-            <Link href={getHrefForObjectType('campaigns', { id: campaign.id })} className="flex items-center justify-between gap-4 py-3 hover:bg-muted/40">
+            <Link href={getHrefForObjectType('campaigns', { id: campaign.id })} className="flex items-center justify-between gap-4 rounded-md px-2 py-3 transition-colors hover:bg-muted/40">
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">{campaign.name}</p>
                 <p className="truncate text-xs text-muted-foreground">
