@@ -6,7 +6,7 @@ import { EditorStatic } from '@repo/ui/components/ui/editor-static.tsx'
 import { ThemeAwareBaseFontBackgroundColorPlugin, ThemeAwareBaseFontColorPlugin } from '@repo/ui/components/editor/plugins/font-base-kit.tsx'
 import { createSlateEditor, type Value } from 'platejs'
 import { isPlateValueEmpty, trimPlateValue } from './plate-utils'
-import { PlateStatic, serializeHtml } from 'platejs/static'
+import { PlateStatic } from 'platejs/static'
 
 type Detected = 'markdown' | 'html' | 'slate-json' | 'text'
 
@@ -91,12 +91,10 @@ const usePlateEditor = () => {
     switch (fmt) {
       case 'markdown':
         return editor.api.markdown?.serialize?.()
-      default:
-        return await serializeHtml(editor, {
-          editorComponent: EditorStatic,
-          stripClassNames: false,
-          stripDataAttributes: false,
-        })
+      default: {
+        const { renderToStaticMarkup } = await import('react-dom/server')
+        return renderToStaticMarkup(<EditorStatic editor={editor} />)
+      }
     }
   }, [])
 
