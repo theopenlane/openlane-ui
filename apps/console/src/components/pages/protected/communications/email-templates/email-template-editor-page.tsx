@@ -7,6 +7,7 @@ import { Button } from '@repo/ui/button'
 import { Switch } from '@repo/ui/switch'
 import { PageHeading } from '@repo/ui/page-heading'
 import { SaveIcon } from 'lucide-react'
+import { cn } from '@repo/ui/lib/utils'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useCreateEmailTemplate, useUpdateEmailTemplate, useEmailTemplate, useEmailTemplateCatalog, usePreviewEmailTemplateHtml } from '@/lib/graphql-hooks/email-template'
 import { useNotification } from '@/hooks/useNotification'
@@ -19,12 +20,12 @@ import { EmailTemplatePreview } from './email-template-preview'
 
 const LIST_PATH = '/automation/email-templates'
 
-const EditorCard: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <div className="rounded-lg border border-border bg-card overflow-hidden">
-    <div className="px-4 py-3">
+const EditorCard: React.FC<{ title: string; children: React.ReactNode; className?: string; bodyClassName?: string }> = ({ title, children, className, bodyClassName }) => (
+  <div className={cn('flex flex-col rounded-lg border border-border bg-card overflow-hidden', className)}>
+    <div className="shrink-0 px-4 py-3">
       <span className="text-sm font-semibold">{title}</span>
     </div>
-    <div className="border-t border-border px-4 py-4">{children}</div>
+    <div className={cn('min-h-0 border-t border-border px-4 py-4', bodyClassName)}>{children}</div>
   </div>
 )
 
@@ -189,8 +190,8 @@ export const EmailTemplateEditorPage: React.FC = () => {
             )}
           </div>
 
-          <div className="xl:sticky xl:top-6 min-w-0">
-            <EditorCard title="Preview">
+          <div className="xl:sticky xl:top-6 min-w-0 flex flex-col xl:max-h-[calc(100vh-13rem)]">
+            <EditorCard title="Preview" className="min-h-0" bodyClassName="flex flex-1 flex-col">
               {mounted ? (
                 <EmailTemplatePreview previewHtml={previewHtml} isFetching={isPreviewFetching} errorMessage={previewErrorMessage} isCatalogDrift={isCatalogDrift} selectedKey={selectedKey} />
               ) : (
