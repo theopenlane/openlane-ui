@@ -12,7 +12,6 @@ import { Switch } from '@repo/ui/switch'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination'
-import { EXCLUDE_TRUST_CENTER_STANDARD_WHERE } from '@/constants/standards'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { BookUp2, PencilIcon, SquarePlus, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
@@ -56,14 +55,13 @@ export default function FrameworksPage() {
   const canEditCompliance = hasPermission(tcPermission?.roles, AccessEnum.CanEditTrustCenterCompliance, session)
 
   const { compliances, isError: compliancesError, isFetched: compliancesFetched } = useGetTrustCenterCompliances()
-  const baseWhere = mergeWhere<StandardWhereInput>([EXCLUDE_TRUST_CENTER_STANDARD_WHERE, isChecked ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } : undefined])
+  const baseWhere: StandardWhereInput | undefined = isChecked ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } : undefined
 
   const sessionResolved = sessionStatus !== 'loading'
 
   const { standards: recommendedStandards, isFetched: recommendedFetched } = useGetRecommendedStandards({
     where: mergeWhere<StandardWhereInput>([baseWhere, { hasControlsWith: [{ hasOwnerWith: [{ id: currentOrgId }] }] }]),
     enabled: !!currentOrgId,
-    includeSystemStandards: true,
   })
 
   const recommendedStandardsIDs = useMemo(() => recommendedStandards.map((s) => s.id), [recommendedStandards])
@@ -80,7 +78,6 @@ export default function FrameworksPage() {
     where,
     pageSize: cardPagination.pageSize,
     enabled: sessionResolved && (!currentOrgId || recommendedFetched),
-    includeSystemStandards: true,
   })
 
   const initialLoading = !compliancesFetched || !standardsFetched

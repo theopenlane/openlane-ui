@@ -23,13 +23,9 @@ export const OPENLANE_SYSTEM_FRAMEWORKS = OPENLANE_SYSTEM_STANDARDS.map((systemS
 
 const OPENLANE_SYSTEM_STANDARD_SHORT_NAMES = OPENLANE_SYSTEM_STANDARDS.map((systemStandard) => systemStandard.shortName)
 
-const excludeFrameworksWhere = (frameworks: readonly string[]): StandardWhereInput => ({
-  or: [{ frameworkIsNil: true }, { frameworkNotIn: [...frameworks] }],
-})
-
-export const EXCLUDE_SYSTEM_STANDARDS_WHERE = excludeFrameworksWhere(OPENLANE_SYSTEM_FRAMEWORKS)
-
-export const EXCLUDE_TRUST_CENTER_STANDARD_WHERE = excludeFrameworksWhere([OPENLANE_TRUST_CENTER_STANDARD.framework])
+export const EXCLUDE_SYSTEM_STANDARDS_WHERE: StandardWhereInput = {
+  or: [{ frameworkIsNil: true }, { frameworkNotIn: OPENLANE_SYSTEM_FRAMEWORKS }],
+}
 
 export const EXCLUDE_SYSTEM_FRAMEWORK_CONTROLS_WHERE: ControlWhereInput = {
   or: [{ referenceFrameworkIsNil: true }, { referenceFrameworkNotIn: OPENLANE_SYSTEM_STANDARD_SHORT_NAMES }],
