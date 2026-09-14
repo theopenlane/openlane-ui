@@ -1,3 +1,5 @@
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 import { type UseFormReturn } from 'react-hook-form'
 import { GripVertical, Pencil, Trash2, ExternalLink } from 'lucide-react'
 import { Input } from '@repo/ui/input'
@@ -50,7 +52,7 @@ export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDele
                 <Label>Reference Link</Label>
                 <Input className="bg-background text-sm" placeholder="https://..." {...editForm.register('referenceLink')} />
                 {editForm.formState.errors.referenceLink && <p className="text-red-500 text-sm">{editForm.formState.errors.referenceLink.message}</p>}
-                <CategoryField objectType="trust_center_faq" isEditing canCreate={canEdit} />
+                <CategoryField objectType={objectToSnakeCase(ObjectTypes.TRUST_CENTER_FAQ)} isEditing canCreate={canEdit} />
                 <div className="flex items-center justify-end">
                   <div className="flex gap-2">
                     <CancelButton onClick={onCancelEdit}></CancelButton>

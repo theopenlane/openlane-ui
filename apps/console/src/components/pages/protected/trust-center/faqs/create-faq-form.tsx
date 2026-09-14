@@ -1,3 +1,5 @@
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 import { Button } from '@repo/ui/button'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
@@ -73,7 +75,7 @@ export function CreateFaqForm({ disabled, isCreating, onSubmit }: CreateFaqFormP
             />
 
             <div className="mt-6">
-              <CategoryField objectType="trust_center_faq" isEditing canCreate={!disabled} />
+              <CategoryField objectType={objectToSnakeCase(ObjectTypes.TRUST_CENTER_FAQ)} isEditing canCreate={!disabled} />
             </div>
 
             <div className="flex items-center justify-end pt-4">

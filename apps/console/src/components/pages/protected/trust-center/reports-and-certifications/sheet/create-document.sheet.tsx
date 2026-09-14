@@ -1,5 +1,6 @@
 'use client'
 
+import { objectToSnakeCase } from '@/utils/strings'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
@@ -280,7 +281,7 @@ export const CreateDocumentSheet: React.FC = () => {
           <FormProvider {...formMethods}>
             <form id="document-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
               <TitleField isEditing={isEditing || isCreateMode} />
-              <CategoryField objectType="trust_center_doc" isEditing={isEditing || isCreateMode} canCreate={isEditAllowed || canCreateDoc} />
+              <CategoryField objectType={objectToSnakeCase(ObjectTypes.TRUST_CENTER_DOC)} isEditing={isEditing || isCreateMode} canCreate={isEditAllowed || canCreateDoc} />
               <VisibilityField isEditing={isEditing || isCreateMode} />
               {isCreateMode && visibilityValue === TrustCenterDocTrustCenterDocumentVisibility.PROTECTED && !hasNdaTemplate && (
                 <Callout variant="warning" compact>

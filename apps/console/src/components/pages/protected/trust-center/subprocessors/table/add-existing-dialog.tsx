@@ -1,5 +1,7 @@
 'use client'
 
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 import React, { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -120,7 +122,7 @@ export const AddExistingDialog = ({
           <form id="add-existing-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5 py-4">
             <SubprocessorSelectField isEditing={true} createdSubprocessor={createdSubprocessor} />
             <CountriesField isEditing={true} />
-            <CategoryField objectType="trust_center_subprocessor" isEditing={true} canCreate={canEditOrg} />
+            <CategoryField objectType={objectToSnakeCase(ObjectTypes.TRUST_CENTER_SUBPROCESSOR)} isEditing={true} canCreate={canEditOrg} />
           </form>
         </FormProvider>
 

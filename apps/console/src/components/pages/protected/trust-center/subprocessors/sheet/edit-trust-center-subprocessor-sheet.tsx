@@ -1,5 +1,7 @@
 'use client'
 
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 import React, { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import type { Resolver } from 'react-hook-form'
@@ -211,7 +213,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
             <NameField isEditing={false} />
             <DescriptionField isEditing={isEditable} />
             <CountriesField isEditing />
-            <CategoryField objectType="trust_center_subprocessor" isEditing canCreate={canEditOrg} />
+            <CategoryField objectType={objectToSnakeCase(ObjectTypes.TRUST_CENTER_SUBPROCESSOR)} isEditing canCreate={canEditOrg} />
             <LogoField onFileUpload={handleLogoUpload} isEditing={isEditable} />
           </form>
         </FormProvider>
