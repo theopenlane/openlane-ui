@@ -70,10 +70,10 @@ const DeleteGroupDialog = ({ open, onOpenChange }: DeleteGroupDialogProps) => {
         </div>
 
         <DialogFooter className="flex gap-2">
+          <CancelButton onClick={() => onOpenChange(false)} />
           <Button variant="destructive" onClick={handleDelete}>
             Delete this group
           </Button>
-          <CancelButton onClick={() => onOpenChange(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>
