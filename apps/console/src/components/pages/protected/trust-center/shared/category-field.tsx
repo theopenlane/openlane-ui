@@ -1,22 +1,32 @@
 'use client'
 
-import { Controller, useFormContext } from 'react-hook-form'
-import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import { Label } from '@repo/ui/label'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { Label } from '@repo/ui/label'
+import { Controller, useFormContext } from 'react-hook-form'
 
-export const CategoryField = ({ isEditing, isCreateAllowed = false }: { isEditing: boolean; isCreateAllowed?: boolean }) => {
+interface CategoryFieldProps {
+  objectType: string
+  isEditing: boolean
+  canCreate?: boolean
+}
+
+export const CategoryField = ({ objectType, isEditing, canCreate = false }: CategoryFieldProps) => {
   const {
     control,
     formState: { errors },
     watch,
   } = useFormContext()
 
-  const { enumOptions, onCreateOption, isLoading } = useCreatableEnumOptions({
-    objectType: 'trust_center_subprocessor',
+  const {
+    enumOptions: options,
+    onCreateOption,
+    isLoading,
+  } = useCreatableEnumOptions({
+    objectType,
     field: 'kind',
-    isEditAllowed: isCreateAllowed,
+    isEditAllowed: canCreate,
   })
 
   const selectedValue = watch('category')
@@ -33,7 +43,7 @@ export const CategoryField = ({ isEditing, isCreateAllowed = false }: { isEditin
             render={({ field }) => (
               <CreatableCustomTypeEnumSelect
                 value={field.value}
-                options={enumOptions}
+                options={options}
                 onCreateOption={onCreateOption}
                 placeholder={isLoading ? 'Loading...' : 'Select or create category...'}
                 searchPlaceholder="Search category..."
@@ -47,7 +57,7 @@ export const CategoryField = ({ isEditing, isCreateAllowed = false }: { isEditin
         </>
       ) : (
         <div className="mt-1">
-          <CustomTypeEnumValue value={selectedValue || ''} options={enumOptions} placeholder="—" />
+          <CustomTypeEnumValue value={selectedValue || ''} options={options} placeholder="—" />
         </div>
       )}
     </div>

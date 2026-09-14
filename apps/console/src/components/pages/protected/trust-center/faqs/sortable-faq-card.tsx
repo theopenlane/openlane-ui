@@ -4,6 +4,8 @@ import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Label } from '@repo/ui/label'
+import { Form } from '@repo/ui/form'
+import { CategoryField } from '../shared/category-field'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { type TrustCenterFaqsNodeNonNull } from '@/lib/graphql-hooks/trust-center-faq'
@@ -37,23 +39,26 @@ export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDele
       <Card>
         <CardContent className="p-4">
           {isEditing ? (
-            <div className="space-y-3">
-              <Label>Question</Label>
-              <Input autoFocus className="bg-background text-sm" {...editForm.register('question')} />
-              {editForm.formState.errors.question && <p className="text-red-500 text-sm">{editForm.formState.errors.question.message}</p>}
-              <Label>Answer</Label>
-              <Textarea className="min-h-25 bg-background text-sm" {...editForm.register('answer')} />
-              {editForm.formState.errors.answer && <p className="text-red-500 text-sm">{editForm.formState.errors.answer.message}</p>}
-              <Label>Reference Link</Label>
-              <Input className="bg-background text-sm" placeholder="https://..." {...editForm.register('referenceLink')} />
-              {editForm.formState.errors.referenceLink && <p className="text-red-500 text-sm">{editForm.formState.errors.referenceLink.message}</p>}
-              <div className="flex items-center justify-end">
-                <div className="flex gap-2">
-                  <CancelButton onClick={onCancelEdit}></CancelButton>
-                  <SaveButton isSaving={isUpdating} onClick={onSaveEdit} disabled={isUpdating} />
+            <Form {...editForm}>
+              <div className="space-y-3">
+                <Label>Question</Label>
+                <Input autoFocus className="bg-background text-sm" {...editForm.register('question')} />
+                {editForm.formState.errors.question && <p className="text-red-500 text-sm">{editForm.formState.errors.question.message}</p>}
+                <Label>Answer</Label>
+                <Textarea className="min-h-25 bg-background text-sm" {...editForm.register('answer')} />
+                {editForm.formState.errors.answer && <p className="text-red-500 text-sm">{editForm.formState.errors.answer.message}</p>}
+                <Label>Reference Link</Label>
+                <Input className="bg-background text-sm" placeholder="https://..." {...editForm.register('referenceLink')} />
+                {editForm.formState.errors.referenceLink && <p className="text-red-500 text-sm">{editForm.formState.errors.referenceLink.message}</p>}
+                <CategoryField objectType="trust_center_faq" isEditing canCreate={canEdit} />
+                <div className="flex items-center justify-end">
+                  <div className="flex gap-2">
+                    <CancelButton onClick={onCancelEdit}></CancelButton>
+                    <SaveButton isSaving={isUpdating} onClick={onSaveEdit} disabled={isUpdating} />
+                  </div>
                 </div>
               </div>
-            </div>
+            </Form>
           ) : (
             <div className="flex gap-3">
               <button aria-label="Reorder FAQ" className="cursor-grab touch-none text-muted-foreground hover:text-foreground shrink-0 mt-1" {...attributes} {...listeners}>

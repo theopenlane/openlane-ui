@@ -10,7 +10,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SubprocessorSelectField } from '../sheet/form-fields/subprocessor-select-field'
 import { CountriesField } from '../sheet/form-fields/countries-field'
-import { CategoryField } from '../sheet/form-fields/category-field'
+import { CategoryField } from '../../shared/category-field'
 import { useCreateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessor'
 import { type CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -120,7 +120,7 @@ export const AddExistingDialog = ({
           <form id="add-existing-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5 py-4">
             <SubprocessorSelectField isEditing={true} createdSubprocessor={createdSubprocessor} />
             <CountriesField isEditing={true} />
-            <CategoryField isEditing={true} isCreateAllowed={canEditOrg} />
+            <CategoryField objectType="trust_center_subprocessor" isEditing={true} canCreate={canEditOrg} />
           </form>
         </FormProvider>
 

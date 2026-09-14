@@ -9180,6 +9180,7 @@ export interface TrustCenterFaQsWithFilterQuery {
         id: string
         noteID: string
         referenceLink: string | null
+        trustCenterFaqKindName: string | null
         trustCenterID: string | null
         updatedAt: any
         updatedBy: string | null
@@ -9202,6 +9203,7 @@ export interface TrustCenterFaqQuery {
     id: string
     noteID: string
     referenceLink: string | null
+    trustCenterFaqKindName: string | null
     trustCenterID: string | null
     updatedAt: any
     updatedBy: string | null

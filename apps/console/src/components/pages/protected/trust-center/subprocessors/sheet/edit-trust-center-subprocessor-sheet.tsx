@@ -15,7 +15,7 @@ import { useGetTrustCenterSubprocessorByID, useUpdateTrustCenterSubprocessor } f
 import { useUpdateSubprocessor } from '@/lib/graphql-hooks/subprocessor'
 import { type UpdateSubprocessorInput } from '@repo/codegen/src/schema'
 
-import { CategoryField } from './form-fields/category-field'
+import { CategoryField } from '../../shared/category-field'
 import { CountriesField } from './form-fields/countries-field'
 import { copyLinkMenuAction, SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
@@ -211,7 +211,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
             <NameField isEditing={false} />
             <DescriptionField isEditing={isEditable} />
             <CountriesField isEditing />
-            <CategoryField isEditing isCreateAllowed={canEditOrg} />
+            <CategoryField objectType="trust_center_subprocessor" isEditing canCreate={canEditOrg} />
             <LogoField onFileUpload={handleLogoUpload} isEditing={isEditable} />
           </form>
         </FormProvider>

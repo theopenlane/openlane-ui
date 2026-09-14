@@ -67,6 +67,7 @@ export default function FaqsPage() {
         input: {
           createNote: { title: values.question, text: values.answer },
           referenceLink: values.referenceLink || undefined,
+          trustCenterFaqKindName: values.category,
           displayOrder: highestOrder + 1,
           trustCenterID,
           noteID: '',
@@ -92,7 +93,7 @@ export default function FaqsPage() {
       })
       await updateFaq({
         updateTrustCenterFAQId: editingFaqId,
-        input: { referenceLink: values.referenceLink || undefined, clearReferenceLink: !values.referenceLink || undefined },
+        input: { referenceLink: values.referenceLink || undefined, clearReferenceLink: !values.referenceLink || undefined, trustCenterFaqKindName: values.category },
       })
       successNotification({ title: 'FAQ updated', description: 'The changes to your FAQ have been saved.' })
       setEditingFaqId(null)
@@ -118,6 +119,7 @@ export default function FaqsPage() {
     editForm.setValue('question', faq.note.title ?? '')
     editForm.setValue('answer', faq.note.text)
     editForm.setValue('referenceLink', faq.referenceLink ?? '')
+    editForm.setValue('category', faq.trustCenterFaqKindName ?? '')
   }
 
   const cancelEditing = () => {

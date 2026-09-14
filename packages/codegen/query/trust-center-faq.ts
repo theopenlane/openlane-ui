@@ -16,6 +16,7 @@ export const GET_ALL_TRUST_CENTER_FAQS = gql`
           }
           noteID
           referenceLink
+          trustCenterFaqKindName
           trustCenterID
           updatedAt
           updatedBy
@@ -40,6 +41,7 @@ export const TRUST_CENTER_FAQ = gql`
       id
       noteID
       referenceLink
+      trustCenterFaqKindName
       trustCenterID
       updatedAt
       updatedBy
