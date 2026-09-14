@@ -77,10 +77,6 @@ const NAMED_ENTITIES: Record<string, string> = {
 
 const HAS_CLOSING_TAG = /<\/[a-zA-Z][^\s>]*\s*>/
 
-const HAS_EMBEDDED = /<\/(?:script|style)\s*>/i
-
-const EMBEDDED = /<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi
-
 const MARKUP = /<!--[\s\S]*?-->|<![^>]*>|<\?[\s\S]*?\?>|<\/?([a-zA-Z][^\s/>]*)(?:"[^"]*"|'[^']*'|[^>"'])*>/g
 
 const ENTITY = /&(#\d+|#[xX][0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]*);/g
@@ -107,7 +103,6 @@ const stripMarkup = (value: string): string => {
 
   while (current !== previous) {
     previous = current
-    if (HAS_EMBEDDED.test(current)) current = current.replace(EMBEDDED, '')
     current = current.replace(MARKUP, replaceTag)
   }
 
