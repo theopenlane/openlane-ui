@@ -1368,6 +1368,8 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'url', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
   ],
   TrustCenterFAQ: [
+    { name: 'categoryID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'categoryName', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'displayOrder', kind: 'number', list: false, nonNull: false, listItemNonNull: false },
     { name: 'referenceLink', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'trustCenterFaqKindID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },

@@ -10757,6 +10757,9 @@ export interface CreateTrustCenterEntityInput {
  */
 export interface CreateTrustCenterFaqInput {
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  categoryID?: InputMaybe<Scalars['ID']['input']>
+  /** the category of the trust_center_faq */
+  categoryName?: InputMaybe<Scalars['String']['input']>
   createNote?: InputMaybe<CreateNoteInput>
   /** display order of the FAQ */
   displayOrder?: InputMaybe<Scalars['Int']['input']>
@@ -10870,6 +10873,10 @@ export interface CreateTrustCenterPreviewSettingInput {
   overview?: InputMaybe<Scalars['String']['input']>
   /** primary color for the trust center */
   primaryColor?: InputMaybe<Scalars['String']['input']>
+  /** secondary background color for the trust center */
+  secondaryBackgroundColor?: InputMaybe<Scalars['String']['input']>
+  /** secondary foreground color for the trust center */
+  secondaryForegroundColor?: InputMaybe<Scalars['String']['input']>
   /** theme mode for the trust center */
   themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
   /** title of the trust center */
@@ -23172,6 +23179,19 @@ export interface ImportDomainScanReviewAssetInput {
   website?: InputMaybe<Scalars['String']['input']>
 }
 
+/** brand design data retrieved from the domain scan */
+export interface ImportDomainScanReviewBrandDesignInput {
+  accentColor?: InputMaybe<Scalars['String']['input']>
+  backgroundColor?: InputMaybe<Scalars['String']['input']>
+  faviconURL?: InputMaybe<Scalars['String']['input']>
+  font?: InputMaybe<Scalars['String']['input']>
+  foregroundColor?: InputMaybe<Scalars['String']['input']>
+  logoURL?: InputMaybe<Scalars['String']['input']>
+  primaryColor?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColor?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColor?: InputMaybe<Scalars['String']['input']>
+}
+
 /** One accepted finding */
 export interface ImportDomainScanReviewFindingInput {
   /** the finding's category */
@@ -23186,6 +23206,8 @@ export interface ImportDomainScanReviewFindingInput {
 export interface ImportDomainScanReviewInput {
   /** the accepted assets */
   assets: Array<ImportDomainScanReviewAssetInput>
+  /** the accepted trust center branding, if any */
+  branding?: InputMaybe<ImportDomainScanReviewBrandDesignInput>
   /** the accepted findings */
   findings?: InputMaybe<Array<ImportDomainScanReviewFindingInput>>
   /** the accepted platforms, if any */
@@ -26428,7 +26450,7 @@ export interface Mutation {
   forceCompleteWorkflowInstance: WorkflowInstanceAdminPayload
   /**
    * Accept a domain scan review and asynchronously create the corresponding platform, system
-   * details, vendors, assets, and findings
+   * details, vendors, assets, findings and brand design details
    */
   importDomainScanReview: ImportDomainScanReviewPayload
   /** Launch a campaign and send emails to its targets */
@@ -48367,6 +48389,11 @@ export interface TrustCenterEntityWhereInput {
 export interface TrustCenterFaq extends Node {
   __typename?: 'TrustCenterFAQ'
   blockedGroups: GroupConnection
+  category?: Maybe<CustomTypeEnum>
+  /** the category of the trust_center_faq */
+  categoryID?: Maybe<Scalars['ID']['output']>
+  /** the category of the trust_center_faq */
+  categoryName?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** display order of the FAQ */
@@ -48503,6 +48530,30 @@ export interface TrustCenterFaqUpdatePayload {
  */
 export interface TrustCenterFaqWhereInput {
   and?: InputMaybe<Array<TrustCenterFaqWhereInput>>
+  /** category_id field predicates */
+  categoryID?: InputMaybe<Scalars['ID']['input']>
+  categoryIDContains?: InputMaybe<Scalars['ID']['input']>
+  categoryIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  categoryIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  categoryIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  categoryIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  categoryIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  categoryIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  categoryIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  categoryIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  categoryIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** category_name field predicates */
+  categoryName?: InputMaybe<Scalars['String']['input']>
+  categoryNameContains?: InputMaybe<Scalars['String']['input']>
+  categoryNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  categoryNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  categoryNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  categoryNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  categoryNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  categoryNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  categoryNameNEQ?: InputMaybe<Scalars['String']['input']>
+  categoryNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  categoryNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -48535,6 +48586,9 @@ export interface TrustCenterFaqWhereInput {
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** category edge predicates */
+  hasCategory?: InputMaybe<Scalars['Boolean']['input']>
+  hasCategoryWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -56224,7 +56278,12 @@ export interface UpdateTrustCenterFaqInput {
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addComment?: InputMaybe<CreateNoteInput>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  categoryID?: InputMaybe<Scalars['ID']['input']>
+  /** the category of the trust_center_faq */
+  categoryName?: InputMaybe<Scalars['String']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearCategory?: InputMaybe<Scalars['Boolean']['input']>
+  clearCategoryName?: InputMaybe<Scalars['Boolean']['input']>
   clearDisplayOrder?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceLink?: InputMaybe<Scalars['Boolean']['input']>
