@@ -5,7 +5,7 @@
   "minimumReleaseAge": "7 days",
   "packageRules": [
     {
-      "description": "Held at 0.2.0: patches/next-navigation-guard@0.2.0.patch is keyed to that exact version, and bun silently skips a patch whose key does not match the resolved version. Any bump must re-create the patch first.",
+      "description": "Held at 0.2.0: patches/next-navigation-guard@0.2.0.patch is keyed to that exact version, and bun silently skips a patch whose key does not match the resolved version. Any bump must re-create the patch first. The patch can be dropped once https://github.com/LayerXcom/next-navigation-guard/pull/61 is merged and released, and that PR also needs to cover the createHandlePopState deref in useInterceptPopState.",
       "matchPackageNames": ["next-navigation-guard"],
       "dependencyDashboardApproval": true
     }
