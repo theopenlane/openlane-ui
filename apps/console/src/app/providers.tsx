@@ -87,25 +87,25 @@ const Providers = ({ children }: ProvidersProps) => {
     )
   }
 
-  if (status === 'loading' && !data) {
-    return <Loading />
-  }
-
   return (
     <NavigationGuardProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        <QueryClientProvider client={queryClient}>
-          <WebSocketProvider>
-            <NotificationsProvider>
-              <BreadcrumbProvider>
-                {devrevChatEnabled && <InitPlugSDK />}
-                <AppTooltipProvider>{children}</AppTooltipProvider>
-                <NotificationToastContainer />
-              </BreadcrumbProvider>
-            </NotificationsProvider>
-          </WebSocketProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
+      {status === 'loading' && !data ? (
+        <Loading />
+      ) : (
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <QueryClientProvider client={queryClient}>
+            <WebSocketProvider>
+              <NotificationsProvider>
+                <BreadcrumbProvider>
+                  {devrevChatEnabled && <InitPlugSDK />}
+                  <AppTooltipProvider>{children}</AppTooltipProvider>
+                  <NotificationToastContainer />
+                </BreadcrumbProvider>
+              </NotificationsProvider>
+            </WebSocketProvider>
+          </QueryClientProvider>
+        </ThemeProvider>
+      )}
     </NavigationGuardProvider>
   )
 }
