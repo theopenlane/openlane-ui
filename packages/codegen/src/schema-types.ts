@@ -10870,6 +10870,10 @@ export interface CreateTrustCenterPreviewSettingInput {
   overview?: InputMaybe<Scalars['String']['input']>
   /** primary color for the trust center */
   primaryColor?: InputMaybe<Scalars['String']['input']>
+  /** secondary background color for the trust center */
+  secondaryBackgroundColor?: InputMaybe<Scalars['String']['input']>
+  /** secondary foreground color for the trust center */
+  secondaryForegroundColor?: InputMaybe<Scalars['String']['input']>
   /** theme mode for the trust center */
   themeMode?: InputMaybe<TrustCenterSettingTrustCenterThemeMode>
   /** title of the trust center */
@@ -23172,6 +23176,19 @@ export interface ImportDomainScanReviewAssetInput {
   website?: InputMaybe<Scalars['String']['input']>
 }
 
+/** brand design data retrieved from the domain scan */
+export interface ImportDomainScanReviewBrandDesignInput {
+  accentColor?: InputMaybe<Scalars['String']['input']>
+  backgroundColor?: InputMaybe<Scalars['String']['input']>
+  faviconURL?: InputMaybe<Scalars['String']['input']>
+  font?: InputMaybe<Scalars['String']['input']>
+  foregroundColor?: InputMaybe<Scalars['String']['input']>
+  logoURL?: InputMaybe<Scalars['String']['input']>
+  primaryColor?: InputMaybe<Scalars['String']['input']>
+  secondaryBackgroundColor?: InputMaybe<Scalars['String']['input']>
+  secondaryForegroundColor?: InputMaybe<Scalars['String']['input']>
+}
+
 /** One accepted finding */
 export interface ImportDomainScanReviewFindingInput {
   /** the finding's category */
@@ -23186,6 +23203,8 @@ export interface ImportDomainScanReviewFindingInput {
 export interface ImportDomainScanReviewInput {
   /** the accepted assets */
   assets: Array<ImportDomainScanReviewAssetInput>
+  /** the accepted trust center branding, if any */
+  branding?: InputMaybe<ImportDomainScanReviewBrandDesignInput>
   /** the accepted findings */
   findings?: InputMaybe<Array<ImportDomainScanReviewFindingInput>>
   /** the accepted platforms, if any */
@@ -26428,7 +26447,7 @@ export interface Mutation {
   forceCompleteWorkflowInstance: WorkflowInstanceAdminPayload
   /**
    * Accept a domain scan review and asynchronously create the corresponding platform, system
-   * details, vendors, assets, and findings
+   * details, vendors, assets, findings and brand design details
    */
   importDomainScanReview: ImportDomainScanReviewPayload
   /** Launch a campaign and send emails to its targets */

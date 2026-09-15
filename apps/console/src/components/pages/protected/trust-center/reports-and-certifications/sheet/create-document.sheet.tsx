@@ -15,7 +15,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { DocumentFiles } from './document-files'
 import { TitleField } from './form-fields/title-field'
-import { CategoryField } from './form-fields/category-field'
+import { CategoryField } from '../../shared/category-field'
 import { VisibilityField } from './form-fields/visibility-field'
 import { TagsField } from './form-fields/tags-field'
 import { FileField } from './form-fields/file-field'
@@ -62,7 +62,7 @@ export const CreateDocumentSheet: React.FC = () => {
   const { data: session } = useSession()
 
   const isEditAllowed = canEdit(permission?.roles, session)
-  const canCreateDoc = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument, session)
+  const canCreateCategory = hasPermission(orgPermission?.roles, AccessEnum.CanCreateCustomTypeEnum, session)
   const isDeleteAllowed = canDelete(permission?.roles)
 
   const [isEditing, setIsEditing] = useState(false)
@@ -280,7 +280,7 @@ export const CreateDocumentSheet: React.FC = () => {
           <FormProvider {...formMethods}>
             <form id="document-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
               <TitleField isEditing={isEditing || isCreateMode} />
-              <CategoryField isEditing={isEditing || isCreateMode} isCreateAllowed={isEditAllowed || canCreateDoc} />
+              <CategoryField objectType={ObjectTypes.TRUST_CENTER_DOC} isEditing={isEditing || isCreateMode} canCreate={canCreateCategory} />
               <VisibilityField isEditing={isEditing || isCreateMode} />
               {isCreateMode && visibilityValue === TrustCenterDocTrustCenterDocumentVisibility.PROTECTED && !hasNdaTemplate && (
                 <Callout variant="warning" compact>

@@ -15,7 +15,8 @@ import { useGetTrustCenterSubprocessorByID, useUpdateTrustCenterSubprocessor } f
 import { useUpdateSubprocessor } from '@/lib/graphql-hooks/subprocessor'
 import { type UpdateSubprocessorInput } from '@repo/codegen/src/schema'
 
-import { CategoryField } from './form-fields/category-field'
+import { CategoryField } from '../../shared/category-field'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { CountriesField } from './form-fields/countries-field'
 import { copyLinkMenuAction, SlideoutHeader } from '@/components/shared/crud-base/slideout-header'
 import { SlideoutFormActions } from '@/components/shared/crud-base/slideout-form-actions'
@@ -24,7 +25,8 @@ import { DescriptionField } from './form-fields/description-field'
 import { LogoField } from './form-fields/logo-field'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
+import { canEdit, hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
 
 const schema = z.object({
@@ -53,6 +55,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   const { data: orgPermission } = useOrganizationRoles()
   const { data: session } = useSession()
   const canEditOrg = canEdit(orgPermission?.roles, session)
+  const canCreateCategory = hasPermission(orgPermission?.roles, AccessEnum.CanCreateCustomTypeEnum, session)
 
   const { data } = useGetTrustCenterSubprocessorByID({ trustCenterSubprocessorId: trustCenterSubprocessorId || '' })
 
@@ -211,7 +214,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
             <NameField isEditing={false} />
             <DescriptionField isEditing={isEditable} />
             <CountriesField isEditing />
-            <CategoryField isEditing isCreateAllowed={canEditOrg} />
+            <CategoryField objectType={ObjectTypes.TRUST_CENTER_SUBPROCESSOR} isEditing canCreate={canCreateCategory} />
             <LogoField onFileUpload={handleLogoUpload} isEditing={isEditable} />
           </form>
         </FormProvider>

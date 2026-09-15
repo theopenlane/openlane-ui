@@ -1,19 +1,22 @@
-import { CircleHelp, Loader2 } from 'lucide-react'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { Button } from '@repo/ui/button'
+import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
-import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
-import useFormSchema from './hooks/use-form-schema'
+import { CircleHelp, Loader2 } from 'lucide-react'
 import type { FaqFormValues } from './hooks/use-form-schema'
+import useFormSchema from './hooks/use-form-schema'
+import { CategoryField } from '../shared/category-field'
 
 interface CreateFaqFormProps {
   disabled: boolean
   isCreating: boolean
   onSubmit: (values: FaqFormValues) => Promise<boolean>
+  canCreateCategory: boolean
 }
 
-export function CreateFaqForm({ disabled, isCreating, onSubmit }: CreateFaqFormProps) {
+export function CreateFaqForm({ disabled, isCreating, onSubmit, canCreateCategory }: CreateFaqFormProps) {
   const { form } = useFormSchema()
 
   const handleSubmit = async (values: FaqFormValues) => {
@@ -70,6 +73,10 @@ export function CreateFaqForm({ disabled, isCreating, onSubmit }: CreateFaqFormP
                 </FormItem>
               )}
             />
+
+            <div className="mt-6">
+              <CategoryField objectType={ObjectTypes.TRUST_CENTER_FAQ} isEditing canCreate={canCreateCategory} clearable />
+            </div>
 
             <div className="flex items-center justify-end pt-4">
               <Button type="submit" disabled={isCreating || disabled} icon={isCreating ? <Loader2 className="animate-spin" /> : <CircleHelp />} iconPosition="left">

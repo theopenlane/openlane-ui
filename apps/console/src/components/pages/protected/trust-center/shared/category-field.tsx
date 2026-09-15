@@ -1,22 +1,31 @@
 'use client'
 
-import { Controller, useFormContext } from 'react-hook-form'
-import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import { Label } from '@repo/ui/label'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { objectToSnakeCase } from '@/utils/strings'
+import type { ObjectTypes } from '@repo/codegen/src/type-names'
+import { Label } from '@repo/ui/label'
+import { Controller, useFormContext } from 'react-hook-form'
 
-export const CategoryField = ({ isEditing, isCreateAllowed = false }: { isEditing: boolean; isCreateAllowed?: boolean }) => {
+interface CategoryFieldProps {
+  objectType: ObjectTypes
+  isEditing: boolean
+  canCreate: boolean
+  clearable?: boolean
+}
+
+export const CategoryField = ({ objectType, isEditing, canCreate, clearable = false }: CategoryFieldProps) => {
   const {
     control,
     formState: { errors },
     watch,
-  } = useFormContext()
+  } = useFormContext<{ category?: string }>()
 
   const { enumOptions, onCreateOption, isLoading } = useCreatableEnumOptions({
-    objectType: 'trust_center_subprocessor',
+    objectType: objectToSnakeCase(objectType),
     field: 'kind',
-    isEditAllowed: isCreateAllowed,
+    isEditAllowed: canCreate,
   })
 
   const selectedValue = watch('category')
@@ -35,6 +44,7 @@ export const CategoryField = ({ isEditing, isCreateAllowed = false }: { isEditin
                 value={field.value}
                 options={enumOptions}
                 onCreateOption={onCreateOption}
+                clearable={clearable}
                 placeholder={isLoading ? 'Loading...' : 'Select or create category...'}
                 searchPlaceholder="Search category..."
                 disabled={isLoading}
@@ -43,7 +53,7 @@ export const CategoryField = ({ isEditing, isCreateAllowed = false }: { isEditin
             )}
           />
 
-          {errors.category && <p className="text-red-500 text-sm mt-1">{String(errors.category.message)}</p>}
+          {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>}
         </>
       ) : (
         <div className="mt-1">

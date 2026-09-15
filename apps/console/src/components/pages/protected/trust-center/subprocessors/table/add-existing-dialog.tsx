@@ -10,11 +10,13 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SubprocessorSelectField } from '../sheet/form-fields/subprocessor-select-field'
 import { CountriesField } from '../sheet/form-fields/countries-field'
-import { CategoryField } from '../sheet/form-fields/category-field'
+import { CategoryField } from '../../shared/category-field'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useCreateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessor'
 import { type CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useSession } from 'next-auth/react'
 
 const schema = z.object({
@@ -44,7 +46,7 @@ export const AddExistingDialog = ({
   const { successNotification, errorNotification } = useNotification()
   const { data: orgPermission } = useOrganizationRoles()
   const { data: session } = useSession()
-  const canEditOrg = canEdit(orgPermission?.roles, session)
+  const canCreateCategory = hasPermission(orgPermission?.roles, AccessEnum.CanCreateCustomTypeEnum, session)
 
   const { mutateAsync: createTCSubprocessor } = useCreateTrustCenterSubprocessor()
 
@@ -120,7 +122,7 @@ export const AddExistingDialog = ({
           <form id="add-existing-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5 py-4">
             <SubprocessorSelectField isEditing={true} createdSubprocessor={createdSubprocessor} />
             <CountriesField isEditing={true} />
-            <CategoryField isEditing={true} isCreateAllowed={canEditOrg} />
+            <CategoryField objectType={ObjectTypes.TRUST_CENTER_SUBPROCESSOR} isEditing={true} canCreate={canCreateCategory} />
           </form>
         </FormProvider>
 

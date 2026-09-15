@@ -100080,6 +100080,30 @@
             "deprecationReason": null
           },
           {
+            "name": "secondaryBackgroundColor",
+            "description": "secondary background color for the trust center",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "secondaryForegroundColor",
+            "description": "secondary foreground color for the trust center",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "themeMode",
             "description": "theme mode for the trust center",
             "type": {
@@ -217148,6 +217172,126 @@
       },
       {
         "kind": "INPUT_OBJECT",
+        "name": "ImportDomainScanReviewBrandDesignInput",
+        "description": "brand design data retrieved from the domain scan",
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "accentColor",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "backgroundColor",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "faviconURL",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "font",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "foregroundColor",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "logoURL",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "primaryColor",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "secondaryBackgroundColor",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "secondaryForegroundColor",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
         "name": "ImportDomainScanReviewFindingInput",
         "description": "One accepted finding",
         "isOneOf": false,
@@ -217220,6 +217364,18 @@
                   }
                 }
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "branding",
+            "description": "the accepted trust center branding, if any",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ImportDomainScanReviewBrandDesignInput",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -254591,7 +254747,7 @@
           },
           {
             "name": "importDomainScanReview",
-            "description": "Accept a domain scan review and asynchronously create the corresponding platform, system\ndetails, vendors, assets, and findings",
+            "description": "Accept a domain scan review and asynchronously create the corresponding platform, system\ndetails, vendors, assets, findings and brand design details",
             "args": [
               {
                 "name": "input",

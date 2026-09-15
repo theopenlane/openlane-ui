@@ -24,8 +24,9 @@ import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-ki
 import type { FaqFormValues } from './hooks/use-form-schema'
 import { CreateFaqForm } from './create-faq-form'
 import { SortableFaqCard } from './sortable-faq-card'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
+import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit, hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useSession } from 'next-auth/react'
 
@@ -41,6 +42,8 @@ export default function FaqsPage() {
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
   const { data: session } = useSession()
   const canEditTc = canEdit(tcPermission?.roles, session)
+  const { data: orgPermission } = useOrganizationRoles()
+  const canCreateCategory = hasPermission(orgPermission?.roles, AccessEnum.CanCreateCustomTypeEnum, session)
 
   const { trustCenterFaqsNodes } = useTrustCenterFaqsWithFilter({
     where: { hasTrustCenterWith: [{ id: trustCenterID }] },
@@ -67,6 +70,7 @@ export default function FaqsPage() {
         input: {
           createNote: { title: values.question, text: values.answer },
           referenceLink: values.referenceLink || undefined,
+          trustCenterFaqKindName: values.category || undefined,
           displayOrder: highestOrder + 1,
           trustCenterID,
           noteID: '',
@@ -92,7 +96,13 @@ export default function FaqsPage() {
       })
       await updateFaq({
         updateTrustCenterFAQId: editingFaqId,
-        input: { referenceLink: values.referenceLink || undefined, clearReferenceLink: !values.referenceLink || undefined },
+        input: {
+          referenceLink: values.referenceLink || undefined,
+          clearReferenceLink: !values.referenceLink || undefined,
+          trustCenterFaqKindName: values.category || undefined,
+          clearTrustCenterFaqKindName: !values.category || undefined,
+          clearTrustCenterFaqKind: !values.category || undefined,
+        },
       })
       successNotification({ title: 'FAQ updated', description: 'The changes to your FAQ have been saved.' })
       setEditingFaqId(null)
@@ -115,9 +125,12 @@ export default function FaqsPage() {
 
   const startEditing = (faq: TrustCenterFaqsNodeNonNull) => {
     setEditingFaqId(faq.id)
-    editForm.setValue('question', faq.note.title ?? '')
-    editForm.setValue('answer', faq.note.text)
-    editForm.setValue('referenceLink', faq.referenceLink ?? '')
+    editForm.reset({
+      question: faq.note.title ?? '',
+      answer: faq.note.text,
+      referenceLink: faq.referenceLink ?? '',
+      category: faq.trustCenterFaqKindName ?? '',
+    })
   }
 
   const cancelEditing = () => {
@@ -188,7 +201,7 @@ export default function FaqsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CreateFaqForm disabled={!!editingFaqId || !canEditTc} isCreating={isCreating} onSubmit={handleCreateSubmit} />
+        <CreateFaqForm disabled={!!editingFaqId || !canEditTc} isCreating={isCreating} onSubmit={handleCreateSubmit} canCreateCategory={canCreateCategory} />
 
         <div className="relative min-h-100">
           {orderedFaqs.length === 0 ? (
@@ -214,6 +227,7 @@ export default function FaqsPage() {
                       onSaveEdit={editForm.handleSubmit(handleUpdateSubmit)}
                       onCancelEdit={cancelEditing}
                       canEdit={canEditTc}
+                      canCreateCategory={canCreateCategory}
                     />
                   ))}
                 </div>

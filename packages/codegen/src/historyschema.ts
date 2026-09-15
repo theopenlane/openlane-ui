@@ -4506,6 +4506,8 @@ export interface IdentityHoldersWithFilterQuery {
   }
 }
 
+export type IdentityHolderOptionFieldsFragment = { id: string; email: string; fullName: string; identityHolderType: Types.IdentityHolderIdentityHolderType; isOpenlaneUser: boolean | null }
+
 export type GetIdentityHolderOptionsQueryVariables = Exact<{
   where?: Types.IdentityHolderWhereInput | null | undefined
   first?: number | null | undefined
@@ -4517,7 +4519,7 @@ export type GetIdentityHolderOptionsQueryVariables = Exact<{
 export interface GetIdentityHolderOptionsQuery {
   identityHolders: {
     totalCount: number
-    edges: Array<{ node: { id: string; email: string; fullName: string; identityHolderType: Types.IdentityHolderIdentityHolderType } | null } | null> | null
+    edges: Array<{ node: { id: string; email: string; fullName: string; identityHolderType: Types.IdentityHolderIdentityHolderType; isOpenlaneUser: boolean | null } | null } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
@@ -6076,6 +6078,8 @@ export interface GetPlatformByIdMinifiedQuery {
   platform: { id: string; name: string; displayID: string }
 }
 
+export type PlatformDiagramFileFieldsFragment = { id: string; providedFileName: string; presignedURL: string | null; createdAt: any }
+
 export type PlatformQueryVariables = Exact<{
   platformId: string
 }>
@@ -6205,9 +6209,9 @@ export interface PlatformQuery {
         } | null
       } | null> | null
     }
-    architectureDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null } | null } | null> | null }
-    dataFlowDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null } | null } | null> | null }
-    trustBoundaryDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; base64: string | null } | null } | null> | null }
+    architectureDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null; createdAt: any } | null } | null> | null }
+    dataFlowDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null; createdAt: any } | null } | null> | null }
+    trustBoundaryDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null; createdAt: any } | null } | null> | null }
   }
 }
 
@@ -9148,6 +9152,7 @@ export interface TrustCenterFaQsWithFilterQuery {
         id: string
         noteID: string
         referenceLink: string | null
+        trustCenterFaqKindName: string | null
         trustCenterID: string | null
         updatedAt: any
         updatedBy: string | null
@@ -9170,6 +9175,7 @@ export interface TrustCenterFaqQuery {
     id: string
     noteID: string
     referenceLink: string | null
+    trustCenterFaqKindName: string | null
     trustCenterID: string | null
     updatedAt: any
     updatedBy: string | null
