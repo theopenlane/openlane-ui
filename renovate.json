@@ -2,12 +2,5 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
   "labels": ["dependencies"],
-  "minimumReleaseAge": "7 days",
-  "packageRules": [
-    {
-      "description": "Single-maintainer fork of LayerXcom/next-navigation-guard, published manually with no npm provenance attestation (~1.9k weekly downloads). Adopted because upstream still ships an unguarded window.history.state deref in historyAugmentation that crashes the console, and its useInterceptPopState default parameter does not fire on an explicit null state. Upstream fix https://github.com/LayerXcom/next-navigation-guard/pull/61 is still unmerged. Verify any bump reproduces from source before approving, and revisit switching back if upstream releases a version with #61 merged.",
-      "matchPackageNames": ["nextjs-nav-guard"],
-      "dependencyDashboardApproval": true
-    }
-  ]
+  "minimumReleaseAge": "7 days"
 }
