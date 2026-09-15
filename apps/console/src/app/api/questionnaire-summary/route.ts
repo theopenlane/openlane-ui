@@ -1,8 +1,9 @@
 import { auth } from '@/lib/auth/auth'
-import { GoogleGenAI } from '@google/genai'
 import { type NextRequest, NextResponse } from 'next/server'
-import { aiEnabled, googleAPIKey, googleAIRegion, googleProjectID, geminiModelName } from '@repo/dally/ai'
+import { aiEnabled, geminiModelName } from '@repo/dally/ai'
 import { z } from 'zod'
+import { getVertexGenAI } from '@/lib/google/vertex-genai'
+import { modelArmorErrorResponse } from '@/lib/model-armor/responses'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -42,8 +43,6 @@ const summaryResponseSchema = z.object({
   }),
 })
 
-let genAIClient: GoogleGenAI | null | undefined
-
 const truncateText = (value: string, maxLength: number = MAX_STRING_LENGTH): string => {
   return value.length > maxLength ? `${value.slice(0, maxLength)}...` : value
 }
@@ -75,34 +74,6 @@ const sanitizeValue = (value: unknown, depth = 0): unknown => {
   }
 
   return truncateText(String(value))
-}
-
-const getGenAI = (): GoogleGenAI | null => {
-  if (genAIClient !== undefined) {
-    return genAIClient
-  }
-
-  if (!aiEnabled || !googleProjectID || !googleAPIKey) {
-    genAIClient = null
-    return genAIClient
-  }
-
-  try {
-    const creds = JSON.parse(Buffer.from(googleAPIKey, 'base64').toString('utf8'))
-    genAIClient = new GoogleGenAI({
-      vertexai: true,
-      project: googleProjectID,
-      location: googleAIRegion,
-      googleAuthOptions: {
-        credentials: creds,
-      },
-    })
-  } catch (error) {
-    console.error('Questionnaire summary AI client initialization error:', error)
-    genAIClient = null
-  }
-
-  return genAIClient
 }
 
 const parseModelSummary = (rawText: string): SummaryResponse | null => {
@@ -191,7 +162,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const genAI = getGenAI()
+  const genAI = getVertexGenAI()
   if (!aiEnabled || !genAI) {
     return NextResponse.json({ error: 'AI features are not enabled' }, { status: 503 })
   }
@@ -223,6 +194,7 @@ export async function POST(req: NextRequest) {
         maxOutputTokens: 1024,
         responseMimeType: 'application/json',
         thinkingConfig: { thinkingBudget: 0 },
+        abortSignal: req.signal,
       },
     })
 
@@ -239,6 +211,9 @@ export async function POST(req: NextRequest) {
       },
     })
   } catch (error) {
+    const armorResponse = modelArmorErrorResponse(error)
+    if (armorResponse) return armorResponse
+
     if (error instanceof Error && error.message === 'PROMPT_TOO_LARGE') {
       return NextResponse.json({ error: 'Questionnaire payload is too large to summarize' }, { status: 413 })
     }

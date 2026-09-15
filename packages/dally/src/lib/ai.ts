@@ -19,6 +19,15 @@ export const docsHelpEnabled = aiEnabled && process.env.NEXT_PUBLIC_DOCS_HELP_EN
 // client-visible switch for the "need help" trigger
 export const docsHelpAvailable = docsHelpEnabled || docsHelpDemo
 
+export type ModelArmorMode = 'off' | 'enforce' | 'monitor'
+
+const configuredModelArmorMode = process.env.GOOGLE_MODEL_ARMOR_MODE
+
+export const modelArmorMode: ModelArmorMode = configuredModelArmorMode === 'enforce' || configuredModelArmorMode === 'monitor' ? configuredModelArmorMode : 'off'
+export const modelArmorRegion = process.env.GOOGLE_MODEL_ARMOR_REGION || ''
+export const modelArmorTemplateID = process.env.GOOGLE_MODEL_ARMOR_TEMPLATE_ID || ''
+export const modelArmorProjectID = process.env.GOOGLE_MODEL_ARMOR_PROJECT_ID || googleProjectID
+
 // this is used for non-tuned model ai such as from the editor, all chat and generated policies use the fine tuned model
 export const geminiModelName = process.env.GOOGLE_AI_MODEL_NAME || 'gemini-2.5-flash'
 

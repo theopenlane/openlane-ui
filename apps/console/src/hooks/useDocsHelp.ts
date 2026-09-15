@@ -78,7 +78,10 @@ async function postDocsHelp(body: object) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
-  if (!res.ok) throw new Error(`docs-help ${res.status}`)
+  if (!res.ok) {
+    const detail: { error?: string } | null = await res.json().catch(() => null)
+    throw new Error(detail?.error ?? `docs-help ${res.status}`)
+  }
   return res.json()
 }
 

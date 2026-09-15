@@ -1,5 +1,5 @@
 // Gemini calls: the panel summary and titles for unnamed example controls
-import type { GoogleGenAI } from '@google/genai'
+import type { ScreenedGenAI } from '@/lib/google/vertex-genai'
 import { geminiModelName, temperature } from '@repo/dally/ai'
 import type { DocsHelpChunk } from '@/types/docs-help'
 import type { DocsControlTitleInput, PublicRepresentationInput } from '@/lib/docs-help/types'
@@ -15,6 +15,7 @@ import {
   SUMMARY_CHUNK_LIMIT,
 } from '@/lib/docs-help/constants'
 import { htmlToInlineText } from '@/lib/html/html-to-text'
+import { ModelArmorError } from '@/lib/model-armor/errors'
 
 const SUMMARY_INSTRUCTION =
   'Summarize what the documentation excerpts say about the topic in 2-3 plain sentences aimed at a product user. ' +
@@ -31,13 +32,13 @@ const TITLE_INSTRUCTION =
   'Respond with one line per control, in the same order, formatted as "<number>. <title>" and nothing else.'
 
 // Short titles for controls that came out of the docs without a usable one
-export const generateControlTitles = async (genAI: GoogleGenAI, controls: DocsControlTitleInput[]): Promise<string[]> => {
+export const generateControlTitles = async (genAI: ScreenedGenAI, controls: DocsControlTitleInput[], signal?: AbortSignal): Promise<string[]> => {
   try {
     const prompt = controls.map((control, i) => `${i + 1}. [${control.refCode ?? ''}] ${(control.description ?? '').slice(0, 800)}`).join('\n\n')
     const response = await genAI.models.generateContent({
       model: geminiModelName,
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      config: { systemInstruction: TITLE_INSTRUCTION, temperature, maxOutputTokens: 60 * controls.length + 100, thinkingConfig: { thinkingBudget: 0 } },
+      config: { systemInstruction: TITLE_INSTRUCTION, temperature, maxOutputTokens: 60 * controls.length + 100, thinkingConfig: { thinkingBudget: 0 }, abortSignal: signal },
     })
 
     const titles: string[] = new Array(controls.length).fill('')
@@ -49,6 +50,7 @@ export const generateControlTitles = async (genAI: GoogleGenAI, controls: DocsCo
     }
     return titles
   } catch (err) {
+    if (err instanceof ModelArmorError) throw err
     console.error('docs-help title error:', err instanceof Error ? err.message : err)
     return []
   }
@@ -83,7 +85,7 @@ export const dropRunawaySentences = (text: string, cap: number) => {
   return lastSentence > 0 ? clipped.slice(0, lastSentence + 1) : text
 }
 
-export const generatePublicRepresentation = async (genAI: GoogleGenAI, input: PublicRepresentationInput): Promise<string> => {
+export const generatePublicRepresentation = async (genAI: ScreenedGenAI, input: PublicRepresentationInput, signal?: AbortSignal): Promise<string> => {
   const implementations = bulletList(input.implementations)
   const objectives = bulletList(input.objectives)
   const requirement = input.description ? plainText(input.description, MAX_REQUIREMENT_CHARS) : ''
@@ -101,24 +103,27 @@ export const generatePublicRepresentation = async (genAI: GoogleGenAI, input: Pu
   ].filter(Boolean)
 
   try {
+    const prompt = `<control>\n${sections.join('\n\n').replace(CONTROL_DELIMITER, '').slice(0, MAX_CONTEXT_CHARS)}\n</control>`
     const response = await genAI.models.generateContent({
       model: geminiModelName,
-      contents: [{ role: 'user', parts: [{ text: `<control>\n${sections.join('\n\n').replace(CONTROL_DELIMITER, '').slice(0, MAX_CONTEXT_CHARS)}\n</control>` }] }],
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         systemInstruction: PUBLIC_REPRESENTATION_INSTRUCTION,
         temperature,
         maxOutputTokens: Math.min(MAX_REPRESENTATION_TOKENS, Math.ceil(cap / 3) + 80),
         thinkingConfig: { thinkingBudget: 0 },
+        abortSignal: signal,
       },
     })
     return dropRunawaySentences(response.text?.trim() ?? '', cap)
   } catch (err) {
+    if (err instanceof ModelArmorError) throw err
     console.error('docs-help public representation error:', err instanceof Error ? err.message : err)
     return ''
   }
 }
 
-export const summarizeChunks = async (genAI: GoogleGenAI, chunks: DocsHelpChunk[], query: string, abortSignal: AbortSignal): Promise<string> => {
+export const summarizeChunks = async (genAI: ScreenedGenAI, chunks: DocsHelpChunk[], query: string, abortSignal: AbortSignal): Promise<string> => {
   if (chunks.length === 0) return ''
   try {
     const excerpts = chunks
@@ -127,9 +132,10 @@ export const summarizeChunks = async (genAI: GoogleGenAI, chunks: DocsHelpChunk[
       .join('\n\n')
       .slice(0, MAX_CONTEXT_CHARS)
     const topic = query.replace(/\s+/g, ' ')
+    const prompt = `<excerpts>\n${excerpts}\n</excerpts>\n\n<topic>${topic}</topic>`
     const summaryResponse = await genAI.models.generateContent({
       model: geminiModelName,
-      contents: [{ role: 'user', parts: [{ text: `<excerpts>\n${excerpts}\n</excerpts>\n\n<topic>${topic}</topic>` }] }],
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         systemInstruction: SUMMARY_INSTRUCTION,
         temperature,
