@@ -373,6 +373,7 @@ export interface Invoice {
   hosted_invoice_url: string | null
   invoice_pdf: string | null
   created: number // Unix timestamp
+  due_date: Stripe.Invoice['due_date']
 }
 
 export interface InvoicesResponse {
