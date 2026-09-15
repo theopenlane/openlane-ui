@@ -1,6 +1,5 @@
 'use client'
 
-import { objectToSnakeCase } from '@/utils/strings'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
@@ -63,7 +62,7 @@ export const CreateDocumentSheet: React.FC = () => {
   const { data: session } = useSession()
 
   const isEditAllowed = canEdit(permission?.roles, session)
-  const canCreateDoc = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument, session)
+  const canCreateCategory = hasPermission(orgPermission?.roles, AccessEnum.CanCreateCustomTypeEnum, session)
   const isDeleteAllowed = canDelete(permission?.roles)
 
   const [isEditing, setIsEditing] = useState(false)
@@ -281,7 +280,7 @@ export const CreateDocumentSheet: React.FC = () => {
           <FormProvider {...formMethods}>
             <form id="document-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
               <TitleField isEditing={isEditing || isCreateMode} />
-              <CategoryField objectType={objectToSnakeCase(ObjectTypes.TRUST_CENTER_DOC)} isEditing={isEditing || isCreateMode} canCreate={isEditAllowed || canCreateDoc} />
+              <CategoryField objectType={ObjectTypes.TRUST_CENTER_DOC} isEditing={isEditing || isCreateMode} canCreate={canCreateCategory} />
               <VisibilityField isEditing={isEditing || isCreateMode} />
               {isCreateMode && visibilityValue === TrustCenterDocTrustCenterDocumentVisibility.PROTECTED && !hasNdaTemplate && (
                 <Callout variant="warning" compact>

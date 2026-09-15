@@ -2,7 +2,7 @@
 
 import { activatable } from '@repo/ui/lib/a11y'
 import { type Ref, useMemo, useState } from 'react'
-import { Check, ChevronDown, Plus } from 'lucide-react'
+import { Check, ChevronDown, Plus, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { cn } from '@repo/ui/lib/utils'
@@ -16,6 +16,7 @@ interface CreatableCustomTypeEnumSelectProps {
   options: CustomTypeEnumOption[]
   onValueChange: (value: string) => void | Promise<void>
   onCreateOption?: (value: string) => Promise<void>
+  clearable?: boolean
   placeholder?: string
   searchPlaceholder?: string
   disabled?: boolean
@@ -30,6 +31,7 @@ export const CreatableCustomTypeEnumSelect = ({
   options,
   onValueChange,
   onCreateOption,
+  clearable = false,
   placeholder = 'Select',
   searchPlaceholder = 'Search...',
   disabled = false,
@@ -126,6 +128,12 @@ export const CreatableCustomTypeEnumSelect = ({
               {!showCreateOption && <div className="p-4 text-center text-sm text-muted-foreground">No results found.</div>}
             </CommandEmpty>
             <CommandGroup>
+              {clearable && value && (
+                <CommandItem value="None" onSelect={() => handleSelectValue('')}>
+                  <X className="mr-2 h-4 w-4" />
+                  <span className="text-muted-foreground">None</span>
+                </CommandItem>
+              )}
               {allOptions.map((option) => (
                 <CommandItem
                   key={option.value}

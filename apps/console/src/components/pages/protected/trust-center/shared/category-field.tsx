@@ -3,28 +3,27 @@
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { objectToSnakeCase } from '@/utils/strings'
+import type { ObjectTypes } from '@repo/codegen/src/type-names'
 import { Label } from '@repo/ui/label'
 import { Controller, useFormContext } from 'react-hook-form'
 
 interface CategoryFieldProps {
-  objectType: string
+  objectType: ObjectTypes
   isEditing: boolean
-  canCreate?: boolean
+  canCreate: boolean
+  clearable?: boolean
 }
 
-export const CategoryField = ({ objectType, isEditing, canCreate = false }: CategoryFieldProps) => {
+export const CategoryField = ({ objectType, isEditing, canCreate, clearable = false }: CategoryFieldProps) => {
   const {
     control,
     formState: { errors },
     watch,
-  } = useFormContext()
+  } = useFormContext<{ category?: string }>()
 
-  const {
-    enumOptions: options,
-    onCreateOption,
-    isLoading,
-  } = useCreatableEnumOptions({
-    objectType,
+  const { enumOptions, onCreateOption, isLoading } = useCreatableEnumOptions({
+    objectType: objectToSnakeCase(objectType),
     field: 'kind',
     isEditAllowed: canCreate,
   })
@@ -43,8 +42,9 @@ export const CategoryField = ({ objectType, isEditing, canCreate = false }: Cate
             render={({ field }) => (
               <CreatableCustomTypeEnumSelect
                 value={field.value}
-                options={options}
+                options={enumOptions}
                 onCreateOption={onCreateOption}
+                clearable={clearable}
                 placeholder={isLoading ? 'Loading...' : 'Select or create category...'}
                 searchPlaceholder="Search category..."
                 disabled={isLoading}
@@ -53,11 +53,11 @@ export const CategoryField = ({ objectType, isEditing, canCreate = false }: Cate
             )}
           />
 
-          {errors.category && <p className="text-red-500 text-sm mt-1">{String(errors.category.message)}</p>}
+          {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>}
         </>
       ) : (
         <div className="mt-1">
-          <CustomTypeEnumValue value={selectedValue || ''} options={options} placeholder="—" />
+          <CustomTypeEnumValue value={selectedValue || ''} options={enumOptions} placeholder="—" />
         </div>
       )}
     </div>
