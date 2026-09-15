@@ -7,7 +7,9 @@ import { createRowActionsColumn } from '@/components/shared/crud-base/columns/ro
 import { fileDownload } from '@/components/shared/lib/export'
 import { useNotification, type TErrorProps } from '@/hooks/useNotification'
 import { type TExportColumn } from '@/utils/exportToCSV'
-import { type TFile } from './columns'
+import { useCreatableEnumOptions, type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
+import { FILE_CATEGORY_ENUM } from '@/components/shared/documents-section/staged-upload'
+import { createFileCategoryColumn, fileNameColumn, getFileCategory, getFileDisplayName, originalFileNameColumn, type TFile } from './columns'
 
 const VIEW_EVIDENCE_ICON = <Eye size={16} />
 const MARK_EVIDENCE_ICON = <Check size={16} />
@@ -19,6 +21,7 @@ type GetEvidenceId = (file: TFile) => string | undefined
 
 type DocumentColumnsOptions = {
   canEdit: boolean
+  categoryOptions: CustomTypeEnumOption[]
   errorNotification: (props: TErrorProps) => void
   getEvidenceId: GetEvidenceId
   onViewEvidence: (evidenceId: string) => void
@@ -28,25 +31,26 @@ type DocumentColumnsOptions = {
 }
 
 export const getDocumentExportColumns = (fileToEvidenceMap: Map<string, string>): TExportColumn<TFile>[] => [
+  { label: 'Name', accessor: (file) => getFileDisplayName(file) },
   { label: 'File Name', accessor: (file) => file.providedFileName },
-  { label: 'Category', accessor: (file) => file.categoryType || '' },
+  { label: 'Category', accessor: (file) => getFileCategory(file) ?? '' },
   { label: 'Uploaded Date', accessor: (file) => (file.createdAt ? new Date(file.createdAt).toLocaleDateString() : '') },
   { label: 'Classified as Evidence', accessor: (file) => (fileToEvidenceMap.has(file.id) ? 'Yes' : 'No') },
 ]
 
-export const getDocumentColumns = ({ canEdit, errorNotification, getEvidenceId, onViewEvidence, onMarkEvidence, onUnmarkEvidence, onDelete }: DocumentColumnsOptions): ColumnDef<TFile>[] => [
-  {
-    accessorKey: 'providedFileName',
-    header: 'File Name',
-    size: 200,
-    cell: ({ row }) => <span className="block truncate">{row.original.providedFileName}</span>,
-  },
-  {
-    accessorKey: 'categoryType',
-    header: 'Category',
-    size: 150,
-    cell: ({ row }) => <span>{row.original.categoryType || '-'}</span>,
-  },
+export const getDocumentColumns = ({
+  canEdit,
+  categoryOptions,
+  errorNotification,
+  getEvidenceId,
+  onViewEvidence,
+  onMarkEvidence,
+  onUnmarkEvidence,
+  onDelete,
+}: DocumentColumnsOptions): ColumnDef<TFile>[] => [
+  fileNameColumn,
+  originalFileNameColumn,
+  createFileCategoryColumn(categoryOptions),
   {
     accessorKey: 'createdAt',
     header: 'Uploaded Date',
@@ -96,7 +100,7 @@ export const getDocumentColumns = ({ canEdit, errorNotification, getEvidenceId, 
       {
         label: 'Download',
         icon: DOWNLOAD_ICON,
-        onClick: (file) => fileDownload(file.presignedURL || '', file.providedFileName, errorNotification),
+        onClick: (file) => fileDownload(file.presignedURL || '', getFileDisplayName(file), errorNotification),
         disabled: (file) => !file.presignedURL,
       },
       {
@@ -121,11 +125,13 @@ export const useDocumentTableColumns = ({ canEdit, fileToEvidenceMap, onMarkEvid
   const router = useRouter()
   const pathname = usePathname()
   const { errorNotification } = useNotification()
+  const { enumOptions: categoryOptions } = useCreatableEnumOptions(FILE_CATEGORY_ENUM)
 
   return useMemo(
     () =>
       getDocumentColumns({
         canEdit,
+        categoryOptions,
         errorNotification,
         getEvidenceId: (file) => fileToEvidenceMap.get(file.id),
         onViewEvidence: (evidenceId) => {
@@ -137,6 +143,6 @@ export const useDocumentTableColumns = ({ canEdit, fileToEvidenceMap, onMarkEvid
         onUnmarkEvidence,
         onDelete,
       }),
-    [canEdit, errorNotification, fileToEvidenceMap, onMarkEvidence, onUnmarkEvidence, onDelete, router, pathname],
+    [canEdit, categoryOptions, errorNotification, fileToEvidenceMap, onMarkEvidence, onUnmarkEvidence, onDelete, router, pathname],
   )
 }
