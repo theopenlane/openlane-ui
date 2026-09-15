@@ -90,8 +90,8 @@
         "motion": "^13.0.0",
         "next": "16.3.3",
         "next-auth": "5.0.0-beta.32",
-        "next-navigation-guard": "0.2.0",
         "next-themes": "^0.4.6",
+        "nextjs-nav-guard": "1.0.9",
         "papaparse": "^5.5.3",
         "qrcode.react": "^4.2.0",
         "react": "19.2.8",
@@ -371,9 +371,6 @@
         "react-dom": "^19.0.0",
       },
     },
-  },
-  "patchedDependencies": {
-    "next-navigation-guard@0.2.0": "patches/next-navigation-guard@0.2.0.patch",
   },
   "overrides": {
     "@radix-ui/react-label": "2.1.15",
@@ -3105,11 +3102,11 @@
 
     "next-auth": ["next-auth@5.0.0-beta.32", "", { "dependencies": { "@auth/core": "0.41.3" }, "peerDependencies": { "@simplewebauthn/browser": "^9.0.1", "@simplewebauthn/server": "^9.0.2", "next": "^14.0.0-0 || ^15.0.0 || ^16.0.0", "nodemailer": "^7.0.7 || ^8.0.5", "react": "^18.2.0 || ^19.0.0" }, "optionalPeers": ["@simplewebauthn/browser", "@simplewebauthn/server", "nodemailer"] }, "sha512-CGlChIEWZ6LltNVxrE5yiySMID+Idpmry47JYA5lLwgD8Sx02a8M65VL0TWVz9nbnOioS/tCW/rP/0+mE7Qp4Q=="],
 
-    "next-navigation-guard": ["next-navigation-guard@0.2.0", "", { "peerDependencies": { "next": "^14 || ^15", "react": "^18.0.0 || ^19.0.0 || ^19.0.0-rc" } }, "sha512-EnQcqJi/bcHXnirnY0TGSFkQ3Rl9ID4BZWdU2ovoWAkA72mCofI2hTcaqUUOmlSBVZp4AvSGm1kQmkOJDLrEjg=="],
-
     "next-themes": ["next-themes@0.4.6", "", { "peerDependencies": { "react": "^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc", "react-dom": "^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc" } }, "sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA=="],
 
     "next-tick": ["next-tick@0.2.2", "", {}, "sha512-f7h4svPtl+QidoBv4taKXUjJ70G2asaZ8G28nS0OkqaalX8dwwrtWtyxEDPK62AC00ur/+/E0pUwBwY5EPn15Q=="],
+
+    "nextjs-nav-guard": ["nextjs-nav-guard@1.0.9", "", { "peerDependencies": { "next": "^14 || ^15 || ^16", "react": "^18.0.0 || ^19.0.0" } }, "sha512-3gn5Kecv6cgCXQacCXGIVJybLqPmGADJ1Ep/hi0aMQelV5zg8vBZvlkYHhVaS1d8GUY6K4mN1umrTV+KUIOjWQ=="],
 
     "node-dir": ["node-dir@0.1.17", "", { "dependencies": { "minimatch": "^3.0.2" } }, "sha512-tmPX422rYgofd4epzrNoOXiE8XFZYOcCq1vD7MAXCDO+O+zndlA2ztdKKMa+EeuBG5tHETpr4ml4RGgpqDCCAg=="],
 

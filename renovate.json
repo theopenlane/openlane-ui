@@ -5,8 +5,8 @@
   "minimumReleaseAge": "7 days",
   "packageRules": [
     {
-      "description": "Held at 0.2.0: patches/next-navigation-guard@0.2.0.patch is keyed to that exact version, and bun silently skips a patch whose key does not match the resolved version. Any bump must re-create the patch first. The patch can be dropped once https://github.com/LayerXcom/next-navigation-guard/pull/61 is merged and released, and that PR also needs to cover the createHandlePopState deref in useInterceptPopState.",
-      "matchPackageNames": ["next-navigation-guard"],
+      "description": "Single-maintainer fork of LayerXcom/next-navigation-guard, published manually with no npm provenance attestation (~1.9k weekly downloads). Adopted because upstream still ships an unguarded window.history.state deref in historyAugmentation that crashes the console, and its useInterceptPopState default parameter does not fire on an explicit null state. Upstream fix https://github.com/LayerXcom/next-navigation-guard/pull/61 is still unmerged. Verify any bump reproduces from source before approving, and revisit switching back if upstream releases a version with #61 merged.",
+      "matchPackageNames": ["nextjs-nav-guard"],
       "dependencyDashboardApproval": true
     }
   ]
