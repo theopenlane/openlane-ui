@@ -6785,9 +6785,10 @@ export interface GetEvidenceStatsQuery {
   totalControls: { totalCount: number }
   frameworkControls: { totalCount: number }
   organizationControls: { totalCount: number }
+  requested: { totalCount: number }
   submitted: { totalCount: number }
+  readyForAuditor: { totalCount: number }
   accepted: { totalCount: number }
-  rejected: { totalCount: number }
 }
 
 export type GetProgramDashboardQueryVariables = Exact<{

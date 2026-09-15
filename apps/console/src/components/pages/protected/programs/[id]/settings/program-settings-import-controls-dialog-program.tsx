@@ -29,7 +29,7 @@ const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selected
   const [showCheckboxes, setShowCheckboxes] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const { wrapper, content } = statCardStyles({ color: 'green' })
+  const { wrapper, content } = statCardStyles()
   const [pagination, setPagination] = useOrgTablePagination(
     {
       ...DEFAULT_PAGINATION,
