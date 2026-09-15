@@ -1,4 +1,4 @@
-import { CircleAlert, CircleCheck, CircleEllipsis, CircleX, Globe, Server, Building2, ShieldAlert } from 'lucide-react'
+import { CircleAlert, CircleCheck, CircleEllipsis, CircleX, Globe, Info, Server, Building2, ShieldAlert, type LucideIcon } from 'lucide-react'
 import { ScanScanStatus, ScanScanType } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -31,3 +31,32 @@ export function ScanStatusBadge({ status }: { status: ScanScanStatus }) {
     </Badge>
   )
 }
+
+// PostureStatus is the good/warn/bad/info verdict a domain scan derives for a posture row
+export type PostureStatus = 'good' | 'warn' | 'bad' | 'info'
+
+export const PostureStatusIconMapper: Record<PostureStatus, { Icon: LucideIcon; className: string }> = {
+  good: { Icon: CircleCheck, className: 'text-success' },
+  warn: { Icon: CircleAlert, className: 'text-warning' },
+  bad: { Icon: CircleX, className: 'text-destructive' },
+  info: { Icon: Info, className: 'text-muted-foreground' },
+}
+
+export function PostureStatusIcon({ status, size = 14, className = '' }: { status: PostureStatus; size?: number; className?: string }) {
+  const { Icon, className: color } = PostureStatusIconMapper[status]
+  return <Icon size={size} className={`${color} ${className}`.trim()} />
+}
+
+// ComplianceDocumentTypeLabel maps the domain scan's compliance document types to display names
+export const ComplianceDocumentTypeLabel: Record<string, string> = {
+  privacy_policy: 'Privacy Policy',
+  terms_of_service: 'Terms of Service',
+  trust_center: 'Trust Center',
+  dpa: 'Data Privacy Agreement',
+  soc2_report: 'SOC 2 Report',
+  subprocessors: 'Subprocessors',
+  gdpr: 'GDPR',
+  cookie_policy: 'Cookie Policy',
+}
+
+export const getComplianceDocumentLabel = (type: string): string => ComplianceDocumentTypeLabel[type] ?? getEnumLabel(type)
