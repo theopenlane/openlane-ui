@@ -2,7 +2,8 @@ import type { DocsControlTitleInput, DocsProvider, DocsRetrievedContext, PublicR
 import type { DocsHelpChunk } from '@/types/docs-help'
 import { DEFAULT_REPRESENTATION_TARGET, DEFAULT_RETRIEVAL_TOP_K, REPRESENTATION_LENGTH_MULTIPLIER } from '@/lib/docs-help/constants'
 import { dropRunawaySentences } from '@/lib/docs-help/ai'
-import { htmlToText, stripInlineMarkdown } from '@/lib/docs-help/parse'
+import { stripInlineMarkdown } from '@/lib/docs-help/parse'
+import { htmlToInlineText } from '@/lib/html/html-to-text'
 import { DEVELOPER_PAGES, PLATFORM_PAGES, demoPageSource, type DemoDocsPage } from '@/lib/docs-help/demo/corpus'
 import { FRAMEWORK_CONTROL_PAGES } from '@/lib/docs-help/demo/framework-controls'
 
@@ -160,7 +161,7 @@ const trimDanglingWords = (words: string[]): string[] => {
 }
 
 const titleFromDescription = (description?: string): string => {
-  const opening = firstSentences(htmlToText(description ?? ''), 1)
+  const opening = firstSentences(htmlToInlineText(description ?? ''), 1)
   if (!opening) return ''
   const words = opening
     .replace(/^(the|this|a|an)\s+/i, '')
@@ -213,10 +214,10 @@ export const createDemoDocsProvider = (retrievalMs = RETRIEVAL_LATENCY_MS, gener
   publicRepresentation: async (input: PublicRepresentationInput): Promise<string> => {
     await pause(generationMs)
 
-    const descriptionText = htmlToText(input.description ?? '')
+    const descriptionText = htmlToInlineText(input.description ?? '')
     const requirement = firstSentences(descriptionText, 1)
-    const implementation = firstSentences(htmlToText(input.implementations?.[0] ?? ''), 1)
-    const objective = firstSentences(htmlToText(input.objectives?.[0] ?? ''), 1)
+    const implementation = firstSentences(htmlToInlineText(input.implementations?.[0] ?? ''), 1)
+    const objective = firstSentences(htmlToInlineText(input.objectives?.[0] ?? ''), 1)
     const control = [input.referenceFramework, input.refCode].filter(Boolean).join(' ')
 
     const parts = [
