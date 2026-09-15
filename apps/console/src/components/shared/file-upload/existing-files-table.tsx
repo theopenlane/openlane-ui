@@ -15,6 +15,7 @@ import { GLOBAL_ENUM_OBJECT_TYPE, useGetCustomTypeEnums, type CustomTypeEnumOpti
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { useOrgTablePagination } from '@/hooks/use-org-table-state'
 import { getFileActionsColumn } from '@/components/shared/file-table/file-actions-column'
+import { getFileDisplayName } from '@/components/shared/file-table/columns'
 import FilePreviewDialog from '@/components/shared/file-preview/file-preview-dialog'
 import { formatDateSince } from '@/utils/date'
 import { toHumanLabel } from '@/utils/strings'
@@ -64,7 +65,7 @@ const ExistingFilesTable: React.FC<TProps> = ({ tableKey, selectedFileIds, onSel
     () => ({
       ...where,
       ...(category === ALL_CATEGORIES ? {} : { categoryName: category }),
-      ...(debouncedSearch ? { providedFileNameContainsFold: debouncedSearch } : {}),
+      ...(debouncedSearch ? { or: [{ providedFileNameContainsFold: debouncedSearch }, { nameContainsFold: debouncedSearch }] } : {}),
     }),
     [where, category, debouncedSearch],
   )
@@ -81,13 +82,13 @@ const ExistingFilesTable: React.FC<TProps> = ({ tableKey, selectedFileIds, onSel
   const toSelection = (file: TExistingFileRow): TExistingFileSelection => ({
     type: 'existingFile',
     id: file.id,
-    name: file.providedFileName,
+    name: getFileDisplayName(file),
     size: file.providedFileSize ?? undefined,
     category: file.categoryName,
     createdAt: formatDateSince(file.createdAt),
   })
 
-  const columnVisibility = useMemo<VisibilityState>(() => ({ categoryName: category === ALL_CATEGORIES }), [category])
+  const columnVisibility = useMemo<VisibilityState>(() => ({ categoryName: category === ALL_CATEGORIES, providedFileName: false }), [category])
 
   const columns = useMemo<ColumnDef<TExistingFileRow>[]>(() => {
     return [
@@ -109,7 +110,7 @@ const ExistingFilesTable: React.FC<TProps> = ({ tableKey, selectedFileIds, onSel
         cell: ({ row }) => (
           <div role="presentation" onClick={(e) => e.stopPropagation()}>
             <Checkbox
-              aria-label={`Select ${row.original.providedFileName}`}
+              aria-label={`Select ${getFileDisplayName(row.original)}`}
               checked={selectedIds.has(row.original.id)}
               onCheckedChange={(checked: boolean) => (checked ? onSelect(toSelection(row.original)) : onDeselect(row.original.id))}
             />
@@ -123,8 +124,13 @@ const ExistingFilesTable: React.FC<TProps> = ({ tableKey, selectedFileIds, onSel
         enableResizing: false,
       },
       {
+        accessorKey: 'name',
+        header: 'Name',
+        cell: ({ row }) => getFileDisplayName(row.original),
+      },
+      {
         accessorKey: 'providedFileName',
-        header: 'Filename',
+        header: 'File Name',
       },
       {
         accessorKey: 'categoryName',
