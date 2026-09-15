@@ -31,7 +31,7 @@ export const SystemsStep = ({ mode, systemCandidates, systemOverrides, setSystem
     <div className="space-y-3">
       <SectionCard title="Review your system details" description={description}>
         {systemCandidates.length === 0 ? (
-          <EmptyState message="No systems were detected in this notification, add one manually below." />
+          <EmptyState message="All detected system details were removed, add one manually below." />
         ) : (
           <div className="px-6 py-4">
             <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">

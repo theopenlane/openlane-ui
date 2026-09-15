@@ -19,30 +19,30 @@ import { VendorsStep } from './steps/vendors-step'
 import { useDomainScanImport } from './hooks/use-domain-scan-import'
 import { useDomainScanReport } from './hooks/use-domain-scan-report'
 import { useDomainScanSelection } from './hooks/use-domain-scan-selection'
+import { useDomainScanSummarySections } from './hooks/use-domain-scan-summary-sections'
 import { domainScanProgressStorageKey } from './progress-storage'
-import type { EditableStepId, LinkableItem } from './types'
+import { domainScanStepVisibility } from './step-visibility'
+import { DOMAIN_SCAN_STEPS, type EditableStepId, type LinkableItem } from './types'
 
-const { useStepper } = defineStepper([
-  { id: 'platform', label: 'Platform' },
-  { id: 'systems', label: 'System Details' },
-  { id: 'assets', label: 'Assets' },
-  { id: 'vendors', label: 'Vendors' },
-  { id: 'link', label: 'Link' },
-  { id: 'findings', label: 'Findings' },
-  { id: 'confirm', label: 'Confirm' },
-])
+const EMPTY_LINKED_VENDOR_IDS: string[] = []
 
 const DomainDiscoveryImportPage = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const stepper = useStepper()
   const scanIdParam = searchParams.get('scanId') ?? searchParams.get('id')
 
   const report = useDomainScanReport(scanIdParam)
   const storageKey = useMemo(() => (scanIdParam ? domainScanProgressStorageKey(scanIdParam) : undefined), [scanIdParam])
 
+  const { allDomains, vendors, findings, systemCandidates } = report
+  const stepVisibility = useMemo(() => domainScanStepVisibility({ systemCandidates, allDomains, vendors, findings }), [allDomains, findings, systemCandidates, vendors])
+  const visibleSteps = useMemo(() => DOMAIN_SCAN_STEPS.filter((step) => stepVisibility[step.id]), [stepVisibility])
+  const { useStepper } = useMemo(() => defineStepper(visibleSteps), [visibleSteps])
+  const stepper = useStepper()
+
   const selection = useDomainScanSelection({
     report,
+    stepVisibility,
     storageKey,
     currentStepId: stepper.current.id,
     goToStep: (stepId) => stepper.goTo(stepId),
@@ -50,16 +50,15 @@ const DomainDiscoveryImportPage = () => {
 
   const { handleImport, isImporting, canImport } = useDomainScanImport({ report, selection, storageKey })
 
-  const { domains, allDomains, vendors, findings, agentReadiness } = report
+  const { domains, agentReadiness } = report
   const isSingleMode = selection.platformMode === 'single'
 
-  const linkPlatformTargets = useMemo<LinkableItem[]>(() => selection.platformTargets.map((target) => ({ id: target.id, name: target.name })), [selection.platformTargets])
   const linkSystemTargets = useMemo<LinkableItem[]>(
     () => (isSingleMode ? selection.resolvedSystemTargets.map((system) => ({ id: system.id, name: system.name })) : []),
     [isSingleMode, selection.resolvedSystemTargets],
   )
 
-  const confirmPlatforms = selection.platformTargets.map((target) => ({ id: target.id, name: target.name, description: target.description }))
+  const confirmPlatforms = useMemo(() => selection.platformTargets.map((target) => ({ id: target.id, name: target.name, description: target.description })), [selection.platformTargets])
   const confirmSystems = useMemo(
     () =>
       resolveSystemTargets({
@@ -70,7 +69,18 @@ const DomainDiscoveryImportPage = () => {
       }).map((target) => ({ id: target.id, name: target.name, description: target.description })),
     [selection.platformMode, selection.platformTargets, selection.resolvedSinglePlatformTarget.id, selection.resolvedSystemTargets],
   )
-  const confirmSystemVendorLinks = isSingleMode ? selection.systemVendorLinks : selection.platformVendorLinks
+  const summarySections = useDomainScanSummarySections({
+    stepVisibility,
+    platforms: confirmPlatforms,
+    systems: confirmSystems,
+    vendors: selection.linkVendors,
+    assets: selection.linkAssets,
+    findings: selection.confirmFindings,
+    platformVendorLinks: selection.platformVendorLinks,
+    systemVendorLinks: isSingleMode ? selection.systemVendorLinks : selection.platformVendorLinks,
+    defaultLinkedVendorIds: selection.defaultLinkedVendorIds,
+    systemDefaultLinkedVendorIds: isSingleMode ? EMPTY_LINKED_VENDOR_IDS : selection.defaultLinkedVendorIds,
+  })
 
   const goToStep = (stepId: EditableStepId) => stepper.goTo(stepId)
 
@@ -115,15 +125,7 @@ const DomainDiscoveryImportPage = () => {
           We scanned {domains.hostname} to identify platforms, systems, vendors, assets, and findings that may be part of your organization. Review and edit each section before adding it to Openlane.
         </p>
 
-        <div className="mt-6">
-          <ScanFoundSummary
-            hostname={domains.hostname}
-            systemsCount={selection.displaySystemCandidates.length}
-            assetsCount={allDomains.length}
-            vendorsCount={vendors.length}
-            findingsCount={findings.length}
-          />
-        </div>
+        <ScanFoundSummary hostname={domains.hostname} systemsCount={systemCandidates.length} assetsCount={allDomains.length} vendorsCount={vendors.length} findingsCount={findings.length} />
 
         <div className="mt-6 flex items-center justify-between">
           <Button variant="secondary" onClick={handleFinishLater}>
@@ -137,7 +139,6 @@ const DomainDiscoveryImportPage = () => {
     )
   }
 
-  const currentStepIndex = stepper.steps.findIndex((step) => step.id === stepper.current.id)
   const isConfirmStep = stepper.current.id === 'confirm'
 
   return (
@@ -151,10 +152,10 @@ const DomainDiscoveryImportPage = () => {
         <div className="min-w-0">
           <div className="mb-6 flex flex-col gap-3">
             <Badge variant="primary" className="w-fit uppercase tracking-wide border-primary/24">
-              Step {currentStepIndex + 1} of {stepper.steps.length} - {stepper.current.label}
+              Step {stepper.index + 1} of {stepper.count} - {stepper.current.label}
             </Badge>
             <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-border">
-              <div className="absolute inset-y-0 left-0 rounded-full bg-primary transition-all" style={{ width: `${((currentStepIndex + 1) / stepper.steps.length) * 100}%` }} />
+              <div className="absolute inset-y-0 left-0 rounded-full bg-primary transition-all" style={{ width: `${((stepper.index + 1) / stepper.count) * 100}%` }} />
             </div>
           </div>
 
@@ -225,7 +226,7 @@ const DomainDiscoveryImportPage = () => {
             ),
             link: () => (
               <LinkStep
-                platforms={linkPlatformTargets}
+                platforms={confirmPlatforms}
                 systems={linkSystemTargets}
                 vendors={selection.linkVendors}
                 assets={selection.linkAssets}
@@ -251,33 +252,13 @@ const DomainDiscoveryImportPage = () => {
                 setOverrides={selection.setFindingOverrides}
               />
             ),
-            confirm: () => (
-              <ConfirmStep
-                platforms={confirmPlatforms}
-                systems={confirmSystems}
-                vendors={selection.linkVendors}
-                assets={selection.linkAssets}
-                findings={selection.confirmFindings}
-                platformVendorLinks={selection.platformVendorLinks}
-                systemVendorLinks={confirmSystemVendorLinks}
-                defaultLinkedVendorIds={selection.defaultLinkedVendorIds}
-                systemsDefaultToPlatformLinks={!isSingleMode}
-                onEditStep={goToStep}
-              />
-            ),
+            confirm: () => <ConfirmStep sections={summarySections} onEditStep={goToStep} />,
           })}
         </div>
 
         {!isConfirmStep ? (
           <div>
-            <ScanSummarySidebar
-              platforms={linkPlatformTargets}
-              systems={confirmSystems}
-              vendors={selection.linkVendors}
-              assets={selection.linkAssets}
-              findings={selection.confirmFindings}
-              onEditStep={goToStep}
-            />
+            <ScanSummarySidebar sections={summarySections} onEditStep={goToStep} />
           </div>
         ) : null}
       </div>

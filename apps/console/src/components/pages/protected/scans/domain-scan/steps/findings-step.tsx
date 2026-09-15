@@ -9,7 +9,6 @@ import { EditableName } from '../editable-name'
 import { SectionCard } from '../components/section-card'
 import { SelectionRow } from '../components/selection-row'
 import { SelectAllCheckbox } from '../components/select-all-checkbox'
-import { EmptyState } from '../components/empty-state'
 import { toggleSetValue } from '../selection-utils'
 import { DomainScanFindingCategory, type DomainScanAgentReadinessPayload, type DomainScanFindingCategoryValue, type Finding, type OverrideMap } from '../types'
 
@@ -31,14 +30,6 @@ const agentReadinessDescription = (agentReadiness?: DomainScanAgentReadinessPayl
 }
 
 export const FindingsStep = ({ findings, selected, setSelected, agentReadiness, overrides, setOverrides }: FindingsStepProps) => {
-  if (findings.length === 0) {
-    return (
-      <SectionCard title="Review findings" description="Optional security observations detected">
-        <EmptyState message="No findings were included in this scan" />
-      </SectionCard>
-    )
-  }
-
   const categoryOrder: DomainScanFindingCategoryValue[] = [DomainScanFindingCategory.RISK, DomainScanFindingCategory.SECURITY_VIOLATION, DomainScanFindingCategory.AGENT_READINESS]
 
   const groups = categoryOrder

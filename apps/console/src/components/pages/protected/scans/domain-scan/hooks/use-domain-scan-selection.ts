@@ -13,12 +13,13 @@ export const isManualSystemId = (id: string) => refValue(id).startsWith(MANUAL_S
 
 type UseDomainScanSelectionArgs = {
   report: DomainScanReport
+  stepVisibility: Record<StepId, boolean>
   storageKey?: string
   currentStepId: StepId
   goToStep: (stepId: StepId) => void
 }
 
-export const useDomainScanSelection = ({ report, storageKey, currentStepId, goToStep }: UseDomainScanSelectionArgs) => {
+export const useDomainScanSelection = ({ report, stepVisibility, storageKey, currentStepId, goToStep }: UseDomainScanSelectionArgs) => {
   const { vendors, domains, allDomains, findings, singlePlatformCandidate, systemCandidates, perSystemPlatformCandidates, existingVendorIds, existingAssetIds, selectionSeedKey } = report
 
   const [hasStarted, setHasStarted] = useState(false)
@@ -66,12 +67,12 @@ export const useDomainScanSelection = ({ report, storageKey, currentStepId, goTo
     setSelectedVendorIds(new Set(saved.selectedVendorIds))
     setSelectedDomainIds(new Set(saved.selectedDomainIds))
     setSelectedFindingIds(new Set(saved.selectedFindingIds))
-    setPlatformMode(saved.platformMode)
+    setPlatformMode(perSystemPlatformCandidates.length > 0 ? saved.platformMode : 'single')
     setSinglePlatformOverride(saved.singlePlatformOverride)
     setSelectedPerSystemPlatformIds(new Set(saved.selectedPerSystemPlatformIds))
     setPerSystemPlatformOverrides(saved.perSystemPlatformOverrides)
     setSystemOverrides(saved.systemOverrides)
-    setManualSystems(saved.manualSystems)
+    setManualSystems(stepVisibility.systems ? saved.manualSystems : [])
     setRemovedDetectedSystemIds(new Set(saved.removedDetectedSystemIds))
     setVendorOverrides(saved.vendorOverrides)
     setDomainOverrides(saved.domainOverrides)
@@ -83,7 +84,7 @@ export const useDomainScanSelection = ({ report, storageKey, currentStepId, goTo
     if (isStepId(saved.stepId)) {
       goToStepRef.current(saved.stepId)
     }
-  }, [selectionSeedKey, storageKey])
+  }, [perSystemPlatformCandidates.length, selectionSeedKey, stepVisibility.systems, storageKey])
 
   useEffect(() => {
     if (!selectionSeedKey || initializedSelectionKeyRef.current === selectionSeedKey) {
@@ -129,7 +130,10 @@ export const useDomainScanSelection = ({ report, storageKey, currentStepId, goTo
     () => perSystemPlatformCandidates.filter((candidate) => selectedPerSystemPlatformIds.has(candidate.id)).map((candidate) => withOverride(candidate, perSystemPlatformOverrides)),
     [perSystemPlatformCandidates, perSystemPlatformOverrides, selectedPerSystemPlatformIds],
   )
-  const platformTargets = platformMode === 'single' ? [resolvedSinglePlatformTarget] : resolvedPerSystemPlatformTargets
+  const platformTargets = useMemo(
+    () => (platformMode === 'single' ? [resolvedSinglePlatformTarget] : resolvedPerSystemPlatformTargets),
+    [platformMode, resolvedPerSystemPlatformTargets, resolvedSinglePlatformTarget],
+  )
 
   const displaySystemCandidates = useMemo(
     () => [...systemCandidates.filter((candidate) => !removedDetectedSystemIds.has(candidate.id)), ...manualSystems],
