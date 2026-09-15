@@ -1,11 +1,10 @@
 'use client'
 
 import React from 'react'
-import { CircleCheck, CircleX } from 'lucide-react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import CopyableText from '@/components/shared/copyable-text/copyable-text'
 import CountBadge from '@/components/shared/count-badge/count-badge'
-import { getComplianceDocumentLabel } from '@/components/shared/enum-mapper/scan-enum'
+import { getComplianceDocumentLabel, PostureStatusIcon } from '@/components/shared/enum-mapper/scan-enum'
 import { getAgentReadiness, getMissingComplianceLinks, getSecurityViolations, getRisks, getEmailAuthIssues, hasEmailAuth, getWebPostureIssues, hasWebPosture, type ScanMetadata } from './scan-metadata'
 
 type Props = {
@@ -31,7 +30,7 @@ const FindingsSummarySection: React.FC<Props> = ({ metadata }) => {
             <p className="text-sm font-medium">Security Violations</p>
             {securityViolations.length === 0 ? (
               <span className="inline-flex items-center gap-1.5 text-sm text-success">
-                <CircleCheck size={14} /> None detected
+                <PostureStatusIcon status="good" /> None detected
               </span>
             ) : (
               <CountBadge count={securityViolations.length} variant="destructive" />
@@ -42,7 +41,7 @@ const FindingsSummarySection: React.FC<Props> = ({ metadata }) => {
             <p className="text-sm font-medium">Risks</p>
             {risks.length === 0 ? (
               <span className="inline-flex items-center gap-1.5 text-sm text-success">
-                <CircleCheck size={14} /> None detected
+                <PostureStatusIcon status="good" /> None detected
               </span>
             ) : (
               <CountBadge count={risks.length} variant="destructive" />
@@ -55,7 +54,7 @@ const FindingsSummarySection: React.FC<Props> = ({ metadata }) => {
                 <p className="text-sm font-medium">Email Authentication</p>
                 {emailAuthIssues.length === 0 ? (
                   <span className="inline-flex items-center gap-1.5 text-sm text-success">
-                    <CircleCheck size={14} /> Enforcing
+                    <PostureStatusIcon status="good" /> Enforcing
                   </span>
                 ) : (
                   <CountBadge count={emailAuthIssues.length} variant="destructive" />
@@ -65,7 +64,7 @@ const FindingsSummarySection: React.FC<Props> = ({ metadata }) => {
                 <ul className="space-y-1.5 mt-3">
                   {emailAuthIssues.map((issue) => (
                     <li key={issue.key} className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <CircleX size={14} className="text-destructive shrink-0" />
+                      <PostureStatusIcon status="bad" className="shrink-0" />
                       {issue.label}: {issue.value}
                     </li>
                   ))}
@@ -80,7 +79,7 @@ const FindingsSummarySection: React.FC<Props> = ({ metadata }) => {
                 <p className="text-sm font-medium">Web Posture</p>
                 {webPostureIssues.length === 0 ? (
                   <span className="inline-flex items-center gap-1.5 text-sm text-success">
-                    <CircleCheck size={14} /> No issues
+                    <PostureStatusIcon status="good" /> No issues
                   </span>
                 ) : (
                   <CountBadge count={webPostureIssues.length} variant="destructive" />
@@ -90,7 +89,7 @@ const FindingsSummarySection: React.FC<Props> = ({ metadata }) => {
                 <ul className="space-y-1.5 mt-3">
                   {webPostureIssues.map((issue) => (
                     <li key={issue.key} className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <CircleX size={14} className="text-destructive shrink-0" />
+                      <PostureStatusIcon status="bad" className="shrink-0" />
                       {issue.label}: {issue.value}
                     </li>
                   ))}
@@ -112,7 +111,7 @@ const FindingsSummarySection: React.FC<Props> = ({ metadata }) => {
                 <ul className="space-y-1.5 mt-3">
                   {agentReadiness.checklist.map((item) => (
                     <li key={item} className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <CircleX size={14} className="text-destructive shrink-0" />
+                      <PostureStatusIcon status="bad" className="shrink-0" />
                       {item}
                     </li>
                   ))}
@@ -130,7 +129,7 @@ const FindingsSummarySection: React.FC<Props> = ({ metadata }) => {
               <ul className="space-y-1.5 mt-3">
                 {missingComplianceLinks.map((link) => (
                   <li key={link} className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <CircleX size={14} className="text-destructive shrink-0" />
+                    <PostureStatusIcon status="bad" className="shrink-0" />
                     <CopyableText value={getComplianceDocumentLabel(link)} />
                   </li>
                 ))}

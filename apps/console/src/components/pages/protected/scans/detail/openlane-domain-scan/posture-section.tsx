@@ -1,30 +1,21 @@
 'use client'
 
 import React from 'react'
-import { CircleAlert, CircleCheck, CircleX, Info } from 'lucide-react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import { getEmailAuthRows, getWellKnownRows, type PostureRow, type PostureStatus, type ScanMetadata } from './scan-metadata'
+import { PostureStatusIcon, PostureStatusIconMapper } from '@/components/shared/enum-mapper/scan-enum'
+import { getEmailAuthRows, getWellKnownRows, type PostureRow, type ScanMetadata } from './scan-metadata'
 
 type Props = {
   metadata: ScanMetadata | null
 }
 
-const STATUS_ICONS: Record<PostureStatus, { Icon: typeof CircleCheck; className: string }> = {
-  good: { Icon: CircleCheck, className: 'text-success' },
-  warn: { Icon: CircleAlert, className: 'text-warning' },
-  bad: { Icon: CircleX, className: 'text-destructive' },
-  info: { Icon: Info, className: 'text-muted-foreground' },
-}
-
 const Row: React.FC<{ row: PostureRow }> = ({ row }) => {
-  const { Icon, className } = STATUS_ICONS[row.status]
-
   return (
     <div className="rounded-lg border p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium">{row.label}</p>
-        <span className={`inline-flex items-center gap-1.5 text-sm text-right ${className}`}>
-          <Icon size={14} className="shrink-0" /> {row.value}
+        <span className={`inline-flex items-center gap-1.5 text-sm text-right ${PostureStatusIconMapper[row.status].className}`}>
+          <PostureStatusIcon status={row.status} className="shrink-0" /> {row.value}
         </span>
       </div>
       {row.detail && <p className="text-xs text-muted-foreground mt-2 break-words">{row.detail}</p>}

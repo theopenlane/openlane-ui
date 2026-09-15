@@ -1,4 +1,7 @@
 import { toHumanLabel } from '@/utils/strings'
+import { type PostureStatus } from '@/components/shared/enum-mapper/scan-enum'
+
+export { type PostureStatus }
 
 export const OPENLANE_DOMAIN_SCAN_PERFORMER = 'openlane_domain_scan'
 
@@ -15,7 +18,6 @@ type AgentReadiness = {
 
 type Findings = {
   risks?: unknown[]
-  // one entry per scanned domain that had failing checks
   agent_readiness?: AgentReadiness[]
   security_violations?: unknown[]
   missing_compliance_links?: string
@@ -252,8 +254,6 @@ export const hasCompanyInfo = (metadata: ScanMetadata | null): boolean => {
   const company = getCompanyInfo(metadata)
   return !!company && (!!company.description || company.isSoc2 !== undefined || company.socialLinks.length > 0)
 }
-
-export type PostureStatus = 'good' | 'warn' | 'bad' | 'info'
 
 export type PostureRow = { key: string; label: string; status: PostureStatus; value: string; detail?: string }
 
