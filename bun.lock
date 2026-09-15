@@ -90,7 +90,7 @@
         "motion": "^13.0.0",
         "next": "16.3.3",
         "next-auth": "5.0.0-beta.32",
-        "next-navigation-guard": "^0.2.0",
+        "next-navigation-guard": "0.2.0",
         "next-themes": "^0.4.6",
         "papaparse": "^5.5.3",
         "qrcode.react": "^4.2.0",
@@ -371,6 +371,9 @@
         "react-dom": "^19.0.0",
       },
     },
+  },
+  "patchedDependencies": {
+    "next-navigation-guard@0.2.0": "patches/next-navigation-guard@0.2.0.patch",
   },
   "overrides": {
     "@radix-ui/react-label": "2.1.15",
