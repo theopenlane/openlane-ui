@@ -5,7 +5,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { type TFile } from '@/components/shared/file-table/columns'
+import { getFileDisplayName, type TFile } from '@/components/shared/file-table/columns'
 import { FILE_SORT_FIELDS } from '@/components/shared/file-table/table-config'
 import { type FileWhereInput, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
@@ -15,6 +15,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { DocumentsUploadDialog } from '@/components/shared/documents-section/documents-upload-dialog'
+import { toFileUploadArgs, type StagedUpload } from '@/components/shared/documents-section/staged-upload'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { exportToCSV } from '@/utils/exportToCSV'
@@ -44,7 +45,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
     },
   ])
   const [searchTerm, setSearchTerm] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.IDENTITY_HOLDER_FILES, {}))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.IDENTITY_HOLDER_FILES, { providedFileName: false }))
   const { successNotification, errorNotification } = useNotification()
 
   const [markEvidenceFile, setMarkEvidenceFile] = useState<TFile | null>(null)
@@ -53,7 +54,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const fileWhere: FileWhereInput | undefined = debouncedSearch ? { providedFileNameContainsFold: debouncedSearch } : undefined
+  const fileWhere: FileWhereInput | undefined = debouncedSearch ? { or: [{ providedFileNameContainsFold: debouncedSearch }, { nameContainsFold: debouncedSearch }] } : undefined
 
   const { files, isLoading, isError, pageInfo, totalCount } = useGetIdentityHolderFilesPaginated({
     identityHolderId: personnelId,
@@ -81,12 +82,15 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
   const { mutateAsync: uploadFiles, isPending: isUploading } = useUploadIdentityHolderFiles()
   const { mutateAsync: updateIdentityHolder } = useUpdateIdentityHolder()
 
-  const handleUpload = async (newFiles: File[]) => {
+  const handleUpload = async (uploads: StagedUpload[]) => {
     try {
+      const { files: identityHolderFiles, metadata: identityHolderFilesMetadata } = toFileUploadArgs(uploads)
+
       await uploadFiles({
         updateIdentityHolderId: personnelId,
         input: {},
-        identityHolderFiles: newFiles,
+        identityHolderFiles,
+        identityHolderFilesMetadata,
       })
       successNotification({
         title: 'Documents uploaded',
@@ -114,7 +118,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
       queryClient.invalidateQueries({ queryKey: ['identityHolderFiles'] })
       successNotification({
         title: 'Document removed',
-        description: `"${deleteFile.providedFileName}" has been removed.`,
+        description: `"${getFileDisplayName(deleteFile)}" has been removed.`,
       })
       setDeleteFile(null)
     } catch (error) {
@@ -176,8 +180,8 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
         tableKey={TableKeyEnum.IDENTITY_HOLDER_FILES}
       />
 
-      {markEvidenceFile && <MarkAsEvidenceDialog fileId={markEvidenceFile.id} fileName={markEvidenceFile.providedFileName} personnelId={personnelId} onClose={() => setMarkEvidenceFile(null)} />}
-      {unmarkEvidenceFile && <UnmarkEvidenceDialog fileId={unmarkEvidenceFile.id} fileName={unmarkEvidenceFile.providedFileName} onClose={() => setUnmarkEvidenceFile(null)} />}
+      {markEvidenceFile && <MarkAsEvidenceDialog fileId={markEvidenceFile.id} fileName={getFileDisplayName(markEvidenceFile)} personnelId={personnelId} onClose={() => setMarkEvidenceFile(null)} />}
+      {unmarkEvidenceFile && <UnmarkEvidenceDialog fileId={unmarkEvidenceFile.id} fileName={getFileDisplayName(unmarkEvidenceFile)} onClose={() => setUnmarkEvidenceFile(null)} />}
       {deleteFile && (
         <ConfirmationDialog
           open
@@ -186,7 +190,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
           title="Remove document?"
           description={
             <>
-              Are you sure you want to remove <b>{deleteFile.providedFileName}</b>? This action cannot be undone.
+              Are you sure you want to remove <b>{getFileDisplayName(deleteFile)}</b>? This action cannot be undone.
             </>
           }
         />

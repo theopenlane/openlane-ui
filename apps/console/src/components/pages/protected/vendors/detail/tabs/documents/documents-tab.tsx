@@ -6,7 +6,7 @@ import { type VisibilityState } from '@repo/ui/table-types'
 import { DataTable } from '@repo/ui/data-table'
 import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-state'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { type TFile } from '@/components/shared/file-table/columns'
+import { getFileDisplayName, type TFile } from '@/components/shared/file-table/columns'
 import { FILE_SORT_FIELDS } from '@/components/shared/file-table/table-config'
 import { type FileWhereInput, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { useGetEntityFilesPaginated, useUploadEntityFiles } from '@/lib/graphql-hooks/entity'
@@ -15,9 +15,10 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { DocumentsUploadDialog } from '@/components/shared/documents-section/documents-upload-dialog'
+import { toFileUploadArgs, type StagedUpload } from '@/components/shared/documents-section/staged-upload'
+import { exportToCSV } from '@/utils/exportToCSV'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { exportToCSV } from '@/utils/exportToCSV'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import Menu from '@/components/shared/menu/menu'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
@@ -43,7 +44,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
     },
   ])
   const [searchTerm, setSearchTerm] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.ENTITY_FILES, {}))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.ENTITY_FILES, { providedFileName: false }))
   const { successNotification, errorNotification } = useNotification()
 
   const [markEvidenceFile, setMarkEvidenceFile] = useState<TFile | null>(null)
@@ -54,7 +55,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
   const debouncedSearch = useDebounce(searchTerm, 300)
   const fileWhere: FileWhereInput | undefined = (() => {
     const where: FileWhereInput = {}
-    if (debouncedSearch) where.providedFileNameContainsFold = debouncedSearch
+    if (debouncedSearch) where.or = [{ providedFileNameContainsFold: debouncedSearch }, { nameContainsFold: debouncedSearch }]
     if (logoFileId) where.idNEQ = logoFileId
     return Object.keys(where).length > 0 ? where : undefined
   })()
@@ -84,12 +85,15 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
 
   const { mutateAsync: uploadFiles, isPending: isUploading } = useUploadEntityFiles()
 
-  const handleUpload = async (newFiles: File[]) => {
+  const handleUpload = async (uploads: StagedUpload[]) => {
     try {
+      const { files: entityFiles, metadata: entityFilesMetadata } = toFileUploadArgs(uploads)
+
       await uploadFiles({
         updateEntityId: vendorId,
         input: {},
-        entityFiles: newFiles,
+        entityFiles,
+        entityFilesMetadata,
       })
       successNotification({
         title: 'Documents uploaded',
@@ -155,9 +159,9 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFile
         tableKey={TableKeyEnum.ENTITY_FILES}
       />
 
-      {markEvidenceFile && <MarkAsEvidenceDialog fileId={markEvidenceFile.id} fileName={markEvidenceFile.providedFileName} vendorId={vendorId} onClose={() => setMarkEvidenceFile(null)} />}
-      {unmarkEvidenceFile && <UnmarkEvidenceDialog fileId={unmarkEvidenceFile.id} fileName={unmarkEvidenceFile.providedFileName} onClose={() => setUnmarkEvidenceFile(null)} />}
-      {deleteFile && <DeleteDocumentDialog fileId={deleteFile.id} fileName={deleteFile.providedFileName} vendorId={vendorId} onClose={() => setDeleteFile(null)} />}
+      {markEvidenceFile && <MarkAsEvidenceDialog fileId={markEvidenceFile.id} fileName={getFileDisplayName(markEvidenceFile)} vendorId={vendorId} onClose={() => setMarkEvidenceFile(null)} />}
+      {unmarkEvidenceFile && <UnmarkEvidenceDialog fileId={unmarkEvidenceFile.id} fileName={getFileDisplayName(unmarkEvidenceFile)} onClose={() => setUnmarkEvidenceFile(null)} />}
+      {deleteFile && <DeleteDocumentDialog fileId={deleteFile.id} fileName={getFileDisplayName(deleteFile)} vendorId={vendorId} onClose={() => setDeleteFile(null)} />}
       {canEdit && <DocumentsUploadDialog onUpload={handleUpload} isUploading={isUploading} title="Upload Documents" open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen} />}
     </div>
   )
