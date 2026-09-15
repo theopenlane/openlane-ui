@@ -181,7 +181,7 @@ export const buildImportDomainScanReviewInput = ({
     const description = override?.description !== undefined ? override.description : finding.description
 
     return {
-      category: finding.category,
+      category: finding.importCategory ?? finding.category,
       description: description ? `${title}\n\n${description}` : title,
       severity: finding.severity,
     }

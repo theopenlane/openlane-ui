@@ -39,22 +39,46 @@ export const FindingsStep = ({ findings, selected, setSelected, agentReadiness, 
     )
   }
 
-  const categoryOrder: DomainScanFindingCategoryValue[] = [DomainScanFindingCategory.RISK, DomainScanFindingCategory.SECURITY_VIOLATION, DomainScanFindingCategory.AGENT_READINESS]
+  const categoryOrder: DomainScanFindingCategoryValue[] = [
+    DomainScanFindingCategory.RISK,
+    DomainScanFindingCategory.SECURITY_VIOLATION,
+    DomainScanFindingCategory.COMPLIANCE_LINKS,
+    DomainScanFindingCategory.EMAIL_AUTHENTICATION,
+    DomainScanFindingCategory.WEB_POSTURE,
+    DomainScanFindingCategory.AGENT_READINESS,
+  ]
 
+  // categories whose description is a markdown checklist rather than free text
+  const checklistCategories: DomainScanFindingCategoryValue[] = [DomainScanFindingCategory.AGENT_READINESS, DomainScanFindingCategory.COMPLIANCE_LINKS]
+
+  // findings that carry a domain are grouped once per category and domain, so a multi-domain
+  // review reads as "Web Posture for a.com" and "Web Posture for b.com" rather than one mixed list
   const groups = categoryOrder
-    .map((category) => ({
-      category,
-      description: category === DomainScanFindingCategory.AGENT_READINESS ? agentReadinessDescription(agentReadiness) : undefined,
-      items: findings.filter((finding) => finding.category === category),
-    }))
+    .flatMap((category) => {
+      const items = findings.filter((finding) => finding.category === category)
+      const domains = Array.from(new Set(items.map((finding) => finding.domain)))
+
+      return domains.map((domain) => ({
+        key: domain ? `${category}:${domain}` : category,
+        title: domain ? (
+          <span className="inline-flex items-baseline gap-1.5">
+            {getEnumLabel(category)} for <span className="font-mono text-sm">{domain}</span>
+          </span>
+        ) : (
+          getEnumLabel(category)
+        ),
+        description: category === DomainScanFindingCategory.AGENT_READINESS ? agentReadinessDescription(agentReadiness) : undefined,
+        items: items.filter((finding) => finding.domain === domain),
+      }))
+    })
     .filter((group) => group.items.length > 0)
 
   return (
     <div className="space-y-4">
       {groups.map((group) => (
         <SectionCard
-          key={group.category}
-          title={getEnumLabel(group.category)}
+          key={group.key}
+          title={group.title}
           count={group.items.length}
           description={group.description}
           titleAction={<SelectAllCheckbox ids={group.items.map((finding) => finding.id)} selected={selected} setSelected={setSelected} />}
@@ -73,7 +97,7 @@ export const FindingsStep = ({ findings, selected, setSelected, agentReadiness, 
                   />
                 }
                 description={
-                  finding.category === DomainScanFindingCategory.AGENT_READINESS ? (
+                  checklistCategories.includes(finding.category) ? (
                     <PlateEditor key={finding.id} initialValue={finding.description ?? ''} readonly variant="readonly" toolbarClassName="hidden" />
                   ) : (
                     <EditableTextarea

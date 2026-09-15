@@ -31,3 +31,17 @@ export function ScanStatusBadge({ status }: { status: ScanScanStatus }) {
     </Badge>
   )
 }
+
+// ComplianceDocumentTypeLabel maps the domain scan's compliance document types to display names
+export const ComplianceDocumentTypeLabel: Record<string, string> = {
+  privacy_policy: 'Privacy Policy',
+  terms_of_service: 'Terms of Service',
+  trust_center: 'Trust Center',
+  dpa: 'Data Privacy Agreement',
+  soc2_report: 'SOC 2 Report',
+  subprocessors: 'Subprocessors',
+  gdpr: 'GDPR',
+  cookie_policy: 'Cookie Policy',
+}
+
+export const getComplianceDocumentLabel = (type: string): string => ComplianceDocumentTypeLabel[type] ?? getEnumLabel(type)
