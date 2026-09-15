@@ -1,12 +1,11 @@
 'use client'
-import React, { useState } from 'react'
+import React from 'react'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
-import { ChevronUpIcon, ChevronDownIcon } from 'lucide-react'
 import { useDeleteGroup, useGetGroupDetails } from '@/lib/graphql-hooks/group'
 import { useQueryClient } from '@tanstack/react-query'
-import GroupsDeletePermissionsTable from '../groups-delete-permissions-table'
+import GroupAssociatedObjectsSection from './group-associated-objects-section'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -20,7 +19,6 @@ type DeleteGroupDialogProps = {
 const DeleteGroupDialog = ({ open, onOpenChange }: DeleteGroupDialogProps) => {
   const { selectedGroup, setSelectedGroup } = useGroupsStore()
   const { successNotification, errorNotification } = useNotification()
-  const [expanded, setExpanded] = useState(false)
   const queryClient = useQueryClient()
 
   const { data } = useGetGroupDetails(selectedGroup)
@@ -59,15 +57,7 @@ const DeleteGroupDialog = ({ open, onOpenChange }: DeleteGroupDialogProps) => {
         <p className="break-words">
           Are you sure you want to delete the group <span className="font-semibold">{name}</span> from your organization?
         </p>
-        <div className="space-y-2.5 min-w-0">
-          <p className="font-medium">Objects associated with the group</p>
-          <p className="text-sm">All granted permissions to the group will be unassociated. No objects will be deleted.</p>
-          <button type="button" aria-expanded={expanded} className="border rounded-lg flex gap-1 items-center py-1.5 px-3" onClick={() => setExpanded((prev) => !prev)}>
-            <p>Show associated Objects</p>
-            {expanded ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
-          </button>
-          {expanded && <GroupsDeletePermissionsTable />}
-        </div>
+        <GroupAssociatedObjectsSection />
 
         <DialogFooter className="flex gap-2">
           <CancelButton onClick={() => onOpenChange(false)} />

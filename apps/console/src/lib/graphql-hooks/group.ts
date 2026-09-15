@@ -172,6 +172,7 @@ export const useGetGroupPermissions = (groupId?: string | null) => {
     queryKey: ['groups', groupId, 'permissions'],
     queryFn: () => client.request(GET_GROUP_PERMISSIONS, { groupId }),
     enabled: !!groupId,
+    placeholderData: undefined,
   })
 }
 
