@@ -241,10 +241,7 @@ const validateValues = (values: TFilterState, filterFields: FilterField[]): TFil
   return result
 }
 
-//helpers to validate types in case something is needed outside table-filter. filter type, or data object could change so this is used to verify types
-export const isStringArray = (value: unknown): value is string[] => {
-  return Array.isArray(value) && value.every((v) => typeof v === 'string')
-}
+export { isStringArray } from '@/utils/type-guards'
 
 export const isDateRange = (value: unknown): value is { from?: Date; to?: Date } => {
   if (typeof value !== 'object' || value === null) return false
