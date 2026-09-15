@@ -12,7 +12,7 @@ import ControlHeaderActions from '@/components/pages/protected/controls/control-
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { SubcontrolControlSource, SubcontrolControlStatus, type UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
-import { useNavigationGuard } from 'next-navigation-guard'
+import { useNavigationGuard } from 'nextjs-nav-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import {
   useGetSubcontrolAssociationsById,

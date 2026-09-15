@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/providers/theme'
 import { usePathname } from 'next/navigation'
 import { type ReactNode, useMemo } from 'react'
 import { Loading } from '@/components/shared/loading/loading'
-import { NavigationGuardProvider } from 'next-navigation-guard'
+import { NavigationGuardProvider } from 'nextjs-nav-guard'
 import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
 import { InitPlugSDK } from '@/providers/chatSdk'
 import { AppTooltipProvider } from '@repo/ui/tooltip'
@@ -87,25 +87,25 @@ const Providers = ({ children }: ProvidersProps) => {
     )
   }
 
-  if (status === 'loading' && !data) {
-    return <Loading />
-  }
-
   return (
     <NavigationGuardProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        <QueryClientProvider client={queryClient}>
-          <WebSocketProvider>
-            <NotificationsProvider>
-              <BreadcrumbProvider>
-                {devrevChatEnabled && <InitPlugSDK />}
-                <AppTooltipProvider>{children}</AppTooltipProvider>
-                <NotificationToastContainer />
-              </BreadcrumbProvider>
-            </NotificationsProvider>
-          </WebSocketProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
+      {status === 'loading' && !data ? (
+        <Loading />
+      ) : (
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <QueryClientProvider client={queryClient}>
+            <WebSocketProvider>
+              <NotificationsProvider>
+                <BreadcrumbProvider>
+                  {devrevChatEnabled && <InitPlugSDK />}
+                  <AppTooltipProvider>{children}</AppTooltipProvider>
+                  <NotificationToastContainer />
+                </BreadcrumbProvider>
+              </NotificationsProvider>
+            </WebSocketProvider>
+          </QueryClientProvider>
+        </ThemeProvider>
+      )}
     </NavigationGuardProvider>
   )
 }

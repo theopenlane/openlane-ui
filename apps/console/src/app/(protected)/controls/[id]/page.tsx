@@ -11,7 +11,7 @@ import TitleField from '@/components/pages/protected/controls/form-fields/title-
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field.tsx'
 import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card.tsx'
 import { ControlControlSource, ControlControlStatus, type UpdateControlInput } from '@repo/codegen/src/schema.ts'
-import { useNavigationGuard } from 'next-navigation-guard'
+import { useNavigationGuard } from 'nextjs-nav-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { canEdit } from '@/lib/authz/utils.ts'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet.tsx'
