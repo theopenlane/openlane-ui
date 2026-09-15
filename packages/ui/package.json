@@ -210,7 +210,7 @@
     "@types/eslint": "^9.6.1",
     "@types/node": "^26.2.0",
     "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.5",
+    "@types/react-dom": "19.2.7",
     "autoprefixer": "^10.5.4",
     "clsx": "^2.1.1",
     "eslint": "^10.9.0",
@@ -222,6 +222,6 @@
   },
   "overrides": {
     "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.4"
+    "@types/react-dom": "19.2.7"
   }
 }
