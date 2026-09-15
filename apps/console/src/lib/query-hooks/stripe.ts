@@ -1,6 +1,8 @@
-import { type InvoicesResponse, type OpenlaneProductsResponse, type Subscription, type SubscriptionSchedulesResponse, type UpcomingInvoiceResponse } from '@/types/stripe'
+import { type Invoice, type InvoicesResponse, type OpenlaneProductsResponse, type Subscription, type SubscriptionSchedulesResponse, type UpcomingInvoiceResponse } from '@/types/stripe'
 import { openlaneAPIUrl } from '@repo/dally/auth'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { fromUnixTime } from 'date-fns'
+import type Stripe from 'stripe'
 
 export function useSchedulesQuery(customerId?: string | null) {
   return useQuery<SubscriptionSchedulesResponse>({
@@ -197,18 +199,23 @@ export function usePaymentMethodsQuery(customerId?: string | null) {
   })
 }
 
-export function useInvoicesQuery(customerId?: string | null) {
-  return useQuery<InvoicesResponse>({
-    queryKey: ['stripe-invoices', customerId],
-    queryFn: async () => {
-      if (!customerId) {
-        return { invoices: [] }
-      }
+const DEFAULT_INVOICE_LIMIT = 10
+const OUTSTANDING_INVOICE_LIMIT = 100
 
+type InvoicesQueryParams = {
+  customerId?: string | null
+  status?: Stripe.InvoiceListParams.Status
+  limit?: number
+}
+
+const invoicesQueryOptions = ({ customerId, status, limit = DEFAULT_INVOICE_LIMIT }: InvoicesQueryParams) =>
+  queryOptions({
+    queryKey: ['stripe-invoices', customerId, status ?? null, limit],
+    queryFn: async (): Promise<InvoicesResponse> => {
       const res = await fetch(`/api/stripe/invoices`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerId }),
+        body: JSON.stringify({ customerId, status, limit }),
       })
 
       if (!res.ok) {
@@ -220,4 +227,16 @@ export function useInvoicesQuery(customerId?: string | null) {
     },
     enabled: !!customerId,
   })
+
+export const useInvoicesQuery = (customerId?: string | null) => useQuery(invoicesQueryOptions({ customerId }))
+
+const dueTimestamp = (invoice: Invoice) => invoice.due_date ?? invoice.created
+
+const selectOutstandingInvoiceDueDate = ({ invoices }: InvoicesResponse): Date | null => {
+  const oldest = invoices.filter((invoice) => invoice.amount_due > 0).reduce<Invoice | null>((acc, invoice) => (!acc || dueTimestamp(invoice) < dueTimestamp(acc) ? invoice : acc), null)
+
+  return oldest ? fromUnixTime(dueTimestamp(oldest)) : null
 }
+
+export const useOutstandingInvoiceDueDateQuery = (customerId?: string | null) =>
+  useQuery({ ...invoicesQueryOptions({ customerId, status: 'open', limit: OUTSTANDING_INVOICE_LIMIT }), select: selectOutstandingInvoiceDueDate })
