@@ -5,8 +5,12 @@ import { Download, Loader2 } from 'lucide-react'
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { useNotification } from '@/hooks/useNotification'
 import type { TFile } from '@/components/shared/file-table/columns'
-import { isImageFile, isPdfFile } from './preview-mime'
+import dynamic from 'next/dynamic'
+import { isCsvFile, isImageFile, isPdfFile } from './preview-mime'
+import { LoadingSpinner } from './preview-chrome'
 import { usePdfBlobPreview, type TPdfPreviewState } from './use-pdf-blob-preview'
+
+const FilePreview = dynamic(() => import('./file-preview'), { ssr: false, loading: () => <LoadingSpinner /> })
 
 type TFilePreviewDialogProps = {
   file: TFile | null
@@ -53,6 +57,7 @@ const FilePreviewDialog: React.FC<TFilePreviewDialogProps> = ({ file, open, onOp
 
   const showImage = isImageFile(file) && !!url
   const showPdf = isPdfFile(file)
+  const showCsv = isCsvFile(file)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -69,6 +74,11 @@ const FilePreviewDialog: React.FC<TFilePreviewDialogProps> = ({ file, open, onOp
             <img src={url} alt={file.providedFileName} className="max-w-full max-h-full object-contain" />
           )}
           {showPdf && <PdfBody state={pdf} title={file.providedFileName} />}
+          {showCsv && (
+            <div className="flex-1 min-h-0 min-w-0 self-stretch p-3">
+              <FilePreview file={file} />
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end">

@@ -1,90 +1,93 @@
 import { detectFormat, isSafeLinkHref, SAFE_LINK_PROTOCOLS } from '../file-preview'
 
+const formatOf = (detectedMimeType: string | null, providedFileExtension: string | null, providedFileName = '') =>
+  detectFormat({ detectedMimeType, providedFileExtension: providedFileExtension ?? '', providedFileName })
+
 describe('detectFormat', () => {
   describe('PDF', () => {
     it('routes by mime type', () => {
-      expect(detectFormat('application/pdf', null)).toBe('pdf')
+      expect(formatOf('application/pdf', null)).toBe('pdf')
     })
 
     it('routes by extension when mime is missing', () => {
-      expect(detectFormat(null, 'pdf')).toBe('pdf')
+      expect(formatOf(null, 'pdf')).toBe('pdf')
     })
 
     it('strips leading dot from extension', () => {
-      expect(detectFormat(null, '.pdf')).toBe('pdf')
+      expect(formatOf(null, '.pdf')).toBe('pdf')
     })
 
     it('is case-insensitive', () => {
-      expect(detectFormat('Application/PDF', null)).toBe('pdf')
-      expect(detectFormat(null, 'PDF')).toBe('pdf')
+      expect(formatOf('Application/PDF', null)).toBe('pdf')
+      expect(formatOf(null, 'PDF')).toBe('pdf')
     })
   })
 
   describe('Markdown', () => {
     it.each(['text/markdown', 'text/x-markdown'])('routes mime type %s to markdown', (mime) => {
-      expect(detectFormat(mime, null)).toBe('markdown')
+      expect(formatOf(mime, null)).toBe('markdown')
     })
 
     it.each(['md', 'mdx', 'markdown'])('routes extension %s to markdown', (ext) => {
-      expect(detectFormat(null, ext)).toBe('markdown')
+      expect(formatOf(null, ext)).toBe('markdown')
     })
   })
 
   describe('HTML', () => {
     it('routes text/html', () => {
-      expect(detectFormat('text/html', null)).toBe('html')
+      expect(formatOf('text/html', null)).toBe('html')
     })
 
     it.each(['html', 'htm'])('routes extension %s', (ext) => {
-      expect(detectFormat(null, ext)).toBe('html')
+      expect(formatOf(null, ext)).toBe('html')
     })
   })
 
   describe('DOCX', () => {
     it('routes the long openxmlformats mime', () => {
-      expect(detectFormat('application/vnd.openxmlformats-officedocument.wordprocessingml.document', null)).toBe('docx')
+      expect(formatOf('application/vnd.openxmlformats-officedocument.wordprocessingml.document', null)).toBe('docx')
     })
 
     it('routes by extension', () => {
-      expect(detectFormat(null, 'docx')).toBe('docx')
+      expect(formatOf(null, 'docx')).toBe('docx')
     })
 
     it('does NOT route legacy .doc to docx (would mis-render)', () => {
-      expect(detectFormat('application/msword', 'doc')).toBe('unsupported')
+      expect(formatOf('application/msword', 'doc')).toBe('unsupported')
     })
   })
 
   describe('Plain text', () => {
     it.each(['text/plain', 'text/plain; charset=utf-8'])('routes mime type %s to text', (mime) => {
-      expect(detectFormat(mime, null)).toBe('text')
+      expect(formatOf(mime, null)).toBe('text')
     })
 
     it('routes .txt extension', () => {
-      expect(detectFormat(null, 'txt')).toBe('text')
+      expect(formatOf(null, 'txt')).toBe('text')
     })
   })
 
   describe('Unsupported', () => {
     it('returns unsupported for unknown mime + extension', () => {
-      expect(detectFormat('application/octet-stream', 'xyz')).toBe('unsupported')
+      expect(formatOf('application/octet-stream', 'xyz')).toBe('unsupported')
     })
 
     it('returns unsupported for null mime and unknown extension', () => {
-      expect(detectFormat(null, 'rtf')).toBe('unsupported')
+      expect(formatOf(null, 'rtf')).toBe('unsupported')
     })
 
     it('returns unsupported for both null', () => {
-      expect(detectFormat(null, null)).toBe('unsupported')
+      expect(formatOf(null, null)).toBe('unsupported')
     })
 
     it('returns unsupported for empty strings', () => {
-      expect(detectFormat('', '')).toBe('unsupported')
+      expect(formatOf('', '')).toBe('unsupported')
     })
   })
 
   describe('mime takes precedence over extension', () => {
     it('mime wins when both are present and conflict', () => {
-      expect(detectFormat('application/pdf', 'docx')).toBe('pdf')
+      expect(formatOf('application/pdf', 'docx')).toBe('pdf')
     })
   })
 })
