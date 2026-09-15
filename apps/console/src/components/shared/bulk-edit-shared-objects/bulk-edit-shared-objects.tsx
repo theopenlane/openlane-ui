@@ -261,6 +261,7 @@ const POLICY_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObject
 const CONTROL_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
 const RISK_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.INTERNAL_POLICY] as const
 const EVIDENCE_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.PROGRAM, ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.SCAN] as const
+const TASK_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.PROGRAM] as const
 
 const ASSOCIATION_DISPLAY_NAMES: Partial<Record<ObjectTypeObjects, string>> = {
   [ObjectTypeObjects.CONTROL]: 'Associate Controls',
@@ -510,7 +511,7 @@ export const getAllSelectOptionsForBulkEditTasks = (
       }[]
     | undefined,
   taskKindOptions: { value: string; label: string }[],
-): SelectOptionSelectedObject<SelectOptionBulkEditTasks>[] => {
+): SelectOptionSelectedObject[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditTasks.TaskAssignee,
@@ -547,6 +548,7 @@ export const getAllSelectOptionsForBulkEditTasks = (
       inputType: InputType.Tag,
       placeholder: 'Add a tag',
     },
+    ...generateAssociationSelectOptions(TASK_ALLOWED_OBJECT_TYPES),
   ]
 }
 
