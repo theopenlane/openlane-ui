@@ -5,10 +5,10 @@ import { Download, Loader2 } from 'lucide-react'
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { useNotification } from '@/hooks/useNotification'
 import type { TFile } from '@/components/shared/file-table/columns'
-import { isImageFile, isPdfFile } from '@/components/shared/file-preview/preview-mime'
-import { usePdfBlobPreview, type TPdfPreviewState } from '@/components/shared/file-preview/use-pdf-blob-preview'
+import { isImageFile, isPdfFile } from './preview-mime'
+import { usePdfBlobPreview, type TPdfPreviewState } from './use-pdf-blob-preview'
 
-type TEvidenceFilePreviewDialogProps = {
+type TFilePreviewDialogProps = {
   file: TFile | null
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -35,7 +35,7 @@ const PdfBody: React.FC<{ state: TPdfPreviewState; title: string }> = ({ state, 
   }
 }
 
-const EvidenceFilePreviewDialog: React.FC<TEvidenceFilePreviewDialogProps> = ({ file, open, onOpenChange }) => {
+const FilePreviewDialog: React.FC<TFilePreviewDialogProps> = ({ file, open, onOpenChange }) => {
   const { errorNotification } = useNotification()
   const url = file?.presignedURL || ''
   const pdf = usePdfBlobPreview(url, open && !!file && isPdfFile(file))
@@ -81,4 +81,4 @@ const EvidenceFilePreviewDialog: React.FC<TEvidenceFilePreviewDialogProps> = ({ 
   )
 }
 
-export default EvidenceFilePreviewDialog
+export default FilePreviewDialog

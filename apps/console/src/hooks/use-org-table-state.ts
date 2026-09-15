@@ -67,14 +67,15 @@ export const useOrgTableSort = <TField extends string>(
   return [sortingState, setSorting]
 }
 
-const readPagination = (fallback: TPagination, tableKey?: TableKeyValue, organizationId?: string): TPagination => {
+const readPagination = (fallback: TPagination, tableKey?: TableKeyValue, organizationId?: string, allowedPageSizes?: number[]): TPagination => {
   if (!tableKey) return fallback
   const stored = getOrganizationStorageItem(`${PAGINATION_KEY_PREFIX}${tableKey}`, organizationId)
   if (!stored) return fallback
   try {
     const parsed = JSON.parse(stored) as number | Pick<TPagination, 'pageSize'>
     const pageSize = typeof parsed === 'number' ? parsed : parsed?.pageSize
-    if (Number.isInteger(pageSize) && pageSize > 0) {
+    const isAllowed = Number.isInteger(pageSize) && pageSize > 0 && (!allowedPageSizes || allowedPageSizes.includes(pageSize))
+    if (isAllowed) {
       return { ...fallback, pageSize, query: { ...fallback.query, first: pageSize } }
     }
   } catch {
@@ -83,9 +84,9 @@ const readPagination = (fallback: TPagination, tableKey?: TableKeyValue, organiz
   return fallback
 }
 
-export const useOrgTablePagination = (fallback: TPagination, tableKey?: TableKeyValue): [TPagination, Dispatch<SetStateAction<TPagination>>, () => void] => {
+export const useOrgTablePagination = (fallback: TPagination, tableKey?: TableKeyValue, allowedPageSizes?: number[]): [TPagination, Dispatch<SetStateAction<TPagination>>, () => void] => {
   const { currentOrgId } = useOrganization()
-  const [paginationState, setPaginationState] = useState<TPagination>(() => readPagination(fallback, tableKey, currentOrgId))
+  const [paginationState, setPaginationState] = useState<TPagination>(() => readPagination(fallback, tableKey, currentOrgId, allowedPageSizes))
   const prevOrgIdRef = useRef(currentOrgId)
   const paginationRef = useRef(paginationState)
   const fallbackRef = useRef(fallback)
@@ -97,10 +98,10 @@ export const useOrgTablePagination = (fallback: TPagination, tableKey?: TableKey
   useEffect(() => {
     if (prevOrgIdRef.current === currentOrgId) return
     prevOrgIdRef.current = currentOrgId
-    const next = readPagination(fallback, tableKey, currentOrgId)
+    const next = readPagination(fallback, tableKey, currentOrgId, allowedPageSizes)
     paginationRef.current = next
     setPaginationState(next)
-  }, [currentOrgId, fallback, tableKey])
+  }, [currentOrgId, fallback, tableKey, allowedPageSizes])
 
   const setPagination = useCallback<Dispatch<SetStateAction<TPagination>>>(
     (next) => {

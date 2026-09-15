@@ -7,19 +7,17 @@ import { useOrgTablePagination, useOrgTableSort } from '@/hooks/use-org-table-st
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import { fileColumns, type TFile } from '@/components/pages/protected/controls/control-evidence-files/table/columns.tsx'
 import { EVIDENCE_FILES_SORT_FIELDS } from '@/components/pages/protected/controls/control-evidence-files/table/table-config.ts'
-import { ControlEvidenceUploadDialog } from '@/components/pages/protected/evidence/evidence-upload-dialog'
-import { Download, Eye, Trash2 } from 'lucide-react'
+import { EvidenceAddFilesDialog } from '@/components/pages/protected/evidence/evidence-add-files-dialog'
+import { Download, Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { useNotification } from '@/hooks/useNotification'
-import { useQueryClient } from '@tanstack/react-query'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import type { Row } from '@repo/ui/table-types'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import EvidenceFilePreviewDialog from '@/components/pages/protected/evidence/evidence-file-preview-dialog'
-import { isPreviewableFile } from '@/components/shared/file-preview/preview-mime'
+import FilePreviewDialog from '@/components/shared/file-preview/file-preview-dialog'
+import { getFileActionsColumn } from '@/components/shared/file-table/file-actions-column'
 
 type TControlEvidenceFiles = {
   evidenceID: string
@@ -28,7 +26,6 @@ type TControlEvidenceFiles = {
 
 const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowed }) => {
   const [pagination, setPagination] = useOrgTablePagination(DEFAULT_PAGINATION, TableKeyEnum.EVIDENCE_FILES)
-  const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
   const [deleteFileInfo, setDeleteFileInfo] = useState<{
     id: string | null
@@ -67,7 +64,6 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
         },
       })
       setDeleteFileInfo({ id: null, name: null })
-      queryClient.invalidateQueries({ queryKey: ['evidenceFiles'] })
       successNotification({
         title: 'Evidence Updated',
         description: 'The evidence has been successfully updated.',
@@ -81,65 +77,30 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
     }
   }
 
-  const getAction = () => {
-    return [
-      {
-        id: 'actions',
-        header: '',
-        cell: ({ row }: { row: Row<TFile> }) => {
-          const canPreview = isPreviewableFile(row.original) && !!row.original.presignedURL
+  const fileActionsColumn = getFileActionsColumn<TFile>({
+    onPreview: (file) => {
+      setPreviewFile(file)
+      setPreviewIsOpen(true)
+    },
+    trailingAction: (file) => (
+      <SystemTooltip
+        icon={
+          <p
+            className="flex items-center gap-1 cursor-pointer"
+            {...activatable(() => {
+              setDeleteDialogIsOpen(true)
+              setDeleteFileInfo({ id: file.id, name: file.providedFileName })
+            })}
+          >
+            <Trash2 size={16} />
+          </p>
+        }
+        content={<p>Delete</p>}
+      />
+    ),
+  })
 
-          return (
-            <div role="presentation" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">
-              {canPreview && (
-                <SystemTooltip
-                  icon={
-                    <p
-                      className="flex items-center gap-1 cursor-pointer"
-                      {...activatable(() => {
-                        setPreviewFile(row.original)
-                        setPreviewIsOpen(true)
-                      })}
-                    >
-                      <Eye size={16} />
-                    </p>
-                  }
-                  content={<p>Preview</p>}
-                />
-              )}
-
-              <SystemTooltip
-                icon={
-                  <p className="flex items-center gap-1 cursor-pointer" {...activatable(() => fileDownload(row?.original?.presignedURL || '', row.original.providedFileName, errorNotification))}>
-                    <Download size={16} />
-                  </p>
-                }
-                content={<p>Download</p>}
-              />
-
-              <SystemTooltip
-                icon={
-                  <p
-                    className="flex items-center gap-1 cursor-pointer"
-                    {...activatable(() => {
-                      setDeleteDialogIsOpen(true)
-                      setDeleteFileInfo({ id: row.original.id, name: row.original.providedFileName })
-                    })}
-                  >
-                    <Trash2 size={16} />
-                  </p>
-                }
-                content={<p>Delete</p>}
-              />
-            </div>
-          )
-        },
-        size: 40,
-      },
-    ]
-  }
-
-  const columns = [...fileColumns, ...getAction()]
+  const columns = [...fileColumns, fileActionsColumn]
 
   if (isError) {
     return <p className="text-red-500">Error loading evidence files</p>
@@ -150,7 +111,7 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
       <div className="flex items-center justify-between mb-3">
         <p className="text-lg">Provided files</p>
         <div className="flex items-center gap-2">
-          {editAllowed && <ControlEvidenceUploadDialog evidenceID={evidenceID} />}
+          {editAllowed && <EvidenceAddFilesDialog evidenceID={evidenceID} />}
           <Button variant="secondary" icon={<Download />} iconPosition="left" onClick={() => handleDownloadAll()} disabled={files?.length === 0}>
             Download All
           </Button>
@@ -182,7 +143,7 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
         }
       />
 
-      <EvidenceFilePreviewDialog file={previewFile} open={previewIsOpen} onOpenChange={setPreviewIsOpen} />
+      <FilePreviewDialog file={previewFile} open={previewIsOpen} onOpenChange={setPreviewIsOpen} />
     </div>
   )
 }

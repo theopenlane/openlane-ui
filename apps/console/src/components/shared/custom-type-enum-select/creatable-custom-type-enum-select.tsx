@@ -12,6 +12,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface CreatableCustomTypeEnumSelectProps {
+  triggerId?: string
   value?: string
   options: CustomTypeEnumOption[]
   onValueChange: (value: string) => void | Promise<void>
@@ -26,6 +27,7 @@ interface CreatableCustomTypeEnumSelectProps {
 }
 
 export const CreatableCustomTypeEnumSelect = ({
+  triggerId,
   value,
   options,
   onValueChange,
@@ -91,6 +93,7 @@ export const CreatableCustomTypeEnumSelect = ({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
+          id={triggerId}
           type="button"
           disabled={disabled}
           className={cn(
