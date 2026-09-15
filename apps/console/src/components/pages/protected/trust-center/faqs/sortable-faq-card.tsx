@@ -1,5 +1,3 @@
-import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { objectToSnakeCase } from '@/utils/strings'
 import { type UseFormReturn } from 'react-hook-form'
 import { GripVertical, Pencil, Trash2, ExternalLink } from 'lucide-react'
 import { Input } from '@repo/ui/input'
@@ -8,6 +6,8 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Label } from '@repo/ui/label'
 import { Form } from '@repo/ui/form'
 import { CategoryField } from '../shared/category-field'
+import { FaqCategoryChip } from './faq-category-chip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { type TrustCenterFaqsNodeNonNull } from '@/lib/graphql-hooks/trust-center-faq'
@@ -26,9 +26,10 @@ interface SortableFaqCardProps {
   onSaveEdit: () => void
   onCancelEdit: () => void
   canEdit?: boolean
+  canCreateCategory: boolean
 }
 
-export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDelete, editForm, isUpdating, onSaveEdit, onCancelEdit, canEdit }: SortableFaqCardProps) {
+export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDelete, editForm, isUpdating, onSaveEdit, onCancelEdit, canEdit, canCreateCategory }: SortableFaqCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: faq.id })
 
   const style = {
@@ -52,7 +53,7 @@ export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDele
                 <Label>Reference Link</Label>
                 <Input className="bg-background text-sm" placeholder="https://..." {...editForm.register('referenceLink')} />
                 {editForm.formState.errors.referenceLink && <p className="text-red-500 text-sm">{editForm.formState.errors.referenceLink.message}</p>}
-                <CategoryField objectType={objectToSnakeCase(ObjectTypes.TRUST_CENTER_FAQ)} isEditing canCreate={canEdit} />
+                <CategoryField objectType={ObjectTypes.TRUST_CENTER_FAQ} isEditing canCreate={canCreateCategory} clearable />
                 <div className="flex items-center justify-end">
                   <div className="flex gap-2">
                     <CancelButton onClick={onCancelEdit}></CancelButton>
@@ -67,6 +68,7 @@ export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDele
                 <GripVertical size={16} />
               </button>
               <div className="flex flex-col flex-1 min-w-0">
+                <FaqCategoryChip categoryName={faq.trustCenterFaqKindName} />
                 <p className="text-sm font-medium leading-relaxed">{faq.note.title}</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">{faq.note.text}</p>
                 {faq.referenceLink && (
