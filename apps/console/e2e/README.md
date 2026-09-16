@@ -38,8 +38,7 @@ gate grants `owner`, rather than repeating the role in every gate's list. No gat
 currently exercises org deletion; if one is added, it must opt out of that helper.
 
 **Every profile above is registered by `global-setup.ts` against core's public
-API.** The suite has no dependency on `theopenlane/harmonize` for users, so it
-runs for anyone who can run core locally.
+API**, so the suite runs for anyone who can run core locally.
 
 Switch role with the **`authProfile`** test option — never with
 `storageState: authFile(...)`. `authProfile` routes through the worker-scoped

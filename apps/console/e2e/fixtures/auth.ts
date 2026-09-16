@@ -11,7 +11,7 @@ import { loginAndSaveState } from '../utils/session'
 
 export type Role = 'owner' | 'admin' | 'superadmin' | 'member' | 'readonly'
 
-/** The demo organization seeded by harmonize. */
+/** An externally seeded organization with a provisioned trust center. */
 export type AuthProfile = Role | 'demo'
 
 const AUTH_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '.auth')
