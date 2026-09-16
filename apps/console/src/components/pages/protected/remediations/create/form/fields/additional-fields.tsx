@@ -1,5 +1,7 @@
 'use client'
 
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
+
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { type UpdateRemediationInput } from '@repo/codegen/src/schema'
@@ -104,7 +106,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
             <TextField name="externalURI" label="External URI" type="text" {...sharedFieldProps} />
           </div>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="ownerReference" label="Owner Reference" {...sharedFieldProps} />
+            <ResponsibilityField {...sharedFieldProps} />
             <TextField name="ticketReference" label="Ticket Reference" {...sharedFieldProps} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">

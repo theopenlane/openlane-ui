@@ -9,7 +9,7 @@ import { Callout } from '@/components/shared/callout/callout'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import ProgramTypeSelect from '../../shared/form-fields/program-select'
 import { DateSelect } from '../../shared/form-fields/date-select'
-import { useUserSelect } from '@/lib/graphql-hooks/member'
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { type SourceProgram } from '../from-existing-types'
 import { type WizardValues } from '../from-existing-wizard-config'
@@ -24,7 +24,6 @@ const ProgramDetailsStep = ({ sourceProgram, ownerLeftOrg }: ProgramDetailsStepP
     control,
     formState: { errors },
   } = useFormContext<WizardValues>()
-  const { userOptions } = useUserSelect({})
   const { standardOptions } = useStandardsSelect({})
   const framework = useWatch({ control, name: 'framework' })
 
@@ -87,19 +86,7 @@ const ProgramDetailsStep = ({ sourceProgram, ownerLeftOrg }: ProgramDetailsStepP
         </div>
       </div>
 
-      <FormField
-        control={control}
-        name="programOwnerID"
-        render={({ field, fieldState }) => (
-          <FormItem>
-            <FormLabel>Program Owner</FormLabel>
-            <FormControl>
-              <SearchableSingleSelect value={field.value} options={userOptions} placeholder="Select owner" clearable clearLabel="No owner" onChange={field.onChange} />
-            </FormControl>
-            {fieldState.error && <FormMessage />}
-          </FormItem>
-        )}
-      />
+      <ResponsibilityField label="Program Owner" isCreate isEditing isEditAllowed internalEditing={null} setInternalEditing={() => {}} />
 
       {ownerLeftOrg && (
         <Callout variant="warning" compact>

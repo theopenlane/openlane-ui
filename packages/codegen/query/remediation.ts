@@ -22,7 +22,24 @@ export const GET_ALL_REMEDIATIONS = gql`
           instructions
           intent
           metadata
-          ownerReference
+          internalOwner
+          internalOwnerUserID
+          internalOwnerGroupID
+          internalOwnerIdentityHolderID
+          internalOwnerUser {
+            id
+            displayName
+            email
+          }
+          internalOwnerGroup {
+            id
+            displayName
+          }
+          internalOwnerIdentityHolder {
+            id
+            fullName
+            email
+          }
           prGeneratedAt
           pullRequestURI
           repositoryURI
@@ -67,7 +84,24 @@ export const REMEDIATION = gql`
       instructions
       intent
       metadata
-      ownerReference
+      internalOwner
+      internalOwnerUserID
+      internalOwnerGroupID
+      internalOwnerIdentityHolderID
+      internalOwnerUser {
+        id
+        displayName
+        email
+      }
+      internalOwnerGroup {
+        id
+        displayName
+      }
+      internalOwnerIdentityHolder {
+        id
+        fullName
+        email
+      }
       prGeneratedAt
       pullRequestURI
       repositoryURI

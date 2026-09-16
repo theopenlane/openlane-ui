@@ -1,11 +1,13 @@
 'use client'
 import { z } from 'zod'
+import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 const urlField = z.string().url('Please enter a valid URL').optional().or(z.literal(''))
 
 const formSchema = z.object({
+  internalOwner: responsibilityFieldSchema,
   title: z.string().optional(),
   summary: z.string().optional(),
   explanation: z.string().optional(),
@@ -16,7 +18,6 @@ const formSchema = z.object({
   externalID: z.string().optional(),
   externalOwnerID: z.string().optional(),
   externalURI: urlField,
-  ownerReference: z.string().optional(),
   ticketReference: z.string().optional(),
   pullRequestURI: urlField,
   repositoryURI: urlField,
@@ -29,6 +30,7 @@ const formSchema = z.object({
 })
 
 export const bulkEditFieldSchema = z.object({
+  internalOwner: responsibilityFieldSchema,
   state: z.string().optional(),
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),

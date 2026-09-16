@@ -1,5 +1,7 @@
 'use client'
 
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
+
 import { activatable } from '@repo/ui/lib/a11y'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
@@ -137,6 +139,9 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           <CardDescription className="p-0">Identifiers and classification for the vulnerability</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4">
+            <ResponsibilityField {...sharedFieldProps} />
+          </div>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="cveID" label="CVE ID" {...sharedFieldProps} />
             <TextField name="category" label="Category" {...sharedFieldProps} />

@@ -7,8 +7,6 @@ const StepOwnership: React.FC = () => {
   return (
     <div className="space-y-4">
       <ResponsibilityField
-        name="internalOwner"
-        fieldBaseName="internalOwner"
         label="Owner"
         tooltipContent="The owner responsible for the vendor"
         isEditing={true}

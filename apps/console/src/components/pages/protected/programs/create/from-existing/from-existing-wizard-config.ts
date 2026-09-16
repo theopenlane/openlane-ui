@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { type UseFormReturn } from 'react-hook-form'
 import { type TErrorProps } from '@/hooks/useNotification'
 import { type FrameworkControlCount, type SourceProgram } from './from-existing-types'
@@ -16,7 +17,7 @@ export const detailsStepSchema = z.object({
   framework: z.string().optional(),
   startDate: z.date().nullable().optional(),
   endDate: z.date().nullable().optional(),
-  programOwnerID: z.string().optional(),
+  internalOwner: responsibilityFieldSchema,
 })
 
 export const auditorStepSchema = z.object({

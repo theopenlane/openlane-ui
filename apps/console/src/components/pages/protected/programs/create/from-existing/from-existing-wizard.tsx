@@ -1,5 +1,7 @@
 'use client'
 
+import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+
 import React, { use, useEffect, useState } from 'react'
 import { defineStepper } from '@stepperize/react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
@@ -145,7 +147,7 @@ const FromExistingProgramWizard = () => {
         frameworkName: values.framework || undefined,
         startDate: values.startDate ?? undefined,
         endDate: values.endDate ?? undefined,
-        programOwnerID: values.programOwnerID || undefined,
+        ...buildResponsibilityPayload('internalOwner', values.internalOwner),
         auditor: values.auditPartnerName || undefined,
         auditorEmail: values.auditPartnerEmail || undefined,
         auditFirm: values.auditFirm || undefined,

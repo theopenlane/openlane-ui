@@ -29,7 +29,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ inputClassName }) => {
             setInternalEditing={() => {}}
             isEditing={false}
             isEditAllowed={true}
-            groupOnly={true}
+            allowRawInput={false}
           />
         </div>
 
@@ -43,7 +43,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ inputClassName }) => {
             name="delegate"
             fieldBaseName="delegate"
             label=""
-            groupOnly={true}
+            allowRawInput={false}
             isCreate={true}
             internalEditing={null}
             setInternalEditing={() => {}}

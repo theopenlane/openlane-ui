@@ -17,8 +17,8 @@ import { Textarea } from '@repo/ui/textarea'
 import { Pencil } from 'lucide-react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
-import { useGetOrgMemberships, useUserSelect } from '@/lib/graphql-hooks/member'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
+import { responsibilityFieldSchema, normalizeResponsibilityField, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
@@ -40,7 +40,7 @@ const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  programOwnerId: z.string().optional(),
+  internalOwner: responsibilityFieldSchema,
   frameworkName: z.string().optional(),
 })
 
@@ -52,9 +52,6 @@ const BasicInformation = () => {
   const { id } = useParams<{ id: string }>()
   const { data } = useGetProgramBasicInfo(id)
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
-  const { data: programOwner } = useGetOrgMemberships({ where: { userID: data?.program.programOwnerID }, enabled: !!data?.program.programOwnerID })
-  const { userOptions } = useUserSelect({})
-  const programOwnerDisplayName = programOwner?.orgMemberships.edges?.[0]?.node?.user.displayName
   const program = data?.program
 
   const { enumOptions } = useGetCustomTypeEnums({
@@ -92,7 +89,12 @@ const BasicInformation = () => {
         name: program.name ?? '',
         description: program.description ?? '',
         tags: program.tags ?? [],
-        programOwnerId: program.programOwnerID ?? '',
+        internalOwner: normalizeResponsibilityField({
+          user: program.internalOwnerUser,
+          group: program.internalOwnerGroup,
+          personnel: program.internalOwnerIdentityHolder,
+          stringValue: program.internalOwner,
+        }),
         frameworkName: program?.frameworkName ?? '',
       })
 
@@ -111,6 +113,13 @@ const BasicInformation = () => {
         name: program.name ?? '',
         description: program.description ?? '',
         tags: program.tags ?? [],
+        internalOwner: normalizeResponsibilityField({
+          user: program.internalOwnerUser,
+          group: program.internalOwnerGroup,
+          personnel: program.internalOwnerIdentityHolder,
+          stringValue: program.internalOwner,
+        }),
+        frameworkName: program.frameworkName ?? '',
       })
 
       setTagValues(
@@ -132,7 +141,7 @@ const BasicInformation = () => {
           name: values.name,
           description: values.description ?? null,
           tags: values.tags ?? [],
-          programOwnerID: values.programOwnerId || undefined,
+          ...buildResponsibilityPayload('internalOwner', values.internalOwner, { mode: 'update' }),
           frameworkName: values.frameworkName,
         },
       })
@@ -255,32 +264,7 @@ const BasicInformation = () => {
               />
             </div>
           </div>
-          {/* Program Owner */}
-          <div className="flex pb-3 items-center">
-            <Label className="block w-32 shrink-0">Program Owner</Label>
-            <div className="flex-1">
-              <Controller
-                name="programOwnerId"
-                control={form.control}
-                render={({ field }) =>
-                  isEditing ? (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="">{userOptions.find((u) => u.value === field.value)?.label || 'Select owner'}</SelectTrigger>
-                      <SelectContent>
-                        {userOptions.map((user) => (
-                          <SelectItem key={user.value} value={user.value}>
-                            {user.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <p className={`${!programOwnerDisplayName && 'text-neutral-400!'}`}>{programOwnerDisplayName || '—'}</p>
-                  )
-                }
-              />
-            </div>
-          </div>
+          <ResponsibilityField label="Program Owner" isEditing={isEditing} isEditAllowed={false} internalEditing={null} setInternalEditing={() => {}} layout="horizontal" />
         </form>
       </FormProvider>
     </Card>

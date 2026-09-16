@@ -1,5 +1,7 @@
 'use client'
 
+import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { type RemediationQuery } from '@repo/codegen/src/schema'
 import React from 'react'
 import useFormSchema from './hooks/use-form-schema'
 import { type RemediationsNodeNonNull, useRemediation, useCreateRemediation, useUpdateRemediation, useBulkDeleteRemediation } from '@/lib/graphql-hooks/remediation'
@@ -8,6 +10,16 @@ import { getFieldsToRender } from './table/table-config'
 import { type RemediationSheetConfig, type RemediationFieldProps, objectType } from './table/types'
 import { type CreateRemediationInput, type UpdateRemediationInput } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+
+const normalizeData = (data: RemediationQuery['remediation']) =>
+  normalizeEntityData(data, {
+    internalOwner: {
+      personnel: data.internalOwnerIdentityHolder,
+      user: data.internalOwnerUser,
+      group: data.internalOwnerGroup,
+      stringValue: data.internalOwner,
+    },
+  })
 
 type Props = {
   entityId: string | null
@@ -62,9 +74,10 @@ const ViewRemediationSheet: React.FC<Props> = ({ entityId, onClose }) => {
     deleteMutation,
     onClose,
     basePath: '/exposure/remediations',
+    normalizeData,
     buildPayload: async (formData) => {
-      const { controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, findingIDs: _findingIDs, vulnerabilityIDs: _vulnerabilityIDs, ...rest } = formData
-      return { ...rest }
+      const { controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, findingIDs: _findingIDs, vulnerabilityIDs: _vulnerabilityIDs, internalOwner, ...rest } = formData
+      return { ...rest, ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'update' }) }
     },
     getName,
     renderFields: (props: RemediationFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),

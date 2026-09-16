@@ -1,146 +1,44 @@
 'use client'
 
 import React, { useState } from 'react'
-import { type Group, type RiskFieldsFragment, type UpdateRiskInput } from '@repo/codegen/src/schema'
+import { FormProvider, type UseFormReturn } from 'react-hook-form'
+import { type UpdateRiskInput } from '@repo/codegen/src/schema'
 import { Stamp, CircleArrowRight } from 'lucide-react'
-import { Controller, type UseFormReturn } from 'react-hook-form'
-import { type Option } from '@repo/ui/multiple-selector'
-import { Avatar } from '@/components/shared/avatar/avatar'
-import { useGetAllGroups } from '@/lib/graphql-hooks/group'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { type EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
-import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
-import { buildClearableUpdate } from '@/components/shared/searchableSingleSelect/clearable-update'
-import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
-
-const RISK_AUTHORITY_CLEAR_KEYS: Partial<Record<keyof EditRisksFormData, 'clearStakeholder' | 'clearDelegate'>> = {
-  stakeholder: 'clearStakeholder',
-  delegate: 'clearDelegate',
-}
+import { type EditRisksFormData } from '../hooks/use-form-schema'
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 
 type TAuthorityCardProps = {
   form: UseFormReturn<EditRisksFormData>
-  stakeholder?: RiskFieldsFragment['stakeholder']
-  delegate?: RiskFieldsFragment['delegate']
   isEditing: boolean
   isEditAllowed?: boolean
   handleUpdate?: (val: UpdateRiskInput) => void
   inputClassName?: string
-  risk?: RiskFieldsFragment
   activeField?: string | null
   setActiveField?: (field: string | null) => void
 }
 
-const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeholder, delegate, isEditAllowed = true, handleUpdate, inputClassName, risk, activeField, setActiveField }) => {
-  const [internalEditingField, setInternalEditingField] = useState<'stakeholder' | 'delegate' | null>(null)
-  const isControlled = activeField !== undefined && setActiveField !== undefined
-  const editingField = isControlled ? activeField : internalEditingField
-  const setEditingField = isControlled ? setActiveField : setInternalEditingField
-  const isGroupEditing = editingField === 'stakeholder' || editingField === 'delegate'
-  const { data } = useGetAllGroups({ where: {}, enabled: isEditing || isGroupEditing })
-  const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
-
-  const options: Option[] = groups.map((g) => ({
-    label: g?.displayName || g?.name || '',
-    value: g?.id || '',
-  }))
-
-  const handleSelect = (field: keyof EditRisksFormData, value: string) => {
-    if (!isEditing && handleUpdate && risk) {
-      let currentValue: string | null
-      switch (field) {
-        case 'stakeholder':
-          currentValue = risk.stakeholder?.id ?? null
-          break
-        case 'delegate':
-          currentValue = risk.delegate?.id ?? null
-          break
-        default:
-          currentValue = null
-      }
-      // only call handleUpdate if the value actually changed
-      if (currentValue !== value) {
-        const clearKey = RISK_AUTHORITY_CLEAR_KEYS[field]
-        if (clearKey) {
-          handleUpdate(buildClearableUpdate(field, value, clearKey) as UpdateRiskInput)
-        } else {
-          handleUpdate({ [field]: value } as UpdateRiskInput)
-        }
-      }
-    }
-
-    setEditingField(null)
+const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isEditAllowed = true, handleUpdate, inputClassName, activeField, setActiveField }) => {
+  const [internalEditing, setInternalEditing] = useState<string | null>(null)
+  const sharedFieldProps = {
+    isEditing,
+    isEditAllowed,
+    internalEditing: activeField !== undefined ? activeField : internalEditing,
+    setInternalEditing: setActiveField ?? setInternalEditing,
+    handleUpdate: async (input: UpdateRiskInput) => {
+      await handleUpdate?.(input)
+    },
+    allowRawInput: false,
   }
-
-  const renderField = (fieldKey: keyof EditRisksFormData, label: string, icon: React.ReactNode, value: Group | null | undefined, editingKey: 'stakeholder' | 'delegate') => {
-    const displayName = value?.displayName || `No ${label}`
-    const showEditable = isEditAllowed && (isEditing || editingField === editingKey)
-
-    return (
-      <div className="flex items-center gap-4 border-b border-border pb-3">
-        <div className={`flex gap-2 w-32 shrink-0 items-center ${inputClassName ?? ''}`}>
-          {icon}
-          <span className="text-sm">{label}</span>
-        </div>
-
-        {showEditable ? (
-          <Controller
-            name={fieldKey}
-            control={form.control}
-            render={({ field }) => (
-              <SearchableSingleSelect
-                value={field.value as string}
-                options={options}
-                placeholder={`Select ${label.toLowerCase()}`}
-                autoFocus
-                clearable
-                onClose={() => setEditingField(null)}
-                onChange={(val) => {
-                  field.onChange(val)
-                  handleSelect(fieldKey, val)
-                }}
-              />
-            )}
-          />
-        ) : (
-          <HoverPencilWrapper
-            showPencil={isEditAllowed}
-            className={`flex-1 min-w-0 ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-            onPencilClick={() => {
-              if (!isEditing && isEditAllowed) setEditingField(editingKey)
-            }}
-          >
-            <TooltipProvider disableHoverableContent>
-              <Tooltip>
-                <TooltipTrigger
-                  type="button"
-                  onDoubleClick={() => {
-                    if (!isEditing && isEditAllowed) setEditingField(editingKey)
-                  }}
-                  className="bg-unset"
-                >
-                  <div className="flex gap-2 items-center">
-                    <Avatar entity={value as Group} variant="small" />
-                    <span className="truncate text-sm">{displayName}</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">{displayName}</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </HoverPencilWrapper>
-        )}
-      </div>
-    )
-  }
-
   return (
-    <div>
-      <h3 className="text-lg font-medium mb-2">Properties</h3>
-      <div className="flex flex-col gap-4">
-        {renderField('stakeholder', 'Stakeholder', <Stamp size={16} className="text-brand" />, stakeholder as Group, 'stakeholder')}
-        {renderField('delegate', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}
+    <FormProvider {...form}>
+      <div>
+        <h3 className="text-lg font-medium mb-2">Properties</h3>
+        <div className={inputClassName}>
+          <ResponsibilityField name="stakeholder" fieldBaseName="stakeholder" label="Stakeholder" icon={<Stamp size={16} className="text-brand" />} {...sharedFieldProps} />
+          <ResponsibilityField name="delegate" fieldBaseName="delegate" label="Delegate" icon={<CircleArrowRight size={16} className="text-brand" />} {...sharedFieldProps} />
+        </div>
       </div>
-    </div>
+    </FormProvider>
   )
 }
 

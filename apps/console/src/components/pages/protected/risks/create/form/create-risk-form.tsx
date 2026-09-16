@@ -48,8 +48,8 @@ const CreateRiskForm: React.FC = () => {
           tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           reviewFrequency: (values.reviewFrequency as RiskFrequency) || RiskFrequency.YEARLY,
           riskDecision: (values.riskDecision as RiskRiskDecision) || undefined,
-          ...buildResponsibilityPayload('stakeholder', stakeholder),
-          ...buildResponsibilityPayload('delegate', delegate),
+          ...buildResponsibilityPayload('stakeholder', stakeholder, { allowRawInput: false }),
+          ...buildResponsibilityPayload('delegate', delegate, { allowRawInput: false }),
         },
       })
 
@@ -64,8 +64,8 @@ const CreateRiskForm: React.FC = () => {
           ...preserved,
           name: '',
           businessCosts: values.businessCosts,
-          stakeholder: stakeholder ? { ...stakeholder, noClearOtherFields: true } : undefined,
-          delegate: delegate ? { ...delegate, noClearOtherFields: true } : undefined,
+          stakeholder: stakeholder,
+          delegate: delegate,
         })
       } else {
         router.push(`/exposure/risks/${createdRisk.createRisk.risk.id}`)

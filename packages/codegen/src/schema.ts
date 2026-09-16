@@ -3927,6 +3927,10 @@ export interface FindingsWithFilterQuery {
         exploitability: number | null
         externalID: string | null
         externalOwnerID: string | null
+        internalOwner: string | null
+        internalOwnerUserID: string | null
+        internalOwnerGroupID: string | null
+        internalOwnerIdentityHolderID: string | null
         externalURI: string | null
         findingClass: string | null
         id: string
@@ -3960,6 +3964,9 @@ export interface FindingsWithFilterQuery {
         updatedBy: string | null
         validated: boolean | null
         vector: string | null
+        internalOwnerUser: { id: string; displayName: string; email: string } | null
+        internalOwnerGroup: { id: string; displayName: string } | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
       } | null
     } | null> | null
@@ -3988,6 +3995,10 @@ export interface FindingQuery {
     exploitability: number | null
     externalID: string | null
     externalOwnerID: string | null
+    internalOwner: string | null
+    internalOwnerUserID: string | null
+    internalOwnerGroupID: string | null
+    internalOwnerIdentityHolderID: string | null
     externalURI: string | null
     findingClass: string | null
     id: string
@@ -4021,6 +4032,9 @@ export interface FindingQuery {
     updatedBy: string | null
     validated: boolean | null
     vector: string | null
+    internalOwnerUser: { id: string; displayName: string; email: string } | null
+    internalOwnerGroup: { id: string; displayName: string } | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     integrations: { totalCount: number }
     remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
   }
@@ -5998,8 +6012,9 @@ export interface PlatformsWithFilterQuery {
         hasWorkflowHistory: boolean
         id: string
         internalOwner: string | null
-        internalOwnerGroupID: string | null
         internalOwnerUserID: string | null
+        internalOwnerGroupID: string | null
+        internalOwnerIdentityHolderID: string | null
         metadata: any
         name: string
         physicalLocation: string | null
@@ -6007,7 +6022,6 @@ export interface PlatformsWithFilterQuery {
         platformDataClassificationName: string | null
         platformKindID: string | null
         platformKindName: string | null
-        platformOwnerID: string | null
         purchaseDate: string | null
         region: string | null
         scopeID: string | null
@@ -6030,6 +6044,9 @@ export interface PlatformsWithFilterQuery {
         businessOwnerUser: { id: string; displayName: string; email: string } | null
         businessOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         businessOwnerGroup: { id: string; name: string } | null
+        internalOwnerUser: { id: string; displayName: string; email: string } | null
+        internalOwnerGroup: { id: string; displayName: string } | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         technicalOwnerUser: { id: string; displayName: string; email: string } | null
         technicalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         technicalOwnerGroup: { id: string; name: string } | null
@@ -6080,6 +6097,7 @@ export interface PlatformQuery {
     hasWorkflowHistory: boolean
     id: string
     internalOwner: string | null
+    internalOwnerIdentityHolderID: string | null
     internalOwnerGroupID: string | null
     internalOwnerUserID: string | null
     metadata: any
@@ -6089,7 +6107,6 @@ export interface PlatformQuery {
     platformDataClassificationName: string | null
     platformKindID: string | null
     platformKindName: string | null
-    platformOwnerID: string | null
     purchaseDate: string | null
     region: string | null
     scopeID: string | null
@@ -6115,7 +6132,6 @@ export interface PlatformQuery {
     internalOwnerUser: { id: string; displayName: string; email: string } | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; name: string } | null
-    platformOwner: { id: string; displayName: string; email: string } | null
     securityOwnerUser: { id: string; displayName: string; email: string } | null
     securityOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     securityOwnerGroup: { id: string; name: string } | null
@@ -6657,7 +6673,13 @@ export interface GetProgramBasicInfoQuery {
     frameworkName: string | null
     status: Types.ProgramProgramStatus
     programKindName: string | null
-    programOwnerID: string | null
+    internalOwner: string | null
+    internalOwnerUserID: string | null
+    internalOwnerGroupID: string | null
+    internalOwnerIdentityHolderID: string | null
+    internalOwnerUser: { id: string; displayName: string; email: string } | null
+    internalOwnerGroup: { id: string; displayName: string } | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
   }
 }
 
@@ -6788,7 +6810,13 @@ export interface GetProgramDashboardQuery {
         status: Types.ProgramProgramStatus
         endDate: any
         startDate: any
-        programOwner: { id: string; displayName: string } | null
+        internalOwner: string | null
+        internalOwnerUserID: string | null
+        internalOwnerGroupID: string | null
+        internalOwnerIdentityHolderID: string | null
+        internalOwnerUser: { id: string; displayName: string; email: string } | null
+        internalOwnerGroup: { id: string; displayName: string } | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         submittedEvidences: { totalCount: number }
         tasks: { edges: Array<{ node: { id: string; status: Types.TaskTaskStatus } | null } | null> | null }
         controls: { totalCount: number }
@@ -6827,7 +6855,10 @@ export interface RemediationsWithFilterQuery {
         instructions: string | null
         intent: string | null
         metadata: any
-        ownerReference: string | null
+        internalOwner: string | null
+        internalOwnerUserID: string | null
+        internalOwnerGroupID: string | null
+        internalOwnerIdentityHolderID: string | null
         prGeneratedAt: string | null
         pullRequestURI: string | null
         repositoryURI: string | null
@@ -6841,6 +6872,9 @@ export interface RemediationsWithFilterQuery {
         title: string | null
         updatedAt: any
         updatedBy: string | null
+        internalOwnerUser: { id: string; displayName: string; email: string } | null
+        internalOwnerGroup: { id: string; displayName: string } | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
       } | null
     } | null> | null
     pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -6869,7 +6903,10 @@ export interface RemediationQuery {
     instructions: string | null
     intent: string | null
     metadata: any
-    ownerReference: string | null
+    internalOwner: string | null
+    internalOwnerUserID: string | null
+    internalOwnerGroupID: string | null
+    internalOwnerIdentityHolderID: string | null
     prGeneratedAt: string | null
     pullRequestURI: string | null
     repositoryURI: string | null
@@ -6883,6 +6920,9 @@ export interface RemediationQuery {
     title: string | null
     updatedAt: any
     updatedBy: string | null
+    internalOwnerUser: { id: string; displayName: string; email: string } | null
+    internalOwnerGroup: { id: string; displayName: string } | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
   }
 }
 
@@ -7168,9 +7208,19 @@ export type RiskFieldsFragment = {
   reviewRequired: boolean | null
   dueDate: string | null
   riskDecision: Types.RiskRiskDecision | null
+  stakeholderUserID: string | null
+  stakeholderGroupID: string | null
+  stakeholderIdentityHolderID: string | null
+  delegateUserID: string | null
+  delegateGroupID: string | null
+  delegateIdentityHolderID: string | null
   createdAt: any
-  stakeholder: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
-  delegate: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
+  stakeholderUser: { id: string; displayName: string; email: string } | null
+  stakeholderGroup: { id: string; displayName: string } | null
+  stakeholderIdentityHolder: { id: string; fullName: string; email: string } | null
+  delegateUser: { id: string; displayName: string; email: string } | null
+  delegateGroup: { id: string; displayName: string } | null
+  delegateIdentityHolder: { id: string; fullName: string; email: string } | null
 }
 
 export type RiskTableFieldsFragment = {
@@ -7182,6 +7232,9 @@ export type RiskTableFieldsFragment = {
   score: number | null
   status: Types.RiskRiskStatus | null
   businessCosts: string | null
+  delegateUserID: string | null
+  delegateGroupID: string | null
+  delegateIdentityHolderID: string | null
   details: string | null
   impact: Types.RiskRiskImpact | null
   lastReviewedAt: string | null
@@ -7199,8 +7252,15 @@ export type RiskTableFieldsFragment = {
   riskDecision: Types.RiskRiskDecision | null
   environmentName: string | null
   scopeName: string | null
-  delegate: { displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
-  stakeholder: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
+  stakeholderUserID: string | null
+  stakeholderGroupID: string | null
+  stakeholderIdentityHolderID: string | null
+  delegateUser: { id: string; displayName: string; email: string } | null
+  delegateGroup: { id: string; displayName: string } | null
+  delegateIdentityHolder: { id: string; fullName: string; email: string } | null
+  stakeholderUser: { id: string; displayName: string; email: string } | null
+  stakeholderGroup: { id: string; displayName: string } | null
+  stakeholderIdentityHolder: { id: string; fullName: string; email: string } | null
 }
 
 export type GetRiskByIdQueryVariables = Exact<{
@@ -7233,9 +7293,19 @@ export interface GetRiskByIdQuery {
     reviewRequired: boolean | null
     dueDate: string | null
     riskDecision: Types.RiskRiskDecision | null
+    stakeholderUserID: string | null
+    stakeholderGroupID: string | null
+    stakeholderIdentityHolderID: string | null
+    delegateUserID: string | null
+    delegateGroupID: string | null
+    delegateIdentityHolderID: string | null
     createdAt: any
-    stakeholder: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
-    delegate: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
+    stakeholderUser: { id: string; displayName: string; email: string } | null
+    stakeholderGroup: { id: string; displayName: string } | null
+    stakeholderIdentityHolder: { id: string; fullName: string; email: string } | null
+    delegateUser: { id: string; displayName: string; email: string } | null
+    delegateGroup: { id: string; displayName: string } | null
+    delegateIdentityHolder: { id: string; fullName: string; email: string } | null
   }
 }
 
@@ -7262,6 +7332,9 @@ export interface GetAllRisksQuery {
         score: number | null
         status: Types.RiskRiskStatus | null
         businessCosts: string | null
+        delegateUserID: string | null
+        delegateGroupID: string | null
+        delegateIdentityHolderID: string | null
         details: string | null
         impact: Types.RiskRiskImpact | null
         lastReviewedAt: string | null
@@ -7279,8 +7352,15 @@ export interface GetAllRisksQuery {
         riskDecision: Types.RiskRiskDecision | null
         environmentName: string | null
         scopeName: string | null
-        delegate: { displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
-        stakeholder: { id: string; displayName: string; gravatarLogoURL: string | null; logoURL: string | null; avatarFile: { base64: string | null } | null } | null
+        stakeholderUserID: string | null
+        stakeholderGroupID: string | null
+        stakeholderIdentityHolderID: string | null
+        delegateUser: { id: string; displayName: string; email: string } | null
+        delegateGroup: { id: string; displayName: string } | null
+        delegateIdentityHolder: { id: string; fullName: string; email: string } | null
+        stakeholderUser: { id: string; displayName: string; email: string } | null
+        stakeholderGroup: { id: string; displayName: string } | null
+        stakeholderIdentityHolder: { id: string; fullName: string; email: string } | null
       } | null
     } | null> | null
   }
@@ -9856,6 +9936,10 @@ export interface VulnerabilitiesWithFilterQuery {
         exploitability: number | null
         externalID: string
         externalOwnerID: string | null
+        internalOwner: string | null
+        internalOwnerUserID: string | null
+        internalOwnerGroupID: string | null
+        internalOwnerIdentityHolderID: string | null
         externalURI: string | null
         firstPatchedVersion: string | null
         id: string
@@ -9888,6 +9972,9 @@ export interface VulnerabilitiesWithFilterQuery {
         vector: string | null
         vulnerabilityStatusName: string | null
         vulnerableVersionRange: string | null
+        internalOwnerUser: { id: string; displayName: string; email: string } | null
+        internalOwnerGroup: { id: string; displayName: string } | null
+        internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
       } | null
     } | null> | null
@@ -9919,6 +10006,10 @@ export interface VulnerabilityQuery {
     exploitability: number | null
     externalID: string
     externalOwnerID: string | null
+    internalOwner: string | null
+    internalOwnerUserID: string | null
+    internalOwnerGroupID: string | null
+    internalOwnerIdentityHolderID: string | null
     externalURI: string | null
     firstPatchedVersion: string | null
     id: string
@@ -9951,6 +10042,9 @@ export interface VulnerabilityQuery {
     vector: string | null
     vulnerabilityStatusName: string | null
     vulnerableVersionRange: string | null
+    internalOwnerUser: { id: string; displayName: string; email: string } | null
+    internalOwnerGroup: { id: string; displayName: string } | null
+    internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     integrations: { totalCount: number }
     remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
   }

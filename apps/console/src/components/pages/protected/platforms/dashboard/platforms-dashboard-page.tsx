@@ -88,7 +88,7 @@ const PlatformsDashboardPage: React.FC = () => {
   )
 
   const buildPayload = async (data: EditPlatformFormData): Promise<CreatePlatformInput> => {
-    const { businessOwner, technicalOwner, platformOwner, internalOwner, securityOwner, entityIDs, outOfScopeVendorIDs, assetIDs, outOfScopeAssetIDs, ...rest } = data
+    const { businessOwner, technicalOwner, internalOwner, securityOwner, entityIDs, outOfScopeVendorIDs, assetIDs, outOfScopeAssetIDs, ...rest } = data
 
     pendingLinksRef.current = {
       assetIDs: assetIDs?.length ? assetIDs : undefined,
@@ -112,10 +112,9 @@ const PlatformsDashboardPage: React.FC = () => {
       businessPurpose,
       dataFlowSummary,
       trustBoundaryDescription,
-      platformOwnerID: platformOwner?.type === 'user' ? platformOwner.value : (session?.user?.id ?? undefined),
       ...buildResponsibilityPayload('businessOwner', businessOwner, { mode: 'create' }),
       ...buildResponsibilityPayload('technicalOwner', technicalOwner, { mode: 'create' }),
-      ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'create' }),
+      ...buildResponsibilityPayload('internalOwner', internalOwner === undefined && session?.user?.id ? { type: 'user', value: session.user.id } : internalOwner, { mode: 'create' }),
       ...buildResponsibilityPayload('securityOwner', securityOwner, { mode: 'create' }),
     } as CreatePlatformInput
   }
@@ -210,7 +209,16 @@ const PlatformsDashboardPage: React.FC = () => {
 const PlatformCard: React.FC<{ platform: Platform }> = ({ platform }) => {
   const plateEditorHelper = usePlateEditor()
 
-  const ownerName = platform.platformOwner?.displayName ?? platform.businessOwnerUser?.displayName ?? platform.businessOwnerGroup?.name ?? platform.businessOwner ?? null
+  const ownerName =
+    platform.internalOwnerUser?.displayName ??
+    platform.internalOwnerGroup?.displayName ??
+    platform.internalOwnerIdentityHolder?.fullName ??
+    platform.internalOwnerIdentityHolder?.email ??
+    platform.internalOwner ??
+    platform.businessOwnerUser?.displayName ??
+    platform.businessOwnerGroup?.name ??
+    platform.businessOwner ??
+    null
 
   const ownerIcon = platform.businessOwnerGroup ? <Users size={14} className="text-muted-foreground shrink-0" /> : <User size={14} className="text-muted-foreground shrink-0" />
 

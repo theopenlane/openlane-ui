@@ -13160,6 +13160,11 @@ export interface CreateFindingInput {
   integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the finding when no user, group, or identity holder is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
   /** raw metadata payload for the finding from the source system */
   metadata?: InputMaybe<Scalars['Map']['input']>
   /** numeric severity score for the finding if provided */
@@ -14341,6 +14346,11 @@ export interface CreateProgramInput {
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the short name of the compliance standard the program is based on, only used for framework type programs */
   frameworkName?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the program when no user, group, or identity holder is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the name of the program */
   name: Scalars['String']['input']
@@ -14435,6 +14445,11 @@ export interface CreateRemediationInput {
   intent?: InputMaybe<Scalars['String']['input']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the remediation when no user, group, or identity holder is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
   /** raw metadata payload for the remediation from the source system */
   metadata?: InputMaybe<Scalars['Map']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -14565,7 +14580,10 @@ export interface CreateRiskInput {
   businessCostsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  delegateGroupID?: InputMaybe<Scalars['ID']['input']>
   delegateID?: InputMaybe<Scalars['ID']['input']>
+  delegateIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  delegateUserID?: InputMaybe<Scalars['ID']['input']>
   /** details of the risk */
   details?: InputMaybe<Scalars['String']['input']>
   /** structured details of the risk in JSON format */
@@ -14629,7 +14647,10 @@ export interface CreateRiskInput {
   scopeName?: InputMaybe<Scalars['String']['input']>
   /** score of the risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   score?: InputMaybe<Scalars['Int']['input']>
+  stakeholderGroupID?: InputMaybe<Scalars['ID']['input']>
   stakeholderID?: InputMaybe<Scalars['ID']['input']>
+  stakeholderIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  stakeholderUserID?: InputMaybe<Scalars['ID']['input']>
   /** status of the risk - identified, mitigated, accepted, closed, transferred, and archived. */
   status?: InputMaybe<RiskRiskStatus>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -15582,6 +15603,11 @@ export interface CreateVulnerabilityInput {
   integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the vulnerability when no user, group, or identity holder is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
   /** path to the manifest file declaring the vulnerable dependency */
   manifestPath?: InputMaybe<Scalars['String']['input']>
   /** raw metadata payload for the vulnerability from the source system */
@@ -26570,6 +26596,17 @@ export interface Finding extends Node {
   integrations: IntegrationConnection
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  /** the internal owner for the finding when no user, group, or identity holder is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  internalOwnerGroup?: Maybe<Group>
+  /** the internal owner group id for the finding */
+  internalOwnerGroupID?: Maybe<Scalars['ID']['output']>
+  internalOwnerIdentityHolder?: Maybe<IdentityHolder>
+  /** the internal owner identity holder id for the finding */
+  internalOwnerIdentityHolderID?: Maybe<Scalars['ID']['output']>
+  internalOwnerUser?: Maybe<User>
+  /** the internal owner user id for the finding */
+  internalOwnerUserID?: Maybe<Scalars['ID']['output']>
   /** raw metadata payload for the finding from the source system */
   metadata?: Maybe<Scalars['Map']['output']>
   /** numeric severity score for the finding if provided */
@@ -27488,6 +27525,14 @@ export interface FindingHistory extends Node {
   impact?: Maybe<Scalars['Float']['output']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  /** the internal owner for the finding when no user, group, or identity holder is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  /** the internal owner group id for the finding */
+  internalOwnerGroupID?: Maybe<Scalars['String']['output']>
+  /** the internal owner identity holder id for the finding */
+  internalOwnerIdentityHolderID?: Maybe<Scalars['String']['output']>
+  /** the internal owner user id for the finding */
+  internalOwnerUserID?: Maybe<Scalars['String']['output']>
   /** raw metadata payload for the finding from the source system */
   metadata?: Maybe<Scalars['Map']['output']>
   /** numeric severity score for the finding if provided */
@@ -27609,6 +27654,7 @@ export enum FindingHistoryOrderField {
   external_id = 'external_id',
   external_owner_id = 'external_owner_id',
   history_time = 'history_time',
+  internal_owner = 'internal_owner',
   reported_at = 'reported_at',
   security_level = 'security_level',
   severity = 'severity',
@@ -27912,6 +27958,54 @@ export interface FindingHistoryWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_identity_holder_id field predicates */
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIdentityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIdentityHolderIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIdentityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<FindingHistoryWhereInput>
   /** numeric_severity field predicates */
   numericSeverity?: InputMaybe<Scalars['Float']['input']>
@@ -28256,6 +28350,7 @@ export enum FindingOrderField {
   event_time = 'event_time',
   external_id = 'external_id',
   external_owner_id = 'external_owner_id',
+  internal_owner = 'internal_owner',
   reported_at = 'reported_at',
   security_level = 'security_level',
   severity = 'severity',
@@ -28586,6 +28681,15 @@ export interface FindingWhereInput {
   /** integrations edge predicates */
   hasIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   hasIntegrationsWith?: InputMaybe<Array<IntegrationWhereInput>>
+  /** internal_owner_group edge predicates */
+  hasInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** internal_owner_identity_holder edge predicates */
+  hasInternalOwnerIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerIdentityHolderWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** internal_owner_user edge predicates */
+  hasInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -28658,6 +28762,54 @@ export interface FindingWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_identity_holder_id field predicates */
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerIdentityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIdentityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerIdentityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<FindingWhereInput>
   /** numeric_severity field predicates */
   numericSeverity?: InputMaybe<Scalars['Float']['input']>
@@ -48222,8 +48374,12 @@ export interface Platform extends Node {
   platformKindID?: Maybe<Scalars['ID']['output']>
   /** the kind of the platform */
   platformKindName?: Maybe<Scalars['String']['output']>
+  /** @deprecated use internal_owner_user instead */
   platformOwner?: Maybe<User>
-  /** the id of the user who is responsible for this platform */
+  /**
+   * the id of the user who is responsible for this platform
+   * @deprecated use internal_owner_user_id instead
+   */
   platformOwnerID?: Maybe<Scalars['ID']['output']>
   /** purchase date for the platform */
   purchaseDate?: Maybe<Scalars['DateTime']['output']>
@@ -48677,7 +48833,10 @@ export interface PlatformHistory extends Node {
   platformKindID?: Maybe<Scalars['String']['output']>
   /** the kind of the platform */
   platformKindName?: Maybe<Scalars['String']['output']>
-  /** the id of the user who is responsible for this platform */
+  /**
+   * the id of the user who is responsible for this platform
+   * @deprecated use internal_owner_user_id instead
+   */
   platformOwnerID?: Maybe<Scalars['String']['output']>
   /** purchase date for the platform */
   purchaseDate?: Maybe<Scalars['DateTime']['output']>
@@ -51621,6 +51780,17 @@ export interface Program extends Node {
   /** the short name of the compliance standard the program is based on, only used for framework type programs */
   frameworkName?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
+  /** the internal owner for the program when no user, group, or identity holder is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  internalOwnerGroup?: Maybe<Group>
+  /** the internal owner group id for the program */
+  internalOwnerGroupID?: Maybe<Scalars['ID']['output']>
+  internalOwnerIdentityHolder?: Maybe<IdentityHolder>
+  /** the internal owner identity holder id for the program */
+  internalOwnerIdentityHolderID?: Maybe<Scalars['ID']['output']>
+  internalOwnerUser?: Maybe<User>
+  /** the internal owner user id for the program */
+  internalOwnerUserID?: Maybe<Scalars['ID']['output']>
   internalPolicies: InternalPolicyConnection
   members: ProgramMembershipConnection
   /** the name of the program */
@@ -51640,8 +51810,12 @@ export interface Program extends Node {
   programKindID?: Maybe<Scalars['ID']['output']>
   /** the kind of the program */
   programKindName?: Maybe<Scalars['String']['output']>
+  /** @deprecated use internal_owner_user instead */
   programOwner?: Maybe<User>
-  /** the id of the user who is responsible for this program */
+  /**
+   * the id of the user who is responsible for this program
+   * @deprecated use internal_owner_user_id instead
+   */
   programOwnerID?: Maybe<Scalars['ID']['output']>
   remediations: RemediationConnection
   reviews: ReviewConnection
@@ -51959,6 +52133,14 @@ export interface ProgramHistory extends Node {
   frameworkName?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
+  /** the internal owner for the program when no user, group, or identity holder is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  /** the internal owner group id for the program */
+  internalOwnerGroupID?: Maybe<Scalars['String']['output']>
+  /** the internal owner identity holder id for the program */
+  internalOwnerIdentityHolderID?: Maybe<Scalars['String']['output']>
+  /** the internal owner user id for the program */
+  internalOwnerUserID?: Maybe<Scalars['String']['output']>
   /** the name of the program */
   name: Scalars['String']['output']
   /** the end date of the observation period */
@@ -51972,7 +52154,10 @@ export interface ProgramHistory extends Node {
   programKindID?: Maybe<Scalars['String']['output']>
   /** the kind of the program */
   programKindName?: Maybe<Scalars['String']['output']>
-  /** the id of the user who is responsible for this program */
+  /**
+   * the id of the user who is responsible for this program
+   * @deprecated use internal_owner_user_id instead
+   */
   programOwnerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** the start date of the period */
@@ -52031,6 +52216,7 @@ export enum ProgramHistoryOrderField {
   fieldwork_start_date = 'fieldwork_start_date',
   framework = 'framework',
   history_time = 'history_time',
+  internal_owner = 'internal_owner',
   name = 'name',
   observation_period_end_date = 'observation_period_end_date',
   observation_period_start_date = 'observation_period_start_date',
@@ -52202,6 +52388,54 @@ export interface ProgramHistoryWhereInput {
   idIn?: InputMaybe<Array<Scalars['ID']['input']>>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_identity_holder_id field predicates */
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIdentityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIdentityHolderIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIdentityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -52728,6 +52962,7 @@ export enum ProgramOrderField {
   fieldwork_end_date = 'fieldwork_end_date',
   fieldwork_start_date = 'fieldwork_start_date',
   framework = 'framework',
+  internal_owner = 'internal_owner',
   name = 'name',
   observation_period_end_date = 'observation_period_end_date',
   observation_period_start_date = 'observation_period_start_date',
@@ -52917,6 +53152,15 @@ export interface ProgramWhereInput {
   /** findings edge predicates */
   hasFindings?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingsWith?: InputMaybe<Array<FindingWhereInput>>
+  /** internal_owner_group edge predicates */
+  hasInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** internal_owner_identity_holder edge predicates */
+  hasInternalOwnerIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerIdentityHolderWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** internal_owner_user edge predicates */
+  hasInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
   /** internal_policies edge predicates */
   hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
@@ -52975,6 +53219,54 @@ export interface ProgramWhereInput {
   idIn?: InputMaybe<Array<Scalars['ID']['input']>>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_identity_holder_id field predicates */
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerIdentityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIdentityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerIdentityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -55791,12 +56083,26 @@ export interface Remediation extends Node {
   intent?: Maybe<Scalars['String']['output']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  /** the internal owner for the remediation when no user, group, or identity holder is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  internalOwnerGroup?: Maybe<Group>
+  /** the internal owner group id for the remediation */
+  internalOwnerGroupID?: Maybe<Scalars['ID']['output']>
+  internalOwnerIdentityHolder?: Maybe<IdentityHolder>
+  /** the internal owner identity holder id for the remediation */
+  internalOwnerIdentityHolderID?: Maybe<Scalars['ID']['output']>
+  internalOwnerUser?: Maybe<User>
+  /** the internal owner user id for the remediation */
+  internalOwnerUserID?: Maybe<Scalars['ID']['output']>
   /** raw metadata payload for the remediation from the source system */
   metadata?: Maybe<Scalars['Map']['output']>
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  /** reference to the owner responsible for remediation */
+  /**
+   * reference to the owner responsible for remediation
+   * @deprecated use internal_owner instead
+   */
   ownerReference?: Maybe<Scalars['String']['output']>
   /** timestamp when an automated pull request was generated */
   prGeneratedAt?: Maybe<Scalars['DateTime']['output']>
@@ -56114,12 +56420,23 @@ export interface RemediationHistory extends Node {
   intent?: Maybe<Scalars['String']['output']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  /** the internal owner for the remediation when no user, group, or identity holder is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  /** the internal owner group id for the remediation */
+  internalOwnerGroupID?: Maybe<Scalars['String']['output']>
+  /** the internal owner identity holder id for the remediation */
+  internalOwnerIdentityHolderID?: Maybe<Scalars['String']['output']>
+  /** the internal owner user id for the remediation */
+  internalOwnerUserID?: Maybe<Scalars['String']['output']>
   /** raw metadata payload for the remediation from the source system */
   metadata?: Maybe<Scalars['Map']['output']>
   operation: RemediationHistoryOpType
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['String']['output']>
-  /** reference to the owner responsible for remediation */
+  /**
+   * reference to the owner responsible for remediation
+   * @deprecated use internal_owner instead
+   */
   ownerReference?: Maybe<Scalars['String']['output']>
   /** timestamp when an automated pull request was generated */
   prGeneratedAt?: Maybe<Scalars['DateTime']['output']>
@@ -56199,6 +56516,7 @@ export enum RemediationHistoryOrderField {
   external_id = 'external_id',
   external_owner_id = 'external_owner_id',
   history_time = 'history_time',
+  internal_owner = 'internal_owner',
   state = 'state',
   status = 'status',
   title = 'title',
@@ -56399,6 +56717,54 @@ export interface RemediationHistoryWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_identity_holder_id field predicates */
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIdentityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIdentityHolderIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIdentityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<RemediationHistoryWhereInput>
   /** operation field predicates */
   operation?: InputMaybe<RemediationHistoryOpType>
@@ -56634,6 +57000,7 @@ export enum RemediationOrderField {
   created_at = 'created_at',
   external_id = 'external_id',
   external_owner_id = 'external_owner_id',
+  internal_owner = 'internal_owner',
   state = 'state',
   status = 'status',
   title = 'title',
@@ -56825,6 +57192,15 @@ export interface RemediationWhereInput {
   /** integrations edge predicates */
   hasIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   hasIntegrationsWith?: InputMaybe<Array<IntegrationWhereInput>>
+  /** internal_owner_group edge predicates */
+  hasInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** internal_owner_identity_holder edge predicates */
+  hasInternalOwnerIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerIdentityHolderWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** internal_owner_user edge predicates */
+  hasInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -56898,6 +57274,54 @@ export interface RemediationWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_identity_holder_id field predicates */
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerIdentityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIdentityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerIdentityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<RemediationWhereInput>
   or?: InputMaybe<Array<RemediationWhereInput>>
   /** owner_id field predicates */
@@ -58372,10 +58796,25 @@ export interface Risk extends Node {
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  /** temporary delegates for the risk, used for temporary ownership */
+  /**
+   * temporary delegates for the risk, used for temporary ownership
+   * @deprecated use delegate_group instead
+   */
   delegate?: Maybe<Group>
-  /** the id of the group responsible for risk oversight on behalf of the stakeholder */
+  delegateGroup?: Maybe<Group>
+  /** the delegate group id for the risk */
+  delegateGroupID?: Maybe<Scalars['ID']['output']>
+  /**
+   * the id of the group responsible for risk oversight on behalf of the stakeholder
+   * @deprecated use delegate_group_id instead
+   */
   delegateID?: Maybe<Scalars['ID']['output']>
+  delegateIdentityHolder?: Maybe<IdentityHolder>
+  /** the delegate identity holder id for the risk */
+  delegateIdentityHolderID?: Maybe<Scalars['ID']['output']>
+  delegateUser?: Maybe<User>
+  /** the delegate user id for the risk */
+  delegateUserID?: Maybe<Scalars['ID']['output']>
   /** details of the risk */
   details?: Maybe<Scalars['String']['output']>
   /** structured details of the risk in JSON format */
@@ -58456,10 +58895,25 @@ export interface Risk extends Node {
   scopeName?: Maybe<Scalars['String']['output']>
   /** score of the risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   score?: Maybe<Scalars['Int']['output']>
-  /** the group of users who are responsible for risk oversight */
+  /**
+   * the group of users who are responsible for risk oversight
+   * @deprecated use stakeholder_group instead
+   */
   stakeholder?: Maybe<Group>
-  /** the id of the group responsible for risk oversight */
+  stakeholderGroup?: Maybe<Group>
+  /** the stakeholder group id for the risk */
+  stakeholderGroupID?: Maybe<Scalars['ID']['output']>
+  /**
+   * the id of the group responsible for risk oversight
+   * @deprecated use stakeholder_group_id instead
+   */
   stakeholderID?: Maybe<Scalars['ID']['output']>
+  stakeholderIdentityHolder?: Maybe<IdentityHolder>
+  /** the stakeholder identity holder id for the risk */
+  stakeholderIdentityHolderID?: Maybe<Scalars['ID']['output']>
+  stakeholderUser?: Maybe<User>
+  /** the stakeholder user id for the risk */
+  stakeholderUserID?: Maybe<Scalars['ID']['output']>
   /** status of the risk - identified, mitigated, accepted, closed, transferred, and archived. */
   status?: Maybe<RiskRiskStatus>
   subcontrols: SubcontrolConnection
@@ -58762,8 +59216,17 @@ export interface RiskHistory extends Node {
   businessCostsJSON?: Maybe<Array<Scalars['Any']['output']>>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  /** the id of the group responsible for risk oversight on behalf of the stakeholder */
+  /** the delegate group id for the risk */
+  delegateGroupID?: Maybe<Scalars['String']['output']>
+  /**
+   * the id of the group responsible for risk oversight on behalf of the stakeholder
+   * @deprecated use delegate_group_id instead
+   */
   delegateID?: Maybe<Scalars['String']['output']>
+  /** the delegate identity holder id for the risk */
+  delegateIdentityHolderID?: Maybe<Scalars['String']['output']>
+  /** the delegate user id for the risk */
+  delegateUserID?: Maybe<Scalars['String']['output']>
   /** details of the risk */
   details?: Maybe<Scalars['String']['output']>
   /** structured details of the risk in JSON format */
@@ -58827,8 +59290,17 @@ export interface RiskHistory extends Node {
   scopeName?: Maybe<Scalars['String']['output']>
   /** score of the risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   score?: Maybe<Scalars['Int']['output']>
-  /** the id of the group responsible for risk oversight */
+  /** the stakeholder group id for the risk */
+  stakeholderGroupID?: Maybe<Scalars['String']['output']>
+  /**
+   * the id of the group responsible for risk oversight
+   * @deprecated use stakeholder_group_id instead
+   */
   stakeholderID?: Maybe<Scalars['String']['output']>
+  /** the stakeholder identity holder id for the risk */
+  stakeholderIdentityHolderID?: Maybe<Scalars['String']['output']>
+  /** the stakeholder user id for the risk */
+  stakeholderUserID?: Maybe<Scalars['String']['output']>
   /** status of the risk - identified, mitigated, accepted, closed, transferred, and archived. */
   status?: Maybe<RiskHistoryRiskStatus>
   /** tags associated with the object */
@@ -58985,6 +59457,18 @@ export interface RiskHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** delegate_group_id field predicates */
+  delegateGroupID?: InputMaybe<Scalars['String']['input']>
+  delegateGroupIDContains?: InputMaybe<Scalars['String']['input']>
+  delegateGroupIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  delegateGroupIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  delegateGroupIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  delegateGroupIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  delegateGroupIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  delegateGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  delegateGroupIDNEQ?: InputMaybe<Scalars['String']['input']>
+  delegateGroupIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  delegateGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** delegate_id field predicates */
   delegateID?: InputMaybe<Scalars['String']['input']>
   delegateIDContains?: InputMaybe<Scalars['String']['input']>
@@ -58997,6 +59481,30 @@ export interface RiskHistoryWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['String']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** delegate_identity_holder_id field predicates */
+  delegateIdentityHolderID?: InputMaybe<Scalars['String']['input']>
+  delegateIdentityHolderIDContains?: InputMaybe<Scalars['String']['input']>
+  delegateIdentityHolderIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  delegateIdentityHolderIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  delegateIdentityHolderIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  delegateIdentityHolderIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  delegateIdentityHolderIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  delegateIdentityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  delegateIdentityHolderIDNEQ?: InputMaybe<Scalars['String']['input']>
+  delegateIdentityHolderIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  delegateIdentityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** delegate_user_id field predicates */
+  delegateUserID?: InputMaybe<Scalars['String']['input']>
+  delegateUserIDContains?: InputMaybe<Scalars['String']['input']>
+  delegateUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  delegateUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  delegateUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  delegateUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  delegateUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  delegateUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  delegateUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  delegateUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  delegateUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -59308,6 +59816,18 @@ export interface RiskHistoryWhereInput {
   scoreLTE?: InputMaybe<Scalars['Int']['input']>
   scoreNEQ?: InputMaybe<Scalars['Int']['input']>
   scoreNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** stakeholder_group_id field predicates */
+  stakeholderGroupID?: InputMaybe<Scalars['String']['input']>
+  stakeholderGroupIDContains?: InputMaybe<Scalars['String']['input']>
+  stakeholderGroupIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  stakeholderGroupIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  stakeholderGroupIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  stakeholderGroupIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  stakeholderGroupIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  stakeholderGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  stakeholderGroupIDNEQ?: InputMaybe<Scalars['String']['input']>
+  stakeholderGroupIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  stakeholderGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** stakeholder_id field predicates */
   stakeholderID?: InputMaybe<Scalars['String']['input']>
   stakeholderIDContains?: InputMaybe<Scalars['String']['input']>
@@ -59320,6 +59840,30 @@ export interface RiskHistoryWhereInput {
   stakeholderIDNEQ?: InputMaybe<Scalars['String']['input']>
   stakeholderIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   stakeholderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** stakeholder_identity_holder_id field predicates */
+  stakeholderIdentityHolderID?: InputMaybe<Scalars['String']['input']>
+  stakeholderIdentityHolderIDContains?: InputMaybe<Scalars['String']['input']>
+  stakeholderIdentityHolderIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  stakeholderIdentityHolderIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  stakeholderIdentityHolderIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  stakeholderIdentityHolderIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  stakeholderIdentityHolderIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  stakeholderIdentityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  stakeholderIdentityHolderIDNEQ?: InputMaybe<Scalars['String']['input']>
+  stakeholderIdentityHolderIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  stakeholderIdentityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** stakeholder_user_id field predicates */
+  stakeholderUserID?: InputMaybe<Scalars['String']['input']>
+  stakeholderUserIDContains?: InputMaybe<Scalars['String']['input']>
+  stakeholderUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  stakeholderUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  stakeholderUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  stakeholderUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  stakeholderUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  stakeholderUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  stakeholderUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  stakeholderUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  stakeholderUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
   status?: InputMaybe<RiskHistoryRiskStatus>
   statusIn?: InputMaybe<Array<RiskHistoryRiskStatus>>
@@ -59478,6 +60022,18 @@ export interface RiskWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** delegate_group_id field predicates */
+  delegateGroupID?: InputMaybe<Scalars['ID']['input']>
+  delegateGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  delegateGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  delegateGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  delegateGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  delegateGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  delegateGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  delegateGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  delegateGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  delegateGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  delegateGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** delegate_id field predicates */
   delegateID?: InputMaybe<Scalars['ID']['input']>
   delegateIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -59490,6 +60046,30 @@ export interface RiskWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** delegate_identity_holder_id field predicates */
+  delegateIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  delegateIdentityHolderIDContains?: InputMaybe<Scalars['ID']['input']>
+  delegateIdentityHolderIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  delegateIdentityHolderIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  delegateIdentityHolderIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  delegateIdentityHolderIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  delegateIdentityHolderIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  delegateIdentityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  delegateIdentityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  delegateIdentityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  delegateIdentityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** delegate_user_id field predicates */
+  delegateUserID?: InputMaybe<Scalars['ID']['input']>
+  delegateUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  delegateUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  delegateUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  delegateUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  delegateUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  delegateUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  delegateUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  delegateUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  delegateUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  delegateUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -59585,6 +60165,15 @@ export interface RiskWhereInput {
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
   /** delegate edge predicates */
   hasDelegate?: InputMaybe<Scalars['Boolean']['input']>
+  /** delegate_group edge predicates */
+  hasDelegateGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasDelegateGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** delegate_identity_holder edge predicates */
+  hasDelegateIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  hasDelegateIdentityHolderWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** delegate_user edge predicates */
+  hasDelegateUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasDelegateUserWith?: InputMaybe<Array<UserWhereInput>>
   hasDelegateWith?: InputMaybe<Array<GroupWhereInput>>
   /** discussions edge predicates */
   hasDiscussions?: InputMaybe<Scalars['Boolean']['input']>
@@ -59636,6 +60225,15 @@ export interface RiskWhereInput {
   hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** stakeholder edge predicates */
   hasStakeholder?: InputMaybe<Scalars['Boolean']['input']>
+  /** stakeholder_group edge predicates */
+  hasStakeholderGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasStakeholderGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** stakeholder_identity_holder edge predicates */
+  hasStakeholderIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  hasStakeholderIdentityHolderWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** stakeholder_user edge predicates */
+  hasStakeholderUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasStakeholderUserWith?: InputMaybe<Array<UserWhereInput>>
   hasStakeholderWith?: InputMaybe<Array<GroupWhereInput>>
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
@@ -59862,6 +60460,18 @@ export interface RiskWhereInput {
   scoreLTE?: InputMaybe<Scalars['Int']['input']>
   scoreNEQ?: InputMaybe<Scalars['Int']['input']>
   scoreNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** stakeholder_group_id field predicates */
+  stakeholderGroupID?: InputMaybe<Scalars['ID']['input']>
+  stakeholderGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  stakeholderGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  stakeholderGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  stakeholderGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  stakeholderGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  stakeholderGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  stakeholderGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  stakeholderGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  stakeholderGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  stakeholderGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** stakeholder_id field predicates */
   stakeholderID?: InputMaybe<Scalars['ID']['input']>
   stakeholderIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -59874,6 +60484,30 @@ export interface RiskWhereInput {
   stakeholderIDNEQ?: InputMaybe<Scalars['ID']['input']>
   stakeholderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   stakeholderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** stakeholder_identity_holder_id field predicates */
+  stakeholderIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  stakeholderIdentityHolderIDContains?: InputMaybe<Scalars['ID']['input']>
+  stakeholderIdentityHolderIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  stakeholderIdentityHolderIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  stakeholderIdentityHolderIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  stakeholderIdentityHolderIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  stakeholderIdentityHolderIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  stakeholderIdentityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  stakeholderIdentityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  stakeholderIdentityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  stakeholderIdentityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** stakeholder_user_id field predicates */
+  stakeholderUserID?: InputMaybe<Scalars['ID']['input']>
+  stakeholderUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  stakeholderUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  stakeholderUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  stakeholderUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  stakeholderUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  stakeholderUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  stakeholderUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  stakeholderUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  stakeholderUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  stakeholderUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
   status?: InputMaybe<RiskRiskStatus>
   statusIn?: InputMaybe<Array<RiskRiskStatus>>
@@ -75379,6 +76013,10 @@ export interface UpdateFindingInput {
   clearImpact?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearNumericSeverity?: InputMaybe<Scalars['Boolean']['input']>
   clearOpen?: InputMaybe<Scalars['Boolean']['input']>
@@ -75446,6 +76084,11 @@ export interface UpdateFindingInput {
   impact?: InputMaybe<Scalars['Float']['input']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the finding when no user, group, or identity holder is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
   /** raw metadata payload for the finding from the source system */
   metadata?: InputMaybe<Scalars['Map']['input']>
   /** numeric severity score for the finding if provided */
@@ -77498,6 +78141,10 @@ export interface UpdateProgramInput {
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearFrameworkName?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -77530,6 +78177,11 @@ export interface UpdateProgramInput {
   fieldworkStartDate?: InputMaybe<Scalars['Time']['input']>
   /** the short name of the compliance standard the program is based on, only used for framework type programs */
   frameworkName?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the program when no user, group, or identity holder is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
   /** the name of the program */
   name?: InputMaybe<Scalars['String']['input']>
   /** the end date of the observation period */
@@ -77624,6 +78276,10 @@ export interface UpdateRemediationInput {
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearIntent?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearOwnerReference?: InputMaybe<Scalars['Boolean']['input']>
   clearPrGeneratedAt?: InputMaybe<Scalars['Boolean']['input']>
@@ -77671,6 +78327,11 @@ export interface UpdateRemediationInput {
   intent?: InputMaybe<Scalars['String']['input']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the remediation when no user, group, or identity holder is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
   /** raw metadata payload for the remediation from the source system */
   metadata?: InputMaybe<Scalars['Map']['input']>
   /** reference to the owner responsible for remediation */
@@ -77901,6 +78562,9 @@ export interface UpdateRiskInput {
   clearComments?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
+  clearDelegateGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearDelegateIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  clearDelegateUser?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
   clearDetailsJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
@@ -77940,6 +78604,9 @@ export interface UpdateRiskInput {
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearScore?: InputMaybe<Scalars['Boolean']['input']>
   clearStakeholder?: InputMaybe<Scalars['Boolean']['input']>
+  clearStakeholderGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearStakeholderIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  clearStakeholderUser?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
@@ -77948,7 +78615,10 @@ export interface UpdateRiskInput {
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowEligibleMarker?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  delegateGroupID?: InputMaybe<Scalars['ID']['input']>
   delegateID?: InputMaybe<Scalars['ID']['input']>
+  delegateIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  delegateUserID?: InputMaybe<Scalars['ID']['input']>
   deleteComment?: InputMaybe<Scalars['ID']['input']>
   deleteDiscussion?: InputMaybe<Scalars['ID']['input']>
   /** details of the risk */
@@ -78023,7 +78693,10 @@ export interface UpdateRiskInput {
   scopeName?: InputMaybe<Scalars['String']['input']>
   /** score of the risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   score?: InputMaybe<Scalars['Int']['input']>
+  stakeholderGroupID?: InputMaybe<Scalars['ID']['input']>
   stakeholderID?: InputMaybe<Scalars['ID']['input']>
+  stakeholderIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  stakeholderUserID?: InputMaybe<Scalars['ID']['input']>
   /** status of the risk - identified, mitigated, accepted, closed, transferred, and archived. */
   status?: InputMaybe<RiskRiskStatus>
   /** tags associated with the object */
@@ -79448,6 +80121,10 @@ export interface UpdateVulnerabilityInput {
   clearImpacts?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
   clearManifestPath?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearOpen?: InputMaybe<Scalars['Boolean']['input']>
@@ -79529,6 +80206,11 @@ export interface UpdateVulnerabilityInput {
   impacts?: InputMaybe<Array<Scalars['String']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** the internal owner for the vulnerability when no user, group, or identity holder is linked */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
   /** path to the manifest file declaring the vulnerable dependency */
   manifestPath?: InputMaybe<Scalars['String']['input']>
   /** raw metadata payload for the vulnerability from the source system */
@@ -79719,9 +80401,11 @@ export interface User extends Node {
   orgMemberships: OrgMembershipConnection
   organizations: OrganizationConnection
   personalAccessTokens: PersonalAccessTokenConnection
+  /** @deprecated use the internal_owner_user_id filter on platforms instead */
   platformsOwned: PlatformConnection
   programMemberships: ProgramMembershipConnection
   programs: ProgramConnection
+  /** @deprecated use the internal_owner_user_id filter on programs instead */
   programsOwned: ProgramConnection
   /** the user's role */
   role?: Maybe<UserRole>
@@ -82434,6 +83118,17 @@ export interface Vulnerability extends Node {
   integrations: IntegrationConnection
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  /** the internal owner for the vulnerability when no user, group, or identity holder is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  internalOwnerGroup?: Maybe<Group>
+  /** the internal owner group id for the vulnerability */
+  internalOwnerGroupID?: Maybe<Scalars['ID']['output']>
+  internalOwnerIdentityHolder?: Maybe<IdentityHolder>
+  /** the internal owner identity holder id for the vulnerability */
+  internalOwnerIdentityHolderID?: Maybe<Scalars['ID']['output']>
+  internalOwnerUser?: Maybe<User>
+  /** the internal owner user id for the vulnerability */
+  internalOwnerUserID?: Maybe<Scalars['ID']['output']>
   /** path to the manifest file declaring the vulnerable dependency */
   manifestPath?: Maybe<Scalars['String']['output']>
   /** raw metadata payload for the vulnerability from the source system */
@@ -82835,6 +83530,14 @@ export interface VulnerabilityHistory extends Node {
   impacts?: Maybe<Array<Scalars['String']['output']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  /** the internal owner for the vulnerability when no user, group, or identity holder is linked */
+  internalOwner?: Maybe<Scalars['String']['output']>
+  /** the internal owner group id for the vulnerability */
+  internalOwnerGroupID?: Maybe<Scalars['String']['output']>
+  /** the internal owner identity holder id for the vulnerability */
+  internalOwnerIdentityHolderID?: Maybe<Scalars['String']['output']>
+  /** the internal owner user id for the vulnerability */
+  internalOwnerUserID?: Maybe<Scalars['String']['output']>
   /** path to the manifest file declaring the vulnerable dependency */
   manifestPath?: Maybe<Scalars['String']['output']>
   /** raw metadata payload for the vulnerability from the source system */
@@ -82954,6 +83657,7 @@ export enum VulnerabilityHistoryOrderField {
   external_id = 'external_id',
   external_owner_id = 'external_owner_id',
   history_time = 'history_time',
+  internal_owner = 'internal_owner',
   score = 'score',
   security_level = 'security_level',
   severity = 'severity',
@@ -83296,6 +84000,54 @@ export interface VulnerabilityHistoryWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_identity_holder_id field predicates */
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIdentityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIdentityHolderIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerIdentityHolderIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIdentityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** manifest_path field predicates */
   manifestPath?: InputMaybe<Scalars['String']['input']>
   manifestPathContains?: InputMaybe<Scalars['String']['input']>
@@ -83665,6 +84417,7 @@ export enum VulnerabilityOrderField {
   cve_id = 'cve_id',
   external_id = 'external_id',
   external_owner_id = 'external_owner_id',
+  internal_owner = 'internal_owner',
   score = 'score',
   security_level = 'security_level',
   severity = 'severity',
@@ -84053,6 +84806,15 @@ export interface VulnerabilityWhereInput {
   /** integrations edge predicates */
   hasIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   hasIntegrationsWith?: InputMaybe<Array<IntegrationWhereInput>>
+  /** internal_owner_group edge predicates */
+  hasInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
+  /** internal_owner_identity_holder edge predicates */
+  hasInternalOwnerIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerIdentityHolderWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** internal_owner_user edge predicates */
+  hasInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -84130,6 +84892,54 @@ export interface VulnerabilityWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner field predicates */
+  internalOwner?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContains?: InputMaybe<Scalars['String']['input']>
+  internalOwnerContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalOwnerEqualFold?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_group_id field predicates */
+  internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalOwnerHasSuffix?: InputMaybe<Scalars['String']['input']>
+  /** internal_owner_identity_holder_id field predicates */
+  internalOwnerIdentityHolderID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerIdentityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIdentityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerIdentityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerIdentityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerNEQ?: InputMaybe<Scalars['String']['input']>
+  internalOwnerNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalOwnerNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal_owner_user_id field predicates */
+  internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContains?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalOwnerUserIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  internalOwnerUserIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalOwnerUserIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** manifest_path field predicates */
   manifestPath?: InputMaybe<Scalars['String']['input']>
   manifestPathContains?: InputMaybe<Scalars['String']['input']>

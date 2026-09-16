@@ -6,7 +6,7 @@ export const responsibilityFieldSchema = z
     type: z.enum(['user', 'group', 'personnel', 'string']),
     value: z.string(),
     displayName: z.string().optional(),
-    noClearOtherFields: z.boolean().optional(), // for types that are update but do not have other fields to clear, like delegate in risks
+    noClearOtherFields: z.boolean().optional(), // for legacy fields with a single user or group ID
   })
   .refine((data) => data.type !== 'string' || isValidEmail(data.value), {
     message: 'Must be a valid email address',
@@ -60,9 +60,9 @@ export function normalizeResponsibilityField(input: ResponsibilityFieldInput): R
     }
   }
 
-  if (input.personnel?.id || input.personnelID) {
-    const id = input.personnel?.id || input.personnelID!
-    return { type: 'personnel', value: id, displayName: input.personnel?.fullName || input.personnel?.email || id }
+  const personnelID = input.personnel?.id || input.personnelID
+  if (personnelID) {
+    return { type: 'personnel', value: personnelID, displayName: input.personnel?.fullName || input.personnel?.email || personnelID }
   }
 
   if (input.stringValue) {
@@ -87,6 +87,7 @@ type ResponsibilityPayloadMode = 'create' | 'update'
 interface ResponsibilityPayloadOptions {
   mode?: ResponsibilityPayloadMode
   allowPersonnel?: boolean
+  allowRawInput?: boolean
 }
 
 function getClearFieldNames(fieldBaseName: string): { clearUser: string; clearGroup: string; clearString: string; clearPersonnel: string } {
@@ -101,10 +102,11 @@ function getClearFieldNames(fieldBaseName: string): { clearUser: string; clearGr
 export function buildResponsibilityPayload(
   fieldBaseName: string,
   selection: ResponsibilitySelection,
-  { mode = 'create', allowPersonnel = true }: ResponsibilityPayloadOptions = {},
+  { mode = 'create', allowPersonnel = true, allowRawInput = true }: ResponsibilityPayloadOptions = {},
 ): Record<string, string | boolean | undefined> {
   if (mode === 'update') {
     const { clearUser, clearGroup, clearString, clearPersonnel } = getClearFieldNames(fieldBaseName)
+    const clearStringFields = allowRawInput ? { [clearString]: true } : {}
     const clearPersonnelFields = allowPersonnel ? { [clearPersonnel]: true } : {}
 
     if (!selection) {
@@ -112,14 +114,14 @@ export function buildResponsibilityPayload(
         ...clearPersonnelFields,
         [clearUser]: true,
         [clearGroup]: true,
-        [clearString]: true,
+        ...clearStringFields,
       }
     }
 
     // clear just the single field, used by group and user only fields
     if (selection.value === '') {
       return {
-        [clearString]: true,
+        ...clearStringFields,
       }
     }
 
@@ -133,17 +135,17 @@ export function buildResponsibilityPayload(
           ...clearPersonnelFields,
           [`${fieldBaseName}UserID`]: selection.value,
           [clearGroup]: true,
-          [clearString]: true,
+          ...clearStringFields,
         }
       case 'group':
         return {
           [`${fieldBaseName}GroupID`]: selection.value,
           ...clearPersonnelFields,
           [clearUser]: true,
-          [clearString]: true,
+          ...clearStringFields,
         }
       case 'personnel':
-        return { [`${fieldBaseName}IdentityHolderID`]: selection.value, [clearUser]: true, [clearGroup]: true, [clearString]: true }
+        return { [`${fieldBaseName}IdentityHolderID`]: selection.value, [clearUser]: true, [clearGroup]: true, ...clearStringFields }
       case 'string':
         return {
           [fieldBaseName]: selection.value,
@@ -181,9 +183,9 @@ export function buildResponsibilityPayload(
 export function buildResponsibilityInlineUpdate(
   fieldBaseName: string,
   selection: ResponsibilitySelection,
-  { allowPersonnel = true }: ResponsibilityPayloadOptions = {},
+  { allowPersonnel = true, allowRawInput = true }: ResponsibilityPayloadOptions = {},
 ): Record<string, string | boolean | undefined> {
-  return buildResponsibilityPayload(fieldBaseName, selection, { mode: 'update', allowPersonnel })
+  return buildResponsibilityPayload(fieldBaseName, selection, { mode: 'update', allowPersonnel, allowRawInput })
 }
 
 function capitalize(str: string): string {

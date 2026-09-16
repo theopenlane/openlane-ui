@@ -142,9 +142,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         <CardContent>
           <div className="mb-2 grid grid-cols-1 md:grid-cols-2 gap-2">
             <ResponsibilityField
-              name="internalOwner"
-              fieldBaseName="internalOwner"
-              label="Internal Owner"
               tooltipContent="The internal owner responsible for the vendor"
               isEditing={isEditing}
               isEditAllowed={isEditAllowed}

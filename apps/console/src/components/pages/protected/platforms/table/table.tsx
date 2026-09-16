@@ -64,7 +64,7 @@ const TableComponent = ({
       const full = item as unknown as PlatformFull
       if (full.businessOwnerUser?.id) ids.add(full.businessOwnerUser.id)
       if (full.technicalOwnerUser?.id) ids.add(full.technicalOwnerUser.id)
-      if (item.platformOwnerID) ids.add(item.platformOwnerID)
+      if (item.internalOwnerUserID) ids.add(item.internalOwnerUserID)
     })
     return Array.from(ids)
   }, [items])

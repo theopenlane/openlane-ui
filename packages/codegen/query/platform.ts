@@ -45,8 +45,23 @@ export const GET_ALL_PLATFORMS = gql`
           hasWorkflowHistory
           id
           internalOwner
-          internalOwnerGroupID
           internalOwnerUserID
+          internalOwnerGroupID
+          internalOwnerIdentityHolderID
+          internalOwnerUser {
+            id
+            displayName
+            email
+          }
+          internalOwnerGroup {
+            id
+            displayName
+          }
+          internalOwnerIdentityHolder {
+            id
+            fullName
+            email
+          }
           metadata
           name
           physicalLocation
@@ -54,7 +69,6 @@ export const GET_ALL_PLATFORMS = gql`
           platformDataClassificationName
           platformKindID
           platformKindName
-          platformOwnerID
           purchaseDate
           region
           scopeID
@@ -162,6 +176,7 @@ export const PLATFORM = gql`
       hasWorkflowHistory
       id
       internalOwner
+      internalOwnerIdentityHolderID
       internalOwnerGroupID
       internalOwnerUserID
       internalOwnerUser {
@@ -185,12 +200,6 @@ export const PLATFORM = gql`
       platformDataClassificationName
       platformKindID
       platformKindName
-      platformOwnerID
-      platformOwner {
-        id
-        displayName
-        email
-      }
       purchaseDate
       region
       scopeID

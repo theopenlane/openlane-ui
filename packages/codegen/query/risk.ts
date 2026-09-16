@@ -27,23 +27,39 @@ const RISK_FIELDS = gql`
     dueDate
     riskDecision
     dueDate
-    stakeholder {
+    stakeholderUserID
+    stakeholderGroupID
+    stakeholderIdentityHolderID
+    stakeholderUser {
       id
       displayName
-      gravatarLogoURL
-      logoURL
-      avatarFile {
-        base64
-      }
+      email
     }
-    delegate {
+    stakeholderGroup {
       id
       displayName
-      gravatarLogoURL
-      logoURL
-      avatarFile {
-        base64
-      }
+    }
+    stakeholderIdentityHolder {
+      id
+      fullName
+      email
+    }
+    delegateUserID
+    delegateGroupID
+    delegateIdentityHolderID
+    delegateUser {
+      id
+      displayName
+      email
+    }
+    delegateGroup {
+      id
+      displayName
+    }
+    delegateIdentityHolder {
+      id
+      fullName
+      email
     }
     createdAt
   }
@@ -59,13 +75,22 @@ const RISK_TABLE_FIELDS = gql`
     score
     status
     businessCosts
-    delegate {
+    delegateUserID
+    delegateGroupID
+    delegateIdentityHolderID
+    delegateUser {
+      id
       displayName
-      gravatarLogoURL
-      logoURL
-      avatarFile {
-        base64
-      }
+      email
+    }
+    delegateGroup {
+      id
+      displayName
+    }
+    delegateIdentityHolder {
+      id
+      fullName
+      email
     }
     details
     impact
@@ -84,14 +109,22 @@ const RISK_TABLE_FIELDS = gql`
     riskDecision
     environmentName
     scopeName
-    stakeholder {
+    stakeholderUserID
+    stakeholderGroupID
+    stakeholderIdentityHolderID
+    stakeholderUser {
       id
       displayName
-      gravatarLogoURL
-      logoURL
-      avatarFile {
-        base64
-      }
+      email
+    }
+    stakeholderGroup {
+      id
+      displayName
+    }
+    stakeholderIdentityHolder {
+      id
+      fullName
+      email
     }
   }
 `

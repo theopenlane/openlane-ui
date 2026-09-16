@@ -1,5 +1,7 @@
 'use client'
 
+import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { type RemediationQuery } from '@repo/codegen/src/schema'
 import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import {
@@ -23,6 +25,16 @@ import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { REMEDIATION_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
+
+const normalizeData = (data: RemediationQuery['remediation']) =>
+  normalizeEntityData(data, {
+    internalOwner: {
+      personnel: data.internalOwnerIdentityHolder,
+      user: data.internalOwnerUser,
+      group: data.internalOwnerGroup,
+      stringValue: data.internalOwner,
+    },
+  })
 
 const RemediationPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -109,8 +121,9 @@ const RemediationPage: React.FC = () => {
     updateMutation,
     createMutation,
     deleteMutation,
+    normalizeData,
     buildPayload: async (data) => {
-      const { controlIDs, subcontrolIDs, findingIDs, vulnerabilityIDs, ...rest } = data
+      const { controlIDs, subcontrolIDs, findingIDs, vulnerabilityIDs, internalOwner, ...rest } = data
       const associationPayload = buildAssociationPayload(
         REMEDIATION_ASSOCIATION_CONFIG.associationKeys,
         { controlIDs, subcontrolIDs, findingIDs, vulnerabilityIDs },
@@ -120,6 +133,7 @@ const RemediationPage: React.FC = () => {
       return {
         ...rest,
         ...associationPayload,
+        ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
       }
     },
     getName,
@@ -153,6 +167,7 @@ const RemediationPage: React.FC = () => {
       return result.updateBulkRemediation
     },
     bulkEditFormSchema: bulkEditFieldSchema,
+    responsibilityFields: { internalOwner: { fieldBaseName: 'internalOwner' } },
     enumOpts,
   }
 

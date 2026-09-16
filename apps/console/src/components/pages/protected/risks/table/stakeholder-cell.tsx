@@ -1,36 +1,47 @@
-import React from 'react'
-import { type QueryClient } from '@tanstack/react-query'
-import { type Group } from '@repo/codegen/src/schema'
+import React, { useState } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
+import { type RiskTableFieldsFragment, type UpdateRiskInput } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { type EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
-import EditableGroupCell from '@/components/shared/editable-group-cell/editable-group-cell'
 import { useUpdateRisk } from '@/lib/graphql-hooks/risk'
+import { useNotification } from '@/hooks/useNotification'
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
+import { normalizeResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
-type TStakeholderCellProps = {
-  stakeholder?: Group | null
-  riskId: string
-}
-
-const StakeholderCell: React.FC<TStakeholderCellProps> = ({ stakeholder, riskId }) => {
+const StakeholderCell: React.FC<{ risk: RiskTableFieldsFragment }> = ({ risk }) => {
   const { mutateAsync: updateRisk } = useUpdateRisk()
+  const { successNotification, errorNotification } = useNotification()
+  const [internalEditing, setInternalEditing] = useState<string | null>(null)
+  const form = useForm({
+    values: { stakeholder: normalizeResponsibilityField({ user: risk.stakeholderUser, group: risk.stakeholderGroup, personnel: risk.stakeholderIdentityHolder }) },
+  })
 
-  const handleSubmitData = async (data: EditableFieldFormData, helpers: { queryClient: QueryClient; notifySuccess: () => void; notifyError: (msg: string) => void }) => {
+  const handleUpdate = async (input: UpdateRiskInput) => {
     try {
-      await updateRisk({
-        updateRiskId: riskId,
-        input: {
-          stakeholderID: data.id,
-          clearStakeholder: !data.id,
-        },
-      })
-      await helpers.queryClient.invalidateQueries({ queryKey: ['risks'] })
-      helpers.notifySuccess()
+      await updateRisk({ updateRiskId: risk.id, input })
+      successNotification({ title: 'Risk updated', description: 'Risk has been successfully updated.' })
     } catch (err) {
-      helpers.notifyError(parseErrorMessage(err))
+      form.reset()
+      errorNotification({ title: 'Error', description: parseErrorMessage(err) })
     }
   }
 
-  return <EditableGroupCell label="Risk" entity={stakeholder} onSubmitData={handleSubmitData} placeholder="No stakeholder" />
+  return (
+    <FormProvider {...form}>
+      <div role="presentation" onClick={(e) => e.stopPropagation()}>
+        <ResponsibilityField
+          name="stakeholder"
+          fieldBaseName="stakeholder"
+          label=""
+          isEditing={false}
+          isEditAllowed
+          internalEditing={internalEditing}
+          setInternalEditing={setInternalEditing}
+          handleUpdate={handleUpdate}
+          allowRawInput={false}
+        />
+      </div>
+    </FormProvider>
+  )
 }
 
 export default StakeholderCell

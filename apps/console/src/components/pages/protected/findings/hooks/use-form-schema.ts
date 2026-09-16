@@ -1,8 +1,10 @@
 'use client'
-import { z } from 'zod'
-import { useForm, type Resolver } from 'react-hook-form'
+
+import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type Value } from 'platejs'
+import { useForm, type Resolver } from 'react-hook-form'
+import { z } from 'zod'
 
 const numericField = z.preprocess((val) => {
   if (val === '' || val === undefined || val === null) return undefined
@@ -10,6 +12,7 @@ const numericField = z.preprocess((val) => {
 }, z.number().optional())
 
 const formSchema = z.object({
+  internalOwner: responsibilityFieldSchema,
   displayName: z.string().optional(),
   description: z.custom<Value | string>().optional(),
   category: z.string().optional(),
@@ -32,7 +35,7 @@ const formSchema = z.object({
   blocksProduction: z.boolean().optional(),
   externalID: z.string().optional(),
   externalOwnerID: z.string().optional(),
-  externalURI: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
+  externalURI: z.url('Please enter a valid URL').optional().or(z.literal('')),
   source: z.string().optional(),
   findingClass: z.string().optional(),
   environmentName: z.string().optional().nullable(),
@@ -53,6 +56,7 @@ const formSchema = z.object({
 })
 
 export const bulkEditFieldSchema = z.object({
+  internalOwner: responsibilityFieldSchema,
   severity: z.string().optional(),
   findingStatusName: z.string().optional().nullable(),
   priority: z.string().optional(),

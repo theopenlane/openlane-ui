@@ -3817,9 +3817,19 @@ export type GetFilesQueryVariables = Exact<{
 
 export interface GetFilesQuery {
   files: {
-    totalCount: number
     pageInfo: { endCursor: any; hasNextPage: boolean; hasPreviousPage: boolean; startCursor: any }
-    edges: Array<{ node: { id: string; providedFileName: string; providedFileSize: number | null; categoryName: string | null; createdAt: any } | null } | null> | null
+    edges: Array<{
+      node: {
+        id: string
+        providedFileName: string
+        providedFileSize: number | null
+        providedFileExtension: string
+        detectedMimeType: string | null
+        presignedURL: string | null
+        categoryName: string | null
+        createdAt: any
+      } | null
+    } | null> | null
   }
 }
 
@@ -6798,9 +6808,10 @@ export interface GetEvidenceStatsQuery {
   totalControls: { totalCount: number }
   frameworkControls: { totalCount: number }
   organizationControls: { totalCount: number }
+  requested: { totalCount: number }
   submitted: { totalCount: number }
+  readyForAuditor: { totalCount: number }
   accepted: { totalCount: number }
-  rejected: { totalCount: number }
 }
 
 export type GetProgramDashboardQueryVariables = Exact<{

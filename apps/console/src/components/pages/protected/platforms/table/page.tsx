@@ -8,9 +8,8 @@ import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema from '../hooks/use-form-schema'
 
 import { PlatformPlatformStatus, type UpdatePlatformInput, type CreatePlatformInput } from '@repo/codegen/src/schema'
-import { type EditPlatformFormData } from '../hooks/use-form-schema'
-import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { useCreatePlatform, useUpdatePlatform, useDeletePlatform } from '@/lib/graphql-hooks/platform'
+import { buildResponsibilityPayload, normalizeEntityData } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { type PlatformsNodeNonNull, useCreatePlatform, useUpdatePlatform, useDeletePlatform } from '@/lib/graphql-hooks/platform'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
@@ -74,7 +73,7 @@ const PlatformPage: React.FC = () => {
     createMutation,
     deleteMutation,
     buildPayload: async (data) => {
-      const { businessOwner, technicalOwner, platformOwner, entityIDs: _e, outOfScopeVendorIDs: _ov, assetIDs: _a, outOfScopeAssetIDs: _oa, ...rest } = data
+      const { businessOwner, technicalOwner, internalOwner, securityOwner, entityIDs: _e, outOfScopeVendorIDs: _ov, assetIDs: _a, outOfScopeAssetIDs: _oa, ...rest } = data
       const [businessPurpose, dataFlowSummary, trustBoundaryDescription] = await Promise.all([
         rest.businessPurpose ? plateEditorHelper.convertToHtml(rest.businessPurpose as Value) : undefined,
         rest.dataFlowSummary ? plateEditorHelper.convertToHtml(rest.dataFlowSummary as Value) : undefined,
@@ -89,19 +88,23 @@ const PlatformPage: React.FC = () => {
         businessPurpose,
         dataFlowSummary,
         trustBoundaryDescription,
-        // Default to the current user when no owner explicitly selected — backend requires this for authorization
-        platformOwnerID: platformOwner?.type === 'user' ? platformOwner.value : isCreate ? (session?.user?.id ?? undefined) : undefined,
+        ...buildResponsibilityPayload('internalOwner', internalOwner === undefined && isCreate && session?.user?.id ? { type: 'user', value: session.user.id } : internalOwner, {
+          mode: isCreate ? 'create' : 'update',
+        }),
+        ...buildResponsibilityPayload('securityOwner', securityOwner, { mode: isCreate ? 'create' : 'update' }),
         ...buildResponsibilityPayload('businessOwner', businessOwner, { mode: isCreate ? 'create' : 'update' }),
         ...buildResponsibilityPayload('technicalOwner', technicalOwner, { mode: isCreate ? 'create' : 'update' }),
       } as CreatePlatformInput
     },
-    normalizeData: (data) => {
-      const { platformOwnerID, ...rest } = data as Record<string, unknown>
-      return {
-        ...rest,
-        platformOwner: platformOwnerID ? { type: 'user' as const, value: platformOwnerID as string } : undefined,
-      } as Partial<EditPlatformFormData>
-    },
+    normalizeData: (data: PlatformsNodeNonNull) =>
+      normalizeEntityData(data, {
+        internalOwner: {
+          user: data.internalOwnerUser,
+          group: data.internalOwnerGroup ? { id: data.internalOwnerGroup.id, displayName: data.internalOwnerGroup.displayName } : null,
+          personnel: data.internalOwnerIdentityHolder,
+          stringValue: data.internalOwner,
+        },
+      }),
     getName: (data) => data?.name ?? '',
     renderFields: () => <div />,
   }
@@ -132,7 +135,8 @@ const PlatformPage: React.FC = () => {
     responsibilityFields: {
       businessOwner: { fieldBaseName: 'businessOwner' },
       technicalOwner: { fieldBaseName: 'technicalOwner' },
-      platformOwner: { fieldBaseName: 'platformOwner' },
+      internalOwner: { fieldBaseName: 'internalOwner' },
+      securityOwner: { fieldBaseName: 'securityOwner' },
     },
   }
 

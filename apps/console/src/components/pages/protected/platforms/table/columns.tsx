@@ -73,6 +73,20 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
       cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} />,
     },
     {
+      accessorKey: 'internalOwner',
+      header: 'Internal Owner',
+      size: 160,
+      cell: ({ row }) => (
+        <ResponsibilityCell
+          userMap={userMap}
+          user={row.original.internalOwnerUser}
+          group={row.original.internalOwnerGroup}
+          personnel={row.original.internalOwnerIdentityHolder}
+          stringValue={row.original.internalOwner}
+        />
+      ),
+    },
+    {
       accessorKey: 'businessOwner',
       header: 'Business Owner',
       size: 160,
