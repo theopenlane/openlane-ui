@@ -92,4 +92,6 @@ const excludedTypeNames = new Set(EXCLUDED_TYPES.map((name) => name.toLowerCase(
 
 export const isExcludedType = (typeName) => excludedTypeNames.has(typeName.toLowerCase())
 
-export const DISPLAY_FIELD_ORDER = ['refCode', 'displayID', 'name', 'title', 'status', 'createdAt']
+export const IDENTITY_FIELD = 'id'
+
+export const DISPLAY_FIELD_ORDER = ['refCode', 'name', 'title', 'status', 'createdAt']

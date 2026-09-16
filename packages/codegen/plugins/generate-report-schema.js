@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const { pluralizeTypeName, isExcludedType, DISPLAY_FIELD_ORDER, EXCLUDED_FIELDS, EXCLUDED_ASSOCIATIONS } = require('./lib')
+const { pluralizeTypeName, isExcludedType, DISPLAY_FIELD_ORDER, IDENTITY_FIELD, EXCLUDED_FIELDS, EXCLUDED_ASSOCIATIONS } = require('./lib')
 
 const introspectionPath = path.join(__dirname, '..', 'src', 'introspectionschema.json')
 const typeNamesPath = path.join(__dirname, '..', 'src', 'type-names.ts')
@@ -181,8 +181,16 @@ const buildOrder = (types, orderArg) => {
 
 const defaultFieldsFor = (fields) => {
   const names = new Set(fields.map((f) => f.name))
-  const defaults = DISPLAY_FIELD_ORDER.filter((name) => names.has(name)).slice(0, 4)
-  return defaults.length > 0 ? defaults : fields.slice(0, 3).map((f) => f.name)
+  const display = DISPLAY_FIELD_ORDER.filter((name) => names.has(name)).slice(0, 4)
+  const described =
+    display.length > 0
+      ? display
+      : fields
+          .filter((f) => f.name !== IDENTITY_FIELD)
+          .slice(0, 3)
+          .map((f) => f.name)
+
+  return names.has(IDENTITY_FIELD) ? [IDENTITY_FIELD, ...described] : described
 }
 
 const buildEntities = (types, query, edgeTypes, enums, unknownPredicates, objectTypes) => {
