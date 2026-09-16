@@ -5987,66 +5987,30 @@ export interface PlatformsWithFilterQuery {
     totalCount: number
     edges: Array<{
       node: {
-        accessModelID: string | null
-        accessModelName: string | null
-        businessOwner: string | null
-        businessOwnerGroupID: string | null
-        businessOwnerUserID: string | null
-        businessPurpose: string | null
+        id: string
+        displayID: string
+        name: string
+        status: Types.PlatformPlatformStatus
+        scopeName: string | null
+        environmentName: string | null
         containsPii: boolean | null
-        costCenter: string | null
+        businessPurpose: string | null
         createdAt: any
         createdBy: string | null
-        criticalityID: string | null
-        criticalityName: string | null
-        dataFlowSummary: string | null
-        description: string | null
-        displayID: string
-        encryptionStatusID: string | null
-        encryptionStatusName: string | null
-        environmentID: string | null
-        environmentName: string | null
-        estimatedMonthlyCost: number | null
-        externalReferenceID: string | null
-        hasPendingWorkflow: boolean
-        hasWorkflowHistory: boolean
-        id: string
+        updatedAt: any
+        updatedBy: string | null
         internalOwner: string | null
         internalOwnerUserID: string | null
         internalOwnerGroupID: string | null
         internalOwnerIdentityHolderID: string | null
-        metadata: any
-        name: string
-        physicalLocation: string | null
-        platformDataClassificationID: string | null
-        platformDataClassificationName: string | null
-        platformKindID: string | null
-        platformKindName: string | null
-        purchaseDate: string | null
-        region: string | null
-        scopeID: string | null
-        scopeName: string | null
-        scopeStatement: string | null
-        securityOwner: string | null
-        securityOwnerGroupID: string | null
-        securityOwnerUserID: string | null
-        securityTierID: string | null
-        securityTierName: string | null
-        sourceIdentifier: string | null
-        status: Types.PlatformPlatformStatus
+        businessOwner: string | null
         technicalOwner: string | null
-        technicalOwnerGroupID: string | null
-        technicalOwnerUserID: string | null
-        trustBoundaryDescription: string | null
-        updatedAt: any
-        updatedBy: string | null
-        workflowEligibleMarker: boolean | null
-        businessOwnerUser: { id: string; displayName: string; email: string } | null
-        businessOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
-        businessOwnerGroup: { id: string; name: string } | null
         internalOwnerUser: { id: string; displayName: string; email: string } | null
         internalOwnerGroup: { id: string; displayName: string } | null
         internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
+        businessOwnerUser: { id: string; displayName: string; email: string } | null
+        businessOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
+        businessOwnerGroup: { id: string; name: string } | null
         technicalOwnerUser: { id: string; displayName: string; email: string } | null
         technicalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
         technicalOwnerGroup: { id: string; name: string } | null
@@ -6066,78 +6030,68 @@ export interface GetPlatformByIdMinifiedQuery {
 
 export type PlatformDiagramFileFieldsFragment = { id: string; providedFileName: string; presignedURL: string | null; createdAt: any }
 
+export type PlatformLinkedAssetFieldsFragment = {
+  id: string
+  name: string
+  assetType: Types.AssetAssetType
+  internalOwner: string | null
+  internalOwnerUser: { id: string; displayName: string; email: string } | null
+  internalOwnerGroup: { id: string; displayName: string } | null
+}
+
+export type PlatformLinkedVendorFieldsFragment = {
+  id: string
+  name: string | null
+  displayName: string | null
+  status: Types.EntityEntityStatus | null
+  internalOwner: string | null
+  logoFile: { base64: string | null } | null
+  internalOwnerUser: { id: string; displayName: string; email: string } | null
+  internalOwnerGroup: { id: string; displayName: string } | null
+}
+
 export type PlatformQueryVariables = Exact<{
   platformId: string
 }>
 
 export interface PlatformQuery {
   platform: {
-    accessModelID: string | null
-    accessModelName: string | null
-    businessOwner: string | null
-    businessOwnerGroupID: string | null
-    businessOwnerUserID: string | null
-    businessPurpose: string | null
-    containsPii: boolean | null
-    costCenter: string | null
-    createdAt: any
-    createdBy: string | null
-    criticalityID: string | null
-    criticalityName: string | null
-    dataFlowSummary: string | null
-    description: string | null
-    displayID: string
-    encryptionStatusID: string | null
-    encryptionStatusName: string | null
-    environmentID: string | null
-    environmentName: string | null
-    estimatedMonthlyCost: number | null
-    externalReferenceID: string | null
-    hasPendingWorkflow: boolean
-    hasWorkflowHistory: boolean
     id: string
-    internalOwner: string | null
-    internalOwnerIdentityHolderID: string | null
-    internalOwnerGroupID: string | null
-    internalOwnerUserID: string | null
-    metadata: any
     name: string
-    physicalLocation: string | null
-    platformDataClassificationID: string | null
-    platformDataClassificationName: string | null
-    platformKindID: string | null
-    platformKindName: string | null
-    purchaseDate: string | null
-    region: string | null
-    scopeID: string | null
-    scopeName: string | null
-    scopeStatement: string | null
-    securityOwner: string | null
-    securityOwnerGroupID: string | null
-    securityOwnerUserID: string | null
-    securityTierID: string | null
-    securityTierName: string | null
-    sourceIdentifier: string | null
+    description: string | null
     status: Types.PlatformPlatformStatus
-    technicalOwner: string | null
-    technicalOwnerGroupID: string | null
-    technicalOwnerUserID: string | null
+    scopeName: string | null
+    environmentName: string | null
+    containsPii: boolean | null
+    businessPurpose: string | null
+    dataFlowSummary: string | null
     trustBoundaryDescription: string | null
-    updatedAt: any
-    updatedBy: string | null
-    workflowEligibleMarker: boolean | null
+    businessOwner: string | null
+    technicalOwner: string | null
+    internalOwner: string | null
+    securityOwner: string | null
     businessOwnerUser: { id: string; displayName: string; email: string } | null
     businessOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     businessOwnerGroup: { id: string; name: string } | null
+    technicalOwnerUser: { id: string; displayName: string; email: string } | null
+    technicalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
+    technicalOwnerGroup: { id: string; name: string } | null
     internalOwnerUser: { id: string; displayName: string; email: string } | null
     internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     internalOwnerGroup: { id: string; name: string } | null
     securityOwnerUser: { id: string; displayName: string; email: string } | null
     securityOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
     securityOwnerGroup: { id: string; name: string } | null
-    technicalOwnerUser: { id: string; displayName: string; email: string } | null
-    technicalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
-    technicalOwnerGroup: { id: string; name: string } | null
+  }
+}
+
+export type PlatformAssetsQueryVariables = Exact<{
+  platformId: string
+}>
+
+export interface PlatformAssetsQuery {
+  platform: {
+    id: string
     assets: {
       edges: Array<{
         node: {
@@ -6146,7 +6100,6 @@ export interface PlatformQuery {
           assetType: Types.AssetAssetType
           internalOwner: string | null
           internalOwnerUser: { id: string; displayName: string; email: string } | null
-          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
           internalOwnerGroup: { id: string; displayName: string } | null
         } | null
       } | null> | null
@@ -6159,11 +6112,20 @@ export interface PlatformQuery {
           assetType: Types.AssetAssetType
           internalOwner: string | null
           internalOwnerUser: { id: string; displayName: string; email: string } | null
-          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
           internalOwnerGroup: { id: string; displayName: string } | null
         } | null
       } | null> | null
     }
+  }
+}
+
+export type PlatformVendorsQueryVariables = Exact<{
+  platformId: string
+}>
+
+export interface PlatformVendorsQuery {
+  platform: {
+    id: string
     entities: {
       edges: Array<{
         node: {
@@ -6174,7 +6136,6 @@ export interface PlatformQuery {
           internalOwner: string | null
           logoFile: { base64: string | null } | null
           internalOwnerUser: { id: string; displayName: string; email: string } | null
-          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
           internalOwnerGroup: { id: string; displayName: string } | null
         } | null
       } | null> | null
@@ -6189,11 +6150,20 @@ export interface PlatformQuery {
           internalOwner: string | null
           logoFile: { base64: string | null } | null
           internalOwnerUser: { id: string; displayName: string; email: string } | null
-          internalOwnerIdentityHolder: { id: string; fullName: string; email: string } | null
           internalOwnerGroup: { id: string; displayName: string } | null
         } | null
       } | null> | null
     }
+  }
+}
+
+export type PlatformDiagramsQueryVariables = Exact<{
+  platformId: string
+}>
+
+export interface PlatformDiagramsQuery {
+  platform: {
+    id: string
     architectureDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null; createdAt: any } | null } | null> | null }
     dataFlowDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null; createdAt: any } | null } | null> | null }
     trustBoundaryDiagrams: { edges: Array<{ node: { id: string; providedFileName: string; presignedURL: string | null; createdAt: any } | null } | null> | null }

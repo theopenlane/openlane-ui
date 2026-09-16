@@ -19,17 +19,8 @@ import type {
   Task,
   TaskOrder,
   TaskWhereInput,
-  PageInfo,
 } from '@repo/codegen/src/schema'
-
-type Edge<T> = { node?: T | null } | null
-type Connection<T> = {
-  edges?: Array<Edge<T>> | null
-  totalCount?: number | null
-  pageInfo?: PageInfo | null
-}
-
-const getNodes = <T>(connection?: Connection<T> | null): T[] => (connection?.edges ?? []).map((edge) => edge?.node).filter((node): node is T => !!node)
+import { getNodes, type Connection } from './connection'
 
 const getPaginationMeta = (connection?: Connection<unknown> | null, isLoading?: boolean): TPaginationMeta => ({
   totalCount: connection?.totalCount ?? 0,

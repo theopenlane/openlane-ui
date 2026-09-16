@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { type PlatformWhereInput, type Platform as PlatformFull, type PlatformOrderField } from '@repo/codegen/src/schema'
+import { type PlatformWhereInput, type PlatformOrderField } from '@repo/codegen/src/schema'
 import { type PlatformsNodeNonNull, usePlatformsWithFilter } from '@/lib/graphql-hooks/platform'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
@@ -61,9 +61,8 @@ const TableComponent = ({
     items.forEach((item) => {
       if (item.createdBy && isUlid(item.createdBy)) ids.add(item.createdBy)
       if (item.updatedBy && isUlid(item.updatedBy)) ids.add(item.updatedBy)
-      const full = item as unknown as PlatformFull
-      if (full.businessOwnerUser?.id) ids.add(full.businessOwnerUser.id)
-      if (full.technicalOwnerUser?.id) ids.add(full.technicalOwnerUser.id)
+      if (item.businessOwnerUser?.id) ids.add(item.businessOwnerUser.id)
+      if (item.technicalOwnerUser?.id) ids.add(item.technicalOwnerUser.id)
       if (item.internalOwnerUserID) ids.add(item.internalOwnerUserID)
     })
     return Array.from(ids)

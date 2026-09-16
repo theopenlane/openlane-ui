@@ -28,6 +28,8 @@ const formSchema = z.object({
 
 export type EditPlatformFormData = z.infer<typeof formSchema>
 
+export type PlatformLinkField = keyof Pick<EditPlatformFormData, 'assetIDs' | 'outOfScopeAssetIDs' | 'entityIDs' | 'outOfScopeVendorIDs'>
+
 const useFormSchema = () => {
   return {
     form: useForm<EditPlatformFormData>({
