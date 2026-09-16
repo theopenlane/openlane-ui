@@ -28,6 +28,8 @@ export const enumToOptions = <T extends Record<string, string>>(e: T, labels?: P
   }))
 }
 
+export const enumValuesToOptions = <T extends string>(values: readonly T[]) => values.map((value) => ({ value, label: getEnumLabel(value) }))
+
 export const getEnumLabel = (value: string | undefined): string => {
   if (!value) return ''
 
