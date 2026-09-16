@@ -1,4 +1,4 @@
-import type { DocsControlTitleInput, DocsProvider, DocsRetrievedContext, PublicRepresentationInput } from '@/lib/docs-help/types'
+import type { DocsControlTitleInput, DocsProvider, DocsRetrievedContext, DocsRetrieveOptions, PublicRepresentationInput } from '@/lib/docs-help/types'
 import type { DocsHelpChunk } from '@/types/docs-help'
 import { DEFAULT_REPRESENTATION_TARGET, DEFAULT_RETRIEVAL_TOP_K, REPRESENTATION_LENGTH_MULTIPLIER } from '@/lib/docs-help/constants'
 import { dropRunawaySentences } from '@/lib/docs-help/ai'
@@ -184,9 +184,9 @@ const asOrganizationSentence = (value: string): string => {
 }
 
 export const createDemoDocsProvider = (retrievalMs = RETRIEVAL_LATENCY_MS, generationMs = GENERATION_LATENCY_MS): DocsProvider => ({
-  retrieve: async (query: string, topK?: number): Promise<DocsRetrievedContext[]> => {
+  retrieve: async (query: string, options?: DocsRetrieveOptions): Promise<DocsRetrievedContext[]> => {
     await pause(retrievalMs)
-    return search(query, topK ?? DEFAULT_RETRIEVAL_TOP_K).map((entry) => ({ text: entry.excerpt, sourceUri: entry.source }))
+    return search(query, options?.topK ?? DEFAULT_RETRIEVAL_TOP_K).map((entry) => ({ text: entry.excerpt, sourceUri: entry.source }))
   },
 
   pageText: async (sourceUri: string): Promise<string | null> => {

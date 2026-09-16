@@ -85,8 +85,8 @@ const PublicRepresentationDialog: React.FC<PublicRepresentationDialogProps> = ({
       }
       setDraft(text)
       setValue(plainTextToPlateValue(text))
-    } catch {
-      errorNotification({ title: 'Suggestion failed', description: 'Could not reach the suggestion service. Please try again.' })
+    } catch (err) {
+      errorNotification({ title: 'Suggestion failed', description: err instanceof Error ? err.message : 'Could not reach the suggestion service. Please try again.' })
     }
   }
 

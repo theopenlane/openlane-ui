@@ -55,7 +55,10 @@ export function DocsSectionBatchProvider({ children }: { children: ReactNode }) 
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ batch: chunk.map(({ key, query, prefer, extractSection }) => ({ key, query, prefer, extractSection })) }),
         })
-        if (!res.ok) throw new Error(`docs-help ${res.status}`)
+        if (!res.ok) {
+          const detail: { error?: string } | null = await res.json().catch(() => null)
+          throw new Error(detail?.error ?? `docs-help ${res.status}`)
+        }
         const body = (await res.json()) as { results: Array<DocsSectionResult & { key: string }> }
         merged.push(...(body.results ?? []))
       }

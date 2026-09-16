@@ -1,22 +1,29 @@
 // Lazily built Vertex/Gemini/GCS clients, shared by every docs-help mode
-import { GoogleGenAI } from '@google/genai'
 import { VertexRagServiceClient } from '@google-cloud/aiplatform'
 import { Storage } from '@google-cloud/storage'
-import { docsHelpEnabled, googleAPIKey, googleProjectID, googleAIRegion, docsAIRegion, docsRagCorpusID } from '@repo/dally/ai'
-import type { DocsHelpClients, GoogleServiceAccountCredentials } from '@/lib/docs-help/types'
+import { docsHelpEnabled, googleProjectID, docsAIRegion, docsRagCorpusID } from '@repo/dally/ai'
+import { getGoogleServiceAccountCredentials } from '@/lib/google/credentials'
+import { getVertexGenAI } from '@/lib/google/vertex-genai'
+import type { DocsHelpClients } from '@/lib/docs-help/types'
 
 let clients: DocsHelpClients | null = null
 let clientsUnavailable = false
 
 export const getClients = (): DocsHelpClients | null => {
   if (clients || clientsUnavailable) return clients
-  if (!docsHelpEnabled || !googleProjectID || !googleAPIKey || !docsRagCorpusID) {
+  if (!docsHelpEnabled || !googleProjectID || !docsRagCorpusID) {
+    clientsUnavailable = true
+    return null
+  }
+
+  const credentials = getGoogleServiceAccountCredentials()
+  const genAI = getVertexGenAI()
+  if (!credentials || !genAI) {
     clientsUnavailable = true
     return null
   }
 
   try {
-    const credentials: GoogleServiceAccountCredentials = JSON.parse(Buffer.from(googleAPIKey, 'base64').toString('utf8'))
     clients = {
       rag: new VertexRagServiceClient({
         project: googleProjectID,
@@ -24,12 +31,7 @@ export const getClients = (): DocsHelpClients | null => {
         apiEndpoint: `${docsAIRegion}-aiplatform.googleapis.com`,
         credentials,
       }),
-      genAI: new GoogleGenAI({
-        vertexai: true,
-        project: googleProjectID,
-        location: googleAIRegion,
-        googleAuthOptions: { credentials },
-      }),
+      genAI,
       storage: new Storage({ projectId: googleProjectID, credentials }),
     }
     return clients

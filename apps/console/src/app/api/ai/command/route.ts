@@ -1,4 +1,4 @@
-import { createUIMessageStream, createUIMessageStreamResponse, generateText, Output, streamText, type StreamTextTransform, tool, type ToolSet } from 'ai'
+import { createUIMessageStream, createUIMessageStreamResponse, generateText, Output, streamText, type StreamTextTransform, tool, type ToolSet, wrapProvider } from 'ai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 
 import { NextResponse, type NextRequest } from 'next/server'
@@ -11,12 +11,23 @@ import { z } from 'zod'
 
 import { getChooseToolPrompt, getCommentPrompt, getEditPrompt, getGeneratePrompt } from './prompts'
 import { auth } from '@/lib/auth/auth'
+import { modelArmorOutcome } from '@/lib/model-armor/errors'
+import { modelArmorMiddleware } from '@/lib/model-armor/ai-sdk'
 
 const DEFAULT_MODEL = 'gemini-flash-latest'
 
-const google = createGoogleGenerativeAI({
-  headers: { Referer: process.env.NEXT_PUBLIC_SITE_URL },
-})
+const streamErrorMessage = (error: unknown): string => {
+  const outcome = modelArmorOutcome(error)
+  if (outcome) return outcome.message
+
+  console.error('[ai/command] stream error:', error)
+  return error instanceof Error ? error.message : 'An error occurred.'
+}
+
+const google = wrapProvider({
+  provider: createGoogleGenerativeAI({ headers: { Referer: process.env.NEXT_PUBLIC_SITE_URL } }),
+  languageModelMiddleware: modelArmorMiddleware,
+}).languageModel
 
 // api/ai/command is used for AI-powered commands within the editor, such as commenting, editing, and generating content.
 // this is different than the ai/suggestions endpoint, which is used for generating suggestions based on context outside of the editor and is from the fine-tuned model.
@@ -54,16 +65,15 @@ export async function POST(req: NextRequest) {
         let toolName = toolNameParam
 
         if (!toolName) {
-          const { text: AIToolName } = await generateText({
+          const toolOptions: ToolName[] = isSelecting ? ['generate', 'edit', 'comment'] : ['generate', 'comment']
+          const { output: AIToolName } = await generateText({
             model: selectedModel,
-            output: Output.choice({
-              options: isSelecting ? ['generate', 'edit', 'comment'] : ['generate', 'comment'],
-            }),
-            prompt: getChooseToolPrompt(messagesRaw),
+            output: Output.choice({ options: toolOptions }),
+            prompt: getChooseToolPrompt({ messages: messagesRaw }),
           })
 
           writer.write({
-            data: AIToolName as ToolName,
+            data: AIToolName,
             type: 'data-toolName',
           })
 
@@ -119,12 +129,9 @@ export async function POST(req: NextRequest) {
           },
         })
 
-        writer.merge(stream.toUIMessageStream({ sendFinish: false }))
+        writer.merge(stream.toUIMessageStream({ sendFinish: false, onError: streamErrorMessage }))
       },
-      onError: (error) => {
-        console.error('[ai/command] stream error:', error)
-        return error instanceof Error ? error.message : 'An error occurred.'
-      },
+      onError: streamErrorMessage,
     })
 
     return createUIMessageStreamResponse({ stream })

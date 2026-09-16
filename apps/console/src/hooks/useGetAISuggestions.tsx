@@ -88,7 +88,8 @@ export function useAISuggestions() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to fetch suggestions')
+        const detail: { error?: string } | null = await response.json().catch(() => null)
+        throw new Error(detail?.error ?? 'Failed to fetch suggestions')
       }
 
       // Read the streaming response
