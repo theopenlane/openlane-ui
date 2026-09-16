@@ -35,6 +35,8 @@ import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/c
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 import { useSession } from 'next-auth/react'
+import { isSoc2Framework } from '@/constants/trust-services-categories'
+import TrustServicesCategoriesField from './trust-services-categories-field'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -56,6 +58,7 @@ const BasicInformation = () => {
   const { userOptions } = useUserSelect({})
   const programOwnerDisplayName = programOwner?.orgMemberships.edges?.[0]?.node?.user.displayName
   const program = data?.program
+  const frameworkName = program?.frameworkName
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
@@ -66,6 +69,7 @@ const BasicInformation = () => {
 
   const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
   const isEditAllowed = canEdit(permission?.roles, session)
+  const canManageCategories = isEditAllowed && program?.status !== ProgramProgramStatus.ARCHIVED
 
   const [isEditing, setIsEditing] = useState(false)
   const [tagValues, setTagValues] = useState<{ value: string; label: string }[]>([])
@@ -207,7 +211,9 @@ const BasicInformation = () => {
             </div>
           </div>
           {/* Framework */}
-          <FrameworkField form={form} program={program} isEditing={isEditing} isEditAllowed={isEditAllowed} standardOptionsNormalized={standardOptionsNormalized} name="frameworkName" /> {/* Tags */}
+          <FrameworkField form={form} program={program} isEditing={isEditing} isEditAllowed={isEditAllowed} standardOptionsNormalized={standardOptionsNormalized} name="frameworkName" />
+          {isSoc2Framework(frameworkName) && <TrustServicesCategoriesField programId={id} frameworkName={frameworkName} canManage={canManageCategories} />}
+          {/* Tags */}
           {(isEditing || (program?.tags && program.tags.length > 0)) && (
             <div className="flex border-b pb-3 items-center">
               <Label className="block w-32 shrink-0">Tags</Label>

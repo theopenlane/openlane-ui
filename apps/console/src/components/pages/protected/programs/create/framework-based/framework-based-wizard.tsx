@@ -25,6 +25,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import SelectCategoryStep from '../shared/steps/select-category-step'
 import SuggestedControlsStep from '../shared/steps/suggested-controls-step'
 import { useCloneControls } from '@/lib/graphql-hooks/standard'
+import { isSoc2Framework, SOC_2_REQUIRED_CATEGORY } from '@/constants/trust-services-categories'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -60,14 +61,14 @@ const FrameworkBasedWizard = () => {
     resolver: zodResolver(wizardSchema),
     mode: 'onChange',
     defaultValues: {
-      categories: ['Security'],
+      categories: [SOC_2_REQUIRED_CATEGORY],
       suggestedControlIDs: [],
       suggestedControlCategories: [],
     },
   })
 
   const framework = useWatch({ control: methods.control, name: 'framework' })
-  const disabledIDs = includeSuggestedControls || framework === 'SOC 2' ? [] : ['1']
+  const disabledIDs = includeSuggestedControls || isSoc2Framework(framework) ? [] : ['1']
 
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
@@ -129,7 +130,7 @@ const FrameworkBasedWizard = () => {
         auditor: auditorName,
         auditorEmail: auditorEmail,
       },
-      categories: framework === 'SOC 2' ? values.categories : undefined,
+      categories: isSoc2Framework(values.framework) ? values.categories : undefined,
       standardID: values.standardID,
       members: [...toMembers(values.programMembers, ProgramMembershipRole.MEMBER), ...toMembers(values.programAdmins, ProgramMembershipRole.ADMIN)],
     }

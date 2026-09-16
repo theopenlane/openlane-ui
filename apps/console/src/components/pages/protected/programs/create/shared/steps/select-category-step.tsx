@@ -2,19 +2,10 @@
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSearchParams } from 'next/navigation'
-import { Badge } from '@repo/ui/badge'
-import { cn } from '@repo/ui/lib/utils'
-import { AlertCircle, BookLock, Cloud, GlobeLock, Shield, SlidersHorizontal } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import { Callout } from '@/components/shared/callout/callout'
-import { Checkbox } from '@repo/ui/checkbox'
-
-const CATEGORY_OPTIONS = [
-  { name: 'Security', icon: Shield },
-  { name: 'Availability', icon: Cloud },
-  { name: 'Confidentiality', icon: BookLock },
-  { name: 'Processing Integrity', icon: SlidersHorizontal },
-  { name: 'Privacy', icon: GlobeLock },
-]
+import { TrustServicesCategoryOption } from '@/components/shared/trust-services-categories/trust-services-category-option'
+import { SOC_2_FRAMEWORK_NAME, SOC_2_REQUIRED_CATEGORY, TRUST_SERVICES_CATEGORIES } from '@/constants/trust-services-categories'
 
 const SelectCategoryStep = () => {
   const { watch, setValue } = useFormContext<{ categories: string[] }>()
@@ -39,7 +30,7 @@ const SelectCategoryStep = () => {
   return (
     <>
       <div>
-        <h2 className="text-lg font-semibold">Add Trust Service Categories</h2>
+        <h2 className="text-lg font-semibold">Add Trust Services Categories</h2>
         {isOnboardingFlow && (
           <Callout variant="recommendation" title="Recommendation" className="mt-6">
             Security is required for SOC 2 and has already been selected. For your first audit, we recommend starting with Security. Add <b>Availability</b> if uptime and service resilience are
@@ -51,25 +42,15 @@ const SelectCategoryStep = () => {
       <p className="text-sm text-muted-foreground mt-5">Select the categories you want to include in this program</p>
 
       <div className="flex flex-col gap-3 mt-3">
-        {CATEGORY_OPTIONS.map(({ name, icon: Icon }) => {
-          const isSelected = selected.includes(name)
-          const checkboxId = `trust-service-category-${name.replace(/\s+/g, '-').toLowerCase()}`
-
-          return (
-            <div key={name} className={cn('flex items-center gap-3 p-4 rounded-md border transition-all', isSelected ? 'border-primary bg-primary/10' : 'border-border')}>
-              <Checkbox id={checkboxId} checked={isSelected} onCheckedChange={() => toggleCategory(name)} />
-              <Icon className="h-5 w-5 text-muted-foreground" />
-              <label htmlFor={checkboxId} className="flex flex-1 items-center gap-3 cursor-pointer font-semibold">
-                {name}
-                {name === 'Security' && (
-                  <Badge variant="outline" className="border-primary/40 bg-primary/15 text-primary">
-                    Required for SOC 2
-                  </Badge>
-                )}
-              </label>
-            </div>
-          )
-        })}
+        {TRUST_SERVICES_CATEGORIES.map((category) => (
+          <TrustServicesCategoryOption
+            key={category.name}
+            category={category}
+            checked={selected.includes(category.name)}
+            onCheckedChange={() => toggleCategory(category.name)}
+            requiredLabel={category.name === SOC_2_REQUIRED_CATEGORY ? `Required for ${SOC_2_FRAMEWORK_NAME}` : undefined}
+          />
+        ))}
       </div>
 
       {showWarning && (

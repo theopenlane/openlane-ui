@@ -37,11 +37,10 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { PROGRAM_KIND } from '../shared/program-kind'
 import { useOrgMemberPermissions } from '@/lib/authz/use-org-member-permissions'
 import MembersInviteSheet from '@/components/pages/protected/user-management/members/sidebar/members-invite-sheet'
+import { isSoc2Framework, SOC_2_REQUIRED_CATEGORY } from '@/constants/trust-services-categories'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
-
-const SOC2_FRAMEWORK_NAME = 'SOC 2'
 
 const AdvancedSetupWizard = () => {
   const { errorNotification, successNotification } = useNotification()
@@ -84,14 +83,14 @@ const AdvancedSetupWizard = () => {
       riskIDs: [],
       internalPolicyIDs: [],
       procedureIDs: [],
-      categories: ['Security'],
+      categories: [SOC_2_REQUIRED_CATEGORY],
       ...(defaultFrameworks.length > 0 ? { programKindName: PROGRAM_KIND.FRAMEWORK } : {}),
     },
   })
 
   const framework = useWatch({ control: form.control, name: 'framework' })
 
-  const hasSoc2Framework = framework === SOC2_FRAMEWORK_NAME
+  const hasSoc2Framework = isSoc2Framework(framework)
 
   const disabledIDs = hasSoc2Framework ? [] : ['2']
 

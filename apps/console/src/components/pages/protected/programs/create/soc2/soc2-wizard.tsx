@@ -20,6 +20,7 @@ import { addYears, getYear } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { SOC_2_FRAMEWORK_NAME, SOC_2_REQUIRED_CATEGORY } from '@/constants/trust-services-categories'
 
 const today = new Date()
 const oneYearFromToday = addYears(today, 1)
@@ -30,7 +31,7 @@ export default function Soc2Wizard() {
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const { setCrumbs } = React.use(BreadcrumbContext)
-  const { data } = useStandardsSelect({ where: { shortName: 'SOC 2' } })
+  const { data } = useStandardsSelect({ where: { shortNameEqualFold: SOC_2_FRAMEWORK_NAME } })
   const [showExitConfirm, setShowExitConfirm] = useState(false)
 
   const standardID = data?.standards?.edges?.[0]?.node?.id
@@ -46,7 +47,7 @@ export default function Soc2Wizard() {
     resolver: zodResolver(fullSchema),
     mode: 'onChange',
     defaultValues: {
-      categories: ['Security'],
+      categories: [SOC_2_REQUIRED_CATEGORY],
     },
   })
 
@@ -73,7 +74,7 @@ export default function Soc2Wizard() {
         endDate: oneYearFromToday,
         viewerIDs: data.viewerIDs,
         editorIDs: data.editorIDs,
-        frameworkName: 'SOC 2',
+        frameworkName: SOC_2_FRAMEWORK_NAME,
       },
       standardID,
       categories: data.categories,
