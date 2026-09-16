@@ -8,7 +8,6 @@ import { EditableTextarea, Textarea } from '@repo/ui/textarea'
 import { EditableName } from '../editable-name'
 import { SectionCard } from '../components/section-card'
 import { SelectionRow } from '../components/selection-row'
-import { EmptyState } from '../components/empty-state'
 import { canonicalizeLookupValue } from '../notification-mappers'
 import { toggleSetValue } from '../selection-utils'
 import type { OverrideMap, PlatformCandidate, PlatformMode, TextOverride } from '../types'
@@ -84,9 +83,11 @@ export const PlatformStep = ({
           </div>
         </SectionCard>
 
-        <button type="button" className="px-1 text-sm text-primary underline decoration-dotted" onClick={() => setMode('per-system')}>
-          Split these results into multiple platforms
-        </button>
+        {perSystemCandidates.length > 0 ? (
+          <button type="button" className="px-1 text-sm text-primary underline decoration-dotted" onClick={() => setMode('per-system')}>
+            Split these results into multiple platforms
+          </button>
+        ) : null}
       </div>
     )
   }
@@ -102,40 +103,36 @@ export const PlatformStep = ({
       </p>
 
       <SectionCard title="Platforms" count={perSystemCandidates.length} description="One platform will be created per selected system. Names and descriptions are editable.">
-        {perSystemCandidates.length === 0 ? (
-          <EmptyState message="No systems were detected in this notification." />
-        ) : (
-          perSystemCandidates.map((candidate, index) => {
-            const candidateName = perSystemOverrides[candidate.id]?.name ?? candidate.name
-            const alreadyExists = existingPlatformNames.has(canonicalizeLookupValue(candidateName))
+        {perSystemCandidates.map((candidate, index) => {
+          const candidateName = perSystemOverrides[candidate.id]?.name ?? candidate.name
+          const alreadyExists = existingPlatformNames.has(canonicalizeLookupValue(candidateName))
 
-            return (
-              <React.Fragment key={candidate.id}>
-                <SelectionRow
-                  checked={selectedPerSystemIds.has(candidate.id)}
-                  onCheckedChange={() => toggleSetValue(setSelectedPerSystemIds, candidate.id)}
-                  title={
-                    <EditableName
-                      value={candidateName}
-                      onChange={(name) => setPerSystemOverrides((prev) => ({ ...prev, [candidate.id]: { ...prev[candidate.id], name } }))}
-                      placeholder={candidate.name}
-                    />
-                  }
-                  description={
-                    <EditableTextarea
-                      value={(perSystemOverrides[candidate.id]?.description ?? candidate.description) || ''}
-                      onChange={(event) => setPerSystemOverrides((prev) => ({ ...prev, [candidate.id]: { ...prev[candidate.id], description: event.target.value } }))}
-                      placeholder="Add a description"
-                      className="min-h-0 border-none bg-transparent p-0 text-sm text-muted-foreground"
-                    />
-                  }
-                  trailing={alreadyExists ? <Badge variant="secondary">Already added</Badge> : undefined}
-                />
-                {index < perSystemCandidates.length - 1 ? <Separator separatorClass="bg-border" /> : null}
-              </React.Fragment>
-            )
-          })
-        )}
+          return (
+            <React.Fragment key={candidate.id}>
+              <SelectionRow
+                checked={selectedPerSystemIds.has(candidate.id)}
+                onCheckedChange={() => toggleSetValue(setSelectedPerSystemIds, candidate.id)}
+                title={
+                  <EditableName
+                    value={candidateName}
+                    onChange={(name) => setPerSystemOverrides((prev) => ({ ...prev, [candidate.id]: { ...prev[candidate.id], name } }))}
+                    placeholder={candidate.name}
+                  />
+                }
+                description={
+                  <EditableTextarea
+                    value={(perSystemOverrides[candidate.id]?.description ?? candidate.description) || ''}
+                    onChange={(event) => setPerSystemOverrides((prev) => ({ ...prev, [candidate.id]: { ...prev[candidate.id], description: event.target.value } }))}
+                    placeholder="Add a description"
+                    className="min-h-0 border-none bg-transparent p-0 text-sm text-muted-foreground"
+                  />
+                }
+                trailing={alreadyExists ? <Badge variant="secondary">Already added</Badge> : undefined}
+              />
+              {index < perSystemCandidates.length - 1 ? <Separator separatorClass="bg-border" /> : null}
+            </React.Fragment>
+          )
+        })}
       </SectionCard>
     </div>
   )

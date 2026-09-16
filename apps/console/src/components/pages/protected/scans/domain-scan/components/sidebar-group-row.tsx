@@ -6,11 +6,11 @@ import { ChevronDown } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { VendorLogo } from './vendor-logo'
-import type { LinkableItem } from '../types'
+import type { DomainScanSummaryItem } from '../types'
 
 type SidebarGroupRowProps = {
   title: string
-  items: LinkableItem[]
+  items: DomainScanSummaryItem[]
   onEdit: () => void
 }
 
