@@ -2,8 +2,17 @@
 
 import React from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { cn } from '@repo/ui/lib/utils'
 import { useSlaDefinitionsWithFilter } from '@/lib/graphql-hooks/sla-definition'
 import { getVulnerabilityDueDate } from '@/utils/vulnerability-due-date'
+
+type PastDuePillProps = React.ComponentPropsWithRef<'span'> & { label?: string }
+
+export const PastDuePill = ({ label = 'Past Due', className, ...props }: PastDuePillProps) => (
+  <span {...props} className={cn('shrink-0 text-xs px-1.5 py-0.5 rounded-full font-medium bg-danger/15 text-danger border border-danger/30 cursor-default', className)}>
+    {label}
+  </span>
+)
 
 type Props = {
   severity?: string | null | undefined
@@ -21,7 +30,7 @@ const PastDueBadge: React.FC<Props> = ({ severity, createdAt, discoveredAt, reme
       <TooltipProvider delayDuration={200}>
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className="shrink-0 text-xs px-1.5 py-0.5 rounded-full font-medium bg-danger/15 text-danger border border-danger/30 cursor-default">Past Due</span>
+            <PastDuePill />
           </TooltipTrigger>
         </Tooltip>
       </TooltipProvider>
@@ -37,7 +46,7 @@ const PastDueBadge: React.FC<Props> = ({ severity, createdAt, discoveredAt, reme
     <TooltipProvider delayDuration={200}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className="shrink-0 text-xs px-1.5 py-0.5 rounded-full font-medium bg-danger/15 text-danger border border-danger/30 cursor-default">Past Due</span>
+          <PastDuePill />
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-56">
           <p className="font-medium mb-1">SLA Exceeded</p>
