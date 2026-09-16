@@ -13,7 +13,7 @@ export default function WorkflowEditorPage() {
   const { setCrumbs } = React.use(BreadcrumbContext)
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Automation', href: '/automation/workflows' }, { label: 'Workflows', href: '/automation/workflows' }, { label: 'Editor' }])
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Automation', href: '/automation' }, { label: 'Workflows', href: '/automation/workflows' }, { label: 'Editor' }])
   }, [setCrumbs])
 
   return (

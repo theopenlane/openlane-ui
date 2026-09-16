@@ -93,7 +93,7 @@ const CampaignsPage: React.FC = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/campaigns' },
+      { label: 'Automation', href: '/automation' },
       { label: 'Campaigns', href: '/automation/campaigns' },
     ])
   }, [setCrumbs])

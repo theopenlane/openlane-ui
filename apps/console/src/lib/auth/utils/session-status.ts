@@ -1,6 +1,5 @@
 'use client'
 
-import { clearTokens } from './session-tokens'
 import { resetSessionProbe } from './session-health'
 import { readSSORequirement, type SSORequirement } from './sso-required'
 
@@ -15,7 +14,6 @@ export const getIsSessionInvalid = () => isSessionInvalid
 export const markSessionExpired = () => {
   isSessionInvalid = true
   ssoRequirement = null
-  clearTokens()
   resetSessionProbe()
 }
 

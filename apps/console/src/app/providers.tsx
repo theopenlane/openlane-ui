@@ -16,7 +16,6 @@ import { NotificationsProvider } from '@/providers/notifications-provider'
 import { NotificationToastContainer } from '@/components/shared/SystemNotification/notification-toast-container'
 import { SessionUnavailableError } from '@/lib/auth/utils/session-health'
 import { getIsSessionInvalid } from '@/lib/auth/utils/session-status'
-import { useSessionTokenSync } from '@/lib/graphqlClient'
 import { isNonRetryableGraphQlError } from '@/utils/graphQlErrorMatcher'
 
 interface ProvidersProps {
@@ -51,7 +50,6 @@ const sessionRetryDelay = (failureCount: number, error: Error) =>
 const Providers = ({ children }: ProvidersProps) => {
   const { status, data } = useSession()
   const pathname = usePathname()
-  useSessionTokenSync()
   const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/questionnaire/') || /^\/orgs\/[^/]+\/sso$/.test(pathname)
 
   const queryClient = useMemo(

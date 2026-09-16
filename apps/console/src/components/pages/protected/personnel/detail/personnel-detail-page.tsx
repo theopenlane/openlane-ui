@@ -75,7 +75,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Registry', href: '/registry/personnel' },
+      { label: 'Registry', href: '/registry' },
       { label: 'Personnel', href: '/registry/personnel' },
       { label: data?.identityHolder?.fullName || '', isLoading },
     ])

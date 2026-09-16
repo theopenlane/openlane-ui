@@ -13,7 +13,7 @@ export const formId = 'edit' + ObjectNames.CONTACT
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Registry', href: '/registry/contacts' },
+  { label: 'Registry', href: '/registry' },
   { label: 'Contacts', href: '/registry/contacts' },
 ]
 

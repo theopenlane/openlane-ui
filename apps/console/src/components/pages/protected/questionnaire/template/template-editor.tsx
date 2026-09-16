@@ -68,7 +68,7 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/questionnaires' },
+      { label: 'Automation', href: '/automation' },
       { label: 'Questionnaires', href: '/automation/questionnaires' },
       { label: 'Templates', href: '/automation/questionnaires/templates' },
       { label: 'Template Editor', href: '/automation/questionnaires/templates/template-editor' },

@@ -77,7 +77,7 @@ export const EmailTemplateEditorPage: React.FC = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: LIST_PATH },
+      { label: 'Automation', href: '/automation' },
       { label: 'Email Templates', href: LIST_PATH },
       { label: title, href: '#' },
     ])

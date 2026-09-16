@@ -1,95 +1,73 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { jwtDecode } from 'jwt-decode'
-import { refreshTokens } from '@/lib/auth/utils/session-refresh'
-import { getIsSessionInvalid } from '@/lib/auth/utils/session-status'
+import { probeSession } from '@/lib/auth/utils/session-health'
+import { getIsSessionInvalid, notifySessionExpired, SESSION_EXPIRED_EVENT } from '@/lib/auth/utils/session-status'
+import { useSessionResync } from '@/lib/graphqlClient'
 
-const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = ['keydown', 'mousemove', 'click', 'scroll', 'touchstart']
+const MAX_TIMEOUT_MS = 2_147_483_647
 
-interface RefreshTokenClaims {
-  nbf?: number
-  exp?: number
+const refreshExpiresAt = (refreshToken?: string | null): number => {
+  if (!refreshToken) {
+    return 0
+  }
+
+  try {
+    const { exp } = jwtDecode<{ exp?: number }>(refreshToken)
+
+    return exp ? exp * 1000 : Number.POSITIVE_INFINITY
+  } catch {
+    return 0
+  }
 }
 
+// useSessionExpiry surfaces the expired-session modal once the server no longer honours the session
 export function useSessionExpiry() {
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(getIsSessionInvalid)
   const { data: sessionData } = useSession()
+  const resyncSession = useSessionResync()
+  const refreshToken = sessionData?.user?.refreshToken
+
+  const checkSession = useCallback(async () => {
+    const probe = await probeSession({ maxAgeMs: 0 })
+
+    switch (probe.status) {
+      case 'available':
+        void resyncSession()
+        break
+      case 'signed-out':
+        notifySessionExpired()
+        break
+      default:
+    }
+  }, [resyncSession])
 
   useEffect(() => {
     const handler = () => setShowSessionExpiredModal(true)
-    window.addEventListener('session-expired', handler)
-    return () => window.removeEventListener('session-expired', handler)
+    window.addEventListener(SESSION_EXPIRED_EVENT, handler)
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, handler)
   }, [])
 
   useEffect(() => {
     const handler = () => {
-      if (document.visibilityState !== 'visible') return
-      const token = sessionData?.user?.refreshToken
-      if (!token) return
-      try {
-        const { exp } = jwtDecode<RefreshTokenClaims>(token)
-        if (exp && Date.now() >= exp * 1000) setShowSessionExpiredModal(true)
-      } catch {
-        setShowSessionExpiredModal(true)
+      if (document.visibilityState === 'visible' && Date.now() >= refreshExpiresAt(refreshToken)) {
+        void checkSession()
       }
     }
     document.addEventListener('visibilitychange', handler)
     return () => document.removeEventListener('visibilitychange', handler)
-  }, [sessionData])
+  }, [refreshToken, checkSession])
 
   useEffect(() => {
-    const token = sessionData?.user?.refreshToken
-    if (!token) return
+    if (!refreshToken) return
 
-    let claims: RefreshTokenClaims
-    try {
-      claims = jwtDecode<RefreshTokenClaims>(token)
-    } catch {
-      setShowSessionExpiredModal(true)
-      return
-    }
-    if (!claims.exp) return
+    const delay = Math.min(refreshExpiresAt(refreshToken) - Date.now(), MAX_TIMEOUT_MS)
+    const expireTimeoutId = window.setTimeout(() => void checkSession(), Math.max(0, delay))
 
-    const now = Date.now()
-    const nbfMs = (claims.nbf ?? 0) * 1000
-    const expMs = claims.exp * 1000
-
-    if (now >= expMs) {
-      setShowSessionExpiredModal(true)
-      return
-    }
-
-    let armed = false
-    let inFlight = false
-
-    const onActivity = async () => {
-      if (!armed || inFlight) return
-      inFlight = true
-      try {
-        await refreshTokens(token)
-      } catch {
-        inFlight = false
-      }
-    }
-
-    ACTIVITY_EVENTS.forEach((e) => window.addEventListener(e, onActivity, { passive: true }))
-
-    const armTimeoutId = window.setTimeout(
-      () => {
-        armed = true
-      },
-      Math.max(0, nbfMs - now),
-    )
-    const expireTimeoutId = window.setTimeout(() => setShowSessionExpiredModal(true), expMs - now)
-
-    return () => {
-      window.clearTimeout(armTimeoutId)
-      window.clearTimeout(expireTimeoutId)
-      ACTIVITY_EVENTS.forEach((e) => window.removeEventListener(e, onActivity))
-    }
-  }, [sessionData])
+    return () => window.clearTimeout(expireTimeoutId)
+  }, [refreshToken, checkSession])
 
   return { showSessionExpiredModal }
 }

@@ -76,7 +76,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Registry', href: '/registry/vendors' },
+      { label: 'Registry', href: '/registry' },
       { label: 'Vendors', href: '/registry/vendors' },
       { label: data?.entity?.displayName || data?.entity?.name || '', isLoading },
     ])
