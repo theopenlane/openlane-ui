@@ -48,6 +48,14 @@ const ReportRelatedPanel: React.FC<TReportRelatedPanelProps> = ({ entity, select
     [groups, search],
   )
 
+  const ordered = useMemo(
+    () =>
+      visible
+        .map((group) => ({ ...group, selectedCount: group.options.filter((option) => selected.has(option.path)).length }))
+        .sort((a, b) => Number(b.selectedCount > 0) - Number(a.selectedCount > 0)),
+    [selected, visible],
+  )
+
   const isSearching = search.trim().length > 0
 
   const toggleExpanded = (edgeName: string) => setExpanded((current) => (current.includes(edgeName) ? current.filter((name) => name !== edgeName) : [...current, edgeName]))
@@ -58,33 +66,32 @@ const ReportRelatedPanel: React.FC<TReportRelatedPanelProps> = ({ entity, select
     <ReportPanel title="Related data" description={`Include fields from linked records, up to the first ${RELATED_RECORD_LIMIT} per record`}>
       <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search related fields" className="mb-2" />
       <div className="flex flex-col gap-2 max-h-64 overflow-y-auto">
-        {visible.length === 0 ? (
+        {ordered.length === 0 ? (
           <p className="text-xs text-muted-foreground">No matching fields</p>
         ) : (
-          visible.map((group) => {
-            const selectedCount = group.options.filter((option) => selected.has(option.path)).length
-            const isExpanded = isSearching || expanded.includes(group.name)
+          ordered.map(({ name, label, options, selectedCount }) => {
+            const isExpanded = isSearching || expanded.includes(name)
 
             return (
-              <div key={group.name}>
+              <div key={name}>
                 <div className="flex items-center gap-2">
                   <Checkbox
-                    aria-label={`Select all ${group.label} fields`}
-                    checked={selectedCount === 0 ? false : selectedCount === group.options.length ? true : 'indeterminate'}
+                    aria-label={`Select all ${label} fields`}
+                    checked={selectedCount === 0 ? false : selectedCount === options.length ? true : 'indeterminate'}
                     onCheckedChange={() =>
                       onToggleMany(
-                        group.options.map((option) => option.path),
-                        selectedCount !== group.options.length,
+                        options.map((option) => option.path),
+                        selectedCount !== options.length,
                       )
                     }
                   />
-                  <button type="button" onClick={() => toggleExpanded(group.name)} className="flex items-center gap-1 text-sm flex-1 text-left">
+                  <button type="button" onClick={() => toggleExpanded(name)} className="flex items-center gap-1 text-sm flex-1 text-left">
                     {isExpanded ? <ChevronDown size={14} className="text-muted-foreground" /> : <ChevronRight size={14} className="text-muted-foreground" />}
-                    <span className="truncate">{group.label}</span>
+                    <span className="truncate">{label}</span>
                     {selectedCount > 0 && <span className="text-xs text-muted-foreground">({selectedCount})</span>}
                   </button>
                 </div>
-                {isExpanded && <ReportFieldList options={group.options} selected={selected} onToggle={onToggle} className="ml-6 flex flex-col gap-1 mt-1 border-l border-border pl-3" />}
+                {isExpanded && <ReportFieldList options={options} selected={selected} onToggle={onToggle} className="ml-6 flex flex-col gap-1 mt-1 border-l border-border pl-3" />}
               </div>
             )
           })
