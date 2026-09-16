@@ -1,21 +1,48 @@
-import { type Invoice, type InvoicesResponse, type OpenlaneProductsResponse, type Subscription, type SubscriptionSchedulesResponse, type UpcomingInvoiceResponse } from '@/types/stripe'
+import {
+  type Invoice,
+  type InvoicesResponse,
+  type OpenlaneProductsResponse,
+  type Subscription,
+  type SubscriptionSchedule,
+  type SubscriptionSchedulesResponse,
+  type UpcomingInvoiceResponse,
+} from '@/types/stripe'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { fromUnixTime } from 'date-fns'
 import type Stripe from 'stripe'
 
-export function useSchedulesQuery(customerId?: string | null) {
-  return useQuery<SubscriptionSchedulesResponse>({
+const schedulesQueryOptions = (customerId?: string | null) =>
+  queryOptions({
     queryKey: ['stripe-schedules', customerId],
-    queryFn: async () => {
+    queryFn: async (): Promise<SubscriptionSchedulesResponse> => {
       if (!customerId) return []
       const res = await fetch(`/api/stripe/schedules?customerId=${customerId}`)
       if (!res.ok) throw new Error('Failed to fetch schedules')
-      return res.json()
+      return res.json() as Promise<SubscriptionSchedulesResponse>
     },
     enabled: !!customerId,
   })
-}
+
+export const useSchedulesQuery = (customerId?: string | null) => useQuery(schedulesQueryOptions(customerId))
+
+export const findManageableSchedule = (schedules?: SubscriptionSchedulesResponse): SubscriptionSchedule | null => schedules?.find((schedule) => schedule.status === 'active') ?? null
+
+export const useBillingPortalMutation = () =>
+  useMutation({
+    mutationFn: async ({ customerId, fullPortal = false }: { customerId: string; fullPortal?: boolean }): Promise<string> => {
+      const res = await fetch('/api/stripe/create-portal-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customerId, isBillingSettings: fullPortal }),
+      })
+      const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string }
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || 'Failed to open the billing portal')
+      }
+      return data.url
+    },
+  })
 
 type UseUpcomingInvoiceQueryParams = {
   customerId?: string | null
@@ -107,9 +134,7 @@ export function useCancelSubscriptionMutation() {
       }
       return res.json()
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stripe-schedules'] })
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['stripe-schedules'] }),
   })
 }
 
@@ -125,13 +150,11 @@ export function useRenewSubscriptionMutation() {
       })
       if (!res.ok) {
         const error = await res.json().catch(() => ({}))
-        throw new Error(error.error || 'Failed to cancel subscription')
+        throw new Error(error.error || 'Failed to renew subscription')
       }
       return res.json()
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stripe-schedules'] })
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['stripe-schedules'] }),
   })
 }
 
