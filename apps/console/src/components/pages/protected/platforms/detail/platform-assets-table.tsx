@@ -4,38 +4,17 @@ import React, { useState } from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Laptop } from 'lucide-react'
 import ViewAssetSheet from '@/components/pages/protected/assets/view-asset-sheet'
-
-type AssetOwnerUser = {
-  id: string
-  displayName?: string | null
-  email?: string | null
-}
-
-type AssetOwnerGroup = {
-  id: string
-  displayName?: string | null
-}
-
-type AssetNode = {
-  id: string
-  name?: string | null
-  assetType?: unknown
-  internalOwner?: string | null
-  internalOwnerUser?: AssetOwnerUser | null
-  internalOwnerGroup?: AssetOwnerGroup | null
-}
+import { type PlatformLinkedAsset } from '@/lib/graphql-hooks/platform'
 
 interface PlatformAssetsTableProps {
-  platformId: string
-  inScopeAssets: AssetNode[]
-  outOfScopeAssets: AssetNode[]
-  canEdit: boolean
+  inScopeAssets: PlatformLinkedAsset[]
+  outOfScopeAssets: PlatformLinkedAsset[]
 }
 
 const HEADER_CELL = 'text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-2'
 const BODY_CELL = 'px-4 py-2.5 align-middle'
 
-const renderOwnerLabel = (asset: AssetNode) => {
+const renderOwnerLabel = (asset: PlatformLinkedAsset) => {
   const label = asset.internalOwnerUser?.displayName ?? asset.internalOwnerGroup?.displayName ?? asset.internalOwner ?? null
   if (!label) return <span className="text-muted-foreground">-</span>
   return (
@@ -45,7 +24,7 @@ const renderOwnerLabel = (asset: AssetNode) => {
   )
 }
 
-const AssetSection: React.FC<{ title: string; assets: AssetNode[]; outOfScope?: boolean; onRowClick: (id: string) => void }> = ({ title, assets, outOfScope, onRowClick }) => (
+const AssetSection: React.FC<{ title: string; assets: PlatformLinkedAsset[]; outOfScope?: boolean; onRowClick: (id: string) => void }> = ({ title, assets, outOfScope, onRowClick }) => (
   <div className="rounded-md border overflow-hidden">
     <div className="px-4 py-2 bg-muted/30 border-b">
       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
