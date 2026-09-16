@@ -12,14 +12,13 @@ import { cn } from '@repo/ui/lib/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { toHumanLabel } from '@/utils/strings'
 import { formatDate } from '@/utils/date'
-import { useUploadPlatformDiagram, useRemovePlatformDiagram } from '@/lib/graphql-hooks/platform'
+import { useUploadPlatformDiagram, useRemovePlatformDiagram, DIAGRAM_TYPES, type DiagramType, type PlatformDiagram } from '@/lib/graphql-hooks/platform'
 import { useGetEvidencesWithFileIds } from '@/lib/graphql-hooks/evidence'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { fileDownload } from '@/components/shared/lib/export'
 import MarkAsDiagramEvidenceDialog from './mark-as-diagram-evidence-dialog'
 import UnmarkDiagramEvidenceDialog from './unmark-diagram-evidence-dialog'
-
-export type DiagramType = 'architecture' | 'trust-boundary' | 'data-flow'
+import Skeleton from '@/components/shared/skeleton/skeleton'
 
 const diagramTypeLabel = (type: DiagramType) => `${toHumanLabel(type)} Diagram`
 
@@ -28,14 +27,6 @@ interface DiagramUploadedAtProps {
 }
 
 const DiagramUploadedAt: React.FC<DiagramUploadedAtProps> = ({ createdAt }) => (createdAt ? <span className="text-xs text-muted-foreground">Uploaded at: {formatDate(createdAt)}</span> : null)
-
-export interface PlatformDiagram {
-  id: string
-  type: DiagramType
-  name: string
-  url: string
-  createdAt: string | null
-}
 
 interface AddDiagramDialogProps {
   open: boolean
@@ -102,14 +93,16 @@ const AddDiagramDialog: React.FC<AddDiagramDialogProps> = ({ open, onOpenChange,
             <label className="text-sm font-medium" htmlFor={diagramTypeId}>
               Diagram Type
             </label>
-            <Select value={selectedType} onValueChange={(v) => setSelectedType(v as DiagramType)}>
+            <Select value={selectedType} onValueChange={(value) => setSelectedType(DIAGRAM_TYPES.find((type) => type === value) ?? '')}>
               <SelectTrigger id={diagramTypeId}>
                 <SelectValue placeholder="Select diagram type…" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="architecture">Architecture Diagram</SelectItem>
-                <SelectItem value="trust-boundary">Trust Boundary Diagram</SelectItem>
-                <SelectItem value="data-flow">Data Flow Diagram</SelectItem>
+                {DIAGRAM_TYPES.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {diagramTypeLabel(type)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -274,9 +267,10 @@ interface PlatformDiagramsSectionProps {
   platformName: string
   canEdit: boolean
   diagrams: PlatformDiagram[]
+  isLoading: boolean
 }
 
-const PlatformDiagramsSection: React.FC<PlatformDiagramsSectionProps> = ({ platformId, platformName, canEdit, diagrams }) => {
+const PlatformDiagramsSection: React.FC<PlatformDiagramsSectionProps> = ({ platformId, platformName, canEdit, diagrams, isLoading }) => {
   const { successNotification, errorNotification } = useNotification()
   const [addOpen, setAddOpen] = useState(false)
   const [expandedDiagram, setExpandedDiagram] = useState<PlatformDiagram | null>(null)
@@ -333,7 +327,9 @@ const PlatformDiagramsSection: React.FC<PlatformDiagramsSectionProps> = ({ platf
         )}
       </div>
 
-      {diagrams.length === 0 ? (
+      {isLoading ? (
+        <Skeleton width="100%" height="9rem" />
+      ) : diagrams.length === 0 ? (
         <div className="rounded-lg border border-dashed border-muted-foreground/30 py-10 flex flex-col items-center justify-center gap-2 text-muted-foreground">
           <ImagePlus size={24} className="opacity-40" />
           <p className="text-sm">{canEdit ? 'No diagrams yet. Click "Add Diagram" to upload one.' : 'No diagrams have been added.'}</p>

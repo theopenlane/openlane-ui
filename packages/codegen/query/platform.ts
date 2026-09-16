@@ -6,11 +6,25 @@ export const GET_ALL_PLATFORMS = gql`
       totalCount
       edges {
         node {
-          accessModelID
-          accessModelName
+          id
+          displayID
+          name
+          status
+          scopeName
+          environmentName
+          containsPii
+          businessPurpose
+          createdAt
+          createdBy
+          updatedAt
+          updatedBy
+          platformOwnerID
+          platformOwner {
+            id
+            displayName
+            email
+          }
           businessOwner
-          businessOwnerGroupID
-          businessOwnerUserID
           businessOwnerUser {
             id
             displayName
@@ -25,51 +39,7 @@ export const GET_ALL_PLATFORMS = gql`
             id
             name
           }
-          businessPurpose
-          containsPii
-          costCenter
-          createdAt
-          createdBy
-          criticalityID
-          criticalityName
-          dataFlowSummary
-          description
-          displayID
-          encryptionStatusID
-          encryptionStatusName
-          environmentID
-          environmentName
-          estimatedMonthlyCost
-          externalReferenceID
-          hasPendingWorkflow
-          hasWorkflowHistory
-          id
-          internalOwner
-          internalOwnerGroupID
-          internalOwnerUserID
-          metadata
-          name
-          physicalLocation
-          platformDataClassificationID
-          platformDataClassificationName
-          platformKindID
-          platformKindName
-          platformOwnerID
-          purchaseDate
-          region
-          scopeID
-          scopeName
-          scopeStatement
-          securityOwner
-          securityOwnerGroupID
-          securityOwnerUserID
-          securityTierID
-          securityTierName
-          sourceIdentifier
-          status
           technicalOwner
-          technicalOwnerGroupID
-          technicalOwnerUserID
           technicalOwnerUser {
             id
             displayName
@@ -84,10 +54,6 @@ export const GET_ALL_PLATFORMS = gql`
             id
             name
           }
-          trustBoundaryDescription
-          updatedAt
-          updatedBy
-          workflowEligibleMarker
         }
       }
       pageInfo {
@@ -119,15 +85,66 @@ export const PLATFORM_DIAGRAM_FILE_FIELDS_FRAGMENT = gql`
   }
 `
 
+export const PLATFORM_LINKED_ASSET_FIELDS_FRAGMENT = gql`
+  fragment PlatformLinkedAssetFields on Asset {
+    id
+    name
+    assetType
+    internalOwner
+    internalOwnerUser {
+      id
+      displayName
+      email
+    }
+    internalOwnerGroup {
+      id
+      displayName
+    }
+  }
+`
+
+export const PLATFORM_LINKED_VENDOR_FIELDS_FRAGMENT = gql`
+  fragment PlatformLinkedVendorFields on Entity {
+    id
+    name
+    displayName
+    status
+    logoFile {
+      base64
+    }
+    internalOwner
+    internalOwnerUser {
+      id
+      displayName
+      email
+    }
+    internalOwnerGroup {
+      id
+      displayName
+    }
+  }
+`
+
 export const PLATFORM = gql`
-  ${PLATFORM_DIAGRAM_FILE_FIELDS_FRAGMENT}
   query Platform($platformId: ID!) {
     platform(id: $platformId) {
-      accessModelID
-      accessModelName
+      id
+      name
+      description
+      status
+      scopeName
+      environmentName
+      containsPii
+      businessPurpose
+      dataFlowSummary
+      trustBoundaryDescription
+      platformOwnerID
+      platformOwner {
+        id
+        displayName
+        email
+      }
       businessOwner
-      businessOwnerGroupID
-      businessOwnerUserID
       businessOwnerUser {
         id
         displayName
@@ -142,84 +159,7 @@ export const PLATFORM = gql`
         id
         name
       }
-      businessPurpose
-      containsPii
-      costCenter
-      createdAt
-      createdBy
-      criticalityID
-      criticalityName
-      dataFlowSummary
-      description
-      displayID
-      encryptionStatusID
-      encryptionStatusName
-      environmentID
-      environmentName
-      estimatedMonthlyCost
-      externalReferenceID
-      hasPendingWorkflow
-      hasWorkflowHistory
-      id
-      internalOwner
-      internalOwnerGroupID
-      internalOwnerUserID
-      internalOwnerUser {
-        id
-        displayName
-        email
-      }
-      internalOwnerIdentityHolder {
-        id
-        fullName
-        email
-      }
-      internalOwnerGroup {
-        id
-        name
-      }
-      metadata
-      name
-      physicalLocation
-      platformDataClassificationID
-      platformDataClassificationName
-      platformKindID
-      platformKindName
-      platformOwnerID
-      platformOwner {
-        id
-        displayName
-        email
-      }
-      purchaseDate
-      region
-      scopeID
-      scopeName
-      scopeStatement
-      securityOwner
-      securityOwnerGroupID
-      securityOwnerUserID
-      securityOwnerUser {
-        id
-        displayName
-        email
-      }
-      securityOwnerIdentityHolder {
-        id
-        fullName
-        email
-      }
-      securityOwnerGroup {
-        id
-        name
-      }
-      securityTierID
-      securityTierName
-      sourceIdentifier
-      status
       technicalOwner
-      technicalOwnerGroupID
-      technicalOwnerUserID
       technicalOwnerUser {
         id
         displayName
@@ -234,114 +174,91 @@ export const PLATFORM = gql`
         id
         name
       }
-      trustBoundaryDescription
-      updatedAt
-      updatedBy
-      workflowEligibleMarker
+      internalOwner
+      internalOwnerUser {
+        id
+        displayName
+        email
+      }
+      internalOwnerIdentityHolder {
+        id
+        fullName
+        email
+      }
+      internalOwnerGroup {
+        id
+        name
+      }
+      securityOwner
+      securityOwnerUser {
+        id
+        displayName
+        email
+      }
+      securityOwnerIdentityHolder {
+        id
+        fullName
+        email
+      }
+      securityOwnerGroup {
+        id
+        name
+      }
+    }
+  }
+`
+
+export const PLATFORM_ASSETS = gql`
+  ${PLATFORM_LINKED_ASSET_FIELDS_FRAGMENT}
+  query PlatformAssets($platformId: ID!) {
+    platform(id: $platformId) {
+      id
       assets {
         edges {
           node {
-            id
-            name
-            assetType
-            internalOwner
-            internalOwnerUser {
-              id
-              displayName
-              email
-            }
-            internalOwnerIdentityHolder {
-              id
-              fullName
-              email
-            }
-            internalOwnerGroup {
-              id
-              displayName
-            }
+            ...PlatformLinkedAssetFields
           }
         }
       }
       outOfScopeAssets {
         edges {
           node {
-            id
-            name
-            assetType
-            internalOwner
-            internalOwnerUser {
-              id
-              displayName
-              email
-            }
-            internalOwnerIdentityHolder {
-              id
-              fullName
-              email
-            }
-            internalOwnerGroup {
-              id
-              displayName
-            }
+            ...PlatformLinkedAssetFields
           }
         }
       }
+    }
+  }
+`
+
+export const PLATFORM_VENDORS = gql`
+  ${PLATFORM_LINKED_VENDOR_FIELDS_FRAGMENT}
+  query PlatformVendors($platformId: ID!) {
+    platform(id: $platformId) {
+      id
       entities {
         edges {
           node {
-            id
-            name
-            displayName
-            status
-            logoFile {
-              base64
-            }
-            internalOwner
-            internalOwnerUser {
-              id
-              displayName
-              email
-            }
-            internalOwnerIdentityHolder {
-              id
-              fullName
-              email
-            }
-            internalOwnerGroup {
-              id
-              displayName
-            }
+            ...PlatformLinkedVendorFields
           }
         }
       }
       outOfScopeVendors {
         edges {
           node {
-            id
-            name
-            displayName
-            status
-            logoFile {
-              base64
-            }
-            internalOwner
-            internalOwnerUser {
-              id
-              displayName
-              email
-            }
-            internalOwnerIdentityHolder {
-              id
-              fullName
-              email
-            }
-            internalOwnerGroup {
-              id
-              displayName
-            }
+            ...PlatformLinkedVendorFields
           }
         }
       }
+    }
+  }
+`
+
+export const PLATFORM_DIAGRAMS = gql`
+  ${PLATFORM_DIAGRAM_FILE_FIELDS_FRAGMENT}
+  query PlatformDiagrams($platformId: ID!) {
+    platform(id: $platformId) {
+      id
       architectureDiagrams {
         edges {
           node {

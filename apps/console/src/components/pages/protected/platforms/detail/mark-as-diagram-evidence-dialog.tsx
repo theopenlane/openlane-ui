@@ -18,7 +18,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
-import { type DiagramType } from './platform-diagrams-section'
+import { type DiagramType } from '@/lib/graphql-hooks/platform'
 import { toHumanLabel } from '@/utils/strings'
 
 const markAsEvidenceSchema = z.object({
