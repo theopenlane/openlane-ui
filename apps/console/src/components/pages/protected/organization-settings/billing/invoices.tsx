@@ -8,26 +8,13 @@ import { type Invoice } from '@/types/stripe'
 import { DownloadIcon } from 'lucide-react'
 import { InvoiceRowSkeleton } from './skeleton/billing-page-skeleton'
 import { InvoiceList, InvoiceRow } from './invoice-list'
+import { useOpenBillingPortal } from '@/hooks/useBillingPortal'
 
 const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | undefined }) => {
   const { data: invoicesData, isLoading, error } = useInvoicesQuery(stripeCustomerId)
   const invoices = invoicesData?.invoices ?? []
   const showEmptyState = !isLoading && !error && invoices.length === 0
-
-  const handleManageBilling = async () => {
-    const res = await fetch('/api/stripe/create-portal-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customerId: stripeCustomerId, isBillingSettings: true }),
-    })
-
-    const data = await res.json()
-    if (data.url) {
-      window.location.href = data.url
-    } else {
-      console.error('❌ Portal error:', data.error)
-    }
-  }
+  const { openBillingPortal, redirecting } = useOpenBillingPortal()
   return (
     <div className="mt-10">
       <div className="flex justify-between items-center mb-4">
@@ -35,7 +22,7 @@ const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | unde
           Recent Invoices
         </h2>
         {stripeCustomerId && (
-          <Button className="h-8 p-2" onClick={handleManageBilling}>
+          <Button className="h-8 p-2" loading={redirecting} disabled={redirecting} onClick={() => openBillingPortal(stripeCustomerId, true)}>
             View all in stripe
           </Button>
         )}

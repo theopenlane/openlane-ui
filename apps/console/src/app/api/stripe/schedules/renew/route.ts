@@ -45,7 +45,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(updated)
   } catch (err: unknown) {
-    console.error('❌ Extend schedule failed:', err)
-    return NextResponse.json({ error: 'Failed to extend schedule' }, { status: 500 })
+    console.error('❌ Renew subscription failed:', err)
+    return NextResponse.json({ error: 'Failed to renew subscription' }, { status: 500 })
   }
 }
