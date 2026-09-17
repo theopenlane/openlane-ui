@@ -211,6 +211,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       prefill.subcontrolIDs = formData.objectAssociations.subcontrolIDs ?? []
 
       setLinkedPrograms(seededPrograms)
+      setEvidenceObjectTypes(formData.objectAssociations)
     }
 
     form.reset({ ...form.getValues(), ...prefill })
