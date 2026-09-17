@@ -829,6 +829,7 @@ type DataRowProps<TData extends RowData> = {
   rowHref?: (rowData: TData) => string
   cssVarKey: (id: string) => string
   columns: readonly ColumnDef<TData>[]
+  visibleColumnsKey: string
   renderExpandedRow?: (row: Row<TData>) => React.ReactNode
   rowDragDrop?: RowDragDropConfig<TData>
 }
@@ -1001,7 +1002,10 @@ interface DataTableBodyContentProps<TData extends RowData> {
 }
 
 function DataTableBodyContent<TData extends RowData>({ table, onRowClick, rowHref, loading, noDataMarkup, noResultsText, renderExpandedRow, rowDragDrop }: DataTableBodyContentProps<TData>) {
-  const columnOrderKey = table.state.columnOrder.join(',')
+  const visibleColumnsKey = table
+    .getVisibleLeafColumns()
+    .map((column) => column.id)
+    .join(',')
   return (
     <TableBody variant="data">
       {table.getRowModel().rows?.length ? (
@@ -1009,13 +1013,14 @@ function DataTableBodyContent<TData extends RowData>({ table, onRowClick, rowHre
           .getRowModel()
           .rows.map((row) => (
             <DataRow
-              key={`${row.id}-${columnOrderKey}`}
+              key={row.id}
               row={row}
               isExpanded={row.getIsExpanded()}
               onRowClick={onRowClick}
               rowHref={rowHref}
               cssVarKey={cssVarKey}
               columns={table.options.columns}
+              visibleColumnsKey={visibleColumnsKey}
               renderExpandedRow={renderExpandedRow}
               rowDragDrop={rowDragDrop}
             />
@@ -1031,6 +1036,7 @@ const MemoizedDataTableBody = memo(DataTableBodyContent, (prev, next) => {
   return (
     prev.table.options.data === next.table.options.data &&
     prev.table.state.columnOrder === next.table.state.columnOrder &&
+    prev.table.state.columnVisibility === next.table.state.columnVisibility &&
     prev.renderExpandedRow === next.renderExpandedRow &&
     prev.rowDragDrop === next.rowDragDrop &&
     prev.onRowClick === next.onRowClick &&
