@@ -1,7 +1,6 @@
 'use client'
 
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
-
 import { activatable } from '@repo/ui/lib/a11y'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
