@@ -5,7 +5,7 @@ import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '../generic-sheet'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { InfoIcon, User, Users, IdCardLanyard, Type, Check, X, ChevronDown } from 'lucide-react'
+import { InfoIcon, User, Users, Type, Check, X, ChevronDown } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { useMemo, useRef, useState } from 'react'
@@ -17,6 +17,7 @@ import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
 import { type ResponsibilitySelection, buildResponsibilityInlineUpdate } from './responsibility-field-utils'
 import { PersonnelOptionItem } from './personnel-option-item'
+import { ResponsibilitySelectionLabel } from './responsibility-type-icon'
 import { isValidEmail } from '@/lib/validators'
 import { cn } from '@repo/ui/lib/utils'
 
@@ -126,28 +127,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
     }
   }
 
-  const getTypeIcon = (type?: string) => {
-    switch (type) {
-      case 'personnel':
-        return <IdCardLanyard className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-      case 'user':
-        return <User className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-      case 'group':
-        return <Users className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-      case 'string':
-        return <Type className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-      default:
-        return null
-    }
-  }
-
-  const placeholderText = (name?: string) => {
-    if (name) {
-      return `Select ${name.toLowerCase()}...`
-    }
-
-    return 'Select owner...'
-  }
+  const placeholderText = label ? `Select ${label.toLowerCase()}...` : 'Select owner...'
 
   const normalizedSearchText = searchText.toLowerCase()
 
@@ -166,7 +146,6 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
       name={name}
       render={({ field }) => {
         const currentValue = field.value as ResponsibilitySelection
-        const currentLabel = currentValue ? currentValue.displayName || currentValue.value : ''
         const customEmailLabel = `Use "${searchText.trim()}" as custom email`
 
         return (
@@ -182,16 +161,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                   <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                       <div className="flex w-full items-center gap-2 rounded-md border bg-input px-3 py-2 text-sm cursor-pointer h-10" {...activatable(() => setOpen(true))}>
-                        {currentValue ? (
-                          <>
-                            {getTypeIcon(currentValue.type)}
-                            <span className="truncate" title={currentLabel}>
-                              {currentLabel}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-muted-foreground">{placeholderText(name)}</span>
-                        )}
+                        {currentValue ? <ResponsibilitySelectionLabel selection={currentValue} /> : <span className="text-muted-foreground">{placeholderText}</span>}
                         <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </div>
                     </PopoverTrigger>
@@ -294,16 +264,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                   className={cn('flex min-w-0 items-center gap-2 rounded-md px-1 py-2 text-sm cursor-pointer hover:bg-accent w-full', layout === 'horizontal' && 'justify-end')}
                   {...activatable(isEditAllowed ? handleClick : undefined)}
                 >
-                  {currentValue ? (
-                    <>
-                      {getTypeIcon(currentValue.type)}
-                      <span className="truncate" title={currentLabel}>
-                        {currentLabel}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-muted-foreground italic">Not set</span>
-                  )}
+                  {currentValue ? <ResponsibilitySelectionLabel selection={currentValue} /> : <span className="text-muted-foreground italic">Not set</span>}
                 </div>
               )}
             </FormControl>

@@ -25,6 +25,7 @@ import { type CreateVulnerabilityInput, type UpdateVulnerabilityInput, type GetV
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
+import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { VULNERABILITY_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
@@ -149,7 +150,7 @@ const VulnerabilityPage: React.FC = () => {
     createMutation,
     deleteMutation,
     buildPayload: async (data): Promise<CreateVulnerabilityInput | UpdateVulnerabilityInput> => {
-      const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, ...rest } = data
+      const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, assignedTo, reviewedBy, ...rest } = data
       const associationPayload = buildAssociationPayload(
         VULNERABILITY_ASSOCIATION_CONFIG.associationKeys,
         { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs },
@@ -162,6 +163,8 @@ const VulnerabilityPage: React.FC = () => {
       return {
         ...cleaned,
         ...associationPayload,
+        ...buildResponsibilityPayload('assignedTo', assignedTo, { mode: 'create' }),
+        ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: 'create' }),
       } as CreateVulnerabilityInput | UpdateVulnerabilityInput
     },
     getName,
@@ -197,6 +200,8 @@ const VulnerabilityPage: React.FC = () => {
       return result.updateBulkVulnerability
     },
     bulkEditFormSchema: bulkEditFieldSchema,
+    bulkEditFieldLabels: { assignedTo: 'Assignee' },
+    responsibilityFields: { assignedTo: { fieldBaseName: 'assignedTo' }, reviewedBy: { fieldBaseName: 'reviewedBy' } },
     enumOpts,
     defaultFilterValues: DEFAULT_FILTER_VALUES,
     beforeTable: (

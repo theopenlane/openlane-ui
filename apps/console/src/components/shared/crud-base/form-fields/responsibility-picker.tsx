@@ -2,7 +2,7 @@
 
 import { activatable } from '@repo/ui/lib/a11y'
 import { useMemo, useState } from 'react'
-import { User, Users, IdCardLanyard, Type, Check, X } from 'lucide-react'
+import { User, Users, Type, Check, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
@@ -12,39 +12,29 @@ import { useNotification } from '@/hooks/useNotification'
 import { type ResponsibilitySelection } from './responsibility-field-utils'
 import { PersonnelOptionItem } from './personnel-option-item'
 import { isValidEmail } from '@/lib/validators'
+import { ResponsibilitySelectionLabel } from './responsibility-type-icon'
+import { cn } from '@repo/ui/lib/utils'
 
-interface BulkResponsibilityPickerProps {
+interface ResponsibilityPickerProps {
   allowPersonnel?: boolean
   value: ResponsibilitySelection
   onChange: (selection: ResponsibilitySelection) => void
+  placeholder?: string
+  triggerClassName?: string
+  disabled?: boolean
 }
 
-export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> = ({ allowPersonnel = true, value, onChange }) => {
+export const ResponsibilityPicker: React.FC<ResponsibilityPickerProps> = ({ allowPersonnel = true, value, onChange, placeholder = 'Select owner...', triggerClassName, disabled = false }) => {
   const [open, setOpen] = useState(false)
   const [searchText, setSearchText] = useState('')
 
-  const { userOptions } = useUserSelect({})
-  const { groupOptions } = useGroupSelect()
+  const { userOptions } = useUserSelect({ enabled: open })
+  const { groupOptions } = useGroupSelect({ enabled: open })
   const { personnelOptions } = usePersonnelSelect({
     searchText,
     enabled: open && allowPersonnel,
   })
   const { errorNotification } = useNotification()
-
-  const getTypeIcon = (type?: string) => {
-    switch (type) {
-      case 'personnel':
-        return <IdCardLanyard className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-      case 'user':
-        return <User className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-      case 'group':
-        return <Users className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-      case 'string':
-        return <Type className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-      default:
-        return null
-    }
-  }
 
   const normalizedSearchText = searchText.toLowerCase()
 
@@ -57,7 +47,6 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
     [filteredUsers, filteredGroups, normalizedSearchText],
   )
 
-  const currentLabel = value ? value.displayName || value.value : ''
   const customEmailLabel = `Use "${searchText.trim()}" as custom email`
 
   const handleSelect = (selection: ResponsibilitySelection) => {
@@ -72,19 +61,14 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open && !disabled} onOpenChange={(next) => !disabled && setOpen(next)}>
       <PopoverTrigger asChild>
-        <div className="flex w-60 items-center gap-2 rounded-md border bg-input px-3 py-2 text-sm cursor-pointer h-10" {...activatable(() => setOpen(true))}>
-          {value ? (
-            <>
-              {getTypeIcon(value.type)}
-              <span className="truncate" title={currentLabel}>
-                {currentLabel}
-              </span>
-            </>
-          ) : (
-            <span className="text-muted-foreground">Select owner...</span>
-          )}
+        <div
+          aria-disabled={disabled || undefined}
+          className={cn('flex w-60 items-center gap-2 rounded-md border bg-input px-3 py-2 text-sm h-10', disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer', triggerClassName)}
+          {...activatable(disabled ? undefined : () => setOpen(true))}
+        >
+          {value ? <ResponsibilitySelectionLabel selection={value} /> : <span className="text-muted-foreground truncate">{placeholder}</span>}
         </div>
       </PopoverTrigger>
       <PopoverContent

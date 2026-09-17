@@ -2355,7 +2355,6 @@ export interface DirectoryAccountsWithFilterQuery {
         createdAt: any
         createdBy: string | null
         department: string | null
-        directorySyncRunID: string | null
         displayID: string
         displayName: string | null
         environmentID: string | null
@@ -2366,12 +2365,10 @@ export interface DirectoryAccountsWithFilterQuery {
         id: string
         integrationID: string | null
         jobTitle: string | null
-        lastLoginAt: any
         lastSeenIP: string | null
         observedAt: any
         organizationUnit: string | null
         profile: any
-        profileHash: string
         rawProfileFileID: string | null
         scopeID: string | null
         scopeName: string | null
@@ -2395,7 +2392,6 @@ export interface DirectoryAccountQuery {
     createdAt: any
     createdBy: string | null
     department: string | null
-    directorySyncRunID: string | null
     displayID: string
     displayName: string | null
     environmentID: string | null
@@ -2406,12 +2402,10 @@ export interface DirectoryAccountQuery {
     id: string
     integrationID: string | null
     jobTitle: string | null
-    lastLoginAt: any
     lastSeenIP: string | null
     observedAt: any
     organizationUnit: string | null
     profile: any
-    profileHash: string
     rawProfileFileID: string | null
     scopeID: string | null
     scopeName: string | null
@@ -2464,7 +2458,6 @@ export interface DirectoryGroupsWithFilterQuery {
         createdAt: any
         createdBy: string | null
         description: string | null
-        directorySyncRunID: string
         displayID: string
         displayName: string | null
         email: string | null
@@ -2477,7 +2470,6 @@ export interface DirectoryGroupsWithFilterQuery {
         memberCount: number | null
         observedAt: any
         profile: any
-        profileHash: string
         rawProfileFileID: string | null
         scopeID: string | null
         scopeName: string | null
@@ -2499,7 +2491,6 @@ export interface DirectoryGroupQuery {
     createdAt: any
     createdBy: string | null
     description: string | null
-    directorySyncRunID: string
     displayID: string
     displayName: string | null
     email: string | null
@@ -2512,7 +2503,6 @@ export interface DirectoryGroupQuery {
     memberCount: number | null
     observedAt: any
     profile: any
-    profileHash: string
     rawProfileFileID: string | null
     scopeID: string | null
     scopeName: string | null
@@ -2545,192 +2535,6 @@ export type DeleteDirectoryGroupMutationVariables = Exact<{
 
 export interface DeleteDirectoryGroupMutation {
   deleteDirectoryGroup: { deletedID: string }
-}
-
-export type DirectoryMembershipsWithFilterQueryVariables = Exact<{
-  where?: Types.DirectoryMembershipWhereInput | null | undefined
-  orderBy?: Array<Types.DirectoryMembershipOrder> | Types.DirectoryMembershipOrder | null | undefined
-  first?: number | null | undefined
-  after?: any
-  last?: number | null | undefined
-  before?: any
-}>
-
-export interface DirectoryMembershipsWithFilterQuery {
-  directoryMemberships: {
-    totalCount: number
-    edges: Array<{
-      node: {
-        createdAt: any
-        createdBy: string | null
-        directoryAccountID: string
-        directoryGroupID: string
-        directorySyncRunID: string
-        displayID: string
-        environmentID: string | null
-        environmentName: string | null
-        firstSeenAt: any
-        id: string
-        integrationID: string
-        lastConfirmedRunID: string | null
-        lastSeenAt: any
-        metadata: any
-        observedAt: any
-        scopeID: string | null
-        scopeName: string | null
-        source: string | null
-        updatedAt: any
-        updatedBy: string | null
-      } | null
-    } | null> | null
-    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
-  }
-}
-
-export type DirectoryMembershipQueryVariables = Exact<{
-  directoryMembershipId: string
-}>
-
-export interface DirectoryMembershipQuery {
-  directoryMembership: {
-    createdAt: any
-    createdBy: string | null
-    directoryAccountID: string
-    directoryGroupID: string
-    directorySyncRunID: string
-    displayID: string
-    environmentID: string | null
-    environmentName: string | null
-    firstSeenAt: any
-    id: string
-    integrationID: string
-    lastConfirmedRunID: string | null
-    lastSeenAt: any
-    metadata: any
-    observedAt: any
-    scopeID: string | null
-    scopeName: string | null
-    source: string | null
-    updatedAt: any
-    updatedBy: string | null
-  }
-}
-
-export type CreateDirectoryMembershipMutationVariables = Exact<{
-  input: Types.CreateDirectoryMembershipInput
-}>
-
-export interface CreateDirectoryMembershipMutation {
-  createDirectoryMembership: { directoryMembership: { id: string } }
-}
-
-export type UpdateDirectoryMembershipMutationVariables = Exact<{
-  updateDirectoryMembershipId: string
-  input: Types.UpdateDirectoryMembershipInput
-}>
-
-export interface UpdateDirectoryMembershipMutation {
-  updateDirectoryMembership: { directoryMembership: { id: string } }
-}
-
-export type DeleteDirectoryMembershipMutationVariables = Exact<{
-  deleteDirectoryMembershipId: string
-}>
-
-export interface DeleteDirectoryMembershipMutation {
-  deleteDirectoryMembership: { deletedID: string }
-}
-
-export type DirectorySyncRunsWithFilterQueryVariables = Exact<{
-  where?: Types.DirectorySyncRunWhereInput | null | undefined
-  orderBy?: Array<Types.DirectorySyncRunOrder> | Types.DirectorySyncRunOrder | null | undefined
-  first?: number | null | undefined
-  after?: any
-  last?: number | null | undefined
-  before?: any
-}>
-
-export interface DirectorySyncRunsWithFilterQuery {
-  directorySyncRuns: {
-    totalCount: number
-    edges: Array<{
-      node: {
-        completedAt: any
-        createdAt: any
-        createdBy: string | null
-        deltaCount: number
-        displayID: string
-        environmentID: string | null
-        environmentName: string | null
-        error: string | null
-        fullCount: number
-        id: string
-        integrationID: string
-        rawManifestFileID: string | null
-        scopeID: string | null
-        scopeName: string | null
-        sourceCursor: string | null
-        startedAt: any
-        stats: any
-        updatedAt: any
-        updatedBy: string | null
-      } | null
-    } | null> | null
-    pageInfo: { endCursor: any; startCursor: any; hasPreviousPage: boolean; hasNextPage: boolean }
-  }
-}
-
-export type DirectorySyncRunQueryVariables = Exact<{
-  directorySyncRunId: string
-}>
-
-export interface DirectorySyncRunQuery {
-  directorySyncRun: {
-    completedAt: any
-    createdAt: any
-    createdBy: string | null
-    deltaCount: number
-    displayID: string
-    environmentID: string | null
-    environmentName: string | null
-    error: string | null
-    fullCount: number
-    id: string
-    integrationID: string
-    rawManifestFileID: string | null
-    scopeID: string | null
-    scopeName: string | null
-    sourceCursor: string | null
-    startedAt: any
-    stats: any
-    updatedAt: any
-    updatedBy: string | null
-  }
-}
-
-export type CreateDirectorySyncRunMutationVariables = Exact<{
-  input: Types.CreateDirectorySyncRunInput
-}>
-
-export interface CreateDirectorySyncRunMutation {
-  createDirectorySyncRun: { directorySyncRun: { id: string } }
-}
-
-export type UpdateDirectorySyncRunMutationVariables = Exact<{
-  updateDirectorySyncRunId: string
-  input: Types.UpdateDirectorySyncRunInput
-}>
-
-export interface UpdateDirectorySyncRunMutation {
-  updateDirectorySyncRun: { directorySyncRun: { id: string } }
-}
-
-export type DeleteDirectorySyncRunMutationVariables = Exact<{
-  deleteDirectorySyncRunId: string
-}>
-
-export interface DeleteDirectorySyncRunMutation {
-  deleteDirectorySyncRun: { deletedID: string }
 }
 
 export type CreateDiscussionMutationVariables = Exact<{
@@ -9849,7 +9653,8 @@ export interface VulnerabilitiesWithFilterQuery {
     totalCount: number
     edges: Array<{
       node: {
-        assignedToUserID: string | null
+        assignedTo: string | null
+        reviewedBy: string | null
         blocking: boolean | null
         category: string | null
         createdAt: any
@@ -9898,6 +9703,12 @@ export interface VulnerabilitiesWithFilterQuery {
         vector: string | null
         vulnerabilityStatusName: string | null
         vulnerableVersionRange: string | null
+        assignedToUser: { id: string; displayName: string } | null
+        assignedToGroup: { id: string; displayName: string } | null
+        assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
+        reviewedByUser: { id: string; displayName: string } | null
+        reviewedByGroup: { id: string; displayName: string } | null
+        reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
         remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
       } | null
     } | null> | null
@@ -9911,7 +9722,8 @@ export type VulnerabilityQueryVariables = Exact<{
 
 export interface VulnerabilityQuery {
   vulnerability: {
-    assignedToUserID: string | null
+    assignedTo: string | null
+    reviewedBy: string | null
     blocking: boolean | null
     category: string | null
     createdAt: any
@@ -9961,6 +9773,12 @@ export interface VulnerabilityQuery {
     vector: string | null
     vulnerabilityStatusName: string | null
     vulnerableVersionRange: string | null
+    assignedToUser: { id: string; displayName: string } | null
+    assignedToGroup: { id: string; displayName: string } | null
+    assignedToIdentityHolder: { id: string; fullName: string; email: string } | null
+    reviewedByUser: { id: string; displayName: string } | null
+    reviewedByGroup: { id: string; displayName: string } | null
+    reviewedByIdentityHolder: { id: string; fullName: string; email: string } | null
     integrations: { totalCount: number }
     remediations: { totalCount: number; edges: Array<{ node: { id: string } | null } | null> | null }
   }

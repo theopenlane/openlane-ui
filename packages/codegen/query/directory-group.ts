@@ -9,7 +9,6 @@ export const GET_ALL_DIRECTORY_GROUPS = gql`
           createdAt
           createdBy
           description
-          directorySyncRunID
           displayID
           displayName
           email
@@ -22,7 +21,6 @@ export const GET_ALL_DIRECTORY_GROUPS = gql`
           memberCount
           observedAt
           profile
-          profileHash
           rawProfileFileID
           scopeID
           scopeName
@@ -47,7 +45,6 @@ export const DIRECTORY_GROUP = gql`
       createdAt
       createdBy
       description
-      directorySyncRunID
       displayID
       displayName
       email
@@ -60,7 +57,6 @@ export const DIRECTORY_GROUP = gql`
       memberCount
       observedAt
       profile
-      profileHash
       rawProfileFileID
       scopeID
       scopeName

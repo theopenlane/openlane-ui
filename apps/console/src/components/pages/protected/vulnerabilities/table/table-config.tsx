@@ -151,6 +151,7 @@ export const visibilityFields = {
   environmentName: false,
   scopeName: false,
   externalOwnerID: false,
+  reviewedBy: false,
   externalURI: false,
   summary: false,
   description: false,

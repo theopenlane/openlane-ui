@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const { toKebab, toUpperSnake, pluralizeTypeName, isExcludedType, EXCLUDED_FIELDS, EXCLUDED_ASSOCIATIONS } = require('./lib')
+const { toKebab, toUpperSnake, pluralizeTypeName, isExcludedCrudType, EXCLUDED_FIELDS, EXCLUDED_ASSOCIATIONS } = require('./lib')
 
 const schemaPath = path.join(__dirname, '..', 'src', 'schema-types.ts')
 const queryOutputDir = path.join(__dirname, '..', 'query')
@@ -21,7 +21,7 @@ const nodeTypes = matches
       fields: extractFields(m[2]),
     }
   })
-  .filter((nt) => !isExcludedType(nt.name))
+  .filter((nt) => !isExcludedCrudType(nt.name))
 
 function isScalarField(fieldType) {
   // Matches Scalars['TYPE']['output'] or Maybe<Scalars['TYPE']['output']>
@@ -249,6 +249,6 @@ for (const nodeType of nodeTypes) {
 
 // Count excluded types
 const allMatches = [...schemaContent.matchAll(nodeTypeRegex)]
-excludedCount = allMatches.filter((m) => isExcludedType(m[1])).length
+excludedCount = allMatches.filter((m) => isExcludedCrudType(m[1])).length
 
 console.log(`\nSummary: Created ${createdCount} files, skipped ${skippedCount} existing files, excluded ${excludedCount} types`)
