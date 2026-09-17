@@ -15,7 +15,7 @@ export const formId = 'edit' + ObjectNames.SYSTEM_DETAIL
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Registry', href: '/registry/system-details' },
+  { label: 'Registry', href: '/registry' },
   { label: 'System Details', href: '/registry/system-details' },
 ]
 

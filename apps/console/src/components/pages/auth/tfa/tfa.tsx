@@ -122,7 +122,7 @@ const TfaPage: React.FC = () => {
       <h1 className="text-3xl mb-20 text-text-light">Two-Factor Authentication</h1>
       <div className="flex flex-col items-center gap-4">
         <p className="text-sm text-text-light">{config.title}</p>
-        <InputOTP value={otpValue} maxLength={otpLength} onChange={handleOtpChange} containerClassName="gap-2">
+        <InputOTP key={otpLength} autoFocus value={otpValue} maxLength={otpLength} onChange={handleOtpChange} containerClassName="gap-2">
           <InputOTPGroup className="text-text-light">
             {Array.from({ length: otpLength }).map((_, index) => (
               <InputOTPSlot key={index} index={index} />

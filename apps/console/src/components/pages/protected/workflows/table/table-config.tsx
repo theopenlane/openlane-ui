@@ -6,7 +6,7 @@ import { enumToSortFields } from '@/components/shared/crud-base/utils'
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Automation', href: '/automation/workflows' },
+  { label: 'Automation', href: '/automation' },
   { label: 'Workflows', href: '/automation/workflows' },
 ]
 

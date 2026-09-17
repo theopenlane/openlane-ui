@@ -1,14 +1,16 @@
 'use client'
 
 import React from 'react'
-import { useSession, signOut } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import { Button } from '@repo/ui/button'
 import { useOrganization } from '@/hooks/useOrganization'
+import { useSignOut } from '@/hooks/useSignOut'
 import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
 import { SUPPORT_LOGIN_URL } from '@/constants'
 
 const ImpersonationBanner: React.FC = () => {
   const { data: session } = useSession()
+  const signOut = useSignOut()
   const { getOrganizationByID } = useOrganization()
   const isImpersonation = !!session?.user?.isImpersonation
   const orgId = session?.user?.activeOrganizationId

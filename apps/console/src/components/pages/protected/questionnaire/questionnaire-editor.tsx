@@ -143,7 +143,7 @@ const QuestionnaireEditor = (input: { templateId: string; existingId: string }) 
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/questionnaires' },
+      { label: 'Automation', href: '/automation' },
       { label: 'Questionnaires', href: '/automation/questionnaires' },
       { label: 'Questionnaire Editor', href: '/automation/questionnaires/questionnaire-editor' },
     ])

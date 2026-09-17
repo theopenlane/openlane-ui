@@ -12,7 +12,7 @@ const CommunicationsPage: React.FC = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/email-templates' },
+      { label: 'Automation', href: '/automation' },
       { label: 'Email Templates', href: '/automation/email-templates' },
     ])
   }, [setCrumbs])

@@ -96,7 +96,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Registry', href: '/registry/platforms' },
+      { label: 'Registry', href: '/registry' },
       { label: 'Platforms', href: '/registry/platforms' },
       { label: platform?.name ?? '', isLoading },
     ])
