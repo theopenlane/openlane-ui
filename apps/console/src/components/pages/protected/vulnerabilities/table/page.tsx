@@ -1,5 +1,6 @@
 'use client'
 
+import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
@@ -33,6 +34,16 @@ import { useSlaQuickFilters } from '@/hooks/useSla'
 import type { Value } from 'platejs'
 
 const DEFAULT_FILTER_VALUES = { open: true }
+
+const normalizeData = (data: VulnerabilitiesNodeNonNull) =>
+  normalizeEntityData(data, {
+    internalOwner: {
+      personnel: data.internalOwnerIdentityHolder,
+      user: data.internalOwnerUser,
+      group: data.internalOwnerGroup,
+      stringValue: data.internalOwner,
+    },
+  })
 
 const VulnerabilityPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -148,8 +159,9 @@ const VulnerabilityPage: React.FC = () => {
     updateMutation,
     createMutation,
     deleteMutation,
+    normalizeData,
     buildPayload: async (data): Promise<CreateVulnerabilityInput | UpdateVulnerabilityInput> => {
-      const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, ...rest } = data
+      const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, internalOwner, ...rest } = data
       const associationPayload = buildAssociationPayload(
         VULNERABILITY_ASSOCIATION_CONFIG.associationKeys,
         { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs },
@@ -162,6 +174,7 @@ const VulnerabilityPage: React.FC = () => {
       return {
         ...cleaned,
         ...associationPayload,
+        ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
       } as CreateVulnerabilityInput | UpdateVulnerabilityInput
     },
     getName,
@@ -197,6 +210,7 @@ const VulnerabilityPage: React.FC = () => {
       return result.updateBulkVulnerability
     },
     bulkEditFormSchema: bulkEditFieldSchema,
+    responsibilityFields: { internalOwner: { fieldBaseName: 'internalOwner' } },
     enumOpts,
     defaultFilterValues: DEFAULT_FILTER_VALUES,
     beforeTable: (

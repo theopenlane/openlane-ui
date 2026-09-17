@@ -1,3 +1,4 @@
+import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 import { type ColumnDef } from '@repo/ui/table-types'
 import { type VulnerabilitiesNodeNonNull } from '@/lib/graphql-hooks/vulnerability'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
@@ -89,6 +90,20 @@ export const getColumns = ({
     { accessorKey: 'public', header: 'Public', size: 80, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
+    {
+      accessorKey: 'internalOwner',
+      header: 'Internal Owner',
+      size: 160,
+      cell: ({ row }) => (
+        <ResponsibilityCell
+          userMap={userMap}
+          user={row.original.internalOwnerUser}
+          group={row.original.internalOwnerGroup}
+          personnel={row.original.internalOwnerIdentityHolder}
+          stringValue={row.original.internalOwner}
+        />
+      ),
+    },
     { accessorKey: 'externalOwnerID', header: 'External Owner', size: 140 },
     { accessorKey: 'externalURI', header: 'External URI', size: 160 },
     { accessorKey: 'summary', header: 'Summary', size: 200, cell: ({ row }) => <TruncatedCell>{row.original.summary || '-'}</TruncatedCell> },

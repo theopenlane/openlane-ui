@@ -64,8 +64,8 @@ const CreateRiskForm: React.FC = () => {
           ...preserved,
           name: '',
           businessCosts: values.businessCosts,
-          stakeholder: stakeholder ? { ...stakeholder, noClearOtherFields: true } : undefined,
-          delegate: delegate ? { ...delegate, noClearOtherFields: true } : undefined,
+          stakeholder: stakeholder,
+          delegate: delegate,
         })
       } else {
         router.push(`/exposure/risks/${createdRisk.createRisk.risk.id}`)

@@ -110,9 +110,9 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
       <Card className="p-4 bg-card rounded-xl shadow-xs">
         <h3 className="text-lg font-medium mb-4">Owners</h3>
         <div className="flex flex-col gap-3">
-          <ResponsibilityField name="stakeholder" fieldBaseName="stakeholder" label="Stakeholder" icon={<UserRound className={iconClass} />} {...sharedFieldProps} groupOnly={true} />
+          <ResponsibilityField name="stakeholder" fieldBaseName="stakeholder" label="Stakeholder" icon={<UserRound className={iconClass} />} {...sharedFieldProps} />
 
-          <ResponsibilityField name="delegate" fieldBaseName="delegate" label="Delegate" icon={<UserRoundCheck className={iconClass} />} groupOnly={true} {...sharedFieldProps} />
+          <ResponsibilityField name="delegate" fieldBaseName="delegate" label="Delegate" icon={<UserRoundCheck className={iconClass} />} {...sharedFieldProps} />
         </div>
       </Card>
       <Card className="p-4 bg-card rounded-xl shadow-xs">

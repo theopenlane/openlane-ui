@@ -1,5 +1,7 @@
 'use client'
 
+import { BulkResponsibilityPicker } from '@/components/shared/crud-base/form-fields/bulk-responsibility-picker'
+
 import React, { useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form'
@@ -186,7 +188,13 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                       </div>
                       {item.selectedObject &&
                         !isObjectAssociation &&
-                        (item.selectedObject.inputType === InputType.Select ? (
+                        (item.selectedObject.inputType === InputType.Responsibility ? (
+                          <Controller
+                            control={control}
+                            name={`fieldsArray.${index}.selectedResponsibility`}
+                            render={({ field }) => <BulkResponsibilityPicker value={field.value} onChange={field.onChange} />}
+                          />
+                        ) : item.selectedObject.inputType === InputType.Select ? (
                           <div className="flex flex-col items-center gap-2">
                             {item.selectedObject.name === 'riskKindName' || item.selectedObject.name === 'riskCategoryName' ? (
                               <CreatableCustomTypeEnumSelect

@@ -1,5 +1,7 @@
 'use client'
 
+import { normalizeResponsibilityField, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
@@ -107,8 +109,13 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
         mitigation: data.risk.mitigation ?? undefined,
         businessCosts: data.risk.businessCosts ?? undefined,
         tags: data.risk.tags || [],
-        stakeholder: data.risk.stakeholder ? { type: 'group', value: data.risk.stakeholder.id, displayName: data.risk.stakeholder.displayName, noClearOtherFields: true } : undefined,
-        delegate: data.risk.delegate ? { type: 'group', value: data.risk.delegate.id, displayName: data.risk.delegate.displayName, noClearOtherFields: true } : undefined,
+        stakeholder: normalizeResponsibilityField({
+          user: data.risk.stakeholderUser,
+          group: data.risk.stakeholderGroup,
+          personnel: data.risk.stakeholderIdentityHolder,
+          stringValue: data.risk.stakeholderName,
+        }),
+        delegate: normalizeResponsibilityField({ user: data.risk.delegateUser, group: data.risk.delegateGroup, personnel: data.risk.delegateIdentityHolder, stringValue: data.risk.delegateName }),
         reviewRequired: data.risk.reviewRequired ?? true,
         reviewFrequency: data.risk.reviewFrequency ?? '',
         nextReviewDueAt: data.risk.nextReviewDueAt ?? '',
@@ -137,8 +144,11 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
       const businessCosts = changedFields.businessCosts ? await plateEditorHelper.convertToHtml(changedFields.businessCosts as Value) : undefined
       const mitigation = changedFields.mitigation ? await plateEditorHelper.convertToHtml(changedFields.mitigation as Value) : undefined
 
+      const { stakeholder: _stakeholder, delegate: _delegate, ...rest } = changedFields
       const input: UpdateRiskInput = {
-        ...changedFields,
+        ...rest,
+        ...('stakeholder' in changedFields ? buildResponsibilityPayload('stakeholder', values.stakeholder, { mode: 'update' }) : {}),
+        ...('delegate' in changedFields ? buildResponsibilityPayload('delegate', values.delegate, { mode: 'update' }) : {}),
         details,
         businessCosts,
         mitigation,

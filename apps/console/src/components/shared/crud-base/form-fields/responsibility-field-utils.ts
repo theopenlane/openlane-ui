@@ -60,9 +60,9 @@ export function normalizeResponsibilityField(input: ResponsibilityFieldInput): R
     }
   }
 
-  if (input.personnel?.id || input.personnelID) {
-    const id = input.personnel?.id || input.personnelID!
-    return { type: 'personnel', value: id, displayName: input.personnel?.fullName || input.personnel?.email || id }
+  const personnelID = input.personnel?.id || input.personnelID
+  if (personnelID) {
+    return { type: 'personnel', value: personnelID, displayName: input.personnel?.fullName || input.personnel?.email || personnelID }
   }
 
   if (input.stringValue) {

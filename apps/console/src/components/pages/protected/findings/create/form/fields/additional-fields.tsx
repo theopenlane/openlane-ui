@@ -1,27 +1,28 @@
 'use client'
 
-import { activatable } from '@repo/ui/lib/a11y'
-import React, { useState, useEffect } from 'react'
-import { useFormContext, type FieldValues } from 'react-hook-form'
-import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
-import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
-import { type UpdateFindingInput, FindingSecurityLevel } from '@repo/codegen/src/schema'
+import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
-import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
-import { TruncatedCell } from '@repo/ui/data-table'
-import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
-import { Textarea } from '@repo/ui/textarea'
-import { FormItem, FormLabel } from '@repo/ui/form'
-import { cn } from '@repo/ui/lib/utils'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import { formatDateTime } from '@/utils/date'
 import { normalizeUrl } from '@/utils/normalizeUrl'
-import { SeverityChip } from '@/components/shared/severity/severity-chip'
 import { toUpperSnakeCase } from '@/utils/strings'
+import { FindingSecurityLevel, type UpdateFindingInput } from '@repo/codegen/src/schema'
+import { Badge } from '@repo/ui/badge'
+import { Button } from '@repo/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/cardpanel'
+import { TruncatedCell } from '@repo/ui/data-table'
+import { FormItem, FormLabel } from '@repo/ui/form'
+import { activatable } from '@repo/ui/lib/a11y'
+import { cn } from '@repo/ui/lib/utils'
+import { Textarea } from '@repo/ui/textarea'
+import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { useFormContext, type FieldValues } from 'react-hook-form'
+import { type EnumCreateHandlers, type EnumOptions } from '../../../table/types'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -85,6 +86,9 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           <CardDescription className="p-0">Identifiers and classification for the finding</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4">
+            <ResponsibilityField name="internalOwner" fieldBaseName="internalOwner" label="Internal Owner" {...sharedFieldProps} />
+          </div>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
             <SelectField name="findingStatusName" label="Status" options={enumOptions.findingStatusOptions} onCreateOption={enumCreateHandlers?.findingStatusName} {...sharedFieldProps} />
             <TextField name="priority" label="Priority" {...sharedFieldProps} />

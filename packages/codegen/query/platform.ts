@@ -24,6 +24,24 @@ export const GET_ALL_PLATFORMS = gql`
             displayName
             email
           }
+          internalOwner
+          internalOwnerUserID
+          internalOwnerGroupID
+          internalOwnerIdentityHolderID
+          internalOwnerUser {
+            id
+            displayName
+            email
+          }
+          internalOwnerGroup {
+            id
+            displayName
+          }
+          internalOwnerIdentityHolder {
+            id
+            fullName
+            email
+          }
           businessOwner
           businessOwnerUser {
             id
@@ -138,12 +156,6 @@ export const PLATFORM = gql`
       businessPurpose
       dataFlowSummary
       trustBoundaryDescription
-      platformOwnerID
-      platformOwner {
-        id
-        displayName
-        email
-      }
       businessOwner
       businessOwnerUser {
         id
@@ -173,6 +185,12 @@ export const PLATFORM = gql`
       technicalOwnerGroup {
         id
         name
+      }
+      platformOwnerID
+      platformOwner {
+        id
+        displayName
+        email
       }
       internalOwner
       internalOwnerUser {

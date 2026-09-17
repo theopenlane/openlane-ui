@@ -1,5 +1,5 @@
 import { type ColumnDef } from '@repo/ui/table-types'
-import { type Group, type RiskRiskStatus, type RiskTableFieldsFragment, type User } from '@repo/codegen/src/schema.ts'
+import { type RiskRiskStatus, type RiskTableFieldsFragment, type User } from '@repo/codegen/src/schema.ts'
 import { type AuthorToken } from '@/lib/authors'
 import React from 'react'
 import RiskLabel from '@/components/pages/protected/risks/risk-label.tsx'
@@ -75,16 +75,11 @@ export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedR
       size: 90,
     },
     {
-      accessorKey: 'stakeholder',
+      id: 'stakeholder',
+      accessorFn: (risk) =>
+        risk.stakeholderUser?.displayName ?? risk.stakeholderGroup?.displayName ?? risk.stakeholderIdentityHolder?.fullName ?? risk.stakeholderIdentityHolder?.email ?? risk.stakeholderName ?? '',
       header: 'Stakeholder',
-      meta: {
-        exportPrefix: 'stakeholder.displayName',
-      },
-      cell: ({ row }) => {
-        const stakeholder = row.original.stakeholder
-        const riskId = row.original.id
-        return <StakeholderCell stakeholder={stakeholder as Group | null} riskId={riskId} />
-      },
+      cell: ({ row }) => <StakeholderCell risk={row.original} />,
       size: 120,
     },
     {
@@ -94,17 +89,11 @@ export const getRiskColumns = ({ userMap, tokenMap, convertToReadOnly, selectedR
       size: 200,
     },
     {
-      accessorKey: 'delegate',
+      id: 'delegate',
+      accessorFn: (risk) => risk.delegateUser?.displayName ?? risk.delegateGroup?.displayName ?? risk.delegateIdentityHolder?.fullName ?? risk.delegateIdentityHolder?.email ?? risk.delegateName ?? '',
       header: 'Delegate',
-      meta: {
-        exportPrefix: 'delegate.displayName',
-      },
       size: 160,
-      cell: ({ row }) => {
-        const delegate = row.original.delegate
-        const riskId = row.original.id
-        return <DelegateCell delegate={delegate as Group | null} riskId={riskId} />
-      },
+      cell: ({ row }) => <DelegateCell risk={row.original} />,
     },
     {
       accessorKey: 'details',

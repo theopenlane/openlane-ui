@@ -1,17 +1,17 @@
 'use client'
 
-import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
-import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
-import { type IdentityHolderQuery, type UpdateIdentityHolderInput, type IdentityHolderUserStatus } from '@repo/codegen/src/schema'
+import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
+import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
-import { PersonnelStatusIconMapper } from '@/components/shared/enum-mapper/personnel-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { PersonnelStatusIconMapper } from '@/components/shared/enum-mapper/personnel-enum'
 import { formatPhoneNumber } from '@/utils/strings'
-import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
+import { type IdentityHolderQuery, type IdentityHolderUserStatus, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/cardpanel'
 import { EmailAliasesField } from '../../../email-aliases-field'
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
+import { type EnumCreateHandlers, type EnumOptions } from '../../../table/types'
 
 interface AdditionalFieldsProps {
   isEditing: boolean

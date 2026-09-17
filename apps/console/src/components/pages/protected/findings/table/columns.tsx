@@ -1,20 +1,20 @@
-import { type ColumnDef } from '@repo/ui/table-types'
-import { type FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
-import { type ColumnOptions } from '@/components/shared/crud-base/page'
-import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
-import { AuthorCell } from '@/components/shared/user-display/author-cell'
-import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
-import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Button } from '@repo/ui/button'
-import { MoreHorizontal, ShieldCheck, ListTodo } from 'lucide-react'
-import { SeverityChip } from '@/components/shared/severity/severity-chip'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { type SlaDaysByLevel } from '@/lib/sla'
+import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
+import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { SlaDueDateCell } from '@/components/shared/crud-base/columns/sla-due-date-cell'
-import React from 'react'
+import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
+import { type ColumnOptions } from '@/components/shared/crud-base/page'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { SeverityChip } from '@/components/shared/severity/severity-chip'
+import { AuthorCell } from '@/components/shared/user-display/author-cell'
+import { type FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
+import { type SlaDaysByLevel } from '@/lib/sla'
+import { Button } from '@repo/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { type ColumnDef } from '@repo/ui/table-types'
+import { ListTodo, MoreHorizontal, ShieldCheck } from 'lucide-react'
 
 type FindingColumnOptions = ColumnOptions & {
   onTrackRemediation?: (row: FindingsNodeNonNull) => void
@@ -61,6 +61,20 @@ export const getColumns = ({
     { accessorKey: 'public', header: 'Public', size: 80, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     { accessorKey: 'blocksProduction', header: 'Blocks Production', size: 130, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     { accessorKey: 'externalID', header: 'External ID', size: 150 },
+    {
+      accessorKey: 'internalOwner',
+      header: 'Internal Owner',
+      size: 160,
+      cell: ({ row }) => (
+        <ResponsibilityCell
+          userMap={userMap}
+          user={row.original.internalOwnerUser}
+          group={row.original.internalOwnerGroup}
+          personnel={row.original.internalOwnerIdentityHolder}
+          stringValue={row.original.internalOwner}
+        />
+      ),
+    },
     { accessorKey: 'externalOwnerID', header: 'External Owner', size: 140 },
     { accessorKey: 'externalURI', header: 'External URI', size: 160 },
     { accessorKey: 'source', header: 'Source', size: 120 },

@@ -20,17 +20,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ inputClassName }) => {
           <span className="text-sm">Stakeholder</span>
         </div>
         <div className="w-50 min-w-0">
-          <ResponsibilityField
-            name="stakeholder"
-            fieldBaseName="stakeholder"
-            label=""
-            isCreate={true}
-            internalEditing={null}
-            setInternalEditing={() => {}}
-            isEditing={false}
-            isEditAllowed={true}
-            groupOnly={true}
-          />
+          <ResponsibilityField name="stakeholder" fieldBaseName="stakeholder" label="" isCreate={true} internalEditing={null} setInternalEditing={() => {}} isEditing={false} isEditAllowed={true} />
         </div>
 
         {/* Delegate */}
@@ -39,17 +29,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ inputClassName }) => {
           <span className="text-sm">Delegate</span>
         </div>
         <div className="w-50 min-w-0">
-          <ResponsibilityField
-            name="delegate"
-            fieldBaseName="delegate"
-            label=""
-            groupOnly={true}
-            isCreate={true}
-            internalEditing={null}
-            setInternalEditing={() => {}}
-            isEditing={false}
-            isEditAllowed={true}
-          />
+          <ResponsibilityField name="delegate" fieldBaseName="delegate" label="" isCreate={true} internalEditing={null} setInternalEditing={() => {}} isEditing={false} isEditAllowed={true} />
         </div>
       </div>
     </Card>
