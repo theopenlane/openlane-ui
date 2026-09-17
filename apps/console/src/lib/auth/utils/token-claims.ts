@@ -9,6 +9,7 @@ export const ACCESS_REFRESH_FALLBACK_BUFFER_MS = 60_000
 export interface TimeClaims {
   exp?: number
   nbf?: number
+  jti?: string
 }
 
 export const decodeTimeClaims = (token: string): TimeClaims | null => {

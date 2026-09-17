@@ -10,10 +10,25 @@ import { fetchCSRFToken, invalidateCSRFToken, isCSRFRejection } from './auth/uti
 import { probeSession, resetSessionProbe, SessionUnavailableError } from './auth/utils/session-health'
 import { clearSSOReauthRequired, getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
 import { ACCESS_EXPIRY_MARGIN_MS, tokenExpiresAt } from './auth/utils/token-claims'
+import { describeToken, logSessionEvent } from './auth/utils/session-log'
 
 export { getIsSessionInvalid, markSessionExpired } from './auth/utils/session-status'
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
+
+const readOperationName = (body: BodyInit | null | undefined): string | null => {
+  if (typeof body !== 'string') {
+    return null
+  }
+
+  try {
+    const parsed: { operationName?: string } = JSON.parse(body)
+
+    return parsed.operationName ?? null
+  } catch {
+    return null
+  }
+}
 
 let resyncPromise: Promise<Session | null> | null = null
 
@@ -28,6 +43,9 @@ export const currentAccessToken = async (options?: { maxAgeMs?: number; notBefor
   const accessToken = probe.status === 'available' ? probe.session.user?.accessToken : undefined
 
   if (!accessToken) {
+    logSessionEvent('warn', 'session ended: the session route no longer returns a token', {
+      probe: probe.status,
+    })
     notifySessionExpired()
     throw new Error('Session expired')
   }
@@ -146,6 +164,12 @@ export const useFetchWithRetry = () => {
         headers.set('Authorization', `Bearer ${refreshedAccessToken}`)
         void resyncSession()
         response = await makeRequest()
+      } else {
+        logSessionEvent('warn', 'request rejected and the session produced the same token, not retrying', {
+          url: typeof requestUrl === 'string' ? requestUrl : requestUrl.url,
+          operation: readOperationName(init?.body),
+          token: describeToken(refreshedAccessToken),
+        })
       }
     }
 
