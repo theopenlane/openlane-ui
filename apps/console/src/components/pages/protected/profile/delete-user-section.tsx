@@ -8,9 +8,9 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useState } from 'react'
-import { signOut } from 'next-auth/react'
 import { Trash2 } from 'lucide-react'
 import { ManagementRow } from '@/components/pages/protected/organization-settings/general-settings/management-row'
+import { useSignOut } from '@/hooks/useSignOut'
 
 const DELETE_USER_DESCRIPTION = 'Permanently delete your account and remove all associated data. This action cannot be undone.'
 const OWNER_TOOLTIP = 'You must transfer ownership or delete all organizations you own before deleting your account.'
@@ -21,6 +21,7 @@ type DeleteUserSectionProps = {
 
 const DeleteUserSection: React.FC<DeleteUserSectionProps> = ({ userId }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const signOut = useSignOut()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteUser } = useDeleteUser()
   const { isOwner, isLoading, isError } = useIsOwnerInAnyOrg(userId)

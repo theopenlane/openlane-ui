@@ -2,39 +2,24 @@
 
 import { GraphQLClient } from 'graphql-request'
 import { csrfCookieName, csrfHeader } from '@repo/dally/auth'
-import { jwtDecode } from 'jwt-decode'
 import { getCookie } from './auth/utils/getCookie'
 import type { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { fetchCSRFToken, invalidateCSRFToken, isCSRFRejection } from './auth/utils/secure-fetch'
-import { probeSession, SessionUnavailableError } from './auth/utils/session-health'
+import { probeSession, resetSessionProbe, SessionUnavailableError } from './auth/utils/session-health'
 import { clearSSOReauthRequired, getIsSessionInvalid, notifySessionExpired, reportSSORequirementFromResponse } from './auth/utils/session-status'
+import { ACCESS_EXPIRY_MARGIN_MS, tokenExpiresAt } from './auth/utils/token-claims'
 
 export { getIsSessionInvalid, markSessionExpired } from './auth/utils/session-status'
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
-const ACCESS_REFRESH_BUFFER_MS = 60_000
 
 let resyncPromise: Promise<Session | null> | null = null
 
-const accessTokenExpiresAt = (accessToken?: string | null): number => {
-  if (!accessToken) {
-    return 0
-  }
-
-  try {
-    const { exp } = jwtDecode<{ exp?: number }>(accessToken)
-
-    return exp ? exp * 1000 : Number.POSITIVE_INFINITY
-  } catch {
-    return 0
-  }
-}
-
 // currentAccessToken asks the session route for the token pair, which refreshes it server side when due
-export const currentAccessToken = async (maxAgeMs?: number): Promise<string> => {
-  const probe = await probeSession({ maxAgeMs })
+export const currentAccessToken = async (options?: { maxAgeMs?: number; notBefore?: number }): Promise<string> => {
+  const probe = await probeSession(options)
 
   if (probe.status === 'unavailable') {
     throw new SessionUnavailableError(probe.retryAfterMs)
@@ -67,6 +52,7 @@ export const useSessionResync = () => {
   return useCallback(() => {
     if (!resyncPromise) {
       resyncPromise = updateRef.current().finally(() => {
+        resetSessionProbe()
         resyncPromise = null
       })
     }
@@ -79,7 +65,7 @@ export const useFetchWithRetry = () => {
   const { data: session } = useSession()
   const resyncSession = useSessionResync()
   const sessionAccessToken = session?.user?.accessToken
-  const accessExpiresAt = useMemo(() => accessTokenExpiresAt(sessionAccessToken), [sessionAccessToken])
+  const accessExpiresAt = useMemo(() => tokenExpiresAt(sessionAccessToken), [sessionAccessToken])
 
   const fetchWithRetry = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     if (getIsSessionInvalid()) {
@@ -90,7 +76,7 @@ export const useFetchWithRetry = () => {
 
     let accessToken = sessionAccessToken
 
-    if (!accessToken || Date.now() >= accessExpiresAt - ACCESS_REFRESH_BUFFER_MS) {
+    if (!accessToken || accessExpiresAt === null || Date.now() >= accessExpiresAt - ACCESS_EXPIRY_MARGIN_MS) {
       accessToken = await currentAccessToken()
       void resyncSession()
     }
@@ -153,9 +139,14 @@ export const useFetchWithRetry = () => {
     }
 
     if (response.status === 401 && !getIsSessionInvalid()) {
-      headers.set('Authorization', `Bearer ${await currentAccessToken(0)}`)
-      void resyncSession()
-      response = await makeRequest()
+      const rejectedAt = Date.now()
+      const refreshedAccessToken = await currentAccessToken({ notBefore: rejectedAt })
+
+      if (refreshedAccessToken !== accessToken) {
+        headers.set('Authorization', `Bearer ${refreshedAccessToken}`)
+        void resyncSession()
+        response = await makeRequest()
+      }
     }
 
     if (response.ok) {

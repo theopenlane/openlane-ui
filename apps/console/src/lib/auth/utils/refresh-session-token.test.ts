@@ -148,7 +148,7 @@ describe('refreshSessionToken', () => {
       expect(token).not.toBeNull()
     }
 
-    expect(refreshed).toHaveLength(6)
+    expect(refreshed).toHaveLength(7)
   })
 
   test('signs an idle user out at the refresh token lifetime', async () => {

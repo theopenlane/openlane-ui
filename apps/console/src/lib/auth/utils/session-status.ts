@@ -17,6 +17,12 @@ export const markSessionExpired = () => {
   resetSessionProbe()
 }
 
+export const clearSessionExpired = () => {
+  if (!isSessionInvalid) return
+  isSessionInvalid = false
+  resetSessionProbe()
+}
+
 export const notifySessionExpired = () => {
   if (isSessionInvalid) return
   markSessionExpired()

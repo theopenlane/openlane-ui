@@ -1,6 +1,6 @@
 'use client'
 
-import { signOut, useSession } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import { userMenuStyles } from './user-menu.styles'
 import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSeparator } from '@repo/ui/dropdown-menu'
@@ -10,6 +10,7 @@ import { Avatar, type AvatarEntityLike } from '../avatar/avatar'
 import { Computer, Keyboard, LogOut, Moon, PaintbrushVertical, Sun, TextSearch, UserCog } from 'lucide-react'
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 import { useRouter } from 'next/navigation'
+import { useSignOut } from '@/hooks/useSignOut'
 interface UserMenuProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -17,6 +18,7 @@ interface UserMenuProps {
 
 export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
   const router = useRouter()
+  const handleSignOut = useSignOut()
   const { setTheme, theme } = useTheme()
   const { data: sessionData } = useSession()
   const { trigger, email } = userMenuStyles()
@@ -123,7 +125,7 @@ export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
 
         <DropdownMenuSeparator spacing="md" className="border-b mt-1 mb-1 mt-3" />
 
-        <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => signOut()}>
+        <Button size="md" variant="transparent" full className="justify-start gap-1 pl-2" onClick={() => void handleSignOut()}>
           <LogOut size={16} className="text-muted-foreground" />
           <span>Log out</span>
         </Button>
